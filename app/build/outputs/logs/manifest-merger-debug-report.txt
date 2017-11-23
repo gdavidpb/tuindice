@@ -1,0 +1,233 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:2:1-60:12
+INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:2:1-60:12
+INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:2:1-60:12
+INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:2:1-60:12
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.7.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-2.7.1.aar/1362fa549a2a3e779eb8574d77d479db/AndroidManifest.xml:2:1-19:12
+MERGED from [com.android.support:design:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/design-27.0.1.aar/57d5b82117068d83a46fdf154565f9ab/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-v4:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-v4-27.0.1.aar/f8b369e64c818ab144c4bc7f7f9d6735/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:cardview-v7:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/cardview-v7-27.0.1.aar/2661ec8dbb2d95685d22bd531636365c/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:appcompat-v7:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.0.1.aar/683c17d7ad47cea1b53a4d26b6528996/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:animated-vector-drawable:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-27.0.1.aar/912179b33bfd12d8d3dad0535ece06ac/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-vector-drawable:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-vector-drawable-27.0.1.aar/fe6bff33e7db2045c5afc9c8ddf607ae/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:recyclerview-v7:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/recyclerview-v7-27.0.1.aar/bc6b2150dfd82774a6ecea5ada9ad929/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:transition:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/transition-27.0.1.aar/31a4f1f81bc7e51a42723125247016ea/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-media-compat:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-media-compat-27.0.1.aar/9c59ca45afa0693496932485d7bcc768/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-fragment:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-fragment-27.0.1.aar/6164cae8504bc8fdf6addfb5961caa8f/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-core-utils:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-core-utils-27.0.1.aar/d5e10a56823fac7bf922daf7accc4321/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-core-ui:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-core-ui-27.0.1.aar/e1ee8abc5189dd1fee59305774ad730b/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-compat:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-compat-27.0.1.aar/16a79cafbc01cd66af54582a3509aab5/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support.constraint:constraint-layout:1.0.2] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/constraint-layout-1.0.2.aar/6ae0e1d68db6769709385699d70863b2/AndroidManifest.xml:2:1-11:12
+MERGED from [com.crashlytics.sdk.android:beta:1.2.7] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/beta-1.2.7.aar/c04e9a5ece10168598385912fbfa56cf/AndroidManifest.xml:2:1-13:12
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-core-2.4.1.aar/75aa6e4cad73b5aea2bf746da214fa56/AndroidManifest.xml:45:1-56:12
+MERGED from [com.crashlytics.sdk.android:answers:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/answers-1.4.1.aar/078ff6b1e5918b47851ffa937e869175/AndroidManifest.xml:2:1-13:12
+MERGED from [io.fabric.sdk.android:fabric:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/fabric-1.4.1.aar/fa7d6f596d6649402cd86ad4f8f340cc/AndroidManifest.xml:22:1-33:12
+MERGED from [android.arch.lifecycle:runtime:1.0.0] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/runtime-1.0.0.aar/5882077d24771cc6ba55f238c4ccbbb2/AndroidManifest.xml:17:1-30:12
+INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:2:1-60:12
+INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:2:1-60:12
+INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:2:1-60:12
+	package
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:4:5-36
+		INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+		INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:2:1-60:12
+		INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+	xmlns:tools
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:3:5-51
+	android:versionCode
+		INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:2:1-60:12
+		INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:2:11-69
+uses-permission#android.permission.VIBRATE
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:6:5-66
+	android:name
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:6:22-63
+uses-permission#android.permission.INTERNET
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:7:5-67
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.7.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-2.7.1.aar/1362fa549a2a3e779eb8574d77d479db/AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.7.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-2.7.1.aar/1362fa549a2a3e779eb8574d77d479db/AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:beta:1.2.7] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/beta-1.2.7.aar/c04e9a5ece10168598385912fbfa56cf/AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:beta:1.2.7] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/beta-1.2.7.aar/c04e9a5ece10168598385912fbfa56cf/AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-core-2.4.1.aar/75aa6e4cad73b5aea2bf746da214fa56/AndroidManifest.xml:52:5-67
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-core-2.4.1.aar/75aa6e4cad73b5aea2bf746da214fa56/AndroidManifest.xml:52:5-67
+MERGED from [com.crashlytics.sdk.android:answers:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/answers-1.4.1.aar/078ff6b1e5918b47851ffa937e869175/AndroidManifest.xml:9:5-67
+MERGED from [com.crashlytics.sdk.android:answers:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/answers-1.4.1.aar/078ff6b1e5918b47851ffa937e869175/AndroidManifest.xml:9:5-67
+MERGED from [io.fabric.sdk.android:fabric:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/fabric-1.4.1.aar/fa7d6f596d6649402cd86ad4f8f340cc/AndroidManifest.xml:29:5-67
+MERGED from [io.fabric.sdk.android:fabric:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/fabric-1.4.1.aar/fa7d6f596d6649402cd86ad4f8f340cc/AndroidManifest.xml:29:5-67
+	android:name
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:7:22-64
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:8:5-79
+	android:name
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:8:22-76
+application
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:10:5-58:19
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.7.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-2.7.1.aar/1362fa549a2a3e779eb8574d77d479db/AndroidManifest.xml:11:5-17:19
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.7.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-2.7.1.aar/1362fa549a2a3e779eb8574d77d479db/AndroidManifest.xml:11:5-17:19
+MERGED from [com.android.support.constraint:constraint-layout:1.0.2] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/constraint-layout-1.0.2.aar/6ae0e1d68db6769709385699d70863b2/AndroidManifest.xml:9:5-20
+MERGED from [com.android.support.constraint:constraint-layout:1.0.2] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/constraint-layout-1.0.2.aar/6ae0e1d68db6769709385699d70863b2/AndroidManifest.xml:9:5-20
+MERGED from [com.crashlytics.sdk.android:beta:1.2.7] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/beta-1.2.7.aar/c04e9a5ece10168598385912fbfa56cf/AndroidManifest.xml:11:5-20
+MERGED from [com.crashlytics.sdk.android:beta:1.2.7] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/beta-1.2.7.aar/c04e9a5ece10168598385912fbfa56cf/AndroidManifest.xml:11:5-20
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-core-2.4.1.aar/75aa6e4cad73b5aea2bf746da214fa56/AndroidManifest.xml:54:5-20
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-core-2.4.1.aar/75aa6e4cad73b5aea2bf746da214fa56/AndroidManifest.xml:54:5-20
+MERGED from [com.crashlytics.sdk.android:answers:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/answers-1.4.1.aar/078ff6b1e5918b47851ffa937e869175/AndroidManifest.xml:11:5-20
+MERGED from [com.crashlytics.sdk.android:answers:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/answers-1.4.1.aar/078ff6b1e5918b47851ffa937e869175/AndroidManifest.xml:11:5-20
+MERGED from [io.fabric.sdk.android:fabric:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/fabric-1.4.1.aar/fa7d6f596d6649402cd86ad4f8f340cc/AndroidManifest.xml:31:5-20
+MERGED from [io.fabric.sdk.android:fabric:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/fabric-1.4.1.aar/fa7d6f596d6649402cd86ad4f8f340cc/AndroidManifest.xml:31:5-20
+MERGED from [android.arch.lifecycle:runtime:1.0.0] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/runtime-1.0.0.aar/5882077d24771cc6ba55f238c4ccbbb2/AndroidManifest.xml:24:5-28:19
+MERGED from [android.arch.lifecycle:runtime:1.0.0] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/runtime-1.0.0.aar/5882077d24771cc6ba55f238c4ccbbb2/AndroidManifest.xml:24:5-28:19
+	android:supportsRtl
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:16:9-35
+	android:label
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:14:9-41
+	tools:ignore
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:18:9-48
+	android:roundIcon
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:15:9-54
+	android:icon
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:13:9-43
+	android:allowBackup
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:12:9-36
+	android:theme
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:17:9-50
+	android:name
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:11:9-45
+meta-data#io.fabric.ApiKey
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:19:9-21:72
+	android:value
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:21:13-69
+	android:name
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:20:13-44
+activity#com.gdavidpb.tuindice.activities.MainActivity
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:23:9-31:20
+	android:label
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:25:13-45
+	android:name
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:24:13-52
+intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:26:13-30:29
+action#android.intent.action.MAIN
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:27:17-69
+	android:name
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:27:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:29:17-77
+	android:name
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:29:27-74
+activity#com.gdavidpb.tuindice.activities.LoginActivity
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:33:9-39:57
+	android:screenOrientation
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:38:13-49
+	android:label
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:36:13-45
+	android:excludeFromRecents
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:35:13-46
+	android:noHistory
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:37:13-37
+	android:theme
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:39:13-54
+	android:name
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:34:13-53
+activity#com.gdavidpb.tuindice.activities.AboutActivity
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:41:9-46:57
+	android:screenOrientation
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:45:13-49
+	android:parentActivityName
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:43:13-66
+	android:label
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:44:13-49
+	android:theme
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:46:13-54
+	android:name
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:42:13-53
+activity#com.gdavidpb.tuindice.activities.DemoActivity
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:48:9-50:58
+	android:theme
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:50:13-56
+	android:name
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:49:13-52
+service#com.gdavidpb.tuindice.models.DstService
+ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:52:9-56:44
+	android:enabled
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:54:13-35
+	android:exported
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:55:13-37
+	android:stopWithTask
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:56:13-41
+	android:name
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml:53:13-46
+uses-sdk
+INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.7.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-2.7.1.aar/1362fa549a2a3e779eb8574d77d479db/AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:crashlytics:2.7.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-2.7.1.aar/1362fa549a2a3e779eb8574d77d479db/AndroidManifest.xml:7:5-43
+MERGED from [com.android.support:design:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/design-27.0.1.aar/57d5b82117068d83a46fdf154565f9ab/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:design:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/design-27.0.1.aar/57d5b82117068d83a46fdf154565f9ab/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-v4:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-v4-27.0.1.aar/f8b369e64c818ab144c4bc7f7f9d6735/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-v4:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-v4-27.0.1.aar/f8b369e64c818ab144c4bc7f7f9d6735/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:cardview-v7:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/cardview-v7-27.0.1.aar/2661ec8dbb2d95685d22bd531636365c/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:cardview-v7:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/cardview-v7-27.0.1.aar/2661ec8dbb2d95685d22bd531636365c/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:appcompat-v7:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.0.1.aar/683c17d7ad47cea1b53a4d26b6528996/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:appcompat-v7:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.0.1.aar/683c17d7ad47cea1b53a4d26b6528996/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:animated-vector-drawable:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-27.0.1.aar/912179b33bfd12d8d3dad0535ece06ac/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:animated-vector-drawable:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-27.0.1.aar/912179b33bfd12d8d3dad0535ece06ac/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-vector-drawable-27.0.1.aar/fe6bff33e7db2045c5afc9c8ddf607ae/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-vector-drawable-27.0.1.aar/fe6bff33e7db2045c5afc9c8ddf607ae/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:recyclerview-v7:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/recyclerview-v7-27.0.1.aar/bc6b2150dfd82774a6ecea5ada9ad929/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:recyclerview-v7:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/recyclerview-v7-27.0.1.aar/bc6b2150dfd82774a6ecea5ada9ad929/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:transition:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/transition-27.0.1.aar/31a4f1f81bc7e51a42723125247016ea/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:transition:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/transition-27.0.1.aar/31a4f1f81bc7e51a42723125247016ea/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-media-compat:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-media-compat-27.0.1.aar/9c59ca45afa0693496932485d7bcc768/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-media-compat:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-media-compat-27.0.1.aar/9c59ca45afa0693496932485d7bcc768/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-fragment:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-fragment-27.0.1.aar/6164cae8504bc8fdf6addfb5961caa8f/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-fragment:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-fragment-27.0.1.aar/6164cae8504bc8fdf6addfb5961caa8f/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-utils:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-core-utils-27.0.1.aar/d5e10a56823fac7bf922daf7accc4321/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-utils:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-core-utils-27.0.1.aar/d5e10a56823fac7bf922daf7accc4321/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-ui:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-core-ui-27.0.1.aar/e1ee8abc5189dd1fee59305774ad730b/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-ui:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-core-ui-27.0.1.aar/e1ee8abc5189dd1fee59305774ad730b/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-compat:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-compat-27.0.1.aar/16a79cafbc01cd66af54582a3509aab5/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-compat:27.0.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/support-compat-27.0.1.aar/16a79cafbc01cd66af54582a3509aab5/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support.constraint:constraint-layout:1.0.2] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/constraint-layout-1.0.2.aar/6ae0e1d68db6769709385699d70863b2/AndroidManifest.xml:5:5-7:41
+MERGED from [com.android.support.constraint:constraint-layout:1.0.2] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/constraint-layout-1.0.2.aar/6ae0e1d68db6769709385699d70863b2/AndroidManifest.xml:5:5-7:41
+MERGED from [com.crashlytics.sdk.android:beta:1.2.7] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/beta-1.2.7.aar/c04e9a5ece10168598385912fbfa56cf/AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:beta:1.2.7] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/beta-1.2.7.aar/c04e9a5ece10168598385912fbfa56cf/AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-core-2.4.1.aar/75aa6e4cad73b5aea2bf746da214fa56/AndroidManifest.xml:50:5-43
+MERGED from [com.crashlytics.sdk.android:crashlytics-core:2.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-core-2.4.1.aar/75aa6e4cad73b5aea2bf746da214fa56/AndroidManifest.xml:50:5-43
+MERGED from [com.crashlytics.sdk.android:answers:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/answers-1.4.1.aar/078ff6b1e5918b47851ffa937e869175/AndroidManifest.xml:7:5-43
+MERGED from [com.crashlytics.sdk.android:answers:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/answers-1.4.1.aar/078ff6b1e5918b47851ffa937e869175/AndroidManifest.xml:7:5-43
+MERGED from [io.fabric.sdk.android:fabric:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/fabric-1.4.1.aar/fa7d6f596d6649402cd86ad4f8f340cc/AndroidManifest.xml:27:5-43
+MERGED from [io.fabric.sdk.android:fabric:1.4.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/fabric-1.4.1.aar/fa7d6f596d6649402cd86ad4f8f340cc/AndroidManifest.xml:27:5-43
+MERGED from [android.arch.lifecycle:runtime:1.0.0] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/runtime-1.0.0.aar/5882077d24771cc6ba55f238c4ccbbb2/AndroidManifest.xml:20:5-22:41
+MERGED from [android.arch.lifecycle:runtime:1.0.0] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/runtime-1.0.0.aar/5882077d24771cc6ba55f238c4ccbbb2/AndroidManifest.xml:20:5-22:41
+INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+		INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+		ADDED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+		INJECTED from /home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/src/main/AndroidManifest.xml
+provider#com.crashlytics.android.CrashlyticsInitProvider
+ADDED from [com.crashlytics.sdk.android:crashlytics:2.7.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-2.7.1.aar/1362fa549a2a3e779eb8574d77d479db/AndroidManifest.xml:12:9-16:39
+	android:authorities
+		ADDED from [com.crashlytics.sdk.android:crashlytics:2.7.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-2.7.1.aar/1362fa549a2a3e779eb8574d77d479db/AndroidManifest.xml:14:13-75
+	android:exported
+		ADDED from [com.crashlytics.sdk.android:crashlytics:2.7.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-2.7.1.aar/1362fa549a2a3e779eb8574d77d479db/AndroidManifest.xml:15:13-37
+	android:initOrder
+		ADDED from [com.crashlytics.sdk.android:crashlytics:2.7.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-2.7.1.aar/1362fa549a2a3e779eb8574d77d479db/AndroidManifest.xml:16:13-36
+	android:name
+		ADDED from [com.crashlytics.sdk.android:crashlytics:2.7.1] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/crashlytics-2.7.1.aar/1362fa549a2a3e779eb8574d77d479db/AndroidManifest.xml:13:13-75
+meta-data#android.arch.lifecycle.VERSION
+ADDED from [android.arch.lifecycle:runtime:1.0.0] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/runtime-1.0.0.aar/5882077d24771cc6ba55f238c4ccbbb2/AndroidManifest.xml:25:9-27:47
+	android:value
+		ADDED from [android.arch.lifecycle:runtime:1.0.0] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/runtime-1.0.0.aar/5882077d24771cc6ba55f238c4ccbbb2/AndroidManifest.xml:27:13-44
+	android:name
+		ADDED from [android.arch.lifecycle:runtime:1.0.0] /home/gdavidpb/.gradle/caches/transforms-1/files-1.1/runtime-1.0.0.aar/5882077d24771cc6ba55f238c4ccbbb2/AndroidManifest.xml:26:13-58

@@ -1,0 +1,11 @@
+#Internal package file, do not edit.
+#Tue Nov 21 19:56:47 VET 2017
+1.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/assets/debug
+0.baseType=DIRECTORY
+1.baseType=DIRECTORY
+count=2
+1.set=ASSET
+0.path=fonts/Code.ttf
+0.set=ASSET
+0.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/assets/debug
+1.path=crashlytics-build.properties

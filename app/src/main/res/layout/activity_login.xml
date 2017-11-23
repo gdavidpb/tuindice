@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cLayoutMain"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.gdavidpb.tuindice.activities.LoginActivity"
+    android:background="@color/colorTextIcon"
+    android:animateLayoutChanges="true">
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0.15"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.gdavidpb.tuindice.views.CustomImageView
+            android:id="@+id/backgroundOne"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:src="@drawable/background_pattern"
+            android:contentDescription="@string/app_name" />
+
+        <com.gdavidpb.tuindice.views.CustomImageView
+            android:id="@+id/backgroundTwo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:src="@drawable/background_pattern"
+            android:contentDescription="@string/app_name" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/lLayoutLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        tools:visibility="visible"
+        android:visibility="gone"
+        android:layout_marginTop="@dimen/margin_xxlarge"
+        android:layout_marginLeft="@dimen/margin_xxlarge"
+        android:layout_marginRight="@dimen/margin_xxlarge"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/iViewLogo"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/size_logo"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/app_name"
+            tools:src="@drawable/ic_launcher" />
+
+        <TextSwitcher
+            android:id="@+id/tSwitcherWelcome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_medium"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:inAnimation="@android:anim/slide_in_left"
+            android:outAnimation="@android:anim/slide_out_right" />
+
+        <ProgressBar
+            android:id="@+id/pBarLogging"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_large"
+            android:layout_marginTop="@dimen/margin_large"
+            android:indeterminate="true"
+            android:visibility="gone"/>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/tInputUsbId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hintUsbId"
+            android:textColorHint="@color/colorAccent">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/eTextUsbId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:drawableStart="@drawable/ic_account"
+                tools:drawableTint="@color/colorAccent"
+                android:drawablePadding="@dimen/margin_medium"
+                android:imeOptions="actionNext"
+                android:inputType="number"
+                android:maxLength="8"
+                android:saveEnabled="true" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/tInputPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/hintPassword"
+            app:passwordToggleEnabled="true">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/eTextPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawablePadding="@dimen/margin_medium"
+                android:imeOptions="actionDone"
+                android:inputType="textPassword"
+                android:maxLength="25"
+                android:saveEnabled="true"
+                android:selectAllOnFocus="true" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <CheckBox
+            android:id="@+id/cBoxTerms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_medium"
+            android:saveEnabled="true"
+            android:text="@string/cBoxTerms" />
+
+    </LinearLayout>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/bLogin"
+        android:layout_width="@dimen/size_button"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        tools:visibility="visible"
+        android:visibility="gone"
+        android:layout_margin="@dimen/margin_xxlarge"
+        android:padding="@dimen/margin_medium"
+        android:filterTouchesWhenObscured="true"
+        android:text="@string/bLogin"
+        android:textColor="@color/colorTextIcon"
+        app:backgroundTint="@color/colorAccent" />
+
+</android.support.constraint.ConstraintLayout>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FFC107</color>
+    <color name="colorPrimaryDark">#FFA000</color>
+    <color name="colorAccent">#FFC107</color>
+    <color name="colorTextIcon">#FFFFFF</color>
+    <color name="colorPrimaryText">#212121</color>
+    <color name="colorSecondaryText">#757575</color>
+    <color name="colorBackgroundLight">#F5F5F5</color>
+    <color name="colorBackgroundDark">#9E9E9E</color>
+    <color name="colorWarning">#F44336</color>
+    <color name="colorDisabled">#B0BEC5</color>
+    <color name="colorTickMarkH">#E0E0E0</color>
+    <color name="colorTickMarkL">#9E9E9E</color>
+    <color name="colorTransparent">#AA000000</color>
+
+    <color name="quarterCompleted">#B0BEC5</color>
+    <color name="quarterCurrent">#FFC107</color>
+    <color name="quarterGuess">#80FFC107</color>
+</resources>

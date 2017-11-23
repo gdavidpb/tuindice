@@ -1,0 +1,197 @@
+<resources>
+    <!-- Android Studio issue -->
+    <item name="visible" type="id" />
+    <item name="masked" type="id" />
+
+    <string name="app_name">TuIndice</string>
+    <string name="app_title">%1$04d - %2$s</string>
+
+    <string name="action_about">Acerca de…</string>
+    <string name="action_demo">Tutorial…</string>
+    <string name="action_exit">Cerrar sesión</string>
+
+    <!-- Simple words -->
+    <string name="beta">beta</string>
+    <string name="alpha">alpha</string>
+    <string name="accept">Aceptar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="close">Cerrar</string>
+    <string name="exit">Salir</string>
+    <string name="remove">Quitar</string>
+    <string name="decline">Rechazar</string>
+    <string name="retry">Reintentar</string>
+    <string name="retired">Retirada</string>
+    <string name="noEffect">Sin Efecto</string>
+    <string name="send">Enviar</string>
+    <string name="gotIt">Entendido</string>
+    <string name="share">Compartir…</string>
+    <string name="empty">Aquí no hay nada aún ;)</string>
+
+    <!-- Main Activity -->
+    <string name="tabData">Mis Datos</string>
+    <string name="tabSummary">Informe Académico</string>
+
+    <string name="grade">%1$d / 5</string>
+    <string name="gradeSum"><b>∑x</b> %1$.4f</string>
+    <string name="gradeDiff"><b>Δx</b> %1$.4f</string>
+    <string name="quarterCredits"><b>⦿</b> %1$d Crs.</string>
+    <string name="subjectTitle">%1$s (%2$s)</string>
+    <string name="subjectCredits">%1$d Cr.</string>
+
+    <!-- Login Activity -->
+    <string name="hintUsbId">USBID</string>
+    <string name="hintPassword">Contraseña</string>
+
+    <string name="cBoxTerms">Acepto los <b>Términos y condiciones</b></string>
+    <string name="bLogin">Iniciar Sesión</string>
+
+    <string name="errorEmpty">Campo vacío</string>
+    <string name="errorUSBID">USBID inválido</string>
+    <string name="errorPassword">Contraseña inválida</string>
+
+    <string name="messageConnecting">Conectando con Usb.ve…</string>
+    <string name="messageLogging">Iniciando sesión…</string>
+    <string name="messageCollecting">Recolectando información…</string>
+    <string name="messagePersonal">Datos adicionales…</string>
+    <string name="messageThisLogin">Obteniendo comprobante…</string>
+    <string name="messageThis">Trimestre actual…</string>
+    <string name="messageFinishing">Finalizando…</string>
+    <string name="messageReady">Estamos listos para comenzar!</string>
+
+    <string-array name="messageWelcome">
+        <item>TuIndice</item>
+        <item>Una nueva forma…</item>
+        <item>…de administrar tus notas</item>
+    </string-array>
+
+    <!-- Demo activity -->
+    <string name="demoWelcome">¡Bienvenido!</string>
+
+    <string-array name="demoMessages">
+        <item>Así lucen los trimestres <b>terminados</b>…</item>
+        <item>Y así el trimestre en <b>curso</b>…</item>
+        <item><b>Δx</b> índice del trimestre en curso</item>
+        <item><b>∑x</b> índice acumulado hasta el momento</item>
+        <item><b>⦿</b> total créditos inscritos</item>
+        <item>Arrastra para <b>modificar</b> las notas de las materias en curso</item>
+        <item>Puedes <b>retirar</b> una materia moviendo la barra de notas hasta el inicio</item>
+        <item>Los créditos en <b>rojo</b> indican que estás por debajo del límite válido</item>
+        <item>El índice acumulado en <b>rojo</b> indica que estás por debajo de 3.0000</item>
+    </string-array>
+
+    <string-array name="demoKeys">
+        <item>terminados</item>
+        <item>curso</item>
+        <item>Δx</item>
+        <item>∑x</item>
+        <item>⦿</item>
+        <item>modificar</item>
+        <item>retirar</item>
+        <item>rojo</item>
+        <item>rojo</item>
+    </string-array>
+
+    <integer-array name="demoColors">
+        <item>@color/quarterCompleted</item>
+        <item>@color/quarterCurrent</item>
+        <item>@color/quarterCurrent</item>
+        <item>@color/quarterCurrent</item>
+        <item>@color/quarterCurrent</item>
+        <item>@color/quarterCurrent</item>
+        <item>@color/quarterCurrent</item>
+        <item>@color/colorWarning</item>
+        <item>@color/colorWarning</item>
+    </integer-array>
+
+    <!-- About activity -->
+    <string name="aboutVersion">Versión\n%1$s-%2$d (%3$s)</string>
+    <string name="aboutLicense">Creative Commons\nBY-NC 4.0</string>
+    <string name="aboutTerns">Términos y condiciones\nAlgunas cosas que debes saber</string>
+    <string name="aboutShare">Compartir\nInvita a un amigo a descargar la aplicación</string>
+    <string name="aboutRate">Puntúa\n¡Dale las 5 estrellas!</string>
+
+    <string name="aboutShareMessage">
+        TuIndice: Una nueva forma de administrar tus notas\n\n
+        Disponible en Google Play\n
+        https://play.google.com/store/apps/details?id=%s
+    </string>
+
+    <string name="aboutDevTitle">Desarrollador</string>
+    <string name="aboutDevInfo">Gerardo Prado\nCaracas, Venezuela</string>
+    <string name="aboutDevContact">Contacto\nInformar errores o solicitar nuevas funciones</string>
+
+    <string name="aboutSendEmail">Enviar correo electrónico…</string>
+    <string name="aboutNoEmailClient">No hay clientes de correo electrónico instalados</string>
+
+    <string name="aboutLibTitle">Detrás de TuIndice</string>
+
+    <string name="aboutDevSource">
+        GitHub Repository\n
+        https://github.com/gdavidpb/tuindice
+    </string>
+
+    <string name="aboutKotlin">
+        Kotlin 1.1.60\n
+        Programming Language\n
+        Apache 2.0 2017 JetBrains\n
+        https://kotlinlang.org/
+    </string>
+
+    <string name="aboutJSoup">
+        JSoup 1.10.2\n
+        Java HTML Parser\n
+        © 2009 Jonathan Hedley\n
+        https://jsoup.org/
+    </string>
+
+    <string name="aboutFabric">
+        Fabric 1.24.5\n
+        Build. Understand. Grow.\n
+        © 2017 Google\n
+        https://fabric.io/
+    </string>
+
+    <!-- Alert dialogs -->
+    <string name="alertTitleTerms">Términos y condiciones</string>
+    <string name="alertMessageTerms">
+        <b>1. Sobre la aplicación</b>\n
+        \t\t<i>TuIndice</i> es una herramienta para la autogestión del desempeño académico; de código
+        abierto (<i>MIT</i>), no oficial, publicada bajo la licencia <u><i>CC BY-NC 4.0</i></u> y
+        exclusiva para los estudiantes de la <i>Universidad Simón Bolívar</i>.\n\n
+        <b>2. Sobre la versión beta</b>\n
+        \t\tLa versión beta de <i>TuIndice</i> se ofrece sin garantías de funcionamiento y estabilidad,
+        sin embargo, estos objetivos se alcanzarán progresivamente.\n\n
+        <b>3. Sobre la disponibilidad del servicio</b>\n
+        \t\tLa disponibilidad de los servicios que requieren conexión está sujeta exclusivamente a la
+        <i>Dirección de Servicios Telemáticos</i>, <i>TuIndice</i> solo representa una capa que reduce
+        la complejidad de los servicio ya existentes.\n\n
+        <b>4. Sobre su información personal</b>\n
+        \t\tLos datos recolectados son almacenados en la configuración privada de la aplicación, y solo
+        son usados con fines de análisis local para producir información relevante acerca del desempeño
+        académico del estudiante. Los datos recolectados son: Credenciales de acceso, nombres y apellidos,
+        cédula de identidad, número de carnet, carrera, pensum y expediente académico completo.\n\n
+        <b>5. Sobre la seguridad de las conexiones</b>\n
+        \t\tTodas las conexiones realizadas por la aplicación están cifradas, firmadas y autenticadas, y se
+        realizan bajo el protocolo <i>HTTPS1.1/TLS1.2</i> en uso de los certificados digitales que provee la
+        <i>Dirección de Ingeniería de Información</i> de la <i>Universidad Simón Bolívar</i>.\n\n
+        <u><i><b>Al usar la aplicación se asume la aceptación de los términos y condiciones</b></i></u>
+    </string>
+
+    <string name="alertTitleCantInit">¡Oops, lo sentimos!</string>
+    <string name="alertMessageCantInit">Ha ocurrido un error mientras iniciaba TuIndice. Intenta limpiar los datos de la aplicación y volver a iniciar</string>
+
+    <string name="alertTitleExit">Atención</string>
+    <string name="alertMessageExit">¿Estás seguro que deseas salir?</string>
+
+    <string name="alertTitleContact">Formulario de contacto</string>
+    <string name="alertHintContact">Dí lo que quieras…</string>
+
+    <!-- Snack bars -->
+    <string name="snackNetError">Error de conexión…</string>
+    <string name="snackTimeoutError">Tiempo de espera agotado…</string>
+    <string name="snackServerError">El servidor no está disponible…</string>
+    <string name="snackParseError">Algo no ha salido bien ;(</string>
+    <string name="snackAuthError">USBID o contraseña inválida</string>
+    <string name="snackSSLError">Error de conexión (HTTPS/TLS)</string>
+
+</resources>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    android:background="@color/colorTransparent"
+    tools:context="com.gdavidpb.tuindice.activities.DemoActivity">
+
+    <TextView
+        android:id="@+id/tViewDemoTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="@string/demoWelcome"
+        android:textStyle="bold"
+        tools:drawableTop="@drawable/ic_launcher"
+        android:drawablePadding="@dimen/margin_medium"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/colorAccent"
+        android:layout_margin="@dimen/margin_xlarge"/>
+
+    <LinearLayout
+        android:id="@+id/lLayoutDemo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:animateLayoutChanges="true"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_margin="@dimen/margin_large">
+
+        <TextView
+            android:id="@+id/tViewDemoMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/colorTextIcon"
+            android:layout_margin="@dimen/margin_large"/>
+
+        <ListView
+            android:id="@+id/lViewDemoQuarter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:scrollbars="none"
+            tools:visibility="gone"/>
+    </LinearLayout>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/bDemoGotIt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/margin_large"
+        android:layout_marginEnd="@dimen/margin_large"
+        android:layout_marginTop="@dimen/margin_xlarge"
+        android:padding="@dimen/margin_large"
+        android:filterTouchesWhenObscured="true"
+        android:text="@string/gotIt"
+        android:textColor="@color/colorTextIcon"
+        app:backgroundTint="@color/colorAccent"
+        app:layout_constraintTop_toBottomOf="@+id/lLayoutDemo"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+</android.support.constraint.ConstraintLayout>

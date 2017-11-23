@@ -1,0 +1,4 @@
+#Wed Nov 22 23:40:03 VET 2017
+base.0=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/transforms/dexMerger/debug/161
+path.0=classes.dex
+renamed.0=classes.dex

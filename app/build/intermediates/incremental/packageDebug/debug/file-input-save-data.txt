@@ -1,0 +1,35 @@
+#Internal package file, do not edit.
+#Thu Nov 23 01:28:33 VET 2017
+7.path=classes.dex
+2.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/assets/debug
+5.set=ASSET
+0.path=classes.dex
+2.baseType=DIRECTORY
+3.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/transforms/dexMerger/debug/169
+7.baseType=DIRECTORY
+2.set=ASSET
+1.path=classes.dex
+4.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/transforms/dexMerger/debug/166
+7.set=DEX
+count=8
+5.baseType=DIRECTORY
+2.path=fonts/Code.ttf
+5.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/assets/debug
+4.set=DEX
+3.path=classes.dex
+6.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/transforms/dexMerger/debug/167
+3.baseType=DIRECTORY
+1.set=DEX
+4.path=classes.dex
+7.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/transforms/dexMerger/debug/164
+6.set=DEX
+1.baseType=DIRECTORY
+6.baseType=DIRECTORY
+5.path=crashlytics-build.properties
+0.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/transforms/dexMerger/debug/168
+0.baseType=DIRECTORY
+3.set=DEX
+6.path=classes.dex
+1.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/transforms/dexMerger/debug/165
+4.baseType=DIRECTORY
+0.set=DEX
