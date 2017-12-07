@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.models
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
@@ -7,15 +8,17 @@ import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE
 import android.support.v4.util.LruCache
 import com.gdavidpb.tuindice.*
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
-class SQLiteHelper(context: Context)
-    : SQLiteOpenHelper(context,
-        "database.sqlite",
-        null,
-        1) {
+class SQLiteHelper(val context: Context, name: String = "database.sqlite", version: Int = 2)
+    : SQLiteOpenHelper(context, name, null, version) {
 
     companion object {
+        @SuppressLint("StaticFieldLeak")
         private var instance: SQLiteHelper? = null
 
         @Synchronized
@@ -332,6 +335,80 @@ class SQLiteHelper(context: Context)
         values.put("status", subject.status.value)
 
         database.update(_subjects, values, "id = ${subject.id}", null)
+    }
+
+    fun generateReport(): File? {
+        return try {
+            val reportDatabase = "report-database"
+            val reportOperation = "report-operation"
+            val reportName = "report-${Date().time}.zip"
+
+            val databaseFile = File(database.path)
+            val databaseCloneFile = File(databaseFile.parent, reportDatabase)
+            val operationFile = File(context.filesDir, reportOperation)
+
+            val account = getActiveAccount()
+
+            /* If there is an active account in database */
+            if (!account.isEmpty()) {
+                /* Make database clone */
+                databaseFile.copyTo(databaseCloneFile, true)
+
+                /* Open database clone */
+                val databaseClone = SQLiteHelper(context, reportDatabase)
+
+                /* Remove personal data from database clone */
+                databaseClone.makeAnonymous()
+
+                databaseClone.close()
+            }
+
+            /* Create report file in external cache directory */
+            val reportFile = File(context.externalCacheDir, reportName)
+
+            /* Merge database and operation reports into a report zip */
+            val output = ZipOutputStream(FileOutputStream(reportFile))
+
+            /* Put database report in report zip */
+            if (databaseCloneFile.exists()) {
+                val databaseInput = databaseCloneFile.inputStream()
+
+                output.putEntry(ZipEntry(reportDatabase), databaseInput)
+
+                databaseCloneFile.delete()
+            }
+
+            /* Put operation report in report zip */
+            if (operationFile.exists()) {
+                val operationInput = operationFile.inputStream()
+
+                output.putEntry(ZipEntry(reportOperation), operationInput)
+
+                operationFile.delete()
+            }
+
+            output.close()
+
+            /* Delete report file on exit */
+            reportFile.deleteOnExit()
+
+            reportFile
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+
+            null
+        }
+    }
+
+    private fun makeAnonymous() {
+        val values = ContentValues()
+
+        values.put("usbId", "")
+        values.put("password", "")
+        values.put("firstNames", "")
+        values.put("lastNames", "")
+
+        database.update(_accounts, values, null, null)
     }
 
     private fun getSubjectSample(status: SubjectStatus = SubjectStatus.OK): DstSubject {

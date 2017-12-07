@@ -17,7 +17,7 @@
         tools:drawableTop="@drawable/ic_launcher"
         android:drawablePadding="@dimen/margin_medium"
         android:gravity="center_vertical"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/lLayoutDemo"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"

@@ -25,7 +25,8 @@ enum class SubjectStatus(val value: Int, private @StringRes val stringRes: Int) 
     NONE(-1, 0),
     OK(0, 0),
     RETIRED(1, R.string.retired),
-    NO_EFFECT(2, R.string.noEffect);
+    NO_EFFECT(2, R.string.noEffect),
+    APPROVED(3, R.string.approved);
 
     fun toString(context: Context): String = context.getString(stringRes)
 
@@ -34,6 +35,7 @@ enum class SubjectStatus(val value: Int, private @StringRes val stringRes: Int) 
             OK.value -> OK
             RETIRED.value -> RETIRED
             NO_EFFECT.value -> NO_EFFECT
+            APPROVED.value -> APPROVED
             else -> NONE
         }
     }
@@ -130,7 +132,7 @@ data class DstAccount(val usbId: String = String(),
             false
     }
 
-    override fun hashCode(): Int = Integer.parseInt(usbId)
+    override fun hashCode() = id.toInt()
 }
 
 data class DstSubject(val code: String,
@@ -151,19 +153,7 @@ data class DstSubject(val code: String,
             false
     }
 
-    override fun hashCode(): Int {
-        val subjectName = "^[A-Z]+".toRegex().find(name)?.value ?: String()
-        val subjectCode = "[0-9]+$".toRegex().find(name)?.value ?: String()
-
-        val builder = StringBuilder()
-
-        for (x in subjectName)
-            builder.append(x - 'A')
-
-        builder.append(subjectCode)
-
-        return Integer.parseInt(builder.toString())
-    }
+    override fun hashCode()= id.toInt()
 }
 
 data class DstQuarter(val type: QuarterType,
@@ -177,8 +167,8 @@ data class DstQuarter(val type: QuarterType,
 
     val subjects = ArrayList<DstSubject>()
 
-    private val monthFormat = SimpleDateFormat("MMM", Locale.getDefault())
-    private val yearFormat = SimpleDateFormat("yyyy", Locale.getDefault())
+    private val monthFormat = SimpleDateFormat("MMM", Constants.DEFAULT_LOCALE)
+    private val yearFormat = SimpleDateFormat("yyyy", Constants.DEFAULT_LOCALE)
 
     fun isOk(credits: Int): Boolean = if (credits == 0 || credits >= 8 || (type == QuarterType.COMPLETED))
         true
@@ -210,12 +200,9 @@ data class DstQuarter(val type: QuarterType,
     }
 
     fun getCacheKey(): Long {
-        val base = Math.pow(10.0, subjects.size.toDouble())
-        val body = subjects.indices.sumBy { (Math.pow(10.0, it.toDouble()) * subjects[it].grade).toInt() }
-        val log = Math.ceil(Math.log10(base + body).inc())
-        val head = id * Math.pow(10.0, log)
+        val base = Math.pow(10.0, subjects.size.toDouble()).toLong()
 
-        return (head + body + base).toLong()
+        return (base + subjects.indices.sumBy { (Math.pow(10.0, it.toDouble()) * subjects[it].grade).toInt() })
     }
 
     override fun equals(other: Any?): Boolean {
@@ -229,18 +216,5 @@ data class DstQuarter(val type: QuarterType,
             false
     }
 
-    override fun hashCode(): Int {
-        var result = startTime.hashCode()
-
-        result = 31 * result + endTime.hashCode()
-        result = 31 * result + subjects.hashCode()
-        result = 31 * result + grade.hashCode()
-        result = 31 * result + gradeSum.hashCode()
-        result = 31 * result + type.hashCode()
-        result = 31 * result + monthFormat.hashCode()
-        result = 31 * result + yearFormat.hashCode()
-
-        return result
-    }
-
+    override fun hashCode() = id.toInt()
 }

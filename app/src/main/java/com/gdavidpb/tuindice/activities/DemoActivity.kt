@@ -4,7 +4,6 @@ import android.graphics.Typeface
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.annotation.IdRes
-import android.support.v7.app.AppCompatDelegate
 import android.support.v7.content.res.AppCompatResources
 import android.text.Spannable
 import android.text.SpannableString
@@ -15,7 +14,6 @@ import com.gdavidpb.tuindice.*
 import com.gdavidpb.tuindice.abstracts.Initializer
 import com.gdavidpb.tuindice.adapters.QuarterAdapter
 import kotlinx.android.synthetic.main.activity_demo.*
-import java.util.*
 
 class DemoActivity : AppCompatActivity(), Initializer {
 
@@ -45,12 +43,6 @@ class DemoActivity : AppCompatActivity(), Initializer {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        /* Set Spanish-Venezuela as default locale */
-        Locale.setDefault(Locale("es", "VE"))
-
-        /* Set up vector compatibility */
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
 
         /* Set up activity */
         setContentView(R.layout.activity_demo)
@@ -102,16 +94,25 @@ class DemoActivity : AppCompatActivity(), Initializer {
                         displayDemoAtSubject(R.id.tViewSubjectCode)
                     }
                     7 -> {
+                        quarter.subjects[0].grade = 1
+                        quarter.subjects[0].status = SubjectStatus.OK
+
+                        displayDemoAtQuarter(R.id.tViewQuarterGradeSum)
+                    }
+                    8 -> {
                         quarter.subjects[0].grade = 0
                         quarter.subjects[0].status = SubjectStatus.RETIRED
 
                         displayDemoAtQuarter(R.id.tViewQuarterCredits)
                     }
-                    8 -> {
-                        quarter.subjects[0].grade = 1
-                        quarter.subjects[0].status = SubjectStatus.OK
+                    9 -> {
+                        /* Prevent lViewDemoQuarter flickering */
+                        lLayoutDemo.layoutTransition = null
 
-                        displayDemoAtQuarter(R.id.tViewQuarterGradeSum)
+                        tViewDemoTitle.setText(R.string.demoFinish)
+
+                        lViewDemoQuarter.visibility = View.GONE
+                        tViewDemoTitle.visibility = View.VISIBLE
                     }
                 }
             } else {

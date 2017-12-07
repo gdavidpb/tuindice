@@ -3,11 +3,8 @@ package com.gdavidpb.tuindice.activities
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatDelegate
 import android.view.View
-import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.abstracts.Initializer
-import java.util.*
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_about.*
 import android.text.Spannable
@@ -18,10 +15,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.support.v7.content.res.AppCompatResources
-import com.gdavidpb.tuindice.Constants
-import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.alertDialog
-import com.gdavidpb.tuindice.views.ContactDialog
+import com.gdavidpb.tuindice.*
 
 class AboutActivity : AppCompatActivity(), Initializer {
 
@@ -74,7 +68,7 @@ class AboutActivity : AppCompatActivity(), Initializer {
 
         tViewAboutShare.setOnClickListener { launchShare() }
         tViewAboutRate.setOnClickListener { launchPlayStore() }
-        tViewDevContact.setOnClickListener { ContactDialog(this).show() }
+        tViewDevContact.setOnClickListener { onContact(false) }
         tViewAboutLicense.setOnClickListener { navigateTo(Constants.CREATIVE_COMMONS_LICENSE) }
         tViewAboutTerms.setOnClickListener { alertDialog {
             setTitle(R.string.alertTitleTerms)
@@ -106,17 +100,10 @@ class AboutActivity : AppCompatActivity(), Initializer {
         tViewAboutLicense.setCompoundDrawablesWithIntrinsicBounds(drawableLicense, null, null, null)
         tViewAboutVersion.setCompoundDrawablesWithIntrinsicBounds(drawableVersion, null, null, null)
         tViewAbout.setCompoundDrawablesWithIntrinsicBounds(drawableLauncher, null, null, null)
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        /* Set Spanish-Venezuela as default locale */
-        Locale.setDefault(Locale("es", "VE"))
-
-        /* Set up vector compatibility */
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
 
         /* Set up activity */
         setContentView(R.layout.activity_about)

@@ -21,8 +21,9 @@ import android.widget.TextView
 import com.gdavidpb.tuindice.*
 import com.gdavidpb.tuindice.models.DstService
 import android.support.constraint.ConstraintSet
-import android.support.v7.app.AppCompatDelegate
 import android.support.v7.content.res.AppCompatResources
+import android.view.Menu
+import android.view.MenuItem
 import com.gdavidpb.tuindice.models.DstResultReceiver
 import com.gdavidpb.tuindice.models.SQLiteHelper
 
@@ -227,12 +228,6 @@ class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiv
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        /* Set Spanish-Venezuela as default locale */
-        Locale.setDefault(Locale("es", "VE"))
-
-        /* Set up vector compatibility */
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-
         /* Set up activity */
         setContentView(R.layout.activity_login)
 
@@ -240,6 +235,20 @@ class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiv
         receiver = DstResultReceiver(Handler(), this)
 
         onInitialize()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_login, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_report -> {
+            onContact()
+            true
+        }
+
+        else -> super.onOptionsItemSelected(item)
     }
 
     override fun onDestroy() {
@@ -291,7 +300,7 @@ class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiv
 
             animationTimer = Timer()
 
-            tSwitcherWelcome.setText(String())
+            tSwitcherWelcome.setText("")
         }
     }
 

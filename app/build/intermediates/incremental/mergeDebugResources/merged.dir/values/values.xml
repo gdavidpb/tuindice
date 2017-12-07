@@ -10,6 +10,7 @@
         <item>@color/quarterCurrent</item>
         <item>@color/colorWarning</item>
         <item>@color/colorWarning</item>
+        <item>@color/colorAccent</item>
     </integer-array>
     <string-array name="demoKeys">
         <item>terminados</item>
@@ -21,6 +22,7 @@
         <item>retirar</item>
         <item>rojo</item>
         <item>rojo</item>
+        <item>reportar un error</item>
     </string-array>
     <string-array name="demoMessages">
         <item>Así lucen los trimestres <b>terminados</b>…</item>
@@ -30,8 +32,12 @@
         <item><b>⦿</b> total créditos inscritos</item>
         <item>Arrastra para <b>modificar</b> las notas de las materias en curso</item>
         <item>Puedes <b>retirar</b> una materia moviendo la barra de notas hasta el inicio</item>
-        <item>Los créditos en <b>rojo</b> indican que estás por debajo del límite válido</item>
         <item>El índice acumulado en <b>rojo</b> indica que estás por debajo de 3.0000</item>
+        <item>Los créditos en <b>rojo</b> indican que estás por debajo del límite válido</item>
+        <item>
+            Si encuentras un error puedes reportarlo usando la opción <b>reportar un error</b>
+            disponible en el menú superior.
+        </item>
     </string-array>
     <string-array name="messageWelcome">
         <item>TuIndice</item>
@@ -167,9 +173,7 @@
     <color name="colorPrimaryText">#212121</color>
     <color name="colorSecondaryText">#757575</color>
     <color name="colorTextIcon">#FFFFFF</color>
-    <color name="colorTickMarkH">#E0E0E0</color>
-    <color name="colorTickMarkL">#9E9E9E</color>
-    <color name="colorTransparent">#AA000000</color>
+    <color name="colorTransparent">#80000000</color>
     <color name="colorWarning">#F44336</color>
     <color name="design_bottom_navigation_shadow_color">#14000000</color>
     <color name="design_fab_shadow_end_color">@android:color/transparent</color>
@@ -214,7 +218,7 @@
     <color name="primary_text_disabled_material_light">#39000000</color>
     <color name="quarterCompleted">#B0BEC5</color>
     <color name="quarterCurrent">#FFC107</color>
-    <color name="quarterGuess">#80FFC107</color>
+    <color name="quarterGuess">#64FFC107</color>
     <color name="ripple_material_dark">#33ffffff</color>
     <color name="ripple_material_light">#1f000000</color>
     <color name="secondary_text_default_material_dark">#b3ffffff</color>
@@ -837,36 +841,40 @@
     <string name="abc_shareactionprovider_share_with">Share with</string>
     <string name="abc_shareactionprovider_share_with_application">Share with <ns1:g example="Mail" id="application_name">%s</ns1:g></string>
     <string name="abc_toolbar_collapse_description">Collapse</string>
-    <string name="aboutDevContact">Contacto\nInformar errores o solicitar nuevas funciones</string>
-    <string name="aboutDevInfo">Gerardo Prado\nCaracas, Venezuela</string>
+    <string name="aboutDevContact">
+        Contacto\n
+        Contactar al desarrollador
+    </string>
+    <string name="aboutDevInfo">
+        Gerardo Prado\n
+        Caracas, Venezuela
+    </string>
     <string name="aboutDevSource">
         GitHub Repository\n
         https://github.com/gdavidpb/tuindice
     </string>
     <string name="aboutDevTitle">Desarrollador</string>
     <string name="aboutFabric">
-        Fabric 1.24.5\n
+        Fabric 1.25.0\n
         Build. Understand. Grow.\n
         © 2017 Google\n
         https://fabric.io/
     </string>
     <string name="aboutJSoup">
-        JSoup 1.10.2\n
+        JSoup 1.11.2\n
         Java HTML Parser\n
         © 2009 Jonathan Hedley\n
         https://jsoup.org/
     </string>
     <string name="aboutKotlin">
-        Kotlin 1.1.60\n
+        Kotlin 1.2.0\n
         Programming Language\n
         Apache 2.0 2017 JetBrains\n
         https://kotlinlang.org/
     </string>
     <string name="aboutLibTitle">Detrás de TuIndice</string>
     <string name="aboutLicense">Creative Commons\nBY-NC 4.0</string>
-    <string name="aboutNoEmailClient">No hay clientes de correo electrónico instalados</string>
     <string name="aboutRate">Puntúa\n¡Dale las 5 estrellas!</string>
-    <string name="aboutSendEmail">Enviar correo electrónico…</string>
     <string name="aboutShare">Compartir\nInvita a un amigo a descargar la aplicación</string>
     <string name="aboutShareMessage">
         TuIndice: Una nueva forma de administrar tus notas\n\n
@@ -877,15 +885,16 @@
     <string name="aboutVersion">Versión\n%1$s-%2$d (%3$s)</string>
     <string name="accept">Aceptar</string>
     <string name="action_about">Acerca de…</string>
-    <string name="action_demo">Tutorial…</string>
+    <string name="action_demo">Tutorial</string>
     <string name="action_exit">Cerrar sesión</string>
+    <string name="action_report">Reportar un error</string>
     <string name="alertHintContact">Dí lo que quieras…</string>
     <string name="alertMessageCantInit">Ha ocurrido un error mientras iniciaba TuIndice. Intenta limpiar los datos de la aplicación y volver a iniciar</string>
     <string name="alertMessageExit">¿Estás seguro que deseas salir?</string>
     <string name="alertMessageTerms">
         <b>1. Sobre la aplicación</b>\n
         \t\t<i>TuIndice</i> es una herramienta para la autogestión del desempeño académico; de código
-        abierto (<i>MIT</i>), no oficial, publicada bajo la licencia <u><i>CC BY-NC 4.0</i></u> y
+        abierto (<i>MIT</i>), no oficial, publicada bajo la licencia <i>CC BY-NC 4.0</i> y
         exclusiva para los estudiantes de la <i>Universidad Simón Bolívar</i>.\n\n
         <b>2. Sobre la versión beta</b>\n
         \t\tLa versión beta de <i>TuIndice</i> se ofrece sin garantías de funcionamiento y estabilidad,
@@ -894,12 +903,15 @@
         \t\tLa disponibilidad de los servicios que requieren conexión está sujeta exclusivamente a la
         <i>Dirección de Servicios Telemáticos</i>, <i>TuIndice</i> solo representa una capa que reduce
         la complejidad de los servicio ya existentes.\n\n
-        <b>4. Sobre su información personal</b>\n
+        <b>4. Sobre la información personal</b>\n
         \t\tLos datos recolectados son almacenados en la configuración privada de la aplicación, y solo
         son usados con fines de análisis local para producir información relevante acerca del desempeño
         académico del estudiante. Los datos recolectados son: Credenciales de acceso, nombres y apellidos,
         cédula de identidad, número de carnet, carrera, pensum y expediente académico completo.\n\n
-        <b>5. Sobre la seguridad de las conexiones</b>\n
+        <b>5. Sobre los reportes de errores</b>\n
+        Los reportes de errores contienen información anónima del caso. La información personal no es
+        incluida en el contenido.\n\n
+        <b>6. Sobre la seguridad de las conexiones</b>\n
         \t\tTodas las conexiones realizadas por la aplicación están cifradas, firmadas y autenticadas, y se
         realizan bajo el protocolo <i>HTTPS1.1/TLS1.2</i> en uso de los certificados digitales que provee la
         <i>Dirección de Ingeniería de Información</i> de la <i>Universidad Simón Bolívar</i>.\n\n
@@ -913,6 +925,7 @@
     <string name="app_name">TuIndice</string>
     <string name="app_title">%1$04d - %2$s</string>
     <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
+    <string name="approved">Aprobada</string>
     <string name="bLogin">Iniciar Sesión</string>
     <string name="beta">beta</string>
     <string name="bottom_sheet_behavior" translatable="false">android.support.design.widget.BottomSheetBehavior</string>
@@ -920,9 +933,16 @@
     <string name="cancel">Cancelar</string>
     <string name="character_counter_pattern" translatable="false">%1$d / %2$d</string>
     <string name="close">Cerrar</string>
-    <string name="com.crashlytics.android.build_id" ns2:ignore="UnusedResources,TypographyDashes" translatable="false">98a3bf6c-4aec-49e3-929a-0cb4e18911f1</string>
+    <string name="com.crashlytics.android.build_id" ns2:ignore="UnusedResources,TypographyDashes" translatable="false">25e6bbe9-7c0a-4df3-b5b5-2a6caba4aa18</string>
     <string name="decline">Rechazar</string>
+    <string name="demoFinish">¡Ayúdanos a mejorar!</string>
     <string name="demoWelcome">¡Bienvenido!</string>
+    <string name="devContactSubject">TuIndice - Contacto</string>
+    <string name="devEmail">gerardoprado93@gmail.com</string>
+    <string name="devMessageReport">¿Deseas reportar un error?</string>
+    <string name="devNoEmailClient">No hay clientes de correo electrónico instalados</string>
+    <string name="devTitleReport">Reportar un error</string>
+    <string name="devUnableGenerateReport">No se pudo generar el reporte ;(</string>
     <string name="empty">Aquí no hay nada aún ;)</string>
     <string name="errorEmpty">Campo vacío</string>
     <string name="errorPassword">Contraseña inválida</string>
@@ -964,7 +984,7 @@
     <string name="status_bar_notification_info_overflow">999+</string>
     <string name="subjectCredits">%1$d Cr.</string>
     <string name="subjectTitle">%1$s (%2$s)</string>
-    <string name="tabData">Mis Datos</string>
+    <string name="tabData">Resumen</string>
     <string name="tabSummary">Informe Académico</string>
     <style name="AlertDialog.AppCompat" parent="Base.AlertDialog.AppCompat"/>
     <style name="AlertDialog.AppCompat.Light" parent="Base.AlertDialog.AppCompat.Light"/>

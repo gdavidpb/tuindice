@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.adapters
 
 import android.animation.ValueAnimator
-import android.annotation.SuppressLint
 import android.content.Context
 import android.support.annotation.IdRes
 import android.support.annotation.StringRes
@@ -35,7 +34,6 @@ class QuarterAdapter(context: Context,
     private val colorWarning by lazy { ContextCompat.getColor(context, R.color.colorWarning) }
     private val typeface by lazy { Typeface.createFromAsset(context.assets, "fonts/Code.ttf") }
 
-    @SuppressLint("ClickableViewAccessibility")
     @Suppress("UNCHECKED_CAST")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val quarter = getItem(position)
@@ -51,7 +49,6 @@ class QuarterAdapter(context: Context,
 
             holder.putAs(R.id.viewQuarterColor, view)
             holder.putAs(R.id.tViewQuarterTitle, view)
-            holder.putAs(R.id.iViewQuarterRemove, view)
             holder.putAs(R.id.tViewQuarterGrade, view)
             holder.putAs(R.id.tViewQuarterGradeSum, view)
             holder.putAs(R.id.tViewQuarterCredits, view)
@@ -95,7 +92,6 @@ class QuarterAdapter(context: Context,
         val viewQuarterColor = holder.getAs<View>(R.id.viewQuarterColor)
         val tViewQuarterGrade = holder.getAs<TextView>(R.id.tViewQuarterGrade)
         val tViewQuarterTitle = holder.getAs<TextView>(R.id.tViewQuarterTitle)
-        val iViewQuarterRemove = holder.getAs<ImageView>(R.id.iViewQuarterRemove)
         val tViewQuarterCredits = holder.getAs<TextView>(R.id.tViewQuarterCredits)
         val tViewQuarterGradeSum = holder.getAs<TextView>(R.id.tViewQuarterGradeSum)
 
@@ -118,8 +114,7 @@ class QuarterAdapter(context: Context,
                 tViewQuarterGradeSum,
                 tViewQuarterCredits,
                 tViewQuarterTitle,
-                viewQuarterColor,
-                iViewQuarterRemove)
+                viewQuarterColor)
 
         for (i in quarter.subjects.indices) {
             val subject = quarter.subjects[i]
@@ -179,8 +174,7 @@ class QuarterAdapter(context: Context,
                              quarterGradeSum: TextView,
                              quarterCredits: TextView,
                              quarterTitle: TextView? = null,
-                             quarterColor: View? = null,
-                             quarterRemove: ImageView? = null) {
+                             quarterColor: View? = null) {
         val color = quarter.type.getColor(context)
 
         /* Set up quarter grade */
@@ -248,13 +242,6 @@ class QuarterAdapter(context: Context,
 
         /* Set up quarter title */
         quarterTitle?.text = quarter.getName()
-
-        /* Set up remove */
-        quarterRemove?.visibility =
-                if (quarter.type == QuarterType.GUESS)
-                    View.VISIBLE
-                else
-                    View.GONE
     }
 
     private fun setUpSubject(quarter: DstQuarter,

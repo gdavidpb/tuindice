@@ -2,18 +2,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.gdavidpb.tuindice.activities.MainActivity">
-    <item
-        android:id="@+id/action_about"
-        android:title="@string/action_about"
-        app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_demo"
-        android:title="@string/action_demo"
-        app:showAsAction="never" />
+    <group android:id="@+id/group_app">
+        <item
+            android:id="@+id/action_about"
+            android:title="@string/action_about"
+            app:showAsAction="never" />
 
-    <item
-         android:id="@+id/action_exit"
-         android:title="@string/action_exit"
-         app:showAsAction="never" />
+        <item
+            android:id="@+id/action_demo"
+            android:title="@string/action_demo"
+            app:showAsAction="never" />
+    </group>
+
+    <group android:id="@+id/group_account">
+        <item
+            android:id="@+id/action_report"
+            android:title="@string/action_report"
+            android:icon="@drawable/ic_report"
+            app:showAsAction="ifRoom" />
+
+        <item
+            android:id="@+id/action_exit"
+            android:title="@string/action_exit"
+            app:showAsAction="never" />
+    </group>
 </menu>

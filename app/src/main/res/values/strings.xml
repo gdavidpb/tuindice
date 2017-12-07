@@ -6,8 +6,17 @@
     <string name="app_name">TuIndice</string>
     <string name="app_title">%1$04d - %2$s</string>
 
+    <string name="devEmail">gerardoprado93@gmail.com</string>
+    <string name="devContactSubject">TuIndice - Contacto</string>
+    <string name="devUnableGenerateReport">No se pudo generar el reporte ;(</string>
+    <string name="devNoEmailClient">No hay clientes de correo electrónico instalados</string>
+
+    <string name="devTitleReport">Reportar un error</string>
+    <string name="devMessageReport">¿Deseas reportar un error?</string>
+
     <string name="action_about">Acerca de…</string>
-    <string name="action_demo">Tutorial…</string>
+    <string name="action_demo">Tutorial</string>
+    <string name="action_report">Reportar un error</string>
     <string name="action_exit">Cerrar sesión</string>
 
     <!-- Simple words -->
@@ -22,13 +31,14 @@
     <string name="retry">Reintentar</string>
     <string name="retired">Retirada</string>
     <string name="noEffect">Sin Efecto</string>
+    <string name="approved">Aprobada</string>
     <string name="send">Enviar</string>
     <string name="gotIt">Entendido</string>
     <string name="share">Compartir…</string>
     <string name="empty">Aquí no hay nada aún ;)</string>
 
     <!-- Main Activity -->
-    <string name="tabData">Mis Datos</string>
+    <string name="tabData">Resumen</string>
     <string name="tabSummary">Informe Académico</string>
 
     <string name="grade">%1$d / 5</string>
@@ -66,6 +76,7 @@
 
     <!-- Demo activity -->
     <string name="demoWelcome">¡Bienvenido!</string>
+    <string name="demoFinish">¡Ayúdanos a mejorar!</string>
 
     <string-array name="demoMessages">
         <item>Así lucen los trimestres <b>terminados</b>…</item>
@@ -75,8 +86,12 @@
         <item><b>⦿</b> total créditos inscritos</item>
         <item>Arrastra para <b>modificar</b> las notas de las materias en curso</item>
         <item>Puedes <b>retirar</b> una materia moviendo la barra de notas hasta el inicio</item>
-        <item>Los créditos en <b>rojo</b> indican que estás por debajo del límite válido</item>
         <item>El índice acumulado en <b>rojo</b> indica que estás por debajo de 3.0000</item>
+        <item>Los créditos en <b>rojo</b> indican que estás por debajo del límite válido</item>
+        <item>
+            Si encuentras un error puedes reportarlo usando la opción <b>reportar un error</b>
+            disponible en el menú superior.
+        </item>
     </string-array>
 
     <string-array name="demoKeys">
@@ -89,6 +104,7 @@
         <item>retirar</item>
         <item>rojo</item>
         <item>rojo</item>
+        <item>reportar un error</item>
     </string-array>
 
     <integer-array name="demoColors">
@@ -101,6 +117,7 @@
         <item>@color/quarterCurrent</item>
         <item>@color/colorWarning</item>
         <item>@color/colorWarning</item>
+        <item>@color/colorAccent</item>
     </integer-array>
 
     <!-- About activity -->
@@ -117,11 +134,16 @@
     </string>
 
     <string name="aboutDevTitle">Desarrollador</string>
-    <string name="aboutDevInfo">Gerardo Prado\nCaracas, Venezuela</string>
-    <string name="aboutDevContact">Contacto\nInformar errores o solicitar nuevas funciones</string>
 
-    <string name="aboutSendEmail">Enviar correo electrónico…</string>
-    <string name="aboutNoEmailClient">No hay clientes de correo electrónico instalados</string>
+    <string name="aboutDevInfo">
+        Gerardo Prado\n
+        Caracas, Venezuela
+    </string>
+
+    <string name="aboutDevContact">
+        Contacto\n
+        Contactar al desarrollador
+    </string>
 
     <string name="aboutLibTitle">Detrás de TuIndice</string>
 
@@ -131,21 +153,21 @@
     </string>
 
     <string name="aboutKotlin">
-        Kotlin 1.1.60\n
+        Kotlin 1.2.0\n
         Programming Language\n
         Apache 2.0 2017 JetBrains\n
         https://kotlinlang.org/
     </string>
 
     <string name="aboutJSoup">
-        JSoup 1.10.2\n
+        JSoup 1.11.2\n
         Java HTML Parser\n
         © 2009 Jonathan Hedley\n
         https://jsoup.org/
     </string>
 
     <string name="aboutFabric">
-        Fabric 1.24.5\n
+        Fabric 1.25.0\n
         Build. Understand. Grow.\n
         © 2017 Google\n
         https://fabric.io/
@@ -156,7 +178,7 @@
     <string name="alertMessageTerms">
         <b>1. Sobre la aplicación</b>\n
         \t\t<i>TuIndice</i> es una herramienta para la autogestión del desempeño académico; de código
-        abierto (<i>MIT</i>), no oficial, publicada bajo la licencia <u><i>CC BY-NC 4.0</i></u> y
+        abierto (<i>MIT</i>), no oficial, publicada bajo la licencia <i>CC BY-NC 4.0</i> y
         exclusiva para los estudiantes de la <i>Universidad Simón Bolívar</i>.\n\n
         <b>2. Sobre la versión beta</b>\n
         \t\tLa versión beta de <i>TuIndice</i> se ofrece sin garantías de funcionamiento y estabilidad,
@@ -165,12 +187,15 @@
         \t\tLa disponibilidad de los servicios que requieren conexión está sujeta exclusivamente a la
         <i>Dirección de Servicios Telemáticos</i>, <i>TuIndice</i> solo representa una capa que reduce
         la complejidad de los servicio ya existentes.\n\n
-        <b>4. Sobre su información personal</b>\n
+        <b>4. Sobre la información personal</b>\n
         \t\tLos datos recolectados son almacenados en la configuración privada de la aplicación, y solo
         son usados con fines de análisis local para producir información relevante acerca del desempeño
         académico del estudiante. Los datos recolectados son: Credenciales de acceso, nombres y apellidos,
         cédula de identidad, número de carnet, carrera, pensum y expediente académico completo.\n\n
-        <b>5. Sobre la seguridad de las conexiones</b>\n
+        <b>5. Sobre los reportes de errores</b>\n
+        Los reportes de errores contienen información anónima del caso. La información personal no es
+        incluida en el contenido.\n\n
+        <b>6. Sobre la seguridad de las conexiones</b>\n
         \t\tTodas las conexiones realizadas por la aplicación están cifradas, firmadas y autenticadas, y se
         realizan bajo el protocolo <i>HTTPS1.1/TLS1.2</i> en uso de los certificados digitales que provee la
         <i>Dirección de Ingeniería de Información</i> de la <i>Universidad Simón Bolívar</i>.\n\n

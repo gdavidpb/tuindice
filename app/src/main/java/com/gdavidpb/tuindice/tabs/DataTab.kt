@@ -19,10 +19,9 @@ class DataTab : UpdatableFragment() {
     }
 
     override fun onUpdate(instanceState: Bundle?) {
-        val account = instanceState?.getSerializable(Constants.EXTRA_ACCOUNT) as? DstAccount ?: DstAccount()
+        if (context == null) return
 
-        if (account.isEmpty())
-            return
+        val account = instanceState?.getSerializable(Constants.EXTRA_ACCOUNT) as? DstAccount ?: return
 
         /* Set up drawables */
         val drawableAccount = context!!.getTintVector(R.drawable.ic_account, R.color.colorSecondaryText)

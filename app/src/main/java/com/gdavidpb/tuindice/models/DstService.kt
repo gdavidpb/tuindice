@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.ResultReceiver
 import android.support.v4.app.NotificationCompat
+import com.crashlytics.android.Crashlytics
 import com.gdavidpb.tuindice.*
 import com.gdavidpb.tuindice.activities.LoginActivity
 import com.gdavidpb.tuindice.activities.MainActivity
@@ -36,11 +37,7 @@ class DstService : Service() {
     }
 
     companion object {
-        fun startService(
-                usbId: String,
-                password: String,
-                context: Context,
-                receiver: ResultReceiver) {
+        fun startService(usbId: String, password: String, context: Context, receiver: ResultReceiver) {
             val intent = Intent(context, DstService::class.java)
 
             intent.putExtra(Constants.EXTRA_RECEIVER, receiver)
@@ -112,8 +109,8 @@ class DstService : Service() {
     private val dstDoRecord = "informeAcademico.do"
     private val dstDoPersonal = "datosPersonales.do"
 
-    private val startFormat by lazy { SimpleDateFormat("MMMM", Locale.getDefault()) }
-    private val endFormat by lazy { SimpleDateFormat("MMMM-MMMM yyyy", Locale.getDefault()) }
+    private val startFormat by lazy { SimpleDateFormat("MMMM", Constants.DEFAULT_LOCALE) }
+    private val endFormat by lazy { SimpleDateFormat("MMMM-MMMM yyyy", Constants.DEFAULT_LOCALE) }
 
     private val validHostNames = arrayOf(
             "expediente.dii.usb.ve",
@@ -130,12 +127,13 @@ class DstService : Service() {
             return START_NOT_STICKY
         }
 
-        /* Prevent service recall */
+        /* Prevent service recall and infinite execution */
         if (!applicationContext.getDatabase().getActiveAccount().isEmpty())
-            return START_REDELIVER_INTENT
-
-        /* Set Spanish-Venezuela as default locale */
-        Locale.setDefault(Locale("es", "VE"))
+            return if (LifecycleHandler.isAppVisible()) {
+                stopSelf()
+                START_NOT_STICKY
+            } else
+                START_REDELIVER_INTENT
 
         /* Get receiver (service communication) */
         receiver = intent.getParcelableExtra(Constants.EXTRA_RECEIVER)
@@ -223,8 +221,13 @@ class DstService : Service() {
 
         this@DstService.operation = operation
 
+        if (!BuildConfig.DEBUG)
+            Crashlytics.log("Starting operation: '$operation'...")
+
         when (operation) {
             Operation.CONNECT -> {
+                deleteReport()
+
                 val https = URL("$dstRecord$dstRecordLogin").openConnection() as HttpsURLConnection
 
                 https.setUp("GET")
@@ -235,6 +238,11 @@ class DstService : Service() {
                 https.inputStream.close()
 
                 https.disconnect()
+
+                logReport(operation, document, {
+                    select("form[action]").removeAttr("action")
+                    select("input[type=hidden]").removeAttr("value")
+                })
 
                 val lt = document.select("input[name=lt]").first().attr("value")
                 val cookie = https.getHeaderField("Set-Cookie")
@@ -281,6 +289,11 @@ class DstService : Service() {
 
                 https.disconnect()
 
+                logReport(operation, document, {
+                    select("a[class=men_enlace1]").removeAttr("href")
+                    select("strong:matchesOwn(\\d{7})").forEach { it.text("") }
+                })
+
                 val success = document.select("div[class=errors]").isEmpty()
 
                 if (!success)
@@ -309,6 +322,11 @@ class DstService : Service() {
                 https.inputStream.close()
 
                 https.disconnect()
+
+                logReport(operation, document, {
+                    select("a[class=men_enlace1]").removeAttr("href")
+                    select("strong:matchesOwn(\\d{7})").forEach { it.text("") }
+                })
 
                 /* Select quarter tables */
                 val data = document.select("table[class=tabla] > tbody > tr > td > table")
@@ -342,63 +360,68 @@ class DstService : Service() {
 
                 if (recordData.isNotEmpty())
                     for (i in recordData.indices.step(3)) {
-                    /* HTML raw elements */
-                    val quarterPeriod = recordData[i]
-                            .select("td")[0]
-                            .text()
-                            .trim()
-                            .replace("\\s*-\\s*".toRegex(), "-")
-                            .toLowerCase()
+                        /* HTML raw elements */
+                        val quarterPeriod = recordData[i]
+                                .select("td")[0]
+                                .text()
+                                .replace("&\\S+;".toRegex(), "")
+                                .replace("\\s*-\\s*".toRegex(), "-")
+                                .trim()
+                                .toLowerCase()
 
-                    val subjectElement = recordData[i + 1]
-                            .select("tr > td:not(:has(*))")
+                        val subjectElement = recordData[i + 1]
+                                .select("tr > td:not(:has(*))")
 
-                    val summaryElement = "\\d\\.\\d{4}".toRegex()
-                            .find(recordData[i + 2].text())
+                        val summaryElement = "\\d\\.\\d{4}".toRegex()
+                                .find(recordData[i + 2].text())
 
-                    /* Get quarter start and end time */
-                    val startTime = Calendar.getInstance()
-                    val endTime = Calendar.getInstance()
-                    val subjects = ArrayList<DstSubject>()
+                        if (subjectElement.size % 5 != 0)
+                            throw IllegalStateException("$operation: invalid subjectElement data")
 
-                    /* Find quarter grades */
-                    val quarterGrade = summaryElement!!.value.toDouble()
-                    val quarterGradeSum = summaryElement.next()!!.value.toDouble()
+                        /* Get quarter start and end time */
+                        val startTime = Calendar.getInstance()
+                        val endTime = Calendar.getInstance()
+                        val subjects = ArrayList<DstSubject>()
 
-                    startTime.time = startFormat.parse(quarterPeriod)
-                    endTime.time = endFormat.parse(quarterPeriod)
+                        /* Find quarter grades */
+                        val quarterGrade = summaryElement!!.value.toDouble()
+                        val quarterGradeSum = summaryElement.next()!!.value.toDouble()
 
-                    startTime.set(Calendar.YEAR, endTime.get(Calendar.YEAR))
+                        startTime.time = startFormat.parse(quarterPeriod)
+                        endTime.time = endFormat.parse(quarterPeriod)
 
-                    /* for subject */
-                    for (j in subjectElement.indices.step(5)) {
-                        val code = subjectElement[j].text().trim()
-                        val name = subjectElement[j + 1].text().trim().toSubjectName()
-                        val credits = subjectElement[j + 2].text().toIntOrNull()!!
-                        val grade = subjectElement[j + 3].text().toIntOrNull() ?: 0
-                        val detail = when (subjectElement[j + 4].text().trim()) {
-                            SubjectStatus.RETIRED.toString(applicationContext) -> SubjectStatus.RETIRED
-                            SubjectStatus.NO_EFFECT.toString(applicationContext) -> SubjectStatus.NO_EFFECT
-                            else -> SubjectStatus.OK
+                        startTime.set(Calendar.YEAR, endTime.get(Calendar.YEAR))
+
+                        /* for subject */
+                        for (j in subjectElement.indices.step(5)) {
+                            val code = subjectElement[j].text().trim()
+                            val name = subjectElement[j + 1].text().trim().toSubjectName()
+                            val credits = subjectElement[j + 2].text().toIntOrNull()!!
+                            val grade = subjectElement[j + 3].text().toIntOrNull() ?: 0
+                            val detail = when (subjectElement[j + 4].text().trim()) {
+                                SubjectStatus.RETIRED.toString(applicationContext) -> SubjectStatus.RETIRED
+                                SubjectStatus.NO_EFFECT.toString(applicationContext) -> SubjectStatus.NO_EFFECT
+                                SubjectStatus.APPROVED.toString(applicationContext) -> SubjectStatus.APPROVED
+                                else -> SubjectStatus.OK
+                            }
+
+                            subjects.add(DstSubject(code, name, credits, grade, detail))
                         }
 
-                        subjects.add(DstSubject(code, name, credits, grade, detail))
+                        if (lastUpdate < startTime.timeInMillis)
+                            lastUpdate = startTime.timeInMillis
+
+                        val quarter = DstQuarter(
+                                QuarterType.COMPLETED,
+                                startTime.timeInMillis,
+                                endTime.timeInMillis,
+                                quarterGrade,
+                                quarterGradeSum)
+
+                        quarter.subjects.addAll(subjects)
+
+                        quarters.add(quarter)
                     }
-
-                    if (lastUpdate < startTime.timeInMillis)
-                        lastUpdate = startTime.timeInMillis
-
-                    val quarter = DstQuarter(
-                            QuarterType.COMPLETED,
-                            startTime.timeInMillis,
-                            endTime.timeInMillis,
-                            quarterGrade,
-                            quarterGradeSum)
-
-                    quarter.subjects.addAll(subjects)
-
-                    quarters.add(quarter)
-                }
 
                 result.putString("cookie", cookie)
             }
@@ -419,6 +442,12 @@ class DstService : Service() {
 
                 https.disconnect()
 
+                logReport(operation, document, {
+                    select("a[class=men_enlace1]").removeAttr("href")
+                    select("strong:matchesOwn(\\d{7})").forEach { it.text("") }
+                    select("table[class=tablaL] > tbody > tr > td > table > tbody > tr > td").forEach { it.text("") }
+                })
+
                 /* Select personal data table */
                 val personalData = document.select("table[class=tablaL] > tbody > tr > td > table > tbody > tr > td")
 
@@ -427,8 +456,9 @@ class DstService : Service() {
 
                 val career = personalData[4]
                         .text()
-                        .trim()
+                        .replace("&\\S+;".toRegex(), "")
                         .replace("\\s*-\\s*".toRegex(), "-")
+                        .trim()
                         .split("-")
 
                 firstNames = personalData[2].text().trim()
@@ -448,6 +478,11 @@ class DstService : Service() {
                 https.inputStream.close()
 
                 https.disconnect()
+
+                logReport(operation, document, {
+                    select("form[action]").removeAttr("action")
+                    select("input[type=hidden]").removeAttr("value")
+                })
 
                 val lt = document.select("input[name=lt]").first().attr("value")
 
@@ -520,7 +555,15 @@ class DstService : Service() {
 
                 val document = https.getDocument()
 
+                https.inputStream.close()
+
                 https.disconnect()
+
+                logReport(operation, document, {
+                    select("strong:matchesOwn(\\d{7})").forEach {
+                        it.parent().parent().children().forEach { it.text("") }
+                    }
+                })
 
                 /* Select subjects */
                 val quarter: DstQuarter
@@ -570,11 +613,38 @@ class DstService : Service() {
                     quarter.subjects.addAll(subjects)
 
                     quarters.add(quarter)
-                }
+                } else
+                    lastUpdate = getLastStartTime()
             }
         }
 
+        if (!BuildConfig.DEBUG)
+            Crashlytics.log("Operation finished: '$operation'")
+
         return result
+    }
+
+    /* Get last start time for current quarter */
+    private fun getLastStartTime(): Long {
+        val now = Date().time
+
+        val startTime = Calendar.getInstance()
+        val endTime = Calendar.getInstance()
+
+        val times = arrayOf(Pair(Calendar.JANUARY, Calendar.MARCH),
+                Pair(Calendar.APRIL, Calendar.JULY),
+                Pair(Calendar.JULY, Calendar.AUGUST),
+                Pair(Calendar.SEPTEMBER, Calendar.DECEMBER))
+
+        for ((first, second) in times) {
+            startTime.set(Calendar.MONTH, first)
+            endTime.set(Calendar.MONTH, second)
+
+            if (startTime.timeInMillis <= now && endTime.timeInMillis >= now)
+                return startTime.timeInMillis
+        }
+
+        return now
     }
 
     /* Send operation update to UI handler */
@@ -659,24 +729,6 @@ class DstService : Service() {
         notification.f()
 
         notificationManager.notify(notificationId, notification.build())
-    }
-
-    /* Capitalize a subject name */
-    private fun String.toSubjectName(): String {
-        val buffer = StringBuffer()
-
-        val matcher = Pattern
-                .compile("(?<=\\W)[xvi]+|(^|(?<=\\s))((\\S(?=\\S{2,}))|(?<=:\\s)\\S)")
-                .matcher(toLowerCase()
-                        .replace("^\"|\"$".toRegex(), "")
-                        .replace("(?<=\\w)\\.(?=\\w)".toRegex(), " "))
-
-        while (matcher.find())
-            matcher.appendReplacement(buffer, matcher.group().toUpperCase())
-
-        matcher.appendTail(buffer)
-
-        return buffer.toString()
     }
 
     /* Get x509 certificate properties by key */

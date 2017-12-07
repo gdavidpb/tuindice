@@ -6,6 +6,7 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
@@ -13,6 +14,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
@@ -26,15 +28,19 @@ import android.support.v7.content.res.AppCompatResources
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.CycleInterpolator
-import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import com.gdavidpb.tuindice.models.Preferences
 import com.gdavidpb.tuindice.models.SQLiteHelper
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import org.jsoup.nodes.Document
 import java.io.*
 import java.net.SocketTimeoutException
 import java.util.*
+import java.util.regex.Pattern
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import javax.net.ssl.SSLException
 
 /* This document contains some possessed functions: In Kotlin we trust */
@@ -53,6 +59,19 @@ fun <T> async(
     }
 }
 
+/* ZipOutputStream extension */
+fun ZipOutputStream.putEntry(entry: ZipEntry, inputStream: InputStream) {
+    inputStream.use {
+        putNextEntry(entry)
+
+        inputStream.copyTo(this)
+
+        closeEntry()
+
+        flush()
+    }
+}
+
 /* Exception extension */
 fun Exception.toDescription(): Int = when (this) {
     is AuthenticatorException -> R.string.snackAuthError
@@ -61,6 +80,24 @@ fun Exception.toDescription(): Int = when (this) {
     is FileNotFoundException -> R.string.snackServerError
     is IllegalStateException -> R.string.snackParseError
     else -> R.string.snackNetError
+}
+
+/* String extensions */
+fun String.toSubjectName(): String {
+    val buffer = StringBuffer()
+
+    val matcher = Pattern
+            .compile("(?<=\\b)[xvi]+(?<=\\b|\$)|(?<=^|\\W)\\w")
+            .matcher(toLowerCase()
+                    .replace("^\"|\"$".toRegex(), "")
+                    .replace("(?<=\\w)\\.(?=\\w)".toRegex(), " "))
+
+    while (matcher.find())
+        matcher.appendReplacement(buffer, matcher.group().toUpperCase())
+
+    matcher.appendTail(buffer)
+
+    return buffer.toString()
 }
 
 /* Double extensions */
@@ -73,6 +110,28 @@ fun Calendar.monthsTo(to: Calendar): Int {
 }
 
 /* Context extensions */
+fun Context.logReport(operation: Operation, document: Document, removeSensitive: Document.() -> Unit = { }) {
+    /* Document clone */
+    val documentClone = document.clone()
+
+    /* Remove sensible data from url */
+    val url = documentClone.location().replace("([;?]).*".toRegex(), "")
+
+    /* Remove sensible elements */
+    documentClone.removeSensitive()
+
+    File(filesDir, "report-operation").appendText("$operation - $url\n\n$documentClone\n\n")
+}
+
+fun Context.deleteReport() {
+    for (f in filesDir.listFiles())
+        try {
+            f.delete()
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+        }
+}
+
 fun Context.getDatabase(): SQLiteHelper = SQLiteHelper.getInstance(this)
 
 fun Context.getPreferences(): Preferences = Preferences.getInstance(this)
@@ -86,12 +145,53 @@ fun Context.isPowerSaveMode(): Boolean {
         false
 }
 
+fun Context.toast(@StringRes stringRes: Int, duration: Int = Toast.LENGTH_SHORT) {
+    Toast.makeText(this, stringRes, duration).show()
+}
+
 inline fun Context.alertDialog(init: AlertDialog.Builder.() -> Unit) {
     val alertDialog = AlertDialog.Builder(this)
 
     alertDialog.init()
 
     alertDialog.show()
+}
+
+/* Activity extension for contact */
+fun Activity.onContact(alert: Boolean = true) {
+    val launchContact = {
+        val intent = Intent(Intent.ACTION_SENDTO)
+                .setData(Uri.parse("mailto:"))
+                .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.devContactSubject))
+                .putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.devEmail)))
+
+        val report = getDatabase().generateReport()
+
+        if (report != null)
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(report))
+        else
+            toast(R.string.devUnableGenerateReport, Toast.LENGTH_LONG)
+
+        try {
+            startActivity(intent)
+        } catch (exception: ActivityNotFoundException) {
+            exception.printStackTrace()
+
+            toast(R.string.devNoEmailClient)
+        }
+    }
+
+    if (alert)
+        alertDialog {
+            setTitle(R.string.devTitleReport)
+            setMessage(R.string.devMessageReport)
+            setNegativeButton(R.string.cancel, null)
+            setPositiveButton(R.string.accept, { _, _ ->
+                launchContact()
+            })
+        }
+    else
+        launchContact()
 }
 
 /* startActivity-launchActivity inline */
@@ -210,24 +310,4 @@ fun View.snackBar(
     snackBar.show()
 
     return snackBar
-}
-
-fun View.showSoftInput() {
-    requestFocus()
-
-    val inputManager = (context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-
-    inputManager.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
-}
-
-fun View.hideSoftInput() {
-    clearFocus()
-
-    val inputManager = (context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-
-    inputManager.hideSoftInputFromWindow(windowToken,
-            InputMethodManager.HIDE_IMPLICIT_ONLY)
-
-    inputManager.hideSoftInputFromWindow(windowToken,
-            InputMethodManager.HIDE_NOT_ALWAYS)
 }

@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Tue Nov 21 23:43:03 VET 2017
+#Thu Dec 07 00:51:36 VET 2017
 1.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/assets/release
 2.path=classes.dex
 0.baseType=DIRECTORY

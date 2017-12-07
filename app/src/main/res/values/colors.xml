@@ -10,11 +10,9 @@
     <color name="colorBackgroundDark">#9E9E9E</color>
     <color name="colorWarning">#F44336</color>
     <color name="colorDisabled">#B0BEC5</color>
-    <color name="colorTickMarkH">#E0E0E0</color>
-    <color name="colorTickMarkL">#9E9E9E</color>
-    <color name="colorTransparent">#AA000000</color>
+    <color name="colorTransparent">#80000000</color>
 
     <color name="quarterCompleted">#B0BEC5</color>
     <color name="quarterCurrent">#FFC107</color>
-    <color name="quarterGuess">#80FFC107</color>
+    <color name="quarterGuess">#64FFC107</color>
 </resources>

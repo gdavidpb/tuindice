@@ -1,9 +1,12 @@
 package com.gdavidpb.tuindice;
 
+import java.util.Locale;
+
 /* Java static code for constants is more clearly than Kotlin */
 public final class Constants {
     /* Default */
     public final static int DEFAULT_CONNECTION_RETRY = 3;
+    public final static Locale DEFAULT_LOCALE = new Locale("es", "VE");
 
     /* Result codes */
     public final static int RES_UPDATE = 0;
@@ -28,8 +31,4 @@ public final class Constants {
 
     /* Creative Commons */
     public static final String CREATIVE_COMMONS_LICENSE = "https://creativecommons.org/licenses/by-nc/4.0/";
-
-    /* Contact information */
-    public static final String CONTACT_EMAIL = "gerardoprado93@gmail.com";
-    public static final String CONTACT_SUBJECT = "TuIndice - Contacto";
 }

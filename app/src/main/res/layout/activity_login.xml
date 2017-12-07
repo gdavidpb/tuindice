@@ -113,7 +113,7 @@
                 android:drawablePadding="@dimen/margin_medium"
                 android:imeOptions="actionDone"
                 android:inputType="textPassword"
-                android:maxLength="25"
+                android:maxLength="60"
                 android:saveEnabled="true"
                 android:selectAllOnFocus="true" />
 

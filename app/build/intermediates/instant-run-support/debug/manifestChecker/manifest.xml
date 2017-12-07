@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gdavidpb.tuindice"
-    android:versionCode="1"
+    android:versionCode="4"
     android:versionName="0.1" >
 
     <uses-sdk
@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name="com.gdavidpb.tuindice.models.MyApplication"
+        android:name="com.gdavidpb.tuindice.models.FabricApplication"
         android:allowBackup="false"
         android:debuggable="true"
         android:icon="@mipmap/ic_launcher"
@@ -63,11 +63,6 @@
             android:authorities="com.gdavidpb.tuindice.crashlyticsinitprovider"
             android:exported="false"
             android:initOrder="100" />
-
-        <meta-data
-            android:name="android.arch.lifecycle.VERSION"
-            android:value="27.0.0-SNAPSHOT" />
-
         <provider
             android:name="com.android.tools.ir.server.InstantRunContentProvider"
             android:authorities="com.gdavidpb.tuindice.com.android.tools.ir.server.InstantRunContentProvider"
