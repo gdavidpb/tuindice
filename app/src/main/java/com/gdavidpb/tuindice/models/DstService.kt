@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.activities.LoginActivity
 import com.gdavidpb.tuindice.activities.MainActivity
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import java.io.File
 import java.net.URL
 import java.net.URLEncoder
 import java.security.KeyStore
@@ -25,7 +26,6 @@ import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.regex.Pattern
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
@@ -92,8 +92,8 @@ class DstService : Service() {
     private lateinit var receiver: ResultReceiver
 
     private lateinit var sslContext: SSLContext
-    private lateinit var notificationManager: NotificationManager
     private lateinit var notification: NotificationCompat.Builder
+    private lateinit var notificationManager: NotificationManager
 
     /* Fields */
     private var operation: Operation? = null
@@ -152,6 +152,10 @@ class DstService : Service() {
             } catch (exception: Exception) {
                 exception.printStackTrace()
 
+                val writer = File(filesDir, "report-stacktrace").printWriter()
+
+                writer.use { exception.printStackTrace(writer) }
+
                 DstResponse<DstAccount>(exception)
             }
         }, /* on Response */ {
@@ -207,8 +211,12 @@ class DstService : Service() {
 
         keyStore.load(null)
 
-        for (crt in certificates)
-            keyStore.setCertificateEntry((crt as X509Certificate).getProperty("CN"), crt)
+        for (certificate in certificates) {
+            val alias = (certificate as X509Certificate).getProperty("CN") ?: "${UUID.randomUUID()}"
+
+            keyStore.setCertificateEntry(alias, certificate)
+
+        }
 
         trustManagerFactory.init(keyStore)
 
@@ -244,8 +252,8 @@ class DstService : Service() {
                     select("input[type=hidden]").removeAttr("value")
                 })
 
-                val lt = document.select("input[name=lt]").first().attr("value")
                 val cookie = https.getHeaderField("Set-Cookie")
+                val lt = document.select("input[name=lt]").firstOrNull()?.attr("value")
 
                 if (lt == null || lt.isEmpty())
                     throw IllegalStateException("$operation: lt no found")
@@ -329,99 +337,104 @@ class DstService : Service() {
                 })
 
                 /* Select quarter tables */
-                val data = document.select("table[class=tabla] > tbody > tr > td > table")
+                val data = document.select("table[class=tabla] table:has(table)")
 
-                if (data == null || data.isEmpty())
+                if (data.isEmpty())
                     throw IllegalStateException("$operation: data no found")
 
-                if (data.size < 3)
-                    throw IllegalStateException("$operation: invalid data")
+                val recordData = data.dropLast(1)
+                val summaryData = data.last()?.select("td:matchesOwn(\\d+)")
 
-                val recordData = data.dropLast(3)
-                val summaryData = data.takeLast(1)[0].select("td[align=center]")
-
-                if (recordData.size % 3 != 0)
-                    throw IllegalStateException("$operation: invalid record data")
-
-                if (summaryData.size < 8)
+                if (summaryData == null || summaryData.size < 8)
                     throw IllegalStateException("$operation: invalid summary data")
 
-                enrolledSubjects = summaryData[0].text().toInt()
-                enrolledCredits = summaryData[1].text().toInt()
+                enrolledSubjects = summaryData[0].unescapeEntitiesText().toInt()
+                enrolledCredits = summaryData[1].unescapeEntitiesText().toInt()
 
-                approvedSubject = summaryData[2].text().toInt()
-                approvedCredits = summaryData[3].text().toInt()
+                approvedSubject = summaryData[2].unescapeEntitiesText().toInt()
+                approvedCredits = summaryData[3].unescapeEntitiesText().toInt()
 
-                retiredSubjects = summaryData[4].text().toInt()
-                retiredCredits = summaryData[5].text().toInt()
+                retiredSubjects = summaryData[4].unescapeEntitiesText().toInt()
+                retiredCredits = summaryData[5].unescapeEntitiesText().toInt()
 
-                failedSubjects = summaryData[6].text().toInt()
-                failedCredits = summaryData[7].text().toInt()
+                failedSubjects = summaryData[6].unescapeEntitiesText().toInt()
+                failedCredits = summaryData[7].unescapeEntitiesText().toInt()
 
-                if (recordData.isNotEmpty())
-                    for (i in recordData.indices.step(3)) {
-                        /* HTML raw elements */
-                        val quarterPeriod = recordData[i]
-                                .select("td")[0]
-                                .text()
-                                .replace("&\\S+;".toRegex(), "")
-                                .replace("\\s*-\\s*".toRegex(), "-")
-                                .trim()
-                                .toLowerCase()
+                for (i in recordData) {
+                    val quarterData = i.select("td:not(:has(*))")
+                    val quarterSubjects = quarterData.drop(1).dropLast(1)
 
-                        val subjectElement = recordData[i + 1]
-                                .select("tr > td:not(:has(*))")
+                    val quarterPeriod = quarterData
+                            .firstOrNull()
+                            ?.unescapeEntitiesText()
+                            ?.toPeriodName()
 
-                        val summaryElement = "\\d\\.\\d{4}".toRegex()
-                                .find(recordData[i + 2].text())
+                    val quarterSummary = "\\d\\.\\d{4}"
+                            .toRegex()
+                            .find(quarterData.last().unescapeEntitiesText())
 
-                        if (subjectElement.size % 5 != 0)
-                            throw IllegalStateException("$operation: invalid subjectElement data")
+                    if (quarterPeriod == null)
+                        throw IllegalStateException("$operation: invalid quarter period data")
 
-                        /* Get quarter start and end time */
-                        val startTime = Calendar.getInstance()
-                        val endTime = Calendar.getInstance()
-                        val subjects = ArrayList<DstSubject>()
+                    if (quarterSubjects.size % 5 != 0)
+                        throw IllegalStateException("$operation: invalid quarter subjects data")
 
-                        /* Find quarter grades */
-                        val quarterGrade = summaryElement!!.value.toDouble()
-                        val quarterGradeSum = summaryElement.next()!!.value.toDouble()
+                    /* Get quarter start and end time */
+                    val startTime = Calendar.getInstance()
+                    val endTime = Calendar.getInstance()
+                    val subjects = ArrayList<DstSubject>()
 
-                        startTime.time = startFormat.parse(quarterPeriod)
-                        endTime.time = endFormat.parse(quarterPeriod)
+                    /* Find quarter grades */
+                    val quarterGrade = quarterSummary
+                            ?.value
+                            ?.toDouble()
 
-                        startTime.set(Calendar.YEAR, endTime.get(Calendar.YEAR))
+                    val quarterGradeSum = quarterSummary
+                            ?.next()
+                            ?.value
+                            ?.toDouble()
 
-                        /* for subject */
-                        for (j in subjectElement.indices.step(5)) {
-                            val code = subjectElement[j].text().trim()
-                            val name = subjectElement[j + 1].text().trim().toSubjectName()
-                            val credits = subjectElement[j + 2].text().toIntOrNull()!!
-                            val grade = subjectElement[j + 3].text().toIntOrNull() ?: 0
-                            val detail = when (subjectElement[j + 4].text().trim()) {
-                                SubjectStatus.RETIRED.toString(applicationContext) -> SubjectStatus.RETIRED
-                                SubjectStatus.NO_EFFECT.toString(applicationContext) -> SubjectStatus.NO_EFFECT
-                                SubjectStatus.APPROVED.toString(applicationContext) -> SubjectStatus.APPROVED
-                                else -> SubjectStatus.OK
-                            }
+                    if (quarterGrade == null)
+                        throw IllegalStateException("$operation: invalid quarter grade data")
 
-                            subjects.add(DstSubject(code, name, credits, grade, detail))
+                    if (quarterGradeSum == null)
+                        throw IllegalStateException("$operation: invalid quarter grade sum data")
+
+                    startTime.time = startFormat.parse(quarterPeriod)
+                    endTime.time = endFormat.parse(quarterPeriod)
+
+                    startTime.set(Calendar.YEAR, endTime.get(Calendar.YEAR))
+
+                    /* for subjects */
+                    for (j in quarterSubjects.indices.step(5)) {
+                        val code = quarterSubjects[j].unescapeEntitiesText()
+                        val name = quarterSubjects[j + 1].unescapeEntitiesText().toSubjectName()
+                        val credits = quarterSubjects[j + 2].unescapeEntitiesText().toInt()
+                        val grade = quarterSubjects[j + 3].unescapeEntitiesText().toIntOrNull() ?: 0
+                        val detail = when (quarterSubjects[j + 4].unescapeEntitiesText()) {
+                            SubjectStatus.RETIRED.toString(applicationContext) -> SubjectStatus.RETIRED
+                            SubjectStatus.NO_EFFECT.toString(applicationContext) -> SubjectStatus.NO_EFFECT
+                            SubjectStatus.APPROVED.toString(applicationContext) -> SubjectStatus.APPROVED
+                            else -> SubjectStatus.OK
                         }
 
-                        if (lastUpdate < startTime.timeInMillis)
-                            lastUpdate = startTime.timeInMillis
-
-                        val quarter = DstQuarter(
-                                QuarterType.COMPLETED,
-                                startTime.timeInMillis,
-                                endTime.timeInMillis,
-                                quarterGrade,
-                                quarterGradeSum)
-
-                        quarter.subjects.addAll(subjects)
-
-                        quarters.add(quarter)
+                        subjects.add(DstSubject(code, name, credits, grade, detail))
                     }
+
+                    if (lastUpdate < startTime.timeInMillis)
+                        lastUpdate = startTime.timeInMillis
+
+                    val quarter = DstQuarter(
+                            QuarterType.COMPLETED,
+                            startTime.timeInMillis,
+                            endTime.timeInMillis,
+                            quarterGrade,
+                            quarterGradeSum)
+
+                    quarter.subjects.addAll(subjects)
+
+                    quarters.add(quarter)
+                }
 
                 result.putString("cookie", cookie)
             }
@@ -445,26 +458,23 @@ class DstService : Service() {
                 logReport(operation, document, {
                     select("a[class=men_enlace1]").removeAttr("href")
                     select("strong:matchesOwn(\\d{7})").forEach { it.text("") }
-                    select("table[class=tablaL] > tbody > tr > td > table > tbody > tr > td").forEach { it.text("") }
+                    select("table[class=tabla] td").forEach { it.text("") }
                 })
 
                 /* Select personal data table */
-                val personalData = document.select("table[class=tablaL] > tbody > tr > td > table > tbody > tr > td")
+                val personalData = document.select("table[class=tabla] td")
 
                 if (personalData.size < 6)
                     throw IllegalStateException("$operation: invalid personal data")
 
                 val career = personalData[4]
-                        .text()
-                        .replace("&\\S+;".toRegex(), "")
-                        .replace("\\s*-\\s*".toRegex(), "-")
-                        .trim()
+                        .unescapeEntitiesText()
                         .split("-")
 
                 firstNames = personalData[2].text().trim()
                 lastNames = personalData[3].text().trim()
-                careerCode = Integer.parseInt(career[0])
-                careerName = career[1]
+                careerCode = Integer.parseInt(career[0].trim())
+                careerName = career[1].trim()
             }
             Operation.LOGIN_ENROLLMENT -> {
                 val https = URL("$dstEnrollment$dstEnrollmentLogin").openConnection() as HttpsURLConnection
@@ -571,8 +581,8 @@ class DstService : Service() {
                 val endTime = Calendar.getInstance()
                 val subjects = ArrayList<DstSubject>()
 
-                val subjectData = document.select("table > tbody > tr > td[rowspan]:not(:has(b))")
-                val subjectNames = document.select("table > tbody > tr[id]")
+                val subjectData = document.select("td[rowspan]:not(:has(b))")
+                val subjectNames = document.select("tr[id]")
 
                 if (subjectData.size % 3 != 0)
                     throw IllegalStateException("$operation: invalid subject data")
@@ -582,12 +592,11 @@ class DstService : Service() {
 
                 /* Quarter enrolled */
                 if (subjectData.isNotEmpty()) {
-                    val quarterPeriod = "\\w+-\\w+ \\d{4}"
-                            .toRegex()
-                            .find(document
-                                    .select("div[id=horario] > div > div")
-                                    .text())!!.value
-                            .toLowerCase()
+                    val quarterPeriod = document.select("div[id=horario] strong")
+                            .firstOrNull()
+                            ?.unescapeEntitiesText()
+                            ?.toPeriodName() ?:
+                            throw IllegalStateException("$operation: invalid quarter period data")
 
                     startTime.time = startFormat.parse(quarterPeriod)
                     endTime.time = endFormat.parse(quarterPeriod)
@@ -598,9 +607,26 @@ class DstService : Service() {
                         lastUpdate = startTime.timeInMillis
 
                     for (i in subjectData.indices.step(3)) {
-                        val code = "^[^\\s]+".toRegex().find(subjectData[i].text())!!.value
-                        val name = "(?<=])[^\$]+".toRegex().find(subjectNames[i / 3].text())!!.value.trim().toSubjectName()
-                        val credits = subjectData[i + 2].text().toInt()
+                        val code = "^[^\\s]+"
+                                .toRegex()
+                                .find(subjectData[i].unescapeEntitiesText())
+                                ?.value
+
+                        val name = "(?<=\\s)[^\$]+"
+                                .toRegex()
+                                .find(subjectNames[i / 3].unescapeEntitiesText())
+                                ?.value
+                                ?.toSubjectName()
+
+                        val credits = subjectData[i + 2]
+                                .unescapeEntitiesText()
+                                .toInt()
+
+                        if (code == null)
+                            throw IllegalStateException("$operation: invalid code data")
+
+                        if (name == null)
+                            throw IllegalStateException("$operation: invalid name data")
 
                         subjects.add(DstSubject(code, name, credits))
                     }
@@ -732,7 +758,7 @@ class DstService : Service() {
     }
 
     /* Get x509 certificate properties by key */
-    private fun X509Certificate.getProperty(key: String): String = "(?<=$key=)[^,]+|$".toRegex().find(subjectDN.name)!!.value
+    private fun X509Certificate.getProperty(key: String) = "(?<=$key=)[^,]+|$".toRegex().find(subjectDN.name)?.value
 
     /* HashMap to POST-payload */
     private fun HashMap<String, String>.toPayload(): ByteArray {
@@ -748,7 +774,7 @@ class DstService : Service() {
 
     /* Parse Https input stream to Jsoup-document */
     private fun HttpsURLConnection.getDocument(): Document {
-        val charset = "(?<=charset=).+$".toRegex().find(getHeaderField("Content-Type"))!!.value
+        val charset = "(?<=charset=).+$".toRegex().find(getHeaderField("Content-Type"))?.value ?: "UTF-8"
 
         return Jsoup.parse(inputStream, charset, url.toString())
     }

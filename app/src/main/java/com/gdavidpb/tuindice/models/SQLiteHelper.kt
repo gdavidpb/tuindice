@@ -341,11 +341,13 @@ class SQLiteHelper(val context: Context, name: String = "database.sqlite", versi
         return try {
             val reportDatabase = "report-database"
             val reportOperation = "report-operation"
+            val reportStacktrace = "report-stacktrace"
             val reportName = "report-${Date().time}.zip"
 
             val databaseFile = File(database.path)
             val databaseCloneFile = File(databaseFile.parent, reportDatabase)
             val operationFile = File(context.filesDir, reportOperation)
+            val stacktraceFile = File(context.filesDir, reportStacktrace)
 
             val account = getActiveAccount()
 
@@ -385,6 +387,15 @@ class SQLiteHelper(val context: Context, name: String = "database.sqlite", versi
                 output.putEntry(ZipEntry(reportOperation), operationInput)
 
                 operationFile.delete()
+            }
+
+            /* Put stacktrace report in report zip */
+            if (stacktraceFile.exists()) {
+                val stackTraceInput = stacktraceFile.inputStream()
+
+                output.putEntry(ZipEntry(reportStacktrace), stackTraceInput)
+
+                stacktraceFile.delete()
             }
 
             output.close()

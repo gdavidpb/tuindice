@@ -118,7 +118,7 @@ data class DstAccount(val usbId: String = String(),
         this.enrolledSubjects = enrolledSubjects
     }
 
-    fun isOutdated() = id == -1L
+    fun isOutdated() = (id == -1L)
 
     fun isEmpty() = usbId.isEmpty() || password.isEmpty()
 
@@ -153,7 +153,7 @@ data class DstSubject(val code: String,
             false
     }
 
-    override fun hashCode()= id.toInt()
+    override fun hashCode() = id.toInt()
 }
 
 data class DstQuarter(val type: QuarterType,

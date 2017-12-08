@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.models.DstService
 import com.gdavidpb.tuindice.tabs.DataTab
 import com.gdavidpb.tuindice.tabs.SummaryTab
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 import java.util.*
 
 class MainActivity : AppCompatActivity(), Initializer {
@@ -48,6 +49,10 @@ class MainActivity : AppCompatActivity(), Initializer {
                     DstService().collectFrom(account.usbId, account.password)
                 } catch (exception: Exception) {
                     exception.printStackTrace()
+
+                    val writer = File(filesDir, "report-stacktrace").printWriter()
+
+                    writer.use { exception.printStackTrace(writer) }
 
                     DstResponse<DstAccount>(exception)
                 }

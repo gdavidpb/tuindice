@@ -933,7 +933,7 @@
     <string name="cancel">Cancelar</string>
     <string name="character_counter_pattern" translatable="false">%1$d / %2$d</string>
     <string name="close">Cerrar</string>
-    <string name="com.crashlytics.android.build_id" ns2:ignore="UnusedResources,TypographyDashes" translatable="false">25e6bbe9-7c0a-4df3-b5b5-2a6caba4aa18</string>
+    <string name="com.crashlytics.android.build_id" ns2:ignore="UnusedResources,TypographyDashes" translatable="false">498a22a0-1afa-448f-97c3-2a3417fcb9db</string>
     <string name="decline">Rechazar</string>
     <string name="demoFinish">¡Ayúdanos a mejorar!</string>
     <string name="demoWelcome">¡Bienvenido!</string>

@@ -106,7 +106,6 @@ class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiv
         bLogin.setOnClickListener { onLoginClick() }
 
         eTextUsbId.setOnEditorActionListener { _, actionId, _ ->
-
             when (actionId) {
                 EditorInfo.IME_ACTION_NEXT -> isInvalid(tInputUsbId)
                 else -> true
@@ -114,7 +113,6 @@ class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiv
         }
 
         eTextPassword.setOnEditorActionListener { _, actionId, _ ->
-
             when (actionId) {
                 EditorInfo.IME_ACTION_DONE -> isInvalid(tInputPassword)
                 else -> true
@@ -136,9 +134,9 @@ class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiv
                 }
             }
 
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) { }
 
-            override fun afterTextChanged(s: Editable) {}
+            override fun afterTextChanged(s: Editable) { }
         })
 
         eTextPassword.addTextChangedListener(object : TextWatcher {
@@ -156,9 +154,9 @@ class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiv
                 }
             }
 
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) { }
 
-            override fun afterTextChanged(s: Editable) {}
+            override fun afterTextChanged(s: Editable) { }
         })
 
         eTextUsbId.setOnFocusChangeListener { _, hasFocus ->
@@ -192,9 +190,9 @@ class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiv
                     eTextUsbId.keyListener = DigitsKeyListener.getInstance("0123456789")
             }
 
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) { }
 
-            override fun afterTextChanged(s: Editable) {}
+            override fun afterTextChanged(s: Editable) { }
         })
 
         lLayoutLogin.visibility = View.VISIBLE

@@ -35,6 +35,8 @@ import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
+import org.jsoup.parser.Parser
 import java.io.*
 import java.net.SocketTimeoutException
 import java.util.*
@@ -99,6 +101,12 @@ fun String.toSubjectName(): String {
 
     return buffer.toString()
 }
+
+fun String.toPeriodName() = "\\S+-\\S+ \\d{4}"
+        .toRegex()
+        .find(replace("\\s*-\\s*".toRegex(), "-").toLowerCase())?.value
+
+fun Element.unescapeEntitiesText() = Parser.unescapeEntities(text(), false).trim()
 
 /* Double extensions */
 fun Double.toGrade() = Math.floor(this * 10000) / 10000
