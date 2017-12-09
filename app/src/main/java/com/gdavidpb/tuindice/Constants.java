@@ -18,6 +18,7 @@ public final class Constants {
     /* Preferences keys */
     public final static String KEY_FIRST_RUN = "KEY_FIRST_RUN";
     public final static String KEY_CONNECTION_RETRY = "KEY_CONNECTION_RETRY";
+    public final static String KEY_REFRESH_COOLDOWN = "KEY_REFRESH_COOLDOWN";
 
     /* Extras */
     public final static String EXTRA_UPDATE = "EXTRA_UPDATE";

@@ -1,90 +1,83 @@
 package com.gdavidpb.tuindice.models
 
-import android.annotation.SuppressLint
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
-import android.content.ContentValues
-import android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE
 import android.support.v4.util.LruCache
 import com.gdavidpb.tuindice.*
+import org.jetbrains.anko.db.*
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-class SQLiteHelper(val context: Context, name: String = "database.sqlite", version: Int = 2)
-    : SQLiteOpenHelper(context, name, null, version) {
+val Context.database: SQLiteHelper
+    get() = SQLiteHelper.getInstance(applicationContext)
+
+class SQLiteHelper(context: Context, name: String = "database.sqlite", version: Int = 2)
+    : ManagedSQLiteOpenHelper(context, name, null, version) {
 
     companion object {
-        @SuppressLint("StaticFieldLeak")
         private var instance: SQLiteHelper? = null
 
         @Synchronized
         fun getInstance(context: Context): SQLiteHelper {
             if (instance == null)
-                instance = SQLiteHelper(context)
+                instance = SQLiteHelper(context.applicationContext)
 
             return instance!!
         }
     }
 
-    private val database by lazy { writableDatabase }
-
-    private val cache = LruCache<Long, Double>(4 * 1024 * 1024)
+    private val database by lazy { context.database }
+    private val cache by lazy { LruCache<Long, Double>(4 * 1024 * 1024) }
 
     /* Database constants */
     private val _accounts = "accounts"
     private val _quarters = "quarters"
     private val _subjects = "subjects"
 
-    private val _createAccounts =
-            "CREATE TABLE $_accounts(" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "active INTEGER DEFAULT 0," +
-                    "temporary INTEGER DEFAULT 0 UNIQUE," +
-                    "usbId TEXT NOT NULL UNIQUE," +
-                    "password TEXT NOT NULL," +
-                    "firstNames TEXT NOT NULL," +
-                    "lastNames TEXT NOT NULL," +
-                    "careerName TEXT NOT NULL," +
-                    "careerCode INTEGER," +
-                    "lastUpdate INTEGER," +
-                    "failedCredits INTEGER," +
-                    "failedSubjects INTEGER," +
-                    "retiredCredits INTEGER," +
-                    "retiredSubjects INTEGER," +
-                    "approvedCredits INTEGER," +
-                    "approvedSubject INTEGER," +
-                    "enrolledCredits INTEGER," +
-                    "enrolledSubjects INTEGER)"
-
-    private val _createQuarters =
-            "CREATE TABLE $_quarters(" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "aid INTEGER," +
-                    "type INTEGER," +
-                    "startTime INTEGER UNIQUE," +
-                    "endTime INTEGER UNIQUE," +
-                    "grade REAL," +
-                    "gradeSum REAL)"
-
-    private val _createSubjects =
-            "CREATE TABLE $_subjects(" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "qid INTEGER," +
-                    "aid INTEGER," +
-                    "code TEXT NOT NULL," +
-                    "name TEXT NOT NULL," +
-                    "credits INTEGER," +
-                    "grade INTEGER DEFAULT 0," +
-                    "status INTEGER DEFAULT 0)"
-
     override fun onCreate(database: SQLiteDatabase) {
-        database.execSQL(_createAccounts)
-        database.execSQL(_createQuarters)
-        database.execSQL(_createSubjects)
+        /* Create tables */
+        database.createTable(_accounts, true,
+                "id" to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                "active" to INTEGER + DEFAULT("0"),
+                "temporary" to INTEGER + UNIQUE + DEFAULT("0"),
+                "usbId" to TEXT + NOT_NULL + UNIQUE,
+                "password" to TEXT + NOT_NULL,
+                "firstNames" to TEXT + NOT_NULL,
+                "lastNames" to TEXT + NOT_NULL,
+                "careerName" to TEXT + NOT_NULL,
+                "careerCode" to INTEGER,
+                "lastUpdate" to INTEGER,
+                "failedCredits" to INTEGER,
+                "failedSubjects" to INTEGER,
+                "retiredCredits" to INTEGER,
+                "retiredSubjects" to INTEGER,
+                "approvedCredits" to INTEGER,
+                "approvedSubject" to INTEGER,
+                "enrolledCredits" to INTEGER,
+                "enrolledSubjects" to INTEGER)
+
+        database.createTable(_quarters, true,
+                "id" to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                        "aid" to INTEGER,
+                        "type" to INTEGER,
+                        "startTime" to INTEGER + UNIQUE,
+                        "endTime" to INTEGER + UNIQUE,
+                        "grade" to REAL,
+                        "gradeSum" to REAL)
+
+        database.createTable(_subjects, true,
+                "id" to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                        "qid" to INTEGER,
+                        "aid" to INTEGER,
+                        "code" to TEXT + NOT_NULL,
+                        "name" to TEXT + NOT_NULL,
+                        "credits" to INTEGER,
+                        "grade" to INTEGER + DEFAULT("0"),
+                        "status" to INTEGER + DEFAULT("0"))
     }
 
     override fun onUpgrade(database: SQLiteDatabase, oldVersion: Int, newVersion: Int) { }
@@ -96,214 +89,216 @@ class SQLiteHelper(val context: Context, name: String = "database.sqlite", versi
     }
 
     fun getActiveAccount(): DstAccount {
-        val account: DstAccount
-        val cursor = database.rawQuery("SELECT * FROM $_accounts WHERE active = 1")
-
-        if (cursor.moveToFirst()) {
-            account = DstAccount(
-                    cursor.getString(3),
-                    cursor.getString(4),
-                    cursor.getString(5),
-                    cursor.getString(6),
-                    cursor.getString(7),
-                    cursor.getInt(8),
-                    cursor.getLong(9),
-                    cursor.getInt(10),
-                    cursor.getInt(11),
-                    cursor.getInt(12),
-                    cursor.getInt(13),
-                    cursor.getInt(14),
-                    cursor.getInt(15),
-                    cursor.getInt(16),
-                    cursor.getInt(17))
-
-            account.id = cursor.getLong(0)
-
-            cursor.close()
-
-            account.quarters.addAll(getQuarters(account.id, QuarterType.ALL))
-        } else
-            account = DstAccount()
-
-        return account
+        return database.use {
+            select(_accounts).whereArgs("active = 1").exec {
+                if (moveToFirst())
+                    parseAccount(this)
+                else
+                    DstAccount()
+            }
+        }
     }
 
     fun removeActiveAccount() {
-        val cursor = database.rawQuery("SELECT id FROM $_accounts WHERE active = 1")
+        database.use {
+            select(_accounts, "id")
+                    .whereArgs("active = 1").exec {
+                if (moveToFirst()) {
+                    val accountId = getLong(0)
 
-        if (cursor.moveToFirst()) {
-            val id = cursor.getLong(0)
-
-            database.execSQL("DELETE FROM $_subjects WHERE aid = $id")
-            database.execSQL("DELETE FROM $_quarters WHERE aid = $id")
-            database.execSQL("DELETE FROM $_accounts WHERE id = $id")
-
-            cursor.close()
+                    delete(_subjects, "aid = $accountId")
+                    delete(_quarters, "aid = $accountId")
+                    delete(_accounts, "id = $accountId")
+                }
+            }
         }
     }
 
     fun removeTemporaryAccount() {
-        val cursor = database.rawQuery("SELECT id FROM $_accounts WHERE temporary = 1")
-
-        if (cursor.moveToFirst()) {
-            val id = cursor.getLong(0)
-
-            database.execSQL("DELETE FROM $_subjects WHERE aid = $id")
-            database.execSQL("DELETE FROM $_quarters WHERE aid = $id")
-            database.execSQL("DELETE FROM $_accounts WHERE id = $id")
-
-            cursor.close()
-        }
+        database.use { delete(_accounts, "temporary = 1") }
     }
 
     fun setTemporaryAccount(account: DstAccount) {
-        addAccount(account, false, true)
+        database.use {
+            val n = update(_accounts,
+                    "usbId" to account.usbId,
+                    "password" to account.password)
+                    .whereArgs("temporary = 1")
+                    .exec()
+
+            if (n == 0)
+                insert(_accounts,
+                        "usbId" to account.usbId,
+                        "password" to account.password,
+                        "firstNames" to "",
+                        "lastNames" to "",
+                        "careerName" to "",
+                        "temporary" to 1)
+        }
     }
 
     fun getTemporaryAccount(): DstAccount {
-        val account: DstAccount
-        val cursor = database.rawQuery("SELECT * FROM $_accounts WHERE temporary = 1")
+        return database.use {
+            select(_accounts).whereArgs("temporary = 1").exec {
+                if (moveToFirst()) {
+                    val account = DstAccount(getString(3), getString(4))
 
-        if (cursor.moveToFirst()) {
-            account = DstAccount(
-                    cursor.getString(3),
-                    cursor.getString(4),
-                    cursor.getString(5),
-                    cursor.getString(6),
-                    cursor.getString(7),
-                    cursor.getInt(8),
-                    cursor.getLong(9),
-                    cursor.getInt(10),
-                    cursor.getInt(11),
-                    cursor.getInt(12),
-                    cursor.getInt(13),
-                    cursor.getInt(14),
-                    cursor.getInt(15),
-                    cursor.getInt(16),
-                    cursor.getInt(17))
+                    account.id = getLong(0)
 
-            account.id = cursor.getLong(0)
-
-            cursor.close()
-
-            account.quarters.addAll(getQuarters(account.id, QuarterType.ALL))
-        } else
-            account = DstAccount()
-
-        return account
+                    account
+                } else
+                    DstAccount()
+            }
+        }
     }
 
-    fun addAccount(account: DstAccount, active: Boolean = false, temporary: Boolean = false) {
-        val values = ContentValues()
+    fun addAccount(account: DstAccount, active: Boolean = false) {
+        database.use {
+            update(_accounts, "active" to 0)
+                    .whereArgs("active = 1")
+                    .exec()
 
-        if (active) {
-            values.put("active", 0)
+            val accountId = replace(_accounts,
+                    "active" to if (active) 1 else 0,
+                    "temporary" to 0,
+                    "usbId" to account.usbId,
+                    "password" to account.password,
+                    "firstNames" to account.firstNames,
+                    "lastNames" to account.lastNames,
+                    "careerName" to account.careerName,
+                    "careerCode" to account.careerCode,
+                    "lastUpdate" to account.lastUpdate,
+                    "failedCredits" to account.failedCredits,
+                    "failedSubjects" to account.failedSubjects,
+                    "retiredCredits" to account.retiredCredits,
+                    "retiredSubjects" to account.retiredSubjects,
+                    "approvedCredits" to account.approvedCredits,
+                    "approvedSubject" to account.approvedSubject,
+                    "enrolledCredits" to account.enrolledCredits,
+                    "enrolledSubjects" to account.enrolledSubjects)
 
-            database.update(_accounts, values, "active = 1", null)
+            for (quarter in account.quarters)
+                addQuarter(accountId, quarter)
+
+            computeGradesForCurrentQuarter(accountId)
         }
+    }
 
-        values.put("active", if (active) 1 else 0)
-        values.put("temporary", if (temporary) 1 else 0)
-        values.put("usbId", account.usbId)
-        values.put("password", account.password)
-        values.put("firstNames", account.firstNames)
-        values.put("lastNames", account.lastNames)
-        values.put("careerName", account.careerName)
-        values.put("careerCode", account.careerCode)
-        values.put("lastUpdate", account.lastUpdate)
-        values.put("failedCredits", account.failedCredits)
-        values.put("failedSubjects", account.failedSubjects)
-        values.put("retiredCredits", account.retiredCredits)
-        values.put("retiredSubjects", account.retiredSubjects)
-        values.put("approvedCredits", account.approvedCredits)
-        values.put("approvedSubject", account.approvedSubject)
-        values.put("enrolledCredits", account.enrolledCredits)
-        values.put("enrolledSubjects", account.enrolledSubjects)
+    fun updateAccount(accountId: Long, account: DstAccount) {
+        database.use {
+            update(_accounts,
+                    "firstNames" to account.firstNames,
+                    "lastNames" to account.lastNames,
+                    "careerName" to account.careerName,
+                    "careerCode" to account.careerCode,
+                    "lastUpdate" to account.lastUpdate,
+                    "failedCredits" to account.failedCredits,
+                    "failedSubjects" to account.failedSubjects,
+                    "retiredCredits" to account.retiredCredits,
+                    "retiredSubjects" to account.retiredSubjects,
+                    "approvedCredits" to account.approvedCredits,
+                    "approvedSubject" to account.approvedSubject,
+                    "enrolledCredits" to account.enrolledCredits,
+                    "enrolledSubjects" to account.enrolledSubjects)
+                    .whereArgs("id = $accountId").exec()
 
-        val accountId = database.insertWithOnConflict(_accounts, null, values, CONFLICT_REPLACE)
+            /* Remove current quarter */
+            val quarterId = select(_quarters, "id")
+                    .whereArgs("aid = $accountId AND type = ${QuarterType.CURRENT.value}")
+                    .exec { if (moveToFirst()) getLong(0) else -1L }
 
-        database.execSQL("DELETE FROM $_subjects WHERE aid = $accountId")
-        database.execSQL("DELETE FROM $_quarters WHERE aid = $accountId")
+            if (quarterId != -1L) {
+                delete(_subjects, "qid = $quarterId")
+                delete(_quarters, "id = $quarterId")
+            }
 
-        for (quarter in account.quarters)
-            addQuarter(accountId, quarter)
+            for (quarter in account.quarters)
+                addQuarter(accountId, quarter)
+
+            computeGradesForCurrentQuarter(accountId)
+        }
+    }
+
+    fun updateSubject(subject: DstSubject) {
+        database.use {
+            update(_subjects,
+                    "code" to subject.code,
+                    "name" to subject.name,
+                    "credits" to subject.credits,
+                    "grade" to subject.grade,
+                    "status" to subject.status.value)
+                    .whereArgs("id = ${subject.id}")
+                    .exec()
+        }
     }
 
     fun getQuarterCredits(quarter: DstQuarter): Int {
-        var credits = 0
-        val cursor = database.rawQuery("SELECT SUM(credits) FROM $_subjects WHERE status = ${SubjectStatus.OK.value} AND qid = ${quarter.id}")
-
-        if (cursor.moveToFirst()) {
-            credits = cursor.getInt(0)
-
-            cursor.close()
+        return database.use {
+            select(_subjects, "SUM(credits)")
+                    .whereArgs("qid = ${quarter.id} AND status = ${SubjectStatus.OK.value}")
+                    .exec { if (moveToFirst()) getInt(0) else 0 }
         }
-
-        return credits
     }
 
     fun getQuarterSample(type: QuarterType, status: SubjectStatus = SubjectStatus.OK): DstQuarter {
-        val quarter: DstQuarter
-        val cursor = database.rawQuery("SELECT * FROM $_quarters WHERE type = ${type.value}")
+        return database.use {
+            select(_quarters)
+                    .whereArgs("type = ${type.value}").exec {
+                val quarter: DstQuarter
 
-        val grade = 3.0
-        val gradeSum = randomGrade(grade, 5.0)
+                val grade = 3.0
+                val gradeSum = randomGrade(grade, 5.0)
 
-        if (cursor.moveRandom()) {
-            quarter = DstQuarter(
-                    QuarterType.fromValue(cursor.getInt(2)),
-                    cursor.getLong(3),
-                    cursor.getLong(4),
-                    cursor.getDouble(5),
-                    cursor.getDouble(6))
+                if (moveRandom()) {
+                    quarter = DstQuarter(
+                            QuarterType.fromValue(getInt(2)),
+                            getLong(3),
+                            getLong(4),
+                            getDouble(5),
+                            getDouble(6))
 
-            quarter.id = cursor.getLong(0)
-            quarter.aid = cursor.getLong(1)
-        } else {
-            /* Sample quarter */
-            val startTime = Calendar.getInstance()
-            val endTime = Calendar.getInstance()
+                    quarter.id = getLong(0)
+                    quarter.aid = getLong(1)
+                } else {
+                    /* Sample quarter */
+                    val startTime = Calendar.getInstance()
+                    val endTime = Calendar.getInstance()
 
-            val times = arrayOf(Pair(Calendar.JANUARY, Calendar.MARCH),
-                    Pair(Calendar.APRIL, Calendar.JULY),
-                    Pair(Calendar.JULY, Calendar.AUGUST),
-                    Pair(Calendar.SEPTEMBER, Calendar.DECEMBER))
+                    val times = arrayOf(Pair(Calendar.JANUARY, Calendar.MARCH),
+                            Pair(Calendar.APRIL, Calendar.JULY),
+                            Pair(Calendar.JULY, Calendar.AUGUST),
+                            Pair(Calendar.SEPTEMBER, Calendar.DECEMBER))
 
-            val time = times[Math.abs(Random().nextInt()) % times.size]
+                    val time = times[Math.abs(Random().nextInt()) % times.size]
 
-            startTime.set(Calendar.MONTH, time.first)
-            endTime.set(Calendar.MONTH, time.second)
+                    startTime.set(Calendar.MONTH, time.first)
+                    endTime.set(Calendar.MONTH, time.second)
 
-            quarter = DstQuarter(type,
-                    startTime.timeInMillis,
-                    endTime.timeInMillis,
-                    grade.toGrade(),
-                    gradeSum.toGrade())
+                    quarter = DstQuarter(type,
+                            startTime.timeInMillis,
+                            endTime.timeInMillis,
+                            grade.toGrade(),
+                            gradeSum.toGrade())
+                }
+
+                val subject = getSubjectSample(status)
+
+                quarter.grade = subject.grade.toDouble()
+                quarter.gradeSum = gradeSum
+
+                quarter.subjects.add(subject)
+
+                quarter
+            }
         }
-
-        val subject = getSubjectSample(status)
-
-        quarter.grade = subject.grade.toDouble()
-        quarter.gradeSum = gradeSum
-
-        quarter.subjects.add(subject)
-
-        cursor.close()
-
-        return quarter
     }
 
     fun computeGradeFromQuarter(quarter: DstQuarter): Double {
-        var grade = 0.0
-        val cursor = database.rawQuery("SELECT (1.0 * SUM(credits * grade) / SUM(credits)) FROM $_subjects WHERE status = ${SubjectStatus.OK.value} AND qid = ${quarter.id}")
-
-        if (cursor.moveToFirst()) {
-            grade = cursor.getDouble(0).toGrade()
-
-            cursor.close()
+        return database.use {
+            select(_subjects, "(1.0 * SUM(credits * grade) / SUM(credits))")
+                    .whereArgs("qid = ${quarter.id} AND status = ${SubjectStatus.OK.value}")
+                    .exec { (if (moveToFirst()) getDouble(0) else 0.0).toGrade() }
         }
-
-        return grade
     }
 
     fun computeGradeSumFromQuarter(quarter: DstQuarter): Double {
@@ -311,40 +306,26 @@ class SQLiteHelper(val context: Context, name: String = "database.sqlite", versi
         var grade = cache.get(key)
 
         if (grade == null) {
-            val cursor = database.rawQuery("SELECT (1.0 * SUM(credits * grade) / SUM(credits)) FROM $_subjects WHERE status = ${SubjectStatus.OK.value} AND aid = ${quarter.aid} AND qid <= ${quarter.id} AND id NOT IN (SELECT id FROM $_subjects WHERE qid < ${quarter.id} AND grade < 3 AND status = ${SubjectStatus.OK.value} AND code IN (SELECT code FROM $_subjects WHERE status = ${SubjectStatus.OK.value} AND qid = ${quarter.id} AND grade >= 3) GROUP BY code)")
-
-            if (cursor.moveToFirst()) {
-                grade = cursor.getDouble(0).toGrade()
-
-                cursor.close()
+            grade = database.use {
+                select(_subjects, "(1.0 * SUM(credits * grade) / SUM(credits))")
+                        .whereArgs("aid = ${quarter.aid} AND qid <= ${quarter.id} AND status = ${SubjectStatus.OK.value} AND id NOT IN (SELECT id FROM $_subjects WHERE qid < ${quarter.id} AND grade < 3 AND status = ${SubjectStatus.OK.value} AND code IN (SELECT code FROM $_subjects WHERE qid = ${quarter.id} AND status = ${SubjectStatus.OK.value} AND grade >= 3) GROUP BY code)")
+                        .exec { if (moveToFirst()) getDouble(0) else 0.0 }
             }
 
             cache.put(key, grade)
         }
 
-        return grade
+        return grade.toGrade()
     }
 
-    fun updateSubject(subject: DstSubject) {
-        val values = ContentValues()
-
-        values.put("code", subject.code)
-        values.put("name", subject.name)
-        values.put("credits", subject.credits)
-        values.put("grade", subject.grade)
-        values.put("status", subject.status.value)
-
-        database.update(_subjects, values, "id = ${subject.id}", null)
-    }
-
-    fun generateReport(): File? {
+    fun generateReport(context: Context): File? {
         return try {
             val reportDatabase = "report-database"
             val reportOperation = "report-operation"
             val reportStacktrace = "report-stacktrace"
             val reportName = "report-${Date().time}.zip"
 
-            val databaseFile = File(database.path)
+            val databaseFile = context.getDatabasePath(databaseName)
             val databaseCloneFile = File(databaseFile.parent, reportDatabase)
             val operationFile = File(context.filesDir, reportOperation)
             val stacktraceFile = File(context.filesDir, reportStacktrace)
@@ -367,6 +348,12 @@ class SQLiteHelper(val context: Context, name: String = "database.sqlite", versi
 
             /* Create report file in external cache directory */
             val reportFile = File(context.externalCacheDir, reportName)
+
+            /* If there is nothing to add to report zip  */
+            if (!databaseCloneFile.exists() &&
+                    !operationFile.exists() &&
+                    !stacktraceFile.exists())
+                throw IllegalStateException("There is nothing to include to the report file")
 
             /* Merge database and operation reports into a report zip */
             val output = ZipOutputStream(FileOutputStream(reportFile))
@@ -412,125 +399,13 @@ class SQLiteHelper(val context: Context, name: String = "database.sqlite", versi
     }
 
     private fun makeAnonymous() {
-        val values = ContentValues()
-
-        values.put("usbId", "")
-        values.put("password", "")
-        values.put("firstNames", "")
-        values.put("lastNames", "")
-
-        database.update(_accounts, values, null, null)
-    }
-
-    private fun getSubjectSample(status: SubjectStatus = SubjectStatus.OK): DstSubject {
-        val subject: DstSubject
-        val cursor = database.rawQuery("SELECT * FROM $_subjects WHERE status = ${status.value}")
-
-        if (cursor.moveRandom()) {
-            subject = DstSubject(
-                    cursor.getString(3),
-                    cursor.getString(4),
-                    cursor.getInt(5),
-                    cursor.getInt(6),
-                    SubjectStatus.fromValue(cursor.getInt(7)))
-
-            subject.grade = 3
-
-            subject.id = cursor.getLong(0)
-        } else
-            subject = DstSubject("MA1111",
-                    "Matematicas I",
-                    4,
-                    3,
-                    status)
-
-        cursor.close()
-
-        return subject
-    }
-
-    private fun getSubjects(quarterId: Long): ArrayList<DstSubject> {
-        val subjects = ArrayList<DstSubject>()
-
-        val cursor = database.rawQuery("SELECT * FROM $_subjects WHERE qid = $quarterId")
-
-        if (cursor.moveToFirst())
-            do {
-                val subject = DstSubject(
-                        cursor.getString(3),
-                        cursor.getString(4),
-                        cursor.getInt(5),
-                        cursor.getInt(6),
-                        SubjectStatus.fromValue(cursor.getInt(7)))
-
-                subject.id = cursor.getLong(0)
-
-                subjects.add(subject)
-            } while (cursor.moveToNext())
-
-        cursor.close()
-
-        return subjects
-    }
-
-    private fun getQuarters(accountId: Long, type: QuarterType): ArrayList<DstQuarter> {
-        val quarters = ArrayList<DstQuarter>()
-
-        val cursor = if (type == QuarterType.ALL)
-            database.rawQuery("SELECT * FROM $_quarters WHERE aid = $accountId")
-        else
-            database.rawQuery("SELECT * FROM $_quarters WHERE aid = $accountId AND type = ${type.value}")
-
-        if (cursor.moveToFirst())
-            do {
-                val quarter = DstQuarter(
-                        QuarterType.fromValue(cursor.getInt(2)),
-                        cursor.getLong(3),
-                        cursor.getLong(4),
-                        cursor.getDouble(5),
-                        cursor.getDouble(6))
-
-                quarter.id = cursor.getLong(0)
-                quarter.aid = cursor.getLong(1)
-
-                val subjects = getSubjects(quarter.id)
-
-                quarter.subjects.addAll(subjects)
-
-                quarters.add(quarter)
-            } while (cursor.moveToNext())
-
-        cursor.close()
-
-        return quarters
-    }
-
-    private fun addQuarter(accountId: Long, quarter: DstQuarter) {
-        val values = ContentValues()
-
-        values.put("aid", accountId)
-        values.put("startTime", quarter.startTime)
-        values.put("endTime", quarter.endTime)
-        values.put("grade", quarter.grade)
-        values.put("gradeSum", quarter.gradeSum)
-        values.put("type", quarter.type.value)
-
-        val quarterId = database.insertWithOnConflict(_quarters, null, values, CONFLICT_REPLACE)
-
-        values.clear()
-
-        database.execSQL("DELETE FROM $_subjects WHERE qid = $quarterId")
-
-        for (subject in quarter.subjects) {
-            values.put("qid", quarterId)
-            values.put("aid", accountId)
-            values.put("code", subject.code)
-            values.put("name", subject.name)
-            values.put("credits", subject.credits)
-            values.put("grade", subject.grade)
-            values.put("status", subject.status.value)
-
-            database.insert(_subjects, null, values)
+        database.use {
+            update(_accounts,
+                    "usbId" to "",
+                    "password" to "",
+                    "firstNames" to "",
+                    "lastNames" to "")
+                    .exec()
         }
     }
 
@@ -539,5 +414,139 @@ class SQLiteHelper(val context: Context, name: String = "database.sqlite", versi
         val mini = min.toInt() * 10000
 
         return (Math.abs(Random().nextInt(maxi + 1 - mini)) + mini) / 10000.0
+    }
+
+    private fun parseSubject(cursor: Cursor): DstSubject {
+        val subject = DstSubject(
+                cursor.getString(3),
+                cursor.getString(4),
+                cursor.getInt(5),
+                cursor.getInt(6),
+                SubjectStatus.fromValue(cursor.getInt(7)))
+
+        subject.id = cursor.getLong(0)
+
+        return subject
+    }
+
+    private fun SQLiteDatabase.parseAccount(cursor: Cursor): DstAccount {
+        val account = DstAccount(
+                cursor.getString(3),
+                cursor.getString(4),
+                cursor.getString(5),
+                cursor.getString(6),
+                cursor.getString(7),
+                cursor.getInt(8),
+                cursor.getLong(9),
+                cursor.getInt(10),
+                cursor.getInt(11),
+                cursor.getInt(12),
+                cursor.getInt(13),
+                cursor.getInt(14),
+                cursor.getInt(15),
+                cursor.getInt(16),
+                cursor.getInt(17))
+
+        account.id = cursor.getLong(0)
+
+        account.quarters.addAll(getQuarters(account.id, QuarterType.ALL))
+
+        return account
+    }
+
+    private fun SQLiteDatabase.parseQuarter(cursor: Cursor): DstQuarter {
+        val quarter = DstQuarter(QuarterType.fromValue(cursor.getInt(2)),
+                cursor.getLong(3),
+                cursor.getLong(4),
+                cursor.getDouble(5),
+                cursor.getDouble(6))
+
+        quarter.id = cursor.getLong(0)
+        quarter.aid = cursor.getLong(1)
+
+        val subjects = getSubjects(quarter.id)
+
+        quarter.subjects.addAll(subjects)
+
+        return quarter
+    }
+
+    private fun SQLiteDatabase.computeGradesForCurrentQuarter(accountId: Long) {
+        val currentQuarter = select(_quarters)
+                .whereArgs("aid = $accountId AND type = ${QuarterType.CURRENT.value}").exec { if (moveToFirst()) parseQuarter(this) else null }
+
+        if (currentQuarter != null) {
+            val grade = computeGradeFromQuarter(currentQuarter)
+            val gradeSum = computeGradeSumFromQuarter(currentQuarter)
+
+            update(_quarters,
+                    "grade" to grade,
+                    "gradeSum" to gradeSum)
+                    .whereArgs("id = ${currentQuarter.id}")
+                    .exec()
+        }
+    }
+
+    private fun SQLiteDatabase.getSubjectSample(status: SubjectStatus = SubjectStatus.OK): DstSubject {
+        return select(_subjects)
+                .whereArgs("status = ${status.value}").exec {
+            if (moveRandom())
+                parseSubject(this).copy(grade = 3)
+            else
+                DstSubject("MA1111",
+                        "Matematicas I",
+                        4,
+                        3,
+                        status)
+        }
+    }
+
+    private fun SQLiteDatabase.getSubjects(quarterId: Long): ArrayList<DstSubject> {
+        return select(_subjects)
+                .whereArgs("qid = $quarterId").exec {
+            val subjects = ArrayList<DstSubject>()
+
+            if (moveToFirst())
+                do
+                    subjects.add(parseSubject(this))
+                while (moveToNext())
+
+            subjects
+        }
+    }
+
+    private fun SQLiteDatabase.getQuarters(accountId: Long, type: QuarterType): ArrayList<DstQuarter> {
+        return select(_quarters)
+                .whereArgs(if (type == QuarterType.ALL) "aid = $accountId" else "aid = $accountId AND type = ${type.value}").exec {
+            val quarters = ArrayList<DstQuarter>()
+
+            if (moveToFirst())
+                do
+                    quarters.add(parseQuarter(this))
+                while (moveToNext())
+
+            quarters
+        }
+    }
+
+    private fun SQLiteDatabase.addQuarter(accountId: Long, quarter: DstQuarter) {
+        val quarterId = insert(_quarters,
+                "aid" to accountId,
+                "startTime" to quarter.startTime,
+                "endTime" to quarter.endTime,
+                "grade" to quarter.grade,
+                "gradeSum" to quarter.gradeSum,
+                "type" to quarter.type.value)
+
+        if (quarterId != -1L)
+            for (subject in quarter.subjects)
+                insert(_subjects,
+                        "qid" to quarterId,
+                        "aid" to accountId,
+                        "code" to subject.code,
+                        "name" to subject.name,
+                        "credits" to subject.credits,
+                        "grade" to subject.grade,
+                        "status" to subject.status.value)
     }
 }

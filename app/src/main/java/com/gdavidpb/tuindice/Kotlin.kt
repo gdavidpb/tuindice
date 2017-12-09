@@ -5,35 +5,31 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
 import android.os.PowerManager
 import android.support.annotation.ColorRes
 import android.support.annotation.DrawableRes
-import android.support.annotation.StringRes
-import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat
 import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.content.res.AppCompatResources
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.CycleInterpolator
-import android.widget.Toast
-import com.gdavidpb.tuindice.models.Preferences
-import com.gdavidpb.tuindice.models.SQLiteHelper
-import kotlinx.coroutines.experimental.CommonPool
+import com.gdavidpb.tuindice.models.database
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
+import org.jetbrains.anko.alert
+import org.jetbrains.anko.coroutines.experimental.bg
+import org.jetbrains.anko.longToast
+import org.jetbrains.anko.toast
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.parser.Parser
@@ -48,17 +44,8 @@ import javax.net.ssl.SSLException
 /* This document contains some possessed functions: In Kotlin we trust */
 
 /* So powerful dark magic */
-fun <T> async(
-        task: () -> T,
-        onFinish: T.() -> Unit = { }) {
-
-    launch(Android) {
-        async(CommonPool) {
-            task()
-        }.await().let {
-            response -> onFinish(response)
-        }
-    }
+fun <T> async(task: () -> T, onFinish: suspend T.() -> Unit = { }) {
+    async(UI) { bg { task() }.await().let { response -> onFinish(response) } }
 }
 
 /* ZipOutputStream extension */
@@ -140,10 +127,6 @@ fun Context.deleteReport() {
         }
 }
 
-fun Context.getDatabase(): SQLiteHelper = SQLiteHelper.getInstance(this)
-
-fun Context.getPreferences(): Preferences = Preferences.getInstance(this)
-
 fun Context.isPowerSaveMode(): Boolean {
     return if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -153,32 +136,20 @@ fun Context.isPowerSaveMode(): Boolean {
         false
 }
 
-fun Context.toast(@StringRes stringRes: Int, duration: Int = Toast.LENGTH_SHORT) {
-    Toast.makeText(this, stringRes, duration).show()
-}
-
-inline fun Context.alertDialog(init: AlertDialog.Builder.() -> Unit) {
-    val alertDialog = AlertDialog.Builder(this)
-
-    alertDialog.init()
-
-    alertDialog.show()
-}
-
 /* Activity extension for contact */
-fun Activity.onContact(alert: Boolean = true) {
-    val launchContact = {
+fun Activity.onContact(showAlert: Boolean = true) {
+    val startContact = {
         val intent = Intent(Intent.ACTION_SENDTO)
                 .setData(Uri.parse("mailto:"))
                 .putExtra(Intent.EXTRA_SUBJECT, getString(R.string.devContactSubject))
                 .putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.devEmail)))
 
-        val report = getDatabase().generateReport()
+        val report = database.generateReport(applicationContext)
 
         if (report != null)
             intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(report))
         else
-            toast(R.string.devUnableGenerateReport, Toast.LENGTH_LONG)
+            longToast(R.string.devUnableGenerateReport)
 
         try {
             startActivity(intent)
@@ -189,37 +160,15 @@ fun Activity.onContact(alert: Boolean = true) {
         }
     }
 
-    if (alert)
-        alertDialog {
-            setTitle(R.string.devTitleReport)
-            setMessage(R.string.devMessageReport)
-            setNegativeButton(R.string.cancel, null)
-            setPositiveButton(R.string.accept, { _, _ ->
-                launchContact()
-            })
-        }
+    if (showAlert)
+        alert(R.string.devMessageReport,
+                R.string.devTitleReport) {
+            negativeButton(R.string.cancel) { }
+            positiveButton(R.string.accept) { startContact() }
+        }.show()
     else
-        launchContact()
+        startContact()
 }
-
-/* startActivity-launchActivity inline */
-inline fun <reified T : Activity> Context.launchActivity(
-        requestCode: Int = -1,
-        options: Bundle? = null,
-        noinline init: Intent.() -> Unit = { }) {
-
-    val intent = Intent(this, T::class.java)
-
-    intent.init()
-
-    if (this is Activity && requestCode != -1)
-        startActivityForResult(intent, requestCode, options)
-    else
-        startActivity(intent, options)
-}
-
-/* Database extensions */
-fun SQLiteDatabase.rawQuery(sql: String): Cursor = rawQuery(sql, null)
 
 fun Cursor.moveRandom() = if (count > 0) move(Math.abs(Random().nextInt()) % count + 1) else false
 
@@ -304,18 +253,4 @@ fun Context.getTintVector(
     drawable.bounds = Rect(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
 
     return drawable
-}
-
-/* View-Context inlines */
-fun View.snackBar(
-        @StringRes stringRes: Int,
-        length: Int = Snackbar.LENGTH_LONG,
-        init: Snackbar.() -> Unit = { }): Snackbar {
-    val snackBar = Snackbar.make(this, stringRes, length)
-
-    snackBar.init()
-
-    snackBar.show()
-
-    return snackBar
 }

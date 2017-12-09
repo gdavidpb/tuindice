@@ -9,18 +9,20 @@ import android.view.View
 import com.gdavidpb.tuindice.*
 import com.gdavidpb.tuindice.abstracts.Initializer
 import com.gdavidpb.tuindice.models.DstService
+import com.gdavidpb.tuindice.models.database
+import com.gdavidpb.tuindice.models.preferences
 import com.gdavidpb.tuindice.tabs.DataTab
 import com.gdavidpb.tuindice.tabs.SummaryTab
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.File
-import java.util.*
+import org.jetbrains.anko.alert
+import org.jetbrains.anko.startActivity
 
 class MainActivity : AppCompatActivity(), Initializer {
 
     private var account = DstAccount()
 
-    private val dataTab = DataTab()
-    private val summaryTab = SummaryTab()
+    private lateinit var dataTab: DataTab
+    private lateinit var summaryTab: SummaryTab
 
     /* Overrides */
     override fun onInitialize(view: View?) {
@@ -31,61 +33,21 @@ class MainActivity : AppCompatActivity(), Initializer {
         DstService.stopService(applicationContext)
 
         /* Setup tab host */
+        dataTab = DataTab()
+        summaryTab = SummaryTab()
+
         tabHost.setUp(supportFragmentManager, {
             addTab(R.string.tabData, dataTab)
             addTab(R.string.tabSummary, summaryTab)
         })
 
-        /* Check for updates */
-        val now = Calendar.getInstance()
-        val lastUpdate = Calendar.getInstance()
-
-        lastUpdate.timeInMillis = account.lastUpdate
-
-        if (lastUpdate.monthsTo(now) >= 3) {
-            /* Set up service */
-            async( /* on Task */ {
-                try {
-                    DstService().collectFrom(account.usbId, account.password)
-                } catch (exception: Exception) {
-                    exception.printStackTrace()
-
-                    val writer = File(filesDir, "report-stacktrace").printWriter()
-
-                    writer.use { exception.printStackTrace(writer) }
-
-                    DstResponse<DstAccount>(exception)
-                }
-            }, /* on Response */ {
-                if (result != null) {
-                    account = result
-
-                    getDatabase().addAccount(account, true)
-
-                    onInitialize()
-                }
-            })
-        }
-
-        /* Reload from database */
-        if (account.isOutdated())
-            account = getDatabase().getActiveAccount()
-
-        /* Update user interface */
-        val bundle = Bundle()
-
-        bundle.putSerializable(Constants.EXTRA_ACCOUNT, account)
-
-        dataTab.update(bundle)
-        summaryTab.update(bundle)
-
         supportActionBar?.title = getString(R.string.app_title,
                 account.careerCode,
                 account.careerName)
 
-        /* Launch demo activity if it's the first run */
-        if (getPreferences().getFirstRun())
-            launchActivity<DemoActivity>()
+        /* Start demo activity if it's the first run */
+        if (preferences.getFirstRun())
+            startActivity<DemoActivity>()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,10 +55,10 @@ class MainActivity : AppCompatActivity(), Initializer {
 
         try {
             /* Get active account from database */
-            account = getDatabase().getActiveAccount()
+            account = database.getActiveAccount()
 
             if (account.isEmpty()) {
-                launchActivity<LoginActivity>()
+                startActivity<LoginActivity>()
                 finish()
             } else
                 onInitialize()
@@ -115,7 +77,7 @@ class MainActivity : AppCompatActivity(), Initializer {
     }
 
     override fun onDestroy() {
-        getDatabase().close()
+        database.close()
 
         super.onDestroy()
     }
@@ -127,11 +89,11 @@ class MainActivity : AppCompatActivity(), Initializer {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.action_about -> {
-            launchActivity<AboutActivity>()
+            startActivity<AboutActivity>()
             true
         }
         R.id.action_demo -> {
-            launchActivity<DemoActivity>()
+            startActivity<DemoActivity>()
             true
         }
         R.id.action_report -> {
@@ -147,30 +109,29 @@ class MainActivity : AppCompatActivity(), Initializer {
     }
 
     private fun onLogout() {
-        alertDialog {
-            setTitle(R.string.alertTitleExit)
-            setMessage(R.string.alertMessageExit)
-            setPositiveButton(R.string.exit, { _, _ ->
+        alert(R.string.alertMessageExit,
+                R.string.alertTitleExit) {
+            positiveButton(R.string.exit) {
                 deleteReport()
 
-                getDatabase().removeActiveAccount()
-                getDatabase().removeTemporaryAccount()
+                database.removeActiveAccount()
+                database.removeTemporaryAccount()
 
                 recreate()
-            })
-            setNegativeButton(R.string.cancel, null)
-        }
+            }
+            negativeButton(R.string.cancel) { }
+        }.show()
     }
 
     private fun onCantInitialize() {
-        alertDialog {
-            setCancelable(false)
-            setTitle(R.string.alertTitleCantInit)
-            setMessage(R.string.alertMessageCantInit)
-            setPositiveButton(R.string.exit, { _, _ ->
+        alert(R.string.alertMessageCantInit,
+                R.string.alertTitleCantInit) {
+            isCancelable = false
+
+            positiveButton(R.string.exit) {
                 finish()
                 System.exit(0)
-            })
-        }
+            }
+        }.show()
     }
 }

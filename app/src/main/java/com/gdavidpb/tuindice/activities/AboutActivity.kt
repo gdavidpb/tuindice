@@ -16,6 +16,9 @@ import android.net.Uri
 import android.os.Build
 import android.support.v7.content.res.AppCompatResources
 import com.gdavidpb.tuindice.*
+import org.jetbrains.anko.alert
+import org.jetbrains.anko.browse
+import org.jetbrains.anko.share
 
 class AboutActivity : AppCompatActivity(), Initializer {
 
@@ -66,15 +69,11 @@ class AboutActivity : AppCompatActivity(), Initializer {
         if (versionName < 1.0)
             tViewAboutRate.visibility = View.GONE
 
-        tViewAboutShare.setOnClickListener { launchShare() }
-        tViewAboutRate.setOnClickListener { launchPlayStore() }
+        tViewAboutRate.setOnClickListener { startPlayStore() }
         tViewDevContact.setOnClickListener { onContact(false) }
-        tViewAboutLicense.setOnClickListener { navigateTo(Constants.CREATIVE_COMMONS_LICENSE) }
-        tViewAboutTerms.setOnClickListener { alertDialog {
-            setTitle(R.string.alertTitleTerms)
-            setMessage(R.string.alertMessageTerms)
-            setPositiveButton(R.string.close, null)
-        } }
+        tViewAboutLicense.setOnClickListener { browse(Constants.CREATIVE_COMMONS_LICENSE) }
+        tViewAboutShare.setOnClickListener { share(getString(R.string.aboutShareMessage, packageName), getString(R.string.app_name)) }
+        tViewAboutTerms.setOnClickListener { alert(R.string.alertMessageTerms, R.string.alertTitleTerms) { positiveButton(R.string.close) { } }.show() }
 
         /* Set up drawables */
         val drawableLauncher = AppCompatResources.getDrawable(this, R.drawable.ic_launcher)
@@ -111,13 +110,7 @@ class AboutActivity : AppCompatActivity(), Initializer {
         onInitialize()
     }
 
-    private fun navigateTo(uri: String) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
-
-        startActivity(intent)
-    }
-
-    private fun launchPlayStore() {
+    private fun startPlayStore() {
         val uri = Uri.parse(String.format(Constants.GOOGLE_PLAY_INTENT, packageName))
         val intent = Intent(Intent.ACTION_VIEW, uri)
 
@@ -129,21 +122,8 @@ class AboutActivity : AppCompatActivity(), Initializer {
         try {
             startActivity(intent)
         } catch (ignored: ActivityNotFoundException) {
-            navigateTo(String.format(Constants.GOOGLE_PLAY_URL, packageName))
+            browse(String.format(Constants.GOOGLE_PLAY_URL, packageName))
         }
 
-    }
-
-    private fun launchShare() {
-        val intent = Intent(Intent.ACTION_SEND)
-
-        intent.type = "text/plain"
-
-        intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))
-        intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.aboutShareMessage, packageName))
-
-        val chooser = Intent.createChooser(intent, getString(R.string.share))
-
-        startActivity(chooser)
     }
 }

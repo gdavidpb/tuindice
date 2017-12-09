@@ -48,6 +48,8 @@
     <string name="subjectTitle">%1$s (%2$s)</string>
     <string name="subjectCredits">%1$d Cr.</string>
 
+    <string name="toastRefresh">Información actualizada</string>
+
     <!-- Login Activity -->
     <string name="hintUsbId">USBID</string>
     <string name="hintPassword">Contraseña</string>
@@ -207,9 +209,6 @@
 
     <string name="alertTitleExit">Atención</string>
     <string name="alertMessageExit">¿Estás seguro que deseas salir?</string>
-
-    <string name="alertTitleContact">Formulario de contacto</string>
-    <string name="alertHintContact">Dí lo que quieras…</string>
 
     <!-- Snack bars -->
     <string name="snackNetError">Error de conexión…</string>

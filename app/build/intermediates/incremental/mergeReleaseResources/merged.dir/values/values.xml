@@ -888,7 +888,6 @@
     <string name="action_demo">Tutorial</string>
     <string name="action_exit">Cerrar sesión</string>
     <string name="action_report">Reportar un error</string>
-    <string name="alertHintContact">Dí lo que quieras…</string>
     <string name="alertMessageCantInit">Ha ocurrido un error mientras iniciaba TuIndice. Intenta limpiar los datos de la aplicación y volver a iniciar</string>
     <string name="alertMessageExit">¿Estás seguro que deseas salir?</string>
     <string name="alertMessageTerms">
@@ -918,7 +917,6 @@
         <u><i><b>Al usar la aplicación se asume la aceptación de los términos y condiciones</b></i></u>
     </string>
     <string name="alertTitleCantInit">¡Oops, lo sentimos!</string>
-    <string name="alertTitleContact">Formulario de contacto</string>
     <string name="alertTitleExit">Atención</string>
     <string name="alertTitleTerms">Términos y condiciones</string>
     <string name="alpha">alpha</string>
@@ -933,7 +931,7 @@
     <string name="cancel">Cancelar</string>
     <string name="character_counter_pattern" translatable="false">%1$d / %2$d</string>
     <string name="close">Cerrar</string>
-    <string name="com.crashlytics.android.build_id" ns2:ignore="UnusedResources,TypographyDashes" translatable="false">6d276108-dc5b-4ed1-b512-8c02320775fe</string>
+    <string name="com.crashlytics.android.build_id" ns2:ignore="UnusedResources,TypographyDashes" translatable="false">e5bbc4f2-e5f3-4afc-8f54-2856d7e9bf39</string>
     <string name="decline">Rechazar</string>
     <string name="demoFinish">¡Ayúdanos a mejorar!</string>
     <string name="demoWelcome">¡Bienvenido!</string>
@@ -986,6 +984,7 @@
     <string name="subjectTitle">%1$s (%2$s)</string>
     <string name="tabData">Resumen</string>
     <string name="tabSummary">Informe Académico</string>
+    <string name="toastRefresh">Información actualizada</string>
     <style name="AlertDialog.AppCompat" parent="Base.AlertDialog.AppCompat"/>
     <style name="AlertDialog.AppCompat.Light" parent="Base.AlertDialog.AppCompat.Light"/>
     <style name="Animation.AppCompat.Dialog" parent="Base.Animation.AppCompat.Dialog"/>

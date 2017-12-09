@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Fri Dec 08 15:19:26 VET 2017
+#Sat Dec 09 17:39:05 VET 2017
 1.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/assets/debug
 2.path=crashlytics-build.properties
 0.baseType=DIRECTORY
@@ -10,6 +10,6 @@ count=3
 1.set=ASSET
 0.path=classes.dex
 0.set=DEX
-0.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/transforms/dexMerger/debug/361
+0.base=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/transforms/dexMerger/debug/113
 2.baseType=DIRECTORY
 1.path=fonts/Code.ttf

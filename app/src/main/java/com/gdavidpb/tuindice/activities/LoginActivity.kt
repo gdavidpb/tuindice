@@ -25,7 +25,10 @@ import android.support.v7.content.res.AppCompatResources
 import android.view.Menu
 import android.view.MenuItem
 import com.gdavidpb.tuindice.models.DstResultReceiver
-import com.gdavidpb.tuindice.models.SQLiteHelper
+import com.gdavidpb.tuindice.models.database
+import org.jetbrains.anko.alert
+import org.jetbrains.anko.design.indefiniteSnackbar
+import org.jetbrains.anko.startActivity
 
 class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiver {
 
@@ -44,7 +47,7 @@ class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiv
     @Suppress("unchecked_cast")
     override fun onInitialize(view: View?) {
         /* Set up temporary data */
-        val temporaryAccount = getDatabase().getTemporaryAccount()
+        val temporaryAccount = database.getTemporaryAccount()
 
         if (temporaryAccount.usbId.isNotEmpty()) {
             eTextUsbId.setText(temporaryAccount.usbId)
@@ -94,13 +97,13 @@ class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiv
         /* Set up events handlers */
         cBoxTerms.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked)
-                alertDialog {
-                    setCancelable(false)
-                    setTitle(R.string.alertTitleTerms)
-                    setMessage(R.string.alertMessageTerms)
-                    setPositiveButton(R.string.accept, null)
-                    setNegativeButton(R.string.decline, { _, _ -> cBoxTerms.isChecked = false })
-                }
+                alert(R.string.alertMessageTerms,
+                        R.string.alertTitleTerms) {
+                    isCancelable = false
+
+                    positiveButton(R.string.accept) { }
+                    negativeButton(R.string.decline) { cBoxTerms.isChecked = false }
+                }.show()
         }
 
         bLogin.setOnClickListener { onLoginClick() }
@@ -128,9 +131,7 @@ class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiv
                     val usbId = eTextUsbId.text.toString()
                     val password = eTextPassword.text.toString()
 
-                    SQLiteHelper
-                            .getInstance(applicationContext)
-                            .setTemporaryAccount(DstAccount(usbId, password))
+                    database.setTemporaryAccount(DstAccount(usbId, password))
                 }
             }
 
@@ -148,9 +149,7 @@ class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiv
                     val usbId = eTextUsbId.text.toString()
                     val password = eTextPassword.text.toString()
 
-                    SQLiteHelper
-                            .getInstance(applicationContext)
-                            .setTemporaryAccount(DstAccount(usbId, password))
+                    database.setTemporaryAccount(DstAccount(usbId, password))
                 }
             }
 
@@ -401,17 +400,16 @@ class LoginActivity : AppCompatActivity(), Initializer, DstResultReceiver.Receiv
 
                 lLayoutLogin.lookAtMe()
 
-                snackBarError = cLayoutMain.snackBar(
+                snackBarError = indefiniteSnackbar(cLayoutMain,
                         response.exception!!.toDescription(),
-                        Snackbar.LENGTH_INDEFINITE)
-                { setAction(R.string.retry) { onLoginClick() } }
+                        R.string.retry) { onLoginClick() }
             }
             response.result != null -> {
                 val account = response.result
 
-                getDatabase().addAccount(account, true)
+                database.addAccount(account, true)
 
-                launchActivity<MainActivity>()
+                startActivity<MainActivity>()
 
                 finish()
             }

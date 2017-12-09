@@ -20,6 +20,7 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.graphics.Typeface
 import android.util.LongSparseArray
+import com.gdavidpb.tuindice.models.database
 
 class QuarterAdapter(context: Context,
                      private val isDemo: Boolean = false,
@@ -34,7 +35,7 @@ class QuarterAdapter(context: Context,
     private val colorWarning by lazy { ContextCompat.getColor(context, R.color.colorWarning) }
     private val typeface by lazy { Typeface.createFromAsset(context.assets, "fonts/Code.ttf") }
 
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("unchecked_cast")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val quarter = getItem(position)
         val holder: SparseArray<View>
@@ -185,7 +186,7 @@ class QuarterAdapter(context: Context,
                     else
                         quarter.grade
                 else
-                    context.getDatabase().computeGradeFromQuarter(quarter)
+                    context.database.computeGradeFromQuarter(quarter)
 
         quarterGrade.text = spanNumber(
                 R.string.gradeDiff,
@@ -197,7 +198,7 @@ class QuarterAdapter(context: Context,
         val gradeSum = when {
             quarter.type == QuarterType.COMPLETED -> quarter.gradeSum
             isDemo -> (quarter.gradeSum + quarter.subjects[0].grade) / 2 /* Emulate grade sum */
-            !isDemo -> context.getDatabase().computeGradeSumFromQuarter(quarter)
+            !isDemo -> context.database.computeGradeSumFromQuarter(quarter)
             else -> quarter.gradeSum
         }
 
@@ -219,7 +220,7 @@ class QuarterAdapter(context: Context,
         val credits = when {
             grade == 0.0 -> 0
             quarter.type == QuarterType.COMPLETED || isDemo -> quarter.subjects.sumBy { it.credits }
-            else -> context.getDatabase().getQuarterCredits(quarter)
+            else -> context.database.getQuarterCredits(quarter)
         }
 
         val creditsColor = when {
@@ -259,6 +260,10 @@ class QuarterAdapter(context: Context,
 
             barGrade.visibility = View.GONE
         } else {
+            barGrade.progress = subject.grade
+
+            barGrade.visibility = View.VISIBLE
+
             barGrade.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
                 override fun onStartTrackingTouch(seekBar: SeekBar) {
                     if (isDemo && demoAnimator != null) {
@@ -279,6 +284,8 @@ class QuarterAdapter(context: Context,
                 override fun onStopTrackingTouch(seekBar: SeekBar) { }
 
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                    if (!fromUser) return
+
                     subject.grade = progress
 
                     if (progress > 0)
@@ -287,7 +294,7 @@ class QuarterAdapter(context: Context,
                         subject.status = SubjectStatus.RETIRED
 
                     if (!isDemo)
-                        context.getDatabase().updateSubject(subject)
+                        context.database.updateSubject(subject)
 
                     /* Set up quarter view */
                     setUpQuarter(quarter,
@@ -300,10 +307,6 @@ class QuarterAdapter(context: Context,
                     subjectCode.text = spanTitle(subject, context)
                 }
             })
-
-            barGrade.progress = subject.grade
-
-            barGrade.visibility = View.VISIBLE
         }
 
         subjectName.text = subject.name

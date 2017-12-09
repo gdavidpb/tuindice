@@ -43,7 +43,7 @@ class DstService : Service() {
             intent.putExtra(Constants.EXTRA_RECEIVER, receiver)
             intent.putExtra(Constants.EXTRA_ACCOUNT, DstAccount(usbId, password))
 
-            context.getPreferences().resetConnectionRetry()
+            context.preferences.resetConnectionRetry()
 
             context.startService(intent)
         }
@@ -122,13 +122,13 @@ class DstService : Service() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         /* Prevent service loop */
-        if (applicationContext.getPreferences().connectionRetryEnough()) {
+        if (applicationContext.preferences.connectionRetryEnough()) {
             stopSelf()
             return START_NOT_STICKY
         }
 
         /* Prevent service recall and infinite execution */
-        if (!applicationContext.getDatabase().getActiveAccount().isEmpty())
+        if (!applicationContext.database.getActiveAccount().isEmpty())
             return if (LifecycleHandler.isAppVisible()) {
                 stopSelf()
                 START_NOT_STICKY
@@ -171,17 +171,17 @@ class DstService : Service() {
         super.onDestroy()
     }
 
-    fun collectFrom(usbId: String, password: String, notify: Boolean = false): DstResponse<DstAccount> {
+    fun collectFrom(usbId: String, password: String, notify: Boolean = false, context: Context = applicationContext): DstResponse<DstAccount> {
         var bundle = Bundle()
         val account = DstAccount(usbId, password)
 
-        initSsl()
+        initSsl(context)
 
         for (operation in enumValues<Operation>()) {
             if (notify)
-                sendOperationUpdate(operation)
+                sendOperationUpdate(operation, context)
 
-            bundle = account.serviceOperation(operation, bundle)
+            bundle = account.serviceOperation(operation, bundle, context)
         }
 
         return DstResponse(account)
@@ -198,10 +198,10 @@ class DstService : Service() {
     }
 
     /* Init SSL context */
-    private fun initSsl() {
+    private fun initSsl(context: Context = applicationContext) {
         sslContext = SSLContext.getInstance("TLS")
 
-        val inputStream = resources.openRawResource(R.raw.certificates)
+        val inputStream = context.resources.openRawResource(R.raw.certificates)
         val certificateFactory = CertificateFactory.getInstance("X.509")
         val certificates = certificateFactory.generateCertificates(inputStream)
         val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
@@ -224,7 +224,7 @@ class DstService : Service() {
     }
 
     /* Call service operation */
-    private fun DstAccount.serviceOperation(operation: Operation, bundle: Bundle): Bundle {
+    private fun DstAccount.serviceOperation(operation: Operation, bundle: Bundle, context: Context = applicationContext): Bundle {
         val result = Bundle()
 
         this@DstService.operation = operation
@@ -234,20 +234,13 @@ class DstService : Service() {
 
         when (operation) {
             Operation.CONNECT -> {
-                deleteReport()
+                context.deleteReport()
 
                 val https = URL("$dstRecord$dstRecordLogin").openConnection() as HttpsURLConnection
 
-                https.setUp("GET")
-                https.connect()
-
                 val document = https.getDocument()
 
-                https.inputStream.close()
-
-                https.disconnect()
-
-                logReport(operation, document, {
+                context.logReport(operation, document, {
                     select("form[action]").removeAttr("action")
                     select("input[type=hidden]").removeAttr("value")
                 })
@@ -291,13 +284,9 @@ class DstService : Service() {
                 outputStream.close()
 
                 /* Get response from Post */
-                val document = https.getDocument()
+                val document = https.getDocument(false)
 
-                https.inputStream.close()
-
-                https.disconnect()
-
-                logReport(operation, document, {
+                context.logReport(operation, document, {
                     select("a[class=men_enlace1]").removeAttr("href")
                     select("strong:matchesOwn(\\d{7})").forEach { it.text("") }
                 })
@@ -320,18 +309,11 @@ class DstService : Service() {
                 /* Get record document */
                 val https = URL("$dstRecord$dstDoRecord").openConnection() as HttpsURLConnection
 
-                https.setUp("GET")
                 https.setRequestProperty("Cookie", cookie)
-
-                https.connect()
 
                 val document = https.getDocument()
 
-                https.inputStream.close()
-
-                https.disconnect()
-
-                logReport(operation, document, {
+                context.logReport(operation, document, {
                     select("a[class=men_enlace1]").removeAttr("href")
                     select("strong:matchesOwn(\\d{7})").forEach { it.text("") }
                 })
@@ -412,9 +394,9 @@ class DstService : Service() {
                         val credits = quarterSubjects[j + 2].unescapeEntitiesText().toInt()
                         val grade = quarterSubjects[j + 3].unescapeEntitiesText().toIntOrNull() ?: 0
                         val detail = when (quarterSubjects[j + 4].unescapeEntitiesText()) {
-                            SubjectStatus.RETIRED.toString(applicationContext) -> SubjectStatus.RETIRED
-                            SubjectStatus.NO_EFFECT.toString(applicationContext) -> SubjectStatus.NO_EFFECT
-                            SubjectStatus.APPROVED.toString(applicationContext) -> SubjectStatus.APPROVED
+                            SubjectStatus.RETIRED.toString(context) -> SubjectStatus.RETIRED
+                            SubjectStatus.NO_EFFECT.toString(context) -> SubjectStatus.NO_EFFECT
+                            SubjectStatus.APPROVED.toString(context) -> SubjectStatus.APPROVED
                             else -> SubjectStatus.OK
                         }
 
@@ -444,18 +426,11 @@ class DstService : Service() {
                 /* Get personal document */
                 val https = URL("$dstRecord$dstDoPersonal").openConnection() as HttpsURLConnection
 
-                https.setUp("GET")
                 https.setRequestProperty("Cookie", cookie)
-
-                https.connect()
 
                 val document = https.getDocument()
 
-                https.inputStream.close()
-
-                https.disconnect()
-
-                logReport(operation, document, {
+                context.logReport(operation, document, {
                     select("a[class=men_enlace1]").removeAttr("href")
                     select("strong:matchesOwn(\\d{7})").forEach { it.text("") }
                     select("table[class=tabla] td").forEach { it.text("") }
@@ -479,17 +454,9 @@ class DstService : Service() {
             Operation.LOGIN_ENROLLMENT -> {
                 val https = URL("$dstEnrollment$dstEnrollmentLogin").openConnection() as HttpsURLConnection
 
-                https.setUp("GET")
-
-                https.connect()
-
                 val document = https.getDocument()
 
-                https.inputStream.close()
-
-                https.disconnect()
-
-                logReport(operation, document, {
+                context.logReport(operation, document, {
                     select("form[action]").removeAttr("action")
                     select("input[type=hidden]").removeAttr("value")
                 })
@@ -559,17 +526,9 @@ class DstService : Service() {
 
                 val https = url.openConnection() as HttpsURLConnection
 
-                https.setUp("GET")
-
-                https.connect()
-
                 val document = https.getDocument()
 
-                https.inputStream.close()
-
-                https.disconnect()
-
-                logReport(operation, document, {
+                context.logReport(operation, document, {
                     select("strong:matchesOwn(\\d{7})").forEach {
                         it.parent().parent().children().forEach { it.text("") }
                     }
@@ -674,9 +633,9 @@ class DstService : Service() {
     }
 
     /* Send operation update to UI handler */
-    private fun sendOperationUpdate(operation: Operation) {
+    private fun sendOperationUpdate(operation: Operation, context: Context = applicationContext) {
         val bundle = Bundle()
-        val message = operation.toString(applicationContext)
+        val message = operation.toString(context)
 
         bundle.putString(Constants.EXTRA_UPDATE, message)
 
@@ -697,6 +656,9 @@ class DstService : Service() {
         val bundle = Bundle()
 
         bundle.putSerializable(Constants.EXTRA_RESPONSE, response)
+
+        if (response.exception == null && response.result != null)
+            preferences.setCooldown()
 
         if (LifecycleHandler.isAppVisible()) {
             stopSelf()
@@ -728,7 +690,7 @@ class DstService : Service() {
             response.result != null -> {
                 val intent = Intent(this, MainActivity::class.java)
 
-                getDatabase().addAccount(response.result, true)
+                database.addAccount(response.result, true)
 
                 val pendingIntent = PendingIntent.getActivity(
                         this,
@@ -773,10 +735,23 @@ class DstService : Service() {
     }
 
     /* Parse Https input stream to Jsoup-document */
-    private fun HttpsURLConnection.getDocument(): Document {
-        val charset = "(?<=charset=).+$".toRegex().find(getHeaderField("Content-Type"))?.value ?: "UTF-8"
+    private fun HttpsURLConnection.getDocument(get: Boolean = true): Document {
 
-        return Jsoup.parse(inputStream, charset, url.toString())
+        if (get) {
+            setUp("GET")
+
+            connect()
+        }
+
+        val document = inputStream.use {
+            val reader = inputStream.reader(Charsets.ISO_8859_1)
+
+            reader.use { Jsoup.parse(reader.readText()) }
+        }
+
+        disconnect()
+
+        return document
     }
 
     /* Default set up for HTTPS connection */

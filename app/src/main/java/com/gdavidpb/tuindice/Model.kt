@@ -118,9 +118,7 @@ data class DstAccount(val usbId: String = String(),
         this.enrolledSubjects = enrolledSubjects
     }
 
-    fun isOutdated() = (id == -1L)
-
-    fun isEmpty() = usbId.isEmpty() || password.isEmpty()
+    fun isEmpty() = (usbId.isEmpty() || password.isEmpty())
 
     override fun equals(other: Any?): Boolean {
         if (other == this) return true

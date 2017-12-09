@@ -13,6 +13,8 @@ import android.view.View
 import com.gdavidpb.tuindice.*
 import com.gdavidpb.tuindice.abstracts.Initializer
 import com.gdavidpb.tuindice.adapters.QuarterAdapter
+import com.gdavidpb.tuindice.models.database
+import com.gdavidpb.tuindice.models.preferences
 import kotlinx.android.synthetic.main.activity_demo.*
 
 class DemoActivity : AppCompatActivity(), Initializer {
@@ -59,7 +61,7 @@ class DemoActivity : AppCompatActivity(), Initializer {
                 colors[index])
 
         /* Set up completed quarter sample */
-        quarter = getDatabase().getQuarterSample(QuarterType.COMPLETED)
+        quarter = database.getQuarterSample(QuarterType.COMPLETED)
 
         displayDemoAtQuarter()
 
@@ -67,6 +69,7 @@ class DemoActivity : AppCompatActivity(), Initializer {
     }
 
     private fun nextDemo() {
+        bDemoGotIt.isEnabled = false
         tViewDemoTitle.visibility = View.GONE
 
         lLayoutDemo.updateAtMe {
@@ -79,7 +82,7 @@ class DemoActivity : AppCompatActivity(), Initializer {
                 when (index++) {
                     1 -> {
                         /* Set up current quarter sample */
-                        quarter = getDatabase().getQuarterSample(QuarterType.CURRENT)
+                        quarter = database.getQuarterSample(QuarterType.CURRENT)
 
                         displayDemoAtQuarter()
                     }
@@ -116,10 +119,12 @@ class DemoActivity : AppCompatActivity(), Initializer {
                     }
                 }
             } else {
-                getPreferences().firstRun()
+                preferences.firstRun()
 
                 finish()
             }
+
+            bDemoGotIt.isEnabled = true
         }
     }
 
