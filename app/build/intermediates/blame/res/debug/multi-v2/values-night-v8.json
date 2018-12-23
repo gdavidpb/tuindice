@@ -1,10 +1,27 @@
 {
     "logs": [
         {
-            "outputFile": "/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-night-v8/values-night-v8.xml",
+            "outputFile": "/Users/gerardoprado/Desktop/Gerardo/TuIndice/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-night-v8/values-night-v8.xml",
             "map": [
                 {
-                    "source": "/home/gdavidpb/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.0.2.aar/5f977fe849e6536b277e0530b0ee1c3a/res/values-night-v8/values-night-v8.xml",
+                    "source": "/Users/gerardoprado/.gradle/caches/transforms-1/files-1.1/material-1.1.0-alpha02.aar/fc9d45620d48e0d22033083bf1261714/res/values-night-v8/values-night-v8.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "55,143,245,347,461,581,701",
+                        "endColumns": "87,101,101,113,119,119,111",
+                        "endOffsets": "138,240,342,456,576,696,808"
+                    },
+                    "to": {
+                        "startLines": "9,10,11,12,13,14,15",
+                        "startColumns": "4,4,4,4,4,4,4",
+                        "startOffsets": "687,775,877,979,1093,1213,1333",
+                        "endColumns": "87,101,101,113,119,119,111",
+                        "endOffsets": "770,872,974,1088,1208,1328,1440"
+                    }
+                },
+                {
+                    "source": "/Users/gerardoprado/.gradle/caches/transforms-1/files-1.1/appcompat-1.1.0-alpha01.aar/877fe782a7a6405b9df8c1589116e06d/res/values-night-v8/values-night-v8.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8",
                         "startColumns": "4,4,4,4,4,4,4",

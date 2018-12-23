@@ -1,10 +1,27 @@
 {
     "logs": [
         {
-            "outputFile": "/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-large-v4/values-large-v4.xml",
+            "outputFile": "/Users/gerardoprado/Desktop/Gerardo/TuIndice/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-large-v4/values-large-v4.xml",
             "map": [
                 {
-                    "source": "/home/gdavidpb/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.0.2.aar/5f977fe849e6536b277e0530b0ee1c3a/res/values-large-v4/values-large-v4.xml",
+                    "source": "/Users/gerardoprado/.gradle/caches/transforms-1/files-1.1/material-1.1.0-alpha02.aar/fc9d45620d48e0d22033083bf1261714/res/values-large-v4/values-large-v4.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,177",
+                        "endColumns": "121,133",
+                        "endOffsets": "172,306"
+                    },
+                    "to": {
+                        "startLines": "11,12",
+                        "startColumns": "4,4",
+                        "startOffsets": "752,874",
+                        "endColumns": "121,133",
+                        "endOffsets": "869,1003"
+                    }
+                },
+                {
+                    "source": "/Users/gerardoprado/.gradle/caches/transforms-1/files-1.1/appcompat-1.1.0-alpha01.aar/877fe782a7a6405b9df8c1589116e06d/res/values-large-v4/values-large-v4.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10",
                         "startColumns": "4,4,4,4,4,4,4,4,4",

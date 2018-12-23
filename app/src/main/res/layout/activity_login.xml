@@ -1,39 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cLayoutMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.gdavidpb.tuindice.activities.LoginActivity"
-    android:background="@color/colorTextIcon"
-    android:animateLayoutChanges="true">
+    android:animateLayoutChanges="true"
+    android:background="@color/colorTextIcon">
 
     <FrameLayout
+        android:id="@+id/frameBackground"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:alpha="0.15"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <com.gdavidpb.tuindice.views.CustomImageView
+        <com.gdavidpb.tuindice.ui.customs.CustomImageView
             android:id="@+id/backgroundOne"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:contentDescription="@string/app_name"
             android:scaleType="fitXY"
-            android:src="@drawable/background_pattern"
-            android:contentDescription="@string/app_name" />
+            android:src="@drawable/bk_pattern" />
 
-        <com.gdavidpb.tuindice.views.CustomImageView
+        <com.gdavidpb.tuindice.ui.customs.CustomImageView
             android:id="@+id/backgroundTwo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:contentDescription="@string/app_name"
             android:scaleType="fitXY"
-            android:src="@drawable/background_pattern"
-            android:contentDescription="@string/app_name" />
+            android:src="@drawable/bk_pattern" />
 
     </FrameLayout>
 
@@ -41,108 +38,154 @@
         android:id="@+id/lLayoutLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:visibility="visible"
-        android:visibility="gone"
-        android:layout_marginTop="@dimen/margin_xxlarge"
-        android:layout_marginLeft="@dimen/margin_xxlarge"
-        android:layout_marginRight="@dimen/margin_xxlarge"
+        android:layout_marginLeft="@dimen/dp_32"
+        android:layout_marginTop="@dimen/dp_32"
+        android:layout_marginRight="@dimen/dp_32"
         android:animateLayoutChanges="true"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/iViewLogo"
-            android:layout_width="match_parent"
+            android:layout_width="@dimen/size_logo"
             android:layout_height="@dimen/size_logo"
+            android:layout_gravity="center"
             android:adjustViewBounds="true"
+            android:clickable="true"
             android:contentDescription="@string/app_name"
-            tools:src="@drawable/ic_launcher" />
+            android:focusable="true"
+            app:srcCompat="@drawable/ic_launcher" />
 
-        <TextSwitcher
-            android:id="@+id/tSwitcherWelcome"
+        <ViewFlipper
+            android:id="@+id/vFlipperWelcome"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_medium"
-            android:layout_marginTop="@dimen/margin_medium"
-            android:inAnimation="@android:anim/slide_in_left"
-            android:outAnimation="@android:anim/slide_out_right" />
+            android:layout_marginTop="@dimen/dp_8"
+            android:layout_marginBottom="@dimen/dp_8"
+            android:animateFirstView="true"
+            android:autoStart="true"
+            android:flipInterval="2000"
+            android:inAnimation="@anim/slide_in_left"
+            android:outAnimation="@anim/slide_out_right">
+
+            <TextView
+                android:id="@+id/tViewFlipper1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/message_flipper_1"
+                android:textAlignment="center"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+                android:textColor="@color/colorAccent"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tViewFlipper2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/message_flipper_2"
+                android:textAlignment="center"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+                android:textColor="@color/colorAccent"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tViewFlipper3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/message_flipper_3"
+                android:textAlignment="center"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+                android:textColor="@color/colorAccent"
+                android:textStyle="bold" />
+
+        </ViewFlipper>
 
         <ProgressBar
             android:id="@+id/pBarLogging"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_large"
-            android:layout_marginTop="@dimen/margin_large"
+            android:layout_marginTop="@dimen/dp_16"
+            android:layout_marginBottom="@dimen/dp_16"
             android:indeterminate="true"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tInputUsbId"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hintUsbId"
-            android:textColorHint="@color/colorAccent">
+            android:textColorHint="@color/colorAccent"
+            app:errorEnabled="true">
 
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/eTextUsbId"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:drawableStart="@drawable/ic_account"
-                tools:drawableTint="@color/colorAccent"
-                android:drawablePadding="@dimen/margin_medium"
+                android:drawablePadding="@dimen/dp_8"
                 android:imeOptions="actionNext"
                 android:inputType="number"
                 android:maxLength="8"
-                android:saveEnabled="true" />
+                tools:drawableStart="@drawable/ic_account"
+                tools:drawableTint="@color/colorSecondaryText"
+                tools:hint="@string/hintUsbId" />
 
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tInputPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hintPassword"
+            android:textColorHint="@color/colorAccent"
+            app:errorEnabled="true"
             app:passwordToggleEnabled="true">
 
-            <android.support.design.widget.TextInputEditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/eTextPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawablePadding="@dimen/margin_medium"
+                android:drawablePadding="@dimen/dp_8"
                 android:imeOptions="actionDone"
                 android:inputType="textPassword"
                 android:maxLength="60"
-                android:saveEnabled="true"
-                android:selectAllOnFocus="true" />
+                android:selectAllOnFocus="true"
+                tools:drawableStart="@drawable/ic_password"
+                tools:drawableTint="@color/colorSecondaryText"
+                tools:hint="@string/hintPassword" />
 
-        </android.support.design.widget.TextInputLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <CheckBox
-            android:id="@+id/cBoxTerms"
+        <TextView
+            android:id="@+id/tViewPrivacyPolicy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_medium"
-            android:saveEnabled="true"
-            android:text="@string/cBoxTerms" />
+            android:layout_gravity="center"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="@dimen/dp_2"
+            android:text="@string/bPrivacyPolicy"
+            android:textColor="@color/colorSecondaryText" />
 
     </LinearLayout>
 
-    <android.support.v7.widget.AppCompatButton
+    <Button
         android:id="@+id/bLogin"
         android:layout_width="@dimen/size_button"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        tools:visibility="visible"
-        android:visibility="gone"
-        android:layout_margin="@dimen/margin_xxlarge"
-        android:padding="@dimen/margin_medium"
-        android:filterTouchesWhenObscured="true"
+        android:layout_margin="@dimen/dp_32"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:padding="@dimen/dp_8"
         android:text="@string/bLogin"
         android:textColor="@color/colorTextIcon"
-        app:backgroundTint="@color/colorAccent" />
+        app:backgroundTint="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

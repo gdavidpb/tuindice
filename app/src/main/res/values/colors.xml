@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <color name="colorPrimary">#FFC107</color>
     <color name="colorPrimaryDark">#FFA000</color>
     <color name="colorAccent">#FFC107</color>
@@ -15,4 +16,8 @@
     <color name="quarterCompleted">#B0BEC5</color>
     <color name="quarterCurrent">#FFC107</color>
     <color name="quarterGuess">#64FFC107</color>
+    <color name="quarterRetired">#F44336</color>
+
+    <color name="ic_launcher_background">#FFFFFF</color>
+
 </resources>

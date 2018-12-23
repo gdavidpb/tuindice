@@ -1,25 +1,23 @@
 package com.gdavidpb.tuindice
 
-import android.support.test.InstrumentationRegistry
-import android.support.test.runner.AndroidJUnit4
-
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
+import org.koin.standalone.StandAloneContext.stopKoin
+import org.koin.test.KoinTest
 
-import org.junit.Assert.*
+class ExampleInstrumentedTest : KoinTest {
+    @Before
+    fun before() {
+    }
 
-/**
- * Instrumentation test, which will execute on an Android device.
- *
- * @see [Testing documentation](http://d.android.com/tools/testing)
- */
-@RunWith(AndroidJUnit4::class)
-class ExampleInstrumentedTest {
     @Test
-    @Throws(Exception::class)
-    fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getTargetContext()
-        assertEquals("com.gdavidpb.tuindice", appContext.packageName)
+    fun koinTest() {
+
+    }
+
+    @After
+    fun after() {
+        stopKoin()
     }
 }

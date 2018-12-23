@@ -1,13 +1,18 @@
 <resources>
-    <!-- Default margins -->
-    <dimen name="margin_small">4dp</dimen>
-    <dimen name="margin_medium">8dp</dimen>
-    <dimen name="margin_large">16dp</dimen>
-    <dimen name="margin_xlarge">24dp</dimen>
-    <dimen name="margin_xxlarge">32dp</dimen>
+
+    <!-- Default dimens -->
+    <dimen name="dp_2">2dp</dimen>
+    <dimen name="dp_4">4dp</dimen>
+    <dimen name="dp_8">8dp</dimen>
+    <dimen name="dp_16">16dp</dimen>
+    <dimen name="dp_24">24dp</dimen>
+    <dimen name="dp_32">32dp</dimen>
 
     <dimen name="size_logo">128dp</dimen>
     <dimen name="size_tick">6dp</dimen>
     <dimen name="size_button">150dp</dimen>
     <dimen name="size_bar_height">180dp</dimen>
+
+    <dimen name="nav_header_height">176dp</dimen>
+
 </resources>

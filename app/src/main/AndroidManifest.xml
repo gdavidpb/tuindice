@@ -1,59 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.gdavidpb.tuindice">
 
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".models.FabricApplication"
-        android:allowBackup="false"
+        android:name=".TuIndiceApp"
+        android:allowBackup="true"
+        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.ActionBar"
-        tools:ignore="GoogleAppIndexingWarning">
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="09b9ef4191003dd9b5ea1e9499d695ad16a60322" />
+        android:theme="@style/AppTheme">
 
         <activity
-            android:name=".activities.MainActivity"
-            android:label="@string/app_name">
+            android:name=".ui.activities.MainActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
         </activity>
 
         <activity
-            android:name=".activities.LoginActivity"
-            android:excludeFromRecents="true"
+            android:name=".ui.activities.LoginActivity"
             android:label="@string/app_name"
-            android:noHistory="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.ActionBar" />
-
-        <activity
-            android:name=".activities.AboutActivity"
-            android:parentActivityName=".activities.MainActivity"
-            android:label="@string/action_about"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.ActionBar" />
-
-        <activity
-            android:name=".activities.DemoActivity"
-            android:theme="@style/AppTheme.Transparent"/>
-
-        <service
-            android:name=".models.DstService"
-            android:enabled="true"
-            android:exported="false"
-            android:stopWithTask="false" />
+            android:screenOrientation="portrait" />
 
     </application>
 

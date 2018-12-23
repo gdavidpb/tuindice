@@ -1,4 +1,0 @@
-#Sat Dec 09 18:56:39 VET 2017
-base.0=/home/gdavidpb/Documentos/Proyectos/AndroidWorkspace/TuIndice/app/build/intermediates/transforms/dex/release/0
-path.0=classes.dex
-renamed.0=classes.dex
