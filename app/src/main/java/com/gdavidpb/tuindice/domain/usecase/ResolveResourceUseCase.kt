@@ -8,23 +8,22 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 open class ResolveResourceUseCase(
-        private val storageRepository: RemoteStorageRepository,
+        private val remoteRepository: RemoteStorageRepository,
         private val settingsRepository: SettingsRepository
 ) : SingleUseCase<Uri, String>(
-        Schedulers.io(),
-        AndroidSchedulers.mainThread()
+        subscribeOn = Schedulers.io(),
+        observeOn = AndroidSchedulers.mainThread()
 ) {
     override fun buildUseCaseObservable(params: String): Single<Uri> {
-        val url = settingsRepository.getPrivacyPolicyUrl()
+        //todo cache?
+        //val url = settingsRepository.get<String>(key = params)
 
-        return if (url.isNotEmpty())
-            Single.just(Uri.parse(url))
-        else
-            storageRepository.resolveResource(resource = params)
-                    .doOnSuccess {
-                        settingsRepository.setPrivacyPolicyUrl("$it")
-                    }.doOnError {
-                        settingsRepository.clearPrivacyPolicyUrl()
-                    }
+        //return if (url.isNotEmpty())
+        //Single.just(Uri.parse(url))
+        //else
+        return remoteRepository.resolveResource(resource = params)
+                .doAfterSuccess {
+                    //settingsRepository.set(key = params, value = "$it")
+                }
     }
 }

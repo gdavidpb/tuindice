@@ -1,21 +1,13 @@
 package com.gdavidpb.tuindice.domain.model
 
 data class Record(
-        val quarters: List<Quarter>,
-        val enrolledSubjects: Int,
-        val enrolledCredits: Int,
-        val approvedSubject: Int,
-        val approvedCredits: Int,
-        val retiredSubjects: Int,
-        val retiredCredits: Int,
-        val failedSubjects: Int,
-        val failedCredits: Int
-) {
-    companion object {
-        val EMPTY = Record(listOf(),
-                0, 0,
-                0, 0,
-                0, 0,
-                0, 0)
-    }
-}
+        val quarters: List<Quarter> = listOf(),
+        val enrolledSubjects: Int = 0,
+        val enrolledCredits: Int = 0,
+        val approvedSubject: Int = 0,
+        val approvedCredits: Int = 0,
+        val retiredSubjects: Int = 0,
+        val retiredCredits: Int = 0,
+        val failedSubjects: Int = 0,
+        val failedCredits: Int = 0
+)

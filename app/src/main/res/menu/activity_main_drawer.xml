@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:showIn="navigation_view">
 
     <group
@@ -42,26 +41,45 @@
             android:title="@string/nav_podium" />
     </group>
 
-    <group
+    <item
         android:id="@+id/group_about"
         android:checkableBehavior="none"
         android:title="@string/app_name">
+        <menu>
+            <item
+                android:id="@+id/nav_twitter"
+                android:icon="@drawable/ic_twitter"
+                android:title="@string/nav_twitter" />
+            <item
+                android:id="@+id/nav_contact"
+                android:icon="@drawable/ic_contact"
+                android:title="@string/nav_contact" />
+            <item
+                android:id="@+id/nav_report"
+                android:icon="@drawable/ic_report"
+                android:title="@string/nav_report" />
+            <item
+                android:id="@+id/nav_about"
+                android:icon="@drawable/ic_about"
+                android:title="@string/nav_about" />
+            <item
+                android:id="@+id/nav_demo"
+                android:icon="@drawable/ic_demo"
+                android:title="@string/nav_demo" />
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_share"
+                android:title="@string/nav_share" />
+        </menu>
+    </item>
+
+    <group
+        android:id="@+id/group_app"
+        android:checkableBehavior="none">
         <item
-            android:id="@+id/nav_twitter"
-            android:icon="@drawable/ic_twitter"
-            android:title="@string/nav_twitter" />
-        <item
-            android:id="@+id/nav_share"
-            android:icon="@drawable/ic_share"
-            android:title="@string/nav_share" />
-        <item
-            android:id="@+id/nav_contact"
-            android:icon="@drawable/ic_contact"
-            android:title="@string/nav_contact" />
-        <item
-            android:id="@+id/nav_about"
-            android:icon="@drawable/ic_about"
-            android:title="@string/nav_about" />
+            android:id="@+id/nav_sign_out"
+            android:icon="@drawable/ic_open"
+            android:title="@string/nav_sign_out" />
     </group>
 
 </menu>

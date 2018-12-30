@@ -13,8 +13,7 @@ import com.gdavidpb.tuindice.data.source.storage.DiskStorageDataStore
 import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataStore
 import com.gdavidpb.tuindice.data.utils.*
 import com.gdavidpb.tuindice.domain.repository.*
-import com.gdavidpb.tuindice.domain.usecase.GetAccountUseCase
-import com.gdavidpb.tuindice.domain.usecase.ResolveResourceUseCase
+import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginActivityViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -170,11 +169,9 @@ val appModule = module {
         val httpClient = get<OkHttpClient.Builder>()
                 .build()
 
-        Retrofit.Builder()
+        get<Retrofit.Builder>()
                 .client(httpClient)
                 .baseUrl(ENDPOINT_DST_ENROLLMENT)
-                .addConverterFactory(JspoonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build()
                 .create(DstEnrollmentService::class.java) as DstEnrollmentService
     }
@@ -208,11 +205,35 @@ val appModule = module {
     /* Mappers */
 
     factory {
-        create<AuthResponseMapper>()
+        AuthResponseMapper()
     }
 
     factory {
-        create<AccountMapper>()
+        PeriodMapper()
+    }
+
+    factory {
+        CareerMapper()
+    }
+
+    factory {
+        SubjectMapper()
+    }
+
+    factory {
+        CareerEntityMapper()
+    }
+
+    factory {
+        RecordEntityMapper()
+    }
+
+    factory {
+        EnrollmentMapper()
+    }
+
+    factory {
+        create<AccountSelectorMapper>()
     }
 
     factory {
@@ -220,48 +241,32 @@ val appModule = module {
     }
 
     factory {
-        create<PeriodMapper>()
-    }
-
-    factory {
-        create<CareerMapper>()
-    }
-
-    factory {
         create<RecordMapper>()
-    }
-
-    factory {
-        create<SubjectMapper>()
     }
 
     factory {
         create<AccountEntityMapper>()
     }
 
-    factory {
-        create<CareerEntityMapper>()
-    }
-
-    factory {
-        create<RecordEntityMapper>()
-    }
-
-    factory {
-        create<EnrollmentMapper>()
-    }
-
-    factory {
-        create<MediaTypeMapper>()
-    }
-
     /* Use cases */
 
-    single {
+    factory {
+        create<LoginUseCase>()
+    }
+
+    factory {
         create<ResolveResourceUseCase>()
     }
 
-    single {
-        create<GetAccountUseCase>()
+    factory {
+        create<GetLocalAccountUseCase>()
+    }
+
+    factory {
+        create<GetRemoteAccountUseCase>()
+    }
+
+    factory {
+        create<LogoutUseCase>()
     }
 }

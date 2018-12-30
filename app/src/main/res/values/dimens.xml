@@ -13,6 +13,6 @@
     <dimen name="size_button">150dp</dimen>
     <dimen name="size_bar_height">180dp</dimen>
 
-    <dimen name="nav_header_height">176dp</dimen>
+    <dimen name="nav_header_height">160dp</dimen>
 
 </resources>

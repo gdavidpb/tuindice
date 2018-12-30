@@ -8,19 +8,15 @@ import com.gdavidpb.tuindice.data.source.service.converter.DstPeriodConverter
 import com.gdavidpb.tuindice.data.source.service.converter.DstScheduleConverter
 import pl.droidsonroids.jspoon.annotation.Selector
 
-open class DstEnrollmentDataSelector {
-    @Selector("#calendario table", converter = DstCalendarConverter::class)
-    lateinit var calendar: DstCalendar
-
-    @Selector("#horario table", converter = DstScheduleConverter::class)
-    lateinit var schedule: List<DstScheduledSubject>
-
-    @Selector("#horario strong", converter = DstPeriodConverter::class)
-    lateinit var period: DstPeriod
-
-    @Selector("td:first-child td")
-    lateinit var globalStatus: String
-
-    @Selector("td:last-child td")
-    lateinit var enrollmentStatus: String
-}
+data class DstEnrollmentDataSelector(
+        @Selector("#calendario table", converter = DstCalendarConverter::class)
+        var calendar: DstCalendar,
+        @Selector("#horario table", converter = DstScheduleConverter::class)
+        var schedule: List<DstScheduledSubject>,
+        @Selector("#horario strong", converter = DstPeriodConverter::class)
+        var period: DstPeriod,
+        @Selector("td:first-child td")
+        var globalStatus: String,
+        @Selector("td:last-child td")
+        var enrollmentStatus: String
+)

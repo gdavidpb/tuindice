@@ -22,6 +22,7 @@ open class DstAuthInterceptor : Interceptor {
 
         val lastRequest = firstRequest
                 .newBuilder()
+                .addHeader("Accept-Language", "es-VE")
                 .post(RequestBody.create(MediaType.parse("application/x-www-form-urlencoded;charset=UTF-8"), lastBody))
                 .build()
 

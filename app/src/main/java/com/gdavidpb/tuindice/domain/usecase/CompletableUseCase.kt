@@ -1,20 +1,20 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import io.reactivex.Maybe
+import io.reactivex.Completable
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import io.reactivex.observers.DisposableMaybeObserver
+import io.reactivex.observers.DisposableCompletableObserver
 
-abstract class MaybeUseCase<Q, P>(
+abstract class CompletableUseCase<P>(
         private val subscribeOn: Scheduler,
         private val observeOn: Scheduler
 ) {
     private val disposables = CompositeDisposable()
 
-    protected abstract fun buildUseCaseObservable(params: P): Maybe<Q>
+    protected abstract fun buildUseCaseObservable(params: P): Completable
 
-    fun execute(observer: DisposableMaybeObserver<Q>, params: P): Maybe<Q> {
+    fun execute(observer: DisposableCompletableObserver, params: P): Completable {
         return buildUseCaseObservable(params)
                 .subscribeOn(subscribeOn)
                 .observeOn(observeOn)

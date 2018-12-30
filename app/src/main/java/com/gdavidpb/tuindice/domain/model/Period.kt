@@ -9,7 +9,7 @@ import java.util.*
 data class Period(val startDate: Date?,
                   val endDate: Date?) {
 
-    //todo check .time
+    //todo check .time? is it works ok?
     private fun move(n: Int): Period {
         return copy(
                 startDate = Calendar.getInstance(DEFAULT_LOCALE).apply {

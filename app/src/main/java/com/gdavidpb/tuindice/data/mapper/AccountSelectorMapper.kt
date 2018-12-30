@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.domain.mapper.Mapper
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Record
 
-open class AccountMapper(private val careerMapper: CareerMapper) : Mapper<DstPersonalDataSelector, Account> {
+open class AccountSelectorMapper(private val careerMapper: CareerMapper) : Mapper<DstPersonalDataSelector, Account> {
     override fun map(value: DstPersonalDataSelector): Account {
         return value.selected.run {
             Account(
@@ -15,7 +15,7 @@ open class AccountMapper(private val careerMapper: CareerMapper) : Mapper<DstPer
                     firstNames = firstNames,
                     lastNames = lastNames,
                     career = career.let(careerMapper::map),
-                    record = Record.EMPTY,
+                    record = Record(),
                     scholarship = scholarship
             )
         }

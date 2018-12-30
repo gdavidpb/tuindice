@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.net.ConnectivityManager
 import android.os.Build
 import android.os.PowerManager
 import android.text.Editable
@@ -24,6 +25,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import com.gdavidpb.tuindice.data.model.Validation
 import com.google.android.material.textfield.TextInputLayout
+import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Single
 import kotlinx.coroutines.*
 import okhttp3.RequestBody
 import okio.Buffer
@@ -34,6 +38,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+
+/* Rx Java */
+
+fun <T> Single<T>.andThen(completable: Completable): Single<T> = flatMap { completable.andThen(Single.just(it)) }
+
+fun <T> Flowable<T>.first(predicate: (T) -> Boolean): Single<T> = filter { predicate(it) }.firstOrError()
 
 /* Validation */
 
@@ -65,7 +75,6 @@ fun Array<Validation>.firstInvalid(onFound: (TextInputLayout.() -> Unit)? = null
 infix fun TextInputLayout.set(@StringRes resource: Int) = this to resource
 
 infix fun Pair<TextInputLayout, Int>.`when`(valid: TextInputLayout.() -> Boolean) = Validation(first, second, valid)
-
 
 /* Destructuring collection */
 
@@ -158,6 +167,8 @@ fun Context.getCompatDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes:
         bounds = Rect(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
     }
 }
+
+fun ConnectivityManager.isNetworkAvailable() = activeNetworkInfo?.isConnected == true
 
 fun Context.isPowerSaveMode(): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

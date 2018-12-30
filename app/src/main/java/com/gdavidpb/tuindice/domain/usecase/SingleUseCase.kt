@@ -23,12 +23,9 @@ abstract class SingleUseCase<Q, P>(
                 }
     }
 
-    fun dispose(reuse: Boolean) {
+    fun dispose() {
         if (!disposables.isDisposed)
-            if (reuse)
-                disposables.clear()
-            else
-                disposables.dispose()
+            disposables.dispose()
     }
 
     private fun addDisposable(disposable: Disposable) {

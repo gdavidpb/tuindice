@@ -1,11 +1,10 @@
 package com.gdavidpb.tuindice.data.source.database.dao
 
-import androidx.room.Dao
-import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room.*
 import com.gdavidpb.tuindice.data.model.database.AccountAndQuartersEntity
 import com.gdavidpb.tuindice.data.model.database.AccountEntity
 import com.gdavidpb.tuindice.data.utils.*
+import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
 
@@ -20,6 +19,9 @@ interface DstAccountDao : BaseDao<AccountEntity> {
 
     @Query("UPDATE $TABLE_ACCOUNTS SET $COLUMN_ACTIVE = 0 WHERE $COLUMN_ACTIVE = 1")
     fun removeActive()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun storeAccount(accountEntity: AccountEntity): Completable
 
     @Query("UPDATE $TABLE_ACCOUNTS SET " +
             "$COLUMN_USB_ID = '', " +

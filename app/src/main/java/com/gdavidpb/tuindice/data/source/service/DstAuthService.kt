@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.service
 
-import com.gdavidpb.tuindice.data.model.service.DstAuthResponse
+import com.gdavidpb.tuindice.data.source.service.selector.DstAuthResponseSelector
 import io.reactivex.Single
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -13,5 +13,5 @@ interface DstAuthService {
     fun auth(@Query("service") serviceUrl: String,
              @Field("username") usbId: String,
              @Field("password") password: String,
-             @Field("_eventId") eventId: String = "submit"): Single<DstAuthResponse>
+             @Field("_eventId") eventId: String = "submit"): Single<DstAuthResponseSelector>
 }

@@ -1,32 +1,33 @@
 package com.gdavidpb.tuindice.data.source.service
 
-import com.gdavidpb.tuindice.data.mapper.*
-import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.domain.model.AuthResponse
-import com.gdavidpb.tuindice.domain.model.Enrollment
-import com.gdavidpb.tuindice.domain.model.Record
+import android.util.Log
+import com.gdavidpb.tuindice.data.mapper.AccountSelectorMapper
+import com.gdavidpb.tuindice.data.mapper.AuthResponseMapper
+import com.gdavidpb.tuindice.data.mapper.EnrollmentMapper
+import com.gdavidpb.tuindice.data.mapper.RecordMapper
+import com.gdavidpb.tuindice.data.model.exception.AuthException
+import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.domain.repository.DstRepository
+import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.google.common.net.MediaType
 import io.reactivex.Maybe
 import io.reactivex.Single
 import okhttp3.ResponseBody
-import java.io.FileNotFoundException
 
 open class DstDataStore(
         private val authService: DstAuthService,
         private val recordService: DstRecordService,
         private val enrollmentService: DstEnrollmentService,
         private val authResponseMapper: AuthResponseMapper,
-        private val accountMapper: AccountMapper,
+        private val accountSelectorMapper: AccountSelectorMapper,
         private val recordMapper: RecordMapper,
-        private val enrollmentMapper: EnrollmentMapper,
-        private val mediaTypeMapper: MediaTypeMapper
+        private val enrollmentMapper: EnrollmentMapper
 ) : DstRepository {
     override fun getAccount(): Single<Account> {
-        return recordService.getPersonalData().map(accountMapper::map)
+        return recordService.getPersonalData().map(accountSelectorMapper::map)
     }
 
-    override fun getRecord(): Single<Record> {
+    override fun getRecord(): Maybe<Record> {
         return recordService.getRecordData().map(recordMapper::map)
     }
 
@@ -34,18 +35,20 @@ open class DstDataStore(
         return enrollmentService.getEnrollment().map(enrollmentMapper::map)
     }
 
-    override fun getEnrollmentProof(): Single<ResponseBody> {
-        return enrollmentService.getEnrollmentProof().map {
-            val mediaType = it.contentType()?.let(mediaTypeMapper::map)
-
-            if (mediaType?.`is`(MediaType.PDF) == true)
-                it
-            else
-                throw FileNotFoundException()
+    override fun getEnrollmentProof(): Maybe<ResponseBody> {
+        return enrollmentService.getEnrollmentProof().filter {
+            "${it.contentType()}" == "${MediaType.PDF}"
         }
     }
 
-    override fun auth(serviceUrl: String, usbId: String, password: String): Single<AuthResponse> {
-        return authService.auth(serviceUrl, usbId, password).map(authResponseMapper::map)
+    override fun auth(request: AuthRequest): Single<AuthResponse> {
+        return authService.auth(request.serviceUrl, request.usbId, request.password).map {
+            val authResponse = it.let(authResponseMapper::map).copy(request = request)
+
+            when (authResponse.code) {
+                AuthResponseCode.SUCCESS, AuthResponseCode.NO_ENROLLED -> authResponse
+                else -> throw AuthException(code = authResponse.code, message = authResponse.message)
+            }
+        }
     }
 }

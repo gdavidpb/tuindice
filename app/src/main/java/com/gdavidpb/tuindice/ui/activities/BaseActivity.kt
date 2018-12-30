@@ -10,14 +10,14 @@ import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.gdavidpb.tuindice.R
+import com.google.android.material.snackbar.Snackbar
 import org.jetbrains.anko.alert
-import org.jetbrains.anko.design.indefiniteSnackbar
 
 @SuppressLint("Registered")
 abstract class BaseActivity(private vararg val permissions: String) : AppCompatActivity() {
 
-    val snackbar by lazy {
-        window.decorView.indefiniteSnackbar("")
+    protected val snackBar by lazy {
+        Snackbar.make(window.decorView, "", Snackbar.LENGTH_INDEFINITE)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

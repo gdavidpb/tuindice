@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.data.source.service
 
 import com.gdavidpb.tuindice.data.source.service.selector.DstEnrollmentDataSelector
 import io.reactivex.Maybe
-import io.reactivex.Single
 import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -14,5 +13,5 @@ interface DstEnrollmentService {
 
     @Streaming
     @GET("secure/imprimirComprobante.do")
-    fun getEnrollmentProof(): Single<ResponseBody>
+    fun getEnrollmentProof(): Maybe<ResponseBody>
 }

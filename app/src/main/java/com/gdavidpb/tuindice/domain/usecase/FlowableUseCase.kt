@@ -1,25 +1,34 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import io.reactivex.Maybe
+import io.reactivex.Flowable
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import io.reactivex.observers.DisposableMaybeObserver
+import io.reactivex.observers.DisposableObserver
 
-abstract class MaybeUseCase<Q, P>(
+abstract class FlowableUseCase<Q, P>(
         private val subscribeOn: Scheduler,
         private val observeOn: Scheduler
 ) {
     private val disposables = CompositeDisposable()
 
-    protected abstract fun buildUseCaseObservable(params: P): Maybe<Q>
+    protected abstract fun buildUseCaseObservable(params: P): Flowable<Q>
 
-    fun execute(observer: DisposableMaybeObserver<Q>, params: P): Maybe<Q> {
+    fun execute(observer: DisposableObserver<Q>, params: P): Flowable<Q> {
         return buildUseCaseObservable(params)
                 .subscribeOn(subscribeOn)
                 .observeOn(observeOn)
                 .also {
-                    it.subscribeWith(observer).let(::addDisposable)
+                    it.subscribe({ next ->
+                        /* OnNext */
+                        observer.onNext(next)
+                    }, { error ->
+                        /* OnError */
+                        observer.onError(error)
+                    }, {
+                        /* OnComplete */
+                        observer.onComplete()
+                    }).let(::addDisposable)
                 }
     }
 

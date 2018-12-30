@@ -11,22 +11,6 @@ import java.util.*
 open class PreferencesDataStore(
         private val preferences: SharedPreferences
 ) : SettingsRepository {
-    override fun clearPrivacyPolicyUrl() {
-        preferences.edit {
-            remove("privacyPolicy")
-        }
-    }
-
-    override fun getPrivacyPolicyUrl(): String {
-        return preferences.getString("privacyPolicy", null) ?: ""
-    }
-
-    override fun setPrivacyPolicyUrl(url: String) {
-        preferences.edit {
-            putString("privacyPolicy", url)
-        }
-    }
-
     override fun setCooldown() {
         val calendar = Calendar.getInstance(DEFAULT_LOCALE)
 
@@ -58,6 +42,12 @@ open class PreferencesDataStore(
     override fun setFirstRun() {
         preferences.edit {
             putBoolean(KEY_FIRST_RUN, true)
+        }
+    }
+
+    override fun clear() {
+        preferences.edit {
+            clear()
         }
     }
 }

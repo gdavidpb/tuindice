@@ -9,5 +9,8 @@ import java.io.InputStream
 interface LocalStorageRepository {
     fun put(name: String, inputStream: InputStream): Single<File>
     fun get(name: String): Maybe<InputStream>
-    fun delete(name: String): Completable
+    fun delete(name: String, throwOnMissing: Boolean): Completable
+
+    fun putSync(name: String, inputStream: InputStream): File?
+    fun getSync(name: String): InputStream?
 }
