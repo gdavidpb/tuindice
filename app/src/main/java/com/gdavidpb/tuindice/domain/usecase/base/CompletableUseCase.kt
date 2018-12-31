@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.domain.usecase
+package com.gdavidpb.tuindice.domain.usecase.base
 
 import io.reactivex.Completable
 import io.reactivex.Scheduler

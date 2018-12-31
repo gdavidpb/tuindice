@@ -27,6 +27,7 @@ import com.gdavidpb.tuindice.data.model.Validation
 import com.google.android.material.textfield.TextInputLayout
 import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.Single
 import kotlinx.coroutines.*
 import okhttp3.RequestBody
@@ -41,7 +42,7 @@ import java.util.zip.ZipOutputStream
 
 /* Rx Java */
 
-fun <T> Single<T>.andThen(completable: Completable): Single<T> = flatMap { completable.andThen(Single.just(it)) }
+fun <T> Maybe<T>.andThen(completable: Completable): Maybe<T> = flatMap { completable.andThen(Maybe.just(it)) }
 
 fun <T> Flowable<T>.first(predicate: (T) -> Boolean): Single<T> = filter { predicate(it) }.firstOrError()
 
@@ -81,8 +82,6 @@ infix fun Pair<TextInputLayout, Int>.`when`(valid: TextInputLayout.() -> Boolean
 operator fun <E> Collection<E>.component6(): E = elementAt(5)
 operator fun <E> Collection<E>.component7(): E = elementAt(6)
 operator fun <E> Collection<E>.component8(): E = elementAt(7)
-
-/* Retrofit */
 
 fun RequestBody?.bodyToString(): String {
     if (this == null) return ""
@@ -168,8 +167,6 @@ fun Context.getCompatDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes:
     }
 }
 
-fun ConnectivityManager.isNetworkAvailable() = activeNetworkInfo?.isConnected == true
-
 fun Context.isPowerSaveMode(): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
         val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
@@ -179,6 +176,10 @@ fun Context.isPowerSaveMode(): Boolean {
         false
 }
 
+/* System services */
+
+fun ConnectivityManager.isNetworkAvailable() = activeNetworkInfo?.isConnected == true
+
 /* Format */
 
 fun Double.toGrade() = Math.floor(this * 10000) / 10000
@@ -186,6 +187,19 @@ fun Double.toGrade() = Math.floor(this * 10000) / 10000
 fun Date.format(format: String): String? = SimpleDateFormat(format, DEFAULT_LOCALE).runCatching { format(this@format) }.getOrNull()
 
 fun String.parse(format: String): Date? = SimpleDateFormat(format, DEFAULT_LOCALE).runCatching { parse(this@parse) }.getOrNull()
+
+fun String.toShortName(): String {
+    val array = split("\\s+".toRegex())
+
+    return when {
+        array.size == 1 -> arrayOf(0)
+        array.size == 2 -> arrayOf(0, 1)
+        array.size >= 3 -> arrayOf(0, 2)
+        else -> emptyArray()
+    }.run {
+        joinToString(" ") { array[it] }
+    }
+}
 
 /* Utils */
 

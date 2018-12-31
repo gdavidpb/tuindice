@@ -6,7 +6,7 @@ import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector
 
-class DstPersonalDataConverter : ElementConverter<DstPersonal> {
+open class DstPersonalDataConverter : ElementConverter<DstPersonal> {
     override fun convert(node: Element, selector: Selector): DstPersonal {
         return node.select("td td").run {
             DstPersonal(

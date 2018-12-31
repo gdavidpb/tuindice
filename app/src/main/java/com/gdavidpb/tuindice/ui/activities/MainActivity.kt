@@ -11,13 +11,16 @@ import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.utils.notNull
+import com.gdavidpb.tuindice.data.utils.toShortName
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
+import com.gdavidpb.tuindice.ui.fragments.EnrollmentFragment
 import com.google.android.material.navigation.NavigationView
 import io.reactivex.observers.DisposableCompletableObserver
 import io.reactivex.observers.DisposableMaybeObserver
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.nav_header_main.view.*
 import org.jetbrains.anko.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -30,7 +33,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         super.onCreate(savedInstanceState)
 
-        viewModel.getActiveAccount(ActiveAccountObserver())
+        viewModel.getActiveAccount(ActiveAccountObserver(), false)
     }
 
     override fun onBackPressed() {
@@ -90,12 +93,52 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }.show()
     }
 
+    private fun fatalFailureDialog() {
+        alert {
+            titleResource = R.string.alertTitleFatalFailure
+            messageResource = R.string.alertMessageFatalFailure
+
+            isCancelable = false
+
+            positiveButton(R.string.settings) {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", packageName, null))
+
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+                startActivity(intent)
+
+                finish()
+            }
+
+            negativeButton(R.string.exit) {
+                finish()
+            }
+        }.show()
+    }
+
+    private fun loadAccount(account: Account) {
+        val header = nav_view.getHeaderView(0)
+
+        with(header) {
+            tViewDrawerName.text = account.fullName.toShortName()
+            tViewDrawerUsbId.text = getString(R.string.drawerUsbId, account.usbId)
+        }
+    }
+
     private fun loadFragment(@IdRes itemId: Int) {
         if (nav_view.checkedItem == null)
             nav_view.setCheckedItem(itemId)
 
+        // todo complete fragments
         when (itemId) {
-            R.id.nav_enrollment -> R.string.nav_enrollment to Fragment()
+            R.id.nav_enrollment -> R.string.nav_enrollment to EnrollmentFragment()
+            R.id.nav_record -> R.string.nav_record to Fragment()
+            R.id.nav_calendar -> R.string.nav_calendar to Fragment()
+            R.id.nav_pensum -> R.string.nav_pensum to Fragment()
+            R.id.nav_achievements -> R.string.nav_achievements to Fragment()
+            R.id.nav_podium -> R.string.nav_podium to Fragment()
+            R.id.nav_about -> R.string.nav_about to Fragment()
             else -> null
         }.notNull { (title, fragment) ->
             supportActionBar?.setTitle(title)
@@ -115,7 +158,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
 
         override fun onError(e: Throwable) {
-            //todo handle error
+            fatalFailureDialog()
         }
     }
 
@@ -126,6 +169,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             onViewCreated()
 
             loadFragment(R.id.nav_enrollment)
+
+            loadAccount(t)
         }
 
         override fun onComplete() {
@@ -134,27 +179,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
 
         override fun onError(e: Throwable) {
-            alert {
-                titleResource = R.string.alertTitleCantInit
-                messageResource = R.string.alertMessageCantInit
-
-                isCancelable = false
-
-                positiveButton(R.string.settings) {
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                            Uri.fromParts("package", packageName, null))
-
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-                    startActivity(intent)
-
-                    finish()
-                }
-
-                negativeButton(R.string.exit) {
-                    finish()
-                }
-            }.show()
+            fatalFailureDialog()
         }
     }
 }

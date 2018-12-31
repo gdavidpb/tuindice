@@ -4,7 +4,7 @@ import android.app.Application
 import com.gdavidpb.tuindice.di.modules.appModule
 import org.koin.android.ext.android.startKoin
 
-class TuIndiceApp : Application() {
+open class TuIndiceApp : Application() {
     override fun onCreate() {
         super.onCreate()
 

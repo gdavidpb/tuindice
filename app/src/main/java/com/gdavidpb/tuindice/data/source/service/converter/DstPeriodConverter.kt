@@ -6,7 +6,7 @@ import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector
 
-class DstPeriodConverter : ElementConverter<DstPeriod> {
+open class DstPeriodConverter : ElementConverter<DstPeriod> {
     override fun convert(node: Element, selector: Selector): DstPeriod {
         val value = "\\w+-\\w+ \\d{4}".toRegex().find(node.text())?.value
 

@@ -10,7 +10,7 @@ import io.reactivex.Single
 import okhttp3.ResponseBody
 
 interface DstRepository {
-    fun getAccount(): Single<Account>
+    fun getAccount(): Maybe<Account>
     fun getRecord(): Maybe<Record>
     fun getEnrollment(): Maybe<Enrollment>
     fun getEnrollmentProof(): Maybe<ResponseBody>

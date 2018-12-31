@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.service.converter
 
-import com.gdavidpb.tuindice.data.model.service.DstCalendar
+import com.gdavidpb.tuindice.data.model.service.DstQuarterCalendar
 import com.gdavidpb.tuindice.data.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.data.utils.parse
 import org.jsoup.nodes.Element
@@ -8,13 +8,13 @@ import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector
 import java.util.*
 
-class DstCalendarConverter : ElementConverter<DstCalendar> {
+open class DstCalendarConverter : ElementConverter<DstQuarterCalendar> {
 
     private val year by lazy {
         Calendar.getInstance(DEFAULT_LOCALE).get(Calendar.YEAR)
     }
 
-    override fun convert(node: Element, selector: Selector): DstCalendar {
+    override fun convert(node: Element, selector: Selector): DstQuarterCalendar {
         val values = node
                 .select("td + td")
                 .map { it.text() }
@@ -54,7 +54,7 @@ class DstCalendarConverter : ElementConverter<DstCalendar> {
                             .parse("dd 'de' MMM yyyy")
                 }
 
-        return DstCalendar(
+        return DstQuarterCalendar(
                 startDate = startDate,
                 endDate = endDate,
                 correctionDate = correctionDate,

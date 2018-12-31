@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.data.utils.QUARTER_STARTS
 import com.gdavidpb.tuindice.data.utils.format
 import java.util.*
 
-data class Period(val startDate: Date?,
-                  val endDate: Date?) {
+data class Period(val startDate: Date? = null,
+                  val endDate: Date? = null) {
 
     //todo check .time? is it works ok?
     private fun move(n: Int): Period {

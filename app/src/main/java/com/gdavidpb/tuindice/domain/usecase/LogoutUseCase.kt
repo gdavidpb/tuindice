@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.repository.LocalDatabaseRepository
 import com.gdavidpb.tuindice.domain.repository.LocalStorageRepository
+import com.gdavidpb.tuindice.domain.usecase.base.CompletableUseCase
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers

@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.model.service
 
 import java.util.*
 
-data class DstCalendar(
+data class DstQuarterCalendar(
         val startDate: Date?,
         val endDate: Date?,
         val correctionDate: Date?,

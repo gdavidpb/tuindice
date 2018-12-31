@@ -28,7 +28,7 @@
         tools:text="Gerardo Prado" />
 
     <TextView
-        android:id="@+id/tViewDrawerId"
+        android:id="@+id/tViewDrawerUsbId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@android:color/white"

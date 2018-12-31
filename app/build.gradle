@@ -115,6 +115,9 @@ dependencies {
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
     implementation "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
     implementation "org.jetbrains.anko:anko-constraint-layout:$anko_version"
+
+    /* Picasso */
+    implementation "com.squareup.picasso:picasso:2.71828"
 }
 
 apply plugin: "com.google.gms.google-services"

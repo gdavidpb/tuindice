@@ -6,7 +6,7 @@ import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector
 
-class DstScheduleConverter : ElementConverter<List<DstScheduledSubject>> {
+open class DstScheduleConverter : ElementConverter<List<DstScheduledSubject>> {
     override fun convert(node: Element, selector: Selector): List<DstScheduledSubject> {
         return node
                 .select("td")

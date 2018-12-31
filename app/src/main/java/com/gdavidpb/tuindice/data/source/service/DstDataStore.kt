@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.data.source.service
 
-import android.util.Log
 import com.gdavidpb.tuindice.data.mapper.AccountSelectorMapper
 import com.gdavidpb.tuindice.data.mapper.AuthResponseMapper
 import com.gdavidpb.tuindice.data.mapper.EnrollmentMapper
@@ -23,7 +22,7 @@ open class DstDataStore(
         private val recordMapper: RecordMapper,
         private val enrollmentMapper: EnrollmentMapper
 ) : DstRepository {
-    override fun getAccount(): Single<Account> {
+    override fun getAccount(): Maybe<Account> {
         return recordService.getPersonalData().map(accountSelectorMapper::map)
     }
 

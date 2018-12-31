@@ -2,13 +2,13 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.data.utils.ENDPOINT_DST_ENROLLMENT_AUTH
 import com.gdavidpb.tuindice.data.utils.ENDPOINT_DST_RECORD_AUTH
-import com.gdavidpb.tuindice.data.utils.andThen
 import com.gdavidpb.tuindice.data.utils.first
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.repository.LocalDatabaseRepository
 import com.gdavidpb.tuindice.domain.repository.LocalStorageRepository
+import com.gdavidpb.tuindice.domain.usecase.base.SingleUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -23,17 +23,20 @@ open class LoginUseCase(
         observeOn = AndroidSchedulers.mainThread()
 ) {
     override fun buildUseCaseObservable(params: AuthRequest): Single<AuthResponse> {
-        val account = Account(usbId = params.usbId, password = params.password)
 
         val clearCookies = localStorageRepository.delete("cookies", false)
         val enrollmentAuth = dstRepository.auth(params.copy(serviceUrl = ENDPOINT_DST_ENROLLMENT_AUTH))
         val recordAuth = dstRepository.auth(params.copy(serviceUrl = ENDPOINT_DST_RECORD_AUTH))
         val activeRemove = localDatabaseRepository.removeActive()
-        val accountStore = localDatabaseRepository.storeAccount(account = account, active = true)
 
-        val auth = enrollmentAuth.concatWith(recordAuth).first { it.isSuccessful }
-        val store = activeRemove.andThen(accountStore)
+        val auth = recordAuth.concatWith(enrollmentAuth).first { it.isSuccessful }
 
-        return clearCookies.andThen(auth).andThen(store)
+        return clearCookies.andThen(auth).flatMap {
+            val account = Account(usbId = params.usbId, password = params.password, fullName = it.name)
+
+            val store = localDatabaseRepository.storeAccount(account = account, active = true)
+
+            activeRemove.andThen(store).andThen(Single.just(it))
+        }
     }
 }

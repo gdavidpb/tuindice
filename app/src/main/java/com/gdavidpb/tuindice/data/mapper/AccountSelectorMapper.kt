@@ -3,19 +3,15 @@ package com.gdavidpb.tuindice.data.mapper
 import com.gdavidpb.tuindice.data.source.service.selector.DstPersonalDataSelector
 import com.gdavidpb.tuindice.domain.mapper.Mapper
 import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.domain.model.Record
 
-open class AccountSelectorMapper(private val careerMapper: CareerMapper) : Mapper<DstPersonalDataSelector, Account> {
+open class AccountSelectorMapper : Mapper<DstPersonalDataSelector, Account> {
     override fun map(value: DstPersonalDataSelector): Account {
         return value.selected.run {
             Account(
-                    usbId = usbId,
                     id = id,
-                    password = "",
+                    usbId = usbId,
                     firstNames = firstNames,
                     lastNames = lastNames,
-                    career = career.let(careerMapper::map),
-                    record = Record(),
                     scholarship = scholarship
             )
         }

@@ -12,7 +12,7 @@ import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector
 
-class DstRecordDataConverter : ElementConverter<DstRecord> {
+open class DstRecordDataConverter : ElementConverter<DstRecord> {
     override fun convert(node: Element, selector: Selector): DstRecord {
         /* Select record table */
         val selectedRecordTable = node.select("table[class=tabla] table:has(table)")

@@ -13,7 +13,7 @@ const val ENDPOINT_DST_ENROLLMENT_AUTH = "${ENDPOINT_DST_ENROLLMENT}CAS/login.do
 const val ENDPOINT_DST_POLL_AUTH = "${ENDPOINT_DST_ENROLLMENT}Consulta/Secure/zk/login.zul"
 
 /* Firebase storage urls */
-const val URL_PRIVACY_POLICY = "gs://tuindice-usb.appspot.com/privacy_policy.html"
+const val URL_PRIVACY_POLICY = "https://tuindice-usb.firebaseapp.com/"
 
 /* Romans */
 val ROMANS = hashMapOf(
@@ -49,22 +49,8 @@ val QUARTER_RANGES = QUARTER_STARTS.mapIndexed { index, _ ->
 /* Default locale */
 val DEFAULT_LOCALE = Locale("es", "VE")
 
-/* Result codes */
-const val RES_UPDATE = 0
-const val RES_RESPONSE = 1
-
 /* Notification channels */
 const val CHANNEL_SERVICE = "CHANNEL_SERVICE"
-
-/* Preferences keys */
-const val KEY_FIRST_RUN = "KEY_FIRST_RUN"
-const val KEY_REFRESH_COOLDOWN = "KEY_REFRESH_COOLDOWN"
-
-/* Extras */
-const val EXTRA_UPDATE = "EXTRA_UPDATE"
-const val EXTRA_ACCOUNT = "EXTRA_ACCOUNT"
-const val EXTRA_RESPONSE = "EXTRA_RESPONSE"
-const val EXTRA_RECEIVER = "EXTRA_RECEIVER"
 
 /* Times */
 const val TIME_BACKGROUND_ANIMATION = 30000L

@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.ui.activities
 import android.Manifest
 import android.animation.ValueAnimator
 import android.net.ConnectivityManager
-import android.net.Uri
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
 import android.view.View
@@ -113,7 +112,7 @@ class LoginActivity : BaseActivity(
         }
 
         tViewPrivacyPolicy.onClickOnce {
-            viewModel.resolveResource(URL_PRIVACY_POLICY, ResolveResourceObserver())
+            browse(url = URL_PRIVACY_POLICY)
         }
 
         bLogin.onClickOnce {
@@ -209,19 +208,6 @@ class LoginActivity : BaseActivity(
                         }
                         .show()
             }
-        }
-    }
-
-    inner class ResolveResourceObserver : DisposableSingleObserver<Uri>() {
-        override fun onSuccess(t: Uri) {
-            browse(url = "$t")
-        }
-
-        override fun onError(e: Throwable) {
-            snackBar
-                    .setText(R.string.snackNetworkUnavailable)
-                    .setAction(R.string.retry) { viewModel.resolveResource(URL_PRIVACY_POLICY, ResolveResourceObserver()) }
-                    .show()
         }
     }
 }

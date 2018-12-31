@@ -4,7 +4,6 @@
     <item name="masked" type="id" />
 
     <string name="app_name">TuIndice</string>
-    <string name="app_title">%1$04d - %2$s</string>
 
     <string name="devEmail">tuindice@gmail.com</string>
     <string name="devTwitter">https://twitter.com/TuIndice</string>
@@ -12,6 +11,8 @@
 
     <string name="devTitleReport">Reportar un error</string>
     <string name="devMessageReport">¿Deseas reportar un error?</string>
+
+    <string name="drawerUsbId">%1$s@usb.ve</string>
 
     <!-- Navigation view -->
     <string name="nav_enrollment">Resumen</string>
@@ -21,7 +22,6 @@
     <string name="nav_settings">Configuración</string>
     <string name="nav_achievements">Logros</string>
     <string name="nav_podium">Podio</string>
-    <string name="nav_demo">Tutorial</string>
     <string name="nav_twitter">\@TuIndice</string>
     <string name="nav_share">Compartir</string>
     <string name="nav_contact">Contacto</string>
@@ -108,8 +108,8 @@
         <item>El índice acumulado en <b>rojo</b> indica que estás por debajo de 3.0000</item>
         <item>Los créditos en <b>rojo</b> indican que estás por debajo del límite válido</item>
         <item>
-            Si encuentras un error puedes reportarlo usando la opción <b>reportar un error</b>
-            disponible en el menú superior.
+            Si encuentras un error puedes reportarlo usando la opción <b>Reportar un error</b>
+            disponible en el menú lateral.
         </item>
     </string-array>
 
@@ -201,8 +201,9 @@
     </string>
 
     <!-- Alert dialogs -->
-    <string name="alertTitleCantInit">¡Oops, lo sentimos!</string>
-    <string name="alertMessageCantInit">Ha ocurrido un error mientras iniciaba <b>TuIndice</b>. Intenta limpiar los datos de la aplicación y volver a iniciar</string>
+    <string name="alertTitleFatalFailure">¡Oops, lo sentimos!</string>
+    <string name="alertMessageFatalFailure">Parece que algo ha salido mal por acá. Intenta limpiar los datos de la aplicación y volver a iniciar</string>
+
     <string name="alertTitleLogout">Atención</string>
     <string name="alertMessageLogout">¿Estás seguro que deseas salir?</string>
 

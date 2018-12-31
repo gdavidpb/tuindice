@@ -22,10 +22,6 @@
             android:id="@+id/nav_pensum"
             android:icon="@drawable/ic_pensum"
             android:title="@string/nav_pensum" />
-        <item
-            android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_settings"
-            android:title="@string/nav_settings" />
     </group>
 
     <group
@@ -63,13 +59,13 @@
                 android:icon="@drawable/ic_about"
                 android:title="@string/nav_about" />
             <item
-                android:id="@+id/nav_demo"
-                android:icon="@drawable/ic_demo"
-                android:title="@string/nav_demo" />
-            <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_share"
                 android:title="@string/nav_share" />
+            <item
+                android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_settings"
+                android:title="@string/nav_settings" />
         </menu>
     </item>
 

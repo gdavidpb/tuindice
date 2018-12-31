@@ -24,6 +24,7 @@ open class AuthResponseMapper : Mapper<DstAuthResponseSelector, AuthResponse> {
 
         return AuthResponse(
                 isSuccessful = code == AuthResponseCode.SUCCESS || code == AuthResponseCode.NO_ENROLLED,
+                name = value.fullName.substringAfter(" | "),
                 message = message,
                 code = code
         )
