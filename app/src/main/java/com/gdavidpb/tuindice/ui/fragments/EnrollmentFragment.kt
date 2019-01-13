@@ -49,13 +49,13 @@ open class EnrollmentFragment : Fragment() {
         override fun onComplete() {
             sRefreshEnrollment.isRefreshing = false
 
-            // todo account not found?
+            /* Handled by MainActivity::StartUpObserver */
         }
 
         override fun onError(e: Throwable) {
             sRefreshEnrollment.isRefreshing = false
 
-            // todo failure image
+            // todo failure show image on recycler
         }
     }
 }

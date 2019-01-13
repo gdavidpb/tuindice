@@ -28,7 +28,7 @@ open class GetAccountUseCase(
             if (cooldown || !params)
                 local
             else
-                setCooldown.andThen(remote)
+                setCooldown.andThen(remote.switchIfEmpty(local))
         }
     }
 }

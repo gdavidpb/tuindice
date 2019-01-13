@@ -13,11 +13,13 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.utils.notNull
 import com.gdavidpb.tuindice.data.utils.toShortName
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
 import com.gdavidpb.tuindice.ui.fragments.EnrollmentFragment
 import com.google.android.material.navigation.NavigationView
 import io.reactivex.observers.DisposableCompletableObserver
 import io.reactivex.observers.DisposableMaybeObserver
+import io.reactivex.observers.DisposableSingleObserver
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
@@ -33,7 +35,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         super.onCreate(savedInstanceState)
 
-        viewModel.getActiveAccount(ActiveAccountObserver(), false)
+        viewModel.fetchStartUpAction(StartUpObserver(), intent)
     }
 
     override fun onBackPressed() {
@@ -86,7 +88,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             messageResource = R.string.alertMessageLogout
 
             positiveButton(R.string.yes) {
-                viewModel.logout(LogoutObserver())
+                viewModel.logout(observer = LogoutObserver())
             }
 
             negativeButton(R.string.cancel) { }
@@ -151,6 +153,43 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
+    inner class StartUpObserver : DisposableSingleObserver<StartUpAction>() {
+        override fun onSuccess(t: StartUpAction) {
+            when (t) {
+                StartUpAction.MAIN -> {
+                    viewModel.getActiveAccount(ActiveAccountObserver(), false)
+                }
+                StartUpAction.EMAIL_SENT -> {
+                    startActivity<EmailSentActivity>()
+                    finish()
+                }
+                StartUpAction.EMAIL_LINK -> {
+                    val emailLink = "${intent.data}"
+
+                    viewModel.signInWithLink(observer = SignInObserver(), link = emailLink)
+                }
+                StartUpAction.LOGIN -> {
+                    startActivity<LoginActivity>()
+                    finish()
+                }
+            }
+        }
+
+        override fun onError(e: Throwable) {
+            fatalFailureDialog()
+        }
+    }
+
+    inner class SignInObserver : DisposableCompletableObserver() {
+        override fun onComplete() {
+            //todo complete
+        }
+
+        override fun onError(e: Throwable) {
+            //todo handle exception
+        }
+    }
+
     inner class LogoutObserver : DisposableCompletableObserver() {
         override fun onComplete() {
             startActivity<LoginActivity>()
@@ -174,8 +213,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
 
         override fun onComplete() {
-            startActivity<LoginActivity>()
-            finish()
+            /* Handled by StartUpObserver */
         }
 
         override fun onError(e: Throwable) {

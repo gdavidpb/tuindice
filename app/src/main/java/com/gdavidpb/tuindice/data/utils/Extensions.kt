@@ -44,7 +44,9 @@ import java.util.zip.ZipOutputStream
 
 fun <T> Maybe<T>.andThen(completable: Completable): Maybe<T> = flatMap { completable.andThen(Maybe.just(it)) }
 
-fun <T> Flowable<T>.first(predicate: (T) -> Boolean): Single<T> = filter { predicate(it) }.firstOrError()
+fun <T> Completable.asSingle(value: T): Single<T> = andThen(Single.just(value))
+
+fun <T> Flowable<T>.firstOrError(predicate: (T) -> Boolean): Single<T> = filter { predicate(it) }.firstOrError()
 
 /* Validation */
 

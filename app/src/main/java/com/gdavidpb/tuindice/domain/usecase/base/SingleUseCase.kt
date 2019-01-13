@@ -23,6 +23,13 @@ abstract class SingleUseCase<Q, P>(
                 }
     }
 
+    fun <T> Single<T>.ensureSchedulers(): Single<T> {
+        return apply {
+            observeOn(observeOn)
+            subscribeOn(subscribeOn)
+        }
+    }
+
     fun dispose() {
         if (!disposables.isDisposed)
             disposables.dispose()

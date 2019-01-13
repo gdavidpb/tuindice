@@ -11,10 +11,32 @@ import java.util.*
 open class PreferencesDataStore(
         private val preferences: SharedPreferences
 ) : SettingsRepository {
-
     /* Preferences keys */
     private val keyFirstRun = "firstRun"
-    private val keyCooldown = "Cooldown"
+    private val keyCooldown = "cooldown"
+    private val emailSentTo = "getEmailSentTo"
+
+    override fun clearEmailSentTo(): Completable {
+        return Completable.fromCallable {
+            preferences.edit {
+                remove(emailSentTo)
+            }
+        }
+    }
+
+    override fun getEmailSentTo(): Single<String> {
+        return Single.fromCallable {
+            preferences.getString(emailSentTo, "")
+        }
+    }
+
+    override fun setEmailSentTo(email: String): Completable {
+        return Completable.fromCallable {
+            preferences.edit {
+                putString(emailSentTo, email)
+            }
+        }
+    }
 
     override fun setCooldown(key: String): Completable {
         return Completable.fromCallable {

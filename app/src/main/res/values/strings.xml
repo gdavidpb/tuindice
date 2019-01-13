@@ -208,8 +208,8 @@
     <string name="alertMessageLogout">¿Estás seguro que deseas salir?</string>
 
     <!-- Snack bars -->
-    <string name="snackNetworkUnavailable">Error de conexión…</string>
-    <string name="snackServiceUnreachable">El servidor no está disponible…</string>
+    <string name="snackNetworkUnavailable">Error de conexión</string>
+    <string name="snackServiceUnreachable">El servidor no está disponible</string>
     <string name="snackInternalFailure">Parece que algo ha fallado</string>
     <string name="snackInvalidCredentials">USBID o contraseña inválida</string>
 

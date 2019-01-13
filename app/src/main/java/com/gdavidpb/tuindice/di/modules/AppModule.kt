@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.mapper.*
 import com.gdavidpb.tuindice.data.source.database.SQLiteDataStore
 import com.gdavidpb.tuindice.data.source.database.SQLiteDatabase
+import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
 import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
 import com.gdavidpb.tuindice.data.source.storage.DiskStorageDataStore
@@ -16,10 +17,13 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.GetAccountUseCase
 import com.gdavidpb.tuindice.domain.usecase.LoginUseCase
 import com.gdavidpb.tuindice.domain.usecase.LogoutUseCase
+import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
+import com.gdavidpb.tuindice.domain.usecase.request.SignInWithLinkUseCase
 import com.gdavidpb.tuindice.presentation.viewmodel.EnrollmentFragmentViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginActivityViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import okhttp3.OkHttpClient
@@ -28,8 +32,9 @@ import org.jetbrains.anko.defaultSharedPreferences
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.experimental.builder.viewModel
 import org.koin.dsl.module.module
-import org.koin.experimental.builder.create
+import org.koin.experimental.builder.factory
 import org.koin.experimental.builder.factoryBy
+import org.koin.experimental.builder.single
 import pl.droidsonroids.retrofit2.JspoonConverterFactory
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -109,17 +114,11 @@ val appModule = module {
         sslContext
     }
 
-    single {
-        create<DstHostNameVerifier>()
-    }
+    single<DstHostNameVerifier>()
 
-    single {
-        create<DstCookieJar>()
-    }
+    single<DstCookieJar>()
 
-    single {
-        create<DstAuthInterceptor>()
-    }
+    single<DstAuthInterceptor>()
 
     factory {
         OkHttpClient.Builder()
@@ -194,6 +193,10 @@ val appModule = module {
         FirebaseAnalytics.getInstance(get())
     }
 
+    single {
+        FirebaseAuth.getInstance()
+    }
+
     /* Factories */
 
     factoryBy<DstRepository, DstDataStore>()
@@ -206,63 +209,43 @@ val appModule = module {
 
     factoryBy<RemoteStorageRepository, FirebaseStorageDataStore>()
 
+    factoryBy<BaaSRepository, FirebaseDataStore>()
+
     /* Mappers */
 
-    factory {
-        AuthResponseMapper()
-    }
+    factory<AuthResponseMapper>()
 
-    factory {
-        PeriodMapper()
-    }
+    factory<PeriodMapper>()
 
-    factory {
-        CareerMapper()
-    }
+    factory<CareerMapper>()
 
-    factory {
-        SubjectMapper()
-    }
+    factory<SubjectMapper>()
 
-    factory {
-        CareerEntityMapper()
-    }
+    factory<CareerEntityMapper>()
 
-    factory {
-        RecordEntityMapper()
-    }
+    factory<RecordEntityMapper>()
 
-    factory {
-        EnrollmentMapper()
-    }
+    factory<EnrollmentMapper>()
 
-    factory {
-        create<AccountSelectorMapper>()
-    }
+    factory<AccountSelectorMapper>()
 
-    factory {
-        create<QuarterMapper>()
-    }
+    factory<QuarterMapper>()
 
-    factory {
-        create<RecordMapper>()
-    }
+    factory<RecordMapper>()
 
-    factory {
-        create<AccountEntityMapper>()
-    }
+    factory<AccountEntityMapper>()
+
+    factory<UsbIdMapper>()
 
     /* Use cases */
 
-    factory {
-        create<LoginUseCase>()
-    }
+    factory<LoginUseCase>()
 
-    factory {
-        create<LogoutUseCase>()
-    }
+    factory<LogoutUseCase>()
 
-    factory {
-        create<GetAccountUseCase>()
-    }
+    factory<GetAccountUseCase>()
+
+    factory<SignInWithLinkUseCase>()
+
+    factory<StartUpUseCase>()
 }

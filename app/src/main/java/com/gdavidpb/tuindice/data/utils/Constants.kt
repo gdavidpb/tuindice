@@ -2,6 +2,9 @@ package com.gdavidpb.tuindice.data.utils
 
 import java.util.*
 
+/* TuIndice url */
+const val URL_TU_INDICE = "https://tuindice-usb.firebaseapp.com/"
+
 /* Dst service endpoints */
 const val ENDPOINT_DST_SECURE = "https://secure.dst.usb.ve/"
 const val ENDPOINT_DST_RECORD = "https://expediente.dii.usb.ve/"

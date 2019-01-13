@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginActivityViewModel
+import com.google.firebase.auth.FirebaseAuth
 import io.reactivex.observers.DisposableSingleObserver
 import kotlinx.android.synthetic.main.activity_login.*
 import org.jetbrains.anko.browse
@@ -26,6 +27,7 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.startActivity
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import retrofit2.HttpException
 import java.io.IOException
 
 class LoginActivity : BaseActivity(
@@ -35,6 +37,8 @@ class LoginActivity : BaseActivity(
     private val viewModel: LoginActivityViewModel by viewModel()
 
     private val connectivityManager: ConnectivityManager by inject()
+
+    val auth by inject<FirebaseAuth>()
 
     private val validations by lazy {
         arrayOf(
@@ -175,6 +179,8 @@ class LoginActivity : BaseActivity(
         }
 
         override fun onError(e: Throwable) {
+            e.printStackTrace()
+
             enableUI(true)
 
             when (e) {
@@ -183,7 +189,7 @@ class LoginActivity : BaseActivity(
                         AuthResponseCode.INVALID_CREDENTIALS -> R.string.snackInvalidCredentials
                         else -> R.string.snackServiceUnreachable
                     }
-                is IOException ->
+                is IOException, is HttpException ->
                     if (connectivityManager.isNetworkAvailable())
                         R.string.snackServiceUnreachable
                     else
