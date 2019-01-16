@@ -14,11 +14,7 @@ import com.gdavidpb.tuindice.data.source.storage.DiskStorageDataStore
 import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataStore
 import com.gdavidpb.tuindice.data.utils.*
 import com.gdavidpb.tuindice.domain.repository.*
-import com.gdavidpb.tuindice.domain.usecase.GetAccountUseCase
-import com.gdavidpb.tuindice.domain.usecase.LoginUseCase
-import com.gdavidpb.tuindice.domain.usecase.LogoutUseCase
-import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
-import com.gdavidpb.tuindice.domain.usecase.request.SignInWithLinkUseCase
+import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.EnrollmentFragmentViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginActivityViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
@@ -37,7 +33,6 @@ import org.koin.experimental.builder.factoryBy
 import org.koin.experimental.builder.single
 import pl.droidsonroids.retrofit2.JspoonConverterFactory
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import java.security.KeyStore
 import java.security.SecureRandom
 import java.security.cert.CertificateFactory
@@ -136,7 +131,6 @@ val appModule = module {
     factory {
         Retrofit.Builder()
                 .addConverterFactory(JspoonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
     }
 
     /* Dst auth service */

@@ -13,14 +13,13 @@ import android.widget.EditText
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintSet
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.model.exception.AuthException
 import com.gdavidpb.tuindice.data.utils.*
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
+import com.gdavidpb.tuindice.domain.model.exception.AuthException
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginActivityViewModel
-import com.google.firebase.auth.FirebaseAuth
-import io.reactivex.observers.DisposableSingleObserver
 import kotlinx.android.synthetic.main.activity_login.*
 import org.jetbrains.anko.browse
 import org.jetbrains.anko.sdk27.coroutines.onClick
@@ -38,8 +37,6 @@ class LoginActivity : BaseActivity(
 
     private val connectivityManager: ConnectivityManager by inject()
 
-    val auth by inject<FirebaseAuth>()
-
     private val validations by lazy {
         arrayOf(
                 tInputUsbId set R.string.errorEmpty `when` { text().isBlank() },
@@ -53,6 +50,10 @@ class LoginActivity : BaseActivity(
         setContentView(R.layout.activity_login)
 
         onViewCreated()
+
+        with(viewModel) {
+            observe(auth, ::authObserver)
+        }
     }
 
     private fun onViewCreated() {
@@ -134,7 +135,7 @@ class LoginActivity : BaseActivity(
                         password = tInputPassword.text()
                 )
 
-                viewModel.auth(request, AuthObserver())
+                viewModel.auth(request)
             }
         }
     }
@@ -166,53 +167,51 @@ class LoginActivity : BaseActivity(
         }
     }
 
-    inner class AuthObserver : DisposableSingleObserver<AuthResponse>() {
-        init {
-            snackBar.dismiss()
+    private fun authObserver(result: Result<AuthResponse>?) {
+        when (result) {
+            is Result.OnLoading -> {
+                snackBar.dismiss()
 
-            enableUI(false)
-        }
+                enableUI(false)
+            }
+            is Result.OnSuccess -> {
+                startActivity<MainActivity>()
+                finish()
+            }
+            is Result.OnError -> {
+                enableUI(true)
 
-        override fun onSuccess(t: AuthResponse) {
-            startActivity<MainActivity>()
-            finish()
-        }
+                when (result.throwable) {
+                    is AuthException ->
+                        when (result.throwable.code) {
+                            AuthResponseCode.INVALID_CREDENTIALS -> R.string.snackInvalidCredentials
+                            else -> R.string.snackServiceUnreachable
+                        }
+                    is IOException, is HttpException ->
+                        if (connectivityManager.isNetworkAvailable())
+                            R.string.snackServiceUnreachable
+                        else
+                            R.string.snackNetworkUnavailable
 
-        override fun onError(e: Throwable) {
-            e.printStackTrace()
+                    else -> R.string.snackInternalFailure
+                }.also { message ->
+                    snackBar
+                            .setText(message)
+                            /* Add retry action */
+                            .apply {
+                                if (message != R.string.snackInvalidCredentials) {
+                                    setAction(R.string.retry) {
+                                        val request = AuthRequest(
+                                                usbId = tInputUsbId.text(),
+                                                password = tInputPassword.text()
+                                        )
 
-            enableUI(true)
-
-            when (e) {
-                is AuthException ->
-                    when (e.code) {
-                        AuthResponseCode.INVALID_CREDENTIALS -> R.string.snackInvalidCredentials
-                        else -> R.string.snackServiceUnreachable
-                    }
-                is IOException, is HttpException ->
-                    if (connectivityManager.isNetworkAvailable())
-                        R.string.snackServiceUnreachable
-                    else
-                        R.string.snackNetworkUnavailable
-
-                else -> R.string.snackInternalFailure
-            }.also { message ->
-                snackBar
-                        .setText(message)
-                        /* Add retry action */
-                        .apply {
-                            if (message != R.string.snackInvalidCredentials) {
-                                setAction(R.string.retry) {
-                                    val request = AuthRequest(
-                                            usbId = tInputUsbId.text(),
-                                            password = tInputPassword.text()
-                                    )
-
-                                    viewModel.auth(request, AuthObserver())
+                                        viewModel.auth(request)
+                                    }
                                 }
                             }
-                        }
-                        .show()
+                            .show()
+                }
             }
         }
     }

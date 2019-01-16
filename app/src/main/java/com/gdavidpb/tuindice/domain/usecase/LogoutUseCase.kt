@@ -2,23 +2,18 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.repository.LocalDatabaseRepository
 import com.gdavidpb.tuindice.domain.repository.LocalStorageRepository
-import com.gdavidpb.tuindice.domain.usecase.base.CompletableUseCase
-import io.reactivex.Completable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
+import kotlinx.coroutines.Dispatchers
 
 open class LogoutUseCase(
         private val localStorageRepository: LocalStorageRepository,
         private val localDatabaseRepository: LocalDatabaseRepository
-) : CompletableUseCase<Void?>(
-        subscribeOn = Schedulers.io(),
-        observeOn = AndroidSchedulers.mainThread()
+) : CompletableUseCase<Unit>(
+        backgroundContext = Dispatchers.IO,
+        foregroundContext = Dispatchers.Main
 ) {
-    override fun buildUseCaseObservable(params: Void?): Completable {
-        val removeActive = localDatabaseRepository.removeActive()
-        val deleteCookies = localStorageRepository.delete("cookies", false)
-
-        return removeActive.andThen(deleteCookies)
+    override suspend fun executeOnBackground(params: Unit) {
+        localDatabaseRepository.removeActive()
+        localStorageRepository.delete("cookies")
     }
-
 }

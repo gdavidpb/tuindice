@@ -4,31 +4,30 @@ import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.repository.LocalDatabaseRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.domain.usecase.base.MaybeUseCase
-import io.reactivex.Maybe
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
+import kotlinx.coroutines.Dispatchers
 
 open class GetAccountUseCase(
         private val dstRepository: DstRepository,
         private val localDatabaseRepository: LocalDatabaseRepository,
         private val settingsRepository: SettingsRepository
-) : MaybeUseCase<Account, Boolean>(
-        subscribeOn = Schedulers.io(),
-        observeOn = AndroidSchedulers.mainThread()
+) : ResultUseCase<Boolean, Account>(
+        backgroundContext = Dispatchers.IO,
+        foregroundContext = Dispatchers.Main
 ) {
-    override fun buildUseCaseObservable(params: Boolean): Maybe<Account> {
-        val local = localDatabaseRepository.getActiveAccount()
-        val remote = dstRepository.getAccount()
-        val setCooldown = settingsRepository.setCooldown(key = "GetAccountUseCase")
+    override suspend fun executeOnBackground(params: Boolean): Account? {
+        val local = suspend { localDatabaseRepository.getActiveAccount() }
+        val remote = suspend { dstRepository.getAccount() }
+        val setCooldown = suspend { settingsRepository.setCooldown(key = "GetAccountUseCase") }
         val isCooldown = settingsRepository.isCooldown(key = "GetAccountUseCase")
 
         /* params -> tryRefresh */
-        return isCooldown.flatMapMaybe { cooldown ->
-            if (cooldown || !params)
-                local
-            else
-                setCooldown.andThen(remote.switchIfEmpty(local))
+        return if (isCooldown || !params)
+            local()
+        else {
+            setCooldown()
+
+            remote() ?: local()
         }
     }
 }

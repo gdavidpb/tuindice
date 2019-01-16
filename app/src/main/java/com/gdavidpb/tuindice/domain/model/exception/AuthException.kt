@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.model.exception
+package com.gdavidpb.tuindice.domain.model.exception
 
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 

@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.utils
 
-/* Database data */
+/* Database result */
 const val DATABASE_VERSION = 4
 const val DATABASE_NAME = "database.sqlite"
 

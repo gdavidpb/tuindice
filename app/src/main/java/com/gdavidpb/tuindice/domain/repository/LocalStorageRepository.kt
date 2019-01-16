@@ -1,16 +1,14 @@
 package com.gdavidpb.tuindice.domain.repository
 
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
 import java.io.File
 import java.io.InputStream
 
 interface LocalStorageRepository {
-    fun put(name: String, inputStream: InputStream): Single<File>
-    fun get(name: String): Maybe<InputStream>
-    fun delete(name: String, throwOnMissing: Boolean): Completable
+    suspend fun put(name: String, inputStream: InputStream): File
+    suspend fun get(name: String): InputStream
+    suspend fun delete(name: String)
 
+    //todo can we remove this?
     fun putSync(name: String, inputStream: InputStream): File?
     fun getSync(name: String): InputStream?
 }

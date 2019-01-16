@@ -3,16 +3,12 @@ package com.gdavidpb.tuindice.domain.usecase
 import com.gdavidpb.tuindice.data.mapper.UsbIdMapper
 import com.gdavidpb.tuindice.data.utils.ENDPOINT_DST_ENROLLMENT_AUTH
 import com.gdavidpb.tuindice.data.utils.ENDPOINT_DST_RECORD_AUTH
-import com.gdavidpb.tuindice.data.utils.asSingle
-import com.gdavidpb.tuindice.data.utils.firstOrError
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.repository.*
-import com.gdavidpb.tuindice.domain.usecase.base.SingleUseCase
+import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
 
 open class LoginUseCase(
         private val dstRepository: DstRepository,
@@ -21,29 +17,34 @@ open class LoginUseCase(
         private val settingsRepository: SettingsRepository,
         private val baaSRepository: BaaSRepository,
         private val usbIdMapper: UsbIdMapper
-) : SingleUseCase<AuthResponse, AuthRequest>(
-        subscribeOn = Schedulers.io(),
-        observeOn = AndroidSchedulers.mainThread()
+) : ResultUseCase<AuthRequest, AuthResponse>(
+        backgroundContext = Dispatchers.IO,
+        foregroundContext = Dispatchers.Main
 ) {
-    override fun buildUseCaseObservable(params: AuthRequest): Single<AuthResponse> {
+    override suspend fun executeOnBackground(params: AuthRequest): AuthResponse? {
         val email = params.usbId.let(usbIdMapper::map)
 
-        val clearCookies = localStorageRepository.delete("cookies", false)
-        val enrollmentAuth = dstRepository.auth(params.copy(serviceUrl = ENDPOINT_DST_ENROLLMENT_AUTH)).ensureSchedulers()
-        val recordAuth = dstRepository.auth(params.copy(serviceUrl = ENDPOINT_DST_RECORD_AUTH)).ensureSchedulers()
-        val activeRemove = localDatabaseRepository.removeActive()
-        val signOut = baaSRepository.signOut()
-        val sendEmail = baaSRepository.sendSignInLink(email).andThen(settingsRepository.setEmailSentTo(email))
+        baaSRepository.signOut()
+        localStorageRepository.delete("cookies")
 
-        val auth = sendEmail.andThen(recordAuth.concatWith(enrollmentAuth).firstOrError { it.isSuccessful })
-        val reset = signOut.andThen(clearCookies)
+        val authResponse = listOf(
+                dstRepository.auth(params.copy(serviceUrl = ENDPOINT_DST_RECORD_AUTH)),
+                dstRepository.auth(params.copy(serviceUrl = ENDPOINT_DST_ENROLLMENT_AUTH))
+        ).firstOrNull { it.isSuccessful }!!
 
-        return reset.andThen(auth).flatMap {
-            val account = Account(usbId = params.usbId, password = params.password, fullName = it.name)
+        baaSRepository.sendSignInLink(email)
+        settingsRepository.setEmailSentTo(email)
 
-            val store = localDatabaseRepository.storeAccount(account = account, active = true)
+        val account = Account(
+                usbId = params.usbId,
+                password = params.password,
+                fullName = authResponse.name
+        )
 
-            activeRemove.andThen(store).asSingle(it)
-        }
+        localDatabaseRepository.removeActive()
+
+        localDatabaseRepository.storeAccount(account = account, active = true)
+
+        return authResponse
     }
 }

@@ -23,12 +23,16 @@ import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.gdavidpb.tuindice.data.model.Validation
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.google.android.gms.tasks.Task
 import com.google.android.material.textfield.TextInputLayout
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Maybe
-import io.reactivex.Single
 import kotlinx.coroutines.*
 import okhttp3.RequestBody
 import okio.Buffer
@@ -39,14 +43,61 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
-/* Rx Java */
+/* Live data */
 
-fun <T> Maybe<T>.andThen(completable: Completable): Maybe<T> = flatMap { completable.andThen(Maybe.just(it)) }
+typealias LiveResult<T> = MutableLiveData<Result<T>>
+typealias LiveCompletable = MutableLiveData<Completable>
 
-fun <T> Completable.asSingle(value: T): Single<T> = andThen(Single.just(value))
+@JvmName("postCompleteResult")
+fun <T> LiveResult<T>.postSuccess(value: T) = postValue(Result.OnSuccess(value))
 
-fun <T> Flowable<T>.firstOrError(predicate: (T) -> Boolean): Single<T> = filter { predicate(it) }.firstOrError()
+@JvmName("postThrowableResult")
+fun <T> LiveResult<T>.postThrowable(throwable: Throwable) = postValue(Result.OnError(throwable))
+
+@JvmName("postLoadingResult")
+fun <T> LiveResult<T>.postLoading() = postValue(Result.OnLoading())
+
+@JvmName("postCancelResult")
+fun <T> LiveResult<T>.postCancel() = postValue(Result.OnCancel())
+
+@JvmName("postEmptyResult")
+fun <T> LiveResult<T>.postEmpty() = postValue(Result.OnEmpty())
+
+@JvmName("postCompleteCompletable")
+fun LiveCompletable.postComplete() = postValue(Completable.OnComplete)
+
+@JvmName("postThrowableCompletable")
+fun LiveCompletable.postThrowable(throwable: Throwable) = postValue(Completable.OnError(throwable))
+
+@JvmName("postLoadingCompletable")
+fun LiveCompletable.postLoading() = postValue(Completable.OnLoading)
+
+@JvmName("postCancelCompletable")
+fun LiveCompletable.postCancel() = postValue(Completable.OnCancel)
+
+fun <T, L : LiveData<T>> FragmentActivity.observe(liveData: L, body: (T?) -> Unit) =
+        liveData.observe(this, Observer(body))
+
+fun <T, L : LiveData<T>> Fragment.observe(liveData: L, body: (T?) -> Unit) =
+        liveData.observe(viewLifecycleOwner, Observer(body))
+
+/* Coroutines */
+
+@JvmName("awaitVoid")
+suspend fun Task<Void>.await() = suspendCoroutine<Unit> { continuation ->
+    addOnSuccessListener { continuation.resume(Unit) }
+    addOnFailureListener { continuation.resumeWithException(it) }
+}
+
+@JvmName("awaitTResult")
+suspend fun <TResult> Task<TResult>.await() = suspendCoroutine<TResult> { continuation ->
+    addOnSuccessListener { continuation.resume(it) }
+    addOnFailureListener { continuation.resumeWithException(it) }
+}
 
 /* Validation */
 

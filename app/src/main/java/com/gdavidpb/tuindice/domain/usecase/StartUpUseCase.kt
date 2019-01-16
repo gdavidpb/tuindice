@@ -5,34 +5,29 @@ import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.repository.BaaSRepository
 import com.gdavidpb.tuindice.domain.repository.LocalDatabaseRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.domain.usecase.base.SingleUseCase
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
+import kotlinx.coroutines.Dispatchers
 
 open class StartUpUseCase(
         private val settingsRepository: SettingsRepository,
         private val localDatabaseRepository: LocalDatabaseRepository,
         private val baaSRepository: BaaSRepository
-) : SingleUseCase<StartUpAction, Intent>(
-        subscribeOn = Schedulers.io(),
-        observeOn = AndroidSchedulers.mainThread()
+) : ResultUseCase<Intent, StartUpAction>(
+        backgroundContext = Dispatchers.IO,
+        foregroundContext = Dispatchers.Main
 ) {
-    override fun buildUseCaseObservable(params: Intent): Single<StartUpAction> {
+    override suspend fun executeOnBackground(params: Intent): StartUpAction? {
         val emailLink = "${params.data}"
 
-        val activeAccount = localDatabaseRepository.getActiveAccount().isEmpty.map(Boolean::not)
-        val linkReceived = baaSRepository.isSignInLink(emailLink)
-        val emailSent = settingsRepository.getEmailSentTo().map(String::isNotEmpty)
+        val activeAccount = suspend { localDatabaseRepository.getActiveAccount() != null }
+        val linkReceived = suspend { baaSRepository.isSignInLink(emailLink) }
+        val emailSent = suspend { settingsRepository.getEmailSentTo().isNotEmpty() }
 
-        val chain = mapOf(
-                activeAccount to StartUpAction.MAIN,
-                linkReceived to StartUpAction.EMAIL_LINK,
-                emailSent to StartUpAction.EMAIL_SENT
-        )
-
-        val selected = Single.concat(chain.keys).any { it }
-
-        return Single.just(chain[selected] ?: StartUpAction.LOGIN)
+        return when {
+            activeAccount() -> StartUpAction.MAIN
+            linkReceived() -> StartUpAction.EMAIL_LINK
+            emailSent() -> StartUpAction.EMAIL_SENT
+            else -> StartUpAction.LOGIN
+        }
     }
 }

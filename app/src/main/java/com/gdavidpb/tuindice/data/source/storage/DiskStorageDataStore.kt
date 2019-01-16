@@ -2,10 +2,8 @@ package com.gdavidpb.tuindice.data.source.storage
 
 import android.content.Context
 import com.gdavidpb.tuindice.domain.repository.LocalStorageRepository
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.InputStream
 
@@ -36,28 +34,25 @@ open class DiskStorageDataStore(private val context: Context) : LocalStorageRepo
             null
     }
 
-    override fun put(name: String, inputStream: InputStream): Single<File> {
-        return Single.fromCallable { putSync(name, inputStream) }
+    override suspend fun put(name: String, inputStream: InputStream): File {
+        return putSync(name, inputStream)!!
     }
 
-    override fun get(name: String): Maybe<InputStream> {
-        return Maybe.fromCallable {
-            getSync(name)!!
-        }.onErrorComplete {
-            it is NullPointerException
-        }
+    override suspend fun get(name: String): InputStream {
+        return getSync(name)!!
     }
 
-    override fun delete(name: String, throwOnMissing: Boolean): Completable {
-        return Completable.fromCallable {
+    override suspend fun delete(name: String) {
+        runCatching {
             File(context.filesDir, name).let {
                 if (it.isDirectory)
                     it.deleteRecursively()
                 else
                     it.delete()
             }
-        }.onErrorComplete {
-            !throwOnMissing
+        }.onFailure { throwable ->
+            if (throwable !is FileNotFoundException)
+                throw throwable
         }
     }
 }

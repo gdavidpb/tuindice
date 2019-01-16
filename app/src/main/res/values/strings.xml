@@ -67,11 +67,18 @@
     <string name="toastRefresh">Información actualizada</string>
     <string name="toastEnrollment">Archivo no soportado ;(</string>
 
+    <!-- EmailSent Activity -->
+    <string name="messageEmailSent">
+        Hemos enviado un enlace para iniciar sesión a tu correo
+        institucional %1$s.
+    </string>
+    <string name="bCancelLogin"><u>¿Quieres ingresar con otra cuenta?</u></string>
+
     <!-- Login Activity -->
     <string name="hintUsbId">USBID</string>
     <string name="hintPassword">Contraseña</string>
 
-    <string name="bLogin">Iniciar Sesión</string>
+    <string name="bLogin">Iniciar sesión</string>
     <string name="bPrivacyPolicy"><u><b>Política de Privacidad</b></u></string>
 
     <string name="errorEmpty">Campo vacío</string>

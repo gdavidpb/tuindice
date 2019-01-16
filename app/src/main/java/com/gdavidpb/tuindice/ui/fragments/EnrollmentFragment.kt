@@ -7,9 +7,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.data.utils.observe
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.EnrollmentFragmentViewModel
-import io.reactivex.observers.DisposableMaybeObserver
 import kotlinx.android.synthetic.main.fragment_enrollment.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -26,36 +27,39 @@ open class EnrollmentFragment : Fragment() {
 
         rViewRecycler.layoutManager = LinearLayoutManager(context)
 
-        sRefreshEnrollment.setOnRefreshListener { viewModel.loadAccount(ActiveAccountObserver(), true) }
+        with(viewModel) {
+            observe(loadAccount, ::loadAccountObserver)
+        }
+
+        sRefreshEnrollment.setOnRefreshListener { viewModel.loadAccount(tryRefresh = true) }
     }
 
     override fun onResume() {
         super.onResume()
 
-        viewModel.loadAccount(ActiveAccountObserver(), true)
+        viewModel.loadAccount(tryRefresh = true)
     }
 
-    inner class ActiveAccountObserver : DisposableMaybeObserver<Account>() {
-        init {
-            sRefreshEnrollment.isRefreshing = true
-        }
+    private fun loadAccountObserver(result: Result<Account>?) {
+        when (result) {
+            is Result.OnLoading -> {
+                sRefreshEnrollment.isRefreshing = true
+            }
+            is Result.OnSuccess -> {
+                sRefreshEnrollment.isRefreshing = false
 
-        override fun onSuccess(t: Account) {
-            sRefreshEnrollment.isRefreshing = false
+                // todo load enrollment
+            }
+            is Result.OnEmpty -> {
+                sRefreshEnrollment.isRefreshing = false
 
-            // todo load enrollment
-        }
+                /* Handled by MainActivity::StartUpObserver */
+            }
+            is Result.OnError -> {
+                sRefreshEnrollment.isRefreshing = false
 
-        override fun onComplete() {
-            sRefreshEnrollment.isRefreshing = false
-
-            /* Handled by MainActivity::StartUpObserver */
-        }
-
-        override fun onError(e: Throwable) {
-            sRefreshEnrollment.isRefreshing = false
-
-            // todo failure show image on recycler
+                // todo failure show image on recycler
+            }
         }
     }
 }

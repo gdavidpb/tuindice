@@ -5,15 +5,13 @@ import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.Enrollment
 import com.gdavidpb.tuindice.domain.model.Record
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import io.reactivex.Maybe
-import io.reactivex.Single
 import okhttp3.ResponseBody
 
 interface DstRepository {
-    fun getAccount(): Maybe<Account>
-    fun getRecord(): Maybe<Record>
-    fun getEnrollment(): Maybe<Enrollment>
-    fun getEnrollmentProof(): Maybe<ResponseBody>
+    suspend fun getAccount(): Account?
+    suspend fun getRecord(): Record?
+    suspend fun getEnrollment(): Enrollment?
+    suspend fun getEnrollmentProof(): ResponseBody?
 
-    fun auth(request: AuthRequest): Single<AuthResponse>
+    suspend fun auth(request: AuthRequest): AuthResponse
 }
