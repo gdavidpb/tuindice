@@ -16,5 +16,5 @@ interface DstSubjectDao : BaseDao<SubjectEntity> {
     fun getForQuarter(qid: Long): List<SubjectEntity>
 
     @Query("SELECT * FROM $TABLE_SUBJECTS WHERE $COLUMN_STATUS = :status ORDER BY RANDOM() LIMIT 1")
-    fun getSample(status: SubjectStatus): SubjectEntity
+    fun getSample(status: SubjectStatus): SubjectEntity?
 }

@@ -17,7 +17,7 @@ open class StartUpUseCase(
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: Intent): StartUpAction? {
-        val emailLink = "${params.data}"
+        val emailLink = if (params.data != null) "${params.data}" else ""
 
         val activeAccount = suspend { localDatabaseRepository.getActiveAccount() != null }
         val linkReceived = suspend { baaSRepository.isSignInLink(emailLink) }

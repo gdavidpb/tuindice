@@ -10,7 +10,7 @@ open class SQLiteDataStore(
         private val accountEntityMapper: AccountEntityMapper
 ) : LocalDatabaseRepository {
     override suspend fun getActiveAccount(): Account? {
-        return database.accounts.getActive().let(accountEntityMapper::mapFrom)
+        return database.accounts.getActive()?.let(accountEntityMapper::mapFrom)
     }
 
     override suspend fun removeActive() {

@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.data.utils.*
 @Dao
 interface DstAccountDao : BaseDao<AccountEntity> {
     @Query("SELECT * FROM $TABLE_ACCOUNTS WHERE $COLUMN_ACTIVE = 1 LIMIT 1")
-    fun getActive(): AccountEntity
+    fun getActive(): AccountEntity?
 
     @Transaction
     @Query("SELECT * FROM $TABLE_ACCOUNTS WHERE $COLUMN_ACTIVE = 1 LIMIT 1")

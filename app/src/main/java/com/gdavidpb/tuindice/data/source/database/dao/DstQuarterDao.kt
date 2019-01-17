@@ -24,5 +24,5 @@ interface DstQuarterDao : BaseDao<QuarterEntity> {
     fun computeGradeSum(qid: Long): Double
 
     @Query("SELECT * FROM $TABLE_QUARTERS WHERE $COLUMN_STATUS = :status ORDER BY RANDOM() LIMIT 1")
-    fun getSample(status: QuarterStatus): QuarterEntity
+    fun getSample(status: QuarterStatus): QuarterEntity?
 }
