@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.domain.model.exception.AuthException
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.google.common.net.MediaType
 import okhttp3.ResponseBody
 
 open class DstDataStore(
@@ -20,28 +19,38 @@ open class DstDataStore(
         private val recordMapper: RecordMapper,
         private val enrollmentMapper: EnrollmentMapper
 ) : DstRepository {
-    override suspend fun getAccount(): Account {
-        return recordService.getPersonalData().let(accountSelectorMapper::map)
+    override suspend fun getAccount(): Account? {
+        val response = recordService.getPersonalData().execute().body()
+
+        return response?.let(accountSelectorMapper::map)
     }
 
-    override suspend fun getRecord(): Record {
-        return recordService.getRecordData().let(recordMapper::map)
+    override suspend fun getRecord(): Record? {
+        val response = recordService.getRecordData().execute().body()
+
+        return response?.let(recordMapper::map)
     }
 
-    override suspend fun getEnrollment(): Enrollment {
-        return enrollmentService.getEnrollment().let(enrollmentMapper::map)
+    override suspend fun getEnrollment(): Enrollment? {
+        val response = enrollmentService.getEnrollment().execute().body()
+
+        return response?.let(enrollmentMapper::map)
     }
 
     override suspend fun getEnrollmentProof(): ResponseBody? {
-        return enrollmentService.getEnrollmentProof().let {
-            val isValid = "${it.contentType()}" == "${MediaType.PDF}"
+        val response = enrollmentService.getEnrollmentProof().execute().body()
+
+        return response?.let {
+            val isValid = "${it.contentType()}" == "application/pdf"
 
             if (isValid) it else null
         }
     }
 
-    override suspend fun auth(request: AuthRequest): AuthResponse {
-        return authService.auth(request.serviceUrl, request.usbId, request.password).let {
+    override suspend fun auth(request: AuthRequest): AuthResponse? {
+        val response = authService.auth(request.serviceUrl, request.usbId, request.password).execute().body()
+
+        return response?.let {
             val authResponse = it.let(authResponseMapper::map).copy(request = request)
 
             when (authResponse.code) {

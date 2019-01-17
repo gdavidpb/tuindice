@@ -20,6 +20,9 @@ interface DstAccountDao : BaseDao<AccountEntity> {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun storeAccount(accountEntity: AccountEntity)
 
+    @Query("UPDATE $TABLE_ACCOUNTS SET $COLUMN_ACTIVE = 1 WHERE $COLUMN_EMAIL = :email")
+    fun activeAccount(email: String)
+
     @Query("UPDATE $TABLE_ACCOUNTS SET " +
             "$COLUMN_USB_ID = '', " +
             "$COLUMN_PASSWORD = '', " +

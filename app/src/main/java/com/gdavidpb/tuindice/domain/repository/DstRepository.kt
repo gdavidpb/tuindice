@@ -13,5 +13,5 @@ interface DstRepository {
     suspend fun getEnrollment(): Enrollment?
     suspend fun getEnrollmentProof(): ResponseBody?
 
-    suspend fun auth(request: AuthRequest): AuthResponse
+    suspend fun auth(request: AuthRequest): AuthResponse?
 }

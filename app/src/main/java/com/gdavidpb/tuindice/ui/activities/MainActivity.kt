@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.utils.notNull
 import com.gdavidpb.tuindice.data.utils.observe
-import com.gdavidpb.tuindice.data.utils.toShortName
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
@@ -39,6 +38,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             observe(getActiveAccount, ::getActiveAccountObserver)
             observe(logout, ::logoutObserver)
             observe(fetchStartUpAction, ::startUpObserver)
+            observe(signInWithLink, ::signInWithLinkObserver)
         }
 
         viewModel.fetchStartUpAction(intent)
@@ -129,8 +129,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val header = nav_view.getHeaderView(0)
 
         with(header) {
-            tViewDrawerName.text = account.fullName.toShortName()
-            tViewDrawerUsbId.text = getString(R.string.drawerUsbId, account.usbId)
+            tViewDrawerName.text = account.shortName
+            tViewDrawerUsbId.text = account.email
         }
     }
 
@@ -159,16 +159,31 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
+    private fun signInWithLinkObserver(result: Completable?) {
+        when (result) {
+            is Completable.OnComplete -> {
+                viewModel.getActiveAccount(tryRefresh = false)
+            }
+            is Completable.OnError -> {
+                //todo fail to open auth link
+            }
+        }
+    }
+
     private fun getActiveAccountObserver(result: Result<Account>?) {
         when (result) {
             is Result.OnSuccess -> {
+                val account = result.value
+
+                toast(getString(R.string.toastWelcome, account.shortName))
+
                 setContentView(R.layout.activity_main)
 
                 onViewCreated()
 
                 loadFragment(R.id.nav_enrollment)
 
-                loadAccount(account = result.value)
+                loadAccount(account = account)
             }
             is Result.OnError -> {
                 fatalFailureDialog()

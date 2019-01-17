@@ -12,8 +12,6 @@
     <string name="devTitleReport">Reportar un error</string>
     <string name="devMessageReport">¿Deseas reportar un error?</string>
 
-    <string name="drawerUsbId">%1$s@usb.ve</string>
-
     <!-- Navigation view -->
     <string name="nav_enrollment">Resumen</string>
     <string name="nav_record">Informe Académico</string>
@@ -64,6 +62,7 @@
 
     <string name="hintGuessSearch">Código o nombre de la materia</string>
 
+    <string name="toastWelcome">¡Bienvenido %1$s!</string>
     <string name="toastRefresh">Información actualizada</string>
     <string name="toastEnrollment">Archivo no soportado ;(</string>
 

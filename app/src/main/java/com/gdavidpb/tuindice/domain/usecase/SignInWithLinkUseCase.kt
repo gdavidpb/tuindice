@@ -1,13 +1,15 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.repository.BaaSRepository
+import com.gdavidpb.tuindice.domain.repository.LocalDatabaseRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
 import kotlinx.coroutines.Dispatchers
 
 open class SignInWithLinkUseCase(
         private val baaSRepository: BaaSRepository,
-        private val settingsRepository: SettingsRepository
+        private val settingsRepository: SettingsRepository,
+        private val localDatabaseRepository: LocalDatabaseRepository
 ) : CompletableUseCase<String>(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
@@ -18,5 +20,7 @@ open class SignInWithLinkUseCase(
         baaSRepository.signInWithLink(email = email, link = params)
 
         settingsRepository.clearEmailSentTo()
+
+        localDatabaseRepository.activeAccount(email = email)
     }
 }

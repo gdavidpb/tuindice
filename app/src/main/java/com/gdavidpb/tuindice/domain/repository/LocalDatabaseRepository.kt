@@ -6,4 +6,5 @@ interface LocalDatabaseRepository {
     suspend fun getActiveAccount(): Account?
     suspend fun removeActive()
     suspend fun storeAccount(account: Account, active: Boolean)
+    suspend fun activeAccount(email: String)
 }

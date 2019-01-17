@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.data.mapper.UsbIdMapper
-import com.gdavidpb.tuindice.data.utils.ENDPOINT_DST_ENROLLMENT_AUTH
 import com.gdavidpb.tuindice.data.utils.ENDPOINT_DST_RECORD_AUTH
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.AuthResponse
@@ -27,23 +26,23 @@ open class LoginUseCase(
         baaSRepository.signOut()
         localStorageRepository.delete("cookies")
 
-        val authResponse = listOf(
-                dstRepository.auth(params.copy(serviceUrl = ENDPOINT_DST_RECORD_AUTH)),
-                dstRepository.auth(params.copy(serviceUrl = ENDPOINT_DST_ENROLLMENT_AUTH))
-        ).firstOrNull { it.isSuccessful }!!
+        val authResponse = dstRepository.auth(params.copy(serviceUrl = ENDPOINT_DST_RECORD_AUTH))
 
-        baaSRepository.sendSignInLink(email)
-        settingsRepository.setEmailSentTo(email)
+        if (authResponse != null) {
+            baaSRepository.sendSignInLink(email)
+            settingsRepository.setEmailSentTo(email)
 
-        val account = Account(
-                usbId = params.usbId,
-                password = params.password,
-                fullName = authResponse.name
-        )
+            val account = Account(
+                    usbId = params.usbId,
+                    password = params.password,
+                    fullName = authResponse.name,
+                    email = email
+            )
 
-        localDatabaseRepository.removeActive()
+            localDatabaseRepository.removeActive()
 
-        localDatabaseRepository.storeAccount(account = account, active = true)
+            localDatabaseRepository.storeAccount(account = account, active = false)
+        }
 
         return authResponse
     }

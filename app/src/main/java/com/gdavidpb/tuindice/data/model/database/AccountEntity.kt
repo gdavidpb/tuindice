@@ -14,6 +14,7 @@ data class AccountEntity(
         val id: Long = -1,
         val uid: String = "",
         val usbId: String = "",
+        val email: String = "",
         val password: String = "",
         val fullName: String = "",
         val firstNames: String = "",
