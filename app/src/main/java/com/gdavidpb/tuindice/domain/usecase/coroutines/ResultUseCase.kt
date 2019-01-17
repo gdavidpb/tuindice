@@ -8,13 +8,12 @@ abstract class ResultUseCase<Q, T>(
         private val backgroundContext: CoroutineContext,
         private val foregroundContext: CoroutineContext
 ) {
-    private val parentJob = Job()
+    private var parentJob = Job()
 
     protected abstract suspend fun executeOnBackground(params: Q): T?
 
     fun execute(liveData: LiveResult<T>, params: Q) {
-        parentJob.cancelChildren()
-        parentJob.cancel()
+        resetJob()
 
         CoroutineScope(foregroundContext + parentJob).launch {
             liveData.postLoading()
@@ -29,6 +28,21 @@ abstract class ResultUseCase<Q, T>(
                     is NullPointerException -> liveData.postEmpty()
                     else -> liveData.postThrowable(throwable)
                 }
+            }
+        }
+    }
+
+    private fun resetJob() {
+        parentJob = parentJob.run {
+            when {
+                isActive -> {
+                    cancelChildren()
+                    cancel()
+
+                    Job()
+                }
+                isCancelled || isCompleted -> Job()
+                else -> parentJob
             }
         }
     }

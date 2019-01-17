@@ -8,13 +8,12 @@ abstract class CompletableUseCase<Q>(
         private val backgroundContext: CoroutineContext,
         private val foregroundContext: CoroutineContext
 ) {
-    private val parentJob = Job()
+    private var parentJob = Job()
 
     protected abstract suspend fun executeOnBackground(params: Q)
 
     fun execute(liveData: LiveCompletable, params: Q) {
-        parentJob.cancelChildren()
-        parentJob.cancel()
+        resetJob()
 
         CoroutineScope(foregroundContext + parentJob).launch {
             liveData.postLoading()
@@ -28,6 +27,21 @@ abstract class CompletableUseCase<Q>(
                     is CancellationException -> liveData.postCancel()
                     else -> liveData.postThrowable(throwable)
                 }
+            }
+        }
+    }
+
+    private fun resetJob() {
+        parentJob = parentJob.run {
+            when {
+                isActive -> {
+                    cancelChildren()
+                    cancel()
+
+                    Job()
+                }
+                isCancelled || isCompleted -> Job()
+                else -> parentJob
             }
         }
     }
