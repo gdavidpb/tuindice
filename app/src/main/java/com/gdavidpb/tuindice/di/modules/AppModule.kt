@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataStore
 import com.gdavidpb.tuindice.data.utils.*
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
+import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentActivityViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.EnrollmentFragmentViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginActivityViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
@@ -56,6 +57,7 @@ val appModule = module {
     viewModel<MainActivityViewModel>()
     viewModel<LoginActivityViewModel>()
     viewModel<EnrollmentFragmentViewModel>()
+    viewModel<EmailSentActivityViewModel>()
 
     /* Database */
 
@@ -242,4 +244,6 @@ val appModule = module {
     factory<SignInWithLinkUseCase>()
 
     factory<StartUpUseCase>()
+
+    factory<GetEmailSentToUseCase>()
 }

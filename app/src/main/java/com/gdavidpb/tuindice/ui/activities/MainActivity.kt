@@ -39,9 +39,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             observe(logout, ::logoutObserver)
             observe(fetchStartUpAction, ::startUpObserver)
             observe(signInWithLink, ::signInWithLinkObserver)
-        }
 
-        viewModel.fetchStartUpAction(intent)
+            fetchStartUpAction(intent)
+        }
     }
 
     override fun onBackPressed() {
@@ -175,7 +175,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             is Result.OnSuccess -> {
                 val account = result.value
 
-                toast(getString(R.string.toastWelcome, account.shortName))
+                longToast(getString(R.string.toastWelcome, account.shortName))
 
                 setContentView(R.layout.activity_main)
 
