@@ -65,6 +65,8 @@ class EmailSentActivity : AppCompatActivity() {
     }
 
     private fun onResendClick() {
+        viewModel.countdown()
+
         btnResend.isEnabled = false
 
         when (intent.getIntExtra(AWAITING_STATE, 0)) {
@@ -83,6 +85,8 @@ class EmailSentActivity : AppCompatActivity() {
             }
             is Continuous.OnComplete -> {
                 btnResend.isEnabled = true
+
+                tViewCountdown.text = getString(R.string.text0)
             }
         }
     }
