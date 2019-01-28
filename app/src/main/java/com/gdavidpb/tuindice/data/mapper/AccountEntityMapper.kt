@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.data.mapper
 
 import com.gdavidpb.tuindice.data.model.database.AccountEntity
-import com.gdavidpb.tuindice.data.utils.toShortName
 import com.gdavidpb.tuindice.domain.mapper.BidirectionalMapper
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.utils.toShortName
 
 open class AccountEntityMapper : BidirectionalMapper<Account, AccountEntity> {
     override fun mapTo(from: Account): AccountEntity {

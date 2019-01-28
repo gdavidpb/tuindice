@@ -1,9 +1,6 @@
-package com.gdavidpb.tuindice.data.utils
+package com.gdavidpb.tuindice.utils
 
 import java.util.*
-
-/* TuIndice url */
-const val URL_TU_INDICE = "https://tuindice-usb.firebaseapp.com/"
 
 /* Dst service endpoints */
 const val ENDPOINT_DST_SECURE = "https://secure.dst.usb.ve/"
@@ -17,6 +14,15 @@ const val ENDPOINT_DST_POLL_AUTH = "${ENDPOINT_DST_ENROLLMENT}Consulta/Secure/zk
 
 /* Firebase storage urls */
 const val URL_PRIVACY_POLICY = "https://tuindice-usb.firebaseapp.com/"
+
+/* Preferences keys */
+const val KEY_COUNT_DOWN = "countdown"
+const val KEY_FIRST_RUN = "firstRun"
+const val KEY_COOL_DOWN = "Cooldown"
+const val KEY_IS_AWAITING_FOR_RESET = "isAwaitingForReset"
+const val KEY_IS_AWAITING_FOR_VERIFY = "isAwaitingForVerify"
+const val KEY_AWAITING_EMAIL = "AwaitingEmail"
+const val KEY_AWAITING_PASSWORD = "AwaitingPassword"
 
 /* Romans */
 val ROMANS = hashMapOf(
@@ -56,5 +62,13 @@ val DEFAULT_LOCALE = Locale("es", "VE")
 const val CHANNEL_SERVICE = "CHANNEL_SERVICE"
 
 /* Times */
+const val TIME_COUNT_DOWN = 5 * 60 * 1000
 const val TIME_BACKGROUND_ANIMATION = 30000L
 const val TIME_DELAY_CLICK_ONCE = 500L
+
+/* Extras */
+const val AWAITING_STATE = "AWAITING_STATE"
+const val AWAITING_EMAIL = "AWAITING_EMAIL"
+
+const val FLAG_RESET = 1000
+const val FLAG_VERIFY = 1001

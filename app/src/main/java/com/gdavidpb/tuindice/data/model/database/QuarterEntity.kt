@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.model.database
 
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
-import com.gdavidpb.tuindice.data.utils.*
+import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.domain.model.QuarterStatus
 
 @Entity(tableName = TABLE_QUARTERS,

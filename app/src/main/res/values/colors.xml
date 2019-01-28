@@ -10,7 +10,7 @@
     <color name="colorBackgroundLight">#F5F5F5</color>
     <color name="colorBackgroundDark">#9E9E9E</color>
     <color name="colorWarning">#F44336</color>
-    <color name="colorDisabled">#B0BEC5</color>
+    <color name="colorDisabled">#CFD8DC</color>
     <color name="colorTransparent">#80000000</color>
 
     <color name="quarterCompleted">#B0BEC5</color>

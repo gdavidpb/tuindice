@@ -8,20 +8,22 @@ import com.gdavidpb.tuindice.data.mapper.*
 import com.gdavidpb.tuindice.data.source.database.SQLiteDataStore
 import com.gdavidpb.tuindice.data.source.database.SQLiteDatabase
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
+import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataStore
 import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
 import com.gdavidpb.tuindice.data.source.storage.DiskStorageDataStore
 import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataStore
-import com.gdavidpb.tuindice.data.utils.*
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentActivityViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.EnrollmentFragmentViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginActivityViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
+import com.gdavidpb.tuindice.utils.*
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.storage.FirebaseStorage
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -193,6 +195,10 @@ val appModule = module {
         FirebaseAuth.getInstance()
     }
 
+    single {
+        FirebaseInstanceId.getInstance()
+    }
+
     /* Factories */
 
     factoryBy<DstRepository, DstDataStore>()
@@ -205,7 +211,9 @@ val appModule = module {
 
     factoryBy<RemoteStorageRepository, FirebaseStorageDataStore>()
 
-    factoryBy<BaaSRepository, FirebaseDataStore>()
+    factoryBy<AuthRepository, FirebaseDataStore>()
+
+    factoryBy<RemoteDatabaseRepository, FirestoreDataStore>()
 
     /* Mappers */
 
@@ -233,6 +241,10 @@ val appModule = module {
 
     factory<UsbIdMapper>()
 
+    factory<ResetMapper>()
+
+    factory<AuthResultMapper>()
+
     /* Use cases */
 
     factory<LoginUseCase>()
@@ -241,9 +253,13 @@ val appModule = module {
 
     factory<GetAccountUseCase>()
 
-    factory<SignInWithLinkUseCase>()
-
     factory<StartUpUseCase>()
 
-    factory<GetEmailSentToUseCase>()
+    factory<ResetUseCase>()
+
+    factory<ResendVerifyEmailUseCase>()
+
+    factory<ResendResetEmailUseCase>()
+
+    factory<CountdownUseCase>()
 }

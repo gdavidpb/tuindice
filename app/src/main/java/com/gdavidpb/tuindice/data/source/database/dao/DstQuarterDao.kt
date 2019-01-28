@@ -5,7 +5,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.gdavidpb.tuindice.data.model.database.QuarterAndSubjectsEntity
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
-import com.gdavidpb.tuindice.data.utils.*
+import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.domain.model.QuarterStatus
 
 @Dao

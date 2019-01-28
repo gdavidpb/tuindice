@@ -13,13 +13,13 @@ import android.widget.EditText
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintSet
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.utils.*
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.exception.AuthException
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginActivityViewModel
+import com.gdavidpb.tuindice.utils.*
 import kotlinx.android.synthetic.main.activity_login.*
 import org.jetbrains.anko.browse
 import org.jetbrains.anko.sdk27.coroutines.onClick
@@ -116,27 +116,30 @@ class LoginActivity : BaseActivity(
             })
         }
 
-        tViewPrivacyPolicy.onClickOnce {
-            browse(url = URL_PRIVACY_POLICY)
-        }
+        tViewPrivacyPolicy.onClickOnce(::onPrivacyPolicyClick)
+        bLogin.onClickOnce(::onLoginClick)
+    }
 
-        bLogin.onClickOnce {
-            validations.firstInvalid {
-                requestFocus()
+    private fun onPrivacyPolicyClick() {
+        browse(url = URL_PRIVACY_POLICY)
+    }
 
-                selectAll()
+    private fun onLoginClick() {
+        validations.firstInvalid {
+            requestFocus()
 
-                lookAtMe()
-            }.isNull {
-                iViewLogo.performClick()
+            selectAll()
 
-                val request = AuthRequest(
-                        usbId = tInputUsbId.text(),
-                        password = tInputPassword.text()
-                )
+            lookAtMe()
+        }.isNull {
+            iViewLogo.performClick()
 
-                viewModel.auth(request)
-            }
+            val request = AuthRequest(
+                    usbId = tInputUsbId.text(),
+                    password = tInputPassword.text()
+            )
+
+            viewModel.auth(request)
         }
     }
 

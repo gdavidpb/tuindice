@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.domain.usecase.coroutines
 
-import com.gdavidpb.tuindice.data.utils.*
+import com.gdavidpb.tuindice.utils.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 abstract class ResultUseCase<Q, T>(
-        private val backgroundContext: CoroutineContext,
-        private val foregroundContext: CoroutineContext
+        protected val backgroundContext: CoroutineContext,
+        protected val foregroundContext: CoroutineContext
 ) {
     private var parentJob = Job()
 

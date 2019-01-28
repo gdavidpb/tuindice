@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.domain.model
 
-import com.gdavidpb.tuindice.data.utils.DEFAULT_LOCALE
-import com.gdavidpb.tuindice.data.utils.QUARTER_ENDS
-import com.gdavidpb.tuindice.data.utils.QUARTER_STARTS
-import com.gdavidpb.tuindice.data.utils.format
+import com.gdavidpb.tuindice.utils.DEFAULT_LOCALE
+import com.gdavidpb.tuindice.utils.QUARTER_ENDS
+import com.gdavidpb.tuindice.utils.QUARTER_STARTS
+import com.gdavidpb.tuindice.utils.format
 import java.util.*
 
 data class Period(val startDate: Date? = null,

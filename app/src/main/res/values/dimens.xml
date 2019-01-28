@@ -7,6 +7,10 @@
     <dimen name="dp_16">16dp</dimen>
     <dimen name="dp_24">24dp</dimen>
     <dimen name="dp_32">32dp</dimen>
+    <dimen name="dp_48">48dp</dimen>
+    <dimen name="dp_64">64dp</dimen>
+
+    <dimen name="sp_42">42sp</dimen>
 
     <dimen name="size_logo">128dp</dimen>
     <dimen name="size_tick">6dp</dimen>

@@ -1,4 +1,16 @@
-package com.gdavidpb.tuindice.data.utils
+package com.gdavidpb.tuindice.utils
+
+/* <--- Remote database ---> */
+
+/* Firestore collections */
+
+/* Users collection */
+const val COLLECTION_USER = "users"
+
+/* Users collection fields */
+const val FIELD_USER_TOKEN = "token"
+
+/* <--- Local database ---> */
 
 /* Database result */
 const val DATABASE_VERSION = 4

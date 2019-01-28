@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.data.source.database.dao
 import androidx.room.*
 import com.gdavidpb.tuindice.data.model.database.AccountAndQuartersEntity
 import com.gdavidpb.tuindice.data.model.database.AccountEntity
-import com.gdavidpb.tuindice.data.utils.*
+import com.gdavidpb.tuindice.utils.*
 
 @Dao
 interface DstAccountDao : BaseDao<AccountEntity> {

@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.data.model.database
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import com.gdavidpb.tuindice.data.utils.COLUMN_AID
-import com.gdavidpb.tuindice.data.utils.COLUMN_ID
+import com.gdavidpb.tuindice.utils.COLUMN_AID
+import com.gdavidpb.tuindice.utils.COLUMN_ID
 
 data class AccountAndQuartersEntity(
         @Embedded

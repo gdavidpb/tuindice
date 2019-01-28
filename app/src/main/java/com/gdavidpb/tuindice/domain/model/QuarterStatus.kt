@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.domain.model
 import android.content.Context
 import androidx.annotation.ColorRes
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.utils.getCompatColor
+import com.gdavidpb.tuindice.utils.getCompatColor
 
 enum class QuarterStatus(
         val value: Int,

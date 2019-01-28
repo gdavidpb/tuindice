@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.domain.model
 
 data class Account(
+        val uid: String = "",
         val id: String = "",
         val usbId: String = "",
         val email: String = "",

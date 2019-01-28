@@ -4,10 +4,10 @@ import com.gdavidpb.tuindice.data.model.service.DstPeriod
 import com.gdavidpb.tuindice.data.model.service.DstQuarter
 import com.gdavidpb.tuindice.data.model.service.DstRecord
 import com.gdavidpb.tuindice.data.model.service.DstSubject
-import com.gdavidpb.tuindice.data.utils.component6
-import com.gdavidpb.tuindice.data.utils.component7
-import com.gdavidpb.tuindice.data.utils.component8
-import com.gdavidpb.tuindice.data.utils.parse
+import com.gdavidpb.tuindice.utils.component6
+import com.gdavidpb.tuindice.utils.component7
+import com.gdavidpb.tuindice.utils.component8
+import com.gdavidpb.tuindice.utils.parse
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector

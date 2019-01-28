@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.data.source.service.converter
 
 import com.gdavidpb.tuindice.data.model.service.DstQuarterCalendar
-import com.gdavidpb.tuindice.data.utils.DEFAULT_LOCALE
-import com.gdavidpb.tuindice.data.utils.parse
+import com.gdavidpb.tuindice.utils.DEFAULT_LOCALE
+import com.gdavidpb.tuindice.utils.parse
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector

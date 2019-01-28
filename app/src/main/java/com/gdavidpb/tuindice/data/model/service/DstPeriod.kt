@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.model.service
 
-import com.gdavidpb.tuindice.data.utils.format
+import com.gdavidpb.tuindice.utils.format
 import java.util.*
 
 data class DstPeriod(

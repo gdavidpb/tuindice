@@ -1,32 +1,56 @@
 package com.gdavidpb.tuindice.data.source.settings
 
 import android.content.SharedPreferences
-import com.gdavidpb.tuindice.data.utils.DEFAULT_LOCALE
-import com.gdavidpb.tuindice.data.utils.edit
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.utils.*
 import java.util.*
 
 open class PreferencesDataStore(
         private val preferences: SharedPreferences
 ) : SettingsRepository {
-    /* Preferences keys */
-    private val keyFirstRun = "firstRun"
-    private val keyCooldown = "cooldown"
-    private val emailSentTo = "getEmailSentTo"
 
-    override suspend fun clearEmailSentTo() {
+    override suspend fun awaitingEmail(): String {
+        return preferences.getString(KEY_AWAITING_EMAIL, "") ?: ""
+    }
+
+    override suspend fun awaitingPassword(): String {
+        return preferences.getString(KEY_AWAITING_PASSWORD, "") ?: ""
+    }
+
+    override suspend fun setIsAwaitingForReset(email: String, password: String) {
         preferences.edit {
-            remove(emailSentTo)
+            putString(KEY_AWAITING_EMAIL, email)
+            putString(KEY_AWAITING_PASSWORD, password)
+            putBoolean(KEY_IS_AWAITING_FOR_RESET, true)
         }
     }
 
-    override suspend fun getEmailSentTo(): String {
-        return preferences.getString(emailSentTo, null) ?: ""
+    override suspend fun setIsAwaitingForVerify(email: String) {
+        preferences.edit {
+            putString(KEY_AWAITING_EMAIL, email)
+            putBoolean(KEY_IS_AWAITING_FOR_VERIFY, true)
+        }
     }
 
-    override suspend fun setEmailSentTo(email: String) {
+    override suspend fun isAwaitingForReset(): Boolean {
+        return preferences.getBoolean(KEY_IS_AWAITING_FOR_RESET, false)
+    }
+
+    override suspend fun isAwaitingForVerify(): Boolean {
+        return preferences.getBoolean(KEY_IS_AWAITING_FOR_VERIFY, false)
+    }
+
+    override suspend fun clearIsAwaitingForReset() {
         preferences.edit {
-            putString(emailSentTo, email)
+            remove(KEY_AWAITING_EMAIL)
+            remove(KEY_IS_AWAITING_FOR_RESET)
+        }
+    }
+
+    override suspend fun clearIsAwaitingForVerify() {
+        preferences.edit {
+            remove(KEY_AWAITING_EMAIL)
+            remove(KEY_IS_AWAITING_FOR_VERIFY)
         }
     }
 
@@ -41,7 +65,7 @@ open class PreferencesDataStore(
         calendar.add(Calendar.DATE, 1)
 
         preferences.edit {
-            putLong("$key$keyCooldown", calendar.timeInMillis)
+            putLong("$key$KEY_COOL_DOWN", calendar.timeInMillis)
         }
     }
 
@@ -49,18 +73,38 @@ open class PreferencesDataStore(
         val now = Calendar.getInstance(DEFAULT_LOCALE)
         val cooldown = Calendar.getInstance(DEFAULT_LOCALE)
 
-        cooldown.timeInMillis = preferences.getLong("$key$keyCooldown", now.timeInMillis)
+        cooldown.timeInMillis = preferences.getLong("$key$KEY_COOL_DOWN", now.timeInMillis)
 
         return now.before(cooldown)
     }
 
     override suspend fun isFirstRun(): Boolean {
-        return preferences.getBoolean(keyFirstRun, true)
+        return preferences.getBoolean(KEY_FIRST_RUN, true)
     }
 
     override suspend fun setFirstRun() {
         return preferences.edit {
-            putBoolean(keyFirstRun, true)
+            putBoolean(KEY_FIRST_RUN, true)
+        }
+    }
+
+    override suspend fun getCountdown(): Long {
+        return preferences.getLong(KEY_COUNT_DOWN, 0)
+    }
+
+    override suspend fun startCountdown() {
+        preferences.edit {
+            val calendar = Calendar.getInstance().apply {
+                add(Calendar.MILLISECOND, TIME_COUNT_DOWN)
+            }
+
+            putLong(KEY_COUNT_DOWN, calendar.timeInMillis)
+        }
+    }
+
+    override suspend fun clearCountdown() {
+        preferences.edit {
+            remove(KEY_COUNT_DOWN)
         }
     }
 

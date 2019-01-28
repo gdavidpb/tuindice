@@ -5,10 +5,10 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.gdavidpb.tuindice.data.utils.COLUMN_CODE
-import com.gdavidpb.tuindice.data.utils.COLUMN_ID
-import com.gdavidpb.tuindice.data.utils.COLUMN_QID
-import com.gdavidpb.tuindice.data.utils.TABLE_SUBJECTS
+import com.gdavidpb.tuindice.utils.COLUMN_CODE
+import com.gdavidpb.tuindice.utils.COLUMN_ID
+import com.gdavidpb.tuindice.utils.COLUMN_QID
+import com.gdavidpb.tuindice.utils.TABLE_SUBJECTS
 import com.gdavidpb.tuindice.domain.model.SubjectStatus
 
 @Entity(tableName = TABLE_SUBJECTS,

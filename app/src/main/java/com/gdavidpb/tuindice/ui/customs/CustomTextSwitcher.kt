@@ -10,7 +10,7 @@ import android.view.View
 import android.widget.TextSwitcher
 import android.widget.TextView
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.utils.lookAtMe
+import com.gdavidpb.tuindice.utils.lookAtMe
 
 class CustomTextSwitcher<T>(context: Context, attrs: AttributeSet)
     : TextSwitcher(context, attrs) {

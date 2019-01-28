@@ -4,9 +4,9 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
-import com.gdavidpb.tuindice.data.utils.COLUMN_QID
-import com.gdavidpb.tuindice.data.utils.COLUMN_STATUS
-import com.gdavidpb.tuindice.data.utils.TABLE_SUBJECTS
+import com.gdavidpb.tuindice.utils.COLUMN_QID
+import com.gdavidpb.tuindice.utils.COLUMN_STATUS
+import com.gdavidpb.tuindice.utils.TABLE_SUBJECTS
 import com.gdavidpb.tuindice.domain.model.SubjectStatus
 
 @Dao

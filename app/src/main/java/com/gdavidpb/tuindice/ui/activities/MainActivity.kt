@@ -10,15 +10,15 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.utils.notNull
-import com.gdavidpb.tuindice.data.utils.observe
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
 import com.gdavidpb.tuindice.ui.fragments.EnrollmentFragment
+import com.gdavidpb.tuindice.utils.*
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
@@ -35,10 +35,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         super.onCreate(savedInstanceState)
 
         with(viewModel) {
-            observe(getActiveAccount, ::getActiveAccountObserver)
             observe(logout, ::logoutObserver)
             observe(fetchStartUpAction, ::startUpObserver)
-            observe(signInWithLink, ::signInWithLinkObserver)
+            observe(getActiveAccount, ::getActiveAccountObserver)
+            observe(resetPassword, ::resetPasswordObserver)
 
             fetchStartUpAction(intent)
         }
@@ -132,6 +132,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             tViewDrawerName.text = account.shortName
             tViewDrawerUsbId.text = account.email
         }
+
+        setContentView(R.layout.activity_main)
+
+        onViewCreated()
+
+        loadFragment(R.id.nav_enrollment)
     }
 
     private fun loadFragment(@IdRes itemId: Int) {
@@ -159,31 +165,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-    private fun signInWithLinkObserver(result: Completable?) {
-        when (result) {
-            is Completable.OnComplete -> {
-                viewModel.getActiveAccount(tryRefresh = false)
-            }
-            is Completable.OnError -> {
-                //todo fail to open auth link
-            }
-        }
-    }
-
     private fun getActiveAccountObserver(result: Result<Account>?) {
         when (result) {
             is Result.OnSuccess -> {
-                val account = result.value
-
-                longToast(getString(R.string.toastWelcome, account.shortName))
-
-                setContentView(R.layout.activity_main)
-
-                onViewCreated()
-
-                loadFragment(R.id.nav_enrollment)
-
-                loadAccount(account = account)
+                loadAccount(account = result.value)
             }
             is Result.OnError -> {
                 fatalFailureDialog()
@@ -203,23 +188,58 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
+    private fun resetPasswordObserver(result: Completable?) {
+        when (result) {
+            is Completable.OnComplete -> {
+                val auth = FirebaseAuth.getInstance()
+
+                auth.uid
+            }
+            is Completable.OnError -> {
+                //todo handle exception: expired link / internet / others
+            }
+        }
+    }
+
     private fun startUpObserver(result: Result<StartUpAction>?) {
         when (result) {
             is Result.OnSuccess -> {
-                when (result.value) {
-                    StartUpAction.MAIN -> {
+                val value = result.value
+
+                when (value) {
+                    is StartUpAction.Main -> {
+                        /* Load from cache */
+                        loadAccount(account = value.account)
+
+                        /* Request update */
                         viewModel.getActiveAccount(tryRefresh = false)
                     }
-                    StartUpAction.EMAIL_SENT -> {
-                        startActivity<EmailSentActivity>()
+                    is StartUpAction.Verified -> {
+                        longToast(R.string.toastVerified)
+
+                        /* Request update */
+                        viewModel.getActiveAccount(tryRefresh = false)
+                    }
+                    is StartUpAction.Reset -> {
+                        viewModel.resetPassword(request = value.request)
+
+                        //todo what to do left here?
+                    }
+                    is StartUpAction.AwaitingForReset -> {
+                        startActivity<EmailSentActivity>(
+                                AWAITING_STATE to FLAG_RESET,
+                                AWAITING_EMAIL to value.email
+                        )
                         finish()
                     }
-                    StartUpAction.EMAIL_LINK -> {
-                        val emailLink = "${intent.data}"
-
-                        viewModel.signInWithLink(link = emailLink)
+                    is StartUpAction.AwaitingForVerify -> {
+                        startActivity<EmailSentActivity>(
+                                AWAITING_STATE to FLAG_VERIFY,
+                                AWAITING_EMAIL to value.email
+                        )
+                        finish()
                     }
-                    StartUpAction.LOGIN -> {
+                    is StartUpAction.Login -> {
                         startActivity<LoginActivity>()
                         finish()
                     }

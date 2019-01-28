@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.utils
+package com.gdavidpb.tuindice.utils
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -28,8 +28,9 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.gdavidpb.tuindice.data.model.Validation
+import com.gdavidpb.tuindice.data.model.app.Validation
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.google.android.gms.tasks.Task
 import com.google.android.material.textfield.TextInputLayout
@@ -51,6 +52,9 @@ import kotlin.coroutines.suspendCoroutine
 
 typealias LiveResult<T> = MutableLiveData<Result<T>>
 typealias LiveCompletable = MutableLiveData<Completable>
+typealias LiveContinuous<T> = MutableLiveData<Continuous<T>>
+
+/* LiveResult */
 
 @JvmName("postCompleteResult")
 fun <T> LiveResult<T>.postSuccess(value: T) = postValue(Result.OnSuccess(value))
@@ -67,6 +71,8 @@ fun <T> LiveResult<T>.postCancel() = postValue(Result.OnCancel())
 @JvmName("postEmptyResult")
 fun <T> LiveResult<T>.postEmpty() = postValue(Result.OnEmpty())
 
+/* LiveCompletable */
+
 @JvmName("postCompleteCompletable")
 fun LiveCompletable.postComplete() = postValue(Completable.OnComplete)
 
@@ -78,6 +84,20 @@ fun LiveCompletable.postLoading() = postValue(Completable.OnLoading)
 
 @JvmName("postCancelCompletable")
 fun LiveCompletable.postCancel() = postValue(Completable.OnCancel)
+
+/* LiveContinuous */
+
+@JvmName("postNextContinuous")
+fun <T> LiveContinuous<T>.postNext(value: T) = postValue(Continuous.OnNext(value))
+
+@JvmName("postCompleteContinuous")
+fun <T> LiveContinuous<T>.postComplete() = postValue(Continuous.OnComplete())
+
+@JvmName("postThrowableContinuous")
+fun <T> LiveContinuous<T>.postThrowable(throwable: Throwable) = postValue(Continuous.OnError(throwable))
+
+@JvmName("postCancelContinuous")
+fun <T> LiveContinuous<T>.postCancel() = postValue(Continuous.OnCancel())
 
 fun <T, L : LiveData<T>> FragmentActivity.observe(liveData: L, body: (T?) -> Unit) =
         liveData.observe(this, Observer(body))
@@ -150,18 +170,16 @@ fun RequestBody?.bodyToString(): String {
 
 /* View */
 
-fun View.onClickOnce(onClick: (View) -> Unit) {
+fun View.onClickOnce(onClick: () -> Unit) {
     setOnClickListener(object : View.OnClickListener {
         override fun onClick(view: View) {
             view.setOnClickListener(null)
 
             also { listener ->
-                GlobalScope.launch {
-                    withContext((Dispatchers.Main)) {
-                        onClick(view)
-                    }
+                CoroutineScope(Dispatchers.Main).launch {
+                    onClick()
 
-                    delay(TIME_DELAY_CLICK_ONCE)
+                    withContext(Dispatchers.IO) { delay(TIME_DELAY_CLICK_ONCE) }
 
                     view.setOnClickListener(listener)
                 }

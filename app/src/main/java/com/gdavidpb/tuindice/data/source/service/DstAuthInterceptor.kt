@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.service
 
-import com.gdavidpb.tuindice.data.utils.bodyToString
+import com.gdavidpb.tuindice.utils.bodyToString
 import okhttp3.Interceptor
 import okhttp3.MediaType
 import okhttp3.RequestBody

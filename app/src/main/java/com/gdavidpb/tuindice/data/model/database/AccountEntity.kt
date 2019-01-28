@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.data.model.database
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.gdavidpb.tuindice.data.utils.COLUMN_USB_ID
-import com.gdavidpb.tuindice.data.utils.TABLE_ACCOUNTS
+import com.gdavidpb.tuindice.utils.COLUMN_USB_ID
+import com.gdavidpb.tuindice.utils.TABLE_ACCOUNTS
 import java.util.*
 
 @Entity(tableName = TABLE_ACCOUNTS,

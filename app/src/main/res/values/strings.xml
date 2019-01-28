@@ -62,17 +62,36 @@
 
     <string name="hintGuessSearch">Código o nombre de la materia</string>
 
-    <string name="toastWelcome">¡Bienvenido %1$s!</string>
-    <string name="toastRefresh">Información actualizada</string>
+    <string name="toastResend">Correo reenviado</string>
+    <string name="toastTryAgainLater">Intenta de nuevo más tarde</string>
+    <string name="toastVerified">Cuenta verificada correctamente</string>
     <string name="toastEnrollment">Archivo no soportado ;(</string>
 
     <!-- EmailSent Activity -->
-    <string name="messageEmailSent">
-        Hemos enviado un enlace para iniciar sesión a tu correo
-        institucional %1$s.
+    <string name="titleVerify">
+        Verifica tu cuenta
     </string>
 
-    <string name="bCancelLogin"><u>¿Quieres ingresar con otra cuenta?</u></string>
+    <string name="messageVerify">
+        Hemos enviado un enlace de verificación a tu correo
+        institucional (%1$s).\n\n
+        Revísalo y estamos listos ;)
+    </string>
+
+    <string name="titleReset">
+        Tu contraseña ha cambiado
+    </string>
+
+    <string name="messageReset">
+        Hemos enviado un enlace para actualizar tu contraseña
+        a tu correo institucional (%1$s).\n\n
+        Revísalo y estamos listos ;)
+    </string>
+
+    <string name="textOr">─ O ─</string>
+
+    <string name="bCancel"><u>Ingresar con otra cuenta</u></string>
+    <string name="bResend">Enviar nuevamente</string>
 
     <!-- Login Activity -->
     <string name="hintUsbId">USBID</string>
