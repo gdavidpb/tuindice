@@ -10,7 +10,8 @@ open class AuthResultMapper : Mapper<AuthResult, Account> {
             Account(
                     uid = uid,
                     email = email ?: "",
-                    fullName = displayName ?: ""
+                    fullName = displayName ?: "",
+                    verified = isEmailVerified
             )
         }
     }

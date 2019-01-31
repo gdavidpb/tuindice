@@ -92,13 +92,15 @@ open class PreferencesDataStore(
         return preferences.getLong(KEY_COUNT_DOWN, 0)
     }
 
-    override suspend fun startCountdown() {
-        preferences.edit {
-            val calendar = Calendar.getInstance().apply {
-                add(Calendar.MILLISECOND, TIME_COUNT_DOWN)
+    override suspend fun startCountdown(): Long {
+        return Calendar.getInstance().run {
+            add(Calendar.MILLISECOND, TIME_COUNT_DOWN)
+
+            preferences.edit {
+                putLong(KEY_COUNT_DOWN, timeInMillis)
             }
 
-            putLong(KEY_COUNT_DOWN, calendar.timeInMillis)
+            timeInMillis
         }
     }
 

@@ -44,11 +44,12 @@ open class FirebaseDataStore(
     override suspend fun sendEmailVerification() {
         val actionCodeSettings = ActionCodeSettings
                 .newBuilder()
+                .setUrl("TuIndice") //todo is this necessary?
                 .setHandleCodeInApp(true)
                 .setAndroidPackageName(BuildConfig.APPLICATION_ID, true, null)
                 .build()
 
-        firebaseAuth.currentUser?.sendEmailVerification(actionCodeSettings)
+        firebaseAuth.currentUser!!.sendEmailVerification(actionCodeSettings)
     }
 
     override suspend fun isEmailVerified(): Boolean {

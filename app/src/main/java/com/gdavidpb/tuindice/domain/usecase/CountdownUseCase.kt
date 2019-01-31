@@ -9,12 +9,15 @@ import java.util.*
 
 open class CountdownUseCase(
         private val settingsRepository: SettingsRepository
-) : ContinuousUseCase<Unit, Long>(
+) : ContinuousUseCase<Boolean, Long>(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
 ) {
-    override suspend fun executeOnBackground(params: Unit, onNext: (Long) -> Unit) {
-        val countdown = settingsRepository.getCountdown()
+    override suspend fun executeOnBackground(params: Boolean, onNext: (Long) -> Unit) {
+        val countdown = if (params)
+            settingsRepository.startCountdown()
+        else
+            settingsRepository.getCountdown()
 
         var now = Date()
         var left = Math.max(0, countdown - now.time)

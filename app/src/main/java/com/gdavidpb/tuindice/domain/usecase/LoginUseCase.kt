@@ -70,6 +70,9 @@ open class LoginUseCase(
                 email = account.email
         )
 
+        if (!account.verified)
+            authRepository.sendEmailVerification()
+
         remoteDatabaseRepository.setToken()
 
         localDatabaseRepository.removeActive()

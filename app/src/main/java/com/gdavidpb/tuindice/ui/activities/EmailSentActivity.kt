@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.utils.*
 import kotlinx.android.synthetic.main.activity_email_sent.*
 import org.jetbrains.anko.longToast
 import org.koin.android.ext.android.inject
-import java.util.concurrent.TimeUnit
 
 class EmailSentActivity : AppCompatActivity() {
 
@@ -27,7 +26,8 @@ class EmailSentActivity : AppCompatActivity() {
             observe(sendEmailVerification, ::sendEmailVerificationObserver)
             observe(resetPassword, ::resetPasswordObserver)
 
-            countdown()
+            /* todo require get? */
+            restartCountdown()
         }
 
         /* Logo animation */
@@ -65,9 +65,9 @@ class EmailSentActivity : AppCompatActivity() {
     }
 
     private fun onResendClick() {
-        viewModel.countdown()
-
         btnResend.isEnabled = false
+
+        viewModel.restartCountdown()
 
         when (intent.getIntExtra(AWAITING_STATE, 0)) {
             FLAG_RESET -> viewModel.resetPassword()
@@ -78,15 +78,12 @@ class EmailSentActivity : AppCompatActivity() {
     private fun countdownObserver(result: Continuous<Long>?) {
         when (result) {
             is Continuous.OnNext -> {
-                val min = TimeUnit.MILLISECONDS.toMinutes(result.value)
-                val sec = TimeUnit.MILLISECONDS.toSeconds(result.value - TimeUnit.MINUTES.toMillis(min))
-
-                tViewCountdown.text = String.format("%02d:%02d", min, sec)
+                tViewCountdown.text = (result.value).toCountdown()
             }
             is Continuous.OnComplete -> {
                 btnResend.isEnabled = true
 
-                tViewCountdown.text = getString(R.string.text0)
+                tViewCountdown.text = (0L).toCountdown()
             }
         }
     }

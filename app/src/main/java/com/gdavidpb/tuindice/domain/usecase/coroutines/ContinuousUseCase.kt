@@ -11,14 +11,12 @@ abstract class ContinuousUseCase<Q, T>(
         protected val backgroundContext: CoroutineContext,
         protected val foregroundContext: CoroutineContext
 ) {
-    private var parentJob = Job()
-
     protected abstract suspend fun executeOnBackground(params: Q, onNext: (T) -> Unit)
 
-    fun execute(liveData: LiveContinuous<T>, params: Q, onNext: (T) -> Unit) {
-        resetJob()
+    private var parentJob = Job()
 
-        CoroutineScope(foregroundContext + parentJob).launch {
+    fun execute(liveData: LiveContinuous<T>, params: Q, onNext: (T) -> Unit) {
+        CoroutineScope(foregroundContext + newJob()).launch {
             runCatching {
                 withContext(backgroundContext) { executeOnBackground(params, onNext) }
             }.onSuccess {
@@ -32,18 +30,14 @@ abstract class ContinuousUseCase<Q, T>(
         }
     }
 
-    private fun resetJob() {
+    private fun newJob(): Job {
         parentJob = parentJob.run {
-            when {
-                isActive -> {
-                    cancelChildren()
-                    cancel()
+            cancelChildren()
+            cancel()
 
-                    Job()
-                }
-                isCancelled || isCompleted -> Job()
-                else -> parentJob
-            }
+            Job()
         }
+
+        return parentJob
     }
 }

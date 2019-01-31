@@ -14,7 +14,7 @@ interface SettingsRepository {
     suspend fun clearIsAwaitingForReset()
     suspend fun clearIsAwaitingForVerify()
     suspend fun getCountdown(): Long
-    suspend fun startCountdown()
+    suspend fun startCountdown(): Long
     suspend fun clearCountdown()
     suspend fun clear()
 }

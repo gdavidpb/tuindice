@@ -13,8 +13,6 @@ open class ResendResetEmailUseCase(
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: Unit) {
-        settingsRepository.startCountdown()
-
         val email = settingsRepository.awaitingEmail()
         val password = settingsRepository.awaitingPassword()
 

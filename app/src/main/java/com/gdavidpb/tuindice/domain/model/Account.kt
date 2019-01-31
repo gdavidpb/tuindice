@@ -10,5 +10,6 @@ data class Account(
         val shortName: String = "",
         val firstNames: String = "",
         val lastNames: String = "",
-        val scholarship: Boolean = false
+        val scholarship: Boolean = false,
+        val verified: Boolean = false
 )

@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.domain.model.exception.AuthException
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import okhttp3.ResponseBody
+import retrofit2.HttpException
 
 open class DstDataStore(
         private val authService: DstAuthService,
@@ -48,15 +49,18 @@ open class DstDataStore(
     }
 
     override suspend fun auth(request: AuthRequest): AuthResponse? {
-        val response = authService.auth(request.serviceUrl, request.usbId, request.password).execute().body()
+        val response = authService.auth(request.serviceUrl, request.usbId, request.password).execute()
 
-        return response?.let {
-            val authResponse = it.let(authResponseMapper::map).copy(request = request)
+        return if (response.isSuccessful) {
+            response.body()?.let {
+                val authResponse = it.let(authResponseMapper::map).copy(request = request)
 
-            when (authResponse.code) {
-                AuthResponseCode.SUCCESS, AuthResponseCode.NO_ENROLLED -> authResponse
-                else -> throw AuthException(code = authResponse.code, message = authResponse.message)
+                when (authResponse.code) {
+                    AuthResponseCode.SUCCESS, AuthResponseCode.NO_ENROLLED -> authResponse
+                    else -> throw AuthException(code = authResponse.code, message = authResponse.message)
+                }
             }
-        }
+        } else
+            throw HttpException(response)
     }
 }

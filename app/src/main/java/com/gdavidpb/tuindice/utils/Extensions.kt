@@ -42,6 +42,7 @@ import java.io.InputStream
 import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.resume
@@ -252,6 +253,13 @@ fun Context.isPowerSaveMode(): Boolean {
 fun ConnectivityManager.isNetworkAvailable() = activeNetworkInfo?.isConnected == true
 
 /* Format */
+
+fun Long.toCountdown(): String {
+    val min = TimeUnit.MILLISECONDS.toMinutes(this)
+    val sec = TimeUnit.MILLISECONDS.toSeconds(this - TimeUnit.MINUTES.toMillis(min))
+
+    return String.format("%02d:%02d", min, sec)
+}
 
 fun Double.toGrade() = Math.floor(this * 10000) / 10000
 

@@ -8,14 +8,12 @@ abstract class CompletableUseCase<Q>(
         protected val backgroundContext: CoroutineContext,
         protected val foregroundContext: CoroutineContext
 ) {
-    private var parentJob = Job()
-
     protected abstract suspend fun executeOnBackground(params: Q)
 
-    fun execute(liveData: LiveCompletable, params: Q) {
-        resetJob()
+    private var parentJob = Job()
 
-        CoroutineScope(foregroundContext + parentJob).launch {
+    fun execute(liveData: LiveCompletable, params: Q) {
+        CoroutineScope(foregroundContext + newJob()).launch {
             liveData.postLoading()
 
             runCatching {
@@ -31,18 +29,14 @@ abstract class CompletableUseCase<Q>(
         }
     }
 
-    private fun resetJob() {
+    private fun newJob(): Job {
         parentJob = parentJob.run {
-            when {
-                isActive -> {
-                    cancelChildren()
-                    cancel()
+            cancelChildren()
+            cancel()
 
-                    Job()
-                }
-                isCancelled || isCompleted -> Job()
-                else -> parentJob
-            }
+            Job()
         }
+
+        return parentJob
     }
 }
