@@ -15,5 +15,4 @@ interface AuthRepository {
     suspend fun isEmailVerified(): Boolean
 
     suspend fun isResetLink(link: String?): Boolean
-    suspend fun isVerifyLink(link: String?): Boolean
 }

@@ -59,6 +59,8 @@ open class FirebaseDataStore(
     }
 
     override suspend fun sendPasswordResetEmail(email: String, password: String) {
+        settingsRepository.setIsAwaitingForReset(email, password)
+
         val resetPassword = (email to password).let(resetParamMapper::mapFrom)
         val continueUrl = resources.getString(R.string.urlContinueResetPassword, resetPassword)
 
@@ -76,8 +78,6 @@ open class FirebaseDataStore(
         auth.currentUser?.also { user ->
             val continueUrl = resources.getString(R.string.urlContinueVerification, user.uid)
 
-            settingsRepository.setIsAwaitingForVerify(user.email!!)
-
             val actionCodeSettings = ActionCodeSettings
                     .newBuilder()
                     .setUrl(continueUrl)
@@ -90,7 +90,9 @@ open class FirebaseDataStore(
     }
 
     override suspend fun isEmailVerified(): Boolean {
-        return auth.currentUser?.isEmailVerified == true
+        val lazyIsEmailVerified = { auth.currentUser?.isEmailVerified == true }
+
+        return lazyIsEmailVerified() || auth.currentUser?.reload()?.await().run { lazyIsEmailVerified() }
     }
 
     override suspend fun isResetLink(link: String?): Boolean {
@@ -107,14 +109,6 @@ open class FirebaseDataStore(
         }
 
         return values(uri).all { (value, expected) -> value == expected }
-    }
-
-    override suspend fun isVerifyLink(link: String?): Boolean {
-        if (link == null) return false
-
-        val uid = auth.uid ?: return false
-
-        return link == resources.getString(R.string.urlContinueVerification, uid)
     }
 
     private suspend fun getUserById(uid: String): Account {

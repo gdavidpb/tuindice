@@ -126,18 +126,20 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun loadAccount(account: Account) {
+        if (nav_view == null) {
+            setContentView(R.layout.activity_main)
+
+            onViewCreated()
+
+            loadFragment(R.id.nav_enrollment)
+        }
+
         val header = nav_view.getHeaderView(0)
 
         with(header) {
             tViewDrawerName.text = account.fullName.toShortName()
             tViewDrawerUsbId.text = account.email
         }
-
-        setContentView(R.layout.activity_main)
-
-        onViewCreated()
-
-        loadFragment(R.id.nav_enrollment)
     }
 
     private fun loadFragment(@IdRes itemId: Int) {

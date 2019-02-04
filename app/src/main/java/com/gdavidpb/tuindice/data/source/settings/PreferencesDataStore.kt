@@ -25,12 +25,6 @@ open class PreferencesDataStore(
         }
     }
 
-    override suspend fun setIsAwaitingForVerify(email: String) {
-        preferences.edit {
-            putString(KEY_AWAITING_EMAIL, email)
-        }
-    }
-
     override suspend fun isAwaitingForReset(): Boolean {
         val email = preferences.getString(KEY_AWAITING_EMAIL, "") ?: ""
         val password = preferences.getString(KEY_AWAITING_PASSWORD, "") ?: ""
@@ -38,23 +32,10 @@ open class PreferencesDataStore(
         return !email.isEmpty() && !password.isEmpty()
     }
 
-    override suspend fun isAwaitingForVerify(): Boolean {
-        val email = preferences.getString(KEY_AWAITING_EMAIL, "") ?: ""
-        val password = preferences.getString(KEY_AWAITING_PASSWORD, "") ?: ""
-
-        return !email.isEmpty() && password.isEmpty()
-    }
-
     override suspend fun clearIsAwaitingForReset() {
         preferences.edit {
             remove(KEY_AWAITING_EMAIL)
             remove(KEY_AWAITING_PASSWORD)
-        }
-    }
-
-    override suspend fun clearIsAwaitingForVerify() {
-        preferences.edit {
-            remove(KEY_AWAITING_EMAIL)
         }
     }
 

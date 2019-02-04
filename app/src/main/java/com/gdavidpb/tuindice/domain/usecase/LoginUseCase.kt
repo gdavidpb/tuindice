@@ -48,8 +48,6 @@ open class LoginUseCase(
                             storeAccount(account = account, request = params, response = authResponse)
                         }
                         "ERROR_WRONG_PASSWORD" -> {
-                            settingsRepository.setIsAwaitingForReset(email, params.password)
-
                             authRepository.sendPasswordResetEmail(email = email, password = params.password)
                         }
                         else -> throw exception

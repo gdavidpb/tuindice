@@ -23,23 +23,14 @@ open class StartUpUseCase(
 
         val activeAccount = authRepository.getActiveAccount()
         val passwordReset = authRepository.isResetLink(link)
-        val verifyEmail = authRepository.isVerifyLink(link)
         val awaitingForReset = settingsRepository.isAwaitingForReset()
-        val awaitingForVerify = settingsRepository.isAwaitingForVerify()
 
         val email = settingsRepository.awaitingEmail()
-        val requireVerify = !authRepository.isEmailVerified()
-
-        if (activeAccount != null) databaseRepository.setToken()
 
         return when {
-            verifyEmail -> {
-                if (activeAccount != null)
-                    StartUpAction.Main(account = activeAccount)
-                else
-                    StartUpAction.Login
-            }
             passwordReset -> {
+                settingsRepository.clearIsAwaitingForReset()
+
                 val request = link.let(resetMapper::map)
 
                 authRepository.confirmPasswordReset(request.code, request.password)
@@ -48,9 +39,16 @@ open class StartUpUseCase(
 
                 StartUpAction.Main(account = account)
             }
-            awaitingForVerify || requireVerify -> StartUpAction.Verify(email = email)
             awaitingForReset -> StartUpAction.Reset(email = email)
-            activeAccount != null -> StartUpAction.Main(account = activeAccount)
+            activeAccount != null -> {
+                databaseRepository.setToken()
+
+                if (authRepository.isEmailVerified())
+                    StartUpAction.Main(account = activeAccount)
+                else
+                    StartUpAction.Verify(email = activeAccount.email)
+
+            }
             else -> StartUpAction.Login
         }
     }
