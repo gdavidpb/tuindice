@@ -13,14 +13,14 @@ const val ENDPOINT_DST_ENROLLMENT_AUTH = "${ENDPOINT_DST_ENROLLMENT}CAS/login.do
 const val ENDPOINT_DST_POLL_AUTH = "${ENDPOINT_DST_ENROLLMENT}Consulta/Secure/zk/login.zul"
 
 /* Firebase storage urls */
-const val URL_PRIVACY_POLICY = "https://tuindice-usb.firebaseapp.com/"
+const val URL_BASE = "tuindice-usb.firebaseapp.com"
+const val URL_PRIVACY_POLICY = "https://$URL_BASE/"
 
 /* Preferences keys */
+const val KEY_USB_ID = "email"
+const val KEY_PASSWORD = "password"
 const val KEY_COUNT_DOWN = "countdown"
-const val KEY_FIRST_RUN = "firstRun"
 const val KEY_COOL_DOWN = "Cooldown"
-const val KEY_IS_AWAITING_FOR_RESET = "isAwaitingForReset"
-const val KEY_IS_AWAITING_FOR_VERIFY = "isAwaitingForVerify"
 const val KEY_AWAITING_EMAIL = "AwaitingEmail"
 const val KEY_AWAITING_PASSWORD = "AwaitingPassword"
 
@@ -67,8 +67,8 @@ const val TIME_BACKGROUND_ANIMATION = 30000L
 const val TIME_DELAY_CLICK_ONCE = 500L
 
 /* Extras */
-const val AWAITING_STATE = "AWAITING_STATE"
-const val AWAITING_EMAIL = "AWAITING_EMAIL"
+const val EXTRA_AWAITING_STATE = "EXTRA_AWAITING_STATE"
+const val EXTRA_AWAITING_EMAIL = "EXTRA_AWAITING_EMAIL"
 
 const val FLAG_RESET = 1000
 const val FLAG_VERIFY = 1001

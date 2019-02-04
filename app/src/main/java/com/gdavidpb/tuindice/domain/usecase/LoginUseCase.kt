@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase
 
+import com.gdavidpb.tuindice.data.mapper.CredentialsMapper
 import com.gdavidpb.tuindice.data.mapper.UsbIdMapper
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.AuthResponse
@@ -13,11 +14,11 @@ import kotlinx.coroutines.Dispatchers
 open class LoginUseCase(
         private val dstRepository: DstRepository,
         private val localStorageRepository: LocalStorageRepository,
-        private val localDatabaseRepository: LocalDatabaseRepository,
-        private val remoteDatabaseRepository: RemoteDatabaseRepository,
+        private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
-        private val usbIdMapper: UsbIdMapper
+        private val usbIdMapper: UsbIdMapper,
+        private val credentialsMapper: CredentialsMapper
 ) : ResultUseCase<AuthRequest, AuthResponse>(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
@@ -26,6 +27,7 @@ open class LoginUseCase(
         val email = params.usbId.let(usbIdMapper::map)
 
         authRepository.signOut()
+        settingsRepository.clear()
         localStorageRepository.delete("cookies")
 
         val authResponse = dstRepository.auth(params.copy(serviceUrl = ENDPOINT_DST_RECORD_AUTH))
@@ -41,8 +43,6 @@ open class LoginUseCase(
                 if (exception is FirebaseAuthException) {
                     when (exception.errorCode) {
                         "ERROR_USER_NOT_FOUND" -> {
-                            settingsRepository.setIsAwaitingForVerify(email)
-
                             val account = authRepository.signUp(email = email, password = params.password)
 
                             storeAccount(account = account, request = params, response = authResponse)
@@ -65,18 +65,15 @@ open class LoginUseCase(
     private suspend fun storeAccount(account: Account, request: AuthRequest, response: AuthResponse) {
         val merge = Account(
                 usbId = request.usbId,
-                password = request.password,
-                fullName = response.name,
-                email = account.email
+                email = account.email,
+                fullName = response.name
         )
 
-        if (!account.verified)
+        if (!authRepository.isEmailVerified())
             authRepository.sendEmailVerification()
 
-        remoteDatabaseRepository.setToken()
+        settingsRepository.storeCredentials(credentials = request.let(credentialsMapper::map))
 
-        localDatabaseRepository.removeActive()
-
-        localDatabaseRepository.storeAccount(account = merge, active = false)
+        databaseRepository.updateAccount(account = merge)
     }
 }

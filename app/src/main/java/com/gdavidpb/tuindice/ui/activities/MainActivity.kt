@@ -129,7 +129,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val header = nav_view.getHeaderView(0)
 
         with(header) {
-            tViewDrawerName.text = account.shortName
+            tViewDrawerName.text = account.fullName.toShortName()
             tViewDrawerUsbId.text = account.email
         }
 
@@ -214,28 +214,17 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                         /* Request update */
                         viewModel.getActiveAccount(tryRefresh = false)
                     }
-                    is StartUpAction.Verified -> {
-                        longToast(R.string.toastVerified)
-
-                        /* Request update */
-                        viewModel.getActiveAccount(tryRefresh = false)
-                    }
                     is StartUpAction.Reset -> {
-                        viewModel.resetPassword(request = value.request)
-
-                        //todo what to do left here?
-                    }
-                    is StartUpAction.AwaitingForReset -> {
                         startActivity<EmailSentActivity>(
-                                AWAITING_STATE to FLAG_RESET,
-                                AWAITING_EMAIL to value.email
+                                EXTRA_AWAITING_STATE to FLAG_RESET,
+                                EXTRA_AWAITING_EMAIL to value.email
                         )
                         finish()
                     }
-                    is StartUpAction.AwaitingForVerify -> {
+                    is StartUpAction.Verify -> {
                         startActivity<EmailSentActivity>(
-                                AWAITING_STATE to FLAG_VERIFY,
-                                AWAITING_EMAIL to value.email
+                                EXTRA_AWAITING_STATE to FLAG_VERIFY,
+                                EXTRA_AWAITING_EMAIL to value.email
                         )
                         finish()
                     }

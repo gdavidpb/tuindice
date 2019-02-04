@@ -5,6 +5,9 @@
 
     <string name="app_name">TuIndice</string>
 
+    <string name="urlContinueVerification">https://tuindice-usb.firebaseapp.com?verify=%1$s</string>
+    <string name="urlContinueResetPassword">https://tuindice-usb.firebaseapp.com?resetPassword=%1$s</string>
+
     <string name="devEmail">tuindice@gmail.com</string>
     <string name="devTwitter">https://twitter.com/TuIndice</string>
     <string name="devContactSubject">TuIndice - Contacto</string>
@@ -64,7 +67,6 @@
 
     <string name="toastResend">Correo reenviado</string>
     <string name="toastTryAgainLater">Intenta de nuevo más tarde</string>
-    <string name="toastVerified">Cuenta verificada correctamente</string>
     <string name="toastEnrollment">Archivo no soportado ;(</string>
 
     <!-- EmailSent Activity -->

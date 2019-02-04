@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.source.settings
 
 import android.content.SharedPreferences
+import com.gdavidpb.tuindice.data.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.utils.*
 import java.util.*
@@ -21,36 +22,39 @@ open class PreferencesDataStore(
         preferences.edit {
             putString(KEY_AWAITING_EMAIL, email)
             putString(KEY_AWAITING_PASSWORD, password)
-            putBoolean(KEY_IS_AWAITING_FOR_RESET, true)
         }
     }
 
     override suspend fun setIsAwaitingForVerify(email: String) {
         preferences.edit {
             putString(KEY_AWAITING_EMAIL, email)
-            putBoolean(KEY_IS_AWAITING_FOR_VERIFY, true)
         }
     }
 
     override suspend fun isAwaitingForReset(): Boolean {
-        return preferences.getBoolean(KEY_IS_AWAITING_FOR_RESET, false)
+        val email = preferences.getString(KEY_AWAITING_EMAIL, "") ?: ""
+        val password = preferences.getString(KEY_AWAITING_PASSWORD, "") ?: ""
+
+        return !email.isEmpty() && !password.isEmpty()
     }
 
     override suspend fun isAwaitingForVerify(): Boolean {
-        return preferences.getBoolean(KEY_IS_AWAITING_FOR_VERIFY, false)
+        val email = preferences.getString(KEY_AWAITING_EMAIL, "") ?: ""
+        val password = preferences.getString(KEY_AWAITING_PASSWORD, "") ?: ""
+
+        return !email.isEmpty() && password.isEmpty()
     }
 
     override suspend fun clearIsAwaitingForReset() {
         preferences.edit {
             remove(KEY_AWAITING_EMAIL)
-            remove(KEY_IS_AWAITING_FOR_RESET)
+            remove(KEY_AWAITING_PASSWORD)
         }
     }
 
     override suspend fun clearIsAwaitingForVerify() {
         preferences.edit {
             remove(KEY_AWAITING_EMAIL)
-            remove(KEY_IS_AWAITING_FOR_VERIFY)
         }
     }
 
@@ -78,16 +82,6 @@ open class PreferencesDataStore(
         return now.before(cooldown)
     }
 
-    override suspend fun isFirstRun(): Boolean {
-        return preferences.getBoolean(KEY_FIRST_RUN, true)
-    }
-
-    override suspend fun setFirstRun() {
-        return preferences.edit {
-            putBoolean(KEY_FIRST_RUN, true)
-        }
-    }
-
     override suspend fun getCountdown(): Long {
         return preferences.getLong(KEY_COUNT_DOWN, 0)
     }
@@ -108,6 +102,20 @@ open class PreferencesDataStore(
         preferences.edit {
             remove(KEY_COUNT_DOWN)
         }
+    }
+
+    override suspend fun storeCredentials(credentials: DstCredentials) {
+        preferences.edit {
+            putString(KEY_USB_ID, credentials.usbId)
+            putString(KEY_PASSWORD, credentials.password)
+        }
+    }
+
+    override suspend fun getCredentials(): DstCredentials {
+        return DstCredentials(
+                usbId = preferences.getString(KEY_USB_ID, "") ?: "",
+                password = preferences.getString(KEY_PASSWORD, "") ?: ""
+        )
     }
 
     override suspend fun clear() {

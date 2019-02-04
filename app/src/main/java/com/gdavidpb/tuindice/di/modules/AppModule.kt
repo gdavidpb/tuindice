@@ -2,11 +2,8 @@ package com.gdavidpb.tuindice.di.modules
 
 import android.content.Context
 import android.net.ConnectivityManager
-import androidx.room.Room
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.mapper.*
-import com.gdavidpb.tuindice.data.source.database.SQLiteDataStore
-import com.gdavidpb.tuindice.data.source.database.SQLiteDatabase
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
 import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataStore
 import com.gdavidpb.tuindice.data.source.service.*
@@ -19,7 +16,10 @@ import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentActivityViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.EnrollmentFragmentViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginActivityViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.ENDPOINT_DST_ENROLLMENT
+import com.gdavidpb.tuindice.utils.ENDPOINT_DST_RECORD
+import com.gdavidpb.tuindice.utils.ENDPOINT_DST_SECURE
+import com.gdavidpb.tuindice.utils.getProperty
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -51,6 +51,10 @@ val appModule = module {
     /* Application */
 
     single {
+        androidContext().resources
+    }
+
+    single {
         androidContext().defaultSharedPreferences
     }
 
@@ -60,14 +64,6 @@ val appModule = module {
     viewModel<LoginActivityViewModel>()
     viewModel<EnrollmentFragmentViewModel>()
     viewModel<EmailSentActivityViewModel>()
-
-    /* Database */
-
-    single {
-        Room.databaseBuilder(androidContext(), SQLiteDatabase::class.java, DATABASE_NAME)
-                .fallbackToDestructiveMigration()
-                .build()
-    }
 
     /* Android Services */
 
@@ -207,13 +203,11 @@ val appModule = module {
 
     factoryBy<LocalStorageRepository, DiskStorageDataStore>()
 
-    factoryBy<LocalDatabaseRepository, SQLiteDataStore>()
-
     factoryBy<RemoteStorageRepository, FirebaseStorageDataStore>()
 
     factoryBy<AuthRepository, FirebaseDataStore>()
 
-    factoryBy<RemoteDatabaseRepository, FirestoreDataStore>()
+    factoryBy<DatabaseRepository, FirestoreDataStore>()
 
     /* Mappers */
 
@@ -221,13 +215,7 @@ val appModule = module {
 
     factory<PeriodMapper>()
 
-    factory<CareerMapper>()
-
     factory<SubjectMapper>()
-
-    factory<CareerEntityMapper>()
-
-    factory<RecordEntityMapper>()
 
     factory<EnrollmentMapper>()
 
@@ -237,13 +225,13 @@ val appModule = module {
 
     factory<RecordMapper>()
 
-    factory<AccountEntityMapper>()
-
     factory<UsbIdMapper>()
 
     factory<ResetMapper>()
 
-    factory<AuthResultMapper>()
+    factory<ResetParamMapper>()
+
+    factory<CredentialsMapper>()
 
     /* Use cases */
 

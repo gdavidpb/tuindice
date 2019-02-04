@@ -14,18 +14,19 @@ open class CountdownUseCase(
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: Boolean, onNext: (Long) -> Unit) {
-        val countdown = if (params)
-            settingsRepository.startCountdown()
-        else
-            settingsRepository.getCountdown()
+        val savedCountdown = settingsRepository.getCountdown()
+
+        val (countdownExists, forceRestart) = listOf(savedCountdown != 0L, params)
+
+        val currentCountdown = if (!countdownExists || forceRestart) settingsRepository.startCountdown() else savedCountdown
 
         var now = Date()
-        var left = Math.max(0, countdown - now.time)
+        var left = Math.max(0, currentCountdown - now.time)
 
         while (left > 0) {
             now = Date()
 
-            left = Math.max(0, countdown - now.time)
+            left = Math.max(0, currentCountdown - now.time)
 
             withContext(foregroundContext) {
                 onNext(left)

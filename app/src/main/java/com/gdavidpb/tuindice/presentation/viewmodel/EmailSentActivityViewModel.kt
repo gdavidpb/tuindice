@@ -18,12 +18,8 @@ class EmailSentActivityViewModel(
     val resetPassword = LiveCompletable()
     val sendEmailVerification = LiveCompletable()
 
-    fun restartCountdown() {
-        countdownUseCase.execute(liveData = countdown, params = true, onNext = countdown::postNext)
-    }
-
-    fun getCountdown() {
-        countdownUseCase.execute(liveData = countdown, params = false, onNext = countdown::postNext)
+    fun startCountdown(forceRestart: Boolean = false) {
+        countdownUseCase.execute(liveData = countdown, params = forceRestart, onNext = countdown::postNext)
     }
 
     fun resetPassword() {

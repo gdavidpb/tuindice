@@ -26,8 +26,7 @@ class EmailSentActivity : AppCompatActivity() {
             observe(sendEmailVerification, ::sendEmailVerificationObserver)
             observe(resetPassword, ::resetPasswordObserver)
 
-            /* todo require get? */
-            restartCountdown()
+            startCountdown()
         }
 
         /* Logo animation */
@@ -46,9 +45,9 @@ class EmailSentActivity : AppCompatActivity() {
         })
 
         /* Set up view */
-        val email = intent.getStringExtra(AWAITING_EMAIL)
+        val email = intent.getStringExtra(EXTRA_AWAITING_EMAIL)
 
-        when (intent.getIntExtra(AWAITING_STATE, 0)) {
+        when (intent.getIntExtra(EXTRA_AWAITING_STATE, 0)) {
             FLAG_RESET -> {
                 iViewLogo.setImageResource(R.drawable.ic_reset)
                 tViewEmailTitle.text = getString(R.string.titleReset)
@@ -67,9 +66,9 @@ class EmailSentActivity : AppCompatActivity() {
     private fun onResendClick() {
         btnResend.isEnabled = false
 
-        viewModel.restartCountdown()
+        viewModel.startCountdown(forceRestart = true)
 
-        when (intent.getIntExtra(AWAITING_STATE, 0)) {
+        when (intent.getIntExtra(EXTRA_AWAITING_STATE, 0)) {
             FLAG_RESET -> viewModel.resetPassword()
             FLAG_VERIFY -> viewModel.sendEmailVerification()
         }
