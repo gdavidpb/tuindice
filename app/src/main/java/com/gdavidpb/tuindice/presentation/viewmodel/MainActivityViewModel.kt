@@ -2,21 +2,18 @@ package com.gdavidpb.tuindice.presentation.viewmodel
 
 import android.content.Intent
 import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.utils.LiveCompletable
-import com.gdavidpb.tuindice.utils.LiveResult
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.StartUpAction
-import com.gdavidpb.tuindice.domain.usecase.GetAccountUseCase
+import com.gdavidpb.tuindice.domain.usecase.SyncAccountUseCase
 import com.gdavidpb.tuindice.domain.usecase.LogoutUseCase
-import com.gdavidpb.tuindice.domain.usecase.ResetUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
-import com.gdavidpb.tuindice.domain.usecase.request.ResetRequest
+import com.gdavidpb.tuindice.utils.LiveCompletable
+import com.gdavidpb.tuindice.utils.LiveResult
 
 class MainActivityViewModel(
-        private val getAccountUseCase: GetAccountUseCase,
+        private val syncAccountUseCase: SyncAccountUseCase,
         private val logoutUseCase: LogoutUseCase,
-        private val startUpUseCase: StartUpUseCase,
-        private val resetUseCase: ResetUseCase
+        private val startUpUseCase: StartUpUseCase
 ) : ViewModel() {
 
     val getActiveAccount = LiveResult<Account>()
@@ -24,12 +21,8 @@ class MainActivityViewModel(
     val fetchStartUpAction = LiveResult<StartUpAction>()
     val resetPassword = LiveCompletable()
 
-    fun getActiveAccount(tryRefresh: Boolean) {
-        getAccountUseCase.execute(liveData = getActiveAccount, params = tryRefresh)
-    }
-
-    fun resetPassword(request: ResetRequest) {
-        resetUseCase.execute(liveData = resetPassword, params = request)
+    fun getActiveAccount(trySync: Boolean) {
+        syncAccountUseCase.execute(liveData = getActiveAccount, params = trySync)
     }
 
     fun logout() {

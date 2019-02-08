@@ -242,11 +242,9 @@ val appModule = module {
 
     factory<LogoutUseCase>()
 
-    factory<GetAccountUseCase>()
+    factory<SyncAccountUseCase>()
 
     factory<StartUpUseCase>()
-
-    factory<ResetUseCase>()
 
     factory<ResendVerifyEmailUseCase>()
 

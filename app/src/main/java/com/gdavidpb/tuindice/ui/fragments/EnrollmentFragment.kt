@@ -31,13 +31,13 @@ open class EnrollmentFragment : Fragment() {
             observe(loadAccount, ::loadAccountObserver)
         }
 
-        sRefreshEnrollment.setOnRefreshListener { viewModel.loadAccount(tryRefresh = true) }
+        sRefreshEnrollment.setOnRefreshListener { viewModel.loadAccount(trySync = true) }
     }
 
     override fun onResume() {
         super.onResume()
 
-        viewModel.loadAccount(tryRefresh = true)
+        viewModel.loadAccount(trySync = true)
     }
 
     private fun loadAccountObserver(result: Result<Account>?) {

@@ -214,7 +214,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                         loadAccount(account = value.account)
 
                         /* Request update */
-                        viewModel.getActiveAccount(tryRefresh = false)
+                        viewModel.getActiveAccount(trySync = false)
                     }
                     is StartUpAction.Reset -> {
                         startActivity<EmailSentActivity>(

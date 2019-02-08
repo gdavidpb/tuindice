@@ -3,15 +3,15 @@ package com.gdavidpb.tuindice.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.utils.LiveResult
 import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.domain.usecase.GetAccountUseCase
+import com.gdavidpb.tuindice.domain.usecase.SyncAccountUseCase
 
 open class EnrollmentFragmentViewModel(
-        private val getAccountUseCase: GetAccountUseCase
+        private val syncAccountUseCase: SyncAccountUseCase
 ) : ViewModel() {
 
     val loadAccount = LiveResult<Account>()
 
-    fun loadAccount(tryRefresh: Boolean) {
-        getAccountUseCase.execute(liveData = loadAccount, params = tryRefresh)
+    fun loadAccount(trySync: Boolean) {
+        syncAccountUseCase.execute(liveData = loadAccount, params = trySync)
     }
 }

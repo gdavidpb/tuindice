@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import kotlinx.coroutines.Dispatchers
 
-open class GetAccountUseCase(
+open class SyncAccountUseCase(
         private val dstRepository: DstRepository,
         private val authRepository: AuthRepository,
         private val settingsRepository: SettingsRepository
@@ -18,10 +18,10 @@ open class GetAccountUseCase(
     override suspend fun executeOnBackground(params: Boolean): Account? {
         val local = suspend { authRepository.getActiveAccount() }
         val remote = suspend { dstRepository.getAccount() }
-        val setCooldown = suspend { settingsRepository.setCooldown(key = "GetAccountUseCase") }
-        val isCooldown = settingsRepository.isCooldown(key = "GetAccountUseCase")
+        val setCooldown = suspend { settingsRepository.setCooldown(key = "SyncAccountUseCase") }
+        val isCooldown = settingsRepository.isCooldown(key = "SyncAccountUseCase")
 
-        /* params -> tryRefresh */
+        /* params -> trySync */
         return if (isCooldown || !params)
             local()
         else {
