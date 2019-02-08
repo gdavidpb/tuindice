@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
 import com.gdavidpb.tuindice.data.source.storage.DiskStorageDataStore
 import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataStore
+import com.gdavidpb.tuindice.data.source.token.TokenDataStore
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentActivityViewModel
@@ -208,6 +209,8 @@ val appModule = module {
     factoryBy<AuthRepository, FirebaseDataStore>()
 
     factoryBy<DatabaseRepository, FirestoreDataStore>()
+
+    factoryBy<IdentifierRepository, TokenDataStore>()
 
     /* Mappers */
 

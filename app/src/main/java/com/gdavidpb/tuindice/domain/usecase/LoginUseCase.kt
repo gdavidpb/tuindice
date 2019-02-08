@@ -16,6 +16,7 @@ open class LoginUseCase(
         private val localStorageRepository: LocalStorageRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
+        private val identifierRepository: IdentifierRepository,
         private val authRepository: AuthRepository,
         private val usbIdMapper: UsbIdMapper,
         private val credentialsMapper: CredentialsMapper
@@ -48,6 +49,8 @@ open class LoginUseCase(
                             storeAccount(account = account, request = params, response = authResponse)
                         }
                         "ERROR_WRONG_PASSWORD" -> {
+                            settingsRepository.setIsAwaitingForReset(email = email, password = params.password)
+
                             authRepository.sendPasswordResetEmail(email = email, password = params.password)
                         }
                         else -> throw exception
@@ -64,7 +67,8 @@ open class LoginUseCase(
         val merge = Account(
                 usbId = request.usbId,
                 email = account.email,
-                fullName = response.name
+                fullName = response.name,
+                token = identifierRepository.getIdentifier()
         )
 
         if (!authRepository.isEmailVerified())

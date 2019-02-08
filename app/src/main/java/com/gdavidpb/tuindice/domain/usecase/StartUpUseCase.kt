@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.data.mapper.ResetMapper
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
+import com.gdavidpb.tuindice.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +14,7 @@ open class StartUpUseCase(
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
+        private val identifierRepository: IdentifierRepository,
         private val resetMapper: ResetMapper
 ) : ResultUseCase<Intent, StartUpAction>(
         backgroundContext = Dispatchers.IO,
@@ -41,7 +43,9 @@ open class StartUpUseCase(
             }
             awaitingForReset -> StartUpAction.Reset(email = email)
             activeAccount != null -> {
-                databaseRepository.setToken()
+                val token = identifierRepository.getIdentifier()
+
+                databaseRepository.setToken(token)
 
                 if (authRepository.isEmailVerified())
                     StartUpAction.Main(account = activeAccount)

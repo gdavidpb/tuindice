@@ -63,7 +63,7 @@ dependencies {
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
 
     /* Firebase */
-    implementation "com.google.firebase:firebase-core:16.0.6"
+    implementation "com.google.firebase:firebase-core:16.0.7"
     implementation "com.google.firebase:firebase-auth:16.1.0"
     implementation "com.google.firebase:firebase-firestore:18.0.0"
     implementation "com.google.firebase:firebase-dynamic-links:16.1.5"

@@ -7,7 +7,9 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.InputStream
 
-open class DiskStorageDataStore(private val context: Context) : LocalStorageRepository {
+open class DiskStorageDataStore(
+        private val context: Context
+) : LocalStorageRepository {
 
     override fun putSync(name: String, inputStream: InputStream): File? {
         val outputFile = File(context.filesDir, name)

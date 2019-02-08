@@ -8,12 +8,10 @@ import com.gdavidpb.tuindice.utils.await
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.iid.FirebaseInstanceId
 
 open class FirestoreDataStore(
         private val auth: FirebaseAuth,
-        private val firestore: FirebaseFirestore,
-        private val instanceId: FirebaseInstanceId
+        private val firestore: FirebaseFirestore
 ) : DatabaseRepository {
     override suspend fun updateAccount(account: Account) {
         val uid = auth.uid ?: return
@@ -23,12 +21,10 @@ open class FirestoreDataStore(
         userRef.set(account, SetOptions.merge()).await()
     }
 
-    override suspend fun setToken() {
+    override suspend fun setToken(token: String) {
         val uid = auth.uid ?: return
 
         val userRef = firestore.collection(COLLECTION_USER).document(uid)
-
-        val token = instanceId.instanceId.await().token
 
         val values = mapOf(
                 FIELD_USER_TOKEN to token

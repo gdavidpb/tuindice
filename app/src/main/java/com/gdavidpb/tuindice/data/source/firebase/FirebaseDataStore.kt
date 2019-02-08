@@ -7,19 +7,18 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.mapper.ResetParamMapper
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.COLLECTION_USER
+import com.gdavidpb.tuindice.utils.FIELD_USER_EMAIL
+import com.gdavidpb.tuindice.utils.URL_BASE
+import com.gdavidpb.tuindice.utils.await
 import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.iid.FirebaseInstanceId
 
 open class FirebaseDataStore(
-        private val resources: Resources,
         private val auth: FirebaseAuth,
         private val firestore: FirebaseFirestore,
-        private val instanceId: FirebaseInstanceId,
-        private val settingsRepository: SettingsRepository,
+        private val resources: Resources,
         private val resetParamMapper: ResetParamMapper
 ) : AuthRepository {
     override suspend fun getActiveAccount(): Account? {
@@ -31,11 +30,8 @@ open class FirebaseDataStore(
     override suspend fun signUp(email: String, password: String): Account {
         return auth.createUserWithEmailAndPassword(email, password).await().user.run {
 
-            val token = instanceId.instanceId.await().token
-
             val values = mapOf(
-                    FIELD_USER_EMAIL to email,
-                    FIELD_USER_TOKEN to token
+                    FIELD_USER_EMAIL to email
             )
 
             firestore.collection(COLLECTION_USER).document(uid).set(values)
@@ -59,8 +55,6 @@ open class FirebaseDataStore(
     }
 
     override suspend fun sendPasswordResetEmail(email: String, password: String) {
-        settingsRepository.setIsAwaitingForReset(email, password)
-
         val resetPassword = (email to password).let(resetParamMapper::mapFrom)
         val continueUrl = resources.getString(R.string.urlContinueResetPassword, resetPassword)
 
