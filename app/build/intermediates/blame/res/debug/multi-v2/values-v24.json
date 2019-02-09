@@ -4,7 +4,7 @@
             "outputFile": "/Users/gerardoprado/Desktop/Gerardo/TuIndice/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v24/values-v24.xml",
             "map": [
                 {
-                    "source": "/Users/gerardoprado/.gradle/caches/transforms-1/files-1.1/appcompat-1.1.0-alpha01.aar/877fe782a7a6405b9df8c1589116e06d/res/values-v24/values-v24.xml",
+                    "source": "/Users/gerardoprado/.gradle/caches/transforms-1/files-1.1/appcompat-1.1.0-alpha01.aar/70e5e06e8f56102ab66064b1fb27a541/res/values-v24/values-v24.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "/Users/gerardoprado/.gradle/caches/transforms-1/files-1.1/media-1.0.0.aar/1188834ecd3a6ebb0839fc3a8b949a0f/res/values-v24/values-v24.xml",
+                    "source": "/Users/gerardoprado/.gradle/caches/transforms-1/files-1.1/media-1.0.0.aar/a842c8f4a470cc54488302b63ffe6bd0/res/values-v24/values-v24.xml",
                     "from": {
                         "startLines": "2,3,4,5",
                         "startColumns": "4,4,4,4",
