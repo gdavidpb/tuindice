@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.observe
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.model.Enrollment
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.EnrollmentFragmentViewModel
 import kotlinx.android.synthetic.main.fragment_enrollment.*
@@ -18,7 +19,7 @@ open class EnrollmentFragment : Fragment() {
 
     private val viewModel: EnrollmentFragmentViewModel by viewModel()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_enrollment, container, false)
     }
 
@@ -29,15 +30,15 @@ open class EnrollmentFragment : Fragment() {
 
         with(viewModel) {
             observe(loadAccount, ::loadAccountObserver)
+
+            //todo get enrollment
         }
 
         sRefreshEnrollment.setOnRefreshListener { viewModel.loadAccount(trySync = true) }
     }
 
-    override fun onResume() {
-        super.onResume()
+    private fun loadEnrollment(enrollment: Enrollment) {
 
-        viewModel.loadAccount(trySync = true)
     }
 
     private fun loadAccountObserver(result: Result<Account>?) {

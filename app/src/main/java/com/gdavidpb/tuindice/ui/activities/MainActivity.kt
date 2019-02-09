@@ -8,17 +8,15 @@ import android.view.MenuItem
 import androidx.annotation.IdRes
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
-import androidx.fragment.app.Fragment
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
-import com.gdavidpb.tuindice.ui.fragments.EnrollmentFragment
+import com.gdavidpb.tuindice.ui.fragments.*
 import com.gdavidpb.tuindice.utils.*
 import com.google.android.material.navigation.NavigationView
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
@@ -38,7 +36,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             observe(logout, ::logoutObserver)
             observe(fetchStartUpAction, ::startUpObserver)
             observe(getActiveAccount, ::getActiveAccountObserver)
-            observe(resetPassword, ::resetPasswordObserver)
 
             fetchStartUpAction(intent)
         }
@@ -58,6 +55,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_share -> share(text = getString(R.string.aboutShareMessage, packageName))
             R.id.nav_twitter -> browse(url = getString(R.string.devTwitter))
             R.id.nav_contact -> email(email = getString(R.string.devEmail), subject = getString(R.string.devContactSubject))
+            R.id.nav_about -> { /* todo about activity */ }
             R.id.nav_sign_out -> logoutDialog()
             else -> loadFragment(itemId)
         }
@@ -146,15 +144,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         if (nav_view.checkedItem == null)
             nav_view.setCheckedItem(itemId)
 
-        // todo complete fragments
         when (itemId) {
             R.id.nav_enrollment -> R.string.nav_enrollment to EnrollmentFragment()
-            R.id.nav_record -> R.string.nav_record to Fragment()
-            R.id.nav_calendar -> R.string.nav_calendar to Fragment()
-            R.id.nav_pensum -> R.string.nav_pensum to Fragment()
-            R.id.nav_achievements -> R.string.nav_achievements to Fragment()
-            R.id.nav_podium -> R.string.nav_podium to Fragment()
-            R.id.nav_about -> R.string.nav_about to Fragment()
+            R.id.nav_record -> R.string.nav_record to RecordFragment()
+            R.id.nav_calendar -> R.string.nav_calendar to CalendarFragment()
+            R.id.nav_pensum -> R.string.nav_pensum to PensumFragment()
+            R.id.nav_achievements -> R.string.nav_achievements to AchievementsFragment()
+            R.id.nav_podium -> R.string.nav_podium to PodiumFragment()
             else -> null
         }.notNull { (title, fragment) ->
             supportActionBar?.setTitle(title)
@@ -186,19 +182,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             }
             is Completable.OnError -> {
                 fatalFailureDialog()
-            }
-        }
-    }
-
-    private fun resetPasswordObserver(result: Completable?) {
-        when (result) {
-            is Completable.OnComplete -> {
-                val auth = FirebaseAuth.getInstance()
-
-                auth.uid
-            }
-            is Completable.OnError -> {
-                //todo handle exception: expired link / internet / others
             }
         }
     }

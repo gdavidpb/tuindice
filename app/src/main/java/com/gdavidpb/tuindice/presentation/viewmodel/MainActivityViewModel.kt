@@ -19,7 +19,6 @@ class MainActivityViewModel(
     val getActiveAccount = LiveResult<Account>()
     val logout = LiveCompletable()
     val fetchStartUpAction = LiveResult<StartUpAction>()
-    val resetPassword = LiveCompletable()
 
     fun getActiveAccount(trySync: Boolean) {
         syncAccountUseCase.execute(liveData = getActiveAccount, params = trySync)
