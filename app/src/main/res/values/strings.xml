@@ -3,6 +3,7 @@
     <item name="visible" type="id" />
     <item name="masked" type="id" />
 
+    <!-- App -->
     <string name="app_name">TuIndice</string>
 
     <string name="urlContinueVerification">https://tuindice-usb.firebaseapp.com?verify=%1$s</string>
@@ -11,24 +12,6 @@
     <string name="devEmail">tuindice@gmail.com</string>
     <string name="devTwitter">https://twitter.com/TuIndice</string>
     <string name="devContactSubject">TuIndice - Contacto</string>
-
-    <string name="devTitleReport">Reportar un error</string>
-    <string name="devMessageReport">¿Deseas reportar un error?</string>
-
-    <!-- Navigation view -->
-    <string name="nav_enrollment">Resumen</string>
-    <string name="nav_record">Informe Académico</string>
-    <string name="nav_calendar">Calendario Académico</string>
-    <string name="nav_pensum">Pensum</string>
-    <string name="nav_settings">Configuración</string>
-    <string name="nav_achievements">Logros</string>
-    <string name="nav_podium">Podio</string>
-    <string name="nav_twitter">\@TuIndice</string>
-    <string name="nav_share">Compartir</string>
-    <string name="nav_contact">Contacto</string>
-    <string name="nav_report">Reportar un error</string>
-    <string name="nav_about">Acerca de</string>
-    <string name="nav_sign_out">Cerrar sesión</string>
 
     <!-- Simple words/phrases -->
     <string name="yes">Si</string>
@@ -50,38 +33,42 @@
     <string name="share">Compartir…</string>
     <string name="settings">Ir a la configuración</string>
     <string name="empty">Aquí no hay nada aún ;)</string>
-    <string name="openEnrollment">Ver Comprobante</string>
-    <string name="downloadEnrollment">Descargar Comprobante</string>
 
     <!-- Main Activity -->
-    <string name="grade">%1$d / 5</string>
-    <string name="gradeSum"><b>∑x</b> %1$.4f</string>
-    <string name="gradeDiff"><b>Δx</b> %1$.4f</string>
-    <string name="quarterCredits"><b>⦿</b> %1$d Crs.</string>
-    <string name="subjectTitle">%1$s (%2$s)</string>
-    <string name="subjectCredits">%1$d Cr.</string>
 
-    <string name="dialogGuessTitle">Proyección</string>
+    <string name="nav_enrollment">Resumen</string>
+    <string name="nav_record">Informe Académico</string>
+    <string name="nav_calendar">Calendario Académico</string>
+    <string name="nav_pensum">Pensum</string>
+    <string name="nav_settings">Configuración</string>
+    <string name="nav_achievements">Logros</string>
+    <string name="nav_podium">Podio</string>
+    <string name="nav_twitter">\@TuIndice</string>
+    <string name="nav_share">Compartir</string>
+    <string name="nav_contact">Contacto</string>
+    <string name="nav_report">Reportar un error</string>
+    <string name="nav_about">Acerca de</string>
+    <string name="nav_sign_out">Cerrar sesión</string>
 
-    <string name="hintGuessSearch">Código o nombre de la materia</string>
+    <string name="alertTitleFatalFailure">¡Oops, lo sentimos!</string>
+    <string name="alertMessageFatalFailure">Parece que algo ha salido mal por acá. Intenta limpiar los datos de la aplicación y volver a iniciar</string>
 
-    <string name="toastResend">Correo reenviado</string>
-    <string name="toastTryAgainLater">Intenta de nuevo más tarde</string>
-    <string name="toastEnrollment">Archivo no soportado ;(</string>
+    <string name="alertTitleLogout">Atención</string>
+    <string name="alertMessageLogout">¿Estás seguro que deseas salir?</string>
 
-    <!-- EmailSent Activity -->
-    <string name="titleVerify">
+    <!-- EmailSentActivity -->
+    <string name="labelVerify">
         Verifica tu cuenta
+    </string>
+
+    <string name="labelReset">
+        Tu contraseña ha cambiado
     </string>
 
     <string name="messageVerify">
         Hemos enviado un enlace de verificación a tu correo
         institucional (%1$s).\n\n
         Revísalo y estamos listos ;)
-    </string>
-
-    <string name="titleReset">
-        Tu contraseña ha cambiado
     </string>
 
     <string name="messageReset">
@@ -96,7 +83,9 @@
     <string name="bCancel"><u>Ingresar con otra cuenta</u></string>
     <string name="bResend">Enviar nuevamente</string>
 
-    <!-- Login Activity -->
+    <!-- LoginActivity -->
+    <string name="labelLoginActivity">TuIndice</string>
+
     <string name="hintUsbId">USBID</string>
     <string name="hintPassword">Contraseña</string>
 
@@ -117,11 +106,11 @@
         TuIndice no cuenta con los permisos necesarios para funcionar correctamente…
     </string>
 
-    <string name="message_flipper_1">TuIndice</string>
-    <string name="message_flipper_2">Una nueva forma…</string>
-    <string name="message_flipper_3">…de administrar tus notas</string>
+    <string name="messageFlipper1">TuIndice</string>
+    <string name="messageFlipper2">Una nueva forma…</string>
+    <string name="messageFlipper3">…de administrar tus notas</string>
 
-    <!-- Demo activity -->
+    <!-- DemoActivity -->
     <string name="demoWelcome">¡Bienvenido!</string>
     <string name="demoFinish">¡Ayúdanos a mejorar!</string>
 
@@ -170,7 +159,9 @@
         <item>@color/colorAccent</item>
     </integer-array>
 
-    <!-- About activity -->
+    <!-- AboutActivity -->
+    <string name="labelAboutActivity">Acerca de</string>
+
     <string name="aboutVersion">Versión\n%1$s-%2$d (%3$s)</string>
     <string name="aboutLicense">Creative Commons\nBY-NC 4.0</string>
     <string name="aboutPrivacyPolicy">Política de Privacidad\nAlgunas cosas que debes saber</string>
@@ -229,12 +220,7 @@
         https://firebase.com/
     </string>
 
-    <!-- Alert dialogs -->
-    <string name="alertTitleFatalFailure">¡Oops, lo sentimos!</string>
-    <string name="alertMessageFatalFailure">Parece que algo ha salido mal por acá. Intenta limpiar los datos de la aplicación y volver a iniciar</string>
-
-    <string name="alertTitleLogout">Atención</string>
-    <string name="alertMessageLogout">¿Estás seguro que deseas salir?</string>
+    <!-- todo classify: from here -->
 
     <!-- Snack bars -->
     <string name="snackNetworkUnavailable">Error de conexión</string>
@@ -244,5 +230,24 @@
 
     <string name="navigation_drawer_open">Abrir</string>
     <string name="navigation_drawer_close">Cerrar</string>
+
+    <string name="openEnrollment">Ver Comprobante</string>
+    <string name="downloadEnrollment">Descargar Comprobante</string>
+
+    <string name="grade">%1$d / 5</string>
+    <string name="gradeSum"><b>∑x</b> %1$.4f</string>
+    <string name="gradeDiff"><b>Δx</b> %1$.4f</string>
+    <string name="quarterCredits"><b>⦿</b> %1$d Crs.</string>
+    <string name="subjectTitle">%1$s (%2$s)</string>
+    <string name="subjectCredits">%1$d Cr.</string>
+
+    <string name="dialogGuessTitle">Proyección</string>
+
+    <string name="hintGuessSearch">Código o nombre de la materia</string>
+
+    <string name="toastResend">Correo reenviado</string>
+    <string name="toastTryAgainLater">Intenta de nuevo más tarde</string>
+    <string name="toastEnrollment">Archivo no soportado ;(</string>
+    <!-- todo classify: to here -->
 
 </resources>

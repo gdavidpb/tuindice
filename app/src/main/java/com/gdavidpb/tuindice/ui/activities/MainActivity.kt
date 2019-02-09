@@ -55,7 +55,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_share -> share(text = getString(R.string.aboutShareMessage, packageName))
             R.id.nav_twitter -> browse(url = getString(R.string.devTwitter))
             R.id.nav_contact -> email(email = getString(R.string.devEmail), subject = getString(R.string.devContactSubject))
-            R.id.nav_about -> { /* todo about activity */ }
+            R.id.nav_about -> startActivity<AboutActivity>()
             R.id.nav_sign_out -> logoutDialog()
             else -> loadFragment(itemId)
         }

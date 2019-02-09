@@ -50,12 +50,12 @@ class EmailSentActivity : AppCompatActivity() {
         when (intent.getIntExtra(EXTRA_AWAITING_STATE, 0)) {
             FLAG_RESET -> {
                 iViewLogo.setImageResource(R.drawable.ic_reset)
-                tViewEmailTitle.text = getString(R.string.titleReset)
+                tViewEmailTitle.text = getString(R.string.labelReset)
                 tViewEmailMessage.text = getString(R.string.messageReset, email)
             }
             FLAG_VERIFY -> {
                 iViewLogo.setImageResource(R.drawable.ic_verify)
-                tViewEmailTitle.text = getString(R.string.titleVerify)
+                tViewEmailTitle.text = getString(R.string.labelVerify)
                 tViewEmailMessage.text = getString(R.string.messageVerify, email)
             }
         }
