@@ -13,9 +13,11 @@ const val FIELD_USER_USB_ID = "usbId"
 const val FIELD_USER_TOKEN = "token"
 const val FIELD_USER_EMAIL = "email"
 const val FIELD_USER_FULL_NAME = "fullName"
-const val FIELD_USER_FIRST_NAMES = "lastNames"
-const val FIELD_USER_LAST_NAMES = "firstNames"
-const val FIELD_SCHOLARSHIP = "scholarship"
+const val FIELD_USER_FIRST_NAMES = "firstNames"
+const val FIELD_USER_LAST_NAMES = "lastNames"
+const val FIELD_USER_SCHOLARSHIP = "scholarship"
+const val FIELD_USER_CAREER_NAME = "careerName"
+const val FIELD_USER_CAREER_CODE = "careerCode"
 
 /* <--- Local database ---> */
 

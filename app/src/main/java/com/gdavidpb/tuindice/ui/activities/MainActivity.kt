@@ -17,15 +17,19 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
 import com.gdavidpb.tuindice.ui.fragments.*
 import com.gdavidpb.tuindice.utils.*
 import com.google.android.material.navigation.NavigationView
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.view.*
 import org.jetbrains.anko.*
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private val viewModel: MainActivityViewModel by viewModel()
+
+    private val picasso: Picasso by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme_NoActionBar)
@@ -35,7 +39,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         with(viewModel) {
             observe(logout, ::logoutObserver)
             observe(fetchStartUpAction, ::startUpObserver)
-            observe(getActiveAccount, ::getActiveAccountObserver)
 
             fetchStartUpAction(intent)
         }
@@ -129,7 +132,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
             onViewCreated()
 
-            loadFragment(R.id.nav_enrollment)
+            loadFragment(R.id.nav_record)
         }
 
         val header = nav_view.getHeaderView(0)
@@ -137,6 +140,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         with(header) {
             tViewDrawerName.text = account.fullName.toShortName()
             tViewDrawerUsbId.text = account.email
+
+            /*todo
+            if (account.photoUrl.isNotEmpty())
+                picasso.load(account.photoUrl).transform(CircleTransform()).into(iViewDrawerProfile)
+            else
+                iViewDrawerProfile.setImageResource(R.mipmap.ic_launcher_round)
+                */
         }
     }
 
@@ -145,7 +155,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             nav_view.setCheckedItem(itemId)
 
         when (itemId) {
-            R.id.nav_enrollment -> R.string.nav_enrollment to EnrollmentFragment()
             R.id.nav_record -> R.string.nav_record to RecordFragment()
             R.id.nav_calendar -> R.string.nav_calendar to CalendarFragment()
             R.id.nav_pensum -> R.string.nav_pensum to PensumFragment()
@@ -160,17 +169,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
                     .replace(R.id.content_fragment, fragment)
                     .commit()
-        }
-    }
-
-    private fun getActiveAccountObserver(result: Result<Account>?) {
-        when (result) {
-            is Result.OnSuccess -> {
-                loadAccount(account = result.value)
-            }
-            is Result.OnError -> {
-                fatalFailureDialog()
-            }
         }
     }
 
@@ -193,11 +191,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
                 when (value) {
                     is StartUpAction.Main -> {
-                        /* Load from cache */
+                        /* Load from database */
                         loadAccount(account = value.account)
-
-                        /* Request update */
-                        viewModel.getActiveAccount(trySync = false)
                     }
                     is StartUpAction.Reset -> {
                         startActivity<EmailSentActivity>(

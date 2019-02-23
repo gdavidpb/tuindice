@@ -263,6 +263,8 @@ fun Long.toCountdown(): String {
 
 fun Double.toGrade() = Math.floor(this * 10000) / 10000
 
+fun Double.formatGrade() = String.format("%.4f", this)
+
 fun Date.format(format: String): String? = SimpleDateFormat(format, DEFAULT_LOCALE).runCatching { format(this@format) }.getOrNull()
 
 fun String.parse(format: String): Date? = SimpleDateFormat(format, DEFAULT_LOCALE).runCatching { parse(this@parse) }.getOrNull()

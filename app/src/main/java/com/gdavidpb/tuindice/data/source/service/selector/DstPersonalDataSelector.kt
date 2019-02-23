@@ -6,5 +6,5 @@ import pl.droidsonroids.jspoon.annotation.Selector
 
 data class DstPersonalDataSelector(
         @Selector(".tablaL", converter = DstPersonalDataConverter::class)
-        var selected: DstPersonal
+        var selected: DstPersonal? = null
 )

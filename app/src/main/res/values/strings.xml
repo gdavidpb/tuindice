@@ -36,7 +36,6 @@
 
     <!-- Main Activity -->
 
-    <string name="nav_enrollment">Resumen</string>
     <string name="nav_record">Informe Académico</string>
     <string name="nav_calendar">Calendario Académico</string>
     <string name="nav_pensum">Pensum</string>
@@ -55,6 +54,9 @@
 
     <string name="alertTitleLogout">Atención</string>
     <string name="alertMessageLogout">¿Estás seguro que deseas salir?</string>
+
+    <!-- EnrollmentFragment -->
+    <string name="text5">/ 5.0</string>
 
     <!-- EmailSentActivity -->
     <string name="labelVerify">

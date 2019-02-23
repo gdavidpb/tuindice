@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import okhttp3.ResponseBody
 
 interface DstRepository {
-    suspend fun getAccount(): Account?
+    suspend fun getPersonal(): Account?
     suspend fun getRecord(): Record?
     suspend fun getEnrollment(): Enrollment?
     suspend fun getEnrollmentProof(): ResponseBody?

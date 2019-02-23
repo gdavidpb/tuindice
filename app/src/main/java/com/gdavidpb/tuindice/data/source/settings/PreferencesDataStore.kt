@@ -39,7 +39,7 @@ open class PreferencesDataStore(
         }
     }
 
-    override suspend fun setCooldown(key: String) {
+    override suspend fun setSyncCooldown() {
         val calendar = Calendar.getInstance(DEFAULT_LOCALE)
 
         calendar.set(Calendar.HOUR_OF_DAY, 0)
@@ -50,15 +50,15 @@ open class PreferencesDataStore(
         calendar.add(Calendar.DATE, 1)
 
         preferences.edit {
-            putLong("$key$KEY_COOL_DOWN", calendar.timeInMillis)
+            putLong(KEY_COOL_DOWN, calendar.timeInMillis)
         }
     }
 
-    override suspend fun isCooldown(key: String): Boolean {
+    override suspend fun isSyncCooldown(): Boolean {
         val now = Calendar.getInstance(DEFAULT_LOCALE)
         val cooldown = Calendar.getInstance(DEFAULT_LOCALE)
 
-        cooldown.timeInMillis = preferences.getLong("$key$KEY_COOL_DOWN", now.timeInMillis)
+        cooldown.timeInMillis = preferences.getLong(KEY_COOL_DOWN, now.timeInMillis)
 
         return now.before(cooldown)
     }

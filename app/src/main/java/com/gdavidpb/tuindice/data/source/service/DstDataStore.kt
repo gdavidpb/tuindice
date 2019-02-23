@@ -1,41 +1,37 @@
 package com.gdavidpb.tuindice.data.source.service
 
-import com.gdavidpb.tuindice.data.mapper.AccountSelectorMapper
-import com.gdavidpb.tuindice.data.mapper.AuthResponseMapper
-import com.gdavidpb.tuindice.data.mapper.EnrollmentMapper
-import com.gdavidpb.tuindice.data.mapper.RecordMapper
 import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.domain.model.exception.AuthException
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
+import com.gdavidpb.tuindice.utils.toAccount
+import com.gdavidpb.tuindice.utils.toAuthResponse
+import com.gdavidpb.tuindice.utils.toEnrollment
+import com.gdavidpb.tuindice.utils.toRecord
 import okhttp3.ResponseBody
 import retrofit2.HttpException
 
 open class DstDataStore(
         private val authService: DstAuthService,
         private val recordService: DstRecordService,
-        private val enrollmentService: DstEnrollmentService,
-        private val authResponseMapper: AuthResponseMapper,
-        private val accountSelectorMapper: AccountSelectorMapper,
-        private val recordMapper: RecordMapper,
-        private val enrollmentMapper: EnrollmentMapper
+        private val enrollmentService: DstEnrollmentService
 ) : DstRepository {
-    override suspend fun getAccount(): Account? {
+    override suspend fun getPersonal(): Account? {
         val response = recordService.getPersonalData().execute().body()
 
-        return response?.let(accountSelectorMapper::map)
+        return response?.toAccount()
     }
 
     override suspend fun getRecord(): Record? {
         val response = recordService.getRecordData().execute().body()
 
-        return response?.let(recordMapper::map)
+        return response?.toRecord()
     }
 
     override suspend fun getEnrollment(): Enrollment? {
         val response = enrollmentService.getEnrollment().execute().body()
 
-        return response?.let(enrollmentMapper::map)
+        return response?.toEnrollment()
     }
 
     override suspend fun getEnrollmentProof(): ResponseBody? {
@@ -53,7 +49,7 @@ open class DstDataStore(
 
         return if (response.isSuccessful) {
             response.body()?.let {
-                val authResponse = it.let(authResponseMapper::map).copy(request = request)
+                val authResponse = it.toAuthResponse(request = request)
 
                 when (authResponse.code) {
                     AuthResponseCode.SUCCESS, AuthResponseCode.NO_ENROLLED -> authResponse

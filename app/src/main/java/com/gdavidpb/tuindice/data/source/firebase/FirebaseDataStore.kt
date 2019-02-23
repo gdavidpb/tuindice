@@ -4,22 +4,18 @@ import android.content.res.Resources
 import android.net.Uri
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.mapper.ResetParamMapper
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.utils.COLLECTION_USER
-import com.gdavidpb.tuindice.utils.FIELD_USER_EMAIL
-import com.gdavidpb.tuindice.utils.URL_BASE
-import com.gdavidpb.tuindice.utils.await
+import com.gdavidpb.tuindice.utils.*
 import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 open class FirebaseDataStore(
         private val auth: FirebaseAuth,
         private val firestore: FirebaseFirestore,
-        private val resources: Resources,
-        private val resetParamMapper: ResetParamMapper
+        private val resources: Resources
 ) : AuthRepository {
     override suspend fun getActiveAccount(): Account? {
         return auth.currentUser?.run {
@@ -46,16 +42,24 @@ open class FirebaseDataStore(
         }
     }
 
-    override suspend fun confirmPasswordReset(code: String, password: String) {
-        auth.confirmPasswordReset(code, password).await()
-    }
-
     override suspend fun signOut() {
         auth.signOut()
     }
 
+    override suspend fun updateToken(token: String) {
+        val uid = auth.uid ?: return
+
+        val userRef = firestore.collection(COLLECTION_USER).document(uid)
+
+        val values = mapOf(
+                FIELD_USER_TOKEN to token
+        )
+
+        userRef.set(values, SetOptions.merge()).await()
+    }
+
     override suspend fun sendPasswordResetEmail(email: String, password: String) {
-        val resetPassword = (email to password).let(resetParamMapper::mapFrom)
+        val resetPassword = (email to password).fromResetParam()
         val continueUrl = resources.getString(R.string.urlContinueResetPassword, resetPassword)
 
         val actionCodeSettings = ActionCodeSettings
@@ -81,6 +85,10 @@ open class FirebaseDataStore(
 
             user.sendEmailVerification(actionCodeSettings).await()
         }
+    }
+
+    override suspend fun confirmPasswordReset(code: String, password: String) {
+        auth.confirmPasswordReset(code, password).await()
     }
 
     override suspend fun isEmailVerified(): Boolean {

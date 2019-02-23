@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.domain.repository
 import com.gdavidpb.tuindice.data.model.service.DstCredentials
 
 interface SettingsRepository {
-    suspend fun setCooldown(key: String)
-    suspend fun isCooldown(key: String): Boolean
+    suspend fun setSyncCooldown()
+    suspend fun isSyncCooldown(): Boolean
 
     suspend fun awaitingEmail(): String
     suspend fun awaitingPassword(): String

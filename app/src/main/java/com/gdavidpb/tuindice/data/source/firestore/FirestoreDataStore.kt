@@ -1,10 +1,9 @@
 package com.gdavidpb.tuindice.data.source.firestore
 
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.model.Record
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
-import com.gdavidpb.tuindice.utils.COLLECTION_USER
-import com.gdavidpb.tuindice.utils.FIELD_USER_TOKEN
-import com.gdavidpb.tuindice.utils.await
+import com.gdavidpb.tuindice.utils.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -18,18 +17,31 @@ open class FirestoreDataStore(
 
         val userRef = firestore.collection(COLLECTION_USER).document(uid)
 
-        userRef.set(account, SetOptions.merge()).await()
-    }
+        val values = account.run {
+            mapOf(
+                    FIELD_USER_ID to account.id,
+                    FIELD_USER_USB_ID to account.usbId,
+                    FIELD_USER_TOKEN to account.token,
+                    FIELD_USER_EMAIL to account.email,
+                    FIELD_USER_FULL_NAME to account.fullName,
+                    FIELD_USER_FIRST_NAMES to account.firstNames,
+                    FIELD_USER_LAST_NAMES to account.lastNames,
+                    FIELD_USER_SCHOLARSHIP to account.scholarship,
+                    FIELD_USER_CAREER_NAME to account.careerName,
+                    FIELD_USER_CAREER_CODE to account.careerCode
 
-    override suspend fun setToken(token: String) {
-        val uid = auth.uid ?: return
-
-        val userRef = firestore.collection(COLLECTION_USER).document(uid)
-
-        val values = mapOf(
-                FIELD_USER_TOKEN to token
-        )
+            )
+        }.filter { (_, value) ->
+            when (value) {
+                is String -> value.isNotEmpty()
+                else -> true
+            }
+        }
 
         userRef.set(values, SetOptions.merge()).await()
+    }
+
+    override suspend fun updateRecord(record: Record) {
+
     }
 }

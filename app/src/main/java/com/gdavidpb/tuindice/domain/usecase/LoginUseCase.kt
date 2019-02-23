@@ -1,13 +1,13 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.data.mapper.CredentialsMapper
-import com.gdavidpb.tuindice.data.mapper.UsbIdMapper
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.ENDPOINT_DST_RECORD_AUTH
+import com.gdavidpb.tuindice.utils.toDstCredentials
+import com.gdavidpb.tuindice.utils.toUsbEmail
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
 
@@ -16,16 +16,13 @@ open class LoginUseCase(
         private val localStorageRepository: LocalStorageRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
-        private val identifierRepository: IdentifierRepository,
-        private val authRepository: AuthRepository,
-        private val usbIdMapper: UsbIdMapper,
-        private val credentialsMapper: CredentialsMapper
+        private val authRepository: AuthRepository
 ) : ResultUseCase<AuthRequest, AuthResponse>(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: AuthRequest): AuthResponse? {
-        val email = params.usbId.let(usbIdMapper::map)
+        val email = params.usbId.toUsbEmail()
 
         authRepository.signOut()
         settingsRepository.clear()
@@ -67,14 +64,13 @@ open class LoginUseCase(
         val merge = Account(
                 usbId = request.usbId,
                 email = account.email,
-                fullName = response.name,
-                token = identifierRepository.getIdentifier()
+                fullName = response.name
         )
 
         if (!authRepository.isEmailVerified())
             authRepository.sendEmailVerification()
 
-        settingsRepository.storeCredentials(credentials = request.let(credentialsMapper::map))
+        settingsRepository.storeCredentials(credentials = request.toDstCredentials())
 
         databaseRepository.updateAccount(account = merge)
     }

@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.di.modules
 import android.content.Context
 import android.net.ConnectivityManager
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.mapper.*
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
 import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataStore
 import com.gdavidpb.tuindice.data.source.service.*
@@ -26,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.storage.FirebaseStorage
+import com.squareup.picasso.Picasso
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.jetbrains.anko.defaultSharedPreferences
@@ -212,30 +212,6 @@ val appModule = module {
 
     factoryBy<IdentifierRepository, TokenDataStore>()
 
-    /* Mappers */
-
-    factory<AuthResponseMapper>()
-
-    factory<PeriodMapper>()
-
-    factory<SubjectMapper>()
-
-    factory<EnrollmentMapper>()
-
-    factory<AccountSelectorMapper>()
-
-    factory<QuarterMapper>()
-
-    factory<RecordMapper>()
-
-    factory<UsbIdMapper>()
-
-    factory<ResetMapper>()
-
-    factory<ResetParamMapper>()
-
-    factory<CredentialsMapper>()
-
     /* Use cases */
 
     factory<LoginUseCase>()
@@ -251,4 +227,10 @@ val appModule = module {
     factory<ResendResetEmailUseCase>()
 
     factory<CountdownUseCase>()
+
+    /* Utils */
+
+    single {
+        Picasso.get()
+    }
 }

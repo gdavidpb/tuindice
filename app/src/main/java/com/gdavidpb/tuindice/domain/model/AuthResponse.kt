@@ -7,5 +7,5 @@ data class AuthResponse(
         val code: AuthResponseCode,
         val message: String,
         val name: String,
-        val request: AuthRequest = AuthRequest()
+        val request: AuthRequest
 )
