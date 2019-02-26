@@ -18,6 +18,10 @@
     <color name="quarterGuess">#64FFC107</color>
     <color name="quarterRetired">#F44336</color>
 
+    <color name="colorApproved">#FFC107</color>
+    <color name="colorFailed">#F44336</color>
+    <color name="colorRetired">#B0BEC5</color>
+
     <color name="ic_launcher_background">#FFFFFF</color>
 
 </resources>

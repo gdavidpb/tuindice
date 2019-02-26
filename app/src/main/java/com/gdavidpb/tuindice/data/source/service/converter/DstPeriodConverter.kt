@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.service.converter
 
-import com.gdavidpb.tuindice.data.model.service.DstPeriod
+import com.gdavidpb.tuindice.domain.model.service.DstPeriod
 import com.gdavidpb.tuindice.utils.parse
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter

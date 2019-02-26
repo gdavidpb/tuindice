@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.AuthResponse
+import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
@@ -61,7 +62,7 @@ open class LoginUseCase(
     }
 
     private suspend fun storeAccount(account: Account, request: AuthRequest, response: AuthResponse) {
-        val merge = Account(
+        val authData = DstAuth(
                 usbId = request.usbId,
                 email = account.email,
                 fullName = response.name
@@ -72,6 +73,6 @@ open class LoginUseCase(
 
         settingsRepository.storeCredentials(credentials = request.toDstCredentials())
 
-        databaseRepository.updateAccount(account = merge)
+        databaseRepository.updateAuthData(data = authData)
     }
 }

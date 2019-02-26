@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.service.selector
 
 import com.gdavidpb.tuindice.data.model.service.DstQuarterCalendar
-import com.gdavidpb.tuindice.data.model.service.DstPeriod
+import com.gdavidpb.tuindice.domain.model.service.DstPeriod
 import com.gdavidpb.tuindice.data.model.service.DstScheduledSubject
 import com.gdavidpb.tuindice.data.source.service.converter.DstCalendarConverter
 import com.gdavidpb.tuindice.data.source.service.converter.DstPeriodConverter

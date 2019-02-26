@@ -1,9 +1,11 @@
 package com.gdavidpb.tuindice.domain.repository
 
-import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.domain.model.Record
+import com.gdavidpb.tuindice.domain.model.service.DstAuth
+import com.gdavidpb.tuindice.domain.model.service.DstPersonal
+import com.gdavidpb.tuindice.domain.model.service.DstRecord
 
 interface DatabaseRepository {
-    suspend fun updateAccount(account: Account)
-    suspend fun updateRecord(record: Record)
+    suspend fun updateAuthData(data: DstAuth)
+    suspend fun updatePersonalData(data: DstPersonal)
+    suspend fun updateRecordData(data: DstRecord)
 }

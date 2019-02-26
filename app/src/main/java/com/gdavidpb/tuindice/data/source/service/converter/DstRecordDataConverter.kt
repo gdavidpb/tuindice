@@ -1,13 +1,7 @@
 package com.gdavidpb.tuindice.data.source.service.converter
 
-import com.gdavidpb.tuindice.data.model.service.DstPeriod
-import com.gdavidpb.tuindice.data.model.service.DstQuarter
-import com.gdavidpb.tuindice.data.model.service.DstRecord
-import com.gdavidpb.tuindice.data.model.service.DstSubject
-import com.gdavidpb.tuindice.utils.component6
-import com.gdavidpb.tuindice.utils.component7
-import com.gdavidpb.tuindice.utils.component8
-import com.gdavidpb.tuindice.utils.parse
+import com.gdavidpb.tuindice.domain.model.service.*
+import com.gdavidpb.tuindice.utils.*
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector
@@ -18,7 +12,16 @@ open class DstRecordDataConverter : ElementConverter<DstRecord> {
         val selectedRecordTable = node.select("table[class=tabla] table:has(table)")
 
         /* Record is empty */
-        if (selectedRecordTable.size < 2) return DstRecord.EMPTY
+        if (selectedRecordTable.size < 2) {
+            val stats = DstRecordStats(0.0,
+                    0, 0,
+                    0, 0,
+                    0, 0,
+                    0, 0
+            )
+
+            return DstRecord(stats)
+        }
 
         /* Select quarter tables, drop history */
         val selectedQuartersTable = selectedRecordTable.dropLast(1)
@@ -94,10 +97,20 @@ open class DstRecordDataConverter : ElementConverter<DstRecord> {
                     it.text().toIntOrNull() ?: 0
                 }
 
-        return DstRecord(quarters,
+        val grade = quarters
+                .sortedBy { it.period.startDate }
+                .lastOrNull()
+                ?.gradeSum
+                ?.toGrade() ?: 0.0
+
+        val stats = DstRecordStats(
+                grade,
                 enrolledSubjects, enrolledCredits,
                 approvedSubjects, approvedCredits,
                 retiredSubjects, retiredCredits,
-                failedSubjects, failedCredits)
+                failedSubjects, failedCredits
+        )
+
+        return DstRecord(stats = stats, quarters = quarters)
     }
 }

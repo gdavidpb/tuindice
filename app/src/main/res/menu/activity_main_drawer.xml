@@ -7,6 +7,10 @@
         android:id="@+id/group_main"
         android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_summary"
+            android:icon="@drawable/ic_enrollment"
+            android:title="@string/nav_summary" />
+        <item
             android:id="@+id/nav_record"
             android:icon="@drawable/ic_record"
             android:title="@string/nav_record" />

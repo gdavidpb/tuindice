@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.repository
 
-import com.gdavidpb.tuindice.data.model.service.DstCredentials
+import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 
 interface SettingsRepository {
     suspend fun setSyncCooldown()

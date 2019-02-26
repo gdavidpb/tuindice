@@ -1,12 +1,16 @@
 package com.gdavidpb.tuindice.data.source.service
 
-import com.gdavidpb.tuindice.domain.model.*
+import com.gdavidpb.tuindice.domain.model.AuthResponse
+import com.gdavidpb.tuindice.domain.model.AuthResponseCode
+import com.gdavidpb.tuindice.domain.model.Enrollment
 import com.gdavidpb.tuindice.domain.model.exception.AuthException
+import com.gdavidpb.tuindice.domain.model.service.DstPersonal
+import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.toAccount
 import com.gdavidpb.tuindice.utils.toAuthResponse
 import com.gdavidpb.tuindice.utils.toEnrollment
+import com.gdavidpb.tuindice.utils.toPersonalData
 import com.gdavidpb.tuindice.utils.toRecord
 import okhttp3.ResponseBody
 import retrofit2.HttpException
@@ -16,13 +20,13 @@ open class DstDataStore(
         private val recordService: DstRecordService,
         private val enrollmentService: DstEnrollmentService
 ) : DstRepository {
-    override suspend fun getPersonal(): Account? {
+    override suspend fun getPersonalData(): DstPersonal? {
         val response = recordService.getPersonalData().execute().body()
 
-        return response?.toAccount()
+        return response?.toPersonalData()
     }
 
-    override suspend fun getRecord(): Record? {
+    override suspend fun getRecordData(): DstRecord? {
         val response = recordService.getRecordData().execute().body()
 
         return response?.toRecord()
@@ -49,7 +53,7 @@ open class DstDataStore(
 
         return if (response.isSuccessful) {
             response.body()?.let {
-                val authResponse = it.toAuthResponse(request = request)
+                val authResponse = it.toAuthResponse()
 
                 when (authResponse.code) {
                     AuthResponseCode.SUCCESS, AuthResponseCode.NO_ENROLLED -> authResponse

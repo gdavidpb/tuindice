@@ -20,20 +20,16 @@ open class CountdownUseCase(
 
         val currentCountdown = if (!countdownExists || forceRestart) settingsRepository.startCountdown() else savedCountdown
 
-        var now = Date()
-        var left = Math.max(0, currentCountdown - now.time)
+        var left: Long
 
-        while (left > 0) {
-            now = Date()
-
-            left = Math.max(0, currentCountdown - now.time)
+        do {
+            left = (currentCountdown - Date().time)
 
             withContext(foregroundContext) {
-                onNext(left)
+                onNext(Math.max(0, left))
             }
 
-            if (left > 0)
-                delay(1000)
-        }
+            delay(1000)
+        } while (left > 0)
     }
 }

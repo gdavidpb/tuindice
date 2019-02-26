@@ -1,10 +1,11 @@
-package com.gdavidpb.tuindice.data.model.service
+package com.gdavidpb.tuindice.domain.model.service
 
 data class DstPersonal(
         val usbId: String,
         val id: String,
         val firstNames: String,
         val lastNames: String,
-        val career: DstCareer,
+        val careerCode: Int,
+        val careerName: String,
         val scholarship: Boolean
 )

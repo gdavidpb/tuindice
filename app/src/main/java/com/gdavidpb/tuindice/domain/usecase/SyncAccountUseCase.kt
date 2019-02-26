@@ -44,15 +44,18 @@ open class SyncAccountUseCase(
 
                 if (recordAuthResponse?.isSuccessful == true) {
                     /* Syncing */
-                    val remoteAccount = dstRepository.getPersonal()
+                    val personalData = dstRepository.getPersonalData()
 
-                    val remoteRecord = dstRepository.getRecord()
+                    val recordData = dstRepository.getRecordData()
 
-                    if (remoteAccount != null)
-                        databaseRepository.updateAccount(remoteAccount)
+                    if (personalData != null)
+                        databaseRepository.updatePersonalData(data = personalData)
 
-                    if (remoteRecord != null)
-                        databaseRepository.updateRecord(remoteRecord)
+                    if (recordData != null)
+                        databaseRepository.updateRecordData(data = recordData)
+
+                    /* Return updated account */
+                    return authRepository.getActiveAccount()
                 }
             }
         }

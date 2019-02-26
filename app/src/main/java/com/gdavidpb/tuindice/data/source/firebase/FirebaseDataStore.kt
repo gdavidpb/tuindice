@@ -30,7 +30,7 @@ open class FirebaseDataStore(
                     FIELD_USER_EMAIL to email
             )
 
-            firestore.collection(COLLECTION_USER).document(uid).set(values)
+            firestore.collection(COLLECTION_USER).document(uid).set(values).await()
 
             getUserById(uid)
         }
@@ -119,6 +119,6 @@ open class FirebaseDataStore(
                 .document(uid)
                 .get()
                 .await()
-                .toObject(Account::class.java)!!
+                .toAccount()
     }
 }

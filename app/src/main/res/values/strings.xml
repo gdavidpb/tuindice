@@ -34,8 +34,8 @@
     <string name="settings">Ir a la configuración</string>
     <string name="empty">Aquí no hay nada aún ;)</string>
 
-    <!-- Main Activity -->
-
+    <!-- MainActivity -->
+    <string name="nav_summary">Resumen</string>
     <string name="nav_record">Informe Académico</string>
     <string name="nav_calendar">Calendario Académico</string>
     <string name="nav_pensum">Pensum</string>
@@ -55,8 +55,20 @@
     <string name="alertTitleLogout">Atención</string>
     <string name="alertMessageLogout">¿Estás seguro que deseas salir?</string>
 
-    <!-- EnrollmentFragment -->
+    <!-- SummaryFragment -->
     <string name="text5">/ 5.0</string>
+
+    <string name="text_subjects_header">%1$d materias cursadas</string>
+
+    <string name="label_subjects_approved">Aprobadas</string>
+    <string name="label_subjects_failed">Reprobadas</string>
+    <string name="label_subjects_retired">Retiradas</string>
+
+    <string name="text_credits_header">%1$d créditos cursados</string>
+
+    <string name="label_credits_approved">Aprobados</string>
+    <string name="label_credits_failed">Reprobados</string>
+    <string name="label_credits_retired">Retirados</string>
 
     <!-- EmailSentActivity -->
     <string name="labelVerify">
@@ -97,6 +109,11 @@
     <string name="errorEmpty">Campo vacío</string>
     <string name="errorUSBID">USBID inválido</string>
     <string name="errorPassword">Contraseña inválida</string>
+
+    <string name="snackNetworkUnavailable">Error de conexión</string>
+    <string name="snackServiceUnreachable">El servidor no está disponible</string>
+    <string name="snackInternalFailure">Parece que algo ha fallado</string>
+    <string name="snackInvalidCredentials">USBID o contraseña inválida</string>
 
     <string name="messageLogging">Iniciando sesión…</string>
 
@@ -225,11 +242,6 @@
     <!-- todo classify: from here -->
 
     <!-- Snack bars -->
-    <string name="snackNetworkUnavailable">Error de conexión</string>
-    <string name="snackServiceUnreachable">El servidor no está disponible</string>
-    <string name="snackInternalFailure">Parece que algo ha fallado</string>
-    <string name="snackInvalidCredentials">USBID o contraseña inválida</string>
-
     <string name="navigation_drawer_open">Abrir</string>
     <string name="navigation_drawer_close">Cerrar</string>
 

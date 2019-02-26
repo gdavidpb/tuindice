@@ -9,6 +9,7 @@ import androidx.annotation.IdRes
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.data.model.app.CircleTransform
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
@@ -132,7 +133,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
             onViewCreated()
 
-            loadFragment(R.id.nav_record)
+            loadFragment(R.id.nav_summary)
         }
 
         val header = nav_view.getHeaderView(0)
@@ -141,12 +142,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             tViewDrawerName.text = account.fullName.toShortName()
             tViewDrawerUsbId.text = account.email
 
-            /*todo
             if (account.photoUrl.isNotEmpty())
                 picasso.load(account.photoUrl).transform(CircleTransform()).into(iViewDrawerProfile)
             else
                 iViewDrawerProfile.setImageResource(R.mipmap.ic_launcher_round)
-                */
         }
     }
 
@@ -155,6 +154,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             nav_view.setCheckedItem(itemId)
 
         when (itemId) {
+            R.id.nav_summary -> R.string.nav_summary to SummaryFragment()
             R.id.nav_record -> R.string.nav_record to RecordFragment()
             R.id.nav_calendar -> R.string.nav_calendar to CalendarFragment()
             R.id.nav_pensum -> R.string.nav_pensum to PensumFragment()

@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.settings
 
 import android.content.SharedPreferences
-import com.gdavidpb.tuindice.data.model.service.DstCredentials
+import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.utils.*
 import java.util.*

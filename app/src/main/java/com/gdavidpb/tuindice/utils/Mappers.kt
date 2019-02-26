@@ -2,34 +2,93 @@ package com.gdavidpb.tuindice.utils
 
 import android.net.Uri
 import android.util.Base64
-import com.gdavidpb.tuindice.data.model.service.DstCredentials
-import com.gdavidpb.tuindice.data.model.service.DstPeriod
-import com.gdavidpb.tuindice.data.model.service.DstQuarter
-import com.gdavidpb.tuindice.data.model.service.DstSubject
+import com.gdavidpb.tuindice.data.model.database.SummaryCredits
+import com.gdavidpb.tuindice.data.model.database.SummaryHeader
+import com.gdavidpb.tuindice.data.model.database.SummarySubjects
 import com.gdavidpb.tuindice.data.source.service.selector.DstAuthResponseSelector
 import com.gdavidpb.tuindice.data.source.service.selector.DstEnrollmentDataSelector
 import com.gdavidpb.tuindice.data.source.service.selector.DstPersonalDataSelector
 import com.gdavidpb.tuindice.data.source.service.selector.DstRecordDataSelector
 import com.gdavidpb.tuindice.domain.model.*
+import com.gdavidpb.tuindice.domain.model.service.DstCredentials
+import com.gdavidpb.tuindice.domain.model.service.DstPersonal
+import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.domain.usecase.request.ResetRequest
+import com.google.firebase.firestore.DocumentSnapshot
 import java.util.*
 
-fun DstPersonalDataSelector.toAccount(): Account? {
+/* Presentation layer */
+
+fun Account.toSummaryHeader(): SummaryHeader {
+    return SummaryHeader(
+            uid = uid,
+            name = fullName.toShortName(),
+            photoUrl = photoUrl,
+            careerName = careerName,
+            grade = grade
+    )
+}
+
+fun Account.toSummarySubjects(): SummarySubjects {
+    return SummarySubjects(
+            enrolledSubjects = enrolledSubjects,
+            approvedSubjects = approvedSubjects,
+            retiredSubjects = retiredSubjects,
+            failedSubjects = failedSubjects
+    )
+}
+
+
+fun Account.toSummaryCredits(): SummaryCredits {
+    return SummaryCredits(
+            enrolledCredits = enrolledCredits,
+            approvedCredits = approvedCredits,
+            retiredCredits = retiredCredits,
+            failedCredits = failedCredits
+    )
+}
+
+/* Data layer */
+
+fun DocumentSnapshot.toAccount(): Account {
+    return Account(
+            uid = id,
+            id = getString(FIELD_USER_ID) ?: "",
+            usbId = getString(FIELD_USER_ID) ?: "",
+            email = getString(FIELD_USER_EMAIL) ?: "",
+            fullName = getString(FIELD_USER_FULL_NAME) ?: "",
+            firstNames = getString(FIELD_USER_FIRST_NAMES) ?: "",
+            lastNames = getString(FIELD_USER_LAST_NAMES) ?: "",
+            careerName = getString(FIELD_USER_CAREER_NAME) ?: "",
+            careerCode = getLong(FIELD_USER_CAREER_CODE)?.toInt() ?: 0,
+            scholarship = getBoolean(FIELD_USER_SCHOLARSHIP) ?: false,
+            grade = getDouble(FIELD_USER_GRADE) ?: 0.0,
+            photoUrl = getString(FIELD_USER_PHOTO_URL) ?: "",
+            enrolledSubjects = getLong(FIELD_USER_ENROLLED_SUBJECTS)?.toInt() ?: 0,
+            enrolledCredits = getLong(FIELD_USER_ENROLLED_CREDITS)?.toInt() ?: 0,
+            approvedSubjects = getLong(FIELD_USER_APPROVED_SUBJECT)?.toInt() ?: 0,
+            approvedCredits = getLong(FIELD_USER_APPROVED_CREDITS)?.toInt() ?: 0,
+            retiredSubjects = getLong(FIELD_USER_RETIRED_SUBJECTS)?.toInt() ?: 0,
+            retiredCredits = getLong(FIELD_USER_RETIRED_CREDITS)?.toInt() ?: 0,
+            failedSubjects = getLong(FIELD_USER_FAILED_SUBJECTS)?.toInt() ?: 0,
+            failedCredits = getLong(FIELD_USER_FAILED_CREDITS)?.toInt() ?: 0
+    )
+}
+
+/* Service layer */
+
+fun DstPersonalDataSelector.toPersonalData(): DstPersonal? {
+    return selected
+}
+
+fun DstRecordDataSelector.toRecord(): DstRecord? {
     return selected?.run {
-        Account(
-                id = id,
-                usbId = usbId,
-                firstNames = firstNames,
-                lastNames = lastNames,
-                scholarship = scholarship,
-                careerName = career.name,
-                careerCode = career.code
-        )
+        DstRecord(stats = stats, quarters = quarters)
     }
 }
 
-fun DstAuthResponseSelector.toAuthResponse(request: AuthRequest): AuthResponse {
+fun DstAuthResponseSelector.toAuthResponse(): AuthResponse {
     val message = arrayOf(
             invalidCredentialsMessage,
             noEnrolledMessage,
@@ -49,13 +108,8 @@ fun DstAuthResponseSelector.toAuthResponse(request: AuthRequest): AuthResponse {
             isSuccessful = code == AuthResponseCode.SUCCESS || code == AuthResponseCode.NO_ENROLLED,
             code = code,
             message = message,
-            name = fullName.substringAfter(" | "),
-            request = request
+            name = fullName.substringAfter(" | ")
     )
-}
-
-fun AuthRequest.toDstCredentials(): DstCredentials {
-    return DstCredentials(usbId = usbId, password = password)
 }
 
 fun DstEnrollmentDataSelector.toEnrollment(): Enrollment {
@@ -111,47 +165,11 @@ fun DstEnrollmentDataSelector.toEnrollment(): Enrollment {
     )
 }
 
-fun DstPeriod.toPeriod(): Period {
-    return Period(
-            startDate = startDate,
-            endDate = endDate
-    )
+fun AuthRequest.toDstCredentials(): DstCredentials {
+    return DstCredentials(usbId = usbId, password = password)
 }
 
-fun DstSubject.toSubject(): Subject {
-    return Subject(
-            code = code,
-            name = name,
-            credits = credits,
-            grade = grade,
-            status = status
-    )
-}
-
-fun DstQuarter.toQuarter(): Quarter {
-    return Quarter(
-            period = period.toPeriod(),
-            subjects = subjects.map { it.toSubject() },
-            grade = grade,
-            gradeSum = gradeSum
-    )
-}
-
-fun DstRecordDataSelector.toRecord(): Record {
-    return selected.run {
-        Record(
-                quarters = quarters.map { it.toQuarter() },
-                enrolledCredits = enrolledCredits,
-                enrolledSubjects = enrolledSubjects,
-                approvedCredits = approvedCredits,
-                approvedSubject = approvedSubject,
-                retiredCredits = retiredCredits,
-                retiredSubjects = retiredSubjects,
-                failedCredits = failedCredits,
-                failedSubjects = failedSubjects
-        )
-    }
-}
+/* Utils */
 
 fun String.toResetRequest(): ResetRequest {
     fun getCode(uri: Uri) = uri.getQueryParameter("oobCode")!!

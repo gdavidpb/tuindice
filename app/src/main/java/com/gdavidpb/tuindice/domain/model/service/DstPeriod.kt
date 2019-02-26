@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.model.service
+package com.gdavidpb.tuindice.domain.model.service
 
 import com.gdavidpb.tuindice.utils.format
 import java.util.*

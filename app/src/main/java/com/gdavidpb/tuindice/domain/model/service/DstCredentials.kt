@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.model.service
+package com.gdavidpb.tuindice.domain.model.service
 
 data class DstCredentials(
         val usbId: String,

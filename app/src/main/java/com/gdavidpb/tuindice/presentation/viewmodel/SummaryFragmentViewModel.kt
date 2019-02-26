@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.utils.LiveResult
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.usecase.SyncAccountUseCase
 
-open class EnrollmentFragmentViewModel(
+open class SummaryFragmentViewModel(
         private val syncAccountUseCase: SyncAccountUseCase
 ) : ViewModel() {
 

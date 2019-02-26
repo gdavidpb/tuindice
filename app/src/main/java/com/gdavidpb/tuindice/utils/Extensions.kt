@@ -16,11 +16,14 @@ import android.text.TextWatcher
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.CycleInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.EditText
+import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.constraintlayout.widget.Guideline
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
@@ -327,6 +330,34 @@ fun ValueAnimator.animate(
     })
 
     start()
+}
+
+fun TextView.animateGrade(value: Double) {
+    if (context.isPowerSaveMode()) {
+        text = value.formatGrade()
+        return
+    }
+
+    ValueAnimator.ofFloat(0f, value.toFloat()).animate({
+        duration = 1000
+        interpolator = DecelerateInterpolator()
+    }, {
+        text = (animatedValue as Float).toDouble().formatGrade()
+    })
+}
+
+fun Guideline.animatePercent(value: Float) {
+    if (context.isPowerSaveMode()) {
+        setGuidelinePercent(value)
+        return
+    }
+
+    ValueAnimator.ofFloat(0f, value).animate({
+        duration = 1000
+        interpolator = DecelerateInterpolator()
+    }, {
+        setGuidelinePercent(animatedValue as Float)
+    })
 }
 
 fun View.lookAtMe(factor: Float = 3f) {
