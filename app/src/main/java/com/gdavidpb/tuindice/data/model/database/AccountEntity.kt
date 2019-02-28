@@ -1,8 +1,6 @@
-package com.gdavidpb.tuindice.domain.model
+package com.gdavidpb.tuindice.data.model.database
 
-import java.util.*
-
-data class Account(
+data class AccountEntity(
         val uid: String = "",
         val id: String = "",
         val usbId: String = "",
@@ -22,6 +20,5 @@ data class Account(
         val retiredSubjects: Int = 0,
         val retiredCredits: Int = 0,
         val failedSubjects: Int = 0,
-        val failedCredits: Int = 0,
-        val lastUpdate: Date = Date()
+        val failedCredits: Int = 0
 )

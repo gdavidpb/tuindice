@@ -21,7 +21,8 @@ open class StartUpUseCase(
     override suspend fun executeOnBackground(params: Intent): StartUpAction? {
         val link = params.dataString
 
-        val activeAccount = authRepository.getActiveAccount()
+        val lastUpdate = settingsRepository.getLastSync()
+        val activeAccount = authRepository.getActiveAccount(lastUpdate)
         val passwordReset = authRepository.isResetLink(link)
         val awaitingForReset = settingsRepository.isAwaitingForReset()
 

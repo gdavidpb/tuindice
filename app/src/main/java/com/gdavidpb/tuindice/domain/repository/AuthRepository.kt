@@ -1,9 +1,10 @@
 package com.gdavidpb.tuindice.domain.repository
 
 import com.gdavidpb.tuindice.domain.model.Account
+import java.util.*
 
 interface AuthRepository {
-    suspend fun getActiveAccount(): Account?
+    suspend fun getActiveAccount(lastUpdate: Date): Account?
 
     suspend fun signIn(email: String, password: String): Account
     suspend fun signUp(email: String, password: String): Account

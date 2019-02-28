@@ -21,6 +21,7 @@ const val KEY_USB_ID = "email"
 const val KEY_PASSWORD = "password"
 const val KEY_COUNT_DOWN = "countdown"
 const val KEY_COOL_DOWN = "cooldown"
+const val KEY_LAST_UPDATE = "lastUpdate"
 const val KEY_AWAITING_EMAIL = "AwaitingEmail"
 const val KEY_AWAITING_PASSWORD = "AwaitingPassword"
 

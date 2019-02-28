@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.domain.model
 
-import com.gdavidpb.tuindice.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.utils.QUARTER_ENDS
 import com.gdavidpb.tuindice.utils.QUARTER_STARTS
 import com.gdavidpb.tuindice.utils.format
@@ -12,14 +11,14 @@ data class Period(val startDate: Date? = null,
     //todo check .time? is it works ok?
     private fun move(n: Int): Period {
         return copy(
-                startDate = Calendar.getInstance(DEFAULT_LOCALE).apply {
+                startDate = Calendar.getInstance().apply {
                     time = startDate
 
                     do {
                         add(Calendar.MONTH, n)
                     } while (QUARTER_STARTS.indexOf(get(Calendar.MONTH)) == -1)
                 }.time,
-                endDate = Calendar.getInstance(DEFAULT_LOCALE).apply {
+                endDate = Calendar.getInstance().apply {
                     time = endDate
 
                     do {

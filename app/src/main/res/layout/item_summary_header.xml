@@ -84,6 +84,20 @@
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
                 tools:text="Ingeniería de la Computación" />
 
+            <TextView
+                android:id="@+id/tViewLastUpdate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/dp_6"
+                android:drawablePadding="@dimen/dp_2"
+                android:gravity="center_vertical"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+                tools:drawableLeft="@drawable/ic_sync"
+                tools:drawableStart="@drawable/ic_sync"
+                tools:drawableTint="@color/colorSecondaryText"
+                tools:text="Última actualización: Hoy, 3:42 p.m." />
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

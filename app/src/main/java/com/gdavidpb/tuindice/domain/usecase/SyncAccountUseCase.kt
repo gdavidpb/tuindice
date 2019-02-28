@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.ENDPOINT_DST_RECORD_AUTH
 import kotlinx.coroutines.Dispatchers
+import java.util.*
 
 open class SyncAccountUseCase(
         private val dstRepository: DstRepository,
@@ -18,7 +19,8 @@ open class SyncAccountUseCase(
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: Boolean): Account? {
-        val activeAccount = authRepository.getActiveAccount()
+        val lastUpdate = settingsRepository.getLastSync()
+        val activeAccount = authRepository.getActiveAccount(lastUpdate)
         val isCooldown = settingsRepository.isSyncCooldown()
 
         if (activeAccount != null) {
@@ -42,8 +44,8 @@ open class SyncAccountUseCase(
 
                 val recordAuthResponse = dstRepository.auth(recordAuthRequest)
 
+                /* Syncing */
                 if (recordAuthResponse?.isSuccessful == true) {
-                    /* Syncing */
                     val personalData = dstRepository.getPersonalData()
 
                     val recordData = dstRepository.getRecordData()
@@ -55,7 +57,7 @@ open class SyncAccountUseCase(
                         databaseRepository.updateRecordData(data = recordData)
 
                     /* Return updated account */
-                    return authRepository.getActiveAccount()
+                    return authRepository.getActiveAccount(lastUpdate = Date())
                 }
             }
         }

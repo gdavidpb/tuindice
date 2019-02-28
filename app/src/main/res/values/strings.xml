@@ -58,6 +58,8 @@
     <!-- SummaryFragment -->
     <string name="text5">/ 5.0</string>
 
+    <string name="text_last_update">Última actualización: %1$s</string>
+
     <string name="text_subjects_header">%1$d materias cursadas</string>
 
     <string name="label_subjects_approved">Aprobadas</string>

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.utils
 
 import android.net.Uri
 import android.util.Base64
+import com.gdavidpb.tuindice.data.model.database.AccountEntity
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
 import com.gdavidpb.tuindice.data.source.service.selector.DstAuthResponseSelector
@@ -27,7 +28,8 @@ fun Account.toSummaryHeader(): SummaryHeader {
             name = fullName.toShortName(),
             photoUrl = photoUrl,
             careerName = careerName,
-            grade = grade
+            grade = grade,
+            lastUpdate = lastUpdate
     )
 }
 
@@ -39,7 +41,6 @@ fun Account.toSummarySubjects(): SummarySubjects {
             failedSubjects = failedSubjects
     )
 }
-
 
 fun Account.toSummaryCredits(): SummaryCredits {
     return SummaryCredits(
@@ -60,8 +61,8 @@ fun QuarterEntity.toHeader(): String {
 
 /* Data layer */
 
-fun DocumentSnapshot.toAccount(): Account {
-    return Account(
+fun DocumentSnapshot.toAccountEntity(): AccountEntity {
+    return AccountEntity(
             uid = id,
             id = getString(FIELD_USER_ID) ?: "",
             usbId = getString(FIELD_USER_ID) ?: "",
@@ -82,6 +83,34 @@ fun DocumentSnapshot.toAccount(): Account {
             retiredCredits = getLong(FIELD_USER_RETIRED_CREDITS)?.toInt() ?: 0,
             failedSubjects = getLong(FIELD_USER_FAILED_SUBJECTS)?.toInt() ?: 0,
             failedCredits = getLong(FIELD_USER_FAILED_CREDITS)?.toInt() ?: 0
+    )
+}
+
+/* Domain layer */
+
+fun AccountEntity.toAccount(lastUpdate: Date): Account {
+    return Account(
+            uid = uid,
+            id = id,
+            usbId = usbId,
+            email = email,
+            fullName = fullName,
+            firstNames = firstNames,
+            lastNames = lastNames,
+            careerName = careerName,
+            careerCode = careerCode,
+            scholarship = scholarship,
+            grade = grade,
+            photoUrl = photoUrl,
+            enrolledSubjects = enrolledSubjects,
+            enrolledCredits = enrolledCredits,
+            approvedSubjects = approvedSubjects,
+            approvedCredits = approvedCredits,
+            retiredSubjects = retiredSubjects,
+            retiredCredits = retiredCredits,
+            failedSubjects = failedSubjects,
+            failedCredits = failedCredits,
+            lastUpdate = lastUpdate
     )
 }
 

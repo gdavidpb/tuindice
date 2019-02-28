@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.data.source.service.converter
 
 import com.gdavidpb.tuindice.data.model.service.DstQuarterCalendar
-import com.gdavidpb.tuindice.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.utils.parse
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
@@ -11,7 +10,7 @@ import java.util.*
 open class DstCalendarConverter : ElementConverter<DstQuarterCalendar> {
 
     private val year by lazy {
-        Calendar.getInstance(DEFAULT_LOCALE).get(Calendar.YEAR)
+        Calendar.getInstance().get(Calendar.YEAR)
     }
 
     override fun convert(node: Element, selector: Selector): DstQuarterCalendar {

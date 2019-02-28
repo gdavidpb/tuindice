@@ -11,15 +11,16 @@ import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import java.util.*
 
 open class FirebaseDataStore(
         private val auth: FirebaseAuth,
         private val firestore: FirebaseFirestore,
         private val resources: Resources
 ) : AuthRepository {
-    override suspend fun getActiveAccount(): Account? {
+    override suspend fun getActiveAccount(lastUpdate: Date): Account? {
         return auth.currentUser?.run {
-            getUserById(uid)
+            getUserById(uid, lastUpdate)
         }
     }
 
@@ -113,12 +114,13 @@ open class FirebaseDataStore(
         return values(uri).all { (value, expected) -> value == expected }
     }
 
-    private suspend fun getUserById(uid: String): Account {
+    private suspend fun getUserById(uid: String, lastUpdate: Date = Date()): Account {
         return firestore
                 .collection(COLLECTION_USER)
                 .document(uid)
                 .get()
                 .await()
-                .toAccount()
+                .toAccountEntity()
+                .toAccount(lastUpdate)
     }
 }

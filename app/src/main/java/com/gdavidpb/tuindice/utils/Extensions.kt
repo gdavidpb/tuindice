@@ -43,13 +43,10 @@ import kotlinx.coroutines.*
 import okhttp3.RequestBody
 import okio.Buffer
 import org.jetbrains.anko.sdk27.coroutines.textChangedListener
-import java.io.InputStream
 import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -210,6 +207,12 @@ fun EditText.drawables(
         right: Drawable? = null,
         bottom: Drawable? = null) = setCompoundDrawables(left, top, right, bottom)
 
+fun TextView.drawables(
+        left: Drawable? = null,
+        top: Drawable? = null,
+        right: Drawable? = null,
+        bottom: Drawable? = null) = setCompoundDrawables(left, top, right, bottom)
+
 fun EditText.onTextChanged(event: (CharSequence, Int, Int, Int) -> Unit) {
     addTextChangedListener(object : TextWatcher {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -267,6 +270,19 @@ fun ConnectivityManager.isNetworkAvailable() = activeNetworkInfo?.isConnected ==
 
 /* Format */
 
+fun Date.formatLastUpdate(): String {
+    val now = Date()
+    val diff = now.time - time
+    val days = TimeUnit.MILLISECONDS.toDays(diff)
+
+    return when {
+        now.isToday() -> format("'Hoy,' hh:mm aa")
+        now.isYesterday() -> format("'Ayer,' hh:mm aa")
+        days <= 7 -> format("EEEE',' hh:mm aa")
+        else -> format("dd 'de' MMMM yyyy")
+    } ?: "Nunca"
+}
+
 fun Long.toCountdown(): String {
     val min = TimeUnit.MILLISECONDS.toMinutes(this)
     val sec = TimeUnit.MILLISECONDS.toSeconds(this - TimeUnit.MINUTES.toMillis(min))
@@ -317,16 +333,56 @@ fun SubjectEntity.generateId(): String {
 
 fun X509Certificate.getProperty(key: String) = "(?<=$key=)[^,]+|$".toRegex().find(subjectDN.name)?.value
 
-fun ZipOutputStream.putEntry(entry: ZipEntry, inputStream: InputStream) {
-    inputStream.use {
-        putNextEntry(entry)
+fun Date.isToday(): Boolean {
+    val start = Calendar.getInstance().run {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
 
-        it.copyTo(this)
-
-        closeEntry()
-
-        flush()
+        Date(timeInMillis)
     }
+
+    val end = Calendar.getInstance().run {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+
+        add(Calendar.DATE, 1)
+        add(Calendar.SECOND, -1)
+
+        Date(timeInMillis)
+    }
+
+    return start.rangeTo(end).contains(this)
+}
+
+fun Date.isYesterday(): Boolean {
+    val start = Calendar.getInstance().run {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+        add(Calendar.DATE, -1)
+
+        Date(timeInMillis)
+    }
+
+    val end = Calendar.getInstance().run {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+
+        add(Calendar.SECOND, -1)
+
+        Date(timeInMillis)
+
+        Date(timeInMillis)
+    }
+
+    return start.rangeTo(end).contains(this)
 }
 
 inline fun Any?.isNull(exec: () -> Unit) = this ?: exec()

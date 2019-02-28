@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.domain.repository
 
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
+import java.util.*
 
 interface SettingsRepository {
+    suspend fun getLastSync(): Date
     suspend fun setSyncCooldown()
     suspend fun isSyncCooldown(): Boolean
 
