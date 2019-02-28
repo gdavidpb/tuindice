@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.ui.viewholders
 
 import android.view.View
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.model.database.SummaryBase
-import com.gdavidpb.tuindice.data.model.database.SummarySubjects
+import com.gdavidpb.tuindice.presentation.model.SummaryBase
+import com.gdavidpb.tuindice.presentation.model.SummarySubjects
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.animatePercent
 import kotlinx.android.synthetic.main.item_summary_subjects.view.*

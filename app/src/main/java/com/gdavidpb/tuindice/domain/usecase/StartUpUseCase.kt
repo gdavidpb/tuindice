@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
+import com.gdavidpb.tuindice.utils.async
 import com.gdavidpb.tuindice.utils.toResetRequest
 import kotlinx.coroutines.Dispatchers
 
@@ -42,7 +43,9 @@ open class StartUpUseCase(
             activeAccount != null -> {
                 val token = identifierRepository.getIdentifier()
 
-                authRepository.updateToken(token)
+                backgroundContext.async {
+                    authRepository.updateToken(token)
+                }
 
                 if (authRepository.isEmailVerified())
                     StartUpAction.Main(account = activeAccount)

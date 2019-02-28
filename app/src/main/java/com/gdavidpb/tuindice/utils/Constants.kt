@@ -55,6 +55,11 @@ val QUARTER_RANGES = QUARTER_STARTS.mapIndexed { index, _ ->
     QUARTER_STARTS[index] to QUARTER_ENDS[index]
 }
 
+const val STATUS_QUARTER_CURRENT = 0
+const val STATUS_QUARTER_COMPLETED = 1
+const val STATUS_QUARTER_GUESS = 2
+const val STATUS_QUARTER_RETIRED = 3
+
 /* Default locale */
 val DEFAULT_LOCALE = Locale("es", "VE")
 

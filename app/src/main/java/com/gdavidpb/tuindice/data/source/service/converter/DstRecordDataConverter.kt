@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.data.source.service.converter
 
-import com.gdavidpb.tuindice.domain.model.service.*
+import com.gdavidpb.tuindice.domain.model.service.DstQuarter
+import com.gdavidpb.tuindice.domain.model.service.DstRecord
+import com.gdavidpb.tuindice.domain.model.service.DstRecordStats
+import com.gdavidpb.tuindice.domain.model.service.DstSubject
 import com.gdavidpb.tuindice.utils.*
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
@@ -60,7 +63,7 @@ open class DstRecordDataConverter : ElementConverter<DstRecord> {
             val quarterHistory = selectedQuarterTable.last().text()
 
             /* Parse quarter period */
-            val period = quarterPeriod.run {
+            val (startDate, endDate) = quarterPeriod.run {
                 val startDate = replace("-[^\\d]+".toRegex(), " ")
                         .trim()
                         .parse("MMMM yyyy")
@@ -69,10 +72,7 @@ open class DstRecordDataConverter : ElementConverter<DstRecord> {
                         .trim()
                         .parse("MMMM yyyy")
 
-                DstPeriod(
-                        startDate = startDate,
-                        endDate = endDate
-                )
+                startDate!! to endDate!!
             }
 
             val (grade, gradeSum) = "\\d\\.\\d{4}".toRegex()
@@ -81,10 +81,12 @@ open class DstRecordDataConverter : ElementConverter<DstRecord> {
                     .map { match -> match.value.toDouble() }
 
             DstQuarter(
-                    period = period,
+                    startDate = startDate,
+                    endDate = endDate,
                     subjects = subjects,
                     grade = grade,
-                    gradeSum = gradeSum
+                    gradeSum = gradeSum,
+                    status = if (grade != 0.0) STATUS_QUARTER_COMPLETED else STATUS_QUARTER_RETIRED
             )
         }
 
@@ -98,7 +100,7 @@ open class DstRecordDataConverter : ElementConverter<DstRecord> {
                 }
 
         val grade = quarters
-                .sortedBy { it.period.startDate }
+                .sortedBy { it.startDate }
                 .lastOrNull()
                 ?.gradeSum
                 ?.toGrade() ?: 0.0

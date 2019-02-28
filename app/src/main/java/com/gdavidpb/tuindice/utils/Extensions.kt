@@ -32,6 +32,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.gdavidpb.tuindice.data.model.app.Validation
+import com.gdavidpb.tuindice.data.model.database.QuarterEntity
+import com.gdavidpb.tuindice.data.model.database.SubjectEntity
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
@@ -48,9 +50,11 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlin.math.absoluteValue
 
 /* Live data */
 
@@ -121,6 +125,12 @@ suspend fun Task<Void>.await() = suspendCoroutine<Unit> { continuation ->
 suspend fun <TResult> Task<TResult>.await() = suspendCoroutine<TResult> { continuation ->
     addOnSuccessListener { continuation.resume(it) }
     addOnFailureListener { continuation.resumeWithException(it) }
+}
+
+fun CoroutineContext.async(task: suspend () -> Unit) {
+    CoroutineScope(this).launch {
+        task()
+    }
 }
 
 /* Validation */
@@ -286,6 +296,24 @@ fun String.toShortName(): String {
 }
 
 /* Utils */
+
+private val generationSet = (48..57).union(65..90).union(97..122).toList()
+
+fun QuarterEntity.generateId(): String {
+    val value = hashCode().absoluteValue
+
+    return String(userId.map { c ->
+        generationSet[(value xor c.toInt()) % generationSet.size].toChar()
+    }.toCharArray())
+}
+
+fun SubjectEntity.generateId(): String {
+    val value = hashCode().absoluteValue
+
+    return String(quarterId.map { c ->
+        generationSet[(value xor c.toInt()) % generationSet.size].toChar()
+    }.toCharArray())
+}
 
 fun X509Certificate.getProperty(key: String) = "(?<=$key=)[^,]+|$".toRegex().find(subjectDN.name)?.value
 

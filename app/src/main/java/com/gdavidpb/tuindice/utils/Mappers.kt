@@ -2,19 +2,20 @@ package com.gdavidpb.tuindice.utils
 
 import android.net.Uri
 import android.util.Base64
-import com.gdavidpb.tuindice.data.model.database.SummaryCredits
-import com.gdavidpb.tuindice.data.model.database.SummaryHeader
-import com.gdavidpb.tuindice.data.model.database.SummarySubjects
+import com.gdavidpb.tuindice.data.model.database.QuarterEntity
+import com.gdavidpb.tuindice.data.model.database.SubjectEntity
 import com.gdavidpb.tuindice.data.source.service.selector.DstAuthResponseSelector
 import com.gdavidpb.tuindice.data.source.service.selector.DstEnrollmentDataSelector
 import com.gdavidpb.tuindice.data.source.service.selector.DstPersonalDataSelector
 import com.gdavidpb.tuindice.data.source.service.selector.DstRecordDataSelector
 import com.gdavidpb.tuindice.domain.model.*
-import com.gdavidpb.tuindice.domain.model.service.DstCredentials
-import com.gdavidpb.tuindice.domain.model.service.DstPersonal
-import com.gdavidpb.tuindice.domain.model.service.DstRecord
+import com.gdavidpb.tuindice.domain.model.service.*
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.domain.usecase.request.ResetRequest
+import com.gdavidpb.tuindice.presentation.model.SummaryCredits
+import com.gdavidpb.tuindice.presentation.model.SummaryHeader
+import com.gdavidpb.tuindice.presentation.model.SummarySubjects
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import java.util.*
 
@@ -49,6 +50,14 @@ fun Account.toSummaryCredits(): SummaryCredits {
     )
 }
 
+fun QuarterEntity.toHeader(): String {
+    val start = startDate.toDate().format("MMM")?.capitalize()
+    val end = endDate.toDate().format("MMM")?.capitalize()
+    val year = startDate.toDate().format("yyyy")
+
+    return "$start - $end $year".replace("\\.".toRegex(), "")
+}
+
 /* Data layer */
 
 fun DocumentSnapshot.toAccount(): Account {
@@ -77,6 +86,29 @@ fun DocumentSnapshot.toAccount(): Account {
 }
 
 /* Service layer */
+
+fun DstQuarter.toQuarterEntity(uid: String): QuarterEntity {
+    return QuarterEntity(
+            userId = uid,
+            startDate = Timestamp(startDate),
+            endDate = Timestamp(endDate),
+            grade = grade,
+            gradeSum = gradeSum,
+            status = status
+    )
+}
+
+fun DstSubject.toSubjectEntity(uid: String, qid: String): SubjectEntity {
+    return SubjectEntity(
+            userId = uid,
+            quarterId = qid,
+            code = code,
+            name = name,
+            credits = credits,
+            grade = grade,
+            status = status
+    )
+}
 
 fun DstPersonalDataSelector.toPersonalData(): DstPersonal? {
     return selected

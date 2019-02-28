@@ -3,10 +3,10 @@ package com.gdavidpb.tuindice.ui.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.model.database.SummaryBase
-import com.gdavidpb.tuindice.data.model.database.SummaryCredits
-import com.gdavidpb.tuindice.data.model.database.SummaryHeader
-import com.gdavidpb.tuindice.data.model.database.SummarySubjects
+import com.gdavidpb.tuindice.presentation.model.SummaryBase
+import com.gdavidpb.tuindice.presentation.model.SummaryCredits
+import com.gdavidpb.tuindice.presentation.model.SummaryHeader
+import com.gdavidpb.tuindice.presentation.model.SummarySubjects
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.ui.adapters.base.BaseAdapter
 import com.gdavidpb.tuindice.ui.viewholders.SummaryCreditsViewHolder

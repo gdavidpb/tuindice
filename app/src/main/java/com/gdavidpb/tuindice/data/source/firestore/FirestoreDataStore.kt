@@ -4,8 +4,7 @@ import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
-import com.gdavidpb.tuindice.utils.COLLECTION_USER
-import com.gdavidpb.tuindice.utils.await
+import com.gdavidpb.tuindice.utils.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -44,6 +43,30 @@ open class FirestoreDataStore(
                 .document(uid)
 
         batch.set(userRef, data.stats, SetOptions.merge())
+
+        data.quarters.forEach { dstQuarter ->
+            val quarter = dstQuarter.toQuarterEntity(uid)
+
+            val quarterId = quarter.generateId()
+
+            val quarterRef = firestore
+                    .collection(COLLECTION_QUARTER)
+                    .document(quarterId)
+
+            batch.set(quarterRef, quarter)
+
+            dstQuarter.subjects.forEach { dstSubject ->
+                val subject = dstSubject.toSubjectEntity(uid = uid, qid = quarterId)
+
+                val subjectId = subject.generateId()
+
+                val subjectRef = firestore
+                        .collection(COLLECTION_SUBJECT)
+                        .document(subjectId)
+
+                batch.set(subjectRef, subject)
+            }
+        }
 
         batch.commit().await()
     }

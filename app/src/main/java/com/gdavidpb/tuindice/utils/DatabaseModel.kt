@@ -32,6 +32,9 @@ const val FIELD_USER_ENROLLED_SUBJECTS = "enrolledSubjects"
 /* Quarters collection */
 const val COLLECTION_QUARTER = "quarters"
 
+/* Subjects collection */
+const val COLLECTION_SUBJECT = "subjects"
+
 /* <--- Local database ---> */
 
 /* Table names */

@@ -58,27 +58,33 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tViewName"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_4"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-            android:textStyle="bold"
+            android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/lLayoutGrade"
-            tools:text="Gerardo Prado" />
+            app:layout_constraintTop_toBottomOf="@id/lLayoutGrade">
 
-        <TextView
-            android:id="@+id/tViewCareer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tViewName"
-            tools:text="Ingeniería de la Computación" />
+            <TextView
+                android:id="@+id/tViewName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/dp_4"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+                android:textStyle="bold"
+                tools:text="Gerardo Prado" />
+
+            <TextView
+                android:id="@+id/tViewCareer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+                tools:text="Ingeniería de la Computación" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

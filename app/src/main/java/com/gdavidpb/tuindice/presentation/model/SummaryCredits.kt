@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.model.database
+package com.gdavidpb.tuindice.presentation.model
 
 data class SummaryCredits(
         val enrolledCredits: Int,
