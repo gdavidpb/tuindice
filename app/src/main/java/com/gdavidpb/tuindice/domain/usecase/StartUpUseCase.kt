@@ -3,16 +3,17 @@ package com.gdavidpb.tuindice.domain.usecase
 import android.content.Intent
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
-import com.gdavidpb.tuindice.utils.async
 import com.gdavidpb.tuindice.utils.toResetRequest
 import kotlinx.coroutines.Dispatchers
 
 open class StartUpUseCase(
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
+        private val databaseRepository: DatabaseRepository,
         private val identifierRepository: IdentifierRepository
 ) : ResultUseCase<Intent, StartUpAction>(
         backgroundContext = Dispatchers.IO,
@@ -21,8 +22,7 @@ open class StartUpUseCase(
     override suspend fun executeOnBackground(params: Intent): StartUpAction? {
         val link = params.dataString
 
-        val lastUpdate = settingsRepository.getLastSync()
-        val activeAccount = authRepository.getActiveAccount(lastUpdate)
+        val activeAuth = authRepository.getActiveAuth()
         val passwordReset = authRepository.isResetLink(link)
         val awaitingForReset = settingsRepository.isAwaitingForReset()
 
@@ -36,22 +36,22 @@ open class StartUpUseCase(
 
                 authRepository.confirmPasswordReset(request.code, request.password)
 
-                val account = authRepository.signIn(email = request.email, password = request.password)
+                authRepository.signIn(email = request.email, password = request.password)
 
-                StartUpAction.Main(account = account)
+                StartUpAction.Main
             }
             awaitingForReset -> StartUpAction.Reset(email = email)
-            activeAccount != null -> {
+            activeAuth != null -> {
                 val token = identifierRepository.getIdentifier()
 
-                backgroundContext.async {
-                    authRepository.updateToken(token)
+                databaseRepository.networkTransaction {
+                    databaseRepository.updateToken(token)
                 }
 
                 if (authRepository.isEmailVerified())
-                    StartUpAction.Main(account = activeAccount)
+                    StartUpAction.Main
                 else
-                    StartUpAction.Verify(email = activeAccount.email)
+                    StartUpAction.Verify(email = activeAuth.email)
 
             }
             else -> StartUpAction.Login

@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.data.source.token.TokenDataStore
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentActivityViewModel
-import com.gdavidpb.tuindice.presentation.viewmodel.SummaryFragmentViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginActivityViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
 import com.gdavidpb.tuindice.utils.ENDPOINT_DST_ENROLLMENT
@@ -63,7 +62,6 @@ val appModule = module {
 
     viewModel<MainActivityViewModel>()
     viewModel<LoginActivityViewModel>()
-    viewModel<SummaryFragmentViewModel>()
     viewModel<EmailSentActivityViewModel>()
 
     /* Android Services */

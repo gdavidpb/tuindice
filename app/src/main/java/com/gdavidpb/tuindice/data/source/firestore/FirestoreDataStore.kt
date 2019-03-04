@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.data.source.firestore
 
+import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
@@ -8,11 +9,28 @@ import com.gdavidpb.tuindice.utils.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import java.util.*
 
 open class FirestoreDataStore(
         private val auth: FirebaseAuth,
         private val firestore: FirebaseFirestore
 ) : DatabaseRepository {
+    override suspend fun getAccountByUId(uid: String): Account {
+        return firestore
+                .collection(COLLECTION_USER)
+                .document(uid)
+                .get()
+                .await()
+                .toAccountEntity()
+                .toAccount(lastUpdate = Date())
+    }
+
+    override suspend fun getActiveAccount(): Account? {
+        return auth.uid?.let { uid ->
+            getAccountByUId(uid)
+        }
+    }
+
     override suspend fun updateAuthData(data: DstAuth) {
         val uid = auth.uid ?: return
 
@@ -69,5 +87,27 @@ open class FirestoreDataStore(
         }
 
         batch.commit().await()
+    }
+
+    override suspend fun updateToken(token: String) {
+        val uid = auth.uid ?: return
+
+        val userRef = firestore.collection(COLLECTION_USER).document(uid)
+
+        val values = mapOf(
+                FIELD_USER_TOKEN to token
+        )
+
+        userRef.set(values, SetOptions.merge()).await()
+    }
+
+    override suspend fun <T> networkTransaction(transaction: suspend DatabaseRepository.() -> T): T {
+        firestore.enableNetwork().await()
+
+        val result = transaction(this)
+
+        firestore.disableNetwork().await()
+
+        return result
     }
 }

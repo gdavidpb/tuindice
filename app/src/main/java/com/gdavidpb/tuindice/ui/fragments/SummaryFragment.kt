@@ -9,17 +9,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
-import com.gdavidpb.tuindice.presentation.viewmodel.SummaryFragmentViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.utils.observe
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 open class SummaryFragment : Fragment() {
 
-    private val viewModel: SummaryFragmentViewModel by viewModel()
+    private val viewModel: MainActivityViewModel by sharedViewModel()
 
     private val picasso: Picasso by inject()
 
@@ -36,15 +36,13 @@ open class SummaryFragment : Fragment() {
         rViewRecord.adapter = adapter
 
         with(viewModel) {
-            observe(loadAccount, ::loadAccountObserver)
+            observe(account, ::accountObserver)
 
             sRefreshRecord.setOnRefreshListener { loadAccount(trySync = true) }
-
-            loadAccount(trySync = false)
         }
     }
 
-    private fun loadAccountObserver(result: Result<Account>?) {
+    private fun accountObserver(result: Result<Account>?) {
         when (result) {
             is Result.OnLoading -> {
                 sRefreshRecord.isRefreshing = true

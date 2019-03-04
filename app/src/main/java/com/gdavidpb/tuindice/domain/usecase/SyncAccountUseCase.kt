@@ -1,16 +1,17 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.domain.repository.*
+import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
+import com.gdavidpb.tuindice.domain.repository.DstRepository
+import com.gdavidpb.tuindice.domain.repository.LocalStorageRepository
+import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.ENDPOINT_DST_RECORD_AUTH
 import kotlinx.coroutines.Dispatchers
-import java.util.*
 
 open class SyncAccountUseCase(
         private val dstRepository: DstRepository,
-        private val authRepository: AuthRepository,
         private val localStorageRepository: LocalStorageRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository
@@ -20,8 +21,9 @@ open class SyncAccountUseCase(
 ) {
     override suspend fun executeOnBackground(params: Boolean): Account? {
         val lastUpdate = settingsRepository.getLastSync()
-        val activeAccount = authRepository.getActiveAccount(lastUpdate)
         val isCooldown = settingsRepository.isSyncCooldown()
+        val activeAccount = databaseRepository.getActiveAccount()
+                ?.copy(lastUpdate = lastUpdate)
 
         if (activeAccount != null) {
             /* params -> trySync */
@@ -50,14 +52,16 @@ open class SyncAccountUseCase(
 
                     val recordData = dstRepository.getRecordData()
 
-                    if (personalData != null)
-                        databaseRepository.updatePersonalData(data = personalData)
-
-                    if (recordData != null)
-                        databaseRepository.updateRecordData(data = recordData)
-
                     /* Return updated account */
-                    return authRepository.getActiveAccount(lastUpdate = Date())
+                    return databaseRepository.networkTransaction {
+                        if (personalData != null)
+                            updatePersonalData(data = personalData)
+
+                        if (recordData != null)
+                            updateRecordData(data = recordData)
+
+                        getActiveAccount()
+                    }
                 }
             }
         }

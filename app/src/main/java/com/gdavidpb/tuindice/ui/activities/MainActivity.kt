@@ -8,6 +8,7 @@ import android.view.MenuItem
 import androidx.annotation.IdRes
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
+import androidx.fragment.app.Fragment
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.model.app.CircleTransform
 import com.gdavidpb.tuindice.domain.model.Account
@@ -39,6 +40,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         with(viewModel) {
             observe(logout, ::logoutObserver)
+            observe(account, ::accountObserver)
             observe(fetchStartUpAction, ::startUpObserver)
 
             fetchStartUpAction(intent)
@@ -69,7 +71,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         return true
     }
 
-    private fun onViewCreated() {
+    private fun initView() {
+        setContentView(R.layout.activity_main)
+
         setSupportActionBar(toolbar)
 
         ActionBarDrawerToggle(
@@ -88,6 +92,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 .forEach {
                     nav_view.menu.findItem(it).setActionView(R.layout.view_open)
                 }
+
+        loadFragment(R.id.nav_summary)
+
+        viewModel.loadAccount(false)
     }
 
     private fun logoutDialog() {
@@ -128,14 +136,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun loadAccount(account: Account) {
-        if (nav_view == null) {
-            setContentView(R.layout.activity_main)
-
-            onViewCreated()
-
-            loadFragment(R.id.nav_summary)
-        }
-
         val header = nav_view.getHeaderView(0)
 
         with(header) {
@@ -149,7 +149,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-    private fun loadFragment(@IdRes itemId: Int) {
+    private fun loadFragment(@IdRes itemId: Int, init: ((Fragment) -> Fragment)? = null) {
         if (nav_view.checkedItem == null)
             nav_view.setCheckedItem(itemId)
 
@@ -167,8 +167,18 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             supportFragmentManager
                     .beginTransaction()
                     .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
-                    .replace(R.id.content_fragment, fragment)
+                    .replace(R.id.content_fragment, init?.invoke(fragment) ?: fragment)
                     .commit()
+        }
+    }
+
+    private fun accountObserver(result: Result<Account>?) {
+        when (result) {
+            is Result.OnSuccess -> {
+                val account = result.value
+
+                loadAccount(account = account)
+            }
         }
     }
 
@@ -191,8 +201,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
                 when (value) {
                     is StartUpAction.Main -> {
-                        /* Load from database */
-                        loadAccount(account = value.account)
+                        initView()
                     }
                     is StartUpAction.Reset -> {
                         startActivity<EmailSentActivity>(

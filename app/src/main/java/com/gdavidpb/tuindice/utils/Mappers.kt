@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.presentation.model.SummaryCredits
 import com.gdavidpb.tuindice.presentation.model.SummaryHeader
 import com.gdavidpb.tuindice.presentation.model.SummarySubjects
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
 import java.util.*
 
@@ -111,6 +112,13 @@ fun AccountEntity.toAccount(lastUpdate: Date): Account {
             failedSubjects = failedSubjects,
             failedCredits = failedCredits,
             lastUpdate = lastUpdate
+    )
+}
+
+fun FirebaseUser.toAuth(): Auth {
+    return Auth(
+            uid = uid,
+            email = email ?: ""
     )
 }
 

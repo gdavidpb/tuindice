@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
@@ -36,15 +36,15 @@ open class LoginUseCase(
             /* Try to sign in to Firebase */
             runCatching {
                 authRepository.signIn(email = email, password = params.password)
-            }.onSuccess { account ->
-                storeAccount(account = account, request = params, response = authResponse)
+            }.onSuccess { auth ->
+                storeAccount(auth = auth, request = params, response = authResponse)
             }.onFailure { exception ->
                 if (exception is FirebaseAuthException) {
                     when (exception.errorCode) {
                         "ERROR_USER_NOT_FOUND" -> {
-                            val account = authRepository.signUp(email = email, password = params.password)
+                            val auth = authRepository.signUp(email = email, password = params.password)
 
-                            storeAccount(account = account, request = params, response = authResponse)
+                            storeAccount(auth = auth, request = params, response = authResponse)
                         }
                         "ERROR_WRONG_PASSWORD" -> {
                             settingsRepository.setIsAwaitingForReset(email = email, password = params.password)
@@ -61,10 +61,10 @@ open class LoginUseCase(
         return authResponse
     }
 
-    private suspend fun storeAccount(account: Account, request: AuthRequest, response: AuthResponse) {
+    private suspend fun storeAccount(auth: Auth, request: AuthRequest, response: AuthResponse) {
         val authData = DstAuth(
                 usbId = request.usbId,
-                email = account.email,
+                email = auth.email,
                 fullName = response.name
         )
 
@@ -73,6 +73,8 @@ open class LoginUseCase(
 
         settingsRepository.storeCredentials(credentials = request.toDstCredentials())
 
-        databaseRepository.updateAuthData(data = authData)
+        databaseRepository.networkTransaction {
+            updateAuthData(data = authData)
+        }
     }
 }

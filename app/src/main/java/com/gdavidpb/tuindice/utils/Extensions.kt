@@ -47,7 +47,6 @@ import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -122,12 +121,6 @@ suspend fun Task<Void>.await() = suspendCoroutine<Unit> { continuation ->
 suspend fun <TResult> Task<TResult>.await() = suspendCoroutine<TResult> { continuation ->
     addOnSuccessListener { continuation.resume(it) }
     addOnFailureListener { continuation.resumeWithException(it) }
-}
-
-fun CoroutineContext.async(task: suspend () -> Unit) {
-    CoroutineScope(this).launch {
-        task()
-    }
 }
 
 /* Validation */
