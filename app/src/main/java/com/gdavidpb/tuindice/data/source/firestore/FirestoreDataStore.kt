@@ -15,19 +15,19 @@ open class FirestoreDataStore(
         private val auth: FirebaseAuth,
         private val firestore: FirebaseFirestore
 ) : DatabaseRepository {
-    override suspend fun getAccountByUId(uid: String): Account {
+    override suspend fun getAccountByUId(uid: String, lastUpdate: Date): Account {
         return firestore
                 .collection(COLLECTION_USER)
                 .document(uid)
                 .get()
                 .await()
                 .toAccountEntity()
-                .toAccount(lastUpdate = Date())
+                .toAccount(lastUpdate)
     }
 
-    override suspend fun getActiveAccount(): Account? {
+    override suspend fun getActiveAccount(lastUpdate: Date): Account? {
         return auth.uid?.let { uid ->
-            getAccountByUId(uid)
+            getAccountByUId(uid, lastUpdate)
         }
     }
 
@@ -101,12 +101,22 @@ open class FirestoreDataStore(
         userRef.set(values, SetOptions.merge()).await()
     }
 
-    override suspend fun <T> networkTransaction(transaction: suspend DatabaseRepository.() -> T): T {
+    override suspend fun <T> remoteTransaction(transaction: suspend DatabaseRepository.() -> T): T {
         firestore.enableNetwork().await()
 
         val result = transaction(this)
 
         firestore.disableNetwork().await()
+
+        return result
+    }
+
+    override suspend fun <T> localTransaction(transaction: suspend DatabaseRepository.() -> T): T {
+        firestore.disableNetwork().await()
+
+        val result = transaction(this)
+
+        firestore.enableNetwork().await()
 
         return result
     }

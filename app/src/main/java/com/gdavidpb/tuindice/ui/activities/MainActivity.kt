@@ -95,7 +95,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         loadFragment(R.id.nav_summary)
 
-        viewModel.loadAccount(false)
+        viewModel.loadAccountFromCache()
     }
 
     private fun logoutDialog() {

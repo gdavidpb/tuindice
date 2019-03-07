@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.StartUpAction
+import com.gdavidpb.tuindice.domain.usecase.CacheAccountUseCase
 import com.gdavidpb.tuindice.domain.usecase.LogoutUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.SyncAccountUseCase
@@ -13,6 +14,7 @@ import com.gdavidpb.tuindice.utils.LiveResult
 class MainActivityViewModel(
         private val logoutUseCase: LogoutUseCase,
         private val startUpUseCase: StartUpUseCase,
+        private val cacheAccountUseCase: CacheAccountUseCase,
         private val syncAccountUseCase: SyncAccountUseCase
 ) : ViewModel() {
     val logout = LiveCompletable()
@@ -29,5 +31,9 @@ class MainActivityViewModel(
 
     fun loadAccount(trySync: Boolean) {
         syncAccountUseCase.execute(liveData = account, params = trySync)
+    }
+
+    fun loadAccountFromCache() {
+        cacheAccountUseCase.execute(liveData = account, params = Unit)
     }
 }

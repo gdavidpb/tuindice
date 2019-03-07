@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.ENDPOINT_DST_RECORD_AUTH
 import kotlinx.coroutines.Dispatchers
+import java.util.*
 
 open class SyncAccountUseCase(
         private val dstRepository: DstRepository,
@@ -22,15 +23,11 @@ open class SyncAccountUseCase(
     override suspend fun executeOnBackground(params: Boolean): Account? {
         val lastUpdate = settingsRepository.getLastSync()
         val isCooldown = settingsRepository.isSyncCooldown()
-        val activeAccount = databaseRepository.getActiveAccount()
-                ?.copy(lastUpdate = lastUpdate)
+        val activeAccount = databaseRepository.getActiveAccount(lastUpdate = lastUpdate)
 
         if (activeAccount != null) {
             /* params -> trySync */
             if (!isCooldown || params) {
-                /* Set sync cooldown */
-                settingsRepository.setSyncCooldown()
-
                 /* Clear cookies */
                 localStorageRepository.delete("cookies")
 
@@ -48,19 +45,22 @@ open class SyncAccountUseCase(
 
                 /* Syncing */
                 if (recordAuthResponse?.isSuccessful == true) {
+                    /* Set sync cooldown */
+                    settingsRepository.setSyncCooldown()
+
                     val personalData = dstRepository.getPersonalData()
 
                     val recordData = dstRepository.getRecordData()
 
                     /* Return updated account */
-                    return databaseRepository.networkTransaction {
+                    return databaseRepository.remoteTransaction {
                         if (personalData != null)
                             updatePersonalData(data = personalData)
 
                         if (recordData != null)
                             updateRecordData(data = recordData)
 
-                        getActiveAccount()
+                        getActiveAccount(lastUpdate = Date())
                     }
                 }
             }

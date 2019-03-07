@@ -38,6 +38,8 @@ open class SummaryFragment : Fragment() {
         with(viewModel) {
             observe(account, ::accountObserver)
 
+            loadAccount(false)
+
             sRefreshRecord.setOnRefreshListener { loadAccount(trySync = true) }
         }
     }

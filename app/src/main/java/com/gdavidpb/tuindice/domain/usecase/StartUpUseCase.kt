@@ -44,7 +44,7 @@ open class StartUpUseCase(
             activeAuth != null -> {
                 val token = identifierRepository.getIdentifier()
 
-                databaseRepository.networkTransaction {
+                databaseRepository.remoteTransaction {
                     databaseRepository.updateToken(token)
                 }
 

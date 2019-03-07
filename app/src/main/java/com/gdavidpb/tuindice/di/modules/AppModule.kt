@@ -216,6 +216,8 @@ val appModule = module {
 
     factory<LogoutUseCase>()
 
+    factory<CacheAccountUseCase>()
+
     factory<SyncAccountUseCase>()
 
     factory<StartUpUseCase>()
