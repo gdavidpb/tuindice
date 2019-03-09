@@ -2,10 +2,13 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.repository.*
-import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
+import com.gdavidpb.tuindice.domain.usecase.coroutines.ContinuousUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.ENDPOINT_DST_RECORD_AUTH
+import com.gdavidpb.tuindice.utils.LiveContinuous
+import com.gdavidpb.tuindice.utils.postNext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.*
 
 open class SyncAccountUseCase(
@@ -14,19 +17,24 @@ open class SyncAccountUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository
-) : ResultUseCase<Boolean, Account>(
+) : ContinuousUseCase<Boolean, Account>(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
 ) {
-    override suspend fun executeOnBackground(params: Boolean): Account? {
+    override suspend fun executeOnBackground(params: Boolean, liveData: LiveContinuous<Account>) {
         val activeAuth = authRepository.getActiveAuth()
         val lastUpdate = settingsRepository.getLastSync()
         val isCooldown = settingsRepository.isSyncCooldown()
 
-        return activeAuth?.let {
+        activeAuth?.also {
             val activeAccount = databaseRepository.localTransaction {
                 getAccount(uid = it.uid, lastUpdate = lastUpdate)
             }
+
+            if (activeAccount != null)
+                withContext(foregroundContext) {
+                    liveData.postNext(activeAccount)
+                }
 
             /* params -> trySync */
             if (!isCooldown || params) {
@@ -55,7 +63,7 @@ open class SyncAccountUseCase(
                     val recordData = dstRepository.getRecordData()
 
                     /* Return updated account */
-                    return databaseRepository.remoteTransaction {
+                    val updatedAccount = databaseRepository.remoteTransaction {
                         if (personalData != null)
                             updatePersonalData(uid = it.uid, data = personalData)
 
@@ -64,10 +72,13 @@ open class SyncAccountUseCase(
 
                         getAccount(uid = it.uid, lastUpdate = Date())
                     }
+
+                    if (updatedAccount != null)
+                        withContext(foregroundContext) {
+                            liveData.postNext(updatedAccount)
+                        }
                 }
             }
-
-            activeAccount
         }
     }
 }

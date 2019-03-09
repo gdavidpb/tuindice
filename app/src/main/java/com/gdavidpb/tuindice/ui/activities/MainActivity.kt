@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.data.model.app.CircleTransform
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
 import com.gdavidpb.tuindice.ui.fragments.*
@@ -94,8 +95,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 }
 
         loadFragment(R.id.nav_summary)
-
-        viewModel.loadAccountFromCache()
     }
 
     private fun logoutDialog() {
@@ -172,9 +171,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-    private fun accountObserver(result: Result<Account>?) {
+    private fun accountObserver(result: Continuous<Account>?) {
         when (result) {
-            is Result.OnSuccess -> {
+            is Continuous.OnNext -> {
                 val account = result.value
 
                 loadAccount(account = account)

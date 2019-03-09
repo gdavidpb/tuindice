@@ -1,8 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase.coroutines
 
-import com.gdavidpb.tuindice.utils.LiveContinuous
-import com.gdavidpb.tuindice.utils.postCancel
-import com.gdavidpb.tuindice.utils.postThrowable
+import com.gdavidpb.tuindice.utils.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -19,6 +17,8 @@ abstract class ContinuousUseCase<Q, T>(
 
     override fun execute(liveData: LiveContinuous<T>, params: Q) {
         CoroutineScope(foregroundContext + newJob()).launch {
+            liveData.postStart()
+
             runCatching {
                 withContext(backgroundContext) { executeOnBackground(params, liveData) }
             }.onFailure { throwable ->
@@ -27,6 +27,8 @@ abstract class ContinuousUseCase<Q, T>(
                     else -> liveData.postThrowable(throwable)
                 }
             }
+
+            liveData.postComplete()
         }
     }
 }

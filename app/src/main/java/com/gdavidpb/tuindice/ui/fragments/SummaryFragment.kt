@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.utils.observe
@@ -37,7 +37,6 @@ open class SummaryFragment : Fragment() {
 
         with(viewModel) {
             observe(account, ::accountObserver)
-            observe(accountCache, ::accountCacheObserver)
 
             loadAccount(false)
 
@@ -45,25 +44,18 @@ open class SummaryFragment : Fragment() {
         }
     }
 
-    private fun accountCacheObserver(result: Result<Account>?) {
+    private fun accountObserver(result: Continuous<Account>?) {
         when (result) {
-            is Result.OnSuccess -> {
-                adapter.setAccount(account = result.value)
-            }
-        }
-    }
-
-    private fun accountObserver(result: Result<Account>?) {
-        when (result) {
-            is Result.OnLoading -> {
+            is Continuous.OnStart -> {
                 sRefreshRecord.isRefreshing = true
             }
-            is Result.OnSuccess -> {
-                sRefreshRecord.isRefreshing = false
-
+            is Continuous.OnNext -> {
                 adapter.setAccount(account = result.value)
             }
-            is Result.OnError -> {
+            is Continuous.OnComplete -> {
+                sRefreshRecord.isRefreshing = false
+            }
+            is Continuous.OnError -> {
                 sRefreshRecord.isRefreshing = false
 
                 // todo failure show image on recycler

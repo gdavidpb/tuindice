@@ -91,6 +91,9 @@ fun LiveCompletable.postCancel() = postValue(Completable.OnCancel)
 
 /* LiveContinuous */
 
+@JvmName("postStartContinuous")
+fun <T> LiveContinuous<T>.postStart() = postValue(Continuous.OnStart())
+
 @JvmName("postNextContinuous")
 fun <T> LiveContinuous<T>.postNext(value: T) = postValue(Continuous.OnNext(value))
 
