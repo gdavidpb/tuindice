@@ -74,7 +74,7 @@ open class LoginUseCase(
         settingsRepository.storeCredentials(credentials = request.toDstCredentials())
 
         databaseRepository.remoteTransaction {
-            updateAuthData(data = authData)
+            updateAuthData(uid = auth.uid, data = authData)
         }
     }
 }

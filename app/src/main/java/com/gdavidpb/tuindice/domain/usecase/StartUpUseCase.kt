@@ -8,7 +8,9 @@ import com.gdavidpb.tuindice.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.utils.toResetRequest
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 open class StartUpUseCase(
         private val settingsRepository: SettingsRepository,
@@ -44,8 +46,10 @@ open class StartUpUseCase(
             activeAuth != null -> {
                 val token = identifierRepository.getIdentifier()
 
-                databaseRepository.remoteTransaction {
-                    databaseRepository.updateToken(token)
+                CoroutineScope(backgroundContext).launch {
+                    runCatching {
+                        databaseRepository.updateToken(uid = activeAuth.uid, token = token)
+                    }
                 }
 
                 if (authRepository.isEmailVerified())

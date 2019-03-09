@@ -6,16 +6,14 @@ import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.utils.*
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import java.util.*
 
 open class FirestoreDataStore(
-        private val auth: FirebaseAuth,
         private val firestore: FirebaseFirestore
 ) : DatabaseRepository {
-    override suspend fun getAccountByUId(uid: String, lastUpdate: Date): Account {
+    override suspend fun getAccount(uid: String, lastUpdate: Date): Account {
         return firestore
                 .collection(COLLECTION_USER)
                 .document(uid)
@@ -25,15 +23,7 @@ open class FirestoreDataStore(
                 .toAccount(lastUpdate)
     }
 
-    override suspend fun getActiveAccount(lastUpdate: Date): Account? {
-        return auth.uid?.let { uid ->
-            getAccountByUId(uid, lastUpdate)
-        }
-    }
-
-    override suspend fun updateAuthData(data: DstAuth) {
-        val uid = auth.uid ?: return
-
+    override suspend fun updateAuthData(uid: String, data: DstAuth) {
         val userRef = firestore
                 .collection(COLLECTION_USER)
                 .document(uid)
@@ -41,9 +31,7 @@ open class FirestoreDataStore(
         userRef.set(data, SetOptions.merge()).await()
     }
 
-    override suspend fun updatePersonalData(data: DstPersonal) {
-        val uid = auth.uid ?: return
-
+    override suspend fun updatePersonalData(uid: String, data: DstPersonal) {
         val userRef = firestore
                 .collection(COLLECTION_USER)
                 .document(uid)
@@ -51,9 +39,7 @@ open class FirestoreDataStore(
         userRef.set(data, SetOptions.merge()).await()
     }
 
-    override suspend fun updateRecordData(data: DstRecord) {
-        val uid = auth.uid ?: return
-
+    override suspend fun updateRecordData(uid: String, data: DstRecord) {
         val batch = firestore.batch()
 
         val userRef = firestore
@@ -89,9 +75,7 @@ open class FirestoreDataStore(
         batch.commit().await()
     }
 
-    override suspend fun updateToken(token: String) {
-        val uid = auth.uid ?: return
-
+    override suspend fun updateToken(uid: String, token: String) {
         val userRef = firestore.collection(COLLECTION_USER).document(uid)
 
         val values = mapOf(

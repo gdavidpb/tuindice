@@ -1,10 +1,7 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
-import com.gdavidpb.tuindice.domain.repository.DstRepository
-import com.gdavidpb.tuindice.domain.repository.LocalStorageRepository
-import com.gdavidpb.tuindice.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.ENDPOINT_DST_RECORD_AUTH
@@ -14,6 +11,7 @@ import java.util.*
 open class SyncAccountUseCase(
         private val dstRepository: DstRepository,
         private val localStorageRepository: LocalStorageRepository,
+        private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository
 ) : ResultUseCase<Boolean, Account>(
@@ -21,11 +19,15 @@ open class SyncAccountUseCase(
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: Boolean): Account? {
+        val activeAuth = authRepository.getActiveAuth()
         val lastUpdate = settingsRepository.getLastSync()
         val isCooldown = settingsRepository.isSyncCooldown()
-        val activeAccount = databaseRepository.getActiveAccount(lastUpdate = lastUpdate)
 
-        if (activeAccount != null) {
+        return activeAuth?.let {
+            val activeAccount = databaseRepository.localTransaction {
+                getAccount(uid = it.uid, lastUpdate = lastUpdate)
+            }
+
             /* params -> trySync */
             if (!isCooldown || params) {
                 /* Clear cookies */
@@ -55,17 +57,17 @@ open class SyncAccountUseCase(
                     /* Return updated account */
                     return databaseRepository.remoteTransaction {
                         if (personalData != null)
-                            updatePersonalData(data = personalData)
+                            updatePersonalData(uid = it.uid, data = personalData)
 
                         if (recordData != null)
-                            updateRecordData(data = recordData)
+                            updateRecordData(uid = it.uid, data = recordData)
 
-                        getActiveAccount(lastUpdate = Date())
+                        getAccount(uid = it.uid, lastUpdate = Date())
                     }
                 }
             }
-        }
 
-        return activeAccount
+            activeAccount
+        }
     }
 }

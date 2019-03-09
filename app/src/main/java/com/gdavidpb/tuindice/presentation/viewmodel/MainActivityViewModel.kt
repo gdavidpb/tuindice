@@ -19,6 +19,7 @@ class MainActivityViewModel(
 ) : ViewModel() {
     val logout = LiveCompletable()
     val fetchStartUpAction = LiveResult<StartUpAction>()
+    val accountCache = LiveResult<Account>()
     val account = LiveResult<Account>()
 
     fun logout() {
@@ -34,6 +35,6 @@ class MainActivityViewModel(
     }
 
     fun loadAccountFromCache() {
-        cacheAccountUseCase.execute(liveData = account, params = Unit)
+        cacheAccountUseCase.execute(liveData = accountCache, params = Unit)
     }
 }

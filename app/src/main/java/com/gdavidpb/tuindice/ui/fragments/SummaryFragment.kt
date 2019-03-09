@@ -37,10 +37,19 @@ open class SummaryFragment : Fragment() {
 
         with(viewModel) {
             observe(account, ::accountObserver)
+            observe(accountCache, ::accountCacheObserver)
 
             loadAccount(false)
 
             sRefreshRecord.setOnRefreshListener { loadAccount(trySync = true) }
+        }
+    }
+
+    private fun accountCacheObserver(result: Result<Account>?) {
+        when (result) {
+            is Result.OnSuccess -> {
+                adapter.setAccount(account = result.value)
+            }
         }
     }
 
