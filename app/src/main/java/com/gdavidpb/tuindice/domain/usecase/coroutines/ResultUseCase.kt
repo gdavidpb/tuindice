@@ -5,14 +5,14 @@ import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 abstract class ResultUseCase<Q, T>(
-        protected val backgroundContext: CoroutineContext,
-        protected val foregroundContext: CoroutineContext
+        override val backgroundContext: CoroutineContext,
+        override val foregroundContext: CoroutineContext
+) : BaseUseCase<Q, LiveResult<T>>(
+        backgroundContext, foregroundContext
 ) {
     protected abstract suspend fun executeOnBackground(params: Q): T?
 
-    private var parentJob = Job()
-
-    fun execute(liveData: LiveResult<T>, params: Q) {
+    override fun execute(liveData: LiveResult<T>, params: Q) {
         CoroutineScope(foregroundContext + newJob()).launch {
             liveData.postLoading()
 
@@ -28,16 +28,5 @@ abstract class ResultUseCase<Q, T>(
                 }
             }
         }
-    }
-
-    private fun newJob(): Job {
-        parentJob = parentJob.run {
-            cancelChildren()
-            cancel()
-
-            Job()
-        }
-
-        return parentJob
     }
 }

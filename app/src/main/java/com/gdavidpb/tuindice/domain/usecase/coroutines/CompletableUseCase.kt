@@ -5,14 +5,14 @@ import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
 abstract class CompletableUseCase<Q>(
-        protected val backgroundContext: CoroutineContext,
-        protected val foregroundContext: CoroutineContext
+        override val backgroundContext: CoroutineContext,
+        override val foregroundContext: CoroutineContext
+) : BaseUseCase<Q, LiveCompletable>(
+        backgroundContext, foregroundContext
 ) {
     protected abstract suspend fun executeOnBackground(params: Q)
 
-    private var parentJob = Job()
-
-    fun execute(liveData: LiveCompletable, params: Q) {
+    override fun execute(liveData: LiveCompletable, params: Q) {
         CoroutineScope(foregroundContext + newJob()).launch {
             liveData.postLoading()
 
@@ -27,16 +27,5 @@ abstract class CompletableUseCase<Q>(
                 }
             }
         }
-    }
-
-    private fun newJob(): Job {
-        parentJob = parentJob.run {
-            cancelChildren()
-            cancel()
-
-            Job()
-        }
-
-        return parentJob
     }
 }

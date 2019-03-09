@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ContinuousUseCase
+import com.gdavidpb.tuindice.utils.LiveContinuous
+import com.gdavidpb.tuindice.utils.postNext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -13,7 +15,7 @@ open class CountdownUseCase(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
 ) {
-    override suspend fun executeOnBackground(params: Boolean, onNext: (Long) -> Unit) {
+    override suspend fun executeOnBackground(params: Boolean, liveData: LiveContinuous<Long>) {
         val savedCountdown = settingsRepository.getCountdown()
 
         val (countdownExists, forceRestart) = listOf(savedCountdown != 0L, params)
@@ -26,7 +28,7 @@ open class CountdownUseCase(
             left = (currentCountdown - Date().time)
 
             withContext(foregroundContext) {
-                onNext(Math.max(0, left))
+                liveData.postNext(Math.max(0, left))
             }
 
             delay(1000)

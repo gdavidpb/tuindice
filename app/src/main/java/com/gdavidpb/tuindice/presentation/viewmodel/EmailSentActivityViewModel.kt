@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.domain.usecase.ResendResetEmailUseCase
 import com.gdavidpb.tuindice.domain.usecase.ResendVerifyEmailUseCase
 import com.gdavidpb.tuindice.utils.LiveCompletable
 import com.gdavidpb.tuindice.utils.LiveContinuous
-import com.gdavidpb.tuindice.utils.postNext
 
 class EmailSentActivityViewModel(
         private val resendResetEmailUseCase: ResendResetEmailUseCase,
@@ -19,7 +18,7 @@ class EmailSentActivityViewModel(
     val sendEmailVerification = LiveCompletable()
 
     fun startCountdown(forceRestart: Boolean = false) {
-        countdownUseCase.execute(liveData = countdown, params = forceRestart, onNext = countdown::postNext)
+        countdownUseCase.execute(liveData = countdown, params = forceRestart)
     }
 
     fun resetPassword() {
