@@ -1,12 +1,15 @@
 package com.gdavidpb.tuindice.data.source.firestore
 
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.utils.*
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import java.util.*
 
@@ -19,8 +22,35 @@ open class FirestoreDataStore(
                 .document(uid)
                 .get()
                 .await()
-                .toAccountEntity()
                 .toAccount(lastUpdate)
+    }
+
+    override suspend fun getQuarters(uid: String): List<Quarter> {
+        suspend fun getSubjectsMap(): Map<String, List<Subject>> {
+            return firestore
+                    .collection(COLLECTION_SUBJECT)
+                    .whereEqualTo(FIELD_SUBJECT_USER_ID, uid)
+                    .get()
+                    .await()
+                    .documents
+                    .map { it.toSubject() }
+                    .groupBy { it.qid }
+        }
+
+        val subjectsMap = getSubjectsMap()
+
+        return firestore
+                .collection(COLLECTION_QUARTER)
+                .whereEqualTo(FIELD_QUARTER_USER_ID, uid)
+                .orderBy(FIELD_QUARTER_START_DATE, Query.Direction.DESCENDING)
+                .get()
+                .await()
+                .documents
+                .map {
+                    val subjects = subjectsMap[it.id] ?: listOf()
+
+                    it.toQuarter(subjects)
+                }
     }
 
     override suspend fun updateAuthData(uid: String, data: DstAuth) {

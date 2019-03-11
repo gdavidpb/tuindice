@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.domain.usecase.ResendVerifyEmailUseCase
 import com.gdavidpb.tuindice.utils.LiveCompletable
 import com.gdavidpb.tuindice.utils.LiveContinuous
 
-class EmailSentActivityViewModel(
+class EmailSentViewModel(
         private val resendResetEmailUseCase: ResendResetEmailUseCase,
         private val resendVerifyEmailUseCase: ResendVerifyEmailUseCase,
         private val countdownUseCase: CountdownUseCase

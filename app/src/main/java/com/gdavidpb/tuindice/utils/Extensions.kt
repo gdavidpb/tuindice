@@ -31,9 +31,9 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.gdavidpb.tuindice.data.model.app.Validation
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
+import com.gdavidpb.tuindice.data.utils.Validation
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
@@ -271,12 +271,12 @@ fun Date.formatLastUpdate(): String {
     val diff = now.time - time
     val days = TimeUnit.MILLISECONDS.toDays(diff)
 
-    return when {
-        now.isToday() -> format("'Hoy,' hh:mm aa")
-        now.isYesterday() -> format("'Ayer,' hh:mm aa")
+    return (when {
+        isToday() -> format("'Hoy,' hh:mm aa")
+        isYesterday() -> format("'Ayer,' hh:mm aa")
         days <= 7 -> format("EEEE',' hh:mm aa")
         else -> format("dd 'de' MMMM yyyy")
-    } ?: "Nunca"
+    } ?: "Nunca").capitalize()
 }
 
 fun Long.toCountdown(): String {

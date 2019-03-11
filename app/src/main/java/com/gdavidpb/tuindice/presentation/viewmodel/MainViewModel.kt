@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.utils.LiveCompletable
 import com.gdavidpb.tuindice.utils.LiveContinuous
 import com.gdavidpb.tuindice.utils.LiveResult
 
-class MainActivityViewModel(
+class MainViewModel(
         private val logoutUseCase: LogoutUseCase,
         private val startUpUseCase: StartUpUseCase,
         private val syncAccountUseCase: SyncAccountUseCase

@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
-import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.utils.observe
 import com.squareup.picasso.Picasso
@@ -19,7 +19,7 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 open class SummaryFragment : Fragment() {
 
-    private val viewModel: MainActivityViewModel by sharedViewModel()
+    private val viewModel: MainViewModel by sharedViewModel()
 
     private val picasso: Picasso by inject()
 
@@ -32,31 +32,31 @@ open class SummaryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        rViewRecord.layoutManager = LinearLayoutManager(context)
-        rViewRecord.adapter = adapter
+        rViewSummary.layoutManager = LinearLayoutManager(context)
+        rViewSummary.adapter = adapter
 
         with(viewModel) {
             observe(account, ::accountObserver)
 
-            loadAccount(false)
+            loadAccount(trySync = false)
 
-            sRefreshRecord.setOnRefreshListener { loadAccount(trySync = true) }
+            sRefreshSummary.setOnRefreshListener { loadAccount(trySync = true) }
         }
     }
 
     private fun accountObserver(result: Continuous<Account>?) {
         when (result) {
             is Continuous.OnStart -> {
-                sRefreshRecord.isRefreshing = true
+                sRefreshSummary.isRefreshing = true
             }
             is Continuous.OnNext -> {
                 adapter.setAccount(account = result.value)
             }
             is Continuous.OnComplete -> {
-                sRefreshRecord.isRefreshing = false
+                sRefreshSummary.isRefreshing = false
             }
             is Continuous.OnError -> {
-                sRefreshRecord.isRefreshing = false
+                sRefreshSummary.isRefreshing = false
 
                 // todo failure show image on recycler
             }

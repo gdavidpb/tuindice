@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.model.app
+package com.gdavidpb.tuindice.data.utils
 
 import androidx.annotation.StringRes
 import com.google.android.material.textfield.TextInputLayout

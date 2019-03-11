@@ -35,6 +35,9 @@
     <string name="empty">Aquí no hay nada aún ;)</string>
 
     <!-- MainActivity -->
+    <string name="navigation_drawer_open">Abrir</string>
+    <string name="navigation_drawer_close">Cerrar</string>
+
     <string name="nav_summary">Resumen</string>
     <string name="nav_record">Informe Académico</string>
     <string name="nav_calendar">Calendario Académico</string>
@@ -55,6 +58,20 @@
     <string name="alertTitleLogout">Atención</string>
     <string name="alertMessageLogout">¿Estás seguro que deseas salir?</string>
 
+    <string name="selectorTitleReport">¿Cómo te podemos ayudar?</string>
+
+    <string-array name="selectorReportItems">
+        <item>Mi índice es incorrecto</item>
+        <item>No puedo descargar mi comprobante</item>
+        <item>Hay un error en mi expediente</item>
+        <item>Hay un error en mi pensum</item>
+        <item>No encuentro una materia</item>
+        <item>No encuentro mi pensum</item>
+        <item>No puedo crear/eliminar un trimestre</item>
+        <item>No puedo crear/eliminar una materia</item>
+        <item>Otro…</item>
+    </string-array>
+
     <!-- SummaryFragment -->
     <string name="text5">/ 5.0</string>
 
@@ -72,7 +89,26 @@
     <string name="label_credits_failed">Reprobados</string>
     <string name="label_credits_retired">Retirados</string>
 
+    <!-- RecordFragment -->
+    <string name="snackBar_message_quarter_removed">%1$s removido</string>
+    <string name="snackBar_action_quarter_removed">Deshacer</string>
+
+    <string name="quarterGradeDiff">Δx %1$.4f</string>
+    <string name="quarterGradeSum">∑x %1$.4f</string>
+    <string name="quarterCredits">⦿ %1$d Crs.</string>
+
+    <string name="subjectTitle">%1$s (%2$s)</string>
+    <string name="subjectGrade">%1$d / 5</string>
+    <string name="subjectCredits">%1$d Cr.</string>
+
+    <string name="dialogGuessTitle">Proyección</string>
+
+    <string name="hintGuessSearch">Código o nombre de la materia</string>
+
     <!-- EmailSentActivity -->
+    <string name="toastResend">Correo reenviado</string>
+    <string name="toastTryAgainLater">Intenta de nuevo más tarde</string>
+
     <string name="labelVerify">
         Verifica tu cuenta
     </string>
@@ -242,27 +278,9 @@
     </string>
 
     <!-- todo classify: from here -->
-
-    <!-- Snack bars -->
-    <string name="navigation_drawer_open">Abrir</string>
-    <string name="navigation_drawer_close">Cerrar</string>
-
     <string name="openEnrollment">Ver Comprobante</string>
     <string name="downloadEnrollment">Descargar Comprobante</string>
 
-    <string name="grade">%1$d / 5</string>
-    <string name="gradeSum"><b>∑x</b> %1$.4f</string>
-    <string name="gradeDiff"><b>Δx</b> %1$.4f</string>
-    <string name="quarterCredits"><b>⦿</b> %1$d Crs.</string>
-    <string name="subjectTitle">%1$s (%2$s)</string>
-    <string name="subjectCredits">%1$d Cr.</string>
-
-    <string name="dialogGuessTitle">Proyección</string>
-
-    <string name="hintGuessSearch">Código o nombre de la materia</string>
-
-    <string name="toastResend">Correo reenviado</string>
-    <string name="toastTryAgainLater">Intenta de nuevo más tarde</string>
     <string name="toastEnrollment">Archivo no soportado ;(</string>
     <!-- todo classify: to here -->
 

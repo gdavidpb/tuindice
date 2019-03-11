@@ -5,8 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import androidx.appcompat.widget.AppCompatSeekBar
 import android.util.AttributeSet
+import androidx.appcompat.widget.AppCompatSeekBar
 import com.gdavidpb.tuindice.R
 
 class CustomSeekBar(context: Context, attrs: AttributeSet)

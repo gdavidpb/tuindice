@@ -61,11 +61,12 @@ const val STATUS_QUARTER_COMPLETED = 1
 const val STATUS_QUARTER_GUESS = 2
 const val STATUS_QUARTER_RETIRED = 3
 
+const val STATUS_SUBJECT_OK = 0
+const val STATUS_SUBJECT_RETIRED = 1
+const val STATUS_QUARTER_NO_EFFECT = 2
+
 /* Default locale */
 val DEFAULT_LOCALE = Locale("es", "VE")
-
-/* Notification channels */
-const val CHANNEL_SERVICE = "CHANNEL_SERVICE"
 
 /* Times */
 const val TIME_COUNT_DOWN = 5 * 60 * 1000
@@ -80,8 +81,6 @@ const val VIEW_TYPE_SUMMARY_CREDITS = 2
 /* Extras */
 const val EXTRA_AWAITING_STATE = "EXTRA_AWAITING_STATE"
 const val EXTRA_AWAITING_EMAIL = "EXTRA_AWAITING_EMAIL"
-
-const val EXTRA_ACCOUNT = "EXTRA_ACCOUNT"
 
 const val FLAG_RESET = 1000
 const val FLAG_VERIFY = 1001

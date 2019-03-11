@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.utils
 
-/* <--- Remote database ---> */
-
 /* Firestore collections */
 
 /* Users collection */
@@ -32,19 +30,22 @@ const val FIELD_USER_ENROLLED_SUBJECTS = "enrolledSubjects"
 /* Quarters collection */
 const val COLLECTION_QUARTER = "quarters"
 
+/* Quarters collection fields */
+const val FIELD_QUARTER_USER_ID = "userId"
+const val FIELD_QUARTER_START_DATE = "startDate"
+const val FIELD_QUARTER_END_DATE = "endDate"
+const val FIELD_QUARTER_GRADE = "grade"
+const val FIELD_QUARTER_GRADE_SUM = "gradeSum"
+const val FIELD_QUARTER_STATUS = "status"
+
 /* Subjects collection */
 const val COLLECTION_SUBJECT = "subjects"
 
-/* <--- Local database ---> */
-
-/* Table names */
-const val TABLE_PRIORITIES = "priorities"
-
-/* Column names */
-
-/* For quarters table */
-const val COLUMN_TYPE = "status"
-const val COLUMN_START_TIME = "startDate"
-const val COLUMN_END_TIME = "endDate"
-const val COLUMN_GRADE = "grade"
-const val COLUMN_GRADE_SUM = "gradeSum"
+/* Subjects collection fields */
+const val FIELD_SUBJECT_USER_ID = "userId"
+const val FIELD_SUBJECT_QUARTER_ID = "quarterId"
+const val FIELD_SUBJECT_CODE = "code"
+const val FIELD_SUBJECT_NAME = "name"
+const val FIELD_SUBJECT_CREDITS = "credits"
+const val FIELD_SUBJECT_GRADE = "grade"
+const val FIELD_SUBJECT_STATUS = "status"

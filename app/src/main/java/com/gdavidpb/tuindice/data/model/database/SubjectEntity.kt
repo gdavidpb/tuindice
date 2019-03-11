@@ -7,5 +7,5 @@ data class SubjectEntity(
         val name: String,
         val credits: Int,
         val grade: Int,
-        val status: String
+        val status: Int
 )

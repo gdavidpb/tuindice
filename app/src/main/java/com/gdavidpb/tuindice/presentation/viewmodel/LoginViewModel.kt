@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.usecase.LoginUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 
-class LoginActivityViewModel(
+class LoginViewModel(
         private val loginUseCase: LoginUseCase
 ) : ViewModel() {
 

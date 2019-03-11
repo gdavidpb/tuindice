@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.domain.repository
 
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
@@ -8,6 +9,8 @@ import java.util.*
 
 interface DatabaseRepository {
     suspend fun getAccount(uid: String, lastUpdate: Date): Account?
+
+    suspend fun getQuarters(uid: String): List<Quarter>
 
     suspend fun updateAuthData(uid: String, data: DstAuth)
     suspend fun updatePersonalData(uid: String, data: DstPersonal)

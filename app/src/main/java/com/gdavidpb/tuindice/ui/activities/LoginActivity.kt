@@ -18,7 +18,7 @@ import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.exception.AuthException
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.presentation.viewmodel.LoginActivityViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.utils.*
 import kotlinx.android.synthetic.main.activity_login.*
 import org.jetbrains.anko.browse
@@ -33,7 +33,7 @@ class LoginActivity : BaseActivity(
         Manifest.permission.READ_EXTERNAL_STORAGE,
         Manifest.permission.WRITE_EXTERNAL_STORAGE
 ) {
-    private val viewModel: LoginActivityViewModel by viewModel()
+    private val viewModel: LoginViewModel by viewModel()
 
     private val connectivityManager: ConnectivityManager by inject()
 

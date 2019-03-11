@@ -10,11 +10,13 @@ import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
 import com.gdavidpb.tuindice.data.source.storage.DiskStorageDataStore
 import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataStore
 import com.gdavidpb.tuindice.data.source.token.TokenDataStore
+import com.gdavidpb.tuindice.data.utils.ResourcesManager
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
-import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentActivityViewModel
-import com.gdavidpb.tuindice.presentation.viewmodel.LoginActivityViewModel
-import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.utils.ENDPOINT_DST_ENROLLMENT
 import com.gdavidpb.tuindice.utils.ENDPOINT_DST_RECORD
 import com.gdavidpb.tuindice.utils.ENDPOINT_DST_SECURE
@@ -58,16 +60,32 @@ val appModule = module {
         androidContext().defaultSharedPreferences
     }
 
-    /* View Models */
-
-    viewModel<MainActivityViewModel>()
-    viewModel<LoginActivityViewModel>()
-    viewModel<EmailSentActivityViewModel>()
-
     /* Android Services */
 
     single {
         androidContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    }
+
+    /* Firebase */
+
+    single {
+        FirebaseStorage.getInstance()
+    }
+
+    single {
+        FirebaseFirestore.getInstance()
+    }
+
+    single {
+        FirebaseAnalytics.getInstance(get())
+    }
+
+    single {
+        FirebaseAuth.getInstance()
+    }
+
+    single {
+        FirebaseInstanceId.getInstance()
     }
 
     /* SSL */
@@ -172,61 +190,37 @@ val appModule = module {
                 .create(DstEnrollmentService::class.java) as DstEnrollmentService
     }
 
-    /* Firebase */
+    /* View Models */
 
-    single {
-        FirebaseStorage.getInstance()
-    }
-
-    single {
-        FirebaseFirestore.getInstance()
-    }
-
-    single {
-        FirebaseAnalytics.getInstance(get())
-    }
-
-    single {
-        FirebaseAuth.getInstance()
-    }
-
-    single {
-        FirebaseInstanceId.getInstance()
-    }
+    viewModel<MainViewModel>()
+    viewModel<LoginViewModel>()
+    viewModel<EmailSentViewModel>()
+    viewModel<RecordViewModel>()
 
     /* Factories */
 
     factoryBy<DstRepository, DstDataStore>()
-
     factoryBy<SettingsRepository, PreferencesDataStore>()
-
     factoryBy<LocalStorageRepository, DiskStorageDataStore>()
-
     factoryBy<RemoteStorageRepository, FirebaseStorageDataStore>()
-
     factoryBy<AuthRepository, FirebaseDataStore>()
-
     factoryBy<DatabaseRepository, FirestoreDataStore>()
-
     factoryBy<IdentifierRepository, TokenDataStore>()
 
     /* Use cases */
 
     factory<LoginUseCase>()
-
     factory<LogoutUseCase>()
-
     factory<SyncAccountUseCase>()
-
     factory<StartUpUseCase>()
-
     factory<ResendVerifyEmailUseCase>()
-
     factory<ResendResetEmailUseCase>()
-
     factory<CountdownUseCase>()
+    factory<GetQuartersUseCase>()
 
     /* Utils */
+
+    single<ResourcesManager>()
 
     single {
         Picasso.get()

@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
-import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentActivityViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
 import com.gdavidpb.tuindice.utils.*
 import kotlinx.android.synthetic.main.activity_email_sent.*
 import org.jetbrains.anko.longToast
@@ -15,7 +15,7 @@ import org.koin.android.ext.android.inject
 
 class EmailSentActivity : AppCompatActivity() {
 
-    private val viewModel: EmailSentActivityViewModel by inject()
+    private val viewModel: EmailSentViewModel by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

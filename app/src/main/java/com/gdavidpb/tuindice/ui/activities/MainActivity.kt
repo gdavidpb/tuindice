@@ -10,13 +10,13 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.model.app.CircleTransform
+import com.gdavidpb.tuindice.data.utils.CircleTransform
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
-import com.gdavidpb.tuindice.presentation.viewmodel.MainActivityViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.fragments.*
 import com.gdavidpb.tuindice.utils.*
 import com.google.android.material.navigation.NavigationView
@@ -30,7 +30,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private val viewModel: MainActivityViewModel by viewModel()
+    private val viewModel: MainViewModel by viewModel()
 
     private val picasso: Picasso by inject()
 
@@ -62,6 +62,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             R.id.nav_share -> share(text = getString(R.string.aboutShareMessage, packageName))
             R.id.nav_twitter -> browse(url = getString(R.string.devTwitter))
             R.id.nav_contact -> email(email = getString(R.string.devEmail), subject = getString(R.string.devContactSubject))
+            R.id.nav_report -> reportDialog()
             R.id.nav_about -> startActivity<AboutActivity>()
             R.id.nav_sign_out -> logoutDialog()
             else -> loadFragment(itemId)
@@ -95,6 +96,14 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 }
 
         loadFragment(R.id.nav_summary)
+    }
+
+    private fun reportDialog() {
+        val items = resources.getStringArray(R.array.selectorReportItems).toList()
+
+        selector(getString(R.string.selectorTitleReport), items) { _, selected ->
+            //todo show dialog, send to database
+        }
     }
 
     private fun logoutDialog() {

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.model.app
+package com.gdavidpb.tuindice.data.utils
 
 import android.graphics.*
 import com.squareup.picasso.Transformation
