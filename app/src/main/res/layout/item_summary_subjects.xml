@@ -10,14 +10,16 @@
     app:cardPreventCornerOverlap="true"
     app:cardUseCompatPadding="true">
 
-    <FrameLayout
-        android:layout_width="@dimen/dp_4"
+    <View
+        android:layout_width="@dimen/dp_8"
         android:layout_height="match_parent"
         android:background="@color/colorPrimary" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_8"
+        android:layout_marginLeft="@dimen/dp_8"
         android:paddingStart="@dimen/dp_16"
         android:paddingTop="@dimen/dp_8"
         android:paddingEnd="@dimen/dp_16"

@@ -10,14 +10,16 @@
     app:cardPreventCornerOverlap="true"
     app:cardUseCompatPadding="true">
 
-    <FrameLayout
-        android:layout_width="@dimen/dp_4"
+    <View
+        android:layout_width="@dimen/dp_8"
         android:layout_height="match_parent"
         android:background="@color/colorPrimary" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_8"
+        android:layout_marginLeft="@dimen/dp_8"
         android:paddingStart="@dimen/dp_16"
         android:paddingTop="@dimen/dp_8"
         android:paddingEnd="@dimen/dp_16"
@@ -46,7 +48,7 @@
                 android:layout_height="@dimen/dp_6"
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0"
-                tools:layout_constraintGuide_percent=".8" />
+                tools:layout_constraintGuide_percent=".6" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guidelineFailed"
@@ -54,7 +56,7 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0"
-                tools:layout_constraintGuide_percent=".9" />
+                tools:layout_constraintGuide_percent=".8" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guidelineRetired"

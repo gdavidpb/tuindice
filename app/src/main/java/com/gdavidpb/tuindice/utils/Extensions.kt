@@ -271,12 +271,13 @@ fun Date.formatLastUpdate(): String {
     val diff = now.time - time
     val days = TimeUnit.MILLISECONDS.toDays(diff)
 
-    return (when {
+    return when {
+        time == 0L -> "Nunca"
         isToday() -> format("'Hoy,' hh:mm aa")
         isYesterday() -> format("'Ayer,' hh:mm aa")
         days <= 7 -> format("EEEE',' hh:mm aa")
         else -> format("dd 'de' MMMM yyyy")
-    } ?: "Nunca").capitalize()
+    }?.capitalize() ?: "-"
 }
 
 fun Long.toCountdown(): String {
