@@ -55,8 +55,6 @@ open class RecordFragment : Fragment() {
             ItemTouchHelper(quarterManager).attachToRecyclerView(this)
         }
 
-        sRefreshRecord.isEnabled = false
-
         with(viewModel) {
             observe(quarters, ::quartersObserver)
 
@@ -67,10 +65,10 @@ open class RecordFragment : Fragment() {
     private fun quartersObserver(result: Result<List<Quarter>>?) {
         when (result) {
             is Result.OnLoading -> {
-                sRefreshRecord.isRefreshing = true
+                pBarRecord.visibility = View.VISIBLE
             }
             is Result.OnSuccess -> {
-                sRefreshRecord.isRefreshing = false
+                pBarRecord.visibility = View.GONE
 
                 val quarters = result.value
 
@@ -79,7 +77,7 @@ open class RecordFragment : Fragment() {
                 //todo empty
             }
             is Result.OnError -> {
-                sRefreshRecord.isRefreshing = false
+                pBarRecord.visibility = View.GONE
 
                 //todo handle error
             }

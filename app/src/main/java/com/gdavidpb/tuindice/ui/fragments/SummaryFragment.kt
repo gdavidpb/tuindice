@@ -39,24 +39,22 @@ open class SummaryFragment : Fragment() {
             observe(account, ::accountObserver)
 
             loadAccount(trySync = false)
-
-            sRefreshSummary.setOnRefreshListener { loadAccount(trySync = true) }
         }
     }
 
     private fun accountObserver(result: Continuous<Account>?) {
         when (result) {
             is Continuous.OnStart -> {
-                sRefreshSummary.isRefreshing = true
+                pBarSummary.visibility = View.VISIBLE
             }
             is Continuous.OnNext -> {
                 adapter.setAccount(account = result.value)
             }
             is Continuous.OnComplete -> {
-                sRefreshSummary.isRefreshing = false
+                pBarSummary.visibility = View.GONE
             }
             is Continuous.OnError -> {
-                sRefreshSummary.isRefreshing = false
+                pBarSummary.visibility = View.GONE
 
                 // todo failure show image on recycler
             }
