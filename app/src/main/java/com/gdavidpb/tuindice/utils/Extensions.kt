@@ -18,6 +18,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.CycleInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.EditText
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
@@ -34,6 +35,8 @@ import androidx.lifecycle.Observer
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
 import com.gdavidpb.tuindice.data.utils.Validation
+import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
@@ -195,6 +198,22 @@ fun View.onClickOnce(onClick: () -> Unit) {
     })
 }
 
+fun SeekBar.onSeekBarChange(listener: (progress: Int, fromUser: Boolean) -> Unit) {
+    setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+            listener(progress, fromUser)
+        }
+
+        override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+        }
+
+        override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+        }
+    })
+}
+
 fun TextInputLayout.selectAll() = editText?.selectAll()
 
 fun EditText.drawables(
@@ -306,6 +325,65 @@ fun String.toShortName(): String {
     }.run {
         joinToString(" ") { array[it] }
     }
+}
+
+/* Computation */
+
+fun Quarter.computeGrade(): Double {
+    return subjects.computeGrade()
+}
+
+fun Quarter.computeCredits(): Int {
+    return subjects.computeCredits()
+}
+
+fun Subject.isApproved(): Boolean {
+    return grade >= 3
+}
+
+fun Collection<Subject>.computeGrade(): Double {
+    val creditsSum = sumBy {
+        if (it.grade != 0) it.credits else 0
+    }.toDouble()
+
+    val weightedSum = sumBy {
+        it.grade * it.credits
+    }.toDouble()
+
+    return if (creditsSum != 0.0) weightedSum / creditsSum else 0.0
+}
+
+fun Collection<Subject>.computeCredits(): Int {
+    return sumBy {
+        if (it.grade != 0) it.credits else 0
+    }
+}
+
+private val gradeSumCache = hashMapOf<Int, Double>()
+
+private fun Collection<Quarter>.internalComputeGradeSum(until: Quarter): Double {
+    /* Until quarter and not take retired */
+    return filter { it.startDate <= until.startDate && it.status != STATUS_QUARTER_RETIRED }
+            /* Get all subjects */
+            .flatMap { it.subjects }
+            /* No take retired subjects */
+            .filter { it.status != STATUS_SUBJECT_RETIRED }
+            .groupBy { it.code }
+            .map { (_, subjects) ->
+                if (subjects.size > 1)
+                    subjects.toMutableList().also {
+                        /* if last seen subject were approved, remove previous */
+                        if (it[0].isApproved())
+                            it.removeAt(1)
+                    }
+                else
+                    subjects
+            }.flatten()
+            .computeGrade()
+}
+
+fun Collection<Quarter>.computeGradeSum(until: Quarter): Double {
+    return gradeSumCache.getOrPut(until.hashCode()) { internalComputeGradeSum(until) }
 }
 
 /* Utils */

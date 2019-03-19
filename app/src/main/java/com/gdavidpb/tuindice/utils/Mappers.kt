@@ -62,11 +62,11 @@ fun Account.toSummaryCredits(): SummaryCredits {
 }
 
 fun Subject.toSubjectCode(context: Context): CharSequence {
-    return if (status == STATUS_SUBJECT_OK)
+    return if (status == STATUS_SUBJECT_OK && grade != 0)
         code
     else
         buildSpanned {
-            val content = context.getString(R.string.subjectTitle, code, status.toSubjectStatusDescription())
+            val content = context.getString(R.string.subjectTitle, code, toSubjectStatusDescription())
             val colorSecondary = ContextCompat.getColor(context, R.color.colorSecondaryText)
 
             append(content.substringBefore(' '))
@@ -176,9 +176,9 @@ fun DocumentSnapshot.toQuarter(subjects: List<Subject>): Quarter {
             endDate = getTimestamp(FIELD_QUARTER_END_DATE)?.toDate() ?: Date(),
             grade = getDouble(FIELD_QUARTER_GRADE) ?: 0.0,
             gradeSum = getDouble(FIELD_QUARTER_GRADE_SUM) ?: 0.0,
-            credits = subjects.sumBy { it.credits },
+            credits = subjects.computeCredits(),
             status = getLong(FIELD_QUARTER_STATUS)?.toInt() ?: 0,
-            subjects = subjects
+            subjects = subjects.toMutableList()
     )
 }
 
@@ -196,11 +196,11 @@ fun DocumentSnapshot.toSubject(): Subject {
 
 /* Service layer */
 
-fun Int.toSubjectStatusDescription(): String {
-    return when (this) {
+fun Subject.toSubjectStatusDescription(): String {
+    return when (status) {
         STATUS_SUBJECT_OK -> ""
         STATUS_SUBJECT_RETIRED -> "Retirada"
-        STATUS_QUARTER_NO_EFFECT -> "Sin efecto"
+        STATUS_SUBJECT_NO_EFFECT -> "Sin efecto"
         else -> throw IllegalArgumentException("status")
     }
 }
@@ -209,9 +209,32 @@ fun String.toSubjectStatusValue(): Int {
     return when (this) {
         "" -> STATUS_SUBJECT_OK
         "Retirada" -> STATUS_SUBJECT_RETIRED
-        "Sin Efecto" -> STATUS_QUARTER_NO_EFFECT
+        "Sin Efecto" -> STATUS_SUBJECT_NO_EFFECT
         else -> throw IllegalArgumentException("status")
     }
+}
+
+fun DstEnrollment.toQuarterEntity(uid: String): QuarterEntity {
+    return QuarterEntity(
+            userId = uid,
+            startDate = Timestamp(startDate),
+            endDate = Timestamp(endDate),
+            grade = 5.0,
+            gradeSum = 0.0,
+            status = STATUS_QUARTER_CURRENT
+    )
+}
+
+fun ScheduleSubject.toSubjectEntity(uid: String, qid: String): SubjectEntity {
+    return SubjectEntity(
+            userId = uid,
+            quarterId = qid,
+            code = code,
+            name = name,
+            credits = credits,
+            grade = 5,
+            status = STATUS_SUBJECT_OK
+    )
 }
 
 fun DstQuarter.toQuarterEntity(uid: String): QuarterEntity {
@@ -271,56 +294,56 @@ fun DstAuthResponseSelector.toAuthResponse(): AuthResponse {
     )
 }
 
-fun DstEnrollmentDataSelector.toEnrollment(): Enrollment {
-    val default = Date(0)
+fun DstEnrollmentDataSelector.toEnrollment(): DstEnrollment {
+    val defaultDate = Date(0)
 
-    val period = period.run {
-        Period(
-                startDate = startDate,
-                endDate = endDate
-        )
-    }
+    val defaultQuarterCalendar = QuarterCalendar(
+            defaultDate, defaultDate, defaultDate,
+            defaultDate, defaultDate, defaultDate,
+            defaultDate, defaultDate, defaultDate,
+            defaultDate)
 
-    val schedule = schedule.run {
+    val schedule = schedule?.run {
         map {
             ScheduleSubject(
                     code = it.code,
                     section = it.section,
                     name = it.name,
                     credits = it.credits,
-                    classroom = it.classroom,
                     schedule = it.schedule.map { entry ->
                         ScheduleEntry(
                                 entry.dayOfWeek,
                                 entry.startAt,
-                                entry.endAt
+                                entry.endAt,
+                                entry.classroom
                         )
                     }
             )
         }
     }
 
-    val calendar = calendar.run {
+    val calendar = calendar?.run {
         QuarterCalendar(
-                startDate ?: default,
-                endDate ?: default,
-                correctionDate ?: default,
-                giveUpDeadline ?: default,
-                degreeRequestDeadline ?: default,
-                graduationStartDate ?: default,
-                graduationEndDate ?: default,
-                documentsRequestDeadline ?: default,
-                nextEnrollmentDate ?: default,
-                minutesDeliveryDeadline ?: default
+                startDate ?: defaultDate,
+                endDate ?: defaultDate,
+                correctionDate ?: defaultDate,
+                giveUpDeadline ?: defaultDate,
+                degreeRequestDeadline ?: defaultDate,
+                graduationStartDate ?: defaultDate,
+                graduationEndDate ?: defaultDate,
+                documentsRequestDeadline ?: defaultDate,
+                nextEnrollmentDate ?: defaultDate,
+                minutesDeliveryDeadline ?: defaultDate
         )
     }
 
-    return Enrollment(
-            period = period,
-            calendar = calendar,
-            schedule = schedule,
-            globalStatus = globalStatus,
-            enrollmentStatus = enrollmentStatus
+    return DstEnrollment(
+            startDate = period?.startDate ?: defaultDate,
+            endDate = period?.endDate ?: defaultDate,
+            calendar = calendar ?: defaultQuarterCalendar,
+            schedule = schedule ?: listOf(),
+            globalStatus = globalStatus ?: "",
+            enrollmentStatus = enrollmentStatus ?: ""
     )
 }
 

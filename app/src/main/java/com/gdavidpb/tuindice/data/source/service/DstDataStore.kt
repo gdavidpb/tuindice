@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.source.service
 
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
-import com.gdavidpb.tuindice.domain.model.Enrollment
+import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.exception.AuthException
 import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
@@ -32,8 +32,12 @@ open class DstDataStore(
         return response?.toRecord()
     }
 
-    override suspend fun getEnrollment(): Enrollment? {
-        val response = enrollmentService.getEnrollment().execute().body()
+    override suspend fun getEnrollment(): DstEnrollment? {
+        val response = runCatching {
+            enrollmentService.getEnrollment().execute().body()
+        }.onFailure {
+            it
+        }.getOrNull()
 
         return response?.toEnrollment()
     }

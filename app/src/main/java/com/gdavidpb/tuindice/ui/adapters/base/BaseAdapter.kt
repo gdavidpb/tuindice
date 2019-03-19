@@ -30,14 +30,25 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder<T>>() {
         return items[position]
     }
 
-    open fun removeItemAt(position: Int) {
+    open fun removeItemAt(position: Int, notifyChange: Boolean = true) {
         items.removeAt(position)
-        notifyItemRemoved(position)
+
+        if (notifyChange)
+            notifyItemRemoved(position)
     }
 
-    open fun addItemAt(item: T, position: Int) {
+    open fun addItemAt(item: T, position: Int, notifyChange: Boolean = true) {
         items.add(position, item)
-        notifyItemInserted(position)
+
+        if (notifyChange)
+            notifyItemInserted(position)
+    }
+
+    open fun replaceItemAt(item: T, position: Int, notifyChange: Boolean = true) {
+        items[position] = item
+
+        if (notifyChange)
+            notifyItemChanged(position)
     }
 
     private inner class GenericDiffUtil(

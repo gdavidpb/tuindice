@@ -37,17 +37,22 @@ open class DstCalendarConverter : ElementConverter<DstQuarterCalendar> {
                             .parse("dd 'de' MMM yyyy")
                 }
 
-        val (graduationStartDate, graduationEndDate) = values[4]
-                .split(",")
-                .map {
-                    "$it/$year"
-                            .parse("dd/MM/yyyy")
-                }
+        val (graduationStartDate, graduationEndDate) = if (values[4] != "-")
+            values[4]
+                    .split(",")
+                    .map {
+                        "$it/$year"
+                                .parse("dd/MM/yyyy")
+                    }
+        else
+            listOf(null, null)
 
         val (documentsRequestDeadline, nextEnrollmentDate, minutesDeliveryDeadline) = values
                 .subList(5, 8)
                 .map {
-                    "$it $year"
+                    val sub = it.substringBefore("-").trim() //todo improve
+
+                    "$sub $year"
                             .toLowerCase()
                             .normalize()
                             .parse("dd 'de' MMM yyyy")

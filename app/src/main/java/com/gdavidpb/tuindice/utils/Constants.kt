@@ -63,7 +63,7 @@ const val STATUS_QUARTER_RETIRED = 3
 
 const val STATUS_SUBJECT_OK = 0
 const val STATUS_SUBJECT_RETIRED = 1
-const val STATUS_QUARTER_NO_EFFECT = 2
+const val STATUS_SUBJECT_NO_EFFECT = 2
 
 /* Default locale */
 val DEFAULT_LOCALE = Locale("es", "VE")

@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.utils.ResourcesManager
 import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
@@ -74,6 +75,8 @@ open class RecordFragment : Fragment() {
                 val quarters = result.value
 
                 quarterAdapter.swapItems(new = quarters)
+
+                //todo empty
             }
             is Result.OnError -> {
                 sRefreshRecord.isRefreshing = false
@@ -84,6 +87,20 @@ open class RecordFragment : Fragment() {
     }
 
     inner class QuarterManager : QuarterAdapter.AdapterCallback, ItemTouchHelper.Callback() {
+        override fun onSubjectChanged(item: Subject) {
+            viewModel.updateSubject(subject = item)
+        }
+
+        override fun onQuarterChanged(item: Quarter, position: Int) {
+            quarterAdapter.replaceItemAt(item, position, false)
+        }
+
+        override fun computeGradeSum(quarter: Quarter): Double {
+            val quarters = quarterAdapter.getQuarters()
+
+            return quarters.computeGradeSum(until = quarter)
+        }
+
         override fun resolveColor(item: Quarter): Int {
             val colorRes = when (item.status) {
                 STATUS_QUARTER_CURRENT -> R.color.quarterCurrent

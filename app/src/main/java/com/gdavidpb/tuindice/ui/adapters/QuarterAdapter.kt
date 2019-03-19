@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.ui.adapters.base.BaseAdapter
 import com.gdavidpb.tuindice.ui.viewholders.QuarterViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
@@ -15,11 +16,20 @@ open class QuarterAdapter(
 ) : BaseAdapter<Quarter>() {
 
     interface AdapterCallback {
+        fun onSubjectChanged(item: Subject)
+        fun onQuarterChanged(item: Quarter, position: Int)
+
+        fun computeGradeSum(quarter: Quarter): Double
+
         fun resolveColor(item: Quarter): Int
     }
 
+    fun getQuarters(): List<Quarter> {
+        return items.toList()
+    }
+
     private val averageSubjects by lazy {
-        (items.sumBy { it.subjects.size } / items.size.toFloat()).roundToInt()
+        if (items.isNotEmpty()) (items.sumBy { it.subjects.size } / items.size.toFloat()).roundToInt() else 0
     }
 
     override fun provideComparator() = compareBy(Quarter::id)

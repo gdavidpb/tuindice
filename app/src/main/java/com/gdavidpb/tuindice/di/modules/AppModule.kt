@@ -217,6 +217,7 @@ val appModule = module {
     factory<ResendResetEmailUseCase>()
     factory<CountdownUseCase>()
     factory<GetQuartersUseCase>()
+    factory<UpdateSubjectUseCase>()
 
     /* Utils */
 

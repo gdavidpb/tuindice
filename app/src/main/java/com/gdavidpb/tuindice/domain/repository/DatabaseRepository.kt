@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.domain.repository
 
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
-import com.gdavidpb.tuindice.domain.model.service.DstPersonal
-import com.gdavidpb.tuindice.domain.model.service.DstRecord
+import com.gdavidpb.tuindice.domain.model.service.DstData
 import java.util.*
 
 interface DatabaseRepository {
@@ -12,10 +12,11 @@ interface DatabaseRepository {
 
     suspend fun getQuarters(uid: String): List<Quarter>
 
-    suspend fun updateAuthData(uid: String, data: DstAuth)
-    suspend fun updatePersonalData(uid: String, data: DstPersonal)
-    suspend fun updateRecordData(uid: String, data: DstRecord)
+    suspend fun updateSubject(subject: Subject)
+
     suspend fun updateToken(uid: String, token: String)
+    suspend fun updateAuthData(uid: String, data: DstAuth)
+    suspend fun updateData(uid: String, data: Collection<DstData>)
 
     suspend fun <T> remoteTransaction(transaction: suspend DatabaseRepository.() -> T): T
     suspend fun <T> localTransaction(transaction: suspend DatabaseRepository.() -> T): T

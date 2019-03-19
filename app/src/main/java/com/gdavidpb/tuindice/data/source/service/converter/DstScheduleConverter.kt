@@ -10,35 +10,58 @@ open class DstScheduleConverter : ElementConverter<List<DstScheduledSubject>> {
     override fun convert(node: Element, selector: Selector): List<DstScheduledSubject> {
         return node
                 .select("td")
-                .map { it.text() }
-                .chunked(11)
-                .map {
-                    val code = it[0]
+                .fold(mutableListOf<MutableList<String>>()) { acc, element ->
+                    val x = element.text()
+
+                    val start = x.matches("^[A-Z0-9]+ \\[\\+]$".toRegex())
+
+                    if (acc.isEmpty() || start)
+                        acc.add(mutableListOf(x))
+                    else
+                        acc.last().add(x)
+
+                    acc
+                }.map { list ->
+                    val code = list
+                            .first()
                             .replace("[^A-Z0-9]".toRegex(), "")
 
-                    val name = it[10]
-                            .replace("^[^\\s]+".toRegex(), "")
+                    val name = list
+                            .last()
+                            .substringAfter(" ")
                             .trim()
 
-                    val classroom = it[3]
+                    val section = list[1].toIntOrNull() ?: 0
 
-                    val (section, credits) = it
-                            .subList(1, 3)
-                            .map { value -> value.toInt() }
+                    val credits = list[2].toIntOrNull() ?: 0
 
-                    val schedule = it
-                            .subList(4, 10)
-                            .mapIndexedNotNull { index, s ->
-                                if (s.isNotEmpty()) {
-                                    /* Calendar dayOfWeek transformation */
+                    val schedule = list
+                            .slice(3 until list.size - 1)
+                            .chunked(7)
+                            .flatMap {
+                                val classroom = it.first()
+
+                                it.slice(1 until it.size).mapIndexedNotNull { index, s ->
                                     val dayOfWeek = index + 2
-                                    val (startAt, endAt) = s
-                                            .split("-")
-                                            .map { value -> value.toInt() }
 
-                                    DstScheduleEntry(dayOfWeek, startAt, endAt)
-                                } else
-                                    null
+                                    val (startAt, endAt) = when {
+                                        s.isBlank() -> listOf(0, 0)
+                                        s.contains("-") -> s.split("-").map { x ->
+                                            x.toIntOrNull() ?: 0
+                                        }
+                                        else -> listOf(s.toIntOrNull() ?: 0, s.toIntOrNull() ?: 0)
+                                    }
+
+                                    if (startAt != 0 && endAt != 0)
+                                        DstScheduleEntry(
+                                                dayOfWeek = dayOfWeek,
+                                                startAt = startAt,
+                                                endAt = endAt,
+                                                classroom = classroom
+                                        )
+                                    else
+                                        null
+                                }
                             }
 
                     DstScheduledSubject(
@@ -46,7 +69,6 @@ open class DstScheduleConverter : ElementConverter<List<DstScheduledSubject>> {
                             section = section,
                             name = name,
                             credits = credits,
-                            classroom = classroom,
                             schedule = schedule
                     )
                 }

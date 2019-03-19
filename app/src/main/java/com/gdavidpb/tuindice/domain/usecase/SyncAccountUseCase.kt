@@ -1,9 +1,11 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.model.service.DstData
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ContinuousUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
+import com.gdavidpb.tuindice.utils.ENDPOINT_DST_ENROLLMENT_AUTH
 import com.gdavidpb.tuindice.utils.ENDPOINT_DST_RECORD_AUTH
 import com.gdavidpb.tuindice.utils.LiveContinuous
 import com.gdavidpb.tuindice.utils.postNext
@@ -38,13 +40,16 @@ open class SyncAccountUseCase(
 
             /* params -> trySync */
             if (!isCooldown || params) {
-                /* Clear cookies */
-                localStorageRepository.delete("cookies")
-
                 /* Get credentials */
                 val credentials = settingsRepository.getCredentials()
 
-                /* Auth to get account */
+                /* Collected data */
+                val collectedData = mutableListOf<DstData>()
+
+                /* Clear cookies */
+                localStorageRepository.delete("cookies")
+
+                /* Record service auth */
                 val recordAuthRequest = AuthRequest(
                         usbId = credentials.usbId,
                         password = credentials.password,
@@ -53,22 +58,45 @@ open class SyncAccountUseCase(
 
                 val recordAuthResponse = dstRepository.auth(recordAuthRequest)
 
-                /* Syncing */
                 if (recordAuthResponse?.isSuccessful == true) {
-                    /* Set sync cooldown */
-                    settingsRepository.setSyncCooldown()
-
                     val personalData = dstRepository.getPersonalData()
 
                     val recordData = dstRepository.getRecordData()
 
+                    if (personalData != null)
+                        collectedData.add(personalData)
+
+                    if (recordData != null)
+                        collectedData.add(recordData)
+                }
+
+                /* Clear cookies */
+                localStorageRepository.delete("cookies")
+
+                /* Enrollment service auth */
+                val enrollmentAuthRequest = AuthRequest(
+                        usbId = credentials.usbId,
+                        password = credentials.password,
+                        serviceUrl = ENDPOINT_DST_ENROLLMENT_AUTH
+                )
+
+                val enrollmentAuthResponse = dstRepository.auth(enrollmentAuthRequest)
+
+                if (enrollmentAuthResponse?.isSuccessful == true) {
+                    val enrollmentData = dstRepository.getEnrollment()
+
+                    if (enrollmentData != null)
+                        collectedData.add(enrollmentData)
+                }
+
+                /* If there is collected data */
+                if (collectedData.isNotEmpty()) {
+                    /* Set sync cooldown */
+                    settingsRepository.setSyncCooldown()
+
                     /* Return updated account */
                     val updatedAccount = databaseRepository.remoteTransaction {
-                        if (personalData != null)
-                            updatePersonalData(uid = it.uid, data = personalData)
-
-                        if (recordData != null)
-                            updateRecordData(uid = it.uid, data = recordData)
+                        updateData(uid = it.uid, data = collectedData)
 
                         getAccount(uid = it.uid, lastUpdate = Date())
                     }

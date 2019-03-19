@@ -3,9 +3,7 @@ package com.gdavidpb.tuindice.data.source.firestore
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
-import com.gdavidpb.tuindice.domain.model.service.DstAuth
-import com.gdavidpb.tuindice.domain.model.service.DstPersonal
-import com.gdavidpb.tuindice.domain.model.service.DstRecord
+import com.gdavidpb.tuindice.domain.model.service.*
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.utils.*
 import com.google.firebase.firestore.FirebaseFirestore
@@ -53,6 +51,19 @@ open class FirestoreDataStore(
                 }
     }
 
+    override suspend fun updateSubject(subject: Subject) {
+        val subjectRef = firestore
+                .collection(COLLECTION_SUBJECT)
+                .document(subject.id)
+
+        val values = mapOf(
+                FIELD_SUBJECT_STATUS to subject.status,
+                FIELD_SUBJECT_GRADE to subject.grade
+        )
+
+        subjectRef.set(values, SetOptions.merge()).await()
+    }
+
     override suspend fun updateAuthData(uid: String, data: DstAuth) {
         val userRef = firestore
                 .collection(COLLECTION_USER)
@@ -61,44 +72,72 @@ open class FirestoreDataStore(
         userRef.set(data, SetOptions.merge()).await()
     }
 
-    override suspend fun updatePersonalData(uid: String, data: DstPersonal) {
-        val userRef = firestore
-                .collection(COLLECTION_USER)
-                .document(uid)
-
-        userRef.set(data, SetOptions.merge()).await()
-    }
-
-    override suspend fun updateRecordData(uid: String, data: DstRecord) {
+    override suspend fun updateData(uid: String, data: Collection<DstData>) {
         val batch = firestore.batch()
 
-        val userRef = firestore
-                .collection(COLLECTION_USER)
-                .document(uid)
+        data.forEach { entry ->
+            when (entry) {
+                is DstPersonal -> {
+                    val userRef = firestore
+                            .collection(COLLECTION_USER)
+                            .document(uid)
 
-        batch.set(userRef, data.stats, SetOptions.merge())
+                    batch.set(userRef, entry, SetOptions.merge())
+                }
+                is DstRecord -> {
+                    val userRef = firestore
+                            .collection(COLLECTION_USER)
+                            .document(uid)
 
-        data.quarters.forEach { dstQuarter ->
-            val quarter = dstQuarter.toQuarterEntity(uid)
+                    batch.set(userRef, entry.stats, SetOptions.merge())
 
-            val quarterId = quarter.generateId()
+                    entry.quarters.forEach { dstQuarter ->
+                        val quarter = dstQuarter.toQuarterEntity(uid)
 
-            val quarterRef = firestore
-                    .collection(COLLECTION_QUARTER)
-                    .document(quarterId)
+                        val quarterId = quarter.generateId()
 
-            batch.set(quarterRef, quarter)
+                        val quarterRef = firestore
+                                .collection(COLLECTION_QUARTER)
+                                .document(quarterId)
 
-            dstQuarter.subjects.forEach { dstSubject ->
-                val subject = dstSubject.toSubjectEntity(uid = uid, qid = quarterId)
+                        batch.set(quarterRef, quarter)
 
-                val subjectId = subject.generateId()
+                        dstQuarter.subjects.forEach { dstSubject ->
+                            val subject = dstSubject.toSubjectEntity(uid = uid, qid = quarterId)
 
-                val subjectRef = firestore
-                        .collection(COLLECTION_SUBJECT)
-                        .document(subjectId)
+                            val subjectId = subject.generateId()
 
-                batch.set(subjectRef, subject)
+                            val subjectRef = firestore
+                                    .collection(COLLECTION_SUBJECT)
+                                    .document(subjectId)
+
+                            batch.set(subjectRef, subject)
+                        }
+                    }
+                }
+                is DstEnrollment -> {
+                    val quarter = entry.toQuarterEntity(uid)
+
+                    val quarterId = quarter.generateId()
+
+                    val quarterRef = firestore
+                            .collection(COLLECTION_QUARTER)
+                            .document(quarterId)
+
+                    batch.set(quarterRef, quarter)
+
+                    entry.schedule.forEach { scheduleSubject ->
+                        val subject = scheduleSubject.toSubjectEntity(uid = uid, qid = quarterId)
+
+                        val subjectId = subject.generateId()
+
+                        val subjectRef = firestore
+                                .collection(COLLECTION_SUBJECT)
+                                .document(subjectId)
+
+                        batch.set(subjectRef, subject)
+                    }
+                }
             }
         }
 

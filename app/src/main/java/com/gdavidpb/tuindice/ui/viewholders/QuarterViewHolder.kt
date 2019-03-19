@@ -18,6 +18,13 @@ open class QuarterViewHolder(
 ) : BaseViewHolder<Quarter>(itemView) {
     override fun bindView(item: Quarter) {
         with(itemView) {
+            /* Quarter has not grade sum */
+            if (item.gradeSum == 0.0) {
+                /* Compute quarter grade sum */
+                computeGradeSum(quarter = item)
+
+                return
+            }
 
             val color = callback.resolveColor(item)
 
@@ -53,6 +60,29 @@ open class QuarterViewHolder(
 
                     sBarGrade.visibility = View.GONE
                 } else {
+                    sBarGrade.onSeekBarChange { progress, fromUser ->
+                        if (fromUser) {
+                            /* Create a updated subject */
+                            val updatedSubject = subject.copy(
+                                    grade = progress,
+                                    status = when {
+                                        progress == 0 -> STATUS_SUBJECT_RETIRED
+                                        subject.status == STATUS_SUBJECT_RETIRED -> STATUS_SUBJECT_OK
+                                        else -> subject.status
+                                    }
+                            )
+
+                            /* Set updated subject to list */
+                            item.subjects[index] = updatedSubject
+
+                            /* Compute quarter grade sum */
+                            computeGradeSum(quarter = item)
+
+                            /* Notify subject changed */
+                            callback.onSubjectChanged(updatedSubject)
+                        }
+                    }
+
                     sBarGrade.visibility = View.VISIBLE
                 }
             }
@@ -72,5 +102,22 @@ open class QuarterViewHolder(
 
             child.visibility = if (it < size) View.VISIBLE else View.GONE
         }
+    }
+
+    private fun computeGradeSum(quarter: Quarter) {
+        val gradeSum = callback.computeGradeSum(quarter = quarter)
+
+        /* Create updated quarter */
+        val updatedQuarter = quarter.copy(
+                gradeSum = gradeSum,
+                grade = quarter.computeGrade(),
+                credits = quarter.computeCredits()
+        )
+
+        /* Rebind user interface */
+        bindView(item = updatedQuarter)
+
+        /* Notify quarter changed */
+        callback.onQuarterChanged(item = updatedQuarter, position = adapterPosition)
     }
 }

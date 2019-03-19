@@ -158,8 +158,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun loadFragment(@IdRes itemId: Int, init: ((Fragment) -> Fragment)? = null) {
-        if (nav_view.checkedItem == null)
-            nav_view.setCheckedItem(itemId)
+        val checkedItem = nav_view.checkedItem
+
+        when {
+            checkedItem == null -> nav_view.setCheckedItem(itemId)
+            checkedItem.itemId == itemId -> return
+        }
 
         when (itemId) {
             R.id.nav_summary -> R.string.nav_summary to SummaryFragment()

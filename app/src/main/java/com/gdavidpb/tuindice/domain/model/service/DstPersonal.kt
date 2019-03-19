@@ -8,4 +8,4 @@ data class DstPersonal(
         val careerCode: Int,
         val careerName: String,
         val scholarship: Boolean
-)
+) : DstData
