@@ -9,5 +9,7 @@ data class DstRecordStats(
         val retiredSubjects: Int,
         val retiredCredits: Int,
         val failedSubjects: Int,
-        val failedCredits: Int
+        val failedCredits: Int,
+        /* Auto-field */
+        val approvedRelation: Double = approvedCredits.toDouble() / enrolledCredits.toDouble()
 )
