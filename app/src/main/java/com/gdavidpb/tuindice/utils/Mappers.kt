@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
+import com.gdavidpb.tuindice.data.model.database.SubjectNoGradeEntity
 import com.gdavidpb.tuindice.data.source.service.selector.DstAuthResponseSelector
 import com.gdavidpb.tuindice.data.source.service.selector.DstEnrollmentDataSelector
 import com.gdavidpb.tuindice.data.source.service.selector.DstPersonalDataSelector
@@ -189,7 +190,7 @@ fun DocumentSnapshot.toSubject(): Subject {
             code = getString(FIELD_SUBJECT_CODE) ?: "",
             name = getString(FIELD_SUBJECT_NAME) ?: "",
             credits = getLong(FIELD_SUBJECT_CREDITS)?.toInt() ?: 0,
-            grade = getLong(FIELD_SUBJECT_GRADE)?.toInt() ?: 0,
+            grade = getLong(FIELD_SUBJECT_GRADE)?.toInt() ?: 5,
             status = getLong(FIELD_SUBJECT_STATUS)?.toInt() ?: 0
     )
 }
@@ -233,6 +234,17 @@ fun ScheduleSubject.toSubjectEntity(uid: String, qid: String): SubjectEntity {
             name = name,
             credits = credits,
             grade = 5,
+            status = STATUS_SUBJECT_OK
+    )
+}
+
+fun SubjectEntity.toNoGrade(): SubjectNoGradeEntity {
+    return SubjectNoGradeEntity(
+            userId = userId,
+            quarterId = quarterId,
+            code = code,
+            name = name,
+            credits = credits,
             status = STATUS_SUBJECT_OK
     )
 }

@@ -135,7 +135,9 @@ open class FirestoreDataStore(
                                 .collection(COLLECTION_SUBJECT)
                                 .document(subjectId)
 
-                        batch.set(subjectRef, subject)
+                        val noGrade = subject.toNoGrade()
+
+                        batch.set(subjectRef, noGrade)
                     }
                 }
             }

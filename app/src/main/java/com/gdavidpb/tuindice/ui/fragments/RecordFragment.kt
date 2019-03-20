@@ -55,6 +55,10 @@ open class RecordFragment : Fragment() {
             ItemTouchHelper(quarterManager).attachToRecyclerView(this)
         }
 
+        btnAddQuarter.onClickOnce {
+
+        }
+
         with(viewModel) {
             observe(quarters, ::quartersObserver)
 
