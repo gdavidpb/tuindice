@@ -46,11 +46,11 @@ dependencies {
     /* Support */
     implementation "androidx.multidex:multidex:2.0.1"
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
-    implementation "androidx.appcompat:appcompat:1.1.0-alpha02"
+    implementation "androidx.appcompat:appcompat:1.1.0-alpha03"
     implementation "com.google.android.material:material:1.1.0-alpha04"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.browser:browser:1.0.0"
-    implementation "androidx.recyclerview:recyclerview:1.1.0-alpha02"
+    implementation "androidx.recyclerview:recyclerview:1.1.0-alpha03"
     implementation "androidx.vectordrawable:vectordrawable-animated:1.1.0-alpha01"
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-alpha3"
 
@@ -63,11 +63,11 @@ dependencies {
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
 
     /* Firebase */
-    implementation "com.google.firebase:firebase-core:16.0.7"
-    implementation "com.google.firebase:firebase-auth:16.1.0"
+    implementation "com.google.firebase:firebase-core:16.0.8"
+    implementation "com.google.firebase:firebase-auth:16.2.0"
     implementation "com.google.firebase:firebase-firestore:18.1.0"
-    implementation "com.google.firebase:firebase-dynamic-links:16.1.7"
-    implementation "com.google.firebase:firebase-functions:16.2.0"
+    implementation "com.google.firebase:firebase-dynamic-links:16.1.8"
+    implementation "com.google.firebase:firebase-functions:16.3.0"
     implementation "com.google.firebase:firebase-messaging:17.4.0"
     implementation "com.google.firebase:firebase-storage:16.1.0"
 
