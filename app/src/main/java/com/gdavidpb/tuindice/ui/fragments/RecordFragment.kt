@@ -5,12 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AbsListView.OnScrollListener.SCROLL_STATE_IDLE
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.utils.ResourcesManager
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
@@ -19,18 +19,24 @@ import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.utils.*
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.jetbrains.anko.design.longSnackbar
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 open class RecordFragment : Fragment() {
 
     private val viewModel: RecordViewModel by viewModel()
 
-    private val resourcesManager: ResourcesManager by inject()
-
     private val quarterManager = QuarterManager()
 
     private val quarterAdapter = QuarterAdapter(callback = quarterManager)
+
+    private val cachedColors by lazy {
+        mapOf(
+                STATUS_QUARTER_CURRENT to ContextCompat.getColor(requireContext(), R.color.quarterCurrent),
+                STATUS_QUARTER_COMPLETED to ContextCompat.getColor(requireContext(), R.color.quarterCompleted),
+                STATUS_QUARTER_GUESS to ContextCompat.getColor(requireContext(), R.color.quarterGuess),
+                STATUS_QUARTER_RETIRED to ContextCompat.getColor(requireContext(), R.color.quarterRetired)
+        )
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_record, container, false)
@@ -55,9 +61,7 @@ open class RecordFragment : Fragment() {
             ItemTouchHelper(quarterManager).attachToRecyclerView(this)
         }
 
-        btnAddQuarter.onClickOnce {
-
-        }
+        btnAddQuarter.onClickOnce(::onAddQuarterClicked)
 
         with(viewModel) {
             observe(quarters, ::quartersObserver)
@@ -88,6 +92,10 @@ open class RecordFragment : Fragment() {
         }
     }
 
+    private fun onAddQuarterClicked() {
+
+    }
+
     inner class QuarterManager : QuarterAdapter.AdapterCallback, ItemTouchHelper.Callback() {
         override fun onSubjectChanged(item: Subject) {
             viewModel.updateSubject(subject = item)
@@ -104,15 +112,7 @@ open class RecordFragment : Fragment() {
         }
 
         override fun resolveColor(item: Quarter): Int {
-            val colorRes = when (item.status) {
-                STATUS_QUARTER_CURRENT -> R.color.quarterCurrent
-                STATUS_QUARTER_COMPLETED -> R.color.quarterCompleted
-                STATUS_QUARTER_RETIRED -> R.color.quarterRetired
-                STATUS_QUARTER_GUESS -> R.color.quarterGuess
-                else -> 0
-            }
-
-            return resourcesManager.getColor(colorRes)
+            return cachedColors.getValue(item.status)
         }
 
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {

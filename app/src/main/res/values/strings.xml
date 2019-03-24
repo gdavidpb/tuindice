@@ -10,7 +10,6 @@
     <string name="urlContinueResetPassword">https://tuindice-usb.firebaseapp.com?resetPassword=%1$s</string>
 
     <string name="devEmail">tuindice@gmail.com</string>
-    <string name="devTwitter">https://twitter.com/TuIndice</string>
     <string name="devContactSubject">TuIndice - Contacto</string>
 
     <!-- Simple words/phrases -->
@@ -141,8 +140,8 @@
     <string name="hintUsbId">USBID</string>
     <string name="hintPassword">Contraseña</string>
 
-    <string name="bLogin">Iniciar sesión</string>
-    <string name="bPrivacyPolicy"><u><b>Política de Privacidad</b></u></string>
+    <string name="btnLogin">Iniciar sesión</string>
+    <string name="btnTerms"><u><b>Términos y condiciones</b></u></string>
 
     <string name="errorEmpty">Campo vacío</string>
     <string name="errorUSBID">USBID inválido</string>
@@ -219,16 +218,32 @@
     <!-- AboutActivity -->
     <string name="labelAboutActivity">Acerca de</string>
 
-    <string name="aboutVersion">Versión\n%1$s-%2$d (%3$s)</string>
-    <string name="aboutLicense">Creative Commons\nBY-NC 4.0</string>
-    <string name="aboutPrivacyPolicy">Política de Privacidad\nAlgunas cosas que debes saber</string>
-    <string name="aboutTwitter">\@TuIndice\n¡Síguenos en Twitter y enterate de todo!</string>
-    <string name="aboutShare">Compartir\nInvita a un amigo a descargar la aplicación</string>
-    <string name="aboutRate">Puntúa\n¡Dale las 5 estrellas!</string>
+    <string name="aboutVersion">
+        Versión\n%1$s-%2$d (%3$s)
+    </string>
+
+    <string name="aboutLicense">
+        Creative Commons\nBY-NC 4.0
+    </string>
+
+    <string name="aboutTerms">
+        Términos y condiciones\nAlgunas cosas que debes saber
+    </string>
+
+    <string name="aboutTwitter">
+        \@TuIndice\n¡Síguenos en Twitter y enterate de todo!
+    </string>
+
+    <string name="aboutShare">
+        Compartir\nInvita a un amigo a descargar la aplicación
+    </string>
+
+    <string name="aboutRate">
+        Puntúa\n¡Dale las 5 estrellas!
+    </string>
 
     <string name="aboutGooglePlayIntent">market://details?id=%1$s</string>
     <string name="aboutGooglePlay">https://play.google.com/store/apps/details?id=%1$s</string>
-    <string name="aboutCreativeCommons">https://creativecommons.org/licenses/by-nc/4.0/</string>
     <string name="aboutTwitterUrl">https://twitter.com/TuIndice</string>
 
     <string name="aboutShareMessage">
@@ -237,44 +252,36 @@
         https://play.google.com/store/apps/details?id=%1$s
     </string>
 
-    <string name="aboutDevTitle">Desarrollador</string>
+    <string name="aboutHeaderDeveloper">Desarrollador</string>
 
     <string name="aboutDevInfo">
-        Gerardo Prado\n
-        Santiago, Chile
+        Gerardo Prado\nSantiago, Chile
     </string>
 
     <string name="aboutDevContact">
-        Contacto\n
-        Contactar al desarrollador
+        Contacto\nContactar al desarrollador
     </string>
-
-    <string name="aboutLibTitle">Detrás de TuIndice</string>
 
     <string name="aboutDevSource">
-        GitHub Repository\n
-        https://github.com/gdavidpb/tuindice
+        GitHub Repository\nhttps://github.com/gdavidpb/tuindice
     </string>
+
+    <string name="aboutHeadersLibs">Detrás de TuIndice</string>
 
     <string name="aboutKotlin">
-        Kotlin 1.3.11\n
-        Programming Language\n
-        © 2017 JetBrains\n
-        https://kotlinlang.org/
-    </string>
-
-    <string name="aboutJSoup">
-        JSoup 1.11.3\n
-        Java HTML Parser\n
-        © 2009 Jonathan Hedley\n
-        https://jsoup.org/
+        Kotlin 1.3.21\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
     </string>
 
     <string name="aboutFirebase">
-        Firebase 16.0.6\n
-        Quickly develop high-quality apps and grow your business\n
-        © 2014 Google\n
-        https://firebase.com/
+        Firebase 16.0.8\nQuickly develop high-quality apps and grow your business\n© 2014 Google\nhttps://firebase.com/
+    </string>
+
+    <string name="aboutKoin">
+        Koin 1.0.2\nA pragmatic lightweight dependency injection framework for Kotlin\n© 2018 Arnaud Giuliani\nhttps://insert-koin.io/
+    </string>
+
+    <string name="aboutRetrofit">
+        Retrofit 2.5.0\nA type-safe HTTP client for Android and Java\n© 2015 Square\nhttps://square.github.io/retrofit/
     </string>
 
     <!-- todo classify: from here -->

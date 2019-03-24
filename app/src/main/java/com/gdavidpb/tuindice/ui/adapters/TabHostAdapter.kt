@@ -1,9 +1,5 @@
 package com.gdavidpb.tuindice.ui.adapters
 
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
-
 class TabHostAdapter(fragmentManager: androidx.fragment.app.FragmentManager)
     : androidx.fragment.app.FragmentStatePagerAdapter(fragmentManager) {
 

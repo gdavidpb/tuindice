@@ -16,6 +16,11 @@ const val ENDPOINT_DST_POLL_AUTH = "${ENDPOINT_DST_ENROLLMENT}Consulta/Secure/zk
 const val URL_BASE = "tuindice-usb.firebaseapp.com"
 const val URL_PRIVACY_POLICY = "https://$URL_BASE/"
 
+/* Third-party urls */
+const val URL_CREATIVE_COMMONS = "https://creativecommons.org/licenses/by-nc/4.0/"
+const val URL_TERMS = "https://tuindice-usb.firebaseapp.com/"
+const val URL_TWITTER = "https://twitter.com/TuIndice"
+
 /* Preferences keys */
 const val KEY_USB_ID = "email"
 const val KEY_PASSWORD = "password"
@@ -77,6 +82,11 @@ const val TIME_DELAY_CLICK_ONCE = 500L
 const val VIEW_TYPE_SUMMARY_HEADER = 0
 const val VIEW_TYPE_SUMMARY_SUBJECTS = 1
 const val VIEW_TYPE_SUMMARY_CREDITS = 2
+
+/* About view types */
+const val VIEW_TYPE_ABOUT_HEADER = 0
+const val VIEW_TYPE_ABOUT = 1
+const val VIEW_TYPE_ABOUT_LIB = 2
 
 /* Extras */
 const val EXTRA_AWAITING_STATE = "EXTRA_AWAITING_STATE"

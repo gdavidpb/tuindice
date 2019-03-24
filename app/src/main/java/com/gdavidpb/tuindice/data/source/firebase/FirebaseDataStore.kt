@@ -80,7 +80,7 @@ open class FirebaseDataStore(
         val values = fun(uri: Uri): Map<String, String> {
             return mapOf(
                     uri.host to URL_BASE,
-                    uri.path to "path=/__/auth/action",
+                    uri.path to "path=/__/auth/onClick",
                     uri.getQueryParameter("mode") to "resetPassword"
             )
         }

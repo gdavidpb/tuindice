@@ -8,197 +8,218 @@
     android:animateLayoutChanges="true"
     android:background="@color/colorTextIcon">
 
-    <FrameLayout
-        android:id="@+id/frameBackground"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineStart"
         android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineEnd"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.9" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineTop"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.1" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineBottom"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.95" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guidelineCenter"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <com.gdavidpb.tuindice.ui.customs.CustomImageView
+        android:id="@+id/backgroundOne"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/bk_pattern"
+        tools:alpha="0.15" />
+
+    <com.gdavidpb.tuindice.ui.customs.CustomImageView
+        android:id="@+id/backgroundTwo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/bk_pattern"
+        tools:alpha="0.15" />
+
+    <ImageView
+        android:id="@+id/iViewLogo"
+        android:layout_width="@dimen/size_logo"
+        android:layout_height="@dimen/size_logo"
+        android:clickable="true"
+        android:contentDescription="@string/app_name"
+        android:focusable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="@id/guidelineTop"
+        app:srcCompat="@drawable/ic_launcher" />
 
-        <com.gdavidpb.tuindice.ui.customs.CustomImageView
-            android:id="@+id/backgroundOne"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:src="@drawable/bk_pattern" />
-
-        <com.gdavidpb.tuindice.ui.customs.CustomImageView
-            android:id="@+id/backgroundTwo"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="fitXY"
-            android:src="@drawable/bk_pattern" />
-
-    </FrameLayout>
-
-    <LinearLayout
-        android:id="@+id/lLayoutLogin"
+    <TextView
+        android:id="@+id/tViewLogging"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/dp_32"
-        android:layout_marginTop="@dimen/dp_32"
-        android:layout_marginRight="@dimen/dp_32"
-        android:animateLayoutChanges="true"
-        android:orientation="vertical"
+        android:layout_marginTop="@dimen/dp_8"
+        android:layout_marginBottom="@dimen/dp_8"
+        android:outAnimation="@anim/slide_out_right"
+        android:text="@string/messageLogging"
+        android:textAlignment="center"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+        android:textColor="@color/colorAccent"
+        android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/iViewLogo" />
 
-        <ImageView
-            android:id="@+id/iViewLogo"
-            android:layout_width="@dimen/size_logo"
-            android:layout_height="@dimen/size_logo"
-            android:layout_gravity="center"
-            android:adjustViewBounds="true"
-            android:clickable="true"
-            android:contentDescription="@string/app_name"
-            android:focusable="true"
-            app:srcCompat="@drawable/ic_launcher" />
+    <ViewFlipper
+        android:id="@+id/vFlipperWelcome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_8"
+        android:layout_marginBottom="@dimen/dp_8"
+        android:animateFirstView="true"
+        android:autoStart="true"
+        android:flipInterval="2000"
+        android:inAnimation="@anim/slide_in_left"
+        android:outAnimation="@anim/slide_out_right"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iViewLogo">
 
         <TextView
-            android:id="@+id/tViewLogging"
+            android:id="@+id/tViewFlipper1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_8"
-            android:layout_marginBottom="@dimen/dp_8"
-            android:gravity="center"
-            android:text="@string/messageLogging"
+            android:text="@string/messageFlipper1"
             android:textAlignment="center"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
             android:textColor="@color/colorAccent"
-            android:textStyle="bold"
-            android:visibility="gone" />
-
-        <ViewFlipper
-            android:id="@+id/vFlipperWelcome"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_8"
-            android:layout_marginBottom="@dimen/dp_8"
-            android:animateFirstView="true"
-            android:autoStart="true"
-            android:flipInterval="2000"
-            android:inAnimation="@anim/slide_in_left"
-            android:outAnimation="@anim/slide_out_right">
-
-            <TextView
-                android:id="@+id/tViewFlipper1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/messageFlipper1"
-                android:textAlignment="center"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorAccent"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tViewFlipper2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/messageFlipper2"
-                android:textAlignment="center"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorAccent"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tViewFlipper3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/messageFlipper3"
-                android:textAlignment="center"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorAccent"
-                android:textStyle="bold" />
-
-        </ViewFlipper>
-
-        <ProgressBar
-            android:id="@+id/pBarLogging"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="@dimen/dp_16"
-            android:layout_marginBottom="@dimen/dp_16"
-            android:indeterminate="true"
-            android:visibility="gone" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tInputUsbId"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/hintUsbId"
-            android:textColorHint="@color/colorAccent"
-            app:errorEnabled="true">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/eTextUsbId"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:drawablePadding="@dimen/dp_8"
-                android:imeOptions="actionNext"
-                android:inputType="number"
-                android:maxLength="8"
-                tools:drawableStart="@drawable/ic_account"
-                tools:drawableTint="@color/colorSecondaryText"
-                tools:hint="@string/hintUsbId" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tInputPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/hintPassword"
-            android:textColorHint="@color/colorAccent"
-            app:errorEnabled="true"
-            app:passwordToggleEnabled="true">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/eTextPassword"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:drawablePadding="@dimen/dp_8"
-                android:imeOptions="actionDone"
-                android:inputType="textPassword"
-                android:maxLength="60"
-                android:selectAllOnFocus="true"
-                tools:drawableStart="@drawable/ic_password"
-                tools:drawableTint="@color/colorSecondaryText"
-                tools:hint="@string/hintPassword" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tViewPrivacyPolicy"
-            android:layout_width="wrap_content"
+            android:id="@+id/tViewFlipper2"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="@dimen/dp_2"
-            android:text="@string/bPrivacyPolicy"
-            android:textColor="@color/colorSecondaryText" />
+            android:text="@string/messageFlipper2"
+            android:textAlignment="center"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold" />
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/tViewFlipper3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/messageFlipper3"
+            android:textAlignment="center"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/bLogin"
-        android:layout_width="@dimen/size_button"
+    </ViewFlipper>
+
+    <ProgressBar
+        android:id="@+id/pBarLogging"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dp_32"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:padding="@dimen/dp_8"
-        android:text="@string/bLogin"
+        android:layout_marginTop="@dimen/dp_16"
+        android:layout_marginBottom="@dimen/dp_16"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tViewLogging" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tInputUsbId"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/hintUsbId"
+        android:textColorHint="@color/colorAccent"
+        app:errorEnabled="true"
+        app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+        app:layout_constraintStart_toStartOf="@id/guidelineStart"
+        app:layout_constraintTop_toBottomOf="@id/vFlipperWelcome">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/eTextUsbId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawablePadding="@dimen/dp_8"
+            android:imeOptions="actionNext"
+            android:inputType="number"
+            android:maxLength="8"
+            tools:drawableStart="@drawable/ic_account"
+            tools:drawableTint="@color/colorSecondaryText"
+            tools:hint="@string/hintUsbId" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tInputPassword"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/hintPassword"
+        android:textColorHint="@color/colorAccent"
+        app:errorEnabled="true"
+        app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+        app:layout_constraintStart_toStartOf="@id/guidelineStart"
+        app:layout_constraintTop_toBottomOf="@id/tInputUsbId"
+        app:passwordToggleEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/eTextPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawablePadding="@dimen/dp_8"
+            android:imeOptions="actionDone"
+            android:inputType="textPassword"
+            android:maxLength="60"
+            android:selectAllOnFocus="true"
+            tools:drawableStart="@drawable/ic_password"
+            tools:drawableTint="@color/colorSecondaryText"
+            tools:hint="@string/hintPassword" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnTerms"
+        style="@style/Base.Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btnTerms"
+        android:textAllCaps="false"
+        android:textColor="@color/colorSecondaryText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tInputPassword" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnLogin"
+        android:layout_width="@dimen/size_button"
+        android:layout_height="@dimen/dp_36"
+        android:background="@drawable/sh_button"
+        android:text="@string/btnLogin"
         android:textColor="@color/colorTextIcon"
-        app:backgroundTint="@color/colorAccent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:backgroundTint="@drawable/sl_button"
+        app:layout_constraintBottom_toBottomOf="@id/guidelineBottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

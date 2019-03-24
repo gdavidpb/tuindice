@@ -24,10 +24,6 @@ open class QuarterAdapter(
         fun resolveColor(item: Quarter): Int
     }
 
-    fun getQuarters(): List<Quarter> {
-        return items.toList()
-    }
-
     private val averageSubjects by lazy {
         if (items.isNotEmpty()) (items.sumBy { it.subjects.size } / items.size.toFloat()).roundToInt() else 0
     }
@@ -45,5 +41,9 @@ open class QuarterAdapter(
         }
 
         return QuarterViewHolder(itemView, callback)
+    }
+
+    fun getQuarters(): List<Quarter> {
+        return items.toList()
     }
 }

@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
 import com.gdavidpb.tuindice.data.source.storage.DiskStorageDataStore
 import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataStore
 import com.gdavidpb.tuindice.data.source.token.TokenDataStore
-import com.gdavidpb.tuindice.data.utils.ResourcesManager
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
@@ -220,8 +219,6 @@ val appModule = module {
     factory<UpdateSubjectUseCase>()
 
     /* Utils */
-
-    single<ResourcesManager>()
 
     single {
         Picasso.get()

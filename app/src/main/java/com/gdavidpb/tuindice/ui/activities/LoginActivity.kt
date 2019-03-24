@@ -99,7 +99,7 @@ class LoginActivity : BaseActivity(
 
         eTextPassword.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                bLogin.performClick()
+                btnLogin.performClick()
                 false
             } else
                 true
@@ -116,8 +116,8 @@ class LoginActivity : BaseActivity(
             })
         }
 
-        tViewPrivacyPolicy.onClickOnce(::onPrivacyPolicyClick)
-        bLogin.onClickOnce(::onLoginClick)
+        btnTerms.onClickOnce(::onPrivacyPolicyClick)
+        btnLogin.onClickOnce(::onLoginClick)
     }
 
     private fun onPrivacyPolicyClick() {
@@ -148,8 +148,8 @@ class LoginActivity : BaseActivity(
                 tInputUsbId,
                 tInputPassword,
                 vFlipperWelcome,
-                tViewPrivacyPolicy,
-                bLogin
+                btnTerms,
+                btnLogin
         ).forEach { it.visibility = if (value) View.VISIBLE else View.GONE }
 
         tViewLogging.visibility = if (value) View.GONE else View.VISIBLE
@@ -158,13 +158,21 @@ class LoginActivity : BaseActivity(
         ConstraintSet().also {
             it.clone(cLayoutMain)
 
-            if (value)
-                it.clear(R.id.lLayoutLogin, ConstraintSet.BOTTOM)
-            else
+            if (value) {
+                it.clear(R.id.iViewLogo, ConstraintSet.BOTTOM)
+
                 it.connect(
-                        R.id.lLayoutLogin, ConstraintSet.BOTTOM,
-                        ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM,
+                        R.id.iViewLogo, ConstraintSet.TOP,
+                        R.id.guidelineTop, ConstraintSet.TOP,
                         0)
+            } else {
+                it.clear(R.id.iViewLogo, ConstraintSet.TOP)
+
+                it.connect(
+                        R.id.iViewLogo, ConstraintSet.BOTTOM,
+                        R.id.guidelineCenter, ConstraintSet.BOTTOM,
+                        0)
+            }
 
             it.applyTo(cLayoutMain)
         }
@@ -200,7 +208,7 @@ class LoginActivity : BaseActivity(
                 }.also { message ->
                     snackBar
                             .setText(message)
-                            /* Add retry action */
+                            /* Add retry onClick */
                             .apply {
                                 if (message != R.string.snackInvalidCredentials) {
                                     setAction(R.string.retry) {

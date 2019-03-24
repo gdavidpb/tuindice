@@ -60,7 +60,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         when (itemId) {
             R.id.nav_share -> share(text = getString(R.string.aboutShareMessage, packageName))
-            R.id.nav_twitter -> browse(url = getString(R.string.devTwitter))
+            R.id.nav_twitter -> browse(URL_TWITTER)
             R.id.nav_contact -> email(email = getString(R.string.devEmail), subject = getString(R.string.devContactSubject))
             R.id.nav_report -> reportDialog()
             R.id.nav_about -> startActivity<AboutActivity>()

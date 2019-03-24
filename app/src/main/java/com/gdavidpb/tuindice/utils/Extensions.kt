@@ -256,6 +256,12 @@ fun SharedPreferences.edit(transaction: SharedPreferences.Editor.() -> Unit) {
 
 fun Context.getCompatColor(@ColorRes colorRes: Int): Int = ContextCompat.getColor(this, colorRes)
 
+fun Context.getCompatVector(@DrawableRes drawableRes: Int, width: Int, height: Int): Drawable {
+    return DrawableCompat.wrap(AppCompatResources.getDrawable(this, drawableRes)!!).apply {
+        bounds = Rect(0, 0, width, height)
+    }
+}
+
 fun Context.getCompatDrawable(@DrawableRes resId: Int): Drawable = AppCompatResources.getDrawable(this, resId)!!
 
 fun Context.getCompatDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes: Int): Drawable {

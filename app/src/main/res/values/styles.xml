@@ -7,7 +7,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <!-- No action bar theme -->
+    <!-- No onClick bar theme -->
     <style name="AppTheme.NoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
