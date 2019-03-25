@@ -36,7 +36,7 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
                 val g = Color.green(colorHook)
                 val b = Color.blue(colorHook)
 
-                if (colorHook != color && (r == g && g == b)) {
+                if (colorHook != color && (!(r != g || g != b))) {
                     color = colorHook
                     break
                 }

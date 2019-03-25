@@ -104,6 +104,11 @@
 
     <string name="hintGuessSearch">Código o nombre de la materia</string>
 
+    <!-- CalendarFragment -->
+    <string name="label_calendar_disclaimer">
+        Las fecha pueden haber variado desde la publicación del calendario.
+    </string>
+
     <!-- EmailSentActivity -->
     <string name="toastResend">Correo reenviado</string>
     <string name="toastTryAgainLater">Intenta de nuevo más tarde</string>
