@@ -466,6 +466,33 @@ fun Date.isYesterday(): Boolean {
     return start.rangeTo(end).contains(this)
 }
 
+fun Calendar.containsInMonth(value: Calendar): Boolean {
+    val start = Calendar.getInstance().let {
+        it.time = this.time
+
+        add(Calendar.HOUR_OF_DAY, 0)
+        add(Calendar.MINUTE, 0)
+        add(Calendar.SECOND, 0)
+        add(Calendar.MILLISECOND, 0)
+
+        set(Calendar.DAY_OF_MONTH, 1)
+
+        Date(timeInMillis)
+    }
+
+    val end = Calendar.getInstance().run {
+        time = start
+
+        add(Calendar.MONTH, 1)
+
+        Date(timeInMillis)
+    }
+
+    return start.rangeTo(end).contains(value.time)
+}
+
+infix fun Int.negRem(value: Int) = (this % value) + if (this >= 0) 0 else value
+
 inline fun Any?.isNull(exec: () -> Unit) = this ?: exec()
 
 inline fun <T> T?.notNull(exec: (T) -> Unit): T? = this?.also { exec(this) }

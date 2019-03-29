@@ -7,14 +7,29 @@ import android.util.AttributeSet
 import android.widget.CalendarView
 import androidx.core.content.ContextCompat
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.utils.containsInMonth
+import com.gdavidpb.tuindice.utils.negRem
 import org.jetbrains.anko.childrenRecursiveSequence
 import org.jetbrains.anko.dip
+import org.jetbrains.anko.sdk27.coroutines.onScrollChange
 import java.util.*
 
 class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(context, attrs) {
 
     init {
         setWillNotDraw(false)
+
+        maxDate = Calendar.getInstance().run {
+            add(Calendar.YEAR, 5)
+
+            timeInMillis
+        }
+
+        minDate = Calendar.getInstance().run {
+            add(Calendar.YEAR, -5)
+
+            timeInMillis
+        }
     }
 
     private val highlightedDays = mutableListOf<Calendar>()
@@ -30,10 +45,6 @@ class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(c
         dip(4).toFloat()
     }
 
-    private val initialMonthId by lazy {
-        findMonthId()
-    }
-
     private val monthView by lazy {
         childrenRecursiveSequence().first {
             it.javaClass.name.endsWith("SimpleMonthView")
@@ -43,6 +54,10 @@ class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(c
     private val monthViewPager by lazy {
         childrenRecursiveSequence().first {
             it.javaClass.name.endsWith("DayPickerViewPager")
+        }.also {
+            it.onScrollChange { _, _, _, _, _ ->
+                invalidate()
+            }
         }
     }
 
@@ -68,76 +83,55 @@ class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(c
     }
 
     override fun onDraw(canvas: Canvas) {
-        if (highlightedDays.isEmpty()) {
-            super.onDraw(canvas)
-            return
-        }
+        val scrollIdle = with(monthViewPager) { scrollX % width == 0 }
 
-        val start = getCurrentCalendar()
+        if (highlightedDays.isNotEmpty() && scrollIdle) {
+            val currentCalendar = getCurrentCalendar()
 
-        val end = Calendar.getInstance().apply {
-            time = start.time
+            highlightedDays.forEach {
+                if (currentCalendar.containsInMonth(it)) {
+                    val (x, y) = computeCalendarBias(it)
 
-            add(Calendar.MONTH, 1)
-        }
-
-        val range = start..end
-
-        highlightedDays.forEach {
-            val thisMonth = range.contains(it)
-
-            if (thisMonth) {
-                val (x, y) = computeCalendarBias(it)
-
-                canvas.drawCircle(
-                        cellXBias + (cellWidth * (x + .5f)),
-                        cellYBias + (cellHeight * y) - dotSize,
-                        dotSize,
-                        dotPaint
-                )
+                    canvas.drawCircle(
+                            cellXBias + (cellWidth * (x + .5f)),
+                            cellYBias + (cellHeight * y) - (dotSize * 1.5f),
+                            dotSize,
+                            dotPaint
+                    )
+                }
             }
         }
 
         super.onDraw(canvas)
     }
 
-    fun addHighlighted(value: Date) {
-        val calendar = Calendar.getInstance().apply {
-            time = value
+    fun setHighlights(vararg values: Date) {
+        highlightedDays.clear()
 
-            firstDayOfWeek = this@CustomCalendarView.firstDayOfWeek
+        values.forEach { date ->
+            val calendar = Calendar.getInstance().apply {
+                time = date
+
+                firstDayOfWeek = this@CustomCalendarView.firstDayOfWeek
+            }
+
+            highlightedDays.add(calendar)
         }
-
-        highlightedDays.add(calendar)
-
-        invalidate()
-    }
-
-    fun removeHighlighted(value: Date) {
-        val calendar = Calendar.getInstance().apply {
-            time = value
-
-            firstDayOfWeek = this@CustomCalendarView.firstDayOfWeek
-        }
-
-        highlightedDays.remove(calendar)
 
         invalidate()
     }
 
     private fun computeCalendarBias(calendar: Calendar): Pair<Float, Float> {
-        val x = (calendar.get(Calendar.DAY_OF_WEEK) - firstDayOfWeek).run {
-            (this % 7) + if (this >= 0) 0 else 7
-        }.toFloat()
+        val x = (calendar.get(Calendar.DAY_OF_WEEK) - firstDayOfWeek) negRem 7
+        val y = calendar.get(Calendar.WEEK_OF_MONTH)
 
-        val y = calendar.get(Calendar.WEEK_OF_MONTH).toFloat()
-
-        return x to y
+        return x.toFloat() to y.toFloat()
     }
 
     private fun getCurrentCalendar(): Calendar {
         return Calendar.getInstance().apply {
-            val months = findMonthId() - initialMonthId
+            val relation = with(monthViewPager) { scrollX / width.toDouble() }
+            val months = Math.round(relation).toInt()
 
             set(Calendar.DAY_OF_MONTH, 1)
             set(Calendar.HOUR_OF_DAY, 0)
@@ -149,19 +143,11 @@ class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(c
         }
     }
 
-    private fun findMonthId(): Int {
-        return monthViewPager.invokeInt("getCurrentItem")
-    }
-
     private fun Any.getInt(name: String): Int {
         return javaClass.getDeclaredField(name).let {
             it.isAccessible = true
 
             it.getInt(this)
         }
-    }
-
-    private fun Any.invokeInt(name: String): Int {
-        return javaClass.getMethod(name).invoke(this) as Int
     }
 }
