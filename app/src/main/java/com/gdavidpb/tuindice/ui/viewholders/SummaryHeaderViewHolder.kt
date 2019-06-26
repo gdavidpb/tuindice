@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.item_summary_header.view.*
 
 open class SummaryHeaderViewHolder(
         itemView: View,
-        private val callback: SummaryAdapter.AdapterCallback
+        private val manager: SummaryAdapter.AdapterManager
 ) : BaseViewHolder<SummaryBase>(itemView) {
     override fun bindView(item: SummaryBase) {
         item as SummaryHeader
@@ -34,7 +34,7 @@ open class SummaryHeaderViewHolder(
                 lLayoutGrade.visibility = View.GONE
 
             if (item.photoUrl.isNotEmpty()) {
-                callback.provideImageLoader { picasso ->
+                manager.provideImageLoader { picasso ->
                     picasso.cancelTag(item.uid)
 
                     picasso.load(item.photoUrl)

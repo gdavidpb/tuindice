@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.ui.customs
 import android.content.Context
 import android.widget.ImageView
 import android.util.AttributeSet
-import android.view.View
+import kotlin.math.max
 
 class CustomImageView(context: Context, attrs: AttributeSet)
     : ImageView(context, attrs) {
@@ -12,9 +12,7 @@ class CustomImageView(context: Context, attrs: AttributeSet)
         if (drawable != null) {
             val width = drawable.intrinsicWidth
 
-            val height = Math.max(
-                    View.MeasureSpec.getSize(heightMeasureSpec),
-                    drawable.intrinsicHeight)
+            val height = max(MeasureSpec.getSize(heightMeasureSpec), drawable.intrinsicHeight)
 
             setMeasuredDimension(width, height)
         } else

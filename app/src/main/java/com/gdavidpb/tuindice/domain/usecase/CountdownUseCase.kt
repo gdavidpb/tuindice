@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.util.*
+import kotlin.math.max
 
 open class CountdownUseCase(
         private val settingsRepository: SettingsRepository
@@ -28,7 +29,7 @@ open class CountdownUseCase(
             left = (currentCountdown - Date().time)
 
             withContext(foregroundContext) {
-                liveData.postNext(Math.max(0, left))
+                liveData.postNext(max(0, left))
             }
 
             delay(1000)

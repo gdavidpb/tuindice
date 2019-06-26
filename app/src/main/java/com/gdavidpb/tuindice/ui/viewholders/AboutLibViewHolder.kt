@@ -17,7 +17,7 @@ import org.jetbrains.anko.dip
 
 open class AboutLibViewHolder(
         itemView: View,
-        private val callback: AboutAdapter.AdapterCallback
+        private val manager: AboutAdapter.AdapterManager
 ) : BaseViewHolder<AboutBase>(itemView = itemView) {
     override fun bindView(item: AboutBase) {
         item as AboutLib
@@ -27,7 +27,7 @@ open class AboutLibViewHolder(
 
             drawables(left = context.getCompatVector(item.drawable, size, size))
 
-            val (titleColor, subtitleColor) = callback.resolveColors()
+            val (titleColor, subtitleColor) = manager.resolveColors()
             val (title, subtitle) = listOf(
                     item.content.substringBefore('\n'),
                     item.content.substringAfter('\n')

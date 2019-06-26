@@ -29,7 +29,7 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
 
             val x = (width - paddingRight - resources.getDimension(R.dimen.size_tick).toInt() - 1)
 
-            for (y in 0..(height - 1)) {
+            for (y in 0 until height) {
                 val colorHook = bitmapHook.getPixel(x, y)
 
                 val r = Color.red(colorHook)

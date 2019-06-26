@@ -14,7 +14,7 @@ import org.jetbrains.anko.backgroundColor
 
 open class QuarterViewHolder(
         itemView: View,
-        private val callback: QuarterAdapter.AdapterCallback
+        private val manager: QuarterAdapter.AdapterManager
 ) : BaseViewHolder<Quarter>(itemView) {
     override fun bindView(item: Quarter) {
         with(itemView) {
@@ -26,7 +26,7 @@ open class QuarterViewHolder(
                 return
             }
 
-            val color = callback.resolveColor(item)
+            val color = manager.resolveColor(item)
 
             viewQuarterColor.backgroundColor = color
 
@@ -79,7 +79,7 @@ open class QuarterViewHolder(
                             computeGradeSum(quarter = item)
 
                             /* Notify subject changed */
-                            callback.onSubjectChanged(updatedSubject)
+                            manager.onSubjectChanged(updatedSubject)
                         }
                     }
 
@@ -105,7 +105,7 @@ open class QuarterViewHolder(
     }
 
     private fun computeGradeSum(quarter: Quarter) {
-        val gradeSum = callback.computeGradeSum(quarter = quarter)
+        val gradeSum = manager.computeGradeSum(quarter = quarter)
 
         /* Create updated quarter */
         val updatedQuarter = quarter.copy(
@@ -118,6 +118,6 @@ open class QuarterViewHolder(
         bindView(item = updatedQuarter)
 
         /* Notify quarter changed */
-        callback.onQuarterChanged(item = updatedQuarter, position = adapterPosition)
+        manager.onQuarterChanged(item = updatedQuarter, position = adapterPosition)
     }
 }

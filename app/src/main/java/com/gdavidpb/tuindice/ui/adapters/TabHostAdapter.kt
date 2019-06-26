@@ -1,15 +1,19 @@
 package com.gdavidpb.tuindice.ui.adapters
 
-class TabHostAdapter(fragmentManager: androidx.fragment.app.FragmentManager)
-    : androidx.fragment.app.FragmentStatePagerAdapter(fragmentManager) {
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
 
-    private val fragmentList: ArrayList<androidx.fragment.app.Fragment> = ArrayList()
+class TabHostAdapter(fragmentManager: FragmentManager)
+    : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+
+    private val fragmentList: ArrayList<Fragment> = ArrayList()
 
     override fun getCount(): Int = fragmentList.size
 
-    override fun getItem(position: Int): androidx.fragment.app.Fragment = fragmentList[position]
+    override fun getItem(position: Int): Fragment = fragmentList[position]
 
     override fun getItemPosition(item: Any): Int = fragmentList.indexOf(item)
 
-    fun addItem(fragment: androidx.fragment.app.Fragment) = fragmentList.add(fragment)
+    fun addItem(fragment: Fragment) = fragmentList.add(fragment)
 }

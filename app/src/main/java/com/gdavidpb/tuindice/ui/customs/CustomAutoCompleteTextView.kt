@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.widget.AutoCompleteTextView
 import com.gdavidpb.tuindice.R
 import org.jetbrains.anko.px2dip
+import kotlin.math.min
 
 class CustomAutoCompleteTextView(context: Context, attrs: AttributeSet)
     : AutoCompleteTextView(context, attrs) {
@@ -24,7 +25,7 @@ class CustomAutoCompleteTextView(context: Context, attrs: AttributeSet)
                 itemHeight = view.measuredHeight
             }
 
-            val showCount = Math.min(5, count)
+            val showCount = min(5, count)
 
             dropDownHeight = (showCount * context.px2dip(itemHeight).toInt()) + (margin * showCount)
         }

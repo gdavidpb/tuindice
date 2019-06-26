@@ -288,7 +288,7 @@ fun DstAuthResponseSelector.toAuthResponse(): AuthResponse {
             noEnrolledMessage,
             expiredSessionMessage
     ).firstOrNull {
-        !it.isEmpty()
+        it.isNotEmpty()
     } ?: ""
 
     val code = when {

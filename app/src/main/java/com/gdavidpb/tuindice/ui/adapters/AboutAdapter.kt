@@ -17,10 +17,10 @@ import com.gdavidpb.tuindice.utils.VIEW_TYPE_ABOUT_HEADER
 import com.gdavidpb.tuindice.utils.VIEW_TYPE_ABOUT_LIB
 
 open class AboutAdapter(
-        private val callback: AdapterCallback
+        private val manager: AdapterManager
 ) : BaseAdapter<AboutBase>() {
 
-    interface AdapterCallback {
+    interface AdapterManager {
         fun resolveColors(): List<Int>
     }
 
@@ -35,21 +35,17 @@ open class AboutAdapter(
         }
 
         return when (viewType) {
-            VIEW_TYPE_ABOUT -> AboutViewHolder(itemView, callback)
-            VIEW_TYPE_ABOUT_LIB -> AboutLibViewHolder(itemView, callback)
+            VIEW_TYPE_ABOUT -> AboutViewHolder(itemView, manager)
+            VIEW_TYPE_ABOUT_LIB -> AboutLibViewHolder(itemView, manager)
             VIEW_TYPE_ABOUT_HEADER -> AboutHeaderViewHolder(itemView)
             else -> throw IllegalArgumentException("viewType")
         }
     }
 
-    override fun getItemViewType(position: Int): Int {
-        val item = items[position]
-
-        return when (item) {
-            is About -> VIEW_TYPE_ABOUT
-            is AboutLib -> VIEW_TYPE_ABOUT_LIB
-            is AboutHeader -> VIEW_TYPE_ABOUT_HEADER
-            else -> throw IllegalArgumentException("viewType")
-        }
+    override fun getItemViewType(position: Int) = when (items[position]) {
+        is About -> VIEW_TYPE_ABOUT
+        is AboutLib -> VIEW_TYPE_ABOUT_LIB
+        is AboutHeader -> VIEW_TYPE_ABOUT_HEADER
+        else -> throw IllegalArgumentException("viewType")
     }
 }

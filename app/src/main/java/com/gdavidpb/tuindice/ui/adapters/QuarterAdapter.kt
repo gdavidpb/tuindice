@@ -12,10 +12,10 @@ import kotlinx.android.synthetic.main.item_quarter.view.*
 import kotlin.math.roundToInt
 
 open class QuarterAdapter(
-        private val callback: AdapterCallback
+        private val manager: AdapterManager
 ) : BaseAdapter<Quarter>() {
 
-    interface AdapterCallback {
+    interface AdapterManager {
         fun onSubjectChanged(item: Subject)
         fun onQuarterChanged(item: Quarter, position: Int)
 
@@ -40,7 +40,7 @@ open class QuarterAdapter(
             }
         }
 
-        return QuarterViewHolder(itemView, callback)
+        return QuarterViewHolder(itemView, manager)
     }
 
     fun getQuarters(): List<Quarter> {

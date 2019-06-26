@@ -17,7 +17,7 @@ import org.jetbrains.anko.buildSpanned
 
 open class AboutViewHolder(
         itemView: View,
-        private val callback: AboutAdapter.AdapterCallback
+        private val manager: AboutAdapter.AdapterManager
 ) : BaseViewHolder<AboutBase>(itemView = itemView) {
     override fun bindView(item: AboutBase) {
         item as About
@@ -25,7 +25,7 @@ open class AboutViewHolder(
         with(itemView as AppCompatButton) {
             drawables(left = context.getCompatDrawable(item.drawable, R.color.colorSecondaryText))
 
-            val (titleColor, subtitleColor) = callback.resolveColors()
+            val (titleColor, subtitleColor) = manager.resolveColors()
             val (title, subtitle) = item.content.split('\n')
 
             text = buildSpanned {

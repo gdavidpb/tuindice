@@ -100,8 +100,7 @@ open class DstRecordDataConverter : ElementConverter<DstRecord> {
                 }
 
         val grade = quarters
-                .sortedBy { it.startDate }
-                .lastOrNull()
+                .maxBy { it.startDate }
                 ?.gradeSum
                 ?.toGrade() ?: 0.0
 

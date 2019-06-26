@@ -17,10 +17,10 @@ import com.gdavidpb.tuindice.utils.*
 import com.squareup.picasso.Picasso
 
 open class SummaryAdapter(
-        private val callback: AdapterCallback
+        private val manager: AdapterManager
 ) : BaseAdapter<SummaryBase>() {
 
-    interface AdapterCallback {
+    interface AdapterManager {
         fun provideImageLoader(provider: (picasso: Picasso) -> Unit)
     }
 
@@ -59,7 +59,7 @@ open class SummaryAdapter(
         val itemView = LayoutInflater.from(parent.context).inflate(layout, parent, false)
 
         return when (viewType) {
-            VIEW_TYPE_SUMMARY_HEADER -> SummaryHeaderViewHolder(itemView, callback)
+            VIEW_TYPE_SUMMARY_HEADER -> SummaryHeaderViewHolder(itemView, manager)
             VIEW_TYPE_SUMMARY_SUBJECTS -> SummarySubjectsViewHolder(itemView)
             VIEW_TYPE_SUMMARY_CREDITS -> SummaryCreditsViewHolder(itemView)
             else -> throw IllegalStateException()

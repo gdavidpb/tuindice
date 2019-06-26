@@ -23,7 +23,7 @@ open class SummaryFragment : Fragment() {
 
     private val picasso: Picasso by inject()
 
-    private val adapter = SummaryAdapter(callback = SummaryManager())
+    private val adapter = SummaryAdapter(manager = SummaryManager())
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_summary, container, false)
@@ -61,7 +61,7 @@ open class SummaryFragment : Fragment() {
         }
     }
 
-    inner class SummaryManager : SummaryAdapter.AdapterCallback {
+    inner class SummaryManager : SummaryAdapter.AdapterManager {
         override fun provideImageLoader(provider: (picasso: Picasso) -> Unit) = provider(picasso)
     }
 }

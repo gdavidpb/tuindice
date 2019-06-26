@@ -27,7 +27,7 @@ open class RecordFragment : Fragment() {
 
     private val quarterManager = QuarterManager()
 
-    private val quarterAdapter = QuarterAdapter(callback = quarterManager)
+    private val quarterAdapter = QuarterAdapter(manager = quarterManager)
 
     private val cachedColors by lazy {
         mapOf(
@@ -94,7 +94,7 @@ open class RecordFragment : Fragment() {
 
     }
 
-    inner class QuarterManager : QuarterAdapter.AdapterCallback, ItemTouchHelper.Callback() {
+    inner class QuarterManager : QuarterAdapter.AdapterManager, ItemTouchHelper.Callback() {
         override fun onSubjectChanged(item: Subject) {
             viewModel.updateSubject(subject = item)
         }

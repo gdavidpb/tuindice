@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.presentation.model.About
-import com.gdavidpb.tuindice.presentation.model.AboutBase
 import com.gdavidpb.tuindice.presentation.model.AboutHeader
 import com.gdavidpb.tuindice.presentation.model.AboutLib
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
@@ -29,7 +28,7 @@ class AboutActivity : AppCompatActivity() {
         )
     }
 
-    private val adapter = AboutAdapter(callback = AboutManager())
+    private val adapter = AboutAdapter(manager = AboutManager())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +46,7 @@ class AboutActivity : AppCompatActivity() {
                 BuildConfig.VERSION_CODE,
                 getString(if (versionName < 1.0f) R.string.beta else R.string.alpha))
 
-        val data = listOf<AboutBase>(
+        val data = listOf(
                 AboutHeader(title = getString(R.string.app_name)),
                 About(drawable = R.drawable.ic_version, content = version),
                 About(drawable = R.drawable.ic_cc, content = getString(R.string.aboutLicense)) { browse(URL_CREATIVE_COMMONS) },
@@ -90,7 +89,7 @@ class AboutActivity : AppCompatActivity() {
         }
     }
 
-    inner class AboutManager : AboutAdapter.AdapterCallback {
+    inner class AboutManager : AboutAdapter.AdapterManager {
         override fun resolveColors(): List<Int> {
             return cachedColors
         }

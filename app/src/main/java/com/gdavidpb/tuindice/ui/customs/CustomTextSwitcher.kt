@@ -6,11 +6,12 @@ import androidx.core.view.GestureDetectorCompat
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
-import android.view.View
 import android.widget.TextSwitcher
 import android.widget.TextView
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.lookAtMe
+import kotlin.math.abs
+import kotlin.math.sign
 
 class CustomTextSwitcher<T>(context: Context, attrs: AttributeSet)
     : TextSwitcher(context, attrs) {
@@ -37,7 +38,7 @@ class CustomTextSwitcher<T>(context: Context, attrs: AttributeSet)
 
         setText(source.first().display())
 
-        measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+        measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED)
 
         detector = GestureDetectorCompat(context, FlingListener(this))
     }
@@ -49,8 +50,8 @@ class CustomTextSwitcher<T>(context: Context, attrs: AttributeSet)
 
         override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             val delta = (e1.x - e2.x)
-            val distance = Math.abs(delta)
-            val sense = Math.signum(delta).toInt()
+            val distance = abs(delta)
+            val sense = sign(delta).toInt()
 
             if (distance > sensitive) {
                 if (sense > 0) {
@@ -61,7 +62,7 @@ class CustomTextSwitcher<T>(context: Context, attrs: AttributeSet)
                     textSwitcher.setOutAnimation(textSwitcher.context, R.anim.slide_out_right)
                 }
 
-                if ((index + sense) in 0..(source.size - 1)) {
+                if ((index + sense) in 0 until source.size) {
                     index += sense
 
                     textSwitcher.setText(source.elementAt(index).display())

@@ -3,8 +3,6 @@ package com.gdavidpb.tuindice.ui.customs
 import android.content.Context
 import androidx.annotation.StringRes
 import com.google.android.material.tabs.TabLayout
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.RelativeLayout
