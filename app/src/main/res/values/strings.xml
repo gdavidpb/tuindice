@@ -9,9 +9,6 @@
     <string name="urlContinueVerification">https://tuindice-usb.firebaseapp.com?verify=%1$s</string>
     <string name="urlContinueResetPassword">https://tuindice-usb.firebaseapp.com?resetPassword=%1$s</string>
 
-    <string name="devEmail">tuindice@gmail.com</string>
-    <string name="devContactSubject">TuIndice - Contacto</string>
-
     <!-- Simple words/phrases -->
     <string name="yes">Si</string>
     <string name="no">No</string>
@@ -104,9 +101,11 @@
 
     <string name="hintGuessSearch">Código o nombre de la materia</string>
 
-    <!-- CalendarFragment -->
-    <string name="label_calendar_disclaimer">
-        Las fecha pueden haber variado desde la publicación del calendario.
+    <!-- CalendarActivity -->
+    <string name="labelCalendarActivity">TuIndice - %1$s</string>
+
+    <string name="snackBarCalendarDisclaimer">
+        Las fechas pueden haber variado desde la publicación del calendario.
     </string>
 
     <!-- EmailSentActivity -->
@@ -274,7 +273,7 @@
     <string name="aboutHeadersLibs">Detrás de TuIndice</string>
 
     <string name="aboutKotlin">
-        Kotlin 1.3.21\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
+        Kotlin 1.3.31\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
     </string>
 
     <string name="aboutFirebase">
@@ -294,6 +293,7 @@
     <string name="downloadEnrollment">Descargar Comprobante</string>
 
     <string name="toastEnrollment">Archivo no soportado ;(</string>
+    <string name="action_settings">Settings</string>
     <!-- todo classify: to here -->
 
 </resources>

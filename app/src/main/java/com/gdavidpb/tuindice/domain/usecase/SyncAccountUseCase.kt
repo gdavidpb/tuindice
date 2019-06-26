@@ -38,55 +38,64 @@ open class SyncAccountUseCase(
                     liveData.postNext(activeAccount)
                 }
 
+            /* Check connection to server */
+            val isRecordServiceAvailable = dstRepository.ping("https://www.google.com")
+            val isEnrollmentServiceAvailable = dstRepository.ping(ENDPOINT_DST_ENROLLMENT_AUTH)
+
             /* params -> trySync */
             if (!isCooldown || params) {
+
                 /* Get credentials */
                 val credentials = settingsRepository.getCredentials()
 
                 /* Collected data */
                 val collectedData = mutableListOf<DstData>()
 
-                /* Clear cookies */
-                localStorageRepository.delete("cookies")
+                if (isRecordServiceAvailable) {
+                    /* Clear cookies */
+                    localStorageRepository.delete("cookies")
 
-                /* Record service auth */
-                val recordAuthRequest = AuthRequest(
-                        usbId = credentials.usbId,
-                        password = credentials.password,
-                        serviceUrl = ENDPOINT_DST_RECORD_AUTH
-                )
+                    /* Record service auth */
+                    val recordAuthRequest = AuthRequest(
+                            usbId = credentials.usbId,
+                            password = credentials.password,
+                            serviceUrl = ENDPOINT_DST_RECORD_AUTH
+                    )
 
-                val recordAuthResponse = dstRepository.auth(recordAuthRequest)
+                    val recordAuthResponse = dstRepository.auth(recordAuthRequest)
 
-                if (recordAuthResponse?.isSuccessful == true) {
-                    val personalData = dstRepository.getPersonalData()
+                    if (recordAuthResponse?.isSuccessful == true) {
+                        val personalData = dstRepository.getPersonalData()
 
-                    val recordData = dstRepository.getRecordData()
+                        val recordData = dstRepository.getRecordData()
 
-                    if (personalData != null)
-                        collectedData.add(personalData)
+                        if (personalData != null)
+                            collectedData.add(personalData)
 
-                    if (recordData != null)
-                        collectedData.add(recordData)
+                        if (recordData != null)
+                            collectedData.add(recordData)
+                    }
                 }
 
-                /* Clear cookies */
-                localStorageRepository.delete("cookies")
+                if (isEnrollmentServiceAvailable) {
+                    /* Clear cookies */
+                    localStorageRepository.delete("cookies")
 
-                /* Enrollment service auth */
-                val enrollmentAuthRequest = AuthRequest(
-                        usbId = credentials.usbId,
-                        password = credentials.password,
-                        serviceUrl = ENDPOINT_DST_ENROLLMENT_AUTH
-                )
+                    /* Enrollment service auth */
+                    val enrollmentAuthRequest = AuthRequest(
+                            usbId = credentials.usbId,
+                            password = credentials.password,
+                            serviceUrl = ENDPOINT_DST_ENROLLMENT_AUTH
+                    )
 
-                val enrollmentAuthResponse = dstRepository.auth(enrollmentAuthRequest)
+                    val enrollmentAuthResponse = dstRepository.auth(enrollmentAuthRequest)
 
-                if (enrollmentAuthResponse?.isSuccessful == true) {
-                    val enrollmentData = dstRepository.getEnrollment()
+                    if (enrollmentAuthResponse?.isSuccessful == true) {
+                        val enrollmentData = dstRepository.getEnrollment()
 
-                    if (enrollmentData != null)
-                        collectedData.add(enrollmentData)
+                        if (enrollmentData != null)
+                            collectedData.add(enrollmentData)
+                    }
                 }
 
                 /* If there is collected data */

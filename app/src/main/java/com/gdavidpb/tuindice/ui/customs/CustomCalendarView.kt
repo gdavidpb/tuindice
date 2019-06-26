@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
+import android.view.View
 import android.widget.CalendarView
 import androidx.core.content.ContextCompat
 import com.gdavidpb.tuindice.R
@@ -83,7 +84,7 @@ class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(c
     }
 
     override fun onDraw(canvas: Canvas) {
-        val scrollIdle = with(monthViewPager) { scrollX % width == 0 }
+        val scrollIdle = with(monthViewPager) { (if (width != 0) scrollX % width else scrollX) == 0 }
 
         if (highlightedDays.isNotEmpty() && scrollIdle) {
             val currentCalendar = getCurrentCalendar()

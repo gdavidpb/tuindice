@@ -40,19 +40,19 @@ dependencies {
     /* Testing */
     testImplementation "junit:junit:4.12"
     androidTestImplementation "org.koin:koin-test:1.0.2"
-    androidTestImplementation "androidx.test:runner:1.1.1"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.1.1"
+    androidTestImplementation "androidx.test:runner:1.2.0"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.2.0"
 
     /* Support */
     implementation "androidx.multidex:multidex:2.0.1"
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
-    implementation "androidx.appcompat:appcompat:1.1.0-alpha03"
-    implementation "com.google.android.material:material:1.1.0-alpha04"
+    implementation "androidx.appcompat:appcompat:1.1.0-beta01"
+    implementation "com.google.android.material:material:1.1.0-alpha07"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.browser:browser:1.0.0"
-    implementation "androidx.recyclerview:recyclerview:1.1.0-alpha03"
-    implementation "androidx.vectordrawable:vectordrawable-animated:1.1.0-alpha01"
-    implementation "androidx.constraintlayout:constraintlayout:2.0.0-alpha3"
+    implementation "androidx.recyclerview:recyclerview:1.1.0-alpha06"
+    implementation "androidx.vectordrawable:vectordrawable-animated:1.1.0-beta02"
+    implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta2"
 
     /* Kotlin */
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -63,13 +63,13 @@ dependencies {
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
 
     /* Firebase */
-    implementation "com.google.firebase:firebase-core:16.0.8"
-    implementation "com.google.firebase:firebase-auth:16.2.0"
-    implementation "com.google.firebase:firebase-firestore:18.1.0"
-    implementation "com.google.firebase:firebase-dynamic-links:16.1.8"
-    implementation "com.google.firebase:firebase-functions:16.3.0"
-    implementation "com.google.firebase:firebase-messaging:17.4.0"
-    implementation "com.google.firebase:firebase-storage:16.1.0"
+    implementation "com.google.firebase:firebase-core:17.0.0"
+    implementation "com.google.firebase:firebase-auth:18.0.0"
+    implementation "com.google.firebase:firebase-firestore:20.1.0"
+    implementation "com.google.firebase:firebase-dynamic-links:18.0.0"
+    implementation "com.google.firebase:firebase-functions:18.0.0"
+    implementation "com.google.firebase:firebase-messaging:19.0.1"
+    implementation "com.google.firebase:firebase-storage:18.0.0"
 
     /* Architecture */
     implementation "androidx.arch.core:core-runtime:2.0.1"

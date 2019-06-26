@@ -14,9 +14,7 @@ import com.gdavidpb.tuindice.presentation.model.AboutBase
 import com.gdavidpb.tuindice.presentation.model.AboutHeader
 import com.gdavidpb.tuindice.presentation.model.AboutLib
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
-import com.gdavidpb.tuindice.utils.URL_CREATIVE_COMMONS
-import com.gdavidpb.tuindice.utils.URL_TERMS
-import com.gdavidpb.tuindice.utils.getCompatColor
+import com.gdavidpb.tuindice.utils.*
 import kotlinx.android.synthetic.main.activity_about.*
 import org.jetbrains.anko.browse
 import org.jetbrains.anko.email
@@ -59,7 +57,7 @@ class AboutActivity : AppCompatActivity() {
                 AboutHeader(title = getString(R.string.aboutHeaderDeveloper)),
                 About(drawable = R.drawable.ic_profile, content = getString(R.string.aboutDevInfo)),
                 About(drawable = R.drawable.ic_github, content = getString(R.string.aboutDevSource)),
-                About(drawable = R.drawable.ic_contact, content = getString(R.string.aboutDevContact)) { email(email = getString(R.string.devEmail), subject = getString(R.string.devContactSubject)) },
+                About(drawable = R.drawable.ic_contact, content = getString(R.string.aboutDevContact)) { email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT) },
                 AboutHeader(title = getString(R.string.aboutHeadersLibs)),
                 AboutLib(drawable = R.drawable.ic_kotlin, content = getString(R.string.aboutKotlin)),
                 AboutLib(drawable = R.drawable.ic_firebase, content = getString(R.string.aboutFirebase)),

@@ -32,6 +32,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
 import com.gdavidpb.tuindice.data.utils.Validation
@@ -41,11 +42,16 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.google.android.gms.tasks.Task
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.*
 import okhttp3.RequestBody
 import okio.Buffer
 import org.jetbrains.anko.sdk27.coroutines.textChangedListener
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.HttpException
+import retrofit2.Response
 import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.util.*
@@ -54,6 +60,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.absoluteValue
+import kotlin.math.floor
 
 /* Live data */
 
@@ -124,9 +131,24 @@ suspend fun Task<Void>.await() = suspendCoroutine<Unit> { continuation ->
 }
 
 @JvmName("awaitTResult")
-suspend fun <TResult> Task<TResult>.await() = suspendCoroutine<TResult> { continuation ->
+suspend fun <T> Task<T>.await() = suspendCoroutine<T> { continuation ->
     addOnSuccessListener { continuation.resume(it) }
     addOnFailureListener { continuation.resumeWithException(it) }
+}
+
+suspend fun <T> Call<T>.await() = suspendCoroutine<T?> { continuation ->
+    enqueue(object : Callback<T?> {
+        override fun onResponse(call: Call<T?>, response: Response<T?>) {
+            if (response.isSuccessful)
+                continuation.resume(response.body())
+            else
+                continuation.resumeWithException(HttpException(response))
+        }
+
+        override fun onFailure(call: Call<T?>, t: Throwable) {
+            continuation.resumeWithException(t)
+        }
+    })
 }
 
 /* Validation */
@@ -210,6 +232,41 @@ fun SeekBar.onSeekBarChange(listener: (progress: Int, fromUser: Boolean) -> Unit
 
         override fun onStopTrackingTouch(seekBar: SeekBar?) {
 
+        }
+    })
+}
+
+fun AppBarLayout.onStateChanged(listener: (newState: Int) -> Unit) {
+    var mCurrentState = STATE_IDLE
+
+    addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
+        when {
+            verticalOffset == 0 -> {
+                if (mCurrentState != STATE_EXPANDED)
+                    listener(STATE_EXPANDED)
+
+                mCurrentState = STATE_EXPANDED
+            }
+            verticalOffset.absoluteValue >= appBarLayout.totalScrollRange -> {
+                if (mCurrentState != STATE_COLLAPSED)
+                    listener(STATE_COLLAPSED)
+
+                mCurrentState = STATE_COLLAPSED
+            }
+            else -> {
+                if (mCurrentState != STATE_IDLE)
+                    listener(STATE_IDLE)
+
+                mCurrentState = STATE_IDLE
+            }
+        }
+    })
+}
+
+fun RecyclerView.onScrollStateChanged(listener: (newState: Int) -> Unit) {
+    addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            listener(newState)
         }
     })
 }
@@ -300,7 +357,7 @@ fun Date.formatLastUpdate(): String {
         time == 0L -> "Nunca"
         isToday() -> format("'Hoy,' hh:mm aa")
         isYesterday() -> format("'Ayer,' hh:mm aa")
-        days <= 7 -> format("EEEE',' hh:mm aa")
+        days < 7 -> format("EEEE',' hh:mm aa")
         else -> format("dd 'de' MMMM yyyy")
     }?.capitalize() ?: "-"
 }
@@ -312,7 +369,7 @@ fun Long.toCountdown(): String {
     return String.format("%02d:%02d", min, sec)
 }
 
-fun Double.toGrade() = Math.floor(this * 10000) / 10000
+fun Double.toGrade() = floor(this * 10000) / 10000
 
 fun Double.formatGrade() = String.format("%.4f", this)
 
@@ -348,9 +405,7 @@ fun Subject.isApproved(): Boolean {
 }
 
 fun Collection<Subject>.computeGrade(): Double {
-    val creditsSum = sumBy {
-        if (it.grade != 0) it.credits else 0
-    }.toDouble()
+    val creditsSum = computeCredits().toDouble()
 
     val weightedSum = sumBy {
         it.grade * it.credits
@@ -368,18 +423,20 @@ fun Collection<Subject>.computeCredits(): Int {
 private val gradeSumCache = hashMapOf<Int, Double>()
 
 private fun Collection<Quarter>.internalComputeGradeSum(until: Quarter): Double {
-    /* Until quarter and not take retired */
+    /* Until quarter and not retired */
     return filter { it.startDate <= until.startDate && it.status != STATUS_QUARTER_RETIRED }
             /* Get all subjects */
             .flatMap { it.subjects }
             /* No take retired subjects */
             .filter { it.status != STATUS_SUBJECT_RETIRED }
+            /* Group by code */
             .groupBy { it.code }
             .map { (_, subjects) ->
+                /* If you've seen this subject more than once */
                 if (subjects.size > 1)
                     subjects.toMutableList().also {
                         /* if last seen subject were approved, remove previous */
-                        if (it[0].isApproved())
+                        if (it.first().isApproved())
                             it.removeAt(1)
                     }
                 else

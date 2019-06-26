@@ -2,18 +2,17 @@ package com.gdavidpb.tuindice.data.source.service
 
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
-import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.exception.AuthException
+import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.toAuthResponse
-import com.gdavidpb.tuindice.utils.toEnrollment
-import com.gdavidpb.tuindice.utils.toPersonalData
-import com.gdavidpb.tuindice.utils.toRecord
+import com.gdavidpb.tuindice.utils.*
 import okhttp3.ResponseBody
-import retrofit2.HttpException
+import java.net.InetAddress
+import java.net.Socket
+import java.net.URL
 
 open class DstDataStore(
         private val authService: DstAuthService,
@@ -21,31 +20,21 @@ open class DstDataStore(
         private val enrollmentService: DstEnrollmentService
 ) : DstRepository {
     override suspend fun getPersonalData(): DstPersonal? {
-        val response = recordService.getPersonalData().execute().body()
-
-        return response?.toPersonalData()
+        return recordService.getPersonalData().await()?.toPersonalData()
     }
 
     override suspend fun getRecordData(): DstRecord? {
-        val response = recordService.getRecordData().execute().body()
-
-        return response?.toRecord()
+        return recordService.getRecordData().await()?.toRecord()
     }
 
     override suspend fun getEnrollment(): DstEnrollment? {
-        val response = runCatching {
-            enrollmentService.getEnrollment().execute().body()
-        }.onFailure {
-            it
-        }.getOrNull()
-
-        return response?.toEnrollment()
+        return runCatching {
+            enrollmentService.getEnrollment().await()
+        }.getOrNull()?.toEnrollment()
     }
 
     override suspend fun getEnrollmentProof(): ResponseBody? {
-        val response = enrollmentService.getEnrollmentProof().execute().body()
-
-        return response?.let {
+        return enrollmentService.getEnrollmentProof().await()?.let {
             val isValid = "${it.contentType()}" == "application/pdf"
 
             if (isValid) it else null
@@ -53,18 +42,29 @@ open class DstDataStore(
     }
 
     override suspend fun auth(request: AuthRequest): AuthResponse? {
-        val response = authService.auth(request.serviceUrl, request.usbId, request.password).execute()
+        return authService.auth(request.serviceUrl, request.usbId, request.password).await()?.let {
+            val authResponse = it.toAuthResponse()
 
-        return if (response.isSuccessful) {
-            response.body()?.let {
-                val authResponse = it.toAuthResponse()
-
-                when (authResponse.code) {
-                    AuthResponseCode.SUCCESS, AuthResponseCode.NO_ENROLLED -> authResponse
-                    else -> throw AuthException(code = authResponse.code, message = authResponse.message)
-                }
+            when (authResponse.code) {
+                AuthResponseCode.SUCCESS, AuthResponseCode.NO_ENROLLED -> authResponse
+                else -> throw AuthException(code = authResponse.code, message = authResponse.message)
             }
-        } else
-            throw HttpException(response)
+        }
+    }
+
+    override suspend fun ping(serviceUrl: String): Boolean {
+        return runCatching {
+            val url = URL(serviceUrl)
+            val hostAddress = InetAddress.getByName(url.host).hostAddress
+            val socket = Socket(hostAddress, 80).apply {
+                soTimeout = 10000
+            }
+            socket.close()
+            true
+        }.onFailure {
+            it.printStackTrace()
+        }.onSuccess {
+            it
+        }.getOrDefault(false)
     }
 }

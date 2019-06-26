@@ -36,7 +36,7 @@ open class QuarterAdapter(
         /* Default inflation */
         with(itemView) {
             repeat(averageSubjects) {
-                LayoutInflater.from(lLayoutQuarterContainer.context).inflate(R.layout.item_subject, lLayoutQuarterContainer as ViewGroup)
+                LayoutInflater.from(lLayoutQuarterContainer.context).inflate(R.layout.item_subject, lLayoutQuarterContainer)
             }
         }
 

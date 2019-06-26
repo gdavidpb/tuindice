@@ -49,16 +49,14 @@ open class RecordFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
             adapter = quarterAdapter
 
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                    if (newState == SCROLL_STATE_IDLE)
-                        btnAddQuarter.show()
-                    else
-                        btnAddQuarter.hide()
-                }
-            })
-
             ItemTouchHelper(quarterManager).attachToRecyclerView(this)
+        }
+
+        rViewRecord.onScrollStateChanged { newState ->
+            if (newState == SCROLL_STATE_IDLE)
+                btnAddQuarter.show()
+            else
+                btnAddQuarter.hide()
         }
 
         btnAddQuarter.onClickOnce(::onAddQuarterClicked)

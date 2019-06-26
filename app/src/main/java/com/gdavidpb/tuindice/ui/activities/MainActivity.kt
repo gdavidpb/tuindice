@@ -56,12 +56,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        val itemId = item.itemId
-
-        when (itemId) {
+        when (val itemId = item.itemId) {
+            R.id.nav_calendar -> startActivity<CalendarActivity>()
             R.id.nav_share -> share(text = getString(R.string.aboutShareMessage, packageName))
             R.id.nav_twitter -> browse(URL_TWITTER)
-            R.id.nav_contact -> email(email = getString(R.string.devEmail), subject = getString(R.string.devContactSubject))
+            R.id.nav_contact -> email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT)
             R.id.nav_report -> reportDialog()
             R.id.nav_about -> startActivity<AboutActivity>()
             R.id.nav_sign_out -> logoutDialog()
@@ -102,7 +101,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val items = resources.getStringArray(R.array.selectorReportItems).toList()
 
         selector(getString(R.string.selectorTitleReport), items) { _, selected ->
-            //todo show dialog, send to database
+            val subject = items[selected]
+
+            email(email = EMAIL_CONTACT, subject = subject)
         }
     }
 
@@ -168,7 +169,6 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         when (itemId) {
             R.id.nav_summary -> R.string.nav_summary to SummaryFragment()
             R.id.nav_record -> R.string.nav_record to RecordFragment()
-            R.id.nav_calendar -> R.string.nav_calendar to CalendarFragment()
             R.id.nav_pensum -> R.string.nav_pensum to PensumFragment()
             R.id.nav_achievements -> R.string.nav_achievements to AchievementsFragment()
             R.id.nav_podium -> R.string.nav_podium to PodiumFragment()
@@ -209,9 +209,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private fun startUpObserver(result: Result<StartUpAction>?) {
         when (result) {
             is Result.OnSuccess -> {
-                val value = result.value
-
-                when (value) {
+                when (val value = result.value) {
                     is StartUpAction.Main -> {
                         initView()
                     }

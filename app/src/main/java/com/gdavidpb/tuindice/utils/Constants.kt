@@ -21,6 +21,10 @@ const val URL_CREATIVE_COMMONS = "https://creativecommons.org/licenses/by-nc/4.0
 const val URL_TERMS = "https://tuindice-usb.firebaseapp.com/"
 const val URL_TWITTER = "https://twitter.com/TuIndice"
 
+/* Emails */
+const val EMAIL_CONTACT = "tuindice@gmail.com"
+const val EMAIL_SUBJECT_CONTACT = "TuIndice - Contacto"
+
 /* Preferences keys */
 const val KEY_USB_ID = "email"
 const val KEY_PASSWORD = "password"
@@ -69,6 +73,10 @@ const val STATUS_QUARTER_RETIRED = 3
 const val STATUS_SUBJECT_OK = 0
 const val STATUS_SUBJECT_RETIRED = 1
 const val STATUS_SUBJECT_NO_EFFECT = 2
+
+const val STATE_EXPANDED = 0
+const val STATE_COLLAPSED = 1
+const val STATE_IDLE = 2
 
 /* Default locale */
 val DEFAULT_LOCALE = Locale("es", "VE")
