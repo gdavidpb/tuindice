@@ -4,8 +4,8 @@ import java.util.*
 
 /* Dst service endpoints */
 const val ENDPOINT_DST_SECURE = "https://secure.dst.usb.ve/"
-const val ENDPOINT_DST_RECORD = "https://expediente.dii.usb.ve/"
-const val ENDPOINT_DST_ENROLLMENT = "https://comprobante.dii.usb.ve/"
+const val ENDPOINT_DST_RECORD = "http://expediente.dii.usb.ve/expediente/"
+const val ENDPOINT_DST_ENROLLMENT = "http://comprobante.dii.usb.ve/nuevoComprobante/"
 const val ENDPOINT_DST_POLL = "https://consulta.dii.usb.ve/"
 
 const val ENDPOINT_DST_RECORD_AUTH = "${ENDPOINT_DST_RECORD}login.do"
