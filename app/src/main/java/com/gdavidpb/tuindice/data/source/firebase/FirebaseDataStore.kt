@@ -77,13 +77,11 @@ open class FirebaseDataStore(
 
         val uri = Uri.parse(link)
 
-        val values = fun(uri: Uri): Map<String, String> {
-            return mapOf(
-                    uri.host to URL_BASE,
-                    uri.path to "path=/__/auth/onClick",
-                    uri.getQueryParameter("mode") to "resetPassword"
-            )
-        }
+        val values = fun(uri: Uri) = mapOf(
+                uri.host to URL_BASE,
+                uri.path to "path=/__/auth/onClick",
+                uri.getQueryParameter("mode") to "resetPassword"
+        )
 
         return values(uri).all { (value, expected) -> value == expected }
     }

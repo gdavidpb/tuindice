@@ -15,7 +15,7 @@ open class DiskStorageDataStore(
         val outputFile = File(context.filesDir, name)
 
         /* Create directories to */
-        outputFile.parentFile.mkdirs()
+        outputFile.parentFile?.mkdirs()
 
         val outputStream = FileOutputStream(outputFile)
 

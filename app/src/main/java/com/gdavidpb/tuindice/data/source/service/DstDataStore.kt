@@ -10,9 +10,6 @@ import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.*
 import okhttp3.ResponseBody
-import java.net.InetAddress
-import java.net.Socket
-import java.net.URL
 
 open class DstDataStore(
         private val authService: DstAuthService,
@@ -50,21 +47,5 @@ open class DstDataStore(
                 else -> throw AuthException(code = authResponse.code, message = authResponse.message)
             }
         }
-    }
-
-    override suspend fun ping(serviceUrl: String): Boolean {
-        return runCatching {
-            val url = URL(serviceUrl)
-            val hostAddress = InetAddress.getByName(url.host).hostAddress
-            val socket = Socket(hostAddress, 80).apply {
-                soTimeout = 10000
-            }
-            socket.close()
-            true
-        }.onFailure {
-            it.printStackTrace()
-        }.onSuccess {
-            it
-        }.getOrDefault(false)
     }
 }
