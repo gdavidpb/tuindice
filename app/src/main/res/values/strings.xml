@@ -273,19 +273,19 @@
     <string name="aboutHeadersLibs">Detrás de TuIndice</string>
 
     <string name="aboutKotlin">
-        Kotlin 1.3.31\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
+        Kotlin 1.3.40\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
     </string>
 
     <string name="aboutFirebase">
-        Firebase 16.0.8\nQuickly develop high-quality apps and grow your business\n© 2014 Google\nhttps://firebase.com/
+        Firebase 17.0.0\nQuickly develop high-quality apps and grow your business\n© 2014 Google\nhttps://firebase.com/
     </string>
 
     <string name="aboutKoin">
-        Koin 1.0.2\nA pragmatic lightweight dependency injection framework for Kotlin\n© 2018 Arnaud Giuliani\nhttps://insert-koin.io/
+        Koin 2.0.1\nA pragmatic lightweight dependency injection framework for Kotlin\n© 2018 Arnaud Giuliani\nhttps://insert-koin.io/
     </string>
 
     <string name="aboutRetrofit">
-        Retrofit 2.5.0\nA type-safe HTTP client for Android and Java\n© 2015 Square\nhttps://square.github.io/retrofit/
+        Retrofit 2.6.0\nA type-safe HTTP client for Android and Java\n© 2015 Square\nhttps://square.github.io/retrofit/
     </string>
 
     <!-- todo classify: from here -->
