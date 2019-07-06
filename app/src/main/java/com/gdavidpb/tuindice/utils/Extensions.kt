@@ -454,7 +454,7 @@ fun Collection<Quarter>.computeGradeSum(until: Quarter): Double {
 private val generationSet = (48..57).union(65..90).union(97..122).toList()
 
 fun QuarterEntity.generateId(): String {
-    val value = hashCode().absoluteValue
+    val value = startDate.hashCode().absoluteValue
 
     return String(userId.map { c ->
         generationSet[(value xor c.toInt()) % generationSet.size].toChar()
@@ -462,7 +462,7 @@ fun QuarterEntity.generateId(): String {
 }
 
 fun SubjectEntity.generateId(): String {
-    val value = hashCode().absoluteValue
+    val value = code.hashCode().absoluteValue
 
     return String(quarterId.map { c ->
         generationSet[(value xor c.toInt()) % generationSet.size].toChar()

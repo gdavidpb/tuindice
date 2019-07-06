@@ -5,10 +5,7 @@ import com.gdavidpb.tuindice.domain.model.service.DstData
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ContinuousUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.ENDPOINT_DST_ENROLLMENT_AUTH
-import com.gdavidpb.tuindice.utils.ENDPOINT_DST_RECORD_AUTH
-import com.gdavidpb.tuindice.utils.LiveContinuous
-import com.gdavidpb.tuindice.utils.postNext
+import com.gdavidpb.tuindice.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -47,6 +44,22 @@ open class SyncAccountUseCase(
                 /* Collected data */
                 val collectedData = mutableListOf<DstData>()
 
+                /* Enrollment service auth */
+                val enrollmentAuthRequest = AuthRequest(
+                        usbId = credentials.usbId,
+                        password = credentials.password,
+                        serviceUrl = ENDPOINT_DST_ENROLLMENT_AUTH
+                )
+
+                val enrollmentAuthResponse = dstRepository.auth(enrollmentAuthRequest)
+
+                if (enrollmentAuthResponse?.isSuccessful == true) {
+                    val enrollmentData = dstRepository.getEnrollment()
+
+                    if (enrollmentData != null)
+                        collectedData.add(enrollmentData)
+                }
+
                 /* Clear cookies */
                 localStorageRepository.delete("cookies")
 
@@ -69,25 +82,6 @@ open class SyncAccountUseCase(
 
                     if (recordData != null)
                         collectedData.add(recordData)
-                }
-
-                /* Clear cookies */
-                localStorageRepository.delete("cookies")
-
-                /* Enrollment service auth */
-                val enrollmentAuthRequest = AuthRequest(
-                        usbId = credentials.usbId,
-                        password = credentials.password,
-                        serviceUrl = ENDPOINT_DST_ENROLLMENT_AUTH
-                )
-
-                val enrollmentAuthResponse = dstRepository.auth(enrollmentAuthRequest)
-
-                if (enrollmentAuthResponse?.isSuccessful == true) {
-                    val enrollmentData = dstRepository.getEnrollment()
-
-                    if (enrollmentData != null)
-                        collectedData.add(enrollmentData)
                 }
 
                 /* If there is collected data */
