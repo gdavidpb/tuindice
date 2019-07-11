@@ -60,11 +60,11 @@
         <item>Mi índice es incorrecto</item>
         <item>No puedo descargar mi comprobante</item>
         <item>Hay un error en mi expediente</item>
-        <item>Hay un error en mi pensum</item>
-        <item>No encuentro una materia</item>
-        <item>No encuentro mi pensum</item>
-        <item>No puedo crear/eliminar un trimestre</item>
-        <item>No puedo crear/eliminar una materia</item>
+        <!--<item>Hay un error en mi pensum</item>-->
+        <!--<item>No encuentro una materia</item>-->
+        <!--<item>No encuentro mi pensum</item>-->
+        <!--<item>No puedo crear/eliminar un trimestre</item>-->
+        <!--<item>No puedo crear/eliminar una materia</item>-->
         <item>Otro…</item>
     </string-array>
 

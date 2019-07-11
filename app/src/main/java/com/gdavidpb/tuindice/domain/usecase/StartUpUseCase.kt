@@ -30,6 +30,8 @@ open class StartUpUseCase(
 
         val email = settingsRepository.awaitingEmail()
 
+        val lastScreen = settingsRepository.getLastScreen()
+
         return when {
             passwordReset -> {
                 settingsRepository.clearIsAwaitingForReset()
@@ -40,7 +42,7 @@ open class StartUpUseCase(
 
                 authRepository.signIn(email = request.email, password = request.password)
 
-                StartUpAction.Main
+                StartUpAction.Main(screen = lastScreen)
             }
             awaitingForReset -> StartUpAction.Reset(email = email)
             activeAuth != null -> {
@@ -53,7 +55,7 @@ open class StartUpUseCase(
                 }
 
                 if (authRepository.isEmailVerified())
-                    StartUpAction.Main
+                    StartUpAction.Main(screen = lastScreen)
                 else
                     StartUpAction.Verify(email = activeAuth.email)
 

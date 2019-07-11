@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AbsListView.OnScrollListener.SCROLL_STATE_IDLE
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -52,6 +51,7 @@ open class RecordFragment : Fragment() {
             ItemTouchHelper(quarterManager).attachToRecyclerView(this)
         }
 
+        /*
         rViewRecord.onScrollStateChanged { newState ->
             if (newState == SCROLL_STATE_IDLE)
                 btnAddQuarter.show()
@@ -60,6 +60,7 @@ open class RecordFragment : Fragment() {
         }
 
         btnAddQuarter.onClickOnce(::onAddQuarterClicked)
+        */
 
         with(viewModel) {
             observe(quarters, ::quartersObserver)
@@ -90,9 +91,11 @@ open class RecordFragment : Fragment() {
         }
     }
 
+    /*
     private fun onAddQuarterClicked() {
 
     }
+    */
 
     inner class QuarterManager : QuarterAdapter.AdapterManager, ItemTouchHelper.Callback() {
         override fun onSubjectChanged(item: Subject) {

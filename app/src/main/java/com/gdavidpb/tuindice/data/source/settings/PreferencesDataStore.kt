@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.source.settings
 
 import android.content.SharedPreferences
+import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.utils.*
@@ -107,6 +108,16 @@ open class PreferencesDataStore(
                 usbId = preferences.getString(KEY_USB_ID, "") ?: "",
                 password = preferences.getString(KEY_PASSWORD, "") ?: ""
         )
+    }
+
+    override suspend fun getLastScreen(): Int {
+        return preferences.getInt(KEY_LAST_SCREEN, R.id.nav_summary)
+    }
+
+    override suspend fun setLastScreen(screen: Int) {
+        preferences.edit {
+            putInt(KEY_LAST_SCREEN, screen)
+        }
     }
 
     override suspend fun clear() {

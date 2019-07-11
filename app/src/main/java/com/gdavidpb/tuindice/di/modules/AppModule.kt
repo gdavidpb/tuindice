@@ -217,6 +217,7 @@ val appModule = module {
     factory<CountdownUseCase>()
     factory<GetQuartersUseCase>()
     factory<UpdateSubjectUseCase>()
+    factory<SetLastScreenUseCase>()
 
     /* Utils */
 

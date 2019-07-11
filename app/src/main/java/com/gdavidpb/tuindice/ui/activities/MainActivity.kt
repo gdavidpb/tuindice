@@ -57,7 +57,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (val itemId = item.itemId) {
-            R.id.nav_calendar -> startActivity<CalendarActivity>()
+            //R.id.nav_calendar -> startActivity<CalendarActivity>()
             R.id.nav_share -> share(text = getString(R.string.aboutShareMessage, packageName))
             R.id.nav_twitter -> browse(URL_TWITTER)
             R.id.nav_contact -> email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT)
@@ -72,7 +72,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         return true
     }
 
-    private fun initView() {
+    private fun initView(@IdRes fragment: Int) {
         setContentView(R.layout.activity_main)
 
         setSupportActionBar(toolbar)
@@ -94,7 +94,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                     nav_view.menu.findItem(it).setActionView(R.layout.view_open)
                 }
 
-        loadFragment(R.id.nav_summary)
+        loadFragment(itemId = fragment, record = false)
     }
 
     private fun reportDialog() {
@@ -158,7 +158,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
-    private fun loadFragment(@IdRes itemId: Int, init: ((Fragment) -> Fragment)? = null) {
+    private fun loadFragment(@IdRes itemId: Int, init: ((Fragment) -> Fragment)? = null, record: Boolean = true) {
         val checkedItem = nav_view.checkedItem
 
         when {
@@ -169,11 +169,13 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         when (itemId) {
             R.id.nav_summary -> R.string.nav_summary to SummaryFragment()
             R.id.nav_record -> R.string.nav_record to RecordFragment()
-            R.id.nav_pensum -> R.string.nav_pensum to PensumFragment()
-            R.id.nav_achievements -> R.string.nav_achievements to AchievementsFragment()
-            R.id.nav_podium -> R.string.nav_podium to PodiumFragment()
+            //R.id.nav_pensum -> R.string.nav_pensum to PensumFragment()
+            //R.id.nav_achievements -> R.string.nav_achievements to AchievementsFragment()
+            //R.id.nav_podium -> R.string.nav_podium to PodiumFragment()
             else -> null
         }.notNull { (title, fragment) ->
+            if (record) viewModel.setLastScreen(fragment = itemId)
+
             supportActionBar?.setTitle(title)
 
             supportFragmentManager
@@ -211,7 +213,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             is Result.OnSuccess -> {
                 when (val value = result.value) {
                     is StartUpAction.Main -> {
-                        initView()
+                        initView(fragment = value.screen)
                     }
                     is StartUpAction.Reset -> {
                         startActivity<EmailSentActivity>(

@@ -22,5 +22,8 @@ interface SettingsRepository {
     suspend fun getCredentials(): DstCredentials
     suspend fun storeCredentials(credentials: DstCredentials)
 
+    suspend fun getLastScreen(): Int
+    suspend fun setLastScreen(screen: Int)
+
     suspend fun clear()
 }
