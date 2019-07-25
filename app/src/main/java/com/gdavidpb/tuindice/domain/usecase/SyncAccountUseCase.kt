@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.*
 
 open class SyncAccountUseCase(
         private val dstRepository: DstRepository,
@@ -27,7 +26,7 @@ open class SyncAccountUseCase(
 
         activeAuth?.also {
             val activeAccount = databaseRepository.localTransaction {
-                getAccount(uid = it.uid, lastUpdate = lastUpdate)
+                getAccount(uid = it.uid)?.copy(lastUpdate = lastUpdate)
             }
 
             if (activeAccount != null)
@@ -93,7 +92,7 @@ open class SyncAccountUseCase(
                     val updatedAccount = databaseRepository.remoteTransaction {
                         updateData(uid = it.uid, data = collectedData)
 
-                        getAccount(uid = it.uid, lastUpdate = Date())
+                        getAccount(uid = it.uid)
                     }
 
                     if (updatedAccount != null)

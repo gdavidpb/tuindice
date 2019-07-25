@@ -5,10 +5,9 @@ import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.service.DstData
-import java.util.*
 
 interface DatabaseRepository {
-    suspend fun getAccount(uid: String, lastUpdate: Date): Account?
+    suspend fun getAccount(uid: String): Account?
 
     suspend fun getQuarters(uid: String): List<Quarter>
 

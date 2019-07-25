@@ -25,6 +25,7 @@ open class StartUpUseCase(
         val link = params.dataString
 
         val activeAuth = authRepository.getActiveAuth()
+        val activeAccount = activeAuth?.let { auth -> databaseRepository.getAccount(uid = auth.uid) }
         val passwordReset = authRepository.isResetLink(link)
         val awaitingForReset = settingsRepository.isAwaitingForReset()
 
@@ -33,7 +34,7 @@ open class StartUpUseCase(
         val lastScreen = settingsRepository.getLastScreen()
 
         return when {
-            passwordReset -> {
+            passwordReset && activeAccount != null -> {
                 settingsRepository.clearIsAwaitingForReset()
 
                 val request = link!!.toResetRequest()
@@ -42,10 +43,10 @@ open class StartUpUseCase(
 
                 authRepository.signIn(email = request.email, password = request.password)
 
-                StartUpAction.Main(screen = lastScreen)
+                StartUpAction.Main(screen = lastScreen, account = activeAccount)
             }
             awaitingForReset -> StartUpAction.Reset(email = email)
-            activeAuth != null -> {
+            activeAuth != null && activeAccount != null -> {
                 val token = identifierRepository.getIdentifier()
 
                 CoroutineScope(backgroundContext).launch {
@@ -55,7 +56,7 @@ open class StartUpUseCase(
                 }
 
                 if (authRepository.isEmailVerified())
-                    StartUpAction.Main(screen = lastScreen)
+                    StartUpAction.Main(screen = lastScreen, account = activeAccount)
                 else
                     StartUpAction.Verify(email = activeAuth.email)
 

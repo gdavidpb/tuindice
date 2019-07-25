@@ -214,6 +214,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 when (val value = result.value) {
                     is StartUpAction.Main -> {
                         initView(fragment = value.screen)
+
+                        loadAccount(account = value.account)
                     }
                     is StartUpAction.Reset -> {
                         startActivity<EmailSentActivity>(

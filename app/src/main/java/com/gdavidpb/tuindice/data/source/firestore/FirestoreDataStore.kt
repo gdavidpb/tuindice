@@ -9,18 +9,17 @@ import com.gdavidpb.tuindice.utils.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
-import java.util.*
 
 open class FirestoreDataStore(
         private val firestore: FirebaseFirestore
 ) : DatabaseRepository {
-    override suspend fun getAccount(uid: String, lastUpdate: Date): Account {
+    override suspend fun getAccount(uid: String): Account {
         return firestore
                 .collection(COLLECTION_USER)
                 .document(uid)
                 .get()
                 .await()
-                .toAccount(lastUpdate)
+                .toAccount()
     }
 
     override suspend fun getQuarters(uid: String): List<Quarter> {

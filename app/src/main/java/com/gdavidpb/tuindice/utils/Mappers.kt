@@ -144,7 +144,7 @@ fun String.toSpanned(color: Int): Spanned {
 
 /* Data layer */
 
-fun DocumentSnapshot.toAccount(lastUpdate: Date): Account {
+fun DocumentSnapshot.toAccount(): Account {
     return Account(
             uid = id,
             id = getString(FIELD_USER_ID) ?: "",
@@ -165,8 +165,7 @@ fun DocumentSnapshot.toAccount(lastUpdate: Date): Account {
             retiredSubjects = getLong(FIELD_USER_RETIRED_SUBJECTS)?.toInt() ?: 0,
             retiredCredits = getLong(FIELD_USER_RETIRED_CREDITS)?.toInt() ?: 0,
             failedSubjects = getLong(FIELD_USER_FAILED_SUBJECTS)?.toInt() ?: 0,
-            failedCredits = getLong(FIELD_USER_FAILED_CREDITS)?.toInt() ?: 0,
-            lastUpdate = lastUpdate
+            failedCredits = getLong(FIELD_USER_FAILED_CREDITS)?.toInt() ?: 0
     )
 }
 
