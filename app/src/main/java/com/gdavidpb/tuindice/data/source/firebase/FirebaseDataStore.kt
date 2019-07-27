@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.utils.URL_BASE
 import com.gdavidpb.tuindice.utils.await
 import com.gdavidpb.tuindice.utils.fromResetParam
 import com.gdavidpb.tuindice.utils.toAuth
@@ -78,7 +77,7 @@ open class FirebaseDataStore(
         val uri = Uri.parse(link)
 
         val values = fun(uri: Uri) = mapOf(
-                uri.host to URL_BASE,
+                uri.host to BuildConfig.URL_APP_BASE,
                 uri.path to "path=/__/auth/onClick",
                 uri.getQueryParameter("mode") to "resetPassword"
         )

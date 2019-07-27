@@ -10,4 +10,14 @@ public final class BuildConfig {
   public static final String FLAVOR = "";
   public static final int VERSION_CODE = 7;
   public static final String VERSION_NAME = "1.0";
+  // Fields from build type: debug
+  public static final String ENDPOINT_DST_ENROLLMENT = "http://comprobante.dii.usb.ve/nuevoComprobante/";
+  public static final String ENDPOINT_DST_ENROLLMENT_AUTH = "http://comprobante.dii.usb.ve/nuevoComprobante/CAS/login.do";
+  public static final String ENDPOINT_DST_POLL = "https://consulta.dii.usb.ve/";
+  public static final String ENDPOINT_DST_POLL_AUTH = "http://comprobante.dii.usb.ve/nuevoComprobante/Consulta/Secure/zk/login.zul";
+  public static final String ENDPOINT_DST_RECORD = "http://expediente.dii.usb.ve/expediente/";
+  public static final String ENDPOINT_DST_RECORD_AUTH = "http://expediente.dii.usb.ve/expediente/login.do";
+  public static final String ENDPOINT_DST_SECURE = "https://secure.dst.usb.ve/";
+  public static final String URL_APP_BASE = "tuindice-usb.firebaseapp.com";
+  public static final String URL_APP_PRIVACY_POLICY = "https://tuindice-usb.firebaseapp.com/";
 }

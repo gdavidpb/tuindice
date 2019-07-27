@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.di.modules
 
 import android.content.Context
 import android.net.ConnectivityManager
+import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
 import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataStore
@@ -16,9 +17,6 @@ import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
-import com.gdavidpb.tuindice.utils.ENDPOINT_DST_ENROLLMENT
-import com.gdavidpb.tuindice.utils.ENDPOINT_DST_RECORD
-import com.gdavidpb.tuindice.utils.ENDPOINT_DST_SECURE
 import com.gdavidpb.tuindice.utils.getProperty
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
@@ -158,7 +156,7 @@ val appModule = module {
 
         get<Retrofit.Builder>()
                 .client(httpClient)
-                .baseUrl(ENDPOINT_DST_SECURE)
+                .baseUrl(BuildConfig.ENDPOINT_DST_SECURE)
                 .build()
                 .create(DstAuthService::class.java) as DstAuthService
     }
@@ -171,7 +169,7 @@ val appModule = module {
 
         get<Retrofit.Builder>()
                 .client(httpClient)
-                .baseUrl(ENDPOINT_DST_RECORD)
+                .baseUrl(BuildConfig.ENDPOINT_DST_RECORD)
                 .build()
                 .create(DstRecordService::class.java) as DstRecordService
     }
@@ -184,7 +182,7 @@ val appModule = module {
 
         get<Retrofit.Builder>()
                 .client(httpClient)
-                .baseUrl(ENDPOINT_DST_ENROLLMENT)
+                .baseUrl(BuildConfig.ENDPOINT_DST_ENROLLMENT)
                 .build()
                 .create(DstEnrollmentService::class.java) as DstEnrollmentService
     }

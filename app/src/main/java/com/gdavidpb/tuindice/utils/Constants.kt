@@ -2,20 +2,6 @@ package com.gdavidpb.tuindice.utils
 
 import java.util.*
 
-/* Dst service endpoints */
-const val ENDPOINT_DST_SECURE = "https://secure.dst.usb.ve/"
-const val ENDPOINT_DST_RECORD = "http://expediente.dii.usb.ve/expediente/"
-const val ENDPOINT_DST_ENROLLMENT = "http://comprobante.dii.usb.ve/nuevoComprobante/"
-const val ENDPOINT_DST_POLL = "https://consulta.dii.usb.ve/"
-
-const val ENDPOINT_DST_RECORD_AUTH = "${ENDPOINT_DST_RECORD}login.do"
-const val ENDPOINT_DST_ENROLLMENT_AUTH = "${ENDPOINT_DST_ENROLLMENT}CAS/login.do"
-const val ENDPOINT_DST_POLL_AUTH = "${ENDPOINT_DST_ENROLLMENT}Consulta/Secure/zk/login.zul"
-
-/* Firebase storage urls */
-const val URL_BASE = "tuindice-usb.firebaseapp.com"
-const val URL_PRIVACY_POLICY = "https://$URL_BASE/"
-
 /* Third-party urls */
 const val URL_CREATIVE_COMMONS = "https://creativecommons.org/licenses/by-nc/4.0/"
 const val URL_TERMS = "https://tuindice-usb.firebaseapp.com/"
@@ -49,6 +35,7 @@ val ROMANS = hashMapOf(
         "10" to "X"
 )
 
+/*
 val QUARTER_STARTS = arrayOf(
         Calendar.JANUARY,
         Calendar.APRIL,
@@ -65,6 +52,7 @@ val QUARTER_ENDS = arrayOf(
 val QUARTER_RANGES = QUARTER_STARTS.mapIndexed { index, _ ->
     QUARTER_STARTS[index] to QUARTER_ENDS[index]
 }
+*/
 
 const val STATUS_QUARTER_CURRENT = 0
 const val STATUS_QUARTER_COMPLETED = 1

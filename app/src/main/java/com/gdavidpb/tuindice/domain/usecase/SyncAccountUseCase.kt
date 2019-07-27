@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase
 
+import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.service.DstData
 import com.gdavidpb.tuindice.domain.repository.*
@@ -47,7 +48,7 @@ open class SyncAccountUseCase(
                 val enrollmentAuthRequest = AuthRequest(
                         usbId = credentials.usbId,
                         password = credentials.password,
-                        serviceUrl = ENDPOINT_DST_ENROLLMENT_AUTH
+                        serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH
                 )
 
                 val enrollmentAuthResponse = dstRepository.auth(enrollmentAuthRequest)
@@ -66,7 +67,7 @@ open class SyncAccountUseCase(
                 val recordAuthRequest = AuthRequest(
                         usbId = credentials.usbId,
                         password = credentials.password,
-                        serviceUrl = ENDPOINT_DST_RECORD_AUTH
+                        serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH
                 )
 
                 val recordAuthResponse = dstRepository.auth(recordAuthRequest)

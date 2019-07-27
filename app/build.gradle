@@ -29,9 +29,37 @@ android {
     }
 
     buildTypes {
-        release {
+        debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+
+            buildConfigField "String", "URL_APP_BASE", '"tuindice-usb.firebaseapp.com"'
+            buildConfigField "String", "URL_APP_PRIVACY_POLICY", '"https://tuindice-usb.firebaseapp.com/"'
+
+            buildConfigField "String", "ENDPOINT_DST_SECURE", '"https://secure.dst.usb.ve/"'
+            buildConfigField "String", "ENDPOINT_DST_RECORD", '"http://expediente.dii.usb.ve/expediente/"'
+            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT", '"http://comprobante.dii.usb.ve/nuevoComprobante/"'
+            buildConfigField "String", "ENDPOINT_DST_POLL", '"https://consulta.dii.usb.ve/"'
+
+            buildConfigField "String", "ENDPOINT_DST_RECORD_AUTH", '"http://expediente.dii.usb.ve/expediente/login.do"'
+            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT_AUTH", '"http://comprobante.dii.usb.ve/nuevoComprobante/CAS/login.do"'
+            buildConfigField "String", "ENDPOINT_DST_POLL_AUTH", '"http://comprobante.dii.usb.ve/nuevoComprobante/Consulta/Secure/zk/login.zul"'
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+
+            buildConfigField "String", "URL_APP_BASE", '"tuindice-usb.firebaseapp.com"'
+            buildConfigField "String", "URL_APP_PRIVACY_POLICY", '"https://tuindice-usb.firebaseapp.com/"'
+
+            buildConfigField "String", "ENDPOINT_DST_SECURE", '"https://secure.dst.usb.ve/"'
+            buildConfigField "String", "ENDPOINT_DST_RECORD", '"http://expediente.dii.usb.ve/expediente/"'
+            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT", '"http://comprobante.dii.usb.ve/nuevoComprobante/"'
+            buildConfigField "String", "ENDPOINT_DST_POLL", '"https://consulta.dii.usb.ve/"'
+
+            buildConfigField "String", "ENDPOINT_DST_RECORD_AUTH", '"http://expediente.dii.usb.ve/expediente/login.do"'
+            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT_AUTH", '"http://comprobante.dii.usb.ve/nuevoComprobante/CAS/login.do"'
+            buildConfigField "String", "ENDPOINT_DST_POLL_AUTH", '"http://comprobante.dii.usb.ve/nuevoComprobante/Consulta/Secure/zk/login.zul"'
         }
     }
 }
@@ -66,11 +94,11 @@ dependencies {
     /* Firebase */
     implementation "com.google.firebase:firebase-core:17.0.1"
     implementation "com.google.firebase:firebase-auth:18.1.0"
-    implementation "com.google.firebase:firebase-firestore:20.1.0"
+    implementation "com.google.firebase:firebase-firestore:20.2.0"
     implementation "com.google.firebase:firebase-dynamic-links:18.0.0"
-    implementation "com.google.firebase:firebase-functions:18.0.0"
+    implementation "com.google.firebase:firebase-functions:18.1.0"
     implementation "com.google.firebase:firebase-messaging:19.0.1"
-    implementation "com.google.firebase:firebase-storage:18.1.0"
+    implementation "com.google.firebase:firebase-storage:18.1.1"
 
     /* Architecture */
     implementation "androidx.arch.core:core-runtime:2.0.1"

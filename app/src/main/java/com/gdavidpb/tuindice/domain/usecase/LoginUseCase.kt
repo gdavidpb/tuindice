@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.domain.usecase
 
+import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.ENDPOINT_DST_RECORD_AUTH
 import com.gdavidpb.tuindice.utils.toDstCredentials
 import com.gdavidpb.tuindice.utils.toUsbEmail
 import com.google.firebase.auth.FirebaseAuthException
@@ -29,7 +29,7 @@ open class LoginUseCase(
         settingsRepository.clear()
         localStorageRepository.delete("cookies")
 
-        val authResponse = dstRepository.auth(params.copy(serviceUrl = ENDPOINT_DST_RECORD_AUTH))
+        val authResponse = dstRepository.auth(params.copy(serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH))
 
         /* Dst auth success */
         if (authResponse != null) {

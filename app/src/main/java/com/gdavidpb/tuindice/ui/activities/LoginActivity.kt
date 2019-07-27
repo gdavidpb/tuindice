@@ -12,6 +12,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintSet
+import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
@@ -121,7 +122,7 @@ class LoginActivity : BaseActivity(
     }
 
     private fun onPrivacyPolicyClick() {
-        browse(url = URL_PRIVACY_POLICY)
+        browse(url = BuildConfig.URL_APP_PRIVACY_POLICY)
     }
 
     private fun onLoginClick() {
