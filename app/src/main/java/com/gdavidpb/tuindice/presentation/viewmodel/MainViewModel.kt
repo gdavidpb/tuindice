@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.presentation.viewmodel
 
-import android.content.Intent
 import androidx.annotation.IdRes
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.domain.model.Account
@@ -28,8 +27,8 @@ class MainViewModel(
         logoutUseCase.execute(liveData = logout, params = Unit)
     }
 
-    fun fetchStartUpAction(intent: Intent) {
-        startUpUseCase.execute(liveData = fetchStartUpAction, params = intent)
+    fun fetchStartUpAction(dataString: String) {
+        startUpUseCase.execute(liveData = fetchStartUpAction, params = dataString)
     }
 
     fun loadAccount(trySync: Boolean) {

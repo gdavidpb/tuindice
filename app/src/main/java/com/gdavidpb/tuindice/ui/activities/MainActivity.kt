@@ -44,7 +44,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             observe(account, ::accountObserver)
             observe(fetchStartUpAction, ::startUpObserver)
 
-            fetchStartUpAction(intent)
+            fetchStartUpAction(dataString = intent.dataString ?: "")
         }
     }
 

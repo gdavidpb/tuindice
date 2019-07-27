@@ -12,5 +12,9 @@ class LoginViewModel(
 
     val auth = LiveResult<AuthResponse>()
 
-    fun auth(request: AuthRequest) = loginUseCase.execute(liveData = auth, params = request)
+    fun auth(usbId: String, password: String) {
+        val request = AuthRequest(usbId, password)
+
+        loginUseCase.execute(liveData = auth, params = request)
+    }
 }

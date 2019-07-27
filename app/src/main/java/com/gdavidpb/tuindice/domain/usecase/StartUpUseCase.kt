@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import android.content.Intent
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
@@ -17,16 +16,14 @@ open class StartUpUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
         private val identifierRepository: IdentifierRepository
-) : ResultUseCase<Intent, StartUpAction>(
+) : ResultUseCase<String, StartUpAction>(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
 ) {
-    override suspend fun executeOnBackground(params: Intent): StartUpAction? {
-        val link = params.dataString
-
+    override suspend fun executeOnBackground(params: String): StartUpAction? {
         val activeAuth = authRepository.getActiveAuth()
         val activeAccount = activeAuth?.let { auth -> databaseRepository.getAccount(uid = auth.uid) }
-        val passwordReset = authRepository.isResetLink(link)
+        val passwordReset = authRepository.isResetLink(params)
         val awaitingForReset = settingsRepository.isAwaitingForReset()
 
         val email = settingsRepository.awaitingEmail()
@@ -37,7 +34,7 @@ open class StartUpUseCase(
             passwordReset && activeAccount != null -> {
                 settingsRepository.clearIsAwaitingForReset()
 
-                val request = link!!.toResetRequest()
+                val request = params.toResetRequest()
 
                 authRepository.confirmPasswordReset(request.code, request.password)
 

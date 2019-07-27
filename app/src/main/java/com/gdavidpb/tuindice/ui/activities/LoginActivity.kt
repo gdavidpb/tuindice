@@ -18,7 +18,6 @@ import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.exception.AuthException
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
-import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.utils.*
 import kotlinx.android.synthetic.main.activity_login.*
@@ -135,12 +134,10 @@ class LoginActivity : BaseActivity(
         }.isNull {
             iViewLogo.performClick()
 
-            val request = AuthRequest(
+            viewModel.auth(
                     usbId = tInputUsbId.text(),
                     password = tInputPassword.text()
             )
-
-            viewModel.auth(request)
         }
     }
 
@@ -213,12 +210,11 @@ class LoginActivity : BaseActivity(
                             .apply {
                                 if (message != R.string.snackInvalidCredentials) {
                                     setAction(R.string.retry) {
-                                        val request = AuthRequest(
+
+                                        viewModel.auth(
                                                 usbId = tInputUsbId.text(),
                                                 password = tInputPassword.text()
                                         )
-
-                                        viewModel.auth(request)
                                     }
                                 }
                             }
