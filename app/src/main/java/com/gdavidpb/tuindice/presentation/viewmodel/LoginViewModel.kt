@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.utils.LiveResult
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.usecase.LoginUseCase
@@ -13,7 +14,11 @@ class LoginViewModel(
     val auth = LiveResult<AuthResponse>()
 
     fun auth(usbId: String, password: String) {
-        val request = AuthRequest(usbId, password)
+        val request = AuthRequest(
+                usbId = usbId,
+                password = password,
+                serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH
+        )
 
         loginUseCase.execute(liveData = auth, params = request)
     }

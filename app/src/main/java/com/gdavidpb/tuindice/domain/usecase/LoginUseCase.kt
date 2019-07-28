@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
@@ -29,7 +28,7 @@ open class LoginUseCase(
         settingsRepository.clear()
         localStorageRepository.delete("cookies")
 
-        val authResponse = dstRepository.auth(params.copy(serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH))
+        val authResponse = dstRepository.auth(request = params)
 
         /* Dst auth success */
         if (authResponse != null) {
