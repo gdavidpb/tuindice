@@ -59,7 +59,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         when (val itemId = item.itemId) {
             //R.id.nav_calendar -> startActivity<CalendarActivity>()
             R.id.nav_share -> share(text = getString(R.string.aboutShareMessage, packageName))
-            R.id.nav_twitter -> browse(URL_TWITTER)
+            R.id.nav_twitter -> browse(url = URL_TWITTER)
             R.id.nav_contact -> email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT)
             R.id.nav_report -> reportDialog()
             R.id.nav_about -> startActivity<AboutActivity>()

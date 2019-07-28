@@ -41,6 +41,7 @@ import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.ui.activities.BrowserActivity
 import com.google.android.gms.tasks.Task
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.textfield.TextInputLayout
@@ -48,6 +49,7 @@ import kotlinx.coroutines.*
 import okhttp3.RequestBody
 import okio.Buffer
 import org.jetbrains.anko.sdk27.coroutines.textChangedListener
+import org.jetbrains.anko.startActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.HttpException
@@ -310,6 +312,10 @@ fun SharedPreferences.edit(transaction: SharedPreferences.Editor.() -> Unit) {
 }
 
 /* Context */
+
+fun Context.browserActivity(@StringRes title: Int, url: String) {
+    startActivity<BrowserActivity>(EXTRA_TITLE to getString(title), EXTRA_URL to url)
+}
 
 fun Context.getCompatColor(@ColorRes colorRes: Int): Int = ContextCompat.getColor(this, colorRes)
 

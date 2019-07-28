@@ -21,7 +21,6 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.utils.*
 import kotlinx.android.synthetic.main.activity_login.*
-import org.jetbrains.anko.browse
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.startActivity
 import org.koin.android.ext.android.inject
@@ -121,7 +120,7 @@ class LoginActivity : BaseActivity(
     }
 
     private fun onPrivacyPolicyClick() {
-        browse(url = BuildConfig.URL_APP_PRIVACY_POLICY)
+        browserActivity(title = R.string.label_privacy_policy, url = BuildConfig.URL_APP_PRIVACY_POLICY)
     }
 
     private fun onLoginClick() {

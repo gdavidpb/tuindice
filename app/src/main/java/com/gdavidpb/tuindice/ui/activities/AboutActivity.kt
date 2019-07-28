@@ -49,8 +49,8 @@ class AboutActivity : AppCompatActivity() {
         val data = listOf(
                 AboutHeader(title = getString(R.string.app_name)),
                 About(drawable = R.drawable.ic_version, content = version),
-                About(drawable = R.drawable.ic_cc, content = getString(R.string.aboutLicense)) { browse(URL_CREATIVE_COMMONS) },
-                About(drawable = R.drawable.ic_terms, content = getString(R.string.aboutTerms)) { browse(URL_TERMS) },
+                About(drawable = R.drawable.ic_cc, content = getString(R.string.aboutLicense)) { browserActivity(title = R.string.label_creative_commons, url = URL_CREATIVE_COMMONS) },
+                About(drawable = R.drawable.ic_terms, content = getString(R.string.aboutTerms)) { browserActivity(title = R.string.label_privacy_policy, url = URL_TERMS) },
                 About(drawable = R.drawable.ic_share, content = getString(R.string.aboutShare)) { share(getString(R.string.aboutShareMessage, packageName), getString(R.string.app_name)) },
                 About(drawable = R.drawable.ic_rate, content = getString(R.string.aboutRate)) { startPlayStore() },
                 AboutHeader(title = getString(R.string.aboutHeaderDeveloper)),
@@ -85,7 +85,7 @@ class AboutActivity : AppCompatActivity() {
         try {
             startActivity(intent)
         } catch (ignored: ActivityNotFoundException) {
-            browse(getString(R.string.aboutGooglePlay, packageName))
+            browse(url = getString(R.string.aboutGooglePlay, packageName))
         }
     }
 

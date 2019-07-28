@@ -62,6 +62,11 @@
             android:label=""
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.activities.BrowserActivity"
+            android:exported="false"
+            android:label=""
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
