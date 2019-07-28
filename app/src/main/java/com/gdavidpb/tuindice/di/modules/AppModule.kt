@@ -16,7 +16,6 @@ import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.utils.getProperty
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
@@ -192,7 +191,6 @@ val appModule = module {
     viewModel<MainViewModel>()
     viewModel<LoginViewModel>()
     viewModel<EmailSentViewModel>()
-    viewModel<RecordViewModel>()
 
     /* Factories */
 

@@ -29,7 +29,12 @@ open class GetQuartersUseCase(
                 }
             }
 
-            getDataFromLocal().let { if (it.isNotEmpty()) it else getDataFromRemote() }
+            val local = getDataFromLocal()
+
+            if (local.isNotEmpty())
+                local
+            else
+                getDataFromRemote()
         }
     }
 }
