@@ -478,7 +478,7 @@ fun SubjectEntity.generateId(): String {
 fun X509Certificate.getProperty(key: String) = "(?<=$key=)[^,]+|$".toRegex().find(subjectDN.name)?.value
 
 fun Date.isToday(): Boolean {
-    val start = Calendar.getInstance().run {
+    val start = Calendar.getInstance(DEFAULT_LOCALE).run {
         set(Calendar.HOUR_OF_DAY, 0)
         set(Calendar.MINUTE, 0)
         set(Calendar.SECOND, 0)
@@ -487,7 +487,7 @@ fun Date.isToday(): Boolean {
         Date(timeInMillis)
     }
 
-    val end = Calendar.getInstance().run {
+    val end = Calendar.getInstance(DEFAULT_LOCALE).run {
         set(Calendar.HOUR_OF_DAY, 0)
         set(Calendar.MINUTE, 0)
         set(Calendar.SECOND, 0)
@@ -503,7 +503,7 @@ fun Date.isToday(): Boolean {
 }
 
 fun Date.isYesterday(): Boolean {
-    val start = Calendar.getInstance().run {
+    val start = Calendar.getInstance(DEFAULT_LOCALE).run {
         set(Calendar.HOUR_OF_DAY, 0)
         set(Calendar.MINUTE, 0)
         set(Calendar.SECOND, 0)
@@ -513,7 +513,7 @@ fun Date.isYesterday(): Boolean {
         Date(timeInMillis)
     }
 
-    val end = Calendar.getInstance().run {
+    val end = Calendar.getInstance(DEFAULT_LOCALE).run {
         set(Calendar.HOUR_OF_DAY, 0)
         set(Calendar.MINUTE, 0)
         set(Calendar.SECOND, 0)
@@ -530,25 +530,25 @@ fun Date.isYesterday(): Boolean {
 }
 
 fun Calendar.containsInMonth(value: Calendar): Boolean {
-    val start = Calendar.getInstance().let {
+    val start = Calendar.getInstance(DEFAULT_LOCALE).let {
         it.time = this.time
 
-        add(Calendar.HOUR_OF_DAY, 0)
-        add(Calendar.MINUTE, 0)
-        add(Calendar.SECOND, 0)
-        add(Calendar.MILLISECOND, 0)
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
 
         set(Calendar.DAY_OF_MONTH, 1)
 
-        Date(timeInMillis)
+        Date(it.timeInMillis)
     }
 
-    val end = Calendar.getInstance().run {
-        time = start
+    val end = Calendar.getInstance(DEFAULT_LOCALE).let {
+        it.time = start
 
-        add(Calendar.MONTH, 1)
+        it.add(Calendar.MONTH, 1)
 
-        Date(timeInMillis)
+        Date(it.timeInMillis)
     }
 
     return start.rangeTo(end).contains(value.time)

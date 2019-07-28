@@ -7,25 +7,27 @@ import android.util.AttributeSet
 import android.widget.CalendarView
 import androidx.core.content.ContextCompat
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.utils.containsInMonth
 import com.gdavidpb.tuindice.utils.negRem
 import org.jetbrains.anko.childrenRecursiveSequence
 import org.jetbrains.anko.dip
 import org.jetbrains.anko.sdk27.coroutines.onScrollChange
 import java.util.*
+import kotlin.math.roundToInt
 
 class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(context, attrs) {
 
     init {
         setWillNotDraw(false)
 
-        maxDate = Calendar.getInstance().run {
+        maxDate = Calendar.getInstance(DEFAULT_LOCALE).run {
             add(Calendar.YEAR, 5)
 
             timeInMillis
         }
 
-        minDate = Calendar.getInstance().run {
+        minDate = Calendar.getInstance(DEFAULT_LOCALE).run {
             add(Calendar.YEAR, -5)
 
             timeInMillis
@@ -109,7 +111,7 @@ class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(c
         highlightedDays.clear()
 
         values.forEach { date ->
-            val calendar = Calendar.getInstance().apply {
+            val calendar = Calendar.getInstance(DEFAULT_LOCALE).apply {
                 time = date
 
                 firstDayOfWeek = this@CustomCalendarView.firstDayOfWeek
@@ -129,9 +131,9 @@ class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(c
     }
 
     private fun getCurrentCalendar(): Calendar {
-        return Calendar.getInstance().apply {
+        return Calendar.getInstance(DEFAULT_LOCALE).apply {
             val relation = with(monthViewPager) { scrollX / width.toDouble() }
-            val months = Math.round(relation).toInt()
+            val months = relation.roundToInt()
 
             set(Calendar.DAY_OF_MONTH, 1)
             set(Calendar.HOUR_OF_DAY, 0)
