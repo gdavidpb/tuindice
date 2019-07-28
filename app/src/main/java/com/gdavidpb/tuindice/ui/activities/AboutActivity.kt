@@ -23,8 +23,8 @@ class AboutActivity : AppCompatActivity() {
 
     private val cachedColors by lazy {
         listOf(
-                getCompatColor(R.color.colorPrimaryText),
-                getCompatColor(R.color.colorSecondaryText)
+                getCompatColor(R.color.color_primary_text),
+                getCompatColor(R.color.color_secondary_text)
         )
     }
 
@@ -41,7 +41,7 @@ class AboutActivity : AppCompatActivity() {
 
         val versionName = BuildConfig.VERSION_NAME.toFloat()
 
-        val version = getString(R.string.aboutVersion,
+        val version = getString(R.string.about_version,
                 BuildConfig.VERSION_NAME,
                 BuildConfig.VERSION_CODE,
                 getString(if (versionName < 1.0f) R.string.beta else R.string.alpha))
@@ -49,19 +49,19 @@ class AboutActivity : AppCompatActivity() {
         val data = listOf(
                 AboutHeader(title = getString(R.string.app_name)),
                 About(drawable = R.drawable.ic_version, content = version),
-                About(drawable = R.drawable.ic_cc, content = getString(R.string.aboutLicense)) { browserActivity(title = R.string.label_creative_commons, url = URL_CREATIVE_COMMONS) },
-                About(drawable = R.drawable.ic_terms, content = getString(R.string.aboutTerms)) { browserActivity(title = R.string.label_privacy_policy, url = URL_TERMS) },
-                About(drawable = R.drawable.ic_share, content = getString(R.string.aboutShare)) { share(getString(R.string.aboutShareMessage, packageName), getString(R.string.app_name)) },
-                About(drawable = R.drawable.ic_rate, content = getString(R.string.aboutRate)) { startPlayStore() },
-                AboutHeader(title = getString(R.string.aboutHeaderDeveloper)),
-                About(drawable = R.drawable.ic_profile, content = getString(R.string.aboutDevInfo)),
-                About(drawable = R.drawable.ic_github, content = getString(R.string.aboutDevSource)),
-                About(drawable = R.drawable.ic_contact, content = getString(R.string.aboutDevContact)) { email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT) },
-                AboutHeader(title = getString(R.string.aboutHeadersLibs)),
-                AboutLib(drawable = R.drawable.ic_kotlin, content = getString(R.string.aboutKotlin)),
-                AboutLib(drawable = R.drawable.ic_firebase, content = getString(R.string.aboutFirebase)),
-                AboutLib(drawable = R.drawable.ic_koin, content = getString(R.string.aboutKoin)),
-                AboutLib(drawable = R.drawable.ic_square, content = getString(R.string.aboutRetrofit))
+                About(drawable = R.drawable.ic_cc, content = getString(R.string.about_license)) { browserActivity(title = R.string.label_creative_commons, url = URL_CREATIVE_COMMONS) },
+                About(drawable = R.drawable.ic_privacy_policy, content = getString(R.string.about_privacy_policy)) { browserActivity(title = R.string.label_privacy_policy, url = URL_PRIVACY_POLICY) },
+                About(drawable = R.drawable.ic_share, content = getString(R.string.about_share)) { share(getString(R.string.about_share_message, packageName), getString(R.string.app_name)) },
+                About(drawable = R.drawable.ic_rate, content = getString(R.string.about_rate)) { startPlayStore() },
+                AboutHeader(title = getString(R.string.about_header_developer)),
+                About(drawable = R.drawable.ic_profile, content = getString(R.string.about_dev_info)),
+                About(drawable = R.drawable.ic_github, content = getString(R.string.about_source_code)),
+                About(drawable = R.drawable.ic_contact, content = getString(R.string.about_dev_contact)) { email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT) },
+                AboutHeader(title = getString(R.string.about_headers_libs)),
+                AboutLib(drawable = R.drawable.ic_kotlin, content = getString(R.string.about_kotlin)),
+                AboutLib(drawable = R.drawable.ic_firebase, content = getString(R.string.about_firebase)),
+                AboutLib(drawable = R.drawable.ic_koin, content = getString(R.string.about_koin)),
+                AboutLib(drawable = R.drawable.ic_square, content = getString(R.string.about_retrofit))
         )
 
         adapter.swapItems(new = data)
@@ -74,7 +74,7 @@ class AboutActivity : AppCompatActivity() {
     }
 
     private fun startPlayStore() {
-        val uri = Uri.parse(getString(R.string.aboutGooglePlayIntent, packageName))
+        val uri = Uri.parse(getString(R.string.about_google_play_intent, packageName))
         val intent = Intent(Intent.ACTION_VIEW, uri).apply {
             addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
 
@@ -85,7 +85,7 @@ class AboutActivity : AppCompatActivity() {
         try {
             startActivity(intent)
         } catch (ignored: ActivityNotFoundException) {
-            browse(url = getString(R.string.aboutGooglePlay, packageName))
+            browse(url = getString(R.string.about_google_play, packageName))
         }
     }
 

@@ -67,8 +67,8 @@ fun Subject.toSubjectCode(context: Context): CharSequence {
         code
     else
         buildSpanned {
-            val content = context.getString(R.string.subjectTitle, code, toSubjectStatusDescription())
-            val colorSecondary = ContextCompat.getColor(context, R.color.colorSecondaryText)
+            val content = context.getString(R.string.subject_title, code, toSubjectStatusDescription())
+            val colorSecondary = ContextCompat.getColor(context, R.color.color_secondary_text)
 
             append(content.substringBefore(' '))
             append(' ')
@@ -93,13 +93,13 @@ fun Subject.toSubjectName(): String {
 
 fun Subject.toSubjectGrade(context: Context): String {
     return if (grade != 0)
-        return context.getString(R.string.subjectGrade, grade)
+        return context.getString(R.string.subject_grade, grade)
     else
         "-"
 }
 
 fun Subject.toSubjectCredits(context: Context): String {
-    return context.getString(R.string.subjectCredits, credits)
+    return context.getString(R.string.subject_credits, credits)
 }
 
 fun Quarter.toQuarterTitle(): String {
@@ -111,15 +111,15 @@ fun Quarter.toQuarterTitle(): String {
 }
 
 fun Quarter.toQuarterGradeDiff(color: Int, context: Context): CharSequence {
-    return context.getString(R.string.quarterGradeDiff, grade).toSpanned(color)
+    return context.getString(R.string.quarter_grade_diff, grade).toSpanned(color)
 }
 
 fun Quarter.toQuarterGradeSum(color: Int, context: Context): CharSequence {
-    return context.getString(R.string.quarterGradeSum, gradeSum).toSpanned(color)
+    return context.getString(R.string.quarter_grade_sum, gradeSum).toSpanned(color)
 }
 
 fun Quarter.toQuarterCredits(color: Int, context: Context): CharSequence {
-    return context.getString(R.string.quarterCredits, credits).toSpanned(color)
+    return context.getString(R.string.quarter_credits, credits).toSpanned(color)
 }
 
 fun String.toSpanned(color: Int): Spanned {

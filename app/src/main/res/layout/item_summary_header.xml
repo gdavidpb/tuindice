@@ -13,7 +13,7 @@
     <View
         android:layout_width="@dimen/dp_8"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimary" />
+        android:background="@color/color_primary" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -56,7 +56,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/text5"
+                android:text="@string/text_5"
                 app:layout_constraintTop_toTopOf="parent" />
 
         </LinearLayout>
@@ -98,7 +98,7 @@
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
                 tools:drawableLeft="@drawable/ic_sync"
                 tools:drawableStart="@drawable/ic_sync"
-                tools:drawableTint="@color/colorSecondaryText"
+                tools:drawableTint="@color/color_secondary_text"
                 tools:text="Última actualización: Hoy, 3:42 p.m." />
 
         </LinearLayout>

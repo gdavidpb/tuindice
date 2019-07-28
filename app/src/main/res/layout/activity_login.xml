@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/colorTextIcon">
+    android:background="@color/color_text_icon">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineStart"
@@ -78,10 +78,10 @@
         android:layout_marginTop="@dimen/dp_8"
         android:layout_marginBottom="@dimen/dp_8"
         android:outAnimation="@anim/slide_out_right"
-        android:text="@string/messageLogging"
+        android:text="@string/message_logging"
         android:textAlignment="center"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/color_accent"
         android:textStyle="bold"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
@@ -107,30 +107,30 @@
             android:id="@+id/tViewFlipper1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/messageFlipper1"
+            android:text="@string/message_flipper_1"
             android:textAlignment="center"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/color_accent"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tViewFlipper2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/messageFlipper2"
+            android:text="@string/message_flipper_2"
             android:textAlignment="center"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/color_accent"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tViewFlipper3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/messageFlipper3"
+            android:text="@string/message_flipper_3"
             android:textAlignment="center"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/color_accent"
             android:textStyle="bold" />
 
     </ViewFlipper>
@@ -151,8 +151,8 @@
         android:id="@+id/tInputUsbId"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="@string/hintUsbId"
-        android:textColorHint="@color/colorAccent"
+        android:hint="@string/hint_usb_id"
+        android:textColorHint="@color/color_accent"
         app:errorEnabled="true"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
@@ -167,8 +167,8 @@
             android:inputType="number"
             android:maxLength="8"
             tools:drawableStart="@drawable/ic_account"
-            tools:drawableTint="@color/colorSecondaryText"
-            tools:hint="@string/hintUsbId" />
+            tools:drawableTint="@color/color_secondary_text"
+            tools:hint="@string/hint_usb_id" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -177,7 +177,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="@string/hintPassword"
-        android:textColorHint="@color/colorAccent"
+        android:textColorHint="@color/color_accent"
         app:errorEnabled="true"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
@@ -194,19 +194,19 @@
             android:maxLength="60"
             android:selectAllOnFocus="true"
             tools:drawableStart="@drawable/ic_password"
-            tools:drawableTint="@color/colorSecondaryText"
+            tools:drawableTint="@color/color_secondary_text"
             tools:hint="@string/hintPassword" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnTerms"
+        android:id="@+id/btnPrivacyPolicy"
         style="@style/Base.Widget.AppCompat.Button.Borderless"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/btnTerms"
+        android:text="@string/button_privacy_policy"
         android:textAllCaps="false"
-        android:textColor="@color/colorSecondaryText"
+        android:textColor="@color/color_secondary_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tInputPassword" />
@@ -216,8 +216,8 @@
         android:layout_width="@dimen/size_button"
         android:layout_height="@dimen/dp_36"
         android:background="@drawable/sh_button"
-        android:text="@string/btnLogin"
-        android:textColor="@color/colorTextIcon"
+        android:text="@string/button_login"
+        android:textColor="@color/color_text_icon"
         app:backgroundTint="@drawable/sl_button"
         app:layout_constraintBottom_toBottomOf="@id/guidelineBottom"
         app:layout_constraintEnd_toEndOf="parent"

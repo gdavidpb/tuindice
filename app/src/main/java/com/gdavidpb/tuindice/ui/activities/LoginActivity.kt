@@ -38,9 +38,9 @@ class LoginActivity : BaseActivity(
 
     private val validations by lazy {
         arrayOf(
-                tInputUsbId set R.string.errorEmpty `when` { text().isBlank() },
-                tInputUsbId set R.string.errorUSBID `when` { !text().matches("^\\d{2}-\\d{5}$".toRegex()) },
-                tInputPassword set R.string.errorEmpty `when` { text().isEmpty() }
+                tInputUsbId set R.string.error_empty `when` { text().isBlank() },
+                tInputUsbId set R.string.error_usb_id `when` { !text().matches("^\\d{2}-\\d{5}$".toRegex()) },
+                tInputPassword set R.string.error_empty `when` { text().isEmpty() }
         )
     }
 
@@ -73,14 +73,14 @@ class LoginActivity : BaseActivity(
         })
 
         /* Set up drawables using support */
-        eTextUsbId.drawables(left = getCompatDrawable(R.drawable.ic_account, R.color.colorSecondaryText))
-        eTextPassword.drawables(left = getCompatDrawable(R.drawable.ic_password, R.color.colorSecondaryText))
+        eTextUsbId.drawables(left = getCompatDrawable(R.drawable.ic_account, R.color.color_secondary_text))
+        eTextPassword.drawables(left = getCompatDrawable(R.drawable.ic_password, R.color.color_secondary_text))
 
         eTextUsbId.onTextChanged { _, _, _, _ -> if (tInputUsbId.error != null) tInputUsbId.error = null }
         eTextPassword.onTextChanged { _, _, _, _ -> if (tInputPassword.error != null) tInputPassword.error = null }
 
         val onFocusChanged = fun(editText: EditText, @DrawableRes drawableRes: Int) = View.OnFocusChangeListener { _, hasFocus ->
-            val color = if (hasFocus) R.color.colorAccent else R.color.colorSecondaryText
+            val color = if (hasFocus) R.color.color_accent else R.color.color_secondary_text
 
             editText.drawables(left = getCompatDrawable(drawableRes, color))
         }
@@ -115,7 +115,7 @@ class LoginActivity : BaseActivity(
             })
         }
 
-        btnTerms.onClickOnce(::onPrivacyPolicyClick)
+        btnPrivacyPolicy.onClickOnce(::onPrivacyPolicyClick)
         btnLogin.onClickOnce(::onLoginClick)
     }
 
@@ -145,7 +145,7 @@ class LoginActivity : BaseActivity(
                 tInputUsbId,
                 tInputPassword,
                 vFlipperWelcome,
-                btnTerms,
+                btnPrivacyPolicy,
                 btnLogin
         ).forEach { it.visibility = if (value) View.VISIBLE else View.GONE }
 
@@ -192,22 +192,22 @@ class LoginActivity : BaseActivity(
                 when (result.throwable) {
                     is AuthException ->
                         when (result.throwable.code) {
-                            AuthResponseCode.INVALID_CREDENTIALS -> R.string.snackInvalidCredentials
-                            else -> R.string.snackServiceUnreachable
+                            AuthResponseCode.INVALID_CREDENTIALS -> R.string.snack_invalid_credentials
+                            else -> R.string.snack_service_unreachable
                         }
                     is IOException, is HttpException ->
                         if (connectivityManager.isNetworkAvailable())
-                            R.string.snackServiceUnreachable
+                            R.string.snack_service_unreachable
                         else
-                            R.string.snackNetworkUnavailable
+                            R.string.snack_network_unavailable
 
-                    else -> R.string.snackInternalFailure
+                    else -> R.string.snack_internal_failure
                 }.also { message ->
                     snackBar
                             .setText(message)
                             /* Add retry onClick */
                             .apply {
-                                if (message != R.string.snackInvalidCredentials) {
+                                if (message != R.string.snack_invalid_credentials) {
                                     setAction(R.string.retry) {
 
                                         viewModel.auth(

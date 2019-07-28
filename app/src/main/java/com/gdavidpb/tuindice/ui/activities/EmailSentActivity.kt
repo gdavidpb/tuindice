@@ -50,13 +50,13 @@ class EmailSentActivity : AppCompatActivity() {
         when (intent.getIntExtra(EXTRA_AWAITING_STATE, 0)) {
             FLAG_RESET -> {
                 iViewLogo.setImageResource(R.drawable.ic_reset)
-                tViewEmailTitle.text = getString(R.string.labelReset)
-                tViewEmailMessage.text = getString(R.string.messageReset, email)
+                tViewEmailTitle.text = getString(R.string.label_reset)
+                tViewEmailMessage.text = getString(R.string.message_reset, email)
             }
             FLAG_VERIFY -> {
                 iViewLogo.setImageResource(R.drawable.ic_verify)
-                tViewEmailTitle.text = getString(R.string.labelVerify)
-                tViewEmailMessage.text = getString(R.string.messageVerify, email)
+                tViewEmailTitle.text = getString(R.string.label_verify)
+                tViewEmailMessage.text = getString(R.string.message_verify, email)
             }
         }
 
@@ -89,15 +89,15 @@ class EmailSentActivity : AppCompatActivity() {
 
     private fun resetPasswordObserver(result: Completable?) {
         when (result) {
-            is Completable.OnComplete -> longToast(R.string.toastResend)
-            is Completable.OnError -> longToast(R.string.toastTryAgainLater)
+            is Completable.OnComplete -> longToast(R.string.toast_resend)
+            is Completable.OnError -> longToast(R.string.toast_try_again_later)
         }
     }
 
     private fun sendEmailVerificationObserver(result: Completable?) {
         when (result) {
-            is Completable.OnComplete -> longToast(R.string.toastResend)
-            is Completable.OnError -> longToast(R.string.toastTryAgainLater)
+            is Completable.OnComplete -> longToast(R.string.toast_resend)
+            is Completable.OnError -> longToast(R.string.toast_try_again_later)
         }
     }
 }

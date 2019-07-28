@@ -25,7 +25,7 @@ open class SummaryHeaderViewHolder(
             tViewCareer.text = item.careerName
 
             tViewLastUpdate.text = context.getString(R.string.text_last_update, item.lastUpdate.formatLastUpdate())
-            tViewLastUpdate.drawables(left = context.getCompatDrawable(R.drawable.ic_sync, R.color.colorSecondaryText))
+            tViewLastUpdate.drawables(left = context.getCompatDrawable(R.drawable.ic_sync, R.color.color_secondary_text))
 
             if (item.grade > 0.0) {
                 lLayoutGrade.visibility = View.VISIBLE

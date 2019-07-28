@@ -1,9 +1,7 @@
 package com.gdavidpb.tuindice.data.source.firebase
 
-import android.content.res.Resources
 import android.net.Uri
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.utils.await
@@ -13,8 +11,7 @@ import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 
 open class FirebaseDataStore(
-        private val auth: FirebaseAuth,
-        private val resources: Resources
+        private val auth: FirebaseAuth
 ) : AuthRepository {
     override suspend fun getActiveAuth(): Auth? {
         return auth.currentUser?.toAuth()
@@ -34,7 +31,7 @@ open class FirebaseDataStore(
 
     override suspend fun sendPasswordResetEmail(email: String, password: String) {
         val resetPassword = (email to password).fromResetParam()
-        val continueUrl = resources.getString(R.string.urlContinueResetPassword, resetPassword)
+        val continueUrl = String.format(BuildConfig.URL_APP_RESET_PASSWORD, resetPassword)
 
         val actionCodeSettings = ActionCodeSettings
                 .newBuilder()
@@ -48,7 +45,7 @@ open class FirebaseDataStore(
 
     override suspend fun sendEmailVerification() {
         auth.currentUser?.also { user ->
-            val continueUrl = resources.getString(R.string.urlContinueVerification, user.uid)
+            val continueUrl = String.format(BuildConfig.URL_APP_VERIFY, user.uid)
 
             val actionCodeSettings = ActionCodeSettings
                     .newBuilder()

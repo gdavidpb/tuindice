@@ -15,7 +15,7 @@
         android:id="@+id/viewQuarterColor"
         android:layout_width="@dimen/dp_8"
         android:layout_height="match_parent"
-        tools:background="@color/quarterCompleted" />
+        tools:background="@color/quarter_completed" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textColor="@color/colorPrimaryText"
+            android:textColor="@color/color_primary_text"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Sep. - Dic. 2017" />
@@ -58,7 +58,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                android:textColor="@color/colorSecondaryText"
+                android:textColor="@color/color_secondary_text"
                 tools:text="Δx 0.0000" />
 
             <TextView
@@ -69,7 +69,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                android:textColor="@color/colorSecondaryText"
+                android:textColor="@color/color_secondary_text"
                 tools:text="∑x 0.0000" />
 
             <TextView
@@ -80,7 +80,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                android:textColor="@color/colorSecondaryText"
+                android:textColor="@color/color_secondary_text"
                 tools:text="⦿ 13 Crs." />
         </LinearLayout>
 

@@ -23,7 +23,7 @@ open class AboutViewHolder(
         item as About
 
         with(itemView as AppCompatButton) {
-            drawables(left = context.getCompatDrawable(item.drawable, R.color.colorSecondaryText))
+            drawables(left = context.getCompatDrawable(item.drawable, R.color.color_secondary_text))
 
             val (titleColor, subtitleColor) = manager.resolveColors()
             val (title, subtitle) = item.content.split('\n')

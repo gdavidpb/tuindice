@@ -30,7 +30,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iViewLogo"
-        tools:text="@string/labelVerify" />
+        tools:text="@string/label_verify" />
 
     <TextView
         android:id="@+id/tViewEmailMessage"
@@ -40,11 +40,11 @@
         android:layout_marginTop="@dimen/dp_16"
         android:layout_marginEnd="@dimen/dp_32"
         android:textAlignment="center"
-        android:textColor="@color/colorSecondaryText"
+        android:textColor="@color/color_secondary_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tViewEmailTitle"
-        tools:text="@string/messageVerify" />
+        tools:text="@string/message_verify" />
 
     <TextView
         android:id="@+id/tViewCountdown"
@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_24"
         android:fontFamily="sans-serif-condensed-medium"
-        android:text="@string/text0"
+        android:text="@string/text_0"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
         android:textColor="@android:color/black"
         android:textSize="@dimen/sp_42"
@@ -68,7 +68,7 @@
         android:layout_height="@dimen/dp_36"
         android:background="@drawable/sh_button"
         android:enabled="false"
-        android:text="@string/bResend"
+        android:text="@string/button_resend"
         android:textAllCaps="false"
         android:textColor="@android:color/white"
         app:backgroundTint="@drawable/sl_button"
@@ -80,7 +80,7 @@
         android:id="@+id/tViewOr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/textOr"
+        android:text="@string/text_or"
         app:layout_constraintBottom_toTopOf="@id/btnReset"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -94,9 +94,9 @@
         android:clickable="true"
         android:focusable="true"
         android:padding="@dimen/dp_8"
-        android:text="@string/bCancel"
+        android:text="@string/button_cancel"
         android:textAllCaps="false"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/color_accent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

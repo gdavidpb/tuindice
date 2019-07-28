@@ -64,8 +64,8 @@ abstract class BaseActivity(private vararg val permissions: String) : AppCompatA
         alert {
             isCancelable = false
 
-            titleResource = R.string.alertTitlePermissions
-            messageResource = R.string.alertMessagePermissions
+            titleResource = R.string.alert_title_permissions
+            messageResource = R.string.alert_message_permissions
 
             if (denied) {
                 positiveButton(R.string.settings) {

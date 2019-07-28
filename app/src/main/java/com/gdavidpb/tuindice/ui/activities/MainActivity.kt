@@ -58,7 +58,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (val itemId = item.itemId) {
             //R.id.nav_calendar -> startActivity<CalendarActivity>()
-            R.id.nav_share -> share(text = getString(R.string.aboutShareMessage, packageName))
+            R.id.nav_share -> share(text = getString(R.string.about_share_message, packageName))
             R.id.nav_twitter -> browse(url = URL_TWITTER)
             R.id.nav_contact -> email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT)
             R.id.nav_report -> reportDialog()
@@ -98,9 +98,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     private fun reportDialog() {
-        val items = resources.getStringArray(R.array.selectorReportItems).toList()
+        val items = resources.getStringArray(R.array.selector_report_items).toList()
 
-        selector(getString(R.string.selectorTitleReport), items) { _, selected ->
+        selector(getString(R.string.selector_title_report), items) { _, selected ->
             val subject = items[selected]
 
             email(email = EMAIL_CONTACT, subject = subject)
@@ -109,8 +109,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private fun logoutDialog() {
         alert {
-            titleResource = R.string.alertTitleLogout
-            messageResource = R.string.alertMessageLogout
+            titleResource = R.string.alert_title_logout
+            messageResource = R.string.alert_message_logout
 
             positiveButton(R.string.yes) {
                 viewModel.logout()
@@ -122,8 +122,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private fun fatalFailureDialog() {
         alert {
-            titleResource = R.string.alertTitleFatalFailure
-            messageResource = R.string.alertMessageFatalFailure
+            titleResource = R.string.alert_title_fatal_failure
+            messageResource = R.string.alert_message_fatal_failure
 
             isCancelable = false
 

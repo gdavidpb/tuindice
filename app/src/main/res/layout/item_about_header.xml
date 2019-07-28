@@ -6,5 +6,5 @@
     android:layout_margin="@dimen/dp_16"
     android:fontFamily="sans-serif-light"
     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-    android:textColor="@color/colorSecondaryText"
-    tools:text="@string/aboutHeaderDeveloper" />
+    android:textColor="@color/color_secondary_text"
+    tools:text="@string/about_header_developer" />

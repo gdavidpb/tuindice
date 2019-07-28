@@ -30,10 +30,10 @@ open class RecordFragment : Fragment() {
 
     private val cachedColors by lazy {
         mapOf(
-                STATUS_QUARTER_CURRENT to ContextCompat.getColor(requireContext(), R.color.quarterCurrent),
-                STATUS_QUARTER_COMPLETED to ContextCompat.getColor(requireContext(), R.color.quarterCompleted),
-                STATUS_QUARTER_GUESS to ContextCompat.getColor(requireContext(), R.color.quarterGuess),
-                STATUS_QUARTER_RETIRED to ContextCompat.getColor(requireContext(), R.color.quarterRetired)
+                STATUS_QUARTER_CURRENT to ContextCompat.getColor(requireContext(), R.color.quarter_current),
+                STATUS_QUARTER_COMPLETED to ContextCompat.getColor(requireContext(), R.color.quarter_completed),
+                STATUS_QUARTER_GUESS to ContextCompat.getColor(requireContext(), R.color.quarter_guess),
+                STATUS_QUARTER_RETIRED to ContextCompat.getColor(requireContext(), R.color.quarter_retired)
         )
     }
 

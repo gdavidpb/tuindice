@@ -49,10 +49,6 @@ val appModule = module {
     /* Application */
 
     single {
-        androidContext().resources
-    }
-
-    single {
         androidContext().defaultSharedPreferences
     }
 

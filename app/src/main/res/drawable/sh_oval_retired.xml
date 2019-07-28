@@ -4,5 +4,5 @@
     <size
         android:width="@dimen/dp_8"
         android:height="@dimen/dp_8" />
-    <solid android:color="@color/colorRetired" />
+    <solid android:color="@color/color_retired" />
 </shape>

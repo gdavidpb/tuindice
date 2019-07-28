@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.view.View
 import android.widget.CalendarView
 import androidx.core.content.ContextCompat
 import com.gdavidpb.tuindice.R
@@ -37,7 +36,7 @@ class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(c
 
     private val dotPaint by lazy {
         Paint().apply {
-            color = ContextCompat.getColor(context, R.color.colorPrimaryDark)
+            color = ContextCompat.getColor(context, R.color.color_primary_dark)
             isAntiAlias = true
         }
     }

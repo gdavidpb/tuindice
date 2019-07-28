@@ -4,7 +4,7 @@ import java.util.*
 
 /* Third-party urls */
 const val URL_CREATIVE_COMMONS = "https://creativecommons.org/licenses/by-nc/4.0/"
-const val URL_TERMS = "https://tuindice-usb.firebaseapp.com/"
+const val URL_PRIVACY_POLICY = "https://tuindice-usb.firebaseapp.com/"
 const val URL_TWITTER = "https://twitter.com/TuIndice"
 
 /* Emails */

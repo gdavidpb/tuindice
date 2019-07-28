@@ -6,9 +6,6 @@
     <!-- App -->
     <string name="app_name">TuIndice</string>
 
-    <string name="urlContinueVerification">https://tuindice-usb.firebaseapp.com?verify=%1$s</string>
-    <string name="urlContinueResetPassword">https://tuindice-usb.firebaseapp.com?resetPassword=%1$s</string>
-
     <!-- Simple words/phrases -->
     <string name="yes">Si</string>
     <string name="no">No</string>
@@ -48,15 +45,15 @@
     <string name="nav_about">Acerca de</string>
     <string name="nav_sign_out">Cerrar sesión</string>
 
-    <string name="alertTitleFatalFailure">¡Oops, lo sentimos!</string>
-    <string name="alertMessageFatalFailure">Parece que algo ha salido mal por acá. Intenta limpiar los datos de la aplicación y volver a iniciar</string>
+    <string name="alert_title_fatal_failure">¡Oops, lo sentimos!</string>
+    <string name="alert_message_fatal_failure">Parece que algo ha salido mal por acá. Intenta limpiar los datos de la aplicación y volver a iniciar</string>
 
-    <string name="alertTitleLogout">Atención</string>
-    <string name="alertMessageLogout">¿Estás seguro que deseas salir?</string>
+    <string name="alert_title_logout">Atención</string>
+    <string name="alert_message_logout">¿Estás seguro que deseas salir?</string>
 
-    <string name="selectorTitleReport">¿Cómo te podemos ayudar?</string>
+    <string name="selector_title_report">¿Cómo te podemos ayudar?</string>
 
-    <string-array name="selectorReportItems">
+    <string-array name="selector_report_items">
         <item>Mi índice es incorrecto</item>
         <item>No puedo descargar mi comprobante</item>
         <item>Hay un error en mi expediente</item>
@@ -69,7 +66,7 @@
     </string-array>
 
     <!-- SummaryFragment -->
-    <string name="text5">/ 5.0</string>
+    <string name="text_5">/ 5.0</string>
 
     <string name="text_last_update">Última actualización: %1$s</string>
 
@@ -89,92 +86,92 @@
     <string name="snackBar_message_quarter_removed">%1$s removido</string>
     <string name="snackBar_action_quarter_removed">Deshacer</string>
 
-    <string name="quarterGradeDiff">Δx %1$.4f</string>
-    <string name="quarterGradeSum">∑x %1$.4f</string>
-    <string name="quarterCredits">⦿ %1$d Crs.</string>
+    <string name="quarter_grade_diff">Δx %1$.4f</string>
+    <string name="quarter_grade_sum">∑x %1$.4f</string>
+    <string name="quarter_credits">⦿ %1$d Crs.</string>
 
-    <string name="subjectTitle">%1$s (%2$s)</string>
-    <string name="subjectGrade">%1$d / 5</string>
-    <string name="subjectCredits">%1$d Cr.</string>
+    <string name="subject_title">%1$s (%2$s)</string>
+    <string name="subject_grade">%1$d / 5</string>
+    <string name="subject_credits">%1$d Cr.</string>
 
-    <string name="dialogGuessTitle">Proyección</string>
+    <string name="dialog_guess_title">Proyección</string>
 
-    <string name="hintGuessSearch">Código o nombre de la materia</string>
+    <string name="hint_guess_search">Código o nombre de la materia</string>
 
     <!-- CalendarActivity -->
-    <string name="labelCalendarActivity">TuIndice - %1$s</string>
+    <string name="label_calendar_activity">TuIndice - %1$s</string>
 
-    <string name="snackBarCalendarDisclaimer">
+    <string name="snack_bar_calendar_disclaimer">
         Las fechas pueden haber variado desde la publicación del calendario.
     </string>
 
     <!-- EmailSentActivity -->
-    <string name="toastResend">Correo reenviado</string>
-    <string name="toastTryAgainLater">Intenta de nuevo más tarde</string>
+    <string name="toast_resend">Correo reenviado</string>
+    <string name="toast_try_again_later">Intenta de nuevo más tarde</string>
 
-    <string name="labelVerify">
+    <string name="label_verify">
         Verifica tu cuenta
     </string>
 
-    <string name="labelReset">
+    <string name="label_reset">
         Tu contraseña ha cambiado
     </string>
 
-    <string name="messageVerify">
+    <string name="message_verify">
         Hemos enviado un enlace de verificación a tu correo
         institucional (%1$s).\n\n
         Revísalo y estamos listos ;)
     </string>
 
-    <string name="messageReset">
+    <string name="message_reset">
         Hemos enviado un enlace para actualizar tu contraseña
         a tu correo institucional (%1$s).\n\n
         Revísalo y estamos listos ;)
     </string>
 
-    <string name="text0">00:00</string>
-    <string name="textOr">─ O ─</string>
+    <string name="text_0">00:00</string>
+    <string name="text_or">─ O ─</string>
 
-    <string name="bCancel"><u>Ingresar con otra cuenta</u></string>
-    <string name="bResend">Enviar nuevamente</string>
+    <string name="button_cancel"><u>Ingresar con otra cuenta</u></string>
+    <string name="button_resend">Enviar nuevamente</string>
 
     <!-- LoginActivity -->
-    <string name="labelLoginActivity">TuIndice</string>
+    <string name="label_login_activity">TuIndice</string>
 
-    <string name="hintUsbId">USBID</string>
+    <string name="hint_usb_id">USBID</string>
     <string name="hintPassword">Contraseña</string>
 
-    <string name="btnLogin">Iniciar sesión</string>
-    <string name="btnTerms"><u><b>Términos y condiciones</b></u></string>
+    <string name="button_login">Iniciar sesión</string>
+    <string name="button_privacy_policy"><u><b>Política de privacidad</b></u></string>
 
-    <string name="errorEmpty">Campo vacío</string>
-    <string name="errorUSBID">USBID inválido</string>
-    <string name="errorPassword">Contraseña inválida</string>
+    <string name="error_empty">Campo vacío</string>
+    <string name="error_usb_id">USBID inválido</string>
+    <string name="error_password">Contraseña inválida</string>
 
-    <string name="snackNetworkUnavailable">Error de conexión</string>
-    <string name="snackServiceUnreachable">El servidor no está disponible</string>
-    <string name="snackInternalFailure">Parece que algo ha fallado</string>
-    <string name="snackInvalidCredentials">USBID o contraseña inválida</string>
+    <string name="snack_network_unavailable">Error de conexión</string>
+    <string name="snack_service_unreachable">El servidor no está disponible</string>
+    <string name="snack_internal_failure">Parece que algo ha fallado</string>
+    <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
 
-    <string name="messageLogging">Iniciando sesión…</string>
+    <string name="message_logging">Iniciando sesión…</string>
 
-    <string name="alertTitlePermissions">
+    <string name="alert_title_permissions">
         Faltan permisos ;(
     </string>
 
-    <string name="alertMessagePermissions">
+    <string name="alert_message_permissions">
         TuIndice no cuenta con los permisos necesarios para funcionar correctamente…
     </string>
 
-    <string name="messageFlipper1">TuIndice</string>
-    <string name="messageFlipper2">Una nueva forma…</string>
-    <string name="messageFlipper3">…de administrar tus notas</string>
+    <string name="message_flipper_1">TuIndice</string>
+    <string name="message_flipper_2">Una nueva forma…</string>
+    <string name="message_flipper_3">…de administrar tus notas</string>
 
     <!-- DemoActivity -->
-    <string name="demoWelcome">¡Bienvenido!</string>
-    <string name="demoFinish">¡Ayúdanos a mejorar!</string>
+    <string name="demo_welcome">¡Bienvenido!</string>
+    <string name="demo_finish">¡Ayúdanos a mejorar!</string>
 
-    <string-array name="demoMessages">
+    <string-array name="demo_messages">
         <item>Así lucen los trimestres <b>terminados</b>…</item>
         <item>Los trimestres <b>retirados</b>…</item>
         <item>Y así el trimestre en <b>curso</b>…</item>
@@ -191,7 +188,7 @@
         </item>
     </string-array>
 
-    <string-array name="demoKeys">
+    <string-array name="demo_keys">
         <item>terminados</item>
         <item>retirados</item>
         <item>curso</item>
@@ -205,98 +202,98 @@
         <item>reportar un error</item>
     </string-array>
 
-    <integer-array name="demoColors">
-        <item>@color/quarterCompleted</item>
-        <item>@color/quarterRetired</item>
-        <item>@color/quarterCurrent</item>
-        <item>@color/quarterCurrent</item>
-        <item>@color/quarterCurrent</item>
-        <item>@color/quarterCurrent</item>
-        <item>@color/quarterCurrent</item>
-        <item>@color/quarterCurrent</item>
-        <item>@color/colorWarning</item>
-        <item>@color/colorWarning</item>
-        <item>@color/colorAccent</item>
+    <integer-array name="demo_colors">
+        <item>@color/quarter_completed</item>
+        <item>@color/quarter_retired</item>
+        <item>@color/quarter_current</item>
+        <item>@color/quarter_current</item>
+        <item>@color/quarter_current</item>
+        <item>@color/quarter_current</item>
+        <item>@color/quarter_current</item>
+        <item>@color/quarter_current</item>
+        <item>@color/color_warning</item>
+        <item>@color/color_warning</item>
+        <item>@color/color_accent</item>
     </integer-array>
 
     <!-- AboutActivity -->
-    <string name="labelAboutActivity">Acerca de</string>
+    <string name="label_about_activity">Acerca de</string>
 
-    <string name="aboutVersion">
+    <string name="about_version">
         Versión\n%1$s-%2$d (%3$s)
     </string>
 
-    <string name="aboutLicense">
+    <string name="about_license">
         Creative Commons\nBY-NC 4.0
     </string>
 
-    <string name="aboutTerms">
-        Términos y condiciones\nAlgunas cosas que debes saber
+    <string name="about_privacy_policy">
+        Política de privacidad\nConoce como manejamos tus datos
     </string>
 
-    <string name="aboutTwitter">
+    <string name="about_twitter">
         \@TuIndice\n¡Síguenos en Twitter y enterate de todo!
     </string>
 
-    <string name="aboutShare">
+    <string name="about_share">
         Compartir\nInvita a un amigo a descargar la aplicación
     </string>
 
-    <string name="aboutRate">
+    <string name="about_rate">
         Puntúa\n¡Dale las 5 estrellas!
     </string>
 
-    <string name="aboutGooglePlayIntent">market://details?id=%1$s</string>
-    <string name="aboutGooglePlay">https://play.google.com/store/apps/details?id=%1$s</string>
-    <string name="aboutTwitterUrl">https://twitter.com/TuIndice</string>
+    <string name="about_google_play_intent">market://details?id=%1$s</string>
+    <string name="about_google_play">https://play.google.com/store/apps/details?id=%1$s</string>
+    <string name="about_twitter_url">https://twitter.com/TuIndice</string>
 
-    <string name="aboutShareMessage">
+    <string name="about_share_message">
         TuIndice: Una nueva forma de administrar tus notas\n\n
         Disponible en Google Play\n
         https://play.google.com/store/apps/details?id=%1$s
     </string>
 
-    <string name="aboutHeaderDeveloper">Desarrollador</string>
+    <string name="about_header_developer">Desarrollador</string>
 
-    <string name="aboutDevInfo">
+    <string name="about_dev_info">
         Gerardo Prado\nSantiago, Chile
     </string>
 
-    <string name="aboutDevContact">
+    <string name="about_dev_contact">
         Contacto\nContactar al desarrollador
     </string>
 
-    <string name="aboutDevSource">
+    <string name="about_source_code">
         GitHub Repository\nhttps://github.com/gdavidpb/tuindice
     </string>
 
-    <string name="aboutHeadersLibs">Detrás de TuIndice</string>
+    <string name="about_headers_libs">Detrás de TuIndice</string>
 
-    <string name="aboutKotlin">
+    <string name="about_kotlin">
         Kotlin 1.3.41\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
     </string>
 
-    <string name="aboutFirebase">
+    <string name="about_firebase">
         Firebase 17.0.1\nQuickly develop high-quality apps and grow your business\n© 2014 Google\nhttps://firebase.com/
     </string>
 
-    <string name="aboutKoin">
+    <string name="about_koin">
         Koin 2.0.1\nA pragmatic lightweight dependency injection framework for Kotlin\n© 2018 Arnaud Giuliani\nhttps://insert-koin.io/
     </string>
 
-    <string name="aboutRetrofit">
+    <string name="about_retrofit">
         Retrofit 2.6.0\nA type-safe HTTP client for Android and Java\n© 2015 Square\nhttps://square.github.io/retrofit/
     </string>
 
     <!-- BrowserActivity -->
     <string name="label_creative_commons">TuIndice - Creative Commons</string>
-    <string name="label_privacy_policy">TuIndice - Términos y condiciones</string>
+    <string name="label_privacy_policy">TuIndice - Política de privacidad</string>
 
     <!-- todo classify: from here -->
-    <string name="openEnrollment">Ver Comprobante</string>
-    <string name="downloadEnrollment">Descargar Comprobante</string>
+    <string name="open_enrollment">Ver Comprobante</string>
+    <string name="download_enrollment">Descargar Comprobante</string>
 
-    <string name="toastEnrollment">Archivo no soportado ;(</string>
+    <string name="toast_enrollment">Archivo no soportado ;(</string>
     <!-- todo classify: to here -->
 
 </resources>

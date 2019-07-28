@@ -45,7 +45,7 @@ class CalendarActivity : AppCompatActivity() {
                 STATE_COLLAPSED -> {
                     val date = Date().format("MMMM yyyy")?.capitalize()
 
-                    tViewCalendar.text = getString(R.string.labelCalendarActivity, date)
+                    tViewCalendar.text = getString(R.string.label_calendar_activity, date)
 
                     tViewCalendar.visibility = View.VISIBLE
                     cViewCalendar.visibility = View.INVISIBLE
@@ -55,7 +55,7 @@ class CalendarActivity : AppCompatActivity() {
 
         btnAddEvent.onClickOnce(::onAddEventClicked)
 
-        window.decorView.longSnackbar(R.string.snackBarCalendarDisclaimer)
+        window.decorView.longSnackbar(R.string.snack_bar_calendar_disclaimer)
     }
 
     private fun onAddEventClicked() {

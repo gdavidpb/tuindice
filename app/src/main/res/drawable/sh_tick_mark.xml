@@ -3,5 +3,5 @@
     android:shape="oval">
     <size android:width="@dimen/size_tick"
         android:height="@dimen/size_tick"/>
-    <solid android:color="@color/colorAccent"/>
+    <solid android:color="@color/color_accent"/>
 </shape>

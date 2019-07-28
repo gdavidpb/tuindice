@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="colorPrimary">#FFC107</color>
-    <color name="colorPrimaryDark">#FFA000</color>
-    <color name="colorAccent">#FFC107</color>
-    <color name="colorTextIcon">#FFFFFF</color>
-    <color name="colorPrimaryText">#212121</color>
-    <color name="colorSecondaryText">#757575</color>
-    <color name="colorBackgroundLight">#F5F5F5</color>
-    <color name="colorBackgroundDark">#9E9E9E</color>
-    <color name="colorWarning">#F44336</color>
-    <color name="colorDisabled">#E0E0E0</color>
-    <color name="colorTransparent">#80000000</color>
+    <color name="color_primary">#FFC107</color>
+    <color name="color_primary_dark">#FFA000</color>
+    <color name="color_accent">#FFC107</color>
+    <color name="color_text_icon">#FFFFFF</color>
+    <color name="color_primary_text">#212121</color>
+    <color name="color_secondary_text">#757575</color>
+    <color name="color_background_light">#F5F5F5</color>
+    <color name="color_background_dark">#9E9E9E</color>
+    <color name="color_warning">#F44336</color>
+    <color name="color_disabled">#E0E0E0</color>
+    <color name="color_transparent">#80000000</color>
 
-    <color name="quarterCompleted">#FFC107</color>
-    <color name="quarterCurrent">#FFC107</color>
-    <color name="quarterGuess">#FFC107</color>
-    <color name="quarterRetired">#B0BEC5</color>
+    <color name="quarter_completed">#FFC107</color>
+    <color name="quarter_current">#FFC107</color>
+    <color name="quarter_guess">#FFC107</color>
+    <color name="quarter_retired">#B0BEC5</color>
 
-    <color name="colorApproved">#FFC107</color>
-    <color name="colorFailed">#F44336</color>
-    <color name="colorRetired">#B0BEC5</color>
+    <color name="color_approved">#FFC107</color>
+    <color name="color_failed">#F44336</color>
+    <color name="color_retired">#B0BEC5</color>
 
     <color name="ic_launcher_background">#FFFFFF</color>
 
