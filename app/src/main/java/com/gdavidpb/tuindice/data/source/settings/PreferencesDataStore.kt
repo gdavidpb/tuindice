@@ -30,7 +30,7 @@ open class PreferencesDataStore(
         val email = preferences.getString(KEY_AWAITING_EMAIL, "") ?: ""
         val password = preferences.getString(KEY_AWAITING_PASSWORD, "") ?: ""
 
-        return !email.isEmpty() && !password.isEmpty()
+        return email.isNotEmpty() && password.isNotEmpty()
     }
 
     override suspend fun clearIsAwaitingForReset() {
@@ -41,8 +41,8 @@ open class PreferencesDataStore(
     }
 
     override suspend fun setSyncCooldown() {
-        val now = Calendar.getInstance(DEFAULT_LOCALE)
-        val cooldown = Calendar.getInstance(DEFAULT_LOCALE)
+        val now = Calendar.getInstance()
+        val cooldown = Calendar.getInstance()
 
         cooldown.set(Calendar.HOUR_OF_DAY, 0)
         cooldown.set(Calendar.MINUTE, 0)
@@ -58,7 +58,7 @@ open class PreferencesDataStore(
     }
 
     override suspend fun getLastSync(): Date {
-        return Calendar.getInstance(DEFAULT_LOCALE).run {
+        return Calendar.getInstance().run {
             timeInMillis = preferences.getLong(KEY_LAST_UPDATE, 0)
 
             Date(timeInMillis)
@@ -66,8 +66,8 @@ open class PreferencesDataStore(
     }
 
     override suspend fun isSyncCooldown(): Boolean {
-        val now = Calendar.getInstance(DEFAULT_LOCALE)
-        val cooldown = Calendar.getInstance(DEFAULT_LOCALE)
+        val now = Calendar.getInstance()
+        val cooldown = Calendar.getInstance()
 
         cooldown.timeInMillis = preferences.getLong(KEY_COOL_DOWN, now.timeInMillis)
 
@@ -79,7 +79,7 @@ open class PreferencesDataStore(
     }
 
     override suspend fun startCountdown(): Long {
-        return Calendar.getInstance(DEFAULT_LOCALE).run {
+        return Calendar.getInstance().run {
             add(Calendar.MILLISECOND, TIME_COUNT_DOWN)
 
             preferences.edit {

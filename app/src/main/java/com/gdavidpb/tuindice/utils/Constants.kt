@@ -68,7 +68,8 @@ const val STATE_COLLAPSED = 1
 const val STATE_IDLE = 2
 
 /* Default locale */
-val DEFAULT_LOCALE = Locale("es", "VE")
+val DEFAULT_LOCALE: Locale = Locale("es", "VE")
+val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone("America/Caracas")
 
 /* Times */
 const val TIME_COUNT_DOWN = 5 * 60 * 1000

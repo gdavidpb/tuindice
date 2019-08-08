@@ -7,7 +7,6 @@ import android.util.AttributeSet
 import android.widget.CalendarView
 import androidx.core.content.ContextCompat
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.utils.containsInMonth
 import com.gdavidpb.tuindice.utils.negRem
 import org.jetbrains.anko.childrenRecursiveSequence
@@ -21,13 +20,13 @@ class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(c
     init {
         setWillNotDraw(false)
 
-        maxDate = Calendar.getInstance(DEFAULT_LOCALE).run {
+        maxDate = Calendar.getInstance().run {
             add(Calendar.YEAR, 5)
 
             timeInMillis
         }
 
-        minDate = Calendar.getInstance(DEFAULT_LOCALE).run {
+        minDate = Calendar.getInstance().run {
             add(Calendar.YEAR, -5)
 
             timeInMillis
@@ -111,7 +110,7 @@ class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(c
         highlightedDays.clear()
 
         values.forEach { date ->
-            val calendar = Calendar.getInstance(DEFAULT_LOCALE).apply {
+            val calendar = Calendar.getInstance().apply {
                 time = date
 
                 firstDayOfWeek = this@CustomCalendarView.firstDayOfWeek
@@ -131,7 +130,7 @@ class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(c
     }
 
     private fun getCurrentCalendar(): Calendar {
-        return Calendar.getInstance(DEFAULT_LOCALE).apply {
+        return Calendar.getInstance().apply {
             val relation = with(monthViewPager) { scrollX / width.toDouble() }
             val months = relation.roundToInt()
 

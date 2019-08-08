@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Base64
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.CycleInterpolator
@@ -54,6 +55,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.HttpException
 import retrofit2.Response
+import java.nio.ByteBuffer
 import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.util.*
@@ -426,7 +428,7 @@ fun Collection<Subject>.computeCredits(): Int {
     }
 }
 
-private val gradeSumCache = hashMapOf<Int, Double>()
+private val gradeSumCache = hashMapOf<String, Double>()
 
 private fun Collection<Quarter>.internalComputeGradeSum(until: Quarter): Double {
     /* Until quarter and not retired */
@@ -452,33 +454,45 @@ private fun Collection<Quarter>.internalComputeGradeSum(until: Quarter): Double 
 }
 
 fun Collection<Quarter>.computeGradeSum(until: Quarter): Double {
-    return gradeSumCache.getOrPut(until.hashCode()) { internalComputeGradeSum(until) }
+    return gradeSumCache.getOrPut(until.id) { internalComputeGradeSum(until) }
 }
 
 /* Utils */
 
-private val generationSet = (48..57).union(65..90).union(97..122).toList()
+private val digestConcat = DigestConcat(algorithm = "SHA-256")
 
 fun QuarterEntity.generateId(): String {
-    val value = startDate.hashCode().absoluteValue
+    val hash = digestConcat
+            .concat(data = userId)
+            .concat(data = startDate.toDate().format("MMMMyyyy")!!)
+            .build()
 
-    return String(userId.map { c ->
-        generationSet[(value xor c.toInt()) % generationSet.size].toChar()
-    }.toCharArray())
+    return Base64
+            .encodeToString(hash, Base64.DEFAULT)
+            .replace("[/+=\n]+".toRegex(), "")
+            .substring(0..userId.length)
 }
 
 fun SubjectEntity.generateId(): String {
-    val value = code.hashCode().absoluteValue
+    val hash = digestConcat
+            .concat(data = code)
+            .concat(data = quarterId)
+            .build()
 
-    return String(quarterId.map { c ->
-        generationSet[(value xor c.toInt()) % generationSet.size].toChar()
-    }.toCharArray())
+    return Base64
+            .encodeToString(hash, Base64.DEFAULT)
+            .replace("[/+=]+".toRegex(), "")
+            .substring(0..userId.length)
 }
 
 fun X509Certificate.getProperty(key: String) = "(?<=$key=)[^,]+|$".toRegex().find(subjectDN.name)?.value
 
+fun Long.bytes(): ByteArray = ByteBuffer.allocate(Long.SIZE_BYTES)
+        .putLong(this)
+        .array()
+
 fun Date.isToday(): Boolean {
-    val start = Calendar.getInstance(DEFAULT_LOCALE).run {
+    val start = Calendar.getInstance().run {
         set(Calendar.HOUR_OF_DAY, 0)
         set(Calendar.MINUTE, 0)
         set(Calendar.SECOND, 0)
@@ -487,7 +501,7 @@ fun Date.isToday(): Boolean {
         Date(timeInMillis)
     }
 
-    val end = Calendar.getInstance(DEFAULT_LOCALE).run {
+    val end = Calendar.getInstance().run {
         set(Calendar.HOUR_OF_DAY, 0)
         set(Calendar.MINUTE, 0)
         set(Calendar.SECOND, 0)
@@ -503,7 +517,7 @@ fun Date.isToday(): Boolean {
 }
 
 fun Date.isYesterday(): Boolean {
-    val start = Calendar.getInstance(DEFAULT_LOCALE).run {
+    val start = Calendar.getInstance().run {
         set(Calendar.HOUR_OF_DAY, 0)
         set(Calendar.MINUTE, 0)
         set(Calendar.SECOND, 0)
@@ -513,7 +527,7 @@ fun Date.isYesterday(): Boolean {
         Date(timeInMillis)
     }
 
-    val end = Calendar.getInstance(DEFAULT_LOCALE).run {
+    val end = Calendar.getInstance().run {
         set(Calendar.HOUR_OF_DAY, 0)
         set(Calendar.MINUTE, 0)
         set(Calendar.SECOND, 0)
@@ -530,7 +544,7 @@ fun Date.isYesterday(): Boolean {
 }
 
 fun Calendar.containsInMonth(value: Calendar): Boolean {
-    val start = Calendar.getInstance(DEFAULT_LOCALE).let {
+    val start = Calendar.getInstance().let {
         it.time = this.time
 
         set(Calendar.HOUR_OF_DAY, 0)
@@ -543,7 +557,7 @@ fun Calendar.containsInMonth(value: Calendar): Boolean {
         Date(it.timeInMillis)
     }
 
-    val end = Calendar.getInstance(DEFAULT_LOCALE).let {
+    val end = Calendar.getInstance().let {
         it.time = start
 
         it.add(Calendar.MONTH, 1)
