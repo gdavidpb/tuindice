@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.ui.activities
 
-import android.Manifest
 import android.animation.ValueAnimator
 import android.net.ConnectivityManager
 import android.os.Bundle
@@ -28,10 +27,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import retrofit2.HttpException
 import java.io.IOException
 
-class LoginActivity : BaseActivity(
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
-) {
+class LoginActivity : BaseActivity() {
+
     private val viewModel: LoginViewModel by viewModel()
 
     private val connectivityManager: ConnectivityManager by inject()

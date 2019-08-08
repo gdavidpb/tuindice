@@ -8,11 +8,13 @@ import java.io.FileOutputStream
 import java.io.InputStream
 
 open class DiskStorageDataStore(
-        private val context: Context
+        context: Context
 ) : LocalStorageRepository {
 
+    private val root = context.filesDir
+
     override fun putSync(name: String, inputStream: InputStream): File? {
-        val outputFile = File(context.filesDir, name)
+        val outputFile = File(root, name)
 
         /* Create directories to */
         outputFile.parentFile?.mkdirs()
@@ -28,7 +30,7 @@ open class DiskStorageDataStore(
     }
 
     override fun getSync(name: String): InputStream? {
-        val inputFile = File(context.filesDir, name)
+        val inputFile = File(root, name)
 
         return if (inputFile.exists())
             inputFile.inputStream()
@@ -46,7 +48,7 @@ open class DiskStorageDataStore(
 
     override suspend fun delete(name: String) {
         runCatching {
-            File(context.filesDir, name).let {
+            File(root, name).let {
                 if (it.isDirectory)
                     it.deleteRecursively()
                 else
