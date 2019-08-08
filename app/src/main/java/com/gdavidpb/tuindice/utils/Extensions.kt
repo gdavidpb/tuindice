@@ -475,8 +475,8 @@ fun QuarterEntity.generateId(): String {
 
 fun SubjectEntity.generateId(): String {
     val hash = digestConcat
-            .concat(data = code)
             .concat(data = quarterId)
+            .concat(data = code)
             .build()
 
     return Base64
