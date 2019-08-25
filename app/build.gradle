@@ -82,7 +82,7 @@ dependencies {
     implementation "com.google.android.material:material:1.1.0-alpha09"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.browser:browser:1.0.0"
-    implementation "androidx.recyclerview:recyclerview:1.1.0-beta01"
+    implementation "androidx.recyclerview:recyclerview:1.1.0-beta03"
     implementation "androidx.vectordrawable:vectordrawable-animated:1.1.0-rc01"
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta2"
 
@@ -96,13 +96,13 @@ dependencies {
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
 
     /* Firebase */
-    implementation "com.google.firebase:firebase-core:17.0.1"
-    implementation "com.google.firebase:firebase-auth:18.1.0"
-    implementation "com.google.firebase:firebase-firestore:20.2.0"
-    implementation "com.google.firebase:firebase-dynamic-links:18.0.0"
-    implementation "com.google.firebase:firebase-functions:18.1.0"
-    implementation "com.google.firebase:firebase-messaging:19.0.1"
-    implementation "com.google.firebase:firebase-storage:18.1.1"
+    implementation "com.google.firebase:firebase-core:17.1.0"
+    implementation "com.google.firebase:firebase-auth:19.0.0"
+    implementation "com.google.firebase:firebase-firestore:21.0.0"
+    implementation "com.google.firebase:firebase-dynamic-links:19.0.0"
+    implementation "com.google.firebase:firebase-functions:19.0.0"
+    implementation "com.google.firebase:firebase-messaging:20.0.0"
+    implementation "com.google.firebase:firebase-storage:19.0.0"
 
     /* Architecture */
     implementation "androidx.arch.core:core-runtime:2.0.1"
@@ -111,7 +111,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
-    kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
 
     /* Retrofit */
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
