@@ -18,11 +18,11 @@ open class FirebaseDataStore(
     }
 
     override suspend fun signUp(email: String, password: String): Auth {
-        return auth.createUserWithEmailAndPassword(email, password).await().user.toAuth()
+        return auth.createUserWithEmailAndPassword(email, password).await().user!!.toAuth()
     }
 
     override suspend fun signIn(email: String, password: String): Auth {
-        return auth.signInWithEmailAndPassword(email, password).await().user.toAuth()
+        return auth.signInWithEmailAndPassword(email, password).await().user!!.toAuth()
     }
 
     override suspend fun signOut() {

@@ -8,6 +8,8 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatSeekBar
 import com.gdavidpb.tuindice.R
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class CustomSeekBar(context: Context, attrs: AttributeSet)
     : AppCompatSeekBar(context, attrs) {
@@ -29,18 +31,10 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
 
             val x = (width - paddingRight - resources.getDimension(R.dimen.size_tick).toInt() - 1)
 
-            for (y in 0 until height) {
-                val colorHook = bitmapHook.getPixel(x, y)
-
-                val r = Color.red(colorHook)
-                val g = Color.green(colorHook)
-                val b = Color.blue(colorHook)
-
-                if (colorHook != color && (!(r != g || g != b))) {
-                    color = colorHook
-                    break
-                }
-            }
+            color = (0 until height)
+                    .map { y -> bitmapHook.getPixel(x, y) }
+                    .distinct()
+                    .maxBy { target -> target distanceTo color } ?: color
 
             paint.color = color
         }
@@ -52,8 +46,21 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
             val radius = (resources.getDimension(R.dimen.size_tick) / 2f) + 0.1f
             val step = (width / max)
 
+            val translateX = paddingLeft.toFloat()
+            val halfHeight = (height / 2f)
+
             for (i in (progress + 1)..max)
-                canvas.drawCircle((i * step) + paddingLeft.toFloat(), (height / 2f), radius, paint)
+                canvas.drawCircle((i * step) + translateX, halfHeight, radius, paint)
         }
+    }
+
+    private infix fun Int.distanceTo(x: Int): Double {
+        val (a, b, c) = arrayOf(
+                (Color.red(x) - Color.red(this)).toDouble(),
+                (Color.green(x) - Color.green(this)).toDouble(),
+                (Color.blue(x) - Color.blue(this)).toDouble()
+        )
+
+        return sqrt(a.pow(2.0) + b.pow(2.0) + c.pow(2.0))
     }
 }

@@ -8,8 +8,6 @@ import android.view.View
 import android.view.animation.CycleInterpolator
 import android.view.animation.LinearInterpolator
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
-import androidx.annotation.DrawableRes
 import androidx.constraintlayout.widget.ConstraintSet
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
@@ -69,21 +67,8 @@ class LoginActivity : BaseActivity() {
             backgroundTwo.translationX = (translationX - width)
         })
 
-        /* Set up drawables using support */
-        eTextUsbId.drawables(left = getCompatDrawable(R.drawable.ic_account, R.color.color_secondary_text))
-        eTextPassword.drawables(left = getCompatDrawable(R.drawable.ic_password, R.color.color_secondary_text))
-
         eTextUsbId.onTextChanged { _, _, _, _ -> if (tInputUsbId.error != null) tInputUsbId.error = null }
         eTextPassword.onTextChanged { _, _, _, _ -> if (tInputPassword.error != null) tInputPassword.error = null }
-
-        val onFocusChanged = fun(editText: EditText, @DrawableRes drawableRes: Int) = View.OnFocusChangeListener { _, hasFocus ->
-            val color = if (hasFocus) R.color.color_accent else R.color.color_secondary_text
-
-            editText.drawables(left = getCompatDrawable(drawableRes, color))
-        }
-
-        eTextUsbId.onFocusChangeListener = onFocusChanged(eTextUsbId, R.drawable.ic_account)
-        eTextPassword.onFocusChangeListener = onFocusChanged(eTextPassword, R.drawable.ic_password)
 
         eTextUsbId.onTextChanged { s, _, before, _ ->
             if (s.length >= 2 && before == 0 && !s.contains("-")) {

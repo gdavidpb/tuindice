@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cLayoutMain"
@@ -48,16 +49,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
-        android:src="@drawable/bk_pattern"
-        tools:alpha="0.15" />
+        android:src="@drawable/bk_pattern"/>
 
     <com.gdavidpb.tuindice.ui.customs.CustomImageView
         android:id="@+id/backgroundTwo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
-        android:src="@drawable/bk_pattern"
-        tools:alpha="0.15" />
+        android:src="@drawable/bk_pattern"/>
 
     <ImageView
         android:id="@+id/iViewLogo"
@@ -90,7 +89,7 @@
 
     <ViewFlipper
         android:id="@+id/vFlipperWelcome"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_8"
         android:layout_marginBottom="@dimen/dp_8"
@@ -99,36 +98,36 @@
         android:flipInterval="2000"
         android:inAnimation="@anim/slide_in_left"
         android:outAnimation="@anim/slide_out_right"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guidelineStart"
+        app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintTop_toBottomOf="@id/iViewLogo">
 
         <TextView
             android:id="@+id/tViewFlipper1"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/message_flipper_1"
-            android:textAlignment="center"
+            android:layout_gravity="center"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
             android:textColor="@color/color_accent"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tViewFlipper2"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/message_flipper_2"
-            android:textAlignment="center"
+            android:layout_gravity="center"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
             android:textColor="@color/color_accent"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tViewFlipper3"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/message_flipper_3"
-            android:textAlignment="center"
+            android:layout_gravity="center"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
             android:textColor="@color/color_accent"
             android:textStyle="bold" />
@@ -153,7 +152,9 @@
         android:layout_height="wrap_content"
         android:hint="@string/hint_usb_id"
         android:textColorHint="@color/color_accent"
+        android:layout_marginTop="@dimen/dp_8"
         app:errorEnabled="true"
+        app:startIconDrawable="@drawable/ic_account"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@id/vFlipperWelcome">
@@ -162,12 +163,9 @@
             android:id="@+id/eTextUsbId"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawablePadding="@dimen/dp_8"
             android:imeOptions="actionNext"
             android:inputType="number"
             android:maxLength="8"
-            tools:drawableStart="@drawable/ic_account"
-            tools:drawableTint="@color/color_secondary_text"
             tools:hint="@string/hint_usb_id" />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -179,6 +177,7 @@
         android:hint="@string/hintPassword"
         android:textColorHint="@color/color_accent"
         app:errorEnabled="true"
+        app:startIconDrawable="@drawable/ic_password"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@id/tInputUsbId"
@@ -188,13 +187,10 @@
             android:id="@+id/eTextPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawablePadding="@dimen/dp_8"
             android:imeOptions="actionDone"
             android:inputType="textPassword"
             android:maxLength="60"
             android:selectAllOnFocus="true"
-            tools:drawableStart="@drawable/ic_password"
-            tools:drawableTint="@color/color_secondary_text"
             tools:hint="@string/hintPassword" />
 
     </com.google.android.material.textfield.TextInputLayout>

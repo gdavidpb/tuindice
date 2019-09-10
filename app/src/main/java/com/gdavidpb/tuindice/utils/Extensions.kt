@@ -55,7 +55,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.HttpException
 import retrofit2.Response
-import java.nio.ByteBuffer
 import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.util.*
@@ -486,10 +485,6 @@ fun SubjectEntity.generateId(): String {
 }
 
 fun X509Certificate.getProperty(key: String) = "(?<=$key=)[^,]+|$".toRegex().find(subjectDN.name)?.value
-
-fun Long.bytes(): ByteArray = ByteBuffer.allocate(Long.SIZE_BYTES)
-        .putLong(this)
-        .array()
 
 fun Date.isToday(): Boolean {
     val start = Calendar.getInstance().run {
