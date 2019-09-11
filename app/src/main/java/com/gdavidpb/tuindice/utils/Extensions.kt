@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
@@ -49,6 +50,7 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.*
 import okhttp3.RequestBody
 import okio.Buffer
+import org.jetbrains.anko.browse
 import org.jetbrains.anko.sdk27.coroutines.textChangedListener
 import org.jetbrains.anko.startActivity
 import retrofit2.Call
@@ -315,7 +317,10 @@ fun SharedPreferences.edit(transaction: SharedPreferences.Editor.() -> Unit) {
 /* Context */
 
 fun Context.browserActivity(@StringRes title: Int, url: String) {
-    startActivity<BrowserActivity>(EXTRA_TITLE to getString(title), EXTRA_URL to url)
+    if (isPackageInstalled(PACKAGE_NAME_WEB_VIEW))
+        startActivity<BrowserActivity>(EXTRA_TITLE to getString(title), EXTRA_URL to url)
+    else
+        browse(url)
 }
 
 fun Context.getCompatColor(@ColorRes colorRes: Int): Int = ContextCompat.getColor(this, colorRes)
@@ -348,6 +353,10 @@ fun Context.isPowerSaveMode(): Boolean {
     } else
         false
 }
+
+fun Context.isPackageInstalled(packageName: String) = runCatching {
+    packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA)
+}.isSuccess
 
 /* System services */
 

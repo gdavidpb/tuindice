@@ -2,6 +2,9 @@ package com.gdavidpb.tuindice.utils
 
 import java.util.*
 
+/* External packages */
+const val PACKAGE_NAME_WEB_VIEW = "com.google.android.webview"
+
 /* Third-party urls */
 const val URL_CREATIVE_COMMONS = "https://creativecommons.org/licenses/by-nc/4.0/"
 const val URL_PRIVACY_POLICY = "https://tuindice-usb.firebaseapp.com/"
