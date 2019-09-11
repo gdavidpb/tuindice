@@ -24,10 +24,15 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
         if (color == Color.WHITE) {
             val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             val canvasHook = Canvas(bitmapHook)
+            val progressHook = progress
 
             canvasHook.drawColor(Color.WHITE)
 
+            progress = 0
+
             super.onDraw(canvasHook)
+
+            progress = progressHook
 
             val x = (width - paddingRight - resources.getDimension(R.dimen.size_tick).toInt() - 1)
 
