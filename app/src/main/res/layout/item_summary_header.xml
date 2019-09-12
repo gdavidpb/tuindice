@@ -96,7 +96,6 @@
                 android:drawablePadding="@dimen/dp_2"
                 android:gravity="center_vertical"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                tools:drawableLeft="@drawable/ic_sync"
                 tools:drawableStart="@drawable/ic_sync"
                 tools:drawableTint="@color/color_secondary_text"
                 tools:text="Última actualización: Hoy, 3:42 p.m." />

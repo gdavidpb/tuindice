@@ -10,7 +10,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.utils.CircleTransform
+import com.gdavidpb.tuindice.presentation.model.CircleTransform
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable

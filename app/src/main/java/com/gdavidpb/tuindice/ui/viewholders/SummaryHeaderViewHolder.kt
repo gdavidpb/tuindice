@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.ui.viewholders
 
 import android.view.View
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.utils.CircleTransform
+import com.gdavidpb.tuindice.presentation.model.CircleTransform
 import com.gdavidpb.tuindice.presentation.model.SummaryBase
 import com.gdavidpb.tuindice.presentation.model.SummaryHeader
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter

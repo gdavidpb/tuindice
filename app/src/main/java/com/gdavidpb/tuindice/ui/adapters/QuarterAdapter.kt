@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.ui.adapters
 
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.gdavidpb.tuindice.R
@@ -22,6 +23,7 @@ open class QuarterAdapter(
         fun computeGradeSum(quarter: Quarter): Double
 
         fun resolveColor(item: Quarter): Int
+        fun resolveFont(asset: String): Typeface
     }
 
     private val averageSubjects by lazy {

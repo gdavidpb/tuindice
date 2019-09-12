@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.ui.fragments
 
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,10 +30,16 @@ open class RecordFragment : Fragment() {
 
     private val cachedColors by lazy {
         mapOf(
-                STATUS_QUARTER_CURRENT to ContextCompat.getColor(requireContext(), R.color.quarter_current),
-                STATUS_QUARTER_COMPLETED to ContextCompat.getColor(requireContext(), R.color.quarter_completed),
-                STATUS_QUARTER_GUESS to ContextCompat.getColor(requireContext(), R.color.quarter_guess),
-                STATUS_QUARTER_RETIRED to ContextCompat.getColor(requireContext(), R.color.quarter_retired)
+                STATUS_QUARTER_CURRENT to requireContext().getCompatColor(R.color.quarter_current),
+                STATUS_QUARTER_COMPLETED to requireContext().getCompatColor(R.color.quarter_completed),
+                STATUS_QUARTER_GUESS to requireContext().getCompatColor(R.color.quarter_guess),
+                STATUS_QUARTER_RETIRED to requireContext().getCompatColor(R.color.quarter_retired)
+        )
+    }
+
+    private val cachedFonts by lazy {
+        mapOf(
+                "Code.ttf" to Typeface.createFromAsset(requireContext().assets, "fonts/Code.ttf")
         )
     }
 
@@ -116,6 +122,10 @@ open class RecordFragment : Fragment() {
 
         override fun resolveColor(item: Quarter): Int {
             return cachedColors.getValue(item.status)
+        }
+
+        override fun resolveFont(asset: String): Typeface {
+            return cachedFonts.getValue(asset)
         }
 
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {

@@ -27,13 +27,14 @@ open class QuarterViewHolder(
             }
 
             val color = manager.resolveColor(item)
+            val font = manager.resolveFont("Code.ttf")
 
             viewQuarterColor.backgroundColor = color
 
             tViewQuarterTitle.text = item.toQuarterTitle()
             tViewQuarterGradeDiff.text = item.toQuarterGradeDiff(color, context)
             tViewQuarterGradeSum.text = item.toQuarterGradeSum(color, context)
-            tViewQuarterCredits.text = item.toQuarterCredits(color, context)
+            tViewQuarterCredits.text = item.toQuarterCredits(color, font, context)
 
             /* Adjust subjects views */
             adjustViews(item, lLayoutQuarterContainer)

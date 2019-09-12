@@ -1,13 +1,13 @@
 package com.gdavidpb.tuindice.utils
 
 import android.content.Context
+import android.graphics.Typeface
 import android.net.Uri
 import android.text.Spanned
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
 import android.util.Base64
-import androidx.core.content.ContextCompat
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.domain.model.service.*
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.domain.usecase.request.ResetRequest
+import com.gdavidpb.tuindice.presentation.model.CustomTypefaceSpan
 import com.gdavidpb.tuindice.presentation.model.SummaryCredits
 import com.gdavidpb.tuindice.presentation.model.SummaryHeader
 import com.gdavidpb.tuindice.presentation.model.SummarySubjects
@@ -68,7 +69,7 @@ fun Subject.toSubjectCode(context: Context): CharSequence {
     else
         buildSpanned {
             val content = context.getString(R.string.subject_title, code, toSubjectStatusDescription())
-            val colorSecondary = ContextCompat.getColor(context, R.color.color_secondary_text)
+            val colorSecondary = context.getCompatColor(R.color.color_secondary_text)
 
             append(content.substringBefore(' '))
             append(' ')
@@ -118,28 +119,8 @@ fun Quarter.toQuarterGradeSum(color: Int, context: Context): CharSequence {
     return context.getString(R.string.quarter_grade_sum, gradeSum).toSpanned(color)
 }
 
-fun Quarter.toQuarterCredits(color: Int, context: Context): CharSequence {
-    return context.getString(R.string.quarter_credits, credits).toSpanned(color)
-}
-
-fun String.toSpanned(color: Int): Spanned {
-    val (iconString, valueString, extraString) = split(' ')
-            .toMutableList()
-            .apply { if (size == 2) add("") }
-
-    return buildSpanned {
-        append(iconString,
-                TypefaceSpan("sans-serif-medium"),
-                AbsoluteSizeSpan(18, true),
-                foregroundColor(color))
-        append(' ')
-        append(valueString)
-
-        if (extraString.isNotBlank()) {
-            append(' ')
-            append(extraString)
-        }
-    }
+fun Quarter.toQuarterCredits(color: Int, font: Typeface, context: Context): CharSequence {
+    return context.getString(R.string.quarter_credits, credits).toSpanned(color, font)
 }
 
 /* Data layer */
@@ -403,4 +384,28 @@ fun Pair<String, String>.fromResetParam(): String {
 
 fun String.toUsbEmail(): String {
     return "$this@usb.ve"
+}
+
+/* Internal utils */
+
+private fun String.toSpanned(color: Int, font: Typeface? = null): Spanned {
+    val (iconString, valueString, extraString) = split(' ')
+            .toMutableList()
+            .apply { if (size == 2) add("") }
+
+    val typefaceSpan = font?.let(::CustomTypefaceSpan) ?: TypefaceSpan("sans-serif-medium")
+
+    return buildSpanned {
+        append(iconString,
+                typefaceSpan,
+                AbsoluteSizeSpan(18, true),
+                foregroundColor(color))
+        append(' ')
+        append(valueString)
+
+        if (extraString.isNotBlank()) {
+            append(' ')
+            append(extraString)
+        }
+    }
 }

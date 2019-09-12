@@ -5,9 +5,9 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.widget.CalendarView
-import androidx.core.content.ContextCompat
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.containsInMonth
+import com.gdavidpb.tuindice.utils.getCompatColor
 import com.gdavidpb.tuindice.utils.negRem
 import org.jetbrains.anko.childrenRecursiveSequence
 import org.jetbrains.anko.dip
@@ -37,7 +37,7 @@ class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(c
 
     private val dotPaint by lazy {
         Paint().apply {
-            color = ContextCompat.getColor(context, R.color.color_primary_dark)
+            color = context.getCompatColor(R.color.color_primary_dark)
             isAntiAlias = true
         }
     }
