@@ -285,6 +285,10 @@
         Retrofit 2.6.1\nA type-safe HTTP client for Android and Java\n© 2015 Square\nhttps://square.github.io/retrofit/
     </string>
 
+    <string name="about_freepik">
+        Freepik\nGraphic resources for everyone\n© 2010 freepikcompany\nhttps://www.freepik.com/
+    </string>
+
     <!-- BrowserActivity -->
     <string name="label_creative_commons">TuIndice - Creative Commons</string>
     <string name="label_privacy_policy">TuIndice - Política de privacidad</string>

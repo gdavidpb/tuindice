@@ -61,7 +61,8 @@ class AboutActivity : AppCompatActivity() {
                 AboutLib(drawable = R.drawable.ic_kotlin, content = getString(R.string.about_kotlin)),
                 AboutLib(drawable = R.drawable.ic_firebase, content = getString(R.string.about_firebase)),
                 AboutLib(drawable = R.drawable.ic_koin, content = getString(R.string.about_koin)),
-                AboutLib(drawable = R.drawable.ic_square, content = getString(R.string.about_retrofit))
+                AboutLib(drawable = R.drawable.ic_square, content = getString(R.string.about_retrofit)),
+                AboutLib(drawable = R.drawable.ic_freepik, content = getString(R.string.about_freepik))
         )
 
         adapter.swapItems(new = data)
