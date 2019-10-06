@@ -111,7 +111,7 @@ open class PreferencesDataStore(
     }
 
     override suspend fun getLastScreen(): Int {
-        return preferences.getInt(KEY_LAST_SCREEN, R.id.nav_summary)
+        return preferences.getInt(KEY_LAST_SCREEN, R.id.navigation_summary)
     }
 
     override suspend fun setLastScreen(screen: Int) {

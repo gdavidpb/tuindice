@@ -40,11 +40,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activities.AboutActivity"
-            android:exported="false"
-            android:label="@string/label_about_activity"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".ui.activities.LoginActivity"
             android:exported="false"
             android:label="@string/label_login_activity"

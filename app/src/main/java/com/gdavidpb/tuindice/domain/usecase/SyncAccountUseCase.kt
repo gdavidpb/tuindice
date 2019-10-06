@@ -54,10 +54,7 @@ open class SyncAccountUseCase(
                 val enrollmentAuthResponse = dstRepository.auth(enrollmentAuthRequest)
 
                 if (enrollmentAuthResponse?.isSuccessful == true) {
-                    val enrollmentData = dstRepository.getEnrollment()
-
-                    if (enrollmentData != null)
-                        collectedData.add(enrollmentData)
+                    dstRepository.getEnrollment()?.let(collectedData::add)
                 }
 
                 /* Clear cookies */
@@ -73,15 +70,8 @@ open class SyncAccountUseCase(
                 val recordAuthResponse = dstRepository.auth(recordAuthRequest)
 
                 if (recordAuthResponse?.isSuccessful == true) {
-                    val personalData = dstRepository.getPersonalData()
-
-                    val recordData = dstRepository.getRecordData()
-
-                    if (personalData != null)
-                        collectedData.add(personalData)
-
-                    if (recordData != null)
-                        collectedData.add(recordData)
+                    dstRepository.getPersonalData()?.let(collectedData::add)
+                    dstRepository.getRecordData()?.let(collectedData::add)
                 }
 
                 /* If there is collected data */

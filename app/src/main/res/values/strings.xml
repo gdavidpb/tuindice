@@ -38,15 +38,10 @@
     <string name="nav_settings">Configuración</string>
     <string name="nav_achievements">Logros</string>
     <string name="nav_podium">Podio</string>
-    <string name="nav_twitter">\@TuIndice</string>
-    <string name="nav_share">Compartir</string>
-    <string name="nav_contact">Contacto</string>
-    <string name="nav_report">Reportar un error</string>
-    <string name="nav_about">Acerca de</string>
-    <string name="nav_sign_out">Cerrar sesión</string>
+    <string name="nav_about">Acerca de…</string>
 
     <string name="alert_title_fatal_failure">¡Oops, lo sentimos!</string>
-    <string name="alert_message_fatal_failure">Parece que algo ha salido mal por acá. Intenta limpiar los datos de la aplicación y volver a iniciar</string>
+    <string name="alert_message_fatal_failure">Parece que algo ha salido muy mal por acá. Intenta reinstalar la aplicación y vuelve a intentar</string>
 
     <string name="alert_title_logout">Atención</string>
     <string name="alert_message_logout">¿Estás seguro que deseas salir?</string>
@@ -216,8 +211,7 @@
         <item>@color/color_accent</item>
     </integer-array>
 
-    <!-- AboutActivity -->
-    <string name="label_about_activity">Acerca de</string>
+    <!-- AboutFragment -->
 
     <string name="about_version">
         Versión\n%1$s-%2$d (%3$s)

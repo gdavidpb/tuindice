@@ -1,11 +1,13 @@
-package com.gdavidpb.tuindice.ui.activities
+package com.gdavidpb.tuindice.ui.fragments
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
@@ -14,29 +16,32 @@ import com.gdavidpb.tuindice.presentation.model.AboutHeader
 import com.gdavidpb.tuindice.presentation.model.AboutLib
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.utils.*
-import kotlinx.android.synthetic.main.activity_about.*
+import kotlinx.android.synthetic.main.fragment_about.*
 import org.jetbrains.anko.browse
 import org.jetbrains.anko.email
 import org.jetbrains.anko.share
 
-class AboutActivity : AppCompatActivity() {
+open class AboutFragment : Fragment() {
 
     private val cachedColors by lazy {
         listOf(
-                getCompatColor(R.color.color_primary_text),
-                getCompatColor(R.color.color_secondary_text)
+                requireContext().getCompatColor(R.color.color_primary_text),
+                requireContext().getCompatColor(R.color.color_secondary_text)
         )
     }
 
     private val adapter = AboutAdapter(manager = AboutManager())
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_about)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        return inflater.inflate(R.layout.fragment_about, container, false)
+    }
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        rViewAbout.layoutManager = LinearLayoutManager(this)
+        val context = requireContext()
+
+        rViewAbout.layoutManager = LinearLayoutManager(context)
         rViewAbout.adapter = adapter
 
         val versionName = BuildConfig.VERSION_NAME.toFloat()
@@ -49,14 +54,14 @@ class AboutActivity : AppCompatActivity() {
         val data = listOf(
                 AboutHeader(title = getString(R.string.app_name)),
                 About(drawable = R.drawable.ic_version, content = version),
-                About(drawable = R.drawable.ic_cc, content = getString(R.string.about_license)) { browserActivity(title = R.string.label_creative_commons, url = URL_CREATIVE_COMMONS) },
-                About(drawable = R.drawable.ic_privacy_policy, content = getString(R.string.about_privacy_policy)) { browserActivity(title = R.string.label_privacy_policy, url = URL_PRIVACY_POLICY) },
-                About(drawable = R.drawable.ic_share, content = getString(R.string.about_share)) { share(getString(R.string.about_share_message, packageName), getString(R.string.app_name)) },
+                About(drawable = R.drawable.ic_cc, content = getString(R.string.about_license)) { context.browserActivity(title = R.string.label_creative_commons, url = URL_CREATIVE_COMMONS) },
+                About(drawable = R.drawable.ic_privacy_policy, content = getString(R.string.about_privacy_policy)) { context.browserActivity(title = R.string.label_privacy_policy, url = URL_PRIVACY_POLICY) },
+                About(drawable = R.drawable.ic_share, content = getString(R.string.about_share)) { context.share(getString(R.string.about_share_message, context.packageName), getString(R.string.app_name)) },
                 About(drawable = R.drawable.ic_rate, content = getString(R.string.about_rate)) { startPlayStore() },
                 AboutHeader(title = getString(R.string.about_header_developer)),
                 About(drawable = R.drawable.ic_profile, content = getString(R.string.about_dev_info)),
                 About(drawable = R.drawable.ic_github, content = getString(R.string.about_source_code)),
-                About(drawable = R.drawable.ic_contact, content = getString(R.string.about_dev_contact)) { email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT) },
+                About(drawable = R.drawable.ic_contact, content = getString(R.string.about_dev_contact)) { context.email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT) },
                 AboutHeader(title = getString(R.string.about_headers_libs)),
                 AboutLib(drawable = R.drawable.ic_kotlin, content = getString(R.string.about_kotlin)),
                 AboutLib(drawable = R.drawable.ic_firebase, content = getString(R.string.about_firebase)),
@@ -68,14 +73,9 @@ class AboutActivity : AppCompatActivity() {
         adapter.swapItems(new = data)
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-
-        return true
-    }
-
     private fun startPlayStore() {
-        val uri = Uri.parse(getString(R.string.about_google_play_intent, packageName))
+        val context = requireContext()
+        val uri = Uri.parse(getString(R.string.about_google_play_intent, context.packageName))
         val intent = Intent(Intent.ACTION_VIEW, uri).apply {
             addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
 
@@ -83,10 +83,10 @@ class AboutActivity : AppCompatActivity() {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
         }
 
-        try {
+        runCatching {
             startActivity(intent)
-        } catch (ignored: ActivityNotFoundException) {
-            browse(url = getString(R.string.about_google_play, packageName))
+        }.onFailure {
+            context.browse(url = getString(R.string.about_google_play, context.packageName))
         }
     }
 

@@ -35,6 +35,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
 import com.gdavidpb.tuindice.data.utils.Validation
@@ -154,6 +155,15 @@ suspend fun <T> Call<T>.await() = suspendCoroutine<T?> { continuation ->
             continuation.resumeWithException(t)
         }
     })
+}
+
+/* Navigation */
+
+fun Int.toNavId() = when (this) {
+    R.id.nav_summary -> R.id.navigation_summary
+    R.id.nav_record -> R.id.navigation_record
+    R.id.nav_about -> R.id.navigation_about
+    else -> throw IllegalArgumentException()
 }
 
 /* Validation */
@@ -345,14 +355,12 @@ fun Context.getCompatDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes:
     }
 }
 
-fun Context.isPowerSaveMode(): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+fun Context.isPowerSaveMode() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+    val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
 
-        powerManager.isPowerSaveMode
-    } else
-        false
-}
+    powerManager.isPowerSaveMode
+} else
+    false
 
 fun Context.isPackageInstalled(packageName: String) = runCatching {
     packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA)
@@ -389,9 +397,19 @@ fun Double.toGrade() = floor(this * 10000) / 10000
 
 fun Double.formatGrade() = String.format("%.4f", this)
 
-fun Date.format(format: String): String? = SimpleDateFormat(format, DEFAULT_LOCALE).runCatching { format(this@format) }.getOrNull()
+private val dateFormatCache = hashMapOf<String, SimpleDateFormat>()
 
-fun String.parse(format: String): Date? = SimpleDateFormat(format, DEFAULT_LOCALE).runCatching { parse(this@parse) }.getOrNull()
+fun Date.format(format: String) = dateFormatCache.getOrPut(format) {
+    SimpleDateFormat(format, DEFAULT_LOCALE).apply {
+        timeZone = TimeZone.getTimeZone("GMT")
+    }
+}.runCatching { format(this@format) }.getOrNull()
+
+fun String.parse(format: String) = dateFormatCache.getOrPut(format) {
+    SimpleDateFormat(format, DEFAULT_LOCALE).apply {
+        timeZone = TimeZone.getTimeZone("GMT")
+    }
+}.runCatching { parse(this@parse) }.getOrNull()
 
 fun String.toShortName(): String {
     val array = split("\\s+".toRegex())
@@ -408,17 +426,11 @@ fun String.toShortName(): String {
 
 /* Computation */
 
-fun Quarter.computeGrade(): Double {
-    return subjects.computeGrade()
-}
+fun Quarter.computeGrade() = subjects.computeGrade()
 
-fun Quarter.computeCredits(): Int {
-    return subjects.computeCredits()
-}
+fun Quarter.computeCredits() = subjects.computeCredits()
 
-fun Subject.isApproved(): Boolean {
-    return grade >= 3
-}
+fun Subject.isApproved() = grade >= 3
 
 fun Collection<Subject>.computeGrade(): Double {
     val creditsSum = computeCredits().toDouble()
@@ -430,40 +442,36 @@ fun Collection<Subject>.computeGrade(): Double {
     return if (creditsSum != 0.0) weightedSum / creditsSum else 0.0
 }
 
-fun Collection<Subject>.computeCredits(): Int {
-    return sumBy {
-        if (it.grade != 0) it.credits else 0
-    }
+fun Collection<Subject>.computeCredits() = sumBy {
+    if (it.grade != 0) it.credits else 0
 }
 
 private val gradeSumCache = hashMapOf<String, Double>()
 
-private fun Collection<Quarter>.internalComputeGradeSum(until: Quarter): Double {
-    /* Until quarter and not retired */
-    return filter { it.startDate <= until.startDate && it.status != STATUS_QUARTER_RETIRED }
-            /* Get all subjects */
-            .flatMap { it.subjects }
-            /* No take retired subjects */
-            .filter { it.status != STATUS_SUBJECT_RETIRED }
-            /* Group by code */
-            .groupBy { it.code }
-            .map { (_, subjects) ->
-                /* If you've seen this subject more than once */
-                if (subjects.size > 1)
-                    subjects.toMutableList().also {
-                        /* if last seen subject were approved, remove previous */
-                        if (it.first().isApproved())
-                            it.removeAt(1)
-                    }
-                else
-                    subjects
-            }.flatten()
-            .computeGrade()
-}
+private fun Collection<Quarter>.internalComputeGradeSum(until: Quarter) =
+        /* Until quarter and not retired */
+        filter { it.startDate <= until.startDate && it.status != STATUS_QUARTER_RETIRED }
+                /* Get all subjects */
+                .flatMap { it.subjects }
+                /* No take retired subjects */
+                .filter { it.status != STATUS_SUBJECT_RETIRED }
+                /* Group by code */
+                .groupBy { it.code }
+                .map { (_, subjects) ->
+                    /* If you've seen this subject more than once */
+                    if (subjects.size > 1)
+                        subjects.toMutableList().also {
+                            /* if last seen subject were approved, remove previous */
+                            if (it.first().isApproved())
+                                it.removeAt(1)
+                        }
+                    else
+                        subjects
+                }.flatten()
+                .computeGrade()
 
-fun Collection<Quarter>.computeGradeSum(until: Quarter): Double {
-    return gradeSumCache.getOrPut(until.id) { internalComputeGradeSum(until) }
-}
+fun Collection<Quarter>.computeGradeSum(until: Quarter) =
+        gradeSumCache.getOrPut(until.id) { internalComputeGradeSum(until) }
 
 /* Utils */
 
@@ -517,7 +525,7 @@ fun Date.isToday(): Boolean {
         Date(timeInMillis)
     }
 
-    return start.rangeTo(end).contains(this)
+    return (start..end).contains(this)
 }
 
 fun Date.isYesterday(): Boolean {
@@ -544,7 +552,7 @@ fun Date.isYesterday(): Boolean {
         Date(timeInMillis)
     }
 
-    return start.rangeTo(end).contains(this)
+    return (start..end).contains(this)
 }
 
 fun Calendar.containsInMonth(value: Calendar): Boolean {
@@ -569,7 +577,7 @@ fun Calendar.containsInMonth(value: Calendar): Boolean {
         Date(it.timeInMillis)
     }
 
-    return start.rangeTo(end).contains(value.time)
+    return (start..end).contains(value.time)
 }
 
 infix fun Int.negRem(value: Int) = (this % value) + if (this >= 0) 0 else value

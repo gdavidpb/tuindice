@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_summary"
+        android:icon="@drawable/ic_enrollment"
+        android:title="@string/nav_summary" />
+
+    <item
+        android:id="@+id/nav_record"
+        android:icon="@drawable/ic_record"
+        android:title="@string/nav_record" />
+
+    <item
+        android:id="@+id/nav_about"
+        android:icon="@drawable/ic_about"
+        android:title="@string/nav_about" />
+
+    <!--
+
+    <item
+        android:id="@+id/nav_calendar"
+        android:icon="@drawable/ic_calendar"
+        android:title="@string/nav_calendar" />
+    <item
+        android:id="@+id/nav_pensum"
+        android:icon="@drawable/ic_pensum"
+        android:title="@string/nav_pensum" />
+
+    <item
+        android:id="@+id/nav_podium"
+        android:icon="@drawable/ic_podium"
+        android:title="@string/nav_podium" />
+
+    -->
+
+</menu>

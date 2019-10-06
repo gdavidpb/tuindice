@@ -34,51 +34,44 @@ import java.util.*
 
 /* Presentation layer */
 
-fun Account.toSummaryHeader(): SummaryHeader {
-    return SummaryHeader(
-            uid = uid,
-            name = fullName.toShortName(),
-            photoUrl = photoUrl,
-            careerName = careerName,
-            grade = grade,
-            lastUpdate = lastUpdate
-    )
-}
+fun Account.toSummaryHeader() = SummaryHeader(
+        uid = uid,
+        name = fullName.toShortName(),
+        photoUrl = photoUrl,
+        careerName = careerName,
+        grade = grade,
+        lastUpdate = lastUpdate
+)
 
-fun Account.toSummarySubjects(): SummarySubjects {
-    return SummarySubjects(
-            enrolledSubjects = enrolledSubjects,
-            approvedSubjects = approvedSubjects,
-            retiredSubjects = retiredSubjects,
-            failedSubjects = failedSubjects
-    )
-}
+fun Account.toSummarySubjects() = SummarySubjects(
+        enrolledSubjects = enrolledSubjects,
+        approvedSubjects = approvedSubjects,
+        retiredSubjects = retiredSubjects,
+        failedSubjects = failedSubjects
+)
 
-fun Account.toSummaryCredits(): SummaryCredits {
-    return SummaryCredits(
-            enrolledCredits = enrolledCredits,
-            approvedCredits = approvedCredits,
-            retiredCredits = retiredCredits,
-            failedCredits = failedCredits
-    )
-}
+fun Account.toSummaryCredits() = SummaryCredits(
+        enrolledCredits = enrolledCredits,
+        approvedCredits = approvedCredits,
+        retiredCredits = retiredCredits,
+        failedCredits = failedCredits
+)
 
-fun Subject.toSubjectCode(context: Context): CharSequence {
-    return if (status == STATUS_SUBJECT_OK && grade != 0)
-        code
-    else
-        buildSpanned {
-            val content = context.getString(R.string.subject_title, code, toSubjectStatusDescription())
-            val colorSecondary = context.getCompatColor(R.color.color_secondary_text)
+fun Subject.toSubjectCode(context: Context) =
+        if (status == STATUS_SUBJECT_OK && grade != 0)
+            code
+        else
+            buildSpanned {
+                val content = context.getString(R.string.subject_title, code, toSubjectStatusDescription())
+                val colorSecondary = context.getCompatColor(R.color.color_secondary_text)
 
-            append(content.substringBefore(' '))
-            append(' ')
-            append(content.substringAfter(' '),
-                    TypefaceSpan("sans-serif-light"),
-                    ForegroundColorSpan(colorSecondary))
+                append(content.substringBefore(' '))
+                append(' ')
+                append(content.substringAfter(' '),
+                        TypefaceSpan("sans-serif-light"),
+                        ForegroundColorSpan(colorSecondary))
 
-        }
-}
+            }
 
 fun Subject.toSubjectName(): String {
     var result = name
@@ -92,16 +85,14 @@ fun Subject.toSubjectName(): String {
     return result
 }
 
-fun Subject.toSubjectGrade(context: Context): String {
-    return if (grade != 0)
-        return context.getString(R.string.subject_grade, grade)
-    else
-        "-"
-}
+fun Subject.toSubjectGrade(context: Context) =
+        if (grade != 0)
+            context.getString(R.string.subject_grade, grade)
+        else
+            "-"
 
-fun Subject.toSubjectCredits(context: Context): String {
-    return context.getString(R.string.subject_credits, credits)
-}
+fun Subject.toSubjectCredits(context: Context) =
+        context.getString(R.string.subject_credits, credits)
 
 fun Quarter.toQuarterTitle(): String {
     val start = startDate.format("MMM")?.capitalize()
@@ -111,155 +102,128 @@ fun Quarter.toQuarterTitle(): String {
     return "$start - $end $year".replace("\\.".toRegex(), "")
 }
 
-fun Quarter.toQuarterGradeDiff(color: Int, context: Context): CharSequence {
-    return context.getString(R.string.quarter_grade_diff, grade).toSpanned(color)
-}
+fun Quarter.toQuarterGradeDiff(color: Int, context: Context) =
+        context.getString(R.string.quarter_grade_diff, grade).toSpanned(color)
 
-fun Quarter.toQuarterGradeSum(color: Int, context: Context): CharSequence {
-    return context.getString(R.string.quarter_grade_sum, gradeSum).toSpanned(color)
-}
+fun Quarter.toQuarterGradeSum(color: Int, context: Context) =
+        context.getString(R.string.quarter_grade_sum, gradeSum).toSpanned(color)
 
-fun Quarter.toQuarterCredits(color: Int, font: Typeface, context: Context): CharSequence {
-    return context.getString(R.string.quarter_credits, credits).toSpanned(color, font)
-}
+fun Quarter.toQuarterCredits(color: Int, font: Typeface, context: Context) =
+        context.getString(R.string.quarter_credits, credits).toSpanned(color, font)
 
 /* Data layer */
 
-fun DocumentSnapshot.toAccount(): Account {
-    return Account(
-            uid = id,
-            id = getString(FIELD_USER_ID) ?: "",
-            usbId = getString(FIELD_USER_ID) ?: "",
-            email = getString(FIELD_USER_EMAIL) ?: "",
-            fullName = getString(FIELD_USER_FULL_NAME) ?: "",
-            firstNames = getString(FIELD_USER_FIRST_NAMES) ?: "",
-            lastNames = getString(FIELD_USER_LAST_NAMES) ?: "",
-            careerName = getString(FIELD_USER_CAREER_NAME) ?: "",
-            careerCode = getLong(FIELD_USER_CAREER_CODE)?.toInt() ?: 0,
-            scholarship = getBoolean(FIELD_USER_SCHOLARSHIP) ?: false,
-            grade = getDouble(FIELD_USER_GRADE) ?: 0.0,
-            photoUrl = getString(FIELD_USER_PHOTO_URL) ?: "",
-            enrolledSubjects = getLong(FIELD_USER_ENROLLED_SUBJECTS)?.toInt() ?: 0,
-            enrolledCredits = getLong(FIELD_USER_ENROLLED_CREDITS)?.toInt() ?: 0,
-            approvedSubjects = getLong(FIELD_USER_APPROVED_SUBJECT)?.toInt() ?: 0,
-            approvedCredits = getLong(FIELD_USER_APPROVED_CREDITS)?.toInt() ?: 0,
-            retiredSubjects = getLong(FIELD_USER_RETIRED_SUBJECTS)?.toInt() ?: 0,
-            retiredCredits = getLong(FIELD_USER_RETIRED_CREDITS)?.toInt() ?: 0,
-            failedSubjects = getLong(FIELD_USER_FAILED_SUBJECTS)?.toInt() ?: 0,
-            failedCredits = getLong(FIELD_USER_FAILED_CREDITS)?.toInt() ?: 0
-    )
-}
+fun DocumentSnapshot.toAccount() = Account(
+        uid = id,
+        id = getString(FIELD_USER_ID) ?: "",
+        usbId = getString(FIELD_USER_ID) ?: "",
+        email = getString(FIELD_USER_EMAIL) ?: "",
+        fullName = getString(FIELD_USER_FULL_NAME) ?: "",
+        firstNames = getString(FIELD_USER_FIRST_NAMES) ?: "",
+        lastNames = getString(FIELD_USER_LAST_NAMES) ?: "",
+        careerName = getString(FIELD_USER_CAREER_NAME) ?: "",
+        careerCode = getLong(FIELD_USER_CAREER_CODE)?.toInt() ?: 0,
+        scholarship = getBoolean(FIELD_USER_SCHOLARSHIP) ?: false,
+        grade = getDouble(FIELD_USER_GRADE) ?: 0.0,
+        photoUrl = getString(FIELD_USER_PHOTO_URL) ?: "",
+        enrolledSubjects = getLong(FIELD_USER_ENROLLED_SUBJECTS)?.toInt() ?: 0,
+        enrolledCredits = getLong(FIELD_USER_ENROLLED_CREDITS)?.toInt() ?: 0,
+        approvedSubjects = getLong(FIELD_USER_APPROVED_SUBJECT)?.toInt() ?: 0,
+        approvedCredits = getLong(FIELD_USER_APPROVED_CREDITS)?.toInt() ?: 0,
+        retiredSubjects = getLong(FIELD_USER_RETIRED_SUBJECTS)?.toInt() ?: 0,
+        retiredCredits = getLong(FIELD_USER_RETIRED_CREDITS)?.toInt() ?: 0,
+        failedSubjects = getLong(FIELD_USER_FAILED_SUBJECTS)?.toInt() ?: 0,
+        failedCredits = getLong(FIELD_USER_FAILED_CREDITS)?.toInt() ?: 0
+)
 
-fun DocumentSnapshot.toQuarter(subjects: List<Subject>): Quarter {
-    return Quarter(
-            id = id,
-            startDate = getTimestamp(FIELD_QUARTER_START_DATE)?.toDate() ?: Date(),
-            endDate = getTimestamp(FIELD_QUARTER_END_DATE)?.toDate() ?: Date(),
-            grade = getDouble(FIELD_QUARTER_GRADE) ?: 0.0,
-            gradeSum = getDouble(FIELD_QUARTER_GRADE_SUM) ?: 0.0,
-            credits = subjects.computeCredits(),
-            status = getLong(FIELD_QUARTER_STATUS)?.toInt() ?: 0,
-            subjects = subjects.toMutableList()
-    )
-}
+fun DocumentSnapshot.toQuarter(subjects: List<Subject>) = Quarter(
+        id = id,
+        startDate = getTimestamp(FIELD_QUARTER_START_DATE)?.toDate() ?: Date(),
+        endDate = getTimestamp(FIELD_QUARTER_END_DATE)?.toDate() ?: Date(),
+        grade = getDouble(FIELD_QUARTER_GRADE) ?: 0.0,
+        gradeSum = getDouble(FIELD_QUARTER_GRADE_SUM) ?: 0.0,
+        credits = subjects.computeCredits(),
+        status = getLong(FIELD_QUARTER_STATUS)?.toInt() ?: 0,
+        subjects = subjects.toMutableList()
+)
 
-fun DocumentSnapshot.toSubject(): Subject {
-    return Subject(
-            id = id,
-            qid = getString(FIELD_SUBJECT_QUARTER_ID) ?: "",
-            code = getString(FIELD_SUBJECT_CODE) ?: "",
-            name = getString(FIELD_SUBJECT_NAME) ?: "",
-            credits = getLong(FIELD_SUBJECT_CREDITS)?.toInt() ?: 0,
-            grade = getLong(FIELD_SUBJECT_GRADE)?.toInt() ?: 5,
-            status = getLong(FIELD_SUBJECT_STATUS)?.toInt() ?: 0
-    )
-}
+fun DocumentSnapshot.toSubject() = Subject(
+        id = id,
+        qid = getString(FIELD_SUBJECT_QUARTER_ID) ?: "",
+        code = getString(FIELD_SUBJECT_CODE) ?: "",
+        name = getString(FIELD_SUBJECT_NAME) ?: "",
+        credits = getLong(FIELD_SUBJECT_CREDITS)?.toInt() ?: 0,
+        grade = getLong(FIELD_SUBJECT_GRADE)?.toInt() ?: 5,
+        status = getLong(FIELD_SUBJECT_STATUS)?.toInt() ?: 0
+)
 
 /* Service layer */
 
-fun Subject.toSubjectStatusDescription(): String {
-    return when (status) {
-        STATUS_SUBJECT_OK -> ""
-        STATUS_SUBJECT_RETIRED -> "Retirada"
-        STATUS_SUBJECT_NO_EFFECT -> "Sin efecto"
-        else -> throw IllegalArgumentException("status")
-    }
+fun Subject.toSubjectStatusDescription() = when (status) {
+    STATUS_SUBJECT_OK -> ""
+    STATUS_SUBJECT_RETIRED -> "Retirada"
+    STATUS_SUBJECT_NO_EFFECT -> "Sin efecto"
+    else -> throw IllegalArgumentException("status")
 }
 
-fun String.toSubjectStatusValue(): Int {
-    return when (this) {
-        "" -> STATUS_SUBJECT_OK
-        "Retirada" -> STATUS_SUBJECT_RETIRED
-        "Sin Efecto" -> STATUS_SUBJECT_NO_EFFECT
-        else -> throw IllegalArgumentException("status")
-    }
+fun String.toSubjectStatusValue() = when (this) {
+    "" -> STATUS_SUBJECT_OK
+    "Retirada" -> STATUS_SUBJECT_RETIRED
+    "Sin Efecto" -> STATUS_SUBJECT_NO_EFFECT
+    else -> throw IllegalArgumentException("status")
 }
 
-fun DstEnrollment.toQuarterEntity(uid: String): QuarterEntity {
-    return QuarterEntity(
-            userId = uid,
-            startDate = Timestamp(startDate),
-            endDate = Timestamp(endDate),
-            grade = 5.0,
-            gradeSum = 0.0,
-            status = STATUS_QUARTER_CURRENT
-    )
-}
+fun DstEnrollment.toQuarterEntity(uid: String) = QuarterEntity(
+        userId = uid,
+        startDate = Timestamp(startDate),
+        endDate = Timestamp(endDate),
+        grade = 5.0,
+        gradeSum = 0.0,
+        status = STATUS_QUARTER_CURRENT
+)
 
-fun ScheduleSubject.toSubjectEntity(uid: String, qid: String): SubjectEntity {
-    return SubjectEntity(
-            userId = uid,
-            quarterId = qid,
-            code = code,
-            name = name,
-            credits = credits,
-            grade = 5,
-            status = STATUS_SUBJECT_OK
-    )
-}
+fun ScheduleSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
+        userId = uid,
+        quarterId = qid,
+        code = code,
+        name = name,
+        credits = credits,
+        grade = 5,
+        status = STATUS_SUBJECT_OK
+)
 
-fun SubjectEntity.toNoGrade(): SubjectNoGradeEntity {
-    return SubjectNoGradeEntity(
-            userId = userId,
-            quarterId = quarterId,
-            code = code,
-            name = name,
-            credits = credits,
-            status = STATUS_SUBJECT_OK
-    )
-}
+fun SubjectEntity.toNoGrade() = SubjectNoGradeEntity(
+        userId = userId,
+        quarterId = quarterId,
+        code = code,
+        name = name,
+        credits = credits,
+        status = STATUS_SUBJECT_OK
+)
 
-fun DstQuarter.toQuarterEntity(uid: String): QuarterEntity {
-    return QuarterEntity(
-            userId = uid,
-            startDate = Timestamp(startDate),
-            endDate = Timestamp(endDate),
-            grade = grade,
-            gradeSum = gradeSum,
-            status = status
-    )
-}
+fun DstQuarter.toQuarterEntity(uid: String) = QuarterEntity(
+        userId = uid,
+        startDate = Timestamp(startDate),
+        endDate = Timestamp(endDate),
+        grade = grade,
+        gradeSum = gradeSum,
+        status = status
+)
 
-fun DstSubject.toSubjectEntity(uid: String, qid: String): SubjectEntity {
-    return SubjectEntity(
-            userId = uid,
-            quarterId = qid,
-            code = code,
-            name = name,
-            credits = credits,
-            grade = grade,
-            status = status.toSubjectStatusValue()
-    )
-}
+fun DstSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
+        userId = uid,
+        quarterId = qid,
+        code = code,
+        name = name,
+        credits = credits,
+        grade = grade,
+        status = status.toSubjectStatusValue()
+)
 
-fun DstPersonalDataSelector.toPersonalData(): DstPersonal? {
-    return selected
-}
+fun DstPersonalDataSelector.toPersonalData() = selected
 
-fun DstRecordDataSelector.toRecord(): DstRecord? {
-    return selected?.run {
-        DstRecord(stats = stats, quarters = quarters)
-    }
+fun DstRecordDataSelector.toRecord() = selected?.run {
+    DstRecord(stats = stats, quarters = quarters)
 }
 
 fun DstAuthResponseSelector.toAuthResponse(): AuthResponse {
@@ -339,18 +303,14 @@ fun DstEnrollmentDataSelector.toEnrollment(): DstEnrollment {
     )
 }
 
-fun AuthRequest.toDstCredentials(): DstCredentials {
-    return DstCredentials(usbId = usbId, password = password)
-}
+fun AuthRequest.toDstCredentials() = DstCredentials(usbId = usbId, password = password)
 
 /* Utils */
 
-fun FirebaseUser.toAuth(): Auth {
-    return Auth(
-            uid = uid,
-            email = email ?: ""
-    )
-}
+fun FirebaseUser.toAuth() = Auth(
+        uid = uid,
+        email = email ?: ""
+)
 
 fun String.toResetRequest(): ResetRequest {
     fun getCode(uri: Uri) = uri.getQueryParameter("oobCode")!!
@@ -382,9 +342,7 @@ fun Pair<String, String>.fromResetParam(): String {
     return Base64.encodeToString(data, Base64.DEFAULT)
 }
 
-fun String.toUsbEmail(): String {
-    return "$this@usb.ve"
-}
+fun String.toUsbEmail() = "$this@usb.ve"
 
 /* Internal utils */
 
