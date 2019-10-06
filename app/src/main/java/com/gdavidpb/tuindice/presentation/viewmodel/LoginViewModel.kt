@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.utils.LiveResult
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.usecase.LoginUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
+import com.gdavidpb.tuindice.utils.execute
 
 class LoginViewModel(
         private val loginUseCase: LoginUseCase
@@ -20,6 +21,6 @@ class LoginViewModel(
                 serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH
         )
 
-        loginUseCase.execute(liveData = auth, params = request)
+        execute(useCase = loginUseCase, params = request, liveData = auth)
     }
 }

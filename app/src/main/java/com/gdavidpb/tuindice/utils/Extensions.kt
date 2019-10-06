@@ -31,8 +31,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.R
@@ -41,6 +40,7 @@ import com.gdavidpb.tuindice.data.model.database.SubjectEntity
 import com.gdavidpb.tuindice.data.utils.Validation
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
+import com.gdavidpb.tuindice.domain.usecase.coroutines.BaseUseCase
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
@@ -155,6 +155,12 @@ suspend fun <T> Call<T>.await() = suspendCoroutine<T?> { continuation ->
             continuation.resumeWithException(t)
         }
     })
+}
+
+/* View model */
+
+fun <T : BaseUseCase<Q, W>, Q, W : MutableLiveData<*>> ViewModel.execute(useCase: T, params: Q, liveData: W) {
+    useCase.execute(params, liveData, viewModelScope)
 }
 
 /* Navigation */

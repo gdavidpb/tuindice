@@ -7,16 +7,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-abstract class ContinuousUseCase<Q, T>(
+abstract class ContinuousUseCase<T, Q>(
         override val backgroundContext: CoroutineContext,
         override val foregroundContext: CoroutineContext
-) : BaseUseCase<Q, LiveContinuous<T>>(
+) : BaseUseCase<T, LiveContinuous<Q>>(
         backgroundContext, foregroundContext
 ) {
-    protected abstract suspend fun executeOnBackground(params: Q, liveData: LiveContinuous<T>)
+    protected abstract suspend fun executeOnBackground(params: T, liveData: LiveContinuous<Q>)
 
-    override fun execute(liveData: LiveContinuous<T>, params: Q) {
-        CoroutineScope(foregroundContext + newJob()).launch {
+    override fun execute(params: T, liveData: LiveContinuous<Q>, coroutineScope: CoroutineScope) {
+        coroutineScope.launch(foregroundContext) {
             liveData.postStart()
 
             runCatching {

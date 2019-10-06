@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.utils.LiveCompletable
 import com.gdavidpb.tuindice.utils.LiveContinuous
 import com.gdavidpb.tuindice.utils.LiveResult
+import com.gdavidpb.tuindice.utils.execute
 
 class MainViewModel(
         private val logoutUseCase: LogoutUseCase,
@@ -26,27 +27,21 @@ class MainViewModel(
     val quarters = LiveResult<List<Quarter>>()
     val update = LiveCompletable()
 
-    fun logout() {
-        logoutUseCase.execute(liveData = logout, params = Unit)
-    }
+    fun logout() =
+            execute(useCase = logoutUseCase, params = Unit, liveData = logout)
 
-    fun fetchStartUpAction(dataString: String) {
-        startUpUseCase.execute(liveData = fetchStartUpAction, params = dataString)
-    }
+    fun fetchStartUpAction(dataString: String) =
+            execute(useCase = startUpUseCase, params = dataString, liveData = fetchStartUpAction)
 
-    fun loadAccount(trySync: Boolean) {
-        syncAccountUseCase.execute(liveData = account, params = trySync)
-    }
+    fun loadAccount(trySync: Boolean) =
+            execute(useCase = syncAccountUseCase, params = trySync, liveData = account)
 
-    fun setLastScreen(@IdRes fragment: Int) {
-        setLastScreenUseCase.execute(liveData = lastScreen, params = fragment)
-    }
+    fun setLastScreen(@IdRes navId: Int) =
+            execute(useCase = setLastScreenUseCase, params = navId, liveData = lastScreen)
 
-    fun getQuarters() {
-        getQuartersUseCase.execute(liveData = quarters, params = Unit)
-    }
+    fun getQuarters() =
+            execute(useCase = getQuartersUseCase, params = Unit, liveData = quarters)
 
-    fun updateSubject(subject: Subject) {
-        updateSubjectUseCase.execute(liveData = update, params = subject)
-    }
+    fun updateSubject(subject: Subject) =
+            execute(useCase = updateSubjectUseCase, params = subject, liveData = update)
 }
