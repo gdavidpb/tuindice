@@ -22,7 +22,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseActivity() {
 
-    private val viewModel: MainViewModel by viewModel()
+    private val viewModel by viewModel<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -30,7 +30,7 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         with(viewModel) {
-            observe(logout, ::logoutObserver)
+            observe(signOut, ::signOutObserver)
             observe(fetchStartUpAction, ::startUpObserver)
 
             fetchStartUpAction(dataString = intent.dataString ?: "")
@@ -93,7 +93,7 @@ class MainActivity : BaseActivity() {
         }.show()
     }
 
-    private fun logoutObserver(result: Completable?) {
+    private fun signOutObserver(result: Completable?) {
         when (result) {
             is Completable.OnComplete -> {
                 startActivity<LoginActivity>()

@@ -22,7 +22,7 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 open class RecordFragment : Fragment() {
 
-    private val viewModel: MainViewModel by sharedViewModel()
+    private val viewModel by sharedViewModel<MainViewModel>()
 
     private val quarterManager = QuarterManager()
 

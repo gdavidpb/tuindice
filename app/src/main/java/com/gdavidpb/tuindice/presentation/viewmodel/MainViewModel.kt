@@ -13,22 +13,22 @@ import com.gdavidpb.tuindice.utils.LiveResult
 import com.gdavidpb.tuindice.utils.execute
 
 class MainViewModel(
-        private val logoutUseCase: LogoutUseCase,
+        private val signOutUseCase: SignOutUseCase,
         private val startUpUseCase: StartUpUseCase,
         private val syncAccountUseCase: SyncAccountUseCase,
         private val setLastScreenUseCase: SetLastScreenUseCase,
         private val getQuartersUseCase: GetQuartersUseCase,
         private val updateSubjectUseCase: UpdateSubjectUseCase
 ) : ViewModel() {
-    val logout = LiveCompletable()
+    val signOut = LiveCompletable()
     val fetchStartUpAction = LiveResult<StartUpAction>()
     val account = LiveContinuous<Account>()
     val lastScreen = LiveCompletable()
     val quarters = LiveResult<List<Quarter>>()
     val update = LiveCompletable()
 
-    fun logout() =
-            execute(useCase = logoutUseCase, params = Unit, liveData = logout)
+    fun signOut() =
+            execute(useCase = signOutUseCase, params = Unit, liveData = signOut)
 
     fun fetchStartUpAction(dataString: String) =
             execute(useCase = startUpUseCase, params = dataString, liveData = fetchStartUpAction)

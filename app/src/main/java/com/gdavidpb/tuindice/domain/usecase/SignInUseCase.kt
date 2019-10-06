@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.utils.toUsbEmail
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
 
-open class LoginUseCase(
+open class SignInUseCase(
         private val dstRepository: DstRepository,
         private val localStorageRepository: LocalStorageRepository,
         private val databaseRepository: DatabaseRepository,

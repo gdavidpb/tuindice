@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
 import kotlinx.coroutines.Dispatchers
 
-open class LogoutUseCase(
+open class SignOutUseCase(
         private val authRepository: AuthRepository,
         private val settingsRepository: SettingsRepository,
         private val localStorageRepository: LocalStorageRepository

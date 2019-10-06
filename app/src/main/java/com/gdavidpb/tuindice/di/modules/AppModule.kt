@@ -200,8 +200,8 @@ val appModule = module {
 
     /* Use cases */
 
-    factory<LoginUseCase>()
-    factory<LogoutUseCase>()
+    factory<SignInUseCase>()
+    factory<SignOutUseCase>()
     factory<SyncAccountUseCase>()
     factory<StartUpUseCase>()
     factory<ResendVerifyEmailUseCase>()

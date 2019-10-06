@@ -28,9 +28,6 @@
     <string name="empty">Aquí no hay nada aún ;)</string>
 
     <!-- MainActivity -->
-    <string name="navigation_drawer_open">Abrir</string>
-    <string name="navigation_drawer_close">Cerrar</string>
-
     <string name="nav_summary">Resumen</string>
     <string name="nav_record">Informe Académico</string>
     <string name="nav_calendar">Calendario Académico</string>
@@ -43,8 +40,8 @@
     <string name="alert_title_fatal_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_fatal_failure">Parece que algo ha salido muy mal por acá. Intenta reinstalar la aplicación y vuelve a intentar</string>
 
-    <string name="alert_title_logout">Atención</string>
-    <string name="alert_message_logout">¿Estás seguro que deseas salir?</string>
+    <string name="alert_title_sign_out">Atención</string>
+    <string name="alert_message_sign_out">¿Estás seguro que deseas salir?</string>
 
     <string name="selector_title_report">¿Cómo te podemos ayudar?</string>
 
@@ -253,6 +250,10 @@
         Gerardo Prado\nSantiago, Chile
     </string>
 
+    <string name="about_dev_report">
+        Reportar un error\nReportar un error al desarrollador
+    </string>
+
     <string name="about_dev_contact">
         Contacto\nContactar al desarrollador
     </string>
@@ -261,7 +262,7 @@
         GitHub Repository\nhttps://github.com/gdavidpb/tuindice
     </string>
 
-    <string name="about_headers_libs">Detrás de TuIndice</string>
+    <string name="about_header_libs">Detrás de TuIndice</string>
 
     <string name="about_kotlin">
         Kotlin 1.3.50\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
@@ -281,6 +282,12 @@
 
     <string name="about_freepik">
         Freepik\nGraphic resources for everyone\n© 2010 freepikcompany\nhttps://www.freepik.com/
+    </string>
+
+    <string name="about_header_settings">Ajustes</string>
+
+    <string name="about_sign_out">
+        Cerrar sesión\n¡Nos vemos pronto!
     </string>
 
     <!-- BrowserActivity -->

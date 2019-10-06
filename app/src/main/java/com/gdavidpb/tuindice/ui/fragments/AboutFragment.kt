@@ -14,14 +14,20 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.presentation.model.About
 import com.gdavidpb.tuindice.presentation.model.AboutHeader
 import com.gdavidpb.tuindice.presentation.model.AboutLib
+import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.utils.*
 import kotlinx.android.synthetic.main.fragment_about.*
 import org.jetbrains.anko.browse
 import org.jetbrains.anko.email
 import org.jetbrains.anko.share
+import org.jetbrains.anko.support.v4.alert
+import org.jetbrains.anko.support.v4.selector
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 open class AboutFragment : Fragment() {
+
+    private val viewModel by sharedViewModel<MainViewModel>()
 
     private val cachedColors by lazy {
         listOf(
@@ -56,18 +62,22 @@ open class AboutFragment : Fragment() {
                 About(drawable = R.drawable.ic_version, content = version),
                 About(drawable = R.drawable.ic_cc, content = getString(R.string.about_license)) { context.browserActivity(title = R.string.label_creative_commons, url = URL_CREATIVE_COMMONS) },
                 About(drawable = R.drawable.ic_privacy_policy, content = getString(R.string.about_privacy_policy)) { context.browserActivity(title = R.string.label_privacy_policy, url = URL_PRIVACY_POLICY) },
+                About(drawable = R.drawable.ic_twitter, content = getString(R.string.about_twitter)) { context.browse(URL_TWITTER) },
                 About(drawable = R.drawable.ic_share, content = getString(R.string.about_share)) { context.share(getString(R.string.about_share_message, context.packageName), getString(R.string.app_name)) },
                 About(drawable = R.drawable.ic_rate, content = getString(R.string.about_rate)) { startPlayStore() },
                 AboutHeader(title = getString(R.string.about_header_developer)),
                 About(drawable = R.drawable.ic_profile, content = getString(R.string.about_dev_info)),
                 About(drawable = R.drawable.ic_github, content = getString(R.string.about_source_code)),
                 About(drawable = R.drawable.ic_contact, content = getString(R.string.about_dev_contact)) { context.email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT) },
-                AboutHeader(title = getString(R.string.about_headers_libs)),
+                About(drawable = R.drawable.ic_report, content = getString(R.string.about_dev_report)) { showReportSelector() },
+                AboutHeader(title = getString(R.string.about_header_libs)),
                 AboutLib(drawable = R.drawable.ic_kotlin, content = getString(R.string.about_kotlin)),
                 AboutLib(drawable = R.drawable.ic_firebase, content = getString(R.string.about_firebase)),
                 AboutLib(drawable = R.drawable.ic_koin, content = getString(R.string.about_koin)),
                 AboutLib(drawable = R.drawable.ic_square, content = getString(R.string.about_retrofit)),
-                AboutLib(drawable = R.drawable.ic_freepik, content = getString(R.string.about_freepik))
+                AboutLib(drawable = R.drawable.ic_freepik, content = getString(R.string.about_freepik)),
+                AboutHeader(title = getString(R.string.about_header_settings)),
+                About(drawable = R.drawable.ic_sign_out, content = getString(R.string.about_sign_out)) { showSignOutDialog() }
         )
 
         adapter.swapItems(new = data)
@@ -88,6 +98,30 @@ open class AboutFragment : Fragment() {
         }.onFailure {
             context.browse(url = getString(R.string.about_google_play, context.packageName))
         }
+    }
+
+    private fun showReportSelector() {
+        val title = getString(R.string.selector_title_report)
+        val items = resources.getStringArray(R.array.selector_report_items).toList()
+
+        selector(title, items) { _, index ->
+            val selected = items[index]
+
+            requireContext().email(email = EMAIL_CONTACT, subject = selected)
+        }
+    }
+
+    private fun showSignOutDialog() {
+        alert {
+            titleResource = R.string.alert_title_sign_out
+            messageResource = R.string.alert_message_sign_out
+
+            positiveButton(R.string.yes) {
+                viewModel.signOut()
+            }
+
+            negativeButton(R.string.cancel) { }
+        }.show()
     }
 
     inner class AboutManager : AboutAdapter.AdapterManager {

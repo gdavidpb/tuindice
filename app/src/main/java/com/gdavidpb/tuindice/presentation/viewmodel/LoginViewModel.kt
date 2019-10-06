@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.utils.LiveResult
 import com.gdavidpb.tuindice.domain.model.AuthResponse
-import com.gdavidpb.tuindice.domain.usecase.LoginUseCase
+import com.gdavidpb.tuindice.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.execute
 
 class LoginViewModel(
-        private val loginUseCase: LoginUseCase
+        private val signInUseCase: SignInUseCase
 ) : ViewModel() {
 
     val auth = LiveResult<AuthResponse>()
@@ -21,6 +21,6 @@ class LoginViewModel(
                 serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH
         )
 
-        execute(useCase = loginUseCase, params = request, liveData = auth)
+        execute(useCase = signInUseCase, params = request, liveData = auth)
     }
 }

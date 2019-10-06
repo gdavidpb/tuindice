@@ -11,11 +11,11 @@ import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
 import com.gdavidpb.tuindice.utils.*
 import kotlinx.android.synthetic.main.activity_email_sent.*
 import org.jetbrains.anko.longToast
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class EmailSentActivity : AppCompatActivity() {
 
-    private val viewModel: EmailSentViewModel by inject()
+    private val viewModel by viewModel<EmailSentViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

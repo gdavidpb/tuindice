@@ -19,9 +19,9 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 open class SummaryFragment : Fragment() {
 
-    private val viewModel: MainViewModel by sharedViewModel()
+    private val viewModel by sharedViewModel<MainViewModel>()
 
-    private val picasso: Picasso by inject()
+    private val picasso by inject<Picasso>()
 
     private val adapter = SummaryAdapter(manager = SummaryManager())
 

@@ -27,9 +27,9 @@ import java.io.IOException
 
 class LoginActivity : BaseActivity() {
 
-    private val viewModel: LoginViewModel by viewModel()
+    private val viewModel by viewModel<LoginViewModel>()
 
-    private val connectivityManager: ConnectivityManager by inject()
+    private val connectivityManager by inject<ConnectivityManager>()
 
     private val validations by lazy {
         arrayOf(
@@ -80,7 +80,7 @@ class LoginActivity : BaseActivity() {
 
         eTextPassword.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                btnLogin.performClick()
+                btnSignIn.performClick()
                 false
             } else
                 true
@@ -98,14 +98,14 @@ class LoginActivity : BaseActivity() {
         }
 
         btnPrivacyPolicy.onClickOnce(::onPrivacyPolicyClick)
-        btnLogin.onClickOnce(::onLoginClick)
+        btnSignIn.onClickOnce(::onSignInClick)
     }
 
     private fun onPrivacyPolicyClick() {
         browserActivity(title = R.string.label_privacy_policy, url = BuildConfig.URL_APP_PRIVACY_POLICY)
     }
 
-    private fun onLoginClick() {
+    private fun onSignInClick() {
         validations.firstInvalid {
             requestFocus()
 
@@ -128,7 +128,7 @@ class LoginActivity : BaseActivity() {
                 tInputPassword,
                 vFlipperWelcome,
                 btnPrivacyPolicy,
-                btnLogin
+                btnSignIn
         ).forEach { it.visibility = if (value) View.VISIBLE else View.GONE }
 
         tViewLogging.visibility = if (value) View.GONE else View.VISIBLE
