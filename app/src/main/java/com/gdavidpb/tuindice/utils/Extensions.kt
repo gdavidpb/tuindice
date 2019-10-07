@@ -452,7 +452,7 @@ fun Collection<Subject>.computeCredits() = sumBy {
     if (it.grade != 0) it.credits else 0
 }
 
-private val gradeSumCache = hashMapOf<String, Double>()
+private val gradeSumCache = hashMapOf<Int, Double>()
 
 private fun Collection<Quarter>.internalComputeGradeSum(until: Quarter) =
         /* Until quarter and not retired */
@@ -477,7 +477,7 @@ private fun Collection<Quarter>.internalComputeGradeSum(until: Quarter) =
                 .computeGrade()
 
 fun Collection<Quarter>.computeGradeSum(until: Quarter) =
-        gradeSumCache.getOrPut(until.id) { internalComputeGradeSum(until) }
+        gradeSumCache.getOrPut(until.hashCode()) { internalComputeGradeSum(until) }
 
 /* Utils */
 
