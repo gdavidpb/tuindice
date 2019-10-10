@@ -16,6 +16,8 @@ class DigestConcat(algorithm: String) {
         return this
     }
 
+    fun concat(data: Long) = concat(data.bytes())
+
     fun concat(data: String) = concat(data.toByteArray())
 
     fun build(): ByteArray {

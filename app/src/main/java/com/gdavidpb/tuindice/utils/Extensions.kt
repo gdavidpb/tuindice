@@ -58,6 +58,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.HttpException
 import retrofit2.Response
+import java.nio.ByteBuffer
 import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.util.*
@@ -486,7 +487,7 @@ private val digestConcat = DigestConcat(algorithm = "SHA-256")
 fun QuarterEntity.generateId(): String {
     val hash = digestConcat
             .concat(data = userId)
-            .concat(data = startDate.toDate().format("MMMMyyyy")!!)
+            .concat(data = startDate.seconds)
             .build()
 
     return Base64
@@ -503,8 +504,12 @@ fun SubjectEntity.generateId(): String {
 
     return Base64
             .encodeToString(hash, Base64.DEFAULT)
-            .replace("[/+=]+".toRegex(), "")
+            .replace("[/+=\n]+".toRegex(), "")
             .substring(0..userId.length)
+}
+
+fun Long.bytes(): ByteArray = ByteBuffer.allocate(Long.SIZE_BYTES).run {
+    putLong(this@bytes).array().also { clear() }
 }
 
 fun X509Certificate.getProperty(key: String) = "(?<=$key=)[^,]+|$".toRegex().find(subjectDN.name)?.value

@@ -99,7 +99,7 @@ open class FirestoreDataStore(
                                 .collection(COLLECTION_QUARTER)
                                 .document(quarterId)
 
-                        batch.set(quarterRef, quarter)
+                        batch.set(quarterRef, quarter, SetOptions.merge())
 
                         dstQuarter.subjects.forEach { dstSubject ->
                             val subject = dstSubject.toSubjectEntity(uid = uid, qid = quarterId)
@@ -110,7 +110,7 @@ open class FirestoreDataStore(
                                     .collection(COLLECTION_SUBJECT)
                                     .document(subjectId)
 
-                            batch.set(subjectRef, subject)
+                            batch.set(subjectRef, subject, SetOptions.merge())
                         }
                     }
                 }
@@ -123,7 +123,7 @@ open class FirestoreDataStore(
                             .collection(COLLECTION_QUARTER)
                             .document(quarterId)
 
-                    batch.set(quarterRef, quarter)
+                    batch.set(quarterRef, quarter, SetOptions.merge())
 
                     entry.schedule.forEach { scheduleSubject ->
                         val subject = scheduleSubject.toSubjectEntity(uid = uid, qid = quarterId)
