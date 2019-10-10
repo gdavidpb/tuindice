@@ -12,12 +12,13 @@ import androidx.appcompat.app.AppCompatActivity
 import com.gdavidpb.tuindice.R
 import com.google.android.material.snackbar.Snackbar
 import org.jetbrains.anko.alert
+import org.jetbrains.anko.contentView
 
 @SuppressLint("Registered")
 abstract class BaseActivity(private vararg val permissions: String) : AppCompatActivity() {
 
     protected val snackBar by lazy {
-        Snackbar.make(window.decorView, "", Snackbar.LENGTH_INDEFINITE)
+        Snackbar.make(contentView ?: window.decorView, "", Snackbar.LENGTH_INDEFINITE)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
