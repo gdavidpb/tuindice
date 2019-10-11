@@ -49,9 +49,10 @@ open class QuarterViewHolder(
             val child = container.getChildAt(index)
 
             with(child) {
+                tViewSubjectName.text = subject.name
+
                 tViewSubjectCode.text = subject.toSubjectCode(context)
                 tViewSubjectGrade.text = subject.toSubjectGrade(container.context)
-                tViewSubjectName.text = subject.toSubjectName()
                 tViewSubjectCredits.text = subject.toSubjectCredits(container.context)
 
                 sBarGrade.progress = subject.grade

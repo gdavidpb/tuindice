@@ -73,18 +73,6 @@ fun Subject.toSubjectCode(context: Context) =
 
             }
 
-fun Subject.toSubjectName(): String {
-    var result = name
-            .replace("^\"|\"$".toRegex(), "")
-            .replace("(?<=\\w)\\.(?=\\w)".toRegex(), " ")
-
-    ROMANS.forEach { (key, value) ->
-        result = result.replace("(?<=\\b)$key(?=\\b|$)".toRegex(), value)
-    }
-
-    return result
-}
-
 fun Subject.toSubjectGrade(context: Context) =
         if (grade != 0)
             context.getString(R.string.subject_grade, grade)
@@ -264,7 +252,7 @@ fun DstEnrollmentDataSelector.toEnrollment(): DstEnrollment {
             ScheduleSubject(
                     code = it.code,
                     section = it.section,
-                    name = it.name,
+                    name = it.name.toSubjectName(),
                     credits = it.credits,
                     schedule = it.schedule.map { entry ->
                         ScheduleEntry(
@@ -343,6 +331,17 @@ fun Pair<String, String>.fromResetParam(): String {
 }
 
 fun String.toUsbEmail() = "$this@usb.ve"
+
+fun String.toSubjectName(): String {
+    var result = replace("^\"|\"$".toRegex(), "")
+            .replace("(?<=\\w)\\.(?=\\w)".toRegex(), " ")
+
+    ROMANS.forEach { (key, value) ->
+        result = result.replace("(?<=\\b)$key(?=\\b|$)".toRegex(), value)
+    }
+
+    return result
+}
 
 /* Internal utils */
 

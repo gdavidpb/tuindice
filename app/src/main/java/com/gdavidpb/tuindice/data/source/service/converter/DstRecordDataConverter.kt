@@ -49,7 +49,7 @@ open class DstRecordDataConverter : ElementConverter<DstRecord> {
 
                         DstSubject(
                                 code = code,
-                                name = name,
+                                name = name.toSubjectName(),
                                 credits = credits.toInt(),
                                 grade = grade.toIntOrNull() ?: 0,
                                 status = status

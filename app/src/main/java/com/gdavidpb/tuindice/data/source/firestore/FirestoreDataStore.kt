@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.utils.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.WriteBatch
 
 open class FirestoreDataStore(
         private val firestore: FirebaseFirestore
@@ -76,69 +77,9 @@ open class FirestoreDataStore(
 
         data.forEach { entry ->
             when (entry) {
-                is DstPersonal -> {
-                    val userRef = firestore
-                            .collection(COLLECTION_USER)
-                            .document(uid)
-
-                    batch.set(userRef, entry, SetOptions.merge())
-                }
-                is DstRecord -> {
-                    val userRef = firestore
-                            .collection(COLLECTION_USER)
-                            .document(uid)
-
-                    batch.set(userRef, entry.stats, SetOptions.merge())
-
-                    entry.quarters.forEach { dstQuarter ->
-                        val quarter = dstQuarter.toQuarterEntity(uid)
-
-                        val quarterId = quarter.generateId()
-
-                        val quarterRef = firestore
-                                .collection(COLLECTION_QUARTER)
-                                .document(quarterId)
-
-                        batch.set(quarterRef, quarter, SetOptions.merge())
-
-                        dstQuarter.subjects.forEach { dstSubject ->
-                            val subject = dstSubject.toSubjectEntity(uid = uid, qid = quarterId)
-
-                            val subjectId = subject.generateId()
-
-                            val subjectRef = firestore
-                                    .collection(COLLECTION_SUBJECT)
-                                    .document(subjectId)
-
-                            batch.set(subjectRef, subject, SetOptions.merge())
-                        }
-                    }
-                }
-                is DstEnrollment -> {
-                    val quarter = entry.toQuarterEntity(uid)
-
-                    val quarterId = quarter.generateId()
-
-                    val quarterRef = firestore
-                            .collection(COLLECTION_QUARTER)
-                            .document(quarterId)
-
-                    batch.set(quarterRef, quarter, SetOptions.merge())
-
-                    entry.schedule.forEach { scheduleSubject ->
-                        val subject = scheduleSubject.toSubjectEntity(uid = uid, qid = quarterId)
-
-                        val subjectId = subject.generateId()
-
-                        val subjectRef = firestore
-                                .collection(COLLECTION_SUBJECT)
-                                .document(subjectId)
-
-                        val noGrade = subject.toNoGrade()
-
-                        batch.set(subjectRef, noGrade, SetOptions.merge())
-                    }
-                }
+                is DstPersonal -> batch.updatePersonalData(uid, entry)
+                is DstRecord -> batch.updateRecordData(uid, entry)
+                is DstEnrollment -> batch.updateEnrollmentData(uid, entry)
             }
         }
 
@@ -173,5 +114,71 @@ open class FirestoreDataStore(
         firestore.enableNetwork().await()
 
         return result
+    }
+
+    private fun WriteBatch.updatePersonalData(uid: String, data: DstPersonal) {
+        val userRef = firestore
+                .collection(COLLECTION_USER)
+                .document(uid)
+
+        set(userRef, data, SetOptions.merge())
+    }
+
+    private fun WriteBatch.updateRecordData(uid: String, data: DstRecord) {
+        val userRef = firestore
+                .collection(COLLECTION_USER)
+                .document(uid)
+
+        set(userRef, data.stats, SetOptions.merge())
+
+        data.quarters.forEach { dstQuarter ->
+            val quarter = dstQuarter.toQuarterEntity(uid)
+
+            val quarterId = quarter.generateId()
+
+            val quarterRef = firestore
+                    .collection(COLLECTION_QUARTER)
+                    .document(quarterId)
+
+            set(quarterRef, quarter, SetOptions.merge())
+
+            dstQuarter.subjects.forEach { dstSubject ->
+                val subject = dstSubject.toSubjectEntity(uid = uid, qid = quarterId)
+
+                val subjectId = subject.generateId()
+
+                val subjectRef = firestore
+                        .collection(COLLECTION_SUBJECT)
+                        .document(subjectId)
+
+                set(subjectRef, subject, SetOptions.merge())
+            }
+        }
+    }
+
+    private fun WriteBatch.updateEnrollmentData(uid: String, data: DstEnrollment) {
+        val quarter = data.toQuarterEntity(uid)
+
+        val quarterId = quarter.generateId()
+
+        val quarterRef = firestore
+                .collection(COLLECTION_QUARTER)
+                .document(quarterId)
+
+        set(quarterRef, quarter, SetOptions.merge())
+
+        data.schedule.forEach { scheduleSubject ->
+            val subject = scheduleSubject.toSubjectEntity(uid = uid, qid = quarterId)
+
+            val subjectId = subject.generateId()
+
+            val subjectRef = firestore
+                    .collection(COLLECTION_SUBJECT)
+                    .document(subjectId)
+
+            val noGrade = subject.toNoGrade()
+
+            set(subjectRef, noGrade, SetOptions.merge())
+        }
     }
 }
