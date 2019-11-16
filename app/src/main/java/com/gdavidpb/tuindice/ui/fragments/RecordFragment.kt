@@ -2,9 +2,7 @@ package com.gdavidpb.tuindice.ui.fragments
 
 import android.graphics.Typeface
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,9 +14,13 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.utils.*
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.jetbrains.anko.design.longSnackbar
+import org.jetbrains.anko.support.v4.indeterminateProgressDialog
+import org.jetbrains.anko.support.v4.longToast
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import java.io.File
 
 open class RecordFragment : Fragment() {
 
@@ -43,12 +45,24 @@ open class RecordFragment : Fragment() {
         )
     }
 
+    private val loadingDialog by lazy {
+        indeterminateProgressDialog(message = R.string.dialog_enrollment_getting)
+    }
+
+    private val retrySnackBar by lazy {
+        Snackbar.make(requireView(), R.string.snack_bar_enrollment_retry, Snackbar.LENGTH_LONG)
+                .setAction(R.string.retry) { viewModel.openEnrollmentProof() }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_record, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setHasOptionsMenu(true)
+        setMenuVisibility(false)
 
         with(rViewRecord) {
             layoutManager = LinearLayoutManager(context)
@@ -70,10 +84,26 @@ open class RecordFragment : Fragment() {
 
         with(viewModel) {
             observe(quarters, ::quartersObserver)
+            observe(enrollment, ::enrollmentObserver)
 
             getQuarters()
 
             loadAccount(trySync = false)
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.main_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_enrollment -> {
+                viewModel.openEnrollmentProof()
+
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -87,6 +117,12 @@ open class RecordFragment : Fragment() {
 
                 val quarters = result.value
 
+                val hasCurrentQuarter = quarters.contains { quarter ->
+                    quarter.status == STATUS_QUARTER_CURRENT
+                }
+
+                setMenuVisibility(hasCurrentQuarter)
+
                 quarterAdapter.swapItems(new = quarters)
 
                 //todo empty
@@ -95,6 +131,43 @@ open class RecordFragment : Fragment() {
                 pBarRecord.visibility = View.GONE
 
                 //todo handle error
+            }
+        }
+    }
+
+    private fun enrollmentObserver(result: Result<File>?) {
+        when (result) {
+            is Result.OnLoading -> {
+                loadingDialog.show()
+
+                setMenuVisibility(false)
+            }
+            is Result.OnSuccess -> {
+                loadingDialog.dismiss()
+
+                setMenuVisibility(true)
+
+                val enrollmentFile = result.value
+
+                runCatching {
+                    requireContext().openPdf(file = enrollmentFile)
+                }.onFailure {
+                    longToast(R.string.toast_enrollment_unsupported)
+                }
+            }
+            is Result.OnEmpty -> {
+                loadingDialog.dismiss()
+
+                setMenuVisibility(true)
+
+                retrySnackBar.show()
+            }
+            is Result.OnError -> {
+                loadingDialog.dismiss()
+
+                setMenuVisibility(true)
+
+                retrySnackBar.show()
             }
         }
     }

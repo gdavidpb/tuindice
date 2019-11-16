@@ -90,6 +90,10 @@
 
     <string name="hint_guess_search">Código o nombre de la materia</string>
 
+    <string name="dialog_enrollment_getting">Obteniendo comprobante…</string>
+    <string name="toast_enrollment_unsupported">Archivo no soportado ;(</string>
+    <string name="snack_bar_enrollment_retry">No pudimos descargar el comprobante ;(</string>
+
     <!-- CalendarActivity -->
     <string name="label_calendar_activity">TuIndice - %1$s</string>
 
@@ -293,12 +297,5 @@
     <!-- BrowserActivity -->
     <string name="label_creative_commons">TuIndice - Creative Commons</string>
     <string name="label_privacy_policy">TuIndice - Política de privacidad</string>
-
-    <!-- todo classify: from here -->
-    <string name="open_enrollment">Ver Comprobante</string>
-    <string name="download_enrollment">Descargar Comprobante</string>
-
-    <string name="toast_enrollment">Archivo no soportado ;(</string>
-    <!-- todo classify: to here -->
 
 </resources>

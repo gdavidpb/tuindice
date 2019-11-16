@@ -210,6 +210,7 @@ val appModule = module {
     factory<GetQuartersUseCase>()
     factory<UpdateSubjectUseCase>()
     factory<SetLastScreenUseCase>()
+    factory<OpenEnrollmentProofUseCase>()
 
     /* Utils */
 

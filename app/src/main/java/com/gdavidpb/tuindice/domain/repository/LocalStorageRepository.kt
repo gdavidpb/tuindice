@@ -8,6 +8,8 @@ interface LocalStorageRepository {
     suspend fun get(name: String): InputStream
     suspend fun delete(name: String)
 
+    fun getFile(name: String): File
+
     fun putSync(name: String, inputStream: InputStream): File?
     fun getSync(name: String): InputStream?
 }

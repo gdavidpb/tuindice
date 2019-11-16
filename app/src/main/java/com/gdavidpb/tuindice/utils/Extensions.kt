@@ -31,12 +31,14 @@ import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.Guideline
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
@@ -61,6 +63,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.HttpException
 import retrofit2.Response
+import java.io.File
 import java.nio.ByteBuffer
 import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
@@ -173,7 +176,7 @@ fun Int.toNavId() = when (this) {
     R.id.nav_summary -> R.id.navigation_summary
     R.id.nav_record -> R.id.navigation_record
     R.id.nav_about -> R.id.navigation_about
-    else -> throw IllegalArgumentException()
+    else -> R.id.navigation_summary
 }
 
 /* Validation */
@@ -212,6 +215,10 @@ infix fun Pair<TextInputLayout, Int>.`when`(valid: TextInputLayout.() -> Boolean
 operator fun <E> Collection<E>.component6(): E = elementAt(5)
 operator fun <E> Collection<E>.component7(): E = elementAt(6)
 operator fun <E> Collection<E>.component8(): E = elementAt(7)
+
+inline fun <T> List<T>.contains(predicate: (T) -> Boolean): Boolean {
+    return indexOfFirst(predicate) != -1
+}
 
 fun RequestBody?.bodyToString(): String {
     if (this == null) return ""
@@ -341,6 +348,16 @@ fun Context.openSettings() {
             Uri.fromParts("package", packageName, null))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             .let(::startActivity)
+}
+
+fun Context.openPdf(file: File) {
+    FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID, file).also { uri ->
+        grantUriPermission("com.google.android.apps.docs", uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }.also { uri ->
+        Intent(Intent.ACTION_VIEW, uri)
+                .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .let(::startActivity)
+    }
 }
 
 fun Context.browserActivity(@StringRes title: Int, url: String) {

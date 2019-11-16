@@ -1,9 +1,6 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
@@ -16,6 +13,7 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import android.view.*
 
 open class SummaryFragment : Fragment() {
 
@@ -31,6 +29,8 @@ open class SummaryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setHasOptionsMenu(false)
 
         rViewSummary.layoutManager = LinearLayoutManager(context)
         rViewSummary.adapter = adapter

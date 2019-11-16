@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.utils.LiveCompletable
 import com.gdavidpb.tuindice.utils.LiveContinuous
 import com.gdavidpb.tuindice.utils.LiveResult
 import com.gdavidpb.tuindice.utils.execute
+import java.io.File
 
 class MainViewModel(
         private val signOutUseCase: SignOutUseCase,
@@ -18,7 +19,8 @@ class MainViewModel(
         private val syncAccountUseCase: SyncAccountUseCase,
         private val setLastScreenUseCase: SetLastScreenUseCase,
         private val getQuartersUseCase: GetQuartersUseCase,
-        private val updateSubjectUseCase: UpdateSubjectUseCase
+        private val updateSubjectUseCase: UpdateSubjectUseCase,
+        private val openEnrollmentProofUseCase: OpenEnrollmentProofUseCase
 ) : ViewModel() {
     val signOut = LiveCompletable()
     val fetchStartUpAction = LiveResult<StartUpAction>()
@@ -26,6 +28,7 @@ class MainViewModel(
     val lastScreen = LiveCompletable()
     val quarters = LiveResult<List<Quarter>>()
     val update = LiveCompletable()
+    val enrollment = LiveResult<File>()
 
     fun signOut() =
             execute(useCase = signOutUseCase, params = Unit, liveData = signOut)
@@ -44,4 +47,7 @@ class MainViewModel(
 
     fun updateSubject(subject: Subject) =
             execute(useCase = updateSubjectUseCase, params = subject, liveData = update)
+
+    fun openEnrollmentProof() =
+            execute(useCase = openEnrollmentProofUseCase, params = Unit, liveData = enrollment)
 }

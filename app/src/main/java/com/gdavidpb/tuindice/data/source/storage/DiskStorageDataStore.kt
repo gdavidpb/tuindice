@@ -46,6 +46,10 @@ open class DiskStorageDataStore(
         return getSync(name)!!
     }
 
+    override fun getFile(name: String): File {
+        return File(root, name)
+    }
+
     override suspend fun delete(name: String) {
         runCatching {
             File(root, name).let {
