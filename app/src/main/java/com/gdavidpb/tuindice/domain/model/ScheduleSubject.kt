@@ -5,5 +5,6 @@ data class ScheduleSubject(
         val section: Int,
         val name: String,
         val credits: Int,
+        val status: String,
         val schedule: List<ScheduleEntry>
 )

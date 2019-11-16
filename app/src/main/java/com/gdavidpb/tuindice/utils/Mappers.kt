@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Typeface
 import android.net.Uri
@@ -82,6 +83,7 @@ fun Subject.toSubjectGrade(context: Context) =
 fun Subject.toSubjectCredits(context: Context) =
         context.getString(R.string.subject_credits, credits)
 
+@SuppressLint("DefaultLocale")
 fun Quarter.toQuarterTitle(): String {
     val start = startDate.format("MMM")?.capitalize()
     val end = endDate.format("MMM")?.capitalize()
@@ -150,6 +152,7 @@ fun DocumentSnapshot.toSubject() = Subject(
 fun Subject.toSubjectStatusDescription() = when (status) {
     STATUS_SUBJECT_OK -> ""
     STATUS_SUBJECT_RETIRED -> "Retirada"
+    STATUS_SUBJECT_GAVE_UP -> "Retirada"
     STATUS_SUBJECT_NO_EFFECT -> "Sin efecto"
     else -> throw IllegalArgumentException("status")
 }
@@ -157,6 +160,7 @@ fun Subject.toSubjectStatusDescription() = when (status) {
 fun String.toSubjectStatusValue() = when (this) {
     "" -> STATUS_SUBJECT_OK
     "Retirada" -> STATUS_SUBJECT_RETIRED
+    "RETIRADA" -> STATUS_SUBJECT_GAVE_UP
     "Sin Efecto" -> STATUS_SUBJECT_NO_EFFECT
     else -> throw IllegalArgumentException("status")
 }
@@ -177,7 +181,7 @@ fun ScheduleSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
         name = name,
         credits = credits,
         grade = 5,
-        status = STATUS_SUBJECT_OK
+        status = status.toSubjectStatusValue()
 )
 
 fun SubjectEntity.toNoGrade() = SubjectNoGradeEntity(
@@ -186,7 +190,7 @@ fun SubjectEntity.toNoGrade() = SubjectNoGradeEntity(
         code = code,
         name = name,
         credits = credits,
-        status = STATUS_SUBJECT_OK
+        status = status
 )
 
 fun DstQuarter.toQuarterEntity(uid: String) = QuarterEntity(
@@ -254,6 +258,7 @@ fun DstEnrollmentDataSelector.toEnrollment(): DstEnrollment {
                     section = it.section,
                     name = it.name.toSubjectName(),
                     credits = it.credits,
+                    status = it.status,
                     schedule = it.schedule.map { entry ->
                         ScheduleEntry(
                                 entry.dayOfWeek,

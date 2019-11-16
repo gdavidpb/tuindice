@@ -35,6 +35,8 @@ open class DstScheduleConverter : ElementConverter<List<DstScheduledSubject>> {
 
                     val credits = list[2].toIntOrNull() ?: 0
 
+                    val status = list[list.size - 2]
+
                     val schedule = list
                             .slice(3 until list.size - 1)
                             .chunked(7)
@@ -69,6 +71,7 @@ open class DstScheduleConverter : ElementConverter<List<DstScheduledSubject>> {
                             section = section,
                             name = name,
                             credits = credits,
+                            status = status,
                             schedule = schedule
                     )
                 }

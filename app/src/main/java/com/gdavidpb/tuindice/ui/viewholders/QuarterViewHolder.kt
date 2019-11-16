@@ -68,7 +68,7 @@ open class QuarterViewHolder(
                             val updatedSubject = subject.copy(
                                     grade = progress,
                                     status = when {
-                                        progress == 0 -> STATUS_SUBJECT_RETIRED
+                                        progress == 0 && subject.status != STATUS_SUBJECT_GAVE_UP -> STATUS_SUBJECT_RETIRED
                                         subject.status == STATUS_SUBJECT_RETIRED -> STATUS_SUBJECT_OK
                                         else -> subject.status
                                     }
