@@ -1,9 +1,6 @@
 package com.gdavidpb.tuindice.ui.activities
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import androidx.annotation.IdRes
 import androidx.core.view.get
 import androidx.navigation.findNavController
@@ -59,13 +56,16 @@ class MainActivity : BaseActivity() {
         nav_view.menu[appBarItems.indexOf(navId)].isChecked = true
 
         nav_view.setOnNavigationItemSelectedListener { item ->
-            val newNavId = item.itemId.toNavId()
+            if (nav_view.selectedItemId != item.itemId) {
+                val newNavId = item.itemId.toNavId()
 
-            viewModel.setLastScreen(newNavId)
+                viewModel.setLastScreen(newNavId)
 
-            navController.navigate(newNavId)
+                navController.navigate(newNavId)
 
-            true
+                true
+            } else
+                false
         }
     }
 
@@ -77,12 +77,7 @@ class MainActivity : BaseActivity() {
             isCancelable = false
 
             positiveButton(R.string.settings) {
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        Uri.fromParts("package", packageName, null))
-
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-                startActivity(intent)
+                openSettings()
 
                 finish()
             }

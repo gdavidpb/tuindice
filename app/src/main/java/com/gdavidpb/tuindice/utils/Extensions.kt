@@ -4,14 +4,17 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
+import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Base64
@@ -333,6 +336,13 @@ fun SharedPreferences.edit(transaction: SharedPreferences.Editor.() -> Unit) {
 
 /* Context */
 
+fun Context.openSettings() {
+    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", packageName, null))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .let(::startActivity)
+}
+
 fun Context.browserActivity(@StringRes title: Int, url: String) {
     if (isPackageInstalled(PACKAGE_NAME_WEB_VIEW))
         startActivity<BrowserActivity>(EXTRA_TITLE to getString(title), EXTRA_URL to url)
@@ -386,9 +396,9 @@ fun Date.formatLastUpdate(): String {
 
     return when {
         time == 0L -> "Nunca"
-        isToday() -> format("'Hoy,' hh:mm aa")
-        isYesterday() -> format("'Ayer,' hh:mm aa")
-        days < 7 -> format("EEEE',' hh:mm aa")
+        isToday() -> format("'Hoy,' hh:mm aa", DEFAULT_TIME_ZONE)
+        isYesterday() -> format("'Ayer,' hh:mm aa", DEFAULT_TIME_ZONE)
+        days < 7 -> format("EEEE',' hh:mm aa", DEFAULT_TIME_ZONE)
         else -> format("dd 'de' MMMM yyyy")
     }?.capitalize() ?: "-"
 }
@@ -406,15 +416,15 @@ fun Double.formatGrade() = String.format("%.4f", this)
 
 private val dateFormatCache = hashMapOf<String, SimpleDateFormat>()
 
-fun Date.format(format: String) = dateFormatCache.getOrPut(format) {
+fun Date.format(format: String, zone: TimeZone = TimeZone.getTimeZone("GMT")) = dateFormatCache.getOrPut(format) {
     SimpleDateFormat(format, DEFAULT_LOCALE).apply {
-        timeZone = TimeZone.getTimeZone("GMT")
+        timeZone = zone
     }
 }.runCatching { format(this@format) }.getOrNull()
 
-fun String.parse(format: String) = dateFormatCache.getOrPut(format) {
+fun String.parse(format: String, zone: TimeZone = TimeZone.getTimeZone("GMT")) = dateFormatCache.getOrPut(format) {
     SimpleDateFormat(format, DEFAULT_LOCALE).apply {
-        timeZone = TimeZone.getTimeZone("GMT")
+        timeZone = zone
     }
 }.runCatching { parse(this@parse) }.getOrNull()
 
@@ -516,19 +526,13 @@ fun X509Certificate.getProperty(key: String) = "(?<=$key=)[^,]+|$".toRegex().fin
 
 fun Date.isToday(): Boolean {
     val start = Calendar.getInstance().run {
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
+        precision(Calendar.DATE)
 
         Date(timeInMillis)
     }
 
     val end = Calendar.getInstance().run {
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
+        precision(Calendar.DATE)
 
         add(Calendar.DATE, 1)
         add(Calendar.SECOND, -1)
@@ -541,24 +545,17 @@ fun Date.isToday(): Boolean {
 
 fun Date.isYesterday(): Boolean {
     val start = Calendar.getInstance().run {
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
+        precision(Calendar.DATE)
+
         add(Calendar.DATE, -1)
 
         Date(timeInMillis)
     }
 
     val end = Calendar.getInstance().run {
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
+        precision(Calendar.DATE)
 
         add(Calendar.SECOND, -1)
-
-        Date(timeInMillis)
 
         Date(timeInMillis)
     }
@@ -566,14 +563,19 @@ fun Date.isYesterday(): Boolean {
     return (start..end).contains(this)
 }
 
+fun Calendar.precision(vararg fields: Int): Calendar {
+    return apply {
+        (Calendar.HOUR_OF_DAY..Calendar.MILLISECOND)
+                .subtract(fields.asIterable())
+                .forEach { field -> set(field, 0) }
+    }
+}
+
 fun Calendar.containsInMonth(value: Calendar): Boolean {
     val start = Calendar.getInstance().let {
         it.time = this.time
 
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
+        precision(Calendar.DAY_OF_MONTH)
 
         set(Calendar.DAY_OF_MONTH, 1)
 

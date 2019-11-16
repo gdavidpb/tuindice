@@ -41,35 +41,26 @@ open class PreferencesDataStore(
     }
 
     override suspend fun setSyncCooldown() {
-        val now = Calendar.getInstance()
-        val cooldown = Calendar.getInstance()
+        val now = Date()
+        val cooldown = Calendar.getInstance().apply {
+            precision(Calendar.DATE)
 
-        cooldown.set(Calendar.HOUR_OF_DAY, 0)
-        cooldown.set(Calendar.MINUTE, 0)
-        cooldown.set(Calendar.SECOND, 0)
-        cooldown.set(Calendar.MILLISECOND, 0)
-
-        cooldown.add(Calendar.DATE, 1)
+            add(Calendar.DATE, 1)
+        }
 
         preferences.edit {
-            putLong(KEY_LAST_UPDATE, now.timeInMillis)
+            putLong(KEY_LAST_UPDATE, now.time)
             putLong(KEY_COOL_DOWN, cooldown.timeInMillis)
         }
     }
 
     override suspend fun getLastSync(): Date {
-        return Calendar.getInstance().run {
-            timeInMillis = preferences.getLong(KEY_LAST_UPDATE, 0)
-
-            Date(timeInMillis)
-        }
+        return Date(preferences.getLong(KEY_LAST_UPDATE, 0))
     }
 
     override suspend fun isSyncCooldown(): Boolean {
-        val now = Calendar.getInstance()
-        val cooldown = Calendar.getInstance()
-
-        cooldown.timeInMillis = preferences.getLong(KEY_COOL_DOWN, now.timeInMillis)
+        val now = Date()
+        val cooldown = Date(preferences.getLong(KEY_COOL_DOWN, now.time))
 
         return now.before(cooldown)
     }

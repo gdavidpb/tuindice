@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.containsInMonth
 import com.gdavidpb.tuindice.utils.getCompatColor
 import com.gdavidpb.tuindice.utils.negRem
+import com.gdavidpb.tuindice.utils.precision
 import org.jetbrains.anko.childrenRecursiveSequence
 import org.jetbrains.anko.dip
 import org.jetbrains.anko.sdk27.coroutines.onScrollChange
@@ -134,11 +135,9 @@ class CustomCalendarView(context: Context, attrs: AttributeSet) : CalendarView(c
             val relation = with(monthViewPager) { scrollX / width.toDouble() }
             val months = relation.roundToInt()
 
+            precision(Calendar.MONTH)
+
             set(Calendar.DAY_OF_MONTH, 1)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
 
             add(Calendar.MONTH, months)
         }
