@@ -62,7 +62,7 @@ class CustomTextSwitcher<T>(context: Context, attrs: AttributeSet)
                     textSwitcher.setOutAnimation(textSwitcher.context, R.anim.slide_out_right)
                 }
 
-                if ((index + sense) in 0 until source.size) {
+                if ((index + sense) in source.indices) {
                     index += sense
 
                     textSwitcher.setText(source.elementAt(index).display())

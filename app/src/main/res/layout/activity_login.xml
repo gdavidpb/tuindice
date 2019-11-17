@@ -6,8 +6,7 @@
     android:id="@+id/cLayoutMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:animateLayoutChanges="true"
-    android:background="@color/color_text_icon">
+    android:animateLayoutChanges="true">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guidelineStart"

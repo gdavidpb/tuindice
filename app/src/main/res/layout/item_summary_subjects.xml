@@ -32,7 +32,7 @@
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="@string/text_subjects_header" />
+            tools:text="%d materias cursadas" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cLayoutSubjectsContent"

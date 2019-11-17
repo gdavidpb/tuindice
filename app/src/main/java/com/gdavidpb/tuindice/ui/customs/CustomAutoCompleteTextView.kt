@@ -2,13 +2,13 @@ package com.gdavidpb.tuindice.ui.customs
 
 import android.content.Context
 import android.util.AttributeSet
-import android.widget.AutoCompleteTextView
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView
 import com.gdavidpb.tuindice.R
 import org.jetbrains.anko.px2dip
 import kotlin.math.min
 
 class CustomAutoCompleteTextView(context: Context, attrs: AttributeSet)
-    : AutoCompleteTextView(context, attrs) {
+    : AppCompatAutoCompleteTextView(context, attrs) {
 
     private var itemHeight: Int = 0
 

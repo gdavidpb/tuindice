@@ -7,11 +7,8 @@
     <color name="color_text_icon">#FFFFFF</color>
     <color name="color_primary_text">#212121</color>
     <color name="color_secondary_text">#757575</color>
-    <color name="color_background_light">#F5F5F5</color>
-    <color name="color_background_dark">#9E9E9E</color>
     <color name="color_warning">#F44336</color>
     <color name="color_disabled">#E0E0E0</color>
-    <color name="color_transparent">#80000000</color>
 
     <color name="quarter_completed">#FFC107</color>
     <color name="quarter_current">#FFC107</color>

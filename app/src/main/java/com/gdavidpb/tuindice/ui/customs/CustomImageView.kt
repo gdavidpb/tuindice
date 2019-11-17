@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.ui.customs
 
 import android.content.Context
-import android.widget.ImageView
 import android.util.AttributeSet
+import androidx.appcompat.widget.AppCompatImageView
 import kotlin.math.max
 
 class CustomImageView(context: Context, attrs: AttributeSet)
-    : ImageView(context, attrs) {
+    : AppCompatImageView(context, attrs) {
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         if (drawable != null) {

@@ -62,13 +62,19 @@
 
     <string name="text_last_update">Última actualización: %1$s</string>
 
-    <string name="text_subjects_header">%1$d materias cursadas</string>
+    <plurals name="text_subjects_header">
+        <item quantity="one">%d materia cursada</item>
+        <item quantity="other">%d materias cursadas</item>
+    </plurals>
 
     <string name="label_subjects_approved">Aprobadas</string>
     <string name="label_subjects_failed">Reprobadas</string>
     <string name="label_subjects_retired">Retiradas</string>
 
-    <string name="text_credits_header">%1$d créditos cursados</string>
+    <plurals name="text_credits_header">
+        <item quantity="one">%d crédito cursado</item>
+        <item quantity="other">%d créditos cursados</item>
+    </plurals>
 
     <string name="label_credits_approved">Aprobados</string>
     <string name="label_credits_failed">Reprobados</string>
@@ -142,7 +148,6 @@
 
     <string name="error_empty">Campo vacío</string>
     <string name="error_usb_id">USBID inválido</string>
-    <string name="error_password">Contraseña inválida</string>
 
     <string name="snack_network_unavailable">Error de conexión</string>
     <string name="snack_service_unreachable">El servidor no está disponible</string>
@@ -240,7 +245,6 @@
 
     <string name="about_google_play_intent">market://details?id=%1$s</string>
     <string name="about_google_play">https://play.google.com/store/apps/details?id=%1$s</string>
-    <string name="about_twitter_url">https://twitter.com/TuIndice</string>
 
     <string name="about_share_message">
         TuIndice: Una nueva forma de administrar tus notas\n\n

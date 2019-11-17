@@ -18,7 +18,12 @@ open class SummarySubjectsViewHolder(itemView: View) : BaseViewHolder<SummaryBas
             val approvedPercent = item.approvedSubjects / total
             val failedPercent = item.failedSubjects / total
 
-            tViewSubjectsHeader.text = context.getString(R.string.text_subjects_header, item.enrolledSubjects)
+            val subjectsHeader = context.resources.getQuantityString(
+                    R.plurals.text_subjects_header,
+                    item.enrolledSubjects,
+                    item.enrolledSubjects)
+
+            tViewSubjectsHeader.text = subjectsHeader
 
             guidelineApproved.animatePercent(approvedPercent)
             guidelineFailed.animatePercent(approvedPercent + failedPercent)

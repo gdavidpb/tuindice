@@ -18,7 +18,12 @@ open class SummaryCreditsViewHolder(itemView: View) : BaseViewHolder<SummaryBase
             val approvedPercent = item.approvedCredits / total
             val failedPercent = item.failedCredits / total
 
-            tViewCreditsHeader.text = context.getString(R.string.text_credits_header, item.enrolledCredits)
+            val creditsHeader = context.resources.getQuantityString(
+                    R.plurals.text_credits_header,
+                    item.enrolledCredits,
+                    item.enrolledCredits)
+
+            tViewCreditsHeader.text = creditsHeader
 
             guidelineApproved.animatePercent(approvedPercent)
             guidelineFailed.animatePercent(approvedPercent + failedPercent)

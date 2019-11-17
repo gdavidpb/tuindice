@@ -6,7 +6,7 @@ class DigestConcat(algorithm: String) {
     private val messages = arrayListOf<ByteArray>()
     private val messageDigest = MessageDigest.getInstance(algorithm)
 
-    fun concat(data: ByteArray): DigestConcat {
+    private fun concat(data: ByteArray): DigestConcat {
         val hash = messageDigest.digest(data)
 
         messages.add(hash)
