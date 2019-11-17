@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.utils.toQuarterTitle
 import kotlinx.coroutines.Dispatchers
 import java.io.File
@@ -21,10 +20,10 @@ open class OpenEnrollmentProofUseCase(
 ) {
     override suspend fun executeOnBackground(params: Unit): File? {
         val activeAuth = authRepository.getActiveAuth()
-        val quarters = activeAuth?.let { auth -> databaseRepository.localTransaction { getQuarters(uid = auth.uid) } }
-        val currentQuarter = quarters?.firstOrNull { quarter -> quarter.status == STATUS_QUARTER_CURRENT }
-
-        currentQuarter ?: return null
+                ?: return null
+        val currentQuarter = databaseRepository.localTransaction {
+            getCurrentQuarter(uid = activeAuth.uid)
+        } ?: return null
 
         /* Try to get current quarter enrollment proof file */
         val enrollmentName = "enrollments/${currentQuarter.toQuarterTitle()}.pdf"

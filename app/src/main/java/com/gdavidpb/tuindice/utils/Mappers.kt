@@ -58,12 +58,20 @@ fun Account.toSummaryCredits() = SummaryCredits(
         failedCredits = failedCredits
 )
 
+fun Subject.toDstSubject() = DstSubject(
+        code = code,
+        name = name,
+        credits = credits,
+        grade = grade,
+        status = status.toSubjectStatusDescription()
+)
+
 fun Subject.toSubjectCode(context: Context) =
         if (status == STATUS_SUBJECT_OK && grade != 0)
             code
         else
             buildSpanned {
-                val content = context.getString(R.string.subject_title, code, toSubjectStatusDescription())
+                val content = context.getString(R.string.subject_title, code, status.toSubjectStatusDescription())
                 val colorSecondary = context.getCompatColor(R.color.color_secondary_text)
 
                 append(content.substringBefore(' '))
@@ -149,7 +157,7 @@ fun DocumentSnapshot.toSubject() = Subject(
 
 /* Service layer */
 
-fun Subject.toSubjectStatusDescription() = when (status) {
+fun Int.toSubjectStatusDescription() = when (this) {
     STATUS_SUBJECT_OK -> ""
     STATUS_SUBJECT_RETIRED -> "Retirada"
     STATUS_SUBJECT_GAVE_UP -> "Retirada"

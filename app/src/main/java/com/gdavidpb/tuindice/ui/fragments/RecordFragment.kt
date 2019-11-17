@@ -50,7 +50,7 @@ open class RecordFragment : Fragment() {
     }
 
     private val retrySnackBar by lazy {
-        Snackbar.make(requireView(), R.string.snack_bar_enrollment_retry, Snackbar.LENGTH_LONG)
+        Snackbar.make(requireView(), R.string.snack_bar_enrollment_retry, Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.retry) { viewModel.openEnrollmentProof() }
     }
 

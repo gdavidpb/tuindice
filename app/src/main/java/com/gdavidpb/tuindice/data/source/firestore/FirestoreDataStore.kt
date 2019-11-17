@@ -23,6 +23,32 @@ open class FirestoreDataStore(
                 .toAccount()
     }
 
+    /* This function contains queries that aren't allowed to run in a remote transaction */
+    override suspend fun getCurrentQuarter(uid: String): Quarter? {
+        suspend fun getSubjects(qid: String): List<Subject> {
+            return firestore
+                    .collection(COLLECTION_SUBJECT)
+                    .whereEqualTo(FIELD_SUBJECT_USER_ID, uid)
+                    .whereEqualTo(FIELD_SUBJECT_QUARTER_ID, qid)
+                    .get()
+                    .await()
+                    .documents
+                    .map { it.toSubject() }
+        }
+
+        return firestore
+                .collection(COLLECTION_QUARTER)
+                .whereEqualTo(FIELD_QUARTER_USER_ID, uid)
+                .whereEqualTo(FIELD_QUARTER_STATUS, STATUS_QUARTER_CURRENT)
+                .limit(1)
+                .get()
+                .await()
+                .documents
+                .map { it.toQuarter(subjects = getSubjects(qid = it.id)) }
+                .getOrNull(0)
+
+    }
+
     override suspend fun getQuarters(uid: String): List<Quarter> {
         suspend fun getSubjectsMap(): Map<String, List<Subject>> {
             return firestore
