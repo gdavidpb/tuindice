@@ -273,7 +273,7 @@
     </string>
 
     <string name="about_firebase">
-        Firebase 17.2.0\nQuickly develop high-quality apps and grow your business\n© 2014 Google\nhttps://firebase.com/
+        Firebase 17.2.1\nQuickly develop high-quality apps and grow your business\n© 2014 Google\nhttps://firebase.com/
     </string>
 
     <string name="about_koin">
@@ -281,7 +281,7 @@
     </string>
 
     <string name="about_retrofit">
-        Retrofit 2.6.1\nA type-safe HTTP client for Android and Java\n© 2015 Square\nhttps://square.github.io/retrofit/
+        Retrofit 2.6.2\nA type-safe HTTP client for Android and Java\n© 2015 Square\nhttps://square.github.io/retrofit/
     </string>
 
     <string name="about_freepik">

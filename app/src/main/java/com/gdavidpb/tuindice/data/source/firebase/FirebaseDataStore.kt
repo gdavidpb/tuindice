@@ -31,7 +31,7 @@ open class FirebaseDataStore(
 
     override suspend fun sendPasswordResetEmail(email: String, password: String) {
         val resetPassword = (email to password).fromResetParam()
-        val continueUrl = String.format(BuildConfig.URL_APP_RESET_PASSWORD, resetPassword)
+        val continueUrl = BuildConfig.URL_APP_RESET_PASSWORD.format(resetPassword)
 
         val actionCodeSettings = ActionCodeSettings
                 .newBuilder()
@@ -45,7 +45,7 @@ open class FirebaseDataStore(
 
     override suspend fun sendEmailVerification() {
         auth.currentUser?.also { user ->
-            val continueUrl = String.format(BuildConfig.URL_APP_VERIFY, user.uid)
+            val continueUrl = BuildConfig.URL_APP_VERIFY.format(user.uid)
 
             val actionCodeSettings = ActionCodeSettings
                     .newBuilder()

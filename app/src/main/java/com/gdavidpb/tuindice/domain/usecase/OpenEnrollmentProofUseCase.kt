@@ -27,7 +27,7 @@ open class OpenEnrollmentProofUseCase(
         currentQuarter ?: return null
 
         /* Try to get current quarter enrollment proof file */
-        val enrollmentName = "${currentQuarter.toQuarterTitle()}.pdf"
+        val enrollmentName = "enrollments/${currentQuarter.toQuarterTitle()}.pdf"
         val enrollmentFile = localStorageRepository.getFile(enrollmentName)
 
         if (!enrollmentFile.exists()) {

@@ -424,12 +424,12 @@ fun Long.toCountdown(): String {
     val min = TimeUnit.MILLISECONDS.toMinutes(this)
     val sec = TimeUnit.MILLISECONDS.toSeconds(this - TimeUnit.MINUTES.toMillis(min))
 
-    return String.format("%02d:%02d", min, sec)
+    return "%02d:%02d".format(min, sec)
 }
 
 fun Double.toGrade() = floor(this * 10000) / 10000
 
-fun Double.formatGrade() = String.format("%.4f", this)
+fun Double.formatGrade() = "%.4f".format(this)
 
 private val dateFormatCache = hashMapOf<String, SimpleDateFormat>()
 
