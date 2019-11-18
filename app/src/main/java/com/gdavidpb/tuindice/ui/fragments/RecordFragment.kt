@@ -50,8 +50,12 @@ open class RecordFragment : Fragment() {
     }
 
     private val retrySnackBar by lazy {
-        Snackbar.make(requireView(), R.string.snack_bar_enrollment_retry, Snackbar.LENGTH_INDEFINITE)
+        Snackbar.make(requireView(), R.string.snack_bar_enrollment_retry, Snackbar.LENGTH_LONG)
                 .setAction(R.string.retry) { viewModel.openEnrollmentProof() }
+    }
+
+    private val errorSnackBar by lazy {
+        Snackbar.make(requireView(), R.string.snack_bar_enrollment_error, Snackbar.LENGTH_LONG)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -125,12 +129,18 @@ open class RecordFragment : Fragment() {
 
                 quarterAdapter.swapItems(new = quarters)
 
-                //todo empty
+                if (quarters.isEmpty()) {
+                    rViewRecord.visibility = View.GONE
+                    tViewRecord.visibility = View.VISIBLE
+                } else {
+                    tViewRecord.visibility = View.GONE
+                    rViewRecord.visibility = View.VISIBLE
+                }
             }
             is Result.OnError -> {
                 pBarRecord.visibility = View.GONE
 
-                //todo handle error
+                errorSnackBar.show()
             }
         }
     }
