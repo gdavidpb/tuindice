@@ -6,6 +6,8 @@ apply plugin: "kotlin-android-extensions"
 
 apply plugin: "kotlin-kapt"
 
+apply plugin: 'io.fabric'
+
 kapt {
     generateStubs = true
 }
@@ -17,8 +19,8 @@ android {
         vectorDrawables.useSupportLibrary = true
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 8
-        versionName "1.0"
+        versionCode 9
+        versionName "1.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
