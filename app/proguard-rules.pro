@@ -20,6 +20,20 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+# Koin rules
 -keepnames class android.arch.lifecycle.ViewModel -keepclassmembers public class * extends android.arch.lifecycle.ViewModel { public <init>(...); }
 -keepclassmembers class com.lebao.app.domain.** { public <init>(...); }
 -keepclassmembers class * { public <init>(...); }
+
+# Fabric rules
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends java.lang.Exception
+
+-keep class com.crashlytics.** { *; }
+-dontwarn com.crashlytics.**
+
+# Firebase rules
+-keep class com.gdavidpb.tuindice.data.model.** { *; }
+-keep class com.gdavidpb.tuindice.domain.model.** { *; }
+-keep class com.gdavidpb.tuindice.presentation.model.** { *; }

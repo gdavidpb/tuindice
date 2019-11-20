@@ -10,7 +10,7 @@
     <string name="yes">Si</string>
     <string name="no">No</string>
     <string name="beta">beta</string>
-    <string name="alpha">alpha</string>
+    <string name="release">release</string>
     <string name="accept">Aceptar</string>
     <string name="cancel">Cancelar</string>
     <string name="close">Cerrar</string>
@@ -279,7 +279,7 @@
     <string name="about_header_libs">Detrás de TuIndice</string>
 
     <string name="about_kotlin">
-        Kotlin 1.3.50\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
+        Kotlin 1.3.60\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
     </string>
 
     <string name="about_firebase">

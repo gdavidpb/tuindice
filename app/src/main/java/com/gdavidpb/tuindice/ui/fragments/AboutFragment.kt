@@ -11,10 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.presentation.model.About
 import com.gdavidpb.tuindice.presentation.model.AboutHeader
 import com.gdavidpb.tuindice.presentation.model.AboutLib
-import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.AboutViewModel
+import com.gdavidpb.tuindice.ui.activities.LoginActivity
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.utils.*
 import kotlinx.android.synthetic.main.fragment_about.*
@@ -23,11 +25,12 @@ import org.jetbrains.anko.email
 import org.jetbrains.anko.share
 import org.jetbrains.anko.support.v4.alert
 import org.jetbrains.anko.support.v4.selector
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.jetbrains.anko.support.v4.startActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 open class AboutFragment : Fragment() {
 
-    private val viewModel by sharedViewModel<MainViewModel>()
+    private val viewModel by viewModel<AboutViewModel>()
 
     private val cachedColors by lazy {
         listOf(
@@ -47,6 +50,10 @@ open class AboutFragment : Fragment() {
 
         setHasOptionsMenu(false)
 
+        with(viewModel) {
+            observe(signOut, ::signOutObserver)
+        }
+
         val context = requireContext()
 
         rViewAbout.layoutManager = LinearLayoutManager(context)
@@ -57,7 +64,7 @@ open class AboutFragment : Fragment() {
         val version = getString(R.string.about_version,
                 BuildConfig.VERSION_NAME,
                 BuildConfig.VERSION_CODE,
-                getString(if (versionName < 1.0f) R.string.beta else R.string.alpha))
+                getString(if (versionName < 1.0f) R.string.beta else R.string.release))
 
         val data = listOf(
                 AboutHeader(title = getString(R.string.app_name)),
@@ -83,6 +90,15 @@ open class AboutFragment : Fragment() {
         )
 
         adapter.swapItems(new = data)
+    }
+
+    private fun signOutObserver(result: Completable?) {
+        when (result) {
+            is Completable.OnComplete -> {
+                startActivity<LoginActivity>()
+                requireActivity().finish()
+            }
+        }
     }
 
     private fun startPlayStore() {

@@ -6,18 +6,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
-import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.utils.observe
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import android.view.*
+import com.gdavidpb.tuindice.presentation.viewmodel.SummaryViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 open class SummaryFragment : Fragment() {
 
-    private val viewModel by sharedViewModel<MainViewModel>()
+    private val viewModel by viewModel<SummaryViewModel>()
 
     private val picasso by inject<Picasso>()
 
