@@ -39,7 +39,6 @@ import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
 import com.gdavidpb.tuindice.data.utils.Validation
@@ -168,15 +167,6 @@ suspend fun <T> Call<T>.await() = suspendCoroutine<T?> { continuation ->
 
 fun <T : BaseUseCase<Q, W>, Q, W : MutableLiveData<*>> ViewModel.execute(useCase: T, params: Q, liveData: W) {
     useCase.execute(params, liveData, viewModelScope)
-}
-
-/* Navigation */
-
-fun Int.toNavId() = when (this) {
-    R.id.nav_summary -> R.id.navigation_summary
-    R.id.nav_record -> R.id.navigation_record
-    R.id.nav_about -> R.id.navigation_about
-    else -> R.id.navigation_summary
 }
 
 /* Validation */

@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/nav_view"
+        android:id="@+id/bottomNavView"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_48"
         android:background="@android:color/white"
@@ -14,12 +14,12 @@
         app:menu="@menu/bottom_nav_menu" />
 
     <fragment
-        android:id="@+id/nav_host_fragment"
+        android:id="@+id/navHostFragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:defaultNavHost="true"
-        app:layout_constraintBottom_toTopOf="@id/nav_view"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavView"
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/mobile_navigation" />
 

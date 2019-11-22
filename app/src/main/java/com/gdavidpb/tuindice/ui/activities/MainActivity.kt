@@ -2,18 +2,16 @@ package com.gdavidpb.tuindice.ui.activities
 
 import android.os.Bundle
 import androidx.annotation.IdRes
-import androidx.core.view.get
 import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
+import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.*
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.*
+import org.jetbrains.anko.alert
+import org.jetbrains.anko.startActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseActivity() {
@@ -35,35 +33,18 @@ class MainActivity : BaseActivity() {
     private fun initView(@IdRes navId: Int) {
         setContentView(R.layout.activity_main)
 
-        val navController = findNavController(R.id.nav_host_fragment)
+        val navController = findNavController(R.id.navHostFragment)
 
-        val appBarItems = setOf(
-                R.id.navigation_summary,
-                R.id.navigation_record,
-                R.id.navigation_about
-        )
+        NavigationUI.setupWithNavController(bottomNavView, navController)
 
-        val appBarConfiguration = AppBarConfiguration(appBarItems)
+        runCatching {
+            navController.popBackStack()
 
-        setupActionBarWithNavController(navController, appBarConfiguration)
+            navController.navigate(navId)
+        }
 
-        nav_view.setupWithNavController(navController)
-
-        navController.navigate(navId)
-
-        nav_view.menu[appBarItems.indexOf(navId)].isChecked = true
-
-        nav_view.setOnNavigationItemSelectedListener { item ->
-            if (nav_view.selectedItemId != item.itemId) {
-                val newNavId = item.itemId.toNavId()
-
-                viewModel.setLastScreen(newNavId)
-
-                navController.navigate(newNavId)
-
-                true
-            } else
-                false
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            viewModel.setLastScreen(navId = destination.id)
         }
     }
 

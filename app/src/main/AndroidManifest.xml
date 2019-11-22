@@ -61,6 +61,10 @@
             android:label=""
             android:screenOrientation="portrait" />
 
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="${crashlyticsEnabled}" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.gdavidpb.tuindice"
