@@ -7,10 +7,10 @@ import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.*
-import com.gdavidpb.tuindice.utils.LiveCompletable
-import com.gdavidpb.tuindice.utils.LiveContinuous
-import com.gdavidpb.tuindice.utils.LiveResult
-import com.gdavidpb.tuindice.utils.execute
+import com.gdavidpb.tuindice.utils.extensions.LiveCompletable
+import com.gdavidpb.tuindice.utils.extensions.LiveContinuous
+import com.gdavidpb.tuindice.utils.extensions.LiveResult
+import com.gdavidpb.tuindice.utils.extensions.execute
 import java.io.File
 
 class MainViewModel(

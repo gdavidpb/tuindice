@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.domain.usecase.coroutines
 
 import com.crashlytics.android.Crashlytics
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -23,7 +23,7 @@ abstract class ContinuousUseCase<T, Q>(
             runCatching {
                 withContext(backgroundContext) { executeOnBackground(params, liveData) }
             }.onFailure { throwable ->
-                Crashlytics.logException(throwable)
+                release { Crashlytics.logException(throwable) }
 
                 when (throwable) {
                     is CancellationException -> liveData.postCancel()

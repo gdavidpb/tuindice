@@ -2,11 +2,11 @@ package com.gdavidpb.tuindice.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.utils.LiveResult
+import com.gdavidpb.tuindice.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.execute
+import com.gdavidpb.tuindice.utils.extensions.execute
 
 class LoginViewModel(
         private val signInUseCase: SignInUseCase

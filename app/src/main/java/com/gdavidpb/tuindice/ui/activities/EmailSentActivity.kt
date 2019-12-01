@@ -9,6 +9,10 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
 import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.extensions.animate
+import com.gdavidpb.tuindice.utils.extensions.observe
+import com.gdavidpb.tuindice.utils.extensions.onClickOnce
+import com.gdavidpb.tuindice.utils.extensions.toCountdown
 import kotlinx.android.synthetic.main.activity_email_sent.*
 import org.jetbrains.anko.longToast
 import org.koin.androidx.viewmodel.ext.android.viewModel

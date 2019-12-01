@@ -7,6 +7,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.extensions.format
+import com.gdavidpb.tuindice.utils.extensions.onClickOnce
+import com.gdavidpb.tuindice.utils.extensions.onScrollStateChanged
+import com.gdavidpb.tuindice.utils.extensions.onStateChanged
 import kotlinx.android.synthetic.main.activity_calendar.*
 import org.jetbrains.anko.design.longSnackbar
 import java.util.*

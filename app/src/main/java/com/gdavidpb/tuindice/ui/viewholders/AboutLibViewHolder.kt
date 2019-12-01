@@ -8,9 +8,9 @@ import com.gdavidpb.tuindice.presentation.model.AboutBase
 import com.gdavidpb.tuindice.presentation.model.AboutLib
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
-import com.gdavidpb.tuindice.utils.drawables
-import com.gdavidpb.tuindice.utils.getCompatVector
-import com.gdavidpb.tuindice.utils.onClickOnce
+import com.gdavidpb.tuindice.utils.extensions.drawables
+import com.gdavidpb.tuindice.utils.extensions.getCompatVector
+import com.gdavidpb.tuindice.utils.extensions.onClickOnce
 import org.jetbrains.anko.append
 import org.jetbrains.anko.buildSpanned
 import org.jetbrains.anko.dip

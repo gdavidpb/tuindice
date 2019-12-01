@@ -6,6 +6,8 @@ import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.model.service.*
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.extensions.await
+import com.gdavidpb.tuindice.utils.extensions.generateId
 import com.google.firebase.firestore.*
 
 open class FirestoreDataStore(

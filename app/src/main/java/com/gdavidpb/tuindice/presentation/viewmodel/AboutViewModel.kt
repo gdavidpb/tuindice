@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.domain.usecase.*
-import com.gdavidpb.tuindice.utils.LiveCompletable
-import com.gdavidpb.tuindice.utils.execute
+import com.gdavidpb.tuindice.utils.extensions.LiveCompletable
+import com.gdavidpb.tuindice.utils.extensions.execute
 
 class AboutViewModel(
         private val signOutUseCase: SignOutUseCase

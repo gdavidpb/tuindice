@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.domain.usecase.CountdownUseCase
 import com.gdavidpb.tuindice.domain.usecase.ResendResetEmailUseCase
 import com.gdavidpb.tuindice.domain.usecase.ResendVerifyEmailUseCase
-import com.gdavidpb.tuindice.utils.LiveCompletable
-import com.gdavidpb.tuindice.utils.LiveContinuous
-import com.gdavidpb.tuindice.utils.execute
+import com.gdavidpb.tuindice.utils.extensions.LiveCompletable
+import com.gdavidpb.tuindice.utils.extensions.LiveContinuous
+import com.gdavidpb.tuindice.utils.extensions.execute
 
 class EmailSentViewModel(
         private val resendResetEmailUseCase: ResendResetEmailUseCase,

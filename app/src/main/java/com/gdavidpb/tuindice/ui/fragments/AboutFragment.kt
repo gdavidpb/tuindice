@@ -17,6 +17,8 @@ import com.gdavidpb.tuindice.presentation.model.AboutLib
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.extensions.browserActivity
+import com.gdavidpb.tuindice.utils.extensions.getCompatColor
 import kotlinx.android.synthetic.main.fragment_about.*
 import org.jetbrains.anko.browse
 import org.jetbrains.anko.email

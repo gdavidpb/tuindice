@@ -6,10 +6,10 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.widget.CalendarView
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.utils.containsInMonth
-import com.gdavidpb.tuindice.utils.getCompatColor
-import com.gdavidpb.tuindice.utils.negRem
-import com.gdavidpb.tuindice.utils.precision
+import com.gdavidpb.tuindice.utils.extensions.containsInMonth
+import com.gdavidpb.tuindice.utils.extensions.getCompatColor
+import com.gdavidpb.tuindice.utils.extensions.negRem
+import com.gdavidpb.tuindice.utils.extensions.precision
 import org.jetbrains.anko.childrenRecursiveSequence
 import org.jetbrains.anko.dip
 import org.jetbrains.anko.sdk27.coroutines.onScrollChange

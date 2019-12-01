@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.utils
 
+import com.gdavidpb.tuindice.utils.extensions.bytes
 import java.security.MessageDigest
 
 class DigestConcat(algorithm: String) {

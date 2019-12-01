@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.presentation.model.SummaryBase
 import com.gdavidpb.tuindice.presentation.model.SummaryCredits
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
-import com.gdavidpb.tuindice.utils.animatePercent
+import com.gdavidpb.tuindice.utils.extensions.animatePercent
 import kotlinx.android.synthetic.main.item_summary_credits.view.*
 
 open class SummaryCreditsViewHolder(itemView: View) : BaseViewHolder<SummaryBase>(itemView) {

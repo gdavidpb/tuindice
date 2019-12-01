@@ -9,7 +9,7 @@ import android.view.MotionEvent
 import android.widget.TextSwitcher
 import android.widget.TextView
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.utils.lookAtMe
+import com.gdavidpb.tuindice.utils.extensions.lookAtMe
 import kotlin.math.abs
 import kotlin.math.sign
 

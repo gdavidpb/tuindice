@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.data.source.token.TokenDataStore
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
-import com.gdavidpb.tuindice.utils.getProperty
+import com.gdavidpb.tuindice.utils.extensions.getProperty
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

@@ -7,10 +7,10 @@ import com.gdavidpb.tuindice.presentation.model.SummaryBase
 import com.gdavidpb.tuindice.presentation.model.SummaryHeader
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
-import com.gdavidpb.tuindice.utils.animateGrade
-import com.gdavidpb.tuindice.utils.drawables
-import com.gdavidpb.tuindice.utils.getCompatDrawable
-import com.gdavidpb.tuindice.utils.formatLastUpdate
+import com.gdavidpb.tuindice.utils.extensions.animateGrade
+import com.gdavidpb.tuindice.utils.extensions.drawables
+import com.gdavidpb.tuindice.utils.extensions.getCompatDrawable
+import com.gdavidpb.tuindice.utils.extensions.formatLastUpdate
 import kotlinx.android.synthetic.main.item_summary_header.view.*
 
 open class SummaryHeaderViewHolder(

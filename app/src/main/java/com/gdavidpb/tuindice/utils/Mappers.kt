@@ -25,6 +25,10 @@ import com.gdavidpb.tuindice.presentation.model.CustomTypefaceSpan
 import com.gdavidpb.tuindice.presentation.model.SummaryCredits
 import com.gdavidpb.tuindice.presentation.model.SummaryHeader
 import com.gdavidpb.tuindice.presentation.model.SummarySubjects
+import com.gdavidpb.tuindice.utils.extensions.computeCredits
+import com.gdavidpb.tuindice.utils.extensions.format
+import com.gdavidpb.tuindice.utils.extensions.getCompatColor
+import com.gdavidpb.tuindice.utils.extensions.toShortName
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot

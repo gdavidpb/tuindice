@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.extensions.edit
 import java.util.*
 
 open class PreferencesDataStore(

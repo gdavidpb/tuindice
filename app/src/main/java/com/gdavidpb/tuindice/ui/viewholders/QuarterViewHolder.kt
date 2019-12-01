@@ -8,6 +8,9 @@ import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.extensions.computeCredits
+import com.gdavidpb.tuindice.utils.extensions.computeGrade
+import com.gdavidpb.tuindice.utils.extensions.onSeekBarChange
 import kotlinx.android.synthetic.main.item_quarter.view.*
 import kotlinx.android.synthetic.main.item_subject.view.*
 import org.jetbrains.anko.backgroundColor

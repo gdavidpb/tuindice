@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ContinuousUseCase
-import com.gdavidpb.tuindice.utils.LiveContinuous
-import com.gdavidpb.tuindice.utils.postNext
+import com.gdavidpb.tuindice.utils.extensions.LiveContinuous
+import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext

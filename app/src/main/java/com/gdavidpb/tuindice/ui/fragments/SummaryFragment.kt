@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
-import com.gdavidpb.tuindice.utils.observe
+import com.gdavidpb.tuindice.utils.extensions.observe
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.android.ext.android.inject

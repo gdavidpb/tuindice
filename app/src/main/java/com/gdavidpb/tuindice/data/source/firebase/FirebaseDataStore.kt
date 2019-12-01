@@ -4,7 +4,7 @@ import android.net.Uri
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.utils.await
+import com.gdavidpb.tuindice.utils.extensions.await
 import com.gdavidpb.tuindice.utils.fromResetParam
 import com.gdavidpb.tuindice.utils.toAuth
 import com.google.firebase.auth.ActionCodeSettings
