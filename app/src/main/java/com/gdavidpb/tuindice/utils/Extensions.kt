@@ -11,6 +11,7 @@ import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
@@ -42,6 +43,7 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
 import com.gdavidpb.tuindice.data.utils.Validation
+import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.BaseUseCase
@@ -58,10 +60,6 @@ import okio.Buffer
 import org.jetbrains.anko.browse
 import org.jetbrains.anko.sdk27.coroutines.textChangedListener
 import org.jetbrains.anko.startActivity
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.HttpException
-import retrofit2.Response
 import java.io.File
 import java.nio.ByteBuffer
 import java.security.cert.X509Certificate
@@ -146,21 +144,6 @@ suspend fun Task<Void>.await() = suspendCoroutine<Unit> { continuation ->
 suspend fun <T> Task<T>.await() = suspendCoroutine<T> { continuation ->
     addOnSuccessListener { continuation.resume(it) }
     addOnFailureListener { continuation.resumeWithException(it) }
-}
-
-suspend fun <T> Call<T>.await() = suspendCoroutine<T?> { continuation ->
-    enqueue(object : Callback<T?> {
-        override fun onResponse(call: Call<T?>, response: Response<T?>) {
-            if (response.isSuccessful)
-                continuation.resume(response.body())
-            else
-                continuation.resumeWithException(HttpException(response))
-        }
-
-        override fun onFailure(call: Call<T?>, t: Throwable) {
-            continuation.resumeWithException(t)
-        }
-    })
 }
 
 /* View model */
@@ -295,12 +278,6 @@ fun RecyclerView.onScrollStateChanged(listener: (newState: Int) -> Unit) {
 
 fun TextInputLayout.selectAll() = editText?.selectAll()
 
-fun EditText.drawables(
-        left: Drawable? = null,
-        top: Drawable? = null,
-        right: Drawable? = null,
-        bottom: Drawable? = null) = setCompoundDrawables(left, top, right, bottom)
-
 fun TextView.drawables(
         left: Drawable? = null,
         top: Drawable? = null,
@@ -392,7 +369,27 @@ fun Context.isPackageInstalled(packageName: String) = runCatching {
 
 /* System services */
 
-fun ConnectivityManager.isNetworkAvailable() = activeNetworkInfo?.isConnected == true
+fun ConnectivityManager.isNetworkAvailable(): Boolean {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        getNetworkCapabilities(activeNetwork)?.run {
+            when {
+                hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        }
+    } else {
+        @Suppress("DEPRECATION")
+        activeNetworkInfo?.run {
+            when (type) {
+                ConnectivityManager.TYPE_WIFI -> true
+                ConnectivityManager.TYPE_MOBILE -> true
+                else -> false
+            }
+        }
+    } ?: false
+}
 
 /* Format */
 
@@ -448,6 +445,8 @@ fun String.toShortName(): String {
     }
 }
 
+fun String.isUsbId() = matches("^\\d{2}-\\d{5}$".toRegex())
+
 /* Computation */
 
 fun Quarter.computeGrade() = subjects.computeGrade()
@@ -468,6 +467,13 @@ fun Collection<Subject>.computeGrade(): Double {
 
 fun Collection<Subject>.computeCredits() = sumBy {
     if (it.grade != 0) it.credits else 0
+}
+
+fun Account.isUpdated(): Boolean {
+    val now = Date()
+    val outdated = lastUpdate.tomorrow()
+
+    return now.before(outdated)
 }
 
 private val gradeSumCache = hashMapOf<Int, Double>()
@@ -598,6 +604,18 @@ fun Calendar.containsInMonth(value: Calendar): Boolean {
     }
 
     return (start..end).contains(value.time)
+}
+
+fun Date.tomorrow(): Date {
+    return Calendar.getInstance().let {
+        it.time = this
+
+        it.precision(Calendar.DATE)
+
+        it.add(Calendar.DATE, 1)
+
+        Date(it.timeInMillis)
+    }
 }
 
 infix fun Int.negRem(value: Int) = (this % value) + if (this >= 0) 0 else value

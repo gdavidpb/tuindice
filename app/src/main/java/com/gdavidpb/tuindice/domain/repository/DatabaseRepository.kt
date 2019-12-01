@@ -9,8 +9,8 @@ import com.gdavidpb.tuindice.domain.model.service.DstData
 interface DatabaseRepository {
     suspend fun getAccount(uid: String): Account?
 
-    suspend fun getCurrentQuarter(uid: String): Quarter?
     suspend fun getQuarters(uid: String): List<Quarter>
+    suspend fun getCurrentQuarter(uid: String): Quarter?
 
     suspend fun updateSubject(subject: Subject)
 

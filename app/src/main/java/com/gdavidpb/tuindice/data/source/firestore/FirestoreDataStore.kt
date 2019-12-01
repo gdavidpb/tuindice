@@ -6,10 +6,7 @@ import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.model.service.*
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.utils.*
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.WriteBatch
+import com.google.firebase.firestore.*
 
 open class FirestoreDataStore(
         private val firestore: FirebaseFirestore
@@ -101,6 +98,8 @@ open class FirestoreDataStore(
     override suspend fun updateData(uid: String, data: Collection<DstData>) {
         val batch = firestore.batch()
 
+        batch.updateLastUpdate(uid)
+
         data.forEach { entry ->
             when (entry) {
                 is DstPersonal -> batch.updatePersonalData(uid, entry)
@@ -140,6 +139,18 @@ open class FirestoreDataStore(
         firestore.enableNetwork().await()
 
         return result
+    }
+
+    private fun WriteBatch.updateLastUpdate(uid: String) {
+        val userRef = firestore
+                .collection(COLLECTION_USER)
+                .document(uid)
+
+        val values = mapOf(
+                FIELD_USER_LAST_UPDATE to FieldValue.serverTimestamp()
+        )
+
+        set(userRef, values, SetOptions.merge())
     }
 
     private fun WriteBatch.updatePersonalData(uid: String, data: DstPersonal) {

@@ -11,6 +11,6 @@ open class ResendVerifyEmailUseCase(
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: Unit) {
-        authRepository.sendEmailVerification()
+        authRepository.sendVerificationEmail()
     }
 }

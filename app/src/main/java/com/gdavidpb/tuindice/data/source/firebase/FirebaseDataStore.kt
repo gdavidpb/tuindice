@@ -43,7 +43,7 @@ open class FirebaseDataStore(
         auth.sendPasswordResetEmail(email, actionCodeSettings).await()
     }
 
-    override suspend fun sendEmailVerification() {
+    override suspend fun sendVerificationEmail() {
         auth.currentUser?.also { user ->
             val continueUrl = BuildConfig.URL_APP_VERIFY.format(user.uid)
 

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase.coroutines
 
+import com.crashlytics.android.Crashlytics
 import com.gdavidpb.tuindice.utils.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
@@ -21,6 +22,8 @@ abstract class CompletableUseCase<Q>(
             }.onSuccess {
                 liveData.postComplete()
             }.onFailure { throwable ->
+                Crashlytics.logException(throwable)
+
                 when (throwable) {
                     is CancellationException -> liveData.postCancel()
                     else -> liveData.postThrowable(throwable)

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase
 
+import com.crashlytics.android.Crashlytics
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
@@ -61,14 +62,15 @@ open class SignInUseCase(
     }
 
     private suspend fun storeAccount(auth: Auth, request: AuthRequest, response: AuthResponse) {
+        Crashlytics.setUserIdentifier(auth.uid)
+
         val authData = DstAuth(
                 usbId = request.usbId,
                 email = auth.email,
                 fullName = response.name
         )
 
-        if (!authRepository.isEmailVerified())
-            authRepository.sendEmailVerification()
+        if (!authRepository.isEmailVerified()) authRepository.sendVerificationEmail()
 
         settingsRepository.storeCredentials(credentials = request.toDstCredentials())
 

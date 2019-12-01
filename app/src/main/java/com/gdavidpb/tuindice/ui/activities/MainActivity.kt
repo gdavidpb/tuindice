@@ -6,6 +6,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.StartUpAction
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.*
@@ -24,6 +25,7 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         with(viewModel) {
+            observe(signOut, ::signOutObserver)
             observe(fetchStartUpAction, ::startUpObserver)
 
             fetchStartUpAction(dataString = intent.dataString ?: "")
@@ -44,7 +46,19 @@ class MainActivity : BaseActivity() {
         }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
+            resetLiveData(destination.id)
+
             viewModel.setLastScreen(navId = destination.id)
+        }
+    }
+
+    private fun resetLiveData(destination: Int) {
+        with(viewModel) {
+            when (destination) {
+                R.id.nav_record -> {
+                    enrollment.value = null
+                }
+            }
         }
     }
 
@@ -65,6 +79,18 @@ class MainActivity : BaseActivity() {
                 finish()
             }
         }.show()
+    }
+
+    private fun signOutObserver(result: Completable?) {
+        when (result) {
+            is Completable.OnComplete -> {
+                startActivity<LoginActivity>()
+                finish()
+            }
+            is Completable.OnError -> {
+                fatalFailureDialog()
+            }
+        }
     }
 
     private fun startUpObserver(result: Result<StartUpAction>?) {

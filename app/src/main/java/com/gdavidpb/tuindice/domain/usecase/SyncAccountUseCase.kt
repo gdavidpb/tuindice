@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.model.service.DstData
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.repository.*
@@ -17,26 +18,21 @@ open class SyncAccountUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository
-) : ContinuousUseCase<Boolean, Account>(
+) : ContinuousUseCase<Unit, Account>(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
 ) {
-    override suspend fun executeOnBackground(params: Boolean, liveData: LiveContinuous<Account>) {
-        val activeAuth = authRepository.getActiveAuth() ?: return
-        val lastUpdate = settingsRepository.getLastSync()
-        val isCooldown = settingsRepository.isSyncCooldown()
+    override suspend fun executeOnBackground(params: Unit, liveData: LiveContinuous<Account>) {
+        val activeAuth = authRepository.getActiveAuth()
+                ?: return
+
+        val activeAccount = databaseRepository.localTransaction { getAccount(uid = activeAuth.uid) }
+                ?: return
 
         /* Return local account */
-        databaseRepository.localTransaction {
-            getAccount(uid = activeAuth.uid)?.copy(lastUpdate = lastUpdate)
-        }?.also { activeAccount ->
-            withContext(foregroundContext) {
-                liveData.postNext(activeAccount)
-            }
-        }
+        liveData.postAccount(activeAccount)
 
-        /* params -> trySync */
-        if (isCooldown && !params) return
+        if (activeAccount.isUpdated()) return
 
         /* Collected data */
         val collectedData = mutableListOf<DstData>()
@@ -44,7 +40,40 @@ open class SyncAccountUseCase(
         /* Get credentials */
         val credentials = settingsRepository.getCredentials()
 
-        /* --- Record service auth --- */
+        /* Record service auth */
+        collectedData.addRecordData(credentials)
+
+        /* Clear cookies */
+        localStorageRepository.delete("cookies")
+
+        /* Enrollment service auth */
+        collectedData.addEnrollmentData(credentials)
+
+        /*  Check if the enrollment files should be purged  */
+        if (collectedData.shouldPurgeEnrollments(uid = activeAuth.uid))
+            localStorageRepository.delete("enrollments")
+
+        /* If there is collected data */
+        if (collectedData.isNotEmpty()) {
+            /* Return updated account */
+            databaseRepository.remoteTransaction {
+                updateData(uid = activeAuth.uid, data = collectedData)
+            }
+
+            /* Return updated account */
+            databaseRepository.localTransaction {
+                getAccount(uid = activeAuth.uid)
+            }?.also { updatedAccount -> liveData.postAccount(updatedAccount) }
+        }
+    }
+
+    private suspend fun LiveContinuous<Account>.postAccount(account: Account) {
+        withContext(foregroundContext) {
+            postNext(account)
+        }
+    }
+
+    private suspend fun MutableList<DstData>.addRecordData(credentials: DstCredentials) {
         val recordAuthRequest = AuthRequest(
                 usbId = credentials.usbId,
                 password = credentials.password,
@@ -54,14 +83,12 @@ open class SyncAccountUseCase(
         val recordAuthResponse = dstRepository.auth(recordAuthRequest)
 
         if (recordAuthResponse?.isSuccessful == true) {
-            dstRepository.getPersonalData()?.let(collectedData::add)
-            dstRepository.getRecordData()?.let(collectedData::add)
+            dstRepository.getPersonalData()?.let(::add)
+            dstRepository.getRecordData()?.let(::add)
         }
+    }
 
-        /* Clear cookies */
-        localStorageRepository.delete("cookies")
-
-        /* --- Enrollment service auth --- */
+    private suspend fun MutableList<DstData>.addEnrollmentData(credentials: DstCredentials) {
         val enrollmentAuthRequest = AuthRequest(
                 usbId = credentials.usbId,
                 password = credentials.password,
@@ -71,42 +98,23 @@ open class SyncAccountUseCase(
         val enrollmentAuthResponse = dstRepository.auth(enrollmentAuthRequest)
 
         if (enrollmentAuthResponse?.isSuccessful == true) {
-            dstRepository.getEnrollment()?.let(collectedData::add)
+            dstRepository.getEnrollment()?.let(::add)
         }
+    }
 
-        /* --- Check if the enrollment files should be purged --- */
+    private suspend fun MutableList<DstData>.shouldPurgeEnrollments(uid: String): Boolean {
         val localCurrentSubjects = databaseRepository
-                .localTransaction { getCurrentQuarter(uid = activeAuth.uid) }
+                .localTransaction { getCurrentQuarter(uid) }
                 ?.subjects
                 ?.map { it.toDstSubject() }
 
-        val remoteCurrentSubjects = collectedData
-                .firstOrNull { it is DstRecord }
+        val remoteCurrentSubjects = firstOrNull { it is DstRecord }
                 ?.let {
                     it as DstRecord
 
                     it.quarters.firstOrNull { quarter -> quarter.status == STATUS_QUARTER_CURRENT }
                 }?.subjects
 
-        val shouldPurge = localCurrentSubjects != remoteCurrentSubjects
-
-        if (shouldPurge) localStorageRepository.delete("enrollments")
-
-        /* If there is collected data */
-        if (collectedData.isNotEmpty()) {
-            /* Set sync cooldown */
-            settingsRepository.setSyncCooldown()
-
-            /* Return updated account */
-            databaseRepository.remoteTransaction {
-                updateData(uid = activeAuth.uid, data = collectedData)
-
-                getAccount(uid = activeAuth.uid)
-            }?.also { updatedAccount ->
-                withContext(foregroundContext) {
-                    liveData.postNext(updatedAccount)
-                }
-            }
-        }
+        return localCurrentSubjects != remoteCurrentSubjects
     }
 }

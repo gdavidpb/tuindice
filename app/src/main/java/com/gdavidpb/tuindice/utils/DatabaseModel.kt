@@ -26,6 +26,7 @@ const val FIELD_USER_APPROVED_CREDITS = "approvedCredits"
 const val FIELD_USER_APPROVED_SUBJECT = "approvedSubjects"
 const val FIELD_USER_ENROLLED_CREDITS = "enrolledCredits"
 const val FIELD_USER_ENROLLED_SUBJECTS = "enrolledSubjects"
+const val FIELD_USER_LAST_UPDATE = "lastUpdate"
 
 /* Quarters collection */
 const val COLLECTION_QUARTER = "quarters"

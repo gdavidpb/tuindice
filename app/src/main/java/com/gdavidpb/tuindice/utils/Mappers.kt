@@ -131,13 +131,14 @@ fun DocumentSnapshot.toAccount() = Account(
         retiredSubjects = getLong(FIELD_USER_RETIRED_SUBJECTS)?.toInt() ?: 0,
         retiredCredits = getLong(FIELD_USER_RETIRED_CREDITS)?.toInt() ?: 0,
         failedSubjects = getLong(FIELD_USER_FAILED_SUBJECTS)?.toInt() ?: 0,
-        failedCredits = getLong(FIELD_USER_FAILED_CREDITS)?.toInt() ?: 0
+        failedCredits = getLong(FIELD_USER_FAILED_CREDITS)?.toInt() ?: 0,
+        lastUpdate = getDate(FIELD_USER_LAST_UPDATE) ?: Date(0)
 )
 
 fun DocumentSnapshot.toQuarter(subjects: List<Subject>) = Quarter(
         id = id,
-        startDate = getTimestamp(FIELD_QUARTER_START_DATE)?.toDate() ?: Date(),
-        endDate = getTimestamp(FIELD_QUARTER_END_DATE)?.toDate() ?: Date(),
+        startDate = getDate(FIELD_QUARTER_START_DATE) ?: Date(),
+        endDate = getDate(FIELD_QUARTER_END_DATE) ?: Date(),
         grade = getDouble(FIELD_QUARTER_GRADE) ?: 0.0,
         gradeSum = getDouble(FIELD_QUARTER_GRADE_SUM) ?: 0.0,
         credits = subjects.computeCredits(),

@@ -18,7 +18,7 @@ import org.jetbrains.anko.contentView
 abstract class BaseActivity(private vararg val permissions: String) : AppCompatActivity() {
 
     protected val snackBar by lazy {
-        Snackbar.make(contentView ?: window.decorView, "", Snackbar.LENGTH_INDEFINITE)
+        Snackbar.make(contentView ?: window.decorView, "", Snackbar.LENGTH_LONG)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

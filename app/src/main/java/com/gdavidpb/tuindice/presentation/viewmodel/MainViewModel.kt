@@ -2,24 +2,52 @@ package com.gdavidpb.tuindice.presentation.viewmodel
 
 import androidx.annotation.IdRes
 import androidx.lifecycle.ViewModel
+import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.StartUpAction
+import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.utils.LiveCompletable
+import com.gdavidpb.tuindice.utils.LiveContinuous
 import com.gdavidpb.tuindice.utils.LiveResult
 import com.gdavidpb.tuindice.utils.execute
+import java.io.File
 
 class MainViewModel(
+        private val signOutUseCase: SignOutUseCase,
         private val startUpUseCase: StartUpUseCase,
-        private val setLastScreenUseCase: SetLastScreenUseCase
+        private val syncAccountUseCase: SyncAccountUseCase,
+        private val setLastScreenUseCase: SetLastScreenUseCase,
+        private val getQuartersUseCase: GetQuartersUseCase,
+        private val updateSubjectUseCase: UpdateSubjectUseCase,
+        private val openEnrollmentProofUseCase: OpenEnrollmentProofUseCase
 ) : ViewModel() {
-
+    val signOut = LiveCompletable()
     val fetchStartUpAction = LiveResult<StartUpAction>()
+    val account = LiveContinuous<Account>()
     val lastScreen = LiveCompletable()
+    val quarters = LiveResult<List<Quarter>>()
+    val update = LiveCompletable()
+    val enrollment = LiveResult<File>()
+
+    fun signOut() =
+            execute(useCase = signOutUseCase, params = Unit, liveData = signOut)
 
     fun fetchStartUpAction(dataString: String) =
             execute(useCase = startUpUseCase, params = dataString, liveData = fetchStartUpAction)
 
+    fun trySyncAccount() =
+            execute(useCase = syncAccountUseCase, params = Unit, liveData = account)
 
     fun setLastScreen(@IdRes navId: Int) =
             execute(useCase = setLastScreenUseCase, params = navId, liveData = lastScreen)
+
+    fun getQuarters(fromLocal: Boolean) =
+            execute(useCase = getQuartersUseCase, params = fromLocal, liveData = quarters)
+
+    fun updateSubject(subject: Subject) =
+            execute(useCase = updateSubjectUseCase, params = subject, liveData = update)
+
+    fun openEnrollmentProof() =
+            execute(useCase = openEnrollmentProofUseCase, params = Unit, liveData = enrollment)
 }

@@ -34,7 +34,7 @@ class LoginActivity : BaseActivity() {
     private val validations by lazy {
         arrayOf(
                 tInputUsbId set R.string.error_empty `when` { text().isBlank() },
-                tInputUsbId set R.string.error_usb_id `when` { !text().matches("^\\d{2}-\\d{5}$".toRegex()) },
+                tInputUsbId set R.string.error_usb_id `when` { !text().isUsbId() },
                 tInputPassword set R.string.error_empty `when` { text().isEmpty() }
         )
     }

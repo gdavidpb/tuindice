@@ -11,12 +11,10 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.presentation.model.About
 import com.gdavidpb.tuindice.presentation.model.AboutHeader
 import com.gdavidpb.tuindice.presentation.model.AboutLib
-import com.gdavidpb.tuindice.presentation.viewmodel.AboutViewModel
-import com.gdavidpb.tuindice.ui.activities.LoginActivity
+import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.utils.*
 import kotlinx.android.synthetic.main.fragment_about.*
@@ -25,12 +23,11 @@ import org.jetbrains.anko.email
 import org.jetbrains.anko.share
 import org.jetbrains.anko.support.v4.alert
 import org.jetbrains.anko.support.v4.selector
-import org.jetbrains.anko.support.v4.startActivity
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 open class AboutFragment : Fragment() {
 
-    private val viewModel by viewModel<AboutViewModel>()
+    private val viewModel by sharedViewModel<MainViewModel>()
 
     private val cachedColors by lazy {
         listOf(
@@ -49,10 +46,6 @@ open class AboutFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setHasOptionsMenu(false)
-
-        with(viewModel) {
-            observe(signOut, ::signOutObserver)
-        }
 
         val context = requireContext()
 
@@ -90,15 +83,6 @@ open class AboutFragment : Fragment() {
         )
 
         adapter.swapItems(new = data)
-    }
-
-    private fun signOutObserver(result: Completable?) {
-        when (result) {
-            is Completable.OnComplete -> {
-                startActivity<LoginActivity>()
-                requireActivity().finish()
-            }
-        }
     }
 
     private fun startPlayStore() {

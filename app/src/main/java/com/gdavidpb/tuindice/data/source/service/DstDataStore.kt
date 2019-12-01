@@ -8,7 +8,10 @@ import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.toAuthResponse
+import com.gdavidpb.tuindice.utils.toEnrollment
+import com.gdavidpb.tuindice.utils.toPersonalData
+import com.gdavidpb.tuindice.utils.toRecord
 import okhttp3.ResponseBody
 
 open class DstDataStore(
@@ -17,21 +20,21 @@ open class DstDataStore(
         private val enrollmentService: DstEnrollmentService
 ) : DstRepository {
     override suspend fun getPersonalData(): DstPersonal? {
-        return recordService.getPersonalData().await()?.toPersonalData()
+        return recordService.getPersonalData().body()?.toPersonalData()
     }
 
     override suspend fun getRecordData(): DstRecord? {
-        return recordService.getRecordData().await()?.toRecord()
+        return recordService.getRecordData().body()?.toRecord()
     }
 
     override suspend fun getEnrollment(): DstEnrollment? {
         return runCatching {
-            enrollmentService.getEnrollment().await()
+            enrollmentService.getEnrollment().body()
         }.getOrNull()?.toEnrollment()
     }
 
     override suspend fun getEnrollmentProof(): ResponseBody? {
-        return enrollmentService.getEnrollmentProof().await()?.let {
+        return enrollmentService.getEnrollmentProof().body()?.let {
             val isValid = "${it.contentType()}" == "application/pdf"
 
             if (isValid) it else null
@@ -39,7 +42,7 @@ open class DstDataStore(
     }
 
     override suspend fun auth(request: AuthRequest): AuthResponse? {
-        return authService.auth(request.serviceUrl, request.usbId, request.password).await()?.let {
+        return authService.auth(request.serviceUrl, request.usbId, request.password).body()?.let {
             val authResponse = it.toAuthResponse()
 
             when (authResponse.code) {

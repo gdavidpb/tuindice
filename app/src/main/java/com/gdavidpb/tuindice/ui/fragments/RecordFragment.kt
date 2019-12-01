@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
-import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.utils.*
 import com.google.android.material.snackbar.Snackbar
@@ -19,12 +19,12 @@ import kotlinx.android.synthetic.main.fragment_record.*
 import org.jetbrains.anko.design.longSnackbar
 import org.jetbrains.anko.support.v4.indeterminateProgressDialog
 import org.jetbrains.anko.support.v4.longToast
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.io.File
 
 open class RecordFragment : Fragment() {
 
-    private val viewModel by viewModel<RecordViewModel>()
+    private val viewModel by sharedViewModel<MainViewModel>()
 
     private val quarterManager = QuarterManager()
 
@@ -90,9 +90,7 @@ open class RecordFragment : Fragment() {
             observe(quarters, ::quartersObserver)
             observe(enrollment, ::enrollmentObserver)
 
-            getQuarters()
-
-            loadAccount(trySync = false)
+            getQuarters(fromLocal = true)
         }
     }
 
