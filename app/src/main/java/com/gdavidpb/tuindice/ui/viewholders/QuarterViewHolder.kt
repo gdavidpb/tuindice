@@ -5,12 +5,11 @@ import android.view.View
 import android.view.ViewGroup
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.*
-import com.gdavidpb.tuindice.utils.extensions.computeCredits
-import com.gdavidpb.tuindice.utils.extensions.computeGrade
-import com.gdavidpb.tuindice.utils.extensions.onSeekBarChange
+import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.item_quarter.view.*
 import kotlinx.android.synthetic.main.item_subject.view.*
 import org.jetbrains.anko.backgroundColor
@@ -47,55 +46,62 @@ open class QuarterViewHolder(
         }
     }
 
-    private fun bindViewSubjects(item: Quarter, container: ViewGroup) {
-        item.subjects.forEachIndexed { index, subject ->
-            val child = container.getChildAt(index)
+    private fun bindViewSubjects(quarter: Quarter, container: ViewGroup) {
+        val hasGradeBar = quarter.status == STATUS_QUARTER_CURRENT || quarter.status == STATUS_QUARTER_GUESS
 
-            with(child) {
-                tViewSubjectName.text = subject.name
+        quarter.subjects.forEachIndexed { index, subject ->
+            with(receiver = container.getChildAt(index)) {
+                setSubjectData(subject)
+                setGradeBar(subject, quarter, hasGradeBar, index)
+            }
+        }
+    }
 
-                tViewSubjectCode.text = subject.toSubjectCode(context)
-                tViewSubjectGrade.text = subject.toSubjectGrade(container.context)
-                tViewSubjectCredits.text = subject.toSubjectCredits(container.context)
+    private fun View.setSubjectData(subject: Subject) {
+        tViewSubjectName.text = subject.name
 
-                sBarGrade.progress = subject.grade
+        tViewSubjectCode.text = subject.toSubjectCode(context)
+        tViewSubjectGrade.text = subject.toSubjectGrade(context)
+        tViewSubjectCredits.text = subject.toSubjectCredits(context)
 
-                if (item.status == STATUS_QUARTER_COMPLETED || item.status == STATUS_QUARTER_RETIRED) {
-                    sBarGrade.setOnSeekBarChangeListener(null)
+        sBarGrade.progress = subject.grade
+    }
 
-                    sBarGrade.visibility = View.GONE
-                } else {
-                    sBarGrade.onSeekBarChange { progress, fromUser ->
-                        if (fromUser) {
-                            /* Create a updated subject */
-                            val updatedSubject = subject.copy(
-                                    grade = progress,
-                                    status = when {
-                                        progress == 0 && subject.status != STATUS_SUBJECT_GAVE_UP -> STATUS_SUBJECT_RETIRED
-                                        subject.status == STATUS_SUBJECT_RETIRED -> STATUS_SUBJECT_OK
-                                        else -> subject.status
-                                    }
-                            )
+    private fun View.setGradeBar(subject: Subject, quarter: Quarter, hasGradeBar: Boolean, index: Int) {
+        if (!hasGradeBar) {
+            sBarGrade.visibility = View.GONE
 
-                            /* Set updated subject to list */
-                            item.subjects[index] = updatedSubject
+            sBarGrade.setOnSeekBarChangeListener(null)
+        } else {
+            sBarGrade.visibility = View.VISIBLE
 
-                            /* Compute quarter grade sum */
-                            computeGradeSum(quarter = item)
+            sBarGrade.onSeekBarChange { progress, fromUser ->
+                if (fromUser) {
+                    /* Create a updated subject */
+                    val updatedSubject = subject.copy(
+                            grade = progress,
+                            status = when {
+                                progress == 0 && subject.status != STATUS_SUBJECT_GAVE_UP -> STATUS_SUBJECT_RETIRED
+                                subject.status == STATUS_SUBJECT_RETIRED -> STATUS_SUBJECT_OK
+                                else -> subject.status
+                            }
+                    )
 
-                            /* Notify subject changed */
-                            manager.onSubjectChanged(updatedSubject)
-                        }
-                    }
+                    /* Set updated subject to list */
+                    quarter.subjects[index] = updatedSubject
 
-                    sBarGrade.visibility = View.VISIBLE
+                    /* Compute quarter grade sum */
+                    computeGradeSum(quarter = quarter)
+
+                    /* Notify subject changed */
+                    manager.onSubjectChanged(updatedSubject)
                 }
             }
         }
     }
 
-    private fun adjustViews(item: Quarter, container: ViewGroup) {
-        val size = item.subjects.size
+    private fun adjustViews(quarter: Quarter, container: ViewGroup) {
+        val size = quarter.subjects.size
 
         /* Add views */
         while (container.childCount < size)

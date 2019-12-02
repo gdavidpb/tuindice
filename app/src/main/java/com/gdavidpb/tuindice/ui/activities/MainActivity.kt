@@ -50,6 +50,8 @@ class MainActivity : BaseActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             resetLiveData(destination.id)
 
+            supportActionBar?.title = destination.label
+
             viewModel.setLastScreen(navId = destination.id)
         }
     }

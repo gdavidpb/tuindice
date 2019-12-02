@@ -4,6 +4,8 @@ apply plugin: "kotlin-android"
 
 apply plugin: "kotlin-android-extensions"
 
+apply plugin: "androidx.navigation.safeargs.kotlin"
+
 apply plugin: "kotlin-kapt"
 
 apply plugin: 'io.fabric'
@@ -36,6 +38,7 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
+            manifestPlaceholders = [enableCrashReporting: "false"]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
 
             buildConfigField "String", "URL_APP_BASE", '"tuindice-usb.firebaseapp.com"'
@@ -54,6 +57,7 @@ android {
         }
         release {
             minifyEnabled true
+            manifestPlaceholders = [enableCrashReporting: "true"]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
 
             buildConfigField "String", "URL_APP_BASE", '"tuindice-usb.firebaseapp.com"'
