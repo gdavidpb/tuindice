@@ -17,6 +17,10 @@ fun RequestBody?.bodyToString(): String {
     return string
 }
 
+fun String.removeSensitiveData() = replace("\\s{2,}".toRegex(), "")
+        /* Remove USBId and password */
+        .replace("(username|password)=[^&]+&", "")
+
 fun X509Certificate.getProperty(key: String) = "(?<=$key=)[^,]+|$".toRegex().find(subjectDN.name)?.value
 
 infix fun Int.negRem(value: Int) = (this % value) + if (this >= 0) 0 else value

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.di.modules
 
 import android.content.Context
 import android.net.ConnectivityManager
+import com.crashlytics.android.Crashlytics
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
@@ -15,6 +16,7 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
 import com.gdavidpb.tuindice.utils.extensions.getProperty
+import com.gdavidpb.tuindice.utils.extensions.removeSensitiveData
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -116,6 +118,20 @@ val appModule = module {
         sslContext
     }
 
+    single {
+        val logger = if (BuildConfig.DEBUG) {
+            HttpLoggingInterceptor.Logger.DEFAULT
+        } else {
+            object : HttpLoggingInterceptor.Logger {
+                override fun log(message: String) {
+                    Crashlytics.log(message.removeSensitiveData())
+                }
+            }
+        }
+
+        HttpLoggingInterceptor(logger).apply { level = HttpLoggingInterceptor.Level.BODY }
+    }
+
     single<DstHostNameVerifier>()
 
     single<DstCookieJar>()
@@ -130,7 +146,7 @@ val appModule = module {
                 .writeTimeout(1, TimeUnit.MINUTES)
                 .hostnameVerifier(get<DstHostNameVerifier>())
                 .cookieJar(get<DstCookieJar>())
-                .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
+                .addInterceptor(get<HttpLoggingInterceptor>())
                 .followSslRedirects(true)
                 .sslSocketFactory(get<SSLContext>().socketFactory, get())
     }
