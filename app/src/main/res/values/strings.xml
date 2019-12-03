@@ -174,55 +174,6 @@
     <string name="message_flipper_2">Una nueva forma…</string>
     <string name="message_flipper_3">…de administrar tus notas</string>
 
-    <!-- DemoActivity -->
-    <string name="demo_welcome">¡Bienvenido!</string>
-    <string name="demo_finish">¡Ayúdanos a mejorar!</string>
-
-    <string-array name="demo_messages">
-        <item>Así lucen los trimestres <b>terminados</b>…</item>
-        <item>Los trimestres <b>retirados</b>…</item>
-        <item>Y así el trimestre en <b>curso</b>…</item>
-        <item><b>Δx</b> índice del trimestre en curso</item>
-        <item><b>∑x</b> índice acumulado hasta el momento</item>
-        <item><b>⦿</b> total créditos inscritos</item>
-        <item>Arrastra para <b>modificar</b> las notas de las materias en curso</item>
-        <item>Puedes <b>retirar</b> una materia moviendo la barra de notas hasta el inicio</item>
-        <item>El índice acumulado en <b>rojo</b> indica que estás por debajo de 3.0000</item>
-        <item>Los créditos en <b>rojo</b> indican que estás por debajo del límite válido</item>
-        <item>
-            Si encuentras un error puedes reportarlo usando la opción <b>Reportar un error</b>
-            disponible en el menú lateral.
-        </item>
-    </string-array>
-
-    <string-array name="demo_keys">
-        <item>terminados</item>
-        <item>retirados</item>
-        <item>curso</item>
-        <item>Δx</item>
-        <item>∑x</item>
-        <item>⦿</item>
-        <item>modificar</item>
-        <item>retirar</item>
-        <item>rojo</item>
-        <item>rojo</item>
-        <item>reportar un error</item>
-    </string-array>
-
-    <integer-array name="demo_colors">
-        <item>@color/quarter_completed</item>
-        <item>@color/quarter_retired</item>
-        <item>@color/quarter_current</item>
-        <item>@color/quarter_current</item>
-        <item>@color/quarter_current</item>
-        <item>@color/quarter_current</item>
-        <item>@color/quarter_current</item>
-        <item>@color/quarter_current</item>
-        <item>@color/color_warning</item>
-        <item>@color/color_warning</item>
-        <item>@color/color_accent</item>
-    </integer-array>
-
     <!-- AboutFragment -->
 
     <string name="about_version">

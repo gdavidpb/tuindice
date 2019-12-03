@@ -31,14 +31,14 @@ open class AboutAdapter(
             VIEW_TYPE_ABOUT -> LayoutInflater.from(parent.context).inflate(R.layout.item_about, parent, false)
             VIEW_TYPE_ABOUT_LIB -> LayoutInflater.from(parent.context).inflate(R.layout.item_about, parent, false)
             VIEW_TYPE_ABOUT_HEADER -> LayoutInflater.from(parent.context).inflate(R.layout.item_about_header, parent, false)
-            else -> throw IllegalArgumentException("viewType")
+            else -> throw IllegalArgumentException("viewType: '$viewType'")
         }
 
         return when (viewType) {
             VIEW_TYPE_ABOUT -> AboutViewHolder(itemView, manager)
             VIEW_TYPE_ABOUT_LIB -> AboutLibViewHolder(itemView, manager)
             VIEW_TYPE_ABOUT_HEADER -> AboutHeaderViewHolder(itemView)
-            else -> throw IllegalArgumentException("viewType")
+            else -> throw IllegalArgumentException("viewType: '$viewType'")
         }
     }
 
@@ -46,6 +46,6 @@ open class AboutAdapter(
         is About -> VIEW_TYPE_ABOUT
         is AboutLib -> VIEW_TYPE_ABOUT_LIB
         is AboutHeader -> VIEW_TYPE_ABOUT_HEADER
-        else -> throw IllegalArgumentException("viewType")
+        else -> throw IllegalArgumentException("viewType: '${items[position]}'")
     }
 }

@@ -1,9 +1,12 @@
 package com.gdavidpb.tuindice.utils.extensions
 
+import android.util.Base64
 import com.gdavidpb.tuindice.BuildConfig
 import okhttp3.RequestBody
 import okio.Buffer
+import java.io.ByteArrayInputStream
 import java.security.cert.X509Certificate
+import java.util.zip.DeflaterInputStream
 
 fun RequestBody?.bodyToString(): String {
     if (this == null) return ""
@@ -17,9 +20,16 @@ fun RequestBody?.bodyToString(): String {
     return string
 }
 
-fun String.removeSensitiveData() = replace("\\s{2,}".toRegex(), "")
-        /* Remove USBId and password */
-        .replace("(username|password)=[^&]+&", "")
+fun String.deflate(): String = toByteArray()
+        .let(::ByteArrayInputStream)
+        .let(::DeflaterInputStream)
+        .run { readBytes().also { close() } }
+        .let { bytes -> Base64.encodeToString(bytes, Base64.DEFAULT) }
+
+fun String.noSensitiveData(): String = replace("(username|password)=[^&]+&".toRegex(), "")
+        .run { if (isHtml()) deflate() else this }
+
+fun String.isHtml() = contains("<[^>]*>".toRegex())
 
 fun X509Certificate.getProperty(key: String) = "(?<=$key=)[^,]+|$".toRegex().find(subjectDN.name)?.value
 

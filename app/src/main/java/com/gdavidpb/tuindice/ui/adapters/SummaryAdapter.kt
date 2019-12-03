@@ -53,7 +53,7 @@ open class SummaryAdapter(
             VIEW_TYPE_SUMMARY_HEADER -> R.layout.item_summary_header
             VIEW_TYPE_SUMMARY_SUBJECTS -> R.layout.item_summary_subjects
             VIEW_TYPE_SUMMARY_CREDITS -> R.layout.item_summary_credits
-            else -> throw IllegalStateException()
+            else -> throw IllegalArgumentException("viewType: '$viewType'")
         }
 
         val itemView = LayoutInflater.from(parent.context).inflate(layout, parent, false)
@@ -62,7 +62,7 @@ open class SummaryAdapter(
             VIEW_TYPE_SUMMARY_HEADER -> SummaryHeaderViewHolder(itemView, manager)
             VIEW_TYPE_SUMMARY_SUBJECTS -> SummarySubjectsViewHolder(itemView)
             VIEW_TYPE_SUMMARY_CREDITS -> SummaryCreditsViewHolder(itemView)
-            else -> throw IllegalStateException()
+            else -> throw IllegalArgumentException("viewType: '$viewType'")
         }
     }
 
@@ -87,7 +87,7 @@ open class SummaryAdapter(
             0 -> VIEW_TYPE_SUMMARY_HEADER
             1 -> VIEW_TYPE_SUMMARY_SUBJECTS
             2 -> VIEW_TYPE_SUMMARY_CREDITS
-            else -> throw IllegalStateException()
+            else -> throw  IllegalArgumentException("position: '$position'")
         }
     }
 }

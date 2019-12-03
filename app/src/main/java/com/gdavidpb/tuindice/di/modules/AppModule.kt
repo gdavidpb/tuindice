@@ -15,8 +15,9 @@ import com.gdavidpb.tuindice.data.source.token.TokenDataStore
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
+import com.gdavidpb.tuindice.utils.TIME_OUT_CONNECTION
 import com.gdavidpb.tuindice.utils.extensions.getProperty
-import com.gdavidpb.tuindice.utils.extensions.removeSensitiveData
+import com.gdavidpb.tuindice.utils.extensions.noSensitiveData
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -124,7 +125,7 @@ val appModule = module {
         } else {
             object : HttpLoggingInterceptor.Logger {
                 override fun log(message: String) {
-                    Crashlytics.log(message.removeSensitiveData())
+                    Crashlytics.log(message.noSensitiveData())
                 }
             }
         }
@@ -140,10 +141,10 @@ val appModule = module {
 
     factory {
         OkHttpClient.Builder()
-                .callTimeout(1, TimeUnit.MINUTES)
-                .connectTimeout(1, TimeUnit.MINUTES)
-                .readTimeout(1, TimeUnit.MINUTES)
-                .writeTimeout(1, TimeUnit.MINUTES)
+                .callTimeout(TIME_OUT_CONNECTION, TimeUnit.MILLISECONDS)
+                .connectTimeout(TIME_OUT_CONNECTION, TimeUnit.MILLISECONDS)
+                .readTimeout(TIME_OUT_CONNECTION, TimeUnit.MILLISECONDS)
+                .writeTimeout(TIME_OUT_CONNECTION, TimeUnit.MILLISECONDS)
                 .hostnameVerifier(get<DstHostNameVerifier>())
                 .cookieJar(get<DstCookieJar>())
                 .addInterceptor(get<HttpLoggingInterceptor>())

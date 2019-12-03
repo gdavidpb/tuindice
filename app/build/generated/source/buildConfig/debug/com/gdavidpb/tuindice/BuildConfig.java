@@ -8,8 +8,8 @@ public final class BuildConfig {
   public static final String APPLICATION_ID = "com.gdavidpb.tuindice";
   public static final String BUILD_TYPE = "debug";
   public static final String FLAVOR = "";
-  public static final int VERSION_CODE = 12;
-  public static final String VERSION_NAME = "1.4";
+  public static final int VERSION_CODE = 14;
+  public static final String VERSION_NAME = "1.6";
   // Fields from build type: debug
   public static final String ENDPOINT_DST_ENROLLMENT = "http://comprobante.dii.usb.ve/nuevoComprobante/";
   public static final String ENDPOINT_DST_ENROLLMENT_AUTH = "http://comprobante.dii.usb.ve/nuevoComprobante/CAS/login.do";

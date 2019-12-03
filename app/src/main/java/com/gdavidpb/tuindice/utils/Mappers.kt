@@ -167,7 +167,7 @@ fun Int.toSubjectStatusDescription() = when (this) {
     STATUS_SUBJECT_RETIRED -> "Retirada"
     STATUS_SUBJECT_GAVE_UP -> "Retirada"
     STATUS_SUBJECT_NO_EFFECT -> "Sin efecto"
-    else -> throw IllegalArgumentException("status")
+    else -> throw IllegalArgumentException("status: '$this'")
 }
 
 fun String.toSubjectStatusValue() = when (this) {
@@ -175,7 +175,7 @@ fun String.toSubjectStatusValue() = when (this) {
     "Retirada" -> STATUS_SUBJECT_RETIRED
     "RETIRADA" -> STATUS_SUBJECT_GAVE_UP
     "Sin Efecto" -> STATUS_SUBJECT_NO_EFFECT
-    else -> throw IllegalArgumentException("status")
+    else -> throw IllegalArgumentException("status: '$this'")
 }
 
 fun DstEnrollment.toQuarterEntity(uid: String) = QuarterEntity(
