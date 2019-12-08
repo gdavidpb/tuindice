@@ -28,7 +28,7 @@ fun Long.toCountdown(): String {
     return "%02d:%02d".format(min, sec)
 }
 
-fun Double.toGrade() = floor(this * 10000) / 10000
+fun Double.toGrade() = floor(this * 100000) / 100000
 
 fun Double.formatGrade() = "%.4f".format(this)
 
@@ -58,3 +58,5 @@ fun String.toShortName(): String {
         joinToString(" ") { array[it] }
     }
 }
+
+fun String.trimAll() = replace("\\s+", "")

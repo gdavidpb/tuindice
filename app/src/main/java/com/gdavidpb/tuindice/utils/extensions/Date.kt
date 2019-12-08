@@ -49,28 +49,6 @@ fun Calendar.precision(vararg fields: Int): Calendar {
     }
 }
 
-fun Calendar.containsInMonth(value: Calendar): Boolean {
-    val start = Calendar.getInstance().let {
-        it.time = this.time
-
-        precision(Calendar.DAY_OF_MONTH)
-
-        set(Calendar.DAY_OF_MONTH, 1)
-
-        Date(it.timeInMillis)
-    }
-
-    val end = Calendar.getInstance().let {
-        it.time = start
-
-        it.add(Calendar.MONTH, 1)
-
-        Date(it.timeInMillis)
-    }
-
-    return (start..end).contains(value.time)
-}
-
 fun Date.tomorrow(): Date {
     return Calendar.getInstance().let {
         it.time = this
