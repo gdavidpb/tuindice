@@ -4,9 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.presentation.model.SummaryBase
-import com.gdavidpb.tuindice.presentation.model.SummaryCredits
 import com.gdavidpb.tuindice.presentation.model.SummaryHeader
-import com.gdavidpb.tuindice.presentation.model.SummarySubjects
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.ui.adapters.base.BaseAdapter
 import com.gdavidpb.tuindice.ui.viewholders.SummaryCreditsViewHolder
@@ -24,28 +22,11 @@ open class SummaryAdapter(
         fun provideImageLoader(provider: (picasso: Picasso) -> Unit)
     }
 
-    override fun provideComparator() = Comparator<SummaryBase> { o1, o2 ->
-        if (o1::class == o2::class)
-            when (o1) {
-                is SummaryHeader -> {
-                    o2 as SummaryHeader
-
-                    o1.uid.compareTo(o2.uid)
-                }
-                is SummarySubjects -> {
-                    o2 as SummarySubjects
-
-                    if (o1 == o2) 0 else -1
-                }
-                is SummaryCredits -> {
-                    o2 as SummaryCredits
-
-                    if (o1 == o2) 0 else -1
-                }
-                else -> -1
-            }
-        else
-            -1
+    override fun provideComparator() = Comparator<SummaryBase> { a, b ->
+        when (a) {
+            is SummaryHeader -> a.compareTo(b) { x, y -> x.uid == y.uid }
+            else -> a.compareTo(b) { x, y -> x == y }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<SummaryBase> {

@@ -51,6 +51,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder<T>>() {
             notifyItemChanged(position)
     }
 
+    inline fun <reified Q : T> Q.compareTo(b: Any, comparator: (a: Q, b: Q) -> Boolean): Int {
+        return if (b is Q && comparator(this, b)) 0 else -1
+    }
+
     private inner class GenericDiffUtil(
             private val old: List<T>,
             private val new: List<T>,
