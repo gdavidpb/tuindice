@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.extensions.release
+import com.gdavidpb.tuindice.utils.extensions.toggle
 import com.gdavidpb.tuindice.utils.toDstCredentials
 import com.gdavidpb.tuindice.utils.toUsbEmail
 import com.google.firebase.auth.FirebaseAuthException
@@ -63,7 +63,9 @@ open class SignInUseCase(
     }
 
     private suspend fun storeAccount(auth: Auth, request: AuthRequest, response: AuthResponse) {
-        release { Crashlytics.setUserIdentifier(auth.uid) }
+        toggle(
+                release = { Crashlytics.setUserIdentifier(auth.uid) }
+        )
 
         val authData = DstAuth(
                 usbId = request.usbId,

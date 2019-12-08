@@ -22,7 +22,10 @@ abstract class ResultUseCase<Q, T>(
             }.onSuccess { response ->
                 liveData.postSuccess(response)
             }.onFailure { throwable ->
-                release { Crashlytics.logException(throwable) }
+                toggle(
+                        release = { Crashlytics.logException(throwable) },
+                        debug = { throwable.printStackTrace() }
+                )
 
                 when (throwable) {
                     is CancellationException -> liveData.postCancel()

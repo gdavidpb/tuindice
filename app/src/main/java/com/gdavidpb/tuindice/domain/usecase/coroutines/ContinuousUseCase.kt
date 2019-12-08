@@ -23,7 +23,10 @@ abstract class ContinuousUseCase<T, Q>(
             runCatching {
                 withContext(backgroundContext) { executeOnBackground(params, liveData) }
             }.onFailure { throwable ->
-                release { Crashlytics.logException(throwable) }
+                toggle(
+                        release = { Crashlytics.logException(throwable) },
+                        debug = { throwable.printStackTrace() }
+                )
 
                 when (throwable) {
                     is CancellationException -> liveData.postCancel()

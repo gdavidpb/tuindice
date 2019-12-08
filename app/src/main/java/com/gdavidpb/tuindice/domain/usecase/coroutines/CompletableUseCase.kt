@@ -22,7 +22,10 @@ abstract class CompletableUseCase<Q>(
             }.onSuccess {
                 liveData.postComplete()
             }.onFailure { throwable ->
-                release { Crashlytics.logException(throwable) }
+                toggle(
+                        release = { Crashlytics.logException(throwable) },
+                        debug = { throwable.printStackTrace() }
+                )
 
                 when (throwable) {
                     is CancellationException -> liveData.postCancel()
