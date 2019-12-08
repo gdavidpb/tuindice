@@ -22,13 +22,13 @@ fun ValueAnimator.animate(
         override fun onAnimationEnd(animation: Animator) {
             animation.removeAllListeners()
 
-            finish(false)
+            runCatching { finish(false) }
         }
 
         override fun onAnimationCancel(animation: Animator) {
             animation.removeAllListeners()
 
-            finish(true)
+            runCatching { finish(true) }
         }
     })
 
