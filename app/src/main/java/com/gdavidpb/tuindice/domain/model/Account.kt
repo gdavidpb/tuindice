@@ -23,5 +23,6 @@ data class Account(
         val retiredCredits: Int = 0,
         val failedSubjects: Int = 0,
         val failedCredits: Int = 0,
-        val lastUpdate: Date = Date()
+        val lastUpdate: Date = Date(),
+        val appVersionCode: Int = 0
 )

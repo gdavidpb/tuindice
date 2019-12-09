@@ -9,17 +9,15 @@ import kotlinx.coroutines.Dispatchers
 open class GetQuartersUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
-) : ResultUseCase<Boolean, List<Quarter>>(
+) : ResultUseCase<Unit, List<Quarter>>(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
 ) {
-    override suspend fun executeOnBackground(params: Boolean): List<Quarter>? {
+    override suspend fun executeOnBackground(params: Unit): List<Quarter>? {
         val activeAuth = authRepository.getActiveAuth() ?: return null
 
-        /* params -> fromLocal */
-        return if (params)
-            databaseRepository.localTransaction { getQuarters(uid = activeAuth.uid) }
-        else
-            databaseRepository.remoteTransaction { getQuarters(uid = activeAuth.uid) }
+        return databaseRepository.localTransaction {
+            getQuarters(uid = activeAuth.uid)
+        }
     }
 }

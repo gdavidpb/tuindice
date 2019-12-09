@@ -8,7 +8,7 @@ import pl.droidsonroids.jspoon.annotation.Selector
 open class DstPersonalDataConverter : ElementConverter<DstPersonal> {
     override fun convert(node: Element, selector: Selector): DstPersonal {
         return node.select("td td").run {
-            val (careerCode, careerName) = get(4).text().split(" - ")
+            val (careerCode, careerName) = get(4).text().split("\\s*-\\s*".toRegex())
 
             DstPersonal(
                     usbId = get(0).text(),

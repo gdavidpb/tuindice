@@ -8,17 +8,23 @@ import pl.droidsonroids.jspoon.annotation.Selector
 
 open class DstScheduleConverter : ElementConverter<List<DstScheduledSubject>> {
     override fun convert(node: Element, selector: Selector): List<DstScheduledSubject> {
+        val subjectStartRegex = "^[A-Z0-9]+\\s*\\[\\+]$".toRegex()
+        val subjectEndRegex = "^\\[[A-Z0-9]+]\\s*[^$]+$".toRegex()
+
         return node
                 .select("td")
                 .fold(mutableListOf<MutableList<String>>()) { acc, element ->
-                    val x = element.text()
+                    val text = element.text()
 
-                    val start = x.matches("^[A-Z0-9]+ \\[\\+]$".toRegex())
+                    val isCarryingOut = acc.isNotEmpty()
 
-                    if (acc.isEmpty() || start)
-                        acc.add(mutableListOf(x))
-                    else
-                        acc.last().add(x)
+                    val isSubjectStart = text.matches(subjectStartRegex)
+                    val isSubjectEnd = text.matches(subjectEndRegex)
+
+                    when {
+                        isSubjectStart -> acc.add(mutableListOf(text))
+                        isSubjectEnd || isCarryingOut -> acc.last().add(text)
+                    }
 
                     acc
                 }.map { list ->
@@ -35,36 +41,13 @@ open class DstScheduleConverter : ElementConverter<List<DstScheduledSubject>> {
 
                     val credits = list[2].toIntOrNull() ?: 0
 
-                    val status = list[list.size - 2]
+                    val hasStatus = (list.size > 4)
 
-                    val schedule = list
-                            .slice(3 until list.size - 1)
-                            .chunked(7)
-                            .flatMap {
-                                val classroom = it.first()
+                    val status = if (hasStatus) list[list.size - 2] else ""
 
-                                it.slice(1 until it.size).mapIndexedNotNull { index, s ->
-                                    val dayOfWeek = index + 2
+                    val isScheduleOk = hasStatus && status.isEmpty()
 
-                                    val (startAt, endAt) = when {
-                                        s.isBlank() -> listOf(0, 0)
-                                        s.contains("-") -> s.split("-").map { x ->
-                                            x.toIntOrNull() ?: 0
-                                        }
-                                        else -> listOf(s.toIntOrNull() ?: 0, s.toIntOrNull() ?: 0)
-                                    }
-
-                                    if (startAt != 0 && endAt != 0)
-                                        DstScheduleEntry(
-                                                dayOfWeek = dayOfWeek,
-                                                startAt = startAt,
-                                                endAt = endAt,
-                                                classroom = classroom
-                                        )
-                                    else
-                                        null
-                                }
-                            }
+                    val schedule = if (isScheduleOk) list.parseSchedule() else listOf()
 
                     DstScheduledSubject(
                             code = code,
@@ -74,6 +57,36 @@ open class DstScheduleConverter : ElementConverter<List<DstScheduledSubject>> {
                             status = status,
                             schedule = schedule
                     )
+                }
+    }
+
+    private fun List<String>.parseSchedule(): List<DstScheduleEntry> {
+        return slice(3 until size - 1)
+                .chunked(7)
+                .flatMap {
+                    val classroom = it.first()
+
+                    it.slice(1 until it.size).mapIndexedNotNull { index, s ->
+                        val dayOfWeek = index + 2
+
+                        val (startAt, endAt) = when {
+                            s.isBlank() -> listOf(0, 0)
+                            s.contains("-") -> s.split("-").map { x ->
+                                x.toIntOrNull() ?: 0
+                            }
+                            else -> listOf(s.toIntOrNull() ?: 0, s.toIntOrNull() ?: 0)
+                        }
+
+                        if (startAt != 0 && endAt != 0)
+                            DstScheduleEntry(
+                                    dayOfWeek = dayOfWeek,
+                                    startAt = startAt,
+                                    endAt = endAt,
+                                    classroom = classroom
+                            )
+                        else
+                            null
+                    }
                 }
     }
 }

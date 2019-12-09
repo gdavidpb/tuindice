@@ -25,10 +25,7 @@ import com.gdavidpb.tuindice.presentation.model.CustomTypefaceSpan
 import com.gdavidpb.tuindice.presentation.model.SummaryCredits
 import com.gdavidpb.tuindice.presentation.model.SummaryHeader
 import com.gdavidpb.tuindice.presentation.model.SummarySubjects
-import com.gdavidpb.tuindice.utils.extensions.computeCredits
-import com.gdavidpb.tuindice.utils.extensions.format
-import com.gdavidpb.tuindice.utils.extensions.getCompatColor
-import com.gdavidpb.tuindice.utils.extensions.toShortName
+import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
@@ -136,7 +133,8 @@ fun DocumentSnapshot.toAccount() = Account(
         retiredCredits = getLong(FIELD_USER_RETIRED_CREDITS)?.toInt() ?: 0,
         failedSubjects = getLong(FIELD_USER_FAILED_SUBJECTS)?.toInt() ?: 0,
         failedCredits = getLong(FIELD_USER_FAILED_CREDITS)?.toInt() ?: 0,
-        lastUpdate = getDate(FIELD_USER_LAST_UPDATE) ?: Date(0)
+        lastUpdate = getDate(FIELD_USER_LAST_UPDATE) ?: Date(0),
+        appVersionCode = getLong(FIELD_USER_APP_VERSION_CODE)?.toInt() ?: 0
 )
 
 fun DocumentSnapshot.toQuarter(subjects: List<Subject>) = Quarter(
@@ -163,19 +161,17 @@ fun DocumentSnapshot.toSubject() = Subject(
 /* Service layer */
 
 fun Int.toSubjectStatusDescription() = when (this) {
-    STATUS_SUBJECT_OK -> ""
     STATUS_SUBJECT_RETIRED -> "Retirada"
     STATUS_SUBJECT_GAVE_UP -> "Retirada"
     STATUS_SUBJECT_NO_EFFECT -> "Sin efecto"
-    else -> throw IllegalArgumentException("status: '$this'")
+    else -> ""
 }
 
 fun String.toSubjectStatusValue() = when (this) {
-    "" -> STATUS_SUBJECT_OK
     "Retirada" -> STATUS_SUBJECT_RETIRED
     "RETIRADA" -> STATUS_SUBJECT_GAVE_UP
     "Sin Efecto" -> STATUS_SUBJECT_NO_EFFECT
-    else -> throw IllegalArgumentException("status: '$this'")
+    else -> STATUS_SUBJECT_OK
 }
 
 fun DstEnrollment.toQuarterEntity(uid: String) = QuarterEntity(
@@ -258,12 +254,6 @@ fun DstAuthResponseSelector.toAuthResponse(): AuthResponse {
 fun DstEnrollmentDataSelector.toEnrollment(): DstEnrollment {
     val defaultDate = Date(0)
 
-    val defaultQuarterCalendar = QuarterCalendar(
-            defaultDate, defaultDate, defaultDate,
-            defaultDate, defaultDate, defaultDate,
-            defaultDate, defaultDate, defaultDate,
-            defaultDate)
-
     val schedule = schedule?.run {
         map {
             ScheduleSubject(
@@ -284,25 +274,9 @@ fun DstEnrollmentDataSelector.toEnrollment(): DstEnrollment {
         }
     }
 
-    val calendar = calendar?.run {
-        QuarterCalendar(
-                startDate ?: defaultDate,
-                endDate ?: defaultDate,
-                correctionDate ?: defaultDate,
-                giveUpDeadline ?: defaultDate,
-                degreeRequestDeadline ?: defaultDate,
-                graduationStartDate ?: defaultDate,
-                graduationEndDate ?: defaultDate,
-                documentsRequestDeadline ?: defaultDate,
-                nextEnrollmentDate ?: defaultDate,
-                minutesDeliveryDeadline ?: defaultDate
-        )
-    }
-
     return DstEnrollment(
             startDate = period?.startDate ?: defaultDate,
             endDate = period?.endDate ?: defaultDate,
-            calendar = calendar ?: defaultQuarterCalendar,
             schedule = schedule ?: listOf(),
             globalStatus = globalStatus ?: "",
             enrollmentStatus = enrollmentStatus ?: ""
@@ -346,6 +320,25 @@ fun Pair<String, String>.fromResetParam(): String {
     val data = "$first\n$second".toByteArray()
 
     return Base64.encodeToString(data, Base64.DEFAULT)
+}
+
+fun String.toStartEndDate(): List<Date> {
+    val normalizedText = "\\w+\\s*-\\s*\\w+\\s*\\d{4}".toRegex().find(this)!!.value
+
+    val year = normalizedText.substringAfterLast(" ").trimAll().toIntOrNull()
+    val months = normalizedText.substringBeforeLast(" ").trimAll()
+
+    val yearThreshold = Calendar.getInstance().run { get(Calendar.YEAR) } + 1
+
+    if (year == null || year > yearThreshold)
+        throw IllegalStateException("toStartEndDate: '$this'")
+
+    return months
+            .split("\\s*-\\s*".toRegex())
+            .mapNotNull { month -> "$month $year".parse("MMMM yyyy") }
+            .also { output ->
+                if (output.size != 2) throw IllegalStateException("toStartEndDate: '$this'")
+            }
 }
 
 fun String.toUsbEmail() = "$this@usb.ve"

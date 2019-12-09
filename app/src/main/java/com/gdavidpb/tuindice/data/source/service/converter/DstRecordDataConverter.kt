@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.domain.model.service.DstSubject
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector
 
@@ -39,23 +40,7 @@ open class DstRecordDataConverter : ElementConverter<DstRecord> {
             val selectedQuarterTable = it.select("td:not(:has(*))")
 
             /* Take quarter subjects, drop first/last and chunk */
-            val subjects = selectedQuarterTable
-                    .drop(1)
-                    .dropLast(1)
-                    .chunked(5)
-                    /* Map subjects */
-                    .map { subject ->
-                        val (code, name, credits, grade, status)
-                                = subject.map { element -> element.text() }
-
-                        DstSubject(
-                                code = code,
-                                name = name.toSubjectName(),
-                                credits = credits.toInt(),
-                                grade = grade.toIntOrNull() ?: 0,
-                                status = status
-                        )
-                    }
+            val subjects = selectedQuarterTable.parseSubjects()
 
             /* Take period (first) */
             val quarterPeriod = selectedQuarterTable.first().text()
@@ -64,17 +49,7 @@ open class DstRecordDataConverter : ElementConverter<DstRecord> {
             val quarterHistory = selectedQuarterTable.last().text()
 
             /* Parse quarter period */
-            val (startDate, endDate) = quarterPeriod.run {
-                val startDate = replace("-[^\\d]+".toRegex(), " ")
-                        .trim()
-                        .parse("MMMM yyyy")
-
-                val endDate = replace("[^-]+-".toRegex(), "")
-                        .trim()
-                        .parse("MMMM yyyy")
-
-                startDate!! to endDate!!
-            }
+            val (startDate, endDate) = quarterPeriod.toStartEndDate()
 
             val (grade, gradeSum) = "\\d\\.\\d{4}".toRegex()
                     .findAll(quarterHistory)
@@ -114,5 +89,24 @@ open class DstRecordDataConverter : ElementConverter<DstRecord> {
         )
 
         return DstRecord(stats = stats, quarters = quarters)
+    }
+
+    private fun Elements.parseSubjects(): List<DstSubject> {
+        return drop(1)
+                .dropLast(1)
+                .chunked(5)
+                /* Map subjects */
+                .map { subject ->
+                    val (code, name, credits, grade, status)
+                            = subject.map { element -> element.text() }
+
+                    DstSubject(
+                            code = code,
+                            name = name.toSubjectName(),
+                            credits = credits.toInt(),
+                            grade = grade.toIntOrNull() ?: 0,
+                            status = status
+                    )
+                }
     }
 }

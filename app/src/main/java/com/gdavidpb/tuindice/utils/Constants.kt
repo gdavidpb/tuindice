@@ -36,25 +36,7 @@ val ROMANS = hashMapOf(
         "10" to "X"
 )
 
-/*
-val QUARTER_STARTS = arrayOf(
-        Calendar.JANUARY,
-        Calendar.APRIL,
-        Calendar.JULY,
-        Calendar.SEPTEMBER)
-
-val QUARTER_ENDS = arrayOf(
-        Calendar.MARCH,
-        Calendar.JULY,
-        Calendar.AUGUST,
-        Calendar.DECEMBER
-)
-
-val QUARTER_RANGES = QUARTER_STARTS.mapIndexed { index, _ ->
-    QUARTER_STARTS[index] to QUARTER_ENDS[index]
-}
-*/
-
+/* Status */
 const val STATUS_QUARTER_CURRENT = 0
 const val STATUS_QUARTER_COMPLETED = 1
 const val STATUS_QUARTER_GUESS = 2

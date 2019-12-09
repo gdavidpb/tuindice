@@ -44,9 +44,6 @@ open class SyncAccountUseCase(
         /* Record service auth */
         collectedData.addRecordData(credentials)
 
-        /* Clear cookies */
-        localStorageRepository.delete("cookies")
-
         /* Enrollment service auth */
         collectedData.addEnrollmentData(credentials)
 
@@ -59,10 +56,7 @@ open class SyncAccountUseCase(
             /* Return updated account */
             databaseRepository.remoteTransaction {
                 updateData(uid = activeAuth.uid, data = collectedData)
-            }
 
-            /* Return updated account */
-            databaseRepository.localTransaction {
                 getAccount(uid = activeAuth.uid)
             }?.also { updatedAccount -> liveData.postAccount(updatedAccount) }
         }
@@ -75,6 +69,8 @@ open class SyncAccountUseCase(
     }
 
     private suspend fun MutableList<DstData>.addRecordData(credentials: DstCredentials) {
+        localStorageRepository.delete("cookies")
+
         val recordAuthRequest = AuthRequest(
                 usbId = credentials.usbId,
                 password = credentials.password,
@@ -90,6 +86,8 @@ open class SyncAccountUseCase(
     }
 
     private suspend fun MutableList<DstData>.addEnrollmentData(credentials: DstCredentials) {
+        localStorageRepository.delete("cookies")
+
         val enrollmentAuthRequest = AuthRequest(
                 usbId = credentials.usbId,
                 password = credentials.password,

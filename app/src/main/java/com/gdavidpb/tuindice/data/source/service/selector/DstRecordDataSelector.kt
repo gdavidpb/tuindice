@@ -5,6 +5,6 @@ import com.gdavidpb.tuindice.data.source.service.converter.DstRecordDataConverte
 import pl.droidsonroids.jspoon.annotation.Selector
 
 data class DstRecordDataSelector(
-        @Selector(".tabla", converter = DstRecordDataConverter::class)
+        @Selector(value = ".tabla", converter = DstRecordDataConverter::class)
         var selected: DstRecord? = null
 )

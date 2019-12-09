@@ -5,6 +5,6 @@ import com.gdavidpb.tuindice.data.source.service.converter.DstPersonalDataConver
 import pl.droidsonroids.jspoon.annotation.Selector
 
 data class DstPersonalDataSelector(
-        @Selector(".tablaL", converter = DstPersonalDataConverter::class)
+        @Selector(value = ".tablaL", converter = DstPersonalDataConverter::class)
         var selected: DstPersonal? = null
 )

@@ -42,8 +42,8 @@ class MainViewModel(
     fun setLastScreen(@IdRes navId: Int) =
             execute(useCase = setLastScreenUseCase, params = navId, liveData = lastScreen)
 
-    fun getQuarters(fromLocal: Boolean) =
-            execute(useCase = getQuartersUseCase, params = fromLocal, liveData = quarters)
+    fun getQuarters() =
+            execute(useCase = getQuartersUseCase, params = Unit, liveData = quarters)
 
     fun updateSubject(subject: Subject) =
             execute(useCase = updateSubjectUseCase, params = subject, liveData = update)

@@ -91,7 +91,7 @@ open class RecordFragment : Fragment() {
             observe(quarters, ::quartersObserver)
             observe(enrollment, ::enrollmentObserver)
 
-            getQuarters(fromLocal = true)
+            getQuarters()
         }
     }
 

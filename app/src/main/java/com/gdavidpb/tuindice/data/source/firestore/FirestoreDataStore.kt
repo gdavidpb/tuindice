@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.data.source.firestore
 
+import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
@@ -149,7 +150,8 @@ open class FirestoreDataStore(
                 .document(uid)
 
         val values = mapOf(
-                FIELD_USER_LAST_UPDATE to FieldValue.serverTimestamp()
+                FIELD_USER_LAST_UPDATE to FieldValue.serverTimestamp(),
+                FIELD_USER_APP_VERSION_CODE to BuildConfig.VERSION_CODE
         )
 
         set(userRef, values, SetOptions.merge())
