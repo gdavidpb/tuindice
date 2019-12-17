@@ -6,12 +6,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.utils.extensions.observe
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.android.ext.android.inject
 import android.view.*
 import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
@@ -36,26 +36,27 @@ open class SummaryFragment : Fragment() {
         rViewSummary.adapter = adapter
 
         with(viewModel) {
+            observe(sync, ::syncObserver)
             observe(account, ::accountObserver)
 
-            trySyncAccount()
+            getAccount()
         }
     }
 
-    private fun accountObserver(result: Continuous<Account>?) {
+    private fun syncObserver(result: Result<Boolean>?) {
         when (result) {
-            is Continuous.OnStart -> {
-                pBarSummary.visibility = View.VISIBLE
-            }
-            is Continuous.OnNext -> {
-                adapter.setAccount(account = result.value)
-            }
-            is Continuous.OnComplete -> {
-                pBarSummary.visibility = View.GONE
-            }
-            is Continuous.OnError -> {
-                pBarSummary.visibility = View.GONE
+            is Result.OnSuccess -> {
+                val requireUpdate = result.value
 
+                if (requireUpdate) viewModel.getAccount()
+            }
+        }
+    }
+
+    private fun accountObserver(result: Result<Account>?) {
+        when (result) {
+            is Result.OnSuccess -> {
+                adapter.setAccount(account = result.value)
             }
         }
     }

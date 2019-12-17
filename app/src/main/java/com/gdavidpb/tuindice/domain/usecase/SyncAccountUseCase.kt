@@ -1,17 +1,16 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.model.service.DstData
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.repository.*
-import com.gdavidpb.tuindice.domain.usecase.coroutines.ContinuousUseCase
+import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlin.IllegalStateException
 
 open class SyncAccountUseCase(
         private val dstRepository: DstRepository,
@@ -19,21 +18,19 @@ open class SyncAccountUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository
-) : ContinuousUseCase<Unit, Account>(
+) : ResultUseCase<Unit, Boolean>(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
 ) {
-    override suspend fun executeOnBackground(params: Unit, liveData: LiveContinuous<Account>) {
+    override suspend fun executeOnBackground(params: Unit): Boolean? {
         val activeAuth = authRepository.getActiveAuth()
-                ?: return
+                ?: throw IllegalStateException("'activeAuth' is null")
 
         val activeAccount = databaseRepository.localTransaction { getAccount(uid = activeAuth.uid) }
-                ?: return
+                ?: throw IllegalStateException("'activeAccount' is null")
 
-        /* Return local account */
-        liveData.postAccount(activeAccount)
-
-        if (activeAccount.isUpdated()) return
+        /* Check if account is up-to-date, return no update required */
+        if (activeAccount.isUpdated()) return false
 
         /* Collected data */
         val collectedData = mutableListOf<DstData>()
@@ -52,19 +49,11 @@ open class SyncAccountUseCase(
             localStorageRepository.delete("enrollments")
 
         /* If there is collected data */
-        if (collectedData.isNotEmpty()) {
-            /* Return updated account */
-            databaseRepository.remoteTransaction {
-                updateData(uid = activeAuth.uid, data = collectedData)
-
-                getAccount(uid = activeAuth.uid)
-            }?.also { updatedAccount -> liveData.postAccount(updatedAccount) }
-        }
-    }
-
-    private suspend fun LiveContinuous<Account>.postAccount(account: Account) {
-        withContext(foregroundContext) {
-            postNext(account)
+        return collectedData.isNotEmpty().also { requireUpdate ->
+            if (requireUpdate)
+                databaseRepository.remoteTransaction {
+                    updateData(uid = activeAuth.uid, data = collectedData)
+                }
         }
     }
 

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.ui.activities
 
 import android.os.Bundle
+import android.view.View
 import androidx.annotation.IdRes
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
@@ -10,6 +11,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.extensions.isGoogleServicesAvailable
 import com.gdavidpb.tuindice.utils.extensions.observe
 import com.gdavidpb.tuindice.utils.extensions.openSettings
 import kotlinx.android.synthetic.main.activity_main.*
@@ -26,7 +28,10 @@ class MainActivity : BaseActivity() {
 
         super.onCreate(savedInstanceState)
 
+        if (!isGoogleServicesAvailable(activity = this)) return
+
         with(viewModel) {
+            observe(sync, ::syncObserver)
             observe(signOut, ::signOutObserver)
             observe(fetchStartUpAction, ::startUpObserver)
 
@@ -54,6 +59,8 @@ class MainActivity : BaseActivity() {
 
             viewModel.setLastScreen(navId = destination.id)
         }
+
+        viewModel.trySyncAccount()
     }
 
     private fun resetLiveData(destination: Int) {
@@ -83,6 +90,23 @@ class MainActivity : BaseActivity() {
                 finish()
             }
         }.show()
+    }
+
+    private fun syncObserver(result: Result<Boolean>?) {
+        when (result) {
+            is Result.OnLoading -> {
+                pBarSync.visibility = View.VISIBLE
+            }
+            is Result.OnSuccess -> {
+                pBarSync.visibility = View.GONE
+            }
+            is Result.OnError -> {
+                pBarSync.visibility = View.GONE
+            }
+            is Result.OnCancel -> {
+                pBarSync.visibility = View.GONE
+            }
+        }
     }
 
     private fun signOutObserver(result: Completable?) {

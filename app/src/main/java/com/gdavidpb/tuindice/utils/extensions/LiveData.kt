@@ -51,7 +51,12 @@ fun <T> LiveContinuous<T>.postStart() = postValue(Continuous.OnStart())
 fun <T> LiveContinuous<T>.postNext(value: T) = postValue(Continuous.OnNext(value))
 
 @JvmName("postCompleteContinuous")
-fun <T> LiveContinuous<T>.postComplete() = postValue(Continuous.OnComplete())
+fun <T> LiveContinuous<T>.postComplete() {
+    val lastValue = value as? Continuous.OnNext<T>
+    val completeValue = Continuous.OnComplete(lastValue?.value)
+
+    postValue(completeValue)
+}
 
 @JvmName("postThrowableContinuous")
 fun <T> LiveContinuous<T>.postThrowable(throwable: Throwable) = postValue(Continuous.OnError(throwable))

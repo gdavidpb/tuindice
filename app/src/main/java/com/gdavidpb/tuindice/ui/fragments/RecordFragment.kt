@@ -55,10 +55,6 @@ open class RecordFragment : Fragment() {
                 .setAction(R.string.retry) { viewModel.openEnrollmentProof() }
     }
 
-    private val errorSnackBar by lazy {
-        Snackbar.make(requireView(), R.string.snack_bar_enrollment_error, Snackbar.LENGTH_LONG)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_record, container, false)
     }
@@ -88,6 +84,7 @@ open class RecordFragment : Fragment() {
         */
 
         with(viewModel) {
+            observe(sync, ::syncObserver)
             observe(quarters, ::quartersObserver)
             observe(enrollment, ::enrollmentObserver)
 
@@ -110,14 +107,19 @@ open class RecordFragment : Fragment() {
         }
     }
 
+    private fun syncObserver(result: Result<Boolean>?) {
+        when (result) {
+            is Result.OnSuccess -> {
+                val requireUpdate = result.value
+
+                if (requireUpdate) viewModel.getQuarters()
+            }
+        }
+    }
+
     private fun quartersObserver(result: Result<List<Quarter>>?) {
         when (result) {
-            is Result.OnLoading -> {
-                pBarRecord.visibility = View.VISIBLE
-            }
             is Result.OnSuccess -> {
-                pBarRecord.visibility = View.GONE
-
                 val quarters = result.value
 
                 val hasCurrentQuarter = quarters.contains { quarter ->
@@ -135,11 +137,6 @@ open class RecordFragment : Fragment() {
                     tViewRecord.visibility = View.GONE
                     rViewRecord.visibility = View.VISIBLE
                 }
-            }
-            is Result.OnError -> {
-                pBarRecord.visibility = View.GONE
-
-                errorSnackBar.show()
             }
         }
     }
