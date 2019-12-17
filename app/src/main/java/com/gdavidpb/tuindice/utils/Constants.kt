@@ -36,6 +36,9 @@ val ROMANS = hashMapOf(
         "10" to "X"
 )
 
+/* Google */
+const val PLAY_SERVICES_RESOLUTION_REQUEST = 2404
+
 /* Status */
 const val STATUS_QUARTER_CURRENT = 0
 const val STATUS_QUARTER_COMPLETED = 1
