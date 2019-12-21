@@ -92,7 +92,7 @@ dependencies {
     implementation "androidx.browser:browser:1.0.0"
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation "androidx.vectordrawable:vectordrawable-animated:1.1.0"
-    implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta3"
+    implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta4"
     implementation "com.google.android.material:material:1.2.0-alpha02"
 
     /* Kotlin */
@@ -107,10 +107,10 @@ dependencies {
     /* Firebase */
     implementation "com.google.firebase:firebase-core:17.2.1"
     implementation "com.google.firebase:firebase-auth:19.2.0"
-    implementation "com.google.firebase:firebase-firestore:21.3.0"
+    implementation "com.google.firebase:firebase-firestore:21.3.1"
     implementation "com.google.firebase:firebase-dynamic-links:19.0.0"
     implementation "com.google.firebase:firebase-functions:19.0.1"
-    implementation "com.google.firebase:firebase-messaging:20.0.1"
+    implementation "com.google.firebase:firebase-messaging:20.1.0"
     implementation "com.google.firebase:firebase-storage:19.1.0"
     implementation "com.google.firebase:firebase-analytics:17.2.1"
 

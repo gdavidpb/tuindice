@@ -46,19 +46,22 @@ open class StartUpUseCase(
             activeAuth != null && activeAccount != null -> {
                 val token = identifierRepository.getIdentifier()
 
-                CoroutineScope(backgroundContext).launch {
-                    runCatching {
-                        databaseRepository.updateToken(uid = activeAuth.uid, token = token)
-                    }
-                }
+                asyncUpdateToken(uid = activeAuth.uid, token = token)
 
                 if (authRepository.isEmailVerified())
                     StartUpAction.Main(screen = lastScreen, account = activeAccount)
                 else
                     StartUpAction.Verify(email = activeAuth.email)
-
             }
             else -> StartUpAction.Login
+        }
+    }
+
+    private fun asyncUpdateToken(uid: String, token: String) {
+        CoroutineScope(backgroundContext).launch {
+            runCatching {
+                databaseRepository.updateToken(uid, token)
+            }
         }
     }
 }

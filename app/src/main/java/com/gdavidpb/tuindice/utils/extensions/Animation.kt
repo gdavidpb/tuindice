@@ -63,50 +63,22 @@ fun Guideline.animatePercent(value: Float) {
     })
 }
 
-fun View.lookAtMe(factor: Float = 3f) {
+fun View.animateLoadingPendulum() {
+    ValueAnimator.ofFloat(-15f, 15f).animate({
+        duration = 500
+        interpolator = AccelerateDecelerateInterpolator()
+        repeatCount = ValueAnimator.INFINITE
+        repeatMode = ValueAnimator.REVERSE
+    }, {
+        rotation = animatedValue as Float
+    })
+}
+
+fun View.animateLookAtMe(factor: Float = 3f) {
     ValueAnimator.ofFloat(-factor, factor).animate({
         duration = (factor * 100).toLong()
         interpolator = CycleInterpolator(factor)
     }, {
         translationX = animatedValue as Float
     })
-}
-
-fun <T : View> T.updateAtMe(update: T.() -> Unit) {
-    if (context.isPowerSaveMode()) {
-        update()
-        return
-    }
-
-    val animator = ValueAnimator.ofFloat(1f, 0f)
-
-    animator.animate({
-        duration = 250
-        repeatMode = ValueAnimator.REVERSE
-        interpolator = AccelerateDecelerateInterpolator()
-    }, {
-        alpha = animatedValue as Float
-    })
-
-    animator.addListener(object : AnimatorListenerAdapter() {
-        override fun onAnimationRepeat(animation: Animator) {
-            update()
-        }
-    })
-}
-
-fun View.demoAtMe(): ValueAnimator {
-    val animator = ValueAnimator.ofFloat(1f, 1.25f)
-
-    animator.animate({
-        duration = 500
-        repeatCount = ValueAnimator.INFINITE
-        repeatMode = ValueAnimator.REVERSE
-        interpolator = AccelerateDecelerateInterpolator()
-    }, {
-        scaleX = animatedValue as Float
-        scaleY = animatedValue as Float
-    })
-
-    return animator
 }

@@ -11,9 +11,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.*
-import com.gdavidpb.tuindice.utils.extensions.isGoogleServicesAvailable
-import com.gdavidpb.tuindice.utils.extensions.observe
-import com.gdavidpb.tuindice.utils.extensions.openSettings
+import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.startActivity
@@ -22,6 +20,10 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : BaseActivity() {
 
     private val viewModel by viewModel<MainViewModel>()
+
+    private val isFirstStartUp by lazy {
+        intent.getBooleanExtra(EXTRA_FIRST_START_UP, false)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -63,6 +65,24 @@ class MainActivity : BaseActivity() {
         viewModel.trySyncAccount()
     }
 
+    private fun showLoading(value: Boolean) {
+        val progressVisibility = if (value) View.VISIBLE else View.GONE
+        val contentVisibility = if (value) View.INVISIBLE else View.VISIBLE
+
+        if (isFirstStartUp) {
+            navHostFragment.visibility = contentVisibility
+            bottomNavView.visibility = contentVisibility
+
+            pBarStartUp
+        } else {
+            bottomNavView.visibility = View.VISIBLE
+
+            pBarSync
+        }.also { progressBar ->
+            progressBar.visibility = progressVisibility
+        }
+    }
+
     private fun resetLiveData(destination: Int) {
         with(viewModel) {
             when (destination) {
@@ -95,16 +115,16 @@ class MainActivity : BaseActivity() {
     private fun syncObserver(result: Result<Boolean>?) {
         when (result) {
             is Result.OnLoading -> {
-                pBarSync.visibility = View.VISIBLE
+                showLoading(true)
             }
             is Result.OnSuccess -> {
-                pBarSync.visibility = View.GONE
+                showLoading(false)
             }
             is Result.OnError -> {
-                pBarSync.visibility = View.GONE
+                showLoading(false)
             }
             is Result.OnCancel -> {
-                pBarSync.visibility = View.GONE
+                showLoading(false)
             }
         }
     }

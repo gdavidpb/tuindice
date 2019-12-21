@@ -37,6 +37,8 @@
     <string name="nav_podium">Podio</string>
     <string name="nav_about">Acerca de…</string>
 
+    <string name="label_start_up_message">Cargando…</string>
+
     <string name="alert_title_fatal_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_fatal_failure">Parece que algo ha salido muy mal por acá. Intenta reinstalar la aplicación y vuelve a intentar</string>
 

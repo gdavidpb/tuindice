@@ -112,7 +112,7 @@ class LoginActivity : BaseActivity() {
 
             selectAll()
 
-            lookAtMe()
+            animateLookAtMe()
         }.isNull {
             iViewLogo.performClick()
 
@@ -139,6 +139,8 @@ class LoginActivity : BaseActivity() {
             it.clone(cLayoutMain)
 
             if (value) {
+                iViewLogo.clearAnimation()
+
                 it.clear(R.id.iViewLogo, ConstraintSet.BOTTOM)
 
                 it.connect(
@@ -146,6 +148,8 @@ class LoginActivity : BaseActivity() {
                         R.id.guidelineTop, ConstraintSet.TOP,
                         0)
             } else {
+                iViewLogo.animateLoadingPendulum()
+
                 it.clear(R.id.iViewLogo, ConstraintSet.TOP)
 
                 it.connect(
@@ -166,7 +170,9 @@ class LoginActivity : BaseActivity() {
                 enableUI(false)
             }
             is Result.OnSuccess -> {
-                startActivity<MainActivity>()
+                startActivity<MainActivity>(
+                        EXTRA_FIRST_START_UP to true
+                )
                 finish()
             }
             is Result.OnError -> {

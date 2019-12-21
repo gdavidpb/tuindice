@@ -21,6 +21,14 @@ class EmailSentActivity : AppCompatActivity() {
 
     private val viewModel by viewModel<EmailSentViewModel>()
 
+    private val awaitingState by lazy {
+        intent.getIntExtra(EXTRA_AWAITING_STATE, 0)
+    }
+
+    private val awaitingEmail by lazy {
+        intent.getStringExtra(EXTRA_AWAITING_EMAIL)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_email_sent)
@@ -49,18 +57,16 @@ class EmailSentActivity : AppCompatActivity() {
         })
 
         /* Set up view */
-        val email = intent.getStringExtra(EXTRA_AWAITING_EMAIL)
-
-        when (intent.getIntExtra(EXTRA_AWAITING_STATE, 0)) {
+        when (awaitingState) {
             FLAG_RESET -> {
                 iViewLogo.setImageResource(R.drawable.ic_reset)
                 tViewEmailTitle.text = getString(R.string.label_reset)
-                tViewEmailMessage.text = getString(R.string.message_reset, email)
+                tViewEmailMessage.text = getString(R.string.message_reset, awaitingEmail)
             }
             FLAG_VERIFY -> {
                 iViewLogo.setImageResource(R.drawable.ic_verify)
                 tViewEmailTitle.text = getString(R.string.label_verify)
-                tViewEmailMessage.text = getString(R.string.message_verify, email)
+                tViewEmailMessage.text = getString(R.string.message_verify, awaitingEmail)
             }
         }
 
@@ -72,7 +78,7 @@ class EmailSentActivity : AppCompatActivity() {
 
         viewModel.startCountdown(forceRestart = true)
 
-        when (intent.getIntExtra(EXTRA_AWAITING_STATE, 0)) {
+        when (awaitingState) {
             FLAG_RESET -> viewModel.resetPassword()
             FLAG_VERIFY -> viewModel.sendEmailVerification()
         }
