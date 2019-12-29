@@ -328,7 +328,7 @@ fun String.toStartEndDate(): List<Date> {
     val year = normalizedText.substringAfterLast(" ").trimAll().toIntOrNull()
     val months = normalizedText.substringBeforeLast(" ").trimAll()
 
-    val yearThreshold = Calendar.getInstance().run { get(Calendar.YEAR) } + 1
+    val yearThreshold = Calendar.getInstance().get(Calendar.YEAR) + 1
 
     if (year == null || year > yearThreshold)
         throw IllegalStateException("toStartEndDate: '$this'")
