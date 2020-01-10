@@ -60,3 +60,9 @@ fun Date.tomorrow(): Date {
         Date(it.timeInMillis)
     }
 }
+
+fun Date.year() = Calendar.getInstance().let { calendar ->
+    calendar.time = this
+
+    calendar.get(Calendar.YEAR)
+}

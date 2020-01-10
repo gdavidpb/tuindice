@@ -33,6 +33,7 @@ import org.jetbrains.anko.append
 import org.jetbrains.anko.buildSpanned
 import org.jetbrains.anko.foregroundColor
 import java.util.*
+import kotlin.math.abs
 
 /* Presentation layer */
 
@@ -325,12 +326,10 @@ fun Pair<String, String>.fromResetParam(): String {
 fun String.toStartEndDate(): List<Date> {
     val normalizedText = "\\w+\\s*-\\s*\\w+\\s*\\d{4}".toRegex().find(this)!!.value
 
-    val year = normalizedText.substringAfterLast(" ").trimAll().toIntOrNull()
+    val year = normalizedText.substringAfterLast(" ").trimAll().toIntOrNull() ?: 0
     val months = normalizedText.substringBeforeLast(" ").trimAll()
 
-    val yearThreshold = Calendar.getInstance().get(Calendar.YEAR) + 1
-
-    if (year == null || year > yearThreshold)
+    if (checkUnitDistance(a = Date().year(), b = year))
         throw IllegalStateException("toStartEndDate: '$this'")
 
     return months
@@ -338,6 +337,9 @@ fun String.toStartEndDate(): List<Date> {
             .mapNotNull { month -> "$month $year".parse("MMMM yyyy") }
             .also { output ->
                 if (output.size != 2) throw IllegalStateException("toStartEndDate: '$this'")
+
+                if (checkUnitDistance(a = output[0].year(), b = output[1].year()))
+                    throw IllegalStateException("toStartEndDate: '$this'")
             }
 }
 
@@ -355,6 +357,8 @@ fun String.toSubjectName(): String {
 }
 
 /* Internal utils */
+
+private fun checkUnitDistance(a: Int, b: Int) = abs(a - b) > 1
 
 private fun String.toSpanned(color: Int, font: Typeface? = null): Spanned {
     val (iconString, valueString, extraString) = split(' ')
