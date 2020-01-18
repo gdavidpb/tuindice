@@ -6,6 +6,8 @@ import com.gdavidpb.tuindice.domain.model.service.DstRecordStats
 import com.gdavidpb.tuindice.domain.model.service.DstSubject
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.mappers.toStartEndDate
+import com.gdavidpb.tuindice.utils.mappers.toSubjectName
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import pl.droidsonroids.jspoon.ElementConverter

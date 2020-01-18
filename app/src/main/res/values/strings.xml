@@ -30,12 +30,12 @@
     <!-- MainActivity -->
     <string name="nav_summary">Resumen</string>
     <string name="nav_record">Informe Académico</string>
-    <string name="nav_calendar">Calendario Académico</string>
     <string name="nav_pensum">Pensum</string>
     <string name="nav_settings">Configuración</string>
     <string name="nav_achievements">Logros</string>
     <string name="nav_podium">Podio</string>
-    <string name="nav_about">Acerca de…</string>
+    <string name="nav_subject">Plan de evaluación</string>
+    <string name="nav_about">Acerca de</string>
 
     <string name="label_start_up_message">Cargando…</string>
 
@@ -63,7 +63,8 @@
     </string-array>
 
     <!-- SummaryFragment -->
-    <string name="text_5">/ 5.0</string>
+    <string name="text_5">/ 5</string>
+    <string name="text_5_dot">/ 5.0</string>
 
     <string name="text_last_update">Última actualización: %1$s</string>
 
@@ -109,13 +110,6 @@
     <string name="label_empty_record">
         <b>¡Parece que alguien es nuevo por acá!\n\n</b>
         <b>TuIndice</b> te da la bienvenida a <b>La Simón</b>\n¡Mucho éxito!
-    </string>
-
-    <!-- CalendarActivity -->
-    <string name="label_calendar_activity">TuIndice - %1$s</string>
-
-    <string name="snack_bar_calendar_disclaimer">
-        Las fechas pueden haber variado desde la publicación del calendario.
     </string>
 
     <!-- EmailSentActivity -->
@@ -259,6 +253,34 @@
     <string name="about_sign_out">
         Cerrar sesión\n¡Nos vemos pronto!
     </string>
+
+    <!-- SubjectFragment -->
+    <string name="text_100">/ 100</string>
+    <string name="content_equal">Igual a</string>
+
+    <string name="evaluation_grade_max">%1$d / %2$d</string>
+
+    <string name="grade_accumulated">Nota acumulada</string>
+    <string name="grade_final">Nota final</string>
+
+    <string name="label_empty_evaluations">
+        <b>Parece que no hay nada por acá\n\n</b>
+        ¡Recuerda que la organización es el secreto del éxito!
+    </string>
+
+    <string name="evaluation_other">Otra</string>
+    <string name="evaluation_test">Parcial</string>
+    <string name="evaluation_workshop">Taller</string>
+    <string name="evaluation_laboratory">Laboratorio</string>
+    <string name="evaluation_essay">Ensayo</string>
+    <string name="evaluation_written_work">Trabajo escrito</string>
+    <string name="evaluation_report">Informe</string>
+    <string name="evaluation_project">Proyecto</string>
+    <string name="evaluation_interventions">Intervenciones</string>
+    <string name="evaluation_model">Maqueta</string>
+    <string name="evaluation_attendance">Asistencia</string>
+    <string name="evaluation_quiz">Quiz</string>
+    <string name="evaluation_presentation">Exposición</string>
 
     <!-- BrowserActivity -->
     <string name="label_creative_commons">TuIndice - Creative Commons</string>

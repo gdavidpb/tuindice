@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.toQuarterTitle
+import com.gdavidpb.tuindice.utils.mappers.toQuarterTitle
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 

@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,6 +16,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.mappers.toQuarterTitle
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.jetbrains.anko.design.longSnackbar
@@ -131,11 +133,11 @@ open class RecordFragment : Fragment() {
                 quarterAdapter.swapItems(new = quarters)
 
                 if (quarters.isEmpty()) {
-                    rViewRecord.visibility = View.GONE
-                    tViewRecord.visibility = View.VISIBLE
+                    rViewRecord.gone()
+                    tViewRecord.visible()
                 } else {
-                    tViewRecord.visibility = View.GONE
-                    rViewRecord.visibility = View.VISIBLE
+                    tViewRecord.gone()
+                    rViewRecord.visible()
                 }
             }
         }
@@ -185,6 +187,13 @@ open class RecordFragment : Fragment() {
     */
 
     inner class QuarterManager : QuarterAdapter.AdapterManager, ItemTouchHelper.Callback() {
+        override fun onSubjectClicked(item: Subject) {
+            val action = RecordFragmentDirections
+                    .actionNavRecordToNavSubject(subjectId = item.id)
+
+            findNavController().navigate(action)
+        }
+
         override fun onSubjectChanged(item: Subject) {
             viewModel.updateSubject(subject = item)
         }

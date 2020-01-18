@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
+import com.gdavidpb.tuindice.utils.extensions.isStartDestination
 import kotlinx.coroutines.Dispatchers
 
 open class SetLastScreenUseCase(
@@ -11,6 +12,6 @@ open class SetLastScreenUseCase(
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: Int) {
-        settingsRepository.setLastScreen(screen = params)
+        if (params.isStartDestination()) settingsRepository.setLastScreen(screen = params)
     }
 }

@@ -1,18 +1,13 @@
 package com.gdavidpb.tuindice.ui.activities
 
-import android.animation.ValueAnimator
 import android.os.Bundle
-import android.view.animation.AccelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
 import com.gdavidpb.tuindice.utils.*
-import com.gdavidpb.tuindice.utils.extensions.animate
-import com.gdavidpb.tuindice.utils.extensions.observe
-import com.gdavidpb.tuindice.utils.extensions.onClickOnce
-import com.gdavidpb.tuindice.utils.extensions.toCountdown
+import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.activity_email_sent.*
 import org.jetbrains.anko.longToast
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -42,19 +37,7 @@ class EmailSentActivity : AppCompatActivity() {
         }
 
         /* Logo animation */
-        val animator = ValueAnimator.ofFloat(.85f, 1f)
-
-        animator.animate({
-            duration = 1000
-            repeatMode = ValueAnimator.REVERSE
-            repeatCount = ValueAnimator.INFINITE
-            interpolator = AccelerateInterpolator()
-        }, {
-            val scale = animatedValue as Float
-
-            iViewLogo.scaleX = scale
-            iViewLogo.scaleY = scale
-        })
+        iViewLogo.animateZoomInOut()
 
         /* Set up view */
         when (awaitingState) {

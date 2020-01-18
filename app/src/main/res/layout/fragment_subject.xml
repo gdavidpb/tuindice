@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/dp_16">
+
+    <TextView
+        android:id="@+id/tViewTotalGrade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/sp_32"
+        app:layout_constraintBottom_toBottomOf="@id/iViewCompare"
+        app:layout_constraintEnd_toStartOf="@id/tViewLabelTotalGrade"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/iViewCompare"
+        tools:text="56" />
+
+    <TextView
+        android:id="@+id/tViewLabelTotalGrade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_100"
+        app:layout_constraintBaseline_toBaselineOf="@id/tViewTotalGrade"
+        app:layout_constraintEnd_toStartOf="@id/iViewCompare"
+        app:layout_constraintStart_toEndOf="@id/tViewTotalGrade" />
+
+    <TextView
+        android:id="@+id/tViewLabelAccumulated"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/grade_accumulated"
+        android:textColor="@color/color_primary_text"
+        app:layout_constraintEnd_toEndOf="@id/tViewLabelTotalGrade"
+        app:layout_constraintStart_toStartOf="@id/tViewTotalGrade"
+        app:layout_constraintTop_toBottomOf="@id/tViewTotalGrade" />
+
+    <ImageView
+        android:id="@+id/iViewCompare"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/content_equal"
+        android:src="@drawable/ic_forward"
+        app:layout_constraintBottom_toBottomOf="@id/tViewLabelAccumulated"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tViewSubjectName" />
+
+    <TextView
+        android:id="@+id/tViewGrade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/sp_32"
+        app:layout_constraintBottom_toBottomOf="@id/iViewCompare"
+        app:layout_constraintEnd_toStartOf="@id/tViewLabelGrade"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/iViewCompare"
+        app:layout_constraintTop_toTopOf="@id/iViewCompare"
+        tools:text="3" />
+
+    <TextView
+        android:id="@+id/tViewLabelGrade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_5"
+        app:layout_constraintBaseline_toBaselineOf="@id/tViewGrade"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tViewGrade" />
+
+    <TextView
+        android:id="@+id/tViewLabelFinal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/grade_final"
+        android:textColor="@color/color_primary_text"
+        app:layout_constraintEnd_toEndOf="@id/tViewLabelGrade"
+        app:layout_constraintStart_toStartOf="@id/tViewGrade"
+        app:layout_constraintTop_toBottomOf="@id/tViewGrade" />
+
+    <TextView
+        android:id="@+id/tViewSubjectCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dp_16"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="MA1111" />
+
+    <TextView
+        android:id="@+id/tViewSubjectName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tViewSubjectCode"
+        tools:text="Matematicas I" />
+
+    <TextView
+        android:id="@+id/tViewEvaluations"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_16"
+        android:layout_marginEnd="@dimen/dp_16"
+        android:drawableTop="@drawable/ic_evaluations_empty"
+        android:drawablePadding="@dimen/dp_16"
+        android:fontFamily="sans-serif-light"
+        android:text="@string/label_empty_evaluations"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rViewEvaluations"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/dp_16"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tViewLabelAccumulated" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnAddEvaluation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_add" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

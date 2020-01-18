@@ -39,6 +39,9 @@ val ROMANS = hashMapOf(
 /* Google */
 const val PLAY_SERVICES_RESOLUTION_REQUEST = 2404
 
+/* Values */
+const val MAX_GRADE = 5
+
 /* Status */
 const val STATUS_QUARTER_CURRENT = 0
 const val STATUS_QUARTER_COMPLETED = 1
@@ -50,9 +53,20 @@ const val STATUS_SUBJECT_RETIRED = 1
 const val STATUS_SUBJECT_NO_EFFECT = 2
 const val STATUS_SUBJECT_GAVE_UP = 3
 
-const val STATE_EXPANDED = 0
-const val STATE_COLLAPSED = 1
-const val STATE_IDLE = 2
+/* Evaluations types */
+const val EVALUATION_OTHER = 0
+const val EVALUATION_TEST = 1
+const val EVALUATION_WORKSHOP = 2
+const val EVALUATION_LABORATORY = 3
+const val EVALUATION_ESSAY = 4
+const val EVALUATION_WRITTEN_WORK = 5
+const val EVALUATION_REPORT = 6
+const val EVALUATION_PROJECT = 7
+const val EVALUATION_INTERVENTIONS = 8
+const val EVALUATION_MODEL = 9
+const val EVALUATION_ATTENDANCE = 10
+const val EVALUATION_QUIZ = 11
+const val EVALUATION_PRESENTATION = 12
 
 /* Default locale */
 val DEFAULT_LOCALE: Locale = Locale("es", "VE")
@@ -65,9 +79,8 @@ const val TIME_DELAY_CLICK_ONCE = 500L
 const val TIME_OUT_CONNECTION = 90000L
 
 /* Summary view types */
-const val VIEW_TYPE_SUMMARY_HEADER = 0
-const val VIEW_TYPE_SUMMARY_SUBJECTS = 1
-const val VIEW_TYPE_SUMMARY_CREDITS = 2
+const val VIEW_TYPE_SUMMARY_SUBJECTS = 0
+const val VIEW_TYPE_SUMMARY_CREDITS = 1
 
 /* About view types */
 const val VIEW_TYPE_ABOUT_HEADER = 0
@@ -82,5 +95,11 @@ const val EXTRA_FIRST_START_UP = "EXTRA_FIRST_START_UP"
 const val EXTRA_TITLE = "EXTRA_TITLE"
 const val EXTRA_URL = "EXTRA_URL"
 
+/* Navigation args */
+
+const val ARG_SUBJECT_ID = "subjectId"
+
 const val FLAG_RESET = 1000
 const val FLAG_VERIFY = 1001
+
+const val REF_BASE = 2000

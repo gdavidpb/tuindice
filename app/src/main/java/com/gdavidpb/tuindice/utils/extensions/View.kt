@@ -8,14 +8,9 @@ import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.gdavidpb.tuindice.utils.STATE_COLLAPSED
-import com.gdavidpb.tuindice.utils.STATE_EXPANDED
-import com.gdavidpb.tuindice.utils.STATE_IDLE
 import com.gdavidpb.tuindice.utils.TIME_DELAY_CLICK_ONCE
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.*
-import kotlin.math.absoluteValue
 
 fun View.onClickOnce(onClick: () -> Unit) {
     setOnClickListener(object : View.OnClickListener {
@@ -51,33 +46,6 @@ fun SeekBar.onSeekBarChange(listener: (progress: Int, fromUser: Boolean) -> Unit
     })
 }
 
-fun AppBarLayout.onStateChanged(listener: (newState: Int) -> Unit) {
-    var mCurrentState = STATE_IDLE
-
-    addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBarLayout, verticalOffset ->
-        when {
-            verticalOffset == 0 -> {
-                if (mCurrentState != STATE_EXPANDED)
-                    listener(STATE_EXPANDED)
-
-                mCurrentState = STATE_EXPANDED
-            }
-            verticalOffset.absoluteValue >= appBarLayout.totalScrollRange -> {
-                if (mCurrentState != STATE_COLLAPSED)
-                    listener(STATE_COLLAPSED)
-
-                mCurrentState = STATE_COLLAPSED
-            }
-            else -> {
-                if (mCurrentState != STATE_IDLE)
-                    listener(STATE_IDLE)
-
-                mCurrentState = STATE_IDLE
-            }
-        }
-    })
-}
-
 fun RecyclerView.onScrollStateChanged(listener: (newState: Int) -> Unit) {
     addOnScrollListener(object : RecyclerView.OnScrollListener() {
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -94,6 +62,12 @@ fun TextView.drawables(
         right: Drawable? = null,
         bottom: Drawable? = null) = setCompoundDrawables(left, top, right, bottom)
 
+fun TextView.drawables(
+        left: Int = 0,
+        top: Int = 0,
+        right: Int = 0,
+        bottom: Int = 0) = setCompoundDrawablesWithIntrinsicBounds(left, top, right, bottom)
+
 fun EditText.onTextChanged(event: (CharSequence, Int, Int, Int) -> Unit) {
     addTextChangedListener(object : TextWatcher {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -108,3 +82,15 @@ fun EditText.onTextChanged(event: (CharSequence, Int, Int, Int) -> Unit) {
 
 fun TextInputLayout.text(value: String? = null) = value?.also { editText?.setText(it) }
         ?: "${editText?.text}"
+
+fun View.visible() {
+    visibility = View.VISIBLE
+}
+
+fun View.gone() {
+    visibility = View.GONE
+}
+
+fun View.visibleIf(value: Boolean, elseValue: Int = View.GONE) {
+    visibility = if (value) View.VISIBLE else elseValue
+}

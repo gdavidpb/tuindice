@@ -19,10 +19,6 @@
     <!--
 
     <item
-        android:id="@+id/nav_calendar"
-        android:icon="@drawable/ic_calendar"
-        android:title="@string/nav_calendar" />
-    <item
         android:id="@+id/nav_pensum"
         android:icon="@drawable/ic_pensum"
         android:title="@string/nav_pensum" />

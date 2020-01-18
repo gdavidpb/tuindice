@@ -6,7 +6,9 @@ import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
-import com.gdavidpb.tuindice.utils.toResetRequest
+import com.gdavidpb.tuindice.utils.mappers.REF_YEAR
+import com.gdavidpb.tuindice.utils.mappers.toRefYear
+import com.gdavidpb.tuindice.utils.mappers.toResetRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,6 +46,8 @@ open class StartUpUseCase(
             }
             awaitingForReset -> StartUpAction.Reset(email = email)
             activeAuth != null && activeAccount != null -> {
+                REF_YEAR = activeAccount.email.toRefYear()
+
                 val token = identifierRepository.getIdentifier()
 
                 asyncUpdateToken(uid = activeAuth.uid, token = token)

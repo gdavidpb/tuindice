@@ -7,10 +7,19 @@ import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.utils.DigestConcat
+import com.gdavidpb.tuindice.utils.MAX_GRADE
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_RETIRED
 import java.nio.ByteBuffer
 import java.util.*
+
+fun Int.toGrade() = when (this) {
+    in 0 until 30 -> 1
+    in 30 until 50 -> 2
+    in 50 until 70 -> 3
+    in 70 until 85 -> 4
+    else -> MAX_GRADE
+}
 
 fun Quarter.computeGrade() = subjects.computeGrade()
 

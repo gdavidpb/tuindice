@@ -202,6 +202,7 @@ val appModule = module {
     viewModel<MainViewModel>()
     viewModel<LoginViewModel>()
     viewModel<EmailSentViewModel>()
+    viewModel<SubjectViewModel>()
 
     /* Factories */
 
@@ -227,6 +228,7 @@ val appModule = module {
     factory<UpdateSubjectUseCase>()
     factory<SetLastScreenUseCase>()
     factory<OpenEnrollmentProofUseCase>()
+    factory<GetSubjectEvaluationsUseCase>()
 
     /* Utils */
 

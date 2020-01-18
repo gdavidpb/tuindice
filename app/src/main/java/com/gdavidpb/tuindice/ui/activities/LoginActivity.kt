@@ -1,12 +1,8 @@
 package com.gdavidpb.tuindice.ui.activities
 
-import android.animation.ValueAnimator
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
-import android.view.View
-import android.view.animation.CycleInterpolator
-import android.view.animation.LinearInterpolator
 import android.view.inputmethod.EditorInfo
 import androidx.constraintlayout.widget.ConstraintSet
 import com.gdavidpb.tuindice.BuildConfig
@@ -56,17 +52,7 @@ class LoginActivity : BaseActivity() {
         validations.setUp()
 
         /* Set up background animation */
-        ValueAnimator.ofFloat(0f, 1f).animate({
-            duration = TIME_BACKGROUND_ANIMATION
-            repeatCount = ValueAnimator.INFINITE
-            interpolator = LinearInterpolator()
-        }, {
-            val width = backgroundOne.width
-            val translationX = (width * animatedFraction)
-
-            backgroundOne.translationX = translationX
-            backgroundTwo.translationX = (translationX - width)
-        })
+        (backgroundOne to backgroundTwo).animateInfiniteLoop()
 
         eTextUsbId.onTextChanged { _, _, _, _ -> if (tInputUsbId.error != null) tInputUsbId.error = null }
         eTextPassword.onTextChanged { _, _, _, _ -> if (tInputPassword.error != null) tInputPassword.error = null }
@@ -89,13 +75,7 @@ class LoginActivity : BaseActivity() {
 
         /* Logo animation */
         iViewLogo.onClick {
-            ValueAnimator.ofFloat(0f, 5f).animate({
-                duration = 500
-                repeatMode = ValueAnimator.REVERSE
-                interpolator = CycleInterpolator(3f)
-            }, {
-                iViewLogo.rotation = animatedValue as Float
-            })
+            iViewLogo.animateShake()
         }
 
         btnPrivacyPolicy.onClickOnce(::onPrivacyPolicyClick)
@@ -124,23 +104,18 @@ class LoginActivity : BaseActivity() {
     }
 
     private fun enableUI(value: Boolean) {
-        arrayOf(
-                tInputUsbId,
-                tInputPassword,
-                vFlipperWelcome,
-                btnPrivacyPolicy,
-                btnSignIn
-        ).forEach { it.visibility = if (value) View.VISIBLE else View.GONE }
-
-        tViewLogging.visibility = if (value) View.GONE else View.VISIBLE
-        pBarLogging.visibility = if (value) View.GONE else View.VISIBLE
+        if (value) {
+            groupLoginProgress.gone()
+            groupLogin.visible()
+        } else {
+            groupLogin.gone()
+            groupLoginProgress.visible()
+        }
 
         ConstraintSet().also {
             it.clone(cLayoutMain)
 
             if (value) {
-                iViewLogo.clearAnimation()
-
                 it.clear(R.id.iViewLogo, ConstraintSet.BOTTOM)
 
                 it.connect(
@@ -148,8 +123,6 @@ class LoginActivity : BaseActivity() {
                         R.id.guidelineTop, ConstraintSet.TOP,
                         0)
             } else {
-                iViewLogo.animateLoadingPendulum()
-
                 it.clear(R.id.iViewLogo, ConstraintSet.TOP)
 
                 it.connect(

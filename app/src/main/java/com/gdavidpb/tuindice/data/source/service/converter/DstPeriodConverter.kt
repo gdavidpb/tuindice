@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.service.converter
 
 import com.gdavidpb.tuindice.domain.model.service.DstPeriod
-import com.gdavidpb.tuindice.utils.toStartEndDate
+import com.gdavidpb.tuindice.utils.mappers.toStartEndDate
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector

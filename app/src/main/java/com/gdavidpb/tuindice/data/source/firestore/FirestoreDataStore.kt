@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.data.source.firestore
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.model.service.*
@@ -9,6 +10,7 @@ import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.await
 import com.gdavidpb.tuindice.utils.extensions.generateId
+import com.gdavidpb.tuindice.utils.mappers.*
 import com.google.firebase.firestore.*
 
 open class FirestoreDataStore(
@@ -77,6 +79,35 @@ open class FirestoreDataStore(
                 }
     }
 
+    override suspend fun getSubjectEvaluations(sid: String): List<Evaluation> {
+        return firestore
+                .collection(COLLECTION_EVALUATION)
+                .whereEqualTo(FIELD_EVALUATION_SUBJECT_ID, sid)
+                .orderBy(FIELD_EVALUATION_DATE, Query.Direction.DESCENDING)
+                .get()
+                .await()
+                .map { it.toEvaluation() }
+    }
+
+    override suspend fun getEvaluations(uid: String): List<Evaluation> {
+        return firestore
+                .collection(COLLECTION_EVALUATION)
+                .whereEqualTo(FIELD_EVALUATION_USER_ID, uid)
+                .orderBy(FIELD_EVALUATION_DATE, Query.Direction.DESCENDING)
+                .get()
+                .await()
+                .map { it.toEvaluation() }
+    }
+
+    override suspend fun getSubject(uid: String): Subject {
+        return firestore
+                .collection(COLLECTION_SUBJECT)
+                .document(uid)
+                .get()
+                .await()
+                .toSubject()
+    }
+
     override suspend fun updateSubject(subject: Subject) {
         val subjectRef = firestore
                 .collection(COLLECTION_SUBJECT)
@@ -88,6 +119,14 @@ open class FirestoreDataStore(
         )
 
         subjectRef.set(values, SetOptions.merge()).await()
+    }
+
+    override suspend fun removeSubject(id: String) {
+        firestore
+                .collection(COLLECTION_SUBJECT)
+                .document(id)
+                .delete()
+                .await()
     }
 
     override suspend fun updateAuthData(uid: String, data: DstAuth) {

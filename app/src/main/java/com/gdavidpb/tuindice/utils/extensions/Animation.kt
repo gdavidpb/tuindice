@@ -4,81 +4,121 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.CycleInterpolator
-import android.view.animation.DecelerateInterpolator
+import android.view.animation.*
 import android.widget.TextView
 import androidx.constraintlayout.widget.Guideline
+import com.gdavidpb.tuindice.utils.TIME_BACKGROUND_ANIMATION
 
-fun ValueAnimator.animate(
+private fun ValueAnimator.animate(
+        view: View,
         init: ValueAnimator.() -> Unit,
         update: ValueAnimator.() -> Unit,
-        finish: ValueAnimator.(Boolean) -> Unit = { }) {
-    init()
+        finish: () -> Unit = { }) {
+    val isAnimationAvailable = !view.context.isPowerSaveMode()
 
-    addUpdateListener(update)
+    if (isAnimationAvailable) {
+        init()
 
-    addListener(object : AnimatorListenerAdapter() {
-        override fun onAnimationEnd(animation: Animator) {
-            animation.removeAllListeners()
+        addUpdateListener(update)
 
-            runCatching { finish(false) }
-        }
+        addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                animation.removeAllListeners()
 
-        override fun onAnimationCancel(animation: Animator) {
-            animation.removeAllListeners()
+                runCatching { finish() }
+            }
 
-            runCatching { finish(true) }
-        }
+            override fun onAnimationCancel(animation: Animator) {
+                animation.removeAllListeners()
+
+                runCatching { finish() }
+            }
+        })
+
+        start()
+    } else {
+        finish()
+    }
+}
+
+fun TextView.animateGrade(value: Int) {
+    ValueAnimator.ofInt(0, value).animate(this, {
+        duration = 1000
+        interpolator = DecelerateInterpolator()
+    }, {
+        text = (animatedValue as Int).formatGrade()
+    }, {
+        text = value.formatGrade()
     })
-
-    start()
 }
 
 fun TextView.animateGrade(value: Double) {
-    if (context.isPowerSaveMode()) {
-        text = value.formatGrade()
-        return
-    }
-
-    ValueAnimator.ofFloat(0f, value.toFloat()).animate({
+    ValueAnimator.ofFloat(0f, value.toFloat()).animate(this, {
         duration = 1000
         interpolator = DecelerateInterpolator()
     }, {
         text = (animatedValue as Float).toDouble().formatGrade()
+    }, {
+        text = value.formatGrade()
     })
 }
 
 fun Guideline.animatePercent(value: Float) {
-    if (context.isPowerSaveMode()) {
-        setGuidelinePercent(value)
-        return
-    }
-
-    ValueAnimator.ofFloat(0f, value).animate({
+    ValueAnimator.ofFloat(0f, value).animate(this, {
         duration = 1000
         interpolator = DecelerateInterpolator()
     }, {
         setGuidelinePercent(animatedValue as Float)
+    }, {
+        setGuidelinePercent(value)
     })
 }
 
-fun View.animateLoadingPendulum() {
-    ValueAnimator.ofFloat(-15f, 15f).animate({
-        duration = 500
-        interpolator = AccelerateDecelerateInterpolator()
-        repeatCount = ValueAnimator.INFINITE
+fun View.animateLookAtMe(factor: Float = 3f) {
+    ValueAnimator.ofFloat(-factor, factor).animate(this, {
+        duration = (factor * 100).toLong()
+        interpolator = CycleInterpolator(factor)
+    }, {
+        translationX = animatedValue as Float
+    })
+}
+
+fun View.animateZoomInOut() {
+    val animator = ValueAnimator.ofFloat(.85f, 1f)
+
+    animator.animate(this, {
+        duration = 1000
         repeatMode = ValueAnimator.REVERSE
+        repeatCount = ValueAnimator.INFINITE
+        interpolator = AccelerateInterpolator()
+    }, {
+        val scale = animatedValue as Float
+
+        scaleX = scale
+        scaleY = scale
+    })
+}
+
+fun View.animateShake() {
+    ValueAnimator.ofFloat(0f, 5f).animate(this, {
+        duration = 500
+        repeatMode = ValueAnimator.REVERSE
+        interpolator = CycleInterpolator(3f)
     }, {
         rotation = animatedValue as Float
     })
 }
 
-fun View.animateLookAtMe(factor: Float = 3f) {
-    ValueAnimator.ofFloat(-factor, factor).animate({
-        duration = (factor * 100).toLong()
-        interpolator = CycleInterpolator(factor)
+fun Pair<View, View>.animateInfiniteLoop() {
+    ValueAnimator.ofFloat(0f, 1f).animate(first, {
+        duration = TIME_BACKGROUND_ANIMATION
+        repeatCount = ValueAnimator.INFINITE
+        interpolator = LinearInterpolator()
     }, {
-        translationX = animatedValue as Float
+        val width = first.width
+        val translationX = (width * animatedFraction)
+
+        first.translationX = translationX
+        second.translationX = (translationX - width)
     })
 }

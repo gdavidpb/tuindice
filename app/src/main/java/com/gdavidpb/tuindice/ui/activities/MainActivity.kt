@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.ui.activities
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.IdRes
+import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
@@ -12,6 +13,9 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.extensions.isStartDestination
+import com.gdavidpb.tuindice.utils.extensions.observe
+import com.gdavidpb.tuindice.utils.extensions.openSettings
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.startActivity
@@ -41,6 +45,12 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        super.onBackPressed()
+
+        return true
+    }
+
     private fun initView(@IdRes navId: Int) {
         setContentView(R.layout.activity_main)
 
@@ -55,31 +65,41 @@ class MainActivity : BaseActivity() {
         }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            resetLiveData(destination.id)
-
-            supportActionBar?.title = destination.label
-
-            viewModel.setLastScreen(navId = destination.id)
+            onDestinationChanged(destination)
         }
 
         viewModel.trySyncAccount()
     }
 
-    private fun showLoading(value: Boolean) {
-        val progressVisibility = if (value) View.VISIBLE else View.GONE
-        val contentVisibility = if (value) View.INVISIBLE else View.VISIBLE
+    private fun onDestinationChanged(destination: NavDestination) {
+        val destId = destination.id
+        val isStartDestination = destId.isStartDestination()
 
+        bottomNavView.visibleIf(isStartDestination)
+
+        supportActionBar?.apply {
+            title = destination.label
+
+            setDisplayHomeAsUpEnabled(!isStartDestination)
+        }
+
+        resetLiveData(destId)
+
+        viewModel.setLastScreen(navId = destId)
+    }
+
+    private fun showLoading(value: Boolean) {
         if (isFirstStartUp) {
-            navHostFragment.visibility = contentVisibility
-            bottomNavView.visibility = contentVisibility
+            navHostFragment.visibleIf(value = !value, elseValue = View.INVISIBLE)
+            bottomNavView.visibleIf(value = !value, elseValue = View.INVISIBLE)
 
             pBarStartUp
         } else {
-            bottomNavView.visibility = View.VISIBLE
+            bottomNavView.visible()
 
             pBarSync
         }.also { progressBar ->
-            progressBar.visibility = progressVisibility
+            progressBar.visibleIf(value)
         }
     }
 

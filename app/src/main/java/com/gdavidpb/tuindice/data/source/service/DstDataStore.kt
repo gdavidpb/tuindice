@@ -8,10 +8,10 @@ import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.toAuthResponse
-import com.gdavidpb.tuindice.utils.toEnrollment
-import com.gdavidpb.tuindice.utils.toPersonalData
-import com.gdavidpb.tuindice.utils.toRecord
+import com.gdavidpb.tuindice.utils.mappers.toAuthResponse
+import com.gdavidpb.tuindice.utils.mappers.toEnrollment
+import com.gdavidpb.tuindice.utils.mappers.toPersonalData
+import com.gdavidpb.tuindice.utils.mappers.toRecord
 import okhttp3.ResponseBody
 
 open class DstDataStore(

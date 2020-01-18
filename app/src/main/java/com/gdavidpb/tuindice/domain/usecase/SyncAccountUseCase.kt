@@ -3,11 +3,10 @@ package com.gdavidpb.tuindice.domain.usecase
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.model.service.DstData
-import com.gdavidpb.tuindice.domain.model.service.DstRecord
+import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.coroutines.Dispatchers
 import kotlin.IllegalStateException
@@ -44,8 +43,8 @@ open class SyncAccountUseCase(
         /* Enrollment service auth */
         collectedData.addEnrollmentData(credentials)
 
-        /*  Check if the enrollment files should be purged  */
-        if (collectedData.shouldPurgeEnrollments(uid = activeAuth.uid))
+        /*  Check if the current quarter should be purged  */
+        if (collectedData.shouldPurgeCurrentQuarter(uid = activeAuth.uid))
             localStorageRepository.delete("enrollments")
 
         /* If there is collected data */
@@ -90,19 +89,35 @@ open class SyncAccountUseCase(
         }
     }
 
-    private suspend fun MutableList<DstData>.shouldPurgeEnrollments(uid: String): Boolean {
+    private suspend fun MutableList<DstData>.shouldPurgeCurrentQuarter(uid: String): Boolean {
         val localCurrentSubjects = databaseRepository
                 .localTransaction { getCurrentQuarter(uid) }
                 ?.subjects
-                ?.map { it.toDstSubject() }
 
-        val remoteCurrentSubjects = firstOrNull { it is DstRecord }
-                ?.let {
-                    it as DstRecord
+        val remoteCurrentSubjects = firstOrNull { it is DstEnrollment }
+                ?.let { it as DstEnrollment }
+                ?.schedule
 
-                    it.quarters.firstOrNull { quarter -> quarter.status == STATUS_QUARTER_CURRENT }
-                }?.subjects
+        val localCurrentCodes = localCurrentSubjects?.map { it.code }
+        val remoteCurrentCodes = remoteCurrentSubjects?.map { it.code }
 
-        return localCurrentSubjects != remoteCurrentSubjects
+        val shouldPurge = localCurrentCodes != remoteCurrentCodes
+
+        if (shouldPurge && localCurrentCodes != null && remoteCurrentCodes != null) {
+            val codesToPurge = localCurrentCodes.subtract(remoteCurrentCodes)
+
+            if (codesToPurge.isNotEmpty()) {
+                val map = localCurrentSubjects.map { it.code to it.id }.toMap()
+
+                val ids = codesToPurge.mapNotNull { map[it] }
+
+                if (ids.isNotEmpty())
+                    databaseRepository.remoteTransaction {
+                        ids.forEach { id -> removeSubject(id) }
+                    }
+            }
+        }
+
+        return shouldPurge
     }
 }

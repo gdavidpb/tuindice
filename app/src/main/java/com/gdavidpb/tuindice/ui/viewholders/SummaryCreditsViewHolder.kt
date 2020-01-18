@@ -6,6 +6,8 @@ import com.gdavidpb.tuindice.presentation.model.SummaryBase
 import com.gdavidpb.tuindice.presentation.model.SummaryCredits
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.extensions.animatePercent
+import com.gdavidpb.tuindice.utils.extensions.gone
+import com.gdavidpb.tuindice.utils.extensions.visible
 import kotlinx.android.synthetic.main.item_summary_credits.view.*
 
 open class SummaryCreditsViewHolder(itemView: View) : BaseViewHolder<SummaryBase>(itemView) {
@@ -36,9 +38,9 @@ open class SummaryCreditsViewHolder(itemView: View) : BaseViewHolder<SummaryBase
             ).forEach { (textView, value) ->
                 if (value > 0) {
                     textView.text = "$value"
-                    textView.visibility = View.VISIBLE
+                    textView.visible()
                 } else
-                    textView.visibility = View.GONE
+                    textView.gone()
             }
         }
     }

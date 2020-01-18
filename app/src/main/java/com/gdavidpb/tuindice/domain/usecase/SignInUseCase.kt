@@ -8,8 +8,8 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.extensions.toggle
-import com.gdavidpb.tuindice.utils.toDstCredentials
-import com.gdavidpb.tuindice.utils.toUsbEmail
+import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
+import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.Dispatchers
 
@@ -78,6 +78,8 @@ open class SignInUseCase(
         settingsRepository.storeCredentials(credentials = request.toDstCredentials())
 
         databaseRepository.remoteTransaction {
+            getEvaluations(uid = auth.uid)
+
             updateAuthData(uid = auth.uid, data = authData)
         }
     }

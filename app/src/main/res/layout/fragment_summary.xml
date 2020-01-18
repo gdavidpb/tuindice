@@ -1,11 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/dp_16">
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupGrade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="tViewGrade,tViewLabelGrade"
+        tools:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/iViewProfile"
+        android:layout_width="@dimen/size_profile"
+        android:layout_height="@dimen/size_profile"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription"
+        tools:src="@mipmap/ic_launcher_round" />
+
+    <TextView
+        android:id="@+id/tViewGrade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/sp_32"
+        app:layout_constraintEnd_toStartOf="@id/tViewLabelGrade"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iViewProfile"
+        tools:text="3.996" />
+
+    <TextView
+        android:id="@+id/tViewLabelGrade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_5_dot"
+        app:layout_constraintBaseline_toBaselineOf="@id/tViewGrade"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tViewGrade"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tViewName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dp_4"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tViewGrade"
+        tools:text="Gerardo Prado" />
+
+    <TextView
+        android:id="@+id/tViewCareer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tViewName"
+        tools:text="Ingeniería de la Computación" />
+
+    <TextView
+        android:id="@+id/tViewLastUpdate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dp_6"
+        android:drawablePadding="@dimen/dp_2"
+        android:gravity="center_vertical"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tViewCareer"
+        tools:drawableStart="@drawable/ic_sync"
+        tools:drawableTint="@color/color_secondary_text"
+        tools:text="Última actualización: Hoy, 3:42 p.m." />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rViewSummary"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/dp_16"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tViewLastUpdate" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

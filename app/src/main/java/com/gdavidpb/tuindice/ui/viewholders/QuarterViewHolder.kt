@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.mappers.*
 import kotlinx.android.synthetic.main.item_quarter.view.*
 import kotlinx.android.synthetic.main.item_subject.view.*
 import org.jetbrains.anko.backgroundColor
@@ -52,6 +53,7 @@ open class QuarterViewHolder(
         quarter.subjects.forEachIndexed { index, subject ->
             with(receiver = container.getChildAt(index)) {
                 setSubjectData(subject)
+                setEditable(subject, hasGradeBar)
                 setGradeBar(subject, quarter, hasGradeBar, index)
             }
         }
@@ -67,13 +69,27 @@ open class QuarterViewHolder(
         sBarGrade.progress = subject.grade
     }
 
+    private fun View.setEditable(subject: Subject, hasGradeBar: Boolean) {
+        val isEditable = hasGradeBar && subject.status != STATUS_SUBJECT_GAVE_UP
+
+        if (isEditable) {
+            tViewSubjectCode.drawables(left = R.drawable.ic_open_in)
+
+            onClickOnce { manager.onSubjectClicked(subject) }
+        } else {
+            tViewSubjectCode.drawables(left = 0)
+
+            setOnClickListener(null)
+        }
+    }
+
     private fun View.setGradeBar(subject: Subject, quarter: Quarter, hasGradeBar: Boolean, index: Int) {
         if (!hasGradeBar) {
-            sBarGrade.visibility = View.GONE
+            sBarGrade.gone()
 
             sBarGrade.setOnSeekBarChangeListener(null)
         } else {
-            sBarGrade.visibility = View.VISIBLE
+            sBarGrade.visible()
 
             sBarGrade.onSeekBarChange { progress, fromUser ->
                 if (fromUser) {
@@ -111,7 +127,7 @@ open class QuarterViewHolder(
         (0 until container.childCount).forEach {
             val child = container.getChildAt(it)
 
-            child.visibility = if (it < size) View.VISIBLE else View.GONE
+            child.visibleIf(it < size)
         }
     }
 

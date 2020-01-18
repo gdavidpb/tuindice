@@ -32,6 +32,8 @@ fun Double.toGrade() = floor(this * 100000) / 100000
 
 fun Double.formatGrade() = "%.4f".format(this)
 
+fun Int.formatGrade() = "%d".format(this)
+
 private val dateFormatCache = hashMapOf<String, SimpleDateFormat>()
 
 fun Date.format(format: String, zone: TimeZone = TimeZone.getTimeZone("GMT")) = dateFormatCache.getOrPut(format) {

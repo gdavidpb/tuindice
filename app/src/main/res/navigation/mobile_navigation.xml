@@ -15,12 +15,30 @@
         android:id="@+id/nav_record"
         android:name="com.gdavidpb.tuindice.ui.fragments.RecordFragment"
         android:label="@string/nav_record"
-        tools:layout="@layout/fragment_record" />
+        tools:layout="@layout/fragment_record">
+        <action
+            android:id="@+id/action_nav_record_to_nav_subject"
+            app:destination="@id/nav_subject"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right">
+            <argument
+                android:name="subjectId"
+                app:argType="string" />
+        </action>
+    </fragment>
 
     <fragment
         android:id="@+id/nav_about"
         android:name="com.gdavidpb.tuindice.ui.fragments.AboutFragment"
         android:label="@string/nav_about"
+        tools:layout="@layout/fragment_about" />
+
+    <fragment
+        android:id="@+id/nav_subject"
+        android:name="com.gdavidpb.tuindice.ui.fragments.SubjectFragment"
+        android:label="@string/nav_subject"
         tools:layout="@layout/fragment_about" />
 
 </navigation>

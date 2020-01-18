@@ -51,3 +51,16 @@ const val FIELD_SUBJECT_NAME = "name"
 const val FIELD_SUBJECT_CREDITS = "credits"
 const val FIELD_SUBJECT_GRADE = "grade"
 const val FIELD_SUBJECT_STATUS = "status"
+
+/* Evaluations collection */
+const val COLLECTION_EVALUATION = "evaluations"
+
+/* Evaluations collection fields */
+const val FIELD_EVALUATION_USER_ID = "userId"
+const val FIELD_EVALUATION_SUBJECT_ID = "subjectId"
+const val FIELD_EVALUATION_TYPE = "type"
+const val FIELD_EVALUATION_GRADE = "grade"
+const val FIELD_EVALUATION_MAX_GRADE = "maxGrade"
+const val FIELD_EVALUATION_DATE = "date"
+const val FIELD_EVALUATION_NOTES = "notes"
+const val FIELD_EVALUATION_DONE = "done"
