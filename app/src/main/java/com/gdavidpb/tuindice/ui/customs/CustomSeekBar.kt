@@ -8,20 +8,20 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatSeekBar
 import com.gdavidpb.tuindice.R
-import kotlin.math.pow
-import kotlin.math.sqrt
+import com.gdavidpb.tuindice.utils.mappers.distanceTo
 
 class CustomSeekBar(context: Context, attrs: AttributeSet)
     : AppCompatSeekBar(context, attrs) {
 
     companion object {
-        private var paint = Paint()
-        private var color = Color.WHITE
+        private var defaultColor = Color.WHITE
+
+        private lateinit var paint: Paint
     }
 
     override fun onDraw(canvas: Canvas) {
         /* Trick to extract seek bar background color */
-        if (color == Color.WHITE) {
+        if (defaultColor == Color.WHITE) {
             val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             val canvasHook = Canvas(bitmapHook)
             val progressHook = progress
@@ -36,12 +36,12 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
 
             val x = (width - paddingRight - resources.getDimension(R.dimen.size_tick).toInt() - 1)
 
-            color = (0 until height)
+            defaultColor = (0 until height)
                     .map { y -> bitmapHook.getPixel(x, y) }
                     .distinct()
-                    .maxBy { target -> target distanceTo color } ?: color
+                    .maxBy { target -> target distanceTo defaultColor } ?: defaultColor
 
-            paint.color = color
+            paint = Paint().apply { color = defaultColor }
         }
 
         super.onDraw(canvas)
@@ -57,15 +57,5 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
             for (i in (progress + 1)..max)
                 canvas.drawCircle((i * step) + translateX, halfHeight, radius, paint)
         }
-    }
-
-    private infix fun Int.distanceTo(x: Int): Double {
-        val (a, b, c) = arrayOf(
-                (Color.red(x) - Color.red(this)).toDouble(),
-                (Color.green(x) - Color.green(this)).toDouble(),
-                (Color.blue(x) - Color.blue(this)).toDouble()
-        )
-
-        return sqrt(a.pow(2.0) + b.pow(2.0) + c.pow(2.0))
     }
 }

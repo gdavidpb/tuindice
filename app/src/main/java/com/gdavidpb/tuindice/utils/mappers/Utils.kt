@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.utils.mappers
 
+import android.graphics.Color
 import android.net.Uri
 import android.util.Base64
 import com.gdavidpb.tuindice.domain.model.Auth
@@ -13,6 +14,8 @@ import com.gdavidpb.tuindice.utils.extensions.year
 import com.google.firebase.auth.FirebaseUser
 import java.util.*
 import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 var REF_YEAR = -1
 
@@ -51,6 +54,16 @@ fun Pair<String, String>.fromResetParam(): String {
     val data = "$first\n$second".toByteArray()
 
     return Base64.encodeToString(data, Base64.DEFAULT)
+}
+
+infix fun Int.distanceTo(x: Int): Double {
+    val (a, b, c) = arrayOf(
+            (Color.red(x) - Color.red(this)).toDouble(),
+            (Color.green(x) - Color.green(this)).toDouble(),
+            (Color.blue(x) - Color.blue(this)).toDouble()
+    )
+
+    return sqrt(a.pow(2.0) + b.pow(2.0) + c.pow(2.0))
 }
 
 fun String.toStartEndDate(): List<Date> {

@@ -12,11 +12,8 @@ import com.gdavidpb.tuindice.domain.model.SubjectEvaluations
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
-import com.gdavidpb.tuindice.utils.ARG_SUBJECT_ID
-import com.gdavidpb.tuindice.utils.extensions.animateGrade
-import com.gdavidpb.tuindice.utils.extensions.gone
-import com.gdavidpb.tuindice.utils.extensions.observe
-import com.gdavidpb.tuindice.utils.extensions.visible
+import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_subject.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -30,6 +27,13 @@ open class SubjectFragment : Fragment() {
 
     private val subjectId by lazy {
         requireArguments().getString(ARG_SUBJECT_ID, "")
+    }
+
+    private val cachedColors by lazy {
+        mapOf(
+                true to requireContext().getCompatColor(R.color.color_retired),
+                false to requireContext().getCompatColor(R.color.color_approved)
+        )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -66,10 +70,9 @@ open class SubjectFragment : Fragment() {
                 tViewSubjectName.text = subject.name
                 tViewSubjectCode.text = subject.code
 
-                tViewGrade.animateGrade(5)
-                tViewTotalGrade.animateGrade(89)
-
                 evaluationAdapter.swapItems(new = evaluations)
+
+                updateGrades()
 
                 if (evaluations.isEmpty()) {
                     rViewEvaluations.gone()
@@ -85,9 +88,32 @@ open class SubjectFragment : Fragment() {
         }
     }
 
+    private fun updateGrades() {
+        val gradeSum = evaluationAdapter.computeGradeSum()
+
+        tViewTotalGrade.animateGrade(value = gradeSum)
+        tViewGrade.animateGrade(value = gradeSum.toGrade())
+    }
+
     inner class EvaluationManager : EvaluationAdapter.AdapterManager {
         override fun onEvaluationChanged(item: Evaluation, position: Int) {
+            evaluationAdapter.replaceItemAt(item, position, true)
 
+            updateGrades()
+        }
+
+        override fun onEvaluationDoneChanged(item: Evaluation, position: Int) {
+            evaluationAdapter.replaceItemAt(item, position, true)
+
+            evaluationAdapter.sortItemAt(position, compareBy(Evaluation::done, Evaluation::date))
+        }
+
+        override fun resolveDoneColor(): Int {
+            return cachedColors.getValue(true)
+        }
+
+        override fun resolvePendingColor(): Int {
+            return cachedColors.getValue(false)
         }
     }
 }

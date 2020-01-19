@@ -83,17 +83,16 @@ open class FirestoreDataStore(
         return firestore
                 .collection(COLLECTION_EVALUATION)
                 .whereEqualTo(FIELD_EVALUATION_SUBJECT_ID, sid)
-                .orderBy(FIELD_EVALUATION_DATE, Query.Direction.DESCENDING)
                 .get()
                 .await()
                 .map { it.toEvaluation() }
+                .sortedWith(compareBy(Evaluation::done, Evaluation::date))
     }
 
     override suspend fun getEvaluations(uid: String): List<Evaluation> {
         return firestore
                 .collection(COLLECTION_EVALUATION)
                 .whereEqualTo(FIELD_EVALUATION_USER_ID, uid)
-                .orderBy(FIELD_EVALUATION_DATE, Query.Direction.DESCENDING)
                 .get()
                 .await()
                 .map { it.toEvaluation() }

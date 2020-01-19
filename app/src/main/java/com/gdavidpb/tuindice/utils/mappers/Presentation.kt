@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
-import com.gdavidpb.tuindice.domain.model.service.DstSubject
 import com.gdavidpb.tuindice.presentation.model.CustomTypefaceSpan
 import com.gdavidpb.tuindice.presentation.model.SummaryCredits
 import com.gdavidpb.tuindice.presentation.model.SummarySubjects
@@ -34,14 +33,6 @@ fun Account.toSummaryCredits() = SummaryCredits(
         approvedCredits = approvedCredits,
         retiredCredits = retiredCredits,
         failedCredits = failedCredits
-)
-
-fun Subject.toDstSubject() = DstSubject(
-        code = code,
-        name = name,
-        credits = credits,
-        grade = grade,
-        status = status.toSubjectStatusDescription()
 )
 
 fun Subject.toSubjectCode(context: Context) =
@@ -87,15 +78,17 @@ fun Quarter.toQuarterGradeSum(color: Int, context: Context) =
 fun Quarter.toQuarterCredits(color: Int, font: Typeface, context: Context) =
         context.getString(R.string.quarter_credits, credits).toSpanned(color, font)
 
-fun Date.toWeeksLeft(): String {
-    val weeksLeft = weeksLeft()
+@SuppressLint("DefaultLocale")
+fun Date.toEvaluationDate(): String {
+    val weeksLeft = weeksLeft() + 1
 
     return when {
+        Date().after(this) -> "${format("EEEE '—' dd/MM")?.capitalize()}"
         isToday() -> "Hoy"
         isTomorrow() -> "Mañana"
-        isThisWeek() -> "Este ${dayOfWeekName()}"
-        isNextWeek() -> "El ${dayOfWeekName()} de la próxima semana"
-        weeksLeft > 1 -> "En $weeksLeft semanas"
+        isThisWeek() -> "Este ${format("EEEE '—' dd/MM")}"
+        isNextWeek() -> "El próximo ${format("EEEE '—' dd/MM")}"
+        weeksLeft > 1 -> "En $weeksLeft semanas, ${format("EEEE '—' dd/MM")}"
         else -> "-"
     }
 }

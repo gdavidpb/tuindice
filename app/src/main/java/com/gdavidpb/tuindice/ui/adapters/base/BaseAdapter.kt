@@ -26,6 +26,17 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder<T>>() {
         items.addAll(new)
     }
 
+    open fun sortItemAt(position: Int, comparator: Comparator<T>) {
+        val fromItem = items[position]
+        val toPosition = items.sortedWith(comparator).indexOf(fromItem)
+        val toItem = items[toPosition]
+
+        items[toPosition] = fromItem
+        items[position] = toItem
+
+        notifyItemMoved(position, toPosition)
+    }
+
     open fun getItem(position: Int): T {
         return items[position]
     }
@@ -48,7 +59,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder<T>>() {
         items[position] = item
 
         if (notifyChange)
-            notifyItemChanged(position)
+            notifyItemChanged(position, item)
     }
 
     inline fun <reified Q : T> Q.compareTo(b: Any, comparator: (a: Q, b: Q) -> Boolean): Int {

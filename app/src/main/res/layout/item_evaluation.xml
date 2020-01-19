@@ -11,21 +11,22 @@
     app:cardUseCompatPadding="true">
 
     <View
-        android:id="@+id/viewQuarterColor"
+        android:id="@+id/viewEvaluationColor"
         android:layout_width="@dimen/dp_8"
         android:layout_height="match_parent"
-        android:background="@color/quarter_completed" />
+        tools:background="@color/quarter_completed" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_8"
+        android:animateLayoutChanges="true"
         android:paddingStart="@dimen/dp_16"
         android:paddingTop="@dimen/dp_8"
         android:paddingEnd="@dimen/dp_16"
         android:paddingBottom="@dimen/dp_8">
 
-        <CheckBox
+        <com.gdavidpb.tuindice.ui.customs.CustomCheckBox
             android:id="@+id/cBoxEvaluation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,14 +51,14 @@
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="@id/tViewEvaluationType"
             app:layout_constraintTop_toBottomOf="@id/tViewEvaluationType"
-            tools:text="Este Jueves —  16/01" />
+            tools:text="Este Jueves — 16/01" />
 
         <TextView
             android:id="@+id/tViewEvaluationGrade"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-black"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
             android:textColor="@color/color_secondary_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

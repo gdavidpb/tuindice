@@ -14,6 +14,10 @@ open class EvaluationAdapter(
 
     interface AdapterManager {
         fun onEvaluationChanged(item: Evaluation, position: Int)
+        fun onEvaluationDoneChanged(item: Evaluation, position: Int)
+
+        fun resolveDoneColor(): Int
+        fun resolvePendingColor(): Int
     }
 
     override fun provideComparator() = compareBy(Evaluation::id)
@@ -22,5 +26,9 @@ open class EvaluationAdapter(
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_evaluation, parent, false)
 
         return EvaluationViewHolder(itemView, manager)
+    }
+
+    fun computeGradeSum(): Int {
+        return items.sumBy { evaluation -> evaluation.grade }
     }
 }

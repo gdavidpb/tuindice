@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
+import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.TextWatcher
@@ -82,6 +83,22 @@ fun EditText.onTextChanged(event: (CharSequence, Int, Int, Int) -> Unit) {
 
 fun TextInputLayout.text(value: String? = null) = value?.also { editText?.setText(it) }
         ?: "${editText?.text}"
+
+fun TextView.strikeThrough() {
+    paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+}
+
+fun TextView.clearStrikeThrough() {
+    paintFlags = paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+}
+
+fun View.disable() {
+    isEnabled = false
+}
+
+fun View.enable() {
+    isEnabled = true
+}
 
 fun View.visible() {
     visibility = View.VISIBLE

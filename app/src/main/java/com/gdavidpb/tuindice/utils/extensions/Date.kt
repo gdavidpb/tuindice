@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.utils.extensions
 
-import com.gdavidpb.tuindice.utils.DEFAULT_LOCALE
 import java.util.*
 
 fun Date.isToday(): Boolean {
@@ -42,9 +41,6 @@ fun Date.isYesterday(): Boolean {
 fun Date.isThisWeek(): Boolean {
     return checkInRange({
         precision(Calendar.DATE)
-
-        while (get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
-            add(Calendar.DATE, -1)
     }, {
         precision(Calendar.DATE)
 
@@ -110,12 +106,6 @@ fun Date.year() = Calendar.getInstance().let { calendar ->
     calendar.time = this
 
     calendar.get(Calendar.YEAR)
-}
-
-fun Date.dayOfWeekName() = Calendar.getInstance().let { calendar ->
-    calendar.time = this
-
-    calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, DEFAULT_LOCALE)!!
 }
 
 fun Date.checkInRange(startTransformation: Calendar.() -> Unit, endTransformation: Calendar.() -> Unit): Boolean {
