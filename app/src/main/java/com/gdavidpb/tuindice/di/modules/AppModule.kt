@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.di.modules
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.view.inputmethod.InputMethodManager
 import com.crashlytics.android.Crashlytics
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
@@ -57,6 +58,10 @@ val appModule = module {
 
     single {
         androidContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    }
+
+    single {
+        androidContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     }
 
     /* Firebase */

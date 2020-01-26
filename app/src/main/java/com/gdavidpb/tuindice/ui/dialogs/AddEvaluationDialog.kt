@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
@@ -15,12 +16,15 @@ import com.gdavidpb.tuindice.presentation.model.Evaluation
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluationDate
 import kotlinx.android.synthetic.main.dialog_add_evaluation.*
+import org.koin.android.ext.android.inject
 import java.util.*
 
 open class AddEvaluationDialog(
         val subject: Subject,
         val callback: (Evaluation) -> Unit
 ) : DialogFragment() {
+
+    private val inputMethodManager by inject<InputMethodManager>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.dialog_add_evaluation, container, false)
@@ -36,6 +40,8 @@ open class AddEvaluationDialog(
         tViewSubjectHeader.text = headerText
 
         updateGradeValue(grade = 0)
+
+        eTextNotes.showSoftInputOnFocus = true
 
         tViewLabelNotes.onClickOnce(::onNotesClicked)
         btnEvaluationAdd.onClickOnce(::onAddClicked)
@@ -119,6 +125,14 @@ open class AddEvaluationDialog(
     private fun onNotesClicked() {
         eTextNotes.isVisible = !eTextNotes.isVisible
 
-        tViewLabelNotes.drawables(right = if (eTextNotes.isVisible) R.drawable.ic_expand_less else R.drawable.ic_expand_more)
+        if (eTextNotes.isVisible) {
+            inputMethodManager.showSoftKeyboard(eTextNotes)
+
+            tViewLabelNotes.drawables(right = R.drawable.ic_expand_less)
+        } else {
+            inputMethodManager.hideSoftKeyboard(eTextNotes)
+
+            tViewLabelNotes.drawables(right = R.drawable.ic_expand_more)
+        }
     }
 }

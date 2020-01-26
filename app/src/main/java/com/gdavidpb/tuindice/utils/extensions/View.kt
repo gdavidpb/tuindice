@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
@@ -80,6 +81,16 @@ fun EditText.onTextChanged(event: (CharSequence, Int, Int, Int) -> Unit) {
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
     })
 }
+
+fun InputMethodManager.showSoftKeyboard(view: View) {
+    if (view.requestFocus()) showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+}
+
+fun InputMethodManager.hideSoftKeyboard(view: View) {
+    view.clearFocus()
+    hideSoftInputFromWindow(view.windowToken, 0)
+}
+
 
 fun TextInputLayout.text(value: String? = null) = value?.also { editText?.setText(it) }
         ?: "${editText?.text}"

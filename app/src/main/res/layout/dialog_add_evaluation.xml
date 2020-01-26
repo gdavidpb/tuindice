@@ -49,6 +49,7 @@
                 android:id="@+id/tViewLabelType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
                 android:labelFor="@id/cGroupEvaluation"
                 android:text="@string/label_add_evaluation_type"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -175,6 +176,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_16"
+                android:fontFamily="sans-serif-light"
                 android:labelFor="@id/sBarMaxGrade"
                 android:text="@string/label_add_evaluation_max_grade"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -185,13 +187,13 @@
                 android:id="@+id/tViewLabelGradeValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
+                android:fontFamily="sans-serif-light"
                 android:text="@string/label_add_evaluation_max_grade"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 app:layout_constraintBottom_toBottomOf="@id/tViewLabelGrade"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/tViewLabelGrade"
-                tools:text="0 pts" />
+                tools:text="89 pts" />
 
             <androidx.appcompat.widget.AppCompatSeekBar
                 android:id="@+id/sBarMaxGrade"
@@ -207,6 +209,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_16"
+                android:fontFamily="sans-serif-light"
                 android:labelFor="@id/tViewLabelGrade"
                 android:text="@string/label_add_evaluation_date"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -236,6 +239,7 @@
                 android:clickable="true"
                 android:drawableEnd="@drawable/ic_expand_more"
                 android:focusable="true"
+                android:fontFamily="sans-serif-light"
                 android:labelFor="@id/eTextNotes"
                 android:text="@string/label_add_evaluation_notes"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
