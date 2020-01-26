@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.math.ceil
 
 fun Date.isToday(): Boolean {
     return checkInRange({
@@ -66,20 +68,9 @@ fun Date.isNextWeek(): Boolean {
 }
 
 fun Date.weeksLeft(): Int {
-    val startCalendar = Calendar.getInstance().apply {
-        precision(Calendar.DATE)
-    }
+    val days = TimeUnit.MILLISECONDS.toDays(time - Date().time)
 
-    val endCalendar = Calendar.getInstance().apply {
-        time = this@weeksLeft
-
-        precision(Calendar.DATE)
-    }
-
-    val startWeek = startCalendar.get(Calendar.WEEK_OF_YEAR)
-    val endWeek = endCalendar.get(Calendar.WEEK_OF_YEAR)
-
-    return endWeek - startWeek
+    return ceil(days / 7f).toInt()
 }
 
 fun Calendar.precision(vararg fields: Int): Calendar {

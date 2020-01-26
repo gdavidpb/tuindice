@@ -84,13 +84,12 @@ fun Date.toEvaluationDate(): String {
     val weeksLeft = weeksLeft() + 1
 
     return when {
-        Date().after(this) -> "${format("EEEE '—' dd/MM")?.capitalize()}"
         isToday() -> "Hoy"
         isTomorrow() -> "Mañana"
         isThisWeek() -> "Este ${format("EEEE '—' dd/MM")}"
         isNextWeek() -> "El próximo ${format("EEEE '—' dd/MM")}"
-        weeksLeft > 1 -> "En $weeksLeft semanas, ${format("EEEE '—' dd/MM")}"
-        else -> "-"
+        weeksLeft in 2..12 -> "En $weeksLeft semanas, ${format("EEEE '—' dd/MM")}"
+        else -> format("EEEE '—' dd/MM/yy")?.capitalize()!!
     }
 }
 

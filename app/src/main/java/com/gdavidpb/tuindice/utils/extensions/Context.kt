@@ -12,6 +12,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
+import android.widget.DatePicker
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -122,19 +123,42 @@ fun Context.isGoogleServicesAvailable(activity: Activity): Boolean {
     }
 }
 
-fun Context.datePicker(onDateSelected: (Date) -> Unit) {
-    val calendar = Calendar.getInstance()
+inline fun Context.datePicker(f: DatePickerDialogBuilder.() -> Unit) {
+    val builder = DatePickerDialogBuilder().apply(f)
+
+    val calendar = Calendar.getInstance().apply {
+        time = builder.selectedDate
+    }
 
     DatePickerDialog(this, DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
         Calendar.getInstance().run {
+            precision(Calendar.DATE)
+
             set(Calendar.YEAR, year)
             set(Calendar.MONTH, month)
             set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
             time
-        }.also(onDateSelected)
-    },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)).show()
+        }.also { selectedDate -> builder.onDateSelected(selectedDate) }
+    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+            .also { dialog -> builder.setUpDatePicker(dialog.datePicker) }
+            .show()
 }
+
+fun DatePickerDialogBuilder.onDateSelected(value: (Date) -> Unit) {
+    onDateSelected = value
+}
+
+fun DatePickerDialogBuilder.setUpPicker(value: DatePicker.() -> Unit) {
+    setUpDatePicker = value
+}
+
+fun DatePickerDialogBuilder.selectDate(value: Date) {
+    selectedDate = value
+}
+
+data class DatePickerDialogBuilder(
+        var onDateSelected: (Date) -> Unit = {},
+        var setUpDatePicker: DatePicker.() -> Unit = {},
+        var selectedDate: Date = Date()
+)

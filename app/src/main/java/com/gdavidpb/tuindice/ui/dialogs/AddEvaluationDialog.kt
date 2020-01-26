@@ -94,12 +94,24 @@ open class AddEvaluationDialog(
     }
 
     private fun onDateClicked() {
-        requireActivity().datePicker { selectedDate ->
-            tViewDate.text = selectedDate.toEvaluationDate()
+        requireActivity().datePicker {
+            (tViewDate.tag as? Date)?.also(::selectDate)
 
-            tViewDate.tag = selectedDate
+            onDateSelected { selectedDate ->
+                tViewDate.text = selectedDate.toEvaluationDate()
 
-            validateParams()
+                tViewDate.tag = selectedDate
+
+                validateParams()
+            }
+
+            setUpPicker {
+                val startDate = Date().add(Calendar.YEAR, -1).time
+                val endDate = Date().add(Calendar.YEAR, 1).time
+
+                minDate = startDate
+                maxDate = endDate
+            }
         }
     }
 
