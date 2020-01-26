@@ -75,7 +75,8 @@ open class AddEvaluationDialog(
     }
 
     private fun onAddClicked() {
-        val evaluationType = EvaluationType.values()[cGroupEvaluation.checkedChipId - 1]
+        val evaluationId = cGroupEvaluation.checkedChipId % cGroupEvaluation.childCount
+        val evaluationType = EvaluationType.values()[evaluationId - 1]
 
         val evaluation = Evaluation(
                 type = evaluationType,
