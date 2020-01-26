@@ -1,3 +1,3 @@
 package com.gdavidpb.tuindice.presentation.model
 
-interface SummaryBase
+interface SummaryItemBase

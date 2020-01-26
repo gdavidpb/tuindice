@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.android.ext.android.inject
 import android.view.*
 import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.presentation.model.CircleTransform
+import com.gdavidpb.tuindice.utils.CircleTransform
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.extensions.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel

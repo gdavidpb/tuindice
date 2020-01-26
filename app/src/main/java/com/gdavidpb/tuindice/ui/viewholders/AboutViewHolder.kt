@@ -5,8 +5,8 @@ import android.text.style.TypefaceSpan
 import android.view.View
 import androidx.appcompat.widget.AppCompatButton
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.presentation.model.About
-import com.gdavidpb.tuindice.presentation.model.AboutBase
+import com.gdavidpb.tuindice.presentation.model.AboutItem
+import com.gdavidpb.tuindice.presentation.model.AboutItemBase
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.extensions.drawables
@@ -18,9 +18,9 @@ import org.jetbrains.anko.buildSpanned
 open class AboutViewHolder(
         itemView: View,
         private val manager: AboutAdapter.AdapterManager
-) : BaseViewHolder<AboutBase>(itemView = itemView) {
-    override fun bindView(item: AboutBase) {
-        item as About
+) : BaseViewHolder<AboutItemBase>(itemView = itemView) {
+    override fun bindView(item: AboutItemBase) {
+        item as AboutItem
 
         with(itemView as AppCompatButton) {
             drawables(left = context.getCompatDrawable(item.drawable, R.color.color_secondary_text))

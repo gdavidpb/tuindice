@@ -12,9 +12,9 @@ import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.EvaluationType
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
-import com.gdavidpb.tuindice.presentation.model.CustomTypefaceSpan
-import com.gdavidpb.tuindice.presentation.model.SummaryCredits
-import com.gdavidpb.tuindice.presentation.model.SummarySubjects
+import com.gdavidpb.tuindice.utils.CustomTypefaceSpan
+import com.gdavidpb.tuindice.presentation.model.SummaryCreditsItem
+import com.gdavidpb.tuindice.presentation.model.SummarySubjectsItem
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import org.jetbrains.anko.append
@@ -22,14 +22,14 @@ import org.jetbrains.anko.buildSpanned
 import org.jetbrains.anko.foregroundColor
 import java.util.*
 
-fun Account.toSummarySubjects() = SummarySubjects(
+fun Account.toSummarySubjectsItem() = SummarySubjectsItem(
         enrolledSubjects = enrolledSubjects,
         approvedSubjects = approvedSubjects,
         retiredSubjects = retiredSubjects,
         failedSubjects = failedSubjects
 )
 
-fun Account.toSummaryCredits() = SummaryCredits(
+fun Account.toSummaryCreditsItem() = SummaryCreditsItem(
         enrolledCredits = enrolledCredits,
         approvedCredits = approvedCredits,
         retiredCredits = retiredCredits,

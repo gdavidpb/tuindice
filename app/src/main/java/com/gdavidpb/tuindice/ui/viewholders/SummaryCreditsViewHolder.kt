@@ -2,17 +2,17 @@ package com.gdavidpb.tuindice.ui.viewholders
 
 import android.view.View
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.presentation.model.SummaryBase
-import com.gdavidpb.tuindice.presentation.model.SummaryCredits
+import com.gdavidpb.tuindice.presentation.model.SummaryItemBase
+import com.gdavidpb.tuindice.presentation.model.SummaryCreditsItem
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.extensions.animatePercent
 import com.gdavidpb.tuindice.utils.extensions.gone
 import com.gdavidpb.tuindice.utils.extensions.visible
 import kotlinx.android.synthetic.main.item_summary_credits.view.*
 
-open class SummaryCreditsViewHolder(itemView: View) : BaseViewHolder<SummaryBase>(itemView) {
-    override fun bindView(item: SummaryBase) {
-        item as SummaryCredits
+open class SummaryCreditsViewHolder(itemView: View) : BaseViewHolder<SummaryItemBase>(itemView) {
+    override fun bindView(item: SummaryItemBase) {
+        item as SummaryCreditsItem
 
         with(itemView) {
             val total = item.enrolledCredits.toFloat()

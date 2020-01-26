@@ -2,10 +2,10 @@ package com.gdavidpb.tuindice.presentation.model
 
 import androidx.annotation.DrawableRes
 
-data class AboutLib(
+data class AboutItem(
         val content: String,
         @DrawableRes val drawable: Int,
         val onClick: () -> Unit = { }
-) : AboutBase {
+) : AboutItemBase {
     override fun onClick() = onClick.invoke()
 }

@@ -12,7 +12,7 @@ import androidx.fragment.app.FragmentManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.EvaluationType
 import com.gdavidpb.tuindice.domain.model.Subject
-import com.gdavidpb.tuindice.presentation.model.Evaluation
+import com.gdavidpb.tuindice.presentation.model.NewEvaluation
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluationDate
 import kotlinx.android.synthetic.main.dialog_add_evaluation.*
@@ -21,7 +21,7 @@ import java.util.*
 
 open class AddEvaluationDialog(
         val subject: Subject,
-        val callback: (Evaluation) -> Unit
+        val callback: (NewEvaluation) -> Unit
 ) : DialogFragment() {
 
     private val inputMethodManager by inject<InputMethodManager>()
@@ -84,7 +84,7 @@ open class AddEvaluationDialog(
         val evaluationId = cGroupEvaluation.checkedChipId % cGroupEvaluation.childCount
         val evaluationType = EvaluationType.values()[evaluationId - 1]
 
-        val evaluation = Evaluation(
+        val evaluation = NewEvaluation(
                 type = evaluationType,
                 maxGrade = sBarMaxGrade.progress,
                 date = tViewDate.tag as Date,

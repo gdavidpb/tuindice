@@ -1,5 +1,5 @@
 package com.gdavidpb.tuindice.presentation.model
 
-interface AboutBase {
+interface AboutItemBase {
     fun onClick()
 }

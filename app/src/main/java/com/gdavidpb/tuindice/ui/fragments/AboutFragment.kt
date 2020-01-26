@@ -11,9 +11,9 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.presentation.model.About
-import com.gdavidpb.tuindice.presentation.model.AboutHeader
-import com.gdavidpb.tuindice.presentation.model.AboutLib
+import com.gdavidpb.tuindice.presentation.model.AboutItem
+import com.gdavidpb.tuindice.presentation.model.AboutHeaderItem
+import com.gdavidpb.tuindice.presentation.model.AboutLibItem
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.utils.*
@@ -60,26 +60,26 @@ open class AboutFragment : Fragment() {
                 getString(if (versionName < 1.0f) R.string.beta else R.string.release))
 
         val data = listOf(
-                AboutHeader(title = getString(R.string.app_name)),
-                About(drawable = R.drawable.ic_version, content = version),
-                About(drawable = R.drawable.ic_cc, content = getString(R.string.about_license)) { context.browserActivity(title = R.string.label_creative_commons, url = URL_CREATIVE_COMMONS) },
-                About(drawable = R.drawable.ic_privacy_policy, content = getString(R.string.about_privacy_policy)) { context.browserActivity(title = R.string.label_privacy_policy, url = URL_PRIVACY_POLICY) },
-                About(drawable = R.drawable.ic_twitter, content = getString(R.string.about_twitter)) { context.browse(URL_TWITTER) },
-                About(drawable = R.drawable.ic_share, content = getString(R.string.about_share)) { context.share(getString(R.string.about_share_message, context.packageName), getString(R.string.app_name)) },
-                About(drawable = R.drawable.ic_rate, content = getString(R.string.about_rate)) { startPlayStore() },
-                AboutHeader(title = getString(R.string.about_header_developer)),
-                About(drawable = R.drawable.ic_profile, content = getString(R.string.about_dev_info)),
-                About(drawable = R.drawable.ic_github, content = getString(R.string.about_source_code)),
-                About(drawable = R.drawable.ic_contact, content = getString(R.string.about_dev_contact)) { context.email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT) },
-                About(drawable = R.drawable.ic_report, content = getString(R.string.about_dev_report)) { showReportSelector() },
-                AboutHeader(title = getString(R.string.about_header_libs)),
-                AboutLib(drawable = R.drawable.ic_kotlin, content = getString(R.string.about_kotlin)),
-                AboutLib(drawable = R.drawable.ic_firebase, content = getString(R.string.about_firebase)),
-                AboutLib(drawable = R.drawable.ic_koin, content = getString(R.string.about_koin)),
-                AboutLib(drawable = R.drawable.ic_square, content = getString(R.string.about_retrofit)),
-                AboutLib(drawable = R.drawable.ic_freepik, content = getString(R.string.about_freepik)),
-                AboutHeader(title = getString(R.string.about_header_settings)),
-                About(drawable = R.drawable.ic_sign_out, content = getString(R.string.about_sign_out)) { showSignOutDialog() }
+                AboutHeaderItem(title = getString(R.string.app_name)),
+                AboutItem(drawable = R.drawable.ic_version, content = version),
+                AboutItem(drawable = R.drawable.ic_cc, content = getString(R.string.about_license)) { context.browserActivity(title = R.string.label_creative_commons, url = URL_CREATIVE_COMMONS) },
+                AboutItem(drawable = R.drawable.ic_privacy_policy, content = getString(R.string.about_privacy_policy)) { context.browserActivity(title = R.string.label_privacy_policy, url = URL_PRIVACY_POLICY) },
+                AboutItem(drawable = R.drawable.ic_twitter, content = getString(R.string.about_twitter)) { context.browse(URL_TWITTER) },
+                AboutItem(drawable = R.drawable.ic_share, content = getString(R.string.about_share)) { context.share(getString(R.string.about_share_message, context.packageName), getString(R.string.app_name)) },
+                AboutItem(drawable = R.drawable.ic_rate, content = getString(R.string.about_rate)) { startPlayStore() },
+                AboutHeaderItem(title = getString(R.string.about_header_developer)),
+                AboutItem(drawable = R.drawable.ic_profile, content = getString(R.string.about_dev_info)),
+                AboutItem(drawable = R.drawable.ic_github, content = getString(R.string.about_source_code)),
+                AboutItem(drawable = R.drawable.ic_contact, content = getString(R.string.about_dev_contact)) { context.email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT) },
+                AboutItem(drawable = R.drawable.ic_report, content = getString(R.string.about_dev_report)) { showReportSelector() },
+                AboutHeaderItem(title = getString(R.string.about_header_libs)),
+                AboutLibItem(drawable = R.drawable.ic_kotlin, content = getString(R.string.about_kotlin)),
+                AboutLibItem(drawable = R.drawable.ic_firebase, content = getString(R.string.about_firebase)),
+                AboutLibItem(drawable = R.drawable.ic_koin, content = getString(R.string.about_koin)),
+                AboutLibItem(drawable = R.drawable.ic_square, content = getString(R.string.about_retrofit)),
+                AboutLibItem(drawable = R.drawable.ic_freepik, content = getString(R.string.about_freepik)),
+                AboutHeaderItem(title = getString(R.string.about_header_settings)),
+                AboutItem(drawable = R.drawable.ic_sign_out, content = getString(R.string.about_sign_out)) { showSignOutDialog() }
         )
 
         adapter.swapItems(new = data)
