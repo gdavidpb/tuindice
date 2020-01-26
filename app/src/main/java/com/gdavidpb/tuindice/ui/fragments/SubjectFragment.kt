@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.SubjectEvaluations
@@ -47,6 +48,13 @@ open class SubjectFragment : Fragment() {
         with(rViewEvaluations) {
             layoutManager = LinearLayoutManager(context)
             adapter = evaluationAdapter
+
+            onScrollStateChanged { newState ->
+                if (newState == SCROLL_STATE_IDLE)
+                    btnAddEvaluation.show()
+                else
+                    btnAddEvaluation.hide()
+            }
         }
 
         btnAddEvaluation.onClickOnce(::onAddEvaluationClicked)

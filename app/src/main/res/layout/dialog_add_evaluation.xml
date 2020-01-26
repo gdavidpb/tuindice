@@ -220,7 +220,6 @@
                 android:background="@drawable/sh_rect_date"
                 android:clickable="true"
                 android:drawableEnd="@drawable/ic_edit_calendar"
-                android:drawablePadding="@dimen/dp_8"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:padding="@dimen/dp_16"
