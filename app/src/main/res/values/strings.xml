@@ -14,6 +14,7 @@
     <string name="accept">Aceptar</string>
     <string name="cancel">Cancelar</string>
     <string name="close">Cerrar</string>
+    <string name="add">Agregar</string>
     <string name="exit">Salir</string>
     <string name="remove">Quitar</string>
     <string name="decline">Rechazar</string>
@@ -281,6 +282,18 @@
     <string name="evaluation_attendance">Asistencia</string>
     <string name="evaluation_quiz">Quiz</string>
     <string name="evaluation_presentation">Exposición</string>
+
+    <!-- AddEvaluationDialog -->
+    <string name="title_add_evaluation">Agregar evaluación</string>
+
+    <string name="label_add_evaluation_type">Tipo</string>
+    <string name="label_add_evaluation_max_grade">Valor</string>
+    <string name="label_add_evaluation_date">Fecha</string>
+    <string name="label_add_evaluation_notes">Observaciones</string>
+    <string name="label_add_evaluation_no_date">Selecciona una fecha</string>
+
+    <string name="label_add_evaluation_grade_value">%1$d pts</string>
+    <string name="label_add_evaluation_subject_header">%1$s ─ %2$s</string>
 
     <!-- BrowserActivity -->
     <string name="label_creative_commons">TuIndice - Creative Commons</string>

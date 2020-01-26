@@ -1,9 +1,7 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
@@ -12,10 +10,13 @@ import com.gdavidpb.tuindice.domain.model.SubjectEvaluations
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
+import com.gdavidpb.tuindice.ui.dialogs.AddEvaluationDialog
+import com.gdavidpb.tuindice.ui.dialogs.CalendarDialog
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_subject.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.*
 
 open class SubjectFragment : Fragment() {
 
@@ -41,20 +42,46 @@ open class SubjectFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        setHasOptionsMenu(false)
+        setHasOptionsMenu(true)
 
         with(rViewEvaluations) {
             layoutManager = LinearLayoutManager(context)
             adapter = evaluationAdapter
         }
 
+        btnAddEvaluation.onClickOnce(::onAddEvaluationClicked)
+
         with(viewModel) {
             observe(evaluations, ::evaluationsObserver)
 
             getSubjectEvaluations(sid = subjectId)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.subject_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_calendar -> {
+                val startDate = Date().add(Calendar.YEAR, -1)
+                val endDate = Date().add(Calendar.YEAR, 1)
+
+                CalendarDialog(startDate, endDate).show(childFragmentManager)
+
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun onAddEvaluationClicked() {
+        val selectedSubject = viewModel.getSelectedSubject() ?: return
+
+        AddEvaluationDialog(subject = selectedSubject) { evaluation ->
+
+        }.show(childFragmentManager)
     }
 
     private fun evaluationsObserver(result: Result<SubjectEvaluations>?) {
@@ -100,12 +127,16 @@ open class SubjectFragment : Fragment() {
             evaluationAdapter.replaceItemAt(item, position, true)
 
             updateGrades()
+
+            viewModel.updateEvaluation(item)
         }
 
         override fun onEvaluationDoneChanged(item: Evaluation, position: Int) {
             evaluationAdapter.replaceItemAt(item, position, true)
 
             evaluationAdapter.sortItemAt(position, compareBy(Evaluation::done, Evaluation::date))
+
+            viewModel.updateEvaluation(item)
         }
 
         override fun resolveDoneColor(): Int {

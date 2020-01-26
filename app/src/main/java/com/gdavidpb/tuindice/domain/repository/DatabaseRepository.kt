@@ -19,6 +19,7 @@ interface DatabaseRepository {
 
     suspend fun getSubjectEvaluations(sid: String): List<Evaluation>
     suspend fun getEvaluations(uid: String): List<Evaluation>
+    suspend fun updateEvaluation(evaluation: Evaluation)
 
     suspend fun updateToken(uid: String, token: String)
     suspend fun updateAuthData(uid: String, data: DstAuth)

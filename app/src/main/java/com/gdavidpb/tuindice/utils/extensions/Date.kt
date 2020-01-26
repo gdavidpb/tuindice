@@ -102,10 +102,18 @@ fun Date.tomorrow(): Date {
     }
 }
 
-fun Date.year() = Calendar.getInstance().let { calendar ->
+fun Date.get(field: Int) = Calendar.getInstance().let { calendar ->
     calendar.time = this
 
-    calendar.get(Calendar.YEAR)
+    calendar.get(field)
+}
+
+fun Date.add(field: Int, value: Int) = Calendar.getInstance().let { calendar ->
+    calendar.time = this
+
+    calendar.add(field, value)
+
+    Date(calendar.timeInMillis)
 }
 
 fun Date.checkInRange(startTransformation: Calendar.() -> Unit, endTransformation: Calendar.() -> Unit): Boolean {

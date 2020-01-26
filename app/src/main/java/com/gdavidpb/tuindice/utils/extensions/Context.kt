@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -31,6 +32,7 @@ import org.jetbrains.anko.alert
 import org.jetbrains.anko.browse
 import org.jetbrains.anko.startActivity
 import java.io.File
+import java.util.*
 
 fun Context.openSettings() {
     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -118,4 +120,21 @@ fun Context.isGoogleServicesAvailable(activity: Activity): Boolean {
             }
         }
     }
+}
+
+fun Context.datePicker(onDateSelected: (Date) -> Unit) {
+    val calendar = Calendar.getInstance()
+
+    DatePickerDialog(this, DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+        Calendar.getInstance().run {
+            set(Calendar.YEAR, year)
+            set(Calendar.MONTH, month)
+            set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+            time
+        }.also(onDateSelected)
+    },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)).show()
 }

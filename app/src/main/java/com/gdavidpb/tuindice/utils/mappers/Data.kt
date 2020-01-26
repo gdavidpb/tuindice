@@ -1,9 +1,6 @@
 package com.gdavidpb.tuindice.utils.mappers
 
-import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.domain.model.Evaluation
-import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.Subject
+import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.computeCredits
 import com.google.firebase.firestore.DocumentSnapshot
@@ -58,7 +55,8 @@ fun DocumentSnapshot.toSubject() = Subject(
 fun DocumentSnapshot.toEvaluation() = Evaluation(
         id = id,
         sid = getString(FIELD_EVALUATION_SUBJECT_ID) ?: "",
-        type = getLong(FIELD_EVALUATION_TYPE)?.toInt() ?: EVALUATION_OTHER,
+        type = EvaluationType.values()[(getLong(FIELD_EVALUATION_TYPE)?.toInt()
+                ?: EvaluationType.OTHER.ordinal)],
         grade = getLong(FIELD_EVALUATION_GRADE)?.toInt() ?: 0,
         maxGrade = getLong(FIELD_EVALUATION_MAX_GRADE)?.toInt() ?: 0,
         date = getDate(FIELD_EVALUATION_DATE) ?: Date(),

@@ -8,9 +8,9 @@ import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.domain.usecase.request.ResetRequest
 import com.gdavidpb.tuindice.utils.REF_BASE
+import com.gdavidpb.tuindice.utils.extensions.get
 import com.gdavidpb.tuindice.utils.extensions.parse
 import com.gdavidpb.tuindice.utils.extensions.trimAll
-import com.gdavidpb.tuindice.utils.extensions.year
 import com.google.firebase.auth.FirebaseUser
 import java.util.*
 import kotlin.math.abs
@@ -86,13 +86,13 @@ private fun checkIntegrity(input: String, output: List<Date>, refYear: Int) {
     if (output.size != 2)
         throw IllegalStateException("toStartEndDate: '$input'")
 
-    val startYear = output[0].year()
-    val endYear = output[1].year()
+    val startYear = output[0].get(Calendar.YEAR)
+    val endYear = output[1].get(Calendar.YEAR)
 
     val isInvalidDistance = abs(startYear - endYear) > 1
 
     val isInvalid = if (refYear != -1) {
-        val validRange = (refYear - 1)..(Date().year() + 1)
+        val validRange = (refYear - 1)..(Date().get(Calendar.YEAR) + 1)
 
         !validRange.contains(startYear) || !validRange.contains(endYear) || isInvalidDistance
     } else

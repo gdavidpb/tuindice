@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tViewEvaluationHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_primary"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center_vertical"
+        android:padding="@dimen/dp_16"
+        android:text="@string/title_add_evaluation"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/color_text_icon"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tViewSubjectHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_background"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="@dimen/dp_12"
+        android:paddingTop="@dimen/dp_6"
+        android:paddingEnd="@dimen/dp_12"
+        android:paddingBottom="@dimen/dp_6"
+        app:layout_constraintTop_toBottomOf="@id/tViewEvaluationHeader"
+        tools:text="CI2125 — COMPUTACION I" />
+
+    <ScrollView
+        android:id="@+id/sViewEvaluation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/tViewSubjectHeader">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:padding="@dimen/dp_16">
+
+            <TextView
+                android:id="@+id/tViewLabelType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:labelFor="@id/cGroupEvaluation"
+                android:text="@string/label_add_evaluation_type"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cGroupEvaluation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                app:layout_constraintTop_toBottomOf="@id/tViewLabelType"
+                app:selectionRequired="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/evaluation_test"
+                    android:textColor="@drawable/sl_chip_text_color"
+                    app:chipBackgroundColor="@drawable/sl_chip_background" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/evaluation_essay"
+                    android:textColor="@drawable/sl_chip_text_color"
+
+                    app:chipBackgroundColor="@drawable/sl_chip_background" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/evaluation_attendance"
+                    android:textColor="@drawable/sl_chip_text_color"
+                    app:chipBackgroundColor="@drawable/sl_chip_background" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/evaluation_interventions"
+                    android:textColor="@drawable/sl_chip_text_color"
+                    app:chipBackgroundColor="@drawable/sl_chip_background" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/evaluation_laboratory"
+                    android:textColor="@drawable/sl_chip_text_color"
+                    app:chipBackgroundColor="@drawable/sl_chip_background" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/evaluation_model"
+                    android:textColor="@drawable/sl_chip_text_color"
+                    app:chipBackgroundColor="@drawable/sl_chip_background" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/evaluation_presentation"
+                    android:textColor="@drawable/sl_chip_text_color"
+                    app:chipBackgroundColor="@drawable/sl_chip_background" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/evaluation_project"
+                    android:textColor="@drawable/sl_chip_text_color"
+                    app:chipBackgroundColor="@drawable/sl_chip_background" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/evaluation_quiz"
+                    android:textColor="@drawable/sl_chip_text_color"
+                    app:chipBackgroundColor="@drawable/sl_chip_background" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/evaluation_report"
+                    android:textColor="@drawable/sl_chip_text_color"
+                    app:chipBackgroundColor="@drawable/sl_chip_background" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/evaluation_workshop"
+                    android:textColor="@drawable/sl_chip_text_color"
+                    app:chipBackgroundColor="@drawable/sl_chip_background" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/evaluation_written_work"
+                    android:textColor="@drawable/sl_chip_text_color"
+                    app:chipBackgroundColor="@drawable/sl_chip_background" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/evaluation_other"
+                    android:textColor="@drawable/sl_chip_text_color"
+                    app:chipBackgroundColor="@drawable/sl_chip_background" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <TextView
+                android:id="@+id/tViewLabelGrade"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                android:labelFor="@id/sBarMaxGrade"
+                android:text="@string/label_add_evaluation_max_grade"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cGroupEvaluation" />
+
+            <TextView
+                android:id="@+id/tViewLabelGradeValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/label_add_evaluation_max_grade"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintBottom_toBottomOf="@id/tViewLabelGrade"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tViewLabelGrade"
+                tools:text="0 pts" />
+
+            <androidx.appcompat.widget.AppCompatSeekBar
+                android:id="@+id/sBarMaxGrade"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                android:max="100"
+                app:layout_constraintTop_toBottomOf="@id/tViewLabelGrade"
+                tools:progress="89" />
+
+            <TextView
+                android:id="@+id/tViewLabelDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                android:labelFor="@id/tViewLabelGrade"
+                android:text="@string/label_add_evaluation_date"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintTop_toBottomOf="@id/sBarMaxGrade" />
+
+            <TextView
+                android:id="@+id/tViewDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                android:background="@drawable/sh_rect_date"
+                android:clickable="true"
+                android:drawableEnd="@drawable/ic_edit_calendar"
+                android:drawablePadding="@dimen/dp_8"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:padding="@dimen/dp_16"
+                android:tag="@null"
+                android:text="@string/label_add_evaluation_no_date"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tViewLabelDate" />
+
+            <TextView
+                android:id="@+id/tViewLabelNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                android:clickable="true"
+                android:drawableEnd="@drawable/ic_expand_more"
+                android:focusable="true"
+                android:labelFor="@id/eTextNotes"
+                android:text="@string/label_add_evaluation_notes"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintTop_toBottomOf="@id/tViewDate" />
+
+            <EditText
+                android:id="@+id/eTextNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine"
+                android:maxLength="128"
+                android:maxLines="1"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/tViewLabelNotes" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnEvaluationAdd"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_16"
+        android:layout_marginEnd="@dimen/dp_16"
+        android:layout_marginBottom="@dimen/dp_16"
+        android:enabled="false"
+        android:text="@string/add"
+        android:textColor="@drawable/sl_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sViewEvaluation" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnEvaluationCancel"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_16"
+        android:layout_marginBottom="@dimen/dp_16"
+        android:text="@string/cancel"
+        android:textColor="@drawable/sl_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnEvaluationAdd"
+        app:layout_constraintTop_toBottomOf="@id/sViewEvaluation" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

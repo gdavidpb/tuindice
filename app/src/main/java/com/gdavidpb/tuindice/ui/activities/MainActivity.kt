@@ -54,18 +54,18 @@ class MainActivity : BaseActivity() {
     private fun initView(@IdRes navId: Int) {
         setContentView(R.layout.activity_main)
 
-        val navController = findNavController(R.id.navHostFragment)
+        with(findNavController(R.id.navHostFragment)) {
+            NavigationUI.setupWithNavController(bottomNavView, this)
 
-        NavigationUI.setupWithNavController(bottomNavView, navController)
+            if (navId.isStartDestination()) {
+                popBackStack()
 
-        runCatching {
-            navController.popBackStack()
+                navigate(navId)
+            }
 
-            navController.navigate(navId)
-        }
-
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            onDestinationChanged(destination)
+            addOnDestinationChangedListener { _, destination, _ ->
+                onDestinationChanged(destination)
+            }
         }
 
         viewModel.trySyncAccount()

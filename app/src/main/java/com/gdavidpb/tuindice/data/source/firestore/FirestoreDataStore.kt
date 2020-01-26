@@ -98,6 +98,19 @@ open class FirestoreDataStore(
                 .map { it.toEvaluation() }
     }
 
+    override suspend fun updateEvaluation(evaluation: Evaluation) {
+        val evaluationRef = firestore
+                .collection(COLLECTION_EVALUATION)
+                .document(evaluation.id)
+
+        val values = mapOf(
+                FIELD_EVALUATION_GRADE to evaluation.grade,
+                FIELD_EVALUATION_DONE to evaluation.done
+        )
+
+        evaluationRef.set(values, SetOptions.merge()).await()
+    }
+
     override suspend fun getSubject(uid: String): Subject {
         return firestore
                 .collection(COLLECTION_SUBJECT)

@@ -53,21 +53,6 @@ const val STATUS_SUBJECT_RETIRED = 1
 const val STATUS_SUBJECT_NO_EFFECT = 2
 const val STATUS_SUBJECT_GAVE_UP = 3
 
-/* Evaluations types */
-const val EVALUATION_OTHER = 0
-const val EVALUATION_TEST = 1
-const val EVALUATION_WORKSHOP = 2
-const val EVALUATION_LABORATORY = 3
-const val EVALUATION_ESSAY = 4
-const val EVALUATION_WRITTEN_WORK = 5
-const val EVALUATION_REPORT = 6
-const val EVALUATION_PROJECT = 7
-const val EVALUATION_INTERVENTIONS = 8
-const val EVALUATION_MODEL = 9
-const val EVALUATION_ATTENDANCE = 10
-const val EVALUATION_QUIZ = 11
-const val EVALUATION_PRESENTATION = 12
-
 /* Default locale */
 val DEFAULT_LOCALE: Locale = Locale("es", "VE")
 val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone("America/Caracas")

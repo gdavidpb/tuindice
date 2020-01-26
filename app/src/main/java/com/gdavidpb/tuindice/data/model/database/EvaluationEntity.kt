@@ -1,11 +1,11 @@
-package com.gdavidpb.tuindice.domain.model
+package com.gdavidpb.tuindice.data.model.database
 
 import java.util.*
 
-data class Evaluation(
+data class EvaluationEntity(
         val id: String,
         val sid: String,
-        val type: EvaluationType,
+        val type: Int,
         val grade: Int,
         val maxGrade: Int,
         val date: Date,

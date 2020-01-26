@@ -9,6 +9,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.model.EvaluationType
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.presentation.model.CustomTypefaceSpan
@@ -93,22 +94,7 @@ fun Date.toEvaluationDate(): String {
     }
 }
 
-fun Int.toEvaluationTypeName(context: Context) = when (this) {
-    EVALUATION_OTHER -> R.string.evaluation_other
-    EVALUATION_TEST -> R.string.evaluation_test
-    EVALUATION_WORKSHOP -> R.string.evaluation_workshop
-    EVALUATION_LABORATORY -> R.string.evaluation_laboratory
-    EVALUATION_ESSAY -> R.string.evaluation_essay
-    EVALUATION_WRITTEN_WORK -> R.string.evaluation_written_work
-    EVALUATION_REPORT -> R.string.evaluation_report
-    EVALUATION_PROJECT -> R.string.evaluation_project
-    EVALUATION_INTERVENTIONS -> R.string.evaluation_interventions
-    EVALUATION_MODEL -> R.string.evaluation_model
-    EVALUATION_ATTENDANCE -> R.string.evaluation_attendance
-    EVALUATION_QUIZ -> R.string.evaluation_quiz
-    EVALUATION_PRESENTATION -> R.string.evaluation_presentation
-    else -> 0
-}.let { res -> context.getString(res) }
+fun EvaluationType.toEvaluationTypeName(context: Context) = context.getString(stringRes)
 
 fun Int.toSubjectStatusDescription() = when (this) {
     STATUS_SUBJECT_RETIRED -> "Retirada"
