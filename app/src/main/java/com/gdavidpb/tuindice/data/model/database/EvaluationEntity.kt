@@ -1,14 +1,14 @@
 package com.gdavidpb.tuindice.data.model.database
 
-import java.util.*
+import com.google.firebase.Timestamp
 
 data class EvaluationEntity(
-        val id: String,
-        val sid: String,
+        val userId: String,
+        val subjectId: String,
         val type: Int,
         val grade: Int,
         val maxGrade: Int,
-        val date: Date,
+        val date: Timestamp,
         val notes: String,
-        val done: Boolean
+        val isDone: Boolean
 )

@@ -1,10 +1,21 @@
 package com.gdavidpb.tuindice.utils.mappers
 
+import com.gdavidpb.tuindice.data.model.database.EvaluationEntity
+import com.gdavidpb.tuindice.data.model.database.QuarterEntity
+import com.gdavidpb.tuindice.data.model.database.SubjectEntity
+import com.gdavidpb.tuindice.data.model.database.SubjectNoGradeEntity
 import com.gdavidpb.tuindice.domain.model.*
+import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
+import com.gdavidpb.tuindice.domain.model.service.DstQuarter
+import com.gdavidpb.tuindice.domain.model.service.DstSubject
+import com.gdavidpb.tuindice.presentation.model.NewEvaluation
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.computeCredits
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import java.util.*
+
+/* Read from database */
 
 fun DocumentSnapshot.toAccount() = Account(
         uid = id,
@@ -61,5 +72,76 @@ fun DocumentSnapshot.toEvaluation() = Evaluation(
         maxGrade = getLong(FIELD_EVALUATION_MAX_GRADE)?.toInt() ?: 0,
         date = getDate(FIELD_EVALUATION_DATE) ?: Date(),
         notes = getString(FIELD_EVALUATION_NOTES) ?: "",
-        done = getBoolean(FIELD_EVALUATION_DONE) ?: false
+        isDone = getBoolean(FIELD_EVALUATION_DONE) ?: false
+)
+
+/* Write to database */
+
+fun NewEvaluation.toEvaluation() = Evaluation(
+        id = "",
+        sid = sid,
+        type = type,
+        grade = maxGrade,
+        maxGrade = maxGrade,
+        date = date,
+        notes = notes,
+        isDone = false
+)
+
+fun DstEnrollment.toQuarterEntity(uid: String) = QuarterEntity(
+        userId = uid,
+        startDate = Timestamp(startDate),
+        endDate = Timestamp(endDate),
+        grade = MAX_GRADE.toDouble(),
+        gradeSum = 0.0,
+        status = STATUS_QUARTER_CURRENT
+)
+
+fun ScheduleSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
+        userId = uid,
+        quarterId = qid,
+        code = code,
+        name = name,
+        credits = credits,
+        grade = MAX_GRADE,
+        status = status.toSubjectStatusValue()
+)
+
+fun SubjectEntity.toNoGrade() = SubjectNoGradeEntity(
+        userId = userId,
+        quarterId = quarterId,
+        code = code,
+        name = name,
+        credits = credits,
+        status = status
+)
+
+fun DstQuarter.toQuarterEntity(uid: String) = QuarterEntity(
+        userId = uid,
+        startDate = Timestamp(startDate),
+        endDate = Timestamp(endDate),
+        grade = grade,
+        gradeSum = gradeSum,
+        status = status
+)
+
+fun DstSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
+        userId = uid,
+        quarterId = qid,
+        code = code,
+        name = name,
+        credits = credits,
+        grade = grade,
+        status = status.toSubjectStatusValue()
+)
+
+fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
+        userId = uid,
+        subjectId = sid,
+        type = type.ordinal,
+        grade = grade,
+        maxGrade = maxGrade,
+        date = Timestamp(date),
+        notes = notes,
+        isDone = isDone
 )

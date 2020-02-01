@@ -86,7 +86,7 @@ open class FirestoreDataStore(
                 .get()
                 .await()
                 .map { it.toEvaluation() }
-                .sortedWith(compareBy(Evaluation::done, Evaluation::date))
+                .sortedWith(compareBy(Evaluation::isDone, Evaluation::date))
     }
 
     override suspend fun getEvaluations(uid: String): List<Evaluation> {
@@ -105,16 +105,37 @@ open class FirestoreDataStore(
 
         val values = mapOf(
                 FIELD_EVALUATION_GRADE to evaluation.grade,
-                FIELD_EVALUATION_DONE to evaluation.done
+                FIELD_EVALUATION_DONE to evaluation.isDone
         )
 
         evaluationRef.set(values, SetOptions.merge()).await()
     }
 
-    override suspend fun getSubject(uid: String): Subject {
+    override suspend fun removeEvaluation(id: String) {
+        firestore
+                .collection(COLLECTION_EVALUATION)
+                .document(id)
+                .delete()
+                .await()
+    }
+
+    override suspend fun addEvaluation(uid: String, evaluation: Evaluation): Evaluation {
+        val entity = evaluation.toEvaluationEntity(uid)
+
+        return firestore
+                .collection(COLLECTION_EVALUATION)
+                .document()
+                .let { document ->
+                    document.set(entity).await()
+
+                    evaluation.copy(id = document.id)
+                }
+    }
+
+    override suspend fun getSubject(id: String): Subject {
         return firestore
                 .collection(COLLECTION_SUBJECT)
-                .document(uid)
+                .document(id)
                 .get()
                 .await()
                 .toSubject()

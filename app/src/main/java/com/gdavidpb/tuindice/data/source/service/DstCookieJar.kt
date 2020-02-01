@@ -12,19 +12,20 @@ open class DstCookieJar(
         val name = getCookiePath(url)
 
         /* Join cookies as lines */
-        localStorageRepository.putSync(name, cookies.joinToString("\n").byteInputStream())
+        localStorageRepository.put(name, cookies.joinToString("\n").byteInputStream())
     }
 
     override fun loadForRequest(url: HttpUrl): List<Cookie> {
         val name = getCookiePath(url)
 
         /* Return empty CookieJar if the file does not exist */
-        return (localStorageRepository.getSync(name) ?: return listOf())
-                .bufferedReader()
-                .readLines()
-                .mapNotNull { cookie ->
-                    Cookie.parse(url, cookie)
-                }
+        return if (localStorageRepository.exists(name))
+            localStorageRepository.get(name)
+                    .bufferedReader()
+                    .readLines()
+                    .mapNotNull { cookie -> Cookie.parse(url, cookie) }
+        else
+            listOf()
     }
 
     private fun getCookiePath(url: HttpUrl) = "cookies/${url.host}"

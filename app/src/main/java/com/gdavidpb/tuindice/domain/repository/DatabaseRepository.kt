@@ -13,13 +13,15 @@ interface DatabaseRepository {
     suspend fun getQuarters(uid: String): List<Quarter>
     suspend fun getCurrentQuarter(uid: String): Quarter?
 
-    suspend fun getSubject(uid: String): Subject
+    suspend fun getSubject(id: String): Subject
     suspend fun updateSubject(subject: Subject)
     suspend fun removeSubject(id: String)
 
     suspend fun getSubjectEvaluations(sid: String): List<Evaluation>
     suspend fun getEvaluations(uid: String): List<Evaluation>
     suspend fun updateEvaluation(evaluation: Evaluation)
+    suspend fun removeEvaluation(id: String)
+    suspend fun addEvaluation(uid: String, evaluation: Evaluation): Evaluation
 
     suspend fun updateToken(uid: String, token: String)
     suspend fun updateAuthData(uid: String, data: DstAuth)

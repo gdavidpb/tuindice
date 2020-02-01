@@ -27,9 +27,10 @@ open class OpenEnrollmentProofUseCase(
 
         /* Try to get current quarter enrollment proof file */
         val enrollmentName = "enrollments/${currentQuarter.toQuarterTitle()}.pdf"
-        val enrollmentFile = localStorageRepository.getFile(enrollmentName)
+        val enrollmentPath = localStorageRepository.getPath(enrollmentName)
+        val enrollmentExists = localStorageRepository.exists(enrollmentName)
 
-        if (!enrollmentFile.exists()) {
+        if (!enrollmentExists) {
             /* Get credentials */
             val credentials = settingsRepository.getCredentials()
 
@@ -53,6 +54,6 @@ open class OpenEnrollmentProofUseCase(
             localStorageRepository.put(enrollmentName, enrollmentData)
         }
 
-        return enrollmentFile
+        return File(enrollmentPath)
     }
 }

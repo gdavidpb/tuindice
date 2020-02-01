@@ -10,12 +10,10 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.gdavidpb.tuindice.utils.extensions.isStartDestination
-import com.gdavidpb.tuindice.utils.extensions.observe
-import com.gdavidpb.tuindice.utils.extensions.openSettings
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.startActivity
@@ -132,13 +130,36 @@ class MainActivity : BaseActivity() {
         }.show()
     }
 
-    private fun syncObserver(result: Result<Boolean>?) {
+    private fun dataFailureDialog() {
+        alert {
+            titleResource = R.string.alert_title_data_failure
+            messageResource = R.string.alert_message_data_failure
+
+            isCancelable = false
+
+            positiveButton(R.string.settings) {
+                viewModel.signOut()
+            }
+
+            negativeButton(R.string.exit) {
+                viewModel.signOut()
+            }
+        }.show()
+    }
+
+    private fun syncObserver(result: Result<SyncResponse>?) {
         when (result) {
             is Result.OnLoading -> {
                 showLoading(true)
             }
             is Result.OnSuccess -> {
                 showLoading(false)
+
+                val response = result.value
+
+                val invalidState = !response.isDataUpdated && !response.hasDataInCache
+
+                if (invalidState) dataFailureDialog()
             }
             is Result.OnError -> {
                 showLoading(false)

@@ -13,7 +13,7 @@ open class GetSubjectEvaluationsUseCase(
 ) {
     override suspend fun executeOnBackground(params: String): SubjectEvaluations? {
         return databaseRepository.localTransaction {
-            val subject = getSubject(uid = params)
+            val subject = getSubject(id = params)
             val evaluations = getSubjectEvaluations(sid = params)
 
             SubjectEvaluations(subject, evaluations)

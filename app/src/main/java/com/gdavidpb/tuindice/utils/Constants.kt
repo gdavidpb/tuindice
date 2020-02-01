@@ -80,6 +80,10 @@ const val EXTRA_FIRST_START_UP = "EXTRA_FIRST_START_UP"
 const val EXTRA_TITLE = "EXTRA_TITLE"
 const val EXTRA_URL = "EXTRA_URL"
 
+/* Reporting keys */
+const val KEY_REF_DATE = "KEY_REF_DATE"
+const val KEY_NOW_DATE = "KEY_NOW_DATE"
+
 /* Navigation args */
 
 const val ARG_SUBJECT_ID = "subjectId"

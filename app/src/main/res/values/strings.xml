@@ -41,7 +41,14 @@
     <string name="label_start_up_message">Cargando…</string>
 
     <string name="alert_title_fatal_failure">¡Oops, lo sentimos!</string>
-    <string name="alert_message_fatal_failure">Parece que algo ha salido muy mal por acá. Intenta reinstalar la aplicación y vuelve a intentar</string>
+    <string name="alert_message_fatal_failure">
+        Parece que algo ha salido muy mal por acá. Intenta reinstalar la aplicación y vuelve a intentar
+    </string>
+
+    <string name="alert_title_data_failure">¡Oops, lo sentimos!</string>
+    <string name="alert_message_data_failure">
+        Parece que algunos servicios de la universidad no están disponibles. Intentar ingresar más tarde
+    </string>
 
     <string name="alert_title_no_services_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_no_services_failure">Parece que tu dispositivo  no dispone de Google Play Services ;(</string>
@@ -62,6 +69,8 @@
         <!--<item>No puedo crear/eliminar una materia</item>-->
         <item>Otro…</item>
     </string-array>
+
+    <string name="toast_try_again_later">Intenta de nuevo más tarde</string>
 
     <!-- SummaryFragment -->
     <string name="text_5">/ 5</string>
@@ -115,7 +124,6 @@
 
     <!-- EmailSentActivity -->
     <string name="toast_resend">Correo reenviado</string>
-    <string name="toast_try_again_later">Intenta de nuevo más tarde</string>
 
     <string name="label_verify">
         Verifica tu cuenta
@@ -234,7 +242,7 @@
     </string>
 
     <string name="about_firebase">
-        Firebase 17.2.1\nQuickly develop high-quality apps and grow your business\n© 2014 Google\nhttps://firebase.com/
+        Firebase 17.2.2\nQuickly develop high-quality apps and grow your business\n© 2014 Google\nhttps://firebase.com/
     </string>
 
     <string name="about_koin">
@@ -242,7 +250,7 @@
     </string>
 
     <string name="about_retrofit">
-        Retrofit 2.6.2\nA type-safe HTTP client for Android and Java\n© 2015 Square\nhttps://square.github.io/retrofit/
+        Retrofit 2.7.1\nA type-safe HTTP client for Android and Java\n© 2015 Square\nhttps://square.github.io/retrofit/
     </string>
 
     <string name="about_freepik">

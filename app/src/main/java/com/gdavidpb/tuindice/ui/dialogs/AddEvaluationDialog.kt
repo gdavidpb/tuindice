@@ -85,6 +85,7 @@ open class AddEvaluationDialog(
         val evaluationType = EvaluationType.values()[evaluationId - 1]
 
         val evaluation = NewEvaluation(
+                sid = subject.id,
                 type = evaluationType,
                 maxGrade = sBarMaxGrade.progress,
                 date = tViewDate.tag as Date,

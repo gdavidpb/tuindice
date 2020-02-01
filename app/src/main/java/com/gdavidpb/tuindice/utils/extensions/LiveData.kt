@@ -25,9 +25,6 @@ fun <T> LiveResult<T>.postLoading() = postValue(Result.OnLoading())
 @JvmName("postCancelResult")
 fun <T> LiveResult<T>.postCancel() = postValue(Result.OnCancel())
 
-@JvmName("postEmptyResult")
-fun <T> LiveResult<T>.postEmpty() = postValue(Result.OnEmpty())
-
 /* LiveCompletable */
 
 @JvmName("postCompleteCompletable")

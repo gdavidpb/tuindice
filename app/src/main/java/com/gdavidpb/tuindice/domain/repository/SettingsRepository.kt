@@ -3,22 +3,23 @@ package com.gdavidpb.tuindice.domain.repository
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 
 interface SettingsRepository {
-    suspend fun awaitingEmail(): String
-    suspend fun awaitingPassword(): String
+    fun awaitingEmail(): String
+    fun awaitingPassword(): String
 
-    suspend fun setIsAwaitingForReset(email: String, password: String)
-    suspend fun isAwaitingForReset(): Boolean
-    suspend fun clearIsAwaitingForReset()
+    fun setIsAwaitingForReset(email: String, password: String)
+    fun isAwaitingForReset(): Boolean
+    fun clearIsAwaitingForReset()
 
-    suspend fun getCountdown(): Long
-    suspend fun startCountdown(): Long
-    suspend fun clearCountdown()
+    fun getCountdown(): Long
+    fun startCountdown(): Long
+    fun clearCountdown()
 
-    suspend fun getCredentials(): DstCredentials
-    suspend fun storeCredentials(credentials: DstCredentials)
+    fun getCredentials(): DstCredentials
+    fun storeCredentials(credentials: DstCredentials)
+    fun getCredentialYear(): Int
 
-    suspend fun getLastScreen(): Int
-    suspend fun setLastScreen(screen: Int)
+    fun getLastScreen(): Int
+    fun setLastScreen(screen: Int)
 
-    suspend fun clear()
+    fun clear()
 }

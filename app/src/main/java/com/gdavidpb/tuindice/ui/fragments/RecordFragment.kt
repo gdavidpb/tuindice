@@ -12,9 +12,13 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.STATUS_QUARTER_COMPLETED
+import com.gdavidpb.tuindice.utils.STATUS_QUARTER_CURRENT
+import com.gdavidpb.tuindice.utils.STATUS_QUARTER_GUESS
+import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterTitle
 import com.google.android.material.snackbar.Snackbar
@@ -107,10 +111,10 @@ open class RecordFragment : Fragment() {
         }
     }
 
-    private fun syncObserver(result: Result<Boolean>?) {
+    private fun syncObserver(result: Result<SyncResponse>?) {
         when (result) {
             is Result.OnSuccess -> {
-                val requireUpdate = result.value
+                val requireUpdate = result.value.isDataUpdated
 
                 if (requireUpdate) viewModel.getQuarters()
             }
@@ -160,13 +164,6 @@ open class RecordFragment : Fragment() {
                 }.onFailure {
                     longToast(R.string.toast_enrollment_unsupported)
                 }
-            }
-            is Result.OnEmpty -> {
-                loadingDialog.dismiss()
-
-                setMenuVisibility(true)
-
-                retrySnackBar.show()
             }
             is Result.OnError -> {
                 loadingDialog.dismiss()

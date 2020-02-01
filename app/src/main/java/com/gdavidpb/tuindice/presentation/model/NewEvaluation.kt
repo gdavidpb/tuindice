@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.domain.model.EvaluationType
 import java.util.*
 
 data class NewEvaluation(
+        val sid: String,
         val type: EvaluationType,
         val maxGrade: Int,
         val date: Date,

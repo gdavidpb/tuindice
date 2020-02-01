@@ -13,7 +13,7 @@ open class DiskStorageDataStore(
 
     private val root = context.filesDir
 
-    override fun putSync(name: String, inputStream: InputStream): File? {
+    override fun put(name: String, inputStream: InputStream): File {
         val outputFile = File(root, name)
 
         /* Create directories to */
@@ -29,28 +29,13 @@ open class DiskStorageDataStore(
         return outputFile
     }
 
-    override fun getSync(name: String): InputStream? {
+    override fun get(name: String): InputStream {
         val inputFile = File(root, name)
 
-        return if (inputFile.exists())
-            inputFile.inputStream()
-        else
-            null
+        return inputFile.inputStream()
     }
 
-    override suspend fun put(name: String, inputStream: InputStream): File {
-        return putSync(name, inputStream)!!
-    }
-
-    override suspend fun get(name: String): InputStream {
-        return getSync(name)!!
-    }
-
-    override fun getFile(name: String): File {
-        return File(root, name)
-    }
-
-    override suspend fun delete(name: String) {
+    override fun delete(name: String) {
         runCatching {
             File(root, name).let {
                 if (it.isDirectory)
@@ -59,8 +44,19 @@ open class DiskStorageDataStore(
                     it.delete()
             }
         }.onFailure { throwable ->
-            if (throwable !is FileNotFoundException)
-                throw throwable
+            if (throwable !is FileNotFoundException) throw throwable
         }
+    }
+
+    override fun exists(name: String): Boolean {
+        val file = File(root, name)
+
+        return file.exists()
+    }
+
+    override fun getPath(name: String): String {
+        val file = File(root, name)
+
+        return file.path
     }
 }

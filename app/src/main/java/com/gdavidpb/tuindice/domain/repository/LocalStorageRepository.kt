@@ -4,12 +4,9 @@ import java.io.File
 import java.io.InputStream
 
 interface LocalStorageRepository {
-    suspend fun put(name: String, inputStream: InputStream): File
-    suspend fun get(name: String): InputStream
-    suspend fun delete(name: String)
-
-    fun getFile(name: String): File
-
-    fun putSync(name: String, inputStream: InputStream): File?
-    fun getSync(name: String): InputStream?
+    fun put(name: String, inputStream: InputStream): File
+    fun get(name: String): InputStream
+    fun delete(name: String)
+    fun exists(name: String): Boolean
+    fun getPath(name: String): String
 }

@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import android.util.Base64
-import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import okhttp3.RequestBody
 import okio.Buffer
@@ -47,7 +46,3 @@ fun Int.isStartDestination() = when (this) {
 inline fun Any?.isNull(exec: () -> Unit) = this ?: exec()
 
 inline fun <T> T?.notNull(exec: (T) -> Unit): T? = this?.also { exec(this) }
-
-inline fun toggle(release: () -> Unit = {}, debug: () -> Unit = {}) {
-    if (!BuildConfig.DEBUG) release() else debug()
-}

@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
+import com.gdavidpb.tuindice.utils.extensions.getOrThrow
 import com.gdavidpb.tuindice.utils.mappers.toAuthResponse
 import com.gdavidpb.tuindice.utils.mappers.toEnrollment
 import com.gdavidpb.tuindice.utils.mappers.toPersonalData
@@ -20,11 +21,15 @@ open class DstDataStore(
         private val enrollmentService: DstEnrollmentService
 ) : DstRepository {
     override suspend fun getPersonalData(): DstPersonal? {
-        return recordService.getPersonalData().body()?.toPersonalData()
+        return recordService.getPersonalData()
+                .getOrThrow()
+                .toPersonalData()
     }
 
     override suspend fun getRecordData(): DstRecord? {
-        return recordService.getRecordData().body()?.toRecord()
+        return recordService.getRecordData()
+                .getOrThrow()
+                .toRecord()
     }
 
     override suspend fun getEnrollment(): DstEnrollment? {
@@ -34,21 +39,23 @@ open class DstDataStore(
     }
 
     override suspend fun getEnrollmentProof(): ResponseBody? {
-        return enrollmentService.getEnrollmentProof().body()?.let {
-            val isValid = "${it.contentType()}" == "application/pdf"
+        return runCatching {
+            enrollmentService.getEnrollmentProof().body()
+        }.getOrNull()?.let { response ->
+            val isValid = "${response.contentType()}" == "application/pdf"
 
-            if (isValid) it else null
+            if (isValid) response else null
         }
     }
 
     override suspend fun auth(request: AuthRequest): AuthResponse? {
-        return authService.auth(request.serviceUrl, request.usbId, request.password).body()?.let {
-            val authResponse = it.toAuthResponse()
-
-            when (authResponse.code) {
-                AuthResponseCode.SUCCESS, AuthResponseCode.NO_ENROLLED -> authResponse
-                else -> throw AuthException(code = authResponse.code, message = authResponse.message)
-            }
-        }
+        return authService.auth(request.serviceUrl, request.usbId, request.password)
+                .getOrThrow()
+                .toAuthResponse().let { response ->
+                    when (response.code) {
+                        AuthResponseCode.SUCCESS, AuthResponseCode.NO_ENROLLED -> response
+                        else -> throw AuthException(code = response.code, message = response.message)
+                    }
+                }
     }
 }

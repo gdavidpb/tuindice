@@ -4,17 +4,29 @@ import com.gdavidpb.tuindice.domain.model.service.DstQuarter
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.model.service.DstRecordStats
 import com.gdavidpb.tuindice.domain.model.service.DstSubject
-import com.gdavidpb.tuindice.utils.*
-import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.utils.STATUS_QUARTER_COMPLETED
+import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
+import com.gdavidpb.tuindice.utils.extensions.component6
+import com.gdavidpb.tuindice.utils.extensions.component7
+import com.gdavidpb.tuindice.utils.extensions.component8
+import com.gdavidpb.tuindice.utils.extensions.toGrade
 import com.gdavidpb.tuindice.utils.mappers.toStartEndDate
 import com.gdavidpb.tuindice.utils.mappers.toSubjectName
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector
 
-open class DstRecordDataConverter : ElementConverter<DstRecord> {
+open class DstRecordDataConverter : ElementConverter<DstRecord>, KoinComponent {
+
+    private val settingsRepository by inject<SettingsRepository>()
+
     override fun convert(node: Element, selector: Selector): DstRecord {
+        val refYear = settingsRepository.getCredentialYear()
+
         /* Select record table */
         val selectedRecordTable = node.select("table[class=tabla] table:has(table)")
 
@@ -51,7 +63,7 @@ open class DstRecordDataConverter : ElementConverter<DstRecord> {
             val quarterHistory = selectedQuarterTable.last().text()
 
             /* Parse quarter period */
-            val (startDate, endDate) = quarterPeriod.toStartEndDate()
+            val (startDate, endDate) = quarterPeriod.toStartEndDate(refYear)
 
             val (grade, gradeSum) = "\\d\\.\\d{4}".toRegex()
                     .findAll(quarterHistory)

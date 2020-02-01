@@ -1,19 +1,22 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
+import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
+import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
+import com.gdavidpb.tuindice.utils.CircleTransform
+import com.gdavidpb.tuindice.utils.extensions.*
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.android.ext.android.inject
-import android.view.*
-import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.utils.CircleTransform
-import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.utils.extensions.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 open class SummaryFragment : Fragment() {
@@ -44,10 +47,10 @@ open class SummaryFragment : Fragment() {
         }
     }
 
-    private fun syncObserver(result: Result<Boolean>?) {
+    private fun syncObserver(result: Result<SyncResponse>?) {
         when (result) {
             is Result.OnSuccess -> {
-                val requireUpdate = result.value
+                val requireUpdate = result.value.isDataUpdated
 
                 if (requireUpdate) viewModel.getAccount()
             }

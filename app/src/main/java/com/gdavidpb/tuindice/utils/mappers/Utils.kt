@@ -17,8 +17,6 @@ import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-var REF_YEAR = -1
-
 fun AuthRequest.toDstCredentials() = DstCredentials(usbId = usbId, password = password)
 
 fun FirebaseUser.toAuth() = Auth(
@@ -66,7 +64,7 @@ infix fun Int.distanceTo(x: Int): Double {
     return sqrt(a.pow(2.0) + b.pow(2.0) + c.pow(2.0))
 }
 
-fun String.toStartEndDate(): List<Date> {
+fun String.toStartEndDate(refYear: Int): List<Date> {
     val normalizedText = "\\w+\\s*-\\s*\\w+\\s*\\d{4}".toRegex().find(this)!!.value
 
     val year = normalizedText.substringAfterLast(" ").trimAll().toIntOrNull() ?: 0
@@ -76,7 +74,7 @@ fun String.toStartEndDate(): List<Date> {
             .split("\\s*-\\s*".toRegex())
             .mapNotNull { month -> "$month $year".parse("MMMM yyyy") }
             .also { output ->
-                checkIntegrity(input = this, output = output, refYear = REF_YEAR)
+                checkIntegrity(input = this, output = output, refYear = refYear)
             }
 }
 

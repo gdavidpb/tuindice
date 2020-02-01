@@ -3,13 +3,14 @@ package com.gdavidpb.tuindice.ui.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.presentation.model.SummaryItemBase
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.presentation.model.SummaryItemBase
 import com.gdavidpb.tuindice.ui.adapters.base.BaseAdapter
 import com.gdavidpb.tuindice.ui.viewholders.SummaryCreditsViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.SummarySubjectsViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.VIEW_TYPE_SUMMARY_CREDITS
+import com.gdavidpb.tuindice.utils.VIEW_TYPE_SUMMARY_SUBJECTS
 import com.gdavidpb.tuindice.utils.mappers.toSummaryCreditsItem
 import com.gdavidpb.tuindice.utils.mappers.toSummarySubjectsItem
 

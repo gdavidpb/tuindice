@@ -7,15 +7,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Evaluation
+import com.gdavidpb.tuindice.domain.model.EvaluationItem
 import com.gdavidpb.tuindice.domain.model.SubjectEvaluations
-import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
 import com.gdavidpb.tuindice.ui.dialogs.AddEvaluationDialog
 import com.gdavidpb.tuindice.ui.dialogs.CalendarDialog
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.ARG_SUBJECT_ID
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.mappers.toEvaluation
+import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
 import kotlinx.android.synthetic.main.fragment_subject.*
+import org.jetbrains.anko.support.v4.longToast
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
 
@@ -60,6 +64,7 @@ open class SubjectFragment : Fragment() {
         btnAddEvaluation.onClickOnce(::onAddEvaluationClicked)
 
         with(viewModel) {
+            observe(add, ::addEvaluationObserver)
             observe(evaluations, ::evaluationsObserver)
 
             getSubjectEvaluations(sid = subjectId)
@@ -87,9 +92,30 @@ open class SubjectFragment : Fragment() {
     private fun onAddEvaluationClicked() {
         val selectedSubject = viewModel.getSelectedSubject() ?: return
 
-        AddEvaluationDialog(subject = selectedSubject) { evaluation ->
-
+        AddEvaluationDialog(subject = selectedSubject) { newEvaluation ->
+            viewModel.addEvaluation(evaluation = newEvaluation.toEvaluation())
         }.show(childFragmentManager)
+    }
+
+    private fun updateGrades() {
+        val gradeSum = evaluationAdapter.computeGradeSum()
+
+        tViewTotalGrade.animateGrade(value = gradeSum)
+        tViewGrade.animateGrade(value = gradeSum.toGrade())
+    }
+
+    private fun addEvaluationObserver(result: Result<Evaluation>?) {
+        when (result) {
+            is Result.OnSuccess -> {
+                val response = result.value
+
+                evaluationAdapter.addSortedItem(
+                        item = response.toEvaluationItem(),
+                        comparator = compareBy(EvaluationItem::isDone, EvaluationItem::date)
+                )
+            }
+            is Result.OnError -> longToast(R.string.toast_try_again_later)
+        }
     }
 
     private fun evaluationsObserver(result: Result<SubjectEvaluations>?) {
@@ -105,7 +131,11 @@ open class SubjectFragment : Fragment() {
                 tViewSubjectName.text = subject.name
                 tViewSubjectCode.text = subject.code
 
-                evaluationAdapter.swapItems(new = evaluations)
+                val items = evaluations.map { evaluation ->
+                    evaluation.toEvaluationItem()
+                }
+
+                evaluationAdapter.swapItems(new = items)
 
                 updateGrades()
 
@@ -123,28 +153,24 @@ open class SubjectFragment : Fragment() {
         }
     }
 
-    private fun updateGrades() {
-        val gradeSum = evaluationAdapter.computeGradeSum()
-
-        tViewTotalGrade.animateGrade(value = gradeSum)
-        tViewGrade.animateGrade(value = gradeSum.toGrade())
-    }
-
     inner class EvaluationManager : EvaluationAdapter.AdapterManager {
-        override fun onEvaluationChanged(item: Evaluation, position: Int) {
+        override fun onEvaluationChanged(item: EvaluationItem, position: Int) {
             evaluationAdapter.replaceItemAt(item, position, true)
 
             updateGrades()
 
-            viewModel.updateEvaluation(item)
+            viewModel.updateEvaluation(evaluation = item.toEvaluation())
         }
 
-        override fun onEvaluationDoneChanged(item: Evaluation, position: Int) {
+        override fun onEvaluationDoneChanged(item: EvaluationItem, position: Int) {
             evaluationAdapter.replaceItemAt(item, position, true)
 
-            evaluationAdapter.sortItemAt(position, compareBy(Evaluation::done, Evaluation::date))
+            evaluationAdapter.sortItemAt(
+                    position = position,
+                    comparator = compareBy(EvaluationItem::isDone, EvaluationItem::date)
+            )
 
-            viewModel.updateEvaluation(item)
+            viewModel.updateEvaluation(evaluation = item.toEvaluation())
         }
 
         override fun resolveDoneColor(): Int {

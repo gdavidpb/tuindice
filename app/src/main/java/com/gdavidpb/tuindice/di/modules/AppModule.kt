@@ -6,6 +6,8 @@ import android.view.inputmethod.InputMethodManager
 import com.crashlytics.android.Crashlytics
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataStore
+import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataStore
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
 import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataStore
 import com.gdavidpb.tuindice.data.source.service.*
@@ -15,7 +17,10 @@ import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataStore
 import com.gdavidpb.tuindice.data.source.token.TokenDataStore
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
-import com.gdavidpb.tuindice.presentation.viewmodel.*
+import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.utils.TIME_OUT_CONNECTION
 import com.gdavidpb.tuindice.utils.extensions.getProperty
 import com.gdavidpb.tuindice.utils.extensions.noSensitiveData
@@ -84,6 +89,10 @@ val appModule = module {
 
     single {
         FirebaseInstanceId.getInstance()
+    }
+
+    single {
+        Crashlytics.getInstance()
     }
 
     /* SSL */
@@ -219,6 +228,13 @@ val appModule = module {
     factoryBy<DatabaseRepository, FirestoreDataStore>()
     factoryBy<IdentifierRepository, TokenDataStore>()
 
+    factory {
+        if (BuildConfig.DEBUG)
+            DebugReportingDataStore()
+        else
+            CrashlyticsReportingDataStore()
+    }
+
     /* Use cases */
 
     factory<SignInUseCase>()
@@ -235,6 +251,8 @@ val appModule = module {
     factory<OpenEnrollmentProofUseCase>()
     factory<GetSubjectEvaluationsUseCase>()
     factory<UpdateEvaluationUseCase>()
+    factory<RemoveEvaluationUseCase>()
+    factory<AddEvaluationUseCase>()
 
     /* Utils */
 

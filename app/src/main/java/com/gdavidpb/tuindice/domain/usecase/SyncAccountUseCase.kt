@@ -7,9 +7,9 @@ import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
+import com.gdavidpb.tuindice.utils.extensions.isUpdated
 import kotlinx.coroutines.Dispatchers
-import kotlin.IllegalStateException
 
 open class SyncAccountUseCase(
         private val dstRepository: DstRepository,
@@ -17,19 +17,24 @@ open class SyncAccountUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository
-) : ResultUseCase<Unit, Boolean>(
+) : ResultUseCase<Unit, SyncResponse>(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
 ) {
-    override suspend fun executeOnBackground(params: Unit): Boolean? {
+    override suspend fun executeOnBackground(params: Unit): SyncResponse? {
         val activeAuth = authRepository.getActiveAuth()
                 ?: throw IllegalStateException("'activeAuth' is null")
 
         val activeAccount = databaseRepository.localTransaction { getAccount(uid = activeAuth.uid) }
                 ?: throw IllegalStateException("'activeAccount' is null")
 
+        val hasDataInCache = databaseRepository.localTransaction {
+            getQuarters(uid = activeAuth.uid)
+        }.isNotEmpty()
+
         /* Check if account is up-to-date, return no update required */
-        if (activeAccount.isUpdated()) return false
+        if (activeAccount.isUpdated())
+            return SyncResponse(isDataUpdated = false, hasDataInCache = hasDataInCache)
 
         /* Collected data */
         val collectedData = mutableListOf<DstData>()
@@ -47,12 +52,14 @@ open class SyncAccountUseCase(
         if (collectedData.shouldPurgeCurrentQuarter(uid = activeAuth.uid))
             localStorageRepository.delete("enrollments")
 
-        /* If there is collected data */
-        return collectedData.isNotEmpty().also { requireUpdate ->
+        /* Should responses more than one service */
+        return (collectedData.size > 1).let { requireUpdate ->
             if (requireUpdate)
                 databaseRepository.remoteTransaction {
                     updateData(uid = activeAuth.uid, data = collectedData)
                 }
+
+            SyncResponse(isDataUpdated = requireUpdate, hasDataInCache = hasDataInCache)
         }
     }
 

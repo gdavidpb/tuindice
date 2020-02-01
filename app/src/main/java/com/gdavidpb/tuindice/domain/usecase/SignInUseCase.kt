@@ -1,13 +1,11 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.crashlytics.android.Crashlytics
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.extensions.toggle
 import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
 import com.google.firebase.auth.FirebaseAuthException
@@ -63,9 +61,7 @@ open class SignInUseCase(
     }
 
     private suspend fun storeAccount(auth: Auth, request: AuthRequest, response: AuthResponse) {
-        toggle(
-                release = { Crashlytics.setUserIdentifier(auth.uid) }
-        )
+        reportingRepository.setIdentifier(auth.uid)
 
         val authData = DstAuth(
                 usbId = request.usbId,

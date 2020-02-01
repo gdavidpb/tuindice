@@ -37,6 +37,17 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder<T>>() {
         notifyItemMoved(position, toPosition)
     }
 
+    open fun addSortedItem(item: T, comparator: Comparator<T>) {
+        items.add(item)
+
+        val position = items.sortedWith(comparator).indexOf(item)
+
+        items.remove(item)
+        items.add(position, item)
+
+        notifyItemInserted(position)
+    }
+
     open fun getItem(position: Int): T {
         return items[position]
     }

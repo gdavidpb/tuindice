@@ -8,10 +8,8 @@ import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.domain.model.EvaluationType
-import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.Subject
+import com.gdavidpb.tuindice.domain.model.*
+import com.gdavidpb.tuindice.domain.model.EvaluationItem
 import com.gdavidpb.tuindice.utils.CustomTypefaceSpan
 import com.gdavidpb.tuindice.presentation.model.SummaryCreditsItem
 import com.gdavidpb.tuindice.presentation.model.SummarySubjectsItem
@@ -21,6 +19,29 @@ import org.jetbrains.anko.append
 import org.jetbrains.anko.buildSpanned
 import org.jetbrains.anko.foregroundColor
 import java.util.*
+
+fun EvaluationItem.toEvaluation() = Evaluation(
+        id = id,
+        sid = sid,
+        type = type,
+        grade = grade,
+        maxGrade = maxGrade,
+        date = date,
+        notes = notes,
+        isDone = isDone
+)
+
+fun Evaluation.toEvaluationItem() = EvaluationItem(
+        id = id,
+        sid = sid,
+        type = type,
+        grade = grade,
+        maxGrade = maxGrade,
+        date = date,
+        notes = notes,
+        isDone = isDone,
+        isLoading = false
+)
 
 fun Account.toSummarySubjectsItem() = SummarySubjectsItem(
         enrolledSubjects = enrolledSubjects,

@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.*
+import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
 import com.gdavidpb.tuindice.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.utils.extensions.execute
@@ -24,7 +25,7 @@ class MainViewModel(
 ) : ViewModel() {
     val signOut = LiveCompletable()
     val fetchStartUpAction = LiveResult<StartUpAction>()
-    val sync = LiveResult<Boolean>()
+    val sync = LiveResult<SyncResponse>()
     val lastScreen = LiveCompletable()
     val account = LiveResult<Account>()
     val quarters = LiveResult<List<Quarter>>()
