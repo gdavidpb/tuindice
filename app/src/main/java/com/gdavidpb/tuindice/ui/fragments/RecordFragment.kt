@@ -189,8 +189,9 @@ open class RecordFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        override fun onSubjectChanged(item: Subject) {
-            viewModel.updateSubject(subject = item)
+        override fun onSubjectChanged(item: Subject, dispatchChanges: Boolean) {
+            if (dispatchChanges)
+                viewModel.updateSubject(subject = item)
         }
 
         override fun onQuarterChanged(item: Quarter, position: Int) {

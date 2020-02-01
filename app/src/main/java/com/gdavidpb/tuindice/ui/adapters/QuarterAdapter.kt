@@ -18,7 +18,7 @@ open class QuarterAdapter(
 
     interface AdapterManager {
         fun onSubjectClicked(item: Subject)
-        fun onSubjectChanged(item: Subject)
+        fun onSubjectChanged(item: Subject, dispatchChanges: Boolean)
         fun onQuarterChanged(item: Quarter, position: Int)
 
         fun computeGradeSum(quarter: Quarter): Double

@@ -91,26 +91,33 @@ open class QuarterViewHolder(
         } else {
             sBarGrade.visible()
 
-            sBarGrade.onSeekBarChange { progress, fromUser ->
-                if (fromUser) {
-                    /* Create a updated subject */
-                    val updatedSubject = subject.copy(
-                            grade = progress,
-                            status = when {
-                                progress == 0 && subject.status != STATUS_SUBJECT_GAVE_UP -> STATUS_SUBJECT_RETIRED
-                                subject.status == STATUS_SUBJECT_RETIRED -> STATUS_SUBJECT_OK
-                                else -> subject.status
-                            }
-                    )
+            sBarGrade.onSeekBarChange {
+                onProgressChanged { progress, fromUser ->
+                    if (fromUser) {
 
-                    /* Set updated subject to list */
-                    quarter.subjects[index] = updatedSubject
+                        /* Create a updated subject */
+                        val updatedSubject = subject.copy(
+                                grade = progress,
+                                status = when {
+                                    progress == 0 && subject.status != STATUS_SUBJECT_GAVE_UP -> STATUS_SUBJECT_RETIRED
+                                    subject.status == STATUS_SUBJECT_RETIRED -> STATUS_SUBJECT_OK
+                                    else -> subject.status
+                                }
+                        )
 
-                    /* Compute quarter grade sum */
-                    computeGradeSum(quarter = quarter)
+                        /* Set updated subject to list */
+                        quarter.subjects[index] = updatedSubject
 
-                    /* Notify subject changed */
-                    manager.onSubjectChanged(updatedSubject)
+                        /* Compute quarter grade sum */
+                        computeGradeSum(quarter = quarter)
+
+                        /* Notify subject changed */
+                        manager.onSubjectChanged(subject, false)
+                    }
+                }
+
+                onStopTrackingTouch {
+                    manager.onSubjectChanged(subject, true)
                 }
             }
         }

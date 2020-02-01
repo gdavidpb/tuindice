@@ -7,8 +7,10 @@ import android.text.Spanned
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
+import androidx.core.content.ContextCompat
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.*
+import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.model.SummaryCreditsItem
 import com.gdavidpb.tuindice.presentation.model.SummarySubjectsItem
 import com.gdavidpb.tuindice.utils.*
@@ -31,27 +33,19 @@ fun String.spanAbout(titleColor: Int, subtitleColor: Int): CharSequence {
     }
 }
 
-fun EvaluationItem.toEvaluation() = Evaluation(
-        id = id,
-        sid = sid,
-        type = type,
-        grade = grade,
-        maxGrade = maxGrade,
-        date = date,
-        notes = notes,
-        isDone = isDone
-)
+fun EvaluationItem.toEvaluation() = data
 
-fun Evaluation.toEvaluationItem() = EvaluationItem(
+fun Evaluation.toEvaluationItem(context: Context) = EvaluationItem(
         id = id,
-        sid = sid,
-        type = type,
-        grade = grade,
-        maxGrade = maxGrade,
+        typeText = type.toEvaluationTypeName(context),
+        notesText = if (notes.isNotEmpty()) notes else "─",
+        gradesText = context.getString(R.string.evaluation_grade_max, grade, maxGrade),
+        dateText = date.toEvaluationDate(),
         date = date,
-        notes = notes,
+        color = ContextCompat.getColor(context, if (isDone) R.color.color_retired else R.color.color_approved),
         isDone = isDone,
-        isLoading = false
+        isLoading = false,
+        data = this
 )
 
 fun Account.toSummarySubjectsItem() = SummarySubjectsItem(
@@ -103,13 +97,13 @@ fun Quarter.toQuarterTitle(): String {
 }
 
 fun Quarter.toQuarterGradeDiff(color: Int, context: Context) =
-        context.getString(R.string.quarter_grade_diff, grade).toSpanned(color)
+        context.getString(R.string.quarter_grade_diff, grade).spanGrade(color)
 
 fun Quarter.toQuarterGradeSum(color: Int, context: Context) =
-        context.getString(R.string.quarter_grade_sum, gradeSum).toSpanned(color)
+        context.getString(R.string.quarter_grade_sum, gradeSum).spanGrade(color)
 
 fun Quarter.toQuarterCredits(color: Int, font: Typeface, context: Context) =
-        context.getString(R.string.quarter_credits, credits).toSpanned(color, font)
+        context.getString(R.string.quarter_credits, credits).spanGrade(color, font)
 
 @SuppressLint("DefaultLocale")
 fun Date.toEvaluationDate(): String {
@@ -154,7 +148,7 @@ fun String.toSubjectName(): String {
     return result
 }
 
-private fun String.toSpanned(color: Int, font: Typeface? = null): Spanned {
+private fun String.spanGrade(color: Int, font: Typeface? = null): Spanned {
     val (iconString, valueString, extraString) = split(' ')
             .toMutableList()
             .apply { if (size == 2) add("") }

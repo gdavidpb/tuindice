@@ -1,13 +1,11 @@
 package com.gdavidpb.tuindice.ui.viewholders
 
 import android.view.View
-import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.domain.model.EvaluationItem
+import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.gdavidpb.tuindice.utils.mappers.toEvaluationDate
-import com.gdavidpb.tuindice.utils.mappers.toEvaluationTypeName
+import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
 import kotlinx.android.synthetic.main.item_evaluation.view.*
 import org.jetbrains.anko.backgroundColor
 
@@ -21,32 +19,27 @@ open class EvaluationViewHolder(
 
             cBoxEvaluation.isChecked = item.isDone
 
-            sBarGrade.max = item.maxGrade
-            sBarGrade.progress = item.grade
+            sBarGrade.max = item.data.maxGrade
+            sBarGrade.progress = item.data.grade
 
-            tViewEvaluationType.text = item.type.toEvaluationTypeName(context)
-            tViewEvaluationNotes.text = if (item.notes.isNotEmpty()) item.notes else "─"
-            tViewEvaluationGrade.text = context.getString(R.string.evaluation_grade_max, item.grade, item.maxGrade)
-            tViewEvaluationDate.text = item.date.toEvaluationDate()
-
-            val doneColor = manager.resolveDoneColor()
-            val pendingColor = manager.resolvePendingColor()
+            tViewEvaluationType.text = item.typeText
+            tViewEvaluationNotes.text = item.notesText
+            tViewEvaluationGrade.text = item.gradesText
+            tViewEvaluationDate.text = item.dateText
 
             isEnabled = !item.isLoading
 
             cBoxEvaluation.isEnabled = !item.isLoading
             sBarGrade.isEnabled = !item.isDone && !item.isLoading
 
+            viewEvaluationColor.backgroundColor = item.color
+
             if (item.isDone) {
                 tViewEvaluationDate.strikeThrough()
                 tViewEvaluationNotes.strikeThrough()
-
-                viewEvaluationColor.backgroundColor = doneColor
             } else {
                 tViewEvaluationDate.clearStrikeThrough()
                 tViewEvaluationNotes.clearStrikeThrough()
-
-                viewEvaluationColor.backgroundColor = pendingColor
             }
 
             if (item.isLoading) {
@@ -57,18 +50,26 @@ open class EvaluationViewHolder(
                 pBarEvaluation.gone()
             }
 
-            sBarGrade.onSeekBarChange { progress, fromUser ->
-                if (fromUser) {
-                    val updatedEvaluation = item.copy(grade = progress)
+            sBarGrade.onSeekBarChange {
+                onProgressChanged { progress, fromUser ->
+                    if (fromUser) {
+                        val updatedEvaluation = item.data.copy(grade = progress)
+                        val updatedItem = updatedEvaluation.toEvaluationItem(context)
 
-                    manager.onEvaluationChanged(updatedEvaluation, adapterPosition)
+                        manager.onEvaluationChanged(updatedItem, adapterPosition, false)
+                    }
+                }
+
+                onStopTrackingTouch {
+                    manager.onEvaluationChanged(item, adapterPosition, true)
                 }
             }
 
             cBoxEvaluation.setOnCheckedChangeListener { _, isChecked ->
-                val updatedEvaluation = item.copy(isDone = isChecked)
+                val updatedEvaluation = item.data.copy(isDone = isChecked)
+                val updatedItem = updatedEvaluation.toEvaluationItem(context)
 
-                manager.onEvaluationDoneChanged(updatedEvaluation, adapterPosition)
+                manager.onEvaluationDoneChanged(updatedItem, adapterPosition, true)
             }
         }
     }

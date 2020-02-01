@@ -7,9 +7,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Evaluation
-import com.gdavidpb.tuindice.domain.model.EvaluationItem
 import com.gdavidpb.tuindice.domain.model.SubjectEvaluations
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
 import com.gdavidpb.tuindice.ui.dialogs.AddEvaluationDialog
@@ -33,13 +33,6 @@ open class SubjectFragment : Fragment() {
 
     private val subjectId by lazy {
         requireArguments().getString(ARG_SUBJECT_ID, "")
-    }
-
-    private val cachedColors by lazy {
-        mapOf(
-                true to requireContext().getCompatColor(R.color.color_retired),
-                false to requireContext().getCompatColor(R.color.color_approved)
-        )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -107,10 +100,11 @@ open class SubjectFragment : Fragment() {
     private fun addEvaluationObserver(result: Result<Evaluation>?) {
         when (result) {
             is Result.OnSuccess -> {
+                val context = requireContext()
                 val response = result.value
 
                 evaluationAdapter.addSortedItem(
-                        item = response.toEvaluationItem(),
+                        item = response.toEvaluationItem(context),
                         comparator = compareBy(EvaluationItem::isDone, EvaluationItem::date)
                 )
             }
@@ -124,6 +118,7 @@ open class SubjectFragment : Fragment() {
 
             }
             is Result.OnSuccess -> {
+                val context = requireContext()
                 val response = result.value
                 val subject = response.subject
                 val evaluations = response.evaluations
@@ -132,7 +127,7 @@ open class SubjectFragment : Fragment() {
                 tViewSubjectCode.text = subject.code
 
                 val items = evaluations.map { evaluation ->
-                    evaluation.toEvaluationItem()
+                    evaluation.toEvaluationItem(context)
                 }
 
                 evaluationAdapter.swapItems(new = items)
@@ -154,15 +149,16 @@ open class SubjectFragment : Fragment() {
     }
 
     inner class EvaluationManager : EvaluationAdapter.AdapterManager {
-        override fun onEvaluationChanged(item: EvaluationItem, position: Int) {
+        override fun onEvaluationChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean) {
             evaluationAdapter.replaceItemAt(item, position, true)
 
             updateGrades()
 
-            viewModel.updateEvaluation(evaluation = item.toEvaluation())
+            if (dispatchChanges)
+                viewModel.updateEvaluation(evaluation = item.toEvaluation())
         }
 
-        override fun onEvaluationDoneChanged(item: EvaluationItem, position: Int) {
+        override fun onEvaluationDoneChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean) {
             evaluationAdapter.replaceItemAt(item, position, true)
 
             evaluationAdapter.sortItemAt(
@@ -170,15 +166,8 @@ open class SubjectFragment : Fragment() {
                     comparator = compareBy(EvaluationItem::isDone, EvaluationItem::date)
             )
 
-            viewModel.updateEvaluation(evaluation = item.toEvaluation())
-        }
-
-        override fun resolveDoneColor(): Int {
-            return cachedColors.getValue(true)
-        }
-
-        override fun resolvePendingColor(): Int {
-            return cachedColors.getValue(false)
+            if (dispatchChanges)
+                viewModel.updateEvaluation(evaluation = item.toEvaluation())
         }
     }
 }

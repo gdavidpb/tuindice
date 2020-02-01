@@ -14,6 +14,23 @@ import com.gdavidpb.tuindice.utils.TIME_DELAY_CLICK_ONCE
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.*
 
+data class SeekBarChangeListenerBuilder(
+        var onProgressChanged: (progress: Int, fromUser: Boolean) -> Unit = { _, _ -> },
+        var onStopTrackingTouch: (progress: Int) -> Unit = { _ -> }
+)
+
+fun SeekBarChangeListenerBuilder.onProgressChanged(
+        listener: (progress: Int, fromUser: Boolean) -> Unit
+) {
+    onProgressChanged = listener
+}
+
+fun SeekBarChangeListenerBuilder.onStopTrackingTouch(
+        listener: (progress: Int) -> Unit
+) {
+    onStopTrackingTouch = listener
+}
+
 fun View.onClickOnce(onClick: () -> Unit) {
     setOnClickListener(object : View.OnClickListener {
         override fun onClick(view: View) {
@@ -32,18 +49,19 @@ fun View.onClickOnce(onClick: () -> Unit) {
     })
 }
 
-fun SeekBar.onSeekBarChange(listener: (progress: Int, fromUser: Boolean) -> Unit) {
+fun SeekBar.onSeekBarChange(builder: SeekBarChangeListenerBuilder.() -> Unit) {
+    val built = SeekBarChangeListenerBuilder().apply(builder)
+
     setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-            listener(progress, fromUser)
+            built.onProgressChanged(progress, fromUser)
         }
 
-        override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
+        override fun onStartTrackingTouch(seekBar: SeekBar) {
         }
 
-        override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
+        override fun onStopTrackingTouch(seekBar: SeekBar) {
+            built.onStopTrackingTouch(seekBar.progress)
         }
     })
 }
@@ -101,14 +119,6 @@ fun TextView.strikeThrough() {
 
 fun TextView.clearStrikeThrough() {
     paintFlags = paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-}
-
-fun View.disable() {
-    isEnabled = false
-}
-
-fun View.enable() {
-    isEnabled = true
 }
 
 fun View.visible() {

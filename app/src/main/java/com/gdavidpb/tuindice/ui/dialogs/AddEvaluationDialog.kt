@@ -48,11 +48,13 @@ open class AddEvaluationDialog(
         btnEvaluationCancel.onClickOnce(::onCancelClicked)
         tViewDate.onClickOnce(::onDateClicked)
 
-        sBarMaxGrade.onSeekBarChange { progress, fromUser ->
-            if (fromUser) {
-                updateGradeValue(grade = progress)
+        sBarMaxGrade.onSeekBarChange {
+            onProgressChanged { progress, fromUser ->
+                if (fromUser) {
+                    updateGradeValue(grade = progress)
 
-                validateParams()
+                    validateParams()
+                }
             }
         }
     }
