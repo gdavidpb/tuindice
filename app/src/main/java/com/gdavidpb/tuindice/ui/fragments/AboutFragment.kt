@@ -11,14 +11,10 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.presentation.model.AboutItem
-import com.gdavidpb.tuindice.presentation.model.AboutHeaderItem
-import com.gdavidpb.tuindice.presentation.model.AboutLibItem
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.utils.*
-import com.gdavidpb.tuindice.utils.extensions.browserActivity
-import com.gdavidpb.tuindice.utils.extensions.getCompatColor
+import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_about.*
 import org.jetbrains.anko.browse
 import org.jetbrains.anko.email
@@ -31,14 +27,7 @@ open class AboutFragment : Fragment() {
 
     private val viewModel by sharedViewModel<MainViewModel>()
 
-    private val cachedColors by lazy {
-        listOf(
-                requireContext().getCompatColor(R.color.color_primary_text),
-                requireContext().getCompatColor(R.color.color_secondary_text)
-        )
-    }
-
-    private val adapter = AboutAdapter(manager = AboutManager())
+    private val aboutAdapter = AboutAdapter()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_about, container, false)
@@ -49,8 +38,10 @@ open class AboutFragment : Fragment() {
 
         val context = requireContext()
 
-        rViewAbout.layoutManager = LinearLayoutManager(context)
-        rViewAbout.adapter = adapter
+        with(rViewAbout) {
+            layoutManager = LinearLayoutManager(context)
+            adapter = aboutAdapter
+        }
 
         val versionName = BuildConfig.VERSION_NAME.toFloat()
 
@@ -59,30 +50,122 @@ open class AboutFragment : Fragment() {
                 BuildConfig.VERSION_CODE,
                 getString(if (versionName < 1.0f) R.string.beta else R.string.release))
 
-        val data = listOf(
-                AboutHeaderItem(title = getString(R.string.app_name)),
-                AboutItem(drawable = R.drawable.ic_version, content = version),
-                AboutItem(drawable = R.drawable.ic_cc, content = getString(R.string.about_license)) { context.browserActivity(title = R.string.label_creative_commons, url = URL_CREATIVE_COMMONS) },
-                AboutItem(drawable = R.drawable.ic_privacy_policy, content = getString(R.string.about_privacy_policy)) { context.browserActivity(title = R.string.label_privacy_policy, url = URL_PRIVACY_POLICY) },
-                AboutItem(drawable = R.drawable.ic_twitter, content = getString(R.string.about_twitter)) { context.browse(URL_TWITTER) },
-                AboutItem(drawable = R.drawable.ic_share, content = getString(R.string.about_share)) { context.share(getString(R.string.about_share_message, context.packageName), getString(R.string.app_name)) },
-                AboutItem(drawable = R.drawable.ic_rate, content = getString(R.string.about_rate)) { startPlayStore() },
-                AboutHeaderItem(title = getString(R.string.about_header_developer)),
-                AboutItem(drawable = R.drawable.ic_profile, content = getString(R.string.about_dev_info)),
-                AboutItem(drawable = R.drawable.ic_github, content = getString(R.string.about_source_code)),
-                AboutItem(drawable = R.drawable.ic_contact, content = getString(R.string.about_dev_contact)) { context.email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT) },
-                AboutItem(drawable = R.drawable.ic_report, content = getString(R.string.about_dev_report)) { showReportSelector() },
-                AboutHeaderItem(title = getString(R.string.about_header_libs)),
-                AboutLibItem(drawable = R.drawable.ic_kotlin, content = getString(R.string.about_kotlin)),
-                AboutLibItem(drawable = R.drawable.ic_firebase, content = getString(R.string.about_firebase)),
-                AboutLibItem(drawable = R.drawable.ic_koin, content = getString(R.string.about_koin)),
-                AboutLibItem(drawable = R.drawable.ic_square, content = getString(R.string.about_retrofit)),
-                AboutLibItem(drawable = R.drawable.ic_freepik, content = getString(R.string.about_freepik)),
-                AboutHeaderItem(title = getString(R.string.about_header_settings)),
-                AboutItem(drawable = R.drawable.ic_sign_out, content = getString(R.string.about_sign_out)) { showSignOutDialog() }
-        )
+        val data = context.about {
+            header(R.string.app_name)
 
-        adapter.swapItems(new = data)
+            item {
+                title(version)
+                tintedDrawable(R.drawable.ic_version, R.color.color_secondary_text)
+            }
+
+            item {
+                title(R.string.about_license)
+                tintedDrawable(R.drawable.ic_cc, R.color.color_secondary_text)
+                onClick {
+                    context.browserActivity(title = R.string.label_creative_commons, url = URL_CREATIVE_COMMONS)
+                }
+            }
+
+            item {
+                title(R.string.about_privacy_policy)
+                tintedDrawable(R.drawable.ic_privacy_policy, R.color.color_secondary_text)
+                onClick {
+                    context.browserActivity(title = R.string.label_privacy_policy, url = URL_PRIVACY_POLICY)
+                }
+            }
+
+            item {
+                title(R.string.about_twitter)
+                tintedDrawable(R.drawable.ic_twitter, R.color.color_secondary_text)
+                onClick {
+                    context.browse(URL_TWITTER)
+                }
+            }
+
+            item {
+                title(R.string.about_share)
+                tintedDrawable(R.drawable.ic_share, R.color.color_secondary_text)
+                onClick {
+                    context.share(getString(R.string.about_share_message, context.packageName), getString(R.string.app_name))
+                }
+            }
+
+            item {
+                title(R.string.about_rate)
+                tintedDrawable(R.drawable.ic_rate, R.color.color_secondary_text)
+                onClick {
+                    startPlayStore()
+                }
+            }
+
+            header(R.string.about_header_developer)
+
+            item {
+                title(R.string.about_dev_info)
+                tintedDrawable(R.drawable.ic_profile, R.color.color_secondary_text)
+            }
+
+            item {
+                title(R.string.about_source_code)
+                tintedDrawable(R.drawable.ic_github, R.color.color_secondary_text)
+            }
+
+            item {
+                title(R.string.about_dev_contact)
+                tintedDrawable(R.drawable.ic_contact, R.color.color_secondary_text)
+                onClick {
+                    context.email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT)
+                }
+            }
+
+            item {
+                title(R.string.about_dev_report)
+                tintedDrawable(R.drawable.ic_report, R.color.color_secondary_text)
+                onClick {
+                    showReportSelector()
+                }
+            }
+
+            header(R.string.about_header_libs)
+
+            item {
+                title(R.string.about_kotlin)
+                sizedDrawable(R.drawable.ic_kotlin, R.dimen.dp_48)
+            }
+
+            item {
+                title(R.string.about_firebase)
+                sizedDrawable(R.drawable.ic_firebase, R.dimen.dp_48)
+            }
+
+            item {
+                title(R.string.about_koin)
+                sizedDrawable(R.drawable.ic_koin, R.dimen.dp_48)
+            }
+
+            item {
+                title(R.string.about_retrofit)
+                sizedDrawable(R.drawable.ic_square, R.dimen.dp_48)
+            }
+
+            item {
+                title(R.string.about_freepik)
+                sizedDrawable(R.drawable.ic_freepik, R.dimen.dp_48)
+            }
+
+            header(R.string.about_header_settings)
+
+            item {
+                title(R.string.about_sign_out)
+                tintedDrawable(R.drawable.ic_sign_out, R.color.color_secondary_text)
+                onClick {
+                    showSignOutDialog()
+                }
+            }
+
+        }.build()
+
+        aboutAdapter.swapItems(new = data)
     }
 
     private fun startPlayStore() {
@@ -124,11 +207,5 @@ open class AboutFragment : Fragment() {
 
             negativeButton(R.string.cancel) { }
         }.show()
-    }
-
-    inner class AboutManager : AboutAdapter.AdapterManager {
-        override fun resolveColors(): List<Int> {
-            return cachedColors
-        }
     }
 }

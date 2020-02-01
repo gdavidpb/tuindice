@@ -1,8 +1,7 @@
 package com.gdavidpb.tuindice.presentation.model
 
 data class AboutHeaderItem(
-        val title: String,
-        val onClick: () -> Unit = { }
+        val title: CharSequence
 ) : AboutItemBase {
-    override fun onClick() = onClick.invoke()
+    override fun onClick() {}
 }

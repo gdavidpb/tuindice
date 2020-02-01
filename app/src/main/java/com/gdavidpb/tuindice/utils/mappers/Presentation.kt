@@ -9,8 +9,6 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.*
-import com.gdavidpb.tuindice.domain.model.EvaluationItem
-import com.gdavidpb.tuindice.utils.CustomTypefaceSpan
 import com.gdavidpb.tuindice.presentation.model.SummaryCreditsItem
 import com.gdavidpb.tuindice.presentation.model.SummarySubjectsItem
 import com.gdavidpb.tuindice.utils.*
@@ -19,6 +17,19 @@ import org.jetbrains.anko.append
 import org.jetbrains.anko.buildSpanned
 import org.jetbrains.anko.foregroundColor
 import java.util.*
+
+fun String.spanAbout(titleColor: Int, subtitleColor: Int): CharSequence {
+    val (title, subtitle) = listOf(
+            substringBefore('\n'),
+            substringAfter('\n')
+    )
+
+    return buildSpanned {
+        append(title, ForegroundColorSpan(titleColor))
+        append('\n')
+        append(subtitle, ForegroundColorSpan(subtitleColor), TypefaceSpan("sans-serif-light"))
+    }
+}
 
 fun EvaluationItem.toEvaluation() = Evaluation(
         id = id,

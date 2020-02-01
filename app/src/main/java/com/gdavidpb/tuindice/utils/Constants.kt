@@ -70,7 +70,6 @@ const val VIEW_TYPE_SUMMARY_CREDITS = 1
 /* About view types */
 const val VIEW_TYPE_ABOUT_HEADER = 0
 const val VIEW_TYPE_ABOUT = 1
-const val VIEW_TYPE_ABOUT_LIB = 2
 
 /* Extras */
 const val EXTRA_AWAITING_STATE = "EXTRA_AWAITING_STATE"
