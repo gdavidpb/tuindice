@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.ui.fragments
 
-import android.graphics.Typeface
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -10,17 +9,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
+import com.gdavidpb.tuindice.presentation.model.QuarterItem
+import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
-import com.gdavidpb.tuindice.utils.STATUS_QUARTER_COMPLETED
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_GUESS
-import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.gdavidpb.tuindice.utils.mappers.toQuarterTitle
+import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
+import com.gdavidpb.tuindice.utils.mappers.toSubject
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.jetbrains.anko.design.longSnackbar
@@ -36,21 +35,6 @@ open class RecordFragment : Fragment() {
     private val quarterManager = QuarterManager()
 
     private val quarterAdapter = QuarterAdapter(manager = quarterManager)
-
-    private val cachedColors by lazy {
-        mapOf(
-                STATUS_QUARTER_CURRENT to requireContext().getCompatColor(R.color.quarter_current),
-                STATUS_QUARTER_COMPLETED to requireContext().getCompatColor(R.color.quarter_completed),
-                STATUS_QUARTER_GUESS to requireContext().getCompatColor(R.color.quarter_guess),
-                STATUS_QUARTER_RETIRED to requireContext().getCompatColor(R.color.quarter_retired)
-        )
-    }
-
-    private val cachedFonts by lazy {
-        mapOf(
-                "Code.ttf" to Typeface.createFromAsset(requireContext().assets, "fonts/Code.ttf")
-        )
-    }
 
     private val loadingDialog by lazy {
         indeterminateProgressDialog(message = R.string.dialog_enrollment_getting)
@@ -124,6 +108,8 @@ open class RecordFragment : Fragment() {
     private fun quartersObserver(result: Result<List<Quarter>>?) {
         when (result) {
             is Result.OnSuccess -> {
+                val context = requireContext()
+
                 val quarters = result.value
 
                 val hasCurrentQuarter = quarters.contains { quarter ->
@@ -132,7 +118,11 @@ open class RecordFragment : Fragment() {
 
                 setMenuVisibility(hasCurrentQuarter)
 
-                quarterAdapter.swapItems(new = quarters)
+                val items = quarters.map { quarter ->
+                    quarter.toQuarterItem(context)
+                }
+
+                quarterAdapter.swapItems(new = items)
 
                 if (quarters.isEmpty()) {
                     rViewRecord.gone()
@@ -182,34 +172,24 @@ open class RecordFragment : Fragment() {
     */
 
     inner class QuarterManager : QuarterAdapter.AdapterManager, ItemTouchHelper.Callback() {
-        override fun onSubjectClicked(item: Subject) {
+        override fun onSubjectClicked(item: SubjectItem) {
             val action = RecordFragmentDirections
                     .actionNavRecordToNavSubject(subjectId = item.id)
 
             findNavController().navigate(action)
         }
 
-        override fun onSubjectChanged(item: Subject, dispatchChanges: Boolean) {
+        override fun onSubjectChanged(item: SubjectItem, dispatchChanges: Boolean) {
             if (dispatchChanges)
-                viewModel.updateSubject(subject = item)
+                viewModel.updateSubject(subject = item.toSubject())
         }
 
-        override fun onQuarterChanged(item: Quarter, position: Int) {
+        override fun onQuarterChanged(item: QuarterItem, position: Int) {
             quarterAdapter.replaceItemAt(item, position, false)
         }
 
-        override fun computeGradeSum(quarter: Quarter): Double {
-            val quarters = quarterAdapter.getQuarters()
-
-            return quarters.computeGradeSum(until = quarter)
-        }
-
-        override fun resolveColor(item: Quarter): Int {
-            return cachedColors.getValue(item.status)
-        }
-
-        override fun resolveFont(asset: String): Typeface {
-            return cachedFonts.getValue(asset)
+        override fun computeGradeSum(quarter: QuarterItem): Double {
+            return quarterAdapter.computeGradeSum(until = quarter)
         }
 
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
@@ -217,7 +197,7 @@ open class RecordFragment : Fragment() {
             val item = quarterAdapter.getItem(position)
 
             /* Let swipes over the first with "guess" status */
-            return if (item.status == STATUS_QUARTER_GUESS && position == 0)
+            return if (item.data.status == STATUS_QUARTER_GUESS && position == 0)
                 makeMovementFlags(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT)
             else
                 0
@@ -234,8 +214,8 @@ open class RecordFragment : Fragment() {
             quarterAdapter.removeItemAt(position)
 
             view?.longSnackbar(
-                    getString(R.string.snackBar_message_quarter_removed, item.toQuarterTitle()),
-                    getString(R.string.snackBar_action_quarter_removed)) {
+                    getString(R.string.snack_bar_message_item_removed, item.startEndDateText),
+                    getString(R.string.snack_bar_action_undone)) {
                 quarterAdapter.addItemAt(item, position)
 
                 rViewRecord.scrollToPosition(0)

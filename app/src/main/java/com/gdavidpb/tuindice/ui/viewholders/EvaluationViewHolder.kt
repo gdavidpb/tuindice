@@ -1,9 +1,13 @@
 package com.gdavidpb.tuindice.ui.viewholders
 
+import android.graphics.Color
 import android.view.View
+import androidx.cardview.widget.CardView
+import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
+import com.gdavidpb.tuindice.utils.ResourcesManager
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
 import kotlinx.android.synthetic.main.item_evaluation.view.*
@@ -15,6 +19,8 @@ open class EvaluationViewHolder(
 ) : BaseViewHolder<EvaluationItem>(itemView) {
     override fun bindView(item: EvaluationItem) {
         with(itemView) {
+            this as CardView
+
             cBoxEvaluation.setOnCheckedChangeListener(null)
 
             cBoxEvaluation.isChecked = item.isDone
@@ -27,12 +33,22 @@ open class EvaluationViewHolder(
             tViewEvaluationGrade.text = item.gradesText
             tViewEvaluationDate.text = item.dateText
 
-            isEnabled = !item.isLoading
+            cBoxEvaluation.isEnabled = !item.isSwiping
+            sBarGrade.isEnabled = !item.isDone && !item.isSwiping
 
-            cBoxEvaluation.isEnabled = !item.isLoading
-            sBarGrade.isEnabled = !item.isDone && !item.isLoading
+            val cardColor = if (item.isSwiping)
+                ResourcesManager.getColor(R.color.color_disabled, context)
+            else
+                item.color
 
-            viewEvaluationColor.backgroundColor = item.color
+            val cardBackgroundColor = if (item.isSwiping)
+                ResourcesManager.getColor(R.color.color_swipe, context)
+            else
+                Color.WHITE
+
+            viewEvaluationColor.backgroundColor = cardColor
+
+            setCardBackgroundColor(cardBackgroundColor)
 
             if (item.isDone) {
                 tViewEvaluationDate.strikeThrough()
@@ -40,14 +56,6 @@ open class EvaluationViewHolder(
             } else {
                 tViewEvaluationDate.clearStrikeThrough()
                 tViewEvaluationNotes.clearStrikeThrough()
-            }
-
-            if (item.isLoading) {
-                viewEvaluationOverlay.visible()
-                pBarEvaluation.visible()
-            } else {
-                viewEvaluationOverlay.gone()
-                pBarEvaluation.gone()
             }
 
             sBarGrade.onSeekBarChange {

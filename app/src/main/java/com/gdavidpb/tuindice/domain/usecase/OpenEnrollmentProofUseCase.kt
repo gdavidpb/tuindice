@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.mappers.toQuarterTitle
+import com.gdavidpb.tuindice.utils.mappers.formatQuarterTitle
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 
@@ -26,7 +26,11 @@ open class OpenEnrollmentProofUseCase(
         } ?: return null
 
         /* Try to get current quarter enrollment proof file */
-        val enrollmentName = "enrollments/${currentQuarter.toQuarterTitle()}.pdf"
+        val enrollmentTitle = with(currentQuarter) {
+            (startDate to endDate).formatQuarterTitle()
+        }
+
+        val enrollmentName = "enrollments/$enrollmentTitle.pdf"
         val enrollmentPath = localStorageRepository.getPath(enrollmentName)
         val enrollmentExists = localStorageRepository.exists(enrollmentName)
 

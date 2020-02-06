@@ -72,6 +72,9 @@
 
     <string name="toast_try_again_later">Intenta de nuevo más tarde</string>
 
+    <string name="snack_bar_message_item_removed">%1$s removido</string>
+    <string name="snack_bar_action_undone">Deshacer</string>
+
     <!-- SummaryFragment -->
     <string name="text_5">/ 5</string>
     <string name="text_5_dot">/ 5.0</string>
@@ -97,9 +100,6 @@
     <string name="label_credits_retired">Retirados</string>
 
     <!-- RecordFragment -->
-    <string name="snackBar_message_quarter_removed">%1$s removido</string>
-    <string name="snackBar_action_quarter_removed">Deshacer</string>
-
     <string name="quarter_grade_diff">Δx %1$.4f</string>
     <string name="quarter_grade_sum">∑x %1$.4f</string>
     <string name="quarter_credits">⦿ %1$d Crs.</string>

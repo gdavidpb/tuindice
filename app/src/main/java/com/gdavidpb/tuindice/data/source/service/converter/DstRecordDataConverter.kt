@@ -12,7 +12,7 @@ import com.gdavidpb.tuindice.utils.extensions.component7
 import com.gdavidpb.tuindice.utils.extensions.component8
 import com.gdavidpb.tuindice.utils.extensions.toGrade
 import com.gdavidpb.tuindice.utils.mappers.toStartEndDate
-import com.gdavidpb.tuindice.utils.mappers.toSubjectName
+import com.gdavidpb.tuindice.utils.mappers.formatSubjectName
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.koin.core.KoinComponent
@@ -116,7 +116,7 @@ open class DstRecordDataConverter : ElementConverter<DstRecord>, KoinComponent {
 
                     DstSubject(
                             code = code,
-                            name = name.toSubjectName(),
+                            name = name.formatSubjectName(),
                             credits = credits.toInt(),
                             grade = grade.toIntOrNull() ?: 0,
                             status = status

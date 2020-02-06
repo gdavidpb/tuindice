@@ -104,7 +104,7 @@ fun ScheduleSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
         name = name,
         credits = credits,
         grade = MAX_GRADE,
-        status = status.toSubjectStatusValue()
+        status = status.formatSubjectStatusValue()
 )
 
 fun SubjectEntity.toNoGrade() = SubjectNoGradeEntity(
@@ -132,7 +132,7 @@ fun DstSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
         name = name,
         credits = credits,
         grade = grade,
-        status = status.toSubjectStatusValue()
+        status = status.formatSubjectStatusValue()
 )
 
 fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(

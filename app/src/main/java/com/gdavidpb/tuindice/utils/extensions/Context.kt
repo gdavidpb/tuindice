@@ -23,10 +23,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.activities.BrowserActivity
-import com.gdavidpb.tuindice.utils.EXTRA_TITLE
-import com.gdavidpb.tuindice.utils.EXTRA_URL
-import com.gdavidpb.tuindice.utils.PACKAGE_NAME_WEB_VIEW
-import com.gdavidpb.tuindice.utils.PLAY_SERVICES_RESOLUTION_REQUEST
+import com.gdavidpb.tuindice.utils.*
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import org.jetbrains.anko.alert
@@ -70,7 +67,7 @@ fun Context.getCompatVector(@DrawableRes drawableRes: Int, width: Int, height: I
 fun Context.getCompatDrawable(@DrawableRes resId: Int): Drawable = AppCompatResources.getDrawable(this, resId)!!
 
 fun Context.getCompatDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes: Int): Drawable {
-    val color = getCompatColor(colorRes)
+    val color = ResourcesManager.getColor(colorRes, this)
     val drawable = DrawableCompat.wrap(getCompatDrawable(drawableRes))
 
     return drawable.apply {

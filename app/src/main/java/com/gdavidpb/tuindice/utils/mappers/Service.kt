@@ -46,7 +46,7 @@ fun DstEnrollmentDataSelector.toEnrollment(): DstEnrollment {
             ScheduleSubject(
                     code = it.code,
                     section = it.section,
-                    name = it.name.toSubjectName(),
+                    name = it.name.formatSubjectName(),
                     credits = it.credits,
                     status = it.status,
                     schedule = it.schedule.map { entry ->

@@ -12,6 +12,6 @@ data class EvaluationItem(
         val date: Date,
         val color: Int,
         val isDone: Boolean,
-        val isLoading: Boolean,
+        val isSwiping: Boolean,
         val data: Evaluation
 )

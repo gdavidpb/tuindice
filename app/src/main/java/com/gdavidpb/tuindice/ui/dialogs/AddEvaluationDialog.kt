@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.domain.model.EvaluationType
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.presentation.model.NewEvaluation
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.gdavidpb.tuindice.utils.mappers.toEvaluationDate
+import com.gdavidpb.tuindice.utils.mappers.formatEvaluationDate
 import kotlinx.android.synthetic.main.dialog_add_evaluation.*
 import org.koin.android.ext.android.inject
 import java.util.*
@@ -108,7 +108,7 @@ open class AddEvaluationDialog(
             (tViewDate.tag as? Date)?.also(::selectDate)
 
             onDateSelected { selectedDate ->
-                tViewDate.text = selectedDate.toEvaluationDate()
+                tViewDate.text = selectedDate.formatEvaluationDate()
 
                 tViewDate.tag = selectedDate
 

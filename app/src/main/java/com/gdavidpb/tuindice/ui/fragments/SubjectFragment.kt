@@ -3,7 +3,10 @@ package com.gdavidpb.tuindice.ui.fragments
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Evaluation
@@ -18,6 +21,7 @@ import com.gdavidpb.tuindice.utils.ARG_SUBJECT_ID
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluation
 import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_subject.*
 import org.jetbrains.anko.support.v4.longToast
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -52,6 +56,8 @@ open class SubjectFragment : Fragment() {
                 else
                     btnAddEvaluation.hide()
             }
+
+            ItemTouchHelper(evaluationManager).attachToRecyclerView(this)
         }
 
         btnAddEvaluation.onClickOnce(::onAddEvaluationClicked)
@@ -135,11 +141,11 @@ open class SubjectFragment : Fragment() {
                 updateGrades()
 
                 if (evaluations.isEmpty()) {
-                    rViewEvaluations.gone()
+                    groupEvaluations.gone()
                     tViewEvaluations.visible()
                 } else {
                     tViewEvaluations.gone()
-                    rViewEvaluations.visible()
+                    groupEvaluations.visible()
                 }
             }
             is Result.OnError -> {
@@ -148,7 +154,7 @@ open class SubjectFragment : Fragment() {
         }
     }
 
-    inner class EvaluationManager : EvaluationAdapter.AdapterManager {
+    inner class EvaluationManager : EvaluationAdapter.AdapterManager, ItemTouchHelper.Callback() {
         override fun onEvaluationChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean) {
             evaluationAdapter.replaceItemAt(item, position, true)
 
@@ -168,6 +174,71 @@ open class SubjectFragment : Fragment() {
 
             if (dispatchChanges)
                 viewModel.updateEvaluation(evaluation = item.toEvaluation())
+        }
+
+        override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+            return makeMovementFlags(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT)
+        }
+
+        override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+            return false
+        }
+
+        override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+            super.onSelectedChanged(viewHolder, actionState)
+
+            viewHolder ?: return
+
+            if (actionState == ACTION_STATE_SWIPE) {
+                val position = viewHolder.adapterPosition
+
+                if (position == RecyclerView.NO_POSITION) return
+
+                val item = evaluationAdapter.getItem(position)
+                val updatedItem = item.copy(isSwiping = true)
+
+                evaluationAdapter.replaceItemAt(updatedItem, position)
+            }
+        }
+
+        override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+            super.clearView(recyclerView, viewHolder)
+
+            val position = viewHolder.adapterPosition
+
+            if (position == RecyclerView.NO_POSITION) return
+
+            val item = evaluationAdapter.getItem(position)
+            val updatedItem = item.copy(isSwiping = false)
+
+            evaluationAdapter.replaceItemAt(updatedItem, position)
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            val position = viewHolder.adapterPosition
+
+            if (position == RecyclerView.NO_POSITION) return
+
+            val item = evaluationAdapter.getItem(position)
+
+            evaluationAdapter.removeItemAt(position)
+
+            snackBar {
+                length(Snackbar.LENGTH_LONG)
+                message(getString(R.string.snack_bar_message_item_removed, item.typeText))
+
+                action(text = getString(R.string.snack_bar_action_undone)) {
+                    rViewEvaluations.scrollToPosition(0)
+
+                    val updatedItem = item.copy(isSwiping = false)
+
+                    evaluationAdapter.addItemAt(updatedItem, position)
+                }
+
+                onDismissed {
+                    viewModel.removeEvaluation(id = item.id)
+                }
+            }.build().show()
         }
     }
 }

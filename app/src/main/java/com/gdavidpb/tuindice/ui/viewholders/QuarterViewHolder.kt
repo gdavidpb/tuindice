@@ -1,16 +1,18 @@
 package com.gdavidpb.tuindice.ui.viewholders
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.Subject
+import com.gdavidpb.tuindice.presentation.model.QuarterItem
+import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.gdavidpb.tuindice.utils.mappers.*
+import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
+import com.gdavidpb.tuindice.utils.mappers.toSubjectItem
 import kotlinx.android.synthetic.main.item_quarter.view.*
 import kotlinx.android.synthetic.main.item_subject.view.*
 import org.jetbrains.anko.backgroundColor
@@ -18,26 +20,23 @@ import org.jetbrains.anko.backgroundColor
 open class QuarterViewHolder(
         itemView: View,
         private val manager: QuarterAdapter.AdapterManager
-) : BaseViewHolder<Quarter>(itemView) {
-    override fun bindView(item: Quarter) {
+) : BaseViewHolder<QuarterItem>(itemView) {
+    override fun bindView(item: QuarterItem) {
         with(itemView) {
             /* Quarter has not grade sum */
-            if (item.gradeSum == 0.0) {
+            if (item.data.gradeSum == 0.0) {
                 /* Compute quarter grade sum */
-                computeGradeSum(quarter = item)
+                computeGradeSum(item = item, context = context)
 
                 return
             }
 
-            val color = manager.resolveColor(item)
-            val font = manager.resolveFont("Code.ttf")
+            viewQuarterColor.backgroundColor = item.color
 
-            viewQuarterColor.backgroundColor = color
-
-            tViewQuarterTitle.text = item.toQuarterTitle()
-            tViewQuarterGradeDiff.text = item.toQuarterGradeDiff(color, context)
-            tViewQuarterGradeSum.text = item.toQuarterGradeSum(color, context)
-            tViewQuarterCredits.text = item.toQuarterCredits(color, font, context)
+            tViewQuarterTitle.text = item.startEndDateText
+            tViewQuarterGradeDiff.text = item.gradeDiffText
+            tViewQuarterGradeSum.text = item.gradeSumText
+            tViewQuarterCredits.text = item.creditsText
 
             /* Adjust subjects views */
             adjustViews(item, lLayoutQuarterContainer)
@@ -47,35 +46,35 @@ open class QuarterViewHolder(
         }
     }
 
-    private fun bindViewSubjects(quarter: Quarter, container: ViewGroup) {
-        val hasGradeBar = quarter.status == STATUS_QUARTER_CURRENT || quarter.status == STATUS_QUARTER_GUESS
+    private fun bindViewSubjects(item: QuarterItem, container: ViewGroup) {
+        val hasGradeBar = item.data.status == STATUS_QUARTER_CURRENT || item.data.status == STATUS_QUARTER_GUESS
 
-        quarter.subjects.forEachIndexed { index, subject ->
+        item.subjectsItems.forEachIndexed { index, subjectItem ->
             with(receiver = container.getChildAt(index)) {
-                setSubjectData(subject)
-                setEditable(subject, hasGradeBar)
-                setGradeBar(subject, quarter, hasGradeBar, index)
+                setSubjectData(subjectItem)
+                setEditable(subjectItem, hasGradeBar)
+                setGradeBar(subjectItem, item, hasGradeBar, index)
             }
         }
     }
 
-    private fun View.setSubjectData(subject: Subject) {
-        tViewSubjectName.text = subject.name
+    private fun View.setSubjectData(item: SubjectItem) {
+        tViewSubjectName.text = item.nameText
 
-        tViewSubjectCode.text = subject.toSubjectCode(context)
-        tViewSubjectGrade.text = subject.toSubjectGrade(context)
-        tViewSubjectCredits.text = subject.toSubjectCredits(context)
+        tViewSubjectCode.text = item.codeText
+        tViewSubjectGrade.text = item.gradeText
+        tViewSubjectCredits.text = item.creditsText
 
-        sBarGrade.progress = subject.grade
+        sBarGrade.progress = item.data.grade
     }
 
-    private fun View.setEditable(subject: Subject, hasGradeBar: Boolean) {
-        val isEditable = hasGradeBar && subject.status != STATUS_SUBJECT_GAVE_UP
+    private fun View.setEditable(item: SubjectItem, hasGradeBar: Boolean) {
+        val isEditable = hasGradeBar && item.data.status != STATUS_SUBJECT_GAVE_UP
 
         if (isEditable) {
             tViewSubjectCode.drawables(left = R.drawable.ic_open_in)
 
-            onClickOnce { manager.onSubjectClicked(subject) }
+            onClickOnce { manager.onSubjectClicked(item) }
         } else {
             tViewSubjectCode.drawables(left = 0)
 
@@ -83,7 +82,7 @@ open class QuarterViewHolder(
         }
     }
 
-    private fun View.setGradeBar(subject: Subject, quarter: Quarter, hasGradeBar: Boolean, index: Int) {
+    private fun View.setGradeBar(subjectItem: SubjectItem, item: QuarterItem, hasGradeBar: Boolean, index: Int) {
         if (!hasGradeBar) {
             sBarGrade.gone()
 
@@ -94,6 +93,7 @@ open class QuarterViewHolder(
             sBarGrade.onSeekBarChange {
                 onProgressChanged { progress, fromUser ->
                     if (fromUser) {
+                        val subject = subjectItem.data
 
                         /* Create a updated subject */
                         val updatedSubject = subject.copy(
@@ -106,25 +106,27 @@ open class QuarterViewHolder(
                         )
 
                         /* Set updated subject to list */
-                        quarter.subjects[index] = updatedSubject
+                        item.data.subjects[index] = updatedSubject
 
                         /* Compute quarter grade sum */
-                        computeGradeSum(quarter = quarter)
+                        computeGradeSum(item, context)
+
+                        val updatedItem = updatedSubject.toSubjectItem(context)
 
                         /* Notify subject changed */
-                        manager.onSubjectChanged(subject, false)
+                        manager.onSubjectChanged(updatedItem, false)
                     }
                 }
 
                 onStopTrackingTouch {
-                    manager.onSubjectChanged(subject, true)
+                    manager.onSubjectChanged(subjectItem, true)
                 }
             }
         }
     }
 
-    private fun adjustViews(quarter: Quarter, container: ViewGroup) {
-        val size = quarter.subjects.size
+    private fun adjustViews(item: QuarterItem, container: ViewGroup) {
+        val size = item.data.subjects.size
 
         /* Add views */
         while (container.childCount < size)
@@ -138,20 +140,22 @@ open class QuarterViewHolder(
         }
     }
 
-    private fun computeGradeSum(quarter: Quarter) {
-        val gradeSum = manager.computeGradeSum(quarter = quarter)
+    private fun computeGradeSum(item: QuarterItem, context: Context) {
+        val gradeSum = manager.computeGradeSum(quarter = item)
 
         /* Create updated quarter */
-        val updatedQuarter = quarter.copy(
+        val updatedQuarter = item.data.copy(
                 gradeSum = gradeSum,
-                grade = quarter.computeGrade(),
-                credits = quarter.computeCredits()
+                grade = item.computeGrade(),
+                credits = item.computeCredits()
         )
 
+        val updatedItem = updatedQuarter.toQuarterItem(context)
+
         /* Rebind user interface */
-        bindView(item = updatedQuarter)
+        bindView(item = updatedItem)
 
         /* Notify quarter changed */
-        manager.onQuarterChanged(item = updatedQuarter, position = adapterPosition)
+        manager.onQuarterChanged(item = updatedItem, position = adapterPosition)
     }
 }

@@ -4,7 +4,10 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.view.View
-import android.view.animation.*
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.CycleInterpolator
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.LinearInterpolator
 import android.widget.TextView
 import androidx.constraintlayout.widget.Guideline
 import com.gdavidpb.tuindice.utils.TIME_BACKGROUND_ANIMATION

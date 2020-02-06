@@ -7,8 +7,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatCheckBox
-import androidx.core.content.ContextCompat
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.utils.extensions.getCompatColor
 import com.gdavidpb.tuindice.utils.mappers.distanceTo
 
 class CustomCheckBox(context: Context, attrs: AttributeSet)
@@ -19,6 +19,7 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
 
         private lateinit var checkedColor: ColorStateList
         private lateinit var uncheckedColor: ColorStateList
+        private lateinit var disabledColor: ColorStateList
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -37,11 +38,16 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
                     .distinct()
                     .maxBy { target -> target distanceTo defaultColor } ?: defaultColor
 
-            checkedColor = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.color_retired))
+            checkedColor = ColorStateList.valueOf(context.getCompatColor(R.color.color_retired))
             uncheckedColor = ColorStateList.valueOf(defaultColor)
+            disabledColor = ColorStateList.valueOf(context.getCompatColor(R.color.color_disabled))
         }
 
-        buttonTintList = if (isChecked) checkedColor else uncheckedColor
+        buttonTintList = when {
+            !isEnabled -> disabledColor
+            isChecked -> checkedColor
+            else -> uncheckedColor
+        }
 
         super.onDraw(canvas)
     }

@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.data.model.database.SubjectEntity
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
+import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.utils.DigestConcat
 import com.gdavidpb.tuindice.utils.MAX_GRADE
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
@@ -21,9 +22,9 @@ fun Int.toGrade() = when (this) {
     else -> MAX_GRADE
 }
 
-fun Quarter.computeGrade() = subjects.computeGrade()
+fun QuarterItem.computeGrade() = data.subjects.computeGrade()
 
-fun Quarter.computeCredits() = subjects.computeCredits()
+fun QuarterItem.computeCredits() = data.subjects.computeCredits()
 
 fun Subject.isApproved() = grade >= 3
 
@@ -52,11 +53,11 @@ fun Account.isUpdated(): Boolean {
 
 private val gradeSumCache = hashMapOf<Int, Double>()
 
-private fun Collection<Quarter>.internalComputeGradeSum(until: Quarter) =
+private fun Collection<QuarterItem>.internalComputeGradeSum(until: QuarterItem) =
         /* Until quarter and not retired */
-        filter { it.startDate <= until.startDate && it.status != STATUS_QUARTER_RETIRED }
+        filter { it.data.startDate <= until.data.startDate && it.data.status != STATUS_QUARTER_RETIRED }
                 /* Get all subjects */
-                .flatMap { it.subjects }
+                .flatMap { it.data.subjects }
                 /* No take retired subjects */
                 .filter { it.status != STATUS_SUBJECT_RETIRED }
                 /* Group by code */
@@ -74,7 +75,7 @@ private fun Collection<Quarter>.internalComputeGradeSum(until: Quarter) =
                 }.flatten()
                 .computeGrade()
 
-fun Collection<Quarter>.computeGradeSum(until: Quarter) =
+fun Collection<QuarterItem>.computeGradeSum(until: QuarterItem) =
         gradeSumCache.getOrPut(until.hashCode()) { internalComputeGradeSum(until) }
 
 private val digestConcat = DigestConcat(algorithm = "SHA-256")

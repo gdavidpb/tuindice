@@ -6,6 +6,13 @@
     android:layout_height="match_parent"
     android:paddingTop="@dimen/dp_16">
 
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupEvaluations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="viewGradient,rViewEvaluations" />
+
     <TextView
         android:id="@+id/tViewTotalGrade"
         android:layout_width="wrap_content"
@@ -129,9 +136,15 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/dp_16"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tViewLabelAccumulated" />
+
+    <View
+        android:id="@+id/viewGradient"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_2"
+        android:background="@drawable/sh_gradient"
+        app:layout_constraintTop_toTopOf="@id/rViewEvaluations" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnAddEvaluation"

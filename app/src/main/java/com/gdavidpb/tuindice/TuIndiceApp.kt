@@ -19,7 +19,7 @@ open class TuIndiceApp : Application() {
         Locale.setDefault(DEFAULT_LOCALE)
         TimeZone.setDefault(DEFAULT_TIME_ZONE)
 
-        Fabric.with(this, Crashlytics())
+        if (!BuildConfig.DEBUG) Fabric.with(this, Crashlytics())
 
         startKoin {
             androidLogger()
