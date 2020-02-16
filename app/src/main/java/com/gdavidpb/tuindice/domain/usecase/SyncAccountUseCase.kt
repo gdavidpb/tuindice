@@ -22,15 +22,9 @@ open class SyncAccountUseCase(
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: Unit): SyncResponse? {
-        val activeAuth = authRepository.getActiveAuth()
-                ?: throw IllegalStateException("'activeAuth' is null")
-
-        val activeAccount = databaseRepository.localTransaction { getAccount(uid = activeAuth.uid) }
-                ?: throw IllegalStateException("'activeAccount' is null")
-
-        val hasDataInCache = databaseRepository.localTransaction {
-            getQuarters(uid = activeAuth.uid)
-        }.isNotEmpty()
+        val activeUId = authRepository.getActiveAuth().uid
+        val activeAccount = databaseRepository.getAccount(uid = activeUId)
+        val hasDataInCache = databaseRepository.getQuarters(uid = activeUId).isNotEmpty()
 
         /* Check if account is up-to-date, return no update required */
         if (activeAccount.isUpdated())
@@ -49,15 +43,13 @@ open class SyncAccountUseCase(
         collectedData.addEnrollmentData(credentials)
 
         /*  Check if the current quarter should be purged  */
-        if (collectedData.shouldPurgeCurrentQuarter(uid = activeAuth.uid))
+        if (collectedData.shouldPurgeCurrentQuarter(uid = activeUId))
             localStorageRepository.delete("enrollments")
 
         /* Should responses more than one service */
         return (collectedData.size > 1).let { requireUpdate ->
             if (requireUpdate)
-                databaseRepository.remoteTransaction {
-                    updateData(uid = activeAuth.uid, data = collectedData)
-                }
+                databaseRepository.updateData(uid = activeUId, data = collectedData)
 
             SyncResponse(isDataUpdated = requireUpdate, hasDataInCache = hasDataInCache)
         }
@@ -98,7 +90,7 @@ open class SyncAccountUseCase(
 
     private suspend fun MutableList<DstData>.shouldPurgeCurrentQuarter(uid: String): Boolean {
         val localCurrentSubjects = databaseRepository
-                .localTransaction { getCurrentQuarter(uid) }
+                .getCurrentQuarter(uid)
                 ?.subjects
 
         val remoteCurrentSubjects = firstOrNull { it is DstEnrollment }
@@ -114,14 +106,10 @@ open class SyncAccountUseCase(
             val codesToPurge = localCurrentCodes.subtract(remoteCurrentCodes)
 
             if (codesToPurge.isNotEmpty()) {
-                val map = localCurrentSubjects.map { it.code to it.id }.toMap()
+                val subjectMap = localCurrentSubjects.map { it.code to it.id }.toMap()
+                val subjectIds = codesToPurge.mapNotNull { subjectMap[it] }.toTypedArray()
 
-                val ids = codesToPurge.mapNotNull { map[it] }
-
-                if (ids.isNotEmpty())
-                    databaseRepository.remoteTransaction {
-                        ids.forEach { id -> removeSubject(id) }
-                    }
+                databaseRepository.removeSubjects(uid = uid, ids = *subjectIds)
             }
         }
 

@@ -69,7 +69,9 @@ open class EvaluationViewHolder(
                 }
 
                 onStopTrackingTouch {
-                    manager.onEvaluationChanged(item, adapterPosition, true)
+                    val updatedItem = manager.getItem(adapterPosition)
+
+                    manager.onEvaluationChanged(updatedItem, adapterPosition, true)
                 }
             }
 

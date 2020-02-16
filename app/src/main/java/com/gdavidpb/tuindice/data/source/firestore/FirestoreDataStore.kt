@@ -16,23 +16,42 @@ import com.google.firebase.firestore.*
 open class FirestoreDataStore(
         private val firestore: FirebaseFirestore
 ) : DatabaseRepository {
+    override suspend fun syncAccount(uid: String) {
+        firestore
+                .collection(COLLECTION_USER)
+                .document(uid)
+                .get(Source.SERVER)
+                .await()
+
+        arrayOf(
+                COLLECTION_QUARTER,
+                COLLECTION_SUBJECT,
+                COLLECTION_EVALUATION
+        ).forEach { collection ->
+            firestore
+                    .collection(collection)
+                    .whereEqualTo(FIELD_DEFAULT_USER_ID, uid)
+                    .get(Source.SERVER)
+                    .await()
+        }
+    }
+
     override suspend fun getAccount(uid: String): Account {
         return firestore
                 .collection(COLLECTION_USER)
                 .document(uid)
-                .get()
+                .get(Source.CACHE)
                 .await()
                 .toAccount()
     }
 
-    /* This function contains queries that aren't allowed to run in a remote transaction */
     override suspend fun getCurrentQuarter(uid: String): Quarter? {
         suspend fun getSubjects(qid: String): List<Subject> {
             return firestore
                     .collection(COLLECTION_SUBJECT)
                     .whereEqualTo(FIELD_SUBJECT_USER_ID, uid)
                     .whereEqualTo(FIELD_SUBJECT_QUARTER_ID, qid)
-                    .get()
+                    .get(Source.CACHE)
                     .await()
                     .documents
                     .map { it.toSubject() }
@@ -43,12 +62,11 @@ open class FirestoreDataStore(
                 .whereEqualTo(FIELD_QUARTER_USER_ID, uid)
                 .whereEqualTo(FIELD_QUARTER_STATUS, STATUS_QUARTER_CURRENT)
                 .limit(1)
-                .get()
+                .get(Source.CACHE)
                 .await()
                 .documents
                 .map { it.toQuarter(subjects = getSubjects(qid = it.id)) }
                 .getOrNull(0)
-
     }
 
     override suspend fun getQuarters(uid: String): List<Quarter> {
@@ -56,7 +74,7 @@ open class FirestoreDataStore(
             return firestore
                     .collection(COLLECTION_SUBJECT)
                     .whereEqualTo(FIELD_SUBJECT_USER_ID, uid)
-                    .get()
+                    .get(Source.CACHE)
                     .await()
                     .documents
                     .map { it.toSubject() }
@@ -69,7 +87,7 @@ open class FirestoreDataStore(
                 .collection(COLLECTION_QUARTER)
                 .whereEqualTo(FIELD_QUARTER_USER_ID, uid)
                 .orderBy(FIELD_QUARTER_START_DATE, Query.Direction.DESCENDING)
-                .get()
+                .get(Source.CACHE)
                 .await()
                 .documents
                 .map {
@@ -79,11 +97,12 @@ open class FirestoreDataStore(
                 }
     }
 
-    override suspend fun getSubjectEvaluations(sid: String): List<Evaluation> {
+    override suspend fun getSubjectEvaluations(uid: String, sid: String): List<Evaluation> {
         return firestore
                 .collection(COLLECTION_EVALUATION)
+                .whereEqualTo(FIELD_EVALUATION_USER_ID, uid)
                 .whereEqualTo(FIELD_EVALUATION_SUBJECT_ID, sid)
-                .get()
+                .get(Source.CACHE)
                 .await()
                 .map { it.toEvaluation() }
                 .sortedWith(compareBy(Evaluation::isDone, Evaluation::date))
@@ -93,25 +112,40 @@ open class FirestoreDataStore(
         return firestore
                 .collection(COLLECTION_EVALUATION)
                 .whereEqualTo(FIELD_EVALUATION_USER_ID, uid)
-                .get()
+                .get(Source.CACHE)
                 .await()
                 .map { it.toEvaluation() }
     }
 
-    override suspend fun updateEvaluation(evaluation: Evaluation) {
+    override suspend fun getSubject(uid: String, id: String): Subject {
+        return firestore
+                .collection(COLLECTION_SUBJECT)
+                .document(id)
+                .get(Source.CACHE)
+                .await()
+                .toSubject()
+    }
+
+    override suspend fun getSubjects(uid: String): List<Subject> {
+        return firestore
+                .collection(COLLECTION_SUBJECT)
+                .whereEqualTo(FIELD_SUBJECT_USER_ID, uid)
+                .get(Source.CACHE)
+                .await()
+                .map { it.toSubject() }
+    }
+
+    override suspend fun updateEvaluation(uid: String, evaluation: Evaluation) {
         val evaluationRef = firestore
                 .collection(COLLECTION_EVALUATION)
                 .document(evaluation.id)
 
-        val values = mapOf(
-                FIELD_EVALUATION_GRADE to evaluation.grade,
-                FIELD_EVALUATION_DONE to evaluation.isDone
-        )
+        val entity = evaluation.toEvaluationEntity(uid)
 
-        evaluationRef.set(values, SetOptions.merge()).await()
+        evaluationRef.set(entity, SetOptions.merge()).await()
     }
 
-    override suspend fun removeEvaluation(id: String) {
+    override suspend fun removeEvaluation(uid: String, id: String) {
         firestore
                 .collection(COLLECTION_EVALUATION)
                 .document(id)
@@ -132,16 +166,7 @@ open class FirestoreDataStore(
                 }
     }
 
-    override suspend fun getSubject(id: String): Subject {
-        return firestore
-                .collection(COLLECTION_SUBJECT)
-                .document(id)
-                .get()
-                .await()
-                .toSubject()
-    }
-
-    override suspend fun updateSubject(subject: Subject) {
+    override suspend fun updateSubject(uid: String, subject: Subject) {
         val subjectRef = firestore
                 .collection(COLLECTION_SUBJECT)
                 .document(subject.id)
@@ -154,12 +179,18 @@ open class FirestoreDataStore(
         subjectRef.set(values, SetOptions.merge()).await()
     }
 
-    override suspend fun removeSubject(id: String) {
-        firestore
-                .collection(COLLECTION_SUBJECT)
-                .document(id)
-                .delete()
-                .await()
+    override suspend fun removeSubjects(uid: String, vararg ids: String) {
+        if (ids.isEmpty()) return
+
+        firestore.runBatch { batch ->
+            ids.forEach { subjectId ->
+                val subjectRef = firestore
+                        .collection(COLLECTION_SUBJECT)
+                        .document(subjectId)
+
+                batch.delete(subjectRef)
+            }
+        }.await()
     }
 
     override suspend fun updateAuthData(uid: String, data: DstAuth) {
@@ -193,27 +224,11 @@ open class FirestoreDataStore(
                 FIELD_USER_TOKEN to token
         )
 
-        userRef.set(values, SetOptions.merge()).await()
+        userRef.set(values, SetOptions.merge())
     }
 
-    override suspend fun <T> remoteTransaction(transaction: suspend DatabaseRepository.() -> T): T {
-        firestore.enableNetwork().await()
-
-        val result = transaction(this)
-
-        firestore.disableNetwork().await()
-
-        return result
-    }
-
-    override suspend fun <T> localTransaction(transaction: suspend DatabaseRepository.() -> T): T {
-        firestore.disableNetwork().await()
-
-        val result = transaction(this)
-
-        firestore.enableNetwork().await()
-
-        return result
+    override suspend fun clearPersistence() {
+        firestore.clearPersistence().await()
     }
 
     private fun WriteBatch.updateLastUpdate(uid: String) {

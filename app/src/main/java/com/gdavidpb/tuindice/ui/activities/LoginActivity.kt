@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
-import com.gdavidpb.tuindice.domain.model.exception.AuthException
+import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.utils.*
@@ -152,7 +152,7 @@ class LoginActivity : BaseActivity() {
                 enableUI(true)
 
                 when (result.throwable) {
-                    is AuthException ->
+                    is AuthenticationException ->
                         when (result.throwable.code) {
                             AuthResponseCode.INVALID_CREDENTIALS -> R.string.snack_invalid_credentials
                             else -> R.string.snack_service_unreachable

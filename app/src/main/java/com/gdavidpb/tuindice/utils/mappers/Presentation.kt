@@ -114,9 +114,10 @@ fun Int.formatCredits(color: Int, font: Typeface, context: Context) =
 
 @SuppressLint("DefaultLocale")
 fun Date.formatEvaluationDate(): String {
-    val weeksLeft = weeksLeft() + 1
+    val weeksLeft = weeksLeft()
 
     return when {
+        time == 0L -> "Evaluación continua"
         isToday() -> "Hoy"
         isTomorrow() -> "Mañana"
         isThisWeek() -> "Este ${format("EEEE '—' dd/MM")}"

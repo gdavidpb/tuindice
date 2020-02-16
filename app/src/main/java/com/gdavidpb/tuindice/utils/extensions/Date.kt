@@ -70,7 +70,7 @@ fun Date.isNextWeek(): Boolean {
 fun Date.weeksLeft(): Int {
     val days = TimeUnit.MILLISECONDS.toDays(time - Date().time)
 
-    return ceil(days / 7f).toInt()
+    return ceil((days + 1) / 7f).toInt()
 }
 
 fun Calendar.precision(vararg fields: Int): Calendar {

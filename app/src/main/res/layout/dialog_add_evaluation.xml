@@ -62,114 +62,7 @@
                 android:layout_marginTop="@dimen/dp_16"
                 app:layout_constraintTop_toBottomOf="@id/tViewLabelType"
                 app:selectionRequired="true"
-                app:singleSelection="true">
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/evaluation_test"
-                    android:textColor="@drawable/sl_chip_text_color"
-                    app:chipBackgroundColor="@drawable/sl_chip_background" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/evaluation_essay"
-                    android:textColor="@drawable/sl_chip_text_color"
-
-                    app:chipBackgroundColor="@drawable/sl_chip_background" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/evaluation_attendance"
-                    android:textColor="@drawable/sl_chip_text_color"
-                    app:chipBackgroundColor="@drawable/sl_chip_background" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/evaluation_interventions"
-                    android:textColor="@drawable/sl_chip_text_color"
-                    app:chipBackgroundColor="@drawable/sl_chip_background" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/evaluation_laboratory"
-                    android:textColor="@drawable/sl_chip_text_color"
-                    app:chipBackgroundColor="@drawable/sl_chip_background" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/evaluation_model"
-                    android:textColor="@drawable/sl_chip_text_color"
-                    app:chipBackgroundColor="@drawable/sl_chip_background" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/evaluation_presentation"
-                    android:textColor="@drawable/sl_chip_text_color"
-                    app:chipBackgroundColor="@drawable/sl_chip_background" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/evaluation_project"
-                    android:textColor="@drawable/sl_chip_text_color"
-                    app:chipBackgroundColor="@drawable/sl_chip_background" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/evaluation_quiz"
-                    android:textColor="@drawable/sl_chip_text_color"
-                    app:chipBackgroundColor="@drawable/sl_chip_background" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/evaluation_report"
-                    android:textColor="@drawable/sl_chip_text_color"
-                    app:chipBackgroundColor="@drawable/sl_chip_background" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/evaluation_workshop"
-                    android:textColor="@drawable/sl_chip_text_color"
-                    app:chipBackgroundColor="@drawable/sl_chip_background" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/evaluation_written_work"
-                    android:textColor="@drawable/sl_chip_text_color"
-                    app:chipBackgroundColor="@drawable/sl_chip_background" />
-
-                <com.google.android.material.chip.Chip
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/evaluation_other"
-                    android:textColor="@drawable/sl_chip_text_color"
-                    app:chipBackgroundColor="@drawable/sl_chip_background" />
-
-            </com.google.android.material.chip.ChipGroup>
+                app:singleSelection="true" />
 
             <TextView
                 android:id="@+id/tViewLabelGrade"
@@ -206,14 +99,24 @@
 
             <TextView
                 android:id="@+id/tViewLabelDate"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_16"
                 android:fontFamily="sans-serif-light"
                 android:labelFor="@id/tViewLabelGrade"
                 android:text="@string/label_add_evaluation_date"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/sBarMaxGrade" />
+
+            <Switch
+                android:id="@+id/sEvaluationDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                app:layout_constraintBottom_toBottomOf="@+id/tViewLabelDate"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tViewLabelDate" />
 
             <TextView
                 android:id="@+id/tViewDate"
@@ -223,11 +126,12 @@
                 android:background="@drawable/sh_rect_date"
                 android:clickable="true"
                 android:drawableEnd="@drawable/ic_edit_calendar"
+                app:drawableTint="@drawable/sl_button"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:padding="@dimen/dp_16"
                 android:tag="@null"
-                android:text="@string/label_add_evaluation_no_date"
+                android:text="@string/label_add_evaluation_select_date"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tViewLabelDate" />
 

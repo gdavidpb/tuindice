@@ -188,6 +188,10 @@ open class RecordFragment : Fragment() {
             quarterAdapter.replaceItemAt(item, position, false)
         }
 
+        override fun getItem(position: Int): QuarterItem {
+            return quarterAdapter.getItem(position)
+        }
+
         override fun computeGradeSum(quarter: QuarterItem): Double {
             return quarterAdapter.computeGradeSum(until = quarter)
         }

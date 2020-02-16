@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.source.service
 
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
-import com.gdavidpb.tuindice.domain.model.exception.AuthException
+import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
@@ -54,7 +54,7 @@ open class DstDataStore(
                 .toAuthResponse().let { response ->
                     when (response.code) {
                         AuthResponseCode.SUCCESS, AuthResponseCode.NO_ENROLLED -> response
-                        else -> throw AuthException(code = response.code, message = response.message)
+                        else -> throw AuthenticationException(code = response.code, message = response.message)
                     }
                 }
     }

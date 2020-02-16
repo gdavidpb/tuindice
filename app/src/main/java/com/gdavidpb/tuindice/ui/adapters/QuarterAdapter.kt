@@ -22,6 +22,7 @@ open class QuarterAdapter(
         fun onQuarterChanged(item: QuarterItem, position: Int)
 
         fun computeGradeSum(quarter: QuarterItem): Double
+        fun getItem(position: Int): QuarterItem
     }
 
     private val averageSubjects by lazy {

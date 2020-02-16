@@ -15,7 +15,9 @@ import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.presentation.model.NewEvaluation
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.formatEvaluationDate
+import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.dialog_add_evaluation.*
+import org.jetbrains.anko.sdk27.coroutines.onCheckedChange
 import org.koin.android.ext.android.inject
 import java.util.*
 
@@ -31,32 +33,9 @@ open class AddEvaluationDialog(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val headerText = getString(R.string.label_add_evaluation_subject_header, subject.code, subject.name)
-
-        cGroupEvaluation.setOnCheckedChangeListener { _, _ ->
-            validateParams()
-        }
-
-        tViewSubjectHeader.text = headerText
-
-        updateGradeValue(grade = 0)
-
-        eTextNotes.showSoftInputOnFocus = true
-
-        tViewLabelNotes.onClickOnce(::onNotesClicked)
-        btnEvaluationAdd.onClickOnce(::onAddClicked)
-        btnEvaluationCancel.onClickOnce(::onCancelClicked)
-        tViewDate.onClickOnce(::onDateClicked)
-
-        sBarMaxGrade.onSeekBarChange {
-            onProgressChanged { progress, fromUser ->
-                if (fromUser) {
-                    updateGradeValue(grade = progress)
-
-                    validateParams()
-                }
-            }
-        }
+        initData()
+        initChipGroup()
+        initListeners()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -67,30 +46,99 @@ open class AddEvaluationDialog(
         show(fragmentManager, AddEvaluationDialog::class.java.name)
     }
 
-    private fun updateGradeValue(grade: Int) {
-        tViewLabelGradeValue.text = getString(R.string.label_add_evaluation_grade_value, grade)
+    private fun updateGradeValue(value: Int) {
+        tViewLabelGradeValue.text = getString(R.string.label_add_evaluation_grade_value, value)
+    }
+
+    private fun initData() {
+        val headerText = getString(R.string.label_add_evaluation_subject_header, subject.code, subject.name)
+
+        tViewSubjectHeader.text = headerText
+
+        updateGradeValue(value = 0)
+
+        eTextNotes.showSoftInputOnFocus = true
+    }
+
+    private fun initChipGroup() {
+        EvaluationType.values().forEach { evaluationType ->
+            LayoutInflater
+                    .from(context)
+                    .inflate(R.layout.view_chip, cGroupEvaluation, false).also { chip ->
+                        chip as Chip
+
+                        chip.text = getString(evaluationType.stringRes)
+                    }.also(cGroupEvaluation::addView)
+        }
+    }
+
+    private fun initListeners() {
+        tViewLabelNotes.onClickOnce(::onNotesClicked)
+        btnEvaluationAdd.onClickOnce(::onAddClicked)
+        btnEvaluationCancel.onClickOnce(::onCancelClicked)
+        tViewDate.onClickOnce(::onDateClicked)
+
+        cGroupEvaluation.setOnCheckedChangeListener { _, _ ->
+            validateParams()
+        }
+
+        sEvaluationDate.onCheckedChange { _, isChecked ->
+            tViewDate.isEnabled = isChecked
+
+            tViewDate.text = when {
+                !isChecked -> getString(R.string.label_add_evaluation_no_date)
+                isValidDate() -> getDate().formatEvaluationDate()
+                else -> getString(R.string.label_add_evaluation_select_date)
+            }
+
+            validateParams()
+        }
+
+        sBarMaxGrade.onSeekBarChange {
+            onProgressChanged { progress, fromUser ->
+                if (fromUser) {
+                    updateGradeValue(value = progress)
+
+                    validateParams()
+                }
+            }
+        }
     }
 
     private fun validateParams() {
         when {
             cGroupEvaluation.checkedChipId == -1 -> false
             sBarMaxGrade.progress == 0 -> false
-            tViewDate.tag == null -> false
+            !isValidDate() -> false
             else -> true
         }.let { isOk ->
             btnEvaluationAdd.isEnabled = isOk
         }
     }
 
+    private fun isValidDate() =
+            !sEvaluationDate.isChecked || tViewDate.tag != null
+
+    private fun getDate() =
+            if (sEvaluationDate.isChecked) tViewDate.tag as? Date ?: Date() else Date(0)
+
+    private fun setDate(value: Date?) {
+        tViewDate.tag = value
+        tViewDate.text = value?.formatEvaluationDate()
+    }
+
     private fun onAddClicked() {
-        val evaluationId = cGroupEvaluation.checkedChipId % cGroupEvaluation.childCount
-        val evaluationType = EvaluationType.values()[evaluationId - 1]
+        val evaluationType = cGroupEvaluation
+                .getCheckedChipIndex()
+                .let { index ->
+                    EvaluationType.values()[index]
+                }
 
         val evaluation = NewEvaluation(
                 sid = subject.id,
                 type = evaluationType,
                 maxGrade = sBarMaxGrade.progress,
-                date = tViewDate.tag as Date,
+                date = getDate(),
                 notes = "${eTextNotes.text}"
         )
 
@@ -105,12 +153,10 @@ open class AddEvaluationDialog(
 
     private fun onDateClicked() {
         requireActivity().datePicker {
-            (tViewDate.tag as? Date)?.also(::selectDate)
+            getDate().also(::selectDate)
 
             onDateSelected { selectedDate ->
-                tViewDate.text = selectedDate.formatEvaluationDate()
-
-                tViewDate.tag = selectedDate
+                setDate(selectedDate)
 
                 validateParams()
             }

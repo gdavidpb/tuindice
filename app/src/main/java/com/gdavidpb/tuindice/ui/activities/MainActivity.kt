@@ -8,6 +8,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.StartUpAction
+import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
@@ -163,6 +164,12 @@ class MainActivity : BaseActivity() {
             }
             is Result.OnError -> {
                 showLoading(false)
+
+                when (result.throwable) {
+                    is NoAuthenticatedException -> {
+                        viewModel.signOut()
+                    }
+                }
             }
             is Result.OnCancel -> {
                 showLoading(false)

@@ -19,11 +19,10 @@ open class OpenEnrollmentProofUseCase(
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: Unit): File? {
-        val activeAuth = authRepository.getActiveAuth()
+        val activeUId = authRepository.getActiveAuth().uid
+
+        val currentQuarter = databaseRepository.getCurrentQuarter(uid = activeUId)
                 ?: return null
-        val currentQuarter = databaseRepository.localTransaction {
-            getCurrentQuarter(uid = activeAuth.uid)
-        } ?: return null
 
         /* Try to get current quarter enrollment proof file */
         val enrollmentTitle = with(currentQuarter) {

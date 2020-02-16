@@ -26,7 +26,9 @@ open class SignInUseCase(
 
         authRepository.signOut()
         settingsRepository.clear()
+        databaseRepository.clearPersistence()
         localStorageRepository.delete("cookies")
+        localStorageRepository.delete("enrollment")
 
         val authResponse = dstRepository.auth(request = params)
 
@@ -35,8 +37,8 @@ open class SignInUseCase(
             /* Try to sign in to Firebase */
             runCatching {
                 authRepository.signIn(email = email, password = params.password)
-            }.onSuccess { auth ->
-                storeAccount(auth = auth, request = params, response = authResponse)
+            }.onSuccess { activeAuth ->
+                storeAccount(auth = activeAuth, request = params, response = authResponse)
             }.onFailure { exception ->
                 if (exception is FirebaseAuthException) {
                     when (exception.errorCode) {
@@ -73,10 +75,10 @@ open class SignInUseCase(
 
         settingsRepository.storeCredentials(credentials = request.toDstCredentials())
 
-        databaseRepository.remoteTransaction {
-            getEvaluations(uid = auth.uid)
-
+        with(databaseRepository) {
             updateAuthData(uid = auth.uid, data = authData)
+
+            syncAccount(uid = auth.uid)
         }
     }
 }

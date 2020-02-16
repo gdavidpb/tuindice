@@ -14,11 +14,8 @@ open class AddEvaluationUseCase(
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: Evaluation): Evaluation? {
-        val activeAuth = authRepository.getActiveAuth()
-                ?: throw IllegalStateException("'activeAuth' is null")
+        val activeUId = authRepository.getActiveAuth().uid
 
-        return databaseRepository.remoteTransaction {
-            addEvaluation(uid = activeAuth.uid, evaluation = params)
-        }
+        return databaseRepository.addEvaluation(uid = activeUId, evaluation = params)
     }
 }

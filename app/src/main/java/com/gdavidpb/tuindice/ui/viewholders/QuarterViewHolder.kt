@@ -119,7 +119,12 @@ open class QuarterViewHolder(
                 }
 
                 onStopTrackingTouch {
-                    manager.onSubjectChanged(subjectItem, true)
+                    val updatedItem = manager.getItem(adapterPosition)
+                    val updatedSubjectItem = updatedItem.subjectsItems.first { subject ->
+                        subject.id == subjectItem.id
+                    }
+
+                    manager.onSubjectChanged(updatedSubjectItem, true)
                 }
             }
         }

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.utils.extensions
 
 import android.view.View
 import androidx.fragment.app.Fragment
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 
 data class SnackBarBuilder(
@@ -10,48 +11,40 @@ data class SnackBarBuilder(
         var message: CharSequence = "",
         var actionText: CharSequence = "",
         var action: () -> Unit = {},
-        var dismissed: () -> Unit = {},
-        var internalView: View? = null,
-        var internalAttach: View.OnAttachStateChangeListener? = null
-)
+        var dismissed: (event: Int) -> Unit = {}
+) {
+    fun length(value: Int) {
+        length = value
+    }
 
-fun Fragment.snackBar(builder: SnackBarBuilder.() -> Unit) = SnackBarBuilder(requireView()).apply(builder)
+    fun message(value: CharSequence) {
+        message = value
+    }
 
-fun SnackBarBuilder.length(value: Int) {
-    length = value
-}
+    fun action(text: CharSequence, onClick: () -> Unit) {
+        actionText = text
+        action = onClick
+    }
 
-fun SnackBarBuilder.message(value: CharSequence) {
-    message = value
-}
+    fun onDismissed(listener: (event: Int) -> Unit) {
+        dismissed = listener
+    }
 
-fun SnackBarBuilder.action(text: CharSequence, onClick: () -> Unit) {
-    actionText = text
-    action = onClick
-}
+    fun build() = Snackbar
+            .make(view, message, length)
+            .setAction(actionText) {
+                action()
+            }.apply {
+                object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                    override fun onDismissed(transientBottomBar: Snackbar, event: Int) {
+                        removeCallback(this)
 
-fun SnackBarBuilder.onDismissed(listener: () -> Unit) {
-    dismissed = listener
-}
-
-fun SnackBarBuilder.build() = Snackbar
-        .make(view, message, Snackbar.LENGTH_LONG)
-        .setAction(actionText) {
-            internalView?.removeOnAttachStateChangeListener(internalAttach)
-
-            action()
-        }
-        .also { snackBar ->
-            internalView = snackBar.view
-
-            internalAttach = object : View.OnAttachStateChangeListener {
-                override fun onViewDetachedFromWindow(view: View) {
-                    dismissed()
-                }
-
-                override fun onViewAttachedToWindow(view: View) {
+                        dismissed(event)
+                    }
+                }.also { callback ->
+                    addCallback(callback)
                 }
             }
+}
 
-            internalView?.addOnAttachStateChangeListener(internalAttach)
-        }
+fun Fragment.snackBar(builder: SnackBarBuilder.() -> Unit) = SnackBarBuilder(requireView()).apply(builder)

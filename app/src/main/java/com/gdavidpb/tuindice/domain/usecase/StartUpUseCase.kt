@@ -9,9 +9,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.utils.KEY_NOW_DATE
 import com.gdavidpb.tuindice.utils.KEY_REF_DATE
 import com.gdavidpb.tuindice.utils.mappers.toResetRequest
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.*
 
 open class StartUpUseCase(
@@ -24,17 +22,19 @@ open class StartUpUseCase(
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: String): StartUpAction? {
-        val activeAuth = authRepository.getActiveAuth()
-        val activeAccount = activeAuth?.let { auth -> databaseRepository.getAccount(uid = auth.uid) }
-        val passwordReset = authRepository.isResetLink(params)
-        val awaitingForReset = settingsRepository.isAwaitingForReset()
+        val isActiveAuth = authRepository.isActiveAuth()
+        val isPasswordResetLink = authRepository.isResetLink(params)
+        val isAwaitingForPasswordReset = settingsRepository.isAwaitingForReset()
 
         val email = settingsRepository.awaitingEmail()
 
         val lastScreen = settingsRepository.getLastScreen()
 
         return when {
-            passwordReset && activeAccount != null -> {
+            isPasswordResetLink && isActiveAuth -> {
+                val activeAuth = authRepository.getActiveAuth()
+                val activeAccount = databaseRepository.getAccount(uid = activeAuth.uid)
+
                 settingsRepository.clearIsAwaitingForReset()
 
                 val request = params.toResetRequest()
@@ -45,8 +45,13 @@ open class StartUpUseCase(
 
                 StartUpAction.Main(screen = lastScreen, account = activeAccount)
             }
-            awaitingForReset -> StartUpAction.Reset(email = email)
-            activeAuth != null && activeAccount != null -> {
+            isAwaitingForPasswordReset -> {
+                StartUpAction.Reset(email = email)
+            }
+            isActiveAuth -> {
+                val activeAuth = authRepository.getActiveAuth()
+                val activeAccount = databaseRepository.getAccount(uid = activeAuth.uid)
+
                 val yearRef = settingsRepository.getCredentialYear()
 
                 reportingRepository.setInt(KEY_REF_DATE, yearRef)
@@ -54,7 +59,7 @@ open class StartUpUseCase(
 
                 val token = identifierRepository.getIdentifier()
 
-                asyncUpdateToken(uid = activeAuth.uid, token = token)
+                databaseRepository.updateToken(uid = activeAuth.uid, token = token)
 
                 if (authRepository.isEmailVerified())
                     StartUpAction.Main(screen = lastScreen, account = activeAccount)
@@ -62,14 +67,6 @@ open class StartUpUseCase(
                     StartUpAction.Verify(email = activeAuth.email)
             }
             else -> StartUpAction.Login
-        }
-    }
-
-    private fun asyncUpdateToken(uid: String, token: String) {
-        CoroutineScope(backgroundContext).launch {
-            runCatching {
-                databaseRepository.updateToken(uid, token)
-            }
         }
     }
 }

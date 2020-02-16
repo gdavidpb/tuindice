@@ -15,6 +15,8 @@ open class EvaluationAdapter(
     interface AdapterManager {
         fun onEvaluationChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean)
         fun onEvaluationDoneChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean)
+
+        fun getItem(position: Int): EvaluationItem
     }
 
     override fun provideComparator() = compareBy(EvaluationItem::id)

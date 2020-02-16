@@ -62,6 +62,7 @@
         <item>Mi índice es incorrecto</item>
         <item>No puedo descargar mi comprobante</item>
         <item>Hay un error en mi expediente</item>
+        <item>No puedo crear/editar/eliminar una evaluación</item>
         <!--<item>Hay un error en mi pensum</item>-->
         <!--<item>No encuentro una materia</item>-->
         <!--<item>No encuentro mi pensum</item>-->
@@ -298,7 +299,8 @@
     <string name="label_add_evaluation_max_grade">Valor</string>
     <string name="label_add_evaluation_date">Fecha</string>
     <string name="label_add_evaluation_notes">Observaciones</string>
-    <string name="label_add_evaluation_no_date">Selecciona una fecha</string>
+    <string name="label_add_evaluation_select_date">Selecciona una fecha</string>
+    <string name="label_add_evaluation_no_date">Evaluación continua</string>
 
     <string name="label_add_evaluation_grade_value">%1$d pts</string>
     <string name="label_add_evaluation_subject_header">%1$s ─ %2$s</string>

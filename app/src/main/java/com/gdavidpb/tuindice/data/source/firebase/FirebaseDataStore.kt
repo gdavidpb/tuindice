@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.data.source.firebase
 import android.net.Uri
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Auth
+import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.utils.extensions.await
 import com.gdavidpb.tuindice.utils.mappers.fromResetParam
@@ -13,8 +14,12 @@ import com.google.firebase.auth.FirebaseAuth
 open class FirebaseDataStore(
         private val auth: FirebaseAuth
 ) : AuthRepository {
-    override suspend fun getActiveAuth(): Auth? {
-        return auth.currentUser?.toAuth()
+    override suspend fun isActiveAuth(): Boolean {
+        return auth.currentUser != null
+    }
+
+    override suspend fun getActiveAuth(): Auth {
+        return auth.currentUser?.toAuth() ?: throw NoAuthenticatedException()
     }
 
     override suspend fun signUp(email: String, password: String): Auth {

@@ -14,11 +14,8 @@ open class GetQuartersUseCase(
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: Unit): List<Quarter>? {
-        val activeAuth = authRepository.getActiveAuth()
-                ?: throw IllegalStateException("'activeAuth' is null")
+        val activeUId = authRepository.getActiveAuth().uid
 
-        return databaseRepository.localTransaction {
-            getQuarters(uid = activeAuth.uid)
-        }
+        return databaseRepository.getQuarters(uid = activeUId)
     }
 }

@@ -11,25 +11,25 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.utils.TIME_DELAY_CLICK_ONCE
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.*
 
 data class SeekBarChangeListenerBuilder(
         var onProgressChanged: (progress: Int, fromUser: Boolean) -> Unit = { _, _ -> },
         var onStopTrackingTouch: (progress: Int) -> Unit = { _ -> }
-)
-
-fun SeekBarChangeListenerBuilder.onProgressChanged(
-        listener: (progress: Int, fromUser: Boolean) -> Unit
 ) {
-    onProgressChanged = listener
+    fun onProgressChanged(listener: (progress: Int, fromUser: Boolean) -> Unit) {
+        onProgressChanged = listener
+    }
+
+    fun onStopTrackingTouch(listener: (progress: Int) -> Unit) {
+        onStopTrackingTouch = listener
+    }
 }
 
-fun SeekBarChangeListenerBuilder.onStopTrackingTouch(
-        listener: (progress: Int) -> Unit
-) {
-    onStopTrackingTouch = listener
-}
+fun ChipGroup.getCheckedChipIndex() = indexOfChild(findViewById<Chip>(checkedChipId))
 
 fun View.onClickOnce(onClick: () -> Unit) {
     setOnClickListener(object : View.OnClickListener {

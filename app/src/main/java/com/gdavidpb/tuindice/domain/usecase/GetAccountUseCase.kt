@@ -14,11 +14,8 @@ open class GetAccountUseCase(
         foregroundContext = Dispatchers.Main
 ) {
     override suspend fun executeOnBackground(params: Unit): Account? {
-        val activeAuth = authRepository.getActiveAuth()
-                ?: throw IllegalStateException("'activeAuth' is null")
+        val activeUId = authRepository.getActiveAuth().uid
 
-        return databaseRepository.localTransaction {
-            getAccount(uid = activeAuth.uid)
-        }
+        return databaseRepository.getAccount(uid = activeUId)
     }
 }

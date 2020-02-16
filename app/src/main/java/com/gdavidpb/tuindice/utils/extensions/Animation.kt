@@ -47,7 +47,7 @@ private fun ValueAnimator.animate(
 fun TextView.animateGrade(value: Int) {
     val from = "$text".toIntOrNull() ?: 0
 
-    if (from == value) return
+    if (from == value && text.isNotEmpty()) return
 
     ValueAnimator.ofInt(from, value).animate(this, {
         duration = 750
@@ -62,7 +62,7 @@ fun TextView.animateGrade(value: Int) {
 fun TextView.animateGrade(value: Double) {
     val from = "$text".toFloatOrNull() ?: 0f
 
-    if (from == value.toFloat()) return
+    if (from == value.toFloat() && text.isNotEmpty()) return
 
     ValueAnimator.ofFloat(from, value.toFloat()).animate(this, {
         duration = 1000

@@ -113,6 +113,8 @@ open class SubjectFragment : Fragment() {
                         item = response.toEvaluationItem(context),
                         comparator = compareBy(EvaluationItem::isDone, EvaluationItem::date)
                 )
+
+                updateGrades()
             }
             is Result.OnError -> longToast(R.string.toast_try_again_later)
         }
@@ -176,12 +178,53 @@ open class SubjectFragment : Fragment() {
                 viewModel.updateEvaluation(evaluation = item.toEvaluation())
         }
 
+        override fun getItem(position: Int): EvaluationItem {
+            return evaluationAdapter.getItem(position)
+        }
+
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-            return makeMovementFlags(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT)
+            val position = viewHolder.adapterPosition
+            val item = evaluationAdapter.getItem(position)
+
+            return if (item.isDone)
+                return makeMovementFlags(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT)
+            else
+                0
         }
 
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
             return false
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            val position = viewHolder.adapterPosition
+
+            if (position == RecyclerView.NO_POSITION) return
+
+            val item = evaluationAdapter.getItem(position)
+
+            evaluationAdapter.removeItemAt(position)
+
+            snackBar {
+                length(Snackbar.LENGTH_LONG)
+                message(getString(R.string.snack_bar_message_item_removed, item.typeText))
+
+                action(text = getString(R.string.snack_bar_action_undone)) {
+                    rViewEvaluations.scrollToPosition(0)
+
+                    val updatedItem = item.copy(isSwiping = false)
+
+                    evaluationAdapter.addItemAt(updatedItem, position)
+                }
+
+                onDismissed { event ->
+                    if (event != Snackbar.Callback.DISMISS_EVENT_ACTION) {
+                        if (isAdded) updateGrades()
+
+                        viewModel.removeEvaluation(id = item.id)
+                    }
+                }
+            }.build().show()
         }
 
         override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
@@ -212,33 +255,6 @@ open class SubjectFragment : Fragment() {
             val updatedItem = item.copy(isSwiping = false)
 
             evaluationAdapter.replaceItemAt(updatedItem, position)
-        }
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            val position = viewHolder.adapterPosition
-
-            if (position == RecyclerView.NO_POSITION) return
-
-            val item = evaluationAdapter.getItem(position)
-
-            evaluationAdapter.removeItemAt(position)
-
-            snackBar {
-                length(Snackbar.LENGTH_LONG)
-                message(getString(R.string.snack_bar_message_item_removed, item.typeText))
-
-                action(text = getString(R.string.snack_bar_action_undone)) {
-                    rViewEvaluations.scrollToPosition(0)
-
-                    val updatedItem = item.copy(isSwiping = false)
-
-                    evaluationAdapter.addItemAt(updatedItem, position)
-                }
-
-                onDismissed {
-                    viewModel.removeEvaluation(id = item.id)
-                }
-            }.build().show()
         }
     }
 }

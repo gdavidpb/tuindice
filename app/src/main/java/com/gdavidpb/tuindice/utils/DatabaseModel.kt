@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.utils
 
 /* Firestore collections */
 
+const val FIELD_DEFAULT_USER_ID = "userId"
+
 /* Users collection */
 const val COLLECTION_USER = "users"
 
