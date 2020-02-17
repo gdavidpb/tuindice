@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import android.app.Activity
-import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,7 +11,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
-import android.widget.DatePicker
 import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
@@ -30,7 +28,6 @@ import com.gdavidpb.tuindice.utils.mappers.runCatchingIsSuccess
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import java.io.File
-import java.util.*
 
 fun Context.openSettings() {
     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -154,43 +151,3 @@ fun Context.isGoogleServicesAvailable(activity: Activity): Boolean {
         }
     }
 }
-
-inline fun Context.datePicker(f: DatePickerDialogBuilder.() -> Unit) {
-    val builder = DatePickerDialogBuilder().apply(f)
-
-    val calendar = Calendar.getInstance().apply {
-        time = builder.selectedDate
-    }
-
-    DatePickerDialog(this, DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
-        Calendar.getInstance().run {
-            precision(Calendar.DATE)
-
-            set(Calendar.YEAR, year)
-            set(Calendar.MONTH, month)
-            set(Calendar.DAY_OF_MONTH, dayOfMonth)
-
-            time
-        }.also { selectedDate -> builder.onDateSelected(selectedDate) }
-    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
-            .also { dialog -> builder.setUpDatePicker(dialog.datePicker) }
-            .show()
-}
-
-fun DatePickerDialogBuilder.onDateSelected(value: (Date) -> Unit) {
-    onDateSelected = value
-}
-
-fun DatePickerDialogBuilder.setUpPicker(value: DatePicker.() -> Unit) {
-    setUpDatePicker = value
-}
-
-fun DatePickerDialogBuilder.selectDate(value: Date) {
-    selectedDate = value
-}
-
-data class DatePickerDialogBuilder(
-        var onDateSelected: (Date) -> Unit = {},
-        var setUpDatePicker: DatePicker.() -> Unit = {},
-        var selectedDate: Date = Date()
-)

@@ -152,7 +152,7 @@ open class AddEvaluationDialog(
 
     private fun onDateClicked() {
         requireActivity().datePicker {
-            getDate().also(::selectDate)
+            selectedDate = getDate()
 
             onDateSelected { selectedDate ->
                 setDate(selectedDate)
@@ -160,7 +160,7 @@ open class AddEvaluationDialog(
                 validateParams()
             }
 
-            setUpPicker {
+            setUpDatePicker {
                 val startDate = Date().add(Calendar.YEAR, -1).time
                 val endDate = Date().add(Calendar.YEAR, 1).time
 
