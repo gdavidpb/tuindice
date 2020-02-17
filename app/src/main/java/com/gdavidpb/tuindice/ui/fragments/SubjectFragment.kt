@@ -205,8 +205,7 @@ open class SubjectFragment : Fragment() {
             evaluationAdapter.removeItemAt(position)
 
             snackBar {
-                length(Snackbar.LENGTH_LONG)
-                message(getString(R.string.snack_bar_message_item_removed, item.typeText))
+                message = getString(R.string.snack_bar_message_item_removed, item.typeText)
 
                 action(text = getString(R.string.snack_bar_action_undone)) {
                     rViewEvaluations.scrollToPosition(0)

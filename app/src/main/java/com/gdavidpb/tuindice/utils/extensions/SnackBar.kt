@@ -8,20 +8,12 @@ import com.google.android.material.snackbar.Snackbar
 
 data class SnackBarBuilder(
         val view: View,
-        var length: Int = Snackbar.LENGTH_SHORT,
+        var length: Int,
         var message: CharSequence = "",
         var actionText: CharSequence = "",
         var action: () -> Unit = {},
         var dismissed: (event: Int) -> Unit = {}
 ) {
-    fun length(value: Int) {
-        length = value
-    }
-
-    fun message(value: CharSequence) {
-        message = value
-    }
-
     fun action(text: CharSequence, onClick: () -> Unit) {
         actionText = text
         action = onClick
@@ -48,8 +40,8 @@ data class SnackBarBuilder(
             }
 }
 
-fun Activity.snackBar(builder: SnackBarBuilder.() -> Unit) =
-        SnackBarBuilder(contentView ?: window.decorView).apply(builder)
+fun Activity.snackBar(length: Int = Snackbar.LENGTH_LONG, builder: SnackBarBuilder.() -> Unit) =
+        SnackBarBuilder(contentView ?: window.decorView, length).apply(builder)
 
-fun Fragment.snackBar(builder: SnackBarBuilder.() -> Unit) =
-        SnackBarBuilder(requireView()).apply(builder)
+fun Fragment.snackBar(length: Int = Snackbar.LENGTH_LONG, builder: SnackBarBuilder.() -> Unit) =
+        SnackBarBuilder(requireView(), length).apply(builder)

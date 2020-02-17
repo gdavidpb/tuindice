@@ -14,7 +14,6 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.utils.EXTRA_FIRST_START_UP
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_login.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -161,13 +160,11 @@ class LoginActivity : BaseActivity() {
                             R.string.snack_network_unavailable
 
                     else -> R.string.snack_internal_failure
-                }.also { message ->
+                }.also { resource ->
                     snackBar {
-                        length(Snackbar.LENGTH_LONG)
+                        message = getString(resource)
 
-                        message(getString(message))
-
-                        if (message != R.string.snack_invalid_credentials) {
+                        if (resource != R.string.snack_invalid_credentials) {
                             action(getString(R.string.retry)) {
                                 viewModel.auth(
                                         usbId = tInputUsbId.text(),

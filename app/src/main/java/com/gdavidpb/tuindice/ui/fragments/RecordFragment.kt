@@ -222,14 +222,12 @@ open class RecordFragment : Fragment() {
             quarterAdapter.removeItemAt(position)
 
             snackBar {
-                length(Snackbar.LENGTH_LONG)
-
-                message(getString(R.string.snack_bar_message_item_removed, item.startEndDateText))
+                message = getString(R.string.snack_bar_message_item_removed, item.startEndDateText)
 
                 action(getString(R.string.snack_bar_action_undone)) {
-                quarterAdapter.addItemAt(item, position)
+                    quarterAdapter.addItemAt(item, position)
 
-                rViewRecord.scrollToPosition(0)
+                    rViewRecord.scrollToPosition(0)
                 }
             }.build().show()
         }

@@ -51,4 +51,4 @@ fun Context.alert(builder: AlertDialog.Builder.() -> Unit) =
         AlertDialog.Builder(this).apply(builder)
 
 fun Fragment.alert(builder: AlertDialog.Builder.() -> Unit) =
-        requireContext().alert(builder)
+        requireActivity().alert(builder)
