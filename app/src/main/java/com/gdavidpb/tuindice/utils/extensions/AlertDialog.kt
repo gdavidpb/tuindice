@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
+import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -39,6 +42,13 @@ fun (AlertDialog.Builder).negativeButton(
     setNegativeButton(buttonTextResource) { _, _ -> onClicked() }
 }
 
-fun Context.alert(builder: AlertDialog.Builder.() -> Unit) = AlertDialog.Builder(this).apply(builder)
+fun (AlertDialog.Builder).createView(@LayoutRes layout: Int, init: View.() -> Unit): View =
+        LayoutInflater.from(context).inflate(layout, null, false)
+                .apply(init)
+                .also { view -> setView(view) }
 
-fun Fragment.alert(builder: AlertDialog.Builder.() -> Unit) = requireContext().alert(builder)
+fun Context.alert(builder: AlertDialog.Builder.() -> Unit) =
+        AlertDialog.Builder(this).apply(builder)
+
+fun Fragment.alert(builder: AlertDialog.Builder.() -> Unit) =
+        requireContext().alert(builder)

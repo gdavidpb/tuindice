@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
 import com.gdavidpb.tuindice.utils.mappers.toSubject
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.dialog_progress.view.*
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.io.File
@@ -35,7 +36,9 @@ open class RecordFragment : Fragment() {
 
     private val loadingDialog by lazy {
         alert {
-            messageResource = R.string.dialog_enrollment_getting
+            createView(R.layout.dialog_progress) {
+                tViewDialogTitle.text = getString(R.string.dialog_enrollment_getting)
+            }
 
             isCancelable = false
         }.create()
