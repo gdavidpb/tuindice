@@ -19,7 +19,6 @@ import kotlinx.android.synthetic.main.fragment_about.*
 import org.jetbrains.anko.browse
 import org.jetbrains.anko.email
 import org.jetbrains.anko.share
-import org.jetbrains.anko.support.v4.alert
 import org.jetbrains.anko.support.v4.selector
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
@@ -205,7 +204,7 @@ open class AboutFragment : Fragment() {
                 viewModel.signOut()
             }
 
-            negativeButton(R.string.cancel) { }
+            negativeButton(R.string.cancel)
         }.show()
     }
 }

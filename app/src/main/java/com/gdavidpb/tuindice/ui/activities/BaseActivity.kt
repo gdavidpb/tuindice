@@ -10,8 +10,8 @@ import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.snackbar.Snackbar
-import org.jetbrains.anko.alert
 import org.jetbrains.anko.contentView
 
 @SuppressLint("Registered")

@@ -16,7 +16,6 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.alert
 import org.jetbrains.anko.startActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 

@@ -26,7 +26,6 @@ import com.gdavidpb.tuindice.ui.activities.BrowserActivity
 import com.gdavidpb.tuindice.utils.*
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import org.jetbrains.anko.alert
 import org.jetbrains.anko.browse
 import org.jetbrains.anko.startActivity
 import java.io.File
@@ -105,7 +104,7 @@ fun Context.isGoogleServicesAvailable(activity: Activity): Boolean {
                     setOnDismissListener { activity.finish() }
                 }.show()
             } else {
-                activity.alert {
+                alert {
                     titleResource = R.string.alert_title_no_services_failure
                     messageResource = R.string.alert_message_no_services_failure
 
