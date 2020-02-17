@@ -32,8 +32,6 @@ data class SeekBarChangeListenerBuilder(
     }
 }
 
-fun ChipGroup.getCheckedChipIndex() = indexOfChild(findViewById<Chip>(checkedChipId))
-
 fun CompoundButton.onCheckedChange(listener: (isChecked: Boolean) -> Unit) {
     setOnCheckedChangeListener { _, isChecked -> listener(isChecked) }
 }
@@ -144,4 +142,10 @@ var View.backgroundColor: Int
     @Deprecated(message = NO_GETTER, level = ERROR) get() = throw NotImplementedError()
     set(value) {
         setBackgroundColor(value)
+    }
+
+var ChipGroup.checkedChipIndex: Int
+    get() = indexOfChild(findViewById<Chip>(checkedChipId))
+    set(value) {
+        check(getChildAt(value).id)
     }

@@ -10,6 +10,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.EvaluationType
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.presentation.model.NewEvaluation
@@ -20,7 +21,8 @@ import kotlinx.android.synthetic.main.dialog_add_evaluation.*
 import org.koin.android.ext.android.inject
 import java.util.*
 
-open class AddEvaluationDialog(
+open class EvaluationDialog(
+        val evaluation: Evaluation? = null,
         val subject: Subject,
         val callback: (NewEvaluation) -> Unit
 ) : DialogFragment() {
@@ -32,8 +34,8 @@ open class AddEvaluationDialog(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        initData()
         initChipGroup()
+        initEvaluation()
         initListeners()
     }
 
@@ -42,19 +44,44 @@ open class AddEvaluationDialog(
     }
 
     fun show(fragmentManager: FragmentManager) {
-        show(fragmentManager, AddEvaluationDialog::class.java.name)
+        show(fragmentManager, EvaluationDialog::class.java.name)
     }
 
     private fun updateGradeValue(value: Int) {
         tViewLabelGradeValue.text = getString(R.string.label_add_evaluation_grade_value, value)
     }
 
-    private fun initData() {
+    private fun initEvaluation() {
         val headerText = getString(R.string.label_add_evaluation_subject_header, subject.code, subject.name)
 
-        tViewSubjectHeader.text = headerText
+        if (evaluation != null) {
+            val grade = evaluation.grade
+            val notes = evaluation.notes
+            val date = evaluation.date
+            val evaluationType = evaluation.type.ordinal
 
-        updateGradeValue(value = 0)
+            sBarMaxGrade.progress = grade
+            eTextNotes.isVisible = notes.isNotEmpty()
+            sEvaluationDate.isChecked = date.time != 0L
+            tViewDate.isEnabled = sEvaluationDate.isChecked
+            cGroupEvaluation.checkedChipIndex = evaluationType
+
+            tViewEvaluationHeader.text = getString(R.string.title_edit_evaluation)
+            btnEvaluationDone.text = getString(R.string.edit)
+
+            setDate(date)
+            checkNotes()
+            eTextNotes.setText(notes)
+
+            updateGradeValue(value = grade)
+        } else {
+            tViewEvaluationHeader.text = getString(R.string.title_add_evaluation)
+            btnEvaluationDone.text = getString(R.string.add)
+
+            updateGradeValue(value = 0)
+        }
+
+        tViewSubjectHeader.text = headerText
 
         eTextNotes.showSoftInputOnFocus = true
     }
@@ -73,7 +100,7 @@ open class AddEvaluationDialog(
 
     private fun initListeners() {
         tViewLabelNotes.onClickOnce(::onNotesClicked)
-        btnEvaluationAdd.onClickOnce(::onAddClicked)
+        btnEvaluationDone.onClickOnce(::onAddClicked)
         btnEvaluationCancel.onClickOnce(::onCancelClicked)
         tViewDate.onClickOnce(::onDateClicked)
 
@@ -111,7 +138,7 @@ open class AddEvaluationDialog(
             !isValidDate() -> false
             else -> true
         }.let { isOk ->
-            btnEvaluationAdd.isEnabled = isOk
+            btnEvaluationDone.isEnabled = isOk
         }
     }
 
@@ -122,21 +149,38 @@ open class AddEvaluationDialog(
             if (sEvaluationDate.isChecked) tViewDate.tag as? Date ?: Date() else Date(0)
 
     private fun setDate(value: Date?) {
-        tViewDate.tag = value
         tViewDate.text = value?.formatEvaluationDate()
+        tViewDate.tag = if (value?.time != 0L) value else null
+    }
+
+    private fun checkNotes() {
+        if (eTextNotes.isVisible) {
+            inputMethodManager.showSoftKeyboard(eTextNotes)
+
+            tViewLabelNotes.drawables(right = R.drawable.ic_expand_less)
+        } else {
+            inputMethodManager.hideSoftKeyboard(eTextNotes)
+
+            tViewLabelNotes.drawables(right = R.drawable.ic_expand_more)
+        }
     }
 
     private fun onAddClicked() {
         val evaluationType = cGroupEvaluation
-                .getCheckedChipIndex()
+                .checkedChipIndex
                 .let { index ->
                     EvaluationType.values()[index]
                 }
 
+        val maxGrade = sBarMaxGrade.progress
+
+        val evaluationId = evaluation?.id ?: ""
+
         val evaluation = NewEvaluation(
+                id = evaluationId,
                 sid = subject.id,
                 type = evaluationType,
-                maxGrade = sBarMaxGrade.progress,
+                maxGrade = maxGrade,
                 date = getDate(),
                 notes = "${eTextNotes.text}"
         )
@@ -173,14 +217,6 @@ open class AddEvaluationDialog(
     private fun onNotesClicked() {
         eTextNotes.isVisible = !eTextNotes.isVisible
 
-        if (eTextNotes.isVisible) {
-            inputMethodManager.showSoftKeyboard(eTextNotes)
-
-            tViewLabelNotes.drawables(right = R.drawable.ic_expand_less)
-        } else {
-            inputMethodManager.hideSoftKeyboard(eTextNotes)
-
-            tViewLabelNotes.drawables(right = R.drawable.ic_expand_more)
-        }
+        checkNotes()
     }
 }

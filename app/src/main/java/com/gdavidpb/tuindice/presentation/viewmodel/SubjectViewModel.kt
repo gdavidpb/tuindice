@@ -19,7 +19,7 @@ class SubjectViewModel(
         private val addEvaluationUseCase: AddEvaluationUseCase
 ) : ViewModel() {
     val evaluations = LiveResult<SubjectEvaluations>()
-    val update = LiveCompletable()
+    val update = LiveResult<Evaluation>()
     val remove = LiveCompletable()
     val add = LiveResult<Evaluation>()
 

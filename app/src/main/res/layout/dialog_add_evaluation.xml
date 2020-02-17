@@ -14,7 +14,7 @@
         android:fontFamily="sans-serif-medium"
         android:gravity="center_vertical"
         android:padding="@dimen/dp_16"
-        android:text="@string/title_add_evaluation"
+        tools:text="@string/title_add_evaluation"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:textColor="@color/color_text_icon"
         app:layout_constraintTop_toTopOf="parent" />
@@ -154,19 +154,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_16"
+                android:imeOptions="actionDone"
                 android:importantForAutofill="no"
-                android:inputType="textMultiLine"
+                android:inputType="textShortMessage|text|textCapSentences"
                 android:maxLength="128"
                 android:maxLines="1"
                 android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/tViewLabelNotes" />
+                app:layout_constraintTop_toBottomOf="@id/tViewLabelNotes"
+                tools:layout_editor_absoluteX="16dp" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnEvaluationAdd"
+        android:id="@+id/btnEvaluationDone"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -174,7 +176,7 @@
         android:layout_marginEnd="@dimen/dp_16"
         android:layout_marginBottom="@dimen/dp_16"
         android:enabled="false"
-        android:text="@string/add"
+        tools:text="@string/add"
         android:textColor="@drawable/sl_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -190,7 +192,7 @@
         android:text="@string/cancel"
         android:textColor="@drawable/sl_button"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btnEvaluationAdd"
+        app:layout_constraintEnd_toStartOf="@id/btnEvaluationDone"
         app:layout_constraintTop_toBottomOf="@id/sViewEvaluation" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

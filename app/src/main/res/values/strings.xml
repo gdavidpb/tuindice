@@ -15,6 +15,7 @@
     <string name="cancel">Cancelar</string>
     <string name="close">Cerrar</string>
     <string name="add">Agregar</string>
+    <string name="edit">Modificar</string>
     <string name="exit">Salir</string>
     <string name="remove">Quitar</string>
     <string name="decline">Rechazar</string>
@@ -294,6 +295,7 @@
 
     <!-- AddEvaluationDialog -->
     <string name="title_add_evaluation">Agregar evaluación</string>
+    <string name="title_edit_evaluation">Modificar evaluación</string>
 
     <string name="label_add_evaluation_type">Tipo</string>
     <string name="label_add_evaluation_max_grade">Valor</string>

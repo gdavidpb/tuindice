@@ -15,7 +15,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
-import com.gdavidpb.tuindice.ui.dialogs.AddEvaluationDialog
+import com.gdavidpb.tuindice.ui.dialogs.EvaluationDialog
 import com.gdavidpb.tuindice.ui.dialogs.CalendarDialog
 import com.gdavidpb.tuindice.utils.ARG_SUBJECT_ID
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -63,6 +63,7 @@ open class SubjectFragment : Fragment() {
 
         with(viewModel) {
             observe(add, ::addEvaluationObserver)
+            observe(update, ::updateEvaluationObserver)
             observe(evaluations, ::evaluationsObserver)
 
             getSubjectEvaluations(sid = subjectId)
@@ -88,11 +89,7 @@ open class SubjectFragment : Fragment() {
     }
 
     private fun onAddEvaluationClicked() {
-        val selectedSubject = viewModel.getSelectedSubject() ?: return
-
-        AddEvaluationDialog(subject = selectedSubject) { newEvaluation ->
-            viewModel.addEvaluation(evaluation = newEvaluation.toEvaluation())
-        }.show(childFragmentManager)
+        showEvaluationDialog()
     }
 
     private fun updateGrades() {
@@ -114,6 +111,20 @@ open class SubjectFragment : Fragment() {
                 )
 
                 updateGrades()
+            }
+            is Result.OnError -> longToast(R.string.toast_try_again_later)
+        }
+    }
+
+    private fun updateEvaluationObserver(result: Result<Evaluation>?) {
+        when (result) {
+            is Result.OnSuccess -> {
+                val context = requireContext()
+                val response = result.value
+
+                evaluationAdapter.updateItem(
+                        item = response.toEvaluationItem(context)
+                )
             }
             is Result.OnError -> longToast(R.string.toast_try_again_later)
         }
@@ -155,7 +166,22 @@ open class SubjectFragment : Fragment() {
         }
     }
 
+    private fun showEvaluationDialog(evaluation: Evaluation? = null) {
+        val selectedSubject = viewModel.getSelectedSubject() ?: return
+
+        EvaluationDialog(evaluation = evaluation, subject = selectedSubject) { newEvaluation ->
+            if (evaluation != null)
+                viewModel.updateEvaluation(evaluation = newEvaluation.toEvaluation())
+            else
+                viewModel.addEvaluation(evaluation = newEvaluation.toEvaluation())
+        }.show(childFragmentManager)
+    }
+
     inner class EvaluationManager : EvaluationAdapter.AdapterManager, ItemTouchHelper.Callback() {
+        override fun onEvaluationClicked(item: EvaluationItem, position: Int) {
+            showEvaluationDialog(evaluation = item.toEvaluation())
+        }
+
         override fun onEvaluationChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean) {
             evaluationAdapter.replaceItemAt(item, position, true)
 

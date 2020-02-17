@@ -52,9 +52,13 @@ open class EvaluationViewHolder(
             if (item.isDone) {
                 tViewEvaluationDate.strikeThrough()
                 tViewEvaluationNotes.strikeThrough()
+
+                setOnClickListener(null)
             } else {
                 tViewEvaluationDate.clearStrikeThrough()
                 tViewEvaluationNotes.clearStrikeThrough()
+
+                onClickOnce { manager.onEvaluationClicked(item, adapterPosition) }
             }
 
             sBarGrade.onSeekBarChange {

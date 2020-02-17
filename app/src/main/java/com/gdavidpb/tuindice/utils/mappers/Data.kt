@@ -78,7 +78,7 @@ fun DocumentSnapshot.toEvaluation() = Evaluation(
 /* Write to database */
 
 fun NewEvaluation.toEvaluation() = Evaluation(
-        id = "",
+        id = id,
         sid = sid,
         type = type,
         grade = maxGrade,
@@ -142,6 +142,6 @@ fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
         grade = grade,
         maxGrade = maxGrade,
         date = Timestamp(date),
-        notes = notes,
+        notes = notes.trim(),
         isDone = isDone
 )

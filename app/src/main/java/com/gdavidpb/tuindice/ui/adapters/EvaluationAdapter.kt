@@ -13,6 +13,8 @@ open class EvaluationAdapter(
 ) : BaseAdapter<EvaluationItem>() {
 
     interface AdapterManager {
+        fun onEvaluationClicked(item: EvaluationItem, position: Int)
+
         fun onEvaluationChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean)
         fun onEvaluationDoneChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean)
 
@@ -25,6 +27,14 @@ open class EvaluationAdapter(
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_evaluation, parent, false)
 
         return EvaluationViewHolder(itemView, manager)
+    }
+
+    fun updateItem(item: EvaluationItem) {
+        items.indexOfFirst { evaluation ->
+            evaluation.id == item.id
+        }.also { position ->
+            replaceItemAt(item, position)
+        }
     }
 
     fun computeGradeSum(): Int {
