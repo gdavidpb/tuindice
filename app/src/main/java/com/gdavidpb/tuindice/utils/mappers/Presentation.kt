@@ -12,9 +12,6 @@ import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.presentation.model.*
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
-import org.jetbrains.anko.append
-import org.jetbrains.anko.buildSpanned
-import org.jetbrains.anko.foregroundColor
 import java.util.*
 
 /* Presentation */
@@ -199,7 +196,7 @@ private fun String.spanGrade(color: Int, font: Typeface? = null): Spanned {
         append(iconString,
                 typefaceSpan,
                 AbsoluteSizeSpan(18, true),
-                foregroundColor(color))
+                ForegroundColorSpan(color))
         append(' ')
         append(valueString)
 

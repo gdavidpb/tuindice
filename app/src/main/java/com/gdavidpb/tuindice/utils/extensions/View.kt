@@ -11,11 +11,13 @@ import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.gdavidpb.tuindice.utils.NO_GETTER
 import com.gdavidpb.tuindice.utils.TIME_DELAY_CLICK_ONCE
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.*
+import kotlin.DeprecationLevel.ERROR
 
 data class SeekBarChangeListenerBuilder(
         var onProgressChanged: (progress: Int, fromUser: Boolean) -> Unit = { _, _ -> },
@@ -137,3 +139,9 @@ fun View.gone() {
 fun View.visibleIf(value: Boolean, elseValue: Int = View.GONE) {
     visibility = if (value) View.VISIBLE else elseValue
 }
+
+var View.backgroundColor: Int
+    @Deprecated(message = NO_GETTER, level = ERROR) get() = throw NotImplementedError()
+    set(value) {
+        setBackgroundColor(value)
+    }

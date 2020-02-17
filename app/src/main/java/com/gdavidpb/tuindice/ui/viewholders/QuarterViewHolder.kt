@@ -15,7 +15,6 @@ import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
 import com.gdavidpb.tuindice.utils.mappers.toSubjectItem
 import kotlinx.android.synthetic.main.item_quarter.view.*
 import kotlinx.android.synthetic.main.item_subject.view.*
-import org.jetbrains.anko.backgroundColor
 
 open class QuarterViewHolder(
         itemView: View,

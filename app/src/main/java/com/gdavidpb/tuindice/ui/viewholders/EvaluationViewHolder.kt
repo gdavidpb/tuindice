@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.utils.ResourcesManager
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
 import kotlinx.android.synthetic.main.item_evaluation.view.*
-import org.jetbrains.anko.backgroundColor
 
 open class EvaluationViewHolder(
         itemView: View,
