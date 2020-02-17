@@ -11,15 +11,9 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.google.android.material.snackbar.Snackbar
-import org.jetbrains.anko.contentView
 
 @SuppressLint("Registered")
 abstract class BaseActivity(private vararg val permissions: String) : AppCompatActivity() {
-
-    protected val snackBar by lazy {
-        Snackbar.make(contentView ?: window.decorView, "", Snackbar.LENGTH_LONG)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

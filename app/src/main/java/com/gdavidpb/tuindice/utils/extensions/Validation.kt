@@ -3,14 +3,13 @@ package com.gdavidpb.tuindice.utils.extensions
 import androidx.annotation.StringRes
 import com.gdavidpb.tuindice.data.utils.Validation
 import com.google.android.material.textfield.TextInputLayout
-import org.jetbrains.anko.sdk27.coroutines.textChangedListener
 
 fun Array<Validation>.setUp() {
     forEach { set ->
         with(set.view) {
             editText.notNull { editText ->
-                editText.textChangedListener {
-                    afterTextChanged { error = null }
+                editText.onTextChanged { _, _, _, _ ->
+                    error = null
                 }
             }
         }

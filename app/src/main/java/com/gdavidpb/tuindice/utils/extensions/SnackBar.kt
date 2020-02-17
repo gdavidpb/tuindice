@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
+import android.app.Activity
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -47,4 +48,8 @@ data class SnackBarBuilder(
             }
 }
 
-fun Fragment.snackBar(builder: SnackBarBuilder.() -> Unit) = SnackBarBuilder(requireView()).apply(builder)
+fun Activity.snackBar(builder: SnackBarBuilder.() -> Unit) =
+        SnackBarBuilder(contentView ?: window.decorView).apply(builder)
+
+fun Fragment.snackBar(builder: SnackBarBuilder.() -> Unit) =
+        SnackBarBuilder(requireView()).apply(builder)

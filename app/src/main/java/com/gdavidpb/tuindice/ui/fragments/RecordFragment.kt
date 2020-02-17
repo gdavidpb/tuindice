@@ -22,9 +22,6 @@ import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
 import com.gdavidpb.tuindice.utils.mappers.toSubject
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_record.*
-import org.jetbrains.anko.design.longSnackbar
-import org.jetbrains.anko.support.v4.indeterminateProgressDialog
-import org.jetbrains.anko.support.v4.longToast
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.io.File
 
@@ -37,7 +34,11 @@ open class RecordFragment : Fragment() {
     private val quarterAdapter = QuarterAdapter(manager = quarterManager)
 
     private val loadingDialog by lazy {
-        indeterminateProgressDialog(message = R.string.dialog_enrollment_getting)
+        alert {
+            messageResource = R.string.dialog_enrollment_getting
+
+            isCancelable = false
+        }.create()
     }
 
     private val retrySnackBar by lazy {
@@ -217,13 +218,17 @@ open class RecordFragment : Fragment() {
 
             quarterAdapter.removeItemAt(position)
 
-            view?.longSnackbar(
-                    getString(R.string.snack_bar_message_item_removed, item.startEndDateText),
-                    getString(R.string.snack_bar_action_undone)) {
+            snackBar {
+                length(Snackbar.LENGTH_LONG)
+
+                message(getString(R.string.snack_bar_message_item_removed, item.startEndDateText))
+
+                action(getString(R.string.snack_bar_action_undone)) {
                 quarterAdapter.addItemAt(item, position)
 
                 rViewRecord.scrollToPosition(0)
-            }?.show()
+                }
+            }.build().show()
         }
     }
 }

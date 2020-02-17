@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -24,10 +25,10 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.activities.BrowserActivity
 import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.mappers.fillIntentArguments
+import com.gdavidpb.tuindice.utils.mappers.runCatchingIsSuccess
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import org.jetbrains.anko.browse
-import org.jetbrains.anko.startActivity
 import java.io.File
 import java.util.*
 
@@ -46,6 +47,41 @@ fun Context.openPdf(file: File) {
                 .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 .let(::startActivity)
     }
+}
+
+fun Context.share(text: String, subject: String = "") = runCatchingIsSuccess {
+    Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_SUBJECT, subject)
+        putExtra(Intent.EXTRA_TEXT, text)
+    }.also { intent ->
+        startActivity(Intent.createChooser(intent, null))
+    }
+}
+
+fun Context.email(email: String, subject: String = "", text: String = "") = runCatchingIsSuccess {
+    Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")).apply {
+        putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
+
+        if (subject.isNotEmpty()) putExtra(Intent.EXTRA_SUBJECT, subject)
+        if (text.isNotEmpty()) putExtra(Intent.EXTRA_TEXT, text)
+    }.also(::startActivity)
+}
+
+fun Context.browse(url: String) = runCatchingIsSuccess {
+    Intent(Intent.ACTION_VIEW, Uri.parse(url)).also(::startActivity)
+}
+
+fun Context.longToast(@StringRes textResource: Int) =
+        Toast.makeText(this, getString(textResource), Toast.LENGTH_LONG).show()
+
+fun Context.toast(@StringRes textResource: Int) =
+        Toast.makeText(this, getString(textResource), Toast.LENGTH_SHORT).show()
+
+inline fun <reified T : Activity> Context.startActivity(vararg params: Pair<String, Any?>) = runCatchingIsSuccess {
+    Intent(this, T::class.java).apply {
+        if (params.isNotEmpty()) fillIntentArguments(params)
+    }.also(::startActivity)
 }
 
 fun Context.browserActivity(@StringRes title: Int, url: String) {

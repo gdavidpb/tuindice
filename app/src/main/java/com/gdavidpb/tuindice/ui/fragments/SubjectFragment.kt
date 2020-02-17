@@ -23,7 +23,6 @@ import com.gdavidpb.tuindice.utils.mappers.toEvaluation
 import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_subject.*
-import org.jetbrains.anko.support.v4.longToast
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
 

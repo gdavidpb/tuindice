@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.activity_email_sent.*
-import org.jetbrains.anko.longToast
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class EmailSentActivity : AppCompatActivity() {

@@ -16,10 +16,6 @@ import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_about.*
-import org.jetbrains.anko.browse
-import org.jetbrains.anko.email
-import org.jetbrains.anko.share
-import org.jetbrains.anko.support.v4.selector
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 open class AboutFragment : Fragment() {
@@ -85,7 +81,7 @@ open class AboutFragment : Fragment() {
                 title(R.string.about_share)
                 tintedDrawable(R.drawable.ic_share, R.color.color_secondary_text)
                 onClick {
-                    context.share(getString(R.string.about_share_message, context.packageName), getString(R.string.app_name))
+                    share(getString(R.string.about_share_message, context.packageName), getString(R.string.app_name))
                 }
             }
 
@@ -113,7 +109,7 @@ open class AboutFragment : Fragment() {
                 title(R.string.about_dev_contact)
                 tintedDrawable(R.drawable.ic_contact, R.color.color_secondary_text)
                 onClick {
-                    context.email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT)
+                    email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT)
                 }
             }
 
@@ -185,13 +181,10 @@ open class AboutFragment : Fragment() {
     }
 
     private fun showReportSelector() {
-        val title = getString(R.string.selector_title_report)
-        val items = resources.getStringArray(R.array.selector_report_items).toList()
+        val items = resources.getStringArray(R.array.selector_report_items)
 
-        selector(title, items) { _, index ->
-            val selected = items[index]
-
-            requireContext().email(email = EMAIL_CONTACT, subject = selected)
+        selector(R.string.selector_title_report, items) { selected ->
+            email(email = EMAIL_CONTACT, subject = selected)
         }
     }
 

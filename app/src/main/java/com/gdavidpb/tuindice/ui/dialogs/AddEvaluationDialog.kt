@@ -17,7 +17,6 @@ import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.formatEvaluationDate
 import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.dialog_add_evaluation.*
-import org.jetbrains.anko.sdk27.coroutines.onCheckedChange
 import org.koin.android.ext.android.inject
 import java.util.*
 
@@ -82,7 +81,7 @@ open class AddEvaluationDialog(
             validateParams()
         }
 
-        sEvaluationDate.onCheckedChange { _, isChecked ->
+        sEvaluationDate.onCheckedChange { isChecked ->
             tViewDate.isEnabled = isChecked
 
             tViewDate.text = when {

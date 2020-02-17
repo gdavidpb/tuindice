@@ -12,11 +12,10 @@ import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.EXTRA_FIRST_START_UP
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_login.*
-import org.jetbrains.anko.sdk27.coroutines.onClick
-import org.jetbrains.anko.startActivity
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import retrofit2.HttpException
@@ -74,7 +73,7 @@ class LoginActivity : BaseActivity() {
         }
 
         /* Logo animation */
-        iViewLogo.onClick {
+        iViewLogo.onClickOnce {
             iViewLogo.animateShake()
         }
 
@@ -138,8 +137,6 @@ class LoginActivity : BaseActivity() {
     private fun authObserver(result: Result<AuthResponse>?) {
         when (result) {
             is Result.OnLoading -> {
-                snackBar.dismiss()
-
                 enableUI(false)
             }
             is Result.OnSuccess -> {
@@ -165,21 +162,21 @@ class LoginActivity : BaseActivity() {
 
                     else -> R.string.snack_internal_failure
                 }.also { message ->
-                    snackBar
-                            .setText(message)
-                            /* Add retry onClick */
-                            .apply {
-                                if (message != R.string.snack_invalid_credentials) {
-                                    setAction(R.string.retry) {
+                    snackBar {
+                        length(Snackbar.LENGTH_LONG)
 
-                                        viewModel.auth(
-                                                usbId = tInputUsbId.text(),
-                                                password = tInputPassword.text()
-                                        )
-                                    }
-                                }
+                        message(getString(message))
+
+                        if (message != R.string.snack_invalid_credentials) {
+                            action(getString(R.string.retry)) {
+                                viewModel.auth(
+                                        usbId = tInputUsbId.text(),
+                                        password = tInputPassword.text()
+                                )
                             }
-                            .show()
+                        }
+
+                    }.build().show()
                 }
             }
         }

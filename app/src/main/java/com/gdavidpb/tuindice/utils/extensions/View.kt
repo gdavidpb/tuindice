@@ -6,6 +6,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
@@ -30,6 +31,10 @@ data class SeekBarChangeListenerBuilder(
 }
 
 fun ChipGroup.getCheckedChipIndex() = indexOfChild(findViewById<Chip>(checkedChipId))
+
+fun CompoundButton.onCheckedChange(listener: (isChecked: Boolean) -> Unit) {
+    setOnCheckedChangeListener { _, isChecked -> listener(isChecked) }
+}
 
 fun View.onClickOnce(onClick: () -> Unit) {
     setOnClickListener(object : View.OnClickListener {

@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.di.modules
 import android.content.Context
 import android.net.ConnectivityManager
 import android.view.inputmethod.InputMethodManager
+import androidx.preference.PreferenceManager
 import com.crashlytics.android.Crashlytics
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
@@ -32,7 +33,6 @@ import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.jetbrains.anko.defaultSharedPreferences
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.experimental.dsl.viewModel
 import org.koin.dsl.module
@@ -56,7 +56,7 @@ val appModule = module {
     /* Application */
 
     single {
-        androidContext().defaultSharedPreferences
+        PreferenceManager.getDefaultSharedPreferences(androidContext())
     }
 
     /* Android Services */
