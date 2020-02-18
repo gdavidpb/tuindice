@@ -114,10 +114,9 @@
 
     <string name="hint_guess_search">Código o nombre de la materia</string>
 
-    <string name="dialog_enrollment_getting">Obteniendo comprobante…</string>
+    <string name="dialog_enrollment_downloading">Obteniendo comprobante…</string>
     <string name="toast_enrollment_unsupported">Archivo no soportado ;(</string>
     <string name="snack_bar_enrollment_retry">No pudimos descargar el comprobante ;(</string>
-    <string name="snack_bar_enrollment_error">Parece que no hay conexión ;(</string>
 
     <string name="label_empty_record">
         <b>¡Parece que alguien es nuevo por acá!\n\n</b>
@@ -293,19 +292,19 @@
     <string name="evaluation_quiz">Quiz</string>
     <string name="evaluation_presentation">Exposición</string>
 
-    <!-- AddEvaluationDialog -->
+    <!-- EvaluationDialog -->
     <string name="title_add_evaluation">Agregar evaluación</string>
     <string name="title_edit_evaluation">Modificar evaluación</string>
 
-    <string name="label_add_evaluation_type">Tipo</string>
-    <string name="label_add_evaluation_max_grade">Valor</string>
-    <string name="label_add_evaluation_date">Fecha</string>
-    <string name="label_add_evaluation_notes">Observaciones</string>
-    <string name="label_add_evaluation_select_date">Selecciona una fecha</string>
-    <string name="label_add_evaluation_no_date">Evaluación continua</string>
+    <string name="label_evaluation_type">Tipo</string>
+    <string name="label_evaluation_max_grade">Valor</string>
+    <string name="label_evaluation_date">Fecha</string>
+    <string name="label_evaluation_notes">Observaciones</string>
+    <string name="label_evaluation_select_date">Selecciona una fecha</string>
+    <string name="label_evaluation_no_date">Evaluación continua</string>
 
-    <string name="label_add_evaluation_grade_value">%1$d pts</string>
-    <string name="label_add_evaluation_subject_header">%1$s ─ %2$s</string>
+    <string name="label_evaluation_grade_value">%1$d pts</string>
+    <string name="label_evaluation_subject_header">%1$s ─ %2$s</string>
 
     <!-- BrowserActivity -->
     <string name="label_creative_commons">TuIndice - Creative Commons</string>

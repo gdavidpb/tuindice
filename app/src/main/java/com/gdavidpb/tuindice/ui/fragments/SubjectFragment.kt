@@ -15,8 +15,8 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
-import com.gdavidpb.tuindice.ui.dialogs.EvaluationDialog
 import com.gdavidpb.tuindice.ui.dialogs.CalendarDialog
+import com.gdavidpb.tuindice.ui.dialogs.EvaluationDialog
 import com.gdavidpb.tuindice.utils.ARG_SUBJECT_ID
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluation
@@ -233,7 +233,7 @@ open class SubjectFragment : Fragment() {
             snackBar {
                 message = getString(R.string.snack_bar_message_item_removed, item.typeText)
 
-                action(text = getString(R.string.snack_bar_action_undone)) {
+                action(R.string.snack_bar_action_undone) {
                     rViewEvaluations.scrollToPosition(0)
 
                     val updatedItem = item.copy(isSwiping = false)

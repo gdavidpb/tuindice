@@ -48,11 +48,11 @@ open class EvaluationDialog(
     }
 
     private fun updateGradeValue(value: Int) {
-        tViewLabelGradeValue.text = getString(R.string.label_add_evaluation_grade_value, value)
+        tViewLabelGradeValue.text = getString(R.string.label_evaluation_grade_value, value)
     }
 
     private fun initEvaluation() {
-        val headerText = getString(R.string.label_add_evaluation_subject_header, subject.code, subject.name)
+        val headerText = getString(R.string.label_evaluation_subject_header, subject.code, subject.name)
 
         if (evaluation != null) {
             val grade = evaluation.grade
@@ -112,9 +112,9 @@ open class EvaluationDialog(
             tViewDate.isEnabled = isChecked
 
             tViewDate.text = when {
-                !isChecked -> getString(R.string.label_add_evaluation_no_date)
+                !isChecked -> getString(R.string.label_evaluation_no_date)
                 isValidDate() -> getDate().formatEvaluationDate()
-                else -> getString(R.string.label_add_evaluation_select_date)
+                else -> getString(R.string.label_evaluation_select_date)
             }
 
             validateParams()

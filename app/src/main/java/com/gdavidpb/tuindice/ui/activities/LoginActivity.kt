@@ -160,12 +160,12 @@ class LoginActivity : BaseActivity() {
                             R.string.snack_network_unavailable
 
                     else -> R.string.snack_internal_failure
-                }.also { resource ->
+                }.also { textResource ->
                     snackBar {
-                        message = getString(resource)
+                        messageResource = textResource
 
-                        if (resource != R.string.snack_invalid_credentials) {
-                            action(getString(R.string.retry)) {
+                        if (textResource != R.string.snack_invalid_credentials) {
+                            action(R.string.retry) {
                                 viewModel.auth(
                                         usbId = tInputUsbId.text(),
                                         password = tInputPassword.text()

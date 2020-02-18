@@ -20,7 +20,6 @@ import com.gdavidpb.tuindice.utils.STATUS_QUARTER_GUESS
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
 import com.gdavidpb.tuindice.utils.mappers.toSubject
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.dialog_progress.view.*
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -37,7 +36,7 @@ open class RecordFragment : Fragment() {
     private val loadingDialog by lazy {
         alert {
             createView(R.layout.dialog_progress) {
-                tViewDialogTitle.text = getString(R.string.dialog_enrollment_getting)
+                tViewDialogTitle.text = getString(R.string.dialog_enrollment_downloading)
             }
 
             isCancelable = false
@@ -45,8 +44,13 @@ open class RecordFragment : Fragment() {
     }
 
     private val retrySnackBar by lazy {
-        Snackbar.make(requireView(), R.string.snack_bar_enrollment_retry, Snackbar.LENGTH_LONG)
-                .setAction(R.string.retry) { viewModel.openEnrollmentProof() }
+        snackBar {
+            messageResource = R.string.snack_bar_enrollment_retry
+
+            action(R.string.retry) {
+                viewModel.openEnrollmentProof()
+            }
+        }.build()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -224,7 +228,7 @@ open class RecordFragment : Fragment() {
             snackBar {
                 message = getString(R.string.snack_bar_message_item_removed, item.startEndDateText)
 
-                action(getString(R.string.snack_bar_action_undone)) {
+                action(R.string.snack_bar_action_undone) {
                     quarterAdapter.addItemAt(item, position)
 
                     rViewRecord.scrollToPosition(0)

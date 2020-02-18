@@ -23,6 +23,6 @@
         app:layout_constraintBottom_toBottomOf="@id/pBarDialogProgress"
         app:layout_constraintStart_toEndOf="@id/pBarDialogProgress"
         app:layout_constraintTop_toTopOf="@id/pBarDialogProgress"
-        tools:text="@string/dialog_enrollment_getting" />
+        tools:text="@string/dialog_enrollment_downloading" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

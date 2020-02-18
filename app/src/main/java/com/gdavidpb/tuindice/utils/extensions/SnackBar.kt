@@ -2,20 +2,32 @@ package com.gdavidpb.tuindice.utils.extensions
 
 import android.app.Activity
 import android.view.View
+import androidx.annotation.ColorRes
+import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.BaseTransientBottomBar.*
 import com.google.android.material.snackbar.Snackbar
 
 data class SnackBarBuilder(
         val view: View,
         var length: Int,
         var message: CharSequence = "",
-        var actionText: CharSequence = "",
+        @StringRes
+        var messageResource: Int = 0,
+        @StringRes
+        var actionTextResource: Int = 0,
         var action: () -> Unit = {},
+        @AnimationMode
+        var animationMode: Int = ANIMATION_MODE_FADE,
+        @ColorRes
+        var textColorResource: Int = 0,
+        @ColorRes
+        var backgroundColorResource: Int = 0,
         var dismissed: (event: Int) -> Unit = {}
 ) {
-    fun action(text: CharSequence, onClick: () -> Unit) {
-        actionText = text
+    fun action(@StringRes textResource: Int, onClick: () -> Unit) {
+        actionTextResource = textResource
         action = onClick
     }
 
@@ -23,21 +35,36 @@ data class SnackBarBuilder(
         dismissed = listener
     }
 
-    fun build() = Snackbar
-            .make(view, message, length)
-            .setAction(actionText) {
-                action()
-            }.apply {
-                object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
-                    override fun onDismissed(transientBottomBar: Snackbar, event: Int) {
-                        removeCallback(this)
+    fun build(): Snackbar {
+        val builtMessage = when {
+            message.isNotEmpty() -> message
+            messageResource != 0 -> view.context.getString(messageResource)
+            else -> throw IllegalStateException("There is no value for 'message' or 'messageResource'.")
+        }
 
-                        dismissed(event)
+        return Snackbar.make(view, builtMessage, length)
+                .setAnimationMode(animationMode)
+                .apply {
+                    if (textColorResource != 0)
+                        setTextColor(ContextCompat.getColor(context, textColorResource))
+
+                    if (backgroundColorResource != 0)
+                        setBackgroundTint(ContextCompat.getColor(context, backgroundColorResource))
+
+                    if (actionTextResource != 0)
+                        setAction(context.getString(actionTextResource)) { action() }
+
+                    object : BaseCallback<Snackbar>() {
+                        override fun onDismissed(transientBottomBar: Snackbar, event: Int) {
+                            removeCallback(this)
+
+                            dismissed(event)
+                        }
+                    }.also { callback ->
+                        addCallback(callback)
                     }
-                }.also { callback ->
-                    addCallback(callback)
                 }
-            }
+    }
 }
 
 fun Activity.snackBar(length: Int = Snackbar.LENGTH_LONG, builder: SnackBarBuilder.() -> Unit) =

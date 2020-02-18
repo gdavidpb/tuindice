@@ -51,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
                 android:labelFor="@id/cGroupEvaluation"
-                android:text="@string/label_add_evaluation_type"
+                android:text="@string/label_evaluation_type"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -71,7 +71,7 @@
                 android:layout_marginTop="@dimen/dp_16"
                 android:fontFamily="sans-serif-light"
                 android:labelFor="@id/sBarMaxGrade"
-                android:text="@string/label_add_evaluation_max_grade"
+                android:text="@string/label_evaluation_max_grade"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/cGroupEvaluation" />
@@ -81,7 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-light"
-                android:text="@string/label_add_evaluation_max_grade"
+                android:text="@string/label_evaluation_max_grade"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 app:layout_constraintBottom_toBottomOf="@id/tViewLabelGrade"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -104,7 +104,7 @@
                 android:layout_marginTop="@dimen/dp_16"
                 android:fontFamily="sans-serif-light"
                 android:labelFor="@id/tViewLabelGrade"
-                android:text="@string/label_add_evaluation_date"
+                android:text="@string/label_evaluation_date"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/sBarMaxGrade" />
@@ -131,7 +131,7 @@
                 android:gravity="center_vertical"
                 android:padding="@dimen/dp_16"
                 android:tag="@null"
-                android:text="@string/label_add_evaluation_select_date"
+                android:text="@string/label_evaluation_select_date"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tViewLabelDate" />
 
@@ -145,7 +145,7 @@
                 android:focusable="true"
                 android:fontFamily="sans-serif-light"
                 android:labelFor="@id/eTextNotes"
-                android:text="@string/label_add_evaluation_notes"
+                android:text="@string/label_evaluation_notes"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:layout_constraintTop_toBottomOf="@id/tViewDate" />
 
