@@ -18,6 +18,9 @@ open class EvaluationAdapter(
         fun onEvaluationChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean)
         fun onEvaluationDoneChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean)
 
+        fun onDataChanged()
+        fun onDataUpdated()
+
         fun getItem(position: Int): EvaluationItem
     }
 
@@ -27,6 +30,36 @@ open class EvaluationAdapter(
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_evaluation, parent, false)
 
         return EvaluationViewHolder(itemView, manager)
+    }
+
+    override fun swapItems(new: List<EvaluationItem>) {
+        super.swapItems(new)
+
+        manager.onDataChanged()
+    }
+
+    override fun addSortedItem(item: EvaluationItem, comparator: Comparator<EvaluationItem>) {
+        super.addSortedItem(item, comparator)
+
+        manager.onDataChanged()
+    }
+
+    override fun addItemAt(item: EvaluationItem, position: Int, notifyChange: Boolean) {
+        super.addItemAt(item, position, notifyChange)
+
+        manager.onDataChanged()
+    }
+
+    override fun removeItemAt(position: Int, notifyChange: Boolean) {
+        super.removeItemAt(position, notifyChange)
+
+        manager.onDataChanged()
+    }
+
+    override fun replaceItemAt(item: EvaluationItem, position: Int, notifyChange: Boolean) {
+        super.replaceItemAt(item, position, notifyChange)
+
+        manager.onDataUpdated()
     }
 
     fun updateItem(item: EvaluationItem) {

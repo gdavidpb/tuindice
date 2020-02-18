@@ -92,11 +92,16 @@ open class SubjectFragment : Fragment() {
         showEvaluationDialog()
     }
 
-    private fun updateGrades() {
+    private fun updateGrades(animate: Boolean) {
         val gradeSum = evaluationAdapter.computeGradeSum()
 
-        tViewTotalGrade.animateGrade(value = gradeSum)
-        tViewGrade.animateGrade(value = gradeSum.toGrade())
+        if (animate) {
+            tViewTotalGrade.animateGrade(value = gradeSum)
+            tViewGrade.animateGrade(value = gradeSum.toGrade())
+        } else {
+            tViewTotalGrade.text = gradeSum.formatGrade()
+            tViewGrade.text = gradeSum.toGrade().formatGrade()
+        }
     }
 
     private fun addEvaluationObserver(result: Result<Evaluation>?) {
@@ -109,8 +114,6 @@ open class SubjectFragment : Fragment() {
                         item = response.toEvaluationItem(context),
                         comparator = compareBy(EvaluationItem::isDone, EvaluationItem::date)
                 )
-
-                updateGrades()
             }
             is Result.OnError -> longToast(R.string.toast_try_again_later)
         }
@@ -150,8 +153,6 @@ open class SubjectFragment : Fragment() {
 
                 evaluationAdapter.swapItems(new = items)
 
-                updateGrades()
-
                 if (evaluations.isEmpty()) {
                     groupEvaluations.gone()
                     tViewEvaluations.visible()
@@ -178,14 +179,20 @@ open class SubjectFragment : Fragment() {
     }
 
     inner class EvaluationManager : EvaluationAdapter.AdapterManager, ItemTouchHelper.Callback() {
+        override fun onDataChanged() {
+            updateGrades(animate = true)
+        }
+
+        override fun onDataUpdated() {
+            updateGrades(animate = false)
+        }
+
         override fun onEvaluationClicked(item: EvaluationItem, position: Int) {
             showEvaluationDialog(evaluation = item.toEvaluation())
         }
 
         override fun onEvaluationChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean) {
             evaluationAdapter.replaceItemAt(item, position, true)
-
-            updateGrades()
 
             if (dispatchChanges)
                 viewModel.updateEvaluation(evaluation = item.toEvaluation())
@@ -243,8 +250,6 @@ open class SubjectFragment : Fragment() {
 
                 onDismissed { event ->
                     if (event != Snackbar.Callback.DISMISS_EVENT_ACTION) {
-                        if (isAdded) updateGrades()
-
                         viewModel.removeEvaluation(id = item.id)
                     }
                 }
