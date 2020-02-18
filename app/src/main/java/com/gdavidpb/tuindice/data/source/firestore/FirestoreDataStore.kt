@@ -160,7 +160,7 @@ open class FirestoreDataStore(
                 .collection(COLLECTION_EVALUATION)
                 .document()
                 .let { document ->
-                    document.set(entity).await()
+                    document.set(entity)
 
                     evaluation.copy(id = document.id)
                 }
