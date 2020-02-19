@@ -29,7 +29,7 @@ open class EvaluationViewHolder(
 
             tViewEvaluationType.text = item.typeText
             tViewEvaluationNotes.text = item.notesText
-            tViewEvaluationGrade.text = item.gradesText
+            tViewEvaluationGrade.text = item.gradeText
             tViewEvaluationDate.text = item.dateText
 
             cBoxEvaluation.isEnabled = !item.isSwiping

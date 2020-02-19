@@ -110,10 +110,9 @@ open class SubjectFragment : Fragment() {
                 val context = requireContext()
                 val response = result.value
 
-                evaluationAdapter.addSortedItem(
-                        item = response.toEvaluationItem(context),
-                        comparator = compareBy(EvaluationItem::isDone, EvaluationItem::date)
-                )
+                val item = response.toEvaluationItem(context)
+
+                evaluationAdapter.addItem(item = item, notifyChange = false)
             }
             is Result.OnError -> longToast(R.string.toast_try_again_later)
         }
@@ -125,9 +124,7 @@ open class SubjectFragment : Fragment() {
                 val context = requireContext()
                 val response = result.value
 
-                evaluationAdapter.updateItem(
-                        item = response.toEvaluationItem(context)
-                )
+                evaluationAdapter.replaceItem(item = response.toEvaluationItem(context))
             }
             is Result.OnError -> longToast(R.string.toast_try_again_later)
         }
@@ -136,7 +133,7 @@ open class SubjectFragment : Fragment() {
     private fun evaluationsObserver(result: Result<SubjectEvaluations>?) {
         when (result) {
             is Result.OnLoading -> {
-
+                //todo show loading
             }
             is Result.OnSuccess -> {
                 val context = requireContext()
@@ -152,17 +149,9 @@ open class SubjectFragment : Fragment() {
                 }
 
                 evaluationAdapter.swapItems(new = items)
-
-                if (evaluations.isEmpty()) {
-                    groupEvaluations.gone()
-                    tViewEvaluations.visible()
-                } else {
-                    tViewEvaluations.gone()
-                    groupEvaluations.visible()
-                }
             }
             is Result.OnError -> {
-
+                //todo show error
             }
         }
     }
@@ -181,10 +170,22 @@ open class SubjectFragment : Fragment() {
     inner class EvaluationManager : EvaluationAdapter.AdapterManager, ItemTouchHelper.Callback() {
         override fun onDataChanged() {
             updateGrades(animate = true)
+
+            if (evaluationAdapter.itemCount > 0) {
+                tViewEvaluations.gone()
+                groupEvaluations.visible()
+
+                evaluationAdapter.ensureSorting()
+            } else {
+                groupEvaluations.gone()
+                tViewEvaluations.visible()
+            }
         }
 
         override fun onDataUpdated() {
             updateGrades(animate = false)
+
+            evaluationAdapter.ensureSorting()
         }
 
         override fun onEvaluationClicked(item: EvaluationItem, position: Int) {
@@ -192,19 +193,14 @@ open class SubjectFragment : Fragment() {
         }
 
         override fun onEvaluationChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean) {
-            evaluationAdapter.replaceItemAt(item, position, true)
+            evaluationAdapter.replaceItemAt(item = item, position = position)
 
             if (dispatchChanges)
                 viewModel.updateEvaluation(evaluation = item.toEvaluation())
         }
 
         override fun onEvaluationDoneChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean) {
-            evaluationAdapter.replaceItemAt(item, position, true)
-
-            evaluationAdapter.sortItemAt(
-                    position = position,
-                    comparator = compareBy(EvaluationItem::isDone, EvaluationItem::date)
-            )
+            evaluationAdapter.replaceItemAt(item = item, position = position)
 
             if (dispatchChanges)
                 viewModel.updateEvaluation(evaluation = item.toEvaluation())
@@ -245,7 +241,7 @@ open class SubjectFragment : Fragment() {
 
                     val updatedItem = item.copy(isSwiping = false)
 
-                    evaluationAdapter.addItemAt(updatedItem, position)
+                    evaluationAdapter.addItemAt(item = updatedItem, position = position)
                 }
 
                 onDismissed { event ->
@@ -269,7 +265,7 @@ open class SubjectFragment : Fragment() {
                 val item = evaluationAdapter.getItem(position)
                 val updatedItem = item.copy(isSwiping = true)
 
-                evaluationAdapter.replaceItemAt(updatedItem, position)
+                evaluationAdapter.replaceItemAt(item = updatedItem, position = position)
             }
         }
 
@@ -283,7 +279,7 @@ open class SubjectFragment : Fragment() {
             val item = evaluationAdapter.getItem(position)
             val updatedItem = item.copy(isSwiping = false)
 
-            evaluationAdapter.replaceItemAt(updatedItem, position)
+            evaluationAdapter.replaceItemAt(item = updatedItem, position = position)
         }
     }
 }

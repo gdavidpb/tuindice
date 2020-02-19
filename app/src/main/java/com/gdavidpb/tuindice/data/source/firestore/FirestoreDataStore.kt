@@ -105,7 +105,6 @@ open class FirestoreDataStore(
                 .get(Source.CACHE)
                 .await()
                 .map { it.toEvaluation() }
-                .sortedWith(compareBy(Evaluation::isDone, Evaluation::date))
     }
 
     override suspend fun getEvaluations(uid: String): List<Evaluation> {
@@ -142,7 +141,7 @@ open class FirestoreDataStore(
 
         val entity = evaluation.toEvaluationEntity(uid)
 
-        evaluationRef.set(entity, SetOptions.merge()).await()
+        evaluationRef.set(entity, SetOptions.merge())
     }
 
     override suspend fun removeEvaluation(uid: String, id: String) {

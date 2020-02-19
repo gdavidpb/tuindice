@@ -65,7 +65,6 @@ open class EvaluationDialog(
             val evaluationType = evaluation.type.ordinal
 
             sBarMaxGrade.progress = grade
-            eTextNotes.isVisible = notes.isNotEmpty()
             sEvaluationDate.isChecked = date.time != 0L
             cGroupEvaluation.checkedChipIndex = evaluationType
 
@@ -75,8 +74,11 @@ open class EvaluationDialog(
             datePicker.selectedDate = date
             datePicker.isDateSelectable = sEvaluationDate.isChecked
 
-            checkNotes()
             eTextNotes.setText(notes)
+            eTextNotes.setSelection(notes.length)
+            eTextNotes.isVisible = notes.isNotEmpty()
+
+            checkNotes()
 
             updateGradeValue(value = grade)
         } else {

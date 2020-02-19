@@ -59,7 +59,7 @@ fun DocumentSnapshot.toSubject() = Subject(
         code = getString(FIELD_SUBJECT_CODE) ?: "",
         name = getString(FIELD_SUBJECT_NAME) ?: "",
         credits = getLong(FIELD_SUBJECT_CREDITS)?.toInt() ?: 0,
-        grade = getLong(FIELD_SUBJECT_GRADE)?.toInt() ?: MAX_GRADE,
+        grade = getLong(FIELD_SUBJECT_GRADE)?.toInt() ?: MAX_SUBJECT_GRADE,
         status = getLong(FIELD_SUBJECT_STATUS)?.toInt() ?: 0
 )
 
@@ -92,7 +92,7 @@ fun DstEnrollment.toQuarterEntity(uid: String) = QuarterEntity(
         userId = uid,
         startDate = Timestamp(startDate),
         endDate = Timestamp(endDate),
-        grade = MAX_GRADE.toDouble(),
+        grade = MAX_SUBJECT_GRADE.toDouble(),
         gradeSum = 0.0,
         status = STATUS_QUARTER_CURRENT
 )
@@ -103,7 +103,7 @@ fun ScheduleSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
         code = code,
         name = name,
         credits = credits,
-        grade = MAX_GRADE,
+        grade = MAX_SUBJECT_GRADE,
         status = status.formatSubjectStatusValue()
 )
 

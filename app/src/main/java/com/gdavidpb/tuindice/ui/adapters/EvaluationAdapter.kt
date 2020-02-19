@@ -12,6 +12,11 @@ open class EvaluationAdapter(
         private val manager: AdapterManager
 ) : BaseAdapter<EvaluationItem>() {
 
+    private val adapterSorter = compareBy(
+            EvaluationItem::isDone,
+            EvaluationItem::date
+    ).thenByDescending(EvaluationItem::grade)
+
     interface AdapterManager {
         fun onEvaluationClicked(item: EvaluationItem, position: Int)
 
@@ -33,13 +38,13 @@ open class EvaluationAdapter(
     }
 
     override fun swapItems(new: List<EvaluationItem>) {
-        super.swapItems(new)
+        super.swapItems(new = new.sortedWith(adapterSorter))
 
         manager.onDataChanged()
     }
 
-    override fun addSortedItem(item: EvaluationItem, comparator: Comparator<EvaluationItem>) {
-        super.addSortedItem(item, comparator)
+    override fun addItem(item: EvaluationItem, notifyChange: Boolean) {
+        super.addItem(item, notifyChange)
 
         manager.onDataChanged()
     }
@@ -62,12 +67,8 @@ open class EvaluationAdapter(
         manager.onDataUpdated()
     }
 
-    fun updateItem(item: EvaluationItem) {
-        items.indexOfFirst { evaluation ->
-            evaluation.id == item.id
-        }.also { position ->
-            replaceItemAt(item, position)
-        }
+    fun ensureSorting() {
+        super.swapItems(new = items.sortedWith(adapterSorter))
     }
 
     fun computeGradeSum(): Int {

@@ -26,30 +26,25 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder<T>>() {
         items.addAll(new)
     }
 
-    open fun sortItemAt(position: Int, comparator: Comparator<T>) {
-        val fromItem = items[position]
-        val toPosition = items.sortedWith(comparator).indexOf(fromItem)
-        val toItem = items[toPosition]
-
-        items[toPosition] = fromItem
-        items[position] = toItem
-
-        notifyItemMoved(position, toPosition)
-    }
-
-    open fun addSortedItem(item: T, comparator: Comparator<T>) {
-        items.add(item)
-
-        val position = items.sortedWith(comparator).indexOf(item)
-
-        items.remove(item)
-        items.add(position, item)
-
-        notifyItemInserted(position)
-    }
-
     open fun getItem(position: Int): T {
         return items[position]
+    }
+
+    open fun addItem(item: T, notifyChange: Boolean = true) {
+        items.add(item)
+
+        if (notifyChange)
+            notifyItemInserted(items.size - 1)
+    }
+
+    open fun removeItem(item: T, notifyChange: Boolean = true) {
+        val comparator = provideComparator()
+
+        items.indexOfFirst {
+            comparator.compare(item, it) == 0
+        }.also { position ->
+            if (position != -1) removeItemAt(position, notifyChange)
+        }
     }
 
     open fun removeItemAt(position: Int, notifyChange: Boolean = true) {
@@ -64,6 +59,16 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder<T>>() {
 
         if (notifyChange)
             notifyItemInserted(position)
+    }
+
+    fun replaceItem(item: T, notifyChange: Boolean = true) {
+        val comparator = provideComparator()
+
+        items.indexOfFirst {
+            comparator.compare(item, it) == 0
+        }.also { position ->
+            if (position != -1) replaceItemAt(item, position, notifyChange)
+        }
     }
 
     open fun replaceItemAt(item: T, position: Int, notifyChange: Boolean = true) {

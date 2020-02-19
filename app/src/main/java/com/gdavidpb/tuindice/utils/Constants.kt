@@ -43,7 +43,7 @@ val ROMANS = hashMapOf(
 const val PLAY_SERVICES_RESOLUTION_REQUEST = 2404
 
 /* Values */
-const val MAX_GRADE = 5
+const val MAX_SUBJECT_GRADE = 5
 
 /* Status */
 const val STATUS_QUARTER_CURRENT = 0
