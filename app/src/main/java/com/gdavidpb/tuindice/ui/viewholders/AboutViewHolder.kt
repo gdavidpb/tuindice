@@ -17,7 +17,7 @@ open class AboutViewHolder(
         with(itemView as AppCompatButton) {
             text = item.content
 
-            drawables(left = item.drawable)
+            drawables(start = item.drawable)
 
             onClickOnce(item::onClick)
         }

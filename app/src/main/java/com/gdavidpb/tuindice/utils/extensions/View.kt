@@ -11,6 +11,7 @@ import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.gdavidpb.tuindice.ui.customs.EvaluationDatePicker
 import com.gdavidpb.tuindice.utils.NO_GETTER
 import com.gdavidpb.tuindice.utils.TIME_DELAY_CLICK_ONCE
 import com.google.android.material.chip.Chip
@@ -82,16 +83,18 @@ fun RecyclerView.onScrollStateChanged(listener: (newState: Int) -> Unit) {
 fun TextInputLayout.selectAll() = editText?.selectAll()
 
 fun TextView.drawables(
-        left: Drawable? = null,
+        start: Drawable? = null,
         top: Drawable? = null,
-        right: Drawable? = null,
-        bottom: Drawable? = null) = setCompoundDrawables(left, top, right, bottom)
+        end: Drawable? = null,
+        bottom: Drawable? = null) = setCompoundDrawables(start, top, end, bottom)
 
 fun TextView.drawables(
-        left: Int = 0,
+        start: Int = 0,
         top: Int = 0,
-        right: Int = 0,
-        bottom: Int = 0) = setCompoundDrawablesWithIntrinsicBounds(left, top, right, bottom)
+        end: Int = 0,
+        bottom: Int = 0) = setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom)
+
+fun TextView.wrapEvaluationDatePicker() = EvaluationDatePicker(this)
 
 fun EditText.onTextChanged(event: (CharSequence, Int, Int, Int) -> Unit) {
     addTextChangedListener(object : TextWatcher {

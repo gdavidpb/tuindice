@@ -77,7 +77,7 @@ open class SummaryFragment : Fragment() {
         tViewCareer.text = account.careerName
 
         tViewLastUpdate.text = lastUpdate
-        tViewLastUpdate.drawables(left = context.getCompatDrawable(R.drawable.ic_sync, R.color.color_secondary_text))
+        tViewLastUpdate.drawables(start = context.getCompatDrawable(R.drawable.ic_sync, R.color.color_secondary_text))
 
         if (account.grade > 0.0) {
             groupGrade.visible()

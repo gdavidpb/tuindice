@@ -71,11 +71,11 @@ open class QuarterViewHolder(
         val isEditable = hasGradeBar && item.data.status != STATUS_SUBJECT_GAVE_UP
 
         if (isEditable) {
-            tViewSubjectCode.drawables(left = R.drawable.ic_open_in)
+            tViewSubjectCode.drawables(start = R.drawable.ic_open_in)
 
             onClickOnce { manager.onSubjectClicked(item) }
         } else {
-            tViewSubjectCode.drawables(left = 0)
+            tViewSubjectCode.drawables(start = 0)
 
             setOnClickListener(null)
         }

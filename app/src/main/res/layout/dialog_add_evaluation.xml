@@ -118,22 +118,9 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/tViewLabelDate" />
 
-            <TextView
+            <include
                 android:id="@+id/tViewDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_16"
-                android:background="@drawable/sh_rect_date"
-                android:clickable="true"
-                android:drawableEnd="@drawable/ic_edit_calendar"
-                app:drawableTint="@drawable/sl_button"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:padding="@dimen/dp_16"
-                android:tag="@null"
-                android:text="@string/label_evaluation_select_date"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tViewLabelDate" />
+                layout="@layout/view_evaluation_date_picker" />
 
             <TextView
                 android:id="@+id/tViewLabelNotes"

@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.utils
 import java.util.*
 
 const val NO_GETTER = "Property does not have a getter"
+const val NO_SETTER = "Property does not have a setter"
 
 /* External packages */
 const val PACKAGE_NAME_WEB_VIEW = "com.google.android.webview"

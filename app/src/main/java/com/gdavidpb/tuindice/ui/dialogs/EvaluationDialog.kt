@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
@@ -15,7 +16,6 @@ import com.gdavidpb.tuindice.domain.model.EvaluationType
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.presentation.model.NewEvaluation
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.gdavidpb.tuindice.utils.mappers.formatEvaluationDate
 import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.dialog_add_evaluation.*
 import org.koin.android.ext.android.inject
@@ -28,6 +28,10 @@ open class EvaluationDialog(
 ) : DialogFragment() {
 
     private val inputMethodManager by inject<InputMethodManager>()
+
+    private val datePicker by lazy {
+        (tViewDate as TextView).wrapEvaluationDatePicker()
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.dialog_add_evaluation, container, false)
@@ -63,13 +67,14 @@ open class EvaluationDialog(
             sBarMaxGrade.progress = grade
             eTextNotes.isVisible = notes.isNotEmpty()
             sEvaluationDate.isChecked = date.time != 0L
-            tViewDate.isEnabled = sEvaluationDate.isChecked
             cGroupEvaluation.checkedChipIndex = evaluationType
 
             tViewEvaluationHeader.text = getString(R.string.title_edit_evaluation)
             btnEvaluationDone.text = getString(R.string.edit)
 
-            setDate(date)
+            datePicker.selectedDate = date
+            datePicker.isDateSelectable = sEvaluationDate.isChecked
+
             checkNotes()
             eTextNotes.setText(notes)
 
@@ -90,7 +95,7 @@ open class EvaluationDialog(
         EvaluationType.values().forEach { evaluationType ->
             LayoutInflater
                     .from(context)
-                    .inflate(R.layout.view_chip, cGroupEvaluation, false).also { chip ->
+                    .inflate(R.layout.view_evaluation_chip, cGroupEvaluation, false).also { chip ->
                         chip as Chip
 
                         chip.text = getString(evaluationType.stringRes)
@@ -109,13 +114,7 @@ open class EvaluationDialog(
         }
 
         sEvaluationDate.onCheckedChange { isChecked ->
-            tViewDate.isEnabled = isChecked
-
-            tViewDate.text = when {
-                !isChecked -> getString(R.string.label_evaluation_no_date)
-                isValidDate() -> getDate().formatEvaluationDate()
-                else -> getString(R.string.label_evaluation_select_date)
-            }
+            datePicker.isDateSelectable = isChecked
 
             validateParams()
         }
@@ -129,39 +128,32 @@ open class EvaluationDialog(
                 }
             }
         }
+
+        eTextNotes.onTextChanged { _, _, _, _ ->
+            validateParams()
+        }
     }
 
     private fun validateParams() {
         when {
             cGroupEvaluation.checkedChipId == -1 -> false
             sBarMaxGrade.progress == 0 -> false
-            !isValidDate() -> false
+            !datePicker.isValidState -> false
             else -> true
         }.let { isOk ->
             btnEvaluationDone.isEnabled = isOk
         }
     }
 
-    private fun isValidDate() =
-            !sEvaluationDate.isChecked || tViewDate.tag != null
-
-    private fun getDate() =
-            if (sEvaluationDate.isChecked) tViewDate.tag as? Date ?: Date() else Date(0)
-
-    private fun setDate(value: Date?) {
-        tViewDate.text = value?.formatEvaluationDate()
-        tViewDate.tag = if (value?.time != 0L) value else null
-    }
-
     private fun checkNotes() {
         if (eTextNotes.isVisible) {
             inputMethodManager.showSoftKeyboard(eTextNotes)
 
-            tViewLabelNotes.drawables(right = R.drawable.ic_expand_less)
+            tViewLabelNotes.drawables(end = R.drawable.ic_expand_less)
         } else {
             inputMethodManager.hideSoftKeyboard(eTextNotes)
 
-            tViewLabelNotes.drawables(right = R.drawable.ic_expand_more)
+            tViewLabelNotes.drawables(end = R.drawable.ic_expand_more)
         }
     }
 
@@ -181,7 +173,7 @@ open class EvaluationDialog(
                 sid = subject.id,
                 type = evaluationType,
                 maxGrade = maxGrade,
-                date = getDate(),
+                date = datePicker.selectedDate,
                 notes = "${eTextNotes.text}"
         )
 
@@ -196,10 +188,10 @@ open class EvaluationDialog(
 
     private fun onDateClicked() {
         requireActivity().datePicker {
-            selectedDate = getDate()
+            selectedDate = datePicker.selectedDate
 
             onDateSelected { selectedDate ->
-                setDate(selectedDate)
+                datePicker.selectedDate = selectedDate
 
                 validateParams()
             }
