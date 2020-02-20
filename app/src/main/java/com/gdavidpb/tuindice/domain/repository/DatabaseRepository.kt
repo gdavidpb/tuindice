@@ -30,5 +30,6 @@ interface DatabaseRepository {
     suspend fun updateAuthData(uid: String, data: DstAuth)
     suspend fun updateData(uid: String, data: Collection<DstData>)
 
+    suspend fun close()
     suspend fun clearPersistence()
 }

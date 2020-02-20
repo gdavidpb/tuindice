@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.domain.repository.LocalStorageRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
+import com.gdavidpb.tuindice.utils.extensions.restartKoinModules
 import kotlinx.coroutines.Dispatchers
 
 open class SignOutUseCase(
@@ -19,8 +20,11 @@ open class SignOutUseCase(
     override suspend fun executeOnBackground(params: Unit) {
         authRepository.signOut()
         settingsRepository.clear()
+        databaseRepository.close()
         databaseRepository.clearPersistence()
         localStorageRepository.delete("cookies")
         localStorageRepository.delete("enrollment")
+
+        restartKoinModules()
     }
 }

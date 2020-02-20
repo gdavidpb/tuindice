@@ -226,6 +226,10 @@ open class FirestoreDataStore(
         userRef.set(values, SetOptions.merge())
     }
 
+    override suspend fun close() {
+        firestore.terminate().await()
+    }
+
     override suspend fun clearPersistence() {
         firestore.clearPersistence().await()
     }

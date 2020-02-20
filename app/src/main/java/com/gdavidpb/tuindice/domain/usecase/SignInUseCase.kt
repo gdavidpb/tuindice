@@ -26,7 +26,6 @@ open class SignInUseCase(
 
         authRepository.signOut()
         settingsRepository.clear()
-        databaseRepository.clearPersistence()
         localStorageRepository.delete("cookies")
         localStorageRepository.delete("enrollment")
 
