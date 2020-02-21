@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.ui.fragments
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,7 +16,6 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
-import com.gdavidpb.tuindice.ui.dialogs.CalendarDialog
 import com.gdavidpb.tuindice.ui.dialogs.EvaluationDialog
 import com.gdavidpb.tuindice.utils.ARG_SUBJECT_ID
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -24,7 +24,6 @@ import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_subject.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.util.*
 
 open class SubjectFragment : Fragment() {
 
@@ -63,7 +62,7 @@ open class SubjectFragment : Fragment() {
 
         with(viewModel) {
             observe(add, ::addEvaluationObserver)
-            observe(update, ::updateEvaluationObserver)
+            observe(evaluationUpdate, ::updateEvaluationObserver)
             observe(evaluations, ::evaluationsObserver)
 
             getSubjectEvaluations(sid = subjectId)
@@ -76,11 +75,12 @@ open class SubjectFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.menu_calendar -> {
-                val startDate = Date().add(Calendar.YEAR, -1)
-                val endDate = Date().add(Calendar.YEAR, 1)
+            R.id.menu_done -> {
+                val subjectGrade = evaluationAdapter.computeGradeSum().toGrade()
 
-                CalendarDialog(startDate, endDate).show(childFragmentManager)
+                viewModel.updateSubjectGrade(sid = subjectId, grade = subjectGrade)
+
+                findNavController().navigateUp()
 
                 true
             }
@@ -132,9 +132,6 @@ open class SubjectFragment : Fragment() {
 
     private fun evaluationsObserver(result: Result<SubjectEvaluations>?) {
         when (result) {
-            is Result.OnLoading -> {
-                //todo show loading
-            }
             is Result.OnSuccess -> {
                 val context = requireContext()
                 val response = result.value
@@ -150,9 +147,7 @@ open class SubjectFragment : Fragment() {
 
                 evaluationAdapter.swapItems(new = items)
             }
-            is Result.OnError -> {
-                //todo show error
-            }
+            is Result.OnError -> longToast(R.string.toast_try_again_later)
         }
     }
 

@@ -5,6 +5,7 @@ import java.util.*
 data class Evaluation(
         val id: String,
         val sid: String,
+        val subjectCode: String,
         val type: EvaluationType,
         val grade: Int,
         val maxGrade: Int,

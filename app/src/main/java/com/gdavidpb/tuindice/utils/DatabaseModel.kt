@@ -60,6 +60,7 @@ const val COLLECTION_EVALUATION = "evaluations"
 /* Evaluations collection fields */
 const val FIELD_EVALUATION_USER_ID = "userId"
 const val FIELD_EVALUATION_SUBJECT_ID = "subjectId"
+const val FIELD_EVALUATION_SUBJECT_CODE = "subjectCode"
 const val FIELD_EVALUATION_TYPE = "type"
 const val FIELD_EVALUATION_GRADE = "grade"
 const val FIELD_EVALUATION_MAX_GRADE = "maxGrade"

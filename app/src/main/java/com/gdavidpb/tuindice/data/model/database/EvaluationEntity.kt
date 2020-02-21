@@ -5,6 +5,7 @@ import com.google.firebase.Timestamp
 data class EvaluationEntity(
         val userId: String,
         val subjectId: String,
+        val subjectCode: String,
         val type: Int,
         val grade: Int,
         val maxGrade: Int,

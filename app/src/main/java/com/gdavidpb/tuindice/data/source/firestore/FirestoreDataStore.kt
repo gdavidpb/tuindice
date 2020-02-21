@@ -165,6 +165,18 @@ open class FirestoreDataStore(
                 }
     }
 
+    override suspend fun updateSubjectGrade(uid: String, sid: String, grade: Int) {
+        val subjectRef = firestore
+                .collection(COLLECTION_SUBJECT)
+                .document(sid)
+
+        val values = mapOf(
+                FIELD_SUBJECT_GRADE to grade
+        )
+
+        subjectRef.set(values, SetOptions.merge()).await()
+    }
+
     override suspend fun updateSubject(uid: String, subject: Subject) {
         val subjectRef = firestore
                 .collection(COLLECTION_SUBJECT)

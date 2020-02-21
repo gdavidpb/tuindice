@@ -17,7 +17,7 @@ open class QuarterAdapter(
 ) : BaseAdapter<QuarterItem>() {
 
     interface AdapterManager {
-        fun onSubjectClicked(item: SubjectItem)
+        fun onSubjectClicked(quarterItem: QuarterItem, subjectItem: SubjectItem)
         fun onSubjectChanged(item: SubjectItem, dispatchChanges: Boolean)
         fun onQuarterChanged(item: QuarterItem, position: Int)
 

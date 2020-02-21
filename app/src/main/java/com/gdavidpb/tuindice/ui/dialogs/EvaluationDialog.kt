@@ -173,6 +173,7 @@ open class EvaluationDialog(
         val evaluation = NewEvaluation(
                 id = evaluationId,
                 sid = subject.id,
+                subjectCode = subject.code,
                 type = evaluationType,
                 maxGrade = maxGrade,
                 date = datePicker.selectedDate,
@@ -190,7 +191,8 @@ open class EvaluationDialog(
 
     private fun onDateClicked() {
         requireActivity().datePicker {
-            selectedDate = datePicker.selectedDate
+            if (datePicker.selectedDate.time != 0L)
+                selectedDate = datePicker.selectedDate
 
             onDateSelected { selectedDate ->
                 datePicker.selectedDate = selectedDate
