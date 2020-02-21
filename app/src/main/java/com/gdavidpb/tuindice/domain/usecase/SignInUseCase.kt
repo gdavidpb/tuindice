@@ -8,7 +8,8 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
-import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import kotlinx.coroutines.Dispatchers
 
 open class SignInUseCase(
@@ -39,22 +40,19 @@ open class SignInUseCase(
             }.onSuccess { activeAuth ->
                 storeAccount(auth = activeAuth, request = params, response = authResponse)
             }.onFailure { exception ->
-                if (exception is FirebaseAuthException) {
-                    when (exception.errorCode) {
-                        "ERROR_USER_NOT_FOUND" -> {
-                            val auth = authRepository.signUp(email = email, password = params.password)
+                when (exception.cause) {
+                    is FirebaseAuthInvalidUserException -> {
+                        val auth = authRepository.signUp(email = email, password = params.password)
 
-                            storeAccount(auth = auth, request = params, response = authResponse)
-                        }
-                        "ERROR_WRONG_PASSWORD" -> {
-                            settingsRepository.setIsAwaitingForReset(email = email, password = params.password)
-
-                            authRepository.sendPasswordResetEmail(email = email, password = params.password)
-                        }
-                        else -> throw exception
+                        storeAccount(auth = auth, request = params, response = authResponse)
                     }
-                } else
-                    throw exception
+                    is FirebaseAuthInvalidCredentialsException -> {
+                        settingsRepository.setIsAwaitingForReset(email = email, password = params.password)
+
+                        authRepository.sendPasswordResetEmail(email = email, password = params.password)
+                    }
+                    else -> throw exception
+                }
             }
         }
 
