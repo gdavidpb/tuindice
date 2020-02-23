@@ -156,21 +156,23 @@ fun String.formatSubjectName(): String {
 
 /* Span */
 
-fun Subject.spanSubjectCode(context: Context) =
-        if (status == STATUS_SUBJECT_OK && grade != 0)
-            code
-        else
-            buildSpanned {
-                val content = context.getString(R.string.subject_title, code, status.formatSubjectStatusDescription())
-                val colorSecondary = ResourcesManager.getColor(R.color.color_secondary_text, context)
+fun Subject.spanSubjectCode(context: Context): CharSequence {
+    val statusText = status.formatSubjectStatusDescription()
 
-                append(content.substringBefore(' '))
-                append(' ')
-                append(content.substringAfter(' '),
-                        TypefaceSpan("sans-serif-light"),
-                        ForegroundColorSpan(colorSecondary))
+    return if (statusText.isEmpty())
+        code
+    else buildSpanned {
+        val content = context.getString(R.string.subject_title, code, statusText)
+        val colorSecondary = ResourcesManager.getColor(R.color.color_secondary_text, context)
 
-            }
+        append(content.substringBefore(' '))
+        append(' ')
+        append(content.substringAfter(' '),
+                TypefaceSpan("sans-serif-light"),
+                ForegroundColorSpan(colorSecondary))
+
+    }
+}
 
 fun String.spanAbout(titleColor: Int, subtitleColor: Int): CharSequence {
     val (title, subtitle) = listOf(
