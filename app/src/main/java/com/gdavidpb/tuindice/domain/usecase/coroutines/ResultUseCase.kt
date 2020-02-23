@@ -24,7 +24,7 @@ abstract class ResultUseCase<Q, T>(
             }.onSuccess { response ->
                 liveData.postSuccess(response)
             }.onFailure { throwable ->
-                reportingRepository.logException(throwable)
+                if (!ignoredException(throwable)) reportingRepository.logException(throwable)
 
                 when (throwable) {
                     is CancellationException -> liveData.postCancel()

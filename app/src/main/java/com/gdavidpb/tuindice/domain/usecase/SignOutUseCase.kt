@@ -5,9 +5,12 @@ import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.domain.repository.LocalStorageRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
+import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
 import com.gdavidpb.tuindice.utils.extensions.restartKoinModules
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 
+@IgnoredExceptions(CancellationException::class)
 open class SignOutUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,

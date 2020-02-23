@@ -8,10 +8,13 @@ import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.utils.KEY_NOW_DATE
 import com.gdavidpb.tuindice.utils.KEY_REF_DATE
+import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
 import com.gdavidpb.tuindice.utils.mappers.toResetRequest
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import java.util.*
 
+@IgnoredExceptions(CancellationException::class)
 open class StartUpUseCase(
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,

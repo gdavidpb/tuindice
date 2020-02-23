@@ -22,7 +22,7 @@ abstract class ContinuousUseCase<T, Q>(
             runCatching {
                 withContext(backgroundContext) { executeOnBackground(params, liveData) }
             }.onFailure { throwable ->
-                reportingRepository.logException(throwable)
+                if (!ignoredException(throwable)) reportingRepository.logException(throwable)
 
                 when (throwable) {
                     is CancellationException -> liveData.postCancel()

@@ -2,16 +2,27 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.AuthResponse
+import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
+import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
 import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import retrofit2.HttpException
+import java.io.IOException
 
+@IgnoredExceptions(
+        CancellationException::class,
+        IOException::class,
+        HttpException::class,
+        AuthenticationException::class
+)
 open class SignInUseCase(
         private val dstRepository: DstRepository,
         private val localStorageRepository: LocalStorageRepository,

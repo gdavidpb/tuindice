@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
+import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.model.service.DstData
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
@@ -8,9 +9,19 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
+import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
 import com.gdavidpb.tuindice.utils.extensions.isUpdated
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import retrofit2.HttpException
+import java.io.IOException
 
+@IgnoredExceptions(
+        CancellationException::class,
+        IOException::class,
+        HttpException::class,
+        AuthenticationException::class
+)
 open class SyncAccountUseCase(
         private val dstRepository: DstRepository,
         private val localStorageRepository: LocalStorageRepository,

@@ -24,7 +24,7 @@ abstract class CompletableUseCase<Q>(
             }.onSuccess {
                 liveData.postComplete()
             }.onFailure { throwable ->
-                reportingRepository.logException(throwable)
+                if (!ignoredException(throwable)) reportingRepository.logException(throwable)
 
                 when (throwable) {
                     is CancellationException -> liveData.postCancel()

@@ -1,13 +1,24 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
+import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
+import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
 import com.gdavidpb.tuindice.utils.mappers.formatQuarterTitle
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import retrofit2.HttpException
 import java.io.File
+import java.io.IOException
 
+@IgnoredExceptions(
+        CancellationException::class,
+        IOException::class,
+        HttpException::class,
+        AuthenticationException::class
+)
 open class OpenEnrollmentProofUseCase(
         private val authRepository: AuthRepository,
         private val dstRepository: DstRepository,
