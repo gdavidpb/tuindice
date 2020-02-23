@@ -63,7 +63,9 @@ open class RecordFragment : Fragment() {
 
         with(rViewRecord) {
             layoutManager = LinearLayoutManager(context)
-            adapter = quarterAdapter
+            adapter = quarterAdapter.apply {
+                setHasStableIds(true)
+            }
 
             /*
             onScrollStateChanged { newState ->

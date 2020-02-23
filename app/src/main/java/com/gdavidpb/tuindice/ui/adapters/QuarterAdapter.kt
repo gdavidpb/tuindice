@@ -47,6 +47,10 @@ open class QuarterAdapter(
         return QuarterViewHolder(itemView, manager)
     }
 
+    override fun getItemId(position: Int): Long {
+        return items[position].id.hashCode().toLong()
+    }
+
     fun computeGradeSum(until: QuarterItem): Double {
         return items.computeGradeSum(until)
     }
