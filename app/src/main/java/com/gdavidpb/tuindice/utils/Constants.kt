@@ -82,6 +82,8 @@ const val EXTRA_FIRST_START_UP = "EXTRA_FIRST_START_UP"
 const val EXTRA_TITLE = "EXTRA_TITLE"
 const val EXTRA_URL = "EXTRA_URL"
 
+const val EXTRA_PARCELABLE = "EXTRA_PARCELABLE"
+
 /* Reporting keys */
 const val KEY_REF_DATE = "KEY_REF_DATE"
 const val KEY_NOW_DATE = "KEY_NOW_DATE"

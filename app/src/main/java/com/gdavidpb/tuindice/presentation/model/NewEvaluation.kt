@@ -11,4 +11,6 @@ data class NewEvaluation(
         val maxGrade: Int,
         val date: Date,
         val notes: String
-)
+) {
+    fun isNew() = id.isEmpty()
+}

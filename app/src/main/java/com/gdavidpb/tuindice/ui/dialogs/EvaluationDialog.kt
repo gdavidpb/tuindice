@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.ui.dialogs
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,24 +7,17 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.core.view.isVisible
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentManager
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.EvaluationType
-import com.gdavidpb.tuindice.domain.model.Subject
+import com.gdavidpb.tuindice.presentation.model.EvaluationRequest
 import com.gdavidpb.tuindice.presentation.model.NewEvaluation
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.chip.Chip
-import kotlinx.android.synthetic.main.dialog_add_evaluation.*
+import kotlinx.android.synthetic.main.dialog_evaluation.*
 import org.koin.android.ext.android.inject
 import java.util.*
 
-open class EvaluationDialog(
-        val evaluation: Evaluation? = null,
-        val subject: Subject,
-        val callback: (NewEvaluation) -> Unit
-) : DialogFragment() {
+open class EvaluationDialog : RequestDialog<EvaluationRequest, NewEvaluation>() {
 
     private val inputMethodManager by inject<InputMethodManager>()
 
@@ -34,28 +26,24 @@ open class EvaluationDialog(
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.dialog_add_evaluation, container, false)
+        return inflater.inflate(R.layout.dialog_evaluation, container, false)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onDialogCreated(arguments: EvaluationRequest?) {
+        arguments ?: return
+
         initChipGroup()
-        initEvaluation()
+        initEvaluation(arguments)
         initListeners()
-    }
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return Dialog(requireActivity(), R.style.AppTheme_FullScreenDialog)
-    }
-
-    fun show(fragmentManager: FragmentManager) {
-        show(fragmentManager, EvaluationDialog::class.java.name)
     }
 
     private fun updateGradeValue(value: Int) {
         tViewLabelGradeValue.text = getString(R.string.label_evaluation_grade_value, value)
     }
 
-    private fun initEvaluation() {
+    private fun initEvaluation(request: EvaluationRequest) {
+        val (subject, evaluation) = request
+
         val headerText = getString(R.string.label_evaluation_subject_header, subject.code, subject.name)
 
         if (evaluation != null) {
@@ -160,6 +148,8 @@ open class EvaluationDialog(
     }
 
     private fun onAddClicked() {
+        val (subject, evaluation) = getRequest() ?: return
+
         val evaluationType = cGroupEvaluation
                 .checkedChipIndex
                 .let { index ->
@@ -170,7 +160,7 @@ open class EvaluationDialog(
 
         val evaluationId = evaluation?.id ?: ""
 
-        val evaluation = NewEvaluation(
+        val newEvaluation = NewEvaluation(
                 id = evaluationId,
                 sid = subject.id,
                 subjectCode = subject.code,
@@ -180,7 +170,7 @@ open class EvaluationDialog(
                 notes = "${eTextNotes.text}"
         )
 
-        callback(evaluation)
+        callback(newEvaluation)
 
         dismiss()
     }
