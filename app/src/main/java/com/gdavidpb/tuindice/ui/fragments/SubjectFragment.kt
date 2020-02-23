@@ -152,10 +152,10 @@ open class SubjectFragment : Fragment() {
     }
 
     private fun showEvaluationDialog(evaluation: Evaluation? = null) {
-        val selectedSubject = viewModel.getSelectedSubject() ?: return
+        val subject = viewModel.getSelectedSubject() ?: return
 
         EvaluationDialogBuilder(requireActivity())
-                .setSubject(selectedSubject)
+                .setSubject(subject)
                 .setEvaluation(evaluation)
                 .onDone { newEvaluation ->
                     if (newEvaluation.isNew())

@@ -27,9 +27,8 @@ class EvaluationDialogBuilder(context: Context) : AlertDialog.Builder(context), 
     private var evaluation: Evaluation? = null
     private var callback: ((NewEvaluation) -> Unit) = { _ -> }
 
-    private lateinit var datePicker: EvaluationDatePicker
-
     private lateinit var positiveButton: Button
+    private lateinit var datePicker: EvaluationDatePicker
 
     private val inputMethodManager by inject<InputMethodManager>()
 
