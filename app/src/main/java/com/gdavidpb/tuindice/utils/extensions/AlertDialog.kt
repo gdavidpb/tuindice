@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import android.content.Context
-import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
@@ -43,7 +42,7 @@ fun (AlertDialog.Builder).negativeButton(
 }
 
 fun (AlertDialog.Builder).createView(@LayoutRes layout: Int, init: View.() -> Unit): View =
-        LayoutInflater.from(context).inflate(layout, null, false)
+        View.inflate(context, layout, null)
                 .apply(init)
                 .also { view -> setView(view) }
 

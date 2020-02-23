@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.ui.fragments
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE
@@ -15,11 +14,9 @@ import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.SubjectEvaluations
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
-import com.gdavidpb.tuindice.presentation.model.EvaluationRequest
-import com.gdavidpb.tuindice.presentation.model.NewEvaluation
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
-import com.gdavidpb.tuindice.ui.dialogs.EvaluationDialog
+import com.gdavidpb.tuindice.ui.dialogs.EvaluationDialogBuilder
 import com.gdavidpb.tuindice.utils.ARG_SUBJECT_ID
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluation
@@ -31,8 +28,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 open class SubjectFragment : Fragment() {
 
     private val viewModel by viewModel<SubjectViewModel>()
-
-    private val newEvaluation = MutableLiveData<NewEvaluation>()
 
     private val evaluationManager = EvaluationManager()
 
@@ -69,7 +64,6 @@ open class SubjectFragment : Fragment() {
             observe(add, ::addEvaluationObserver)
             observe(evaluationUpdate, ::updateEvaluationObserver)
             observe(evaluations, ::evaluationsObserver)
-            observe(newEvaluation, ::newEvaluationObserver)
 
             getSubjectEvaluations(sid = subjectId)
         }
@@ -136,15 +130,6 @@ open class SubjectFragment : Fragment() {
         }
     }
 
-    private fun newEvaluationObserver(evaluation: NewEvaluation?) {
-        evaluation ?: return
-
-        if (evaluation.isNew())
-            viewModel.addEvaluation(evaluation = evaluation.toEvaluation())
-        else
-            viewModel.updateEvaluation(evaluation = evaluation.toEvaluation())
-    }
-
     private fun evaluationsObserver(result: Result<SubjectEvaluations>?) {
         when (result) {
             is Result.OnSuccess -> {
@@ -169,16 +154,16 @@ open class SubjectFragment : Fragment() {
     private fun showEvaluationDialog(evaluation: Evaluation? = null) {
         val selectedSubject = viewModel.getSelectedSubject() ?: return
 
-        val evaluationRequest = EvaluationRequest(
-                subject = selectedSubject,
-                evaluation = evaluation
-        )
-
-        EvaluationDialog().show(
-                fragmentManager = childFragmentManager,
-                request = evaluationRequest,
-                liveData = newEvaluation
-        )
+        EvaluationDialogBuilder(requireActivity())
+                .setSubject(selectedSubject)
+                .setEvaluation(evaluation)
+                .onDone { newEvaluation ->
+                    if (newEvaluation.isNew())
+                        viewModel.addEvaluation(evaluation = newEvaluation.toEvaluation())
+                    else
+                        viewModel.updateEvaluation(evaluation = newEvaluation.toEvaluation())
+                }
+                .show()
     }
 
     inner class EvaluationManager : EvaluationAdapter.AdapterManager, ItemTouchHelper.Callback() {

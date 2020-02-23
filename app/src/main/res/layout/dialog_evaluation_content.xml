@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:padding="@dimen/dp_16">
+
+            <TextView
+                android:id="@+id/tViewLabelType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:labelFor="@id/cGroupEvaluation"
+                android:text="@string/label_evaluation_type"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cGroupEvaluation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                app:layout_constraintTop_toBottomOf="@id/tViewLabelType"
+                app:selectionRequired="true"
+                app:singleSelection="true" />
+
+            <TextView
+                android:id="@+id/tViewLabelGrade"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                android:fontFamily="sans-serif-light"
+                android:labelFor="@id/sBarMaxGrade"
+                android:text="@string/label_evaluation_max_grade"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cGroupEvaluation" />
+
+            <TextView
+                android:id="@+id/tViewLabelGradeValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:text="@string/label_evaluation_max_grade"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                app:layout_constraintBottom_toBottomOf="@id/tViewLabelGrade"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tViewLabelGrade"
+                tools:text="89 pts" />
+
+            <androidx.appcompat.widget.AppCompatSeekBar
+                android:id="@+id/sBarMaxGrade"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                android:max="100"
+                app:layout_constraintTop_toBottomOf="@id/tViewLabelGrade"
+                tools:progress="89" />
+
+            <TextView
+                android:id="@+id/tViewLabelDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                android:fontFamily="sans-serif-light"
+                android:labelFor="@id/tViewLabelGrade"
+                android:text="@string/label_evaluation_date"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/sBarMaxGrade" />
+
+            <Switch
+                android:id="@+id/sEvaluationDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                app:layout_constraintBottom_toBottomOf="@+id/tViewLabelDate"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/tViewLabelDate" />
+
+            <include
+                android:id="@+id/tViewDate"
+                layout="@layout/view_evaluation_date_picker" />
+
+            <TextView
+                android:id="@+id/tViewLabelNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                android:clickable="true"
+                android:drawableEnd="@drawable/ic_expand_more"
+                android:focusable="true"
+                android:fontFamily="sans-serif-light"
+                android:labelFor="@id/eTextNotes"
+                android:text="@string/label_evaluation_notes"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:layout_constraintTop_toBottomOf="@id/tViewDate" />
+
+            <EditText
+                android:id="@+id/eTextNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                android:imeOptions="actionDone"
+                android:importantForAutofill="no"
+                android:inputType="textShortMessage|text|textCapSentences"
+                android:maxLength="128"
+                android:maxLines="1"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/tViewLabelNotes"
+                tools:layout_editor_absoluteX="16dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
