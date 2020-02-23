@@ -4,6 +4,7 @@ import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
 import android.view.inputmethod.EditorInfo
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
@@ -20,7 +21,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import retrofit2.HttpException
 import java.io.IOException
 
-class LoginActivity : BaseActivity() {
+class LoginActivity : AppCompatActivity() {
 
     private val viewModel by viewModel<LoginViewModel>()
 

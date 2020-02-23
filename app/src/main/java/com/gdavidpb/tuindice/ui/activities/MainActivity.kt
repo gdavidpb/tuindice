@@ -3,8 +3,9 @@ package com.gdavidpb.tuindice.ui.activities
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.IdRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavDestination
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.StartUpAction
@@ -18,12 +19,16 @@ import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : BaseActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val viewModel by viewModel<MainViewModel>()
 
     private val isFirstStartUp by lazy {
         intent.getBooleanExtra(EXTRA_FIRST_START_UP, false)
+    }
+
+    private val navHostFragment by lazy {
+        nav_host_fragment as NavHostFragment
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +56,7 @@ class MainActivity : BaseActivity() {
     private fun initView(@IdRes navId: Int) {
         setContentView(R.layout.activity_main)
 
-        with(findNavController(R.id.navHostFragment)) {
+        with(navHostFragment.navController) {
             NavigationUI.setupWithNavController(bottomNavView, this)
 
             if (navId.isStartDestination()) {
@@ -87,8 +92,8 @@ class MainActivity : BaseActivity() {
 
     private fun showLoading(value: Boolean) {
         if (isFirstStartUp) {
-            navHostFragment.visibleIf(value = !value, elseValue = View.INVISIBLE)
             bottomNavView.visibleIf(value = !value, elseValue = View.INVISIBLE)
+            navHostFragment.requireView().visibleIf(value = !value, elseValue = View.INVISIBLE)
 
             pBarStartUp
         } else {
