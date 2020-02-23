@@ -111,26 +111,18 @@ class LoginActivity : AppCompatActivity() {
             groupLoginProgress.visible()
         }
 
-        ConstraintSet().also {
-            it.clone(cLayoutMain)
+        ConstraintSet().apply {
+            clone(cLayoutMain)
 
             if (value) {
-                it.clear(R.id.iViewLogo, ConstraintSet.BOTTOM)
-
-                it.connect(
-                        R.id.iViewLogo, ConstraintSet.TOP,
-                        R.id.guidelineTop, ConstraintSet.TOP,
-                        0)
+                connectBottomBottom(R.id.iViewLogo, R.id.guidelineBottomLogo)
+                connectTopTop(R.id.iViewLogo, R.id.guidelineTopLogo)
             } else {
-                it.clear(R.id.iViewLogo, ConstraintSet.TOP)
-
-                it.connect(
-                        R.id.iViewLogo, ConstraintSet.BOTTOM,
-                        R.id.guidelineCenter, ConstraintSet.BOTTOM,
-                        0)
+                connectBottomBottom(R.id.iViewLogo, R.id.guidelineBottomCenter)
+                connectTopTop(R.id.iViewLogo, R.id.guidelineTopCenter)
             }
 
-            it.applyTo(cLayoutMain)
+            applyTo(cLayoutMain)
         }
     }
 

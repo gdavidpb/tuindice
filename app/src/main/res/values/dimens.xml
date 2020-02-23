@@ -15,7 +15,6 @@
     <dimen name="sp_32">32sp</dimen>
     <dimen name="sp_42">42sp</dimen>
 
-    <dimen name="size_logo">128dp</dimen>
     <dimen name="size_tick">6dp</dimen>
     <dimen name="size_button">150dp</dimen>
     <dimen name="size_profile">86dp</dimen>
