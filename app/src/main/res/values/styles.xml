@@ -11,31 +11,12 @@
     <style name="AppTheme.NoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/color_background</item>
     </style>
 
     <!-- Splash theme -->
     <style name="AppTheme.Splash" parent="AppTheme.NoActionBar">
         <item name="android:windowBackground">@drawable/bk_splash</item>
-    </style>
-
-    <!-- Transparent theme -->
-    <style name="AppTheme.Transparent" parent="AppTheme.NoActionBar">
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:backgroundDimEnabled">false</item>
-    </style>
-
-    <!-- Full screen dialog theme -->
-    <style name="AppTheme.FullScreenDialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-        <item name="android:windowMinWidthMajor">90%</item>
-        <item name="android:windowMinWidthMinor">90%</item>
-        <item name="shapeAppearanceMediumComponent">@style/RoundShapeAppearance</item>
-    </style>
-
-    <style name="RoundShapeAppearance" parent="ShapeAppearance.MaterialComponents.MediumComponent">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">4dp</item>
     </style>
 
 </resources>

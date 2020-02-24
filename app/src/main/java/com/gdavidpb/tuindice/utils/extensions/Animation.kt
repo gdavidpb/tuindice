@@ -65,7 +65,7 @@ fun TextView.animateGrade(value: Double) {
     if (from == value.toFloat() && text.isNotEmpty()) return
 
     ValueAnimator.ofFloat(from, value.toFloat()).animate(this, {
-        duration = 1000
+        duration = 750
         interpolator = DecelerateInterpolator()
     }, {
         text = (animatedValue as Float).toDouble().formatGrade()
@@ -76,7 +76,7 @@ fun TextView.animateGrade(value: Double) {
 
 fun Guideline.animatePercent(value: Float) {
     ValueAnimator.ofFloat(0f, value).animate(this, {
-        duration = 1000
+        duration = 750
         interpolator = DecelerateInterpolator()
     }, {
         setGuidelinePercent(animatedValue as Float)

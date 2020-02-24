@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.utils.mappers
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Typeface
 import android.text.Spanned
@@ -90,7 +89,6 @@ fun Int.formatGrade(context: Context) =
 fun Int.formatCredits(context: Context) =
         context.getString(R.string.subject_credits, this)
 
-@SuppressLint("DefaultLocale")
 fun Pair<Date, Date>.formatQuarterTitle(): String {
     val start = first.format("MMM")?.capitalize()
     val end = second.format("MMM")?.capitalize()
@@ -108,7 +106,6 @@ fun Double.formatGradeSum(color: Int, context: Context) =
 fun Int.formatCredits(color: Int, font: Typeface, context: Context) =
         context.getString(R.string.quarter_credits, this).spanGrade(color, font)
 
-@SuppressLint("DefaultLocale")
 fun Date.formatEvaluationDate(): String {
     val weeksLeft = weeksLeft()
 
@@ -138,6 +135,12 @@ fun String.formatSubjectStatusValue() = when (this) {
     "Sin Efecto" -> STATUS_SUBJECT_NO_EFFECT
     else -> STATUS_SUBJECT_OK
 }
+
+fun String.capitalize() =
+        if (isNotEmpty() && this[0].isLowerCase())
+            "${substring(0, 1).toUpperCase(DEFAULT_LOCALE)}${substring(1)}"
+        else
+            this
 
 fun String.toUsbEmail() = "$this@usb.ve"
 

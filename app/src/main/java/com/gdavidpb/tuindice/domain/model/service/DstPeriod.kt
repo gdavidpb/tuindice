@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.domain.model.service
 
 import com.gdavidpb.tuindice.utils.extensions.format
+import com.gdavidpb.tuindice.utils.mappers.capitalize
 import java.util.*
 
 data class DstPeriod(

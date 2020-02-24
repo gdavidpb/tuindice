@@ -30,7 +30,9 @@ open class RecordFragment : Fragment() {
 
     private val quarterManager = QuarterManager()
 
-    private val quarterAdapter = QuarterAdapter(manager = quarterManager)
+    private val quarterAdapter = QuarterAdapter(manager = quarterManager).apply {
+        setHasStableIds(true)
+    }
 
     private val loadingDialog by lazy {
         alert {
@@ -62,9 +64,7 @@ open class RecordFragment : Fragment() {
 
         with(rViewRecord) {
             layoutManager = LinearLayoutManager(context)
-            adapter = quarterAdapter.apply {
-                setHasStableIds(true)
-            }
+            adapter = quarterAdapter
 
             /*
             onScrollStateChanged { newState ->
