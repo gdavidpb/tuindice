@@ -126,8 +126,8 @@ fun Context.isGoogleServicesAvailable(activity: Activity): Boolean {
     val status = googleApiAvailability.isGooglePlayServicesAvailable(this)
 
     return (status == ConnectionResult.SUCCESS).also { available ->
-        if (!available) {
-            if (googleApiAvailability.isUserResolvableError(status)) {
+        if (!available)
+            if (googleApiAvailability.isUserResolvableError(status))
                 googleApiAvailability.getErrorDialog(
                         activity,
                         status,
@@ -136,7 +136,7 @@ fun Context.isGoogleServicesAvailable(activity: Activity): Boolean {
                     setOnCancelListener { activity.finish() }
                     setOnDismissListener { activity.finish() }
                 }.show()
-            } else {
+            else
                 alert {
                     titleResource = R.string.alert_title_no_services_failure
                     messageResource = R.string.alert_message_no_services_failure
@@ -147,7 +147,5 @@ fun Context.isGoogleServicesAvailable(activity: Activity): Boolean {
                         activity.finish()
                     }
                 }.show()
-            }
-        }
     }
 }

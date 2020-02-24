@@ -23,7 +23,6 @@ import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.utils.TIME_OUT_CONNECTION
-import com.gdavidpb.tuindice.utils.extensions.getProperty
 import com.gdavidpb.tuindice.utils.extensions.noSensitiveData
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
@@ -41,14 +40,11 @@ import org.koin.experimental.builder.factoryBy
 import org.koin.experimental.builder.single
 import pl.droidsonroids.retrofit2.JspoonConverterFactory
 import retrofit2.Retrofit
-import java.security.KeyStore
 import java.security.SecureRandom
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
-import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
-import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509TrustManager
 
 val appModule = module {
@@ -95,52 +91,52 @@ val appModule = module {
         Crashlytics.getInstance()
     }
 
-    /* SSL */
+    /* SSL context */
 
     single {
-        TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+        SSLContext.getInstance("TLS").apply {
+            init(null, arrayOf(get<X509TrustManager>()), SecureRandom())
+        }
     }
 
+    /* X509 trust manager */
+
     single {
-        get<TrustManagerFactory>().trustManagers.first { trustManager ->
-            trustManager is X509TrustManager
+        object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
+                chain.checkValidity()
+            }
+
+            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
+                chain.checkValidity()
+            }
+
+            override fun getAcceptedIssuers(): Array<X509Certificate> {
+                return get()
+            }
+
+            private fun Array<X509Certificate>.checkValidity() {
+                forEach { certificate -> certificate.checkValidity() }
+            }
         } as X509TrustManager
     }
 
+    /* Certificates */
+
     single {
-        val sslContext = SSLContext.getInstance("TLS")
-
-        val inputStream = androidContext().resources.openRawResource(R.raw.certificates)
-        val certificateFactory = CertificateFactory.getInstance("X.509")
-        val certificates = certificateFactory.generateCertificates(inputStream)
-        val keyStore = KeyStore.getInstance(KeyStore.getDefaultType())
-
-        inputStream.close()
-
-        keyStore.load(null)
-
-        certificates.forEach { certificate ->
-            val alias = (certificate as X509Certificate).getProperty("CN") ?: "${UUID.randomUUID()}"
-
-            keyStore.setCertificateEntry(alias, certificate)
-        }
-
-        get<TrustManagerFactory>().also { trustManagerFactory ->
-            trustManagerFactory.init(keyStore)
-            sslContext.init(null, trustManagerFactory.trustManagers, SecureRandom())
-        }
-
-        sslContext
+        androidContext().resources.openRawResource(R.raw.certificates).use { inputStream ->
+            CertificateFactory.getInstance("X.509")
+                    .generateCertificates(inputStream)
+                    .map { certificate -> certificate as X509Certificate }
+        }.toTypedArray()
     }
 
     single {
-        val logger = if (BuildConfig.DEBUG) {
+        val logger = if (BuildConfig.DEBUG)
             HttpLoggingInterceptor.Logger.DEFAULT
-        } else {
-            object : HttpLoggingInterceptor.Logger {
-                override fun log(message: String) {
-                    Crashlytics.log(message.noSensitiveData())
-                }
+        else object : HttpLoggingInterceptor.Logger {
+            override fun log(message: String) {
+                Crashlytics.log(message.noSensitiveData())
             }
         }
 
