@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.utils.DigestConcat
 import com.gdavidpb.tuindice.utils.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
-import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_RETIRED
+import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_OK
 import java.nio.ByteBuffer
 import java.util.*
 
@@ -57,8 +57,8 @@ private fun Collection<QuarterItem>.internalComputeGradeSum(until: QuarterItem) 
         filter { it.data.startDate <= until.data.startDate && it.data.status != STATUS_QUARTER_RETIRED }
                 /* Get all subjects */
                 .flatMap { it.data.subjects }
-                /* No take retired subjects */
-                .filter { it.status != STATUS_SUBJECT_RETIRED }
+                /* Filter valid subjects */
+                .filter { it.status == STATUS_SUBJECT_OK && it.grade != 0 }
                 /* Group by code */
                 .groupBy { it.code }
                 .map { (_, subjects) ->

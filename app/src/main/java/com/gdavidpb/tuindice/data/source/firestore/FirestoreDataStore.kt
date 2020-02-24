@@ -165,26 +165,16 @@ open class FirestoreDataStore(
                 }
     }
 
-    override suspend fun updateSubjectGrade(uid: String, sid: String, grade: Int) {
+    override suspend fun updateSubject(uid: String, sid: String, grade: Int) {
         val subjectRef = firestore
                 .collection(COLLECTION_SUBJECT)
                 .document(sid)
 
-        val values = mapOf(
-                FIELD_SUBJECT_GRADE to grade
-        )
-
-        subjectRef.set(values, SetOptions.merge()).await()
-    }
-
-    override suspend fun updateSubject(uid: String, subject: Subject) {
-        val subjectRef = firestore
-                .collection(COLLECTION_SUBJECT)
-                .document(subject.id)
+        val status = if (grade != 0) STATUS_SUBJECT_OK else STATUS_SUBJECT_RETIRED
 
         val values = mapOf(
-                FIELD_SUBJECT_STATUS to subject.status,
-                FIELD_SUBJECT_GRADE to subject.grade
+                FIELD_SUBJECT_GRADE to grade,
+                FIELD_SUBJECT_STATUS to status
         )
 
         subjectRef.set(values, SetOptions.merge()).await()

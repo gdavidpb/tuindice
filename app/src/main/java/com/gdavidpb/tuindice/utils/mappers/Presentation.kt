@@ -25,8 +25,6 @@ fun Subject.toSubjectItem(context: Context) = SubjectItem(
         data = this
 )
 
-fun SubjectItem.toSubject() = data
-
 fun Quarter.toQuarterItem(context: Context): QuarterItem {
     val quarterColor = ResourcesManager.getColor(status.toQuarterColor(), context)
     val quarterFont = ResourcesManager.getFont("fonts/Code.ttf", context)

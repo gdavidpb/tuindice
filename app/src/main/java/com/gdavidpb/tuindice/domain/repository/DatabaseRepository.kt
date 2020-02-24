@@ -17,10 +17,8 @@ interface DatabaseRepository {
 
     suspend fun getSubject(uid: String, id: String): Subject
     suspend fun getSubjects(uid: String): List<Subject>
-    suspend fun updateSubject(uid: String, subject: Subject)
+    suspend fun updateSubject(uid: String, sid: String, grade: Int)
     suspend fun removeSubjects(uid: String, vararg ids: String)
-
-    suspend fun updateSubjectGrade(uid: String, sid: String, grade: Int)
 
     suspend fun addEvaluation(uid: String, evaluation: Evaluation): Evaluation
     suspend fun getEvaluations(uid: String): List<Evaluation>

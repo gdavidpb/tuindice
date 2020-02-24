@@ -78,7 +78,7 @@ open class SubjectFragment : Fragment() {
             R.id.menu_done -> {
                 val subjectGrade = evaluationAdapter.computeGradeSum().toGrade()
 
-                viewModel.updateSubjectGrade(sid = subjectId, grade = subjectGrade)
+                viewModel.updateSubject(sid = subjectId, grade = subjectGrade)
 
                 findNavController().navigateUp()
 

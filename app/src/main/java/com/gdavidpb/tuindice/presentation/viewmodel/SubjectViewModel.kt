@@ -13,7 +13,7 @@ import com.gdavidpb.tuindice.utils.extensions.execute
 class SubjectViewModel(
         private val getSubjectEvaluationsUseCase: GetSubjectEvaluationsUseCase,
         private val updateEvaluationUseCase: UpdateEvaluationUseCase,
-        private val updateSubjectGradeUseCase: UpdateSubjectGradeUseCase,
+        private val updateSubjectUseCase: UpdateSubjectUseCase,
         private val removeEvaluationUseCase: RemoveEvaluationUseCase,
         private val addEvaluationUseCase: AddEvaluationUseCase
 ) : ViewModel() {
@@ -23,8 +23,8 @@ class SubjectViewModel(
     val remove = LiveCompletable()
     val add = LiveResult<Evaluation>()
 
-    fun updateSubjectGrade(sid: String, grade: Int) =
-            execute(useCase = updateSubjectGradeUseCase, params = SubjectUpdateRequest(sid, grade), liveData = subjectUpdate)
+    fun updateSubject(sid: String, grade: Int) =
+            execute(useCase = updateSubjectUseCase, params = SubjectUpdateRequest(sid, grade), liveData = subjectUpdate)
 
     fun getSubjectEvaluations(sid: String) =
             execute(useCase = getSubjectEvaluationsUseCase, params = sid, liveData = evaluations)

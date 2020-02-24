@@ -53,15 +53,20 @@ fun DocumentSnapshot.toQuarter(subjects: List<Subject>) = Quarter(
         subjects = subjects.toMutableList()
 )
 
-fun DocumentSnapshot.toSubject() = Subject(
-        id = id,
-        qid = getString(FIELD_SUBJECT_QUARTER_ID) ?: "",
-        code = getString(FIELD_SUBJECT_CODE) ?: "",
-        name = getString(FIELD_SUBJECT_NAME) ?: "",
-        credits = getLong(FIELD_SUBJECT_CREDITS)?.toInt() ?: 0,
-        grade = getLong(FIELD_SUBJECT_GRADE)?.toInt() ?: MAX_SUBJECT_GRADE,
-        status = getLong(FIELD_SUBJECT_STATUS)?.toInt() ?: 0
-)
+fun DocumentSnapshot.toSubject(): Subject {
+    val grade = getLong(FIELD_SUBJECT_GRADE)?.toInt() ?: MAX_SUBJECT_GRADE
+    val status = getLong(FIELD_SUBJECT_STATUS)?.toInt() ?: STATUS_SUBJECT_OK
+
+    return Subject(
+            id = id,
+            qid = getString(FIELD_SUBJECT_QUARTER_ID) ?: "",
+            code = getString(FIELD_SUBJECT_CODE) ?: "",
+            name = getString(FIELD_SUBJECT_NAME) ?: "",
+            credits = getLong(FIELD_SUBJECT_CREDITS)?.toInt() ?: 0,
+            grade = grade,
+            status = if (grade != 0) status else STATUS_SUBJECT_RETIRED
+    )
+}
 
 fun DocumentSnapshot.toEvaluation() = Evaluation(
         id = id,

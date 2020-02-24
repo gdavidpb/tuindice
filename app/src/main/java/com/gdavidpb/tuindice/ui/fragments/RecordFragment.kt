@@ -19,7 +19,6 @@ import com.gdavidpb.tuindice.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_GUESS
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
-import com.gdavidpb.tuindice.utils.mappers.toSubject
 import kotlinx.android.synthetic.main.dialog_progress.view.*
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -191,7 +190,7 @@ open class RecordFragment : Fragment() {
 
         override fun onSubjectChanged(item: SubjectItem, dispatchChanges: Boolean) {
             if (dispatchChanges)
-                viewModel.updateSubject(subject = item.toSubject())
+                viewModel.updateSubject(sid = item.id, grade = item.data.grade)
         }
 
         override fun onQuarterChanged(item: QuarterItem, position: Int) {

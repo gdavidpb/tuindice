@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.StartUpAction
-import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.*
+import com.gdavidpb.tuindice.domain.usecase.request.SubjectUpdateRequest
 import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
 import com.gdavidpb.tuindice.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.utils.extensions.LiveResult
@@ -29,7 +29,7 @@ class MainViewModel(
     val lastScreen = LiveCompletable()
     val account = LiveResult<Account>()
     val quarters = LiveResult<List<Quarter>>()
-    val update = LiveCompletable()
+    val subjectUpdate = LiveCompletable()
     val enrollment = LiveResult<File>()
 
     fun signOut() =
@@ -50,8 +50,8 @@ class MainViewModel(
     fun getQuarters() =
             execute(useCase = getQuartersUseCase, params = Unit, liveData = quarters)
 
-    fun updateSubject(subject: Subject) =
-            execute(useCase = updateSubjectUseCase, params = subject, liveData = update)
+    fun updateSubject(sid: String, grade: Int) =
+            execute(useCase = updateSubjectUseCase, params = SubjectUpdateRequest(sid, grade), liveData = subjectUpdate)
 
     fun openEnrollmentProof() =
             execute(useCase = openEnrollmentProofUseCase, params = Unit, liveData = enrollment)

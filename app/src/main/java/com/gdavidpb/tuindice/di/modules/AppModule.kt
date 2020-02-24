@@ -249,7 +249,6 @@ val appModule = module {
     factory<UpdateEvaluationUseCase>()
     factory<RemoveEvaluationUseCase>()
     factory<AddEvaluationUseCase>()
-    factory<UpdateSubjectGradeUseCase>()
 
     /* Utils */
 
