@@ -40,7 +40,7 @@ open class FirestoreDataStore(
         return firestore
                 .collection(COLLECTION_USER)
                 .document(uid)
-                .get(Source.SERVER)
+                .get(Source.CACHE)
                 .await()
                 .toAccount()
     }
