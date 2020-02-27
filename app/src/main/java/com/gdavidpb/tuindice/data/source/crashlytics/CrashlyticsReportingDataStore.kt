@@ -19,4 +19,8 @@ open class CrashlyticsReportingDataStore : ReportingRepository {
     override fun setLong(key: String, value: Long) {
         Crashlytics.setLong(key, value)
     }
+
+    override fun setString(key: String, value: String) {
+        Crashlytics.setString(key, value)
+    }
 }

@@ -6,4 +6,5 @@ interface ReportingRepository {
 
     fun setInt(key: String, value: Int)
     fun setLong(key: String, value: Long)
+    fun setString(key: String, value: String)
 }

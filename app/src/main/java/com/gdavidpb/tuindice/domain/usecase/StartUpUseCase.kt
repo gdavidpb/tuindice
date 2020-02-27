@@ -57,6 +57,8 @@ open class StartUpUseCase(
 
                 val yearRef = settingsRepository.getCredentialYear()
 
+                reportingRepository.setIdentifier(activeAuth.uid)
+
                 reportingRepository.setInt(KEY_REF_DATE, yearRef)
                 reportingRepository.setLong(KEY_NOW_DATE, Date().time)
 

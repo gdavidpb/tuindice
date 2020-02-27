@@ -71,8 +71,6 @@ open class SignInUseCase(
     }
 
     private suspend fun storeAccount(auth: Auth, request: AuthRequest, response: AuthResponse) {
-        reportingRepository.setIdentifier(auth.uid)
-
         val authData = DstAuth(
                 usbId = request.usbId,
                 email = auth.email,

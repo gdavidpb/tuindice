@@ -19,4 +19,8 @@ open class DebugReportingDataStore : ReportingRepository {
     override fun setLong(key: String, value: Long) {
         Log.d("setLong", "$key = $value")
     }
+
+    override fun setString(key: String, value: String) {
+        Log.d("v", "$key = $value")
+    }
 }

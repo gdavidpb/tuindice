@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase.coroutines
 
+import com.gdavidpb.tuindice.utils.KEY_USE_CASE
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +25,10 @@ abstract class CompletableUseCase<Q>(
             }.onSuccess {
                 liveData.postComplete()
             }.onFailure { throwable ->
-                if (!ignoredException(throwable)) reportingRepository.logException(throwable)
+                if (!ignoredException(throwable)) {
+                    reportingRepository.setString(KEY_USE_CASE, "${this@CompletableUseCase::class.simpleName}")
+                    reportingRepository.logException(throwable)
+                }
 
                 when (throwable) {
                     is CancellationException -> liveData.postCancel()

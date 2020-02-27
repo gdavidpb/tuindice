@@ -84,6 +84,7 @@ const val EXTRA_URL = "EXTRA_URL"
 /* Reporting keys */
 const val KEY_REF_DATE = "KEY_REF_DATE"
 const val KEY_NOW_DATE = "KEY_NOW_DATE"
+const val KEY_USE_CASE = "KEY_USE_CASE"
 
 /* Navigation args */
 
