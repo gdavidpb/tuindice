@@ -54,7 +54,6 @@ const val STATUS_QUARTER_RETIRED = 3
 const val STATUS_SUBJECT_OK = 0
 const val STATUS_SUBJECT_RETIRED = 1
 const val STATUS_SUBJECT_NO_EFFECT = 2
-const val STATUS_SUBJECT_GAVE_UP = 3
 
 /* Default locale */
 val DEFAULT_LOCALE: Locale = Locale("es", "VE")
@@ -81,8 +80,6 @@ const val EXTRA_FIRST_START_UP = "EXTRA_FIRST_START_UP"
 
 const val EXTRA_TITLE = "EXTRA_TITLE"
 const val EXTRA_URL = "EXTRA_URL"
-
-const val EXTRA_PARCELABLE = "EXTRA_PARCELABLE"
 
 /* Reporting keys */
 const val KEY_REF_DATE = "KEY_REF_DATE"

@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.utils.mappers.capitalize
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.math.floor
 
 fun Date.formatLastUpdate(): String {
     val now = Date()
@@ -28,8 +27,6 @@ fun Long.toCountdown(): String {
 
     return "%02d:%02d".format(min, sec)
 }
-
-fun Double.toGrade() = floor(this * 100000) / 100000
 
 fun Double.formatGrade() = "%.4f".format(this)
 

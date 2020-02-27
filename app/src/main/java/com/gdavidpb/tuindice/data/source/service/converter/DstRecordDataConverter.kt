@@ -10,9 +10,8 @@ import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.utils.extensions.component6
 import com.gdavidpb.tuindice.utils.extensions.component7
 import com.gdavidpb.tuindice.utils.extensions.component8
-import com.gdavidpb.tuindice.utils.extensions.toGrade
-import com.gdavidpb.tuindice.utils.mappers.toStartEndDate
 import com.gdavidpb.tuindice.utils.mappers.formatSubjectName
+import com.gdavidpb.tuindice.utils.mappers.toStartEndDate
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.koin.core.KoinComponent
@@ -92,7 +91,7 @@ open class DstRecordDataConverter : ElementConverter<DstRecord>, KoinComponent {
         val grade = quarters
                 .maxBy { it.startDate }
                 ?.gradeSum
-                ?.toGrade() ?: 0.0
+                ?: 0.0
 
         val stats = DstRecordStats(
                 grade,

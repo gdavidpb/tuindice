@@ -9,7 +9,10 @@ import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.STATUS_QUARTER_CURRENT
+import com.gdavidpb.tuindice.utils.STATUS_QUARTER_GUESS
+import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_OK
+import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_RETIRED
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
 import com.gdavidpb.tuindice.utils.mappers.toSubjectItem
@@ -68,7 +71,7 @@ open class QuarterViewHolder(
     }
 
     private fun View.setEditable(quarterItem: QuarterItem, subjectItem: SubjectItem, hasGradeBar: Boolean) {
-        val isEditable = hasGradeBar && subjectItem.data.status != STATUS_SUBJECT_GAVE_UP
+        val isEditable = hasGradeBar && subjectItem.data.status != STATUS_SUBJECT_RETIRED
 
         if (isEditable) {
             tViewSubjectCode.drawables(start = R.drawable.ic_open_in)
@@ -90,18 +93,19 @@ open class QuarterViewHolder(
             sBarGrade.visible()
 
             sBarGrade.onSeekBarChange {
-                onProgressChanged { progress, fromUser ->
+                onProgressChanged { updatedGrade, fromUser ->
                     if (fromUser) {
                         val subject = subjectItem.data
 
+                        val updatedStatus = if (updatedGrade == 0)
+                            STATUS_SUBJECT_RETIRED
+                        else
+                            STATUS_SUBJECT_OK
+
                         /* Create a updated subject */
                         val updatedSubject = subject.copy(
-                                grade = progress,
-                                status = when {
-                                    progress == 0 && subject.status != STATUS_SUBJECT_GAVE_UP -> STATUS_SUBJECT_RETIRED
-                                    subject.status == STATUS_SUBJECT_RETIRED -> STATUS_SUBJECT_OK
-                                    else -> subject.status
-                                }
+                                grade = updatedGrade,
+                                status = updatedStatus
                         )
 
                         /* Set updated subject to list */

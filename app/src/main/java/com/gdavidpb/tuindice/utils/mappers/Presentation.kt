@@ -124,14 +124,13 @@ fun EvaluationType.formatEvaluationTypeName(context: Context) = context.getStrin
 
 fun Int.formatSubjectStatusDescription() = when (this) {
     STATUS_SUBJECT_RETIRED -> "Retirada"
-    STATUS_SUBJECT_GAVE_UP -> "Retirada"
     STATUS_SUBJECT_NO_EFFECT -> "Sin efecto"
     else -> ""
 }
 
 fun String.formatSubjectStatusValue() = when (this) {
     "Retirada" -> STATUS_SUBJECT_RETIRED
-    "RETIRADA" -> STATUS_SUBJECT_GAVE_UP
+    "RETIRADA" -> STATUS_SUBJECT_RETIRED
     "Sin Efecto" -> STATUS_SUBJECT_NO_EFFECT
     else -> STATUS_SUBJECT_OK
 }

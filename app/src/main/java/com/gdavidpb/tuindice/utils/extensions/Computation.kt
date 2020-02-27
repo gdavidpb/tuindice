@@ -9,9 +9,10 @@ import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.utils.DigestConcat
 import com.gdavidpb.tuindice.utils.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
-import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_OK
+import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_RETIRED
 import java.nio.ByteBuffer
 import java.util.*
+import kotlin.math.floor
 
 fun Int.toGrade() = when (this) {
     in 0 until 30 -> 1
@@ -25,7 +26,7 @@ fun QuarterItem.computeGrade() = data.subjects.computeGrade()
 
 fun QuarterItem.computeCredits() = data.subjects.computeCredits()
 
-fun Subject.isApproved() = grade >= 3
+fun Collection<Subject>.containsNoEffect() = size > 1 && first().grade >= 3
 
 fun Collection<Subject>.computeGrade(): Double {
     val creditsSum = computeCredits().toDouble()
@@ -34,7 +35,9 @@ fun Collection<Subject>.computeGrade(): Double {
         it.grade * it.credits
     }.toDouble()
 
-    return if (creditsSum != 0.0) weightedSum / creditsSum else 0.0
+    val grade = if (creditsSum != 0.0) weightedSum / creditsSum else 0.0
+
+    return floor(grade * 10000.0) / 10000.0
 }
 
 fun Collection<Subject>.computeCredits() = sumBy {
@@ -58,17 +61,13 @@ private fun Collection<QuarterItem>.internalComputeGradeSum(until: QuarterItem) 
                 /* Get all subjects */
                 .flatMap { it.data.subjects }
                 /* Filter valid subjects */
-                .filter { it.status == STATUS_SUBJECT_OK && it.grade != 0 }
+                .filter { it.status != STATUS_SUBJECT_RETIRED }
                 /* Group by code */
                 .groupBy { it.code }
                 .map { (_, subjects) ->
-                    /* If you've seen this subject more than once */
-                    if (subjects.size > 1)
-                        subjects.toMutableList().also {
-                            /* if last seen subject were approved, remove previous */
-                            if (it.first().isApproved())
-                                it.removeAt(1)
-                        }
+                    /* If you've seen this subject more than once and now you approved this */
+                    if (subjects.containsNoEffect())
+                        subjects.filterIndexed { index, _ -> index != 1 }
                     else
                         subjects
                 }.flatten()
