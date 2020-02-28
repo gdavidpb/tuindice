@@ -26,7 +26,7 @@ open class QuarterViewHolder(
     override fun bindView(item: QuarterItem) {
         with(itemView) {
             /* Quarter has not grade sum */
-            if (item.data.gradeSum == 0.0) {
+            if (item.data.gradeSum == 0.0 && item.subjectsItems.isNotEmpty()) {
                 /* Compute quarter grade sum */
                 computeGradeSum(quarterItem = item, context = context)
 
