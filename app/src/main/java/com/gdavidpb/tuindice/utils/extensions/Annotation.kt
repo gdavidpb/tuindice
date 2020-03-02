@@ -6,5 +6,5 @@ import kotlin.reflect.full.findAnnotation
 
 fun BaseUseCase<*, *>.ignoredException(throwable: Throwable) =
         this::class.findAnnotation<IgnoredExceptions>()
-                ?.run { exceptions.contains(throwable::class) }
+                ?.run { exceptions.any { it.isInstance(throwable) } }
                 ?: false

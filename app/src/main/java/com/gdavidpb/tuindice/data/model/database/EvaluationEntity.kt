@@ -7,8 +7,8 @@ data class EvaluationEntity(
         val subjectId: String,
         val subjectCode: String,
         val type: Int,
-        val grade: Int,
-        val maxGrade: Int,
+        val grade: Double,
+        val maxGrade: Double,
         val date: Timestamp,
         val notes: String,
         val isDone: Boolean

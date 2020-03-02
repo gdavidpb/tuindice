@@ -44,6 +44,7 @@ const val PLAY_SERVICES_RESOLUTION_REQUEST = 2404
 
 /* Values */
 const val MAX_SUBJECT_GRADE = 5
+const val MAX_EVALUATION_GRADE = 100.0
 
 /* Status */
 const val STATUS_QUARTER_CURRENT = 0
@@ -94,3 +95,10 @@ const val FLAG_RESET = 1000
 const val FLAG_VERIFY = 1001
 
 const val REF_BASE = 2000
+
+/* Decimals */
+
+const val DECIMALS_GRADE_SUBJECT = 2
+const val DECIMALS_GRADE_QUARTER = 4
+
+const val DECIMALS_DIV = 0.25

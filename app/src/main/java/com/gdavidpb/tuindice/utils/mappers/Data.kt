@@ -74,8 +74,8 @@ fun DocumentSnapshot.toEvaluation() = Evaluation(
         subjectCode = getString(FIELD_EVALUATION_SUBJECT_CODE) ?: "",
         type = EvaluationType.values()[(getLong(FIELD_EVALUATION_TYPE)?.toInt()
                 ?: EvaluationType.OTHER.ordinal)],
-        grade = getLong(FIELD_EVALUATION_GRADE)?.toInt() ?: 0,
-        maxGrade = getLong(FIELD_EVALUATION_MAX_GRADE)?.toInt() ?: 0,
+        grade = getDouble(FIELD_EVALUATION_GRADE) ?: 0.0,
+        maxGrade = getDouble(FIELD_EVALUATION_MAX_GRADE) ?: 0.0,
         date = getDate(FIELD_EVALUATION_DATE) ?: Date(),
         notes = getString(FIELD_EVALUATION_NOTES) ?: "",
         isDone = getBoolean(FIELD_EVALUATION_DONE) ?: false

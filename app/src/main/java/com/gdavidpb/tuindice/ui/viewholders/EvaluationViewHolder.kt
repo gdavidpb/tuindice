@@ -24,8 +24,8 @@ open class EvaluationViewHolder(
 
             cBoxEvaluation.isChecked = item.isDone
 
-            sBarGrade.max = item.data.maxGrade
-            sBarGrade.progress = item.data.grade
+            sBarGrade.max = item.data.maxGrade.toProgress()
+            sBarGrade.progress = item.data.grade.toProgress()
 
             tViewEvaluationType.text = item.typeText
             tViewEvaluationNotes.text = item.notesText
@@ -64,7 +64,7 @@ open class EvaluationViewHolder(
             sBarGrade.onSeekBarChange {
                 onProgressChanged { progress, fromUser ->
                     if (fromUser) {
-                        val updatedEvaluation = item.data.copy(grade = progress)
+                        val updatedEvaluation = item.data.copy(grade = progress.toGrade())
                         val updatedItem = updatedEvaluation.toEvaluationItem(context)
 
                         manager.onEvaluationChanged(updatedItem, adapterPosition, false)

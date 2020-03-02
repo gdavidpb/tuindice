@@ -8,7 +8,7 @@ data class NewEvaluation(
         val sid: String,
         val subjectCode: String,
         val type: EvaluationType,
-        val maxGrade: Int,
+        val maxGrade: Double,
         val date: Date,
         val notes: String
 ) {

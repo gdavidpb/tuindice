@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.utils.CircleTransform
+import com.gdavidpb.tuindice.utils.DECIMALS_GRADE_QUARTER
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_summary.*
@@ -82,7 +83,7 @@ open class SummaryFragment : Fragment() {
         if (account.grade > 0.0) {
             groupGrade.visible()
 
-            tViewGrade.animateGrade(account.grade)
+            tViewGrade.animateGrade(value = account.grade, decimals = DECIMALS_GRADE_QUARTER)
         } else
             groupGrade.gone()
 

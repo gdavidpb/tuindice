@@ -71,7 +71,7 @@ open class EvaluationAdapter(
         super.swapItems(new = items.sortedWith(adapterSorter))
     }
 
-    fun computeGradeSum(): Int {
-        return items.sumBy { evaluation -> evaluation.data.grade }
+    fun computeGradeSum(): Double {
+        return items.sumByDouble { evaluation -> evaluation.data.grade }
     }
 }

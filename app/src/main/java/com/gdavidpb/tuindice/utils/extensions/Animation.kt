@@ -59,7 +59,7 @@ fun TextView.animateGrade(value: Int) {
     })
 }
 
-fun TextView.animateGrade(value: Double) {
+fun TextView.animateGrade(value: Double, decimals: Int) {
     val from = "$text".toFloatOrNull() ?: 0f
 
     if (from == value.toFloat() && text.isNotEmpty()) return
@@ -68,9 +68,9 @@ fun TextView.animateGrade(value: Double) {
         duration = 750
         interpolator = DecelerateInterpolator()
     }, {
-        text = (animatedValue as Float).toDouble().formatGrade()
+        text = (animatedValue as Float).toDouble().formatGrade(decimals)
     }, {
-        text = value.formatGrade()
+        text = value.formatGrade(decimals)
     })
 }
 

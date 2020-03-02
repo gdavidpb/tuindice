@@ -13,6 +13,8 @@ import com.gdavidpb.tuindice.domain.model.EvaluationType
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.presentation.model.NewEvaluation
 import com.gdavidpb.tuindice.ui.customs.EvaluationDatePicker
+import com.gdavidpb.tuindice.utils.DECIMALS_DIV
+import com.gdavidpb.tuindice.utils.MAX_EVALUATION_GRADE
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.dialog_evaluation_content.view.*
@@ -20,6 +22,8 @@ import kotlinx.android.synthetic.main.dialog_evaluation_header.view.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 class EvaluationDialogBuilder(context: Context) : AlertDialog.Builder(context), KoinComponent {
 
@@ -98,13 +102,15 @@ class EvaluationDialogBuilder(context: Context) : AlertDialog.Builder(context), 
     private fun View.initContentView(evaluation: Evaluation?) {
         datePicker = (tViewDate as TextView).wrapEvaluationDatePicker()
 
+        sBarMaxGrade.max = MAX_EVALUATION_GRADE.toProgress()
+
         if (evaluation != null) {
             val grade = evaluation.grade
             val notes = evaluation.notes
             val date = evaluation.date
             val evaluationType = evaluation.type.ordinal
 
-            sBarMaxGrade.progress = grade
+            sBarMaxGrade.progress = grade.toProgress()
             sEvaluationDate.isChecked = date.time != 0L
             cGroupEvaluation.checkedChipIndex = evaluationType
 
@@ -121,7 +127,7 @@ class EvaluationDialogBuilder(context: Context) : AlertDialog.Builder(context), 
 
             setPositiveButton(R.string.edit) { _, _ -> collect() }
         } else {
-            updateGradeValue(value = 0)
+            updateGradeValue(value = 0.0)
 
             setPositiveButton(R.string.add) { _, _ -> collect() }
         }
@@ -144,10 +150,29 @@ class EvaluationDialogBuilder(context: Context) : AlertDialog.Builder(context), 
         sBarMaxGrade.onSeekBarChange {
             onProgressChanged { progress, fromUser ->
                 if (fromUser) {
-                    updateGradeValue(value = progress)
+                    updateGradeValue(value = progress.toGrade())
 
                     validateParams()
                 }
+            }
+        }
+
+        arrayOf(btnGradeUp, btnGradeDown).forEach { button ->
+            button.setOnClickListener {
+                val step = when (button) {
+                    btnGradeUp -> DECIMALS_DIV
+                    btnGradeDown -> -DECIMALS_DIV
+                    else -> 0.0
+                }
+
+                val oldGrade = sBarMaxGrade.progress.toGrade()
+                val newGrade = max(min(oldGrade + step, MAX_EVALUATION_GRADE), 0.0)
+
+                sBarMaxGrade.progress = newGrade.toProgress()
+
+                updateGradeValue(newGrade)
+
+                validateParams()
             }
         }
 
@@ -179,7 +204,7 @@ class EvaluationDialogBuilder(context: Context) : AlertDialog.Builder(context), 
         }
     }
 
-    private fun View.updateGradeValue(value: Int) {
+    private fun View.updateGradeValue(value: Double) {
         tViewLabelGradeValue.text = context.getString(R.string.label_evaluation_grade_value, value)
     }
 
@@ -192,7 +217,7 @@ class EvaluationDialogBuilder(context: Context) : AlertDialog.Builder(context), 
                     EvaluationType.values()[index]
                 }
 
-        val maxGrade = sBarMaxGrade.progress
+        val maxGrade = sBarMaxGrade.progress.toGrade()
 
         val evaluationId = evaluation?.id ?: ""
 

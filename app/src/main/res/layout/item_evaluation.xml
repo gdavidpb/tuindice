@@ -61,7 +61,7 @@
             android:textColor="@color/color_secondary_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="28 / 35" />
+            tools:text="28.50 / 35" />
 
         <TextView
             android:id="@+id/tViewEvaluationNotes"
@@ -84,7 +84,7 @@
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/dp_8"
             android:paddingBottom="@dimen/dp_8"
-            android:max="35"
+            tools:max="35"
             app:layout_constraintTop_toBottomOf="@id/tViewEvaluationNotes"
             tools:progress="28" />
 

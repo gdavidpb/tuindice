@@ -250,7 +250,7 @@
     <string name="text_100">/ 100</string>
     <string name="content_equal">Igual a</string>
 
-    <string name="evaluation_grade_max">%1$d / %2$d</string>
+    <string name="evaluation_grade_max">%1$.2f / %2$.2f</string>
 
     <string name="grade_accumulated">Nota acumulada</string>
     <string name="grade_final">Nota final</string>
@@ -285,7 +285,7 @@
     <string name="label_evaluation_select_date">Selecciona una fecha</string>
     <string name="label_evaluation_no_date">Evaluación continua</string>
 
-    <string name="label_evaluation_grade_value">%1$d pts</string>
+    <string name="label_evaluation_grade_value">%1$.2f pts</string>
     <string name="label_evaluation_subject_header">%1$s ─ %2$s</string>
 
     <!-- BrowserActivity -->

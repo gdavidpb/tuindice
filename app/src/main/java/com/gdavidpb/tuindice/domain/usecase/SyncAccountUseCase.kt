@@ -41,9 +41,6 @@ open class SyncAccountUseCase(
         if (activeAccount.isUpdated())
             return SyncResponse(isDataUpdated = false, hasDataInCache = hasDataInCache)
 
-        /* Sync account */
-        databaseRepository.syncAccount(uid = activeUId)
-
         /* Collected data */
         val collectedData = mutableListOf<DstData>()
 
@@ -62,8 +59,13 @@ open class SyncAccountUseCase(
 
         /* Should responses more than one service */
         return (collectedData.size > 1).let { requireUpdate ->
-            if (requireUpdate)
+            if (requireUpdate) {
+                /* Update account */
                 databaseRepository.updateData(uid = activeUId, data = collectedData)
+
+                /* Sync account */
+                databaseRepository.syncAccount(uid = activeUId)
+            }
 
             SyncResponse(isDataUpdated = requireUpdate, hasDataInCache = true)
         }

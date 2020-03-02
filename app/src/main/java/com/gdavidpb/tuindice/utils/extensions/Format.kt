@@ -28,7 +28,7 @@ fun Long.toCountdown(): String {
     return "%02d:%02d".format(min, sec)
 }
 
-fun Double.formatGrade() = "%.4f".format(this)
+fun Double.formatGrade(decimals: Int) = "%.${decimals}f".format(this)
 
 fun Int.formatGrade() = "%d".format(this)
 

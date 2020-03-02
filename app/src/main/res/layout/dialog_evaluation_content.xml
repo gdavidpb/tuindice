@@ -53,16 +53,47 @@
                 app:layout_constraintBottom_toBottomOf="@id/tViewLabelGrade"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/tViewLabelGrade"
-                tools:text="89 pts" />
+                tools:text="27.50 pts" />
 
-            <androidx.appcompat.widget.AppCompatSeekBar
+            <ImageButton
+                android:id="@+id/btnGradeDown"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="@dimen/dp_48"
+                android:layout_height="0dp"
+                android:src="@drawable/ic_left"
+                android:tint="@drawable/sl_button_arrow"
+                app:layout_constraintBottom_toBottomOf="@id/sBarMaxGrade"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tViewLabelGrade"
+                app:layout_constraintTop_toTopOf="@id/sBarMaxGrade"
+                tools:ignore="ContentDescription" />
+
+            <ImageButton
+                android:id="@+id/btnGradeUp"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="@dimen/dp_48"
+                android:layout_height="0dp"
+                android:src="@drawable/ic_right"
+                android:tint="@drawable/sl_button_arrow"
+                app:layout_constraintBottom_toBottomOf="@id/sBarMaxGrade"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tViewLabelGrade"
+                app:layout_constraintTop_toTopOf="@id/sBarMaxGrade"
+                tools:ignore="ContentDescription" />
+
+            <SeekBar
                 android:id="@+id/sBarMaxGrade"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_16"
-                android:max="100"
+                android:paddingTop="@dimen/dp_16"
+                android:paddingBottom="@dimen/dp_16"
+                android:progress="0"
+                app:layout_constraintEnd_toStartOf="@id/btnGradeUp"
+                app:layout_constraintStart_toEndOf="@id/btnGradeDown"
+                tools:max="200"
                 app:layout_constraintTop_toBottomOf="@id/tViewLabelGrade"
-                tools:progress="89" />
+                tools:progress="55" />
 
             <TextView
                 android:id="@+id/tViewLabelDate"

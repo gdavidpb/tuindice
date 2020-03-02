@@ -13,8 +13,9 @@ import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_RETIRED
 import java.nio.ByteBuffer
 import java.util.*
 import kotlin.math.floor
+import kotlin.math.roundToInt
 
-fun Int.toGrade() = when (this) {
+fun Double.toGrade() = when (this.roundToInt()) {
     in 0 until 30 -> 1
     in 30 until 50 -> 2
     in 50 until 70 -> 3

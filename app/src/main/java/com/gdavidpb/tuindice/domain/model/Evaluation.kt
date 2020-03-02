@@ -10,8 +10,8 @@ data class Evaluation(
         val sid: String,
         val subjectCode: String,
         val type: EvaluationType,
-        val grade: Int,
-        val maxGrade: Int,
+        val grade: Double,
+        val maxGrade: Double,
         val date: Date,
         val notes: String,
         val isDone: Boolean

@@ -8,7 +8,7 @@ data class EvaluationItem(
         val typeText: CharSequence,
         val notesText: CharSequence,
         val gradeText: CharSequence,
-        val grade: Int,
+        val grade: Double,
         val dateText: CharSequence,
         val date: Date,
         val color: Int,

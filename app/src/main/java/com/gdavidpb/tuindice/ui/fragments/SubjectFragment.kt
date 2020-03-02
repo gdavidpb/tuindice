@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
 import com.gdavidpb.tuindice.ui.dialogs.EvaluationDialogBuilder
 import com.gdavidpb.tuindice.utils.ARG_SUBJECT_ID
+import com.gdavidpb.tuindice.utils.DECIMALS_GRADE_SUBJECT
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluation
 import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
@@ -96,10 +97,10 @@ open class SubjectFragment : Fragment() {
         val gradeSum = evaluationAdapter.computeGradeSum()
 
         if (animate) {
-            tViewTotalGrade.animateGrade(value = gradeSum)
+            tViewTotalGrade.animateGrade(value = gradeSum, decimals = DECIMALS_GRADE_SUBJECT)
             tViewGrade.animateGrade(value = gradeSum.toGrade())
         } else {
-            tViewTotalGrade.text = gradeSum.formatGrade()
+            tViewTotalGrade.text = gradeSum.formatGrade(DECIMALS_GRADE_SUBJECT)
             tViewGrade.text = gradeSum.toGrade().formatGrade()
         }
     }
