@@ -1,5 +1,5 @@
 package com.gdavidpb.tuindice.domain.repository
 
 interface IdentifierRepository {
-    suspend fun getIdentifier(): String
+    suspend fun getIdentifier(): String?
 }

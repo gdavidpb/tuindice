@@ -7,7 +7,9 @@ import com.google.firebase.iid.FirebaseInstanceId
 open class TokenDataStore(
         private val firebaseInstanceId: FirebaseInstanceId
 ) : IdentifierRepository {
-    override suspend fun getIdentifier(): String {
-        return firebaseInstanceId.instanceId.await().token
+    override suspend fun getIdentifier(): String? {
+        return runCatching {
+            firebaseInstanceId.instanceId.await().token
+        }.getOrNull()
     }
 }
