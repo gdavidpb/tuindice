@@ -20,8 +20,12 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+# Use cases rules
+-keepnames class * extends com.gdavidpb.tuindice.domain.usecase.coroutines.BaseUseCase { *; }
+
 # Koin rules
--keepnames class android.arch.lifecycle.ViewModel -keepclassmembers public class * extends android.arch.lifecycle.ViewModel { public <init>(...); }
+-keepnames class android.arch.lifecycle.ViewModel
+-keepclassmembers public class * extends android.arch.lifecycle.ViewModel { public <init>(...); }
 -keepclassmembers class com.lebao.app.domain.** { public <init>(...); }
 -keepclassmembers class * { public <init>(...); }
 
