@@ -221,11 +221,11 @@
     <string name="about_header_libs">Detrás de TuIndice</string>
 
     <string name="about_kotlin">
-        Kotlin 1.3.61\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
+        Kotlin 1.3.70\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
     </string>
 
     <string name="about_firebase">
-        Firebase 17.2.2\nQuickly develop high-quality apps and grow your business\n© 2014 Google\nhttps://firebase.com/
+        Firebase 17.2.3\nQuickly develop high-quality apps and grow your business\n© 2014 Google\nhttps://firebase.com/
     </string>
 
     <string name="about_koin">
