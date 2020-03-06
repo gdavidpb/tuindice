@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
+import com.gdavidpb.tuindice.domain.model.exception.EnrollmentNotFoundException
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
@@ -17,7 +18,8 @@ import java.io.IOException
         CancellationException::class,
         IOException::class,
         HttpException::class,
-        AuthenticationException::class
+        AuthenticationException::class,
+        EnrollmentNotFoundException::class
 )
 open class OpenEnrollmentProofUseCase(
         private val authRepository: AuthRepository,
@@ -29,11 +31,11 @@ open class OpenEnrollmentProofUseCase(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
 ) {
-    override suspend fun executeOnBackground(params: Unit): File? {
+    override suspend fun executeOnBackground(params: Unit): File {
         val activeUId = authRepository.getActiveAuth().uid
 
         val currentQuarter = databaseRepository.getCurrentQuarter(uid = activeUId)
-                ?: return null
+                ?: throw EnrollmentNotFoundException()
 
         /* Try to get current quarter enrollment proof file */
         val enrollmentTitle = with(currentQuarter) {
@@ -55,13 +57,16 @@ open class OpenEnrollmentProofUseCase(
                     serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH
             )
 
-            val enrollmentAuthResponse = dstRepository.auth(enrollmentAuthRequest) ?: return null
+            val enrollmentAuthResponse = dstRepository.auth(enrollmentAuthRequest)
+                    ?: throw EnrollmentNotFoundException()
 
-            if (!enrollmentAuthResponse.isSuccessful) return null
+            if (!enrollmentAuthResponse.isSuccessful)
+                throw EnrollmentNotFoundException()
 
             /* Get enrollment proof file from dst service */
 
-            val enrollmentData = dstRepository.getEnrollmentProof()?.byteStream() ?: return null
+            val enrollmentData = dstRepository.getEnrollmentProof()?.byteStream()
+                    ?: throw EnrollmentNotFoundException()
 
             /* Save file in local storage */
 
