@@ -101,7 +101,7 @@ val appModule = module {
 
     /* X509 trust manager */
 
-    single {
+    single<X509TrustManager> {
         object : X509TrustManager {
             override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
                 chain.checkValidity()
@@ -118,7 +118,7 @@ val appModule = module {
             private fun Array<X509Certificate>.checkValidity() {
                 forEach { certificate -> certificate.checkValidity() }
             }
-        } as X509TrustManager
+        }
     }
 
     /* Certificates */
