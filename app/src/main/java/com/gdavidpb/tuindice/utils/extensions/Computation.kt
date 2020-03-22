@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.utils.DigestConcat
-import com.gdavidpb.tuindice.utils.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_RETIRED
 import java.nio.ByteBuffer
@@ -20,7 +19,8 @@ fun Double.toGrade() = when (this.roundToInt()) {
     in 30 until 50 -> 2
     in 50 until 70 -> 3
     in 70 until 85 -> 4
-    else -> MAX_SUBJECT_GRADE
+    in 85 until Integer.MAX_VALUE -> 5
+    else -> 1
 }
 
 fun QuarterItem.computeGrade() = data.subjects.computeGrade()
