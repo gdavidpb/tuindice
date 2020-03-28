@@ -309,9 +309,9 @@ open class FirestoreDataStore(
                     .collection(COLLECTION_SUBJECT)
                     .document(subjectId)
 
-            val noGrade = subject.toNoGrade()
+            val currentSubject = subject.toCurrentSubjectEntity()
 
-            set(subjectRef, noGrade, SetOptions.merge())
+            set(subjectRef, currentSubject, SetOptions.merge())
         }
     }
 }

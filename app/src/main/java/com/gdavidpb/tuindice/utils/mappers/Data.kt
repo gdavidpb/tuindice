@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.utils.mappers
 import com.gdavidpb.tuindice.data.model.database.EvaluationEntity
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
-import com.gdavidpb.tuindice.data.model.database.SubjectNoGradeEntity
+import com.gdavidpb.tuindice.data.model.database.CurrentSubjectEntity
 import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.service.DstQuarter
@@ -114,13 +114,12 @@ fun ScheduleSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
         status = status.formatSubjectStatusValue()
 )
 
-fun SubjectEntity.toNoGrade() = SubjectNoGradeEntity(
+fun SubjectEntity.toCurrentSubjectEntity() = CurrentSubjectEntity(
         userId = userId,
         quarterId = quarterId,
         code = code,
         name = name,
-        credits = credits,
-        status = status
+        credits = credits
 )
 
 fun DstQuarter.toQuarterEntity(uid: String) = QuarterEntity(
