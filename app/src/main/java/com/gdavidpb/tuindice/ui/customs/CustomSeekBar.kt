@@ -14,19 +14,22 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
     : AppCompatSeekBar(context, attrs) {
 
     companion object {
-        private var defaultColor = Color.WHITE
+        private const val backgroundColor = Color.WHITE
+
+        private var onDrawLocked = false
 
         private lateinit var paint: Paint
     }
 
     override fun onDraw(canvas: Canvas) {
-        /* Trick to extract seek bar background color */
-        if (defaultColor == Color.WHITE) {
+        if (!onDrawLocked) {
+            onDrawLocked = true
+
             val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             val canvasHook = Canvas(bitmapHook)
             val progressHook = progress
 
-            canvasHook.drawColor(Color.WHITE)
+            canvasHook.drawColor(backgroundColor)
 
             progress = 0
 
@@ -36,12 +39,15 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
 
             val x = (width - paddingRight - resources.getDimension(R.dimen.size_tick).toInt() - 1)
 
-            defaultColor = (0 until height)
+            paint = (0 until height)
                     .map { y -> bitmapHook.getPixel(x, y) }
                     .distinct()
-                    .maxBy { target -> target distanceTo defaultColor } ?: defaultColor
-
-            paint = Paint().apply { color = defaultColor }
+                    .maxBy { target -> target distanceTo backgroundColor }
+                    .let { selectedColor ->
+                        Paint().apply {
+                            color = selectedColor ?: backgroundColor
+                        }
+                    }
         }
 
         super.onDraw(canvas)

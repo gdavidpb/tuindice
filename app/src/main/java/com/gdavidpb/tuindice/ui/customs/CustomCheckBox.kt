@@ -15,7 +15,9 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
     : AppCompatCheckBox(context, attrs) {
 
     companion object {
-        private var defaultColor = Color.WHITE
+        private const val backgroundColor = Color.WHITE
+
+        private var onDrawLocker = false
 
         private lateinit var checkedColor: ColorStateList
         private lateinit var uncheckedColor: ColorStateList
@@ -23,23 +25,32 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
     }
 
     override fun onDraw(canvas: Canvas) {
-        if (defaultColor == Color.WHITE) {
+        if (!onDrawLocker) {
+            onDrawLocker = true
+
             val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             val canvasHook = Canvas(bitmapHook)
+            val isCheckedHook = isChecked
 
-            canvasHook.drawColor(Color.WHITE)
+            canvasHook.drawColor(backgroundColor)
+
+            isChecked = false
 
             super.onDraw(canvasHook)
 
+            isChecked = isCheckedHook
+
             val x = width / 2
 
-            defaultColor = (0 until height)
+            uncheckedColor = (0 until height)
                     .map { y -> bitmapHook.getPixel(x, y) }
                     .distinct()
-                    .maxBy { target -> target distanceTo defaultColor } ?: defaultColor
+                    .maxBy { target -> target distanceTo backgroundColor }
+                    .let { selectedColor ->
+                        ColorStateList.valueOf(selectedColor ?: backgroundColor)
+                    }
 
             checkedColor = ColorStateList.valueOf(context.getCompatColor(R.color.color_retired))
-            uncheckedColor = ColorStateList.valueOf(defaultColor)
             disabledColor = ColorStateList.valueOf(context.getCompatColor(R.color.color_disabled))
         }
 
