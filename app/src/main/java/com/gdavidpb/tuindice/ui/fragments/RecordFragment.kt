@@ -107,9 +107,10 @@ open class RecordFragment : Fragment() {
     private fun syncObserver(result: Result<SyncResponse>?) {
         when (result) {
             is Result.OnSuccess -> {
-                val requireUpdate = result.value.isDataUpdated
+                val response = result.value
 
-                if (requireUpdate) viewModel.getQuarters()
+                if (response.cacheUpdated)
+                    viewModel.getQuarters()
             }
         }
     }
@@ -161,7 +162,9 @@ open class RecordFragment : Fragment() {
                 runCatching {
                     requireContext().openPdf(file = enrollmentFile)
                 }.onFailure {
-                    longToast(R.string.toast_enrollment_unsupported)
+                    snackBar {
+                        messageResource = R.string.snack_bar_enrollment_unsupported
+                    }.build().show()
                 }
             }
             is Result.OnError -> {

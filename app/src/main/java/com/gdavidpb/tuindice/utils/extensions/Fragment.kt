@@ -12,7 +12,3 @@ fun Fragment.selector(
 fun Fragment.email(email: String, subject: String = "", text: String = "") = requireContext().email(email, subject, text)
 
 fun Fragment.share(text: String, subject: String = "") = requireContext().share(text, subject)
-
-fun Fragment.longToast(@StringRes textResource: Int) = requireActivity().longToast(textResource)
-
-fun Fragment.toast(@StringRes textResource: Int) = requireActivity().toast(textResource)

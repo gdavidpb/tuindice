@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.domain.usecase.response
 
+import com.gdavidpb.tuindice.domain.model.Account
+
 data class SyncResponse(
-        val isDataUpdated: Boolean,
-        val hasDataInCache: Boolean
+        val cacheUpdated: Boolean,
+        val thereIsCache: Boolean
 )

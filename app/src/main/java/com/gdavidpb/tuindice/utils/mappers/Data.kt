@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.utils.mappers
 
+import com.gdavidpb.tuindice.data.model.database.CurrentSubjectEntity
 import com.gdavidpb.tuindice.data.model.database.EvaluationEntity
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
-import com.gdavidpb.tuindice.data.model.database.CurrentSubjectEntity
 import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.service.DstQuarter

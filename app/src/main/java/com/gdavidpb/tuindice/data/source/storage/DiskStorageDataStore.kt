@@ -4,8 +4,8 @@ import android.content.Context
 import com.gdavidpb.tuindice.domain.repository.LocalStorageRepository
 import java.io.File
 import java.io.FileNotFoundException
-import java.io.FileOutputStream
 import java.io.InputStream
+import java.io.OutputStream
 
 open class DiskStorageDataStore(
         context: Context
@@ -13,13 +13,21 @@ open class DiskStorageDataStore(
 
     private val root = context.filesDir
 
-    override fun put(name: String, inputStream: InputStream): File {
-        val outputFile = File(root, name)
+    override fun create(path: String): File {
+        val outputFile = File(root, path)
+
+        outputFile.createNewFile()
+
+        return outputFile
+    }
+
+    override fun put(path: String, inputStream: InputStream): File {
+        val outputFile = File(root, path)
 
         /* Create directories to */
         outputFile.parentFile?.mkdirs()
 
-        val outputStream = FileOutputStream(outputFile)
+        val outputStream = outputFile.outputStream()
 
         inputStream.copyTo(outputStream)
 
@@ -29,15 +37,24 @@ open class DiskStorageDataStore(
         return outputFile
     }
 
-    override fun get(name: String): InputStream {
-        val inputFile = File(root, name)
+    override fun inputStream(path: String): InputStream {
+        val inputFile = File(root, path)
 
         return inputFile.inputStream()
     }
 
-    override fun delete(name: String) {
+    override fun outputStream(path: String): OutputStream {
+        val outputFile = File(root, path)
+
+        /* Create directories to */
+        outputFile.parentFile?.mkdirs()
+
+        return outputFile.outputStream()
+    }
+
+    override fun delete(path: String) {
         runCatching {
-            File(root, name).let {
+            File(root, path).let {
                 if (it.isDirectory)
                     it.deleteRecursively()
                 else
@@ -48,15 +65,13 @@ open class DiskStorageDataStore(
         }
     }
 
-    override fun exists(name: String): Boolean {
-        val file = File(root, name)
+    override fun exists(path: String): Boolean {
+        val file = File(root, path)
 
         return file.exists()
     }
 
-    override fun getPath(name: String): String {
-        val file = File(root, name)
-
-        return file.path
+    override fun get(path: String): File {
+        return File(root, path)
     }
 }

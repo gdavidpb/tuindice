@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.ui.activities
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.IdRes
@@ -44,6 +46,20 @@ class MainActivity : AppCompatActivity() {
             observe(fetchStartUpAction, ::startUpObserver)
 
             fetchStartUpAction(dataString = intent.dataString ?: "")
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        data ?: return
+
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == REQUEST_CODE_PROFILE_PICTURE) {
+                viewModel.getProfilePictureFile(optionalUri = data.data)
+            }
+        } else {
+            showSnackBarError()
         }
     }
 
@@ -161,7 +177,7 @@ class MainActivity : AppCompatActivity() {
 
                 val response = result.value
 
-                val invalidState = !response.isDataUpdated && !response.hasDataInCache
+                val invalidState = !response.cacheUpdated && !response.thereIsCache
 
                 if (invalidState) dataFailureDialog()
             }

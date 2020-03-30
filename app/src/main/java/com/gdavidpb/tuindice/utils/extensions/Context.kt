@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
-import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -68,12 +67,6 @@ fun Context.email(email: String, subject: String = "", text: String = "") = runC
 fun Context.browse(url: String) = runCatchingIsSuccess {
     Intent(Intent.ACTION_VIEW, Uri.parse(url)).also(::startActivity)
 }
-
-fun Context.longToast(@StringRes textResource: Int) =
-        Toast.makeText(this, getString(textResource), Toast.LENGTH_LONG).show()
-
-fun Context.toast(@StringRes textResource: Int) =
-        Toast.makeText(this, getString(textResource), Toast.LENGTH_SHORT).show()
 
 inline fun <reified T : Activity> Context.startActivity(vararg params: Pair<String, Any?>) = runCatchingIsSuccess {
     Intent(this, T::class.java).apply {

@@ -94,6 +94,38 @@ fun View.animateLookAtMe(factor: Float = 3f) {
     })
 }
 
+fun View.animateScaleDown() {
+    val animator = ValueAnimator.ofFloat(1f, 0f)
+
+    animator.animate(this, {
+        duration = 300
+        interpolator = DecelerateInterpolator()
+    }, {
+        val scale = animatedValue as Float
+
+        scaleX = scale
+        scaleY = scale
+    }, {
+        invisible()
+    })
+}
+
+fun View.animateScaleUp() {
+    val animator = ValueAnimator.ofFloat(0f, 1f)
+
+    animator.animate(this, {
+        visible()
+
+        duration = 200
+        interpolator = AccelerateInterpolator()
+    }, {
+        val scale = animatedValue as Float
+
+        scaleX = scale
+        scaleY = scale
+    })
+}
+
 fun View.animateZoomInOut() {
     val animator = ValueAnimator.ofFloat(.85f, 1f)
 

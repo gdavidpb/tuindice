@@ -6,7 +6,10 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
 import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.EXTRA_AWAITING_EMAIL
+import com.gdavidpb.tuindice.utils.EXTRA_AWAITING_STATE
+import com.gdavidpb.tuindice.utils.FLAG_RESET
+import com.gdavidpb.tuindice.utils.FLAG_VERIFY
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.activity_email_sent.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -21,6 +24,12 @@ class EmailSentActivity : AppCompatActivity() {
 
     private val awaitingEmail by lazy {
         intent.getStringExtra(EXTRA_AWAITING_EMAIL)
+    }
+
+    private val snackBarResend by lazy {
+        snackBar {
+            messageResource = R.string.snack_bar_resend
+        }.build()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,15 +90,15 @@ class EmailSentActivity : AppCompatActivity() {
 
     private fun resetPasswordObserver(result: Completable?) {
         when (result) {
-            is Completable.OnComplete -> longToast(R.string.toast_resend)
-            is Completable.OnError -> longToast(R.string.toast_try_again_later)
+            is Completable.OnComplete -> snackBarResend.show()
+            is Completable.OnError -> showSnackBarError(throwable = result.throwable)
         }
     }
 
     private fun sendEmailVerificationObserver(result: Completable?) {
         when (result) {
-            is Completable.OnComplete -> longToast(R.string.toast_resend)
-            is Completable.OnError -> longToast(R.string.toast_try_again_later)
+            is Completable.OnComplete -> snackBarResend.show()
+            is Completable.OnError -> showSnackBarError(throwable = result.throwable)
         }
     }
 }

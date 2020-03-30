@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
 import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataStore
 import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
+import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataStore
 import com.gdavidpb.tuindice.data.source.storage.DiskStorageDataStore
 import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataStore
 import com.gdavidpb.tuindice.data.source.token.TokenDataStore
@@ -63,6 +64,10 @@ val appModule = module {
 
     single {
         androidContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    }
+
+    single {
+        androidContext().contentResolver
     }
 
     /* Firebase */
@@ -223,6 +228,7 @@ val appModule = module {
     factoryBy<AuthRepository, FirebaseDataStore>()
     factoryBy<DatabaseRepository, FirestoreDataStore>()
     factoryBy<IdentifierRepository, TokenDataStore>()
+    factoryBy<ContentRepository, ContentResolverDataStore>()
 
     factory {
         if (BuildConfig.DEBUG)
@@ -249,6 +255,9 @@ val appModule = module {
     factory<UpdateEvaluationUseCase>()
     factory<RemoveEvaluationUseCase>()
     factory<AddEvaluationUseCase>()
+    factory<UpdateProfilePictureUseCase>()
+    factory<CreateProfilePictureFileUseCase>()
+    factory<GetProfilePictureFileUseCase>()
 
     /* Utils */
 

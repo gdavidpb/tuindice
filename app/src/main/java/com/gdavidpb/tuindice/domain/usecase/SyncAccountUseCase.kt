@@ -35,11 +35,11 @@ open class SyncAccountUseCase(
     override suspend fun executeOnBackground(params: Unit): SyncResponse? {
         val activeUId = authRepository.getActiveAuth().uid
         val activeAccount = databaseRepository.getAccount(uid = activeUId)
-        val hasDataInCache = databaseRepository.getQuarters(uid = activeUId).isNotEmpty()
+        val thereIsDataInCache = databaseRepository.getQuarters(uid = activeUId).isNotEmpty()
 
         /* Check if account is up-to-date, return no update required */
         if (activeAccount.isUpdated())
-            return SyncResponse(isDataUpdated = false, hasDataInCache = hasDataInCache)
+            return SyncResponse(cacheUpdated = false, thereIsCache = thereIsDataInCache)
 
         /* Collected data */
         val collectedData = mutableListOf<DstData>()
@@ -58,8 +58,8 @@ open class SyncAccountUseCase(
             localStorageRepository.delete("enrollments")
 
         /* Should responses more than one service */
-        return (collectedData.size > 1).let { requireUpdate ->
-            if (requireUpdate) {
+        return (collectedData.size > 1).let { pendingUpdate ->
+            if (pendingUpdate) {
                 /* Update account */
                 databaseRepository.updateData(uid = activeUId, data = collectedData)
 
@@ -67,7 +67,7 @@ open class SyncAccountUseCase(
                 databaseRepository.syncAccount(uid = activeUId)
             }
 
-            SyncResponse(isDataUpdated = requireUpdate, hasDataInCache = true)
+            SyncResponse(cacheUpdated = pendingUpdate, thereIsCache = true)
         }
     }
 

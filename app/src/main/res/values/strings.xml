@@ -60,7 +60,8 @@
         <item>Otro…</item>
     </string-array>
 
-    <string name="toast_try_again_later">Intenta de nuevo más tarde</string>
+    <string name="snack_bar_error_occurred">¡Ha ocurrido un error!</string>
+    <string name="snack_bar_permission_denied">Operación no permitida</string>
 
     <string name="snack_bar_message_item_removed">%1$s removido</string>
     <string name="snack_bar_action_undone">Deshacer</string>
@@ -89,6 +90,10 @@
     <string name="label_credits_failed">Reprobados</string>
     <string name="label_credits_retired">Retirados</string>
 
+    <string name="label_profile_picture_chooser">Foto de perfil</string>
+
+    <string name="snack_bar_profile_picture_updated">Foto de perfil actualizada</string>
+
     <!-- RecordFragment -->
     <string name="quarter_grade_diff">Δx %1$.4f</string>
     <string name="quarter_grade_sum">∑x %1$.4f</string>
@@ -105,7 +110,7 @@
     -->
 
     <string name="dialog_enrollment_downloading">Obteniendo comprobante…</string>
-    <string name="toast_enrollment_unsupported">Archivo no soportado ;(</string>
+    <string name="snack_bar_enrollment_unsupported">Archivo no soportado ;(</string>
     <string name="snack_bar_enrollment_retry">No pudimos descargar el comprobante ;(</string>
 
     <string name="label_empty_record">
@@ -114,7 +119,7 @@
     </string>
 
     <!-- EmailSentActivity -->
-    <string name="toast_resend">Correo reenviado</string>
+    <string name="snack_bar_resend">Correo reenviado</string>
 
     <string name="label_verify">
         Verifica tu cuenta
@@ -221,7 +226,7 @@
     <string name="about_header_libs">Detrás de TuIndice</string>
 
     <string name="about_kotlin">
-        Kotlin 1.3.70\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
+        Kotlin 1.3.71\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
     </string>
 
     <string name="about_firebase">

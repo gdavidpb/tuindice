@@ -20,7 +20,7 @@ open class DstCookieJar(
 
         /* Return empty CookieJar if the file does not exist */
         return if (localStorageRepository.exists(name))
-            localStorageRepository.get(name)
+            localStorageRepository.inputStream(name)
                     .bufferedReader()
                     .readLines()
                     .mapNotNull { cookie -> Cookie.parse(url, cookie) }

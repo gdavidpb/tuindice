@@ -2,8 +2,12 @@ package com.gdavidpb.tuindice.utils
 
 import java.util.*
 
+/* Errors */
 const val NO_GETTER = "Property does not have a getter"
 const val NO_SETTER = "Property does not have a setter"
+
+/* Request */
+const val REQUEST_CODE_PROFILE_PICTURE = 1000
 
 /* External packages */
 const val PACKAGE_NAME_WEB_VIEW = "com.google.android.webview"
@@ -45,6 +49,9 @@ const val PLAY_SERVICES_RESOLUTION_REQUEST = 2404
 /* Values */
 const val MAX_SUBJECT_GRADE = 5
 const val MAX_EVALUATION_GRADE = 100.0
+
+const val SAMPLE_PROFILE_PICTURE = 1024
+const val QUALITY_PROFILE_PICTURE = 90
 
 /* Status */
 const val STATUS_QUARTER_CURRENT = 0
@@ -88,7 +95,6 @@ const val KEY_NOW_DATE = "KEY_NOW_DATE"
 const val KEY_USE_CASE = "KEY_USE_CASE"
 
 /* Navigation args */
-
 const val ARG_SUBJECT_ID = "subjectId"
 
 const val FLAG_RESET = 1000
@@ -97,7 +103,6 @@ const val FLAG_VERIFY = 1001
 const val REF_BASE = 2000
 
 /* Decimals */
-
 const val DECIMALS_GRADE_SUBJECT = 2
 const val DECIMALS_GRADE_QUARTER = 4
 

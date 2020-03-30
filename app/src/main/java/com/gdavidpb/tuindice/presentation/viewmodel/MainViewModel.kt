@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.presentation.viewmodel
 
+import android.net.Uri
 import androidx.annotation.IdRes
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.domain.model.Account
@@ -21,7 +22,10 @@ class MainViewModel(
         private val getAccountUseCase: GetAccountUseCase,
         private val getQuartersUseCase: GetQuartersUseCase,
         private val updateSubjectUseCase: UpdateSubjectUseCase,
-        private val openEnrollmentProofUseCase: OpenEnrollmentProofUseCase
+        private val openEnrollmentProofUseCase: OpenEnrollmentProofUseCase,
+        private val getProfilePictureFileUseCase: GetProfilePictureFileUseCase,
+        private val createProfilePictureFileUseCase: CreateProfilePictureFileUseCase,
+        private val updateProfilePictureUseCase: UpdateProfilePictureUseCase
 ) : ViewModel() {
     val signOut = LiveCompletable()
     val fetchStartUpAction = LiveResult<StartUpAction>()
@@ -31,6 +35,9 @@ class MainViewModel(
     val quarters = LiveResult<List<Quarter>>()
     val subjectUpdate = LiveCompletable()
     val enrollment = LiveResult<File>()
+    val getProfilePictureFile = LiveResult<Uri>()
+    val createProfilePictureFile = LiveResult<Uri>()
+    val updateProfilePicture = LiveResult<String>()
 
     fun signOut() =
             execute(useCase = signOutUseCase, params = Unit, liveData = signOut)
@@ -55,4 +62,13 @@ class MainViewModel(
 
     fun openEnrollmentProof() =
             execute(useCase = openEnrollmentProofUseCase, params = Unit, liveData = enrollment)
+
+    fun getProfilePictureFile(optionalUri: Uri?) =
+            execute(useCase = getProfilePictureFileUseCase, params = optionalUri, liveData = getProfilePictureFile)
+
+    fun createProfilePictureFile() =
+            execute(useCase = createProfilePictureFileUseCase, params = Unit, liveData = createProfilePictureFile)
+
+    fun updateProfilePicture(url: Uri) =
+            execute(useCase = updateProfilePictureUseCase, params = url, liveData = updateProfilePicture)
 }

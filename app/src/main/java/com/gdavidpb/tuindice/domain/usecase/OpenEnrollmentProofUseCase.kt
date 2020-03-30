@@ -43,7 +43,7 @@ open class OpenEnrollmentProofUseCase(
         }
 
         val enrollmentName = "enrollments/$enrollmentTitle.pdf"
-        val enrollmentPath = localStorageRepository.getPath(enrollmentName)
+        val enrollmentFile = localStorageRepository.get(enrollmentName)
         val enrollmentExists = localStorageRepository.exists(enrollmentName)
 
         if (!enrollmentExists) {
@@ -73,6 +73,6 @@ open class OpenEnrollmentProofUseCase(
             localStorageRepository.put(enrollmentName, enrollmentData)
         }
 
-        return File(enrollmentPath)
+        return enrollmentFile
     }
 }

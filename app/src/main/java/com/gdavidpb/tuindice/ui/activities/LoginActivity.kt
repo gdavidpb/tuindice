@@ -72,13 +72,13 @@ class LoginActivity : AppCompatActivity() {
                 true
         }
 
-        /* Logo animation */
-        iViewLogo.onClickOnce {
-            iViewLogo.animateShake()
-        }
-
+        iViewLogo.onClickOnce(::onLogoClick)
         btnPrivacyPolicy.onClickOnce(::onPrivacyPolicyClick)
         btnSignIn.onClickOnce(::onSignInClick)
+    }
+
+    private fun onLogoClick() {
+        iViewLogo.animateShake()
     }
 
     private fun onPrivacyPolicyClick() {

@@ -219,13 +219,27 @@ open class FirestoreDataStore(
     }
 
     override suspend fun updateToken(uid: String, token: String) {
-        val userRef = firestore.collection(COLLECTION_USER).document(uid)
+        val userRef = firestore
+                .collection(COLLECTION_USER)
+                .document(uid)
 
         val values = mapOf(
                 FIELD_USER_TOKEN to token
         )
 
         userRef.set(values, SetOptions.merge())
+    }
+
+    override suspend fun updateProfilePicture(uid: String, photoUrl: String) {
+        val userRef = firestore
+                .collection(COLLECTION_USER)
+                .document(uid)
+
+        val values = mapOf(
+                FIELD_USER_PHOTO_URL to photoUrl
+        )
+
+        userRef.set(values, SetOptions.merge()).await()
     }
 
     override suspend fun close() {

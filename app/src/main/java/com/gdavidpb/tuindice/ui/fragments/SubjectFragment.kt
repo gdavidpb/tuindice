@@ -115,7 +115,7 @@ open class SubjectFragment : Fragment() {
 
                 evaluationAdapter.addItem(item = item, notifyChange = false)
             }
-            is Result.OnError -> longToast(R.string.toast_try_again_later)
+            is Result.OnError -> requireActivity().showSnackBarError(throwable = result.throwable)
         }
     }
 
@@ -127,7 +127,7 @@ open class SubjectFragment : Fragment() {
 
                 evaluationAdapter.replaceItem(item = response.toEvaluationItem(context))
             }
-            is Result.OnError -> longToast(R.string.toast_try_again_later)
+            is Result.OnError -> requireActivity().showSnackBarError(throwable = result.throwable)
         }
     }
 
@@ -148,7 +148,7 @@ open class SubjectFragment : Fragment() {
 
                 evaluationAdapter.swapItems(new = items)
             }
-            is Result.OnError -> longToast(R.string.toast_try_again_later)
+            is Result.OnError -> requireActivity().showSnackBarError(throwable = result.throwable)
         }
     }
 

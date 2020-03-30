@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     android:paddingTop="@dimen/dp_16">
 
     <androidx.constraintlayout.widget.Group
@@ -23,6 +24,32 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ContentDescription"
         tools:src="@mipmap/ic_launcher_round" />
+
+    <ImageView
+        android:id="@+id/iViewEditProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/sh_oval_approved"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="@dimen/dp_6"
+        android:src="@drawable/ic_edit"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/iViewProfile"
+        app:layout_constraintEnd_toEndOf="@id/iViewProfile"
+        tools:ignore="ContentDescription"
+        tools:visibility="visible" />
+
+    <ProgressBar
+        android:id="@+id/pBarProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/iViewProfile"
+        app:layout_constraintEnd_toEndOf="@id/iViewProfile"
+        app:layout_constraintStart_toStartOf="@id/iViewProfile"
+        app:layout_constraintTop_toTopOf="@id/iViewProfile" />
 
     <TextView
         android:id="@+id/tViewGrade"
