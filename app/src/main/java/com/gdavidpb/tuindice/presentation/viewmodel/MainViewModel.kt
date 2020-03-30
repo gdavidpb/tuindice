@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.domain.usecase.request.SubjectUpdateRequest
 import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
 import com.gdavidpb.tuindice.utils.extensions.LiveCompletable
+import com.gdavidpb.tuindice.utils.extensions.LiveEvent
 import com.gdavidpb.tuindice.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.utils.extensions.execute
 import java.io.File
@@ -34,10 +35,10 @@ class MainViewModel(
     val account = LiveResult<Account>()
     val quarters = LiveResult<List<Quarter>>()
     val subjectUpdate = LiveCompletable()
-    val enrollment = LiveResult<File>()
-    val getProfilePictureFile = LiveResult<Uri>()
-    val createProfilePictureFile = LiveResult<Uri>()
-    val updateProfilePicture = LiveResult<String>()
+    val enrollment = LiveEvent<File>()
+    val getProfilePictureFile = LiveEvent<Uri>()
+    val createProfilePictureFile = LiveEvent<Uri>()
+    val updateProfilePicture = LiveEvent<String>()
 
     fun signOut() =
             execute(useCase = signOutUseCase, params = Unit, liveData = signOut)

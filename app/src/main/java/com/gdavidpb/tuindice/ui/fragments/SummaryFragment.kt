@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
@@ -85,35 +86,35 @@ open class SummaryFragment : Fragment() {
         }
     }
 
-    private fun getProfilePictureFileObserver(result: Result<Uri>?) {
+    private fun getProfilePictureFileObserver(result: Event<Uri>?) {
         when (result) {
-            is Result.OnSuccess -> {
+            is Event.OnSuccess -> {
                 val outputUri = result.value
 
                 viewModel.updateProfilePicture(outputUri)
             }
-            is Result.OnError -> requireActivity().showSnackBarError(throwable = result.throwable)
+            is Event.OnError -> requireActivity().showSnackBarError(throwable = result.throwable)
         }
     }
 
-    private fun createProfilePictureFileObserver(result: Result<Uri>?) {
+    private fun createProfilePictureFileObserver(result: Event<Uri>?) {
         when (result) {
-            is Result.OnSuccess -> {
+            is Event.OnSuccess -> {
                 val outputUri = result.value
                         .fileProviderUri(requireContext())
 
                 requestCamera(outputUri)
             }
-            is Result.OnError -> requireActivity().showSnackBarError(throwable = result.throwable)
+            is Event.OnError -> requireActivity().showSnackBarError(throwable = result.throwable)
         }
     }
 
-    private fun updateProfilePictureObserver(result: Result<String>?) {
+    private fun updateProfilePictureObserver(result: Event<String>?) {
         when (result) {
-            is Result.OnLoading -> {
+            is Event.OnLoading -> {
                 showProfilePictureLoading()
             }
-            is Result.OnSuccess -> {
+            is Event.OnSuccess -> {
                 val stableKey = result.value
 
                 picasso.invalidate(stableKey)
@@ -124,7 +125,7 @@ open class SummaryFragment : Fragment() {
                     messageResource = R.string.snack_bar_profile_picture_updated
                 }.build().show()
             }
-            is Result.OnError -> {
+            is Event.OnError -> {
                 hideProfilePictureLoading()
 
                 requireActivity().showSnackBarError(throwable = result.throwable)

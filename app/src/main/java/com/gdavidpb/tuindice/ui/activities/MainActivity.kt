@@ -58,8 +58,6 @@ class MainActivity : AppCompatActivity() {
             if (requestCode == REQUEST_CODE_PROFILE_PICTURE) {
                 viewModel.getProfilePictureFile(optionalUri = data.data)
             }
-        } else {
-            showSnackBarError()
         }
     }
 
@@ -101,8 +99,6 @@ class MainActivity : AppCompatActivity() {
             setDisplayHomeAsUpEnabled(!isStartDestination)
         }
 
-        resetLiveData(destId)
-
         viewModel.setLastScreen(navId = destId)
     }
 
@@ -118,16 +114,6 @@ class MainActivity : AppCompatActivity() {
             pBarSync
         }.also { progressBar ->
             progressBar.visibleIf(value)
-        }
-    }
-
-    private fun resetLiveData(destination: Int) {
-        with(viewModel) {
-            when (destination) {
-                R.id.nav_record -> {
-                    enrollment.value = null
-                }
-            }
         }
     }
 

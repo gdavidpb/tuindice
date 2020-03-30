@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
 import com.gdavidpb.tuindice.presentation.model.QuarterItem
@@ -145,14 +146,14 @@ open class RecordFragment : Fragment() {
         }
     }
 
-    private fun enrollmentObserver(result: Result<File>?) {
+    private fun enrollmentObserver(result: Event<File>?) {
         when (result) {
-            is Result.OnLoading -> {
+            is Event.OnLoading -> {
                 loadingDialog.show()
 
                 setMenuVisibility(false)
             }
-            is Result.OnSuccess -> {
+            is Event.OnSuccess -> {
                 loadingDialog.dismiss()
 
                 setMenuVisibility(true)
@@ -167,7 +168,7 @@ open class RecordFragment : Fragment() {
                     }.build().show()
                 }
             }
-            is Result.OnError -> {
+            is Event.OnError -> {
                 loadingDialog.dismiss()
 
                 setMenuVisibility(true)

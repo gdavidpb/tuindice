@@ -5,15 +5,32 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.coroutines.*
+import com.gdavidpb.tuindice.utils.MAX_MULTIPLE_EVENT
+
+class LiveEvent<T> : MultipleLiveEvent<Event<T>>(MAX_MULTIPLE_EVENT)
 
 typealias LiveResult<T> = MutableLiveData<Result<T>>
 typealias LiveCompletable = MutableLiveData<Completable>
 typealias LiveContinuous<T> = MutableLiveData<Continuous<T>>
 
-@JvmName("postCompleteResult")
+/* LiveEvent */
+
+@JvmName("postSuccessEvent")
+fun <T> LiveEvent<T>.postSuccess(value: T) = postValue(Event.OnSuccess(value))
+
+@JvmName("postThrowableEvent")
+fun <T> LiveEvent<T>.postThrowable(throwable: Throwable) = postValue(Event.OnError(throwable))
+
+@JvmName("postLoadingEvent")
+fun <T> LiveEvent<T>.postLoading() = reset().also { postValue(Event.OnLoading()) }
+
+@JvmName("postCancelEvent")
+fun <T> LiveEvent<T>.postCancel() = postValue(Event.OnCancel())
+
+/* LiveResult */
+
+@JvmName("postSuccessResult")
 fun <T> LiveResult<T>.postSuccess(value: T) = postValue(Result.OnSuccess(value))
 
 @JvmName("postThrowableResult")

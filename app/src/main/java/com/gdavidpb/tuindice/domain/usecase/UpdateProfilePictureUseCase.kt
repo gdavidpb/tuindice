@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
 import com.gdavidpb.tuindice.domain.repository.*
-import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
+import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.utils.PATH_PROFILE_PICTURES
 import com.gdavidpb.tuindice.utils.QUALITY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.utils.SAMPLE_PROFILE_PICTURE
@@ -20,7 +20,7 @@ open class UpdateProfilePictureUseCase(
         private val contentRepository: ContentRepository,
         private val localStorageRepository: LocalStorageRepository,
         private val remoteStorageRepository: RemoteStorageRepository
-) : ResultUseCase<Uri, String>(
+) : EventUseCase<Uri, String>(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
 ) {
