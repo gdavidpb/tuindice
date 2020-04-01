@@ -230,15 +230,15 @@
     </string>
 
     <string name="about_firebase">
-        Firebase 17.2.3\nQuickly develop high-quality apps and grow your business\n© 2014 Google\nhttps://firebase.com/
+        Firebase 17.3.0\nQuickly develop high-quality apps and grow your business\n© 2014 Google\nhttps://firebase.com/
     </string>
 
     <string name="about_koin">
-        Koin 2.0.1\nA pragmatic lightweight dependency injection framework for Kotlin\n© 2018 Arnaud Giuliani\nhttps://insert-koin.io/
+        Koin 2.1.5\nA pragmatic lightweight dependency injection framework for Kotlin\n© 2018 Arnaud Giuliani\nhttps://insert-koin.io/
     </string>
 
     <string name="about_retrofit">
-        Retrofit 2.7.1\nA type-safe HTTP client for Android and Java\n© 2015 Square\nhttps://square.github.io/retrofit/
+        Retrofit 2.8.1\nA type-safe HTTP client for Android and Java\n© 2015 Square\nhttps://square.github.io/retrofit/
     </string>
 
     <string name="about_freepik">
