@@ -68,6 +68,15 @@ fun Context.browse(url: String) = runCatchingIsSuccess {
     Intent(Intent.ACTION_VIEW, Uri.parse(url)).also(::startActivity)
 }
 
+fun Context.versionName(): String {
+    val environmentRes = if (BuildConfig.DEBUG) R.string.debug else R.string.release
+
+    return getString(R.string.app_version,
+            getString(environmentRes),
+            BuildConfig.VERSION_NAME,
+            BuildConfig.VERSION_CODE)
+}
+
 inline fun <reified T : Activity> Context.startActivity(vararg params: Pair<String, Any?>) = runCatchingIsSuccess {
     Intent(this, T::class.java).apply {
         if (params.isNotEmpty()) fillIntentArguments(params)

@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
@@ -38,12 +37,8 @@ open class AboutFragment : Fragment() {
             adapter = aboutAdapter
         }
 
-        val versionName = BuildConfig.VERSION_NAME.toFloat()
-
-        val version = getString(R.string.about_version,
-                BuildConfig.VERSION_NAME,
-                BuildConfig.VERSION_CODE,
-                getString(if (versionName < 1.0f) R.string.beta else R.string.release))
+        val versionName = requireContext().versionName()
+        val version = getString(R.string.about_version, versionName)
 
         val data = context.about {
             header(R.string.app_name)

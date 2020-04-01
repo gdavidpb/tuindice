@@ -8,14 +8,16 @@
 
     <!-- Simple words/phrases -->
     <string name="yes">Si</string>
-    <string name="beta">beta</string>
-    <string name="release">release</string>
+    <string name="release">Producción</string>
+    <string name="debug">Desarrollo</string>
     <string name="cancel">Cancelar</string>
     <string name="add">Agregar</string>
     <string name="edit">Modificar</string>
     <string name="exit">Salir</string>
     <string name="retry">Reintentar</string>
     <string name="settings">Ir a la configuración</string>
+
+    <string name="app_version">%1$s v%2$s-%3$d</string>
 
     <!-- MainActivity -->
     <string name="nav_summary">Resumen</string>
@@ -173,7 +175,7 @@
     <!-- AboutFragment -->
 
     <string name="about_version">
-        Versión\n%1$s-%2$d (%3$s)
+        Versión\n%1$s
     </string>
 
     <string name="about_license">

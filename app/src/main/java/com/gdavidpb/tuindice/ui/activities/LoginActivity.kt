@@ -53,6 +53,8 @@ class LoginActivity : AppCompatActivity() {
         /* Set up background animation */
         (backgroundOne to backgroundTwo).animateInfiniteLoop()
 
+        tViewAppVersion.text = versionName()
+
         eTextUsbId.onTextChanged { _, _, _, _ -> if (tInputUsbId.error != null) tInputUsbId.error = null }
         eTextPassword.onTextChanged { _, _, _, _ -> if (tInputPassword.error != null) tInputPassword.error = null }
 
