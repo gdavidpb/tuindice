@@ -53,7 +53,7 @@ open class SummaryAdapter : BaseAdapter<SummaryItemBase>() {
         return when (position) {
             0 -> VIEW_TYPE_SUMMARY_SUBJECTS
             1 -> VIEW_TYPE_SUMMARY_CREDITS
-            else -> throw  IllegalArgumentException("position: '$position'")
+            else -> throw IllegalArgumentException("position: '$position'")
         }
     }
 }

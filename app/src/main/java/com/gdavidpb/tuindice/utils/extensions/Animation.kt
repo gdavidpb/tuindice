@@ -95,9 +95,7 @@ fun View.animateLookAtMe(factor: Float = 3f) {
 }
 
 fun View.animateScaleDown() {
-    val animator = ValueAnimator.ofFloat(1f, 0f)
-
-    animator.animate(this, {
+    ValueAnimator.ofFloat(1f, 0f).animate(this, {
         duration = 300
         interpolator = DecelerateInterpolator()
     }, {
@@ -111,11 +109,9 @@ fun View.animateScaleDown() {
 }
 
 fun View.animateScaleUp() {
-    val animator = ValueAnimator.ofFloat(0f, 1f)
+    visible()
 
-    animator.animate(this, {
-        visible()
-
+    ValueAnimator.ofFloat(0f, 1f).animate(this, {
         duration = 200
         interpolator = AccelerateInterpolator()
     }, {
@@ -127,9 +123,7 @@ fun View.animateScaleUp() {
 }
 
 fun View.animateZoomInOut() {
-    val animator = ValueAnimator.ofFloat(.85f, 1f)
-
-    animator.animate(this, {
+    ValueAnimator.ofFloat(.85f, 1f).animate(this, {
         duration = 1000
         repeatMode = ValueAnimator.REVERSE
         repeatCount = ValueAnimator.INFINITE

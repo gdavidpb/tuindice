@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.utils.extensions
 
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -26,12 +24,4 @@ fun ConnectivityManager.isNetworkAvailable(): Boolean {
             }
         }
     } ?: false
-}
-
-fun CameraManager.getMainCameraOrientation(): Int {
-    return cameraIdList.firstOrNull()?.let { cameraId ->
-        val characteristics = getCameraCharacteristics(cameraId)
-
-        characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)
-    } ?: 0
 }

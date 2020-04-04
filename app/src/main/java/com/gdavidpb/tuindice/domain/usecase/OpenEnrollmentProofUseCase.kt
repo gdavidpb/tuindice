@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.domain.model.exception.EnrollmentNotFoundException
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
+import com.gdavidpb.tuindice.utils.PATH_ENROLLMENT
 import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
 import com.gdavidpb.tuindice.utils.mappers.formatQuarterTitle
 import kotlinx.coroutines.CancellationException
@@ -42,7 +43,7 @@ open class OpenEnrollmentProofUseCase(
             (startDate to endDate).formatQuarterTitle()
         }
 
-        val enrollmentName = "enrollments/$enrollmentTitle.pdf"
+        val enrollmentName = File(PATH_ENROLLMENT, "$enrollmentTitle.pdf").path
         val enrollmentFile = localStorageRepository.get(enrollmentName)
         val enrollmentExists = localStorageRepository.exists(enrollmentName)
 

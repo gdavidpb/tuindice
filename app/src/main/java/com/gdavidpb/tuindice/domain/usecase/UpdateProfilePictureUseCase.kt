@@ -24,7 +24,6 @@ open class UpdateProfilePictureUseCase(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
 ) {
-    @Suppress("BlockingMethodInNonBlockingContext")
     override suspend fun executeOnBackground(params: Uri): String {
         val activeUId = authRepository.getActiveAuth().uid
         val resource = File(PATH_PROFILE_PICTURES, "$activeUId.jpg").path

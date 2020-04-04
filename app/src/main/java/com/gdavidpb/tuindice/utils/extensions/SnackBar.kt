@@ -39,7 +39,7 @@ data class SnackBarBuilder(
         val builtMessage = when {
             message.isNotEmpty() -> message
             messageResource != 0 -> view.context.getString(messageResource)
-            else -> throw IllegalStateException("There is no value for 'message' or 'messageResource'.")
+            else -> throw IllegalArgumentException("There is no value for 'message' or 'messageResource'.")
         }
 
         return Snackbar.make(view, builtMessage, length)

@@ -20,7 +20,7 @@ open class GetSubjectEvaluationsUseCase(
         val activeUId = authRepository.getActiveAuth().uid
 
         return with(databaseRepository) {
-            val subject = getSubject(uid = activeUId, id = params)
+            val subject = getSubject(uid = activeUId, sid = params)
             val evaluations = getSubjectEvaluations(uid = activeUId, sid = params)
 
             SubjectEvaluations(subject, evaluations)

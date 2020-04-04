@@ -86,7 +86,7 @@ fun String.toRefYear() = "^[^-]+".toRegex().find(this)!!.value.toInt() + REF_BAS
 
 private fun checkIntegrity(input: String, output: List<Date>, refYear: Int) {
     if (output.size != 2)
-        throw IllegalStateException("toStartEndDate: '$input'")
+        throw IllegalArgumentException("toStartEndDate: '$input'")
 
     val startYear = output[0].get(Calendar.YEAR)
     val endYear = output[1].get(Calendar.YEAR)
@@ -101,7 +101,7 @@ private fun checkIntegrity(input: String, output: List<Date>, refYear: Int) {
         isInvalidDistance
 
     if (isInvalid)
-        throw IllegalStateException("toStartEndDate: '$input'")
+        throw IllegalArgumentException("toStartEndDate: '$input'")
 }
 
 fun runCatchingIsSuccess(block: () -> Unit) = runCatching { block() }

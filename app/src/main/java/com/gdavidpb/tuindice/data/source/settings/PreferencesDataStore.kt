@@ -14,11 +14,11 @@ open class PreferencesDataStore(
 ) : SettingsRepository {
 
     override fun awaitingEmail(): String {
-        return preferences.getString(KEY_AWAITING_EMAIL, "") ?: ""
+        return preferences.getString(KEY_AWAITING_EMAIL, null) ?: ""
     }
 
     override fun awaitingPassword(): String {
-        return preferences.getString(KEY_AWAITING_PASSWORD, "") ?: ""
+        return preferences.getString(KEY_AWAITING_PASSWORD, null) ?: ""
     }
 
     override fun setIsAwaitingForReset(email: String, password: String) {
@@ -29,8 +29,8 @@ open class PreferencesDataStore(
     }
 
     override fun isAwaitingForReset(): Boolean {
-        val email = preferences.getString(KEY_AWAITING_EMAIL, "") ?: ""
-        val password = preferences.getString(KEY_AWAITING_PASSWORD, "") ?: ""
+        val email = preferences.getString(KEY_AWAITING_EMAIL, null) ?: ""
+        val password = preferences.getString(KEY_AWAITING_PASSWORD, null) ?: ""
 
         return email.isNotEmpty() && password.isNotEmpty()
     }
@@ -73,13 +73,13 @@ open class PreferencesDataStore(
 
     override fun getCredentials(): DstCredentials {
         return DstCredentials(
-                usbId = preferences.getString(KEY_USB_ID, "") ?: "",
-                password = preferences.getString(KEY_PASSWORD, "") ?: ""
+                usbId = preferences.getString(KEY_USB_ID, null) ?: "",
+                password = preferences.getString(KEY_PASSWORD, null) ?: ""
         )
     }
 
     override fun getCredentialYear(): Int {
-        val usbId = preferences.getString(KEY_USB_ID, "") ?: ""
+        val usbId = preferences.getString(KEY_USB_ID, null) ?: ""
 
         return if (usbId.isNotEmpty()) usbId.toRefYear() else -1
     }

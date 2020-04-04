@@ -103,7 +103,7 @@ open class SummaryFragment : Fragment() {
                 val outputUri = result.value
                         .fileProviderUri(requireContext())
 
-                requestCamera(outputUri)
+                requestProfilePictureInput(outputUri)
             }
             is Event.OnError -> requireActivity().showSnackBarError(throwable = result.throwable)
         }
@@ -167,7 +167,7 @@ open class SummaryFragment : Fragment() {
         }
     }
 
-    private fun requestCamera(outputUri: Uri) {
+    private fun requestProfilePictureInput(outputUri: Uri) {
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                 .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
 
@@ -206,7 +206,6 @@ open class SummaryFragment : Fragment() {
             with(picasso) {
                 load(account.photoUrl)
                         .noFade()
-                        .tag(account.uid)
                         .stableKey(account.uid)
                         .transform(CircleTransform())
                         .error(R.mipmap.ic_launcher_round)

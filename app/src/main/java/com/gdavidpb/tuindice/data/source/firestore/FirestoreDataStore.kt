@@ -46,17 +46,6 @@ open class FirestoreDataStore(
     }
 
     override suspend fun getCurrentQuarter(uid: String): Quarter? {
-        suspend fun getSubjects(qid: String): List<Subject> {
-            return firestore
-                    .collection(COLLECTION_SUBJECT)
-                    .whereEqualTo(FIELD_SUBJECT_USER_ID, uid)
-                    .whereEqualTo(FIELD_SUBJECT_QUARTER_ID, qid)
-                    .get(Source.CACHE)
-                    .await()
-                    .documents
-                    .map { it.toSubject() }
-        }
-
         return firestore
                 .collection(COLLECTION_QUARTER)
                 .whereEqualTo(FIELD_QUARTER_USER_ID, uid)
@@ -65,7 +54,7 @@ open class FirestoreDataStore(
                 .get(Source.CACHE)
                 .await()
                 .documents
-                .map { it.toQuarter(subjects = getSubjects(qid = it.id)) }
+                .map { it.toQuarter(subjects = getSubjects(uid = uid, qid = it.id)) }
                 .getOrNull(0)
     }
 
@@ -97,6 +86,32 @@ open class FirestoreDataStore(
                 }
     }
 
+    override suspend fun removeQuarters(uid: String, vararg qid: String) {
+        if (qid.isEmpty()) return
+
+        val batch = firestore.batch()
+
+        qid.forEach { quarterId ->
+            val subjects = getSubjects(uid = uid, qid = quarterId)
+
+            subjects.forEach { subject ->
+                val subjectRef = firestore
+                        .collection(COLLECTION_SUBJECT)
+                        .document(subject.id)
+
+                batch.delete(subjectRef)
+            }
+
+            val quarterRef = firestore
+                    .collection(COLLECTION_QUARTER)
+                    .document(quarterId)
+
+            batch.delete(quarterRef)
+        }
+
+        batch.commit().await()
+    }
+
     override suspend fun getSubjectEvaluations(uid: String, sid: String): List<Evaluation> {
         return firestore
                 .collection(COLLECTION_EVALUATION)
@@ -116,21 +131,23 @@ open class FirestoreDataStore(
                 .map { it.toEvaluation() }
     }
 
-    override suspend fun getSubject(uid: String, id: String): Subject {
+    override suspend fun getSubject(uid: String, sid: String): Subject {
         return firestore
                 .collection(COLLECTION_SUBJECT)
-                .document(id)
+                .document(sid)
                 .get(Source.CACHE)
                 .await()
                 .toSubject()
     }
 
-    override suspend fun getSubjects(uid: String): List<Subject> {
+    override suspend fun getSubjects(uid: String, qid: String): List<Subject> {
         return firestore
                 .collection(COLLECTION_SUBJECT)
                 .whereEqualTo(FIELD_SUBJECT_USER_ID, uid)
+                .whereEqualTo(FIELD_SUBJECT_QUARTER_ID, qid)
                 .get(Source.CACHE)
                 .await()
+                .documents
                 .map { it.toSubject() }
     }
 
@@ -180,18 +197,20 @@ open class FirestoreDataStore(
         subjectRef.set(values, SetOptions.merge()).await()
     }
 
-    override suspend fun removeSubjects(uid: String, vararg ids: String) {
-        if (ids.isEmpty()) return
+    override suspend fun removeSubjects(uid: String, vararg sid: String) {
+        if (sid.isEmpty()) return
 
-        firestore.runBatch { batch ->
-            ids.forEach { subjectId ->
-                val subjectRef = firestore
-                        .collection(COLLECTION_SUBJECT)
-                        .document(subjectId)
+        val batch = firestore.batch()
 
-                batch.delete(subjectRef)
-            }
-        }.await()
+        sid.forEach { subjectId ->
+            val subjectRef = firestore
+                    .collection(COLLECTION_SUBJECT)
+                    .document(subjectId)
+
+            batch.delete(subjectRef)
+        }
+
+        batch.commit().await()
     }
 
     override suspend fun updateAuthData(uid: String, data: DstAuth) {

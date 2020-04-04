@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
+import com.gdavidpb.tuindice.utils.PATH_COOKIES
 import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
 import com.gdavidpb.tuindice.utils.extensions.isUpdated
 import kotlinx.coroutines.CancellationException
@@ -72,7 +73,7 @@ open class SyncAccountUseCase(
     }
 
     private suspend fun MutableList<DstData>.addRecordData(credentials: DstCredentials) {
-        localStorageRepository.delete("cookies")
+        localStorageRepository.delete(PATH_COOKIES)
 
         val recordAuthRequest = AuthRequest(
                 usbId = credentials.usbId,
@@ -89,7 +90,7 @@ open class SyncAccountUseCase(
     }
 
     private suspend fun MutableList<DstData>.addEnrollmentData(credentials: DstCredentials) {
-        localStorageRepository.delete("cookies")
+        localStorageRepository.delete(PATH_COOKIES)
 
         val enrollmentAuthRequest = AuthRequest(
                 usbId = credentials.usbId,
@@ -125,7 +126,7 @@ open class SyncAccountUseCase(
                 val subjectMap = localCurrentSubjects.map { it.code to it.id }.toMap()
                 val subjectIds = codesToPurge.mapNotNull { subjectMap[it] }.toTypedArray()
 
-                databaseRepository.removeSubjects(uid = uid, ids = *subjectIds)
+                databaseRepository.removeSubjects(uid = uid, sid = *subjectIds)
             }
         }
 

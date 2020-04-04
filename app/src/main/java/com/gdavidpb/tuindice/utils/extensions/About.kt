@@ -39,8 +39,8 @@ fun AboutBuilder.header(@StringRes stringRes: Int) {
 fun AboutBuilder.item(builder: AboutItemBuilder.() -> Unit) {
     AboutItemBuilder(context).apply(builder).let { built ->
         AboutItem(
-                content = built.content ?: throw IllegalArgumentException("content"),
-                drawable = built.drawable ?: throw IllegalArgumentException("drawable"),
+                content = built.content ?: throw NullPointerException("content"),
+                drawable = built.drawable ?: throw NullPointerException("drawable"),
                 onClick = built.onClick
         )
     }.also { item -> content.add(item) }
