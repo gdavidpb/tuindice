@@ -1,33 +1,30 @@
 package com.gdavidpb.tuindice.utils.extensions
 
-import android.util.Base64
-import com.gdavidpb.tuindice.data.model.database.QuarterEntity
-import com.gdavidpb.tuindice.data.model.database.SubjectEntity
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
-import com.gdavidpb.tuindice.presentation.model.QuarterItem
-import com.gdavidpb.tuindice.utils.DigestConcat
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_RETIRED
-import java.nio.ByteBuffer
 import java.util.*
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
 fun Double.toGrade() = when (this.roundToInt()) {
-    in 0 until 30 -> 1
     in 30 until 50 -> 2
     in 50 until 70 -> 3
     in 70 until 85 -> 4
-    in 85 until Integer.MAX_VALUE -> 5
+    in 85..Integer.MAX_VALUE -> 5
     else -> 1
 }
 
-fun QuarterItem.computeGrade() = data.subjects.computeGrade()
+fun Collection<Subject>.filterNoEffect(): Collection<Subject> {
+    val containsNoEffect = size > 1 && first().grade >= 3
 
-fun QuarterItem.computeCredits() = data.subjects.computeCredits()
-
-fun Collection<Subject>.containsNoEffect() = size > 1 && first().grade >= 3
+    return if (containsNoEffect)
+        filterIndexed { index, _ -> index != 1 }
+    else
+        this
+}
 
 fun Collection<Subject>.computeGrade(): Double {
     val creditsSum = computeCredits().toDouble()
@@ -56,53 +53,18 @@ fun Account.isUpdated(): Boolean {
 
 private val gradeSumCache = hashMapOf<Int, Double>()
 
-private fun Collection<QuarterItem>.internalComputeGradeSum(until: QuarterItem) =
-        /* Until quarter and not retired */
-        filter { it.data.startDate <= until.data.startDate && it.data.status != STATUS_QUARTER_RETIRED }
-                /* Get all subjects */
-                .flatMap { it.data.subjects }
-                /* Filter valid subjects */
-                .filter { it.status != STATUS_SUBJECT_RETIRED }
-                /* Group by code */
-                .groupBy { it.code }
-                .map { (_, subjects) ->
+fun Collection<Quarter>.computeGradeSum(until: Quarter = first()) =
+        gradeSumCache.getOrPut(until.hashCode()) {
+            /* Until quarter and not retired */
+            filter { it.startDate <= until.startDate && it.status != STATUS_QUARTER_RETIRED }
+                    /* Get all subjects */
+                    .flatMap { it.subjects }
+                    /* Filter valid subjects */
+                    .filter { it.status != STATUS_SUBJECT_RETIRED }
+                    /* Group by code */
+                    .groupBy { it.code }
                     /* If you've seen this subject more than once and now you approved this */
-                    if (subjects.containsNoEffect())
-                        subjects.filterIndexed { index, _ -> index != 1 }
-                    else
-                        subjects
-                }.flatten()
-                .computeGrade()
-
-fun Collection<QuarterItem>.computeGradeSum(until: QuarterItem) =
-        gradeSumCache.getOrPut(until.hashCode()) { internalComputeGradeSum(until) }
-
-private val digestConcat = DigestConcat(algorithm = "SHA-256")
-
-fun QuarterEntity.generateId(): String {
-    val hash = digestConcat
-            .concat(data = userId)
-            .concat(data = startDate.seconds)
-            .build()
-
-    return Base64
-            .encodeToString(hash, Base64.DEFAULT)
-            .replace("[/+=\n]+".toRegex(), "")
-            .substring(0..userId.length)
-}
-
-fun SubjectEntity.generateId(): String {
-    val hash = digestConcat
-            .concat(data = quarterId)
-            .concat(data = code)
-            .build()
-
-    return Base64
-            .encodeToString(hash, Base64.DEFAULT)
-            .replace("[/+=\n]+".toRegex(), "")
-            .substring(0..userId.length)
-}
-
-fun Long.bytes(): ByteArray = ByteBuffer.allocate(Long.SIZE_BYTES).run {
-    putLong(this@bytes).array().also { clear() }
-}
+                    .map { (_, subjects) -> subjects.filterNoEffect() }
+                    .flatten()
+                    .computeGrade()
+        }

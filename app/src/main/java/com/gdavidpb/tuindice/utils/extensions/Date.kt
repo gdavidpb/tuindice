@@ -11,7 +11,7 @@ fun Date.isToday(): Boolean {
         precision(Calendar.DATE)
 
         add(Calendar.DATE, 1)
-        add(Calendar.SECOND, -1)
+        add(Calendar.MILLISECOND, -1)
     })
 }
 
@@ -24,7 +24,7 @@ fun Date.isTomorrow(): Boolean {
         precision(Calendar.DATE)
 
         add(Calendar.DATE, 2)
-        add(Calendar.SECOND, -1)
+        add(Calendar.MILLISECOND, -1)
     })
 }
 
@@ -36,18 +36,24 @@ fun Date.isYesterday(): Boolean {
     }, {
         precision(Calendar.DATE)
 
-        add(Calendar.SECOND, -1)
+        add(Calendar.MILLISECOND, -1)
     })
 }
 
 fun Date.isThisWeek(): Boolean {
     return checkInRange({
         precision(Calendar.DATE)
+
+        while (get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
+            add(Calendar.DATE, -1)
     }, {
         precision(Calendar.DATE)
 
         while (get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY)
             add(Calendar.DATE, 1)
+
+        add(Calendar.DATE, 1)
+        add(Calendar.MILLISECOND, -1)
     })
 }
 
@@ -55,8 +61,10 @@ fun Date.isNextWeek(): Boolean {
     return checkInRange({
         precision(Calendar.DATE)
 
+        add(Calendar.WEEK_OF_YEAR, 1)
+
         while (get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
-            add(Calendar.DATE, 1)
+            add(Calendar.DATE, -1)
     }, {
         precision(Calendar.DATE)
 
@@ -64,6 +72,9 @@ fun Date.isNextWeek(): Boolean {
 
         while (get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY)
             add(Calendar.DATE, 1)
+
+        add(Calendar.DATE, 1)
+        add(Calendar.MILLISECOND, -1)
     })
 }
 
@@ -82,34 +93,34 @@ fun Calendar.precision(vararg fields: Int): Calendar {
 }
 
 fun Date.tomorrow(): Date {
-    return Calendar.getInstance().let { calendar ->
-        calendar.time = this
+    return Calendar.getInstance().run {
+        time = this@tomorrow
 
-        calendar.precision(Calendar.DATE)
+        precision(Calendar.DATE)
 
-        calendar.add(Calendar.DATE, 1)
+        add(Calendar.DATE, 1)
 
-        Date(calendar.timeInMillis)
+        time
     }
 }
 
-fun Date.get(field: Int) = Calendar.getInstance().let { calendar ->
-    calendar.time = this
+fun Date.add(field: Int, value: Int): Date = Calendar.getInstance().run {
+    time = this@add
 
-    calendar.get(field)
+    add(field, value)
+
+    time
 }
 
-fun Date.add(field: Int, value: Int) = Calendar.getInstance().let { calendar ->
-    calendar.time = this
+fun Date.get(field: Int): Int = Calendar.getInstance().run {
+    time = this@get
 
-    calendar.add(field, value)
-
-    Date(calendar.timeInMillis)
+    get(field)
 }
 
-fun Date.checkInRange(startTransformation: Calendar.() -> Unit, endTransformation: Calendar.() -> Unit): Boolean {
-    val start = Calendar.getInstance().apply(startTransformation).timeInMillis
-    val end = Calendar.getInstance().apply(endTransformation).timeInMillis
+private fun Date.checkInRange(startTransformation: Calendar.() -> Unit, endTransformation: Calendar.() -> Unit): Boolean {
+    val start = Calendar.getInstance().apply(startTransformation).time
+    val end = Calendar.getInstance().apply(endTransformation).time
 
-    return (start..end).contains(time)
+    return this in start..end
 }

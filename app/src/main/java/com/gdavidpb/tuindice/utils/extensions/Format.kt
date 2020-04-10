@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import com.gdavidpb.tuindice.utils.DEFAULT_LOCALE
-import com.gdavidpb.tuindice.utils.DEFAULT_TIME_ZONE
 import com.gdavidpb.tuindice.utils.mappers.capitalize
 import java.text.SimpleDateFormat
 import java.util.*
@@ -14,9 +13,9 @@ fun Date.formatLastUpdate(): String {
 
     return when {
         time == 0L -> "Nunca"
-        isToday() -> format("'Hoy,' hh:mm aa", DEFAULT_TIME_ZONE)
-        isYesterday() -> format("'Ayer,' hh:mm aa", DEFAULT_TIME_ZONE)
-        days < 7 -> format("EEEE',' hh:mm aa", DEFAULT_TIME_ZONE)
+        isToday() -> format("'Hoy,' hh:mm aa")
+        isYesterday() -> format("'Ayer,' hh:mm aa")
+        days < 7 -> format("EEEE',' hh:mm aa")
         else -> format("dd 'de' MMMM yyyy")
     }?.capitalize() ?: "-"
 }
@@ -34,15 +33,15 @@ fun Int.formatGrade() = "%d".format(this)
 
 private val dateFormatCache = hashMapOf<String, SimpleDateFormat>()
 
-fun Date.format(format: String, zone: TimeZone = TimeZone.getTimeZone("GMT")) = dateFormatCache.getOrPut(format) {
-    SimpleDateFormat(format, DEFAULT_LOCALE).apply {
-        timeZone = zone
+fun Date.format(format: String, locale: Locale = DEFAULT_LOCALE) = dateFormatCache.getOrPut(format) {
+    SimpleDateFormat(format, locale).apply {
+        timeZone = TimeZone.getTimeZone("GMT")
     }
 }.runCatching { format(this@format) }.getOrNull()
 
-fun String.parse(format: String, zone: TimeZone = TimeZone.getTimeZone("GMT")) = dateFormatCache.getOrPut(format) {
-    SimpleDateFormat(format, DEFAULT_LOCALE).apply {
-        timeZone = zone
+fun String.parse(format: String, locale: Locale = DEFAULT_LOCALE) = dateFormatCache.getOrPut(format) {
+    SimpleDateFormat(format, locale).apply {
+        timeZone = TimeZone.getTimeZone("GMT")
     }
 }.runCatching { parse(this@parse) }.getOrNull()
 

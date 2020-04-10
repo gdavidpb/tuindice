@@ -6,7 +6,7 @@ import okhttp3.RequestBody
 import okio.Buffer
 import org.jsoup.Jsoup
 import java.io.ByteArrayInputStream
-import java.security.cert.X509Certificate
+import java.nio.ByteBuffer
 import java.util.zip.DeflaterInputStream
 
 fun RequestBody?.bodyToString(): String {
@@ -34,7 +34,9 @@ fun String.noSensitiveData(): String = replace("(username|password)=[^&]+&".toRe
 
 fun String.isHtml() = contains("<[^>]*>".toRegex())
 
-fun X509Certificate.getProperty(key: String) = "(?<=$key=)[^,]+|$".toRegex().find(subjectDN.name)?.value
+fun Long.bytes(): ByteArray = ByteBuffer.allocate(Long.SIZE_BYTES).run {
+    putLong(this@bytes).array().also { clear() }
+}
 
 fun Int.isStartDestination() = when (this) {
     R.id.nav_summary,

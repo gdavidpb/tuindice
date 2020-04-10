@@ -109,11 +109,19 @@ fun Int.formatCredits(color: Int, font: Typeface, context: Context) =
 fun Date.formatEvaluationDate(): String {
     val weeksLeft = weeksLeft()
 
+    val now = Date()
+
     return when {
         time == 0L -> "Evaluación continua"
         isToday() -> "Hoy"
         isTomorrow() -> "Mañana"
-        isThisWeek() -> "Este ${format("EEEE '—' dd/MM")}"
+        isYesterday() -> "Ayer"
+        isThisWeek() -> {
+            if (before(now))
+                "El ${format("EEEE 'pasado —' dd/MM")}"
+            else
+                "Este ${format("EEEE '—' dd/MM")}"
+        }
         isNextWeek() -> "El próximo ${format("EEEE '—' dd/MM")}"
         weeksLeft in 2..12 -> "En $weeksLeft semanas, ${format("EEEE '—' dd/MM")}"
         else -> format("EEEE '—' dd/MM/yy")?.capitalize()!!

@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.ui.adapters.base.BaseAdapter
 import com.gdavidpb.tuindice.ui.viewholders.QuarterViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
-import com.gdavidpb.tuindice.utils.extensions.computeGradeSum
+import com.gdavidpb.tuindice.utils.extensions.computeGradeSumUntil
 import kotlinx.android.synthetic.main.item_quarter.view.*
 import kotlin.math.roundToInt
 
@@ -52,6 +52,6 @@ open class QuarterAdapter(
     }
 
     fun computeGradeSum(until: QuarterItem): Double {
-        return items.computeGradeSum(until)
+        return items.computeGradeSumUntil(until)
     }
 }

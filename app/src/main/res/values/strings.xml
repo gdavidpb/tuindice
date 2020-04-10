@@ -17,7 +17,7 @@
     <string name="retry">Reintentar</string>
     <string name="settings">Ir a la configuración</string>
 
-    <string name="app_version">%1$s v%2$s-%3$d</string>
+    <string name="app_version">%1$s v%2$s (%3$d)</string>
 
     <!-- MainActivity -->
     <string name="nav_summary">Resumen</string>

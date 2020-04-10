@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.utils.mappers
 
+import android.util.Base64
 import com.gdavidpb.tuindice.data.model.database.CurrentSubjectEntity
 import com.gdavidpb.tuindice.data.model.database.EvaluationEntity
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
@@ -14,6 +15,34 @@ import com.gdavidpb.tuindice.utils.extensions.computeCredits
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import java.util.*
+
+/* Identifiers generation */
+
+private val digestConcat = DigestConcat(algorithm = "SHA-256")
+
+fun QuarterEntity.generateId(): String {
+    val hash = digestConcat
+            .concat(data = userId)
+            .concat(data = startDate.seconds)
+            .build()
+
+    return Base64
+            .encodeToString(hash, Base64.DEFAULT)
+            .replace("[/+=\n]+".toRegex(), "")
+            .substring(0..userId.length)
+}
+
+fun SubjectEntity.generateId(): String {
+    val hash = digestConcat
+            .concat(data = quarterId)
+            .concat(data = code)
+            .build()
+
+    return Base64
+            .encodeToString(hash, Base64.DEFAULT)
+            .replace("[/+=\n]+".toRegex(), "")
+            .substring(0..userId.length)
+}
 
 /* Read from database */
 

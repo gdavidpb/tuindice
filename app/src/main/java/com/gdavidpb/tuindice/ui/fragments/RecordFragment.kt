@@ -123,7 +123,7 @@ open class RecordFragment : Fragment() {
 
                 val quarters = result.value
 
-                val hasCurrentQuarter = quarters.contains { quarter ->
+                val hasCurrentQuarter = quarters.any { quarter ->
                     quarter.status == STATUS_QUARTER_CURRENT
                 }
 
