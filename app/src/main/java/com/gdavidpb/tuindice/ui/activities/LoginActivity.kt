@@ -8,18 +8,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.data.utils.`do`
+import com.gdavidpb.tuindice.data.utils.`when`
+import com.gdavidpb.tuindice.data.utils.firstInvalid
 import com.gdavidpb.tuindice.domain.model.AuthResponse
-import com.gdavidpb.tuindice.domain.model.AuthResponseCode
-import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.utils.EXTRA_FIRST_START_UP
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_login.*
+import okio.IOException
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import retrofit2.HttpException
-import java.io.IOException
 
 class LoginActivity : AppCompatActivity() {
 
@@ -29,9 +30,10 @@ class LoginActivity : AppCompatActivity() {
 
     private val validations by lazy {
         arrayOf(
-                tInputUsbId set R.string.error_empty `when` { text().isBlank() },
-                tInputUsbId set R.string.error_usb_id `when` { !text().isUsbId() },
-                tInputPassword set R.string.error_empty `when` { text().isEmpty() }
+                `when`(tInputUsbId) { text().isBlank() } `do` { errorResource = R.string.error_empty },
+                `when`(tInputUsbId) { !text().isUsbId() } `do` { errorResource = R.string.error_usb_id },
+                `when`(tInputPassword) { text().isBlank() } `do` { errorResource = R.string.error_empty },
+                `when`(connectivityManager) { !isNetworkAvailable() } `do` { handleAuthException(IOException()) }
         )
     }
 
@@ -47,9 +49,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun onViewCreated() {
-        /* Set up validations */
-        validations.setUp()
-
         /* Set up background animation */
         (backgroundOne to backgroundTwo).animateInfiniteLoop()
 
@@ -74,6 +73,14 @@ class LoginActivity : AppCompatActivity() {
                 true
         }
 
+        arrayOf(tInputUsbId, tInputPassword).forEach { textInputLayout ->
+            textInputLayout.editText.notNull { editText ->
+                editText.onTextChanged { _, _, _, _ ->
+                    textInputLayout.error = null
+                }
+            }
+        }
+
         iViewLogo.onClickOnce(::onLogoClick)
         btnPrivacyPolicy.onClickOnce(::onPrivacyPolicyClick)
         btnSignIn.onClickOnce(::onSignInClick)
@@ -89,11 +96,15 @@ class LoginActivity : AppCompatActivity() {
 
     private fun onSignInClick() {
         validations.firstInvalid {
-            requestFocus()
+            when (this) {
+                is TextInputLayout -> {
+                    requestFocus()
 
-            selectAll()
+                    selectAll()
 
-            animateLookAtMe()
+                    animateLookAtMe()
+                }
+            }
         }.isNull {
             iViewLogo.performClick()
 
@@ -142,35 +153,17 @@ class LoginActivity : AppCompatActivity() {
             is Result.OnError -> {
                 enableUI(true)
 
-                when (result.throwable) {
-                    is AuthenticationException ->
-                        when (result.throwable.code) {
-                            AuthResponseCode.INVALID_CREDENTIALS -> R.string.snack_invalid_credentials
-                            else -> R.string.snack_service_unreachable
-                        }
-                    is IOException, is HttpException ->
-                        if (connectivityManager.isNetworkAvailable())
-                            R.string.snack_service_unreachable
-                        else
-                            R.string.snack_network_unavailable
-
-                    else -> R.string.snack_internal_failure
-                }.also { textResource ->
-                    snackBar {
-                        messageResource = textResource
-
-                        if (textResource != R.string.snack_invalid_credentials) {
-                            action(R.string.retry) {
-                                viewModel.auth(
-                                        usbId = tInputUsbId.text(),
-                                        password = tInputPassword.text()
-                                )
-                            }
-                        }
-
-                    }
-                }
+                handleAuthException(throwable = result.throwable)
             }
         }
+    }
+
+    private fun handleAuthException(throwable: Throwable) {
+        val retryAction: (() -> Unit)? = if (!throwable.isInvalidCredentials()) {
+            { onSignInClick() }
+        } else
+            null
+
+        showSnackBarException(throwable, retryAction)
     }
 }

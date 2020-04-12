@@ -114,7 +114,7 @@ open class SubjectFragment : Fragment() {
 
                 evaluationAdapter.addItem(item = item, notifyChange = false)
             }
-            is Result.OnError -> requireActivity().showSnackBarError(throwable = result.throwable)
+            is Result.OnError -> requireActivity().showSnackBarException(throwable = result.throwable)
         }
     }
 
@@ -126,7 +126,7 @@ open class SubjectFragment : Fragment() {
 
                 evaluationAdapter.replaceItem(item = response.toEvaluationItem(context))
             }
-            is Result.OnError -> requireActivity().showSnackBarError(throwable = result.throwable)
+            is Result.OnError -> requireActivity().showSnackBarException(throwable = result.throwable)
         }
     }
 
@@ -147,7 +147,7 @@ open class SubjectFragment : Fragment() {
 
                 evaluationAdapter.swapItems(new = items)
             }
-            is Result.OnError -> requireActivity().showSnackBarError(throwable = result.throwable)
+            is Result.OnError -> requireActivity().showSnackBarException(throwable = result.throwable)
         }
     }
 

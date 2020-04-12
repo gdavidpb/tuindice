@@ -93,7 +93,7 @@ open class SummaryFragment : Fragment() {
 
                 viewModel.updateProfilePicture(outputUri)
             }
-            is Event.OnError -> requireActivity().showSnackBarError(throwable = result.throwable)
+            is Event.OnError -> requireActivity().showSnackBarException(throwable = result.throwable)
         }
     }
 
@@ -105,7 +105,7 @@ open class SummaryFragment : Fragment() {
 
                 requestProfilePictureInput(outputUri)
             }
-            is Event.OnError -> requireActivity().showSnackBarError(throwable = result.throwable)
+            is Event.OnError -> requireActivity().showSnackBarException(throwable = result.throwable)
         }
     }
 
@@ -128,7 +128,7 @@ open class SummaryFragment : Fragment() {
             is Event.OnError -> {
                 hideProfilePictureLoading()
 
-                requireActivity().showSnackBarError(throwable = result.throwable)
+                requireActivity().showSnackBarException(throwable = result.throwable)
             }
         }
     }
@@ -144,7 +144,7 @@ open class SummaryFragment : Fragment() {
             is Completable.OnError -> {
                 hideProfilePictureLoading()
 
-                requireActivity().showSnackBarError(throwable = result.throwable)
+                requireActivity().showSnackBarException(throwable = result.throwable)
             }
         }
     }

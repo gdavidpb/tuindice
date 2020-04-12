@@ -161,9 +161,8 @@
     <string name="error_empty">Campo vacío</string>
     <string name="error_usb_id">USBID inválido</string>
 
-    <string name="snack_network_unavailable">Error de conexión</string>
+    <string name="snack_network_unavailable">No hay conexión</string>
     <string name="snack_service_unreachable">El servidor no está disponible</string>
-    <string name="snack_internal_failure">Parece que algo ha fallado</string>
     <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
 
     <string name="message_logging">Iniciando sesión…</string>

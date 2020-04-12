@@ -85,14 +85,14 @@ class EmailSentActivity : AppCompatActivity() {
     private fun resetPasswordObserver(result: Completable?) {
         when (result) {
             is Completable.OnComplete -> showSnackBarResend()
-            is Completable.OnError -> showSnackBarError(throwable = result.throwable)
+            is Completable.OnError -> showSnackBarException(throwable = result.throwable)
         }
     }
 
     private fun sendEmailVerificationObserver(result: Completable?) {
         when (result) {
             is Completable.OnComplete -> showSnackBarResend()
-            is Completable.OnError -> showSnackBarError(throwable = result.throwable)
+            is Completable.OnError -> showSnackBarException(throwable = result.throwable)
         }
     }
 
