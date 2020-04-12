@@ -12,6 +12,7 @@ import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
+import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
@@ -124,7 +125,7 @@ class MainActivity : AppCompatActivity() {
 
             isCancelable = false
 
-            positiveButton(R.string.settings) {
+            positiveButton(R.string.open_settings) {
                 openSettings()
 
                 finish()
@@ -133,7 +134,7 @@ class MainActivity : AppCompatActivity() {
             negativeButton(R.string.exit) {
                 finish()
             }
-        }.show()
+        }
     }
 
     private fun dataFailureDialog() {
@@ -143,14 +144,31 @@ class MainActivity : AppCompatActivity() {
 
             isCancelable = false
 
-            positiveButton(R.string.settings) {
+            positiveButton(R.string.open_settings) {
                 viewModel.signOut()
             }
 
             negativeButton(R.string.exit) {
                 viewModel.signOut()
             }
-        }.show()
+        }
+    }
+
+    private fun syncFailureDialog() {
+        alert {
+            titleResource = R.string.alert_title_sync_failure
+            messageResource = R.string.alert_message_sync_failure
+
+            isCancelable = false
+
+            positiveButton(R.string.open_settings) {
+                openDataTime()
+            }
+
+            negativeButton(R.string.exit) {
+                finish()
+            }
+        }
     }
 
     private fun syncObserver(result: Result<SyncResponse>?) {
@@ -171,9 +189,8 @@ class MainActivity : AppCompatActivity() {
                 showLoading(false)
 
                 when (result.throwable) {
-                    is NoAuthenticatedException -> {
-                        viewModel.signOut()
-                    }
+                    is NoAuthenticatedException -> viewModel.signOut()
+                    is SynchronizationException -> syncFailureDialog()
                 }
             }
             is Result.OnCancel -> {

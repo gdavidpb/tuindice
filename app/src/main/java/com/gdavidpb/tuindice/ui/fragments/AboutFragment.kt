@@ -193,6 +193,6 @@ open class AboutFragment : Fragment() {
             }
 
             negativeButton(R.string.cancel)
-        }.show()
+        }
     }
 }

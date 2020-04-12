@@ -18,6 +18,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.fragment.app.FragmentActivity
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.activities.BrowserActivity
@@ -28,13 +29,6 @@ import com.gdavidpb.tuindice.utils.ResourcesManager
 import com.gdavidpb.tuindice.utils.mappers.fillIntentArguments
 import com.gdavidpb.tuindice.utils.mappers.runCatchingIsSuccess
 import java.io.File
-
-fun Context.openSettings() {
-    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-            Uri.fromParts("package", packageName, null))
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            .let(::startActivity)
-}
 
 fun Context.openPdf(file: File) {
     FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID, file).also { uri ->

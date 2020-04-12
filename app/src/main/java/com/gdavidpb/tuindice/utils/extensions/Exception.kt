@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.utils.extensions
 
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
+import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageException.ERROR_NOT_AUTHENTICATED
@@ -34,3 +35,5 @@ fun Throwable.isConnectionIssue() = when (this) {
     is IOException, is HttpException -> true
     else -> false
 }
+
+fun Throwable.isSynchronizationIssue() = this is SynchronizationException

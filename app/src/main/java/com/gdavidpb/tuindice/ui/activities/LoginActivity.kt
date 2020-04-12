@@ -115,6 +115,23 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
+    private fun syncFailureDialog() {
+        alert {
+            titleResource = R.string.alert_title_sync_failure
+            messageResource = R.string.alert_message_sync_failure
+
+            isCancelable = false
+
+            positiveButton(R.string.open_settings) {
+                openDataTime()
+            }
+
+            negativeButton(R.string.exit) {
+                finish()
+            }
+        }
+    }
+
     private fun enableUI(value: Boolean) {
         if (value) {
             groupLoginProgress.gone()
@@ -159,11 +176,10 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun handleAuthException(throwable: Throwable) {
-        val retryAction: (() -> Unit)? = if (!throwable.isInvalidCredentials()) {
-            { onSignInClick() }
-        } else
-            null
-
-        showSnackBarException(throwable, retryAction)
+        when {
+            throwable.isSynchronizationIssue() -> syncFailureDialog()
+            throwable.isInvalidCredentials() -> showSnackBarException(throwable)
+            else -> showSnackBarException(throwable) { onSignInClick() }
+        }
     }
 }

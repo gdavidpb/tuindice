@@ -21,6 +21,9 @@ const val URL_TWITTER = "https://twitter.com/TuIndice"
 const val EMAIL_CONTACT = "tuindice@gmail.com"
 const val EMAIL_SUBJECT_CONTACT = "TuIndice - Contacto"
 
+/* Headers */
+const val HEADER_DATE = "Date"
+
 /* Preferences keys */
 const val KEY_USB_ID = "email"
 const val KEY_PASSWORD = "password"
@@ -70,9 +73,10 @@ val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone("America/Caracas")
 
 /* Times */
 const val TIME_COUNT_DOWN = 5 * 60 * 1000
-const val TIME_BACKGROUND_ANIMATION = 30000L
+const val TIME_BACKGROUND_ANIMATION = 30 * 1000L
 const val TIME_DELAY_CLICK_ONCE = 500L
-const val TIME_OUT_CONNECTION = 90000L
+const val TIME_OUT_CONNECTION = 90 * 1000L
+const val TIME_SYNCHRONIZATION = 3 * 60 * 1000L
 
 /* Summary view types */
 const val VIEW_TYPE_SUMMARY_SUBJECTS = 0

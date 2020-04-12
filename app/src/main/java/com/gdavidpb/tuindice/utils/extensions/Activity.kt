@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.utils.extensions
 
+import android.content.Intent
 import android.net.ConnectivityManager
+import android.net.Uri
+import android.provider.Settings
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
@@ -25,6 +28,21 @@ fun FragmentActivity.selector(
     setItems(items) { _, which -> onClick(items[which]) }
 }
 
+fun FragmentActivity.openDataTime() {
+    val intent = Intent(Settings.ACTION_DATE_SETTINGS)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+    startActivityForResult(intent, 0)
+}
+
+fun FragmentActivity.openSettings() {
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.fromParts("package", packageName, null))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+    startActivityForResult(intent, 0)
+}
+
 fun FragmentActivity.showSnackBarException(throwable: Throwable? = null, retryAction: (() -> Unit)? = null) {
     val connectivityManager by inject<ConnectivityManager>()
     val isNetworkAvailable = connectivityManager.isNetworkAvailable()
@@ -32,10 +50,10 @@ fun FragmentActivity.showSnackBarException(throwable: Throwable? = null, retryAc
     snackBar {
         messageResource = when {
             throwable == null -> R.string.snack_bar_error_occurred
-            throwable.isPermissionDenied() -> R.string.snack_bar_permission_denied
-            throwable.isInvalidCredentials() -> R.string.snack_invalid_credentials
             throwable.isNoNetworkAvailable(isNetworkAvailable) -> R.string.snack_network_unavailable
             throwable.isConnectionIssue() -> R.string.snack_service_unreachable
+            throwable.isPermissionDenied() -> R.string.snack_bar_permission_denied
+            throwable.isInvalidCredentials() -> R.string.snack_invalid_credentials
             else -> R.string.snack_bar_error_occurred
         }
 

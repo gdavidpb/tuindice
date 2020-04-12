@@ -15,7 +15,7 @@
     <string name="edit">Modificar</string>
     <string name="exit">Salir</string>
     <string name="retry">Reintentar</string>
-    <string name="settings">Ir a la configuración</string>
+    <string name="open_settings">Ir a la configuración</string>
 
     <string name="app_version">%1$s v%2$s (%3$d)</string>
 
@@ -34,6 +34,11 @@
     <string name="alert_title_fatal_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_fatal_failure">
         Parece que algo ha salido muy mal por acá. Intenta reinstalar la aplicación y vuelve a intentar
+    </string>
+
+    <string name="alert_title_sync_failure">¡Revisa tu fecha y hora!</string>
+    <string name="alert_message_sync_failure">
+        Para que <b>TuIndice</b> funcione correctamente debes ajustar la fecha y hora de tu dispositivo
     </string>
 
     <string name="alert_title_data_failure">¡Oops, lo sentimos!</string>
