@@ -1,11 +1,12 @@
 package com.gdavidpb.tuindice.utils.extensions
 
-import android.content.Context
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import com.gdavidpb.tuindice.ui.dialogs.EvaluationDialogBuilder
 import com.gdavidpb.tuindice.utils.NO_GETTER
 import kotlin.DeprecationLevel.ERROR
 
@@ -46,8 +47,11 @@ fun (AlertDialog.Builder).createView(@LayoutRes layout: Int, init: View.() -> Un
                 .apply(init)
                 .also { view -> setView(view) }
 
-fun Context.alert(builder: AlertDialog.Builder.() -> Unit) =
-        AlertDialog.Builder(this).apply(builder)
+inline fun FragmentActivity.alert(builder: AlertDialog.Builder.() -> Unit): AlertDialog =
+        AlertDialog.Builder(this).apply(builder).show()
 
-fun Fragment.alert(builder: AlertDialog.Builder.() -> Unit) =
-        requireActivity().alert(builder)
+inline fun Fragment.alert(builder: AlertDialog.Builder.() -> Unit): AlertDialog =
+        AlertDialog.Builder(requireActivity()).apply(builder).show()
+
+inline fun Fragment.evaluationDialog(builder: EvaluationDialogBuilder.() -> Unit): AlertDialog =
+        EvaluationDialogBuilder(requireActivity()).apply(builder).show()

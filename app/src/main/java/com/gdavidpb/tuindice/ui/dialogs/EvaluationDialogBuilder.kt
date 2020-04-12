@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.ui.dialogs
 
-import android.content.Context
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentActivity
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.EvaluationType
@@ -25,7 +25,7 @@ import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 
-class EvaluationDialogBuilder(context: Context) : AlertDialog.Builder(context), KoinComponent {
+class EvaluationDialogBuilder(private val activity: FragmentActivity) : AlertDialog.Builder(activity), KoinComponent {
 
     private var subject: Subject? = null
     private var evaluation: Evaluation? = null
@@ -37,7 +37,7 @@ class EvaluationDialogBuilder(context: Context) : AlertDialog.Builder(context), 
     private val inputMethodManager by inject<InputMethodManager>()
 
     override fun create(): AlertDialog {
-        val subject = subject ?: throw NullPointerException("subject")
+        val subject = subject ?: throw IllegalArgumentException("subject")
 
         val headerView = View.inflate(context, R.layout.dialog_evaluation_header, null)
         val contentView = View.inflate(context, R.layout.dialog_evaluation_content, null)
@@ -235,7 +235,7 @@ class EvaluationDialogBuilder(context: Context) : AlertDialog.Builder(context), 
     }
 
     private fun View.onDateClicked() {
-        context.datePicker {
+        activity.datePicker {
             if (datePicker.selectedDate.time != 0L)
                 selectedDate = datePicker.selectedDate
 

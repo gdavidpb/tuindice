@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
 
-        if (!isGoogleServicesAvailable(activity = this)) return
+        if (!isGoogleServicesAvailable()) return
 
         with(viewModel) {
             observe(sync, ::syncObserver)

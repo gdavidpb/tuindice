@@ -42,17 +42,7 @@ open class RecordFragment : Fragment() {
             }
 
             isCancelable = false
-        }.create()
-    }
-
-    private val retrySnackBar by lazy {
-        snackBar {
-            messageResource = R.string.snack_bar_enrollment_retry
-
-            action(R.string.retry) {
-                viewModel.openEnrollmentProof()
-            }
-        }.build()
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -165,7 +155,7 @@ open class RecordFragment : Fragment() {
                 }.onFailure {
                     snackBar {
                         messageResource = R.string.snack_bar_enrollment_unsupported
-                    }.build().show()
+                    }
                 }
             }
             is Event.OnError -> {
@@ -173,7 +163,17 @@ open class RecordFragment : Fragment() {
 
                 setMenuVisibility(true)
 
-                retrySnackBar.show()
+                showSnackBarRetry()
+            }
+        }
+    }
+
+    private fun showSnackBarRetry() {
+        snackBar {
+            messageResource = R.string.snack_bar_enrollment_retry
+
+            action(R.string.retry) {
+                viewModel.openEnrollmentProof()
             }
         }
     }
@@ -238,7 +238,7 @@ open class RecordFragment : Fragment() {
 
                     rViewRecord.scrollToPosition(0)
                 }
-            }.build().show()
+            }
         }
     }
 }

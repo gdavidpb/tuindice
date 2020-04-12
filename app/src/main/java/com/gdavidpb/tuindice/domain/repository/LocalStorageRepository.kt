@@ -12,4 +12,5 @@ interface LocalStorageRepository {
     fun outputStream(path: String): OutputStream
     fun delete(path: String)
     fun exists(path: String): Boolean
+    fun clear()
 }

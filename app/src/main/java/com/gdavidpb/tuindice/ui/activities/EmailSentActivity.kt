@@ -26,12 +26,6 @@ class EmailSentActivity : AppCompatActivity() {
         intent.getStringExtra(EXTRA_AWAITING_EMAIL)
     }
 
-    private val snackBarResend by lazy {
-        snackBar {
-            messageResource = R.string.snack_bar_resend
-        }.build()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_email_sent)
@@ -90,15 +84,21 @@ class EmailSentActivity : AppCompatActivity() {
 
     private fun resetPasswordObserver(result: Completable?) {
         when (result) {
-            is Completable.OnComplete -> snackBarResend.show()
+            is Completable.OnComplete -> showSnackBarResend()
             is Completable.OnError -> showSnackBarError(throwable = result.throwable)
         }
     }
 
     private fun sendEmailVerificationObserver(result: Completable?) {
         when (result) {
-            is Completable.OnComplete -> snackBarResend.show()
+            is Completable.OnComplete -> showSnackBarResend()
             is Completable.OnError -> showSnackBarError(throwable = result.throwable)
+        }
+    }
+
+    private fun showSnackBarResend() {
+        snackBar {
+            messageResource = R.string.snack_bar_resend
         }
     }
 }

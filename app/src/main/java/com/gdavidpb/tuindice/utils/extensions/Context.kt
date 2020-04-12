@@ -21,11 +21,12 @@ import androidx.core.graphics.drawable.DrawableCompat
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.activities.BrowserActivity
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.EXTRA_TITLE
+import com.gdavidpb.tuindice.utils.EXTRA_URL
+import com.gdavidpb.tuindice.utils.PACKAGE_NAME_WEB_VIEW
+import com.gdavidpb.tuindice.utils.ResourcesManager
 import com.gdavidpb.tuindice.utils.mappers.fillIntentArguments
 import com.gdavidpb.tuindice.utils.mappers.runCatchingIsSuccess
-import com.google.android.gms.common.ConnectionResult
-import com.google.android.gms.common.GoogleApiAvailability
 import java.io.File
 
 fun Context.openSettings() {
@@ -122,32 +123,3 @@ fun Context.isPowerSaveMode() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES
 fun Context.isPackageInstalled(packageName: String) = runCatching {
     packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA)
 }.isSuccess
-
-fun Context.isGoogleServicesAvailable(activity: Activity): Boolean {
-    val googleApiAvailability = GoogleApiAvailability.getInstance()
-    val status = googleApiAvailability.isGooglePlayServicesAvailable(this)
-
-    return (status == ConnectionResult.SUCCESS).also { available ->
-        if (!available)
-            if (googleApiAvailability.isUserResolvableError(status))
-                googleApiAvailability.getErrorDialog(
-                        activity,
-                        status,
-                        PLAY_SERVICES_RESOLUTION_REQUEST
-                ).apply {
-                    setOnCancelListener { activity.finish() }
-                    setOnDismissListener { activity.finish() }
-                }.show()
-            else
-                alert {
-                    titleResource = R.string.alert_title_no_services_failure
-                    messageResource = R.string.alert_message_no_services_failure
-
-                    isCancelable = false
-
-                    positiveButton(R.string.exit) {
-                        activity.finish()
-                    }
-                }.show()
-    }
-}

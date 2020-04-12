@@ -123,7 +123,7 @@ open class SummaryFragment : Fragment() {
 
                 snackBar {
                     messageResource = R.string.snack_bar_profile_picture_updated
-                }.build().show()
+                }
             }
             is Event.OnError -> {
                 hideProfilePictureLoading()

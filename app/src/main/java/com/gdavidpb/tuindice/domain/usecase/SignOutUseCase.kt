@@ -5,8 +5,6 @@ import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.domain.repository.LocalStorageRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
-import com.gdavidpb.tuindice.utils.PATH_COOKIES
-import com.gdavidpb.tuindice.utils.PATH_ENROLLMENT
 import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
 import com.gdavidpb.tuindice.utils.extensions.restartKoinModules
 import kotlinx.coroutines.CancellationException
@@ -27,8 +25,7 @@ open class SignOutUseCase(
         settingsRepository.clear()
         databaseRepository.close()
         databaseRepository.clearPersistence()
-        localStorageRepository.delete(PATH_COOKIES)
-        localStorageRepository.delete(PATH_ENROLLMENT)
+        localStorageRepository.clear()
 
         restartKoinModules()
     }

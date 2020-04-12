@@ -168,7 +168,7 @@ class LoginActivity : AppCompatActivity() {
                             }
                         }
 
-                    }.build().show()
+                    }
                 }
             }
         }

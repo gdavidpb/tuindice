@@ -16,7 +16,6 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
-import com.gdavidpb.tuindice.ui.dialogs.EvaluationDialogBuilder
 import com.gdavidpb.tuindice.utils.ARG_SUBJECT_ID
 import com.gdavidpb.tuindice.utils.DECIMALS_GRADE_SUBJECT
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -155,16 +154,16 @@ open class SubjectFragment : Fragment() {
     private fun showEvaluationDialog(evaluation: Evaluation? = null) {
         val subject = viewModel.getSelectedSubject() ?: return
 
-        EvaluationDialogBuilder(requireActivity())
-                .setSubject(subject)
-                .setEvaluation(evaluation)
-                .onDone { newEvaluation ->
-                    if (newEvaluation.isNew())
-                        viewModel.addEvaluation(evaluation = newEvaluation.toEvaluation())
-                    else
-                        viewModel.updateEvaluation(evaluation = newEvaluation.toEvaluation())
-                }
-                .show()
+        evaluationDialog {
+            setSubject(subject)
+            setEvaluation(evaluation)
+            onDone { newEvaluation ->
+                if (newEvaluation.isNew())
+                    viewModel.addEvaluation(evaluation = newEvaluation.toEvaluation())
+                else
+                    viewModel.updateEvaluation(evaluation = newEvaluation.toEvaluation())
+            }
+        }
     }
 
     inner class EvaluationManager : EvaluationAdapter.AdapterManager, ItemTouchHelper.Callback() {
@@ -249,7 +248,7 @@ open class SubjectFragment : Fragment() {
                         viewModel.removeEvaluation(id = item.id)
                     }
                 }
-            }.build().show()
+            }
         }
 
         override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {

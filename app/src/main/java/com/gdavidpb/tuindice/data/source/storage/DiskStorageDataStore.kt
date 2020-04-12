@@ -74,4 +74,13 @@ open class DiskStorageDataStore(
     override fun get(path: String): File {
         return File(root, path)
     }
+
+    override fun clear() {
+        runCatching {
+            root.deleteRecursively()
+            root.mkdir()
+        }.onFailure { throwable ->
+            if (throwable !is FileNotFoundException) throw throwable
+        }
+    }
 }

@@ -7,8 +7,6 @@ import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.utils.PATH_COOKIES
-import com.gdavidpb.tuindice.utils.PATH_ENROLLMENT
 import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
 import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
@@ -40,8 +38,7 @@ open class SignInUseCase(
 
         authRepository.signOut()
         settingsRepository.clear()
-        localStorageRepository.delete(PATH_COOKIES)
-        localStorageRepository.delete(PATH_ENROLLMENT)
+        localStorageRepository.clear()
 
         val authResponse = dstRepository.auth(request = params)
 
