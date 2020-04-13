@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.ui.fragments
 
+import android.app.ActivityManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -10,16 +11,20 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
+import com.gdavidpb.tuindice.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_about.*
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 open class AboutFragment : Fragment() {
 
-    private val viewModel by sharedViewModel<MainViewModel>()
+    private val viewModel by viewModel<AboutViewModel>()
+
+    private val activityManager by inject<ActivityManager>()
 
     private val aboutAdapter = AboutAdapter()
 
@@ -156,6 +161,10 @@ open class AboutFragment : Fragment() {
         }.build()
 
         aboutAdapter.swapItems(new = data)
+
+        with(viewModel) {
+            observe(signOut, ::signOutObserver)
+        }
     }
 
     private fun startPlayStore() {
@@ -193,6 +202,19 @@ open class AboutFragment : Fragment() {
             }
 
             negativeButton(R.string.cancel)
+        }
+    }
+
+    private fun signOutObserver(result: Completable?) {
+        when (result) {
+            is Completable.OnComplete -> {
+                navigateToLogin()
+            }
+            is Completable.OnError -> {
+                activityManager.clearApplicationUserData()
+
+                navigateToLogin()
+            }
         }
     }
 }

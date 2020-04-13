@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.di.modules
 
+import android.app.ActivityManager
 import android.content.Context
 import android.net.ConnectivityManager
 import android.view.inputmethod.InputMethodManager
@@ -61,6 +62,10 @@ val appModule = module {
 
     single {
         androidContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    }
+
+    single {
+        androidContext().getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     }
 
     single {
@@ -214,6 +219,7 @@ val appModule = module {
     viewModel<MainViewModel>()
     viewModel<SummaryViewModel>()
     viewModel<RecordViewModel>()
+    viewModel<AboutViewModel>()
     viewModel<LoginViewModel>()
     viewModel<EmailSentViewModel>()
     viewModel<SubjectViewModel>()

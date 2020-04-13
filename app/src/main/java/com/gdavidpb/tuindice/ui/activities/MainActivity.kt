@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.ui.activities
 
+import android.app.ActivityManager
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.IdRes
@@ -10,19 +11,21 @@ import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
+import com.gdavidpb.tuindice.domain.model.exception.NoDataException
 import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
-import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.activity_main.*
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
     private val viewModel by viewModel<MainViewModel>()
+
+    private val activityManager by inject<ActivityManager>()
 
     private val isFirstStartUp by lazy {
         intent.getBooleanExtra(EXTRA_FIRST_START_UP, false)
@@ -30,6 +33,10 @@ class MainActivity : AppCompatActivity() {
 
     private val navHostFragment by lazy {
         nav_host_fragment as NavHostFragment
+    }
+
+    private val navController by lazy {
+        navHostFragment.navController
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +48,6 @@ class MainActivity : AppCompatActivity() {
 
         with(viewModel) {
             observe(sync, ::syncObserver)
-            observe(signOut, ::signOutObserver)
             observe(fetchStartUpAction, ::startUpObserver)
 
             fetchStartUpAction(dataString = intent.dataString ?: "")
@@ -57,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     private fun initView(@IdRes navId: Int) {
         setContentView(R.layout.activity_main)
 
-        with(navHostFragment.navController) {
+        with(navController) {
             NavigationUI.setupWithNavController(bottomNavView, this)
 
             if (navId.isStartDestination()) {
@@ -104,6 +110,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun fatalFailureRestart() {
+        activityManager.clearApplicationUserData()
+
+        navigateToLogin(navController)
+    }
+
     private fun fatalFailureDialog() {
         alert {
             titleResource = R.string.alert_title_fatal_failure
@@ -111,10 +123,8 @@ class MainActivity : AppCompatActivity() {
 
             isCancelable = false
 
-            positiveButton(R.string.open_settings) {
-                openSettings()
-
-                finish()
+            positiveButton(R.string.restart) {
+                fatalFailureRestart()
             }
 
             negativeButton(R.string.exit) {
@@ -131,11 +141,11 @@ class MainActivity : AppCompatActivity() {
             isCancelable = false
 
             positiveButton(R.string.open_settings) {
-                viewModel.signOut()
+                navigateToLogin(navController)
             }
 
             negativeButton(R.string.exit) {
-                viewModel.signOut()
+                finish()
             }
         }
     }
@@ -157,42 +167,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun syncObserver(result: Result<SyncResponse>?) {
+    private fun syncObserver(result: Result<Boolean>?) {
         when (result) {
             is Result.OnLoading -> {
                 showLoading(true)
             }
             is Result.OnSuccess -> {
                 showLoading(false)
-
-                val response = result.value
-
-                val invalidState = !response.cacheUpdated && !response.thereIsCache
-
-                if (invalidState) dataFailureDialog()
             }
             is Result.OnError -> {
                 showLoading(false)
 
                 when (result.throwable) {
-                    is NoAuthenticatedException -> viewModel.signOut()
+                    is NoAuthenticatedException -> fatalFailureRestart()
+                    is NoDataException -> dataFailureDialog()
                     is SynchronizationException -> syncFailureDialog()
                 }
             }
             is Result.OnCancel -> {
                 showLoading(false)
-            }
-        }
-    }
-
-    private fun signOutObserver(result: Completable?) {
-        when (result) {
-            is Completable.OnComplete -> {
-                startActivity<LoginActivity>()
-                finish()
-            }
-            is Completable.OnError -> {
-                fatalFailureDialog()
             }
         }
     }

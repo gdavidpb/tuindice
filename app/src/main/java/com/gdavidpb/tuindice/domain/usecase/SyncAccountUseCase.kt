@@ -2,13 +2,13 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
+import com.gdavidpb.tuindice.domain.model.exception.NoDataException
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.model.service.DstData
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
 import com.gdavidpb.tuindice.utils.PATH_COOKIES
 import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
 import com.gdavidpb.tuindice.utils.extensions.isUpdated
@@ -29,18 +29,21 @@ open class SyncAccountUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository
-) : ResultUseCase<Unit, SyncResponse>(
+) : ResultUseCase<Unit, Boolean>(
         backgroundContext = Dispatchers.IO,
         foregroundContext = Dispatchers.Main
 ) {
-    override suspend fun executeOnBackground(params: Unit): SyncResponse? {
+    override suspend fun executeOnBackground(params: Unit): Boolean? {
         val activeUId = authRepository.getActiveAuth().uid
         val activeAccount = databaseRepository.getAccount(uid = activeUId)
         val thereIsDataInCache = databaseRepository.getQuarters(uid = activeUId).isNotEmpty()
 
         /* Check if account is up-to-date, return no update required */
         if (activeAccount.isUpdated())
-            return SyncResponse(cacheUpdated = false, thereIsCache = thereIsDataInCache)
+            if (thereIsDataInCache)
+                return false
+            else
+                throw NoDataException()
 
         /* Collected data */
         val collectedData = mutableListOf<DstData>()
@@ -59,7 +62,7 @@ open class SyncAccountUseCase(
             localStorageRepository.delete("enrollments")
 
         /* Should responses more than one service */
-        return (collectedData.size > 1).let { pendingUpdate ->
+        return (collectedData.size > 1).also { pendingUpdate ->
             if (pendingUpdate) {
                 /* Update account */
                 databaseRepository.updateData(uid = activeUId, data = collectedData)
@@ -67,8 +70,6 @@ open class SyncAccountUseCase(
                 /* Sync account */
                 databaseRepository.syncAccount(uid = activeUId)
             }
-
-            SyncResponse(cacheUpdated = pendingUpdate, thereIsCache = true)
         }
     }
 
