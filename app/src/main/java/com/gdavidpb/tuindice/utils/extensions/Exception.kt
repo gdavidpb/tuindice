@@ -8,7 +8,11 @@ import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageException.ERROR_NOT_AUTHENTICATED
 import com.google.firebase.storage.StorageException.ERROR_NOT_AUTHORIZED
 import retrofit2.HttpException
-import java.io.IOException
+import java.io.InterruptedIOException
+import java.net.ConnectException
+import java.net.SocketException
+import java.net.UnknownHostException
+import javax.net.ssl.SSLHandshakeException
 
 fun Throwable.isPermissionDenied() = when (val internal = cause) {
     is FirebaseFirestoreException -> {
@@ -25,14 +29,16 @@ fun Throwable.isPermissionDenied() = when (val internal = cause) {
 fun Throwable.isInvalidCredentials() =
         ((this as? AuthenticationException)?.code) == AuthResponseCode.INVALID_CREDENTIALS
 
-fun Throwable.isNoNetworkAvailable(isNetworkAvailable: Boolean) = when {
-    this is IOException && !isNetworkAvailable -> true
-    this is HttpException && !isNetworkAvailable -> true
-    else -> false
-}
+fun Throwable.isNoNetworkAvailableIssue(isNetworkAvailable: Boolean) =
+        isConnectionIssue() && !isNetworkAvailable
 
 fun Throwable.isConnectionIssue() = when (this) {
-    is IOException, is HttpException -> true
+    is SocketException -> true
+    is InterruptedIOException -> true
+    is UnknownHostException -> true
+    is ConnectException -> true
+    is SSLHandshakeException -> true
+    is HttpException -> true
     else -> false
 }
 

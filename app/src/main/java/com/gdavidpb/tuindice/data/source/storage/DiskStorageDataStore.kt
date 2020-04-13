@@ -16,6 +16,8 @@ open class DiskStorageDataStore(
     override fun create(path: String): File {
         val outputFile = File(root, path)
 
+        outputFile.parentFile?.mkdirs()
+
         outputFile.createNewFile()
 
         return outputFile
@@ -24,7 +26,6 @@ open class DiskStorageDataStore(
     override fun put(path: String, inputStream: InputStream): File {
         val outputFile = File(root, path)
 
-        /* Create directories to */
         outputFile.parentFile?.mkdirs()
 
         val outputStream = outputFile.outputStream()
@@ -40,13 +41,14 @@ open class DiskStorageDataStore(
     override fun inputStream(path: String): InputStream {
         val inputFile = File(root, path)
 
+        inputFile.parentFile?.mkdirs()
+
         return inputFile.inputStream()
     }
 
     override fun outputStream(path: String): OutputStream {
         val outputFile = File(root, path)
 
-        /* Create directories to */
         outputFile.parentFile?.mkdirs()
 
         return outputFile.outputStream()

@@ -50,7 +50,7 @@ fun FragmentActivity.showSnackBarException(throwable: Throwable? = null, retryAc
     snackBar {
         messageResource = when {
             throwable == null -> R.string.snack_bar_error_occurred
-            throwable.isNoNetworkAvailable(isNetworkAvailable) -> R.string.snack_network_unavailable
+            throwable.isNoNetworkAvailableIssue(isNetworkAvailable) -> R.string.snack_network_unavailable
             throwable.isConnectionIssue() -> R.string.snack_service_unreachable
             throwable.isPermissionDenied() -> R.string.snack_bar_permission_denied
             throwable.isInvalidCredentials() -> R.string.snack_invalid_credentials

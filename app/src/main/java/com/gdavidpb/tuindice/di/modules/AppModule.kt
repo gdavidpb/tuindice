@@ -19,10 +19,7 @@ import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataStore
 import com.gdavidpb.tuindice.data.source.token.TokenDataStore
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
-import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
-import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
-import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.*
 import com.gdavidpb.tuindice.utils.TIME_OUT_CONNECTION
 import com.gdavidpb.tuindice.utils.extensions.noSensitiveData
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -215,6 +212,7 @@ val appModule = module {
     /* View Models */
 
     viewModel<MainViewModel>()
+    viewModel<SummaryViewModel>()
     viewModel<LoginViewModel>()
     viewModel<EmailSentViewModel>()
     viewModel<SubjectViewModel>()

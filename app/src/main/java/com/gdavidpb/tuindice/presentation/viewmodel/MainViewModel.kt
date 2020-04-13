@@ -1,9 +1,7 @@
 package com.gdavidpb.tuindice.presentation.viewmodel
 
-import android.net.Uri
 import androidx.annotation.IdRes
 import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.usecase.*
@@ -20,25 +18,17 @@ class MainViewModel(
         private val startUpUseCase: StartUpUseCase,
         private val syncAccountUseCase: SyncAccountUseCase,
         private val setLastScreenUseCase: SetLastScreenUseCase,
-        private val getAccountUseCase: GetAccountUseCase,
         private val getQuartersUseCase: GetQuartersUseCase,
         private val updateSubjectUseCase: UpdateSubjectUseCase,
-        private val openEnrollmentProofUseCase: OpenEnrollmentProofUseCase,
-        private val getProfilePictureFileUseCase: GetProfilePictureFileUseCase,
-        private val createProfilePictureFileUseCase: CreateProfilePictureFileUseCase,
-        private val updateProfilePictureUseCase: UpdateProfilePictureUseCase
+        private val openEnrollmentProofUseCase: OpenEnrollmentProofUseCase
 ) : ViewModel() {
     val signOut = LiveCompletable()
     val fetchStartUpAction = LiveResult<StartUpAction>()
     val sync = LiveResult<SyncResponse>()
     val lastScreen = LiveCompletable()
-    val account = LiveResult<Account>()
     val quarters = LiveResult<List<Quarter>>()
     val subjectUpdate = LiveCompletable()
     val enrollment = LiveEvent<File>()
-    val getProfilePictureFile = LiveEvent<Uri>()
-    val createProfilePictureFile = LiveEvent<Uri>()
-    val updateProfilePicture = LiveEvent<String>()
 
     fun signOut() =
             execute(useCase = signOutUseCase, params = Unit, liveData = signOut)
@@ -52,9 +42,6 @@ class MainViewModel(
     fun setLastScreen(@IdRes navId: Int) =
             execute(useCase = setLastScreenUseCase, params = navId, liveData = lastScreen)
 
-    fun getAccount() =
-            execute(useCase = getAccountUseCase, params = Unit, liveData = account)
-
     fun getQuarters() =
             execute(useCase = getQuartersUseCase, params = Unit, liveData = quarters)
 
@@ -63,13 +50,4 @@ class MainViewModel(
 
     fun openEnrollmentProof() =
             execute(useCase = openEnrollmentProofUseCase, params = Unit, liveData = enrollment)
-
-    fun getProfilePictureFile(optionalUri: Uri?) =
-            execute(useCase = getProfilePictureFileUseCase, params = optionalUri, liveData = getProfilePictureFile)
-
-    fun createProfilePictureFile() =
-            execute(useCase = createProfilePictureFileUseCase, params = Unit, liveData = createProfilePictureFile)
-
-    fun updateProfilePicture(url: Uri) =
-            execute(useCase = updateProfilePictureUseCase, params = url, liveData = updateProfilePicture)
 }

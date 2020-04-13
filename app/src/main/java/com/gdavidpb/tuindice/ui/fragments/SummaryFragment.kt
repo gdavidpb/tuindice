@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.ui.fragments
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -16,6 +17,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.utils.CircleTransform
 import com.gdavidpb.tuindice.utils.DECIMALS_GRADE_QUARTER
@@ -25,10 +27,13 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 open class SummaryFragment : Fragment() {
 
-    private val viewModel by sharedViewModel<MainViewModel>()
+    private val mainViewModel by sharedViewModel<MainViewModel>()
+
+    private val viewModel by viewModel<SummaryViewModel>()
 
     private val picasso by inject<Picasso>()
 
@@ -51,8 +56,11 @@ open class SummaryFragment : Fragment() {
         iViewProfile.onClickOnce(::onEditProfilePictureClick)
         iViewEditProfile.onClickOnce(::onEditProfilePictureClick)
 
-        with(viewModel) {
+        with(mainViewModel) {
             observe(sync, ::syncObserver)
+        }
+
+        with(viewModel) {
             observe(account, ::accountObserver)
             observe(getProfilePictureFile, ::getProfilePictureFileObserver)
             observe(createProfilePictureFile, ::createProfilePictureFileObserver)
@@ -60,6 +68,16 @@ open class SummaryFragment : Fragment() {
             observe(loadProfilePicture, ::loadProfilePictureObserver)
 
             getAccount()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        data ?: return
+
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == REQUEST_CODE_PROFILE_PICTURE) {
+                viewModel.getProfilePictureFile(optionalUri = data.data)
+            }
         }
     }
 
@@ -178,7 +196,7 @@ open class SummaryFragment : Fragment() {
 
         chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(cameraIntent))
 
-        requireActivity().startActivityForResult(chooser, REQUEST_CODE_PROFILE_PICTURE)
+        startActivityForResult(chooser, REQUEST_CODE_PROFILE_PICTURE)
     }
 
     private fun loadAccount(account: Account) {
