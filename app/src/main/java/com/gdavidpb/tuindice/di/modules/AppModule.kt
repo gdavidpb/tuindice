@@ -213,6 +213,7 @@ val appModule = module {
 
     viewModel<MainViewModel>()
     viewModel<SummaryViewModel>()
+    viewModel<RecordViewModel>()
     viewModel<LoginViewModel>()
     viewModel<EmailSentViewModel>()
     viewModel<SubjectViewModel>()

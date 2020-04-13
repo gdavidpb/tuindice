@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.domain.usecase.response.SyncResponse
 import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_GUESS
@@ -27,7 +28,9 @@ import java.io.File
 
 open class RecordFragment : Fragment() {
 
-    private val viewModel by sharedViewModel<MainViewModel>()
+    private val mainViewModel by sharedViewModel<MainViewModel>()
+
+    private val viewModel by sharedViewModel<RecordViewModel>()
 
     private val quarterManager = QuarterManager()
 
@@ -71,8 +74,11 @@ open class RecordFragment : Fragment() {
 
         // btnAddQuarter.onClickOnce(::onAddQuarterClicked)
 
-        with(viewModel) {
+        with(mainViewModel) {
             observe(sync, ::syncObserver)
+        }
+
+        with(viewModel) {
             observe(quarters, ::quartersObserver)
             observe(enrollment, ::enrollmentObserver)
 
