@@ -13,11 +13,19 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import retrofit2.HttpException
 import java.io.File
-import java.io.IOException
+import java.io.InterruptedIOException
+import java.net.ConnectException
+import java.net.SocketException
+import java.net.UnknownHostException
+import javax.net.ssl.SSLHandshakeException
 
 @IgnoredExceptions(
         CancellationException::class,
-        IOException::class,
+        SocketException::class,
+        InterruptedIOException::class,
+        UnknownHostException::class,
+        ConnectException::class,
+        SSLHandshakeException::class,
         HttpException::class,
         AuthenticationException::class,
         EnrollmentNotFoundException::class
