@@ -8,13 +8,11 @@ import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.service.DstData
 
 interface DatabaseRepository {
-    suspend fun syncAccount(uid: String)
-
     suspend fun getAccount(uid: String): Account
+    suspend fun syncAccount(uid: String, data: Collection<DstData>)
 
     suspend fun getQuarters(uid: String): List<Quarter>
     suspend fun getCurrentQuarter(uid: String): Quarter?
-    suspend fun removeQuarters(uid: String, vararg qid: String)
 
     suspend fun getSubject(uid: String, sid: String): Subject
     suspend fun getSubjects(uid: String, qid: String): List<Subject>
@@ -29,9 +27,8 @@ interface DatabaseRepository {
 
     suspend fun updateToken(uid: String, token: String)
     suspend fun updateAuthData(uid: String, data: DstAuth)
-    suspend fun updateData(uid: String, data: Collection<DstData>)
     suspend fun updateProfilePicture(uid: String, photoUrl: String)
 
-    suspend fun close()
     suspend fun clearPersistence()
+    suspend fun close()
 }

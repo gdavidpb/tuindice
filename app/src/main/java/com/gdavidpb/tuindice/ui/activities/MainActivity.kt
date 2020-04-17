@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity() {
     private fun fatalFailureRestart() {
         activityManager.clearApplicationUserData()
 
-        navigateToLogin(navController)
+        recreate()
     }
 
     private fun fatalFailureDialog() {
@@ -140,8 +140,8 @@ class MainActivity : AppCompatActivity() {
 
             isCancelable = false
 
-            positiveButton(R.string.open_settings) {
-                navigateToLogin(navController)
+            positiveButton(R.string.restart) {
+                fatalFailureRestart()
             }
 
             negativeButton(R.string.exit) {

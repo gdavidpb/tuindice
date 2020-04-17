@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import com.gdavidpb.tuindice.utils.DEFAULT_LOCALE
+import com.gdavidpb.tuindice.utils.DEFAULT_TIME_ZONE
 import com.gdavidpb.tuindice.utils.mappers.capitalize
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,15 +34,15 @@ fun Int.formatGrade() = "%d".format(this)
 
 private val dateFormatCache = hashMapOf<String, SimpleDateFormat>()
 
-fun Date.format(format: String, locale: Locale = DEFAULT_LOCALE) = dateFormatCache.getOrPut(format) {
-    SimpleDateFormat(format, locale).apply {
-        timeZone = TimeZone.getTimeZone("GMT")
+fun Date.format(format: String) = dateFormatCache.getOrPut(format) {
+    SimpleDateFormat(format, DEFAULT_LOCALE).apply {
+        timeZone = DEFAULT_TIME_ZONE
     }
 }.runCatching { format(this@format) }.getOrNull()
 
-fun String.parse(format: String, locale: Locale = DEFAULT_LOCALE) = dateFormatCache.getOrPut(format) {
-    SimpleDateFormat(format, locale).apply {
-        timeZone = TimeZone.getTimeZone("GMT")
+fun String.parse(format: String) = dateFormatCache.getOrPut(format) {
+    SimpleDateFormat(format, DEFAULT_LOCALE).apply {
+        timeZone = DEFAULT_TIME_ZONE
     }
 }.runCatching { parse(this@parse) }.getOrNull()
 

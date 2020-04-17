@@ -80,10 +80,6 @@ open class SignInUseCase(
 
         settingsRepository.storeCredentials(credentials = request.toDstCredentials())
 
-        with(databaseRepository) {
-            updateAuthData(uid = auth.uid, data = authData)
-
-            syncAccount(uid = auth.uid)
-        }
+        databaseRepository.updateAuthData(uid = auth.uid, data = authData)
     }
 }

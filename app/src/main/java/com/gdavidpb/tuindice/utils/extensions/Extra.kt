@@ -6,7 +6,6 @@ import okhttp3.RequestBody
 import okio.Buffer
 import org.jsoup.Jsoup
 import java.io.ByteArrayInputStream
-import java.nio.ByteBuffer
 import java.util.zip.DeflaterInputStream
 
 fun RequestBody?.bodyToString(): String {
@@ -33,10 +32,6 @@ fun String.noSensitiveData(): String = replace("(username|password)=[^&]+&".toRe
         .run { if (isHtml()) deflateHtml() else this }
 
 fun String.isHtml() = contains("<[^>]*>".toRegex())
-
-fun Long.bytes(): ByteArray = ByteBuffer.allocate(Long.SIZE_BYTES).run {
-    putLong(this@bytes).array().also { clear() }
-}
 
 fun Int.isStartDestination() = when (this) {
     R.id.nav_summary,

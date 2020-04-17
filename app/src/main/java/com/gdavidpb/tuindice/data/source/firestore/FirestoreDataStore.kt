@@ -15,26 +15,6 @@ import com.google.firebase.firestore.*
 open class FirestoreDataStore(
         private val firestore: FirebaseFirestore
 ) : DatabaseRepository {
-    override suspend fun syncAccount(uid: String) {
-        firestore
-                .collection(COLLECTION_USER)
-                .document(uid)
-                .get(Source.SERVER)
-                .await()
-
-        arrayOf(
-                COLLECTION_QUARTER,
-                COLLECTION_SUBJECT,
-                COLLECTION_EVALUATION
-        ).forEach { collection ->
-            firestore
-                    .collection(collection)
-                    .whereEqualTo(FIELD_DEFAULT_USER_ID, uid)
-                    .get(Source.SERVER)
-                    .await()
-        }
-    }
-
     override suspend fun getAccount(uid: String): Account {
         return firestore
                 .collection(COLLECTION_USER)
@@ -52,63 +32,31 @@ open class FirestoreDataStore(
                 .limit(1)
                 .get(Source.CACHE)
                 .await()
-                .documents
                 .map { it.toQuarter(subjects = getSubjects(uid = uid, qid = it.id)) }
-                .getOrNull(0)
+                .firstOrNull()
     }
 
     override suspend fun getQuarters(uid: String): List<Quarter> {
-        suspend fun getSubjectsMap(): Map<String, List<Subject>> {
-            return firestore
-                    .collection(COLLECTION_SUBJECT)
-                    .whereEqualTo(FIELD_SUBJECT_USER_ID, uid)
-                    .get(Source.CACHE)
-                    .await()
-                    .documents
-                    .map { it.toSubject() }
-                    .groupBy { it.qid }
-        }
-
-        val subjectsMap = getSubjectsMap()
-
-        return firestore
+        val quarters = firestore
                 .collection(COLLECTION_QUARTER)
-                .whereEqualTo(FIELD_QUARTER_USER_ID, uid)
+                .whereEqualTo(FIELD_DEFAULT_USER_ID, uid)
                 .orderBy(FIELD_QUARTER_START_DATE, Query.Direction.DESCENDING)
                 .get(Source.CACHE)
                 .await()
-                .documents
-                .map {
-                    val subjects = subjectsMap[it.id] ?: listOf()
 
-                    it.toQuarter(subjects)
-                }
-    }
+        val subjects = firestore
+                .collection(COLLECTION_SUBJECT)
+                .whereEqualTo(FIELD_DEFAULT_USER_ID, uid)
+                .get(Source.CACHE)
+                .await()
+                .map { it.toSubject() }
+                .groupBy { it.qid }
 
-    override suspend fun removeQuarters(uid: String, vararg qid: String) {
-        if (qid.isEmpty()) return
+        return quarters.map {
+            val quarterSubjects = subjects[it.id] ?: listOf()
 
-        val batch = firestore.batch()
-
-        qid.forEach { quarterId ->
-            val subjects = getSubjects(uid = uid, qid = quarterId)
-
-            subjects.forEach { subject ->
-                val subjectRef = firestore
-                        .collection(COLLECTION_SUBJECT)
-                        .document(subject.id)
-
-                batch.delete(subjectRef)
-            }
-
-            val quarterRef = firestore
-                    .collection(COLLECTION_QUARTER)
-                    .document(quarterId)
-
-            batch.delete(quarterRef)
+            it.toQuarter(quarterSubjects)
         }
-
-        batch.commit().await()
     }
 
     override suspend fun getSubjectEvaluations(uid: String, sid: String): List<Evaluation> {
@@ -146,7 +94,6 @@ open class FirestoreDataStore(
                 .whereEqualTo(FIELD_SUBJECT_QUARTER_ID, qid)
                 .get(Source.CACHE)
                 .await()
-                .documents
                 .map { it.toSubject() }
     }
 
@@ -220,9 +167,10 @@ open class FirestoreDataStore(
         userRef.set(data, SetOptions.merge()).await()
     }
 
-    override suspend fun updateData(uid: String, data: Collection<DstData>) {
+    override suspend fun syncAccount(uid: String, data: Collection<DstData>) {
         val batch = firestore.batch()
 
+        batch.updateAccount(uid)
         batch.updateLastUpdate(uid)
 
         data.forEach { entry ->
@@ -260,12 +208,40 @@ open class FirestoreDataStore(
         userRef.set(values, SetOptions.merge()).await()
     }
 
+    override suspend fun clearPersistence() {
+        firestore.clearPersistence().await()
+    }
+
     override suspend fun close() {
         firestore.terminate().await()
     }
 
-    override suspend fun clearPersistence() {
-        firestore.clearPersistence().await()
+    private suspend fun WriteBatch.updateAccount(uid: String) {
+        val accountDocument = firestore
+                .collection(COLLECTION_USER)
+                .document(uid)
+                .get(Source.SERVER)
+                .await()
+
+        val (quartersSnapshot, subjectsSnapshot, evaluationsSnapshot) =
+                arrayOf(
+                        COLLECTION_QUARTER,
+                        COLLECTION_SUBJECT,
+                        COLLECTION_EVALUATION
+                ).map { collection ->
+                    firestore
+                            .collection(collection)
+                            .whereEqualTo(FIELD_DEFAULT_USER_ID, uid)
+                            .get(Source.SERVER)
+                            .await()
+                }
+
+        executePendingMigration(
+                accountDocument = accountDocument,
+                quartersSnapshot = quartersSnapshot,
+                subjectsSnapshot = subjectsSnapshot,
+                evaluationsSnapshot = evaluationsSnapshot
+        )
     }
 
     private fun WriteBatch.updateLastUpdate(uid: String) {
@@ -344,6 +320,57 @@ open class FirestoreDataStore(
             val currentSubject = subject.toCurrentSubjectEntity()
 
             set(subjectRef, currentSubject, SetOptions.merge())
+        }
+    }
+
+    private fun WriteBatch.executePendingMigration(
+            accountDocument: DocumentSnapshot,
+            quartersSnapshot: QuerySnapshot,
+            subjectsSnapshot: QuerySnapshot,
+            evaluationsSnapshot: QuerySnapshot
+    ) {
+        val versionCode = accountDocument.getLong(FIELD_USER_APP_VERSION_CODE)?.toInt() ?: 0
+        val isMigration001Pending = versionCode <= BuildConfig.VERSION_CODE_MIGRATION_001
+
+        if (isMigration001Pending) {
+            /* Delete all quarters */
+            quartersSnapshot.forEach { delete(it.reference) }
+
+            /* Delete all subjects */
+            subjectsSnapshot.forEach { delete(it.reference) }
+
+            /* Ignore evaluations migration if empty */
+            if (evaluationsSnapshot.isEmpty) return
+
+            val quartersMap = quartersSnapshot.associate {
+                val oldQuarterId = it.id
+                val newQuarterId = it.generateQuarterId()
+
+                oldQuarterId to newQuarterId
+            }
+
+            val subjectsMap = subjectsSnapshot.associate {
+                val oldQuarterId = it.getString(FIELD_SUBJECT_QUARTER_ID)
+                val newQuarterId = quartersMap[oldQuarterId]
+
+                val oldSubjectId = it.id
+                val newSubjectId = it.generateSubjectId(newQuarterId)
+
+                oldSubjectId to newSubjectId
+            }
+
+            evaluationsSnapshot.forEach {
+                val oldSubjectId = it.getString(FIELD_EVALUATION_SUBJECT_ID)
+                val newSubjectId = subjectsMap[oldSubjectId]
+
+                if (newSubjectId != null) {
+                    val values = mapOf(
+                            FIELD_EVALUATION_SUBJECT_ID to newSubjectId
+                    )
+
+                    set(it.reference, values, SetOptions.merge())
+                }
+            }
         }
     }
 }

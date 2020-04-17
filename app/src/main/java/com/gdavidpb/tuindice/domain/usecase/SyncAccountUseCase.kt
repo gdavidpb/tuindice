@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.exception.NoDataException
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.model.service.DstData
-import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
@@ -57,18 +56,11 @@ open class SyncAccountUseCase(
         /* Enrollment service auth */
         collectedData.addEnrollmentData(credentials)
 
-        /*  Check if the current quarter should be purged  */
-        if (collectedData.shouldPurgeCurrentQuarter(uid = activeUId))
-            localStorageRepository.delete("enrollments")
-
         /* Should responses more than one service */
         return (collectedData.size > 1).also { pendingUpdate ->
             if (pendingUpdate) {
-                /* Update account */
-                databaseRepository.updateData(uid = activeUId, data = collectedData)
-
                 /* Sync account */
-                databaseRepository.syncAccount(uid = activeUId)
+                databaseRepository.syncAccount(uid = activeUId, data = collectedData)
             }
         }
     }
@@ -104,33 +96,5 @@ open class SyncAccountUseCase(
         if (enrollmentAuthResponse?.isSuccessful == true) {
             dstRepository.getEnrollment()?.let(::add)
         }
-    }
-
-    private suspend fun MutableList<DstData>.shouldPurgeCurrentQuarter(uid: String): Boolean {
-        val localCurrentSubjects = databaseRepository
-                .getCurrentQuarter(uid)
-                ?.subjects
-
-        val remoteCurrentSubjects = firstOrNull { it is DstEnrollment }
-                ?.let { it as DstEnrollment }
-                ?.schedule
-
-        val localCurrentCodes = localCurrentSubjects?.map { it.code }
-        val remoteCurrentCodes = remoteCurrentSubjects?.map { it.code }
-
-        val shouldPurge = localCurrentCodes != remoteCurrentCodes
-
-        if (shouldPurge && localCurrentCodes != null && remoteCurrentCodes != null) {
-            val codesToPurge = localCurrentCodes.subtract(remoteCurrentCodes)
-
-            if (codesToPurge.isNotEmpty()) {
-                val subjectMap = localCurrentSubjects.map { it.code to it.id }.toMap()
-                val subjectIds = codesToPurge.mapNotNull { subjectMap[it] }.toTypedArray()
-
-                databaseRepository.removeSubjects(uid = uid, sid = *subjectIds)
-            }
-        }
-
-        return shouldPurge
     }
 }

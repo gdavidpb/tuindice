@@ -37,38 +37,42 @@ android {
             manifestPlaceholders = [enableCrashReporting: "false"]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
 
-            buildConfigField "String", "URL_APP_BASE", '"tuindice-usb.firebaseapp.com"'
-            buildConfigField "String", "URL_APP_PRIVACY_POLICY", '"https://tuindice-usb.firebaseapp.com/"'
-            buildConfigField "String", "URL_APP_VERIFY", '"https://tuindice-usb.firebaseapp.com?verify=%s"'
-            buildConfigField "String", "URL_APP_RESET_PASSWORD", '"https://tuindice-usb.firebaseapp.com?resetPassword=%s"'
+            buildConfigField "int", "VERSION_CODE_MIGRATION_001", "19"
 
-            buildConfigField "String", "ENDPOINT_DST_SECURE", '"https://secure.dst.usb.ve/"'
-            buildConfigField "String", "ENDPOINT_DST_RECORD", '"http://expediente.dii.usb.ve/expediente/"'
-            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT", '"http://comprobante.dii.usb.ve/nuevoComprobante/"'
-            buildConfigField "String", "ENDPOINT_DST_POLL", '"https://consulta.dii.usb.ve/"'
+            buildConfigField "String", "URL_APP_BASE", "\"tuindice-usb.firebaseapp.com\""
+            buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tuindice-usb.firebaseapp.com/\""
+            buildConfigField "String", "URL_APP_VERIFY", "\"https://tuindice-usb.firebaseapp.com?verify=%s\""
+            buildConfigField "String", "URL_APP_RESET_PASSWORD", "\"https://tuindice-usb.firebaseapp.com?resetPassword=%s\""
 
-            buildConfigField "String", "ENDPOINT_DST_RECORD_AUTH", '"http://expediente.dii.usb.ve/expediente/login.do"'
-            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT_AUTH", '"http://comprobante.dii.usb.ve/nuevoComprobante/CAS/login.do"'
-            buildConfigField "String", "ENDPOINT_DST_POLL_AUTH", '"http://comprobante.dii.usb.ve/nuevoComprobante/Consulta/Secure/zk/login.zul"'
+            buildConfigField "String", "ENDPOINT_DST_SECURE", "\"https://secure.dst.usb.ve/\""
+            buildConfigField "String", "ENDPOINT_DST_RECORD", "\"http://expediente.dii.usb.ve/expediente/\""
+            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT", "\"http://comprobante.dii.usb.ve/nuevoComprobante/\""
+            buildConfigField "String", "ENDPOINT_DST_POLL", "\"https://consulta.dii.usb.ve/\""
+
+            buildConfigField "String", "ENDPOINT_DST_RECORD_AUTH", "\"http://expediente.dii.usb.ve/expediente/login.do\""
+            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT_AUTH", "\"http://comprobante.dii.usb.ve/nuevoComprobante/CAS/login.do\""
+            buildConfigField "String", "ENDPOINT_DST_POLL_AUTH", "\"http://comprobante.dii.usb.ve/nuevoComprobante/Consulta/Secure/zk/login.zul\""
         }
         release {
             minifyEnabled true
             manifestPlaceholders = [enableCrashReporting: "true"]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
 
-            buildConfigField "String", "URL_APP_BASE", '"tuindice-usb.firebaseapp.com"'
-            buildConfigField "String", "URL_APP_PRIVACY_POLICY", '"https://tuindice-usb.firebaseapp.com/"'
-            buildConfigField "String", "URL_APP_VERIFY", '"https://tuindice-usb.firebaseapp.com?verify=%s"'
-            buildConfigField "String", "URL_APP_RESET_PASSWORD", '"https://tuindice-usb.firebaseapp.com?resetPassword=%s"'
+            buildConfigField "int", "VERSION_CODE_MIGRATION_001", "19"
 
-            buildConfigField "String", "ENDPOINT_DST_SECURE", '"https://secure.dst.usb.ve/"'
-            buildConfigField "String", "ENDPOINT_DST_RECORD", '"http://expediente.dii.usb.ve/expediente/"'
-            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT", '"http://comprobante.dii.usb.ve/nuevoComprobante/"'
-            buildConfigField "String", "ENDPOINT_DST_POLL", '"https://consulta.dii.usb.ve/"'
+            buildConfigField "String", "URL_APP_BASE", "\"tuindice-usb.firebaseapp.com\""
+            buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tuindice-usb.firebaseapp.com/\""
+            buildConfigField "String", "URL_APP_VERIFY", "\"https://tuindice-usb.firebaseapp.com?verify=%s\""
+            buildConfigField "String", "URL_APP_RESET_PASSWORD", "\"https://tuindice-usb.firebaseapp.com?resetPassword=%s\""
 
-            buildConfigField "String", "ENDPOINT_DST_RECORD_AUTH", '"http://expediente.dii.usb.ve/expediente/login.do"'
-            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT_AUTH", '"http://comprobante.dii.usb.ve/nuevoComprobante/CAS/login.do"'
-            buildConfigField "String", "ENDPOINT_DST_POLL_AUTH", '"http://comprobante.dii.usb.ve/nuevoComprobante/Consulta/Secure/zk/login.zul"'
+            buildConfigField "String", "ENDPOINT_DST_SECURE", "\"https://secure.dst.usb.ve/\""
+            buildConfigField "String", "ENDPOINT_DST_RECORD", "\"http://expediente.dii.usb.ve/expediente/\""
+            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT", "\"http://comprobante.dii.usb.ve/nuevoComprobante/\""
+            buildConfigField "String", "ENDPOINT_DST_POLL", "\"https://consulta.dii.usb.ve/\""
+
+            buildConfigField "String", "ENDPOINT_DST_RECORD_AUTH", "\"http://expediente.dii.usb.ve/expediente/login.do\""
+            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT_AUTH", "\"http://comprobante.dii.usb.ve/nuevoComprobante/CAS/login.do\""
+            buildConfigField "String", "ENDPOINT_DST_POLL_AUTH", "\"http://comprobante.dii.usb.ve/nuevoComprobante/Consulta/Secure/zk/login.zul\""
         }
     }
 }

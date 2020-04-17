@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.utils
 
-import com.gdavidpb.tuindice.utils.extensions.bytes
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 
@@ -15,8 +14,6 @@ class DigestConcat(algorithm: String) {
 
         messageDigest.reset()
     }
-
-    fun concat(data: Long) = concat(data.bytes())
 
     fun concat(data: String) = concat(data.toByteArray())
 

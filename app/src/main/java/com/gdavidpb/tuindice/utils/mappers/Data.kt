@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.utils.mappers
 
-import android.util.Base64
 import com.gdavidpb.tuindice.data.model.database.CurrentSubjectEntity
 import com.gdavidpb.tuindice.data.model.database.EvaluationEntity
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
@@ -11,6 +10,8 @@ import com.gdavidpb.tuindice.domain.model.service.DstQuarter
 import com.gdavidpb.tuindice.domain.model.service.DstSubject
 import com.gdavidpb.tuindice.presentation.model.NewEvaluation
 import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.extensions.add
+import com.gdavidpb.tuindice.utils.extensions.base64
 import com.gdavidpb.tuindice.utils.extensions.computeCredits
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -20,28 +21,47 @@ import java.util.*
 
 private val digestConcat = DigestConcat(algorithm = "SHA-256")
 
-fun QuarterEntity.generateId(): String {
-    val hash = digestConcat
-            .concat(data = userId)
-            .concat(data = startDate.seconds)
-            .build()
+fun QuarterEntity.generateId() = digestConcat
+        .concat(data = userId)
+        .concat(data = quarterTitle())
+        .build()
+        .base64()
+        .replace("[/+=\n]+".toRegex(), "")
+        .substring(userId.indices)
 
-    return Base64
-            .encodeToString(hash, Base64.DEFAULT)
+fun SubjectEntity.generateId() = digestConcat
+        .concat(data = quarterId)
+        .concat(data = code)
+        .build()
+        .base64()
+        .replace("[/+=\n]+".toRegex(), "")
+        .substring(userId.indices)
+
+fun DocumentSnapshot.generateQuarterId(): String? {
+    val userId = getString(FIELD_DEFAULT_USER_ID) ?: ""
+
+    return digestConcat
+            .concat(data = userId)
+            .concat(data = quarterTitle())
+            .build()
+            .base64()
             .replace("[/+=\n]+".toRegex(), "")
-            .substring(0..userId.length)
+            .substring(userId.indices)
 }
 
-fun SubjectEntity.generateId(): String {
-    val hash = digestConcat
+fun DocumentSnapshot.generateSubjectId(quarterId: String?): String? {
+    quarterId ?: return null
+
+    val userId = getString(FIELD_DEFAULT_USER_ID) ?: ""
+    val code = getString(FIELD_SUBJECT_CODE) ?: ""
+
+    return digestConcat
             .concat(data = quarterId)
             .concat(data = code)
             .build()
-
-    return Base64
-            .encodeToString(hash, Base64.DEFAULT)
+            .base64()
             .replace("[/+=\n]+".toRegex(), "")
-            .substring(0..userId.length)
+            .substring(userId.indices)
 }
 
 /* Read from database */
@@ -142,6 +162,21 @@ fun ScheduleSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
         grade = MAX_SUBJECT_GRADE,
         status = status.formatSubjectStatusValue()
 )
+
+fun QuarterEntity.quarterTitle() = (startDate.toDate() to endDate.toDate())
+        .formatQuarterTitle()
+
+fun DocumentSnapshot.quarterTitle(): String {
+    val startDate = getDate(FIELD_QUARTER_START_DATE)
+            ?.add(Calendar.HOUR_OF_DAY, 12)
+            ?: Date()
+
+    val endDate = getDate(FIELD_QUARTER_END_DATE)
+            ?.add(Calendar.HOUR_OF_DAY, 12)
+            ?: Date()
+
+    return (startDate to endDate).formatQuarterTitle()
+}
 
 fun SubjectEntity.toCurrentSubjectEntity() = CurrentSubjectEntity(
         userId = userId,
