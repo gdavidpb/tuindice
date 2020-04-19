@@ -37,8 +37,6 @@ android {
             manifestPlaceholders = [enableCrashReporting: "false"]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
 
-            buildConfigField "int", "VERSION_CODE_MIGRATION_001", "19"
-
             buildConfigField "String", "URL_APP_BASE", "\"tuindice-usb.firebaseapp.com\""
             buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tuindice-usb.firebaseapp.com/\""
             buildConfigField "String", "URL_APP_VERIFY", "\"https://tuindice-usb.firebaseapp.com?verify=%s\""
@@ -57,8 +55,6 @@ android {
             minifyEnabled true
             manifestPlaceholders = [enableCrashReporting: "true"]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-
-            buildConfigField "int", "VERSION_CODE_MIGRATION_001", "19"
 
             buildConfigField "String", "URL_APP_BASE", "\"tuindice-usb.firebaseapp.com\""
             buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tuindice-usb.firebaseapp.com/\""

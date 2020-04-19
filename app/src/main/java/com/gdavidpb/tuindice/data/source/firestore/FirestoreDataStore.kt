@@ -168,9 +168,26 @@ open class FirestoreDataStore(
     }
 
     override suspend fun syncAccount(uid: String, data: Collection<DstData>) {
+        firestore
+                .collection(COLLECTION_USER)
+                .document(uid)
+                .get(Source.SERVER)
+                .await()
+
+        arrayOf(
+                COLLECTION_QUARTER,
+                COLLECTION_SUBJECT,
+                COLLECTION_EVALUATION
+        ).forEach { collection ->
+            firestore
+                    .collection(collection)
+                    .whereEqualTo(FIELD_DEFAULT_USER_ID, uid)
+                    .get(Source.SERVER)
+                    .await()
+        }
+
         val batch = firestore.batch()
 
-        batch.updateAccount(uid)
         batch.updateLastUpdate(uid)
 
         data.forEach { entry ->
@@ -214,34 +231,6 @@ open class FirestoreDataStore(
 
     override suspend fun close() {
         firestore.terminate().await()
-    }
-
-    private suspend fun WriteBatch.updateAccount(uid: String) {
-        val accountDocument = firestore
-                .collection(COLLECTION_USER)
-                .document(uid)
-                .get(Source.SERVER)
-                .await()
-
-        val (quartersSnapshot, subjectsSnapshot, evaluationsSnapshot) =
-                arrayOf(
-                        COLLECTION_QUARTER,
-                        COLLECTION_SUBJECT,
-                        COLLECTION_EVALUATION
-                ).map { collection ->
-                    firestore
-                            .collection(collection)
-                            .whereEqualTo(FIELD_DEFAULT_USER_ID, uid)
-                            .get(Source.SERVER)
-                            .await()
-                }
-
-        executePendingMigration(
-                accountDocument = accountDocument,
-                quartersSnapshot = quartersSnapshot,
-                subjectsSnapshot = subjectsSnapshot,
-                evaluationsSnapshot = evaluationsSnapshot
-        )
     }
 
     private fun WriteBatch.updateLastUpdate(uid: String) {
@@ -320,57 +309,6 @@ open class FirestoreDataStore(
             val currentSubject = subject.toCurrentSubjectEntity()
 
             set(subjectRef, currentSubject, SetOptions.merge())
-        }
-    }
-
-    private fun WriteBatch.executePendingMigration(
-            accountDocument: DocumentSnapshot,
-            quartersSnapshot: QuerySnapshot,
-            subjectsSnapshot: QuerySnapshot,
-            evaluationsSnapshot: QuerySnapshot
-    ) {
-        val versionCode = accountDocument.getLong(FIELD_USER_APP_VERSION_CODE)?.toInt() ?: 0
-        val isMigration001Pending = versionCode <= BuildConfig.VERSION_CODE_MIGRATION_001
-
-        if (isMigration001Pending) {
-            /* Delete all quarters */
-            quartersSnapshot.forEach { delete(it.reference) }
-
-            /* Delete all subjects */
-            subjectsSnapshot.forEach { delete(it.reference) }
-
-            /* Ignore evaluations migration if empty */
-            if (evaluationsSnapshot.isEmpty) return
-
-            val quartersMap = quartersSnapshot.associate {
-                val oldQuarterId = it.id
-                val newQuarterId = it.generateQuarterId()
-
-                oldQuarterId to newQuarterId
-            }
-
-            val subjectsMap = subjectsSnapshot.associate {
-                val oldQuarterId = it.getString(FIELD_SUBJECT_QUARTER_ID)
-                val newQuarterId = quartersMap[oldQuarterId]
-
-                val oldSubjectId = it.id
-                val newSubjectId = it.generateSubjectId(newQuarterId)
-
-                oldSubjectId to newSubjectId
-            }
-
-            evaluationsSnapshot.forEach {
-                val oldSubjectId = it.getString(FIELD_EVALUATION_SUBJECT_ID)
-                val newSubjectId = subjectsMap[oldSubjectId]
-
-                if (newSubjectId != null) {
-                    val values = mapOf(
-                            FIELD_EVALUATION_SUBJECT_ID to newSubjectId
-                    )
-
-                    set(it.reference, values, SetOptions.merge())
-                }
-            }
         }
     }
 }

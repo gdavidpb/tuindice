@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.domain.model.service.DstQuarter
 import com.gdavidpb.tuindice.domain.model.service.DstSubject
 import com.gdavidpb.tuindice.presentation.model.NewEvaluation
 import com.gdavidpb.tuindice.utils.*
-import com.gdavidpb.tuindice.utils.extensions.add
 import com.gdavidpb.tuindice.utils.extensions.base64
 import com.gdavidpb.tuindice.utils.extensions.computeCredits
 import com.google.firebase.Timestamp
@@ -36,33 +35,6 @@ fun SubjectEntity.generateId() = digestConcat
         .base64()
         .replace("[/+=\n]+".toRegex(), "")
         .substring(userId.indices)
-
-fun DocumentSnapshot.generateQuarterId(): String? {
-    val userId = getString(FIELD_DEFAULT_USER_ID) ?: ""
-
-    return digestConcat
-            .concat(data = userId)
-            .concat(data = quarterTitle())
-            .build()
-            .base64()
-            .replace("[/+=\n]+".toRegex(), "")
-            .substring(userId.indices)
-}
-
-fun DocumentSnapshot.generateSubjectId(quarterId: String?): String? {
-    quarterId ?: return null
-
-    val userId = getString(FIELD_DEFAULT_USER_ID) ?: ""
-    val code = getString(FIELD_SUBJECT_CODE) ?: ""
-
-    return digestConcat
-            .concat(data = quarterId)
-            .concat(data = code)
-            .build()
-            .base64()
-            .replace("[/+=\n]+".toRegex(), "")
-            .substring(userId.indices)
-}
 
 /* Read from database */
 
@@ -165,18 +137,6 @@ fun ScheduleSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
 
 fun QuarterEntity.quarterTitle() = (startDate.toDate() to endDate.toDate())
         .formatQuarterTitle()
-
-fun DocumentSnapshot.quarterTitle(): String {
-    val startDate = getDate(FIELD_QUARTER_START_DATE)
-            ?.add(Calendar.HOUR_OF_DAY, 12)
-            ?: Date()
-
-    val endDate = getDate(FIELD_QUARTER_END_DATE)
-            ?.add(Calendar.HOUR_OF_DAY, 12)
-            ?: Date()
-
-    return (startDate to endDate).formatQuarterTitle()
-}
 
 fun SubjectEntity.toCurrentSubjectEntity() = CurrentSubjectEntity(
         userId = userId,
