@@ -23,8 +23,8 @@
     <!-- MainActivity -->
     <string name="nav_summary">Resumen</string>
     <string name="nav_record">Informe Académico</string>
-    <string name="nav_pensum">Pensum</string>
     <!--
+    <string name="nav_pensum">Pensum</string>
     <string name="nav_settings">Configuración</string>
     <string name="nav_achievements">Logros</string>
     <string name="nav_podium">Podio</string>
