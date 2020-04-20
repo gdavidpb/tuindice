@@ -51,20 +51,15 @@ fun Account.isUpdated(): Boolean {
     return now.before(outdated)
 }
 
-private val gradeSumCache = hashMapOf<Int, Double>()
-
 fun Collection<Quarter>.computeGradeSum(until: Quarter = first()) =
-        gradeSumCache.getOrPut(until.hashCode()) {
-            /* Until quarter and not retired */
-            filter { it.startDate <= until.startDate && it.status != STATUS_QUARTER_RETIRED }
-                    /* Get all subjects */
-                    .flatMap { it.subjects }
-                    /* Filter valid subjects */
-                    .filter { it.status != STATUS_SUBJECT_RETIRED }
-                    /* Group by code */
-                    .groupBy { it.code }
-                    /* If you've seen this subject more than once and now you approved this */
-                    .map { (_, subjects) -> subjects.filterNoEffect() }
-                    .flatten()
-                    .computeGrade()
-        }
+        filter { it.startDate <= until.startDate && it.status != STATUS_QUARTER_RETIRED }
+                /* Get all subjects */
+                .flatMap { it.subjects }
+                /* Filter valid subjects */
+                .filter { it.status != STATUS_SUBJECT_RETIRED }
+                /* Group by code */
+                .groupBy { it.code }
+                /* If you've seen this subject more than once and now you approved this */
+                .map { (_, subjects) -> subjects.filterNoEffect() }
+                .flatten()
+                .computeGrade()
