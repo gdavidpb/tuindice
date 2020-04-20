@@ -15,7 +15,6 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import retrofit2.HttpException
-import java.io.IOException
 import java.io.InterruptedIOException
 import java.net.ConnectException
 import java.net.SocketException
@@ -89,6 +88,6 @@ open class SignInUseCase(
 
         settingsRepository.storeCredentials(credentials = request.toDstCredentials())
 
-        databaseRepository.updateAuthData(uid = auth.uid, data = authData)
+        databaseRepository.setAuthData(uid = auth.uid, data = authData)
     }
 }

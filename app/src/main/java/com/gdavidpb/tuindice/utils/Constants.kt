@@ -6,6 +6,9 @@ import java.util.*
 const val NO_GETTER = "Property does not have a getter"
 const val NO_SETTER = "Property does not have a setter"
 
+/* Actions */
+const val ACTION_REMOVE_PROFILE_PICTURE = "com.gdavidpb.tuindice.intent.action.ACTION_REMOVE_PROFILE_PICTURE"
+
 /* Request */
 const val REQUEST_CODE_PROFILE_PICTURE = 1000
 
@@ -90,6 +93,7 @@ const val VIEW_TYPE_ABOUT = 1
 const val EXTRA_AWAITING_STATE = "EXTRA_AWAITING_STATE"
 const val EXTRA_AWAITING_EMAIL = "EXTRA_AWAITING_EMAIL"
 const val EXTRA_FIRST_START_UP = "EXTRA_FIRST_START_UP"
+const val EXTRA_REMOVE_PROFILE_PICTURE = "EXTRA_REMOVE_PROFILE_PICTURE"
 
 const val EXTRA_TITLE = "EXTRA_TITLE"
 const val EXTRA_URL = "EXTRA_URL"

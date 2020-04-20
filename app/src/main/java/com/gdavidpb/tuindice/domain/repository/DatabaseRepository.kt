@@ -25,9 +25,9 @@ interface DatabaseRepository {
     suspend fun updateEvaluation(uid: String, evaluation: Evaluation)
     suspend fun removeEvaluation(uid: String, id: String)
 
-    suspend fun updateToken(uid: String, token: String)
-    suspend fun updateAuthData(uid: String, data: DstAuth)
-    suspend fun updateProfilePicture(uid: String, photoUrl: String)
+    suspend fun setToken(uid: String, token: String)
+    suspend fun setAuthData(uid: String, data: DstAuth)
+    suspend fun setHasProfilePicture(uid: String, hasProfilePicture: Boolean)
 
     suspend fun clearPersistence()
     suspend fun close()

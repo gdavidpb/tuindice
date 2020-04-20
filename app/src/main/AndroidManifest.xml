@@ -60,6 +60,15 @@
             android:exported="false"
             android:label=""
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activities.RemoveProfilePictureActivity"
+            android:label="@string/label_remove_profile_picture"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="com.gdavidpb.tuindice.intent.action.ACTION_REMOVE_PROFILE_PICTURE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"

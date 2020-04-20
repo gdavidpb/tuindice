@@ -57,7 +57,7 @@ open class StartUpUseCase(
                 val token = identifierRepository.getIdentifier()
 
                 if (token != null)
-                    databaseRepository.updateToken(uid = activeAuth.uid, token = token)
+                    databaseRepository.setToken(uid = activeAuth.uid, token = token)
 
                 if (authRepository.isEmailVerified())
                     StartUpAction.Main(screen = lastScreen, account = activeAccount)

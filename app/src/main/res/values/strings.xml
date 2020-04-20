@@ -32,6 +32,11 @@
     <string name="nav_subject">Plan de evaluación</string>
     <string name="nav_about">Acerca de</string>
 
+    <string name="alert_title_remove_profile_picture_failure">Atención</string>
+    <string name="alert_message_remove_profile_picture_failure">
+        ¿Estás seguro que deseas remover tu foto de perfil?
+    </string>
+
     <string name="alert_title_fatal_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_fatal_failure">
         Parece que algo ha salido muy mal por acá. Debes reiniciar <b>TuIndice</b> para continuar
@@ -101,6 +106,7 @@
     <string name="label_profile_picture_chooser">Foto de perfil</string>
 
     <string name="snack_bar_profile_picture_updated">Foto de perfil actualizada</string>
+    <string name="snack_bar_profile_picture_removed">Foto de perfil removida</string>
 
     <!-- RecordFragment -->
     <string name="quarter_grade_diff">Δx %1$.4f</string>
@@ -303,5 +309,8 @@
     <!-- BrowserActivity -->
     <string name="label_creative_commons">TuIndice - Creative Commons</string>
     <string name="label_privacy_policy">TuIndice - Política de privacidad</string>
+
+    <!-- RemoveProfilePictureActivity -->
+    <string name="label_remove_profile_picture">Remover foto</string>
 
 </resources>

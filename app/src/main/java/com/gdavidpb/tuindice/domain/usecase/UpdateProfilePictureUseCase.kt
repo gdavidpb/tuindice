@@ -61,8 +61,8 @@ open class UpdateProfilePictureUseCase(
 
         localStorageRepository.delete(resource)
 
-        databaseRepository.updateProfilePicture(uid = activeUId, photoUrl = "$downloadUrl")
+        databaseRepository.setHasProfilePicture(uid = activeUId, hasProfilePicture = true)
 
-        return activeUId
+        return downloadUrl.toString()
     }
 }

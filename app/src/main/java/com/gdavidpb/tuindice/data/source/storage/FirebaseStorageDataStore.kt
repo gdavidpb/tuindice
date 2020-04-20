@@ -10,7 +10,7 @@ open class FirebaseStorageDataStore(
         private val storage: FirebaseStorage
 ) : RemoteStorageRepository {
     override suspend fun resolveResource(resource: String): Uri {
-        val reference = storage.getReferenceFromUrl(resource)
+        val reference = storage.getReference(resource)
 
         return reference.downloadUrl.await()
     }

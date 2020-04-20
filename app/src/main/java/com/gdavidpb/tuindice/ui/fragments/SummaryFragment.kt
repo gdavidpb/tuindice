@@ -18,9 +18,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
-import com.gdavidpb.tuindice.utils.CircleTransform
-import com.gdavidpb.tuindice.utils.DECIMALS_GRADE_QUARTER
-import com.gdavidpb.tuindice.utils.REQUEST_CODE_PROFILE_PICTURE
+import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_summary.*
@@ -65,6 +63,8 @@ open class SummaryFragment : Fragment() {
             observe(createProfilePictureFile, ::createProfilePictureFileObserver)
             observe(updateProfilePicture, ::updateProfilePictureObserver)
             observe(loadProfilePicture, ::loadProfilePictureObserver)
+            observe(profilePicture, ::profilePictureObserver)
+            observe(removeProfilePicture, ::removeProfilePictureObserver)
 
             getAccount()
         }
@@ -74,8 +74,16 @@ open class SummaryFragment : Fragment() {
         data ?: return
 
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == REQUEST_CODE_PROFILE_PICTURE) {
-                viewModel.getProfilePictureFile(optionalUri = data.data)
+            val removeProfilePicture = data.hasExtra(EXTRA_REMOVE_PROFILE_PICTURE)
+            val requestProfilePicture = requestCode == REQUEST_CODE_PROFILE_PICTURE
+
+            when {
+                removeProfilePicture -> {
+                    showRemoveProfilePictureDialog()
+                }
+                requestProfilePicture -> {
+                    viewModel.getProfilePictureFile(optionalUri = data.data)
+                }
             }
         }
     }
@@ -132,11 +140,7 @@ open class SummaryFragment : Fragment() {
                 showProfilePictureLoading()
             }
             is Event.OnSuccess -> {
-                val stableKey = result.value
-
-                picasso.invalidate(stableKey)
-
-                viewModel.getAccount()
+                loadProfilePicture(url = result.value)
 
                 snackBar {
                     messageResource = R.string.snack_bar_profile_picture_updated
@@ -153,16 +157,73 @@ open class SummaryFragment : Fragment() {
     private fun loadProfilePictureObserver(result: Completable?) {
         when (result) {
             is Completable.OnLoading -> {
-                pBarProfile.visible()
+                showProfilePictureLoading()
             }
             is Completable.OnComplete -> {
                 hideProfilePictureLoading()
+
+                iViewProfile.tag = true
             }
             is Completable.OnError -> {
                 hideProfilePictureLoading()
 
                 requireActivity().showSnackBarException(throwable = result.throwable)
             }
+        }
+    }
+
+    private fun profilePictureObserver(result: Result<String>?) {
+        when (result) {
+            is Result.OnLoading -> {
+                showProfilePictureLoading()
+            }
+            is Result.OnSuccess -> {
+                hideProfilePictureLoading()
+
+                loadProfilePicture(url = result.value)
+            }
+            is Result.OnError -> {
+                hideProfilePictureLoading()
+
+                requireActivity().showSnackBarException(throwable = result.throwable)
+
+                iViewProfile.setImageResource(R.mipmap.ic_launcher_round)
+            }
+        }
+    }
+
+    private fun removeProfilePictureObserver(result: Event<Unit>?) {
+        when (result) {
+            is Event.OnLoading -> {
+                showProfilePictureLoading()
+            }
+            is Event.OnSuccess -> {
+                hideProfilePictureLoading()
+
+                iViewProfile.setImageResource(R.mipmap.ic_launcher_round)
+
+                snackBar {
+                    messageResource = R.string.snack_bar_profile_picture_removed
+                }
+            }
+            is Event.OnError -> {
+                hideProfilePictureLoading()
+
+                requireActivity().showSnackBarException(throwable = result.throwable)
+            }
+        }
+    }
+
+    private fun showRemoveProfilePictureDialog() {
+        alert {
+            titleResource = R.string.alert_title_remove_profile_picture_failure
+            messageResource = R.string.alert_message_remove_profile_picture_failure
+
+            positiveButton(R.string.yes) {
+                viewModel.removeProfilePicture()
+            }
+
+            negativeButton(R.string.cancel)
         }
     }
 
@@ -185,6 +246,8 @@ open class SummaryFragment : Fragment() {
     }
 
     private fun requestProfilePictureInput(outputUri: Uri) {
+        val removeIntent = Intent(ACTION_REMOVE_PROFILE_PICTURE)
+
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                 .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
 
@@ -193,7 +256,14 @@ open class SummaryFragment : Fragment() {
 
         val chooser = Intent.createChooser(galleryIntent, getString(R.string.label_profile_picture_chooser))
 
-        chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(cameraIntent))
+        val hasProfilePicture = iViewProfile.tag as? Boolean ?: false
+
+        val intents = if (hasProfilePicture)
+            arrayOf(removeIntent, cameraIntent)
+        else
+            arrayOf(cameraIntent)
+
+        chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents)
 
         startActivityForResult(chooser, REQUEST_CODE_PROFILE_PICTURE)
     }
@@ -219,16 +289,22 @@ open class SummaryFragment : Fragment() {
         } else
             groupGrade.gone()
 
-        if (account.photoUrl.isNotEmpty())
+        loadProfilePicture(url = account.profilePicture)
+    }
+
+    private fun loadProfilePicture(url: String) {
+        if (url.isNotEmpty()) {
             with(picasso) {
-                load(account.photoUrl)
+                load(url)
                         .noFade()
-                        .stableKey(account.uid)
                         .transform(CircleTransform())
                         .error(R.mipmap.ic_launcher_round)
                         .into(iViewProfile, loadProfilePicture)
             }
-        else
+        } else {
             iViewProfile.setImageResource(R.mipmap.ic_launcher_round)
+
+            hideProfilePictureLoading()
+        }
     }
 }

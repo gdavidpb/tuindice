@@ -263,6 +263,8 @@ val appModule = module {
     factory<UpdateProfilePictureUseCase>()
     factory<CreateProfilePictureFileUseCase>()
     factory<GetProfilePictureFileUseCase>()
+    factory<GetProfilePictureUseCase>()
+    factory<RemoveProfilePictureUseCase>()
 
     /* Utils */
 
