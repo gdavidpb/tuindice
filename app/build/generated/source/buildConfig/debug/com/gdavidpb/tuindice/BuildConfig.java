@@ -18,8 +18,8 @@ public final class BuildConfig {
   public static final String ENDPOINT_DST_RECORD = "http://expediente.dii.usb.ve/expediente/";
   public static final String ENDPOINT_DST_RECORD_AUTH = "http://expediente.dii.usb.ve/expediente/login.do";
   public static final String ENDPOINT_DST_SECURE = "https://secure.dst.usb.ve/";
-  public static final String URL_APP_BASE = "tuindice-usb.firebaseapp.com";
-  public static final String URL_APP_PRIVACY_POLICY = "https://tuindice-usb.firebaseapp.com/";
-  public static final String URL_APP_RESET_PASSWORD = "https://tuindice-usb.firebaseapp.com?resetPassword=%s";
-  public static final String URL_APP_VERIFY = "https://tuindice-usb.firebaseapp.com?verify=%s";
+  public static final String URL_APP_BASE = "tu-indice-usb.firebaseapp.com";
+  public static final String URL_APP_PRIVACY_POLICY = "https://tu-indice-usb.firebaseapp.com/";
+  public static final String URL_APP_RESET_PASSWORD = "https://tu-indice-usb.firebaseapp.com?resetPassword=%s";
+  public static final String URL_APP_VERIFY = "https://tu-indice-usb.firebaseapp.com?verify=%s";
 }
