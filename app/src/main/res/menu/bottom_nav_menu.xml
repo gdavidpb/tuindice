@@ -11,12 +11,10 @@
         android:icon="@drawable/ic_record"
         android:title="@string/nav_record" />
 
-    <!--
     <item
         android:id="@+id/nav_pensum"
         android:icon="@drawable/ic_pensum"
         android:title="@string/nav_pensum" />
-    -->
 
     <item
         android:id="@+id/nav_about"

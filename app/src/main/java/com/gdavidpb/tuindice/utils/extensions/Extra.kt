@@ -36,6 +36,7 @@ fun String.isHtml() = contains("<[^>]*>".toRegex())
 fun Int.isStartDestination() = when (this) {
     R.id.nav_summary,
     R.id.nav_record,
+    R.id.nav_pensum,
     R.id.nav_about -> true
     else -> false
 }

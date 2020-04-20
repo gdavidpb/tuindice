@@ -35,13 +35,11 @@
         </action>
     </fragment>
 
-    <!--
     <fragment
         android:id="@+id/nav_pensum"
         android:name="com.gdavidpb.tuindice.ui.fragments.PensumFragment"
         android:label="@string/nav_pensum"
         tools:layout="@layout/fragment_pensum" />
-    -->
 
     <fragment
         android:id="@+id/nav_about"
