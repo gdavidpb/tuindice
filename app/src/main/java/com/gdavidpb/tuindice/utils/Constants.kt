@@ -79,7 +79,7 @@ const val TIME_COUNT_DOWN = 5 * 60 * 1000
 const val TIME_BACKGROUND_ANIMATION = 30 * 1000L
 const val TIME_DELAY_CLICK_ONCE = 500L
 const val TIME_OUT_CONNECTION = 90 * 1000L
-const val TIME_SYNCHRONIZATION = 3 * 60 * 1000L
+const val TIME_SYNCHRONIZATION = 1 * 60 * 60 * 1000L
 
 /* Summary view types */
 const val VIEW_TYPE_SUMMARY_SUBJECTS = 0
