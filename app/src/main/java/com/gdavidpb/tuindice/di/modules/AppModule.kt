@@ -223,6 +223,7 @@ val appModule = module {
     viewModel<LoginViewModel>()
     viewModel<EmailSentViewModel>()
     viewModel<SubjectViewModel>()
+    viewModel<PensumViewModel>()
 
     /* Factories */
 

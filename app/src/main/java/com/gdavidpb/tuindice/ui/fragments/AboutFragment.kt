@@ -35,13 +35,12 @@ open class AboutFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setHasOptionsMenu(false)
 
-        val context = requireContext()
-
         with(rViewAbout) {
             layoutManager = LinearLayoutManager(context)
             adapter = aboutAdapter
         }
 
+        val context = requireContext()
         val versionName = requireContext().versionName()
         val version = getString(R.string.about_version, versionName)
 
