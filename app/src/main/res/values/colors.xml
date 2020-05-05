@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Launcher -->
+
+    <color name="ic_launcher_background">#FFFFFF</color>
+
+    <!-- App -->
+
     <color name="color_primary">#FFC107</color>
     <color name="color_primary_dark">#FFA000</color>
     <color name="color_accent">#FFC107</color>
@@ -21,6 +27,12 @@
     <color name="color_failed">#F44336</color>
     <color name="color_retired">#B0BEC5</color>
 
-    <color name="ic_launcher_background">#FFFFFF</color>
+    <!-- CanvasView / NetworkView -->
+
+    <color name="color_node">#FFC107</color>
+    <color name="color_node_text">#FFFFFF</color>
+    <color name="color_node_connection">#757575</color>
+    <color name="color_canvas_overlay">#40FFFFFF</color>
+    <color name="color_canvas_background">#333333</color>
 
 </resources>

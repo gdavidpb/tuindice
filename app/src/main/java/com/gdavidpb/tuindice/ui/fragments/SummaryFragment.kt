@@ -8,7 +8,6 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
@@ -26,7 +25,7 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-open class SummaryFragment : Fragment() {
+open class SummaryFragment : NavigationFragment() {
 
     private val mainViewModel by sharedViewModel<MainViewModel>()
 
@@ -43,6 +42,8 @@ open class SummaryFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         setHasOptionsMenu(false)
 
         with(rViewSummary) {

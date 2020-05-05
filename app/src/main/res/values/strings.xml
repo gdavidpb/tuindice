@@ -239,23 +239,46 @@
     <string name="about_header_libs">Detrás de TuIndice</string>
 
     <string name="about_kotlin">
-        Kotlin 1.3.72\nProgramming Language\n© 2012 JetBrains\nhttps://kotlinlang.org/
+        Kotlin 1.3.72\n
+        Programming Language.\n
+        © 2012 JetBrains\n
+        https://kotlinlang.org/
     </string>
 
     <string name="about_firebase">
-        Firebase 17.3.0\nQuickly develop high-quality apps and grow your business\n© 2014 Google\nhttps://firebase.com/
+        Firebase 17.3.0\n
+        Quickly develop high-quality apps and grow your business.\n
+        © 2014 Google\nhttps://firebase.com/
     </string>
 
     <string name="about_koin">
-        Koin 2.1.5\nA pragmatic lightweight dependency injection framework for Kotlin\n© 2018 Arnaud Giuliani\nhttps://insert-koin.io/
+        Koin 2.1.5\n
+        A pragmatic lightweight dependency injection framework for Kotlin.\n
+        © 2018 Arnaud Giuliani\n
+        https://insert-koin.io/
     </string>
 
     <string name="about_retrofit">
-        Retrofit 2.8.1\nA type-safe HTTP client for Android and Java\n© 2015 Square\nhttps://square.github.io/retrofit/
+        Retrofit 2.8.1\n
+        A type-safe HTTP client for Android and Java.\n
+        © 2015 Square\n
+        https://square.github.io/retrofit/
     </string>
 
+    <string name="about_header_special_thanks">Agradecimientos especiales</string>
+
     <string name="about_freepik">
-        Freepik\nGraphic resources for everyone\n© 2010 freepikcompany\nhttps://www.freepik.com/
+        Freepik Company\n
+        FlatIcon\n
+        The largest database of free customizable icons in the world.\n
+        https://www.freepik.com/
+    </string>
+
+    <string name="about_mit_mapping_lab">
+        The Mapping Lab\n
+        Massachusetts Institute of Technology\n
+        Develops technologies for the future of digital education.\n
+        https://mapping.mit.edu/
     </string>
 
     <string name="about_header_settings">Ajustes</string>

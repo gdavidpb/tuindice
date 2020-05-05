@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/dp_16">
+    android:background="@color/color_background">
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/groupGrade"
@@ -21,6 +21,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="@dimen/dp_16"
         tools:ignore="ContentDescription"
         tools:src="@mipmap/ic_launcher_round" />
 

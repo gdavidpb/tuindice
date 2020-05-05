@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CanvasView">
+        <attr name="minZoom" format="float" />
+        <attr name="maxZoom" format="float" />
+        <attr name="zoomInterpolator" format="reference" />
+        <attr name="moveInterpolator" format="reference" />
+        <attr name="resetInterpolator" format="reference" />
+    </declare-styleable>
+
+
+    <declare-styleable name="NetworkView">
+        <attr name="nodeRadius" format="dimension" />
+        <attr name="connectionWidth" format="dimension" />
+        <attr name="nodeColor" format="color" />
+        <attr name="connectionColor" format="color" />
+        <attr name="textColor" format="color" />
+    </declare-styleable>
+</resources>

@@ -37,7 +37,7 @@ class EvaluationDialogBuilder(private val activity: FragmentActivity) : AlertDia
     private val inputMethodManager by inject<InputMethodManager>()
 
     override fun create(): AlertDialog {
-        val subject = subject ?: throw IllegalArgumentException("subject")
+        val subject = subject ?: throw IllegalArgumentException("subject: '$subject'")
 
         val headerView = View.inflate(context, R.layout.dialog_evaluation_header, null)
         val contentView = View.inflate(context, R.layout.dialog_evaluation_content, null)

@@ -1,15 +1,18 @@
 package com.gdavidpb.tuindice.utils.extensions
 
+import android.content.res.TypedArray
 import android.graphics.Paint
 import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.AttributeSet
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.annotation.StyleableRes
 import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.ui.customs.EvaluationDatePicker
 import com.gdavidpb.tuindice.utils.NO_GETTER
@@ -152,6 +155,12 @@ fun View.disable() {
 fun View.visibleIf(value: Boolean, elseValue: Int = View.GONE) {
     visibility = if (value) View.VISIBLE else elseValue
 }
+
+fun View.loadAttributes(
+        @StyleableRes
+        styleId: IntArray,
+        attrs: AttributeSet
+): TypedArray = context.theme.obtainStyledAttributes(attrs, styleId, 0, 0)
 
 var View.backgroundColor: Int
     @Deprecated(message = NO_GETTER, level = ERROR) get() = throw NotImplementedError()

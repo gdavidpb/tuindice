@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.utils.extensions
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.view.View
 import android.view.animation.AccelerateInterpolator
@@ -10,6 +8,7 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.TextView
 import androidx.constraintlayout.widget.Guideline
+import androidx.core.animation.addListener
 import com.gdavidpb.tuindice.utils.TIME_BACKGROUND_ANIMATION
 
 private fun ValueAnimator.animate(
@@ -22,26 +21,29 @@ private fun ValueAnimator.animate(
     if (isAnimationAvailable) {
         init()
 
-        addUpdateListener(update)
+        doOnUpdate {
+            update(it)
+        }
 
-        addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                animation.removeAllListeners()
+        doOnStop {
+            it.removeAllListeners()
+            it.removeAllUpdateListeners()
 
-                runCatching { finish() }
-            }
-
-            override fun onAnimationCancel(animation: Animator) {
-                animation.removeAllListeners()
-
-                runCatching { finish() }
-            }
-        })
+            runCatching { finish() }
+        }
 
         start()
     } else {
         finish()
     }
+}
+
+inline fun ValueAnimator.doOnStop(crossinline action: (animator: ValueAnimator) -> Unit) {
+    addListener(onCancel = { action(it as ValueAnimator) }, onEnd = { action(it as ValueAnimator) })
+}
+
+inline fun ValueAnimator.doOnUpdate(crossinline action: (animator: ValueAnimator) -> Unit) {
+    addUpdateListener { action(it) }
 }
 
 fun TextView.animateGrade(value: Int) {
