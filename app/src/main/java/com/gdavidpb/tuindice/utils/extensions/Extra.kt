@@ -1,7 +1,8 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import android.util.Base64
-import com.gdavidpb.tuindice.R
+import androidx.annotation.NavigationRes
+import androidx.navigation.ui.AppBarConfiguration
 import okhttp3.RequestBody
 import okio.Buffer
 import org.jsoup.Jsoup
@@ -33,13 +34,7 @@ fun String.noSensitiveData(): String = replace("(username|password)=[^&]+&".toRe
 
 fun String.isHtml() = contains("<[^>]*>".toRegex())
 
-fun Int.isStartDestination() = when (this) {
-    R.id.nav_summary,
-    R.id.nav_record,
-    R.id.nav_pensum,
-    R.id.nav_about -> true
-    else -> false
-}
+fun AppBarConfiguration.isTopLevelDestination(@NavigationRes navId: Int) = topLevelDestinations.contains(navId)
 
 inline fun Any?.isNull(exec: () -> Unit) = this ?: exec()
 

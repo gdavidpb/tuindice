@@ -3,10 +3,12 @@ package com.gdavidpb.tuindice.ui.activities
 import android.app.ActivityManager
 import android.os.Bundle
 import android.view.View
-import androidx.annotation.IdRes
+import androidx.annotation.NavigationRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavDestination
-import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.NavOptions
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.StartUpAction
@@ -31,12 +33,21 @@ class MainActivity : AppCompatActivity() {
         intent.getBooleanExtra(EXTRA_FIRST_START_UP, false)
     }
 
-    private val navHostFragment by lazy {
-        nav_host_fragment as NavHostFragment
+    private val navController by lazy {
+        findNavController(R.id.navHostFragment)
     }
 
-    private val navController by lazy {
-        navHostFragment.navController
+    private val appBarConfiguration by lazy {
+        val destinations = setOf(
+                R.id.nav_summary,
+                R.id.nav_record,
+                R.id.nav_pensum,
+                R.id.nav_about
+        )
+
+        AppBarConfiguration(navController.graph).apply {
+            topLevelDestinations.addAll(destinations)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,16 +71,22 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    private fun initView(@IdRes navId: Int) {
+    private fun initView(@NavigationRes navId: Int) {
         setContentView(R.layout.activity_main)
 
+        NavigationUI.setupWithNavController(bottomNavView, navController)
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
+
         with(navController) {
-            NavigationUI.setupWithNavController(bottomNavView, this)
+            val isTopLevelDestination = appBarConfiguration.isTopLevelDestination(navId)
+            val isStartDestination = graph.startDestination == navId
 
-            if (navId.isStartDestination()) {
-                popBackStack()
+            if (isTopLevelDestination && !isStartDestination) {
+                val navOptions = NavOptions.Builder()
+                        .setPopUpTo(graph.startDestination, true)
+                        .build()
 
-                navigate(navId)
+                navigate(navId, null, navOptions)
             }
 
             addOnDestinationChangedListener { _, destination, _ ->
@@ -81,18 +98,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onDestinationChanged(destination: NavDestination) {
-        val destId = destination.id
-        val isStartDestination = destId.isStartDestination()
+        val isTopLevelDestination = appBarConfiguration.isTopLevelDestination(navId = destination.id)
 
-        bottomNavView.visibleIf(isStartDestination)
+        bottomNavView.visibleIf(isTopLevelDestination)
 
-        supportActionBar?.apply {
-            title = destination.label
-
-            setDisplayHomeAsUpEnabled(!isStartDestination)
-        }
-
-        viewModel.setLastScreen(navId = destId)
+        if (isTopLevelDestination) viewModel.setLastScreen(navId = destination.id)
     }
 
     private fun showLoading(value: Boolean) {
