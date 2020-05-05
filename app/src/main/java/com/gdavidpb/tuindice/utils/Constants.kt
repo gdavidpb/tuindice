@@ -15,15 +15,6 @@ const val REQUEST_CODE_PROFILE_PICTURE = 1000
 /* External packages */
 const val PACKAGE_NAME_WEB_VIEW = "com.google.android.webview"
 
-/* Third-party urls */
-const val URL_CREATIVE_COMMONS = "https://creativecommons.org/licenses/by-nc/4.0/"
-const val URL_PRIVACY_POLICY = "https://tu-indice-usb.firebaseapp.com/"
-const val URL_TWITTER = "https://twitter.com/TuIndice"
-
-/* Emails */
-const val EMAIL_CONTACT = "tuindice@gmail.com"
-const val EMAIL_SUBJECT_CONTACT = "TuIndice - Contacto"
-
 /* Headers */
 const val HEADER_DATE = "Date"
 

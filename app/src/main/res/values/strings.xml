@@ -186,27 +186,37 @@
     <!-- AboutFragment -->
 
     <string name="about_version">
-        Versión\n%1$s
+        Versión\n
+        %1$s
     </string>
 
     <string name="about_license">
         Creative Commons\nBY-NC 4.0
     </string>
 
+    <string name="about_terms_and_conditions">
+        Términos y condiciones\n
+        Conoce las condiciones del servicio
+    </string>
+
     <string name="about_privacy_policy">
-        Política de privacidad\nConoce como manejamos tus datos
+        Política de privacidad\n
+        Conoce como manejamos tus datos
     </string>
 
     <string name="about_twitter">
-        \@TuIndice\n¡Síguenos en Twitter y enterate de todo!
+        \@TuIndice\n
+        ¡Síguenos en Twitter y enterate de todo!
     </string>
 
     <string name="about_share">
-        Compartir\nInvita a un amigo a descargar la aplicación
+        Compartir\n
+        Invita a un amigo a descargar la aplicación
     </string>
 
     <string name="about_rate">
-        Puntúa\n¡Dale las 5 estrellas!
+        Puntúa\n
+        ¡Dale las 5 estrellas!
     </string>
 
     <string name="about_google_play_intent">market://details?id=%1$s</string>
@@ -221,19 +231,23 @@
     <string name="about_header_developer">Desarrollador</string>
 
     <string name="about_dev_info">
-        Gerardo Prado\nSantiago, Chile
+        Gerardo Prado\n
+        Santiago, Chile
     </string>
 
     <string name="about_dev_report">
-        Reportar un error\nReportar un error al desarrollador
+        Reportar un error\n
+        Reportar un error al desarrollador
     </string>
 
     <string name="about_dev_contact">
-        Contacto\nContactar al desarrollador
+        Contacto\n
+        Contactar al desarrollador
     </string>
 
     <string name="about_source_code">
-        GitHub Repository\nhttps://github.com/gdavidpb/tuindice
+        GitHub Repository\n
+        https://github.com/gdavidpb/tuindice
     </string>
 
     <string name="about_header_libs">Detrás de TuIndice</string>
@@ -331,6 +345,7 @@
 
     <!-- BrowserActivity -->
     <string name="label_creative_commons">TuIndice - Creative Commons</string>
+    <string name="label_terms_and_conditions">TuIndice - Términos y condiciones</string>
     <string name="label_privacy_policy">TuIndice - Política de privacidad</string>
 
     <!-- RemoveProfilePictureActivity -->

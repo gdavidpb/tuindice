@@ -8,19 +8,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
-import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_about.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-open class AboutFragment : Fragment() {
+open class AboutFragment : NavigationFragment() {
 
     private val viewModel by viewModel<AboutViewModel>()
 
@@ -33,6 +32,8 @@ open class AboutFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         setHasOptionsMenu(false)
 
         with(rViewAbout) {
@@ -56,7 +57,15 @@ open class AboutFragment : Fragment() {
                 title(R.string.about_license)
                 tintedDrawable(R.drawable.ic_cc, R.color.color_secondary_text)
                 onClick {
-                    context.browserActivity(title = R.string.label_creative_commons, url = URL_CREATIVE_COMMONS)
+                    context.browserActivity(title = R.string.label_creative_commons, url = BuildConfig.URL_CREATIVE_COMMONS)
+                }
+            }
+
+            item {
+                title(R.string.about_terms_and_conditions)
+                tintedDrawable(R.drawable.ic_terms_and_conditions, R.color.color_secondary_text)
+                onClick {
+                    context.browserActivity(title = R.string.label_terms_and_conditions, url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS)
                 }
             }
 
@@ -64,7 +73,7 @@ open class AboutFragment : Fragment() {
                 title(R.string.about_privacy_policy)
                 tintedDrawable(R.drawable.ic_privacy_policy, R.color.color_secondary_text)
                 onClick {
-                    context.browserActivity(title = R.string.label_privacy_policy, url = URL_PRIVACY_POLICY)
+                    context.browserActivity(title = R.string.label_privacy_policy, url = BuildConfig.URL_APP_PRIVACY_POLICY)
                 }
             }
 
@@ -72,7 +81,7 @@ open class AboutFragment : Fragment() {
                 title(R.string.about_twitter)
                 tintedDrawable(R.drawable.ic_twitter, R.color.color_secondary_text)
                 onClick {
-                    context.browse(URL_TWITTER)
+                    context.browse(BuildConfig.URL_APP_TWITTER)
                 }
             }
 
@@ -108,7 +117,7 @@ open class AboutFragment : Fragment() {
                 title(R.string.about_dev_contact)
                 tintedDrawable(R.drawable.ic_contact, R.color.color_secondary_text)
                 onClick {
-                    email(email = EMAIL_CONTACT, subject = EMAIL_SUBJECT_CONTACT)
+                    email(email = BuildConfig.EMAIL_CONTACT, subject = BuildConfig.EMAIL_SUBJECT)
                 }
             }
 
@@ -142,9 +151,16 @@ open class AboutFragment : Fragment() {
                 sizedDrawable(R.drawable.ic_square, R.dimen.dp_48)
             }
 
+            header(R.string.about_header_special_thanks)
+
             item {
                 title(R.string.about_freepik)
                 sizedDrawable(R.drawable.ic_freepik, R.dimen.dp_48)
+            }
+
+            item {
+                title(R.string.about_mit_mapping_lab)
+                sizedDrawable(R.drawable.ic_mit_mapping_lab, R.dimen.dp_48)
             }
 
             header(R.string.about_header_settings)
@@ -187,7 +203,7 @@ open class AboutFragment : Fragment() {
         val items = resources.getStringArray(R.array.selector_report_items)
 
         selector(R.string.selector_title_report, items) { selected ->
-            email(email = EMAIL_CONTACT, subject = selected)
+            email(email = BuildConfig.EMAIL_CONTACT, subject = selected)
         }
     }
 
