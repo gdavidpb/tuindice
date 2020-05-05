@@ -10,6 +10,7 @@ import androidx.appcompat.widget.AppCompatCheckBox
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.extensions.getCompatColor
 import com.gdavidpb.tuindice.utils.mappers.distanceTo
+import java.util.concurrent.atomic.AtomicBoolean
 
 class CustomCheckBox(context: Context, attrs: AttributeSet)
     : AppCompatCheckBox(context, attrs) {
@@ -17,7 +18,7 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
     companion object {
         private const val backgroundColor = Color.WHITE
 
-        private var onDrawLocker = false
+        private val onDrawLocker = AtomicBoolean(false)
 
         private lateinit var checkedColor: ColorStateList
         private lateinit var uncheckedColor: ColorStateList
@@ -25,9 +26,7 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
     }
 
     override fun onDraw(canvas: Canvas) {
-        if (!onDrawLocker) {
-            onDrawLocker = true
-
+        if (onDrawLocker.compareAndSet(false, true)) {
             val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             val canvasHook = Canvas(bitmapHook)
             val isCheckedHook = isChecked

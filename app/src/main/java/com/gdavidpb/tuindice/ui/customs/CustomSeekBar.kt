@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatSeekBar
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.mappers.distanceTo
+import java.util.concurrent.atomic.AtomicBoolean
 
 class CustomSeekBar(context: Context, attrs: AttributeSet)
     : AppCompatSeekBar(context, attrs) {
@@ -16,15 +17,13 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
     companion object {
         private const val backgroundColor = Color.WHITE
 
-        private var onDrawLocked = false
+        private val onDrawLocked = AtomicBoolean(false)
 
         private lateinit var paint: Paint
     }
 
     override fun onDraw(canvas: Canvas) {
-        if (!onDrawLocked) {
-            onDrawLocked = true
-
+        if (onDrawLocked.compareAndSet(false, true)) {
             val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
             val canvasHook = Canvas(bitmapHook)
             val progressHook = progress

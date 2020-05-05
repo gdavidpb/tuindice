@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showLoading(value: Boolean) {
         if (isFirstStartUp) {
-            bottomNavView.visibleIf(value = !value, elseValue = View.INVISIBLE)
+            bottomNavView.visibleIf(value = !value)
             navHostFragment.requireView().visibleIf(value = !value, elseValue = View.INVISIBLE)
 
             pBarStartUp
