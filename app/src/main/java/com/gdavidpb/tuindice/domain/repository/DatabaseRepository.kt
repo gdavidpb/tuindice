@@ -27,7 +27,6 @@ interface DatabaseRepository {
 
     suspend fun setToken(uid: String, token: String)
     suspend fun setAuthData(uid: String, data: DstAuth)
-    suspend fun setHasProfilePicture(uid: String, hasProfilePicture: Boolean)
 
     suspend fun clearPersistence()
     suspend fun close()

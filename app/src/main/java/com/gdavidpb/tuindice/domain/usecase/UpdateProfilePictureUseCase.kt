@@ -3,7 +3,10 @@ package com.gdavidpb.tuindice.domain.usecase
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
-import com.gdavidpb.tuindice.domain.repository.*
+import com.gdavidpb.tuindice.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.domain.repository.ContentRepository
+import com.gdavidpb.tuindice.domain.repository.LocalStorageRepository
+import com.gdavidpb.tuindice.domain.repository.RemoteStorageRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.utils.PATH_PROFILE_PICTURES
 import com.gdavidpb.tuindice.utils.QUALITY_PROFILE_PICTURE
@@ -16,7 +19,6 @@ import java.io.File
 
 open class UpdateProfilePictureUseCase(
         private val authRepository: AuthRepository,
-        private val databaseRepository: DatabaseRepository,
         private val contentRepository: ContentRepository,
         private val localStorageRepository: LocalStorageRepository,
         private val remoteStorageRepository: RemoteStorageRepository
@@ -60,8 +62,6 @@ open class UpdateProfilePictureUseCase(
         }
 
         localStorageRepository.delete(resource)
-
-        databaseRepository.setHasProfilePicture(uid = activeUId, hasProfilePicture = true)
 
         return downloadUrl.toString()
     }

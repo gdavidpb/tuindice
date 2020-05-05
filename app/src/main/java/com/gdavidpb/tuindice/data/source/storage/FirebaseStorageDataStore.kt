@@ -9,6 +9,12 @@ import java.io.InputStream
 open class FirebaseStorageDataStore(
         private val storage: FirebaseStorage
 ) : RemoteStorageRepository {
+    override suspend fun removeResource(resource: String) {
+        val reference = storage.getReference(resource)
+
+        reference.delete().await()
+    }
+
     override suspend fun resolveResource(resource: String): Uri {
         val reference = storage.getReference(resource)
 

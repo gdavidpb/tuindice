@@ -213,18 +213,6 @@ open class FirestoreDataStore(
         userRef.set(values, SetOptions.merge())
     }
 
-    override suspend fun setHasProfilePicture(uid: String, hasProfilePicture: Boolean) {
-        val userRef = firestore
-                .collection(COLLECTION_USER)
-                .document(uid)
-
-        val values = mapOf(
-                FIELD_USER_HAS_PROFILE_PICTURE to hasProfilePicture
-        )
-
-        userRef.set(values, SetOptions.merge()).await()
-    }
-
     override suspend fun clearPersistence() {
         firestore.clearPersistence().await()
     }

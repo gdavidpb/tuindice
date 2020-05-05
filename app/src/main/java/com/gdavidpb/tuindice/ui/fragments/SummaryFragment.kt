@@ -59,15 +59,17 @@ open class SummaryFragment : NavigationFragment() {
         }
 
         with(viewModel) {
-            observe(account, ::accountObserver)
             observe(getProfilePictureFile, ::getProfilePictureFileObserver)
             observe(createProfilePictureFile, ::createProfilePictureFileObserver)
-            observe(updateProfilePicture, ::updateProfilePictureObserver)
-            observe(loadProfilePicture, ::loadProfilePictureObserver)
+
+            observe(profile, ::profileObserver)
             observe(profilePicture, ::profilePictureObserver)
+            observe(loadProfilePicture, ::loadProfilePictureObserver)
+            observe(updateProfilePicture, ::updateProfilePictureObserver)
             observe(removeProfilePicture, ::removeProfilePictureObserver)
 
-            getAccount()
+            getProfile()
+            getProfilePicture()
         }
     }
 
@@ -99,12 +101,12 @@ open class SummaryFragment : NavigationFragment() {
                 val pendingUpdate = result.value
 
                 if (pendingUpdate)
-                    viewModel.getAccount()
+                    viewModel.getProfile()
             }
         }
     }
 
-    private fun accountObserver(result: Result<Account>?) {
+    private fun profileObserver(result: Result<Account>?) {
         when (result) {
             is Result.OnSuccess -> {
                 loadAccount(account = result.value)
@@ -179,8 +181,6 @@ open class SummaryFragment : NavigationFragment() {
                 showProfilePictureLoading()
             }
             is Result.OnSuccess -> {
-                hideProfilePictureLoading()
-
                 loadProfilePicture(url = result.value)
             }
             is Result.OnError -> {
@@ -231,18 +231,18 @@ open class SummaryFragment : NavigationFragment() {
     private fun showProfilePictureLoading() {
         pBarProfile.visible()
 
-        arrayOf(iViewProfile, iViewEditProfile).forEach {
-            it.disable()
-            it.animateScaleDown()
+        arrayOf(iViewProfile, iViewEditProfile).forEach { view ->
+            view.disable()
+            view.animateScaleDown()
         }
     }
 
     private fun hideProfilePictureLoading() {
         pBarProfile.gone()
 
-        arrayOf(iViewProfile, iViewEditProfile).forEach {
-            it.enable()
-            it.animateScaleUp()
+        arrayOf(iViewProfile, iViewEditProfile).forEach { view ->
+            view.enable()
+            view.animateScaleUp()
         }
     }
 
@@ -289,8 +289,6 @@ open class SummaryFragment : NavigationFragment() {
             tViewGrade.animateGrade(value = account.grade, decimals = DECIMALS_GRADE_QUARTER)
         } else
             groupGrade.gone()
-
-        loadProfilePicture(url = account.profilePicture)
     }
 
     private fun loadProfilePicture(url: String) {
@@ -303,9 +301,9 @@ open class SummaryFragment : NavigationFragment() {
                         .into(iViewProfile, loadProfilePicture)
             }
         } else {
-            iViewProfile.setImageResource(R.mipmap.ic_launcher_round)
-
             hideProfilePictureLoading()
+
+            iViewProfile.setImageResource(R.mipmap.ic_launcher_round)
         }
     }
 }

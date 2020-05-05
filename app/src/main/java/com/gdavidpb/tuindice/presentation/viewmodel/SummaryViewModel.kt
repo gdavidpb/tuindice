@@ -9,22 +9,22 @@ import com.gdavidpb.tuindice.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.utils.extensions.execute
 
 class SummaryViewModel(
-        private val getAccountUseCase: GetAccountUseCase,
+        private val getProfileUseCase: GetProfileUseCase,
         private val getProfilePictureFileUseCase: GetProfilePictureFileUseCase,
         private val createProfilePictureFileUseCase: CreateProfilePictureFileUseCase,
         private val getProfilePictureUseCase: GetProfilePictureUseCase,
         private val updateProfilePictureUseCase: UpdateProfilePictureUseCase,
         private val removeProfilePictureUseCase: RemoveProfilePictureUseCase
 ) : ViewModel() {
-    val account = LiveResult<Account>()
+    val profile = LiveResult<Account>()
     val getProfilePictureFile = LiveEvent<Uri>()
     val createProfilePictureFile = LiveEvent<Uri>()
     val profilePicture = LiveResult<String>()
     val updateProfilePicture = LiveEvent<String>()
     val removeProfilePicture = LiveEvent<Unit>()
 
-    fun getAccount() =
-            execute(useCase = getAccountUseCase, params = Unit, liveData = account)
+    fun getProfile() =
+            execute(useCase = getProfileUseCase, params = Unit, liveData = profile)
 
     fun getProfilePictureFile(optionalUri: Uri?) =
             execute(useCase = getProfilePictureFileUseCase, params = optionalUri, liveData = getProfilePictureFile)

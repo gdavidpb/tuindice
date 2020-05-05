@@ -23,6 +23,8 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="@dimen/dp_16"
         tools:ignore="ContentDescription"
+        android:visibility="invisible"
+        tools:visibility="visible"
         tools:src="@mipmap/ic_launcher_round" />
 
     <ImageView
@@ -33,11 +35,11 @@
         android:clickable="true"
         android:focusable="true"
         android:padding="@dimen/dp_6"
+        android:visibility="invisible"
+        tools:ignore="ContentDescription"
         android:src="@drawable/ic_edit"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/iViewProfile"
         app:layout_constraintEnd_toEndOf="@id/iViewProfile"
-        tools:ignore="ContentDescription"
         tools:visibility="visible" />
 
     <ProgressBar

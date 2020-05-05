@@ -5,8 +5,7 @@ import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.storage.StorageException
-import com.google.firebase.storage.StorageException.ERROR_NOT_AUTHENTICATED
-import com.google.firebase.storage.StorageException.ERROR_NOT_AUTHORIZED
+import com.google.firebase.storage.StorageException.*
 import retrofit2.HttpException
 import java.io.InterruptedIOException
 import java.net.ConnectException
@@ -22,6 +21,15 @@ fun Throwable.isPermissionDenied() = when (val internal = cause) {
     is StorageException -> {
         internal.errorCode == ERROR_NOT_AUTHENTICATED ||
                 internal.errorCode == ERROR_NOT_AUTHORIZED
+    }
+    else -> false
+}
+
+fun Throwable.isObjectNotFound() = when (val internal = cause) {
+    is StorageException -> {
+        internal.errorCode == ERROR_OBJECT_NOT_FOUND ||
+                internal.errorCode == ERROR_BUCKET_NOT_FOUND ||
+                internal.errorCode == ERROR_PROJECT_NOT_FOUND
     }
     else -> false
 }
