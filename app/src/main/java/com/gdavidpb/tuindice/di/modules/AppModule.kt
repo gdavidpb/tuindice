@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
 import com.gdavidpb.tuindice.utils.TIME_OUT_CONNECTION
+import com.gdavidpb.tuindice.utils.extensions.create
 import com.gdavidpb.tuindice.utils.extensions.noSensitiveData
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
@@ -185,7 +186,7 @@ val appModule = module {
                 .client(httpClient)
                 .baseUrl(BuildConfig.ENDPOINT_DST_SECURE)
                 .build()
-                .create(DstAuthService::class.java) as DstAuthService
+                .create<DstAuthService>()
     }
 
     /* Dst record service */
@@ -198,7 +199,7 @@ val appModule = module {
                 .client(httpClient)
                 .baseUrl(BuildConfig.ENDPOINT_DST_RECORD)
                 .build()
-                .create(DstRecordService::class.java) as DstRecordService
+                .create<DstRecordService>()
     }
 
     /* Dst enrollment service */
@@ -211,7 +212,7 @@ val appModule = module {
                 .client(httpClient)
                 .baseUrl(BuildConfig.ENDPOINT_DST_ENROLLMENT)
                 .build()
-                .create(DstEnrollmentService::class.java) as DstEnrollmentService
+                .create<DstEnrollmentService>()
     }
 
     /* View Models */
