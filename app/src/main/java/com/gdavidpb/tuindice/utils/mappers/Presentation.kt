@@ -6,6 +6,7 @@ import android.text.Spanned
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
+import androidx.core.text.buildSpannedString
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.presentation.model.*
@@ -169,7 +170,7 @@ fun Subject.spanSubjectCode(context: Context): CharSequence {
 
     return if (statusText.isEmpty())
         code
-    else buildSpanned {
+    else buildSpannedString {
         val content = context.getString(R.string.subject_title, code, statusText)
         val colorSecondary = ResourcesManager.getColor(R.color.color_secondary_text, context)
 
@@ -188,7 +189,7 @@ fun String.spanAbout(titleColor: Int, subtitleColor: Int): CharSequence {
             substringAfter('\n')
     )
 
-    return buildSpanned {
+    return buildSpannedString {
         append(title, ForegroundColorSpan(titleColor))
         append('\n')
         append(subtitle, ForegroundColorSpan(subtitleColor), TypefaceSpan("sans-serif-light"))
@@ -203,7 +204,7 @@ private fun String.spanGrade(color: Int, font: Typeface? = null): Spanned {
     val typefaceSpan = font?.let(::CustomTypefaceSpan)
             ?: TypefaceSpan("sans-serif-medium")
 
-    return buildSpanned {
+    return buildSpannedString {
         append(iconString,
                 typefaceSpan,
                 AbsoluteSizeSpan(18, true),

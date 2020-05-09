@@ -3,9 +3,12 @@ package com.gdavidpb.tuindice.ui.activities
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
+import android.text.style.ForegroundColorSpan
+import android.text.style.TypefaceSpan
+import android.text.style.UnderlineSpan
+import android.view.animation.OvershootInterpolator
 import android.view.inputmethod.EditorInfo
-import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.utils.`do`
@@ -14,15 +17,15 @@ import com.gdavidpb.tuindice.data.utils.firstInvalid
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
-import com.gdavidpb.tuindice.utils.EXTRA_FIRST_START_UP
+import com.gdavidpb.tuindice.ui.adapters.LoadingAdapter
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_login.*
-import okio.IOException
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.net.ConnectException
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : NavigationActivity() {
 
     private val viewModel by viewModel<LoginViewModel>()
 
@@ -33,7 +36,7 @@ class LoginActivity : AppCompatActivity() {
                 `when`(tInputUsbId) { text().isBlank() } `do` { errorResource = R.string.error_empty },
                 `when`(tInputUsbId) { !text().isUsbId() } `do` { errorResource = R.string.error_usb_id },
                 `when`(tInputPassword) { text().isBlank() } `do` { errorResource = R.string.error_empty },
-                `when`(connectivityManager) { !isNetworkAvailable() } `do` { handleAuthException(IOException()) }
+                `when`(connectivityManager) { !isNetworkAvailable() } `do` { handleException(ConnectException()) }
         )
     }
 
@@ -45,14 +48,12 @@ class LoginActivity : AppCompatActivity() {
 
         with(viewModel) {
             observe(auth, ::authObserver)
+            observe(sync, ::syncObserver)
         }
     }
 
     private fun onViewCreated() {
-        /* Set up background animation */
         (backgroundOne to backgroundTwo).animateInfiniteLoop()
-
-        tViewAppVersion.text = versionName()
 
         eTextUsbId.onTextChanged { _, _, _, _ -> if (tInputUsbId.error != null) tInputUsbId.error = null }
         eTextPassword.onTextChanged { _, _, _, _ -> if (tInputPassword.error != null) tInputPassword.error = null }
@@ -67,7 +68,7 @@ class LoginActivity : AppCompatActivity() {
 
         eTextPassword.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                btnSignIn.performClick()
+                onSignInClick()
                 false
             } else
                 true
@@ -81,17 +82,28 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        val accentColor = ContextCompat.getColor(this, R.color.color_accent)
+
+        tViewPolicies.apply {
+            setSpans {
+                listOf(ForegroundColorSpan(accentColor), TypefaceSpan("sans-serif-medium"), UnderlineSpan())
+            }
+
+            setLink(getString(R.string.link_terms_and_conditions)) {
+                browserActivity(title = R.string.label_terms_and_conditions, url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS)
+            }
+
+            setLink(getString(R.string.link_privacy_policy)) {
+                browserActivity(title = R.string.label_privacy_policy, url = BuildConfig.URL_APP_PRIVACY_POLICY)
+            }
+        }.build()
+
         iViewLogo.onClickOnce(::onLogoClick)
-        btnPrivacyPolicy.onClickOnce(::onPrivacyPolicyClick)
         btnSignIn.onClickOnce(::onSignInClick)
     }
 
     private fun onLogoClick() {
         iViewLogo.animateShake()
-    }
-
-    private fun onPrivacyPolicyClick() {
-        browserActivity(title = R.string.label_privacy_policy, url = BuildConfig.URL_APP_PRIVACY_POLICY)
     }
 
     private fun onSignInClick() {
@@ -106,6 +118,8 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }.isNull {
+            hideSoftKeyboard()
+
             iViewLogo.performClick()
 
             viewModel.auth(
@@ -115,71 +129,74 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun syncFailureDialog() {
-        alert {
-            titleResource = R.string.alert_title_sync_failure
-            messageResource = R.string.alert_message_sync_failure
+    private fun showLoading(value: Boolean) {
+        val layout = if (value) {
+            vFlipperLoading.visible()
 
-            isCancelable = false
+            if (vFlipperLoading.adapter == null) {
+                val items = resources.getStringArray(R.array.message_loading)
+                        .toList()
+                        .shuffled()
 
-            positiveButton(R.string.open_settings) {
-                openDataTime()
+                vFlipperLoading.adapter = LoadingAdapter(items)
             }
 
-            negativeButton(R.string.exit) {
-                finish()
-            }
-        }
-    }
+            vFlipperLoading.startFlipping()
 
-    private fun enableUI(value: Boolean) {
-        if (value) {
-            groupLoginProgress.gone()
-            groupLogin.visible()
+            R.layout.activity_login_loading
         } else {
-            groupLogin.gone()
-            groupLoginProgress.visible()
+            vFlipperLoading.gone()
+            vFlipperLoading.stopFlipping()
+
+            R.layout.activity_login
         }
 
-        ConstraintSet().apply {
-            clone(cLayoutMain)
-
-            if (value) {
-                connectBottomBottom(R.id.iViewLogo, R.id.guidelineBottomLogo)
-                connectTopTop(R.id.iViewLogo, R.id.guidelineTopLogo)
-            } else {
-                connectBottomBottom(R.id.iViewLogo, R.id.guidelineBottomCenter)
-                connectTopTop(R.id.iViewLogo, R.id.guidelineTopCenter)
-            }
-
-            applyTo(cLayoutMain)
+        cLayoutLogin.beginTransition(targetLayout = layout) {
+            interpolator = OvershootInterpolator()
+            duration = 1000
         }
     }
 
     private fun authObserver(result: Result<AuthResponse>?) {
         when (result) {
             is Result.OnLoading -> {
-                enableUI(false)
+                showLoading(true)
             }
             is Result.OnSuccess -> {
-                startActivity<MainActivity>(
-                        EXTRA_FIRST_START_UP to true
-                )
-                finish()
+                viewModel.trySyncAccount()
             }
             is Result.OnError -> {
-                enableUI(true)
+                showLoading(false)
 
-                handleAuthException(throwable = result.throwable)
+                handleException(throwable = result.throwable)
             }
         }
     }
 
-    private fun handleAuthException(throwable: Throwable) {
-        when {
-            throwable.isSynchronizationIssue() -> syncFailureDialog()
-            throwable.isInvalidCredentials() -> showSnackBarException(throwable)
-            else -> showSnackBarException(throwable) { onSignInClick() }
+    private fun syncObserver(result: Result<Boolean>?) {
+        when (result) {
+            is Result.OnSuccess -> {
+                startActivity<MainActivity>()
+                finish()
+            }
+            is Result.OnError -> {
+                showLoading(false)
+
+                handleException(throwable = result.throwable)
+            }
+        }
+    }
+
+    override fun handleException(throwable: Throwable): Boolean {
+        return super.handleException(throwable) || when {
+            throwable.isInvalidCredentials() -> {
+                showSnackBarException(throwable)
+                true
+            }
+            else -> {
+                showSnackBarException(throwable) { onSignInClick() }
+                true
+            }
         }
     }
 }

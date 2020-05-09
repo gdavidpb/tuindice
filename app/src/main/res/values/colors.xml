@@ -27,6 +27,11 @@
     <color name="color_failed">#F44336</color>
     <color name="color_retired">#B0BEC5</color>
 
+    <!-- TextInputLayout -->
+
+    <color name="color_text_input_layout_error">#FF5252</color>
+    <color name="color_text_input_layout_text">#212121</color>
+
     <!-- CanvasView / NetworkView -->
 
     <color name="color_node">#FFC107</color>

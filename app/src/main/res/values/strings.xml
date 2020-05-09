@@ -168,20 +168,38 @@
     <string name="hintPassword">Contraseña</string>
 
     <string name="button_login">Iniciar sesión</string>
-    <string name="button_privacy_policy"><u><b>Política de privacidad</b></u></string>
+    <string name="label_policies">
+        Al usar la aplicación, aceptas los\n
+        Términos y condiciones y Política de privacidad
+    </string>
+
+    <string name="link_terms_and_conditions">Términos y condiciones</string>
+    <string name="link_privacy_policy">Política de privacidad</string>
 
     <string name="error_empty">Campo vacío</string>
     <string name="error_usb_id">USBID inválido</string>
 
-    <string name="snack_network_unavailable">No hay conexión</string>
+    <string name="snack_network_unavailable">Comprueba tu conexión</string>
     <string name="snack_service_unreachable">El servidor no está disponible</string>
     <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
 
-    <string name="message_logging">Iniciando sesión…</string>
-
-    <string name="message_flipper_1">TuIndice</string>
-    <string name="message_flipper_2">Una nueva forma…</string>
-    <string name="message_flipper_3">…de administrar tus notas</string>
+    <string-array name="message_loading">
+        <item>Calculando la resolvente…</item>
+        <item>Calculando el campo magnético…</item>
+        <item>Midiendo los anillos de Newton…</item>
+        <item>Haciendo la transformada de Fourier…</item>
+        <item>Haciendo la transformada de Laplace…</item>
+        <item>Rompiendo indeterminaciones con L\'Hopital…</item>
+        <item>Ejecutando algoritmo de Dijkstra…</item>
+        <item>Aplicando la 1ra Ley de Newton…</item>
+        <item>Aplicando la 2da Ley de Newton…</item>
+        <item>Aplicando la 3ra Ley de Newton…</item>
+        <item>Aplicando Gauss-Jordan…</item>
+        <item>Factorizando…</item>
+        <item>Integrando…</item>
+        <item>Derivando…</item>
+        <item>Cancelando términos…</item>
+    </string-array>
 
     <!-- AboutFragment -->
 

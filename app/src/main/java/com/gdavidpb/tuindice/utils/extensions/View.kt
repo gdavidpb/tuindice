@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.StyleableRes
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.ui.customs.EvaluationDatePicker
 import com.gdavidpb.tuindice.utils.NO_GETTER
@@ -120,6 +121,11 @@ fun InputMethodManager.hideSoftKeyboard(view: View) {
     hideSoftInputFromWindow(view.windowToken, 0)
 }
 
+fun InputMethodManager.hideSoftKeyboard(activity: FragmentActivity) {
+    val view = activity.currentFocus
+
+    if (view != null) hideSoftKeyboard(view)
+}
 
 fun TextInputLayout.text(value: String? = null) = value?.also { editText?.setText(it) }
         ?: "${editText?.text}"

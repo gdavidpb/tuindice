@@ -1,10 +1,7 @@
 package com.gdavidpb.tuindice.ui.activities
 
-import android.app.ActivityManager
 import android.os.Bundle
-import android.view.View
 import androidx.annotation.NavigationRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
@@ -12,26 +9,20 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.StartUpAction
-import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
-import com.gdavidpb.tuindice.domain.model.exception.NoDataException
-import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
+import com.gdavidpb.tuindice.domain.model.exception.FatalException
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.EXTRA_AWAITING_EMAIL
+import com.gdavidpb.tuindice.utils.EXTRA_AWAITING_STATE
+import com.gdavidpb.tuindice.utils.FLAG_RESET
+import com.gdavidpb.tuindice.utils.FLAG_VERIFY
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.activity_main.*
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : NavigationActivity() {
 
     private val viewModel by viewModel<MainViewModel>()
-
-    private val activityManager by inject<ActivityManager>()
-
-    private val isFirstStartUp by lazy {
-        intent.getBooleanExtra(EXTRA_FIRST_START_UP, false)
-    }
 
     private val navController by lazy {
         findNavController(R.id.navHostFragment)
@@ -63,12 +54,6 @@ class MainActivity : AppCompatActivity() {
 
             fetchStartUpAction(dataString = intent.dataString ?: "")
         }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        super.onBackPressed()
-
-        return true
     }
 
     private fun initView(@NavigationRes navId: Int) {
@@ -105,97 +90,21 @@ class MainActivity : AppCompatActivity() {
         if (isTopLevelDestination) viewModel.setLastScreen(navId = destination.id)
     }
 
-    private fun showLoading(value: Boolean) {
-        if (isFirstStartUp) {
-            bottomNavView.visibleIf(value = !value)
-            navHostFragment.requireView().visibleIf(value = !value, elseValue = View.INVISIBLE)
-
-            pBarStartUp
-        } else {
-            bottomNavView.visible()
-
-            pBarSync
-        }.also { progressBar ->
-            progressBar.visibleIf(value)
-        }
-    }
-
-    private fun fatalFailureRestart() {
-        activityManager.clearApplicationUserData()
-
-        recreate()
-    }
-
-    private fun fatalFailureDialog() {
-        alert {
-            titleResource = R.string.alert_title_fatal_failure
-            messageResource = R.string.alert_message_fatal_failure
-
-            isCancelable = false
-
-            positiveButton(R.string.restart) {
-                fatalFailureRestart()
-            }
-
-            negativeButton(R.string.exit) {
-                finish()
-            }
-        }
-    }
-
-    private fun dataFailureDialog() {
-        alert {
-            titleResource = R.string.alert_title_data_failure
-            messageResource = R.string.alert_message_data_failure
-
-            isCancelable = false
-
-            positiveButton(R.string.restart) {
-                fatalFailureRestart()
-            }
-
-            negativeButton(R.string.exit) {
-                finish()
-            }
-        }
-    }
-
-    private fun syncFailureDialog() {
-        alert {
-            titleResource = R.string.alert_title_sync_failure
-            messageResource = R.string.alert_message_sync_failure
-
-            isCancelable = false
-
-            positiveButton(R.string.open_settings) {
-                openDataTime()
-            }
-
-            negativeButton(R.string.exit) {
-                finish()
-            }
-        }
-    }
-
     private fun syncObserver(result: Result<Boolean>?) {
         when (result) {
             is Result.OnLoading -> {
-                showLoading(true)
+                pBarSync.visibleIf(true)
             }
             is Result.OnSuccess -> {
-                showLoading(false)
+                pBarSync.visibleIf(false)
             }
             is Result.OnError -> {
-                showLoading(false)
+                pBarSync.visibleIf(false)
 
-                when (result.throwable) {
-                    is NoAuthenticatedException -> fatalFailureRestart()
-                    is NoDataException -> dataFailureDialog()
-                    is SynchronizationException -> syncFailureDialog()
-                }
+                handleException(throwable = result.throwable)
             }
             is Result.OnCancel -> {
-                showLoading(false)
+                pBarSync.visibleIf(false)
             }
         }
     }
@@ -228,7 +137,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             is Result.OnError -> {
-                fatalFailureDialog()
+                handleException(throwable = FatalException())
             }
         }
     }

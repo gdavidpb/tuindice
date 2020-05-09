@@ -65,7 +65,7 @@
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnResend"
         android:layout_width="@dimen/size_button"
-        android:layout_height="@dimen/dp_36"
+        android:layout_height="@dimen/dp_38"
         android:background="@drawable/sh_button"
         android:enabled="false"
         android:text="@string/button_resend"
