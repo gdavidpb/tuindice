@@ -81,9 +81,13 @@ open class FirebaseDataStore(
     }
 
     override suspend fun isEmailVerified(): Boolean {
-        val lazyIsEmailVerified = { auth.currentUser?.isEmailVerified == true }
+        val outdatedUser = auth.currentUser ?: throw NoAuthenticatedException()
 
-        return lazyIsEmailVerified() || auth.currentUser?.reload()?.await().run { lazyIsEmailVerified() }
+        outdatedUser.reload().await()
+
+        val updatedUser = auth.currentUser ?: throw NoAuthenticatedException()
+
+        return updatedUser.isEmailVerified
     }
 
     override suspend fun isVeryLink(link: String): Boolean {
