@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
 import com.gdavidpb.tuindice.domain.model.exception.NoDataException
 import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.google.firebase.auth.FirebaseAuthActionCodeException
 import org.koin.android.ext.android.inject
 
 abstract class NavigationActivity : AppCompatActivity() {
@@ -22,20 +23,24 @@ abstract class NavigationActivity : AppCompatActivity() {
     }
 
     open fun handleException(throwable: Throwable): Boolean {
-        return when (throwable) {
-            is NoAuthenticatedException -> {
+        return when {
+            throwable.cause is FirebaseAuthActionCodeException -> {
+                linkFailureDialog()
+                true
+            }
+            throwable is NoAuthenticatedException -> {
                 fatalFailureRestart()
                 true
             }
-            is NoDataException -> {
+            throwable is NoDataException -> {
                 dataFailureDialog()
                 true
             }
-            is SynchronizationException -> {
+            throwable is SynchronizationException -> {
                 syncFailureDialog()
                 true
             }
-            is FatalException -> {
+            throwable is FatalException -> {
                 fatalFailureDialog()
                 true
             }
@@ -49,10 +54,27 @@ abstract class NavigationActivity : AppCompatActivity() {
         inputMethodManager.hideSoftKeyboard(this)
     }
 
+    protected fun clearApplicationUserData() {
+        activityManager.clearApplicationUserData()
+    }
+
     private fun fatalFailureRestart() {
         activityManager.clearApplicationUserData()
 
         recreate()
+    }
+
+    private fun linkFailureDialog() {
+        alert {
+            titleResource = R.string.alert_title_link_failure
+            messageResource = R.string.alert_message_link_failure
+
+            isCancelable = false
+
+            positiveButton(R.string.exit) {
+                finish()
+            }
+        }
     }
 
     private fun fatalFailureDialog() {

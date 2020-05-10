@@ -1,3 +1,3 @@
 package com.gdavidpb.tuindice.domain.model.exception
 
-class FatalException : RuntimeException()
+class FatalException(cause: Throwable) : RuntimeException(cause)

@@ -137,7 +137,9 @@ class MainActivity : NavigationActivity() {
                 }
             }
             is Result.OnError -> {
-                handleException(throwable = FatalException())
+                val exception = FatalException(cause = result.throwable)
+
+                handleException(throwable = exception)
             }
         }
     }

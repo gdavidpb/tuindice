@@ -42,6 +42,11 @@
         Parece que algo ha salido muy mal por acá. Debes reiniciar <b>TuIndice</b> para continuar
     </string>
 
+    <string name="alert_title_link_failure">¡Oops, lo sentimos!</string>
+    <string name="alert_message_link_failure">
+        Este enlace está corrupto o ya fue usado, por favor solicita otro correo.
+    </string>
+
     <string name="alert_title_sync_failure">¡Revisa tu fecha y hora!</string>
     <string name="alert_message_sync_failure">
         Para que <b>TuIndice</b> funcione correctamente debes ajustar la fecha y hora de tu dispositivo

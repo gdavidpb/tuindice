@@ -1,8 +1,6 @@
 package com.gdavidpb.tuindice.ui.activities
 
-import android.app.ActivityManager
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
@@ -13,14 +11,11 @@ import com.gdavidpb.tuindice.utils.FLAG_RESET
 import com.gdavidpb.tuindice.utils.FLAG_VERIFY
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.activity_email_sent.*
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class EmailSentActivity : AppCompatActivity() {
+class EmailSentActivity : NavigationActivity() {
 
     private val viewModel by viewModel<EmailSentViewModel>()
-
-    private val activityManager by inject<ActivityManager>()
 
     private val awaitingState by lazy {
         intent.getIntExtra(EXTRA_AWAITING_STATE, 0)
@@ -64,6 +59,10 @@ class EmailSentActivity : AppCompatActivity() {
         btnReset.onClickOnce(::onResetClick)
     }
 
+    override fun handleException(throwable: Throwable): Boolean {
+        return super.handleException(throwable) || showSnackBarException(throwable).run { true }
+    }
+
     private fun onResendClick() {
         btnResend.isEnabled = false
 
@@ -99,7 +98,7 @@ class EmailSentActivity : AppCompatActivity() {
                 finish()
             }
             is Completable.OnError -> {
-                activityManager.clearApplicationUserData()
+                clearApplicationUserData()
 
                 startActivity<LoginActivity>()
                 finish()
@@ -110,14 +109,14 @@ class EmailSentActivity : AppCompatActivity() {
     private fun resetPasswordObserver(result: Completable?) {
         when (result) {
             is Completable.OnComplete -> showSnackBarResend()
-            is Completable.OnError -> showSnackBarException(throwable = result.throwable)
+            is Completable.OnError -> handleException(throwable = result.throwable)
         }
     }
 
     private fun sendEmailVerificationObserver(result: Completable?) {
         when (result) {
             is Completable.OnComplete -> showSnackBarResend()
-            is Completable.OnError -> showSnackBarException(throwable = result.throwable)
+            is Completable.OnError -> handleException(throwable = result.throwable)
         }
     }
 
