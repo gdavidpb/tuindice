@@ -37,10 +37,16 @@ android {
             manifestPlaceholders = [enableCrashReporting: "false"]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
 
-            buildConfigField "String", "URL_APP_BASE", "\"tu-indice-usb.firebaseapp.com\""
-            buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/\""
-            buildConfigField "String", "URL_APP_VERIFY", "\"https://tu-indice-usb.firebaseapp.com?verify=%s\""
-            buildConfigField "String", "URL_APP_RESET_PASSWORD", "\"https://tu-indice-usb.firebaseapp.com?resetPassword=%s\""
+            buildConfigField "String", "LINK_VERIFY", "\"https://tu-indice-usb.firebaseapp.com?verify=%s\""
+            buildConfigField "String", "LINK_RESET_PASSWORD", "\"https://tu-indice-usb.firebaseapp.com?resetPassword=%s\""
+
+            buildConfigField "String", "URL_APP_TWITTER", "\"https://twitter.com/TuIndice\""
+            buildConfigField "String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\""
+            buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/privacy_policy\""
+            buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions\""
+
+            buildConfigField "String", "EMAIL_CONTACT", "\"tuindice@gmail.com\""
+            buildConfigField "String", "EMAIL_SUBJECT", "\"TuIndice - Contacto\""
 
             buildConfigField "String", "ENDPOINT_DST_SECURE", "\"https://secure.dst.usb.ve/\""
             buildConfigField "String", "ENDPOINT_DST_RECORD", "\"http://expediente.dii.usb.ve/expediente/\""
@@ -56,10 +62,16 @@ android {
             manifestPlaceholders = [enableCrashReporting: "true"]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
 
-            buildConfigField "String", "URL_APP_BASE", "\"tu-indice-usb.firebaseapp.com\""
-            buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/\""
-            buildConfigField "String", "URL_APP_VERIFY", "\"https://tu-indice-usb.firebaseapp.com?verify=%s\""
-            buildConfigField "String", "URL_APP_RESET_PASSWORD", "\"https://tu-indice-usb.firebaseapp.com?resetPassword=%s\""
+            buildConfigField "String", "LINK_VERIFY", "\"https://tu-indice-usb.firebaseapp.com?verify=%s\""
+            buildConfigField "String", "LINK_RESET_PASSWORD", "\"https://tu-indice-usb.firebaseapp.com?resetPassword=%s\""
+
+            buildConfigField "String", "URL_APP_TWITTER", "\"https://twitter.com/TuIndice\""
+            buildConfigField "String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\""
+            buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/privacy_policy\""
+            buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions\""
+
+            buildConfigField "String", "EMAIL_CONTACT", "\"tuindice@gmail.com\""
+            buildConfigField "String", "EMAIL_SUBJECT", "\"TuIndice - Contacto\""
 
             buildConfigField "String", "ENDPOINT_DST_SECURE", "\"https://secure.dst.usb.ve/\""
             buildConfigField "String", "ENDPOINT_DST_RECORD", "\"http://expediente.dii.usb.ve/expediente/\""

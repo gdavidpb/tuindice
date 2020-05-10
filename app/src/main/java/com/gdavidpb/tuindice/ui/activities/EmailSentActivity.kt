@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.ui.activities
 
+import android.app.ActivityManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.gdavidpb.tuindice.R
@@ -12,11 +13,14 @@ import com.gdavidpb.tuindice.utils.FLAG_RESET
 import com.gdavidpb.tuindice.utils.FLAG_VERIFY
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.activity_email_sent.*
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class EmailSentActivity : AppCompatActivity() {
 
     private val viewModel by viewModel<EmailSentViewModel>()
+
+    private val activityManager by inject<ActivityManager>()
 
     private val awaitingState by lazy {
         intent.getIntExtra(EXTRA_AWAITING_STATE, 0)
@@ -32,6 +36,7 @@ class EmailSentActivity : AppCompatActivity() {
 
         with(viewModel) {
             observe(countdown, ::countdownObserver)
+            observe(signOut, ::signOutObserver)
             observe(sendEmailVerification, ::sendEmailVerificationObserver)
             observe(resetPassword, ::resetPasswordObserver)
 
@@ -56,6 +61,7 @@ class EmailSentActivity : AppCompatActivity() {
         }
 
         btnResend.onClickOnce(::onResendClick)
+        btnReset.onClickOnce(::onResetClick)
     }
 
     private fun onResendClick() {
@@ -64,9 +70,13 @@ class EmailSentActivity : AppCompatActivity() {
         viewModel.startCountdown(forceRestart = true)
 
         when (awaitingState) {
-            FLAG_RESET -> viewModel.resetPassword()
-            FLAG_VERIFY -> viewModel.sendEmailVerification()
+            FLAG_RESET -> viewModel.sendResetPasswordEmail()
+            FLAG_VERIFY -> viewModel.sendVerificationEmail()
         }
+    }
+
+    private fun onResetClick() {
+        viewModel.signOut()
     }
 
     private fun countdownObserver(result: Continuous<Long>?) {
@@ -78,6 +88,21 @@ class EmailSentActivity : AppCompatActivity() {
                 btnResend.isEnabled = true
 
                 tViewCountdown.text = (0L).toCountdown()
+            }
+        }
+    }
+
+    private fun signOutObserver(result: Completable?) {
+        when (result) {
+            is Completable.OnComplete -> {
+                startActivity<LoginActivity>()
+                finish()
+            }
+            is Completable.OnError -> {
+                activityManager.clearApplicationUserData()
+
+                startActivity<LoginActivity>()
+                finish()
             }
         }
     }

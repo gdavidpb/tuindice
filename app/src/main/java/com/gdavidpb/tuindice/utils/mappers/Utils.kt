@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Base64
+import androidx.core.net.toUri
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
@@ -28,18 +29,17 @@ fun FirebaseUser.toAuth() = Auth(
         email = email ?: ""
 )
 
+fun String.toVerifyCode(): String {
+    return toUri().getQueryParameterOrThrow("oobCode")
+}
+
 fun String.toResetRequest(): ResetRequest {
-    fun getCode(uri: Uri) = uri.getQueryParameter("oobCode")!!
-    fun getContinueUrl(uri: Uri) = uri.getQueryParameter("continueUrl")!!
+    val url = toUri()
 
-    val mainUri = Uri.parse(this)
-
-    val code = getCode(mainUri)
-    val continueUrl = getContinueUrl(mainUri)
-
-    val continueUri = Uri.parse(continueUrl)
-
-    val resetPassword = continueUri.getQueryParameter("")!!
+    val linkUrl = url.getQueryParameterOrThrow("link").toUri()
+    val code = linkUrl.getQueryParameterOrThrow("oobCode")
+    val continueUrl = linkUrl.getQueryParameterOrThrow("continueUrl").toUri()
+    val resetPassword = continueUrl.getQueryParameterOrThrow("resetPassword")
 
     val (email, password) = resetPassword.toResetParam()
 
@@ -56,6 +56,10 @@ fun Pair<String, String>.fromResetParam(): String {
     val data = "$first\n$second".toByteArray()
 
     return Base64.encodeToString(data, Base64.DEFAULT)
+}
+
+fun Uri.getQueryParameterOrThrow(key: String): String {
+    return getQueryParameter(key) ?: throw IllegalArgumentException("$key: '$this'")
 }
 
 infix fun Int.distanceTo(x: Int): Double {

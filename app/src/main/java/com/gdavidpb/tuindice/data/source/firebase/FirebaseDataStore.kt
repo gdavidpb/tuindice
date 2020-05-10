@@ -19,15 +19,25 @@ open class FirebaseDataStore(
     }
 
     override suspend fun getActiveAuth(): Auth {
-        return auth.currentUser?.toAuth() ?: throw NoAuthenticatedException()
+        return auth.currentUser
+                ?.toAuth()
+                ?: throw NoAuthenticatedException()
     }
 
     override suspend fun signUp(email: String, password: String): Auth {
-        return auth.createUserWithEmailAndPassword(email, password).await().user!!.toAuth()
+        return auth.createUserWithEmailAndPassword(email, password)
+                .await()
+                .user
+                ?.toAuth()
+                ?: throw NoAuthenticatedException()
     }
 
     override suspend fun signIn(email: String, password: String): Auth {
-        return auth.signInWithEmailAndPassword(email, password).await().user!!.toAuth()
+        return auth.signInWithEmailAndPassword(email, password)
+                .await()
+                .user
+                ?.toAuth()
+                ?: throw NoAuthenticatedException()
     }
 
     override suspend fun signOut() {
@@ -36,7 +46,7 @@ open class FirebaseDataStore(
 
     override suspend fun sendPasswordResetEmail(email: String, password: String) {
         val resetPassword = (email to password).fromResetParam()
-        val continueUrl = BuildConfig.URL_APP_RESET_PASSWORD.format(resetPassword)
+        val continueUrl = BuildConfig.LINK_RESET_PASSWORD.format(resetPassword)
 
         val actionCodeSettings = ActionCodeSettings
                 .newBuilder()
@@ -49,18 +59,21 @@ open class FirebaseDataStore(
     }
 
     override suspend fun sendVerificationEmail() {
-        auth.currentUser?.also { user ->
-            val continueUrl = BuildConfig.URL_APP_VERIFY.format(user.uid)
+        val currentUser = auth.currentUser ?: throw NoAuthenticatedException()
+        val continueUrl = BuildConfig.LINK_VERIFY.format(currentUser.uid)
 
-            val actionCodeSettings = ActionCodeSettings
-                    .newBuilder()
-                    .setUrl(continueUrl)
-                    .setHandleCodeInApp(false)
-                    .setAndroidPackageName(BuildConfig.APPLICATION_ID, true, null)
-                    .build()
+        val actionCodeSettings = ActionCodeSettings
+                .newBuilder()
+                .setUrl(continueUrl)
+                .setHandleCodeInApp(true)
+                .setAndroidPackageName(BuildConfig.APPLICATION_ID, true, null)
+                .build()
 
-            user.sendEmailVerification(actionCodeSettings).await()
-        }
+        currentUser.sendEmailVerification(actionCodeSettings).await()
+    }
+
+    override suspend fun confirmVerifyEmail(code: String) {
+        auth.applyActionCode(code).await()
     }
 
     override suspend fun confirmPasswordReset(code: String, password: String) {
@@ -73,17 +86,15 @@ open class FirebaseDataStore(
         return lazyIsEmailVerified() || auth.currentUser?.reload()?.await().run { lazyIsEmailVerified() }
     }
 
-    override suspend fun isResetLink(link: String?): Boolean {
-        if (link == null) return false
+    override suspend fun isVeryLink(link: String): Boolean {
+        if (link.isEmpty()) return false
 
-        val uri = Uri.parse(link)
+        return Uri.parse(link).getQueryParameter("mode") == "verifyEmail"
+    }
 
-        val values = fun(uri: Uri) = mapOf(
-                uri.host to BuildConfig.URL_APP_BASE,
-                uri.path to "path=/__/auth/onClick",
-                uri.getQueryParameter("mode") to "resetPassword"
-        )
+    override suspend fun isResetLink(link: String): Boolean {
+        if (link.isEmpty()) return false
 
-        return values(uri).all { (value, expected) -> value == expected }
+        return Uri.parse(link).getQueryParameter("mode") == "resetPassword"
     }
 }
