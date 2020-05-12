@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.utils.extensions
 
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageException.*
@@ -33,8 +35,12 @@ fun Throwable.isObjectNotFound() = when (val internal = cause) {
     else -> false
 }
 
-fun Throwable.isInvalidCredentials() =
-        ((this as? AuthenticationException)?.code) == AuthResponseCode.INVALID_CREDENTIALS
+fun Throwable?.isInvalidCredentials() =
+        ((this as? AuthenticationException)?.code) == AuthResponseCode.INVALID_CREDENTIALS ||
+                (this is FirebaseAuthInvalidCredentialsException)
+
+fun Throwable?.isUserNoFound() =
+        (this as? FirebaseAuthInvalidUserException)?.errorCode == "ERROR_USER_NOT_FOUND"
 
 fun Throwable.isNoNetworkAvailableIssue(isNetworkAvailable: Boolean) =
         isConnectionIssue() && !isNetworkAvailable
@@ -47,4 +53,14 @@ fun Throwable.isConnectionIssue() = when (this) {
     is SSLHandshakeException -> true
     is HttpException -> true
     else -> false
+}
+
+fun Throwable.causes(): List<Throwable> {
+    val hashSet = hashSetOf(this)
+
+    var throwableCause = cause
+
+    while (throwableCause?.let(hashSet::add) == true) throwableCause = throwableCause.cause
+
+    return hashSet.toList()
 }

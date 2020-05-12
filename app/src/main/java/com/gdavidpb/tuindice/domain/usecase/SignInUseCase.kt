@@ -8,10 +8,10 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
+import com.gdavidpb.tuindice.utils.extensions.isInvalidCredentials
+import com.gdavidpb.tuindice.utils.extensions.isUserNoFound
 import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import retrofit2.HttpException
@@ -57,19 +57,21 @@ open class SignInUseCase(
                 authRepository.signIn(email = email, password = params.password)
             }.onSuccess { activeAuth ->
                 storeAccount(auth = activeAuth, request = params, response = authResponse)
-            }.onFailure { exception ->
-                when (exception.cause) {
-                    is FirebaseAuthInvalidUserException -> {
+            }.onFailure { throwable ->
+                val cause = throwable.cause
+
+                when {
+                    cause.isUserNoFound() -> {
                         val auth = authRepository.signUp(email = email, password = params.password)
 
                         storeAccount(auth = auth, request = params, response = authResponse)
                     }
-                    is FirebaseAuthInvalidCredentialsException -> {
+                    cause.isInvalidCredentials() -> {
                         settingsRepository.setIsAwaitingForReset(email = email, password = params.password)
 
                         authRepository.sendPasswordResetEmail(email = email, password = params.password)
                     }
-                    else -> throw exception
+                    else -> throw throwable
                 }
             }
         }

@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.domain.model.exception.NoDataException
 import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.firebase.auth.FirebaseAuthActionCodeException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import org.koin.android.ext.android.inject
 
 abstract class NavigationActivity : AppCompatActivity() {
@@ -23,11 +24,9 @@ abstract class NavigationActivity : AppCompatActivity() {
     }
 
     open fun handleException(throwable: Throwable): Boolean {
+        val causes = throwable.causes()
+
         return when {
-            throwable.cause is FirebaseAuthActionCodeException -> {
-                linkFailureDialog()
-                true
-            }
             throwable is NoAuthenticatedException -> {
                 fatalFailureRestart()
                 true
@@ -38,6 +37,14 @@ abstract class NavigationActivity : AppCompatActivity() {
             }
             throwable is SynchronizationException -> {
                 syncFailureDialog()
+                true
+            }
+            causes.contains<FirebaseAuthInvalidUserException>() -> {
+                disabledFailureDialog()
+                true
+            }
+            causes.contains<FirebaseAuthActionCodeException>() -> {
+                linkFailureDialog()
                 true
             }
             throwable is FatalException -> {
@@ -62,6 +69,22 @@ abstract class NavigationActivity : AppCompatActivity() {
         activityManager.clearApplicationUserData()
 
         recreate()
+    }
+
+    private fun disabledFailureDialog() {
+        alert {
+            titleResource = R.string.alert_title_disabled_failure
+            messageResource = R.string.alert_message_disabled_failure
+
+            isCancelable = false
+
+            if (allowDisabledAccount())
+                positiveButton(R.string.accept)
+            else
+                positiveButton(R.string.exit) {
+                    finish()
+                }
+        }
     }
 
     private fun linkFailureDialog() {

@@ -14,6 +14,7 @@
     <string name="add">Agregar</string>
     <string name="edit">Modificar</string>
     <string name="exit">Salir</string>
+    <string name="accept">Aceptar</string>
     <string name="retry">Reintentar</string>
     <string name="restart">Reiniciar</string>
     <string name="open_settings">Ir a la configuración</string>
@@ -40,6 +41,13 @@
     <string name="alert_title_fatal_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_fatal_failure">
         Parece que algo ha salido muy mal por acá. Debes reiniciar <b>TuIndice</b> para continuar
+    </string>
+
+    <string name="alert_title_disabled_failure">Tu cuenta ha sido inhabilitada</string>
+    <string name="alert_message_disabled_failure">
+        Tu cuenta ha sido inhabilitada por violar las políticas de <b>TuIndice</b>.\n\n
+        Si crees que se trata de un error o quieres obtener más información, escríbemos desde tu
+        correo institucional a <u><b>tuindice@gmail.com</b></u>
     </string>
 
     <string name="alert_title_link_failure">¡Oops, lo sentimos!</string>

@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.ui.adapters.LoadingAdapter
+import com.gdavidpb.tuindice.utils.annotations.AllowDisabledAccount
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.activity_login.*
@@ -25,6 +26,7 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.net.ConnectException
 
+@AllowDisabledAccount
 class LoginActivity : NavigationActivity() {
 
     private val viewModel by viewModel<LoginViewModel>()
