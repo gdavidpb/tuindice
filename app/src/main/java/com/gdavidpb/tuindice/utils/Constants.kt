@@ -66,7 +66,7 @@ val DEFAULT_LOCALE: Locale = Locale("es", "VE")
 val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone("America/Caracas")
 
 /* Times */
-const val TIME_COUNT_DOWN = 5 * 60 * 1000
+const val TIME_COUNT_DOWN = 5 * 60 * 1000L
 const val TIME_BACKGROUND_ANIMATION = 30 * 1000L
 const val TIME_DELAY_CLICK_ONCE = 500L
 const val TIME_OUT_CONNECTION = 90 * 1000L

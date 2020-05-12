@@ -12,7 +12,7 @@ class LiveEvent<T> : MultipleLiveEvent<Event<T>>(MAX_MULTIPLE_EVENT)
 
 typealias LiveResult<T> = MutableLiveData<Result<T>>
 typealias LiveCompletable = MutableLiveData<Completable>
-typealias LiveContinuous<T> = MutableLiveData<Continuous<T>>
+typealias LiveFlow<T> = MutableLiveData<Flow<T>>
 
 /* LiveEvent */
 
@@ -56,27 +56,27 @@ fun LiveCompletable.postLoading() = postValue(Completable.OnLoading)
 @JvmName("postCancelCompletable")
 fun LiveCompletable.postCancel() = postValue(Completable.OnCancel)
 
-/* LiveContinuous */
+/* LiveFlow */
 
-@JvmName("postStartContinuous")
-fun <T> LiveContinuous<T>.postStart() = postValue(Continuous.OnStart())
+@JvmName("postStartFlow")
+fun <T> LiveFlow<T>.postStart() = postValue(Flow.OnStart())
 
-@JvmName("postNextContinuous")
-fun <T> LiveContinuous<T>.postNext(value: T) = postValue(Continuous.OnNext(value))
+@JvmName("postNextFlow")
+fun <T> LiveFlow<T>.postNext(value: T) = postValue(Flow.OnNext(value))
 
-@JvmName("postCompleteContinuous")
-fun <T> LiveContinuous<T>.postComplete() {
-    val lastValue = value as? Continuous.OnNext<T>
-    val completeValue = Continuous.OnComplete(lastValue?.value)
+@JvmName("postCompleteFlow")
+fun <T> LiveFlow<T>.postComplete() {
+    val lastValue = value as? Flow.OnNext<T>
+    val completeValue = Flow.OnComplete(lastValue?.value)
 
     postValue(completeValue)
 }
 
-@JvmName("postThrowableContinuous")
-fun <T> LiveContinuous<T>.postThrowable(throwable: Throwable) = postValue(Continuous.OnError(throwable))
+@JvmName("postThrowableFlow")
+fun <T> LiveFlow<T>.postThrowable(throwable: Throwable) = postValue(Flow.OnError(throwable))
 
-@JvmName("postCancelContinuous")
-fun <T> LiveContinuous<T>.postCancel() = postValue(Continuous.OnCancel())
+@JvmName("postCancelFlow")
+fun <T> LiveFlow<T>.postCancel() = postValue(Flow.OnCancel())
 
 fun <T, L : LiveData<T>> FragmentActivity.observe(liveData: L, body: (T?) -> Unit) =
         liveData.observe(this, Observer(body))

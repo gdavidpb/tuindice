@@ -22,8 +22,8 @@ fun Date.formatLastUpdate(): String {
 }
 
 fun Long.toCountdown(): String {
-    val min = TimeUnit.MILLISECONDS.toMinutes(this)
-    val sec = TimeUnit.MILLISECONDS.toSeconds(this - TimeUnit.MINUTES.toMillis(min))
+    val min = TimeUnit.SECONDS.toMinutes(this)
+    val sec = TimeUnit.SECONDS.toSeconds(this - TimeUnit.MINUTES.toSeconds(min))
 
     return "%02d:%02d".format(min, sec)
 }

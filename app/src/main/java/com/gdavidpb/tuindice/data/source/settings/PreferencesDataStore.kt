@@ -42,25 +42,19 @@ open class PreferencesDataStore(
         }
     }
 
-    override fun getCountdown(): Long {
-        return preferences.getLong(KEY_COUNT_DOWN, 0)
-    }
+    override fun startCountdown(reset: Boolean): Long {
+        val countdown = preferences.getLong(KEY_COUNT_DOWN, 0L)
 
-    override fun startCountdown(): Long {
-        return Calendar.getInstance().run {
-            add(Calendar.MILLISECOND, TIME_COUNT_DOWN)
+        return if (countdown == 0L || reset) {
+            val time = Date().time
 
             preferences.edit {
-                putLong(KEY_COUNT_DOWN, timeInMillis)
+                putLong(KEY_COUNT_DOWN, time)
             }
 
-            timeInMillis
-        }
-    }
-
-    override fun clearCountdown() {
-        preferences.edit {
-            remove(KEY_COUNT_DOWN)
+            time
+        } else {
+            countdown
         }
     }
 

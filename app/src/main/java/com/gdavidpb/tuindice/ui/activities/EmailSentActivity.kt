@@ -3,12 +3,9 @@ package com.gdavidpb.tuindice.ui.activities
 import android.os.Bundle
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Continuous
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Flow
 import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
-import com.gdavidpb.tuindice.utils.EXTRA_AWAITING_EMAIL
-import com.gdavidpb.tuindice.utils.EXTRA_AWAITING_STATE
-import com.gdavidpb.tuindice.utils.FLAG_RESET
-import com.gdavidpb.tuindice.utils.FLAG_VERIFY
+import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.activity_email_sent.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -35,7 +32,7 @@ class EmailSentActivity : NavigationActivity() {
             observe(sendEmailVerification, ::sendEmailVerificationObserver)
             observe(resetPassword, ::resetPasswordObserver)
 
-            startCountdown()
+            startCountdown(time = TIME_COUNT_DOWN)
         }
 
         /* Logo animation */
@@ -66,7 +63,7 @@ class EmailSentActivity : NavigationActivity() {
     private fun onResendClick() {
         btnResend.isEnabled = false
 
-        viewModel.startCountdown(forceRestart = true)
+        viewModel.startCountdown(time = TIME_COUNT_DOWN, reset = true)
 
         when (awaitingState) {
             FLAG_RESET -> viewModel.sendResetPasswordEmail()
@@ -78,12 +75,12 @@ class EmailSentActivity : NavigationActivity() {
         viewModel.signOut()
     }
 
-    private fun countdownObserver(result: Continuous<Long>?) {
+    private fun countdownObserver(result: Flow<Long>?) {
         when (result) {
-            is Continuous.OnNext -> {
+            is Flow.OnNext -> {
                 tViewCountdown.text = (result.value).toCountdown()
             }
-            is Continuous.OnComplete -> {
+            is Flow.OnComplete -> {
                 btnResend.isEnabled = true
 
                 tViewCountdown.text = (0L).toCountdown()

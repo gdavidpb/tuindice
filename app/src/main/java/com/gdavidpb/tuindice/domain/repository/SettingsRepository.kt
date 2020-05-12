@@ -10,9 +10,7 @@ interface SettingsRepository {
     fun isAwaitingForReset(): Boolean
     fun clearIsAwaitingForReset()
 
-    fun getCountdown(): Long
-    fun startCountdown(): Long
-    fun clearCountdown()
+    fun startCountdown(reset: Boolean): Long
 
     fun getCredentials(): DstCredentials
     fun storeCredentials(credentials: DstCredentials)
