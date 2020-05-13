@@ -1,27 +1,18 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.model.StartUpAction
-import com.gdavidpb.tuindice.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
-import com.gdavidpb.tuindice.domain.repository.IdentifierRepository
-import com.gdavidpb.tuindice.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
-import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
 import com.gdavidpb.tuindice.utils.mappers.toResetRequest
 import com.gdavidpb.tuindice.utils.mappers.toVerifyCode
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 
-@IgnoredExceptions(CancellationException::class)
 open class StartUpUseCase(
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
-        private val identifierRepository: IdentifierRepository
-) : ResultUseCase<String, StartUpAction>(
-        backgroundContext = Dispatchers.IO,
-        foregroundContext = Dispatchers.Main
-) {
+        private val identifierRepository: IdentifierRepository,
+        private val reportingRepository: ReportingRepository
+) : ResultUseCase<String, StartUpAction>() {
     override suspend fun executeOnBackground(params: String): StartUpAction? {
         val isActiveAuth = authRepository.isActiveAuth()
         val isPasswordResetLink = authRepository.isResetLink(params)

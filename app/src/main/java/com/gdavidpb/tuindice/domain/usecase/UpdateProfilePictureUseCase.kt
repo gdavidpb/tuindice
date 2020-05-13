@@ -14,7 +14,6 @@ import com.gdavidpb.tuindice.utils.SAMPLE_PROFILE_PICTURE
 import com.gdavidpb.tuindice.utils.extensions.decodeScaleFactor
 import com.gdavidpb.tuindice.utils.extensions.decodeScaledBitmap
 import com.gdavidpb.tuindice.utils.extensions.rotate
-import kotlinx.coroutines.Dispatchers
 import java.io.File
 
 open class UpdateProfilePictureUseCase(
@@ -22,10 +21,7 @@ open class UpdateProfilePictureUseCase(
         private val contentRepository: ContentRepository,
         private val localStorageRepository: LocalStorageRepository,
         private val remoteStorageRepository: RemoteStorageRepository
-) : EventUseCase<Uri, String>(
-        backgroundContext = Dispatchers.IO,
-        foregroundContext = Dispatchers.Main
-) {
+) : EventUseCase<Uri, String>() {
     override suspend fun executeOnBackground(params: Uri): String {
         val activeUId = authRepository.getActiveAuth().uid
         val resource = File(PATH_PROFILE_PICTURES, "$activeUId.jpg").path

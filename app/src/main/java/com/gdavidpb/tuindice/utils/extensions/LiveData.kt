@@ -65,12 +65,7 @@ fun <T> LiveFlow<T>.postStart() = postValue(Flow.OnStart())
 fun <T> LiveFlow<T>.postNext(value: T) = postValue(Flow.OnNext(value))
 
 @JvmName("postCompleteFlow")
-fun <T> LiveFlow<T>.postComplete() {
-    val lastValue = value as? Flow.OnNext<T>
-    val completeValue = Flow.OnComplete(lastValue?.value)
-
-    postValue(completeValue)
-}
+fun <T> LiveFlow<T>.postComplete() = postValue(Flow.OnComplete())
 
 @JvmName("postThrowableFlow")
 fun <T> LiveFlow<T>.postThrowable(throwable: Throwable) = postValue(Flow.OnError(throwable))

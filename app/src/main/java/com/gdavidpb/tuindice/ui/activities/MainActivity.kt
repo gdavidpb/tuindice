@@ -103,9 +103,6 @@ class MainActivity : NavigationActivity() {
 
                 handleException(throwable = result.throwable)
             }
-            is Result.OnCancel -> {
-                pBarSync.visibleIf(false)
-            }
         }
     }
 

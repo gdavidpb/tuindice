@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.utils.annotations.AllowDisabledAccount
 import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
 import kotlin.reflect.full.findAnnotation
 
-fun BaseUseCase<*, *>.ignoredException(throwable: Throwable) =
+fun BaseUseCase<*, *, *>.ignoredException(throwable: Throwable) =
         this::class.findAnnotation<IgnoredExceptions>()
                 ?.run { exceptions.any { it.isInstance(throwable) } }
                 ?: false

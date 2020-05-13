@@ -11,8 +11,6 @@ import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.PATH_COOKIES
 import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
 import com.gdavidpb.tuindice.utils.extensions.isUpdated
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import retrofit2.HttpException
 import java.io.InterruptedIOException
 import java.net.ConnectException
@@ -21,7 +19,6 @@ import java.net.UnknownHostException
 import javax.net.ssl.SSLHandshakeException
 
 @IgnoredExceptions(
-        CancellationException::class,
         SocketException::class,
         InterruptedIOException::class,
         UnknownHostException::class,
@@ -36,10 +33,7 @@ open class SyncAccountUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository
-) : ResultUseCase<Unit, Boolean>(
-        backgroundContext = Dispatchers.IO,
-        foregroundContext = Dispatchers.Main
-) {
+) : ResultUseCase<Unit, Boolean>() {
     override suspend fun executeOnBackground(params: Unit): Boolean? {
         val activeUId = authRepository.getActiveAuth().uid
         val activeAccount = databaseRepository.getAccount(uid = activeUId)

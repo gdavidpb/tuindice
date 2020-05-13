@@ -1,44 +1,27 @@
 package com.gdavidpb.tuindice.domain.usecase.coroutines
 
-import com.gdavidpb.tuindice.utils.KEY_USE_CASE
 import com.gdavidpb.tuindice.utils.extensions.*
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.CoroutineContext
 
-abstract class FlowUseCase<T, Q>(
-        override val backgroundContext: CoroutineContext,
-        override val foregroundContext: CoroutineContext
-) : BaseUseCase<T, LiveFlow<Q>>(
-        backgroundContext, foregroundContext
-) {
-    protected abstract suspend fun executeOnBackground(params: T): Flow<Q>
+abstract class FlowUseCase<P, T> : BaseUseCase<P, Flow<T>, LiveFlow<T>>() {
+    override suspend fun onStart(liveData: LiveFlow<T>) {
+        liveData.postStart()
+    }
 
-    override fun execute(params: T, liveData: LiveFlow<Q>, coroutineScope: CoroutineScope) {
-        coroutineScope.launch(foregroundContext) {
-            liveData.postStart()
+    override suspend fun onHook(liveData: LiveFlow<T>, response: Flow<T>) {
+        response.collect { liveData.postNext(it) }
+    }
 
-            runCatching {
-                withContext(backgroundContext) {
-                    executeOnBackground(params).collect { liveData.postNext(it) }
-                }
-            }.onFailure { throwable ->
-                if (!ignoredException(throwable)) {
-                    reportingRepository.setString(KEY_USE_CASE, "${this@FlowUseCase::class.simpleName}")
-                    reportingRepository.logException(throwable)
-                }
+    override suspend fun onSuccess(liveData: LiveFlow<T>, response: Flow<T>) {
+        liveData.postComplete()
+    }
 
-                when (throwable) {
-                    is CancellationException -> liveData.postCancel()
-                    else -> liveData.postThrowable(throwable)
-                }
-            }
+    override suspend fun onFailure(liveData: LiveFlow<T>, throwable: Throwable) {
+        liveData.postThrowable(throwable)
+    }
 
-            liveData.postComplete()
-        }
+    override suspend fun onCancel(liveData: LiveFlow<T>) {
+        liveData.postCancel()
     }
 }

@@ -4,18 +4,11 @@ import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
-import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 
-@IgnoredExceptions(CancellationException::class)
 open class GetQuartersUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
-) : ResultUseCase<Unit, List<Quarter>>(
-        backgroundContext = Dispatchers.IO,
-        foregroundContext = Dispatchers.Main
-) {
+) : ResultUseCase<Unit, List<Quarter>>() {
     override suspend fun executeOnBackground(params: Unit): List<Quarter>? {
         val activeUId = authRepository.getActiveAuth().uid
 

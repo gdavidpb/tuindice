@@ -12,8 +12,6 @@ import com.gdavidpb.tuindice.utils.extensions.isInvalidCredentials
 import com.gdavidpb.tuindice.utils.extensions.isUserNoFound
 import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import retrofit2.HttpException
 import java.io.InterruptedIOException
 import java.net.ConnectException
@@ -22,7 +20,6 @@ import java.net.UnknownHostException
 import javax.net.ssl.SSLHandshakeException
 
 @IgnoredExceptions(
-        CancellationException::class,
         SocketException::class,
         InterruptedIOException::class,
         UnknownHostException::class,
@@ -37,10 +34,7 @@ open class SignInUseCase(
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository
-) : ResultUseCase<AuthRequest, AuthResponse>(
-        backgroundContext = Dispatchers.IO,
-        foregroundContext = Dispatchers.Main
-) {
+) : ResultUseCase<AuthRequest, AuthResponse>() {
     override suspend fun executeOnBackground(params: AuthRequest): AuthResponse? {
         val email = params.usbId.toUsbEmail()
 
