@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataStore
 import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataStore
+import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataStore
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
 import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataStore
 import com.gdavidpb.tuindice.data.source.service.*
@@ -26,6 +27,7 @@ import com.gdavidpb.tuindice.utils.extensions.create
 import com.gdavidpb.tuindice.utils.extensions.noSensitiveData
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.storage.FirebaseStorage
@@ -93,6 +95,10 @@ val appModule = module {
 
     single {
         FirebaseInstanceId.getInstance()
+    }
+
+    single {
+        FirebaseDynamicLinks.getInstance()
     }
 
     single {
@@ -236,6 +242,7 @@ val appModule = module {
     factoryBy<DatabaseRepository, FirestoreDataStore>()
     factoryBy<IdentifierRepository, TokenDataStore>()
     factoryBy<ContentRepository, ContentResolverDataStore>()
+    factoryBy<LinkRepository, DynamicLinkDataStore>()
 
     factory {
         if (BuildConfig.DEBUG)

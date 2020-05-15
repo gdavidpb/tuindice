@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.ui.activities
 
 import android.os.Bundle
-import androidx.annotation.NavigationRes
+import androidx.annotation.IdRes
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
@@ -56,7 +56,7 @@ class MainActivity : NavigationActivity() {
         }
     }
 
-    private fun initView(@NavigationRes navId: Int) {
+    private fun initView(@IdRes navId: Int) {
         setContentView(R.layout.activity_main)
 
         NavigationUI.setupWithNavController(bottomNavView, navController)
@@ -109,34 +109,38 @@ class MainActivity : NavigationActivity() {
     private fun startUpObserver(result: Result<StartUpAction>?) {
         when (result) {
             is Result.OnSuccess -> {
-                when (val value = result.value) {
-                    is StartUpAction.Main -> {
-                        initView(navId = value.screen)
-                    }
-                    is StartUpAction.Reset -> {
-                        startActivity<EmailSentActivity>(
-                                EXTRA_AWAITING_STATE to FLAG_RESET,
-                                EXTRA_AWAITING_EMAIL to value.email
-                        )
-                        finish()
-                    }
-                    is StartUpAction.Verify -> {
-                        startActivity<EmailSentActivity>(
-                                EXTRA_AWAITING_STATE to FLAG_VERIFY,
-                                EXTRA_AWAITING_EMAIL to value.email
-                        )
-                        finish()
-                    }
-                    is StartUpAction.Login -> {
-                        startActivity<LoginActivity>()
-                        finish()
-                    }
-                }
+                handleStartUpAction(action = result.value)
             }
             is Result.OnError -> {
                 val exception = FatalException(cause = result.throwable)
 
                 handleException(throwable = exception)
+            }
+        }
+    }
+
+    private fun handleStartUpAction(action: StartUpAction) {
+        when (action) {
+            is StartUpAction.Main -> {
+                initView(navId = action.screen)
+            }
+            is StartUpAction.Reset -> {
+                startActivity<EmailSentActivity>(
+                        EXTRA_AWAITING_STATE to FLAG_RESET,
+                        EXTRA_AWAITING_EMAIL to action.email
+                )
+                finish()
+            }
+            is StartUpAction.Verify -> {
+                startActivity<EmailSentActivity>(
+                        EXTRA_AWAITING_STATE to FLAG_VERIFY,
+                        EXTRA_AWAITING_EMAIL to action.email
+                )
+                finish()
+            }
+            is StartUpAction.Login -> {
+                startActivity<LoginActivity>()
+                finish()
             }
         }
     }

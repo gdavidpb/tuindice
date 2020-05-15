@@ -4,44 +4,18 @@ import android.content.SharedPreferences
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.KEY_COUNT_DOWN
+import com.gdavidpb.tuindice.utils.KEY_LAST_SCREEN
+import com.gdavidpb.tuindice.utils.KEY_PASSWORD
+import com.gdavidpb.tuindice.utils.KEY_USB_ID
 import com.gdavidpb.tuindice.utils.extensions.edit
 import com.gdavidpb.tuindice.utils.mappers.toRefYear
+import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
 import java.util.*
 
 open class PreferencesDataStore(
         private val preferences: SharedPreferences
 ) : SettingsRepository {
-
-    override fun awaitingEmail(): String {
-        return preferences.getString(KEY_AWAITING_EMAIL, null) ?: ""
-    }
-
-    override fun awaitingPassword(): String {
-        return preferences.getString(KEY_AWAITING_PASSWORD, null) ?: ""
-    }
-
-    override fun setIsAwaitingForReset(email: String, password: String) {
-        preferences.edit {
-            putString(KEY_AWAITING_EMAIL, email)
-            putString(KEY_AWAITING_PASSWORD, password)
-        }
-    }
-
-    override fun isAwaitingForReset(): Boolean {
-        val email = preferences.getString(KEY_AWAITING_EMAIL, null) ?: ""
-        val password = preferences.getString(KEY_AWAITING_PASSWORD, null) ?: ""
-
-        return email.isNotEmpty() && password.isNotEmpty()
-    }
-
-    override fun clearIsAwaitingForReset() {
-        preferences.edit {
-            remove(KEY_AWAITING_EMAIL)
-            remove(KEY_AWAITING_PASSWORD)
-        }
-    }
-
     override fun startCountdown(reset: Boolean): Long {
         val countdown = preferences.getLong(KEY_COUNT_DOWN, 0L)
 
@@ -56,6 +30,20 @@ open class PreferencesDataStore(
         } else {
             countdown
         }
+    }
+
+    override fun resetCountdown() {
+        preferences.edit {
+            remove(KEY_COUNT_DOWN)
+        }
+    }
+
+    override fun getEmail(): String {
+        return preferences.getString(KEY_USB_ID, null)?.toUsbEmail() ?: ""
+    }
+
+    override fun hasCredentials(): Boolean {
+        return preferences.contains(KEY_USB_ID) && preferences.contains(KEY_PASSWORD)
     }
 
     override fun storeCredentials(credentials: DstCredentials) {

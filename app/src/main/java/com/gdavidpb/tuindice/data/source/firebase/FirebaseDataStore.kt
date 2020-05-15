@@ -1,12 +1,11 @@
 package com.gdavidpb.tuindice.data.source.firebase
 
-import android.net.Uri
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.utils.extensions.await
-import com.gdavidpb.tuindice.utils.mappers.fromResetParam
+import com.gdavidpb.tuindice.utils.extensions.mode
 import com.gdavidpb.tuindice.utils.mappers.toAuth
 import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
@@ -44,9 +43,8 @@ open class FirebaseDataStore(
         auth.signOut()
     }
 
-    override suspend fun sendPasswordResetEmail(email: String, password: String) {
-        val resetPassword = (email to password).fromResetParam()
-        val continueUrl = BuildConfig.LINK_RESET_PASSWORD.format(resetPassword)
+    override suspend fun sendPasswordResetEmail(email: String) {
+        val continueUrl = BuildConfig.URL_SIGN.format("test")
 
         val actionCodeSettings = ActionCodeSettings
                 .newBuilder()
@@ -59,8 +57,9 @@ open class FirebaseDataStore(
     }
 
     override suspend fun sendVerificationEmail() {
+        val continueUrl = BuildConfig.URL_SIGN.format("test")
+
         val currentUser = auth.currentUser ?: throw NoAuthenticatedException()
-        val continueUrl = BuildConfig.LINK_VERIFY.format(currentUser.uid)
 
         val actionCodeSettings = ActionCodeSettings
                 .newBuilder()
@@ -90,15 +89,11 @@ open class FirebaseDataStore(
         return updatedUser.isEmailVerified
     }
 
-    override suspend fun isVeryLink(link: String): Boolean {
-        if (link.isEmpty()) return false
-
-        return Uri.parse(link).getQueryParameter("mode") == "verifyEmail"
+    override suspend fun isVerifyEmailLink(link: String): Boolean {
+        return link.mode == "verifyEmail"
     }
 
-    override suspend fun isResetLink(link: String): Boolean {
-        if (link.isEmpty()) return false
-
-        return Uri.parse(link).getQueryParameter("mode") == "resetPassword"
+    override suspend fun isResetPasswordLink(link: String): Boolean {
+        return link.mode == "resetPassword"
     }
 }

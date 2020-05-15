@@ -2,15 +2,12 @@ package com.gdavidpb.tuindice.utils.mappers
 
 import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Base64
-import androidx.core.net.toUri
 import com.gdavidpb.tuindice.domain.model.Auth
+import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
-import com.gdavidpb.tuindice.domain.usecase.request.ResetRequest
 import com.gdavidpb.tuindice.utils.REF_BASE
 import com.gdavidpb.tuindice.utils.extensions.get
 import com.gdavidpb.tuindice.utils.extensions.parse
@@ -26,41 +23,8 @@ fun AuthRequest.toDstCredentials() = DstCredentials(usbId = usbId, password = pa
 
 fun FirebaseUser.toAuth() = Auth(
         uid = uid,
-        email = email ?: ""
+        email = email ?: throw NoAuthenticatedException()
 )
-
-fun String.toVerifyCode(): String {
-    return toUri().getQueryParameterOrThrow("oobCode")
-}
-
-fun String.toResetRequest(): ResetRequest {
-    val url = toUri()
-
-    val linkUrl = url.getQueryParameterOrThrow("link").toUri()
-    val code = linkUrl.getQueryParameterOrThrow("oobCode")
-    val continueUrl = linkUrl.getQueryParameterOrThrow("continueUrl").toUri()
-    val resetPassword = continueUrl.getQueryParameterOrThrow("resetPassword")
-
-    val (email, password) = resetPassword.toResetParam()
-
-    return ResetRequest(code, email, password)
-}
-
-fun String.toResetParam(): Pair<String, String> {
-    val data = String(Base64.decode(this, Base64.DEFAULT)).split("\n")
-
-    return data.first() to data.last()
-}
-
-fun Pair<String, String>.fromResetParam(): String {
-    val data = "$first\n$second".toByteArray()
-
-    return Base64.encodeToString(data, Base64.DEFAULT)
-}
-
-fun Uri.getQueryParameterOrThrow(key: String): String {
-    return getQueryParameter(key) ?: throw IllegalArgumentException("$key: '$this'")
-}
 
 infix fun Int.distanceTo(x: Int): Double {
     val (a, b, c) = arrayOf(

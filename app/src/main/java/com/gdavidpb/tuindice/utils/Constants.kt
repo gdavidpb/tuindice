@@ -22,8 +22,6 @@ const val HEADER_DATE = "Date"
 const val KEY_USB_ID = "email"
 const val KEY_PASSWORD = "password"
 const val KEY_COUNT_DOWN = "countdown"
-const val KEY_AWAITING_EMAIL = "awaitingEmail"
-const val KEY_AWAITING_PASSWORD = "awaitingPassword"
 const val KEY_LAST_SCREEN = "lastScreen"
 
 /* Romans */

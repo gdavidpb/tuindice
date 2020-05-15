@@ -3,55 +3,60 @@ package com.gdavidpb.tuindice.domain.usecase
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
-import com.gdavidpb.tuindice.utils.mappers.toResetRequest
-import com.gdavidpb.tuindice.utils.mappers.toVerifyCode
+import com.gdavidpb.tuindice.domain.usecase.request.ResetRequest
+import com.gdavidpb.tuindice.utils.extensions.oobCode
 
 open class StartUpUseCase(
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
         private val identifierRepository: IdentifierRepository,
-        private val reportingRepository: ReportingRepository
+        private val reportingRepository: ReportingRepository,
+        private val linkRepository: LinkRepository
 ) : ResultUseCase<String, StartUpAction>() {
     override suspend fun executeOnBackground(params: String): StartUpAction? {
         val isActiveAuth = authRepository.isActiveAuth()
-        val isPasswordResetLink = authRepository.isResetLink(params)
-        val isVeryEmailLink = authRepository.isVeryLink(params)
-        val isAwaitingForPasswordReset = settingsRepository.isAwaitingForReset()
+        val isPasswordResetLink = authRepository.isResetPasswordLink(params)
+        val isVerifyEmailLink = authRepository.isVerifyEmailLink(params)
+        val hasCredentials = settingsRepository.hasCredentials()
 
-        val email = settingsRepository.awaitingEmail()
         val lastScreen = settingsRepository.getLastScreen()
 
         return when {
-            isPasswordResetLink && isActiveAuth -> {
-                val activeAuth = authRepository.getActiveAuth()
-                val activeAccount = databaseRepository.getAccount(uid = activeAuth.uid)
+            isVerifyEmailLink && isActiveAuth -> {
+                val oobCode = linkRepository.resolveLink(data = params).oobCode
 
-                settingsRepository.clearIsAwaitingForReset()
-
-                val request = params.toResetRequest()
-
-                authRepository.confirmPasswordReset(request.code, request.password)
-
-                authRepository.signIn(email = request.email, password = request.password)
-
-                StartUpAction.Main(screen = lastScreen, account = activeAccount)
-            }
-            isVeryEmailLink && isActiveAuth -> {
-                val activeAuth = authRepository.getActiveAuth()
-                val activeAccount = databaseRepository.getAccount(uid = activeAuth.uid)
                 val isEmailVerified = authRepository.isEmailVerified()
 
-                if (!isEmailVerified) {
-                    val verifyCode = params.toVerifyCode()
+                if (!isEmailVerified) authRepository.confirmVerifyEmail(code = oobCode)
 
-                    authRepository.confirmVerifyEmail(code = verifyCode)
-                }
+                val activeAuth = authRepository.getActiveAuth()
+                val activeAccount = databaseRepository.getAccount(uid = activeAuth.uid)
+
+                settingsRepository.resetCountdown()
 
                 StartUpAction.Main(screen = lastScreen, account = activeAccount)
             }
-            isAwaitingForPasswordReset -> {
-                StartUpAction.Reset(email = email)
+            isPasswordResetLink && hasCredentials -> {
+                val oobCode = linkRepository.resolveLink(data = params).oobCode
+
+                val email = settingsRepository.getEmail()
+                val credentials = settingsRepository.getCredentials()
+
+                val request = ResetRequest(
+                        code = oobCode,
+                        email = email,
+                        password = credentials.password
+                )
+
+                authRepository.confirmPasswordReset(code = request.code, password = request.password)
+
+                val activeAuth = authRepository.signIn(email = request.email, password = request.password)
+                val activeAccount = databaseRepository.getAccount(uid = activeAuth.uid)
+
+                settingsRepository.resetCountdown()
+
+                StartUpAction.Main(screen = lastScreen, account = activeAccount)
             }
             isActiveAuth -> {
                 val activeAuth = authRepository.getActiveAuth()
@@ -69,6 +74,11 @@ open class StartUpUseCase(
                     StartUpAction.Main(screen = lastScreen, account = activeAccount)
                 else
                     StartUpAction.Verify(email = activeAuth.email)
+            }
+            hasCredentials -> {
+                val email = settingsRepository.getEmail()
+
+                StartUpAction.Reset(email = email)
             }
             else -> StartUpAction.Login
         }

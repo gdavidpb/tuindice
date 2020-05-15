@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
+import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
@@ -36,6 +37,7 @@ open class SignInUseCase(
         private val authRepository: AuthRepository
 ) : ResultUseCase<AuthRequest, AuthResponse>() {
     override suspend fun executeOnBackground(params: AuthRequest): AuthResponse? {
+        val credentials = params.toDstCredentials()
         val email = params.usbId.toUsbEmail()
 
         authRepository.signOut()
@@ -50,20 +52,20 @@ open class SignInUseCase(
             runCatching {
                 authRepository.signIn(email = email, password = params.password)
             }.onSuccess { activeAuth ->
-                storeAccount(auth = activeAuth, request = params, response = authResponse)
+                storeAccount(auth = activeAuth, credentials = credentials, response = authResponse)
             }.onFailure { throwable ->
                 val cause = throwable.cause
 
                 when {
                     cause.isUserNoFound() -> {
-                        val auth = authRepository.signUp(email = email, password = params.password)
+                        val activeAuth = authRepository.signUp(email = email, password = params.password)
 
-                        storeAccount(auth = auth, request = params, response = authResponse)
+                        storeAccount(auth = activeAuth, credentials = credentials, response = authResponse)
                     }
                     cause.isInvalidCredentials() -> {
-                        settingsRepository.setIsAwaitingForReset(email = email, password = params.password)
+                        authRepository.sendPasswordResetEmail(email = email)
 
-                        authRepository.sendPasswordResetEmail(email = email, password = params.password)
+                        settingsRepository.storeCredentials(credentials = credentials)
                     }
                     else -> throw throwable
                 }
@@ -73,17 +75,17 @@ open class SignInUseCase(
         return authResponse
     }
 
-    private suspend fun storeAccount(auth: Auth, request: AuthRequest, response: AuthResponse) {
+    private suspend fun storeAccount(auth: Auth, credentials: DstCredentials, response: AuthResponse) {
         val authData = DstAuth(
-                usbId = request.usbId,
+                usbId = credentials.usbId,
                 email = auth.email,
                 fullName = response.name
         )
 
         if (!authRepository.isEmailVerified()) authRepository.sendVerificationEmail()
 
-        settingsRepository.storeCredentials(credentials = request.toDstCredentials())
-
         databaseRepository.setAuthData(uid = auth.uid, data = authData)
+
+        settingsRepository.storeCredentials(credentials = credentials)
     }
 }

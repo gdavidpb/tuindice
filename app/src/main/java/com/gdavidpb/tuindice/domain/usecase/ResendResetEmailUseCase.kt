@@ -9,9 +9,8 @@ open class ResendResetEmailUseCase(
         private val settingsRepository: SettingsRepository
 ) : CompletableUseCase<Unit>() {
     override suspend fun executeOnBackground(params: Unit) {
-        val email = settingsRepository.awaitingEmail()
-        val password = settingsRepository.awaitingPassword()
+        val email = settingsRepository.getEmail()
 
-        authRepository.sendPasswordResetEmail(email = email, password = password)
+        authRepository.sendPasswordResetEmail(email)
     }
 }
