@@ -34,7 +34,7 @@ open class DstScheduleConverter : ElementConverter<List<DstScheduledSubject>> {
 
                     val name = list
                             .last()
-                            .substringAfter(" ")
+                            .substringAfter(' ')
                             .trim()
 
                     val section = list[1].toIntOrNull() ?: 0

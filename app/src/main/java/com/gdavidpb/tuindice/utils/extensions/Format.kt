@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
+import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.utils.DEFAULT_TIME_ZONE
 import com.gdavidpb.tuindice.utils.mappers.capitalize
@@ -46,17 +47,11 @@ fun String.parse(format: String) = dateFormatCache.getOrPut(format) {
     }
 }.runCatching { parse(this@parse) }.getOrNull()
 
-fun String.toShortName(): String {
-    val array = split("\\s+".toRegex())
+fun Account.toShortName(): String {
+    val firstName = firstNames.substringBefore(' ')
+    val lastName = lastNames.substringBefore(' ')
 
-    return when {
-        array.size == 1 -> arrayOf(0)
-        array.size == 2 -> arrayOf(0, 1)
-        array.size >= 3 -> arrayOf(0, 2)
-        else -> emptyArray()
-    }.run {
-        joinToString(" ") { array[it] }
-    }
+    return "$firstName $lastName"
 }
 
 fun String.trimAll() = replace("\\s+", "")

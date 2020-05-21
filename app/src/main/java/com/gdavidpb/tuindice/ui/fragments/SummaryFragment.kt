@@ -274,7 +274,7 @@ open class SummaryFragment : NavigationFragment() {
 
         summaryAdapter.setAccount(account)
 
-        val shortName = account.fullName.toShortName()
+        val shortName = account.toShortName()
         val lastUpdate = context.getString(R.string.text_last_update, account.lastUpdate.formatLastUpdate())
 
         tViewName.text = shortName

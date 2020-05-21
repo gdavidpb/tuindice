@@ -39,8 +39,8 @@ infix fun Int.distanceTo(x: Int): Double {
 fun String.toStartEndDate(refYear: Int): List<Date> {
     val normalizedText = "\\w+\\s*-\\s*\\w+\\s*\\d{4}".toRegex().find(this)!!.value
 
-    val year = normalizedText.substringAfterLast(" ").trimAll().toIntOrNull() ?: 0
-    val months = normalizedText.substringBeforeLast(" ").trimAll()
+    val year = normalizedText.substringAfterLast(' ').trimAll().toIntOrNull() ?: 0
+    val months = normalizedText.substringBeforeLast(' ').trimAll()
 
     return months
             .split("\\s*-\\s*".toRegex())
