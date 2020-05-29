@@ -21,6 +21,6 @@ open class DebugReportingDataStore : ReportingRepository {
     }
 
     override fun setString(key: String, value: String) {
-        Log.d("v", "$key = $value")
+        Log.d("setString", "$key = $value")
     }
 }

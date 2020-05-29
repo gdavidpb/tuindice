@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.usecase.*
+import com.gdavidpb.tuindice.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.utils.extensions.LiveEvent
 import com.gdavidpb.tuindice.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.utils.extensions.execute
@@ -14,7 +15,8 @@ class SummaryViewModel(
         private val createProfilePictureFileUseCase: CreateProfilePictureFileUseCase,
         private val getProfilePictureUseCase: GetProfilePictureUseCase,
         private val updateProfilePictureUseCase: UpdateProfilePictureUseCase,
-        private val removeProfilePictureUseCase: RemoveProfilePictureUseCase
+        private val removeProfilePictureUseCase: RemoveProfilePictureUseCase,
+        private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
     val profile = LiveResult<Account>()
     val getProfilePictureFile = LiveEvent<Uri>()
@@ -22,6 +24,7 @@ class SummaryViewModel(
     val profilePicture = LiveResult<String>()
     val updateProfilePicture = LiveEvent<String>()
     val removeProfilePicture = LiveEvent<Unit>()
+    val signOut = LiveCompletable()
 
     fun getProfile() =
             execute(useCase = getProfileUseCase, params = Unit, liveData = profile)
@@ -40,4 +43,7 @@ class SummaryViewModel(
 
     fun removeProfilePicture() =
             execute(useCase = removeProfilePictureUseCase, params = Unit, liveData = removeProfilePicture)
+
+    fun signOut() =
+            execute(useCase = signOutUseCase, params = Unit, liveData = signOut)
 }

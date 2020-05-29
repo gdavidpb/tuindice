@@ -25,7 +25,7 @@ class MainActivity : NavigationActivity() {
     private val viewModel by viewModel<MainViewModel>()
 
     private val navController by lazy {
-        findNavController(R.id.navHostFragment)
+        findNavController(R.id.mainNavHostFragment)
     }
 
     private val appBarConfiguration by lazy {

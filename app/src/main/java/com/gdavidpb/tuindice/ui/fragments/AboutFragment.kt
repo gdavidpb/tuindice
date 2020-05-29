@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.ui.fragments
 
-import android.app.ActivityManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -11,19 +10,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
-import com.gdavidpb.tuindice.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_about.*
-import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 open class AboutFragment : NavigationFragment() {
-
-    private val viewModel by viewModel<AboutViewModel>()
-
-    private val activityManager by inject<ActivityManager>()
 
     private val aboutAdapter = AboutAdapter()
 
@@ -162,24 +153,9 @@ open class AboutFragment : NavigationFragment() {
                 title(R.string.about_mit_mapping_lab)
                 sizedDrawable(R.drawable.ic_mit_mapping_lab, R.dimen.dp_48)
             }
-
-            header(R.string.about_header_settings)
-
-            item {
-                title(R.string.about_sign_out)
-                tintedDrawable(R.drawable.ic_sign_out, R.color.color_secondary_text)
-                onClick {
-                    showSignOutDialog()
-                }
-            }
-
         }.build()
 
         aboutAdapter.swapItems(new = data)
-
-        with(viewModel) {
-            observe(signOut, ::signOutObserver)
-        }
     }
 
     private fun startPlayStore() {
@@ -204,32 +180,6 @@ open class AboutFragment : NavigationFragment() {
 
         selector(R.string.selector_title_report, items) { selected ->
             email(email = BuildConfig.EMAIL_CONTACT, subject = selected)
-        }
-    }
-
-    private fun showSignOutDialog() {
-        alert {
-            titleResource = R.string.alert_title_sign_out
-            messageResource = R.string.alert_message_sign_out
-
-            positiveButton(R.string.yes) {
-                viewModel.signOut()
-            }
-
-            negativeButton(R.string.cancel)
-        }
-    }
-
-    private fun signOutObserver(result: Completable?) {
-        when (result) {
-            is Completable.OnComplete -> {
-                navigateToLogin()
-            }
-            is Completable.OnError -> {
-                activityManager.clearApplicationUserData()
-
-                navigateToLogin()
-            }
         }
     }
 }

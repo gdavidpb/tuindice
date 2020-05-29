@@ -33,6 +33,8 @@
     <string name="nav_subject">Plan de evaluación</string>
     <string name="nav_about">Acerca de</string>
 
+    <string name="menu_sign_out">Cerrar sesión</string>
+
     <string name="alert_title_remove_profile_picture_failure">Atención</string>
     <string name="alert_message_remove_profile_picture_failure">
         ¿Estás seguro que deseas remover tu foto de perfil?
@@ -324,12 +326,6 @@
         Massachusetts Institute of Technology\n
         Develops technologies for the future of digital education.\n
         https://mapping.mit.edu/
-    </string>
-
-    <string name="about_header_settings">Ajustes</string>
-
-    <string name="about_sign_out">
-        Cerrar sesión\n¡Nos vemos pronto!
     </string>
 
     <!-- SubjectFragment -->

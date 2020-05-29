@@ -6,7 +6,6 @@ import com.google.android.material.textfield.TextInputLayout
 
 var TextInputLayout.errorResource: Int
     @Deprecated(message = NO_GETTER, level = DeprecationLevel.ERROR) get() = throw NotImplementedError()
-    @StringRes
-    set(value) {
+    set(@StringRes value) {
         error = context.getString(value)
     }

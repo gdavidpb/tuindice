@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.ui.fragments
 
 import android.os.Bundle
 import android.view.*
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -87,7 +86,7 @@ open class RecordFragment : NavigationFragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.main_menu, menu)
+        inflater.inflate(R.menu.summary_menu, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -195,7 +194,7 @@ open class RecordFragment : NavigationFragment() {
             val action = RecordFragmentDirections
                     .actionNavRecordToNavSubject(subjectId = subjectItem.id)
 
-            findNavController().navigate(action)
+            navigate(action)
         }
 
         override fun onSubjectChanged(item: SubjectItem, dispatchChanges: Boolean) {

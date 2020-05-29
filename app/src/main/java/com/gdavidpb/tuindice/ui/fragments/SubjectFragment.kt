@@ -2,8 +2,6 @@ package com.gdavidpb.tuindice.ui.fragments
 
 import android.os.Bundle
 import android.view.*
-import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,7 +23,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_subject.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-open class SubjectFragment : Fragment() {
+open class SubjectFragment : NavigationFragment() {
 
     private val viewModel by viewModel<SubjectViewModel>()
 
@@ -80,7 +78,7 @@ open class SubjectFragment : Fragment() {
 
                 viewModel.updateSubject(sid = subjectId, grade = subjectGrade)
 
-                findNavController().navigateUp()
+                navigateUp()
 
                 true
             }

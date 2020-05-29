@@ -5,9 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
@@ -44,7 +42,7 @@ open class SummaryFragment : NavigationFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setHasOptionsMenu(false)
+        setHasOptionsMenu(true)
 
         with(rViewSummary) {
             layoutManager = LinearLayoutManager(context)
@@ -62,6 +60,7 @@ open class SummaryFragment : NavigationFragment() {
             observe(getProfilePictureFile, ::getProfilePictureFileObserver)
             observe(createProfilePictureFile, ::createProfilePictureFileObserver)
 
+            observe(signOut, ::signOutObserver)
             observe(profile, ::profileObserver)
             observe(profilePicture, ::profilePictureObserver)
             observe(loadProfilePicture, ::loadProfilePictureObserver)
@@ -70,6 +69,20 @@ open class SummaryFragment : NavigationFragment() {
 
             getProfile()
             getProfilePicture()
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.summary_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_sign_out -> {
+                showSignOutDialog()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -93,6 +106,19 @@ open class SummaryFragment : NavigationFragment() {
 
     private fun onEditProfilePictureClick() {
         viewModel.createProfilePictureFile()
+    }
+
+    private fun signOutObserver(result: Completable?) {
+        when (result) {
+            is Completable.OnComplete -> {
+                navigateToLogin()
+            }
+            is Completable.OnError -> {
+                clearApplicationUserData()
+
+                navigateToLogin()
+            }
+        }
     }
 
     private fun syncObserver(result: Result<Boolean>?) {
@@ -212,6 +238,19 @@ open class SummaryFragment : NavigationFragment() {
 
                 requireActivity().showSnackBarException(throwable = result.throwable)
             }
+        }
+    }
+
+    private fun showSignOutDialog() {
+        alert {
+            titleResource = R.string.alert_title_sign_out
+            messageResource = R.string.alert_message_sign_out
+
+            positiveButton(R.string.yes) {
+                viewModel.signOut()
+            }
+
+            negativeButton(R.string.cancel)
         }
     }
 
