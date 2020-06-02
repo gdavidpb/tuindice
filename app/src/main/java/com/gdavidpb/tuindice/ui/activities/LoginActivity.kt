@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.ui.adapters.LoadingAdapter
+import com.gdavidpb.tuindice.utils.KEY_LOADING_MESSAGES
 import com.gdavidpb.tuindice.utils.annotations.AllowDisabledAccount
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.textfield.TextInputLayout
@@ -32,6 +33,8 @@ class LoginActivity : NavigationActivity() {
     private val viewModel by viewModel<LoginViewModel>()
 
     private val connectivityManager by inject<ConnectivityManager>()
+
+    private val loadingMessages by config<List<String>>(KEY_LOADING_MESSAGES)
 
     private val validations by lazy {
         arrayOf(
@@ -136,9 +139,7 @@ class LoginActivity : NavigationActivity() {
             vFlipperLoading.visible()
 
             if (vFlipperLoading.adapter == null) {
-                val items = resources.getStringArray(R.array.message_loading)
-                        .toList()
-                        .shuffled()
+                val items = loadingMessages.shuffled()
 
                 vFlipperLoading.adapter = LoadingAdapter(items)
             }

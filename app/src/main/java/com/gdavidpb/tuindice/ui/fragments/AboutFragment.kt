@@ -11,12 +11,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
+import com.gdavidpb.tuindice.utils.KEY_CONTACT_EMAIL
+import com.gdavidpb.tuindice.utils.KEY_CONTACT_SUBJECT
+import com.gdavidpb.tuindice.utils.KEY_ISSUES_LIST
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_about.*
 
 open class AboutFragment : NavigationFragment() {
 
     private val aboutAdapter = AboutAdapter()
+
+    private val contactEmail by config<String>(KEY_CONTACT_EMAIL)
+    private val contactSubject by config<String>(KEY_CONTACT_SUBJECT)
+    private val issuesList by config<List<String>>(KEY_ISSUES_LIST)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_about, container, false)
@@ -108,7 +115,7 @@ open class AboutFragment : NavigationFragment() {
                 title(R.string.about_dev_contact)
                 tintedDrawable(R.drawable.ic_contact, R.color.color_secondary_text)
                 onClick {
-                    email(email = BuildConfig.EMAIL_CONTACT, subject = BuildConfig.EMAIL_SUBJECT)
+                    email(email = contactEmail, subject = contactSubject)
                 }
             }
 
@@ -181,10 +188,10 @@ open class AboutFragment : NavigationFragment() {
     }
 
     private fun showReportSelector() {
-        val items = resources.getStringArray(R.array.selector_report_items)
+        val items = issuesList.toTypedArray()
 
         selector(R.string.selector_title_report, items) { selected ->
-            email(email = BuildConfig.EMAIL_CONTACT, subject = selected)
+            email(email = contactEmail, subject = selected)
         }
     }
 }

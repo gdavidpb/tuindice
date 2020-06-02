@@ -24,6 +24,16 @@ const val KEY_PASSWORD = "password"
 const val KEY_COUNT_DOWN = "countdown"
 const val KEY_LAST_SCREEN = "lastScreen"
 
+/* Remote config keys */
+const val KEY_CONTACT_EMAIL = "contact_email"
+const val KEY_CONTACT_SUBJECT = "contact_subject"
+const val KEY_ISSUES_LIST = "issues_list"
+const val KEY_LOADING_MESSAGES = "loading_messages"
+const val KEY_DST_CERTIFICATES = "dst_certificates"
+const val KEY_TIME_VERIFICATION_COUNT_DOWN = "time_verification_count_down"
+const val KEY_TIME_OUT_CONNECTION = "time_out_connection"
+const val KEY_TIME_SYNCHRONIZATION = "time_synchronization"
+
 /* Romans */
 val ROMANS = hashMapOf(
         "1" to "I",
@@ -64,11 +74,8 @@ val DEFAULT_LOCALE: Locale = Locale("es", "VE")
 val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone("America/Caracas")
 
 /* Times */
-const val TIME_COUNT_DOWN = 5 * 60 * 1000L
 const val TIME_BACKGROUND_ANIMATION = 30 * 1000L
 const val TIME_DELAY_CLICK_ONCE = 500L
-const val TIME_OUT_CONNECTION = 90 * 1000L
-const val TIME_SYNCHRONIZATION = 1 * 60 * 60 * 1000L
 
 /* Summary view types */
 const val VIEW_TYPE_SUMMARY_SUBJECTS = 0

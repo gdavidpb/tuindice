@@ -11,8 +11,6 @@ public final class BuildConfig {
   public static final int VERSION_CODE = 20;
   public static final String VERSION_NAME = "3.0";
   // Fields from build type: debug
-  public static final String EMAIL_CONTACT = "tuindice@gmail.com";
-  public static final String EMAIL_SUBJECT = "TuIndice - Contacto";
   public static final String ENDPOINT_DST_ENROLLMENT = "http://comprobante.dii.usb.ve/nuevoComprobante/";
   public static final String ENDPOINT_DST_ENROLLMENT_AUTH = "http://comprobante.dii.usb.ve/nuevoComprobante/CAS/login.do";
   public static final String ENDPOINT_DST_POLL = "https://consulta.dii.usb.ve/";

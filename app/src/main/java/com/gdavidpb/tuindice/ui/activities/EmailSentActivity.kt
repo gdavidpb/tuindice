@@ -14,6 +14,8 @@ class EmailSentActivity : NavigationActivity() {
 
     private val viewModel by viewModel<EmailSentViewModel>()
 
+    private val countdownTime by config<Long>(KEY_TIME_VERIFICATION_COUNT_DOWN)
+
     private val awaitingState by lazy {
         intent.getIntExtra(EXTRA_AWAITING_STATE, 0)
     }
@@ -32,7 +34,7 @@ class EmailSentActivity : NavigationActivity() {
             observe(sendEmailVerification, ::sendEmailVerificationObserver)
             observe(resetPassword, ::resetPasswordObserver)
 
-            startCountdown(time = TIME_COUNT_DOWN)
+            startCountdown(time = countdownTime)
         }
 
         /* Logo animation */
@@ -63,7 +65,7 @@ class EmailSentActivity : NavigationActivity() {
     private fun onResendClick() {
         btnResend.isEnabled = false
 
-        viewModel.startCountdown(time = TIME_COUNT_DOWN, reset = true)
+        viewModel.startCountdown(time = countdownTime, reset = true)
 
         when (awaitingState) {
             FLAG_RESET -> viewModel.sendResetPasswordEmail()

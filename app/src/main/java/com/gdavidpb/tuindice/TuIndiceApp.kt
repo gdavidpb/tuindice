@@ -4,6 +4,7 @@ import android.app.Application
 import com.gdavidpb.tuindice.di.modules.appModule
 import com.gdavidpb.tuindice.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.utils.DEFAULT_TIME_ZONE
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
@@ -19,6 +20,8 @@ open class TuIndiceApp : Application() {
         TimeZone.setDefault(DEFAULT_TIME_ZONE)
 
         if (BuildConfig.DEBUG) FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
+
+        FirebaseRemoteConfig.getInstance().setDefaultsAsync(R.xml.default_remote_config)
 
         startKoin {
             androidLogger()

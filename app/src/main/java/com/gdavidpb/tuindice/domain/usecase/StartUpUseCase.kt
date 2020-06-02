@@ -12,7 +12,8 @@ open class StartUpUseCase(
         private val databaseRepository: DatabaseRepository,
         private val identifierRepository: IdentifierRepository,
         private val reportingRepository: ReportingRepository,
-        private val linkRepository: LinkRepository
+        private val linkRepository: LinkRepository,
+        private val configRepository: ConfigRepository
 ) : ResultUseCase<String, StartUpAction>() {
     override suspend fun executeOnBackground(params: String): StartUpAction? {
         val isActiveAuth = authRepository.isActiveAuth()
@@ -21,6 +22,8 @@ open class StartUpUseCase(
         val hasCredentials = settingsRepository.hasCredentials()
 
         val lastScreen = settingsRepository.getLastScreen()
+
+        configRepository.tryFetchAndActivate()
 
         return when {
             isVerifyEmailLink && isActiveAuth -> {

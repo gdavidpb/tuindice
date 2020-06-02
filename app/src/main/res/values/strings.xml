@@ -1,7 +1,4 @@
 <resources>
-    <!-- Android Studio issue -->
-    <item name="visible" type="id" />
-    <item name="masked" type="id" />
 
     <!-- App -->
     <string name="app_name">TuIndice</string>
@@ -74,19 +71,6 @@
     <string name="alert_message_sign_out">¿Estás seguro que deseas salir?</string>
 
     <string name="selector_title_report">¿Cómo te podemos ayudar?</string>
-
-    <string-array name="selector_report_items">
-        <item>Mi índice es incorrecto</item>
-        <item>No puedo descargar mi comprobante</item>
-        <item>Hay un error en mi expediente</item>
-        <item>No puedo crear/editar/eliminar una evaluación</item>
-        <!--<item>Hay un error en mi pensum</item>-->
-        <!--<item>No encuentro una materia</item>-->
-        <!--<item>No encuentro mi pensum</item>-->
-        <!--<item>No puedo crear/eliminar un trimestre</item>-->
-        <!--<item>No puedo crear/eliminar una materia</item>-->
-        <item>Otro…</item>
-    </string-array>
 
     <string name="snack_bar_error_occurred">¡Ha ocurrido un error!</string>
     <string name="snack_bar_permission_denied">Operación no permitida</string>
@@ -197,24 +181,6 @@
     <string name="snack_network_unavailable">Comprueba tu conexión</string>
     <string name="snack_service_unreachable">El servidor no está disponible</string>
     <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
-
-    <string-array name="message_loading">
-        <item>Calculando la resolvente…</item>
-        <item>Calculando el campo magnético…</item>
-        <item>Midiendo los anillos de Newton…</item>
-        <item>Haciendo la transformada de Fourier…</item>
-        <item>Haciendo la transformada de Laplace…</item>
-        <item>Rompiendo indeterminaciones con L\'Hopital…</item>
-        <item>Ejecutando algoritmo de Dijkstra…</item>
-        <item>Aplicando la 1ra Ley de Newton…</item>
-        <item>Aplicando la 2da Ley de Newton…</item>
-        <item>Aplicando la 3ra Ley de Newton…</item>
-        <item>Aplicando Gauss-Jordan…</item>
-        <item>Factorizando…</item>
-        <item>Integrando…</item>
-        <item>Derivando…</item>
-        <item>Cancelando términos…</item>
-    </string-array>
 
     <!-- AboutFragment -->
 

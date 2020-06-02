@@ -51,9 +51,6 @@ android {
             buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/privacy_policy\""
             buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions\""
 
-            buildConfigField "String", "EMAIL_CONTACT", "\"tuindice@gmail.com\""
-            buildConfigField "String", "EMAIL_SUBJECT", "\"TuIndice - Contacto\""
-
             buildConfigField "String", "ENDPOINT_DST_SECURE", "\"https://secure.dst.usb.ve/\""
             buildConfigField "String", "ENDPOINT_DST_RECORD", "\"http://expediente.dii.usb.ve/expediente/\""
             buildConfigField "String", "ENDPOINT_DST_ENROLLMENT", "\"http://comprobante.dii.usb.ve/nuevoComprobante/\""
@@ -76,9 +73,6 @@ android {
             buildConfigField "String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\""
             buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/privacy_policy\""
             buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions\""
-
-            buildConfigField "String", "EMAIL_CONTACT", "\"tuindice@gmail.com\""
-            buildConfigField "String", "EMAIL_SUBJECT", "\"TuIndice - Contacto\""
 
             buildConfigField "String", "ENDPOINT_DST_SECURE", "\"https://secure.dst.usb.ve/\""
             buildConfigField "String", "ENDPOINT_DST_RECORD", "\"http://expediente.dii.usb.ve/expediente/\""
@@ -130,6 +124,7 @@ dependencies {
     implementation "com.google.firebase:firebase-storage:19.1.1"
     implementation "com.google.firebase:firebase-analytics:17.4.2"
     implementation "com.google.firebase:firebase-crashlytics:17.0.0"
+    implementation "com.google.firebase:firebase-config:19.1.4"
     implementation "com.google.guava:guava:27.0.1-android"
     implementation "com.google.android.material:material:1.2.0-beta01"
 

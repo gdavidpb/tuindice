@@ -8,6 +8,7 @@ import okio.Buffer
 import org.jsoup.Jsoup
 import java.io.ByteArrayInputStream
 import java.util.zip.DeflaterInputStream
+import java.util.zip.InflaterInputStream
 
 fun RequestBody?.bodyToString(): String {
     if (this == null) return ""
@@ -24,10 +25,17 @@ fun RequestBody?.bodyToString(): String {
 fun String.deflateHtml(): String = let(Jsoup::parse)
         .html()
         .toByteArray()
-        .let(::ByteArrayInputStream)
+        .deflate()
+
+fun ByteArray.deflate(): String = let(::ByteArrayInputStream)
         .let(::DeflaterInputStream)
-        .run { readBytes().also { close() } }
+        .use { stream -> stream.readBytes() }
         .let { bytes -> Base64.encodeToString(bytes, Base64.DEFAULT) }
+
+fun String.inflate(): ByteArray = Base64.decode(this, Base64.DEFAULT)
+        .let(::ByteArrayInputStream)
+        .let(::InflaterInputStream)
+        .use { stream -> stream.readBytes() }
 
 fun String.noSensitiveData(): String = replace("(username|password)=[^&]+&".toRegex(), "")
         .run { if (isHtml()) deflateHtml() else this }

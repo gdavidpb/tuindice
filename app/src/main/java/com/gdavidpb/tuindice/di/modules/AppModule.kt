@@ -6,7 +6,7 @@ import android.net.ConnectivityManager
 import android.view.inputmethod.InputMethodManager
 import androidx.preference.PreferenceManager
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataStore
 import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataStore
 import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataStore
 import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataStore
@@ -21,8 +21,11 @@ import com.gdavidpb.tuindice.data.source.token.TokenDataStore
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
-import com.gdavidpb.tuindice.utils.TIME_OUT_CONNECTION
+import com.gdavidpb.tuindice.utils.KEY_DST_CERTIFICATES
+import com.gdavidpb.tuindice.utils.KEY_TIME_OUT_CONNECTION
+import com.gdavidpb.tuindice.utils.KEY_TIME_SYNCHRONIZATION
 import com.gdavidpb.tuindice.utils.extensions.create
+import com.gdavidpb.tuindice.utils.extensions.inflate
 import com.gdavidpb.tuindice.utils.extensions.noSensitiveData
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
@@ -30,7 +33,9 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.storage.FirebaseStorage
+import com.google.gson.Gson
 import com.squareup.picasso.Picasso
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -42,6 +47,7 @@ import org.koin.experimental.builder.factoryBy
 import org.koin.experimental.builder.single
 import pl.droidsonroids.retrofit2.JspoonConverterFactory
 import retrofit2.Retrofit
+import java.io.ByteArrayInputStream
 import java.security.SecureRandom
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
@@ -75,7 +81,15 @@ val appModule = module {
         androidContext().contentResolver
     }
 
+    /* Utils */
+
+    single<Gson>()
+
     /* Firebase */
+
+    single {
+        FirebaseRemoteConfig.getInstance()
+    }
 
     single {
         FirebaseStorage.getInstance()
@@ -138,11 +152,15 @@ val appModule = module {
     /* Certificates */
 
     single {
-        androidContext().resources.openRawResource(R.raw.certificates).use { inputStream ->
-            CertificateFactory.getInstance("X.509")
-                    .generateCertificates(inputStream)
-                    .map { certificate -> certificate as X509Certificate }
-        }.toTypedArray()
+        get<ConfigRepository>()
+                .getString(KEY_DST_CERTIFICATES)
+                .inflate()
+                .let(::ByteArrayInputStream)
+                .use { inputStream ->
+                    CertificateFactory.getInstance("X.509")
+                            .generateCertificates(inputStream)
+                            .map { certificate -> certificate as X509Certificate }
+                }.toTypedArray()
     }
 
     single {
@@ -161,14 +179,20 @@ val appModule = module {
 
     single<DstCookieJar>()
 
-    single<DstAuthInterceptor>()
+    single {
+        val syncTime = get<ConfigRepository>().getLong(KEY_TIME_SYNCHRONIZATION)
+
+        DstAuthInterceptor(syncTime)
+    }
 
     factory {
+        val connectionTimeout = get<ConfigRepository>().getLong(KEY_TIME_OUT_CONNECTION)
+
         OkHttpClient.Builder()
-                .callTimeout(TIME_OUT_CONNECTION, TimeUnit.MILLISECONDS)
-                .connectTimeout(TIME_OUT_CONNECTION, TimeUnit.MILLISECONDS)
-                .readTimeout(TIME_OUT_CONNECTION, TimeUnit.MILLISECONDS)
-                .writeTimeout(TIME_OUT_CONNECTION, TimeUnit.MILLISECONDS)
+                .callTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+                .connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+                .readTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+                .writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
                 .hostnameVerifier(get<DstHostNameVerifier>())
                 .cookieJar(get<DstCookieJar>())
                 .addInterceptor(get<HttpLoggingInterceptor>())
@@ -242,6 +266,7 @@ val appModule = module {
     factoryBy<IdentifierRepository, TokenDataStore>()
     factoryBy<ContentRepository, ContentResolverDataStore>()
     factoryBy<LinkRepository, DynamicLinkDataStore>()
+    factoryBy<ConfigRepository, RemoteConfigDataStore>()
 
     factory {
         if (BuildConfig.DEBUG)
