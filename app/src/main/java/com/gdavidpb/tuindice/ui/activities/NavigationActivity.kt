@@ -40,6 +40,8 @@ abstract class NavigationActivity : AppCompatActivity() {
                 true
             }
             causes.contains<FirebaseAuthInvalidUserException>() -> {
+                activityManager.clearApplicationUserData()
+
                 disabledFailureDialog()
                 true
             }
