@@ -5,7 +5,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.view.inputmethod.InputMethodManager
 import androidx.preference.PreferenceManager
-import com.crashlytics.android.Crashlytics
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataStore
@@ -27,6 +26,7 @@ import com.gdavidpb.tuindice.utils.extensions.create
 import com.gdavidpb.tuindice.utils.extensions.noSensitiveData
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.iid.FirebaseInstanceId
@@ -102,7 +102,7 @@ val appModule = module {
     }
 
     single {
-        Crashlytics.getInstance()
+        FirebaseCrashlytics.getInstance()
     }
 
     /* SSL context */
@@ -150,7 +150,7 @@ val appModule = module {
             HttpLoggingInterceptor.Logger.DEFAULT
         else object : HttpLoggingInterceptor.Logger {
             override fun log(message: String) {
-                Crashlytics.log(message.noSensitiveData())
+                get<FirebaseCrashlytics>().log(message.noSensitiveData())
             }
         }
 
@@ -247,7 +247,7 @@ val appModule = module {
         if (BuildConfig.DEBUG)
             DebugReportingDataStore()
         else
-            CrashlyticsReportingDataStore()
+            CrashlyticsReportingDataStore(get())
     }
 
     /* Use cases */

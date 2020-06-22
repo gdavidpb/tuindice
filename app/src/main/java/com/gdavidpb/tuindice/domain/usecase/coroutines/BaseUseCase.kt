@@ -34,7 +34,7 @@ abstract class BaseUseCase<P, T, L : LiveData<*>>(
             }.onFailure { throwable ->
                 if (throwable !is CancellationException) {
                     if (!ignoredException(throwable)) {
-                        reportingRepository.setString(KEY_USE_CASE, "${this@BaseUseCase::class.simpleName}")
+                        reportingRepository.setCustomKey(KEY_USE_CASE, "${this@BaseUseCase::class.simpleName}")
                         reportingRepository.logException(throwable)
                     }
 

@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat
 fun TypedArray.resolveInterpolator(
         context: Context,
         @StyleableRes index: Int,
-        @InterpolatorRes defValue: Int
+        @AnimRes defValue: Int
 ): Interpolator = getResourceId(index, defValue)
         .let { resId -> AnimationUtils.loadInterpolator(context, resId) }
 

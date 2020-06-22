@@ -12,15 +12,7 @@ open class DebugReportingDataStore : ReportingRepository {
         throwable.printStackTrace()
     }
 
-    override fun setInt(key: String, value: Int) {
-        Log.d("setInt", "$key = $value")
-    }
-
-    override fun setLong(key: String, value: Long) {
-        Log.d("setLong", "$key = $value")
-    }
-
-    override fun setString(key: String, value: String) {
-        Log.d("setString", "$key = $value")
+    override fun <T : Any> setCustomKey(key: String, value: T) {
+        Log.d("setCustomKey", "$key = $value (${value::class.java.name})")
     }
 }
