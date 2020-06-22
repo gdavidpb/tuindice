@@ -2,10 +2,11 @@ package com.gdavidpb.tuindice
 
 import android.app.Application
 import com.gdavidpb.tuindice.di.modules.appModule
+import com.gdavidpb.tuindice.migrations.MigrationManager
 import com.gdavidpb.tuindice.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.utils.DEFAULT_TIME_ZONE
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
 import org.koin.android.ext.koin.androidLogger
@@ -22,6 +23,8 @@ open class TuIndiceApp : Application() {
         if (BuildConfig.DEBUG) FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
 
         FirebaseRemoteConfig.getInstance().setDefaultsAsync(R.xml.default_remote_config)
+
+        MigrationManager.execute(applicationContext)
 
         startKoin {
             androidLogger()

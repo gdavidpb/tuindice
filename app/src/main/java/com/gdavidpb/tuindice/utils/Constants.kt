@@ -12,9 +12,6 @@ const val ACTION_REMOVE_PROFILE_PICTURE = "com.gdavidpb.tuindice.intent.action.A
 /* Request */
 const val REQUEST_CODE_PROFILE_PICTURE = 1000
 
-/* External packages */
-const val PACKAGE_NAME_WEB_VIEW = "com.google.android.webview"
-
 /* Headers */
 const val HEADER_DATE = "Date"
 
@@ -58,6 +55,8 @@ const val MAX_MULTIPLE_EVENT = 2
 
 const val SAMPLE_PROFILE_PICTURE = 1024
 const val QUALITY_PROFILE_PICTURE = 90
+
+const val DEFAULT_SHRED_PASSES = 35
 
 /* Status */
 const val STATUS_QUARTER_CURRENT = 0

@@ -27,7 +27,6 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.activities.BrowserActivity
 import com.gdavidpb.tuindice.utils.EXTRA_TITLE
 import com.gdavidpb.tuindice.utils.EXTRA_URL
-import com.gdavidpb.tuindice.utils.PACKAGE_NAME_WEB_VIEW
 import com.gdavidpb.tuindice.utils.ResourcesManager
 import com.gdavidpb.tuindice.utils.mappers.fillIntentArguments
 import com.gdavidpb.tuindice.utils.mappers.runCatchingIsSuccess
@@ -82,7 +81,7 @@ inline fun <reified T : Activity> Context.startActivity(vararg params: Pair<Stri
 }
 
 fun Context.browserActivity(@StringRes title: Int, url: String) {
-    if (isPackageInstalled(PACKAGE_NAME_WEB_VIEW))
+    if (isPackageInstalled("com.google.android.webview"))
         startActivity<BrowserActivity>(EXTRA_TITLE to getString(title), EXTRA_URL to url)
     else
         browse(url)

@@ -11,12 +11,12 @@ apply plugin: "kotlin-kapt"
 apply plugin: "com.google.firebase.crashlytics"
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.gdavidpb.tuindice"
         vectorDrawables.useSupportLibrary = true
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 22
         versionName "3.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -136,6 +136,8 @@ dependencies {
     /* Architecture */
     implementation "androidx.arch.core:core-runtime:2.1.0"
     implementation "androidx.arch.core:core-common:2.1.0"
+
+    /* Lifecycle */
     implementation "androidx.lifecycle:lifecycle-runtime:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
