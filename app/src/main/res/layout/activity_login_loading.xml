@@ -40,7 +40,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.6" />
+        app:layout_constraintGuide_percent="0.65" />
 
     <com.gdavidpb.tuindice.ui.customs.CustomImageView
         android:id="@+id/backgroundOne"
@@ -63,6 +63,7 @@
         android:clickable="true"
         android:contentDescription="@string/app_name"
         android:focusable="true"
+        android:background="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="@id/guidelineCenterTop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
