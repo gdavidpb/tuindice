@@ -265,14 +265,14 @@
     </string>
 
     <string name="about_koin">
-        Koin 2.1.5\n
+        Koin 2.1.6\n
         A pragmatic lightweight dependency injection framework for Kotlin.\n
         © 2018 Arnaud Giuliani\n
         https://insert-koin.io/
     </string>
 
     <string name="about_retrofit">
-        Retrofit 2.8.1\n
+        Retrofit 2.9.0\n
         A type-safe HTTP client for Android and Java.\n
         © 2015 Square\n
         https://square.github.io/retrofit/
