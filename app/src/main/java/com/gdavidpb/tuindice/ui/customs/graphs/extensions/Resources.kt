@@ -26,7 +26,7 @@ fun TypedArray.resolveColor(
 fun TypedArray.resolveDimension(
         context: Context,
         @StyleableRes index: Int,
-        @ColorRes defValue: Int
+        @DimenRes defValue: Int
 ): Float = getResourceId(index, defValue)
         .let { resId -> context.resources.getDimension(resId) }
 
