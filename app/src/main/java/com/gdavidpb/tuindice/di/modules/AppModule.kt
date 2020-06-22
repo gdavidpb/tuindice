@@ -4,7 +4,6 @@ import android.app.ActivityManager
 import android.content.Context
 import android.net.ConnectivityManager
 import android.view.inputmethod.InputMethodManager
-import androidx.preference.PreferenceManager
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataStore
 import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataStore
@@ -25,6 +24,7 @@ import com.gdavidpb.tuindice.utils.KEY_DST_CERTIFICATES
 import com.gdavidpb.tuindice.utils.KEY_TIME_OUT_CONNECTION
 import com.gdavidpb.tuindice.utils.KEY_TIME_SYNCHRONIZATION
 import com.gdavidpb.tuindice.utils.extensions.create
+import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
 import com.gdavidpb.tuindice.utils.extensions.inflate
 import com.gdavidpb.tuindice.utils.extensions.noSensitiveData
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -60,7 +60,7 @@ val appModule = module {
     /* Application */
 
     single {
-        PreferenceManager.getDefaultSharedPreferences(androidContext())
+        androidContext().encryptedSharedPreferences()
     }
 
     /* Android Services */

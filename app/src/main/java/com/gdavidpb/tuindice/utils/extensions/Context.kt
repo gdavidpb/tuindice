@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.utils.extensions
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.PorterDuff
 import android.graphics.Rect
@@ -10,7 +11,8 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
-import android.provider.Settings
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -18,7 +20,8 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.fragment.app.FragmentActivity
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.activities.BrowserActivity
@@ -117,3 +120,40 @@ fun Context.isPowerSaveMode() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES
 fun Context.isPackageInstalled(packageName: String) = runCatching {
     packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA)
 }.isSuccess
+
+@Suppress("DEPRECATION")
+fun Context.encryptedSharedPreferences(): SharedPreferences {
+    val fileName = BuildConfig.APPLICATION_ID
+    val masterKeyAlias = "tuindice_key"
+
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val keyGenParameterSpec = KeyGenParameterSpec.Builder(
+                masterKeyAlias,
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setKeySize(MasterKey.DEFAULT_AES_GCM_MASTER_KEY_SIZE)
+                .build()
+
+        val masterKey = MasterKey.Builder(this)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .setKeyGenParameterSpec(keyGenParameterSpec)
+                .build()
+
+        EncryptedSharedPreferences.create(
+                this,
+                fileName,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    } else {
+        EncryptedSharedPreferences.create(
+                fileName,
+                masterKeyAlias,
+                this,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
+}
