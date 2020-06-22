@@ -145,6 +145,11 @@ open class AboutFragment : NavigationFragment() {
             header(R.string.about_header_special_thanks)
 
             item {
+                title(R.string.about_dst)
+                sizedDrawable(R.drawable.ic_usb, R.dimen.dp_48)
+            }
+
+            item {
                 title(R.string.about_freepik)
                 sizedDrawable(R.drawable.ic_freepik, R.dimen.dp_48)
             }

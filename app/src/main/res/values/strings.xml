@@ -314,6 +314,13 @@
 
     <string name="about_header_special_thanks">Agradecimientos especiales</string>
 
+    <string name="about_dst">
+        Dirección de Servicios Telemáticos\n
+        Universidad Simón Bolívar\n
+        Unidad administrativa\n
+        https://www.dst.usb.ve/inicio
+    </string>
+
     <string name="about_freepik">
         Freepik Company\n
         FlatIcon\n
