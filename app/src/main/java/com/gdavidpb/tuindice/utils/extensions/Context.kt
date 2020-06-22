@@ -11,8 +11,6 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.PowerManager
-import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -131,17 +129,9 @@ fun Context.encryptedSharedPreferences(): SharedPreferences {
     val masterKeyAlias = "tuindice_key"
 
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        val keyGenParameterSpec = KeyGenParameterSpec.Builder(
-                masterKeyAlias,
-                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
-                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                .setKeySize(MasterKey.DEFAULT_AES_GCM_MASTER_KEY_SIZE)
-                .build()
-
-        val masterKey = MasterKey.Builder(this)
+        val masterKey = MasterKey.Builder(this, masterKeyAlias)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                .setKeyGenParameterSpec(keyGenParameterSpec)
+                .setRequestStrongBoxBacked(true)
                 .build()
 
         EncryptedSharedPreferences.create(
