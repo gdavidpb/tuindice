@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.source.settings
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
@@ -8,7 +9,6 @@ import com.gdavidpb.tuindice.utils.KEY_COUNT_DOWN
 import com.gdavidpb.tuindice.utils.KEY_LAST_SCREEN
 import com.gdavidpb.tuindice.utils.KEY_PASSWORD
 import com.gdavidpb.tuindice.utils.KEY_USB_ID
-import com.gdavidpb.tuindice.utils.extensions.edit
 import com.gdavidpb.tuindice.utils.mappers.toRefYear
 import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
 import java.util.*

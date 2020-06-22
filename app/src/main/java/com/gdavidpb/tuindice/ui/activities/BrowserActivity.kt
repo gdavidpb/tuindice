@@ -2,9 +2,11 @@ package com.gdavidpb.tuindice.ui.activities
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.webkit.*
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.appcompat.app.AppCompatActivity
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.EXTRA_TITLE
 import com.gdavidpb.tuindice.utils.EXTRA_URL
@@ -13,11 +15,11 @@ import kotlinx.android.synthetic.main.activity_browser.*
 class BrowserActivity : AppCompatActivity() {
 
     private val extraUrl by lazy {
-        intent.getStringExtra(EXTRA_URL)
+        intent.getStringExtra(EXTRA_URL) ?: error("extraUrl could not be null.")
     }
 
     private val extraTitle by lazy {
-        intent.getStringExtra(EXTRA_TITLE)
+        intent.getStringExtra(EXTRA_TITLE) ?: error("extraTitle could not be null.")
     }
 
     @SuppressLint("SetJavaScriptEnabled")

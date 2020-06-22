@@ -20,6 +20,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.preference.PreferenceManager
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.gdavidpb.tuindice.BuildConfig
@@ -119,6 +120,10 @@ fun Context.isPowerSaveMode() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES
 fun Context.isPackageInstalled(packageName: String) = runCatching {
     packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA)
 }.isSuccess
+
+fun Context.sharedPreferences(): SharedPreferences {
+    return PreferenceManager.getDefaultSharedPreferences(this)
+}
 
 @Suppress("DEPRECATION")
 fun Context.encryptedSharedPreferences(): SharedPreferences {
