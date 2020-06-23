@@ -23,19 +23,21 @@
 # Use cases rules
 -keepnames class * extends com.gdavidpb.tuindice.domain.usecase.coroutines.BaseUseCase { *; }
 
+# Google Crypto rules
+-keep class com.google.crypto.** { *; }
+-dontwarn com.google.crypto.**
+
 # Koin rules
--keepnames class android.arch.lifecycle.ViewModel
--keepclassmembers public class * extends android.arch.lifecycle.ViewModel { public <init>(...); }
--keepclassmembers class com.lebao.app.domain.** { public <init>(...); }
+-keepnames class androidx.lifecycle.ViewModel
+-keepclassmembers public class * extends androidx.lifecycle.ViewModel { public <init>(...); }
 -keepclassmembers class * { public <init>(...); }
 
-# Fabric rules
--keepattributes *Annotation*
+# Crashlytics rules
 -keepattributes SourceFile,LineNumberTable
 -keep public class * extends java.lang.Exception
 
--keep class com.crashlytics.** { *; }
--dontwarn com.crashlytics.**
+-keep class com.google.firebase.crashlytics.** { *; }
+-dontwarn com.google.firebase.crashlytics.**
 
 # Firebase rules
 -keep class com.gdavidpb.tuindice.data.model.** { *; }
