@@ -13,7 +13,7 @@ import com.gdavidpb.tuindice.utils.mappers.distanceTo
 import java.util.concurrent.atomic.AtomicBoolean
 
 class CustomCheckBox(context: Context, attrs: AttributeSet)
-    : AppCompatCheckBox(context, attrs) {
+    : AppCompatCheckBox(context, attrs), ViewHook {
 
     companion object {
         private const val backgroundColor = Color.WHITE
@@ -26,32 +26,7 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
     }
 
     override fun onDraw(canvas: Canvas) {
-        if (onDrawLocker.compareAndSet(false, true)) {
-            val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            val canvasHook = Canvas(bitmapHook)
-            val isCheckedHook = isChecked
-
-            canvasHook.drawColor(backgroundColor)
-
-            isChecked = false
-
-            super.onDraw(canvasHook)
-
-            isChecked = isCheckedHook
-
-            val x = width / 2
-
-            uncheckedColor = (0 until height)
-                    .map { y -> bitmapHook.getPixel(x, y) }
-                    .distinct()
-                    .maxBy { target -> target distanceTo backgroundColor }
-                    .let { selectedColor ->
-                        ColorStateList.valueOf(selectedColor ?: backgroundColor)
-                    }
-
-            checkedColor = ColorStateList.valueOf(context.getCompatColor(R.color.color_retired))
-            disabledColor = ColorStateList.valueOf(context.getCompatColor(R.color.color_disabled))
-        }
+        onDrawHook(canvas) { canvasHook -> super.onDraw(canvasHook) }
 
         buttonTintList = when {
             !isEnabled -> disabledColor
@@ -60,5 +35,36 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
         }
 
         super.onDraw(canvas)
+    }
+
+    override fun onDrawHook(canvas: Canvas, superOnDraw: (Canvas) -> Unit) {
+        if (!onDrawLocker.compareAndSet(false, true)) return
+
+        val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvasHook = Canvas(bitmapHook)
+        val isCheckedHook = isChecked
+
+        canvasHook.drawColor(backgroundColor)
+
+        isChecked = false
+
+        superOnDraw(canvasHook)
+
+        isChecked = isCheckedHook
+
+        val x = width / 2
+
+        uncheckedColor = (0 until height)
+                .map { y -> bitmapHook.getPixel(x, y) }
+                .distinct()
+                .maxBy { target -> target distanceTo backgroundColor }
+                .let { selectedColor ->
+                    ColorStateList.valueOf(selectedColor ?: backgroundColor)
+                }
+
+        checkedColor = ColorStateList.valueOf(context.getCompatColor(R.color.color_retired))
+        disabledColor = ColorStateList.valueOf(context.getCompatColor(R.color.color_disabled))
+
+        bitmapHook.recycle()
     }
 }
