@@ -1,21 +1,23 @@
 package com.gdavidpb.tuindice.ui.customs.graphs.views
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Path
+import android.graphics.RectF
 import android.util.AttributeSet
+import android.view.GestureDetector
+import android.view.MotionEvent
 import androidx.annotation.ColorInt
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.ui.customs.graphs.extensions.resolveColor
-import com.gdavidpb.tuindice.ui.customs.graphs.extensions.resolveDimension
-import com.gdavidpb.tuindice.ui.customs.graphs.extensions.resolveFloat
-import com.gdavidpb.tuindice.ui.customs.graphs.models.CanvasObject
+import com.gdavidpb.tuindice.ui.customs.graphs.extensions.*
 import com.gdavidpb.tuindice.ui.customs.graphs.models.Node
 import com.gdavidpb.tuindice.utils.extensions.loadAttributes
+import com.gdavidpb.tuindice.utils.extensions.supportQuickReject
 
-class NetworkView(context: Context, attrs: AttributeSet) : CanvasView(context, attrs) {
+open class NetworkView(context: Context, attrs: AttributeSet) : CanvasView(context, attrs) {
 
-    private val nodes: MutableList<Node> = mutableListOf()
+    private val nodes: MutableMap<Node, Boolean> = hashMapOf()
 
     @ColorInt
     private val textColor: Int
@@ -26,10 +28,13 @@ class NetworkView(context: Context, attrs: AttributeSet) : CanvasView(context, a
     @ColorInt
     private val connectionColor: Int
 
+    private val tapZoom: Float
+
     private val nodeRadius: Float
     private val nodeTextSize: Float
     private val nodeTextRelation: Float
     private val connectionWidth: Float
+    private val relationTouch: Float
 
     private val nodePaint: Paint
     private val textPaint: Paint
@@ -68,6 +73,10 @@ class NetworkView(context: Context, attrs: AttributeSet) : CanvasView(context, a
 
         nodeTextSize = nodeRadius / nodeTextRelation
 
+        relationTouch = resolveFloat(context, R.dimen.relation_node_touch)
+
+        tapZoom = resolveFloat(context, R.dimen.zoom_tap)
+
         nodePaint = Paint().apply {
             color = nodeColor
 
@@ -89,31 +98,109 @@ class NetworkView(context: Context, attrs: AttributeSet) : CanvasView(context, a
         }
     }
 
+    private val moveDetector by lazy {
+        GestureDetector(context, MoveDetector())
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        val isCustomHandle = moveDetector.onTouchEvent(event)
+
+        if (isCustomHandle) invalidate()
+
+        return isCustomHandle || super.onTouchEvent(event)
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+
+        /* Draw, compute, cache nodes */
+        for ((node, _) in nodes) {
+            val isVisible = !canvas.supportQuickReject(node.path)
+
+            nodes[node] = isVisible
+
+            if (isVisible) canvas.drawPath(node.path, node.paint)
+        }
+    }
+
     override fun onZoom(factor: Float) {
+        // TODO
     }
 
     override fun onMove(x: Float, y: Float) {
-    }
-
-    override fun onTap(canvasObject: CanvasObject, x: Float, y: Float) {
-    }
-
-    override fun clear() {
-        super.clear()
-
-        nodes.clear()
+        // TODO
     }
 
     fun addNodes(vararg values: Node) {
-        val objects = values.map { node ->
-            val nodePath = Path()
-            val nodePaint = Paint()
+        nodes.putAll(values.associate { it to false })
+        invalidate()
+    }
 
-            CanvasObject(nodePath, nodePaint, true)
-        }.toTypedArray()
+    fun clear() {
+        nodes.clear()
+        invalidate()
+    }
 
-        addObjects(*objects)
+    private inner class MoveDetector : GestureDetector.SimpleOnGestureListener() {
+        override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+            val cantHandle = e.pointerCount > 1
 
-        nodes.addAll(values)
+            if (cantHandle) return false
+
+            val bounds = RectF()
+            val foundNode = getNodeByPosition(e.x, e.y, bounds)
+
+            return if (foundNode != null) {
+                val canTap = foundNode.isClickable
+
+                if (canTap) {
+                    // TODO onTap(foundNode, e.x, e.y)
+                }
+
+                canTap
+            } else {
+                false
+            }
+        }
+
+        override fun onDoubleTap(e: MotionEvent): Boolean {
+            val cantHandle = e.pointerCount > 1
+
+            if (cantHandle) return false
+
+            val bounds = RectF()
+            val foundNode = getNodeByPosition(e.x, e.y, bounds)
+
+            return if (foundNode != null) {
+                val canTap = foundNode.isClickable
+
+                if (canTap)
+                    zoomTo(factor = tapZoom, x = bounds.centerX(), y = bounds.centerY())
+
+                canTap
+            } else {
+                moveTo(x = e.x, y = e.y)
+
+                true
+            }
+        }
+    }
+
+    private fun getNodeByPosition(x: Float, y: Float, bounds: RectF): Node? {
+        return nodes.entries.find { (node, isVisible) ->
+            if (isVisible) {
+                /* Compute node bounds */
+                node.path.computeBounds(bounds, true)
+
+                /* Apply canvas matrix */
+                bounds.apply {
+                    transform(canvasMatrix)
+                    inset(relationTouch)
+                }.contains(x, y)
+            } else {
+                false
+            }
+        }?.key
     }
 }
