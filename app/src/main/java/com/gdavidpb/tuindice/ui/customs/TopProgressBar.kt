@@ -39,9 +39,9 @@ class TopProgressBar(context: Context, attrs: AttributeSet)
 
         val x = width / 2
 
-        noTopPadding = (0 until height).first { y ->
+        noTopPadding = (0 until height).firstOrNull { y ->
             bitmapHook.getPixel(x, y) != backgroundColor
-        }.toFloat()
+        }?.toFloat() ?: 0f
 
         bitmapHook.recycle()
     }
