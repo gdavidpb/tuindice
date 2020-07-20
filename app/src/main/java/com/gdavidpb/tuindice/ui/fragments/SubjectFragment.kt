@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.ui.fragments
 
 import android.os.Bundle
 import android.view.*
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,7 +15,6 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
-import com.gdavidpb.tuindice.utils.ARG_SUBJECT_ID
 import com.gdavidpb.tuindice.utils.DECIMALS_GRADE_SUBJECT
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluation
@@ -31,9 +31,7 @@ open class SubjectFragment : NavigationFragment() {
 
     private val evaluationAdapter = EvaluationAdapter(manager = evaluationManager)
 
-    private val subjectId by lazy {
-        requireArguments().getString(ARG_SUBJECT_ID, "")
-    }
+    private val args by navArgs<SubjectFragmentArgs>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_subject, container, false)
@@ -63,7 +61,7 @@ open class SubjectFragment : NavigationFragment() {
             observe(evaluationUpdate, ::updateEvaluationObserver)
             observe(evaluations, ::evaluationsObserver)
 
-            getSubjectEvaluations(sid = subjectId)
+            getSubjectEvaluations(sid = args.subjectId)
         }
     }
 
@@ -76,7 +74,7 @@ open class SubjectFragment : NavigationFragment() {
             R.id.menu_done -> {
                 val subjectGrade = evaluationAdapter.computeGradeSum().toGrade()
 
-                viewModel.updateSubject(sid = subjectId, grade = subjectGrade)
+                viewModel.updateSubject(sid = args.subjectId, grade = subjectGrade)
 
                 navigateUp()
 

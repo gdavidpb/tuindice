@@ -191,8 +191,7 @@ open class RecordFragment : NavigationFragment() {
 
     inner class QuarterManager : QuarterAdapter.AdapterManager, ItemTouchHelper.Callback() {
         override fun onSubjectClicked(quarterItem: QuarterItem, subjectItem: SubjectItem) {
-            val action = RecordFragmentDirections
-                    .actionNavRecordToNavSubject(subjectId = subjectItem.id)
+            val action = RecordFragmentDirections.navToSubject(subjectId = subjectItem.id)
 
             navigate(action)
         }

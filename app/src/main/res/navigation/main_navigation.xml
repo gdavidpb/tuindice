@@ -23,7 +23,7 @@
         android:label="@string/nav_record"
         tools:layout="@layout/fragment_record">
         <action
-            android:id="@+id/action_nav_record_to_nav_subject"
+            android:id="@+id/nav_to_subject"
             app:destination="@id/nav_subject"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
@@ -51,6 +51,10 @@
         android:id="@+id/nav_subject"
         android:name="com.gdavidpb.tuindice.ui.fragments.SubjectFragment"
         android:label="@string/nav_subject"
-        tools:layout="@layout/fragment_about" />
+        tools:layout="@layout/fragment_about">
+        <argument
+            android:name="subjectId"
+            app:argType="string" />
+    </fragment>
 
 </navigation>

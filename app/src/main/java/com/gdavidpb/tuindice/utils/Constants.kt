@@ -95,9 +95,6 @@ const val EXTRA_URL = "EXTRA_URL"
 /* Reporting keys */
 const val KEY_USE_CASE = "KEY_USE_CASE"
 
-/* Navigation args */
-const val ARG_SUBJECT_ID = "subjectId"
-
 const val FLAG_RESET = 1000
 const val FLAG_VERIFY = 1001
 
