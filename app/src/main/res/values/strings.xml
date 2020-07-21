@@ -1,9 +1,11 @@
 <resources>
 
     <!-- App -->
+
     <string name="app_name">TuIndice</string>
 
     <!-- Simple words/phrases -->
+
     <string name="yes">Si</string>
     <string name="release">Producción</string>
     <string name="debug">Desarrollo</string>
@@ -19,6 +21,7 @@
     <string name="app_version">%1$s v%2$s (%3$d)</string>
 
     <!-- MainActivity -->
+
     <string name="nav_summary">Resumen</string>
     <string name="nav_record">Informe Académico</string>
     <string name="nav_pensum">Pensum</string>
@@ -79,6 +82,7 @@
     <string name="snack_bar_action_undone">Deshacer</string>
 
     <!-- SummaryFragment -->
+
     <string name="text_5">/ 5</string>
     <string name="text_5_dot">/ 5.0</string>
 
@@ -108,6 +112,7 @@
     <string name="snack_bar_profile_picture_removed">Foto de perfil removida</string>
 
     <!-- RecordFragment -->
+
     <string name="quarter_grade_diff">Δx %1$.4f</string>
     <string name="quarter_grade_sum">∑x %1$.4f</string>
     <string name="quarter_credits">⦿ %1$d Crs.</string>
@@ -130,57 +135,6 @@
         <b>¡Parece que alguien es nuevo por acá!\n\n</b>
         <b>TuIndice</b> te da la bienvenida a <b>La Simón</b>\n¡Mucho éxito!
     </string>
-
-    <!-- EmailSentActivity -->
-    <string name="snack_bar_resend">Correo reenviado</string>
-
-    <string name="label_verify">
-        Verifica tu cuenta
-    </string>
-
-    <string name="label_reset">
-        Tu contraseña ha cambiado
-    </string>
-
-    <string name="message_verify">
-        Hemos enviado un enlace de verificación a tu correo
-        institucional (%1$s).\n\n
-        Revísalo y estamos listos ;)
-    </string>
-
-    <string name="message_reset">
-        Hemos enviado un enlace de actualización de contraseña
-        a tu correo institucional (%1$s).\n\n
-        Revísalo y estamos listos ;)
-    </string>
-
-    <string name="text_0">00:00</string>
-    <string name="text_or">─ O ─</string>
-
-    <string name="button_cancel"><u>Ingresar con otra cuenta</u></string>
-    <string name="button_resend">Enviar nuevamente</string>
-
-    <!-- LoginActivity -->
-    <string name="label_login_activity">TuIndice</string>
-
-    <string name="hint_usb_id">USBID</string>
-    <string name="hintPassword">Contraseña</string>
-
-    <string name="button_login">Iniciar sesión</string>
-    <string name="label_policies">
-        Al usar la aplicación, aceptas los\n
-        Términos y condiciones y Política de privacidad
-    </string>
-
-    <string name="link_terms_and_conditions">Términos y condiciones</string>
-    <string name="link_privacy_policy">Política de privacidad</string>
-
-    <string name="error_empty">Campo vacío</string>
-    <string name="error_usb_id">USBID inválido</string>
-
-    <string name="snack_network_unavailable">Comprueba tu conexión</string>
-    <string name="snack_service_unreachable">El servidor no está disponible</string>
-    <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
 
     <!-- AboutFragment -->
 
@@ -301,7 +255,16 @@
         https://mapping.mit.edu/
     </string>
 
+    <!-- BrowserFragment -->
+
+    <string name="label_terms_and_conditions">TuIndice - Términos y condiciones</string>
+    <string name="label_privacy_policy">TuIndice - Política de privacidad</string>
+
+    <string name="alert_title_warning_external">Atención</string>
+    <string name="alert_message_warning_external">Estás saliendo de TuIndice. ¿Deseas abrir el siguiente enlace?\n\n%s</string>
+
     <!-- SubjectFragment -->
+
     <string name="text_100">/ 100</string>
     <string name="content_equal">Igual a</string>
 
@@ -330,6 +293,7 @@
     <string name="evaluation_presentation">Exposición</string>
 
     <!-- EvaluationDialog -->
+
     <string name="title_add_evaluation">Agregar evaluación</string>
     <string name="title_edit_evaluation">Modificar evaluación</string>
 
@@ -343,11 +307,61 @@
     <string name="label_evaluation_grade_value">%1$.2f pts</string>
     <string name="label_evaluation_subject_header">%1$s ─ %2$s</string>
 
-    <!-- BrowserActivity -->
-    <string name="label_terms_and_conditions">TuIndice - Términos y condiciones</string>
-    <string name="label_privacy_policy">TuIndice - Política de privacidad</string>
+    <!-- EmailSentActivity -->
+
+    <string name="snack_bar_resend">Correo reenviado</string>
+
+    <string name="label_verify">
+        Verifica tu cuenta
+    </string>
+
+    <string name="label_reset">
+        Tu contraseña ha cambiado
+    </string>
+
+    <string name="message_verify">
+        Hemos enviado un enlace de verificación a tu correo
+        institucional (%1$s).\n\n
+        Revísalo y estamos listos ;)
+    </string>
+
+    <string name="message_reset">
+        Hemos enviado un enlace de actualización de contraseña
+        a tu correo institucional (%1$s).\n\n
+        Revísalo y estamos listos ;)
+    </string>
+
+    <string name="text_0">00:00</string>
+    <string name="text_or">─ O ─</string>
+
+    <string name="button_cancel"><u>Ingresar con otra cuenta</u></string>
+    <string name="button_resend">Enviar nuevamente</string>
+
+    <!-- LoginActivity -->
+
+    <string name="label_login_activity">TuIndice</string>
+
+    <string name="hint_usb_id">USBID</string>
+    <string name="hintPassword">Contraseña</string>
+
+    <string name="button_login">Iniciar sesión</string>
+    <string name="label_policies">
+        Al usar la aplicación, aceptas los\n
+        Términos y condiciones y Política de privacidad
+    </string>
+
+    <string name="link_terms_and_conditions">Términos y condiciones</string>
+    <string name="link_privacy_policy">Política de privacidad</string>
+
+    <string name="error_empty">Campo vacío</string>
+    <string name="error_usb_id">USBID inválido</string>
+
+    <string name="snack_network_unavailable">Comprueba tu conexión</string>
+    <string name="snack_service_unreachable">El servidor no está disponible</string>
+    <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
 
     <!-- RemoveProfilePictureActivity -->
+
     <string name="label_remove_profile_picture">Remover foto</string>
 
 </resources>
