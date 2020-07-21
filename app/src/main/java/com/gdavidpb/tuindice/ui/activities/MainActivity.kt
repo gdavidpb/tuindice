@@ -57,6 +57,8 @@ class MainActivity : NavigationActivity(navViewId = R.id.mainNavHostFragment) {
         NavigationUI.setupWithNavController(bottomNavView, navController)
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
 
+        bottomNavView.setOnNavigationItemReselectedListener { }
+
         with(navController) {
             val isTopLevelDestination = appBarConfiguration.isTopLevelDestination(navId)
             val isStartDestination = graph.startDestination == navId
