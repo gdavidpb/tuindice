@@ -342,6 +342,7 @@ open class SummaryFragment : NavigationFragment() {
             with(picasso) {
                 load(url)
                         .noFade()
+                        .stableKey(url)
                         .transform(CircleTransform())
                         .error(R.mipmap.ic_launcher_round)
                         .into(iViewProfile, loadProfilePicture)
