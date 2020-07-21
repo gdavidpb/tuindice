@@ -87,7 +87,7 @@ open class RecordFragment : NavigationFragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.summary_menu, menu)
+        inflater.inflate(R.menu.menu_record, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
