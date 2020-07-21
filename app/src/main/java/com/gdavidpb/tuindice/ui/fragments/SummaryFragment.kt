@@ -5,7 +5,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
@@ -35,9 +38,7 @@ open class SummaryFragment : NavigationFragment() {
 
     private val summaryAdapter = SummaryAdapter()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_summary, container, false)
-    }
+    override fun onCreateView() = R.layout.fragment_summary
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -217,6 +218,12 @@ open class SummaryFragment : NavigationFragment() {
                 iViewProfile.setImageResource(R.mipmap.ic_launcher_round)
             }
         }
+    }
+
+    private fun navigateToLogin() {
+        val action = SummaryFragmentDirections.navToLogin()
+
+        navigate(action)
     }
 
     private fun removeProfilePictureObserver(result: Event<Unit>?) {

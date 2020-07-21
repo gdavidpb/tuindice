@@ -13,7 +13,6 @@ import android.os.Build
 import android.os.PowerManager
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -23,9 +22,6 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.ui.activities.BrowserActivity
-import com.gdavidpb.tuindice.utils.EXTRA_TITLE
-import com.gdavidpb.tuindice.utils.EXTRA_URL
 import com.gdavidpb.tuindice.utils.ResourcesManager
 import com.gdavidpb.tuindice.utils.mappers.fillIntentArguments
 import com.gdavidpb.tuindice.utils.mappers.runCatchingIsSuccess
@@ -77,13 +73,6 @@ inline fun <reified T : Activity> Context.startActivity(vararg params: Pair<Stri
     Intent(this, T::class.java).apply {
         if (params.isNotEmpty()) fillIntentArguments(params)
     }.also(::startActivity)
-}
-
-fun Context.browserActivity(@StringRes title: Int, url: String) {
-    if (isPackageInstalled("com.google.android.webview"))
-        startActivity<BrowserActivity>(EXTRA_TITLE to getString(title), EXTRA_URL to url)
-    else
-        browse(url)
 }
 
 fun Context.getCompatColor(@ColorRes colorRes: Int): Int = ContextCompat.getColor(this, colorRes)

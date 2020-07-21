@@ -32,7 +32,7 @@ class SharedPreferencesMigration(private val context: Context) : Migration() {
 
         val usbId = sourceSharedPreferences.getString(KEY_USB_ID, null)
         val password = sourceSharedPreferences.getString(KEY_PASSWORD, null)
-        val lastScreen = sourceSharedPreferences.getInt(KEY_LAST_SCREEN, R.id.nav_summary)
+        val lastScreen = sourceSharedPreferences.getInt(KEY_LAST_SCREEN, R.id.fragment_summary)
 
         targetSharedPreferences.edit {
             if (usbId != null) putString(KEY_USB_ID, usbId)

@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.activity_email_sent.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class EmailSentActivity : NavigationActivity() {
+class EmailSentActivity : NavigationActivity(0) {
 
     private val viewModel by viewModel<EmailSentViewModel>()
 

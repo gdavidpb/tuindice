@@ -9,7 +9,6 @@ import android.text.style.UnderlineSpan
 import android.view.animation.OvershootInterpolator
 import android.view.inputmethod.EditorInfo
 import androidx.core.content.ContextCompat
-import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.utils.`do`
 import com.gdavidpb.tuindice.data.utils.`when`
@@ -28,7 +27,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.net.ConnectException
 
 @AllowDisabledAccount
-class LoginActivity : NavigationActivity() {
+class LoginActivity : NavigationActivity(0) {
 
     private val viewModel by viewModel<LoginViewModel>()
 
@@ -95,11 +94,21 @@ class LoginActivity : NavigationActivity() {
             }
 
             setLink(getString(R.string.link_terms_and_conditions)) {
-                browserActivity(title = R.string.label_terms_and_conditions, url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS)
+                /* TODO
+                val action = LoginActivityDirections.navToUrl(
+                        title = getString(R.string.label_terms_and_conditions),
+                        url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS
+                )
+                */
             }
 
             setLink(getString(R.string.link_privacy_policy)) {
-                browserActivity(title = R.string.label_privacy_policy, url = BuildConfig.URL_APP_PRIVACY_POLICY)
+                /* TODO
+                val action = LoginActivityDirections.navToUrl(
+                        title = getString(R.string.label_privacy_policy),
+                        url = BuildConfig.URL_APP_PRIVACY_POLICY
+                )
+                */
             }
         }.build()
 

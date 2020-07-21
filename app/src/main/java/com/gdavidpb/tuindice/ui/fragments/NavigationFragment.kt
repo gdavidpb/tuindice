@@ -2,18 +2,25 @@ package com.gdavidpb.tuindice.ui.fragments
 
 import android.app.ActivityManager
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import androidx.annotation.IdRes
+import android.view.ViewGroup
+import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
-import com.gdavidpb.tuindice.MainNavigationDirections
-import com.gdavidpb.tuindice.ui.activities.LoginActivity
 import com.gdavidpb.tuindice.utils.extensions.contentView
 import org.koin.android.ext.android.inject
 
 abstract class NavigationFragment : Fragment() {
     private val activityManager by inject<ActivityManager>()
+
+    @LayoutRes
+    abstract fun onCreateView(): Int
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        return inflater.inflate(onCreateView(), container, false)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         activity?.contentView?.background = view.background
@@ -22,18 +29,6 @@ abstract class NavigationFragment : Fragment() {
     protected fun clearApplicationUserData() {
         activityManager.clearApplicationUserData()
     }
-
-    protected fun navigateToLogin() {
-        val direction = MainNavigationDirections.actionToLogin()
-
-        findNavController().navigate(direction)
-
-        val activity = requireActivity()
-
-        if (activity !is LoginActivity) activity.finish()
-    }
-
-    protected fun navigate(@IdRes resId: Int) = findNavController().navigate(resId)
 
     protected fun navigate(directions: NavDirections) = findNavController().navigate(directions)
 

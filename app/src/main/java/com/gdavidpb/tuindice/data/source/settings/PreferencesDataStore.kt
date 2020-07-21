@@ -67,7 +67,7 @@ open class PreferencesDataStore(
     }
 
     override fun getLastScreen(): Int {
-        return preferences.getInt(KEY_LAST_SCREEN, R.id.nav_summary)
+        return preferences.getInt(KEY_LAST_SCREEN, R.id.fragment_summary)
     }
 
     override fun setLastScreen(screen: Int) {

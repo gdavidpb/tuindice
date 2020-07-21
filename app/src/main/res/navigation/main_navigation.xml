@@ -3,28 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_navigation"
-    app:startDestination="@+id/nav_summary">
+    app:startDestination="@+id/fragment_summary">
 
     <include app:graph="@navigation/login_navigation" />
 
-    <action
-        android:id="@+id/action_to_login"
-        app:destination="@id/login_navigation" />
-
     <fragment
-        android:id="@+id/nav_summary"
+        android:id="@+id/fragment_summary"
         android:name="com.gdavidpb.tuindice.ui.fragments.SummaryFragment"
         android:label="@string/nav_summary"
-        tools:layout="@layout/fragment_summary" />
+        tools:layout="@layout/fragment_summary">
+        <action
+            android:id="@+id/nav_to_login"
+            app:destination="@id/login_navigation" />
+    </fragment>
 
     <fragment
-        android:id="@+id/nav_record"
+        android:id="@+id/fragment_record"
         android:name="com.gdavidpb.tuindice.ui.fragments.RecordFragment"
         android:label="@string/nav_record"
         tools:layout="@layout/fragment_record">
         <action
             android:id="@+id/nav_to_subject"
-            app:destination="@id/nav_subject"
+            app:destination="@id/fragment_subject"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -36,24 +36,48 @@
     </fragment>
 
     <fragment
-        android:id="@+id/nav_pensum"
+        android:id="@+id/fragment_pensum"
         android:name="com.gdavidpb.tuindice.ui.fragments.PensumFragment"
         android:label="@string/nav_pensum"
         tools:layout="@layout/fragment_pensum" />
 
     <fragment
-        android:id="@+id/nav_about"
+        android:id="@+id/fragment_about"
         android:name="com.gdavidpb.tuindice.ui.fragments.AboutFragment"
         android:label="@string/nav_about"
-        tools:layout="@layout/fragment_about" />
+        tools:layout="@layout/fragment_about">
+        <action
+            android:id="@+id/nav_to_url"
+            app:destination="@id/fragment_browser">
+            <argument
+                android:name="title"
+                app:argType="string" />
+            <argument
+                android:name="url"
+                app:argType="string" />
+        </action>
+    </fragment>
 
     <fragment
-        android:id="@+id/nav_subject"
+        android:id="@+id/fragment_subject"
         android:name="com.gdavidpb.tuindice.ui.fragments.SubjectFragment"
         android:label="@string/nav_subject"
         tools:layout="@layout/fragment_about">
         <argument
             android:name="subjectId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_browser"
+        android:name="com.gdavidpb.tuindice.ui.fragments.BrowserFragment"
+        android:label="{title}"
+        tools:layout="@layout/fragment_browser">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="url"
             app:argType="string" />
     </fragment>
 

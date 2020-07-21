@@ -2,7 +2,9 @@ package com.gdavidpb.tuindice.ui.activities
 
 import android.app.ActivityManager
 import android.view.inputmethod.InputMethodManager
+import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.findNavController
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.exception.FatalException
 import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
@@ -13,9 +15,13 @@ import com.google.firebase.auth.FirebaseAuthActionCodeException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import org.koin.android.ext.android.inject
 
-abstract class NavigationActivity : AppCompatActivity() {
+abstract class NavigationActivity(@IdRes navViewId: Int) : AppCompatActivity() {
     private val activityManager by inject<ActivityManager>()
     private val inputMethodManager by inject<InputMethodManager>()
+
+    val navController by lazy {
+        findNavController(navViewId)
+    }
 
     override fun onSupportNavigateUp(): Boolean {
         super.onBackPressed()

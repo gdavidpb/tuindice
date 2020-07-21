@@ -344,7 +344,6 @@
     <string name="label_evaluation_subject_header">%1$s ─ %2$s</string>
 
     <!-- BrowserActivity -->
-    <string name="label_creative_commons">TuIndice - Creative Commons</string>
     <string name="label_terms_and_conditions">TuIndice - Términos y condiciones</string>
     <string name="label_privacy_policy">TuIndice - Política de privacidad</string>
 

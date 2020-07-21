@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
-import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
@@ -20,20 +19,16 @@ import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : NavigationActivity() {
+class MainActivity : NavigationActivity(navViewId = R.id.mainNavHostFragment) {
 
     private val viewModel by viewModel<MainViewModel>()
 
-    private val navController by lazy {
-        findNavController(R.id.mainNavHostFragment)
-    }
-
     private val appBarConfiguration by lazy {
         val destinations = setOf(
-                R.id.nav_summary,
-                R.id.nav_record,
-                R.id.nav_pensum,
-                R.id.nav_about
+                R.id.fragment_summary,
+                R.id.fragment_record,
+                R.id.fragment_pensum,
+                R.id.fragment_about
         )
 
         AppBarConfiguration(navController.graph).apply {

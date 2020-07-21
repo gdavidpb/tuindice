@@ -4,9 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
@@ -25,9 +24,7 @@ open class AboutFragment : NavigationFragment() {
     private val contactSubject by config<String>(KEY_CONTACT_SUBJECT)
     private val issuesList by config<List<String>>(KEY_ISSUES_LIST)
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_about, container, false)
-    }
+    override fun onCreateView() = R.layout.fragment_about
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -55,7 +52,7 @@ open class AboutFragment : NavigationFragment() {
                 title(R.string.about_license)
                 tintedDrawable(R.drawable.ic_cc, R.color.color_secondary_text)
                 onClick {
-                    context.browserActivity(title = R.string.label_creative_commons, url = BuildConfig.URL_CREATIVE_COMMONS)
+                    context.browse(url = BuildConfig.URL_CREATIVE_COMMONS)
                 }
             }
 
@@ -63,7 +60,7 @@ open class AboutFragment : NavigationFragment() {
                 title(R.string.about_terms_and_conditions)
                 tintedDrawable(R.drawable.ic_terms_and_conditions, R.color.color_secondary_text)
                 onClick {
-                    context.browserActivity(title = R.string.label_terms_and_conditions, url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS)
+                    startBrowser(title = R.string.label_terms_and_conditions, url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS)
                 }
             }
 
@@ -71,7 +68,7 @@ open class AboutFragment : NavigationFragment() {
                 title(R.string.about_privacy_policy)
                 tintedDrawable(R.drawable.ic_privacy_policy, R.color.color_secondary_text)
                 onClick {
-                    context.browserActivity(title = R.string.label_privacy_policy, url = BuildConfig.URL_APP_PRIVACY_POLICY)
+                    startBrowser(title = R.string.label_privacy_policy, url = BuildConfig.URL_APP_PRIVACY_POLICY)
                 }
             }
 
@@ -79,7 +76,7 @@ open class AboutFragment : NavigationFragment() {
                 title(R.string.about_twitter)
                 tintedDrawable(R.drawable.ic_twitter, R.color.color_secondary_text)
                 onClick {
-                    context.browse(BuildConfig.URL_APP_TWITTER)
+                    context.browse(url = BuildConfig.URL_APP_TWITTER)
                 }
             }
 
@@ -185,6 +182,17 @@ open class AboutFragment : NavigationFragment() {
         }.onFailure {
             context.browse(url = getString(R.string.about_google_play, context.packageName))
         }
+    }
+
+    private fun startBrowser(@StringRes title: Int, url: String) {
+        val isWebViewInstalled = requireContext().isPackageInstalled("com.google.android.webview")
+
+        if (isWebViewInstalled) {
+            val action = AboutFragmentDirections.navToUrl(title = getString(title), url = url)
+
+            navigate(action)
+        } else
+            requireContext().browse(url)
     }
 
     private fun showReportSelector() {

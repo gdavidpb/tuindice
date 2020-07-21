@@ -1,7 +1,10 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE
@@ -33,9 +36,7 @@ open class SubjectFragment : NavigationFragment() {
 
     private val args by navArgs<SubjectFragmentArgs>()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_subject, container, false)
-    }
+    override fun onCreateView() = R.layout.fragment_subject
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setHasOptionsMenu(true)

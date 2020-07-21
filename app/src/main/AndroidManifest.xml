@@ -58,12 +58,6 @@
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />
         <activity
-            android:name=".ui.activities.BrowserActivity"
-            android:exported="false"
-            android:label=""
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity" />
-        <activity
             android:name=".ui.activities.RemoveProfilePictureActivity"
             android:label="@string/label_remove_profile_picture"
             android:theme="@android:style/Theme.NoDisplay">
