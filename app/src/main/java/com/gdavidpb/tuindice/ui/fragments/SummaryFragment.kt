@@ -170,7 +170,7 @@ open class SummaryFragment : NavigationFragment() {
                 showProfilePictureLoading()
             }
             is Event.OnSuccess -> {
-                loadProfilePicture(url = result.value)
+                loadProfilePicture(url = result.value, invalidate = true)
 
                 snackBar {
                     messageResource = R.string.snack_bar_profile_picture_updated
@@ -208,7 +208,7 @@ open class SummaryFragment : NavigationFragment() {
                 showProfilePictureLoading()
             }
             is Result.OnSuccess -> {
-                loadProfilePicture(url = result.value)
+                loadProfilePicture(url = result.value, invalidate = false)
             }
             is Result.OnError -> {
                 hideProfilePictureLoading()
@@ -233,6 +233,8 @@ open class SummaryFragment : NavigationFragment() {
             }
             is Event.OnSuccess -> {
                 hideProfilePictureLoading()
+
+                iViewProfile.tag = false
 
                 iViewProfile.setImageResource(R.mipmap.ic_launcher_round)
 
@@ -337,9 +339,11 @@ open class SummaryFragment : NavigationFragment() {
             groupGrade.gone()
     }
 
-    private fun loadProfilePicture(url: String) {
+    private fun loadProfilePicture(url: String, invalidate: Boolean) {
         if (url.isNotEmpty()) {
             with(picasso) {
+                if (invalidate) invalidate(url)
+
                 load(url)
                         .noFade()
                         .stableKey(url)
