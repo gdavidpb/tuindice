@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.di.modules
+package com.gdavidpb.tuindice.modules
 
 import android.app.ActivityManager
 import android.net.ConnectivityManager
@@ -6,35 +6,27 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataStore
-import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataStore
+import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataStore
 import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataStore
-import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
-import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataStore
 import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
 import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataStore
 import com.gdavidpb.tuindice.data.source.storage.DiskStorageDataStore
-import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataStore
-import com.gdavidpb.tuindice.data.source.token.TokenDataStore
+import com.gdavidpb.tuindice.datastores.*
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
-import com.gdavidpb.tuindice.utils.KEY_DST_CERTIFICATES
+import com.gdavidpb.tuindice.services.DstAuthServiceMock
+import com.gdavidpb.tuindice.services.DstEnrollmentServiceMock
+import com.gdavidpb.tuindice.services.DstRecordServiceMock
 import com.gdavidpb.tuindice.utils.KEY_TIME_OUT_CONNECTION
 import com.gdavidpb.tuindice.utils.KEY_TIME_SYNCHRONIZATION
-import com.gdavidpb.tuindice.utils.extensions.create
+import com.gdavidpb.tuindice.utils.createMockService
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
-import com.gdavidpb.tuindice.utils.extensions.inflate
-import com.gdavidpb.tuindice.utils.extensions.noSensitiveData
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
 import com.squareup.picasso.Picasso
 import okhttp3.OkHttpClient
@@ -47,15 +39,11 @@ import org.koin.experimental.builder.factoryBy
 import org.koin.experimental.builder.single
 import pl.droidsonroids.retrofit2.JspoonConverterFactory
 import retrofit2.Retrofit
-import java.io.ByteArrayInputStream
-import java.security.SecureRandom
-import java.security.cert.CertificateFactory
-import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.SSLContext
-import javax.net.ssl.X509TrustManager
 
-val appModule = module {
+val mockModule = module {
+
+    val localhost = "192.168.1.81"
 
     /* Application */
 
@@ -98,23 +86,15 @@ val appModule = module {
     }
 
     single {
-        FirebaseStorage.getInstance()
-    }
+        val settings = FirebaseFirestoreSettings.Builder()
+                .setHost("$localhost:8080")
+                .setSslEnabled(false)
+                .setPersistenceEnabled(false)
+                .build()
 
-    single {
-        FirebaseFirestore.getInstance()
-    }
-
-    single {
-        FirebaseAnalytics.getInstance(androidContext())
-    }
-
-    single {
-        FirebaseAuth.getInstance()
-    }
-
-    single {
-        FirebaseInstanceId.getInstance()
+        FirebaseFirestore.getInstance().apply {
+            firestoreSettings = settings
+        }
     }
 
     single {
@@ -122,61 +102,7 @@ val appModule = module {
     }
 
     single {
-        FirebaseCrashlytics.getInstance()
-    }
-
-    /* SSL context */
-
-    single {
-        SSLContext.getInstance("TLS").apply {
-            init(null, arrayOf(get<X509TrustManager>()), SecureRandom())
-        }
-    }
-
-    /* X509 trust manager */
-
-    single<X509TrustManager> {
-        object : X509TrustManager {
-            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
-                chain.checkValidity()
-            }
-
-            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
-                chain.checkValidity()
-            }
-
-            override fun getAcceptedIssuers(): Array<X509Certificate> {
-                return get()
-            }
-
-            private fun Array<X509Certificate>.checkValidity() {
-                forEach { certificate -> certificate.checkValidity() }
-            }
-        }
-    }
-
-    /* Certificates */
-
-    single {
-        get<ConfigRepository>()
-                .getString(KEY_DST_CERTIFICATES)
-                .inflate()
-                .let(::ByteArrayInputStream)
-                .use { inputStream ->
-                    CertificateFactory.getInstance("X.509")
-                            .generateCertificates(inputStream)
-                            .map { certificate -> certificate as X509Certificate }
-                }.toTypedArray()
-    }
-
-    single {
-        val logger = object : HttpLoggingInterceptor.Logger {
-            override fun log(message: String) {
-                get<FirebaseCrashlytics>().log(message.noSensitiveData())
-            }
-        }
-
-        HttpLoggingInterceptor(logger).apply { level = HttpLoggingInterceptor.Level.BODY }
+        HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
     }
 
     single<DstHostNameVerifier>()
@@ -200,8 +126,6 @@ val appModule = module {
                 .hostnameVerifier(get<DstHostNameVerifier>())
                 .cookieJar(get<DstCookieJar>())
                 .addInterceptor(get<HttpLoggingInterceptor>())
-                .followSslRedirects(true)
-                .sslSocketFactory(get<SSLContext>().socketFactory, get())
     }
 
     factory {
@@ -212,15 +136,10 @@ val appModule = module {
     /* Dst auth service */
 
     single {
-        val httpClient = get<OkHttpClient.Builder>()
-                .addInterceptor(get<DstAuthInterceptor>())
-                .build()
-
-        get<Retrofit.Builder>()
-                .client(httpClient)
+        Retrofit.Builder()
                 .baseUrl(BuildConfig.ENDPOINT_DST_SECURE)
                 .build()
-                .create<DstAuthService>()
+                .createMockService<DstAuthService, DstAuthServiceMock>()
     }
 
     /* Dst record service */
@@ -233,20 +152,16 @@ val appModule = module {
                 .client(httpClient)
                 .baseUrl(BuildConfig.ENDPOINT_DST_RECORD)
                 .build()
-                .create<DstRecordService>()
+                .createMockService<DstRecordService, DstRecordServiceMock>()
     }
 
     /* Dst enrollment service */
 
     single {
-        val httpClient = get<OkHttpClient.Builder>()
+        Retrofit.Builder()
+                .baseUrl(BuildConfig.ENDPOINT_DST_RECORD)
                 .build()
-
-        get<Retrofit.Builder>()
-                .client(httpClient)
-                .baseUrl(BuildConfig.ENDPOINT_DST_ENROLLMENT)
-                .build()
-                .create<DstEnrollmentService>()
+                .createMockService<DstEnrollmentService, DstEnrollmentServiceMock>()
     }
 
     /* View Models */
@@ -264,14 +179,14 @@ val appModule = module {
     factoryBy<DstRepository, DstDataStore>()
     factoryBy<SettingsRepository, PreferencesDataStore>()
     factoryBy<LocalStorageRepository, DiskStorageDataStore>()
-    factoryBy<RemoteStorageRepository, FirebaseStorageDataStore>()
-    factoryBy<AuthRepository, FirebaseDataStore>()
-    factoryBy<DatabaseRepository, FirestoreDataStore>()
-    factoryBy<IdentifierRepository, TokenDataStore>()
+    factoryBy<RemoteStorageRepository, RemoteStorageMockDataStore>()
+    factoryBy<AuthRepository, AuthMockDataStore>()
+    factoryBy<DatabaseRepository, FirestoreMockDataStore>()
+    factoryBy<IdentifierRepository, TokenMockDataStore>()
     factoryBy<ContentRepository, ContentResolverDataStore>()
     factoryBy<LinkRepository, DynamicLinkDataStore>()
-    factoryBy<ConfigRepository, RemoteConfigDataStore>()
-    factoryBy<ReportingRepository, CrashlyticsReportingDataStore>()
+    factoryBy<ConfigRepository, RemoteConfigMockDataStore>()
+    factoryBy<ReportingRepository, DebugReportingDataStore>()
 
     /* Use cases */
 

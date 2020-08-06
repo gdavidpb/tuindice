@@ -1,21 +1,23 @@
 package com.gdavidpb.tuindice.ui.activities
 
 import android.os.Bundle
-import androidx.annotation.IdRes
+import androidx.core.os.bundleOf
 import androidx.navigation.NavDestination
-import androidx.navigation.NavOptions
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.model.exception.FatalException
+import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
+import com.gdavidpb.tuindice.domain.model.exception.NoDataException
+import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.utils.EXTRA_AWAITING_EMAIL
-import com.gdavidpb.tuindice.utils.EXTRA_AWAITING_STATE
 import com.gdavidpb.tuindice.utils.FLAG_RESET
 import com.gdavidpb.tuindice.utils.FLAG_VERIFY
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.google.firebase.auth.FirebaseAuthActionCodeException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 

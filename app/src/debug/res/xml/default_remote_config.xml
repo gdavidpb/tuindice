@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultsMap>
+    <entry>
+        <key>time_verification_count_down</key>
+        <value>300000</value>
+    </entry>
+    <entry>
+        <key>time_out_connection</key>
+        <value>90000</value>
+    </entry>
+    <entry>
+        <key>time_synchronization</key>
+        <value>3600000</value>
+    </entry>
+    <entry>
+        <key>contact_email</key>
+        <value>example@email.com</value>
+    </entry>
+    <entry>
+        <key>contact_subject</key>
+        <value>TuIndice - Contacto</value>
+    </entry>
+    <entry>
+        <key>loading_messages</key>
+        <value>
+            [
+            "Calculando la resolvente…",
+            "Calculando el campo magnético…",
+            "Midiendo los anillos de Newton…",
+            "Haciendo la transformada de Fourier…",
+            "Haciendo la transformada de Laplace…",
+            "Rompiendo indeterminaciones con L'Hopital…",
+            "Ejecutando algoritmo de Dijkstra…",
+            "Aplicando la 1ra Ley de Newton…",
+            "Aplicando la 2da Ley de Newton…",
+            "Aplicando la 3ra Ley de Newton…",
+            "Aplicando Gauss-Jordan…",
+            "Factorizando…","Integrando…",
+            "Derivando…","Cancelando términos…"
+            ]
+        </value>
+    </entry>
+    <entry>
+        <key>issues_list</key>
+        <value>
+            [
+            "Mi índice es incorrecto",
+            "No puedo descargar mi comprobante",
+            "Hay un error en mi expediente",
+            "No puedo crear/editar/eliminar una evaluación",
+            "Otro…"
+            ]
+        </value>
+    </entry>
+</defaultsMap>
