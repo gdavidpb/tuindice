@@ -72,10 +72,6 @@ const val STATUS_SUBJECT_NO_EFFECT = 2
 val DEFAULT_LOCALE: Locale = Locale("es", "VE")
 val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone("America/Caracas")
 
-/* Times */
-const val TIME_BACKGROUND_ANIMATION = 30 * 1000L
-const val TIME_DELAY_CLICK_ONCE = 500L
-
 /* Summary view types */
 const val VIEW_TYPE_SUMMARY_SUBJECTS = 0
 const val VIEW_TYPE_SUMMARY_CREDITS = 1

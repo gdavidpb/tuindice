@@ -10,7 +10,6 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
-import android.os.PowerManager
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
@@ -96,13 +95,6 @@ fun Context.getCompatDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes:
         bounds = Rect(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
     }
 }
-
-fun Context.isPowerSaveMode() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-    val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
-
-    powerManager.isPowerSaveMode
-} else
-    false
 
 fun Context.isPackageInstalled(packageName: String) = runCatching {
     packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA)

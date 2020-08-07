@@ -12,8 +12,6 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.customs.graphs.extensions.*
-import com.gdavidpb.tuindice.utils.extensions.doOnUpdate
-import com.gdavidpb.tuindice.utils.extensions.isPowerSaveMode
 import com.gdavidpb.tuindice.utils.extensions.loadAttributes
 import com.google.android.material.animation.MatrixEvaluator
 
@@ -65,7 +63,7 @@ abstract class CanvasView(context: Context, attrs: AttributeSet) : View(context,
 
             duration = timeAnimationCanvas.toLong()
 
-            doOnUpdate {
+            addUpdateListener {
                 val matrix = it.animatedValue as Matrix
 
                 canvasMatrix.set(matrix)
@@ -142,14 +140,6 @@ abstract class CanvasView(context: Context, attrs: AttributeSet) : View(context,
 
     private fun animateMatrix(targetMatrix: Matrix, timeInterpolator: TimeInterpolator) {
         if (canvasMatrix == targetMatrix) return
-
-        val isPowerSaveMode = context.isPowerSaveMode()
-
-        if (isPowerSaveMode) {
-            canvasMatrix.set(targetMatrix)
-            invalidate()
-            return
-        }
 
         with(matrixAnimator) {
             if (isRunning) cancel()

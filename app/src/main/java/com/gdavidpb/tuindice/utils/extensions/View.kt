@@ -17,7 +17,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.ui.customs.EvaluationDatePicker
 import com.gdavidpb.tuindice.utils.NO_GETTER
-import com.gdavidpb.tuindice.utils.TIME_DELAY_CLICK_ONCE
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
@@ -50,7 +49,7 @@ fun View.onClickOnce(onClick: () -> Unit) {
                 CoroutineScope(Dispatchers.Main).launch {
                     onClick()
 
-                    withContext(Dispatchers.IO) { delay(TIME_DELAY_CLICK_ONCE) }
+                    withContext(Dispatchers.IO) { delay(500L) }
 
                     view.setOnClickListener(listener)
                 }
