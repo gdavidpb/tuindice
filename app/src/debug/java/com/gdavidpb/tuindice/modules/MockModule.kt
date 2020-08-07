@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.utils.KEY_TIME_OUT_CONNECTION
 import com.gdavidpb.tuindice.utils.KEY_TIME_SYNCHRONIZATION
 import com.gdavidpb.tuindice.utils.createMockService
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
+import com.gdavidpb.tuindice.utils.isEmulator
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
@@ -43,7 +44,10 @@ import java.util.concurrent.TimeUnit
 
 val mockModule = module {
 
-    val localhost = "192.168.1.81"
+    val localhost = if (isEmulator())
+        BuildConfig.URL_EMULATOR_MOCK
+    else
+        BuildConfig.URL_LOCAL_MOCK
 
     /* Application */
 

@@ -1,14 +1,21 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.koin_version = "2.1.6"
-    ext.jspoon_version = "1.3.2"
-    ext.okhttp_version = '4.8.0'
-    ext.kotlin_version = "1.3.72"
-    ext.retrofit_version = "2.9.0"
-    ext.coroutines_version = "1.3.7"
-    ext.lifecycle_version = "2.2.0"
-    ext.navigation_version = "2.3.0"
+    ext {
+        koin_version = "2.1.6"
+        jspoon_version = "1.3.2"
+        okhttp_version = '4.8.0'
+        kotlin_version = "1.3.72"
+        retrofit_version = "2.9.0"
+        coroutines_version = "1.3.7"
+        lifecycle_version = "2.2.0"
+        navigation_version = "2.3.0"
+
+        config = [:]
+
+        config.mockEmulatorAddress = "10.0.2.2"
+        config.mockLocalAddress = "${InetAddress.getLocalHost().getHostAddress()}"
+    }
 
     repositories {
         google()
@@ -17,7 +24,7 @@ buildscript {
 
     dependencies {
         classpath "com.google.gms:google-services:4.3.3"
-        classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath "com.android.tools.build:gradle:4.0.1"
         classpath "com.google.firebase:firebase-crashlytics-gradle:2.2.0"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigation_version"

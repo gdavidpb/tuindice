@@ -37,6 +37,9 @@ android {
             manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
 
+            buildConfigField "String", "URL_LOCAL_MOCK", "\"${config.mockLocalAddress}\""
+            buildConfigField "String", "URL_EMULATOR_MOCK", "\"${config.mockEmulatorAddress}\""
+
             buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
             buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
             buildConfigField "String", "URL_SIGN", "\"https://tu-indice-usb.firebaseapp.com?sign=%s\""
@@ -59,6 +62,9 @@ android {
             minifyEnabled true
             manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+
+            buildConfigField "String", "URL_LOCAL_MOCK", ""
+            buildConfigField "String", "URL_EMULATOR_MOCK", ""
 
             buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
             buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
