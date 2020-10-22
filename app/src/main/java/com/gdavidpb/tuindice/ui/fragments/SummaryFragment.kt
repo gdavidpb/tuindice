@@ -284,7 +284,7 @@ open class SummaryFragment : NavigationFragment() {
     }
 
     private fun hideProfilePictureLoading() {
-        pBarProfile.gone()
+        pBarProfile.invisible()
 
         arrayOf(iViewProfile, iViewEditProfile).forEach { view ->
             view.enable()
