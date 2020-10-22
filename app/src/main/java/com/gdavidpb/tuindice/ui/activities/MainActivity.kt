@@ -60,6 +60,8 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
+        setSupportActionBar(toolbar)
+
         NavigationUI.setupWithNavController(bottomNavView, navController)
         NavigationUI.setupWithNavController(toolbar, navController, appBarConfiguration)
 
