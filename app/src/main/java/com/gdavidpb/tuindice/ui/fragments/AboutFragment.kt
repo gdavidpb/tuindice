@@ -185,15 +185,14 @@ open class AboutFragment : NavigationFragment() {
     }
 
     private fun startBrowser(@StringRes title: Int, url: String) {
-        val isWebViewInstalled = requireContext().isPackageInstalled("com.google.android.webview")
-
-        if (isWebViewInstalled) {
+        runCatching {
             AboutFragmentDirections.navToUrl(
                     title = getString(title),
                     url = url
             ).let(::navigate)
-        } else
+        }.onFailure {
             requireContext().browse(url)
+        }
     }
 
     private fun showReportSelector() {

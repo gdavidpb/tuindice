@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.utils.extensions
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
@@ -93,10 +92,6 @@ fun Context.getCompatDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes:
         bounds = Rect(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
     }
 }
-
-fun Context.isPackageInstalled(packageName: String) = runCatching {
-    packageManager.getPackageInfo(packageName, PackageManager.GET_META_DATA)
-}.isSuccess
 
 fun Context.sharedPreferences(): SharedPreferences {
     return PreferenceManager.getDefaultSharedPreferences(this)
