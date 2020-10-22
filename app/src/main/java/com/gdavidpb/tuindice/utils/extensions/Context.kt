@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.utils.extensions
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -10,8 +9,10 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -22,7 +23,6 @@ import androidx.security.crypto.MasterKey
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.ResourcesManager
-import com.gdavidpb.tuindice.utils.mappers.fillIntentArguments
 import com.gdavidpb.tuindice.utils.mappers.runCatchingIsSuccess
 import java.io.File
 
@@ -59,6 +59,10 @@ fun Context.browse(url: String) = runCatchingIsSuccess {
     Intent(Intent.ACTION_VIEW, Uri.parse(url)).also(::startActivity)
 }
 
+fun Context.toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
+    Toast.makeText(this, resId, duration).show()
+}
+
 fun Context.versionName(): String {
     val environmentRes = if (BuildConfig.DEBUG) R.string.debug else R.string.release
 
@@ -66,12 +70,6 @@ fun Context.versionName(): String {
             getString(environmentRes),
             BuildConfig.VERSION_NAME,
             BuildConfig.VERSION_CODE)
-}
-
-inline fun <reified T : Activity> Context.startActivity(vararg params: Pair<String, Any?>) = runCatchingIsSuccess {
-    Intent(this, T::class.java).apply {
-        if (params.isNotEmpty()) fillIntentArguments(params)
-    }.also(::startActivity)
 }
 
 fun Context.getCompatColor(@ColorRes colorRes: Int): Int = ContextCompat.getColor(this, colorRes)

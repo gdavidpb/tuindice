@@ -1,32 +1,30 @@
-package com.gdavidpb.tuindice.ui.activities
+package com.gdavidpb.tuindice.ui.fragments
 
 import android.os.Bundle
+import android.view.View
+import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Flow
-import com.gdavidpb.tuindice.presentation.viewmodel.EmailSentViewModel
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.presentation.viewmodel.EmailViewModel
+import com.gdavidpb.tuindice.utils.FLAG_RESET
+import com.gdavidpb.tuindice.utils.FLAG_VERIFY
+import com.gdavidpb.tuindice.utils.KEY_TIME_VERIFICATION_COUNT_DOWN
 import com.gdavidpb.tuindice.utils.extensions.*
-import kotlinx.android.synthetic.main.activity_email_sent.*
+import kotlinx.android.synthetic.main.fragment_email.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class EmailSentActivity : NavigationActivity(0) {
-
-    private val viewModel by viewModel<EmailSentViewModel>()
+class EmailFragment : NavigationFragment() {
+    private val viewModel by viewModel<EmailViewModel>()
 
     private val countdownTime by config<Long>(KEY_TIME_VERIFICATION_COUNT_DOWN)
 
-    private val awaitingState by lazy {
-        intent.getIntExtra(EXTRA_AWAITING_STATE, 0)
-    }
+    private val args by navArgs<EmailFragmentArgs>()
 
-    private val awaitingEmail by lazy {
-        intent.getStringExtra(EXTRA_AWAITING_EMAIL)
-    }
+    override fun onCreateView() = R.layout.fragment_email
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_email_sent)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         with(viewModel) {
             observe(countdown, ::countdownObserver)
@@ -41,16 +39,16 @@ class EmailSentActivity : NavigationActivity(0) {
         iViewLogo.animateZoomInOut()
 
         /* Set up view */
-        when (awaitingState) {
+        when (args.awaitingState) {
             FLAG_RESET -> {
                 iViewLogo.setImageResource(R.drawable.ic_reset)
                 tViewEmailTitle.text = getString(R.string.label_reset)
-                tViewEmailMessage.text = getString(R.string.message_reset, awaitingEmail)
+                tViewEmailMessage.text = getString(R.string.message_reset, args.awaitingEmail)
             }
             FLAG_VERIFY -> {
                 iViewLogo.setImageResource(R.drawable.ic_verify)
                 tViewEmailTitle.text = getString(R.string.label_verify)
-                tViewEmailMessage.text = getString(R.string.message_verify, awaitingEmail)
+                tViewEmailMessage.text = getString(R.string.message_verify, args.awaitingEmail)
             }
         }
 
@@ -58,16 +56,19 @@ class EmailSentActivity : NavigationActivity(0) {
         btnReset.onClickOnce(::onResetClick)
     }
 
+    // TODO
+    /*
     override fun handleException(throwable: Throwable): Boolean {
         return super.handleException(throwable) || showSnackBarException(throwable).run { true }
     }
+    */
 
     private fun onResendClick() {
         btnResend.isEnabled = false
 
         viewModel.startCountdown(time = countdownTime, reset = true)
 
-        when (awaitingState) {
+        when (args.awaitingState) {
             FLAG_RESET -> viewModel.sendResetPasswordEmail()
             FLAG_VERIFY -> viewModel.sendVerificationEmail()
         }
@@ -93,14 +94,11 @@ class EmailSentActivity : NavigationActivity(0) {
     private fun signOutObserver(result: Completable?) {
         when (result) {
             is Completable.OnComplete -> {
-                startActivity<LoginActivity>()
-                finish()
+                EmailFragmentDirections.navToLogin().let(::navigate)
             }
             is Completable.OnError -> {
                 clearApplicationUserData()
-
-                startActivity<LoginActivity>()
-                finish()
+                EmailFragmentDirections.navToLogin().let(::navigate)
             }
         }
     }
@@ -108,14 +106,14 @@ class EmailSentActivity : NavigationActivity(0) {
     private fun resetPasswordObserver(result: Completable?) {
         when (result) {
             is Completable.OnComplete -> showSnackBarResend()
-            is Completable.OnError -> handleException(throwable = result.throwable)
+            //TODO is Completable.OnError -> handleException(throwable = result.throwable)
         }
     }
 
     private fun sendEmailVerificationObserver(result: Completable?) {
         when (result) {
             is Completable.OnComplete -> showSnackBarResend()
-            is Completable.OnError -> handleException(throwable = result.throwable)
+            //TODO is Completable.OnError -> handleException(throwable = result.throwable)
         }
     }
 

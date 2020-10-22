@@ -22,9 +22,22 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        release {
+            keyAlias System.getenv("TU_INDICE_KEY_ALIAS")
+            keyPassword System.getenv("TU_INDICE_KEY_PASSWORD")
+            storeFile file("${System.getenv("TU_INDICE_KEY_STORE_PATH")}")
+            storePassword System.getenv("TU_INDICE_KEY_STORE_PASSWORD")
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    packagingOptions {
+        exclude "DebugProbesKt.bin"
     }
 
     kotlinOptions {
@@ -59,12 +72,16 @@ android {
             buildConfigField "String", "ENDPOINT_DST_POLL_AUTH", "\"http://comprobante.dii.usb.ve/nuevoComprobante/Consulta/Secure/zk/login.zul\""
         }
         release {
-            minifyEnabled true
-            manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            debuggable true //todo remove
+            minifyEnabled false //todo true
 
-            buildConfigField "String", "URL_LOCAL_MOCK", ""
-            buildConfigField "String", "URL_EMULATOR_MOCK", ""
+            signingConfig signingConfigs.release
+
+            manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
+            //todo proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+
+            buildConfigField "String", "URL_LOCAL_MOCK", "\"\""
+            buildConfigField "String", "URL_EMULATOR_MOCK", "\"\""
 
             buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
             buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
@@ -156,7 +173,6 @@ dependencies {
     implementation "pl.droidsonroids.retrofit2:converter-jspoon:$jspoon_version"
 
     /* Coroutines */
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
     /* Picasso */

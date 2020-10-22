@@ -35,6 +35,8 @@
 
     <string name="menu_sign_out">Cerrar sesión</string>
 
+    <string name="toast_repeat_to_exit">Repite para salir</string>
+
     <string name="alert_title_remove_profile_picture_failure">Atención</string>
     <string name="alert_message_remove_profile_picture_failure">
         ¿Estás seguro que deseas remover tu foto de perfil?
@@ -307,7 +309,7 @@
     <string name="label_evaluation_grade_value">%1$.2f pts</string>
     <string name="label_evaluation_subject_header">%1$s ─ %2$s</string>
 
-    <!-- EmailSentActivity -->
+    <!-- EmailFragment -->
 
     <string name="snack_bar_resend">Correo reenviado</string>
 
@@ -337,9 +339,9 @@
     <string name="button_cancel"><u>Ingresar con otra cuenta</u></string>
     <string name="button_resend">Enviar nuevamente</string>
 
-    <!-- LoginActivity -->
+    <!-- LoginFragment -->
 
-    <string name="label_login_activity">TuIndice</string>
+    <string name="label_login_fragment">TuIndice</string>
 
     <string name="hint_usb_id">USBID</string>
     <string name="hintPassword">Contraseña</string>

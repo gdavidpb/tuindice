@@ -221,9 +221,7 @@ open class SummaryFragment : NavigationFragment() {
     }
 
     private fun navigateToLogin() {
-        val action = SummaryFragmentDirections.navToLogin()
-
-        navigate(action)
+        SummaryFragmentDirections.navToLogin().let(::navigate)
     }
 
     private fun removeProfilePictureObserver(result: Event<Unit>?) {

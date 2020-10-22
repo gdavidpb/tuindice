@@ -48,6 +48,9 @@ val ROMANS = hashMapOf(
 /* Google */
 const val PLAY_SERVICES_RESOLUTION_REQUEST = 2404
 
+/* Times */
+const val TIME_EXIT_LOCKER = 2000L
+
 /* Values */
 const val MAX_SUBJECT_GRADE = 5
 const val MAX_EVALUATION_GRADE = 100.0

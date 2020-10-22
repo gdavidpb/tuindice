@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.utils.extensions.LiveFlow
 import com.gdavidpb.tuindice.utils.extensions.execute
 
-class EmailSentViewModel(
+class EmailViewModel(
         private val resendResetEmailUseCase: ResendResetEmailUseCase,
         private val resendVerifyEmailUseCase: ResendVerifyEmailUseCase,
         private val signOutUseCase: SignOutUseCase,

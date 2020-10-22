@@ -170,10 +170,8 @@ val appModule = module {
     }
 
     single {
-        val logger = object : HttpLoggingInterceptor.Logger {
-            override fun log(message: String) {
-                get<FirebaseCrashlytics>().log(message.noSensitiveData())
-            }
+        val logger = HttpLoggingInterceptor.Logger { message ->
+            get<FirebaseCrashlytics>().log(message.noSensitiveData())
         }
 
         HttpLoggingInterceptor(logger).apply { level = HttpLoggingInterceptor.Level.BODY }
@@ -255,7 +253,7 @@ val appModule = module {
     viewModel<SummaryViewModel>()
     viewModel<RecordViewModel>()
     viewModel<LoginViewModel>()
-    viewModel<EmailSentViewModel>()
+    viewModel<EmailViewModel>()
     viewModel<SubjectViewModel>()
     viewModel<PensumViewModel>()
 

@@ -1,21 +1,16 @@
 <resources>
 
     <!-- Application theme -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/color_accent</item>
-    </style>
-
-    <!-- No onClick bar theme -->
-    <style name="AppTheme.NoActionBar" parent="AppTheme">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+        <item name="colorControlNormal">@color/color_background</item>
         <item name="android:windowBackground">@color/color_background</item>
     </style>
 
     <!-- Splash theme -->
-    <style name="AppTheme.Splash" parent="AppTheme.NoActionBar">
+    <style name="AppTheme.Splash" parent="AppTheme">
         <item name="android:windowBackground">@drawable/bk_splash</item>
     </style>
 

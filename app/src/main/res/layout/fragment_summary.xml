@@ -58,6 +58,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="@dimen/sp_32"
+        android:layout_marginTop="@dimen/dp_4"
         app:layout_constraintEnd_toStartOf="@id/tViewLabelGrade"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"

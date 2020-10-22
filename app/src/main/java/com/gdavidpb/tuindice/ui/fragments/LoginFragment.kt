@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.ui.activities
+package com.gdavidpb.tuindice.ui.fragments
 
 import android.net.ConnectivityManager
 import android.os.Bundle
@@ -6,9 +6,11 @@ import android.text.method.DigitsKeyListener
 import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
 import android.text.style.UnderlineSpan
+import android.view.View
 import android.view.animation.OvershootInterpolator
 import android.view.inputmethod.EditorInfo
 import androidx.core.content.ContextCompat
+import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.utils.`do`
 import com.gdavidpb.tuindice.data.utils.`when`
@@ -18,16 +20,13 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.ui.adapters.LoadingAdapter
 import com.gdavidpb.tuindice.utils.KEY_LOADING_MESSAGES
-import com.gdavidpb.tuindice.utils.annotations.AllowDisabledAccount
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.fragment_login.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.net.ConnectException
 
-@AllowDisabledAccount
-class LoginActivity : NavigationActivity(0) {
+class LoginFragment : NavigationFragment() {
 
     private val viewModel by viewModel<LoginViewModel>()
 
@@ -40,13 +39,14 @@ class LoginActivity : NavigationActivity(0) {
                 `when`(tInputUsbId) { text().isBlank() } `do` { errorResource = R.string.error_empty },
                 `when`(tInputUsbId) { !text().isUsbId() } `do` { errorResource = R.string.error_usb_id },
                 `when`(tInputPassword) { text().isBlank() } `do` { errorResource = R.string.error_empty },
-                `when`(connectivityManager) { !isNetworkAvailable() } `do` { handleException(ConnectException()) }
+                `when`(connectivityManager) { !isNetworkAvailable() } `do` { /* handleException(ConnectException()) */ }
         )
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+    override fun onCreateView() = R.layout.fragment_login
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         onViewCreated()
 
@@ -86,7 +86,7 @@ class LoginActivity : NavigationActivity(0) {
             }
         }
 
-        val accentColor = ContextCompat.getColor(this, R.color.color_accent)
+        val accentColor = ContextCompat.getColor(requireContext(), R.color.color_accent)
 
         tViewPolicies.apply {
             setSpans {
@@ -94,21 +94,17 @@ class LoginActivity : NavigationActivity(0) {
             }
 
             setLink(getString(R.string.link_terms_and_conditions)) {
-                /* TODO
-                val action = LoginActivityDirections.navToUrl(
+                LoginFragmentDirections.navToUrl(
                         title = getString(R.string.label_terms_and_conditions),
                         url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS
-                )
-                */
+                ).let(::navigate)
             }
 
             setLink(getString(R.string.link_privacy_policy)) {
-                /* TODO
-                val action = LoginActivityDirections.navToUrl(
+                LoginFragmentDirections.navToUrl(
                         title = getString(R.string.label_privacy_policy),
                         url = BuildConfig.URL_APP_PRIVACY_POLICY
-                )
-                */
+                ).let(::navigate)
             }
         }.build()
 
@@ -155,12 +151,12 @@ class LoginActivity : NavigationActivity(0) {
 
             vFlipperLoading.startFlipping()
 
-            R.layout.activity_login_loading
+            R.layout.fragment_login_loading
         } else {
             vFlipperLoading.gone()
             vFlipperLoading.stopFlipping()
 
-            R.layout.activity_login
+            R.layout.fragment_login
         }
 
         cLayoutLogin.beginTransition(targetLayout = layout) {
@@ -180,7 +176,7 @@ class LoginActivity : NavigationActivity(0) {
             is Result.OnError -> {
                 showLoading(false)
 
-                handleException(throwable = result.throwable)
+                //TODO handleException(throwable = result.throwable)
             }
         }
     }
@@ -188,17 +184,18 @@ class LoginActivity : NavigationActivity(0) {
     private fun syncObserver(result: Result<Boolean>?) {
         when (result) {
             is Result.OnSuccess -> {
-                startActivity<MainActivity>()
-                finish()
+                LoginFragmentDirections.navToSummary().let(::navigate)
             }
             is Result.OnError -> {
                 showLoading(false)
 
-                handleException(throwable = result.throwable)
+                //TODO handleException(throwable = result.throwable)
             }
         }
     }
 
+    //TODO
+    /*
     override fun handleException(throwable: Throwable): Boolean {
         return super.handleException(throwable) || when {
             throwable.isInvalidCredentials() -> {
@@ -211,4 +208,5 @@ class LoginActivity : NavigationActivity(0) {
             }
         }
     }
+    */
 }

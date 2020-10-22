@@ -174,7 +174,7 @@ val mockModule = module {
     viewModel<SummaryViewModel>()
     viewModel<RecordViewModel>()
     viewModel<LoginViewModel>()
-    viewModel<EmailSentViewModel>()
+    viewModel<EmailViewModel>()
     viewModel<SubjectViewModel>()
     viewModel<PensumViewModel>()
 

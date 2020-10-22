@@ -1,8 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import android.util.Base64
-import androidx.annotation.IdRes
-import androidx.navigation.ui.AppBarConfiguration
 import okhttp3.RequestBody
 import okio.Buffer
 import org.jsoup.Jsoup
@@ -53,8 +51,6 @@ fun String.noSensitiveData(): String = sensitiveData.fold(this) { acc, regex ->
 }.run { if (isHtml()) deflateHtml() else this }
 
 fun String.isHtml() = contains("<[^>]*>".toRegex())
-
-fun AppBarConfiguration.isTopLevelDestination(@IdRes navId: Int) = topLevelDestinations.contains(navId)
 
 inline fun Any?.isNull(exec: () -> Unit) = this ?: exec()
 

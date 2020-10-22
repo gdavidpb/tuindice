@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import android.animation.ValueAnimator
+import android.content.res.Resources
 import android.view.View
 import android.view.ViewPropertyAnimator
 import android.view.animation.AccelerateInterpolator
@@ -17,6 +18,7 @@ fun View.animateScaleDown() = matrixAnimation()
         .setInterpolator(DecelerateInterpolator())
         .scaleX(0f)
         .scaleY(0f)
+        .withEndAction { invisible() }
         .start()
 
 fun View.animateScaleUp() = matrixAnimation()
@@ -24,6 +26,7 @@ fun View.animateScaleUp() = matrixAnimation()
         .setInterpolator(AccelerateInterpolator())
         .scaleX(1f)
         .scaleY(1f)
+        .withStartAction { visible() }
         .start()
 
 fun View.animateLookAtMe(factor: Float = 3f) = matrixAnimation()
@@ -79,7 +82,7 @@ fun TextView.animateGrade(value: Double, decimals: Int) {
 }
 
 fun Pair<View, View>.animateInfiniteLoop() {
-    val width = first.width
+    val width = Resources.getSystem().displayMetrics.widthPixels
 
     ValueAnimator.ofInt(0, width)
             .duration(30000L)

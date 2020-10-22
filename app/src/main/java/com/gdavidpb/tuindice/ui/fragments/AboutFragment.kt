@@ -188,9 +188,10 @@ open class AboutFragment : NavigationFragment() {
         val isWebViewInstalled = requireContext().isPackageInstalled("com.google.android.webview")
 
         if (isWebViewInstalled) {
-            val action = AboutFragmentDirections.navToUrl(title = getString(title), url = url)
-
-            navigate(action)
+            AboutFragmentDirections.navToUrl(
+                    title = getString(title),
+                    url = url
+            ).let(::navigate)
         } else
             requireContext().browse(url)
     }
