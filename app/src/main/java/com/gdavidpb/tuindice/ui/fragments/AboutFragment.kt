@@ -158,10 +158,12 @@ open class AboutFragment : NavigationFragment() {
                 sizedDrawable(R.drawable.ic_freepik, R.dimen.dp_48)
             }
 
+            /*
             item {
                 title(R.string.about_mit_mapping_lab)
                 sizedDrawable(R.drawable.ic_mit_mapping_lab, R.dimen.dp_48)
             }
+            */
         }.build()
 
         aboutAdapter.swapItems(new = data)

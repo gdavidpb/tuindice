@@ -208,14 +208,14 @@
     <string name="about_header_libs">Detrás de TuIndice</string>
 
     <string name="about_kotlin">
-        Kotlin 1.3.72\n
+        Kotlin 1.4.21\n
         Programming Language.\n
         © 2012 JetBrains\n
         https://kotlinlang.org/
     </string>
 
     <string name="about_firebase">
-        Firebase 17.4.4\n
+        Firebase 18.0.0\n
         Quickly develop high-quality apps and grow your business.\n
         © 2014 Google\nhttps://firebase.com/
     </string>
