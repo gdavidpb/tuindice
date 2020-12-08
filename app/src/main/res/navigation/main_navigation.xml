@@ -50,6 +50,8 @@
         <action
             android:id="@+id/nav_to_summary"
             app:destination="@id/fragment_summary"
+            app:enterAnim="@anim/slide_in_from_bottom"
+            app:exitAnim="@anim/slide_out_to_top"
             app:popUpTo="@id/fragment_login"
             app:popUpToInclusive="true" />
         <action
@@ -69,6 +71,8 @@
         <action
             android:id="@+id/nav_to_login"
             app:destination="@id/fragment_login"
+            app:enterAnim="@anim/slide_in_from_top"
+            app:exitAnim="@anim/slide_out_to_bottom"
             app:popUpTo="@id/fragment_summary"
             app:popUpToInclusive="true" />
     </fragment>

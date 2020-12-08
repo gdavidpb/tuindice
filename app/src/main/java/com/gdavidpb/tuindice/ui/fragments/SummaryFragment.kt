@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
@@ -221,6 +222,8 @@ open class SummaryFragment : NavigationFragment() {
     }
 
     private fun navigateToLogin() {
+        findNavController().popStackToRoot()
+
         SummaryFragmentDirections.navToLogin().let(::navigate)
     }
 
