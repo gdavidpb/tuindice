@@ -10,6 +10,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
 import java.util.*
 
 open class TuIndiceMockApp : Application() {
@@ -24,7 +25,7 @@ open class TuIndiceMockApp : Application() {
         MigrationManager.execute(applicationContext)
 
         startKoin {
-            androidLogger()
+            androidLogger(Level.NONE)
 
             androidContext(this@TuIndiceMockApp)
 
