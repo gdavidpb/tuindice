@@ -66,7 +66,7 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
         paint = (0 until height)
                 .map { y -> bitmapHook.getPixel(x, y) }
                 .distinct()
-                .maxBy { target -> target distanceTo backgroundColor }
+                .maxByOrNull { target -> target distanceTo backgroundColor }
                 .let { selectedColor ->
                     Paint().apply {
                         color = selectedColor ?: backgroundColor

@@ -89,7 +89,7 @@ open class DstRecordDataConverter : ElementConverter<DstRecord>, KoinComponent {
                 }
 
         val grade = quarters
-                .maxBy { it.startDate }
+                .maxByOrNull { it.startDate }
                 ?.gradeSum
                 ?: 0.0
 

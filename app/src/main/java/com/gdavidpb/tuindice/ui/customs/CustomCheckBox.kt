@@ -57,7 +57,7 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
         uncheckedColor = (0 until height)
                 .map { y -> bitmapHook.getPixel(x, y) }
                 .distinct()
-                .maxBy { target -> target distanceTo backgroundColor }
+                .maxByOrNull { target -> target distanceTo backgroundColor }
                 .let { selectedColor ->
                     ColorStateList.valueOf(selectedColor ?: backgroundColor)
                 }
