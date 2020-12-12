@@ -191,6 +191,7 @@ val mockModule = module {
     factoryBy<LinkRepository, DynamicLinkDataStore>()
     factoryBy<ConfigRepository, RemoteConfigMockDataStore>()
     factoryBy<ReportingRepository, DebugReportingDataStore>()
+    factoryBy<DependenciesRepository, DebugKoinDataStore>()
 
     /* Use cases */
 

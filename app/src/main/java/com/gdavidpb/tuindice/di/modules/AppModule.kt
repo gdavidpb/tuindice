@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataStore
 import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataStore
+import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataStore
 import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataStore
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
 import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataStore
@@ -270,6 +271,7 @@ val appModule = module {
     factoryBy<LinkRepository, DynamicLinkDataStore>()
     factoryBy<ConfigRepository, RemoteConfigDataStore>()
     factoryBy<ReportingRepository, CrashlyticsReportingDataStore>()
+    factoryBy<DependenciesRepository, ReleaseKoinDataStore>()
 
     /* Use cases */
 
