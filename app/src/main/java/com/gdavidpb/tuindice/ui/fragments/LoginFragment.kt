@@ -43,7 +43,7 @@ class LoginFragment : NavigationFragment() {
                 `when`(tInputUsbId) { text().isBlank() } `do` { errorResource = R.string.error_empty },
                 `when`(tInputUsbId) { !text().isUsbId() } `do` { errorResource = R.string.error_usb_id },
                 `when`(tInputPassword) { text().isBlank() } `do` { errorResource = R.string.error_empty },
-                `when`(connectivityManager) { !isNetworkAvailable() } `do` { /* handleException(ConnectException()) */ }
+                `when`(connectivityManager) { !isNetworkAvailable() } `do` { signInErrorHandler(SignInError.NoConnection) }
         )
     }
 
