@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 open class AddEvaluationUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
-) : ResultUseCase<Evaluation, Evaluation, Any>() {
+) : ResultUseCase<Evaluation, Evaluation, Nothing>() {
     override suspend fun executeOnBackground(params: Evaluation): Evaluation? {
         val activeUId = authRepository.getActiveAuth().uid
 

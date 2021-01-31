@@ -101,7 +101,7 @@ open class SubjectFragment : NavigationFragment() {
         }
     }
 
-    private fun addEvaluationObserver(result: Result<Evaluation, Any>?) {
+    private fun addEvaluationObserver(result: Result<Evaluation, Nothing>?) {
         when (result) {
             is Result.OnSuccess -> {
                 val context = requireContext()
@@ -111,13 +111,10 @@ open class SubjectFragment : NavigationFragment() {
 
                 evaluationAdapter.addItem(item = item, notifyChange = false)
             }
-            is Result.OnError -> {
-                //todo requireActivity().showSnackBarException(throwable = result.throwable)
-            }
         }
     }
 
-    private fun updateEvaluationObserver(result: Result<Evaluation, Any>?) {
+    private fun updateEvaluationObserver(result: Result<Evaluation, Nothing>?) {
         when (result) {
             is Result.OnSuccess -> {
                 val context = requireContext()
@@ -125,13 +122,10 @@ open class SubjectFragment : NavigationFragment() {
 
                 evaluationAdapter.replaceItem(item = response.toEvaluationItem(context))
             }
-            is Result.OnError -> {
-                //todo requireActivity().showSnackBarException(throwable = result.throwable)
-            }
         }
     }
 
-    private fun evaluationsObserver(result: Result<SubjectEvaluations, Any>?) {
+    private fun evaluationsObserver(result: Result<SubjectEvaluations, Nothing>?) {
         when (result) {
             is Result.OnSuccess -> {
                 val context = requireContext()
@@ -147,9 +141,6 @@ open class SubjectFragment : NavigationFragment() {
                 }
 
                 evaluationAdapter.swapItems(new = items)
-            }
-            is Result.OnError -> {
-                //todo requireActivity().showSnackBarException(throwable = result.throwable)
             }
         }
     }
