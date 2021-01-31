@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.domain.usecase.SyncAccountUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
+import com.gdavidpb.tuindice.utils.extensions.LiveEvent
 import com.gdavidpb.tuindice.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.utils.extensions.execute
 
@@ -16,7 +17,7 @@ class LoginViewModel(
         private val syncAccountUseCase: SyncAccountUseCase
 ) : ViewModel() {
 
-    val signIn = LiveResult<SignInResponse, SignInError>()
+    val signIn = LiveEvent<SignInResponse, SignInError>()
     val sync = LiveResult<Boolean, SyncError>()
 
     fun signIn(usbId: String, password: String) {

@@ -24,7 +24,7 @@ class SummaryViewModel(
     val profilePicture = LiveResult<String, Any>()
     val updateProfilePicture = LiveEvent<String, Any>()
     val removeProfilePicture = LiveEvent<Unit, Any>()
-    val signOut = LiveCompletable<Any>()
+    val signOut = LiveCompletable<Nothing>()
 
     fun getProfile() =
             execute(useCase = getProfileUseCase, params = Unit, liveData = profile)

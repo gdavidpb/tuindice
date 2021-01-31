@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.*
-import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
+import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.annotations.IgnoredFromExceptionReporting
@@ -35,7 +35,7 @@ open class SignInUseCase(
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository
-) : ResultUseCase<SignInRequest, SignInResponse, SignInError>() {
+) : EventUseCase<SignInRequest, SignInResponse, SignInError>() {
     override suspend fun executeOnBackground(params: SignInRequest): SignInResponse? {
         val credentials = params.toDstCredentials()
         val email = params.usbId.toUsbEmail()

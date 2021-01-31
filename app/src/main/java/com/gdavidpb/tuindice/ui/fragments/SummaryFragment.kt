@@ -111,7 +111,7 @@ open class SummaryFragment : NavigationFragment() {
         viewModel.createProfilePictureFile()
     }
 
-    private fun signOutObserver(result: Completable<Any>?) {
+    private fun signOutObserver(result: Completable<Nothing>?) {
         when (result) {
             is Completable.OnComplete -> {
                 navigateToLogin()

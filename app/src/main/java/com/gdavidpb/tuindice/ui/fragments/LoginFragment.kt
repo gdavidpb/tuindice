@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.data.utils.`do`
 import com.gdavidpb.tuindice.data.utils.`when`
 import com.gdavidpb.tuindice.data.utils.firstInvalid
 import com.gdavidpb.tuindice.domain.model.SignInResponse
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
@@ -173,15 +174,15 @@ class LoginFragment : NavigationFragment() {
         }
     }
 
-    private fun signInObserver(result: Result<SignInResponse, SignInError>?) {
+    private fun signInObserver(result: Event<SignInResponse, SignInError>?) {
         when (result) {
-            is Result.OnLoading -> {
+            is Event.OnLoading -> {
                 showLoading(true)
             }
-            is Result.OnSuccess -> {
+            is Event.OnSuccess -> {
                 viewModel.trySyncAccount()
             }
-            is Result.OnError -> {
+            is Event.OnError -> {
                 showLoading(false)
 
                 signInErrorHandler(error = result.error)
