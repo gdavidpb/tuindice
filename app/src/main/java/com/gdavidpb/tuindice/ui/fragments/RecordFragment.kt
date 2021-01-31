@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
@@ -101,7 +102,7 @@ open class RecordFragment : NavigationFragment() {
         }
     }
 
-    private fun syncObserver(result: Result<Boolean, Any>?) {
+    private fun syncObserver(result: Result<Boolean, SyncError>?) {
         when (result) {
             is Result.OnSuccess -> {
                 val pendingUpdate = result.value

@@ -13,8 +13,4 @@ open class RemoveEvaluationUseCase(
 
         databaseRepository.removeEvaluation(uid = activeUId, id = params)
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

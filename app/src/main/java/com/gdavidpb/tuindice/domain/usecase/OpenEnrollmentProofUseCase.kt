@@ -78,8 +78,4 @@ open class OpenEnrollmentProofUseCase(
 
         return enrollmentFile
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

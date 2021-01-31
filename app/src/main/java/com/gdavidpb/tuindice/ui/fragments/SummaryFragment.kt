@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
@@ -123,7 +124,7 @@ open class SummaryFragment : NavigationFragment() {
         }
     }
 
-    private fun syncObserver(result: Result<Boolean, Any>?) {
+    private fun syncObserver(result: Result<Boolean, SyncError>?) {
         when (result) {
             is Result.OnSuccess -> {
                 val pendingUpdate = result.value
@@ -134,7 +135,7 @@ open class SummaryFragment : NavigationFragment() {
         }
     }
 
-    private fun profileObserver(result: Result<Account, Any>?) {
+    private fun profileObserver(result: Result<Account, Nothing>?) {
         when (result) {
             is Result.OnSuccess -> {
                 loadAccount(account = result.value)

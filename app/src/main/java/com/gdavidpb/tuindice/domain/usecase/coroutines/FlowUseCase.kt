@@ -9,7 +9,7 @@ abstract class FlowUseCase<P, T, Q> : BaseUseCase<P, Flow<T>, Q, LiveFlow<T, Q>>
         liveData.postStart()
     }
 
-    override suspend fun onHook(liveData: LiveFlow<T, Q>, response: Flow<T>) {
+    override suspend fun executeOnHook(liveData: LiveFlow<T, Q>, response: Flow<T>) {
         response.collect { liveData.postNext(it) }
     }
 

@@ -19,8 +19,4 @@ open class GetSubjectEvaluationsUseCase(
             SubjectEvaluations(subject, evaluations)
         }
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

@@ -27,8 +27,4 @@ open class CountdownUseCase(
             }
         }
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

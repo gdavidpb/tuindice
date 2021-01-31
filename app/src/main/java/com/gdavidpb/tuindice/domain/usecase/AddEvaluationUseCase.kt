@@ -14,8 +14,4 @@ open class AddEvaluationUseCase(
 
         return databaseRepository.addEvaluation(uid = activeUId, evaluation = params)
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

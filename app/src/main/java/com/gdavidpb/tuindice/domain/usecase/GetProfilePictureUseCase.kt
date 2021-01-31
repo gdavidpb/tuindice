@@ -25,8 +25,4 @@ open class GetProfilePictureUseCase(
                 throw throwable
         })
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

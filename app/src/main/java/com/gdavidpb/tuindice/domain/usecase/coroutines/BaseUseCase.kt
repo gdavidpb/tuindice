@@ -16,10 +16,11 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
     private val reportingRepository by inject<ReportingRepository>()
 
     abstract suspend fun executeOnBackground(params: P): T?
-    abstract suspend fun executeOnException(throwable: Throwable): Q?
+
+    open suspend fun executeOnException(throwable: Throwable): Q? = null
+    open suspend fun executeOnHook(liveData: L, response: T) {}
 
     protected abstract suspend fun onStart(liveData: L)
-    protected abstract suspend fun onHook(liveData: L, response: T)
     protected abstract suspend fun onSuccess(liveData: L, response: T)
     protected abstract suspend fun onFailure(liveData: L, error: Q?)
     protected abstract suspend fun onCancel(liveData: L)
@@ -29,7 +30,7 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
             onStart(liveData)
 
             runCatching {
-                withContext(backgroundContext) { executeOnBackground(params)!!.also { onHook(liveData, it) } }
+                withContext(backgroundContext) { executeOnBackground(params)!!.also { executeOnHook(liveData, it) } }
             }.onSuccess { response ->
                 onSuccess(liveData, response)
             }.onFailure { throwable ->

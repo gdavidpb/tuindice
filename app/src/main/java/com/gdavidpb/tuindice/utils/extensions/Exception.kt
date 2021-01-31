@@ -42,9 +42,6 @@ fun Throwable?.isInvalidCredentials() =
 fun Throwable?.isUserNoFound() =
         (this as? FirebaseAuthInvalidUserException)?.errorCode == "ERROR_USER_NOT_FOUND"
 
-fun Throwable.isNoNetworkAvailableIssue(isNetworkAvailable: Boolean) =
-        isConnectionIssue() && !isNetworkAvailable
-
 fun Throwable.isConnectionIssue() = when (this) {
     is SocketException -> true
     is InterruptedIOException -> true

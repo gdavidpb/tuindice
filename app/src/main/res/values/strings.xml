@@ -37,6 +37,11 @@
 
     <string name="toast_repeat_to_exit">Repite para salir</string>
 
+    <string name="alert_title_network_failure">¡Oops, lo sentimos!</string>
+    <string name="alert_message_network_failure">
+        Parece que no tienes conexión a internet, verifica tu conexión e intenta nuevamente
+    </string>
+
     <string name="alert_title_remove_profile_picture_failure">Atención</string>
     <string name="alert_message_remove_profile_picture_failure">
         ¿Estás seguro que deseas remover tu foto de perfil?
@@ -56,7 +61,7 @@
 
     <string name="alert_title_link_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_link_failure">
-        Este enlace está corrupto o ya fue usado, por favor solicita otro correo.
+        Este enlace está corrupto o ya fue usado, por favor solicita otro correo
     </string>
 
     <string name="alert_title_sync_failure">¡Revisa tu fecha y hora!</string>

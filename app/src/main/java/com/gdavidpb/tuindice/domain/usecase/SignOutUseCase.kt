@@ -18,8 +18,4 @@ open class SignOutUseCase(
         localStorageRepository.clear()
         dependenciesRepository.restart()
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

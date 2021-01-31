@@ -18,8 +18,4 @@ open class CreateProfilePictureFileUseCase(
 
         return localStorageRepository.create(resource).toUri()
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.data.utils.`when`
 import com.gdavidpb.tuindice.data.utils.firstInvalid
 import com.gdavidpb.tuindice.domain.model.AuthResponse
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.ui.adapters.LoadingAdapter
 import com.gdavidpb.tuindice.utils.KEY_LOADING_MESSAGES
@@ -51,7 +52,7 @@ class LoginFragment : NavigationFragment() {
         onViewCreated()
 
         with(viewModel) {
-            observe(auth, ::authObserver)
+            observe(signIn, ::signInObserver)
             observe(sync, ::syncObserver)
         }
     }
@@ -132,7 +133,7 @@ class LoginFragment : NavigationFragment() {
 
             iViewLogo.performClick()
 
-            viewModel.auth(
+            viewModel.signIn(
                     usbId = tInputUsbId.text(),
                     password = tInputPassword.text()
             )
@@ -165,7 +166,7 @@ class LoginFragment : NavigationFragment() {
         }
     }
 
-    private fun authObserver(result: Result<AuthResponse>?) {
+    private fun signInObserver(result: Result<AuthResponse, Any>?) {
         when (result) {
             is Result.OnLoading -> {
                 showLoading(true)
@@ -181,7 +182,7 @@ class LoginFragment : NavigationFragment() {
         }
     }
 
-    private fun syncObserver(result: Result<Boolean>?) {
+    private fun syncObserver(result: Result<Boolean, SyncError>?) {
         when (result) {
             is Result.OnSuccess -> {
                 LoginFragmentDirections.navToSummary().let(::navigate)

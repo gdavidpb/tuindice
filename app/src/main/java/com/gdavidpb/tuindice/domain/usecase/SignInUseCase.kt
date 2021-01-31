@@ -75,10 +75,6 @@ open class SignInUseCase(
         return authResponse
     }
 
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
-
     private suspend fun storeAccount(auth: Auth, credentials: DstCredentials, response: AuthResponse) {
         val authData = DstAuth(
                 usbId = credentials.usbId,

@@ -10,16 +10,13 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.StartUpAction
-import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
-import com.gdavidpb.tuindice.domain.model.exception.NoDataException
-import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.errors.StartUpError
+import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.IdempotentLocker
 import com.gdavidpb.tuindice.utils.TIME_EXIT_LOCKER
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.google.firebase.auth.FirebaseAuthActionCodeException
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -95,38 +92,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleException(throwable: Throwable): Boolean {
-        val causes = throwable.causes()
-
-        return when {
-            throwable is NoAuthenticatedException -> {
-                fatalFailureRestart()
-                true
-            }
-            throwable is NoDataException -> {
-                dataFailureDialog()
-                true
-            }
-            throwable is SynchronizationException -> {
-                syncFailureDialog()
-                true
-            }
-            causes.contains<FirebaseAuthInvalidUserException>() -> {
-                activityManager.clearApplicationUserData()
-
-                disabledFailureDialog()
-                true
-            }
-            causes.contains<FirebaseAuthActionCodeException>() -> {
-                linkFailureDialog()
-                true
-            }
-            else -> {
-                false
-            }
-        }
-    }
-
     private fun fatalFailureRestart() {
         activityManager.clearApplicationUserData()
 
@@ -134,6 +99,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun disabledFailureDialog() {
+        activityManager.clearApplicationUserData()
+
         alert {
             titleResource = R.string.alert_title_disabled_failure
             messageResource = R.string.alert_message_disabled_failure
@@ -199,6 +166,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun networkFailureDialog() {
+        alert {
+            titleResource = R.string.alert_title_network_failure
+            messageResource = R.string.alert_message_network_failure
+
+            isCancelable = false
+
+            positiveButton(R.string.exit) {
+                finish()
+            }
+        }
+    }
+
     private fun fatalFailureDialog() {
         alert {
             titleResource = R.string.alert_title_fatal_failure
@@ -227,18 +207,18 @@ class MainActivity : AppCompatActivity() {
         if (showBottomNav) viewModel.setLastScreen(navId = destination.id)
     }
 
-    private fun startUpObserver(result: Result<StartUpAction, Any>?) {
+    private fun startUpObserver(result: Result<StartUpAction, StartUpError>?) {
         when (result) {
             is Result.OnSuccess -> {
                 appBar.visible()
             }
             is Result.OnError -> {
-                fatalFailureDialog()
+                startUpErrorHandler(error = result.error)
             }
         }
     }
 
-    private fun syncObserver(result: Result<Boolean, Any>?) {
+    private fun syncObserver(result: Result<Boolean, SyncError>?) {
         when (result) {
             is Result.OnLoading -> {
                 pBarSync.visibleIf(true)
@@ -249,8 +229,26 @@ class MainActivity : AppCompatActivity() {
             is Result.OnError -> {
                 pBarSync.visibleIf(false)
 
-                //todo handleException(throwable = result.throwable)
+                syncErrorHandler(error = result.error)
             }
+        }
+    }
+
+    private fun startUpErrorHandler(error: StartUpError?) {
+        when (error) {
+            is StartUpError.InvalidLink -> linkFailureDialog()
+            is StartUpError.UnableToStart -> fatalFailureDialog()
+            is StartUpError.AccountDisabled -> disabledFailureDialog()
+            is StartUpError.NoConnection -> networkFailureDialog()
+        }
+    }
+
+    private fun syncErrorHandler(error: SyncError?) {
+        when (error) {
+            is SyncError.NoAuthenticated -> fatalFailureRestart()
+            is SyncError.NoDataAvailable -> dataFailureDialog()
+            is SyncError.NoSynced -> syncFailureDialog()
+            is SyncError.AccountDisabled -> disabledFailureDialog()
         }
     }
 }

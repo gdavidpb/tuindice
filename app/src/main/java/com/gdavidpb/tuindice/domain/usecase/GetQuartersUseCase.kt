@@ -14,8 +14,4 @@ open class GetQuartersUseCase(
 
         return databaseRepository.getQuarters(uid = activeUId)
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

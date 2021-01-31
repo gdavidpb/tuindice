@@ -9,8 +9,4 @@ open class ResendVerifyEmailUseCase(
     override suspend fun executeOnBackground(params: Unit) {
         authRepository.sendVerificationEmail()
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

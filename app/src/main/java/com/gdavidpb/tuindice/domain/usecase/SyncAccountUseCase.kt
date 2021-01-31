@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.utils.PATH_COOKIES
 import com.gdavidpb.tuindice.utils.annotations.IgnoredFromExceptionReporting
 import com.gdavidpb.tuindice.utils.extensions.causes
 import com.gdavidpb.tuindice.utils.extensions.contains
+import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.isUpdated
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import retrofit2.HttpException
@@ -39,7 +40,7 @@ open class SyncAccountUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository
-) : ResultUseCase<Unit, Boolean, Any>() {
+) : ResultUseCase<Unit, Boolean, SyncError>() {
     override suspend fun executeOnBackground(params: Unit): Boolean? {
         val activeUId = authRepository.getActiveAuth().uid
         val activeAccount = databaseRepository.getAccount(uid = activeUId)
@@ -73,8 +74,17 @@ open class SyncAccountUseCase(
         }
     }
 
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        return null
+    override suspend fun executeOnException(throwable: Throwable): SyncError? {
+        val causes = throwable.causes()
+
+        return when {
+            throwable is NoAuthenticatedException -> SyncError.NoAuthenticated
+            throwable is NoDataException -> SyncError.NoDataAvailable
+            throwable is SynchronizationException -> SyncError.NoSynced
+            causes.contains<FirebaseAuthInvalidUserException>() -> SyncError.AccountDisabled
+            throwable.isConnectionIssue() -> SyncError.NoConnection
+            else -> null
+        }
     }
 
     private suspend fun MutableList<DstData>.addRecordData(credentials: DstCredentials) {

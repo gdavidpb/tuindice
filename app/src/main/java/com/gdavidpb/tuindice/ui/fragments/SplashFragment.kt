@@ -7,6 +7,7 @@ import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.errors.StartUpError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.FLAG_RESET
 import com.gdavidpb.tuindice.utils.FLAG_VERIFY
@@ -27,7 +28,7 @@ class SplashFragment : NavigationFragment() {
         }
     }
 
-    private fun startUpObserver(result: Result<StartUpAction, Any>?) {
+    private fun startUpObserver(result: Result<StartUpAction, StartUpError>?) {
         when (result) {
             is Result.OnSuccess -> {
                 handleStartUpAction(action = result.value)

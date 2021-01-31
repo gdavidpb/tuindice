@@ -13,8 +13,4 @@ open class ResendResetEmailUseCase(
 
         authRepository.sendPasswordResetEmail(email)
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

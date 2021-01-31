@@ -14,8 +14,4 @@ open class UpdateSubjectUseCase(
 
         databaseRepository.updateSubject(uid = activeUId, sid = params.id, grade = params.grade)
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

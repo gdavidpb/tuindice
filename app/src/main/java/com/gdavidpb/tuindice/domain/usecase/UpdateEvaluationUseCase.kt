@@ -16,8 +16,4 @@ open class UpdateEvaluationUseCase(
 
         return params
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

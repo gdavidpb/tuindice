@@ -16,8 +16,4 @@ open class RemoveProfilePictureUseCase(
 
         remoteStorageRepository.removeResource(resource)
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }

@@ -62,8 +62,4 @@ open class UpdateProfilePictureUseCase(
 
         return downloadUrl.toString()
     }
-
-    override suspend fun executeOnException(throwable: Throwable): Any? {
-        TODO("Not yet implemented")
-    }
 }
