@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.PATH_ENROLLMENT
-import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
+import com.gdavidpb.tuindice.utils.annotations.IgnoredFromExceptionReporting
 import com.gdavidpb.tuindice.utils.mappers.formatQuarterTitle
 import retrofit2.HttpException
 import java.io.File
@@ -17,7 +17,7 @@ import java.net.SocketException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLHandshakeException
 
-@IgnoredExceptions(
+@IgnoredFromExceptionReporting(
         SocketException::class,
         InterruptedIOException::class,
         UnknownHostException::class,

@@ -2,15 +2,21 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
+import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
 import com.gdavidpb.tuindice.domain.model.exception.NoDataException
+import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.model.service.DstData
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
+import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
 import com.gdavidpb.tuindice.utils.PATH_COOKIES
-import com.gdavidpb.tuindice.utils.annotations.IgnoredExceptions
+import com.gdavidpb.tuindice.utils.annotations.IgnoredFromExceptionReporting
+import com.gdavidpb.tuindice.utils.extensions.causes
+import com.gdavidpb.tuindice.utils.extensions.contains
 import com.gdavidpb.tuindice.utils.extensions.isUpdated
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import retrofit2.HttpException
 import java.io.InterruptedIOException
 import java.net.ConnectException
@@ -18,7 +24,7 @@ import java.net.SocketException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLHandshakeException
 
-@IgnoredExceptions(
+@IgnoredFromExceptionReporting(
         SocketException::class,
         InterruptedIOException::class,
         UnknownHostException::class,

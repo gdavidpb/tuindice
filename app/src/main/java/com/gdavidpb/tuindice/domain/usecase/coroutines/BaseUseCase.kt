@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.domain.usecase.coroutines
 import androidx.lifecycle.LiveData
 import com.gdavidpb.tuindice.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.utils.KEY_USE_CASE
-import com.gdavidpb.tuindice.utils.extensions.ignoredException
+import com.gdavidpb.tuindice.utils.extensions.isIgnoredFromExceptionReporting
 import kotlinx.coroutines.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -33,19 +33,24 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
             }.onSuccess { response ->
                 onSuccess(liveData, response)
             }.onFailure { throwable ->
-                if (throwable !is CancellationException) {
-                    if (!ignoredException(throwable)) {
-                        reportingRepository.setCustomKey(KEY_USE_CASE, "${this@BaseUseCase::class.simpleName}")
-                        reportingRepository.logException(throwable)
+                when (throwable) {
+                    is CancellationException -> onCancel(liveData)
+                    else -> {
+                        reportFailure(throwable)
+
+                        val error = runCatching { executeOnException(throwable) }.getOrNull()
+
+                        onFailure(liveData, error)
                     }
-
-                    val error = executeOnException(throwable)
-
-                    onFailure(liveData, error)
-                } else {
-                    onCancel(liveData)
                 }
             }
+        }
+    }
+
+    private fun reportFailure(throwable: Throwable) {
+        if (!isIgnoredFromExceptionReporting(throwable)) {
+            reportingRepository.setCustomKey(KEY_USE_CASE, "${this@BaseUseCase::class.simpleName}")
+            reportingRepository.logException(throwable)
         }
     }
 }

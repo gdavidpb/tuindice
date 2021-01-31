@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.utils.extensions.decodeScaledBitmap
 import com.gdavidpb.tuindice.utils.extensions.rotate
 import java.io.File
 
+@Suppress("BlockingMethodInNonBlockingContext")
 open class UpdateProfilePictureUseCase(
         private val authRepository: AuthRepository,
         private val contentRepository: ContentRepository,
