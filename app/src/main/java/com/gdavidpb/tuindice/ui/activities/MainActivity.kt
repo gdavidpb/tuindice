@@ -107,15 +107,9 @@ class MainActivity : AppCompatActivity() {
 
             isCancelable = false
 
-            val currentDestination = navController.currentDestination?.id
-            val isLoginDestination = currentDestination == R.id.fragment_login
-
-            if (isLoginDestination)
-                positiveButton(R.string.accept)
-            else
-                positiveButton(R.string.exit) {
-                    finish()
-                }
+            positiveButton(R.string.exit) {
+                finish()
+            }
         }
     }
 

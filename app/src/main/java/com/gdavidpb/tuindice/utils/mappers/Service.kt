@@ -14,7 +14,7 @@ fun DstRecordDataSelector.toRecord() = selected?.run {
     DstRecord(stats = stats, quarters = quarters)
 }
 
-fun DstAuthResponseSelector.toAuthResponse(): AuthResponse {
+fun DstAuthResponseSelector.toAuthResponse(): SignInResponse {
     val message = arrayOf(
             invalidCredentialsMessage,
             noEnrolledMessage,
@@ -30,7 +30,7 @@ fun DstAuthResponseSelector.toAuthResponse(): AuthResponse {
         else -> AuthResponseCode.SUCCESS
     }
 
-    return AuthResponse(
+    return SignInResponse(
             isSuccessful = code == AuthResponseCode.SUCCESS || code == AuthResponseCode.NO_ENROLLED,
             code = code,
             message = message,

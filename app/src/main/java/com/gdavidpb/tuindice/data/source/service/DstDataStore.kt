@@ -1,13 +1,13 @@
 package com.gdavidpb.tuindice.data.source.service
 
-import com.gdavidpb.tuindice.domain.model.AuthResponse
+import com.gdavidpb.tuindice.domain.model.SignInResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.repository.DstRepository
-import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
+import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.extensions.getOrThrow
 import com.gdavidpb.tuindice.utils.mappers.toAuthResponse
 import com.gdavidpb.tuindice.utils.mappers.toEnrollment
@@ -48,7 +48,7 @@ open class DstDataStore(
         }
     }
 
-    override suspend fun auth(request: AuthRequest): AuthResponse? {
+    override suspend fun signIn(request: SignInRequest): SignInResponse? {
         return authService.auth(request.serviceUrl, request.usbId, request.password)
                 .getOrThrow()
                 .toAuthResponse().let { response ->

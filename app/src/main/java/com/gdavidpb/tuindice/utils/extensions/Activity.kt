@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import android.content.Intent
-import android.net.ConnectivityManager
 import android.provider.Settings
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +11,6 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.PLAY_SERVICES_RESOLUTION_REQUEST
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import org.koin.android.ext.android.inject
 
 inline val FragmentActivity.contentView: View?
     get() = findViewById<ViewGroup>(android.R.id.content)?.getChildAt(0)
@@ -32,28 +30,6 @@ fun FragmentActivity.openDataTime() {
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
     startActivityForResult(intent, 0)
-}
-
-// todo remove
-fun FragmentActivity.showSnackBarException(throwable: Throwable? = null, retryAction: (() -> Unit)? = null) {
-    val connectivityManager by inject<ConnectivityManager>()
-    val isNetworkAvailable = connectivityManager.isNetworkAvailable()
-
-    snackBar {
-        messageResource = when {
-            throwable == null -> R.string.snack_bar_error_occurred
-            //todo throwable.isNoNetworkAvailableIssue(isNetworkAvailable) -> R.string.snack_network_unavailable
-            throwable.isConnectionIssue() -> R.string.snack_service_unreachable
-            throwable.isPermissionDenied() -> R.string.snack_bar_permission_denied
-            throwable.isInvalidCredentials() -> R.string.snack_invalid_credentials
-            else -> R.string.snack_bar_error_occurred
-        }
-
-        if (retryAction != null)
-            action(R.string.retry) {
-                retryAction()
-            }
-    }
 }
 
 fun FragmentActivity.isGoogleServicesAvailable(): Boolean {

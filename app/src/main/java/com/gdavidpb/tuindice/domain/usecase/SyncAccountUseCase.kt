@@ -10,14 +10,13 @@ import com.gdavidpb.tuindice.domain.model.service.DstData
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
-import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
+import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.PATH_COOKIES
 import com.gdavidpb.tuindice.utils.annotations.IgnoredFromExceptionReporting
 import com.gdavidpb.tuindice.utils.extensions.causes
-import com.gdavidpb.tuindice.utils.extensions.contains
+import com.gdavidpb.tuindice.utils.extensions.isAccountDisabled
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.isUpdated
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import retrofit2.HttpException
 import java.io.InterruptedIOException
 import java.net.ConnectException
@@ -81,7 +80,7 @@ open class SyncAccountUseCase(
             throwable is NoAuthenticatedException -> SyncError.NoAuthenticated
             throwable is NoDataException -> SyncError.NoDataAvailable
             throwable is SynchronizationException -> SyncError.NoSynced
-            causes.contains<FirebaseAuthInvalidUserException>() -> SyncError.AccountDisabled
+            causes.isAccountDisabled() -> SyncError.AccountDisabled
             throwable.isConnectionIssue() -> SyncError.NoConnection
             else -> null
         }
@@ -90,13 +89,13 @@ open class SyncAccountUseCase(
     private suspend fun MutableList<DstData>.addRecordData(credentials: DstCredentials) {
         localStorageRepository.delete(PATH_COOKIES)
 
-        val recordAuthRequest = AuthRequest(
+        val recordAuthRequest = SignInRequest(
                 usbId = credentials.usbId,
                 password = credentials.password,
                 serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH
         )
 
-        val recordAuthResponse = dstRepository.auth(recordAuthRequest)
+        val recordAuthResponse = dstRepository.signIn(recordAuthRequest)
 
         if (recordAuthResponse?.isSuccessful == true) {
             dstRepository.getPersonalData()?.let(::add)
@@ -107,13 +106,13 @@ open class SyncAccountUseCase(
     private suspend fun MutableList<DstData>.addEnrollmentData(credentials: DstCredentials) {
         localStorageRepository.delete(PATH_COOKIES)
 
-        val enrollmentAuthRequest = AuthRequest(
+        val enrollmentAuthRequest = SignInRequest(
                 usbId = credentials.usbId,
                 password = credentials.password,
                 serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH
         )
 
-        val enrollmentAuthResponse = dstRepository.auth(enrollmentAuthRequest)
+        val enrollmentAuthResponse = dstRepository.signIn(enrollmentAuthRequest)
 
         if (enrollmentAuthResponse?.isSuccessful == true) {
             dstRepository.getEnrollment()?.let(::add)

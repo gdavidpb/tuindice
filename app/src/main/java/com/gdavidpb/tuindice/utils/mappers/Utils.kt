@@ -1,25 +1,21 @@
 package com.gdavidpb.tuindice.utils.mappers
 
-import android.content.Intent
 import android.graphics.Color
-import android.os.Bundle
-import android.os.Parcelable
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
-import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
+import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.REF_BASE
 import com.gdavidpb.tuindice.utils.extensions.get
 import com.gdavidpb.tuindice.utils.extensions.parse
 import com.gdavidpb.tuindice.utils.extensions.trimAll
 import com.google.firebase.auth.FirebaseUser
-import java.io.Serializable
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-fun AuthRequest.toDstCredentials() = DstCredentials(usbId = usbId, password = password)
+fun SignInRequest.toDstCredentials() = DstCredentials(usbId = usbId, password = password)
 
 fun FirebaseUser.toAuth() = Auth(
         uid = uid,

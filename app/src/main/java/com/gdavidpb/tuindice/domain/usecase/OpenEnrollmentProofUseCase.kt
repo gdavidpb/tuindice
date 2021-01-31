@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.exception.EnrollmentNotFoundException
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
-import com.gdavidpb.tuindice.domain.usecase.request.AuthRequest
+import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.PATH_ENROLLMENT
 import com.gdavidpb.tuindice.utils.annotations.IgnoredFromExceptionReporting
 import com.gdavidpb.tuindice.utils.mappers.formatQuarterTitle
@@ -54,13 +54,13 @@ open class OpenEnrollmentProofUseCase(
             val credentials = settingsRepository.getCredentials()
 
             /* Enrollment service auth */
-            val enrollmentAuthRequest = AuthRequest(
+            val enrollmentAuthRequest = SignInRequest(
                     usbId = credentials.usbId,
                     password = credentials.password,
                     serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH
             )
 
-            val enrollmentAuthResponse = dstRepository.auth(enrollmentAuthRequest)
+            val enrollmentAuthResponse = dstRepository.signIn(enrollmentAuthRequest)
                     ?: throw EnrollmentNotFoundException()
 
             if (!enrollmentAuthResponse.isSuccessful)

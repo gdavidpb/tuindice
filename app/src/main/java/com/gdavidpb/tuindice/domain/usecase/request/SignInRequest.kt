@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase.request
 
-data class AuthRequest(
+data class SignInRequest(
         val usbId: String,
         val password: String,
         val serviceUrl: String

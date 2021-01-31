@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.utils.extensions
 
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
+import com.google.firebase.auth.FirebaseAuthActionCodeException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageException.*
 import retrofit2.HttpException
@@ -14,18 +14,6 @@ import java.net.SocketException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLHandshakeException
 
-fun Throwable.isPermissionDenied() = when (val internal = cause) {
-    is FirebaseFirestoreException -> {
-        internal.code == FirebaseFirestoreException.Code.UNAUTHENTICATED ||
-                internal.code == FirebaseFirestoreException.Code.PERMISSION_DENIED
-    }
-    is StorageException -> {
-        internal.errorCode == ERROR_NOT_AUTHENTICATED ||
-                internal.errorCode == ERROR_NOT_AUTHORIZED
-    }
-    else -> false
-}
-
 fun Throwable.isObjectNotFound() = when (val internal = cause) {
     is StorageException -> {
         internal.errorCode == ERROR_OBJECT_NOT_FOUND ||
@@ -34,6 +22,10 @@ fun Throwable.isObjectNotFound() = when (val internal = cause) {
     }
     else -> false
 }
+
+fun List<Throwable>.isInvalidLink() = contains<FirebaseAuthActionCodeException>()
+
+fun List<Throwable>.isAccountDisabled() = contains<FirebaseAuthInvalidUserException>()
 
 fun Throwable?.isInvalidCredentials() =
         ((this as? AuthenticationException)?.code) == AuthResponseCode.INVALID_CREDENTIALS ||

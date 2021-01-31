@@ -5,12 +5,7 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.StartUpError
 import com.gdavidpb.tuindice.domain.usecase.request.ResetRequest
-import com.gdavidpb.tuindice.utils.extensions.causes
-import com.gdavidpb.tuindice.utils.extensions.contains
-import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
-import com.gdavidpb.tuindice.utils.extensions.oobCode
-import com.google.firebase.auth.FirebaseAuthActionCodeException
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.gdavidpb.tuindice.utils.extensions.*
 
 open class StartUpUseCase(
         private val settingsRepository: SettingsRepository,
@@ -97,8 +92,8 @@ open class StartUpUseCase(
         val causes = throwable.causes()
 
         return when {
-            causes.contains<FirebaseAuthActionCodeException>() -> StartUpError.InvalidLink
-            causes.contains<FirebaseAuthInvalidUserException>() -> StartUpError.AccountDisabled
+            causes.isInvalidLink() -> StartUpError.InvalidLink
+            causes.isAccountDisabled() -> StartUpError.AccountDisabled
             throwable.isConnectionIssue() -> StartUpError.NoConnection
             else -> StartUpError.UnableToStart
         }
