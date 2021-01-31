@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.service
 
-import com.gdavidpb.tuindice.domain.model.SignInResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
+import com.gdavidpb.tuindice.domain.model.SignInResponse
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.service.DstPersonal
@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.utils.mappers.toEnrollment
 import com.gdavidpb.tuindice.utils.mappers.toPersonalData
 import com.gdavidpb.tuindice.utils.mappers.toRecord
 import okhttp3.ResponseBody
+import java.io.StreamCorruptedException
 
 open class DstDataStore(
         private val authService: DstAuthService,
@@ -38,24 +39,23 @@ open class DstDataStore(
         }.getOrNull()?.toEnrollment()
     }
 
-    override suspend fun getEnrollmentProof(): ResponseBody? {
-        return runCatching {
-            enrollmentService.getEnrollmentProof().body()
-        }.getOrNull()?.let { response ->
-            val isValid = "${response.contentType()}" == "application/pdf"
+    override suspend fun getEnrollmentProof(): ResponseBody {
+        return enrollmentService.getEnrollmentProof()
+                .getOrThrow()
+                .also { response ->
+                    val isOK = "${response.contentType()}" == "application/pdf"
 
-            if (isValid) response else null
-        }
+                    if (!isOK) throw StreamCorruptedException()
+                }
     }
 
-    override suspend fun signIn(request: SignInRequest): SignInResponse? {
+    override suspend fun signIn(request: SignInRequest): SignInResponse {
         return authService.auth(request.serviceUrl, request.usbId, request.password)
                 .getOrThrow()
-                .toAuthResponse().let { response ->
-                    when (response.code) {
-                        AuthResponseCode.SUCCESS, AuthResponseCode.NO_ENROLLED -> response
-                        else -> throw AuthenticationException(code = response.code, message = response.message)
-                    }
+                .toAuthResponse().also { response ->
+                    val isOK = response.code == AuthResponseCode.SUCCESS || response.code == AuthResponseCode.NOT_ENROLLED
+
+                    if (!isOK) throw AuthenticationException(code = response.code, message = response.message)
                 }
     }
 }

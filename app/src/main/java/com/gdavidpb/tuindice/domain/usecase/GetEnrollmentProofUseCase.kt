@@ -2,16 +2,21 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
-import com.gdavidpb.tuindice.domain.model.exception.EnrollmentNotFoundException
+import com.gdavidpb.tuindice.domain.model.exception.NoEnrolledException
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
+import com.gdavidpb.tuindice.domain.usecase.errors.GetEnrollmentError
 import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.PATH_ENROLLMENT
 import com.gdavidpb.tuindice.utils.annotations.IgnoredFromExceptionReporting
+import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
+import com.gdavidpb.tuindice.utils.extensions.isInvalidCredentials
+import com.gdavidpb.tuindice.utils.extensions.isNotEnrolled
 import com.gdavidpb.tuindice.utils.mappers.formatQuarterTitle
 import retrofit2.HttpException
 import java.io.File
 import java.io.InterruptedIOException
+import java.io.StreamCorruptedException
 import java.net.ConnectException
 import java.net.SocketException
 import java.net.UnknownHostException
@@ -24,21 +29,20 @@ import javax.net.ssl.SSLHandshakeException
         ConnectException::class,
         SSLHandshakeException::class,
         HttpException::class,
-        AuthenticationException::class,
-        EnrollmentNotFoundException::class
+        AuthenticationException::class
 )
-open class OpenEnrollmentProofUseCase(
+open class GetEnrollmentProofUseCase(
         private val authRepository: AuthRepository,
         private val dstRepository: DstRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
         private val localStorageRepository: LocalStorageRepository
-) : EventUseCase<Unit, File, Any>() {
+) : EventUseCase<Unit, File, GetEnrollmentError>() {
     override suspend fun executeOnBackground(params: Unit): File {
         val activeUId = authRepository.getActiveAuth().uid
 
         val currentQuarter = databaseRepository.getCurrentQuarter(uid = activeUId)
-                ?: throw EnrollmentNotFoundException()
+                ?: throw NoEnrolledException()
 
         /* Try to get current quarter enrollment proof file */
         val enrollmentTitle = with(currentQuarter) {
@@ -60,16 +64,11 @@ open class OpenEnrollmentProofUseCase(
                     serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH
             )
 
-            val enrollmentAuthResponse = dstRepository.signIn(enrollmentAuthRequest)
-                    ?: throw EnrollmentNotFoundException()
-
-            if (!enrollmentAuthResponse.isSuccessful)
-                throw EnrollmentNotFoundException()
+            dstRepository.signIn(enrollmentAuthRequest)
 
             /* Get enrollment proof file from dst service */
 
-            val enrollmentData = dstRepository.getEnrollmentProof()?.byteStream()
-                    ?: throw EnrollmentNotFoundException()
+            val enrollmentData = dstRepository.getEnrollmentProof().byteStream()
 
             /* Save file in local storage */
 
@@ -77,5 +76,15 @@ open class OpenEnrollmentProofUseCase(
         }
 
         return enrollmentFile
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): GetEnrollmentError? {
+        return when {
+            throwable is StreamCorruptedException -> GetEnrollmentError.NotFound
+            throwable.isInvalidCredentials() -> GetEnrollmentError.InvalidCredentials
+            throwable.isNotEnrolled() -> GetEnrollmentError.NotEnrolled
+            throwable.isConnectionIssue() -> GetEnrollmentError.NoConnection
+            else -> null
+        }
     }
 }

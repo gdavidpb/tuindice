@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 open class GetQuartersUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
-) : ResultUseCase<Unit, List<Quarter>, Any>() {
+) : ResultUseCase<Unit, List<Quarter>, Nothing>() {
     override suspend fun executeOnBackground(params: Unit): List<Quarter>? {
         val activeUId = authRepository.getActiveAuth().uid
 

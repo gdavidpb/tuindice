@@ -52,6 +52,11 @@
         Parece que algo ha salido muy mal por acá. Debes reiniciar <b>TuIndice</b> para continuar
     </string>
 
+    <string name="alert_title_credentials_failure">¡Tu contraseña ha cambiado!</string>
+    <string name="alert_message_credentials_failure">
+        Parece que tu contraseña ha cambiado. Vuelve a iniciar sesión para seguir disfrutando de <b>TuIndice</b>
+    </string>
+
     <string name="alert_title_disabled_failure">Tu cuenta ha sido inhabilitada</string>
     <string name="alert_message_disabled_failure">
         Tu cuenta ha sido inhabilitada por violar las políticas de <b>TuIndice</b>.\n\n
@@ -136,7 +141,7 @@
 
     <string name="dialog_enrollment_downloading">Obteniendo comprobante…</string>
     <string name="snack_bar_enrollment_unsupported">Archivo no soportado ;(</string>
-    <string name="snack_bar_enrollment_retry">No pudimos descargar el comprobante ;(</string>
+    <string name="snack_bar_enrollment_not_found">Comprobante no disponible</string>
 
     <string name="label_empty_record">
         <b>¡Parece que alguien es nuevo por acá!\n\n</b>

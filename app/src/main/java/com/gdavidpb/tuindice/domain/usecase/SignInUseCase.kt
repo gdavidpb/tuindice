@@ -46,29 +46,26 @@ open class SignInUseCase(
 
         val authResponse = dstRepository.signIn(request = params)
 
-        /* Dst auth success */
-        if (authResponse != null) {
-            /* Try to sign in to Firebase */
-            runCatching {
-                authRepository.signIn(email = email, password = params.password)
-            }.onSuccess { activeAuth ->
-                storeAccount(auth = activeAuth, credentials = credentials, response = authResponse)
-            }.onFailure { throwable ->
-                val cause = throwable.cause
+        /* Try to sign in to Firebase */
+        runCatching {
+            authRepository.signIn(email = email, password = params.password)
+        }.onSuccess { activeAuth ->
+            storeAccount(auth = activeAuth, credentials = credentials, response = authResponse)
+        }.onFailure { throwable ->
+            val cause = throwable.cause
 
-                when {
-                    cause.isUserNoFound() -> {
-                        val activeAuth = authRepository.signUp(email = email, password = params.password)
+            when {
+                cause.isUserNotFound() -> {
+                    val activeAuth = authRepository.signUp(email = email, password = params.password)
 
-                        storeAccount(auth = activeAuth, credentials = credentials, response = authResponse)
-                    }
-                    cause.isInvalidCredentials() -> {
-                        authRepository.sendPasswordResetEmail(email = email)
-
-                        settingsRepository.storeCredentials(credentials = credentials)
-                    }
-                    else -> throw throwable
+                    storeAccount(auth = activeAuth, credentials = credentials, response = authResponse)
                 }
+                cause.isInvalidCredentials() -> {
+                    authRepository.sendPasswordResetEmail(email = email)
+
+                    settingsRepository.storeCredentials(credentials = credentials)
+                }
+                else -> throw throwable
             }
         }
 

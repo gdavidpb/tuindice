@@ -43,7 +43,22 @@ abstract class NavigationFragment : Fragment() {
 
     protected fun navigateUp() = findNavController().navigateUp()
 
-    protected fun disabledFailureDialog() {
+    protected fun credentialsChangedDialog() {
+        activityManager.clearApplicationUserData()
+
+        alert {
+            titleResource = R.string.alert_title_credentials_failure
+            messageResource = R.string.alert_message_credentials_failure
+
+            isCancelable = false
+
+            positiveButton(R.string.accept) {
+                requireActivity().recreate()
+            }
+        }
+    }
+
+    protected fun disabledAccountDialog() {
         activityManager.clearApplicationUserData()
 
         alert {
@@ -52,7 +67,9 @@ abstract class NavigationFragment : Fragment() {
 
             isCancelable = false
 
-            positiveButton(R.string.accept)
+            positiveButton(R.string.accept) {
+                requireActivity().finish()
+            }
         }
     }
 

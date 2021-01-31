@@ -286,7 +286,7 @@ val appModule = module {
     factory<GetQuartersUseCase>()
     factory<UpdateSubjectUseCase>()
     factory<SetLastScreenUseCase>()
-    factory<OpenEnrollmentProofUseCase>()
+    factory<GetEnrollmentProofUseCase>()
     factory<GetSubjectEvaluationsUseCase>()
     factory<UpdateEvaluationUseCase>()
     factory<RemoveEvaluationUseCase>()

@@ -4,8 +4,12 @@ import com.gdavidpb.tuindice.data.source.service.selector.DstAuthResponseSelecto
 import com.gdavidpb.tuindice.data.source.service.selector.DstEnrollmentDataSelector
 import com.gdavidpb.tuindice.data.source.service.selector.DstPersonalDataSelector
 import com.gdavidpb.tuindice.data.source.service.selector.DstRecordDataSelector
-import com.gdavidpb.tuindice.domain.model.*
-import com.gdavidpb.tuindice.domain.model.service.*
+import com.gdavidpb.tuindice.domain.model.AuthResponseCode
+import com.gdavidpb.tuindice.domain.model.ScheduleEntry
+import com.gdavidpb.tuindice.domain.model.ScheduleSubject
+import com.gdavidpb.tuindice.domain.model.SignInResponse
+import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
+import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import java.util.*
 
 fun DstPersonalDataSelector.toPersonalData() = selected
@@ -17,7 +21,7 @@ fun DstRecordDataSelector.toRecord() = selected?.run {
 fun DstAuthResponseSelector.toAuthResponse(): SignInResponse {
     val message = arrayOf(
             invalidCredentialsMessage,
-            noEnrolledMessage,
+            notEnrolledMessage,
             expiredSessionMessage
     ).firstOrNull {
         it.isNotEmpty()
@@ -25,13 +29,13 @@ fun DstAuthResponseSelector.toAuthResponse(): SignInResponse {
 
     val code = when {
         invalidCredentialsMessage.isNotEmpty() -> AuthResponseCode.INVALID_CREDENTIALS
-        noEnrolledMessage.isNotEmpty() -> AuthResponseCode.NO_ENROLLED
+        notEnrolledMessage.isNotEmpty() -> AuthResponseCode.NOT_ENROLLED
         expiredSessionMessage.isNotEmpty() -> AuthResponseCode.SESSION_EXPIRED
         else -> AuthResponseCode.SUCCESS
     }
 
     return SignInResponse(
-            isSuccessful = code == AuthResponseCode.SUCCESS || code == AuthResponseCode.NO_ENROLLED,
+            isSuccessful = code == AuthResponseCode.SUCCESS || code == AuthResponseCode.NOT_ENROLLED,
             code = code,
             message = message,
             name = fullName.substringAfter(" | ")

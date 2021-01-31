@@ -146,7 +146,7 @@ class EmailFragment : NavigationFragment() {
 
     private fun resetPasswordErrorHandler(error: SendResetPasswordEmailError?) {
         when (error) {
-            is SendResetPasswordEmailError.AccountDisabled -> disabledFailureDialog()
+            is SendResetPasswordEmailError.AccountDisabled -> disabledAccountDialog()
             is SendResetPasswordEmailError.NoConnection -> noConnectionSnackBar { onResendClick() }
             else -> defaultErrorSnackBar { onResendClick() }
         }
@@ -154,7 +154,7 @@ class EmailFragment : NavigationFragment() {
 
     private fun sendEmailVerificationErrorHandler(error: SendVerificationEmailError?) {
         when (error) {
-            is SendVerificationEmailError.AccountDisabled -> disabledFailureDialog()
+            is SendVerificationEmailError.AccountDisabled -> disabledAccountDialog()
             is SendVerificationEmailError.NoConnection -> noConnectionSnackBar { onResendClick() }
             else -> defaultErrorSnackBar { onResendClick() }
         }

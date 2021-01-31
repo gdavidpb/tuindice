@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.utils.extensions
 
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
+import com.gdavidpb.tuindice.domain.model.exception.NoEnrolledException
 import com.google.firebase.auth.FirebaseAuthActionCodeException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -28,11 +29,15 @@ fun List<Throwable>.isInvalidLink() = contains<FirebaseAuthActionCodeException>(
 fun List<Throwable>.isAccountDisabled() = contains<FirebaseAuthInvalidUserException>()
 
 fun Throwable?.isInvalidCredentials() =
-        ((this as? AuthenticationException)?.code) == AuthResponseCode.INVALID_CREDENTIALS ||
-                (this is FirebaseAuthInvalidCredentialsException)
+        this is FirebaseAuthInvalidCredentialsException ||
+                ((this as? AuthenticationException)?.code) == AuthResponseCode.INVALID_CREDENTIALS
 
-fun Throwable?.isUserNoFound() =
+fun Throwable?.isUserNotFound() =
         (this as? FirebaseAuthInvalidUserException)?.errorCode == "ERROR_USER_NOT_FOUND"
+
+fun Throwable.isNotEnrolled() =
+        this is NoEnrolledException ||
+                (this as? AuthenticationException)?.code == AuthResponseCode.NOT_ENROLLED
 
 fun Throwable.isConnectionIssue() = when (this) {
     is SocketException -> true

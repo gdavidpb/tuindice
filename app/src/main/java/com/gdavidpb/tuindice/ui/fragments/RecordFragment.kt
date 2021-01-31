@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.errors.GetEnrollmentError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.presentation.model.SubjectItem
@@ -102,6 +103,12 @@ open class RecordFragment : NavigationFragment() {
         }
     }
 
+    private fun notFoundSnackBar() {
+        snackBar {
+            messageResource = R.string.snack_bar_enrollment_not_found
+        }
+    }
+
     private fun syncObserver(result: Result<Boolean, SyncError>?) {
         when (result) {
             is Result.OnSuccess -> {
@@ -113,7 +120,7 @@ open class RecordFragment : NavigationFragment() {
         }
     }
 
-    private fun quartersObserver(result: Result<List<Quarter>, Any>?) {
+    private fun quartersObserver(result: Result<List<Quarter>, Nothing>?) {
         when (result) {
             is Result.OnSuccess -> {
                 val context = requireContext()
@@ -143,7 +150,7 @@ open class RecordFragment : NavigationFragment() {
         }
     }
 
-    private fun enrollmentObserver(result: Event<File, Any>?) {
+    private fun enrollmentObserver(result: Event<File, GetEnrollmentError>?) {
         when (result) {
             is Event.OnLoading -> {
                 loadingDialog.show()
@@ -170,18 +177,18 @@ open class RecordFragment : NavigationFragment() {
 
                 setMenuVisibility(true)
 
-                showSnackBarRetry()
+                enrollmentErrorHandler(error = result.error)
             }
         }
     }
 
-    private fun showSnackBarRetry() {
-        snackBar {
-            messageResource = R.string.snack_bar_enrollment_retry
-
-            action(R.string.retry) {
-                viewModel.openEnrollmentProof()
-            }
+    private fun enrollmentErrorHandler(error: GetEnrollmentError?) {
+        when (error) {
+            GetEnrollmentError.InvalidCredentials -> credentialsChangedDialog()
+            GetEnrollmentError.NoConnection -> noConnectionSnackBar { viewModel.openEnrollmentProof() }
+            GetEnrollmentError.NotEnrolled -> notFoundSnackBar()
+            GetEnrollmentError.NotFound -> notFoundSnackBar()
+            else -> defaultErrorSnackBar { viewModel.openEnrollmentProof() }
         }
     }
 

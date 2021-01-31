@@ -10,7 +10,7 @@ open class MultipleLiveEvent<T>(private val times: Int) : MutableLiveData<T>() {
     private val counter = AtomicInteger(0)
 
     override fun observe(owner: LifecycleOwner, observer: Observer<in T>) {
-        super.observe(owner, Observer { t ->
+        super.observe(owner, { t ->
             if (counter.getAndIncrement() < times)
                 observer.onChanged(t)
         })

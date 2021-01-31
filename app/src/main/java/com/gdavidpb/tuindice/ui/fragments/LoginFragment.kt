@@ -204,7 +204,7 @@ class LoginFragment : NavigationFragment() {
     private fun signInErrorHandler(error: SignInError?) {
         when (error) {
             SignInError.InvalidCredentials -> invalidCredentialsSnackBar()
-            SignInError.AccountDisabled -> disabledFailureDialog()
+            SignInError.AccountDisabled -> disabledAccountDialog()
             SignInError.NoConnection -> noConnectionSnackBar { onSignInClick() }
             else -> defaultErrorSnackBar { onSignInClick() }
         }

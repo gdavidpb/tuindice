@@ -11,7 +11,7 @@ interface DstRepository {
     suspend fun getPersonalData(): DstPersonal?
     suspend fun getRecordData(): DstRecord?
     suspend fun getEnrollment(): DstEnrollment?
-    suspend fun getEnrollmentProof(): ResponseBody?
+    suspend fun getEnrollmentProof(): ResponseBody
 
-    suspend fun signIn(request: SignInRequest): SignInResponse?
+    suspend fun signIn(request: SignInRequest): SignInResponse
 }
