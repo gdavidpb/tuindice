@@ -14,7 +14,7 @@ open class StartUpUseCase(
         private val reportingRepository: ReportingRepository,
         private val linkRepository: LinkRepository,
         private val configRepository: ConfigRepository
-) : ResultUseCase<String, StartUpAction>() {
+) : ResultUseCase<String, StartUpAction, Any>() {
     override suspend fun executeOnBackground(params: String): StartUpAction? {
         val isActiveAuth = authRepository.isActiveAuth()
         val isPasswordResetLink = authRepository.isResetPasswordLink(params)
@@ -85,5 +85,9 @@ open class StartUpUseCase(
             }
             else -> StartUpAction.Login
         }
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        TODO("Not yet implemented")
     }
 }

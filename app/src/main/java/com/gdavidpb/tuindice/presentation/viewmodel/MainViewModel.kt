@@ -15,9 +15,9 @@ class MainViewModel(
         private val syncAccountUseCase: SyncAccountUseCase,
         private val setLastScreenUseCase: SetLastScreenUseCase
 ) : ViewModel() {
-    val fetchStartUpAction = LiveResult<StartUpAction>()
-    val sync = LiveResult<Boolean>()
-    val lastScreen = LiveCompletable()
+    val fetchStartUpAction = LiveResult<StartUpAction, Any>()
+    val sync = LiveResult<Boolean, Any>()
+    val lastScreen = LiveCompletable<Any>()
 
     fun fetchStartUpAction(dataString: String) =
             execute(useCase = startUpUseCase, params = dataString, liveData = fetchStartUpAction)

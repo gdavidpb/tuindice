@@ -9,11 +9,15 @@ import java.io.File
 open class RemoveProfilePictureUseCase(
         private val authRepository: AuthRepository,
         private val remoteStorageRepository: RemoteStorageRepository
-) : EventUseCase<Unit, Unit>() {
+) : EventUseCase<Unit, Unit, Any>() {
     override suspend fun executeOnBackground(params: Unit) {
         val activeUId = authRepository.getActiveAuth().uid
         val resource = File(PATH_PROFILE_PICTURES, "$activeUId.jpg").path
 
         remoteStorageRepository.removeResource(resource)
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        TODO("Not yet implemented")
     }
 }

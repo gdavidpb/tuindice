@@ -17,9 +17,9 @@ class RecordViewModel(
         private val updateSubjectUseCase: UpdateSubjectUseCase,
         private val openEnrollmentProofUseCase: OpenEnrollmentProofUseCase
 ) : ViewModel() {
-    val quarters = LiveResult<List<Quarter>>()
-    val subjectUpdate = LiveCompletable()
-    val enrollment = LiveEvent<File>()
+    val quarters = LiveResult<List<Quarter>, Any>()
+    val subjectUpdate = LiveCompletable<Any>()
+    val enrollment = LiveEvent<File, Any>()
 
     fun getQuarters() =
             execute(useCase = getQuartersUseCase, params = Unit, liveData = quarters)

@@ -4,7 +4,7 @@ import android.widget.ImageView
 import com.squareup.picasso.Callback
 import com.squareup.picasso.RequestCreator
 
-fun RequestCreator.into(imageView: ImageView, liveResult: LiveCompletable) {
+fun RequestCreator.into(imageView: ImageView, liveResult: LiveCompletable<Any>) { //todo define error
     liveResult.postLoading()
 
     return into(imageView, object : Callback {
@@ -13,7 +13,7 @@ fun RequestCreator.into(imageView: ImageView, liveResult: LiveCompletable) {
         }
 
         override fun onError(e: Exception?) {
-            liveResult.postThrowable(e ?: NullPointerException("e"))
+            liveResult.postError(e ?: NullPointerException("e"))
         }
     })
 }

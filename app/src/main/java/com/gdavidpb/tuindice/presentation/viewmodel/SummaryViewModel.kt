@@ -18,13 +18,13 @@ class SummaryViewModel(
         private val removeProfilePictureUseCase: RemoveProfilePictureUseCase,
         private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
-    val profile = LiveResult<Account>()
-    val getProfilePictureFile = LiveEvent<Uri>()
-    val createProfilePictureFile = LiveEvent<Uri>()
-    val profilePicture = LiveResult<String>()
-    val updateProfilePicture = LiveEvent<String>()
-    val removeProfilePicture = LiveEvent<Unit>()
-    val signOut = LiveCompletable()
+    val profile = LiveResult<Account, Any>()
+    val getProfilePictureFile = LiveEvent<Uri, Any>()
+    val createProfilePictureFile = LiveEvent<Uri, Any>()
+    val profilePicture = LiveResult<String, Any>()
+    val updateProfilePicture = LiveEvent<String, Any>()
+    val removeProfilePicture = LiveEvent<Unit, Any>()
+    val signOut = LiveCompletable<Any>()
 
     fun getProfile() =
             execute(useCase = getProfileUseCase, params = Unit, liveData = profile)

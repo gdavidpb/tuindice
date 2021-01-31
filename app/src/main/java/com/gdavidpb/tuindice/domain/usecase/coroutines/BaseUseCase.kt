@@ -9,18 +9,19 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 import kotlin.coroutines.CoroutineContext
 
-abstract class BaseUseCase<P, T, L : LiveData<*>>(
+abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
         protected open val backgroundContext: CoroutineContext = Dispatchers.IO,
         protected open val foregroundContext: CoroutineContext = Dispatchers.Main
 ) : KoinComponent {
     private val reportingRepository by inject<ReportingRepository>()
 
     abstract suspend fun executeOnBackground(params: P): T?
+    abstract suspend fun executeOnException(throwable: Throwable): Q?
 
     protected abstract suspend fun onStart(liveData: L)
     protected abstract suspend fun onHook(liveData: L, response: T)
     protected abstract suspend fun onSuccess(liveData: L, response: T)
-    protected abstract suspend fun onFailure(liveData: L, throwable: Throwable)
+    protected abstract suspend fun onFailure(liveData: L, error: Q?)
     protected abstract suspend fun onCancel(liveData: L)
 
     fun execute(params: P, liveData: L, coroutineScope: CoroutineScope) {
@@ -38,7 +39,9 @@ abstract class BaseUseCase<P, T, L : LiveData<*>>(
                         reportingRepository.logException(throwable)
                     }
 
-                    onFailure(liveData, throwable)
+                    val error = executeOnException(throwable)
+
+                    onFailure(liveData, error)
                 } else {
                     onCancel(liveData)
                 }

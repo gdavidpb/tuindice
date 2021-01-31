@@ -35,7 +35,7 @@ open class SignInUseCase(
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository
-) : ResultUseCase<AuthRequest, AuthResponse>() {
+) : ResultUseCase<AuthRequest, AuthResponse, Any>() {
     override suspend fun executeOnBackground(params: AuthRequest): AuthResponse? {
         val credentials = params.toDstCredentials()
         val email = params.usbId.toUsbEmail()
@@ -73,6 +73,10 @@ open class SignInUseCase(
         }
 
         return authResponse
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        TODO("Not yet implemented")
     }
 
     private suspend fun storeAccount(auth: Auth, credentials: DstCredentials, response: AuthResponse) {

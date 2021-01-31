@@ -101,7 +101,7 @@ open class RecordFragment : NavigationFragment() {
         }
     }
 
-    private fun syncObserver(result: Result<Boolean>?) {
+    private fun syncObserver(result: Result<Boolean, Any>?) {
         when (result) {
             is Result.OnSuccess -> {
                 val pendingUpdate = result.value
@@ -112,7 +112,7 @@ open class RecordFragment : NavigationFragment() {
         }
     }
 
-    private fun quartersObserver(result: Result<List<Quarter>>?) {
+    private fun quartersObserver(result: Result<List<Quarter>, Any>?) {
         when (result) {
             is Result.OnSuccess -> {
                 val context = requireContext()
@@ -142,7 +142,7 @@ open class RecordFragment : NavigationFragment() {
         }
     }
 
-    private fun enrollmentObserver(result: Event<File>?) {
+    private fun enrollmentObserver(result: Event<File, Any>?) {
         when (result) {
             is Event.OnLoading -> {
                 loadingDialog.show()

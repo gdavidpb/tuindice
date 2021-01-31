@@ -35,7 +35,7 @@ open class SummaryFragment : NavigationFragment() {
 
     private val picasso by inject<Picasso>()
 
-    private val loadProfilePicture = LiveCompletable()
+    private val loadProfilePicture = LiveCompletable<Any>() //todo define error
 
     private val summaryAdapter = SummaryAdapter()
 
@@ -110,7 +110,7 @@ open class SummaryFragment : NavigationFragment() {
         viewModel.createProfilePictureFile()
     }
 
-    private fun signOutObserver(result: Completable?) {
+    private fun signOutObserver(result: Completable<Any>?) {
         when (result) {
             is Completable.OnComplete -> {
                 navigateToLogin()
@@ -123,7 +123,7 @@ open class SummaryFragment : NavigationFragment() {
         }
     }
 
-    private fun syncObserver(result: Result<Boolean>?) {
+    private fun syncObserver(result: Result<Boolean, Any>?) {
         when (result) {
             is Result.OnSuccess -> {
                 val pendingUpdate = result.value
@@ -134,7 +134,7 @@ open class SummaryFragment : NavigationFragment() {
         }
     }
 
-    private fun profileObserver(result: Result<Account>?) {
+    private fun profileObserver(result: Result<Account, Any>?) {
         when (result) {
             is Result.OnSuccess -> {
                 loadAccount(account = result.value)
@@ -142,18 +142,20 @@ open class SummaryFragment : NavigationFragment() {
         }
     }
 
-    private fun getProfilePictureFileObserver(result: Event<Uri>?) {
+    private fun getProfilePictureFileObserver(result: Event<Uri, Any>?) {
         when (result) {
             is Event.OnSuccess -> {
                 val outputUri = result.value
 
                 viewModel.updateProfilePicture(outputUri)
             }
-            is Event.OnError -> requireActivity().showSnackBarException(throwable = result.throwable)
+            is Event.OnError -> {
+                //todo requireActivity().showSnackBarException(throwable = result.throwable)
+            }
         }
     }
 
-    private fun createProfilePictureFileObserver(result: Event<Uri>?) {
+    private fun createProfilePictureFileObserver(result: Event<Uri, Any>?) {
         when (result) {
             is Event.OnSuccess -> {
                 val outputUri = result.value
@@ -161,11 +163,13 @@ open class SummaryFragment : NavigationFragment() {
 
                 requestProfilePictureInput(outputUri)
             }
-            is Event.OnError -> requireActivity().showSnackBarException(throwable = result.throwable)
+            is Event.OnError -> {
+                //todo requireActivity().showSnackBarException(throwable = result.throwable)
+            }
         }
     }
 
-    private fun updateProfilePictureObserver(result: Event<String>?) {
+    private fun updateProfilePictureObserver(result: Event<String, Any>?) {
         when (result) {
             is Event.OnLoading -> {
                 showProfilePictureLoading()
@@ -180,12 +184,12 @@ open class SummaryFragment : NavigationFragment() {
             is Event.OnError -> {
                 hideProfilePictureLoading()
 
-                requireActivity().showSnackBarException(throwable = result.throwable)
+                //todo requireActivity().showSnackBarException(throwable = result.throwable)
             }
         }
     }
 
-    private fun loadProfilePictureObserver(result: Completable?) {
+    private fun loadProfilePictureObserver(result: Completable<Any>?) {
         when (result) {
             is Completable.OnLoading -> {
                 showProfilePictureLoading()
@@ -198,12 +202,12 @@ open class SummaryFragment : NavigationFragment() {
             is Completable.OnError -> {
                 hideProfilePictureLoading()
 
-                requireActivity().showSnackBarException(throwable = result.throwable)
+                //todo requireActivity().showSnackBarException(throwable = result.throwable)
             }
         }
     }
 
-    private fun profilePictureObserver(result: Result<String>?) {
+    private fun profilePictureObserver(result: Result<String, Any>?) {
         when (result) {
             is Result.OnLoading -> {
                 showProfilePictureLoading()
@@ -214,7 +218,7 @@ open class SummaryFragment : NavigationFragment() {
             is Result.OnError -> {
                 hideProfilePictureLoading()
 
-                requireActivity().showSnackBarException(throwable = result.throwable)
+                //todo requireActivity().showSnackBarException(throwable = result.throwable)
 
                 iViewProfile.setImageResource(R.mipmap.ic_launcher_round)
             }
@@ -227,7 +231,7 @@ open class SummaryFragment : NavigationFragment() {
         SummaryFragmentDirections.navToLogin().let(::navigate)
     }
 
-    private fun removeProfilePictureObserver(result: Event<Unit>?) {
+    private fun removeProfilePictureObserver(result: Event<Unit, Any>?) {
         when (result) {
             is Event.OnLoading -> {
                 showProfilePictureLoading()
@@ -246,7 +250,7 @@ open class SummaryFragment : NavigationFragment() {
             is Event.OnError -> {
                 hideProfilePictureLoading()
 
-                requireActivity().showSnackBarException(throwable = result.throwable)
+                //todo requireActivity().showSnackBarException(throwable = result.throwable)
             }
         }
     }

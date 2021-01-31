@@ -78,7 +78,7 @@ class EmailFragment : NavigationFragment() {
         viewModel.signOut()
     }
 
-    private fun countdownObserver(result: Flow<Long>?) {
+    private fun countdownObserver(result: Flow<Long, Any>?) {
         when (result) {
             is Flow.OnNext -> {
                 tViewCountdown.text = (result.value).toCountdown()
@@ -91,7 +91,7 @@ class EmailFragment : NavigationFragment() {
         }
     }
 
-    private fun signOutObserver(result: Completable?) {
+    private fun signOutObserver(result: Completable<Any>?) {
         when (result) {
             is Completable.OnComplete -> {
                 EmailFragmentDirections.navToLogin().let(::navigate)
@@ -103,14 +103,14 @@ class EmailFragment : NavigationFragment() {
         }
     }
 
-    private fun resetPasswordObserver(result: Completable?) {
+    private fun resetPasswordObserver(result: Completable<Any>?) {
         when (result) {
             is Completable.OnComplete -> showSnackBarResend()
             //TODO is Completable.OnError -> handleException(throwable = result.throwable)
         }
     }
 
-    private fun sendEmailVerificationObserver(result: Completable?) {
+    private fun sendEmailVerificationObserver(result: Completable<Any>?) {
         when (result) {
             is Completable.OnComplete -> showSnackBarResend()
             //TODO is Completable.OnError -> handleException(throwable = result.throwable)

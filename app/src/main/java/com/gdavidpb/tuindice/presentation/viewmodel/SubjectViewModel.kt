@@ -17,11 +17,11 @@ class SubjectViewModel(
         private val removeEvaluationUseCase: RemoveEvaluationUseCase,
         private val addEvaluationUseCase: AddEvaluationUseCase
 ) : ViewModel() {
-    val evaluations = LiveResult<SubjectEvaluations>()
-    val evaluationUpdate = LiveResult<Evaluation>()
-    val subjectUpdate = LiveCompletable()
-    val remove = LiveCompletable()
-    val add = LiveResult<Evaluation>()
+    val evaluations = LiveResult<SubjectEvaluations, Any>()
+    val evaluationUpdate = LiveResult<Evaluation, Any>()
+    val subjectUpdate = LiveCompletable<Any>()
+    val remove = LiveCompletable<Any>()
+    val add = LiveResult<Evaluation, Any>()
 
     fun updateSubject(sid: String, grade: Int) =
             execute(useCase = updateSubjectUseCase, params = SubjectUpdateRequest(sid, grade), liveData = subjectUpdate)
@@ -38,6 +38,6 @@ class SubjectViewModel(
     fun addEvaluation(evaluation: Evaluation) =
             execute(useCase = addEvaluationUseCase, params = evaluation, liveData = add)
 
-    fun getSelectedSubject() = (evaluations.value as? Result.OnSuccess<SubjectEvaluations>)
+    fun getSelectedSubject() = (evaluations.value as? Result.OnSuccess<SubjectEvaluations, Any>)
             ?.run { value.subject }
 }

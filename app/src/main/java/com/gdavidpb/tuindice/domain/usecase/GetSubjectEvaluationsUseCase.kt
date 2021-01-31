@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 open class GetSubjectEvaluationsUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
-) : ResultUseCase<String, SubjectEvaluations>() {
+) : ResultUseCase<String, SubjectEvaluations, Any>() {
     override suspend fun executeOnBackground(params: String): SubjectEvaluations? {
         val activeUId = authRepository.getActiveAuth().uid
 
@@ -18,5 +18,9 @@ open class GetSubjectEvaluationsUseCase(
 
             SubjectEvaluations(subject, evaluations)
         }
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        TODO("Not yet implemented")
     }
 }

@@ -11,7 +11,7 @@ import java.io.File
 open class GetProfilePictureFileUseCase(
         private val authRepository: AuthRepository,
         private val localStorageRepository: LocalStorageRepository
-) : EventUseCase<Uri?, Uri>() {
+) : EventUseCase<Uri?, Uri, Any>() {
     override suspend fun executeOnBackground(params: Uri?): Uri? {
         return if (params != null) {
             params
@@ -21,5 +21,9 @@ open class GetProfilePictureFileUseCase(
 
             return localStorageRepository.get(resource).toUri()
         }
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        TODO("Not yet implemented")
     }
 }

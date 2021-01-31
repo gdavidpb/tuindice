@@ -9,7 +9,7 @@ open class SignOutUseCase(
         private val settingsRepository: SettingsRepository,
         private val localStorageRepository: LocalStorageRepository,
         private val dependenciesRepository: DependenciesRepository
-) : CompletableUseCase<Unit>() {
+) : CompletableUseCase<Unit, Any>() {
     override suspend fun executeOnBackground(params: Unit) {
         authRepository.signOut()
         settingsRepository.clear()
@@ -17,5 +17,9 @@ open class SignOutUseCase(
         databaseRepository.clearPersistence()
         localStorageRepository.clear()
         dependenciesRepository.restart()
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        TODO("Not yet implemented")
     }
 }

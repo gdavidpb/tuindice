@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.FLAG_RESET
 import com.gdavidpb.tuindice.utils.FLAG_VERIFY
-import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.extensions.observe
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class SplashFragment : NavigationFragment() {
@@ -27,7 +27,7 @@ class SplashFragment : NavigationFragment() {
         }
     }
 
-    private fun startUpObserver(result: Result<StartUpAction>?) {
+    private fun startUpObserver(result: Result<StartUpAction, Any>?) {
         when (result) {
             is Result.OnSuccess -> {
                 handleStartUpAction(action = result.value)

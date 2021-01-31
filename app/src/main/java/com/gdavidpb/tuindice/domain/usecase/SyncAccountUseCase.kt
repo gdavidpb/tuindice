@@ -33,7 +33,7 @@ open class SyncAccountUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository
-) : ResultUseCase<Unit, Boolean>() {
+) : ResultUseCase<Unit, Boolean, Any>() {
     override suspend fun executeOnBackground(params: Unit): Boolean? {
         val activeUId = authRepository.getActiveAuth().uid
         val activeAccount = databaseRepository.getAccount(uid = activeUId)
@@ -65,6 +65,10 @@ open class SyncAccountUseCase(
                 databaseRepository.syncAccount(uid = activeUId, data = collectedData)
             }
         }
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        return null
     }
 
     private suspend fun MutableList<DstData>.addRecordData(credentials: DstCredentials) {

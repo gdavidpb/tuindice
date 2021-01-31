@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.domain.usecase.coroutines
 
-sealed class Result<T> {
-    data class OnSuccess<T>(val value: T) : Result<T>()
-    data class OnError<T>(val throwable: Throwable) : Result<T>()
-    class OnLoading<T> : Result<T>()
-    class OnCancel<T> : Result<T>()
+sealed class Result<T, Q> {
+    data class OnSuccess<T, Q>(val value: T) : Result<T, Q>()
+    data class OnError<T, Q>(val error: Q?) : Result<T, Q>()
+    class OnLoading<T, Q> : Result<T, Q>()
+    class OnCancel<T, Q> : Result<T, Q>()
 }

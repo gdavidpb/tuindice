@@ -8,10 +8,14 @@ import com.gdavidpb.tuindice.domain.usecase.request.SubjectUpdateRequest
 open class UpdateSubjectUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
-) : CompletableUseCase<SubjectUpdateRequest>() {
+) : CompletableUseCase<SubjectUpdateRequest, Any>() {
     override suspend fun executeOnBackground(params: SubjectUpdateRequest) {
         val activeUId = authRepository.getActiveAuth().uid
 
         databaseRepository.updateSubject(uid = activeUId, sid = params.id, grade = params.grade)
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        TODO("Not yet implemented")
     }
 }

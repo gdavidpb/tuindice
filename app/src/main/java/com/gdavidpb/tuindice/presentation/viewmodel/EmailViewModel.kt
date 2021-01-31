@@ -17,10 +17,10 @@ class EmailViewModel(
         private val countdownUseCase: CountdownUseCase
 ) : ViewModel() {
 
-    val countdown = LiveFlow<Long>()
-    val signOut = LiveCompletable()
-    val resetPassword = LiveCompletable()
-    val sendEmailVerification = LiveCompletable()
+    val countdown = LiveFlow<Long, Any>()
+    val signOut = LiveCompletable<Any>()
+    val resetPassword = LiveCompletable<Any>()
+    val sendEmailVerification = LiveCompletable<Any>()
 
     fun startCountdown(time: Long, reset: Boolean = false) =
             execute(useCase = countdownUseCase, params = CountdownRequest(time, reset), liveData = countdown)

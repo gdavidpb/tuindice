@@ -8,10 +8,14 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 open class GetProfileUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
-) : ResultUseCase<Unit, Account>() {
+) : ResultUseCase<Unit, Account, Any>() {
     override suspend fun executeOnBackground(params: Unit): Account? {
         val activeUId = authRepository.getActiveAuth().uid
 
         return databaseRepository.getAccount(uid = activeUId)
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        TODO("Not yet implemented")
     }
 }

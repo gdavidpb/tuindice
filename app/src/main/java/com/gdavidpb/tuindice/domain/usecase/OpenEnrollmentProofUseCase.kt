@@ -33,7 +33,7 @@ open class OpenEnrollmentProofUseCase(
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
         private val localStorageRepository: LocalStorageRepository
-) : EventUseCase<Unit, File>() {
+) : EventUseCase<Unit, File, Any>() {
     override suspend fun executeOnBackground(params: Unit): File {
         val activeUId = authRepository.getActiveAuth().uid
 
@@ -77,5 +77,9 @@ open class OpenEnrollmentProofUseCase(
         }
 
         return enrollmentFile
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        TODO("Not yet implemented")
     }
 }

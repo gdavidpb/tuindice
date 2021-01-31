@@ -227,7 +227,7 @@ class MainActivity : AppCompatActivity() {
         if (showBottomNav) viewModel.setLastScreen(navId = destination.id)
     }
 
-    private fun startUpObserver(result: Result<StartUpAction>?) {
+    private fun startUpObserver(result: Result<StartUpAction, Any>?) {
         when (result) {
             is Result.OnSuccess -> {
                 appBar.visible()
@@ -238,7 +238,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun syncObserver(result: Result<Boolean>?) {
+    private fun syncObserver(result: Result<Boolean, Any>?) {
         when (result) {
             is Result.OnLoading -> {
                 pBarSync.visibleIf(true)
@@ -249,7 +249,7 @@ class MainActivity : AppCompatActivity() {
             is Result.OnError -> {
                 pBarSync.visibleIf(false)
 
-                handleException(throwable = result.throwable)
+                //todo handleException(throwable = result.throwable)
             }
         }
     }

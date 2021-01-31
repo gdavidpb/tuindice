@@ -11,11 +11,15 @@ import java.io.File
 open class CreateProfilePictureFileUseCase(
         private val authRepository: AuthRepository,
         private val localStorageRepository: LocalStorageRepository
-) : EventUseCase<Unit, Uri>() {
+) : EventUseCase<Unit, Uri, Any>() {
     override suspend fun executeOnBackground(params: Unit): Uri? {
         val activeUId = authRepository.getActiveAuth().uid
         val resource = File(PATH_PROFILE_PICTURES, "$activeUId.jpg").path
 
         return localStorageRepository.create(resource).toUri()
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        TODO("Not yet implemented")
     }
 }

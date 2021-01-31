@@ -10,7 +10,7 @@ import java.io.File
 open class GetProfilePictureUseCase(
         private val authRepository: AuthRepository,
         private val remoteStorageRepository: RemoteStorageRepository
-) : ResultUseCase<Unit, String>() {
+) : ResultUseCase<Unit, String, Any>() {
     override suspend fun executeOnBackground(params: Unit): String? {
         val activeUId = authRepository.getActiveAuth().uid
         val resource = File(PATH_PROFILE_PICTURES, "$activeUId.jpg").path
@@ -24,5 +24,9 @@ open class GetProfilePictureUseCase(
             else
                 throw throwable
         })
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        TODO("Not yet implemented")
     }
 }

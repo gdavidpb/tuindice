@@ -8,12 +8,16 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 open class UpdateEvaluationUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
-) : ResultUseCase<Evaluation, Evaluation>() {
+) : ResultUseCase<Evaluation, Evaluation, Any>() {
     override suspend fun executeOnBackground(params: Evaluation): Evaluation {
         val activeUId = authRepository.getActiveAuth().uid
 
         databaseRepository.updateEvaluation(uid = activeUId, evaluation = params)
 
         return params
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        TODO("Not yet implemented")
     }
 }

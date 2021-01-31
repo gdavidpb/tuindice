@@ -21,7 +21,7 @@ open class UpdateProfilePictureUseCase(
         private val contentRepository: ContentRepository,
         private val localStorageRepository: LocalStorageRepository,
         private val remoteStorageRepository: RemoteStorageRepository
-) : EventUseCase<Uri, String>() {
+) : EventUseCase<Uri, String, Any>() {
     override suspend fun executeOnBackground(params: Uri): String {
         val activeUId = authRepository.getActiveAuth().uid
         val resource = File(PATH_PROFILE_PICTURES, "$activeUId.jpg").path
@@ -60,5 +60,9 @@ open class UpdateProfilePictureUseCase(
         localStorageRepository.delete(resource)
 
         return downloadUrl.toString()
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): Any? {
+        TODO("Not yet implemented")
     }
 }
