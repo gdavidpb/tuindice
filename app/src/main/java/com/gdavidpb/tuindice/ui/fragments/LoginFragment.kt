@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.ui.fragments
 
-import android.app.ActivityManager
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
@@ -33,7 +32,6 @@ class LoginFragment : NavigationFragment() {
 
     private val viewModel by viewModel<LoginViewModel>()
 
-    private val activityManager by inject<ActivityManager>()
     private val connectivityManager by inject<ConnectivityManager>()
 
     private val loadingMessages by config<List<String>>(KEY_LOADING_MESSAGES)
@@ -169,41 +167,9 @@ class LoginFragment : NavigationFragment() {
         }
     }
 
-    private fun disabledFailureDialog() {
-        activityManager.clearApplicationUserData()
-
-        alert {
-            titleResource = R.string.alert_title_disabled_failure
-            messageResource = R.string.alert_message_disabled_failure
-
-            isCancelable = false
-
-            positiveButton(R.string.accept)
-        }
-    }
-
     private fun invalidCredentialsSnackBar() {
         snackBar {
             messageResource = R.string.snack_invalid_credentials
-        }
-    }
-
-    private fun noConnectionSnackBar() {
-        snackBar {
-            messageResource = if (connectivityManager.isNetworkAvailable())
-                R.string.snack_service_unreachable
-            else
-                R.string.snack_network_unavailable
-
-            action(R.string.retry) { onSignInClick() }
-        }
-    }
-
-    private fun defaultErrorSnackBar() {
-        snackBar {
-            messageResource = R.string.snack_bar_error_occurred
-
-            action(R.string.retry) { onSignInClick() }
         }
     }
 
@@ -238,8 +204,8 @@ class LoginFragment : NavigationFragment() {
         when (error) {
             SignInError.InvalidCredentials -> invalidCredentialsSnackBar()
             SignInError.AccountDisabled -> disabledFailureDialog()
-            SignInError.NoConnection -> noConnectionSnackBar()
-            else -> defaultErrorSnackBar()
+            SignInError.NoConnection -> noConnectionSnackBar { onSignInClick() }
+            else -> defaultErrorSnackBar { onSignInClick() }
         }
     }
 }

@@ -280,7 +280,7 @@ val appModule = module {
     factory<SyncAccountUseCase>()
     factory<StartUpUseCase>()
     factory<ResendVerifyEmailUseCase>()
-    factory<ResendResetEmailUseCase>()
+    factory<ResendResetPasswordEmailUseCase>()
     factory<CountdownUseCase>()
     factory<GetProfileUseCase>()
     factory<GetQuartersUseCase>()

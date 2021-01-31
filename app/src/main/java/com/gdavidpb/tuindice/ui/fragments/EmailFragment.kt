@@ -6,6 +6,8 @@ import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Flow
+import com.gdavidpb.tuindice.domain.usecase.errors.SendResetPasswordEmailError
+import com.gdavidpb.tuindice.domain.usecase.errors.SendVerificationEmailError
 import com.gdavidpb.tuindice.presentation.viewmodel.EmailViewModel
 import com.gdavidpb.tuindice.utils.FLAG_RESET
 import com.gdavidpb.tuindice.utils.FLAG_VERIFY
@@ -29,8 +31,8 @@ class EmailFragment : NavigationFragment() {
         with(viewModel) {
             observe(countdown, ::countdownObserver)
             observe(signOut, ::signOutObserver)
-            observe(sendEmailVerification, ::sendEmailVerificationObserver)
-            observe(resetPassword, ::resetPasswordObserver)
+            observe(verificationEmail, ::sendEmailVerificationObserver)
+            observe(resetPasswordEmail, ::resetPasswordObserver)
 
             startCountdown(time = countdownTime)
         }
@@ -56,16 +58,7 @@ class EmailFragment : NavigationFragment() {
         btnReset.onClickOnce(::onResetClick)
     }
 
-    // TODO
-    /*
-    override fun handleException(throwable: Throwable): Boolean {
-        return super.handleException(throwable) || showSnackBarException(throwable).run { true }
-    }
-    */
-
     private fun onResendClick() {
-        btnResend.isEnabled = false
-
         viewModel.startCountdown(time = countdownTime, reset = true)
 
         when (args.awaitingState) {
@@ -78,7 +71,19 @@ class EmailFragment : NavigationFragment() {
         viewModel.signOut()
     }
 
-    private fun countdownObserver(result: Flow<Long, Any>?) {
+    private fun showLoading(value: Boolean) {
+        pBarResend.visibleIf(value)
+        btnResend.isEnabled = !value
+        btnResend.text = if (value) null else getString(R.string.button_resend)
+    }
+
+    private fun resendSnackBar() {
+        snackBar {
+            messageResource = R.string.snack_bar_resend
+        }
+    }
+
+    private fun countdownObserver(result: Flow<Long, Nothing>?) {
         when (result) {
             is Flow.OnNext -> {
                 tViewCountdown.text = (result.value).toCountdown()
@@ -91,7 +96,7 @@ class EmailFragment : NavigationFragment() {
         }
     }
 
-    private fun signOutObserver(result: Completable<Any>?) {
+    private fun signOutObserver(result: Completable<Nothing>?) {
         when (result) {
             is Completable.OnComplete -> {
                 EmailFragmentDirections.navToLogin().let(::navigate)
@@ -103,23 +108,55 @@ class EmailFragment : NavigationFragment() {
         }
     }
 
-    private fun resetPasswordObserver(result: Completable<Any>?) {
+    private fun resetPasswordObserver(result: Completable<SendResetPasswordEmailError>?) {
         when (result) {
-            is Completable.OnComplete -> showSnackBarResend()
-            //TODO is Completable.OnError -> handleException(throwable = result.throwable)
+            is Completable.OnLoading -> {
+                showLoading(true)
+            }
+            is Completable.OnComplete -> {
+                showLoading(false)
+
+                resendSnackBar()
+            }
+            is Completable.OnError -> {
+                showLoading(false)
+
+                resetPasswordErrorHandler(error = result.error)
+            }
         }
     }
 
-    private fun sendEmailVerificationObserver(result: Completable<Any>?) {
+    private fun sendEmailVerificationObserver(result: Completable<SendVerificationEmailError>?) {
         when (result) {
-            is Completable.OnComplete -> showSnackBarResend()
-            //TODO is Completable.OnError -> handleException(throwable = result.throwable)
+            is Completable.OnLoading -> {
+                showLoading(true)
+            }
+            is Completable.OnComplete -> {
+                showLoading(false)
+
+                resendSnackBar()
+            }
+            is Completable.OnError -> {
+                showLoading(false)
+
+                sendEmailVerificationErrorHandler(error = result.error)
+            }
         }
     }
 
-    private fun showSnackBarResend() {
-        snackBar {
-            messageResource = R.string.snack_bar_resend
+    private fun resetPasswordErrorHandler(error: SendResetPasswordEmailError?) {
+        when (error) {
+            is SendResetPasswordEmailError.AccountDisabled -> disabledFailureDialog()
+            is SendResetPasswordEmailError.NoConnection -> noConnectionSnackBar { onResendClick() }
+            else -> defaultErrorSnackBar { onResendClick() }
+        }
+    }
+
+    private fun sendEmailVerificationErrorHandler(error: SendVerificationEmailError?) {
+        when (error) {
+            is SendVerificationEmailError.AccountDisabled -> disabledFailureDialog()
+            is SendVerificationEmailError.NoConnection -> noConnectionSnackBar { onResendClick() }
+            else -> defaultErrorSnackBar { onResendClick() }
         }
     }
 }

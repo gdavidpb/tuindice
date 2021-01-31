@@ -11,7 +11,7 @@ import kotlin.math.max
 
 open class CountdownUseCase(
         private val settingsRepository: SettingsRepository
-) : FlowUseCase<CountdownRequest, Long, Any>() {
+) : FlowUseCase<CountdownRequest, Long, Nothing>() {
     override suspend fun executeOnBackground(params: CountdownRequest): Flow<Long> {
         val now = Date().time
         val countdownStart = settingsRepository.startCountdown(reset = params.reset)

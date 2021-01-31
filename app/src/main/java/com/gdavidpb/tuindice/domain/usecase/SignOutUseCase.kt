@@ -9,7 +9,7 @@ open class SignOutUseCase(
         private val settingsRepository: SettingsRepository,
         private val localStorageRepository: LocalStorageRepository,
         private val dependenciesRepository: DependenciesRepository
-) : CompletableUseCase<Unit, Any>() {
+) : CompletableUseCase<Unit, Nothing>() {
     override suspend fun executeOnBackground(params: Unit) {
         authRepository.signOut()
         settingsRepository.clear()
