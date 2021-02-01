@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
@@ -36,7 +37,7 @@ open class SummaryFragment : NavigationFragment() {
 
     private val picasso by inject<Picasso>()
 
-    private val loadProfilePicture = LiveCompletable<Any>() //todo define error
+    private val loadProfilePicture = LiveCompletable<ProfilePictureError>()
 
     private val summaryAdapter = SummaryAdapter()
 
@@ -82,7 +83,7 @@ open class SummaryFragment : NavigationFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_sign_out -> {
-                showSignOutDialog()
+                signOutDialog()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -98,7 +99,7 @@ open class SummaryFragment : NavigationFragment() {
 
             when {
                 removeProfilePicture -> {
-                    showRemoveProfilePictureDialog()
+                    removeProfilePictureDialog()
                 }
                 requestProfilePicture -> {
                     viewModel.getProfilePictureFile(optionalUri = data.data)
@@ -143,20 +144,17 @@ open class SummaryFragment : NavigationFragment() {
         }
     }
 
-    private fun getProfilePictureFileObserver(result: Event<Uri, Any>?) {
+    private fun getProfilePictureFileObserver(result: Event<Uri, Nothing>?) {
         when (result) {
             is Event.OnSuccess -> {
                 val outputUri = result.value
 
                 viewModel.updateProfilePicture(outputUri)
             }
-            is Event.OnError -> {
-                //todo requireActivity().showSnackBarException(throwable = result.throwable)
-            }
         }
     }
 
-    private fun createProfilePictureFileObserver(result: Event<Uri, Any>?) {
+    private fun createProfilePictureFileObserver(result: Event<Uri, ProfilePictureError>?) {
         when (result) {
             is Event.OnSuccess -> {
                 val outputUri = result.value
@@ -165,12 +163,12 @@ open class SummaryFragment : NavigationFragment() {
                 requestProfilePictureInput(outputUri)
             }
             is Event.OnError -> {
-                //todo requireActivity().showSnackBarException(throwable = result.throwable)
+                profilePictureErrorHandler(error = result.error)
             }
         }
     }
 
-    private fun updateProfilePictureObserver(result: Event<String, Any>?) {
+    private fun updateProfilePictureObserver(result: Event<String, ProfilePictureError>?) {
         when (result) {
             is Event.OnLoading -> {
                 showProfilePictureLoading()
@@ -185,12 +183,12 @@ open class SummaryFragment : NavigationFragment() {
             is Event.OnError -> {
                 hideProfilePictureLoading()
 
-                //todo requireActivity().showSnackBarException(throwable = result.throwable)
+                profilePictureErrorHandler(error = result.error)
             }
         }
     }
 
-    private fun loadProfilePictureObserver(result: Completable<Any>?) {
+    private fun loadProfilePictureObserver(result: Completable<ProfilePictureError>?) {
         when (result) {
             is Completable.OnLoading -> {
                 showProfilePictureLoading()
@@ -203,12 +201,12 @@ open class SummaryFragment : NavigationFragment() {
             is Completable.OnError -> {
                 hideProfilePictureLoading()
 
-                //todo requireActivity().showSnackBarException(throwable = result.throwable)
+                profilePictureErrorHandler(error = result.error)
             }
         }
     }
 
-    private fun profilePictureObserver(result: Result<String, Any>?) {
+    private fun profilePictureObserver(result: Result<String, ProfilePictureError>?) {
         when (result) {
             is Result.OnLoading -> {
                 showProfilePictureLoading()
@@ -219,20 +217,14 @@ open class SummaryFragment : NavigationFragment() {
             is Result.OnError -> {
                 hideProfilePictureLoading()
 
-                //todo requireActivity().showSnackBarException(throwable = result.throwable)
-
                 iViewProfile.setImageResource(R.mipmap.ic_launcher_round)
+
+                profilePictureErrorHandler(error = result.error)
             }
         }
     }
 
-    private fun navigateToLogin() {
-        findNavController().popStackToRoot()
-
-        SummaryFragmentDirections.navToLogin().let(::navigate)
-    }
-
-    private fun removeProfilePictureObserver(result: Event<Unit, Any>?) {
+    private fun removeProfilePictureObserver(result: Event<Unit, ProfilePictureError>?) {
         when (result) {
             is Event.OnLoading -> {
                 showProfilePictureLoading()
@@ -251,12 +243,25 @@ open class SummaryFragment : NavigationFragment() {
             is Event.OnError -> {
                 hideProfilePictureLoading()
 
-                //todo requireActivity().showSnackBarException(throwable = result.throwable)
+                profilePictureErrorHandler(error = result.error)
             }
         }
     }
 
-    private fun showSignOutDialog() {
+    private fun profilePictureErrorHandler(error: ProfilePictureError?) {
+        when (error) {
+            is ProfilePictureError.NoConnection -> noConnectionSnackBar()
+            else -> defaultErrorSnackBar()
+        }
+    }
+
+    private fun navigateToLogin() {
+        findNavController().popStackToRoot()
+
+        SummaryFragmentDirections.navToLogin().let(::navigate)
+    }
+
+    private fun signOutDialog() {
         alert {
             titleResource = R.string.alert_title_sign_out
             messageResource = R.string.alert_message_sign_out
@@ -269,7 +274,7 @@ open class SummaryFragment : NavigationFragment() {
         }
     }
 
-    private fun showRemoveProfilePictureDialog() {
+    private fun removeProfilePictureDialog() {
         alert {
             titleResource = R.string.alert_title_remove_profile_picture_failure
             messageResource = R.string.alert_message_remove_profile_picture_failure

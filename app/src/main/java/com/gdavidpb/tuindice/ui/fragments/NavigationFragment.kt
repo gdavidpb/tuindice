@@ -73,22 +73,22 @@ abstract class NavigationFragment : Fragment() {
         }
     }
 
-    protected fun noConnectionSnackBar(retry: () -> Unit) {
+    protected fun noConnectionSnackBar(retry: (() -> Unit)? = null) {
         snackBar {
             messageResource = if (connectivityManager.isNetworkAvailable())
                 R.string.snack_service_unreachable
             else
                 R.string.snack_network_unavailable
 
-            action(R.string.retry) { retry() }
+            if (retry != null) action(R.string.retry) { retry() }
         }
     }
 
-    protected fun defaultErrorSnackBar(retry: () -> Unit) {
+    protected fun defaultErrorSnackBar(retry: (() -> Unit)? = null) {
         snackBar {
             messageResource = R.string.snack_bar_error_occurred
 
-            action(R.string.retry) { retry() }
+            if (retry != null) action(R.string.retry) { retry() }
         }
     }
 }

@@ -5,7 +5,6 @@ import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import com.google.android.material.snackbar.BaseTransientBottomBar.*
 import com.google.android.material.snackbar.Snackbar
 
@@ -66,9 +65,6 @@ data class SnackBarBuilder(
                 }
     }
 }
-
-inline fun FragmentActivity.snackBar(length: Int = Snackbar.LENGTH_LONG, builder: SnackBarBuilder.() -> Unit) =
-        SnackBarBuilder(contentView ?: window.decorView, length).apply(builder).build().show()
 
 inline fun Fragment.snackBar(length: Int = Snackbar.LENGTH_LONG, builder: SnackBarBuilder.() -> Unit) =
         SnackBarBuilder(requireView(), length).apply(builder).build().show()

@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.domain.usecase
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
+import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.domain.repository.ContentRepository
 import com.gdavidpb.tuindice.domain.repository.LocalStorageRepository
@@ -13,8 +14,10 @@ import com.gdavidpb.tuindice.utils.QUALITY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.utils.SAMPLE_PROFILE_PICTURE
 import com.gdavidpb.tuindice.utils.extensions.decodeScaleFactor
 import com.gdavidpb.tuindice.utils.extensions.decodeScaledBitmap
+import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.rotate
 import java.io.File
+import java.io.IOException
 
 @Suppress("BlockingMethodInNonBlockingContext")
 open class UpdateProfilePictureUseCase(
@@ -22,7 +25,7 @@ open class UpdateProfilePictureUseCase(
         private val contentRepository: ContentRepository,
         private val localStorageRepository: LocalStorageRepository,
         private val remoteStorageRepository: RemoteStorageRepository
-) : EventUseCase<Uri, String, Any>() {
+) : EventUseCase<Uri, String, ProfilePictureError>() {
     override suspend fun executeOnBackground(params: Uri): String {
         val activeUId = authRepository.getActiveAuth().uid
         val resource = File(PATH_PROFILE_PICTURES, "$activeUId.jpg").path
@@ -61,5 +64,13 @@ open class UpdateProfilePictureUseCase(
         localStorageRepository.delete(resource)
 
         return downloadUrl.toString()
+    }
+
+    override suspend fun executeOnException(throwable: Throwable): ProfilePictureError? {
+        return when {
+            throwable is IOException -> ProfilePictureError.IO
+            throwable.isConnectionIssue() -> ProfilePictureError.NoConnection
+            else -> null
+        }
     }
 }

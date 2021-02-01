@@ -13,6 +13,7 @@ import java.io.InterruptedIOException
 import java.net.ConnectException
 import java.net.SocketException
 import java.net.UnknownHostException
+import java.util.concurrent.ExecutionException
 import javax.net.ssl.SSLHandshakeException
 
 fun Throwable.isObjectNotFound() = when (val internal = cause) {
@@ -46,6 +47,7 @@ fun Throwable.isConnectionIssue() = when (this) {
     is ConnectException -> true
     is SSLHandshakeException -> true
     is HttpException -> true
+    is ExecutionException -> true
     else -> false
 }
 

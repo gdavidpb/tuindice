@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.presentation.viewmodel
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.utils.extensions.LiveEvent
@@ -19,11 +20,11 @@ class SummaryViewModel(
         private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
     val profile = LiveResult<Account, Nothing>()
-    val getProfilePictureFile = LiveEvent<Uri, Any>()
-    val createProfilePictureFile = LiveEvent<Uri, Any>()
-    val profilePicture = LiveResult<String, Any>()
-    val updateProfilePicture = LiveEvent<String, Any>()
-    val removeProfilePicture = LiveEvent<Unit, Any>()
+    val getProfilePictureFile = LiveEvent<Uri, Nothing>()
+    val createProfilePictureFile = LiveEvent<Uri, ProfilePictureError>()
+    val profilePicture = LiveResult<String, ProfilePictureError>()
+    val updateProfilePicture = LiveEvent<String, ProfilePictureError>()
+    val removeProfilePicture = LiveEvent<Unit, ProfilePictureError>()
     val signOut = LiveCompletable<Nothing>()
 
     fun getProfile() =
