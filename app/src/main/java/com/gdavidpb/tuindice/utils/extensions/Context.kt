@@ -11,12 +11,14 @@ import android.os.Build
 import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.PreferenceManager
+import androidx.security.crypto.EncryptedFile
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.gdavidpb.tuindice.BuildConfig
@@ -97,16 +99,20 @@ fun Context.sharedPreferences(): SharedPreferences {
     return PreferenceManager.getDefaultSharedPreferences(this)
 }
 
+@RequiresApi(api = Build.VERSION_CODES.M)
+fun Context.provideMasterKey(): MasterKey {
+    return MasterKey.Builder(this, BuildConfig.MASTER_KEY_ALIAS)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .setRequestStrongBoxBacked(true)
+            .build()
+}
+
 @Suppress("DEPRECATION")
 fun Context.encryptedSharedPreferences(): SharedPreferences {
     val fileName = BuildConfig.APPLICATION_ID
-    val masterKeyAlias = "tuindice_key"
 
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        val masterKey = MasterKey.Builder(this, masterKeyAlias)
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                .setRequestStrongBoxBacked(true)
-                .build()
+        val masterKey = provideMasterKey()
 
         EncryptedSharedPreferences.create(
                 this,
@@ -116,6 +122,8 @@ fun Context.encryptedSharedPreferences(): SharedPreferences {
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
     } else {
+        val masterKeyAlias = BuildConfig.MASTER_KEY_ALIAS
+
         EncryptedSharedPreferences.create(
                 fileName,
                 masterKeyAlias,
@@ -124,4 +132,27 @@ fun Context.encryptedSharedPreferences(): SharedPreferences {
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
     }
+}
+
+@Suppress("DEPRECATION")
+fun Context.encryptedFile(file: File): EncryptedFile {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val masterKey = provideMasterKey()
+
+        EncryptedFile.Builder(
+                this,
+                file,
+                masterKey,
+                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
+        )
+    } else {
+        val masterKeyAlias = BuildConfig.MASTER_KEY_ALIAS
+
+        EncryptedFile.Builder(
+                file,
+                this,
+                masterKeyAlias,
+                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
+        )
+    }.build()
 }

@@ -50,6 +50,8 @@ android {
             manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
 
+            buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
+
             buildConfigField "String", "URL_LOCAL_MOCK", "\"${config.mockLocalAddress}\""
             buildConfigField "String", "URL_EMULATOR_MOCK", "\"${config.mockEmulatorAddress}\""
 
@@ -72,13 +74,15 @@ android {
             buildConfigField "String", "ENDPOINT_DST_POLL_AUTH", "\"http://comprobante.dii.usb.ve/nuevoComprobante/Consulta/Secure/zk/login.zul\""
         }
         release {
-            debuggable true //todo remove
-            minifyEnabled false //todo true
+            debuggable false
+            minifyEnabled true
 
             signingConfig signingConfigs.release
 
             manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
-            //todo proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+
+            buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
             buildConfigField "String", "URL_LOCAL_MOCK", "\"\""
             buildConfigField "String", "URL_EMULATOR_MOCK", "\"\""
