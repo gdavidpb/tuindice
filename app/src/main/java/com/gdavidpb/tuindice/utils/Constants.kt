@@ -88,6 +88,7 @@ const val EXTRA_REMOVE_PROFILE_PICTURE = "EXTRA_REMOVE_PROFILE_PICTURE"
 
 /* Reporting keys */
 const val KEY_USE_CASE = "KEY_USE_CASE"
+const val KEY_HANDLED = "KEY_HANDLED"
 
 const val FLAG_RESET = 1000
 const val FLAG_VERIFY = 1001

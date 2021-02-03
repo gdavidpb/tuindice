@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.domain.usecase.coroutines
 
 import androidx.lifecycle.LiveData
 import com.gdavidpb.tuindice.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.utils.KEY_HANDLED
 import com.gdavidpb.tuindice.utils.KEY_USE_CASE
 import com.gdavidpb.tuindice.utils.extensions.isIgnoredFromExceptionReporting
 import kotlinx.coroutines.*
@@ -37,9 +38,9 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
                 when (throwable) {
                     is CancellationException -> onCancel(liveData)
                     else -> {
-                        reportFailure(throwable)
-
                         val error = runCatching { executeOnException(throwable) }.getOrNull()
+
+                        reportFailure(throwable = throwable, isHandled = error != null)
 
                         onFailure(liveData, error)
                     }
@@ -48,9 +49,10 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
         }
     }
 
-    private fun reportFailure(throwable: Throwable) {
+    private fun reportFailure(throwable: Throwable, isHandled: Boolean) {
         if (!isIgnoredFromExceptionReporting(throwable)) {
             reportingRepository.setCustomKey(KEY_USE_CASE, "${this@BaseUseCase::class.simpleName}")
+            reportingRepository.setCustomKey(KEY_HANDLED, isHandled)
             reportingRepository.logException(throwable)
         }
     }
