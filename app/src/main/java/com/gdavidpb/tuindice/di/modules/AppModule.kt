@@ -17,7 +17,7 @@ import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
 import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataStore
 import com.gdavidpb.tuindice.data.source.storage.DiskStorageDataStore
 import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataStore
-import com.gdavidpb.tuindice.data.source.token.TokenDataStore
+import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataStore
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
@@ -33,7 +33,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.iid.FirebaseInstanceId
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
@@ -119,7 +119,7 @@ val appModule = module {
     }
 
     single {
-        FirebaseInstanceId.getInstance()
+        FirebaseMessaging.getInstance()
     }
 
     single {
@@ -270,7 +270,7 @@ val appModule = module {
     factoryBy<RemoteStorageRepository, FirebaseStorageDataStore>()
     factoryBy<AuthRepository, FirebaseDataStore>()
     factoryBy<DatabaseRepository, FirestoreDataStore>()
-    factoryBy<IdentifierRepository, TokenDataStore>()
+    factoryBy<MessagingRepository, FirebaseCloudMessagingDataStore>()
     factoryBy<ContentRepository, ContentResolverDataStore>()
     factoryBy<LinkRepository, DynamicLinkDataStore>()
     factoryBy<ConfigRepository, RemoteConfigDataStore>()

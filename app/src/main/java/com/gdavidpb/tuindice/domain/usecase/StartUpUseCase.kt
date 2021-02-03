@@ -11,7 +11,7 @@ open class StartUpUseCase(
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
-        private val identifierRepository: IdentifierRepository,
+        private val messagingRepository: MessagingRepository,
         private val reportingRepository: ReportingRepository,
         private val linkRepository: LinkRepository,
         private val configRepository: ConfigRepository
@@ -69,7 +69,7 @@ open class StartUpUseCase(
 
                 reportingRepository.setIdentifier(activeAuth.uid)
 
-                val token = identifierRepository.getIdentifier()
+                val token = messagingRepository.getToken()
 
                 if (token != null)
                     databaseRepository.setToken(uid = activeAuth.uid, token = token)
