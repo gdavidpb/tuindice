@@ -97,7 +97,7 @@ open class SyncAccountUseCase(
 
         val recordAuthResponse = dstRepository.signIn(recordAuthRequest)
 
-        if (recordAuthResponse?.isSuccessful == true) {
+        if (recordAuthResponse.isSuccessful) {
             dstRepository.getPersonalData()?.let(::add)
             dstRepository.getRecordData()?.let(::add)
         }
@@ -114,7 +114,7 @@ open class SyncAccountUseCase(
 
         val enrollmentAuthResponse = dstRepository.signIn(enrollmentAuthRequest)
 
-        if (enrollmentAuthResponse?.isSuccessful == true) {
+        if (enrollmentAuthResponse.isSuccessful) {
             dstRepository.getEnrollment()?.let(::add)
         }
     }
