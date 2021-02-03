@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -25,3 +26,5 @@ fun ConnectivityManager.isNetworkAvailable(): Boolean {
         }
     } ?: false
 }
+
+fun PackageManager.hasCamera() = hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)

@@ -79,6 +79,10 @@ val appModule = module {
     }
 
     single {
+        androidContext().packageManager
+    }
+
+    single {
         androidContext().contentResolver
     }
 

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.ui.fragments
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -13,10 +14,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.SummaryViewModel
@@ -36,6 +37,8 @@ open class SummaryFragment : NavigationFragment() {
     private val viewModel by viewModel<SummaryViewModel>()
 
     private val picasso by inject<Picasso>()
+
+    private val packageManager by inject<PackageManager>()
 
     private val loadProfilePicture = LiveCompletable<ProfilePictureError>()
 
@@ -316,14 +319,16 @@ open class SummaryFragment : NavigationFragment() {
 
         val chooser = Intent.createChooser(galleryIntent, getString(R.string.label_profile_picture_chooser))
 
+        val hasCamera = packageManager.hasCamera()
         val hasProfilePicture = iViewProfile.tag as? Boolean ?: false
 
-        val intents = if (hasProfilePicture)
-            arrayOf(removeIntent, cameraIntent)
-        else
-            arrayOf(cameraIntent)
+        val intents = mutableListOf<Intent>().apply {
+            if (hasCamera) add(cameraIntent)
+            if (hasProfilePicture) add(removeIntent)
+        }.toTypedArray()
 
-        chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents)
+        if (intents.isNotEmpty())
+            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents)
 
         startActivityForResult(chooser, REQUEST_CODE_PROFILE_PICTURE)
     }
