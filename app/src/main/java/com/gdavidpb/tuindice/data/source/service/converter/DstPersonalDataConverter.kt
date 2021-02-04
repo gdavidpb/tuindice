@@ -11,7 +11,7 @@ open class DstPersonalDataConverter : ElementConverter<DstPersonal> {
             val (careerCode, careerName) = get(4).text().split("\\s*-\\s*".toRegex())
 
             DstPersonal(
-                    usbId = get(0).text(),
+                    usbId = get(0).text().replace("-", ""),
                     id = get(1).text(),
                     firstNames = get(2).text(),
                     lastNames = get(3).text(),
