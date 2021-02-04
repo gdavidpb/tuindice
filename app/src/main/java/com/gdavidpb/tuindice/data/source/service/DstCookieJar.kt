@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.source.service
 
 import com.gdavidpb.tuindice.domain.repository.StorageRepository
 import com.gdavidpb.tuindice.utils.PATH_COOKIES
-import com.gdavidpb.tuindice.utils.extensions.copyTo
+import com.gdavidpb.tuindice.utils.extensions.copyToAndClose
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
@@ -21,7 +21,7 @@ open class DstCookieJar(
 
         val outputStream = storageRepository.encryptedOutputStream(name)
 
-        inputStream.copyTo(outputStream = outputStream, autoFlush = true, autoClose = true)
+        inputStream.copyToAndClose(outputStream)
     }
 
     override fun loadForRequest(url: HttpUrl): List<Cookie> {

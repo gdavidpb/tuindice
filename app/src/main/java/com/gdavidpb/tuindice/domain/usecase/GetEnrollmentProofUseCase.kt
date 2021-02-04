@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.domain.usecase.errors.GetEnrollmentError
 import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.PATH_ENROLLMENT
 import com.gdavidpb.tuindice.utils.annotations.IgnoredFromExceptionReporting
-import com.gdavidpb.tuindice.utils.extensions.copyTo
+import com.gdavidpb.tuindice.utils.extensions.copyToAndClose
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.isInvalidCredentials
 import com.gdavidpb.tuindice.utils.extensions.isNotEnrolled
@@ -75,7 +75,7 @@ open class GetEnrollmentProofUseCase(
 
             val outputStream = storageRepository.outputStream(enrollmentName)
 
-            inputStream.copyTo(outputStream = outputStream, autoFlush = true, autoClose = true)
+            inputStream.copyToAndClose(outputStream)
         }
 
         return enrollmentFile
