@@ -5,6 +5,7 @@ import android.net.Uri
 import com.gdavidpb.tuindice.domain.repository.ContentRepository
 import java.io.InputStream
 
+@Suppress("BlockingMethodInNonBlockingContext")
 open class ContentResolverDataStore(
         private val contentResolver: ContentResolver
 ) : ContentRepository {

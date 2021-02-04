@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.utils.extensions.isAccountDisabled
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.isUpdated
 import retrofit2.HttpException
+import java.io.File
 import java.io.InterruptedIOException
 import java.net.ConnectException
 import java.net.SocketException
@@ -35,7 +36,7 @@ import javax.net.ssl.SSLHandshakeException
 )
 open class SyncAccountUseCase(
         private val dstRepository: DstRepository,
-        private val localStorageRepository: LocalStorageRepository,
+        private val storageRepository: StorageRepository<File>,
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository
@@ -87,7 +88,7 @@ open class SyncAccountUseCase(
     }
 
     private suspend fun MutableList<DstData>.addRecordData(credentials: DstCredentials) {
-        localStorageRepository.delete(PATH_COOKIES)
+        storageRepository.delete(PATH_COOKIES)
 
         val recordAuthRequest = SignInRequest(
                 usbId = credentials.usbId,
@@ -104,7 +105,7 @@ open class SyncAccountUseCase(
     }
 
     private suspend fun MutableList<DstData>.addEnrollmentData(credentials: DstCredentials) {
-        localStorageRepository.delete(PATH_COOKIES)
+        storageRepository.delete(PATH_COOKIES)
 
         val enrollmentAuthRequest = SignInRequest(
                 usbId = credentials.usbId,

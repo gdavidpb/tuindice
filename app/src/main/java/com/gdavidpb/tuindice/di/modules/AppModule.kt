@@ -14,9 +14,7 @@ import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
 import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataStore
 import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
-import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataStore
-import com.gdavidpb.tuindice.data.source.storage.DiskStorageDataStore
-import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataStore
+import com.gdavidpb.tuindice.data.source.storage.*
 import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataStore
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
@@ -28,7 +26,6 @@ import com.gdavidpb.tuindice.utils.extensions.create
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
 import com.gdavidpb.tuindice.utils.extensions.inflate
 import com.gdavidpb.tuindice.utils.extensions.noSensitiveData
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
@@ -49,6 +46,7 @@ import org.koin.experimental.builder.single
 import pl.droidsonroids.retrofit2.JspoonConverterFactory
 import retrofit2.Retrofit
 import java.io.ByteArrayInputStream
+import java.io.File
 import java.security.SecureRandom
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
@@ -108,10 +106,6 @@ val appModule = module {
 
     single {
         FirebaseFirestore.getInstance()
-    }
-
-    single {
-        FirebaseAnalytics.getInstance(androidContext())
     }
 
     single {
@@ -264,9 +258,18 @@ val appModule = module {
 
     /* Factories */
 
+    factory<LocalStorageDataStoreFactory>()
+
+    /* Data stores */
+
+    factory<ClearStorageDataStore>()
+    factory<EncryptedStorageDataStore>()
+
+    /* Repositories */
+
     factoryBy<DstRepository, DstDataStore>()
     factoryBy<SettingsRepository, PreferencesDataStore>()
-    factoryBy<LocalStorageRepository, DiskStorageDataStore>()
+    factoryBy<StorageRepository<File>, LocalStorageDataRepository>()
     factoryBy<RemoteStorageRepository, FirebaseStorageDataStore>()
     factoryBy<AuthRepository, FirebaseDataStore>()
     factoryBy<DatabaseRepository, FirestoreDataStore>()

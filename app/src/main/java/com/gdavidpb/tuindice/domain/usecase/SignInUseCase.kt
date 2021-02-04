@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
 import retrofit2.HttpException
+import java.io.File
 import java.io.InterruptedIOException
 import java.net.ConnectException
 import java.net.SocketException
@@ -31,7 +32,7 @@ import javax.net.ssl.SSLHandshakeException
 )
 open class SignInUseCase(
         private val dstRepository: DstRepository,
-        private val localStorageRepository: LocalStorageRepository,
+        private val storageRepository: StorageRepository<File>,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository
@@ -42,7 +43,7 @@ open class SignInUseCase(
 
         authRepository.signOut()
         settingsRepository.clear()
-        localStorageRepository.clear()
+        storageRepository.clear()
 
         val authResponse = dstRepository.signIn(request = params)
 

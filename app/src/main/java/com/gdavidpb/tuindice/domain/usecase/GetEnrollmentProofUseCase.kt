@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.domain.usecase.errors.GetEnrollmentError
 import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.PATH_ENROLLMENT
 import com.gdavidpb.tuindice.utils.annotations.IgnoredFromExceptionReporting
+import com.gdavidpb.tuindice.utils.extensions.copyTo
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.isInvalidCredentials
 import com.gdavidpb.tuindice.utils.extensions.isNotEnrolled
@@ -22,6 +23,7 @@ import java.net.SocketException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLHandshakeException
 
+@Suppress("BlockingMethodInNonBlockingContext")
 @IgnoredFromExceptionReporting(
         SocketException::class,
         InterruptedIOException::class,
@@ -36,7 +38,7 @@ open class GetEnrollmentProofUseCase(
         private val dstRepository: DstRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
-        private val localStorageRepository: LocalStorageRepository
+        private val storageRepository: StorageRepository<File>
 ) : EventUseCase<Unit, File, GetEnrollmentError>() {
     override suspend fun executeOnBackground(params: Unit): File {
         val activeUId = authRepository.getActiveAuth().uid
@@ -50,10 +52,9 @@ open class GetEnrollmentProofUseCase(
         }
 
         val enrollmentName = File(PATH_ENROLLMENT, "$enrollmentTitle.pdf").path
-        val enrollmentFile = localStorageRepository.get(enrollmentName)
-        val enrollmentExists = localStorageRepository.exists(enrollmentName)
+        val enrollmentFile = storageRepository.get(enrollmentName)
 
-        if (!enrollmentExists) {
+        if (!enrollmentFile.exists()) {
             /* Get credentials */
             val credentials = settingsRepository.getCredentials()
 
@@ -68,11 +69,13 @@ open class GetEnrollmentProofUseCase(
 
             /* Get enrollment proof file from dst service */
 
-            val enrollmentData = dstRepository.getEnrollmentProof().byteStream()
+            val inputStream = dstRepository.getEnrollmentProof().byteStream()
 
             /* Save file in local storage */
 
-            localStorageRepository.put(enrollmentName, enrollmentData)
+            val outputStream = storageRepository.outputStream(enrollmentName)
+
+            inputStream.copyTo(outputStream = outputStream, autoFlush = true, autoClose = true)
         }
 
         return enrollmentFile

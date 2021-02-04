@@ -3,12 +3,12 @@ package com.gdavidpb.tuindice.domain.usecase
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
-import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.domain.repository.ContentRepository
-import com.gdavidpb.tuindice.domain.repository.LocalStorageRepository
 import com.gdavidpb.tuindice.domain.repository.RemoteStorageRepository
+import com.gdavidpb.tuindice.domain.repository.StorageRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
+import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.utils.PATH_PROFILE_PICTURES
 import com.gdavidpb.tuindice.utils.QUALITY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.utils.SAMPLE_PROFILE_PICTURE
@@ -23,7 +23,7 @@ import java.io.IOException
 open class UpdateProfilePictureUseCase(
         private val authRepository: AuthRepository,
         private val contentRepository: ContentRepository,
-        private val localStorageRepository: LocalStorageRepository,
+        private val storageRepository: StorageRepository<File>,
         private val remoteStorageRepository: RemoteStorageRepository
 ) : EventUseCase<Uri, String, ProfilePictureError>() {
     override suspend fun executeOnBackground(params: Uri): String {
@@ -44,7 +44,7 @@ open class UpdateProfilePictureUseCase(
                     .rotate(rotationDegrees)
         }
 
-        val fileOutputStream = localStorageRepository.outputStream(resource)
+        val fileOutputStream = storageRepository.outputStream(resource)
 
         fileOutputStream.use { outputStream ->
             val compress = bitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY_PROFILE_PICTURE, outputStream)
@@ -55,13 +55,13 @@ open class UpdateProfilePictureUseCase(
                 throw RuntimeException("compress")
         }
 
-        val fileInputStream = localStorageRepository.inputStream(resource)
+        val fileInputStream = storageRepository.inputStream(resource)
 
         val downloadUrl = fileInputStream.use { inputStream ->
             remoteStorageRepository.uploadResource(resource, inputStream)
         }
 
-        localStorageRepository.delete(resource)
+        storageRepository.delete(resource)
 
         return downloadUrl.toString()
     }
