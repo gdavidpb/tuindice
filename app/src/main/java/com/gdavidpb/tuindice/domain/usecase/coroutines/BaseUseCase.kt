@@ -19,9 +19,10 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
     abstract suspend fun executeOnBackground(params: P): T?
 
     open suspend fun executeOnException(throwable: Throwable): Q? = null
-    open suspend fun executeOnHook(liveData: L, response: T) {}
+    open suspend fun executeOnHook(liveData: L, response: T?) {}
 
     protected abstract suspend fun onStart(liveData: L)
+    protected abstract suspend fun onEmpty(liveData: L)
     protected abstract suspend fun onSuccess(liveData: L, response: T)
     protected abstract suspend fun onFailure(liveData: L, error: Q?)
     protected abstract suspend fun onCancel(liveData: L)
@@ -31,9 +32,12 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
             onStart(liveData)
 
             runCatching {
-                withContext(backgroundContext) { executeOnBackground(params)!!.also { executeOnHook(liveData, it) } }
+                withContext(backgroundContext) { executeOnBackground(params).also { executeOnHook(liveData, it) } }
             }.onSuccess { response ->
-                onSuccess(liveData, response)
+                if (response != null)
+                    onSuccess(liveData, response)
+                else
+                    onEmpty(liveData)
             }.onFailure { throwable ->
                 when (throwable) {
                     is CancellationException -> onCancel(liveData)

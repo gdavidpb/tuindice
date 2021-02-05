@@ -7,6 +7,10 @@ abstract class EventUseCase<P, T, Q> : BaseUseCase<P, T, Q, LiveEvent<T, Q>>() {
         liveData.postLoading()
     }
 
+    override suspend fun onEmpty(liveData: LiveEvent<T, Q>) {
+        liveData.postEmpty()
+    }
+
     override suspend fun onSuccess(liveData: LiveEvent<T, Q>, response: T) {
         liveData.postSuccess(response)
     }

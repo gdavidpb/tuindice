@@ -16,6 +16,9 @@ typealias LiveFlow<T, Q> = MutableLiveData<Flow<T, Q>>
 
 /* LiveEvent */
 
+@JvmName("postEmptyEvent")
+fun <T, Q> LiveEvent<T, Q>.postEmpty() = postValue(Event.OnEmpty())
+
 @JvmName("postSuccessEvent")
 fun <T, Q> LiveEvent<T, Q>.postSuccess(value: T) = postValue(Event.OnSuccess(value))
 
@@ -29,6 +32,9 @@ fun <T, Q> LiveEvent<T, Q>.postLoading() = reset().also { postValue(Event.OnLoad
 fun <T, Q> LiveEvent<T, Q>.postCancel() = postValue(Event.OnCancel())
 
 /* LiveResult */
+
+@JvmName("postEmptyResult")
+fun <T, Q> LiveResult<T, Q>.postEmpty() = postValue(Result.OnEmpty())
 
 @JvmName("postSuccessResult")
 fun <T, Q> LiveResult<T, Q>.postSuccess(value: T) = postValue(Result.OnSuccess(value))

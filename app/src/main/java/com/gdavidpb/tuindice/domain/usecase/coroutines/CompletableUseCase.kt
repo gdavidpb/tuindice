@@ -7,6 +7,8 @@ abstract class CompletableUseCase<P, Q> : BaseUseCase<P, Unit, Q, LiveCompletabl
         liveData.postLoading()
     }
 
+    override suspend fun onEmpty(liveData: LiveCompletable<Q>) {}
+
     override suspend fun onSuccess(liveData: LiveCompletable<Q>, response: Unit) {
         liveData.postComplete()
     }
