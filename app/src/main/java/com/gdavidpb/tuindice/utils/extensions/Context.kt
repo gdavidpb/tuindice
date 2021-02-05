@@ -29,10 +29,8 @@ import java.io.File
 
 fun Context.openPdf(file: File) {
     FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID, file).also { uri ->
-        grantUriPermission("com.google.android.apps.docs", uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    }.also { uri ->
         Intent(Intent.ACTION_VIEW, uri)
-                .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
                 .let(::startActivity)
     }
 }
