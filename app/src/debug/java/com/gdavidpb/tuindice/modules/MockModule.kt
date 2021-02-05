@@ -10,8 +10,7 @@ import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataStore
 import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataStore
 import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
-import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataStore
-import com.gdavidpb.tuindice.data.source.storage.DiskStorageDataStore
+import com.gdavidpb.tuindice.data.source.storage.*
 import com.gdavidpb.tuindice.datastores.*
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
@@ -24,6 +23,7 @@ import com.gdavidpb.tuindice.utils.KEY_TIME_SYNCHRONIZATION
 import com.gdavidpb.tuindice.utils.createMockService
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
 import com.gdavidpb.tuindice.utils.isEmulator
+import com.google.android.play.core.review.testing.FakeReviewManager
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
@@ -40,6 +40,7 @@ import org.koin.experimental.builder.factoryBy
 import org.koin.experimental.builder.single
 import pl.droidsonroids.retrofit2.JspoonConverterFactory
 import retrofit2.Retrofit
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 val mockModule = module {
@@ -137,6 +138,10 @@ val mockModule = module {
                 .addConverterFactory(JspoonConverterFactory.create())
     }
 
+    factory {
+        FakeReviewManager(androidContext())
+    }
+
     /* Dst auth service */
 
     single {
@@ -180,13 +185,22 @@ val mockModule = module {
 
     /* Factories */
 
+    factory<LocalStorageDataStoreFactory>()
+
+    /* Data stores */
+
+    factory<ClearStorageDataStore>()
+    factory<EncryptedStorageDataStore>()
+
+    /* Repositories */
+
     factoryBy<DstRepository, DstDataStore>()
     factoryBy<SettingsRepository, PreferencesDataStore>()
-    factoryBy<LocalStorageRepository, DiskStorageDataStore>()
+    factoryBy<StorageRepository<File>, LocalStorageDataRepository>()
     factoryBy<RemoteStorageRepository, RemoteStorageMockDataStore>()
     factoryBy<AuthRepository, AuthMockDataStore>()
     factoryBy<DatabaseRepository, FirestoreMockDataStore>()
-    factoryBy<IdentifierRepository, TokenMockDataStore>()
+    factoryBy<MessagingRepository, MessagingMockDataStore>()
     factoryBy<ContentRepository, ContentResolverDataStore>()
     factoryBy<LinkRepository, DynamicLinkDataStore>()
     factoryBy<ConfigRepository, RemoteConfigMockDataStore>()
@@ -200,13 +214,13 @@ val mockModule = module {
     factory<SyncAccountUseCase>()
     factory<StartUpUseCase>()
     factory<ResendVerifyEmailUseCase>()
-    factory<ResendResetEmailUseCase>()
+    factory<ResendResetPasswordEmailUseCase>()
     factory<CountdownUseCase>()
     factory<GetProfileUseCase>()
     factory<GetQuartersUseCase>()
     factory<UpdateSubjectUseCase>()
     factory<SetLastScreenUseCase>()
-    factory<OpenEnrollmentProofUseCase>()
+    factory<GetEnrollmentProofUseCase>()
     factory<GetSubjectEvaluationsUseCase>()
     factory<UpdateEvaluationUseCase>()
     factory<RemoveEvaluationUseCase>()
@@ -216,6 +230,7 @@ val mockModule = module {
     factory<GetProfilePictureFileUseCase>()
     factory<GetProfilePictureUseCase>()
     factory<RemoveProfilePictureUseCase>()
+    factory<RequestReviewUseCase>()
 
     /* Utils */
 
