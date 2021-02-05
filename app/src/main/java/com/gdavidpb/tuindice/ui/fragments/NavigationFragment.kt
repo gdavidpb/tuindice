@@ -1,24 +1,25 @@
 package com.gdavidpb.tuindice.ui.fragments
 
-import android.app.ActivityManager
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import androidx.annotation.LayoutRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.extensions.contentView
+import com.gdavidpb.tuindice.utils.extensions.isNetworkAvailable
+import com.gdavidpb.tuindice.utils.extensions.snackBar
 import org.koin.android.ext.android.inject
 
 abstract class NavigationFragment : Fragment() {
-    private val activityManager by inject<ActivityManager>()
-    private val inputMethodManager by inject<InputMethodManager>()
-    private val connectivityManager by inject<ConnectivityManager>()
+    protected val packageManager by inject<PackageManager>()
+    protected val connectivityManager by inject<ConnectivityManager>()
 
     @LayoutRes
     abstract fun onCreateView(): Int
@@ -31,47 +32,11 @@ abstract class NavigationFragment : Fragment() {
         activity?.contentView?.background = view.background
     }
 
-    protected fun clearApplicationUserData() {
-        activityManager.clearApplicationUserData()
-    }
-
-    protected fun hideSoftKeyboard() {
-        inputMethodManager.hideSoftKeyboard(requireActivity())
-    }
+    protected fun requireAppCompatActivity() = requireActivity() as AppCompatActivity
 
     protected fun navigate(directions: NavDirections) = findNavController().navigate(directions)
 
     protected fun navigateUp() = findNavController().navigateUp()
-
-    protected fun credentialsChangedDialog() {
-        activityManager.clearApplicationUserData()
-
-        alert {
-            titleResource = R.string.alert_title_credentials_failure
-            messageResource = R.string.alert_message_credentials_failure
-
-            isCancelable = false
-
-            positiveButton(R.string.accept) {
-                requireActivity().recreate()
-            }
-        }
-    }
-
-    protected fun disabledAccountDialog() {
-        activityManager.clearApplicationUserData()
-
-        alert {
-            titleResource = R.string.alert_title_disabled_failure
-            messageResource = R.string.alert_message_disabled_failure
-
-            isCancelable = false
-
-            positiveButton(R.string.accept) {
-                requireActivity().finish()
-            }
-        }
-    }
 
     protected fun noConnectionSnackBar(retry: (() -> Unit)? = null) {
         snackBar {

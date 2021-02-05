@@ -1,19 +1,36 @@
 package com.gdavidpb.tuindice.utils.extensions
 
+import android.app.ActivityManager
 import android.content.Intent
 import android.provider.Settings
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.PLAY_SERVICES_RESOLUTION_REQUEST
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import org.koin.android.ext.android.inject
 
 inline val FragmentActivity.contentView: View?
     get() = findViewById<ViewGroup>(android.R.id.content)?.getChildAt(0)
+
+fun AppCompatActivity.clearApplicationUserData() {
+    val activityManager by inject<ActivityManager>()
+
+    activityManager.clearApplicationUserData()
+}
+
+fun AppCompatActivity.hideSoftKeyboard() {
+    val inputMethodManager by inject<InputMethodManager>()
+
+    inputMethodManager.hideSoftKeyboard(this)
+}
+
 
 fun FragmentActivity.selector(
         @StringRes textResource: Int,

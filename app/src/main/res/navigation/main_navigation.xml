@@ -20,6 +20,8 @@
         <action
             android:id="@+id/nav_to_email"
             app:destination="@id/fragment_email"
+            app:enterAnim="@anim/slide_in_from_bottom"
+            app:exitAnim="@anim/slide_out_to_top"
             app:popUpTo="@id/fragment_splash"
             app:popUpToInclusive="true" />
     </fragment>
@@ -38,6 +40,8 @@
         <action
             android:id="@+id/nav_to_login"
             app:destination="@id/fragment_login"
+            app:enterAnim="@anim/slide_in_from_top"
+            app:exitAnim="@anim/slide_out_to_bottom"
             app:popUpTo="@id/fragment_email"
             app:popUpToInclusive="true" />
     </fragment>
@@ -48,10 +52,10 @@
         android:label="@string/label_login_fragment"
         tools:layout="@layout/fragment_login">
         <action
-            android:id="@+id/nav_to_summary"
-            app:destination="@id/fragment_summary"
-            app:enterAnim="@anim/slide_in_from_bottom"
-            app:exitAnim="@anim/slide_out_to_top"
+            android:id="@+id/nav_to_splash"
+            app:destination="@id/fragment_splash"
+            app:enterAnim="@anim/slide_in_from_top"
+            app:exitAnim="@anim/slide_out_to_bottom"
             app:popUpTo="@id/fragment_login"
             app:popUpToInclusive="true" />
         <action
@@ -104,6 +108,10 @@
         tools:layout="@layout/fragment_about">
         <action
             android:id="@+id/nav_to_url"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right"
             app:destination="@id/fragment_browser" />
     </fragment>
 

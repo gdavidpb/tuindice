@@ -1,8 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.gdavidpb.tuindice.domain.usecase.coroutines.*
@@ -79,8 +77,5 @@ fun <T, Q> LiveFlow<T, Q>.postError(error: Q?) = postValue(Flow.OnError(error))
 @JvmName("postCancelFlow")
 fun <T, Q> LiveFlow<T, Q>.postCancel() = postValue(Flow.OnCancel())
 
-fun <T, L : LiveData<T>> FragmentActivity.observe(liveData: L, body: (T?) -> Unit) =
+fun <T, L : MutableLiveData<T>> LifecycleOwner.observe(liveData: L, body: (T?) -> Unit) =
         liveData.observe(this, Observer(body))
-
-fun <T, L : LiveData<T>> Fragment.observe(liveData: L, body: (T?) -> Unit) =
-        liveData.observe(viewLifecycleOwner, Observer(body))

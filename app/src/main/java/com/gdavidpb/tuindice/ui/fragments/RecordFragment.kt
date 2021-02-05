@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
+import com.gdavidpb.tuindice.ui.dialogs.credentialsChangedDialog
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_GUESS
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -184,7 +185,7 @@ open class RecordFragment : NavigationFragment() {
 
     private fun enrollmentErrorHandler(error: GetEnrollmentError?) {
         when (error) {
-            GetEnrollmentError.InvalidCredentials -> credentialsChangedDialog()
+            GetEnrollmentError.InvalidCredentials -> requireAppCompatActivity().credentialsChangedDialog()
             GetEnrollmentError.NoConnection -> noConnectionSnackBar { viewModel.openEnrollmentProof() }
             GetEnrollmentError.NotEnrolled -> notFoundSnackBar()
             GetEnrollmentError.NotFound -> notFoundSnackBar()

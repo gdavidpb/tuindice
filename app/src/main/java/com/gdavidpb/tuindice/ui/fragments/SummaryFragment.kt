@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.ui.fragments
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -37,8 +36,6 @@ open class SummaryFragment : NavigationFragment() {
     private val viewModel by viewModel<SummaryViewModel>()
 
     private val picasso by inject<Picasso>()
-
-    private val packageManager by inject<PackageManager>()
 
     private val loadProfilePicture = LiveCompletable<ProfilePictureError>()
 
@@ -121,7 +118,7 @@ open class SummaryFragment : NavigationFragment() {
                 navigateToLogin()
             }
             is Completable.OnError -> {
-                clearApplicationUserData()
+                requireAppCompatActivity().clearApplicationUserData()
 
                 navigateToLogin()
             }

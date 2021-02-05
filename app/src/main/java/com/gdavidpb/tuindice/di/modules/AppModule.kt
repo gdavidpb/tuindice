@@ -254,6 +254,7 @@ val appModule = module {
     /* View Models */
 
     viewModel<MainViewModel>()
+    viewModel<SplashViewModel>()
     viewModel<SummaryViewModel>()
     viewModel<RecordViewModel>()
     viewModel<LoginViewModel>()

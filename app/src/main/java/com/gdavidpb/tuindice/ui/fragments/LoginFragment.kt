@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.ui.fragments
 
-import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.method.DigitsKeyListener
 import android.text.style.ForegroundColorSpan
@@ -22,18 +21,16 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.ui.adapters.LoadingAdapter
+import com.gdavidpb.tuindice.ui.dialogs.disabledAccountDialog
 import com.gdavidpb.tuindice.utils.KEY_LOADING_MESSAGES
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.fragment_login.*
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginFragment : NavigationFragment() {
 
     private val viewModel by viewModel<LoginViewModel>()
-
-    private val connectivityManager by inject<ConnectivityManager>()
 
     private val loadingMessages by config<List<String>>(KEY_LOADING_MESSAGES)
 
@@ -131,7 +128,7 @@ class LoginFragment : NavigationFragment() {
                 }
             }
         }.isNull {
-            hideSoftKeyboard()
+            requireAppCompatActivity().hideSoftKeyboard()
 
             iViewLogo.performClick()
 
@@ -193,7 +190,7 @@ class LoginFragment : NavigationFragment() {
     private fun syncObserver(result: Result<Boolean, SyncError>?) {
         when (result) {
             is Result.OnSuccess -> {
-                LoginFragmentDirections.navToSummary().let(::navigate)
+                LoginFragmentDirections.navToSplash().let(::navigate)
             }
             is Result.OnError -> {
                 showLoading(false)
@@ -204,7 +201,7 @@ class LoginFragment : NavigationFragment() {
     private fun signInErrorHandler(error: SignInError?) {
         when (error) {
             SignInError.InvalidCredentials -> invalidCredentialsSnackBar()
-            SignInError.AccountDisabled -> disabledAccountDialog()
+            SignInError.AccountDisabled -> requireAppCompatActivity().disabledAccountDialog()
             SignInError.NoConnection -> noConnectionSnackBar { onSignInClick() }
             else -> defaultErrorSnackBar { onSignInClick() }
         }

@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Flow
 import com.gdavidpb.tuindice.domain.usecase.errors.SendResetPasswordEmailError
 import com.gdavidpb.tuindice.domain.usecase.errors.SendVerificationEmailError
 import com.gdavidpb.tuindice.presentation.viewmodel.EmailViewModel
+import com.gdavidpb.tuindice.ui.dialogs.disabledAccountDialog
 import com.gdavidpb.tuindice.utils.FLAG_RESET
 import com.gdavidpb.tuindice.utils.FLAG_VERIFY
 import com.gdavidpb.tuindice.utils.KEY_TIME_VERIFICATION_COUNT_DOWN
@@ -102,7 +103,7 @@ class EmailFragment : NavigationFragment() {
                 EmailFragmentDirections.navToLogin().let(::navigate)
             }
             is Completable.OnError -> {
-                clearApplicationUserData()
+                requireAppCompatActivity().clearApplicationUserData()
                 EmailFragmentDirections.navToLogin().let(::navigate)
             }
         }
@@ -146,7 +147,7 @@ class EmailFragment : NavigationFragment() {
 
     private fun resetPasswordErrorHandler(error: SendResetPasswordEmailError?) {
         when (error) {
-            is SendResetPasswordEmailError.AccountDisabled -> disabledAccountDialog()
+            is SendResetPasswordEmailError.AccountDisabled -> requireAppCompatActivity().disabledAccountDialog()
             is SendResetPasswordEmailError.NoConnection -> noConnectionSnackBar { onResendClick() }
             else -> defaultErrorSnackBar { onResendClick() }
         }
@@ -154,7 +155,7 @@ class EmailFragment : NavigationFragment() {
 
     private fun sendEmailVerificationErrorHandler(error: SendVerificationEmailError?) {
         when (error) {
-            is SendVerificationEmailError.AccountDisabled -> disabledAccountDialog()
+            is SendVerificationEmailError.AccountDisabled -> requireAppCompatActivity().disabledAccountDialog()
             is SendVerificationEmailError.NoConnection -> noConnectionSnackBar { onResendClick() }
             else -> defaultErrorSnackBar { onResendClick() }
         }

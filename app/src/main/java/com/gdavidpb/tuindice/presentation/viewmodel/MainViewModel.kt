@@ -16,18 +16,13 @@ import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 
 class MainViewModel(
-        private val startUpUseCase: StartUpUseCase,
         private val syncAccountUseCase: SyncAccountUseCase,
         private val setLastScreenUseCase: SetLastScreenUseCase,
         private val requestReviewUseCase: RequestReviewUseCase
 ) : ViewModel() {
-    val fetchStartUpAction = LiveResult<StartUpAction, StartUpError>()
     val sync = LiveResult<Boolean, SyncError>()
     val lastScreen = LiveCompletable<Nothing>()
     val requestReview = LiveResult<ReviewInfo, Nothing>()
-
-    fun fetchStartUpAction(dataString: String) =
-            execute(useCase = startUpUseCase, params = dataString, liveData = fetchStartUpAction)
 
     fun trySyncAccount() =
             execute(useCase = syncAccountUseCase, params = Unit, liveData = sync)
