@@ -5,10 +5,7 @@ import androidx.core.content.edit
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.utils.KEY_COUNT_DOWN
-import com.gdavidpb.tuindice.utils.KEY_LAST_SCREEN
-import com.gdavidpb.tuindice.utils.KEY_PASSWORD
-import com.gdavidpb.tuindice.utils.KEY_USB_ID
+import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.mappers.toRefYear
 import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
 import java.util.*
@@ -74,6 +71,16 @@ open class PreferencesDataStore(
         preferences.edit {
             putInt(KEY_LAST_SCREEN, screen)
         }
+    }
+
+    override fun isReviewSuggested(value: Int): Boolean {
+        val counter = preferences.getInt(KEY_SYNCS_COUNTER, 0) + 1
+
+        preferences.edit {
+            putInt(KEY_SYNCS_COUNTER, counter)
+        }
+
+        return counter == value
     }
 
     override fun clear() {

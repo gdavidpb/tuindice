@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <defaultsMap>
     <entry>
+        <key>syncs_to_suggest_review</key>
+        <value>10</value>
+    </entry>
+    <entry>
         <key>time_verification_count_down</key>
         <value>300000</value>
     </entry>

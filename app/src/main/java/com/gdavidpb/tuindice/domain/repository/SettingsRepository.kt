@@ -11,6 +11,7 @@ interface SettingsRepository {
     fun getCredentials(): DstCredentials
     fun storeCredentials(credentials: DstCredentials)
     fun getCredentialYear(): Int
+    fun isReviewSuggested(value: Int): Boolean
 
     fun getLastScreen(): Int
     fun setLastScreen(screen: Int)

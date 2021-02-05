@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.utils.extensions.create
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
 import com.gdavidpb.tuindice.utils.extensions.inflate
 import com.gdavidpb.tuindice.utils.extensions.noSensitiveData
+import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
@@ -206,6 +207,10 @@ val appModule = module {
                 .addConverterFactory(JspoonConverterFactory.create())
     }
 
+    factory {
+        ReviewManagerFactory.create(androidContext())
+    }
+
     /* Dst auth service */
 
     single {
@@ -303,6 +308,7 @@ val appModule = module {
     factory<GetProfilePictureFileUseCase>()
     factory<GetProfilePictureUseCase>()
     factory<RemoveProfilePictureUseCase>()
+    factory<RequestReviewUseCase>()
 
     /* Utils */
 

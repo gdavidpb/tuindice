@@ -20,6 +20,7 @@ const val KEY_USB_ID = "email"
 const val KEY_PASSWORD = "password"
 const val KEY_COUNT_DOWN = "countdown"
 const val KEY_LAST_SCREEN = "lastScreen"
+const val KEY_SYNCS_COUNTER = "syncsCounter"
 
 /* Remote config keys */
 const val KEY_CONTACT_EMAIL = "contact_email"
@@ -30,6 +31,7 @@ const val KEY_DST_CERTIFICATES = "dst_certificates"
 const val KEY_TIME_VERIFICATION_COUNT_DOWN = "time_verification_count_down"
 const val KEY_TIME_OUT_CONNECTION = "time_out_connection"
 const val KEY_TIME_SYNCHRONIZATION = "time_synchronization"
+const val KEY_SYNCS_TO_SUGGEST_REVIEW = "syncs_to_suggest_review"
 
 /* Romans */
 val ROMANS = hashMapOf(

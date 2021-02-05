@@ -4,6 +4,7 @@ import android.app.ActivityManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -17,6 +18,9 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.IdempotentLocker
 import com.gdavidpb.tuindice.utils.TIME_EXIT_LOCKER
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.google.android.play.core.ktx.launchReview
+import com.google.android.play.core.review.ReviewInfo
+import com.google.android.play.core.review.ReviewManager
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -24,6 +28,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : AppCompatActivity() {
 
     private val activityManager by inject<ActivityManager>()
+
+    private val reviewManager by inject<ReviewManager>()
 
     private val viewModel by viewModel<MainViewModel>()
 
@@ -73,6 +79,7 @@ class MainActivity : AppCompatActivity() {
         with(viewModel) {
             observe(sync, ::syncObserver)
             observe(fetchStartUpAction, ::startUpObserver)
+            observe(requestReview, ::requestReviewObserver)
 
             fetchStartUpAction(dataString = intent.dataString ?: "")
         }
@@ -192,7 +199,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private fun onDestinationChanged(destination: NavDestination) {
         val showBottomNav = destinations[destination.id] ?: false
 
@@ -219,11 +225,25 @@ class MainActivity : AppCompatActivity() {
             }
             is Result.OnSuccess -> {
                 pBarSync.visibleIf(false)
+
+                viewModel.checkReview(reviewManager)
             }
             is Result.OnError -> {
                 pBarSync.visibleIf(false)
 
                 syncErrorHandler(error = result.error)
+            }
+        }
+    }
+
+    private fun requestReviewObserver(result: Result<ReviewInfo, Nothing>?) {
+        when (result) {
+            is Result.OnSuccess -> {
+                val reviewInfo = result.value
+
+                lifecycleScope.launchWhenResumed {
+                    reviewManager.launchReview(this@MainActivity, reviewInfo)
+                }
             }
         }
     }
