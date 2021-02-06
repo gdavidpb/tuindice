@@ -22,7 +22,7 @@ import com.gdavidpb.tuindice.utils.KEY_TIME_OUT_CONNECTION
 import com.gdavidpb.tuindice.utils.KEY_TIME_SYNCHRONIZATION
 import com.gdavidpb.tuindice.utils.createMockService
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
-import com.gdavidpb.tuindice.utils.isEmulator
+import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.testing.FakeReviewManager
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.firestore.FirebaseFirestore
@@ -44,11 +44,6 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 val mockModule = module {
-
-    val localhost = if (isEmulator())
-        BuildConfig.URL_EMULATOR_MOCK
-    else
-        BuildConfig.URL_LOCAL_MOCK
 
     /* Application */
 
@@ -92,7 +87,7 @@ val mockModule = module {
 
     single {
         val settings = FirebaseFirestoreSettings.Builder()
-                .setHost("$localhost:8080")
+                .setHost("${BuildConfig.URL_MOCK}:8080")
                 .setSslEnabled(false)
                 .setPersistenceEnabled(false)
                 .build()
@@ -138,7 +133,7 @@ val mockModule = module {
                 .addConverterFactory(JspoonConverterFactory.create())
     }
 
-    factory {
+    factory<ReviewManager> {
         FakeReviewManager(androidContext())
     }
 

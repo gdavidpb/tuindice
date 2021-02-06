@@ -19,7 +19,7 @@ val defaultPersonalResponse = DstPersonalDataSelector(
                 firstNames = "Luis Pedro",
                 lastNames = "Pérez Martínez",
                 careerCode = 0,
-                careerName = "Ciclo Básico",
+                careerName = "Ingeniería de Computación",
                 scholarship = false
         )
 )

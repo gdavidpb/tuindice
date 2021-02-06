@@ -52,8 +52,7 @@ android {
 
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
-            buildConfigField "String", "URL_LOCAL_MOCK", "\"${config.mockLocalAddress}\""
-            buildConfigField "String", "URL_EMULATOR_MOCK", "\"${config.mockEmulatorAddress}\""
+            buildConfigField "String", "URL_MOCK", "\"${config.mockAddress}\""
 
             buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
             buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
@@ -84,8 +83,7 @@ android {
 
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
-            buildConfigField "String", "URL_LOCAL_MOCK", "\"\""
-            buildConfigField "String", "URL_EMULATOR_MOCK", "\"\""
+            buildConfigField "String", "URL_MOCK", "\"\""
 
             buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
             buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""

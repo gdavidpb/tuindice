@@ -13,8 +13,7 @@ buildscript {
 
         config = [:]
 
-        config.mockEmulatorAddress = "10.0.2.2"
-        config.mockLocalAddress = "${InetAddress.getLocalHost().getHostAddress()}"
+        config.mockAddress = "${new Socket("google.com", 80).localAddress.hostAddress}"
     }
 
     repositories {
