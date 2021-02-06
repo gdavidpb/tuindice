@@ -94,17 +94,17 @@ class LoginFragment : NavigationFragment() {
             }
 
             setLink(getString(R.string.link_terms_and_conditions)) {
-                LoginFragmentDirections.navToUrl(
+                navigate(LoginFragmentDirections.navToUrl(
                         title = getString(R.string.label_terms_and_conditions),
                         url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS
-                ).let(::navigate)
+                ))
             }
 
             setLink(getString(R.string.link_privacy_policy)) {
-                LoginFragmentDirections.navToUrl(
+                navigate(LoginFragmentDirections.navToUrl(
                         title = getString(R.string.label_privacy_policy),
                         url = BuildConfig.URL_APP_PRIVACY_POLICY
-                ).let(::navigate)
+                ))
             }
         }.build()
 
@@ -190,7 +190,7 @@ class LoginFragment : NavigationFragment() {
     private fun syncObserver(result: Result<Boolean, SyncError>?) {
         when (result) {
             is Result.OnSuccess -> {
-                LoginFragmentDirections.navToSplash().let(::navigate)
+                navigate(LoginFragmentDirections.navToSplash())
             }
             is Result.OnError -> {
                 showLoading(false)

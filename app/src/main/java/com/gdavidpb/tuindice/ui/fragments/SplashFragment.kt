@@ -69,25 +69,28 @@ class SplashFragment : NavigationFragment() {
                         .setPopUpTo(action.screen, true)
                         .build()
 
-                findNavController().navigate(action.screen, null, navOptions)
+                runCatching {
+                    findNavController().navigate(action.screen, null, navOptions)
+                }.onFailure {
+                    navigate(SplashFragmentDirections.navToSummary())
+                }
 
                 mainViewModel.trySyncAccount()
             }
             is StartUpAction.Reset -> {
-                SplashFragmentDirections.navToEmail(
+                navigate(SplashFragmentDirections.navToEmail(
                         awaitingEmail = action.email,
                         awaitingState = FLAG_RESET
-                ).let(::navigate)
+                ))
             }
             is StartUpAction.Verify -> {
-                SplashFragmentDirections.navToEmail(
+                navigate(SplashFragmentDirections.navToEmail(
                         awaitingEmail = action.email,
                         awaitingState = FLAG_VERIFY
-                ).let(::navigate)
+                ))
             }
             is StartUpAction.Login -> {
-                SplashFragmentDirections.navToLogin()
-                        .let(::navigate)
+                navigate(SplashFragmentDirections.navToLogin())
             }
         }
     }

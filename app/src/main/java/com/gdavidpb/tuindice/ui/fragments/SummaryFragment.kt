@@ -258,7 +258,7 @@ open class SummaryFragment : NavigationFragment() {
     private fun navigateToLogin() {
         findNavController().popStackToRoot()
 
-        SummaryFragmentDirections.navToLogin().let(::navigate)
+        navigate(SummaryFragmentDirections.navToLogin())
     }
 
     private fun signOutDialog() {

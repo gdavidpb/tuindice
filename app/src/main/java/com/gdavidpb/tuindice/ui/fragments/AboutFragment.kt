@@ -188,10 +188,10 @@ open class AboutFragment : NavigationFragment() {
 
     private fun startBrowser(@StringRes title: Int, url: String) {
         runCatching {
-            AboutFragmentDirections.navToUrl(
+            navigate(AboutFragmentDirections.navToUrl(
                     title = getString(title),
                     url = url
-            ).let(::navigate)
+            ))
         }.onFailure {
             requireContext().browse(url)
         }

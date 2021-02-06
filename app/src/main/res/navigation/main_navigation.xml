@@ -24,6 +24,12 @@
             app:exitAnim="@anim/slide_out_to_top"
             app:popUpTo="@id/fragment_splash"
             app:popUpToInclusive="true" />
+
+        <action
+            android:id="@+id/nav_to_summary"
+            app:destination="@id/fragment_summary"
+            app:popUpTo="@id/fragment_splash"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
