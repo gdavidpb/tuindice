@@ -1,13 +1,11 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.os.Bundle
-import android.text.method.DigitsKeyListener
 import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
 import android.text.style.UnderlineSpan
 import android.view.View
 import android.view.animation.OvershootInterpolator
-import android.view.inputmethod.EditorInfo
 import androidx.core.content.ContextCompat
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
@@ -36,9 +34,9 @@ class LoginFragment : NavigationFragment() {
 
     private val validations by lazy {
         arrayOf(
-                `when`(tInputUsbId) { text().isBlank() } `do` { errorResource = R.string.error_empty },
-                `when`(tInputUsbId) { !text().isUsbId() } `do` { errorResource = R.string.error_usb_id },
-                `when`(tInputPassword) { text().isBlank() } `do` { errorResource = R.string.error_empty },
+                `when`(tInputUsbId) { isBlank() } `do` { setError(R.string.error_empty) },
+                `when`(tInputUsbId) { !isValid() } `do` { setError(R.string.error_usb_id) },
+                `when`(tInputPassword) { isBlank() } `do` { setError(R.string.error_empty) },
                 `when`(connectivityManager) { !isNetworkAvailable() } `do` { signInErrorHandler(SignInError.NoConnection) }
         )
     }
@@ -59,31 +57,8 @@ class LoginFragment : NavigationFragment() {
     private fun onViewCreated() {
         (backgroundOne to backgroundTwo).animateInfiniteLoop()
 
-        eTextUsbId.onTextChanged { _, _, _, _ -> if (tInputUsbId.error != null) tInputUsbId.error = null }
-        eTextPassword.onTextChanged { _, _, _, _ -> if (tInputPassword.error != null) tInputPassword.error = null }
-
-        eTextUsbId.onTextChanged { s, _, before, _ ->
-            if (s.length >= 2 && before == 0 && !s.contains("-")) {
-                eTextUsbId.keyListener = DigitsKeyListener.getInstance("0123456789-")
-                eTextUsbId.text?.insert(2, "-")
-            } else
-                eTextUsbId.keyListener = DigitsKeyListener.getInstance("0123456789")
-        }
-
-        eTextPassword.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                onSignInClick()
-                false
-            } else
-                true
-        }
-
-        arrayOf(tInputUsbId, tInputPassword).forEach { textInputLayout ->
-            textInputLayout.editText.notNull { editText ->
-                editText.onTextChanged { _, _, _, _ ->
-                    textInputLayout.error = null
-                }
-            }
+        tInputPassword.setAction {
+            onSignInClick()
         }
 
         val accentColor = ContextCompat.getColor(requireContext(), R.color.color_accent)
@@ -133,8 +108,8 @@ class LoginFragment : NavigationFragment() {
             iViewLogo.performClick()
 
             viewModel.signIn(
-                    usbId = tInputUsbId.text(),
-                    password = tInputPassword.text()
+                    usbId = tInputUsbId.getUsbId(),
+                    password = tInputPassword.getPassword()
             )
         }
     }

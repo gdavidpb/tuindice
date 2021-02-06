@@ -94,77 +94,27 @@
         app:layout_constraintStart_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/vFlipperLoading" />
 
-    <com.google.android.material.textfield.TextInputLayout
+    <com.gdavidpb.tuindice.ui.customs.UsbIdInput
         android:id="@+id/tInputUsbId"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_usb_id"
-        android:textColorHint="@color/color_accent"
-        app:errorEnabled="true"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
         android:layout_marginTop="@dimen/dp_32"
-        app:boxCornerRadiusBottomEnd="@dimen/dp_8"
-        app:boxCornerRadiusBottomStart="@dimen/dp_8"
-        app:boxCornerRadiusTopEnd="@dimen/dp_8"
-        app:boxCornerRadiusTopStart="@dimen/dp_8"
-        app:boxStrokeErrorColor="@color/color_text_input_layout_error"
-        app:errorIconDrawable="@drawable/ic_warning"
-        app:errorIconTint="@color/color_text_input_layout_error"
-        app:errorTextColor="@color/color_text_input_layout_error"
         app:layout_constraintBottom_toTopOf="@id/tInputPassword"
         app:layout_constraintTop_toBottomOf="@id/iViewLogo"
-        app:layout_constraintVertical_chainStyle="packed"
-        app:startIconDrawable="@drawable/ic_account">
+        app:layout_constraintVertical_chainStyle="packed" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/eTextUsbId"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:imeOptions="actionNext"
-            android:inputType="number"
-            android:maxLength="8"
-            android:textColor="@color/color_text_input_layout_text" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
+    <com.gdavidpb.tuindice.ui.customs.PasswordInput
         android:id="@+id/tInputPassword"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="@string/hintPassword"
-        android:textColorHint="@color/color_accent"
-        app:errorEnabled="true"
+        android:layout_marginTop="@dimen/dp_4"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@id/tInputUsbId"
-        app:passwordToggleEnabled="true"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_marginTop="@dimen/dp_4"
-        app:boxCornerRadiusBottomEnd="@dimen/dp_8"
-        app:boxCornerRadiusBottomStart="@dimen/dp_8"
-        app:boxCornerRadiusTopEnd="@dimen/dp_8"
-        app:boxCornerRadiusTopStart="@dimen/dp_8"
-        app:boxStrokeErrorColor="@color/color_text_input_layout_error"
-        app:errorIconDrawable="@drawable/ic_warning"
-        app:errorIconTint="@color/color_text_input_layout_error"
-        app:errorTextColor="@color/color_text_input_layout_error"
         app:layout_constraintBottom_toTopOf="@id/btnSignIn"
-        app:layout_constraintVertical_chainStyle="packed"
-        app:startIconDrawable="@drawable/ic_password">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/eTextPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:imeOptions="actionDone"
-            android:inputType="textPassword"
-            android:maxLength="60"
-            android:textColor="@color/color_text_input_layout_text"
-            android:selectAllOnFocus="true" />
-
-    </com.google.android.material.textfield.TextInputLayout>
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnSignIn"

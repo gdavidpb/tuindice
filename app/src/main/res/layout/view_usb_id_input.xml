@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/textInputLayout"
+    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="@string/hint_usb_id"
+    android:textColorHint="@color/color_accent"
+    app:boxCornerRadiusBottomEnd="@dimen/dp_8"
+    app:boxCornerRadiusBottomStart="@dimen/dp_8"
+    app:boxCornerRadiusTopEnd="@dimen/dp_8"
+    app:boxCornerRadiusTopStart="@dimen/dp_8"
+    app:boxStrokeErrorColor="@color/color_text_input_layout_error"
+    app:errorEnabled="true"
+    app:errorIconDrawable="@drawable/ic_warning"
+    app:errorIconTint="@color/color_text_input_layout_error"
+    app:errorTextColor="@color/color_text_input_layout_error"
+    app:startIconDrawable="@drawable/ic_account">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/textInputEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:imeOptions="actionNext"
+        android:inputType="number"
+        android:maxLength="8"
+        android:textColor="@color/color_text_input_layout_text" />
+
+</com.google.android.material.textfield.TextInputLayout>

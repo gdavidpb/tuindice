@@ -94,63 +94,25 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/guidelineCenterBottom" />
 
-    <com.google.android.material.textfield.TextInputLayout
+    <com.gdavidpb.tuindice.ui.customs.UsbIdInput
         android:id="@+id/tInputUsbId"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_usb_id"
-        android:textColorHint="@color/color_accent"
-        app:boxStrokeErrorColor="@color/color_failed"
-        app:errorEnabled="true"
-        app:errorIconDrawable="@drawable/ic_warning"
-        app:errorIconTint="@color/color_failed"
-        app:errorTextColor="@color/color_failed"
+        android:layout_marginTop="@dimen/dp_32"
         app:layout_constraintBottom_toTopOf="@id/tInputPassword"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iViewLogo"
-        app:layout_constraintVertical_chainStyle="packed"
-        app:startIconDrawable="@drawable/ic_account">
+        app:layout_constraintVertical_chainStyle="packed" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/eTextUsbId"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:imeOptions="actionNext"
-            android:inputType="number"
-            android:maxLength="8" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
+    <com.gdavidpb.tuindice.ui.customs.PasswordInput
         android:id="@+id/tInputPassword"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="@string/hintPassword"
-        android:textColorHint="@color/color_accent"
-        app:boxStrokeErrorColor="@color/color_failed"
-        app:errorEnabled="true"
-        app:errorIconDrawable="@drawable/ic_warning"
-        app:errorIconTint="@color/color_failed"
-        app:errorTextColor="@color/color_failed"
+        android:layout_marginTop="@dimen/dp_4"
         app:layout_constraintBottom_toTopOf="@id/btnSignIn"
         app:layout_constraintStart_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tInputUsbId"
-        app:layout_constraintVertical_chainStyle="packed"
-        app:passwordToggleEnabled="true"
-        app:startIconDrawable="@drawable/ic_password">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/eTextPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:imeOptions="actionDone"
-            android:inputType="textPassword"
-            android:maxLength="60"
-            android:selectAllOnFocus="true" />
-
-    </com.google.android.material.textfield.TextInputLayout>
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btnSignIn"

@@ -42,8 +42,6 @@ fun Collection<Subject>.computeCredits() = sumBy {
     if (it.grade != 0) it.credits else 0
 }
 
-fun String.isUsbId() = matches("^\\d{2}-\\d{5}$".toRegex())
-
 fun Account.isUpdated(): Boolean {
     val now = Date()
     val outdated = lastUpdate.tomorrow()
