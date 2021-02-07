@@ -39,27 +39,37 @@ class ComputationTest {
 
     @Test
     fun filterNoEffect_Test() {
-        val actualSubjectsContainsNoEffect = listOf(
+        val actualCase1 = listOf(
                 createSubject(code = "MA1111", grade = 5),
                 createSubject(code = "MA1111", grade = 2),
                 createSubject(code = "MA1111", grade = 1)
         ).filterNoEffect()
 
-        val expectedSubjectsContainsNoEffect = listOf(
+        val expectedCase1 = listOf(
                 createSubject(code = "MA1111", grade = 5),
                 createSubject(code = "MA1111", grade = 1)
         )
 
-        val actualSubjectNoContainsNoEffect = listOf(
+        val actualCase2 = listOf(
+                createSubject(code = "MA1111", grade = 5),
+                createSubject(code = "MA1111", grade = 1)
+        ).filterNoEffect()
+
+        val expectedCase2 = listOf(
+                createSubject(code = "MA1111", grade = 5)
+        )
+
+        val actualCase3 = listOf(
                 createSubject(code = "MA1111", grade = 5)
         ).filterNoEffect()
 
-        val expectedSubjectNoContainsNoEffect = listOf(
+        val expectedCase3 = listOf(
                 createSubject(code = "MA1111", grade = 5)
-        ).filterNoEffect()
+        )
 
-        assertEquals(expectedSubjectsContainsNoEffect, actualSubjectsContainsNoEffect)
-        assertEquals(expectedSubjectNoContainsNoEffect, actualSubjectNoContainsNoEffect)
+        assertEquals(expectedCase1, actualCase1)
+        assertEquals(expectedCase2, actualCase2)
+        assertEquals(expectedCase3, actualCase3)
     }
 
     @Test
@@ -91,22 +101,6 @@ class ComputationTest {
         val expectedGrade = floor(weightedSum / creditsSum * 10000.0) / 10000.0
 
         assertEquals(expectedGrade, actualGrade, 0.0)
-    }
-
-    @Test
-    fun isUsbId_Test() {
-        assertTrue("11-11111".isUsbId())
-        assertTrue("00-00000".isUsbId())
-
-        assertFalse("00000000".isUsbId())
-        assertFalse("00-qwert".isUsbId())
-        assertFalse("qw-00000".isUsbId())
-        assertFalse("0-0".isUsbId())
-        assertFalse("a-b".isUsbId())
-        assertFalse("0".isUsbId())
-        assertFalse("qwerty".isUsbId())
-        assertFalse("     ".isUsbId())
-        assertFalse("".isUsbId())
     }
 
     @Test
@@ -194,27 +188,27 @@ class ComputationTest {
     private fun createAccount(
             lastUpdate: Date = Date()
     ) = Account(
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            0,
-            false,
-            0.0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            lastUpdate,
-            0
+            uid = "",
+            id = "",
+            usbId = "",
+            email = "",
+            fullName = "",
+            firstNames = "",
+            lastNames = "",
+            careerName = "",
+            careerCode = 0,
+            scholarship = false,
+            grade = 0.0,
+            enrolledSubjects = 0,
+            enrolledCredits = 0,
+            approvedSubjects = 0,
+            approvedCredits = 0,
+            retiredSubjects = 0,
+            retiredCredits = 0,
+            failedSubjects = 0,
+            failedCredits = 0,
+            lastUpdate = lastUpdate,
+            appVersionCode = 0
     )
 
     private fun createQuarter(
@@ -223,14 +217,14 @@ class ComputationTest {
             status: Int = 0,
             subjects: MutableList<Subject> = mutableListOf()
     ) = Quarter(
-            "",
-            startDate,
-            endDate,
-            0.0,
-            0.0,
-            0,
-            status,
-            subjects
+            id = "",
+            startDate = startDate,
+            endDate = endDate,
+            grade = 0.0,
+            gradeSum = 0.0,
+            credits = 0,
+            status = status,
+            subjects = subjects
     )
 
     private fun createSubject(
@@ -240,14 +234,12 @@ class ComputationTest {
             credits: Int = 0,
             status: Int = 0
     ) = Subject(
-            "",
-            "",
-            code,
-            name,
-            credits,
-            grade,
-            status
+            id = "",
+            qid = "",
+            code = code,
+            name = name,
+            credits = credits,
+            grade = grade,
+            status = status
     )
-
-    private fun String.isUsbId() = matches("^\\d{2}-\\d{5}$".toRegex())
 }
