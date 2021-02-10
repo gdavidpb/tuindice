@@ -2,12 +2,9 @@ package com.gdavidpb.tuindice.presentation.viewmodel
 
 import androidx.annotation.IdRes
 import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
-import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.SyncAccountUseCase
-import com.gdavidpb.tuindice.domain.usecase.errors.StartUpError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.utils.extensions.LiveResult

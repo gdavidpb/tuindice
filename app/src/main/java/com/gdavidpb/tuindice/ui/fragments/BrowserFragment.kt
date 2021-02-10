@@ -50,7 +50,7 @@ open class BrowserFragment : NavigationFragment() {
                 }
             }
 
-            webView.loadUrl(args.url)
+            loadUrl(args.url)
         }
     }
 

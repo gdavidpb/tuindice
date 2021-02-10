@@ -136,7 +136,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="30"
-                android:drawableStart="@drawable/sh_oval_approved"
+                app:drawableStartCompat="@drawable/sh_oval_approved"
                 android:drawablePadding="@dimen/dp_4"
                 android:text="@string/label_credits_approved" />
 
@@ -144,7 +144,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="30"
-                android:drawableStart="@drawable/sh_oval_failed"
+                app:drawableStartCompat="@drawable/sh_oval_failed"
                 android:drawablePadding="@dimen/dp_4"
                 android:text="@string/label_credits_failed" />
 
@@ -152,7 +152,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="30"
-                android:drawableStart="@drawable/sh_oval_retired"
+                app:drawableStartCompat="@drawable/sh_oval_retired"
                 android:drawablePadding="@dimen/dp_4"
                 android:text="@string/label_credits_retired" />
 

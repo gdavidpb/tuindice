@@ -53,5 +53,3 @@ fun String.noSensitiveData(): String = sensitiveData.fold(this) { acc, regex ->
 fun String.isHtml() = contains("<[^>]*>".toRegex())
 
 inline fun Any?.isNull(exec: () -> Unit) = this ?: exec()
-
-inline fun <T> T?.notNull(exec: (T) -> Unit): T? = this?.also { exec(this) }

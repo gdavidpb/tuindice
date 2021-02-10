@@ -179,6 +179,3 @@ var ChipGroup.checkedChipIndex: Int
     set(value) {
         check(getChildAt(value).id)
     }
-
-val ChipGroup.checkedChip: Chip?
-    get() = if (checkedChipId != -1) findViewById<Chip>(checkedChipId) else null

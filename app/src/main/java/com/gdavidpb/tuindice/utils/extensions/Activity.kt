@@ -31,7 +31,6 @@ fun AppCompatActivity.hideSoftKeyboard() {
     inputMethodManager.hideSoftKeyboard(this)
 }
 
-
 fun FragmentActivity.selector(
         @StringRes textResource: Int,
         items: Array<String>,
