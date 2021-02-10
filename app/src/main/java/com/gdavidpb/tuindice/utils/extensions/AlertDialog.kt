@@ -6,7 +6,6 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.gdavidpb.tuindice.ui.dialogs.EvaluationDialogBuilder
 import com.gdavidpb.tuindice.utils.NO_GETTER
 import kotlin.DeprecationLevel.ERROR
 
@@ -52,6 +51,3 @@ inline fun FragmentActivity.alert(builder: AlertDialog.Builder.() -> Unit): Aler
 
 inline fun Fragment.alert(builder: AlertDialog.Builder.() -> Unit): AlertDialog =
         AlertDialog.Builder(requireActivity()).apply(builder).show()
-
-inline fun Fragment.evaluationDialog(builder: EvaluationDialogBuilder.() -> Unit): AlertDialog =
-        EvaluationDialogBuilder(requireActivity()).apply(builder).show()

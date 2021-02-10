@@ -129,6 +129,32 @@
         <argument
             android:name="subjectId"
             app:argType="string" />
+
+        <action
+            android:id="@+id/nav_to_evaluation"
+            app:destination="@id/fragment_evaluation"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_evaluation"
+        android:name="com.gdavidpb.tuindice.ui.fragments.EvaluationFragment"
+        android:label="{title}"
+        tools:layout="@layout/fragment_evaluation">
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="subjectId"
+            app:argType="string" />
+        <argument
+            android:name="evaluationId"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
 
     <fragment

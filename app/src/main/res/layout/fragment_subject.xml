@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/dp_16">
+    android:background="@color/color_background"
+    android:paddingTop="@dimen/dp_8">
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/groupEvaluations"
@@ -118,7 +119,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_16"
         android:layout_marginEnd="@dimen/dp_16"
-        android:drawableTop="@drawable/ic_evaluations_empty"
+        app:drawableTopCompat="@drawable/ic_evaluations_empty"
         android:drawablePadding="@dimen/dp_16"
         android:fontFamily="sans-serif-light"
         android:text="@string/label_empty_evaluations"
@@ -155,6 +156,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_add"
+        android:contentDescription="@string/title_add_evaluation"
         app:tint="@color/color_text_icon" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Evaluation
-import com.gdavidpb.tuindice.domain.model.SubjectEvaluations
+import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
@@ -39,6 +39,8 @@ open class SubjectFragment : NavigationFragment() {
     override fun onCreateView() = R.layout.fragment_subject
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         setHasOptionsMenu(true)
 
         with(rViewEvaluations) {
@@ -58,10 +60,11 @@ open class SubjectFragment : NavigationFragment() {
         btnAddEvaluation.onClickOnce(::onAddEvaluationClicked)
 
         with(viewModel) {
-            observe(add, ::addEvaluationObserver)
             observe(evaluationUpdate, ::updateEvaluationObserver)
+            observe(subject, ::subjectObserver)
             observe(evaluations, ::evaluationsObserver)
 
+            getSubject(sid = args.subjectId)
             getSubjectEvaluations(sid = args.subjectId)
         }
     }
@@ -86,7 +89,10 @@ open class SubjectFragment : NavigationFragment() {
     }
 
     private fun onAddEvaluationClicked() {
-        showEvaluationDialog()
+        navigate(SubjectFragmentDirections.navToEvaluation(
+                title = getString(R.string.title_add_evaluation),
+                subjectId = args.subjectId
+        ))
     }
 
     private fun updateGrades(animate: Boolean) {
@@ -101,19 +107,6 @@ open class SubjectFragment : NavigationFragment() {
         }
     }
 
-    private fun addEvaluationObserver(result: Result<Evaluation, Nothing>?) {
-        when (result) {
-            is Result.OnSuccess -> {
-                val context = requireContext()
-                val response = result.value
-
-                val item = response.toEvaluationItem(context)
-
-                evaluationAdapter.addItem(item = item, notifyChange = false)
-            }
-        }
-    }
-
     private fun updateEvaluationObserver(result: Result<Evaluation, Nothing>?) {
         when (result) {
             is Result.OnSuccess -> {
@@ -125,37 +118,28 @@ open class SubjectFragment : NavigationFragment() {
         }
     }
 
-    private fun evaluationsObserver(result: Result<SubjectEvaluations, Nothing>?) {
+    private fun subjectObserver(result: Result<Subject, Nothing>?) {
         when (result) {
             is Result.OnSuccess -> {
-                val context = requireContext()
-                val response = result.value
-                val subject = response.subject
-                val evaluations = response.evaluations
+                val subject = result.value
 
                 tViewSubjectName.text = subject.name
                 tViewSubjectCode.text = subject.code
+            }
+        }
+    }
+
+    private fun evaluationsObserver(result: Result<List<Evaluation>, Nothing>?) {
+        when (result) {
+            is Result.OnSuccess -> {
+                val context = requireContext()
+                val evaluations = result.value
 
                 val items = evaluations.map { evaluation ->
                     evaluation.toEvaluationItem(context)
                 }
 
                 evaluationAdapter.swapItems(new = items)
-            }
-        }
-    }
-
-    private fun showEvaluationDialog(evaluation: Evaluation? = null) {
-        val subject = viewModel.getSelectedSubject() ?: return
-
-        evaluationDialog {
-            setSubject(subject)
-            setEvaluation(evaluation)
-            onDone { newEvaluation ->
-                if (newEvaluation.isNew())
-                    viewModel.addEvaluation(evaluation = newEvaluation.toEvaluation())
-                else
-                    viewModel.updateEvaluation(evaluation = newEvaluation.toEvaluation())
             }
         }
     }
@@ -182,7 +166,11 @@ open class SubjectFragment : NavigationFragment() {
         }
 
         override fun onEvaluationClicked(item: EvaluationItem, position: Int) {
-            showEvaluationDialog(evaluation = item.toEvaluation())
+            navigate(SubjectFragmentDirections.navToEvaluation(
+                    title = getString(R.string.title_edit_evaluation),
+                    subjectId = args.subjectId,
+                    evaluationId = item.id
+            ))
         }
 
         override fun onEvaluationChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean) {

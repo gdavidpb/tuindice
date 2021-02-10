@@ -25,7 +25,7 @@ data class DatePickerDialogBuilder(
             time = selectedDate
         }
 
-        return DatePickerDialog(context, DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+        return DatePickerDialog(context, { _, year, month, dayOfMonth ->
             Calendar.getInstance().run {
                 precision(Calendar.DATE)
 

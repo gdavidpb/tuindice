@@ -97,6 +97,15 @@ open class FirestoreMockDataStore(
                 .map { it.toSubject() }
     }
 
+    override suspend fun getEvaluation(uid: String, eid: String): Evaluation {
+        return firestore
+                .collection(COLLECTION_EVALUATION)
+                .document(eid)
+                .get()
+                .await()
+                .toEvaluation()
+    }
+
     override suspend fun updateEvaluation(uid: String, evaluation: Evaluation) {
         val evaluationRef = firestore
                 .collection(COLLECTION_EVALUATION)

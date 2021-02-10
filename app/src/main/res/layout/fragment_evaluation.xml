@@ -1,12 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:fillViewport="true">
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <TextView
+        android:id="@+id/tViewSubjectHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_background"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="@dimen/dp_12"
+        android:paddingTop="@dimen/dp_6"
+        android:paddingEnd="@dimen/dp_12"
+        android:paddingBottom="@dimen/dp_6"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="CI2125 — COMPUTACION I" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/tViewSubjectHeader">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
@@ -26,8 +46,8 @@
                 android:id="@+id/cGroupEvaluation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_8"
                 android:animateLayoutChanges="true"
-                android:layout_marginTop="@dimen/dp_16"
                 app:layout_constraintTop_toBottomOf="@id/tViewLabelType"
                 app:selectionRequired="true"
                 app:singleSelection="true" />
@@ -36,7 +56,7 @@
                 android:id="@+id/tViewLabelGrade"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_16"
+                android:layout_marginTop="@dimen/dp_8"
                 android:fontFamily="sans-serif-light"
                 android:labelFor="@id/sBarMaxGrade"
                 android:text="@string/label_evaluation_max_grade"
@@ -55,6 +75,15 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/tViewLabelGrade"
                 tools:text="27.50 pts" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/sh_rect_date"
+                app:layout_constraintBottom_toBottomOf="@id/sBarMaxGrade"
+                app:layout_constraintEnd_toEndOf="@id/btnGradeUp"
+                app:layout_constraintStart_toStartOf="@id/btnGradeDown"
+                app:layout_constraintTop_toTopOf="@id/sBarMaxGrade" />
 
             <ImageButton
                 android:id="@+id/btnGradeDown"
@@ -92,15 +121,15 @@
                 android:progress="0"
                 app:layout_constraintEnd_toStartOf="@id/btnGradeUp"
                 app:layout_constraintStart_toEndOf="@id/btnGradeDown"
-                tools:max="200"
                 app:layout_constraintTop_toBottomOf="@id/tViewLabelGrade"
+                tools:max="200"
                 tools:progress="55" />
 
             <TextView
                 android:id="@+id/tViewLabelDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_16"
+                android:layout_marginTop="@dimen/dp_8"
                 android:fontFamily="sans-serif-light"
                 android:labelFor="@id/tViewLabelGrade"
                 android:text="@string/label_evaluation_date"
@@ -108,7 +137,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/sBarMaxGrade" />
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/sEvaluationDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -127,19 +156,19 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_16"
                 android:clickable="true"
-                android:drawableEnd="@drawable/ic_expand_more"
                 android:focusable="true"
                 android:fontFamily="sans-serif-light"
                 android:labelFor="@id/eTextNotes"
                 android:text="@string/label_evaluation_notes"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:drawableEndCompat="@drawable/ic_expand_more"
                 app:layout_constraintTop_toBottomOf="@id/tViewDate" />
 
             <EditText
                 android:id="@+id/eTextNotes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_16"
+                android:layout_marginTop="@dimen/dp_8"
                 android:imeOptions="actionDone"
                 android:importantForAutofill="no"
                 android:inputType="textShortMessage|text|textCapSentences"
@@ -147,8 +176,11 @@
                 android:maxLines="1"
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/tViewLabelNotes"
-                tools:layout_editor_absoluteX="16dp" />
+                tools:visibility="visible" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-</ScrollView>
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

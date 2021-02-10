@@ -97,6 +97,15 @@ open class FirestoreDataStore(
                 .map { it.toSubject() }
     }
 
+    override suspend fun getEvaluation(uid: String, eid: String): Evaluation {
+        return firestore
+                .collection(COLLECTION_EVALUATION)
+                .document(eid)
+                .get(Source.CACHE)
+                .await()
+                .toEvaluation()
+    }
+
     override suspend fun updateEvaluation(uid: String, evaluation: Evaluation) {
         val evaluationRef = firestore
                 .collection(COLLECTION_EVALUATION)
