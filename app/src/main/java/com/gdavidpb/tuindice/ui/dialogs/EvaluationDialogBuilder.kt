@@ -5,6 +5,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import com.gdavidpb.tuindice.R
@@ -84,6 +85,11 @@ class EvaluationDialogBuilder(private val activity: FragmentActivity) : AlertDia
                 chip as Chip
 
                 chip.text = context.getString(evaluationType.stringRes)
+
+                chip.setOnCloseIconClickListener {
+                    cGroupEvaluation.clearCheck()
+                    syncChipGroup()
+                }
             }.also(cGroupEvaluation::addView)
         }
     }
@@ -121,6 +127,8 @@ class EvaluationDialogBuilder(private val activity: FragmentActivity) : AlertDia
             eTextNotes.setSelection(notes.length)
             eTextNotes.isVisible = notes.isNotEmpty()
 
+            syncChipGroup()
+
             checkNotes()
 
             updateGradeValue(value = grade)
@@ -138,6 +146,7 @@ class EvaluationDialogBuilder(private val activity: FragmentActivity) : AlertDia
         tViewDate.onClickOnce { onDateClicked() }
 
         cGroupEvaluation.setOnCheckedChangeListener { _, _ ->
+            syncChipGroup()
             validateParams()
         }
 
@@ -201,6 +210,16 @@ class EvaluationDialogBuilder(private val activity: FragmentActivity) : AlertDia
             inputMethodManager.hideSoftKeyboard(eTextNotes)
 
             tViewLabelNotes.drawables(end = R.drawable.ic_expand_more)
+        }
+    }
+
+    private fun View.syncChipGroup() {
+        val isAnyChipChecked = cGroupEvaluation.checkedChipIndex != -1
+
+        cGroupEvaluation.forEach { chip ->
+            chip as Chip
+            chip.isVisible = !isAnyChipChecked || chip.isChecked
+            chip.isCloseIconVisible = isAnyChipChecked && chip.isChecked
         }
     }
 

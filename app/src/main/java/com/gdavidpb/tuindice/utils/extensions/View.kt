@@ -175,7 +175,10 @@ var View.backgroundColor: Int
     }
 
 var ChipGroup.checkedChipIndex: Int
-    get() = indexOfChild(findViewById<Chip>(checkedChipId))
+    get() = if (checkedChipId != -1) indexOfChild(findViewById<Chip>(checkedChipId)) else -1
     set(value) {
         check(getChildAt(value).id)
     }
+
+val ChipGroup.checkedChip: Chip?
+    get() = if (checkedChipId != -1) findViewById<Chip>(checkedChipId) else null
