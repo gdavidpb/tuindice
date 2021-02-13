@@ -16,17 +16,11 @@ private val sensitiveData = arrayOf(
         "(?<=ticket=)[^&\\s\\n]+"       /* Ticket param    */
 ).map { it.toRegex() }
 
-fun RequestBody?.bodyToString(): String {
-    if (this == null) return ""
-
-    val buffer = Buffer().also(::writeTo)
-
-    val string = buffer.readUtf8()
-
-    buffer.close()
-
-    return string
-}
+fun RequestBody?.toString() = this?.let { requestBody ->
+    Buffer()
+            .also(requestBody::writeTo)
+            .use { buffer -> buffer.readUtf8() }
+} ?: ""
 
 fun String.deflateHtml(): String = let(Jsoup::parse)
         .removeCommentsAndStyles()

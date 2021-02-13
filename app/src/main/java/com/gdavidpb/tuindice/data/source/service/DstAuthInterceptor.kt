@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.source.service
 
 import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
 import com.gdavidpb.tuindice.utils.HEADER_DATE
-import com.gdavidpb.tuindice.utils.extensions.bodyToString
+import com.gdavidpb.tuindice.utils.extensions.toString
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -25,7 +25,7 @@ open class DstAuthInterceptor(
         responseBody?.close()
 
         return if (accessKey != null) {
-            val body = request.body.bodyToString()
+            val body = request.body.toString()
             val mediaType = "application/x-www-form-urlencoded;charset=UTF-8".toMediaTypeOrNull()
             val requestBody = "$body&lt=$accessKey".toRequestBody(mediaType)
 
