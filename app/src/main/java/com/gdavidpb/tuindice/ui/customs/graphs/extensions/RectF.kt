@@ -9,7 +9,7 @@ fun RectF.transform(matrix: Matrix) {
 }
 
 fun RectF.inset(factor: Float) {
-    val computed = -(factor - 1f)
+    val computed = 1f - factor
 
     inset(width() * computed, height() * computed)
 }
