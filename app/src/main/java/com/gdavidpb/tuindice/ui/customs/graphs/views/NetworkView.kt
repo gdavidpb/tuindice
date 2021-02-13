@@ -10,8 +10,12 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.annotation.ColorInt
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.ui.customs.graphs.extensions.*
+import com.gdavidpb.tuindice.ui.customs.graphs.extensions.inset
+import com.gdavidpb.tuindice.ui.customs.graphs.extensions.resolveColor
+import com.gdavidpb.tuindice.ui.customs.graphs.extensions.resolveDimension
+import com.gdavidpb.tuindice.ui.customs.graphs.extensions.transform
 import com.gdavidpb.tuindice.ui.customs.graphs.models.Node
+import com.gdavidpb.tuindice.utils.extensions.getFloat
 import com.gdavidpb.tuindice.utils.extensions.loadAttributes
 import com.gdavidpb.tuindice.utils.extensions.supportQuickReject
 
@@ -69,13 +73,13 @@ open class NetworkView(context: Context, attrs: AttributeSet) : CanvasView(conte
 
         }.recycle()
 
-        nodeTextRelation = resolveFloat(context, R.dimen.relation_node_text)
+        nodeTextRelation = context.getFloat(R.dimen.relation_node_text)
 
         nodeTextSize = nodeRadius / nodeTextRelation
 
-        relationTouch = resolveFloat(context, R.dimen.relation_node_touch)
+        relationTouch = context.getFloat(R.dimen.relation_node_touch)
 
-        tapZoom = resolveFloat(context, R.dimen.zoom_tap)
+        tapZoom = context.getFloat(R.dimen.zoom_tap)
 
         nodePaint = Paint().apply {
             color = nodeColor

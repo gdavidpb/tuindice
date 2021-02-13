@@ -8,11 +8,9 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
+import android.util.TypedValue
 import android.widget.Toast
-import androidx.annotation.ColorRes
-import androidx.annotation.DrawableRes
-import androidx.annotation.RequiresApi
-import androidx.annotation.StringRes
+import androidx.annotation.*
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -69,6 +67,18 @@ fun Context.versionName(): String {
             getString(environmentRes),
             BuildConfig.VERSION_NAME,
             BuildConfig.VERSION_CODE)
+}
+
+fun Context.getFloat(@DimenRes resId: Int): Float = TypedValue().let { outValue ->
+    resources.getValue(resId, outValue, true)
+
+    outValue.float
+}
+
+fun Context.getInt(@DimenRes resId: Int): Int = TypedValue().let { outValue ->
+    resources.getValue(resId, outValue, true)
+
+    outValue.data
 }
 
 fun Context.getCompatColor(@ColorRes colorRes: Int): Int = ContextCompat.getColor(this, colorRes)

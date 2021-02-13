@@ -12,6 +12,8 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.customs.graphs.extensions.*
+import com.gdavidpb.tuindice.utils.extensions.getFloat
+import com.gdavidpb.tuindice.utils.extensions.getInt
 import com.gdavidpb.tuindice.utils.extensions.loadAttributes
 import com.google.android.material.animation.MatrixEvaluator
 
@@ -33,12 +35,16 @@ abstract class CanvasView(context: Context, attrs: AttributeSet) : View(context,
     private val matrixAnimator: ValueAnimator
 
     init {
-        val defaultMinZoom = resolveFloat(context, R.dimen.zoom_default_min)
-        val defaultMaxZoom = resolveFloat(context, R.dimen.zoom_default_max)
-
         loadAttributes(R.styleable.CanvasView, attrs).apply {
-            minZoom = getFloat(R.styleable.CanvasView_minZoom, defaultMinZoom)
-            maxZoom = getFloat(R.styleable.CanvasView_maxZoom, defaultMaxZoom)
+            minZoom = resolveFloat(context,
+                    R.styleable.CanvasView_minZoom,
+                    R.dimen.zoom_default_min
+            )
+
+            maxZoom = resolveFloat(context,
+                    R.styleable.CanvasView_maxZoom,
+                    R.dimen.zoom_default_max
+            )
 
             zoomInterpolator = resolveInterpolator(context,
                     R.styleable.CanvasView_zoomInterpolator,
@@ -56,10 +62,11 @@ abstract class CanvasView(context: Context, attrs: AttributeSet) : View(context,
             )
         }.recycle()
 
-        epsilonZoom = resolveFloat(context, R.dimen.zoom_epsilon)
+
+        epsilonZoom = context.getFloat(R.dimen.zoom_epsilon)
 
         matrixAnimator = ValueAnimator.ofObject(MatrixEvaluator(), Matrix(), Matrix()).apply {
-            val timeAnimationCanvas = resolveInt(context, R.dimen.time_animation_canvas)
+            val timeAnimationCanvas = context.getInt(R.dimen.time_animation_canvas)
 
             duration = timeAnimationCanvas.toLong()
 
