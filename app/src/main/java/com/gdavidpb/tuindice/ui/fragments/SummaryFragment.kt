@@ -21,11 +21,12 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.ACTION_REMOVE_PROFILE_PICTURE
+import com.gdavidpb.tuindice.utils.DECIMALS_GRADE_QUARTER
+import com.gdavidpb.tuindice.utils.EXTRA_REMOVE_PROFILE_PICTURE
+import com.gdavidpb.tuindice.utils.REQUEST_CODE_PROFILE_PICTURE
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_summary.*
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -34,8 +35,6 @@ open class SummaryFragment : NavigationFragment() {
     private val mainViewModel by sharedViewModel<MainViewModel>()
 
     private val viewModel by viewModel<SummaryViewModel>()
-
-    private val picasso by inject<Picasso>()
 
     private val loadProfilePicture = LiveCompletable<ProfilePictureError>()
 
@@ -53,8 +52,7 @@ open class SummaryFragment : NavigationFragment() {
             adapter = summaryAdapter
         }
 
-        iViewProfile.onClickOnce(::onEditProfilePictureClick)
-        iViewEditProfile.onClickOnce(::onEditProfilePictureClick)
+        vProfilePicture.onClickOnce(::onEditProfilePictureClick)
 
         with(mainViewModel) {
             observe(sync, ::syncObserver)
@@ -171,17 +169,21 @@ open class SummaryFragment : NavigationFragment() {
     private fun updateProfilePictureObserver(result: Event<String, ProfilePictureError>?) {
         when (result) {
             is Event.OnLoading -> {
-                showProfilePictureLoading()
+                vProfilePicture.setLoading(true)
             }
             is Event.OnSuccess -> {
-                loadProfilePicture(url = result.value, invalidate = true)
+                vProfilePicture.loadProfilePicture(
+                        url = result.value,
+                        invalidate = true,
+                        liveData = loadProfilePicture
+                )
 
                 snackBar {
                     messageResource = R.string.snack_bar_profile_picture_updated
                 }
             }
             is Event.OnError -> {
-                hideProfilePictureLoading()
+                vProfilePicture.setLoading(false)
 
                 profilePictureErrorHandler(error = result.error)
             }
@@ -191,15 +193,13 @@ open class SummaryFragment : NavigationFragment() {
     private fun loadProfilePictureObserver(result: Completable<ProfilePictureError>?) {
         when (result) {
             is Completable.OnLoading -> {
-                showProfilePictureLoading()
+                vProfilePicture.setLoading(true)
             }
             is Completable.OnComplete -> {
-                hideProfilePictureLoading()
-
-                iViewProfile.tag = true
+                vProfilePicture.setLoading(false)
             }
             is Completable.OnError -> {
-                hideProfilePictureLoading()
+                vProfilePicture.setLoading(false)
 
                 profilePictureErrorHandler(error = result.error)
             }
@@ -209,15 +209,18 @@ open class SummaryFragment : NavigationFragment() {
     private fun profilePictureObserver(result: Result<String, ProfilePictureError>?) {
         when (result) {
             is Result.OnLoading -> {
-                showProfilePictureLoading()
+                vProfilePicture.setLoading(true)
             }
             is Result.OnSuccess -> {
-                loadProfilePicture(url = result.value, invalidate = false)
+                vProfilePicture.loadProfilePicture(
+                        url = result.value,
+                        invalidate = false,
+                        liveData = loadProfilePicture
+                )
             }
             is Result.OnError -> {
-                hideProfilePictureLoading()
-
-                iViewProfile.setImageResource(R.mipmap.ic_launcher_round)
+                vProfilePicture.setLoading(false)
+                vProfilePicture.loadDefaultProfilePicture()
 
                 profilePictureErrorHandler(error = result.error)
             }
@@ -227,21 +230,18 @@ open class SummaryFragment : NavigationFragment() {
     private fun removeProfilePictureObserver(result: Event<Unit, ProfilePictureError>?) {
         when (result) {
             is Event.OnLoading -> {
-                showProfilePictureLoading()
+                vProfilePicture.setLoading(true)
             }
             is Event.OnSuccess -> {
-                hideProfilePictureLoading()
-
-                iViewProfile.tag = false
-
-                iViewProfile.setImageResource(R.mipmap.ic_launcher_round)
+                vProfilePicture.setLoading(false)
+                vProfilePicture.loadDefaultProfilePicture()
 
                 snackBar {
                     messageResource = R.string.snack_bar_profile_picture_removed
                 }
             }
             is Event.OnError -> {
-                hideProfilePictureLoading()
+                vProfilePicture.setLoading(false)
 
                 profilePictureErrorHandler(error = result.error)
             }
@@ -250,6 +250,7 @@ open class SummaryFragment : NavigationFragment() {
 
     private fun profilePictureErrorHandler(error: ProfilePictureError?) {
         when (error) {
+            is ProfilePictureError.NoData -> vProfilePicture.loadDefaultProfilePicture()
             is ProfilePictureError.NoConnection -> noConnectionSnackBar()
             else -> defaultErrorSnackBar()
         }
@@ -287,24 +288,6 @@ open class SummaryFragment : NavigationFragment() {
         }
     }
 
-    private fun showProfilePictureLoading() {
-        pBarProfile.visible()
-
-        arrayOf(iViewProfile, iViewEditProfile).forEach { view ->
-            view.disable()
-            view.animateScaleDown()
-        }
-    }
-
-    private fun hideProfilePictureLoading() {
-        pBarProfile.invisible()
-
-        arrayOf(iViewProfile, iViewEditProfile).forEach { view ->
-            view.enable()
-            view.animateScaleUp()
-        }
-    }
-
     private fun requestProfilePictureInput(outputUri: Uri) {
         val removeIntent = Intent(ACTION_REMOVE_PROFILE_PICTURE)
 
@@ -317,7 +300,7 @@ open class SummaryFragment : NavigationFragment() {
         val chooser = Intent.createChooser(galleryIntent, getString(R.string.label_profile_picture_chooser))
 
         val hasCamera = packageManager.hasCamera()
-        val hasProfilePicture = iViewProfile.tag as? Boolean ?: false
+        val hasProfilePicture = vProfilePicture.hasProfilePicture
 
         val intents = mutableListOf<Intent>().apply {
             if (hasCamera) add(cameraIntent)
@@ -350,24 +333,5 @@ open class SummaryFragment : NavigationFragment() {
             tViewGrade.animateGrade(value = account.grade, decimals = DECIMALS_GRADE_QUARTER)
         } else
             groupGrade.gone()
-    }
-
-    private fun loadProfilePicture(url: String, invalidate: Boolean) {
-        if (url.isNotEmpty()) {
-            with(picasso) {
-                if (invalidate) invalidate(url)
-
-                load(url)
-                        .noFade()
-                        .stableKey(url)
-                        .transform(CircleTransform())
-                        .error(R.mipmap.ic_launcher_round)
-                        .into(iViewProfile, loadProfilePicture)
-            }
-        } else {
-            hideProfilePictureLoading()
-
-            iViewProfile.setImageResource(R.mipmap.ic_launcher_round)
-        }
     }
 }

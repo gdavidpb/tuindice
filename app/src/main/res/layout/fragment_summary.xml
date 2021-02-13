@@ -14,44 +14,14 @@
         app:constraint_referenced_ids="tViewGrade,tViewLabelGrade"
         tools:visibility="visible" />
 
-    <ImageView
-        android:id="@+id/iViewProfile"
-        android:layout_width="@dimen/size_profile"
-        android:layout_height="@dimen/size_profile"
+    <com.gdavidpb.tuindice.ui.customs.ProfilePictureView
+        android:id="@+id/vProfilePicture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_16"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="@dimen/dp_16"
-        tools:ignore="ContentDescription"
-        android:visibility="invisible"
-        tools:visibility="visible"
-        tools:src="@mipmap/ic_launcher_round" />
-
-    <ImageView
-        android:id="@+id/iViewEditProfile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/sh_oval_approved"
-        android:clickable="true"
-        android:focusable="true"
-        android:padding="@dimen/dp_6"
-        android:visibility="invisible"
-        tools:ignore="ContentDescription"
-        android:src="@drawable/ic_edit"
-        app:layout_constraintBottom_toBottomOf="@id/iViewProfile"
-        app:layout_constraintEnd_toEndOf="@id/iViewProfile"
-        tools:visibility="visible" />
-
-    <ProgressBar
-        android:id="@+id/pBarProfile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@id/iViewProfile"
-        app:layout_constraintEnd_toEndOf="@id/iViewProfile"
-        app:layout_constraintStart_toStartOf="@id/iViewProfile"
-        app:layout_constraintTop_toTopOf="@id/iViewProfile" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tViewGrade"
@@ -62,7 +32,7 @@
         app:layout_constraintEnd_toStartOf="@id/tViewLabelGrade"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iViewProfile"
+        app:layout_constraintTop_toBottomOf="@id/vProfilePicture"
         tools:text="3.996" />
 
     <TextView
