@@ -16,4 +16,11 @@
         <attr name="connectionColor" format="color" />
         <attr name="textColor" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="GradeTextView">
+        <attr name="grade" format="float" />
+        <attr name="maxGrade" format="float" />
+        <attr name="gradeDecimals" format="integer" />
+        <attr name="maxGradeDecimals" format="integer" />
+    </declare-styleable>
 </resources>

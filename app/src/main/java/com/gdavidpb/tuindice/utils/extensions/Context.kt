@@ -69,13 +69,13 @@ fun Context.versionName(): String {
             BuildConfig.VERSION_CODE)
 }
 
-fun Context.getFloat(@DimenRes resId: Int): Float = TypedValue().let { outValue ->
+fun Context.getFloat(@FractionRes resId: Int): Float = TypedValue().let { outValue ->
     resources.getValue(resId, outValue, true)
 
     outValue.float
 }
 
-fun Context.getInt(@DimenRes resId: Int): Int = TypedValue().let { outValue ->
+fun Context.getInt(@IntegerRes resId: Int): Int = TypedValue().let { outValue ->
     resources.getValue(resId, outValue, true)
 
     outValue.data

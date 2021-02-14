@@ -12,12 +12,18 @@ import android.view.ScaleGestureDetector
 import android.view.View
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.customs.graphs.extensions.*
-import com.gdavidpb.tuindice.utils.extensions.getFloat
-import com.gdavidpb.tuindice.utils.extensions.getInt
 import com.gdavidpb.tuindice.utils.extensions.loadAttributes
 import com.google.android.material.animation.MatrixEvaluator
 
 abstract class CanvasView(context: Context, attrs: AttributeSet) : View(context, attrs) {
+
+    private object Defaults {
+        const val MIN_ZOOM = .3f
+        const val MAX_ZOOM = 3f
+        const val EPSILON_ZOOM = .01f
+
+        const val TIME_ANIMATION = 750
+    }
 
     private val minZoom: Float
     private val maxZoom: Float
@@ -36,37 +42,29 @@ abstract class CanvasView(context: Context, attrs: AttributeSet) : View(context,
 
     init {
         loadAttributes(R.styleable.CanvasView, attrs).apply {
-            minZoom = resolveFloat(context,
-                    R.styleable.CanvasView_minZoom,
-                    R.dimen.zoom_default_min
-            )
+            minZoom = getFloat(R.styleable.CanvasView_minZoom, Defaults.MIN_ZOOM)
+            maxZoom = getFloat(R.styleable.CanvasView_maxZoom, Defaults.MAX_ZOOM)
 
-            maxZoom = resolveFloat(context,
-                    R.styleable.CanvasView_maxZoom,
-                    R.dimen.zoom_default_max
-            )
-
-            zoomInterpolator = resolveInterpolator(context,
+            zoomInterpolator = getInterpolator(context,
                     R.styleable.CanvasView_zoomInterpolator,
                     android.R.anim.overshoot_interpolator
             )
 
-            moveInterpolator = resolveInterpolator(context,
+            moveInterpolator = getInterpolator(context,
                     R.styleable.CanvasView_moveInterpolator,
                     android.R.anim.overshoot_interpolator
             )
 
-            resetInterpolator = resolveInterpolator(context,
+            resetInterpolator = getInterpolator(context,
                     R.styleable.CanvasView_resetInterpolator,
                     android.R.anim.accelerate_decelerate_interpolator
             )
         }.recycle()
 
-
-        epsilonZoom = context.getFloat(R.dimen.zoom_epsilon)
+        epsilonZoom = Defaults.EPSILON_ZOOM
 
         matrixAnimator = ValueAnimator.ofObject(MatrixEvaluator(), Matrix(), Matrix()).apply {
-            val timeAnimationCanvas = context.getInt(R.dimen.time_animation_canvas)
+            val timeAnimationCanvas = Defaults.TIME_ANIMATION
 
             duration = timeAnimationCanvas.toLong()
 

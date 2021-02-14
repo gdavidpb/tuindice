@@ -1,6 +1,7 @@
 <resources>
 
     <!-- Default dimens -->
+
     <dimen name="dp_1">1dp</dimen>
     <dimen name="dp_2">2dp</dimen>
     <dimen name="dp_4">4dp</dimen>
@@ -24,13 +25,5 @@
 
     <dimen name="size_node_radius">8dp</dimen>
     <dimen name="size_node_connection_width">2dp</dimen>
-
-    <item name="time_animation_canvas" format="integer" type="dimen">750</item>
-    <item name="relation_node_text" format="float" type="dimen">3.0</item>
-    <item name="relation_node_touch" format="float" type="dimen">1.2</item>
-    <item name="zoom_tap" format="float" type="dimen">1.5</item>
-    <item name="zoom_epsilon" format="float" type="dimen">0.01</item>
-    <item name="zoom_default_min" format="float" type="dimen">0.3</item>
-    <item name="zoom_default_max" format="float" type="dimen">3.0</item>
 
 </resources>

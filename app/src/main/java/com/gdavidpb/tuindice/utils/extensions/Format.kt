@@ -31,6 +31,8 @@ fun Long.toCountdown(): String {
 
 fun Double.formatGrade(decimals: Int) = "%.${decimals}f".format(this)
 
+fun Float.formatGrade(decimals: Int) = "%.${decimals}f".format(this)
+
 fun Int.formatGrade() = "%d".format(this)
 
 private val dateFormatCache = hashMapOf<String, SimpleDateFormat>()

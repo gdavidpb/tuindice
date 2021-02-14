@@ -4,43 +4,19 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.view.animation.AnimationUtils
 import android.view.animation.Interpolator
-import androidx.annotation.*
-import androidx.core.content.ContextCompat
-import com.gdavidpb.tuindice.utils.extensions.getFloat
-import com.gdavidpb.tuindice.utils.extensions.getInt
+import androidx.annotation.AnimRes
+import androidx.annotation.DimenRes
+import androidx.annotation.StyleableRes
 
-fun TypedArray.resolveInt(
-        context: Context,
-        @StyleableRes index: Int,
-        @DimenRes defValue: Int
-): Int = getResourceId(index, defValue)
-        .let { resId -> context.getInt(resId) }
-
-fun TypedArray.resolveFloat(
-        context: Context,
-        @StyleableRes index: Int,
-        @DimenRes defValue: Int
-): Float = getResourceId(index, defValue)
-        .let { resId -> context.getFloat(resId) }
-
-fun TypedArray.resolveInterpolator(
+fun TypedArray.getInterpolator(
         context: Context,
         @StyleableRes index: Int,
         @AnimRes defValue: Int
 ): Interpolator = getResourceId(index, defValue)
         .let { resId -> AnimationUtils.loadInterpolator(context, resId) }
 
-@ColorInt
-fun TypedArray.resolveColor(
-        context: Context,
-        @StyleableRes index: Int,
-        @ColorRes defValue: Int
-): Int = getResourceId(index, defValue)
-        .let { resId -> ContextCompat.getColor(context, resId) }
-
-fun TypedArray.resolveDimension(
-        context: Context,
+fun TypedArray.getDimension(
         @StyleableRes index: Int,
         @DimenRes defValue: Int
 ): Float = getResourceId(index, defValue)
-        .let { resId -> context.resources.getDimension(resId) }
+        .let { resId -> resources.getDimension(resId) }

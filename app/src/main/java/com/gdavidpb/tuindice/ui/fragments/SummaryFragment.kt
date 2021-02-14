@@ -22,7 +22,6 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.utils.ACTION_REMOVE_PROFILE_PICTURE
-import com.gdavidpb.tuindice.utils.DECIMALS_GRADE_QUARTER
 import com.gdavidpb.tuindice.utils.EXTRA_REMOVE_PROFILE_PICTURE
 import com.gdavidpb.tuindice.utils.REQUEST_CODE_PROFILE_PICTURE
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -328,10 +327,9 @@ open class SummaryFragment : NavigationFragment() {
         tViewLastUpdate.drawables(start = context.getCompatDrawable(R.drawable.ic_sync, R.color.color_secondary_text))
 
         if (account.grade > 0.0) {
-            groupGrade.visible()
-
-            tViewGrade.animateGrade(value = account.grade, decimals = DECIMALS_GRADE_QUARTER)
+            tViewGrade.visible()
+            tViewGrade.animateGrade(value = account.grade.toFloat())
         } else
-            groupGrade.gone()
+            tViewGrade.gone()
     }
 }

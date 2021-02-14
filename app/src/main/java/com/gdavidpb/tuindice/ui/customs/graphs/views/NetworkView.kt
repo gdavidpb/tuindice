@@ -9,17 +9,27 @@ import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.annotation.ColorInt
+import androidx.core.graphics.toColorInt
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.ui.customs.graphs.extensions.getDimension
 import com.gdavidpb.tuindice.ui.customs.graphs.extensions.inset
-import com.gdavidpb.tuindice.ui.customs.graphs.extensions.resolveColor
-import com.gdavidpb.tuindice.ui.customs.graphs.extensions.resolveDimension
 import com.gdavidpb.tuindice.ui.customs.graphs.extensions.transform
 import com.gdavidpb.tuindice.ui.customs.graphs.models.Node
-import com.gdavidpb.tuindice.utils.extensions.getFloat
 import com.gdavidpb.tuindice.utils.extensions.loadAttributes
 import com.gdavidpb.tuindice.utils.extensions.supportQuickReject
 
 open class NetworkView(context: Context, attrs: AttributeSet) : CanvasView(context, attrs) {
+
+    private object Defaults {
+        const val RELATION_NODE_TEXT = 3.0f
+        const val RELATION_NODE_TOUCH = 1.2f
+
+        const val ZOOM_TAP = 1.5f
+
+        const val COLOR_NODE = "#FFC107"
+        const val COLOR_TEXT = "#FFFFFF"
+        const val COLOR_CONNECTION = "#757575"
+    }
 
     private val nodes: MutableMap<Node, Boolean> = hashMapOf()
 
@@ -46,40 +56,17 @@ open class NetworkView(context: Context, attrs: AttributeSet) : CanvasView(conte
 
     init {
         loadAttributes(R.styleable.NetworkView, attrs).apply {
-            textColor = resolveColor(context,
-                    R.styleable.NetworkView_textColor,
-                    R.color.color_node_text
-            )
-
-            nodeColor = resolveColor(context,
-                    R.styleable.NetworkView_nodeColor,
-                    R.color.color_node
-            )
-
-            connectionColor = resolveColor(context,
-                    R.styleable.NetworkView_connectionColor,
-                    R.color.color_node_connection
-            )
-
-            nodeRadius = resolveDimension(context,
-                    R.styleable.NetworkView_nodeRadius,
-                    R.dimen.size_node_radius
-            )
-
-            connectionWidth = resolveDimension(context,
-                    R.styleable.NetworkView_connectionWidth,
-                    R.dimen.size_node_connection_width
-            )
-
+            textColor = getColor(R.styleable.NetworkView_textColor, Defaults.COLOR_TEXT.toColorInt())
+            nodeColor = getColor(R.styleable.NetworkView_nodeColor, Defaults.COLOR_NODE.toColorInt())
+            connectionColor = getColor(R.styleable.NetworkView_connectionColor, Defaults.COLOR_CONNECTION.toColorInt())
+            nodeRadius = getDimension(R.styleable.NetworkView_nodeRadius, R.dimen.size_node_radius)
+            connectionWidth = getDimension(R.styleable.NetworkView_connectionWidth, R.dimen.size_node_connection_width)
         }.recycle()
 
-        nodeTextRelation = context.getFloat(R.dimen.relation_node_text)
-
+        tapZoom = Defaults.ZOOM_TAP
+        nodeTextRelation = Defaults.RELATION_NODE_TEXT
+        relationTouch = Defaults.RELATION_NODE_TOUCH
         nodeTextSize = nodeRadius / nodeTextRelation
-
-        relationTouch = context.getFloat(R.dimen.relation_node_touch)
-
-        tapZoom = context.getFloat(R.dimen.zoom_tap)
 
         nodePaint = Paint().apply {
             color = nodeColor

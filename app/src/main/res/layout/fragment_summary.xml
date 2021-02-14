@@ -6,14 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/color_background">
 
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/groupGrade"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="tViewGrade,tViewLabelGrade"
-        tools:visibility="visible" />
-
     <com.gdavidpb.tuindice.ui.customs.ProfilePictureView
         android:id="@+id/vProfilePicture"
         android:layout_width="wrap_content"
@@ -23,27 +15,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
+    <com.gdavidpb.tuindice.ui.customs.GradeTextView
         android:id="@+id/tViewGrade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/sp_32"
         android:layout_marginTop="@dimen/dp_4"
-        app:layout_constraintEnd_toStartOf="@id/tViewLabelGrade"
-        app:layout_constraintHorizontal_chainStyle="packed"
+        android:visibility="gone"
+        android:textSize="@dimen/sp_32"
+        app:gradeDecimals="@integer/grade_quarter_decimals"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/vProfilePicture"
-        tools:text="3.996" />
-
-    <TextView
-        android:id="@+id/tViewLabelGrade"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/text_5_dot"
-        app:layout_constraintBaseline_toBaselineOf="@id/tViewGrade"
+        app:maxGrade="@fraction/grade_max_quarter"
+        app:maxGradeDecimals="@integer/grade_max_quarter_decimals"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/tViewGrade"
-        app:layout_constraintTop_toTopOf="parent" />
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/tViewName"
