@@ -8,8 +8,8 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatSeekBar
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.utils.mappers.distanceTo
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.ceil
 
 class CustomSeekBar(context: Context, attrs: AttributeSet)
     : AppCompatSeekBar(context, attrs), ViewHook {
@@ -19,7 +19,7 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
 
         private val onDrawLocker = AtomicBoolean(false)
 
-        private lateinit var paint: Paint
+        private lateinit var tickPaint: Paint
 
         private var tickSize = 0f
     }
@@ -34,15 +34,15 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
         super.onDraw(canvas)
 
         if (progress < max) {
-            val width = (width - (paddingLeft + paddingRight)).toFloat()
-            val radius = (tickSize / 2f) + 0.1f
-            val step = (width / max)
+            val barSize = (width - (paddingLeft + paddingRight)).toFloat()
+            val radius = ceil(tickSize / 2f)
+            val step = (barSize / max)
 
             val translateX = paddingLeft.toFloat()
             val halfHeight = (height / 2f)
 
             for (i in progress.inc()..max)
-                canvas.drawCircle((i * step) + translateX, halfHeight, radius, paint)
+                canvas.drawCircle((i * step) + translateX, halfHeight, radius, tickPaint)
         }
     }
 
@@ -52,27 +52,50 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
         val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvasHook = Canvas(bitmapHook)
         val progressHook = progress
+        val maxHook = max
 
         canvasHook.drawColor(backgroundColor)
 
-        progress = 0
+        max = 2
+        progress = 1
 
         superOnDraw(canvasHook)
 
+        max = maxHook
         progress = progressHook
 
-        val x = (width - paddingRight - tickSize.toInt() - 1)
+        val barColor = getBarColor(bitmapHook)
 
-        paint = (0 until height)
-                .map { y -> bitmapHook.getPixel(x, y) }
-                .distinct()
-                .maxByOrNull { target -> target distanceTo backgroundColor }
-                .let { selectedColor ->
-                    Paint().apply {
-                        color = selectedColor ?: backgroundColor
-                    }
-                }
+        tickPaint = Paint().apply {
+            isAntiAlias = true
+
+            color = barColor
+        }
+
+        tickSize = getTickSize(bitmapHook, barColor)
 
         bitmapHook.recycle()
+    }
+
+    private fun getBarColor(bitmap: Bitmap): Int {
+        val x = (width * 0.75f).toInt()
+
+        return (0 until height)
+                .map { y -> bitmap.getPixel(x, y) }
+                .distinct()
+                .single { it != backgroundColor }
+    }
+
+    private fun getTickSize(bitmap: Bitmap, barColor: Int): Float {
+        val y = height / 2
+
+        return (0 until width)
+                .reversed()
+                .map { x -> bitmap.getPixel(x, y) }
+                .takeWhile { it != barColor }
+                .filter { it != backgroundColor }
+                .count()
+                .inc()
+                .toFloat()
     }
 }
