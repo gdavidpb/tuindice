@@ -15,7 +15,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder<T>>() {
         holder.bindView(item)
     }
 
-    abstract fun provideComparator(): Comparator<T>
+    open fun provideComparator() = Comparator<T> { _, _ -> 0 }
 
     open fun swapItems(new: List<T>) {
         val diffUtil = GenericDiffUtil(old = items, new = new, comparator = provideComparator())

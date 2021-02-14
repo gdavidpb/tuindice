@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.ui.customs
 
 import android.content.Context
 import android.util.AttributeSet
+import android.widget.FrameLayout
 import android.widget.ImageView
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.utils.CircleTransform
@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.view_profile_picture.view.*
 import java.io.IOException
 
 class ProfilePictureView(context: Context, attrs: AttributeSet)
-    : ConstraintLayout(context, attrs) {
+    : FrameLayout(context, attrs) {
 
     private val picasso by inject<Picasso>()
 
