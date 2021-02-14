@@ -6,7 +6,6 @@ import android.text.style.TypefaceSpan
 import android.text.style.UnderlineSpan
 import android.view.View
 import android.view.animation.OvershootInterpolator
-import androidx.core.content.ContextCompat
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.utils.`do`
@@ -61,7 +60,7 @@ class LoginFragment : NavigationFragment() {
             onSignInClick()
         }
 
-        val accentColor = ContextCompat.getColor(requireContext(), R.color.color_accent)
+        val accentColor = requireContext().getCompatColor(R.color.color_accent)
 
         tViewPolicies.apply {
             setSpans {

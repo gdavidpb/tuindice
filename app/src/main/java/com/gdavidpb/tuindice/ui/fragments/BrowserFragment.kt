@@ -11,7 +11,6 @@ import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
@@ -58,8 +57,8 @@ open class BrowserFragment : NavigationFragment() {
         val externalUrl = "$url"
         val externalHost = url.host ?: externalUrl
 
-        val primaryColor = ContextCompat.getColor(requireContext(), R.color.color_primary_text)
-        val secondaryColor = ContextCompat.getColor(requireContext(), R.color.color_disabled_text)
+        val primaryColor = requireContext().getCompatColor(R.color.color_primary_text)
+        val secondaryColor = requireContext().getCompatColor(R.color.color_disabled_text)
 
         val message = getString(R.string.alert_message_warning_external, externalUrl)
 

@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.utils.extensions
 import android.view.View
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.BaseTransientBottomBar.*
 import com.google.android.material.snackbar.Snackbar
@@ -45,10 +44,10 @@ data class SnackBarBuilder(
                 .setAnimationMode(animationMode)
                 .apply {
                     if (textColorResource != 0)
-                        setTextColor(ContextCompat.getColor(context, textColorResource))
+                        setTextColor(context.getCompatColor(textColorResource))
 
                     if (backgroundColorResource != 0)
-                        setBackgroundTint(ContextCompat.getColor(context, backgroundColorResource))
+                        setBackgroundTint(context.getCompatColor(backgroundColorResource))
 
                     if (actionTextResource != 0)
                         setAction(context.getString(actionTextResource)) { action() }
