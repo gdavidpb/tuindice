@@ -37,9 +37,7 @@ open class RecordFragment : NavigationFragment() {
 
     private val quarterManager = QuarterManager()
 
-    private val quarterAdapter = QuarterAdapter(manager = quarterManager).apply {
-        setHasStableIds(true)
-    }
+    private val quarterAdapter = QuarterAdapter(manager = quarterManager)
 
     private val loadingDialog by lazy {
         alert {

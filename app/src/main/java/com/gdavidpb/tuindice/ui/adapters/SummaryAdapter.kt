@@ -16,7 +16,7 @@ import com.gdavidpb.tuindice.utils.VIEW_TYPE_SUMMARY_SUBJECTS
 import com.gdavidpb.tuindice.utils.mappers.toSummaryCreditsItem
 import com.gdavidpb.tuindice.utils.mappers.toSummarySubjectsItem
 
-open class SummaryAdapter : BaseAdapter<SummaryItemBase>() {
+class SummaryAdapter : BaseAdapter<SummaryItemBase>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<SummaryItemBase> {
         val layout = when (viewType) {

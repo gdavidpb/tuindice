@@ -10,11 +10,11 @@
     app:cardCornerRadius="@dimen/dp_4"
     app:cardUseCompatPadding="true">
 
-    <!-- Color -->
     <View
         android:id="@+id/viewQuarterColor"
         android:layout_width="@dimen/dp_8"
         android:layout_height="match_parent"
+        tools:layout_height="256dp"
         tools:background="@color/quarter_completed" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,10 +25,9 @@
         android:paddingTop="@dimen/dp_8"
         android:paddingEnd="@dimen/dp_16">
 
-        <!-- Title -->
         <TextView
             android:id="@+id/tViewQuarterTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -37,53 +36,45 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Sep. - Dic. 2017" />
 
-        <!-- Data -->
-        <LinearLayout
-            android:id="@+id/lLayoutQuarterData"
+        <TextView
+            android:id="@+id/tViewQuarterGradeDiff"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dp_8"
-            android:orientation="horizontal"
-            android:weightSum="3"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:gravity="center"
+            android:textColor="@color/color_secondary_text"
+            app:layout_constraintEnd_toStartOf="@id/tViewQuarterGradeSum"
+            app:layout_constraintHorizontal_weight="0.33"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tViewQuarterTitle">
+            app:layout_constraintTop_toBottomOf="@id/tViewQuarterTitle"
+            tools:text="Δx 0.0000" />
 
-            <TextView
-                android:id="@+id/tViewQuarterGradeDiff"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                android:textColor="@color/color_secondary_text"
-                tools:text="Δx 0.0000" />
+        <TextView
+            android:id="@+id/tViewQuarterGradeSum"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_8"
+            android:gravity="center"
+            android:textColor="@color/color_secondary_text"
+            app:layout_constraintEnd_toStartOf="@id/tViewQuarterCredits"
+            app:layout_constraintHorizontal_weight="0.33"
+            app:layout_constraintStart_toEndOf="@id/tViewQuarterGradeDiff"
+            app:layout_constraintTop_toBottomOf="@id/tViewQuarterTitle"
+            tools:text="∑x 0.0000" />
 
-            <TextView
-                android:id="@+id/tViewQuarterGradeSum"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                android:textColor="@color/color_secondary_text"
-                tools:text="∑x 0.0000" />
+        <TextView
+            android:id="@+id/tViewQuarterCredits"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_8"
+            android:gravity="center"
+            android:textColor="@color/color_secondary_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="0.33"
+            app:layout_constraintStart_toEndOf="@id/tViewQuarterGradeSum"
+            app:layout_constraintTop_toBottomOf="@id/tViewQuarterTitle"
+            tools:text="⦿ 13 Crs." />
 
-            <TextView
-                android:id="@+id/tViewQuarterCredits"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-                android:textColor="@color/color_secondary_text"
-                tools:text="⦿ 13 Crs." />
-        </LinearLayout>
-
-        <!-- Content -->
         <LinearLayout
             android:id="@+id/lLayoutQuarterContainer"
             android:layout_width="0dp"
@@ -93,7 +84,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/lLayoutQuarterData" />
+            app:layout_constraintTop_toBottomOf="@id/tViewQuarterGradeSum" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

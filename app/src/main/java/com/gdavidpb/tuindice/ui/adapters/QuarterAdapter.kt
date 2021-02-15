@@ -12,7 +12,7 @@ import com.gdavidpb.tuindice.utils.extensions.computeGradeSumUntil
 import kotlinx.android.synthetic.main.item_quarter.view.*
 import kotlin.math.roundToInt
 
-open class QuarterAdapter(
+class QuarterAdapter(
         private val manager: AdapterManager
 ) : BaseAdapter<QuarterItem>() {
 
@@ -23,6 +23,10 @@ open class QuarterAdapter(
 
         fun computeGradeSum(quarter: QuarterItem): Double
         fun getItem(position: Int): QuarterItem
+    }
+
+    init {
+        setHasStableIds(true)
     }
 
     private val averageSubjects by lazy {

@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.ui.adapters.base.BaseAdapter
 import com.gdavidpb.tuindice.ui.viewholders.EvaluationViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 
-open class EvaluationAdapter(
+class EvaluationAdapter(
         private val manager: AdapterManager
 ) : BaseAdapter<EvaluationItem>() {
 

@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.utils.mappers
 
 import android.content.Context
-import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
@@ -27,7 +26,6 @@ fun Subject.toSubjectItem(context: Context) = SubjectItem(
 
 fun Quarter.toQuarterItem(context: Context): QuarterItem {
     val quarterColor = ResourcesManager.getColor(status.toQuarterColor(), context)
-    val quarterFont = ResourcesManager.getFont("fonts/Code.ttf", context)
 
     return QuarterItem(
             id = id,
@@ -35,7 +33,7 @@ fun Quarter.toQuarterItem(context: Context): QuarterItem {
             startEndDateText = (startDate to endDate).formatQuarterTitle(),
             gradeDiffText = grade.formatGradeDiff(quarterColor, context),
             gradeSumText = gradeSum.formatGradeSum(quarterColor, context),
-            creditsText = credits.formatCredits(quarterColor, quarterFont, context),
+            creditsText = credits.formatCredits(quarterColor, context),
             subjectsItems = subjects.map { it.toSubjectItem(context) },
             data = this
     )
@@ -104,8 +102,8 @@ fun Double.formatGradeDiff(color: Int, context: Context) =
 fun Double.formatGradeSum(color: Int, context: Context) =
         context.getString(R.string.quarter_grade_sum, this).spanGrade(color)
 
-fun Int.formatCredits(color: Int, font: Typeface, context: Context) =
-        context.getString(R.string.quarter_credits, this).spanGrade(color, font)
+fun Int.formatCredits(color: Int, context: Context) =
+        context.getString(R.string.quarter_credits, this).spanGrade(color)
 
 fun Date.formatEvaluationDate(): String {
     val weeksLeft = weeksLeft()
@@ -196,17 +194,13 @@ fun String.spanAbout(titleColor: Int, subtitleColor: Int): CharSequence {
     }
 }
 
-private fun String.spanGrade(color: Int, font: Typeface? = null): Spanned {
+private fun String.spanGrade(color: Int): Spanned {
     val (iconString, valueString, extraString) = split(' ')
             .toMutableList()
             .apply { if (size == 2) add("") }
 
-    val typefaceSpan = font?.let(::CustomTypefaceSpan)
-            ?: TypefaceSpan("sans-serif-medium")
-
     return buildSpannedString {
         append(iconString,
-                typefaceSpan,
                 AbsoluteSizeSpan(18, true),
                 ForegroundColorSpan(color))
         append(' ')

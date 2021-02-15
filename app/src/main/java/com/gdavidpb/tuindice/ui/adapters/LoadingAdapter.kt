@@ -7,7 +7,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import com.gdavidpb.tuindice.R
 
-open class LoadingAdapter(
+class LoadingAdapter(
         private val items: List<String>
 ) : BaseAdapter() {
 

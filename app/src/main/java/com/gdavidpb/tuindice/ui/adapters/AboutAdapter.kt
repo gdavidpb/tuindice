@@ -13,9 +13,7 @@ import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.VIEW_TYPE_ABOUT
 import com.gdavidpb.tuindice.utils.VIEW_TYPE_ABOUT_HEADER
 
-open class AboutAdapter : BaseAdapter<AboutItemBase>() {
-
-    override fun provideComparator() = compareBy(AboutItemBase::hashCode)
+class AboutAdapter : BaseAdapter<AboutItemBase>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<AboutItemBase> {
         val layout = when (viewType) {
