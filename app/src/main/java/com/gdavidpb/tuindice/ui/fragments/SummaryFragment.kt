@@ -29,7 +29,7 @@ import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-open class SummaryFragment : NavigationFragment() {
+class SummaryFragment : NavigationFragment() {
 
     private val mainViewModel by sharedViewModel<MainViewModel>()
 

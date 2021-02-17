@@ -8,7 +8,7 @@ buildscript {
         kotlin_version = "1.4.30"
         retrofit_version = "2.9.0"
         coroutines_version = "1.4.0-M1"
-        lifecycle_version = "2.2.0"
+        lifecycle_version = "2.3.0"
         navigation_version = "2.3.3"
 
         config = [:]
@@ -24,7 +24,7 @@ buildscript {
     dependencies {
         classpath "com.google.gms:google-services:4.3.5"
         classpath 'com.android.tools.build:gradle:4.1.2'
-        classpath "com.google.firebase:firebase-crashlytics-gradle:2.4.1"
+        classpath "com.google.firebase:firebase-crashlytics-gradle:2.5.0"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$navigation_version"
     }

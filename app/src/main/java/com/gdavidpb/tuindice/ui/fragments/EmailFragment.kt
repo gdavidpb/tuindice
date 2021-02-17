@@ -44,12 +44,12 @@ class EmailFragment : NavigationFragment() {
         /* Set up view */
         when (args.awaitingState) {
             FLAG_RESET -> {
-                iViewLogo.setImageResource(R.drawable.ic_reset)
+                iViewLogo.setImageResource(R.drawable.il_reset)
                 tViewEmailTitle.text = getString(R.string.label_reset)
                 tViewEmailMessage.text = getString(R.string.message_reset, args.awaitingEmail)
             }
             FLAG_VERIFY -> {
-                iViewLogo.setImageResource(R.drawable.ic_verify)
+                iViewLogo.setImageResource(R.drawable.il_verify)
                 tViewEmailTitle.text = getString(R.string.label_verify)
                 tViewEmailMessage.text = getString(R.string.message_verify, args.awaitingEmail)
             }

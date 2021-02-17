@@ -29,7 +29,7 @@ import kotlinx.android.synthetic.main.fragment_record.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.io.File
 
-open class RecordFragment : NavigationFragment() {
+class RecordFragment : NavigationFragment() {
 
     private val mainViewModel by sharedViewModel<MainViewModel>()
 

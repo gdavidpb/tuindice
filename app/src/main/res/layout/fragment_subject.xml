@@ -119,7 +119,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_16"
         android:layout_marginEnd="@dimen/dp_16"
-        app:drawableTopCompat="@drawable/ic_evaluations_empty"
+        app:drawableTopCompat="@drawable/il_evaluations_empty"
         android:drawablePadding="@dimen/dp_16"
         android:fontFamily="sans-serif-light"
         android:text="@string/label_empty_evaluations"

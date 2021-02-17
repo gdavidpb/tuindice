@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.utils.extensions.onClickOnce
 import kotlinx.android.synthetic.main.fragment_pensum.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-open class PensumFragment : NavigationFragment() {
+class PensumFragment : NavigationFragment() {
 
     private val viewModel by viewModel<PensumViewModel>()
 

@@ -26,7 +26,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_subject.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-open class SubjectFragment : NavigationFragment() {
+class SubjectFragment : NavigationFragment() {
 
     private val viewModel by viewModel<SubjectViewModel>()
 

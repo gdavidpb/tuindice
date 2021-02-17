@@ -19,7 +19,7 @@ class AboutAdapter : BaseAdapter<AboutItemBase>() {
         val layout = when (viewType) {
             VIEW_TYPE_ABOUT -> R.layout.item_about
             VIEW_TYPE_ABOUT_HEADER -> R.layout.item_about_header
-            else -> throw IllegalArgumentException("viewType: '$viewType'")
+            else -> throw NoWhenBranchMatchedException("viewType: '$viewType'")
         }
 
         val itemView = LayoutInflater.from(parent.context).inflate(layout, parent, false)
@@ -27,13 +27,13 @@ class AboutAdapter : BaseAdapter<AboutItemBase>() {
         return when (viewType) {
             VIEW_TYPE_ABOUT -> AboutViewHolder(itemView)
             VIEW_TYPE_ABOUT_HEADER -> AboutHeaderViewHolder(itemView)
-            else -> throw IllegalArgumentException("viewType: '$viewType'")
+            else -> throw NoWhenBranchMatchedException("viewType: '$viewType'")
         }
     }
 
     override fun getItemViewType(position: Int) = when (items[position]) {
         is AboutItem -> VIEW_TYPE_ABOUT
         is AboutHeaderItem -> VIEW_TYPE_ABOUT_HEADER
-        else -> throw IllegalArgumentException("viewType: '${items[position]}'")
+        else -> throw NoWhenBranchMatchedException("viewType: '${items[position]}'")
     }
 }

@@ -18,7 +18,7 @@ import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_browser.*
 
 @SuppressLint("SetJavaScriptEnabled")
-open class BrowserFragment : NavigationFragment() {
+class BrowserFragment : NavigationFragment() {
     private val args by navArgs<BrowserFragmentArgs>()
 
     override fun onCreateView() = R.layout.fragment_browser

@@ -16,7 +16,7 @@ import com.gdavidpb.tuindice.utils.KEY_ISSUES_LIST
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_about.*
 
-open class AboutFragment : NavigationFragment() {
+class AboutFragment : NavigationFragment() {
 
     private val aboutAdapter = AboutAdapter()
 
