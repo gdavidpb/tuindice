@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.data.source.config
 
 import com.gdavidpb.tuindice.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.utils.extensions.await
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.gson.Gson
+import kotlinx.coroutines.tasks.await
 import okio.IOException
 
 open class RemoteConfigDataStore(

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.domain.repository.RemoteStorageRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.utils.PATH_PROFILE_PICTURES
@@ -10,7 +11,8 @@ import java.io.File
 
 open class RemoveProfilePictureUseCase(
         private val authRepository: AuthRepository,
-        private val remoteStorageRepository: RemoteStorageRepository
+        private val remoteStorageRepository: RemoteStorageRepository,
+        private val networkRepository: NetworkRepository
 ) : EventUseCase<Unit, Unit, ProfilePictureError>() {
     override suspend fun executeOnBackground(params: Unit) {
         val activeUId = authRepository.getActiveAuth().uid
@@ -21,7 +23,7 @@ open class RemoveProfilePictureUseCase(
 
     override suspend fun executeOnException(throwable: Throwable): ProfilePictureError? {
         return when {
-            throwable.isConnectionIssue() -> ProfilePictureError.NoConnection
+            throwable.isConnectionIssue() -> ProfilePictureError.NoConnection(networkRepository.isAvailable())
             else -> null
         }
     }

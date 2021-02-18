@@ -3,10 +3,7 @@ package com.gdavidpb.tuindice.domain.usecase
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
-import com.gdavidpb.tuindice.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.domain.repository.ContentRepository
-import com.gdavidpb.tuindice.domain.repository.RemoteStorageRepository
-import com.gdavidpb.tuindice.domain.repository.StorageRepository
+import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.utils.PATH_PROFILE_PICTURES
@@ -24,7 +21,8 @@ open class UpdateProfilePictureUseCase(
         private val authRepository: AuthRepository,
         private val contentRepository: ContentRepository,
         private val storageRepository: StorageRepository<File>,
-        private val remoteStorageRepository: RemoteStorageRepository
+        private val remoteStorageRepository: RemoteStorageRepository,
+        private val networkRepository: NetworkRepository
 ) : EventUseCase<Uri, String, ProfilePictureError>() {
     override suspend fun executeOnBackground(params: Uri): String {
         val activeUId = authRepository.getActiveAuth().uid
@@ -69,7 +67,7 @@ open class UpdateProfilePictureUseCase(
     override suspend fun executeOnException(throwable: Throwable): ProfilePictureError? {
         return when {
             throwable is IOException -> ProfilePictureError.IO
-            throwable.isConnectionIssue() -> ProfilePictureError.NoConnection
+            throwable.isConnectionIssue() -> ProfilePictureError.NoConnection(networkRepository.isAvailable())
             else -> null
         }
     }

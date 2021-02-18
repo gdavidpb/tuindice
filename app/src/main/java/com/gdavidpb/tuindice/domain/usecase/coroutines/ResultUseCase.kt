@@ -19,6 +19,10 @@ abstract class ResultUseCase<P, T, Q> : BaseUseCase<P, T, Q, LiveResult<T, Q>>()
         liveData.postError(error)
     }
 
+    override suspend fun onTimeout(liveData: LiveResult<T, Q>) {
+        liveData.postTimeout()
+    }
+
     override suspend fun onCancel(liveData: LiveResult<T, Q>) {
         liveData.postCancel()
     }

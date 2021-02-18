@@ -14,7 +14,8 @@ open class StartUpUseCase(
         private val messagingRepository: MessagingRepository,
         private val reportingRepository: ReportingRepository,
         private val linkRepository: LinkRepository,
-        private val configRepository: ConfigRepository
+        private val configRepository: ConfigRepository,
+        private val networkRepository: NetworkRepository
 ) : ResultUseCase<String, StartUpAction, StartUpError>() {
     override suspend fun executeOnBackground(params: String): StartUpAction? {
         val isActiveAuth = authRepository.isActiveAuth()
@@ -94,7 +95,7 @@ open class StartUpUseCase(
         return when {
             causes.isInvalidLink() -> StartUpError.InvalidLink
             causes.isAccountDisabled() -> StartUpError.AccountDisabled
-            throwable.isConnectionIssue() -> StartUpError.NoConnection
+            throwable.isConnectionIssue() -> StartUpError.NoConnection(networkRepository.isAvailable())
             else -> StartUpError.UnableToStart
         }
     }

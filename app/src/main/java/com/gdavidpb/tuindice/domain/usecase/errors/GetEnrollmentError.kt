@@ -4,5 +4,5 @@ sealed class GetEnrollmentError {
     object NotFound : GetEnrollmentError()
     object NotEnrolled : GetEnrollmentError()
     object InvalidCredentials : GetEnrollmentError()
-    object NoConnection : GetEnrollmentError()
+    class NoConnection(val isNetworkAvailable: Boolean) : GetEnrollmentError()
 }

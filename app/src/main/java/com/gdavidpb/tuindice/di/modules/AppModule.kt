@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataStore
 import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataStore
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
 import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataStore
+import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataStore
 import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
 import com.gdavidpb.tuindice.data.source.storage.*
@@ -286,6 +287,7 @@ val appModule = module {
     factoryBy<ConfigRepository, RemoteConfigDataStore>()
     factoryBy<ReportingRepository, CrashlyticsReportingDataStore>()
     factoryBy<DependenciesRepository, ReleaseKoinDataStore>()
+    factoryBy<NetworkRepository, AndroidNetworkDataStore>()
 
     /* Use cases */
 

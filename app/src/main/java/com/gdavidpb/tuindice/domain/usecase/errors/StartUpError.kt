@@ -4,5 +4,5 @@ sealed class StartUpError {
     object InvalidLink : StartUpError()
     object UnableToStart : StartUpError()
     object AccountDisabled : StartUpError()
-    object NoConnection : StartUpError()
+    class NoConnection(val isNetworkAvailable: Boolean) : StartUpError()
 }

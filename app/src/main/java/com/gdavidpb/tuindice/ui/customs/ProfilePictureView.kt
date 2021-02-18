@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.ui.customs
 
 import android.content.Context
+import android.net.ConnectivityManager
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -18,6 +19,7 @@ class ProfilePictureView(context: Context, attrs: AttributeSet)
     : FrameLayout(context, attrs) {
 
     private val picasso by inject<Picasso>()
+    private val connectivityManager by inject<ConnectivityManager>()
 
     private var _hasProfilePicture = false
     val hasProfilePicture: Boolean
@@ -76,7 +78,7 @@ class ProfilePictureView(context: Context, attrs: AttributeSet)
                 _hasProfilePicture = false
                 val error = when {
                     e is IOException -> ProfilePictureError.IO
-                    e.isConnectionIssue() -> ProfilePictureError.NoConnection
+                    e.isConnectionIssue() -> ProfilePictureError.NoConnection(connectivityManager.isNetworkAvailable())
                     else -> null
                 }
 

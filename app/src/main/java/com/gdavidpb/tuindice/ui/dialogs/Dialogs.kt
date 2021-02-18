@@ -17,19 +17,6 @@ fun AppCompatActivity.linkFailureDialog() {
     }
 }
 
-fun AppCompatActivity.networkFailureDialog() {
-    alert {
-        titleResource = R.string.alert_title_network_failure
-        messageResource = R.string.alert_message_network_failure
-
-        isCancelable = false
-
-        positiveButton(R.string.exit) {
-            finish()
-        }
-    }
-}
-
 fun AppCompatActivity.fatalFailureDialog() {
     alert {
         titleResource = R.string.alert_title_fatal_failure

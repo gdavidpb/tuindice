@@ -8,6 +8,7 @@ import android.view.View
 import android.view.animation.OvershootInterpolator
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.data.utils.Validation
 import com.gdavidpb.tuindice.data.utils.`do`
 import com.gdavidpb.tuindice.data.utils.`when`
 import com.gdavidpb.tuindice.data.utils.firstInvalid
@@ -32,11 +33,10 @@ class LoginFragment : NavigationFragment() {
     private val loadingMessages by config<List<String>>(KEY_LOADING_MESSAGES)
 
     private val validations by lazy {
-        arrayOf(
+        arrayOf<Validation<*>>(
                 `when`(tInputUsbId) { isBlank() } `do` { setError(R.string.error_empty) },
                 `when`(tInputUsbId) { !isValid() } `do` { setError(R.string.error_usb_id) },
-                `when`(tInputPassword) { isBlank() } `do` { setError(R.string.error_empty) },
-                `when`(connectivityManager) { !isNetworkAvailable() } `do` { signInErrorHandler(SignInError.NoConnection) }
+                `when`(tInputPassword) { isBlank() } `do` { setError(R.string.error_empty) }
         )
     }
 
@@ -145,6 +145,14 @@ class LoginFragment : NavigationFragment() {
         }
     }
 
+    private fun timeoutSnackBar() {
+        snackBar {
+            messageResource = R.string.snack_service_timeout
+
+            action(R.string.retry) { onSignInClick() }
+        }
+    }
+
     private fun signInObserver(result: Event<SignInResponse, SignInError>?) {
         when (result) {
             is Event.OnLoading -> {
@@ -152,6 +160,11 @@ class LoginFragment : NavigationFragment() {
             }
             is Event.OnSuccess -> {
                 viewModel.trySyncAccount()
+            }
+            is Event.OnTimeout -> {
+                showLoading(false)
+
+                timeoutSnackBar()
             }
             is Event.OnError -> {
                 showLoading(false)
@@ -174,9 +187,9 @@ class LoginFragment : NavigationFragment() {
 
     private fun signInErrorHandler(error: SignInError?) {
         when (error) {
-            SignInError.InvalidCredentials -> invalidCredentialsSnackBar()
-            SignInError.AccountDisabled -> requireAppCompatActivity().disabledAccountDialog()
-            SignInError.NoConnection -> noConnectionSnackBar { onSignInClick() }
+            is SignInError.InvalidCredentials -> invalidCredentialsSnackBar()
+            is SignInError.AccountDisabled -> requireAppCompatActivity().disabledAccountDialog()
+            is SignInError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
             else -> defaultErrorSnackBar { onSignInClick() }
         }
     }

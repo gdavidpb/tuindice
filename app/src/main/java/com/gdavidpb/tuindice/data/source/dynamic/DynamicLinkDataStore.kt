@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.data.source.dynamic
 import androidx.core.net.toUri
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.repository.LinkRepository
-import com.gdavidpb.tuindice.utils.extensions.await
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
+import kotlinx.coroutines.tasks.await
 
 open class DynamicLinkDataStore(
         private val dynamicLinks: FirebaseDynamicLinks

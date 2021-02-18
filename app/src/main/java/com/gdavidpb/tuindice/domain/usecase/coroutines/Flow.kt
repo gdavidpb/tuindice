@@ -5,5 +5,6 @@ sealed class Flow<T, Q> {
     data class OnNext<T, Q>(val value: T) : Flow<T, Q>()
     class OnComplete<T, Q> : Flow<T, Q>()
     data class OnError<T, Q>(val error: Q?) : Flow<T, Q>()
+    class OnTimeout<T, Q> : Flow<T, Q>()
     class OnCancel<T, Q> : Flow<T, Q>()
 }

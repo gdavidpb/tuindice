@@ -183,10 +183,10 @@ class RecordFragment : NavigationFragment() {
 
     private fun enrollmentErrorHandler(error: GetEnrollmentError?) {
         when (error) {
-            GetEnrollmentError.InvalidCredentials -> requireAppCompatActivity().credentialsChangedDialog()
-            GetEnrollmentError.NoConnection -> noConnectionSnackBar { viewModel.openEnrollmentProof() }
-            GetEnrollmentError.NotEnrolled -> notFoundSnackBar()
-            GetEnrollmentError.NotFound -> notFoundSnackBar()
+            is GetEnrollmentError.InvalidCredentials -> requireAppCompatActivity().credentialsChangedDialog()
+            is GetEnrollmentError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { viewModel.openEnrollmentProof() }
+            is GetEnrollmentError.NotEnrolled -> notFoundSnackBar()
+            is GetEnrollmentError.NotFound -> notFoundSnackBar()
             else -> defaultErrorSnackBar { viewModel.openEnrollmentProof() }
         }
     }

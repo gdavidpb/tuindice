@@ -250,7 +250,7 @@ class SummaryFragment : NavigationFragment() {
     private fun profilePictureErrorHandler(error: ProfilePictureError?) {
         when (error) {
             is ProfilePictureError.NoData -> vProfilePicture.loadDefaultProfilePicture()
-            is ProfilePictureError.NoConnection -> noConnectionSnackBar()
+            is ProfilePictureError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable)
             else -> defaultErrorSnackBar()
         }
     }

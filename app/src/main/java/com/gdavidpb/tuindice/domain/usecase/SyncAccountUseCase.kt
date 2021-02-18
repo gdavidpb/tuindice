@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
 import com.gdavidpb.tuindice.domain.model.exception.NoDataException
 import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
@@ -12,34 +11,19 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.PATH_COOKIES
-import com.gdavidpb.tuindice.utils.annotations.IgnoredFromExceptionReporting
 import com.gdavidpb.tuindice.utils.extensions.causes
 import com.gdavidpb.tuindice.utils.extensions.isAccountDisabled
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.isUpdated
-import retrofit2.HttpException
 import java.io.File
-import java.io.InterruptedIOException
-import java.net.ConnectException
-import java.net.SocketException
-import java.net.UnknownHostException
-import javax.net.ssl.SSLHandshakeException
 
-@IgnoredFromExceptionReporting(
-        SocketException::class,
-        InterruptedIOException::class,
-        UnknownHostException::class,
-        ConnectException::class,
-        SSLHandshakeException::class,
-        HttpException::class,
-        AuthenticationException::class
-)
 open class SyncAccountUseCase(
         private val dstRepository: DstRepository,
         private val storageRepository: StorageRepository<File>,
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
-        private val settingsRepository: SettingsRepository
+        private val settingsRepository: SettingsRepository,
+        private val networkRepository: NetworkRepository
 ) : ResultUseCase<Unit, Boolean, SyncError>() {
     override suspend fun executeOnBackground(params: Unit): Boolean? {
         val activeUId = authRepository.getActiveAuth().uid
@@ -82,7 +66,7 @@ open class SyncAccountUseCase(
             throwable is NoDataException -> SyncError.NoDataAvailable
             throwable is SynchronizationException -> SyncError.NoSynced
             causes.isAccountDisabled() -> SyncError.AccountDisabled
-            throwable.isConnectionIssue() -> SyncError.NoConnection
+            throwable.isConnectionIssue() -> SyncError.NoConnection(networkRepository.isAvailable())
             else -> null
         }
     }

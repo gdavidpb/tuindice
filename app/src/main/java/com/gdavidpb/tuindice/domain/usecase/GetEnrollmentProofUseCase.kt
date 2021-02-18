@@ -1,44 +1,27 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.exception.NoEnrolledException
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.GetEnrollmentError
 import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.PATH_ENROLLMENT
-import com.gdavidpb.tuindice.utils.annotations.IgnoredFromExceptionReporting
 import com.gdavidpb.tuindice.utils.extensions.copyToAndClose
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.isInvalidCredentials
 import com.gdavidpb.tuindice.utils.extensions.isNotEnrolled
 import com.gdavidpb.tuindice.utils.mappers.formatQuarterTitle
-import retrofit2.HttpException
 import java.io.File
-import java.io.InterruptedIOException
 import java.io.StreamCorruptedException
-import java.net.ConnectException
-import java.net.SocketException
-import java.net.UnknownHostException
-import javax.net.ssl.SSLHandshakeException
 
-@Suppress("BlockingMethodInNonBlockingContext")
-@IgnoredFromExceptionReporting(
-        SocketException::class,
-        InterruptedIOException::class,
-        UnknownHostException::class,
-        ConnectException::class,
-        SSLHandshakeException::class,
-        HttpException::class,
-        AuthenticationException::class
-)
 open class GetEnrollmentProofUseCase(
         private val authRepository: AuthRepository,
         private val dstRepository: DstRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
-        private val storageRepository: StorageRepository<File>
+        private val storageRepository: StorageRepository<File>,
+        private val networkRepository: NetworkRepository
 ) : EventUseCase<Unit, File, GetEnrollmentError>() {
     override suspend fun executeOnBackground(params: Unit): File {
         val activeUId = authRepository.getActiveAuth().uid
@@ -86,7 +69,7 @@ open class GetEnrollmentProofUseCase(
             throwable is StreamCorruptedException -> GetEnrollmentError.NotFound
             throwable.isInvalidCredentials() -> GetEnrollmentError.InvalidCredentials
             throwable.isNotEnrolled() -> GetEnrollmentError.NotEnrolled
-            throwable.isConnectionIssue() -> GetEnrollmentError.NoConnection
+            throwable.isConnectionIssue() -> GetEnrollmentError.NoConnection(networkRepository.isAvailable())
             else -> null
         }
     }

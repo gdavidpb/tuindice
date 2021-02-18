@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.presentation.viewmodel.SplashViewModel
 import com.gdavidpb.tuindice.ui.dialogs.disabledFailureDialog
 import com.gdavidpb.tuindice.ui.dialogs.fatalFailureDialog
 import com.gdavidpb.tuindice.ui.dialogs.linkFailureDialog
-import com.gdavidpb.tuindice.ui.dialogs.networkFailureDialog
 import com.gdavidpb.tuindice.utils.FLAG_RESET
 import com.gdavidpb.tuindice.utils.FLAG_VERIFY
 import com.gdavidpb.tuindice.utils.extensions.observe
@@ -57,7 +56,7 @@ class SplashFragment : NavigationFragment() {
                 is StartUpError.InvalidLink -> linkFailureDialog()
                 is StartUpError.UnableToStart -> fatalFailureDialog()
                 is StartUpError.AccountDisabled -> disabledFailureDialog()
-                is StartUpError.NoConnection -> networkFailureDialog()
+                is StartUpError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable)
             }
         }
     }

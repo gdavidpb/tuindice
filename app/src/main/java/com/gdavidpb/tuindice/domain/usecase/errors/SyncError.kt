@@ -5,5 +5,5 @@ sealed class SyncError {
     object NoDataAvailable : SyncError()
     object NoSynced : SyncError()
     object AccountDisabled : SyncError()
-    object NoConnection : SyncError()
+    class NoConnection(val isNetworkAvailable: Boolean) : SyncError()
 }

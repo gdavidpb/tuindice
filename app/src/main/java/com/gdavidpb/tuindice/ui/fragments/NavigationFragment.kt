@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.content.pm.PackageManager
-import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,13 +12,11 @@ import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.extensions.contentView
-import com.gdavidpb.tuindice.utils.extensions.isNetworkAvailable
 import com.gdavidpb.tuindice.utils.extensions.snackBar
 import org.koin.android.ext.android.inject
 
 abstract class NavigationFragment : Fragment() {
     protected val packageManager by inject<PackageManager>()
-    protected val connectivityManager by inject<ConnectivityManager>()
 
     @LayoutRes
     abstract fun onCreateView(): Int
@@ -38,9 +35,9 @@ abstract class NavigationFragment : Fragment() {
 
     protected fun navigateUp() = findNavController().navigateUp()
 
-    protected fun noConnectionSnackBar(retry: (() -> Unit)? = null) {
+    protected fun noConnectionSnackBar(isNetworkAvailable: Boolean, retry: (() -> Unit)? = null) {
         snackBar {
-            messageResource = if (connectivityManager.isNetworkAvailable())
+            messageResource = if (isNetworkAvailable)
                 R.string.snack_service_unreachable
             else
                 R.string.snack_network_unavailable

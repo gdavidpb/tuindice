@@ -7,8 +7,8 @@ buildscript {
         okhttp_version = '4.9.0'
         kotlin_version = "1.4.30"
         retrofit_version = "2.9.0"
-        coroutines_version = "1.4.0-M1"
-        lifecycle_version = "2.3.0"
+        coroutines_version = "1.4.2"
+        lifecycle_version = "2.2.0"
         navigation_version = "2.3.3"
 
         config = [:]

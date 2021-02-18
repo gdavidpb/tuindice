@@ -2,5 +2,5 @@ package com.gdavidpb.tuindice.domain.usecase.errors
 
 sealed class SendVerificationEmailError {
     object AccountDisabled : SendVerificationEmailError()
-    object NoConnection : SendVerificationEmailError()
+    class NoConnection(val isNetworkAvailable: Boolean) : SendVerificationEmailError()
 }

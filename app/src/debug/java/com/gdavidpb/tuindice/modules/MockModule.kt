@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataStore
 import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataStore
+import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataStore
 import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
 import com.gdavidpb.tuindice.data.source.storage.*
@@ -207,6 +208,7 @@ val mockModule = module {
     factoryBy<ConfigRepository, RemoteConfigMockDataStore>()
     factoryBy<ReportingRepository, DebugReportingDataStore>()
     factoryBy<DependenciesRepository, DebugKoinDataStore>()
+    factoryBy<NetworkRepository, AndroidNetworkDataStore>()
 
     /* Use cases */
 
