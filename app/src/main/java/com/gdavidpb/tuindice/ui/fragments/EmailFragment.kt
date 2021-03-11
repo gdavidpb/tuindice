@@ -10,9 +10,7 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SendResetPasswordEmailError
 import com.gdavidpb.tuindice.domain.usecase.errors.SendVerificationEmailError
 import com.gdavidpb.tuindice.presentation.viewmodel.EmailViewModel
 import com.gdavidpb.tuindice.ui.dialogs.disabledAccountDialog
-import com.gdavidpb.tuindice.utils.FLAG_RESET
-import com.gdavidpb.tuindice.utils.FLAG_VERIFY
-import com.gdavidpb.tuindice.utils.KEY_TIME_VERIFICATION_COUNT_DOWN
+import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_email.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -20,9 +18,13 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class EmailFragment : NavigationFragment() {
     private val viewModel by viewModel<EmailViewModel>()
 
-    private val countdownTime by config<Long>(KEY_TIME_VERIFICATION_COUNT_DOWN)
+    private val countdownTime by config<Long>(ConfigKeys.TIME_VERIFICATION_COUNT_DOWN)
 
     private val args by navArgs<EmailFragmentArgs>()
+
+    private val mode by lazy { Mode.values()[args.mode] }
+
+    enum class Mode { RESET, VERIFY }
 
     override fun onCreateView() = R.layout.fragment_email
 
@@ -42,16 +44,16 @@ class EmailFragment : NavigationFragment() {
         iViewLogo.animateZoomInOut()
 
         /* Set up view */
-        when (args.awaitingState) {
-            FLAG_RESET -> {
+        when (mode) {
+            Mode.RESET -> {
                 iViewLogo.setImageResource(R.drawable.il_reset)
                 tViewEmailTitle.text = getString(R.string.label_reset)
-                tViewEmailMessage.text = getString(R.string.message_reset, args.awaitingEmail)
+                tViewEmailMessage.text = getString(R.string.message_reset, args.email)
             }
-            FLAG_VERIFY -> {
+            Mode.VERIFY -> {
                 iViewLogo.setImageResource(R.drawable.il_verify)
                 tViewEmailTitle.text = getString(R.string.label_verify)
-                tViewEmailMessage.text = getString(R.string.message_verify, args.awaitingEmail)
+                tViewEmailMessage.text = getString(R.string.message_verify, args.email)
             }
         }
 
@@ -62,9 +64,9 @@ class EmailFragment : NavigationFragment() {
     private fun onResendClick() {
         viewModel.startCountdown(time = countdownTime, reset = true)
 
-        when (args.awaitingState) {
-            FLAG_RESET -> viewModel.sendResetPasswordEmail()
-            FLAG_VERIFY -> viewModel.sendVerificationEmail()
+        when (mode) {
+            Mode.RESET -> viewModel.sendResetPasswordEmail()
+            Mode.VERIFY -> viewModel.sendVerificationEmail()
         }
     }
 

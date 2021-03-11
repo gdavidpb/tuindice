@@ -10,30 +10,30 @@ import com.gdavidpb.tuindice.ui.adapters.base.BaseAdapter
 import com.gdavidpb.tuindice.ui.viewholders.AboutHeaderViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.AboutViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
-import com.gdavidpb.tuindice.utils.VIEW_TYPE_ABOUT
-import com.gdavidpb.tuindice.utils.VIEW_TYPE_ABOUT_HEADER
 
 class AboutAdapter : BaseAdapter<AboutItemBase>() {
 
+    private enum class ViewType { HEADER, ABOUT }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<AboutItemBase> {
-        val layout = when (viewType) {
-            VIEW_TYPE_ABOUT -> R.layout.item_about
-            VIEW_TYPE_ABOUT_HEADER -> R.layout.item_about_header
-            else -> throw NoWhenBranchMatchedException("viewType: '$viewType'")
+        val viewTypeClass = ViewType.values()[viewType]
+
+        val layout = when (viewTypeClass) {
+            ViewType.ABOUT -> R.layout.item_about
+            ViewType.HEADER -> R.layout.item_about_header
         }
 
         val itemView = LayoutInflater.from(parent.context).inflate(layout, parent, false)
 
-        return when (viewType) {
-            VIEW_TYPE_ABOUT -> AboutViewHolder(itemView)
-            VIEW_TYPE_ABOUT_HEADER -> AboutHeaderViewHolder(itemView)
-            else -> throw NoWhenBranchMatchedException("viewType: '$viewType'")
+        return when (viewTypeClass) {
+            ViewType.ABOUT -> AboutViewHolder(itemView)
+            ViewType.HEADER -> AboutHeaderViewHolder(itemView)
         }
     }
 
     override fun getItemViewType(position: Int) = when (items[position]) {
-        is AboutItem -> VIEW_TYPE_ABOUT
-        is AboutHeaderItem -> VIEW_TYPE_ABOUT_HEADER
+        is AboutItem -> ViewType.ABOUT.ordinal
+        is AboutHeaderItem -> ViewType.HEADER.ordinal
         else -> throw NoWhenBranchMatchedException("viewType: '${items[position]}'")
     }
 }

@@ -19,8 +19,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.*
 import com.gdavidpb.tuindice.services.DstAuthServiceMock
 import com.gdavidpb.tuindice.services.DstEnrollmentServiceMock
 import com.gdavidpb.tuindice.services.DstRecordServiceMock
-import com.gdavidpb.tuindice.utils.KEY_TIME_OUT_CONNECTION
-import com.gdavidpb.tuindice.utils.KEY_TIME_SYNCHRONIZATION
+import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.createMockService
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
 import com.google.android.play.core.review.ReviewManager
@@ -115,13 +114,13 @@ val mockModule = module {
     single<DstCookieJar>()
 
     single {
-        val syncTime = get<ConfigRepository>().getLong(KEY_TIME_SYNCHRONIZATION)
+        val syncTime = get<ConfigRepository>().getLong(ConfigKeys.TIME_SYNCHRONIZATION)
 
         DstAuthInterceptor(syncTime)
     }
 
     factory {
-        val connectionTimeout = get<ConfigRepository>().getLong(KEY_TIME_OUT_CONNECTION)
+        val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)
 
         OkHttpClient.Builder()
                 .callTimeout(connectionTimeout, TimeUnit.MILLISECONDS)

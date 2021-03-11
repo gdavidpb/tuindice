@@ -37,10 +37,10 @@
         android:name="com.gdavidpb.tuindice.ui.fragments.EmailFragment"
         tools:layout="@layout/fragment_email">
         <argument
-            android:name="awaitingEmail"
+            android:name="email"
             app:argType="string" />
         <argument
-            android:name="awaitingState"
+            android:name="mode"
             app:argType="integer" />
 
         <action

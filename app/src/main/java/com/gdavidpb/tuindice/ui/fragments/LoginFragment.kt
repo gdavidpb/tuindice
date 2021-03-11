@@ -20,7 +20,7 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
 import com.gdavidpb.tuindice.ui.adapters.LoadingAdapter
 import com.gdavidpb.tuindice.ui.dialogs.disabledAccountDialog
-import com.gdavidpb.tuindice.utils.KEY_LOADING_MESSAGES
+import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.fragment_login.*
@@ -30,7 +30,7 @@ class LoginFragment : NavigationFragment() {
 
     private val viewModel by viewModel<LoginViewModel>()
 
-    private val loadingMessages by config<List<String>>(KEY_LOADING_MESSAGES)
+    private val loadingMessages by config<List<String>>(ConfigKeys.LOADING_MESSAGES)
 
     private val validations by lazy {
         arrayOf<Validation<*>>(

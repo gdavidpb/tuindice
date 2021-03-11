@@ -21,9 +21,9 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
-import com.gdavidpb.tuindice.utils.ACTION_REMOVE_PROFILE_PICTURE
-import com.gdavidpb.tuindice.utils.EXTRA_REMOVE_PROFILE_PICTURE
-import com.gdavidpb.tuindice.utils.REQUEST_CODE_PROFILE_PICTURE
+import com.gdavidpb.tuindice.utils.Actions
+import com.gdavidpb.tuindice.utils.Extras
+import com.gdavidpb.tuindice.utils.RequestCodes
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -91,8 +91,8 @@ class SummaryFragment : NavigationFragment() {
         data ?: return
 
         if (resultCode == Activity.RESULT_OK) {
-            val removeProfilePicture = data.hasExtra(EXTRA_REMOVE_PROFILE_PICTURE)
-            val requestProfilePicture = requestCode == REQUEST_CODE_PROFILE_PICTURE
+            val removeProfilePicture = data.hasExtra(Extras.REMOVE_PROFILE_PICTURE)
+            val requestProfilePicture = requestCode == RequestCodes.PROFILE_PICTURE
 
             when {
                 removeProfilePicture -> {
@@ -288,7 +288,7 @@ class SummaryFragment : NavigationFragment() {
     }
 
     private fun requestProfilePictureInput(outputUri: Uri) {
-        val removeIntent = Intent(ACTION_REMOVE_PROFILE_PICTURE)
+        val removeIntent = Intent(Actions.REMOVE_PROFILE_PICTURE)
 
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                 .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
@@ -309,7 +309,7 @@ class SummaryFragment : NavigationFragment() {
         if (intents.isNotEmpty())
             chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents)
 
-        startActivityForResult(chooser, REQUEST_CODE_PROFILE_PICTURE)
+        startActivityForResult(chooser, RequestCodes.PROFILE_PICTURE)
     }
 
     private fun loadAccount(account: Account) {

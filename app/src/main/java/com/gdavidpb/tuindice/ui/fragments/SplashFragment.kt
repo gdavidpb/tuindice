@@ -13,8 +13,6 @@ import com.gdavidpb.tuindice.presentation.viewmodel.SplashViewModel
 import com.gdavidpb.tuindice.ui.dialogs.disabledFailureDialog
 import com.gdavidpb.tuindice.ui.dialogs.fatalFailureDialog
 import com.gdavidpb.tuindice.ui.dialogs.linkFailureDialog
-import com.gdavidpb.tuindice.utils.FLAG_RESET
-import com.gdavidpb.tuindice.utils.FLAG_VERIFY
 import com.gdavidpb.tuindice.utils.extensions.observe
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -78,14 +76,14 @@ class SplashFragment : NavigationFragment() {
             }
             is StartUpAction.Reset -> {
                 navigate(SplashFragmentDirections.navToEmail(
-                        awaitingEmail = action.email,
-                        awaitingState = FLAG_RESET
+                        email = action.email,
+                        mode = EmailFragment.Mode.RESET.ordinal
                 ))
             }
             is StartUpAction.Verify -> {
                 navigate(SplashFragmentDirections.navToEmail(
-                        awaitingEmail = action.email,
-                        awaitingState = FLAG_VERIFY
+                        email = action.email,
+                        mode = EmailFragment.Mode.VERIFY.ordinal
                 ))
             }
             is StartUpAction.Login -> {

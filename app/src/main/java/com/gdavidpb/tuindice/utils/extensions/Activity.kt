@@ -11,7 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.utils.PLAY_SERVICES_RESOLUTION_REQUEST
+import com.gdavidpb.tuindice.utils.RequestCodes
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import org.koin.android.ext.android.inject
@@ -58,7 +58,7 @@ fun FragmentActivity.isGoogleServicesAvailable(): Boolean {
                 googleApiAvailability.getErrorDialog(
                         this,
                         status,
-                        PLAY_SERVICES_RESOLUTION_REQUEST
+                        RequestCodes.PLAY_SERVICES_RESOLUTION
                 ).apply {
                     setOnCancelListener { finish() }
                     setOnDismissListener { finish() }

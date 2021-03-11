@@ -8,13 +8,14 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
+import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
 import java.io.File
 
-@Timeout(timeMillis = 90000)
+@Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 open class SignInUseCase(
         private val dstRepository: DstRepository,
         private val storageRepository: StorageRepository<File>,

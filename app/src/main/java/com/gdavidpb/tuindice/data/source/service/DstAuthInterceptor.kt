@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.service
 
 import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
-import com.gdavidpb.tuindice.utils.HEADER_DATE
+import com.gdavidpb.tuindice.utils.Headers
 import com.gdavidpb.tuindice.utils.extensions.toString
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -42,7 +42,7 @@ open class DstAuthInterceptor(
     }
 
     private fun Response.checkSynchronized() = apply {
-        headers.getDate(HEADER_DATE)?.also { remoteDate ->
+        headers.getDate(Headers.DATE)?.also { remoteDate ->
             val localDate = Date()
             val deltaTime = abs(localDate.time - remoteDate.time)
 

@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
-import com.gdavidpb.tuindice.utils.PATH_COOKIES
+import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.utils.extensions.causes
 import com.gdavidpb.tuindice.utils.extensions.isAccountDisabled
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
@@ -72,7 +72,7 @@ open class SyncAccountUseCase(
     }
 
     private suspend fun MutableList<DstData>.addRecordData(credentials: DstCredentials) {
-        storageRepository.delete(PATH_COOKIES)
+        storageRepository.delete(Paths.COOKIES)
 
         val recordAuthRequest = SignInRequest(
                 usbId = credentials.usbId,
@@ -89,7 +89,7 @@ open class SyncAccountUseCase(
     }
 
     private suspend fun MutableList<DstData>.addEnrollmentData(credentials: DstCredentials) {
-        storageRepository.delete(PATH_COOKIES)
+        storageRepository.delete(Paths.COOKIES)
 
         val enrollmentAuthRequest = SignInRequest(
                 usbId = credentials.usbId,

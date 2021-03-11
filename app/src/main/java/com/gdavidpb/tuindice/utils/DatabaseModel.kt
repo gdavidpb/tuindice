@@ -1,68 +1,69 @@
 package com.gdavidpb.tuindice.utils
 
 /* Firestore collections */
+object UserCollection {
+    const val COLLECTION = "users"
 
-const val FIELD_DEFAULT_USER_ID = "userId"
+    /* Fields */
+    const val ID = "id"
+    const val USB_ID = "usbId"
+    const val TOKEN = "token"
+    const val EMAIL = "email"
+    const val FULL_NAME = "fullName"
+    const val FIRST_NAMES = "firstNames"
+    const val LAST_NAMES = "lastNames"
+    const val SCHOLARSHIP = "scholarship"
+    const val CAREER_NAME = "careerName"
+    const val CAREER_CODE = "careerCode"
+    const val GRADE = "grade"
+    const val FAILED_CREDITS = "failedCredits"
+    const val FAILED_SUBJECTS = "failedSubjects"
+    const val RETIRED_CREDITS = "retiredCredits"
+    const val RETIRED_SUBJECTS = "retiredSubjects"
+    const val APPROVED_CREDITS = "approvedCredits"
+    const val APPROVED_SUBJECT = "approvedSubjects"
+    const val ENROLLED_CREDITS = "enrolledCredits"
+    const val ENROLLED_SUBJECTS = "enrolledSubjects"
+    const val LAST_UPDATE = "lastUpdate"
+    const val APP_VERSION_CODE = "appVersionCode"
+}
 
-/* Users collection */
-const val COLLECTION_USER = "users"
+object QuarterCollection {
+    const val COLLECTION = "quarters"
 
-/* Users collection fields */
-const val FIELD_USER_ID = "id"
-const val FIELD_USER_USB_ID = "usbId"
-const val FIELD_USER_TOKEN = "token"
-const val FIELD_USER_EMAIL = "email"
-const val FIELD_USER_FULL_NAME = "fullName"
-const val FIELD_USER_FIRST_NAMES = "firstNames"
-const val FIELD_USER_LAST_NAMES = "lastNames"
-const val FIELD_USER_SCHOLARSHIP = "scholarship"
-const val FIELD_USER_CAREER_NAME = "careerName"
-const val FIELD_USER_CAREER_CODE = "careerCode"
-const val FIELD_USER_GRADE = "grade"
-const val FIELD_USER_FAILED_CREDITS = "failedCredits"
-const val FIELD_USER_FAILED_SUBJECTS = "failedSubjects"
-const val FIELD_USER_RETIRED_CREDITS = "retiredCredits"
-const val FIELD_USER_RETIRED_SUBJECTS = "retiredSubjects"
-const val FIELD_USER_APPROVED_CREDITS = "approvedCredits"
-const val FIELD_USER_APPROVED_SUBJECT = "approvedSubjects"
-const val FIELD_USER_ENROLLED_CREDITS = "enrolledCredits"
-const val FIELD_USER_ENROLLED_SUBJECTS = "enrolledSubjects"
-const val FIELD_USER_LAST_UPDATE = "lastUpdate"
-const val FIELD_USER_APP_VERSION_CODE = "appVersionCode"
+    /* Fields */
+    const val USER_ID = "userId"
+    const val START_DATE = "startDate"
+    const val END_DATE = "endDate"
+    const val GRADE = "grade"
+    const val GRADE_SUM = "gradeSum"
+    const val STATUS = "status"
+}
 
-/* Quarters collection */
-const val COLLECTION_QUARTER = "quarters"
+object SubjectCollection {
+    const val COLLECTION = "subjects"
 
-/* Quarters collection fields */
-const val FIELD_QUARTER_USER_ID = "userId"
-const val FIELD_QUARTER_START_DATE = "startDate"
-const val FIELD_QUARTER_END_DATE = "endDate"
-const val FIELD_QUARTER_GRADE = "grade"
-const val FIELD_QUARTER_GRADE_SUM = "gradeSum"
-const val FIELD_QUARTER_STATUS = "status"
+    /* Fields */
+    const val USER_ID = "userId"
+    const val QUARTER_ID = "quarterId"
+    const val CODE = "code"
+    const val NAME = "name"
+    const val CREDITS = "credits"
+    const val GRADE = "grade"
+    const val STATUS = "status"
+}
 
-/* Subjects collection */
-const val COLLECTION_SUBJECT = "subjects"
+object EvaluationCollection {
+    const val COLLECTION = "evaluations"
 
-/* Subjects collection fields */
-const val FIELD_SUBJECT_USER_ID = "userId"
-const val FIELD_SUBJECT_QUARTER_ID = "quarterId"
-const val FIELD_SUBJECT_CODE = "code"
-const val FIELD_SUBJECT_NAME = "name"
-const val FIELD_SUBJECT_CREDITS = "credits"
-const val FIELD_SUBJECT_GRADE = "grade"
-const val FIELD_SUBJECT_STATUS = "status"
-
-/* Evaluations collection */
-const val COLLECTION_EVALUATION = "evaluations"
-
-/* Evaluations collection fields */
-const val FIELD_EVALUATION_USER_ID = "userId"
-const val FIELD_EVALUATION_SUBJECT_ID = "subjectId"
-const val FIELD_EVALUATION_SUBJECT_CODE = "subjectCode"
-const val FIELD_EVALUATION_TYPE = "type"
-const val FIELD_EVALUATION_GRADE = "grade"
-const val FIELD_EVALUATION_MAX_GRADE = "maxGrade"
-const val FIELD_EVALUATION_DATE = "date"
-const val FIELD_EVALUATION_NOTES = "notes"
-const val FIELD_EVALUATION_DONE = "done"
+    /* Fields */
+    const val USER_ID = "userId"
+    const val SUBJECT_ID = "subjectId"
+    const val SUBJECT_CODE = "subjectCode"
+    const val TYPE = "type"
+    const val GRADE = "grade"
+    const val MAX_GRADE = "maxGrade"
+    const val DATE = "date"
+    const val NOTES = "notes"
+    const val DONE = "done"
+}

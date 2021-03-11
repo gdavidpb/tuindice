@@ -5,7 +5,7 @@ import androidx.core.content.edit
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.SettingsKeys
 import com.gdavidpb.tuindice.utils.mappers.toRefYear
 import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
 import java.util.*
@@ -14,13 +14,13 @@ open class PreferencesDataStore(
         private val preferences: SharedPreferences
 ) : SettingsRepository {
     override fun startCountdown(reset: Boolean): Long {
-        val countdown = preferences.getLong(KEY_COUNT_DOWN, 0L)
+        val countdown = preferences.getLong(SettingsKeys.COUNT_DOWN, 0L)
 
         return if (countdown == 0L || reset) {
             val time = Date().time
 
             preferences.edit {
-                putLong(KEY_COUNT_DOWN, time)
+                putLong(SettingsKeys.COUNT_DOWN, time)
             }
 
             time
@@ -31,53 +31,53 @@ open class PreferencesDataStore(
 
     override fun resetCountdown() {
         preferences.edit {
-            remove(KEY_COUNT_DOWN)
+            remove(SettingsKeys.COUNT_DOWN)
         }
     }
 
     override fun getEmail(): String {
-        return preferences.getString(KEY_USB_ID, null)?.toUsbEmail() ?: ""
+        return preferences.getString(SettingsKeys.USB_ID, null)?.toUsbEmail() ?: ""
     }
 
     override fun hasCredentials(): Boolean {
-        return preferences.contains(KEY_USB_ID) && preferences.contains(KEY_PASSWORD)
+        return preferences.contains(SettingsKeys.USB_ID) && preferences.contains(SettingsKeys.PASSWORD)
     }
 
     override fun storeCredentials(credentials: DstCredentials) {
         preferences.edit {
-            putString(KEY_USB_ID, credentials.usbId)
-            putString(KEY_PASSWORD, credentials.password)
+            putString(SettingsKeys.USB_ID, credentials.usbId)
+            putString(SettingsKeys.PASSWORD, credentials.password)
         }
     }
 
     override fun getCredentials(): DstCredentials {
         return DstCredentials(
-                usbId = preferences.getString(KEY_USB_ID, null) ?: "",
-                password = preferences.getString(KEY_PASSWORD, null) ?: ""
+                usbId = preferences.getString(SettingsKeys.USB_ID, null) ?: "",
+                password = preferences.getString(SettingsKeys.PASSWORD, null) ?: ""
         )
     }
 
     override fun getCredentialYear(): Int {
-        val usbId = preferences.getString(KEY_USB_ID, null) ?: ""
+        val usbId = preferences.getString(SettingsKeys.USB_ID, null) ?: ""
 
         return if (usbId.isNotEmpty()) usbId.toRefYear() else -1
     }
 
     override fun getLastScreen(): Int {
-        return preferences.getInt(KEY_LAST_SCREEN, R.id.fragment_summary)
+        return preferences.getInt(SettingsKeys.LAST_SCREEN, R.id.fragment_summary)
     }
 
     override fun setLastScreen(screen: Int) {
         preferences.edit {
-            putInt(KEY_LAST_SCREEN, screen)
+            putInt(SettingsKeys.LAST_SCREEN, screen)
         }
     }
 
     override fun isReviewSuggested(value: Int): Boolean {
-        val counter = preferences.getInt(KEY_SYNCS_COUNTER, 0) + 1
+        val counter = preferences.getInt(SettingsKeys.SYNCS_COUNTER, 0) + 1
 
         preferences.edit {
-            putInt(KEY_SYNCS_COUNTER, counter)
+            putInt(SettingsKeys.SYNCS_COUNTER, counter)
         }
 
         return counter == value

@@ -17,7 +17,7 @@ open class FirestoreDataStore(
 ) : DatabaseRepository {
     override suspend fun getAccount(uid: String): Account {
         return firestore
-                .collection(COLLECTION_USER)
+                .collection(UserCollection.COLLECTION)
                 .document(uid)
                 .get(Source.CACHE)
                 .await()
@@ -26,9 +26,9 @@ open class FirestoreDataStore(
 
     override suspend fun getCurrentQuarter(uid: String): Quarter? {
         return firestore
-                .collection(COLLECTION_QUARTER)
-                .whereEqualTo(FIELD_QUARTER_USER_ID, uid)
-                .whereEqualTo(FIELD_QUARTER_STATUS, STATUS_QUARTER_CURRENT)
+                .collection(QuarterCollection.COLLECTION)
+                .whereEqualTo(QuarterCollection.USER_ID, uid)
+                .whereEqualTo(QuarterCollection.STATUS, STATUS_QUARTER_CURRENT)
                 .limit(1)
                 .get(Source.CACHE)
                 .await()
@@ -38,15 +38,15 @@ open class FirestoreDataStore(
 
     override suspend fun getQuarters(uid: String): List<Quarter> {
         val quarters = firestore
-                .collection(COLLECTION_QUARTER)
-                .whereEqualTo(FIELD_DEFAULT_USER_ID, uid)
-                .orderBy(FIELD_QUARTER_START_DATE, Query.Direction.DESCENDING)
+                .collection(QuarterCollection.COLLECTION)
+                .whereEqualTo(QuarterCollection.USER_ID, uid)
+                .orderBy(QuarterCollection.START_DATE, Query.Direction.DESCENDING)
                 .get(Source.CACHE)
                 .await()
 
         val subjects = firestore
-                .collection(COLLECTION_SUBJECT)
-                .whereEqualTo(FIELD_DEFAULT_USER_ID, uid)
+                .collection(SubjectCollection.COLLECTION)
+                .whereEqualTo(SubjectCollection.USER_ID, uid)
                 .get(Source.CACHE)
                 .await()
                 .map { it.toSubject() }
@@ -61,9 +61,9 @@ open class FirestoreDataStore(
 
     override suspend fun getSubjectEvaluations(uid: String, sid: String): List<Evaluation> {
         return firestore
-                .collection(COLLECTION_EVALUATION)
-                .whereEqualTo(FIELD_EVALUATION_USER_ID, uid)
-                .whereEqualTo(FIELD_EVALUATION_SUBJECT_ID, sid)
+                .collection(EvaluationCollection.COLLECTION)
+                .whereEqualTo(EvaluationCollection.USER_ID, uid)
+                .whereEqualTo(EvaluationCollection.SUBJECT_ID, sid)
                 .get(Source.CACHE)
                 .await()
                 .map { it.toEvaluation() }
@@ -71,8 +71,8 @@ open class FirestoreDataStore(
 
     override suspend fun getEvaluations(uid: String): List<Evaluation> {
         return firestore
-                .collection(COLLECTION_EVALUATION)
-                .whereEqualTo(FIELD_EVALUATION_USER_ID, uid)
+                .collection(EvaluationCollection.COLLECTION)
+                .whereEqualTo(EvaluationCollection.USER_ID, uid)
                 .get(Source.CACHE)
                 .await()
                 .map { it.toEvaluation() }
@@ -80,7 +80,7 @@ open class FirestoreDataStore(
 
     override suspend fun getSubject(uid: String, sid: String): Subject {
         return firestore
-                .collection(COLLECTION_SUBJECT)
+                .collection(SubjectCollection.COLLECTION)
                 .document(sid)
                 .get(Source.CACHE)
                 .await()
@@ -89,9 +89,9 @@ open class FirestoreDataStore(
 
     override suspend fun getSubjects(uid: String, qid: String): List<Subject> {
         return firestore
-                .collection(COLLECTION_SUBJECT)
-                .whereEqualTo(FIELD_SUBJECT_USER_ID, uid)
-                .whereEqualTo(FIELD_SUBJECT_QUARTER_ID, qid)
+                .collection(SubjectCollection.COLLECTION)
+                .whereEqualTo(SubjectCollection.USER_ID, uid)
+                .whereEqualTo(SubjectCollection.QUARTER_ID, qid)
                 .get(Source.CACHE)
                 .await()
                 .map { it.toSubject() }
@@ -99,7 +99,7 @@ open class FirestoreDataStore(
 
     override suspend fun getEvaluation(uid: String, eid: String): Evaluation {
         return firestore
-                .collection(COLLECTION_EVALUATION)
+                .collection(EvaluationCollection.COLLECTION)
                 .document(eid)
                 .get(Source.CACHE)
                 .await()
@@ -108,7 +108,7 @@ open class FirestoreDataStore(
 
     override suspend fun updateEvaluation(uid: String, evaluation: Evaluation) {
         val evaluationRef = firestore
-                .collection(COLLECTION_EVALUATION)
+                .collection(EvaluationCollection.COLLECTION)
                 .document(evaluation.id)
 
         val entity = evaluation.toEvaluationEntity(uid)
@@ -118,7 +118,7 @@ open class FirestoreDataStore(
 
     override suspend fun removeEvaluation(uid: String, id: String) {
         firestore
-                .collection(COLLECTION_EVALUATION)
+                .collection(EvaluationCollection.COLLECTION)
                 .document(id)
                 .delete()
                 .await()
@@ -128,7 +128,7 @@ open class FirestoreDataStore(
         val entity = evaluation.toEvaluationEntity(uid)
 
         return firestore
-                .collection(COLLECTION_EVALUATION)
+                .collection(EvaluationCollection.COLLECTION)
                 .document()
                 .let { document ->
                     document.set(entity)
@@ -139,14 +139,14 @@ open class FirestoreDataStore(
 
     override suspend fun updateSubject(uid: String, sid: String, grade: Int) {
         val subjectRef = firestore
-                .collection(COLLECTION_SUBJECT)
+                .collection(SubjectCollection.COLLECTION)
                 .document(sid)
 
         val status = if (grade != 0) STATUS_SUBJECT_OK else STATUS_SUBJECT_RETIRED
 
         val values = mapOf(
-                FIELD_SUBJECT_GRADE to grade,
-                FIELD_SUBJECT_STATUS to status
+                SubjectCollection.GRADE to grade,
+                SubjectCollection.STATUS to status
         )
 
         subjectRef.set(values, SetOptions.merge()).await()
@@ -159,7 +159,7 @@ open class FirestoreDataStore(
 
         sid.forEach { subjectId ->
             val subjectRef = firestore
-                    .collection(COLLECTION_SUBJECT)
+                    .collection(SubjectCollection.COLLECTION)
                     .document(subjectId)
 
             batch.delete(subjectRef)
@@ -170,7 +170,7 @@ open class FirestoreDataStore(
 
     override suspend fun setAuthData(uid: String, data: DstAuth) {
         val userRef = firestore
-                .collection(COLLECTION_USER)
+                .collection(UserCollection.COLLECTION)
                 .document(uid)
 
         userRef.set(data, SetOptions.merge()).await()
@@ -178,19 +178,19 @@ open class FirestoreDataStore(
 
     override suspend fun syncAccount(uid: String, data: Collection<DstData>) {
         firestore
-                .collection(COLLECTION_USER)
+                .collection(UserCollection.COLLECTION)
                 .document(uid)
                 .get(Source.SERVER)
                 .await()
 
         arrayOf(
-                COLLECTION_QUARTER,
-                COLLECTION_SUBJECT,
-                COLLECTION_EVALUATION
+                QuarterCollection.COLLECTION,
+                SubjectCollection.COLLECTION,
+                EvaluationCollection.COLLECTION
         ).forEach { collection ->
             firestore
                     .collection(collection)
-                    .whereEqualTo(FIELD_DEFAULT_USER_ID, uid)
+                    .whereEqualTo(UserCollection.USB_ID, uid)
                     .get(Source.SERVER)
                     .await()
         }
@@ -212,11 +212,11 @@ open class FirestoreDataStore(
 
     override suspend fun setToken(uid: String, token: String) {
         val userRef = firestore
-                .collection(COLLECTION_USER)
+                .collection(UserCollection.COLLECTION)
                 .document(uid)
 
         val values = mapOf(
-                FIELD_USER_TOKEN to token
+                UserCollection.TOKEN to token
         )
 
         userRef.set(values, SetOptions.merge())
@@ -232,12 +232,12 @@ open class FirestoreDataStore(
 
     private fun WriteBatch.updateLastUpdate(uid: String) {
         val userRef = firestore
-                .collection(COLLECTION_USER)
+                .collection(UserCollection.COLLECTION)
                 .document(uid)
 
         val values = mapOf(
-                FIELD_USER_LAST_UPDATE to FieldValue.serverTimestamp(),
-                FIELD_USER_APP_VERSION_CODE to BuildConfig.VERSION_CODE
+                UserCollection.LAST_UPDATE to FieldValue.serverTimestamp(),
+                UserCollection.APP_VERSION_CODE to BuildConfig.VERSION_CODE
         )
 
         set(userRef, values, SetOptions.merge())
@@ -245,7 +245,7 @@ open class FirestoreDataStore(
 
     private fun WriteBatch.updatePersonalData(uid: String, data: DstPersonal) {
         val userRef = firestore
-                .collection(COLLECTION_USER)
+                .collection(UserCollection.COLLECTION)
                 .document(uid)
 
         set(userRef, data, SetOptions.merge())
@@ -253,7 +253,7 @@ open class FirestoreDataStore(
 
     private fun WriteBatch.updateRecordData(uid: String, data: DstRecord) {
         val userRef = firestore
-                .collection(COLLECTION_USER)
+                .collection(UserCollection.COLLECTION)
                 .document(uid)
 
         set(userRef, data.stats, SetOptions.merge())
@@ -264,7 +264,7 @@ open class FirestoreDataStore(
             val quarterId = quarter.generateId()
 
             val quarterRef = firestore
-                    .collection(COLLECTION_QUARTER)
+                    .collection(QuarterCollection.COLLECTION)
                     .document(quarterId)
 
             set(quarterRef, quarter, SetOptions.merge())
@@ -275,7 +275,7 @@ open class FirestoreDataStore(
                 val subjectId = subject.generateId()
 
                 val subjectRef = firestore
-                        .collection(COLLECTION_SUBJECT)
+                        .collection(SubjectCollection.COLLECTION)
                         .document(subjectId)
 
                 set(subjectRef, subject, SetOptions.merge())
@@ -289,7 +289,7 @@ open class FirestoreDataStore(
         val quarterId = quarter.generateId()
 
         val quarterRef = firestore
-                .collection(COLLECTION_QUARTER)
+                .collection(QuarterCollection.COLLECTION)
                 .document(quarterId)
 
         set(quarterRef, quarter, SetOptions.merge())
@@ -300,7 +300,7 @@ open class FirestoreDataStore(
             val subjectId = subject.generateId()
 
             val subjectRef = firestore
-                    .collection(COLLECTION_SUBJECT)
+                    .collection(SubjectCollection.COLLECTION)
                     .document(subjectId)
 
             val currentSubject = subject.toCurrentSubjectEntity()

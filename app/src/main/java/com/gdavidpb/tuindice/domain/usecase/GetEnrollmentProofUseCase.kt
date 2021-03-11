@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.GetEnrollmentError
 import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
-import com.gdavidpb.tuindice.utils.PATH_ENROLLMENT
+import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.utils.extensions.copyToAndClose
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.isInvalidCredentials
@@ -34,7 +34,7 @@ open class GetEnrollmentProofUseCase(
             (startDate to endDate).formatQuarterTitle()
         }
 
-        val enrollmentName = File(PATH_ENROLLMENT, "$enrollmentTitle.pdf").path
+        val enrollmentName = File(Paths.ENROLLMENT, "$enrollmentTitle.pdf").path
         val enrollmentFile = storageRepository.get(enrollmentName)
 
         if (!enrollmentFile.exists()) {

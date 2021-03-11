@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.service
 
 import com.gdavidpb.tuindice.domain.repository.StorageRepository
-import com.gdavidpb.tuindice.utils.PATH_COOKIES
+import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.utils.extensions.copyToAndClose
 import okhttp3.Cookie
 import okhttp3.CookieJar
@@ -37,5 +37,5 @@ open class DstCookieJar(
             listOf()
     }
 
-    private fun getCookiePath(url: HttpUrl) = File(PATH_COOKIES, url.host).path
+    private fun getCookiePath(url: HttpUrl) = File(Paths.COOKIES, url.host).path
 }

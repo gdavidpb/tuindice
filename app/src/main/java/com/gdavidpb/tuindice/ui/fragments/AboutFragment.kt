@@ -10,9 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
-import com.gdavidpb.tuindice.utils.KEY_CONTACT_EMAIL
-import com.gdavidpb.tuindice.utils.KEY_CONTACT_SUBJECT
-import com.gdavidpb.tuindice.utils.KEY_ISSUES_LIST
+import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_about.*
 
@@ -20,9 +18,9 @@ class AboutFragment : NavigationFragment() {
 
     private val aboutAdapter = AboutAdapter()
 
-    private val contactEmail by config<String>(KEY_CONTACT_EMAIL)
-    private val contactSubject by config<String>(KEY_CONTACT_SUBJECT)
-    private val issuesList by config<List<String>>(KEY_ISSUES_LIST)
+    private val contactEmail by config<String>(ConfigKeys.CONTACT_EMAIL)
+    private val contactSubject by config<String>(ConfigKeys.CONTACT_SUBJECT)
+    private val issuesList by config<List<String>>(ConfigKeys.ISSUES_LIST)
 
     override fun onCreateView() = R.layout.fragment_about
 

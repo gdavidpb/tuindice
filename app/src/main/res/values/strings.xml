@@ -42,34 +42,34 @@
 
     <string name="alert_title_fatal_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_fatal_failure">
-        Parece que algo ha salido muy mal por acá. Debes reiniciar <b>TuIndice</b> para continuar
+        Parece que algo ha salido muy mal por acá. Debes reiniciar <b>TuIndice</b> para continuar.
     </string>
 
     <string name="alert_title_credentials_failure">¡Tu contraseña ha cambiado!</string>
     <string name="alert_message_credentials_failure">
-        Parece que tu contraseña ha cambiado. Vuelve a iniciar sesión para seguir disfrutando de <b>TuIndice</b>
+        Parece que tu contraseña ha cambiado. Vuelve a iniciar sesión para seguir disfrutando de <b>TuIndice</b>.
     </string>
 
     <string name="alert_title_disabled_failure">Tu cuenta ha sido inhabilitada</string>
     <string name="alert_message_disabled_failure">
         Tu cuenta ha sido inhabilitada por violar las políticas de <b>TuIndice</b>.\n\n
         Si crees que se trata de un error o quieres obtener más información, escríbemos desde tu
-        correo institucional a <u><b>tuindice@gmail.com</b></u>
+        correo institucional a <u><b>tuindice@gmail.com</b></u>.
     </string>
 
     <string name="alert_title_link_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_link_failure">
-        Este enlace está corrupto o ya fue usado, por favor solicita otro correo
+        Este enlace está corrupto o ya fue usado, por favor solicita otro correo.
     </string>
 
     <string name="alert_title_sync_failure">¡Revisa tu fecha y hora!</string>
     <string name="alert_message_sync_failure">
-        Para que <b>TuIndice</b> funcione correctamente debes ajustar la fecha y hora de tu dispositivo
+        Para que <b>TuIndice</b> funcione correctamente debes ajustar la fecha y hora de tu dispositivo.
     </string>
 
     <string name="alert_title_data_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_data_failure">
-        Parece que algunos servicios de la universidad no están disponibles. Intentar ingresar más tarde
+        Parece que algunos servicios de la universidad no están disponibles. Intenta ingresar más tarde.
     </string>
 
     <string name="alert_title_no_services_failure">¡Oops, lo sentimos!</string>
@@ -212,7 +212,7 @@
     <string name="about_header_libs">Detrás de TuIndice</string>
 
     <string name="about_kotlin">
-        Kotlin 1.4.30\n
+        Kotlin 1.4.31\n
         Programming Language.\n
         © 2012 JetBrains\n
         https://kotlinlang.org/

@@ -20,9 +20,7 @@ import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataStore
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
-import com.gdavidpb.tuindice.utils.KEY_DST_CERTIFICATES
-import com.gdavidpb.tuindice.utils.KEY_TIME_OUT_CONNECTION
-import com.gdavidpb.tuindice.utils.KEY_TIME_SYNCHRONIZATION
+import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.create
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
 import com.gdavidpb.tuindice.utils.extensions.inflate
@@ -160,7 +158,7 @@ val appModule = module {
 
     single {
         get<ConfigRepository>()
-                .getString(KEY_DST_CERTIFICATES)
+                .getString(ConfigKeys.DST_CERTIFICATES)
                 .inflate()
                 .let(::ByteArrayInputStream)
                 .use { inputStream ->
@@ -183,13 +181,13 @@ val appModule = module {
     single<DstCookieJar>()
 
     single {
-        val syncTime = get<ConfigRepository>().getLong(KEY_TIME_SYNCHRONIZATION)
+        val syncTime = get<ConfigRepository>().getLong(ConfigKeys.TIME_SYNCHRONIZATION)
 
         DstAuthInterceptor(syncTime)
     }
 
     factory {
-        val connectionTimeout = get<ConfigRepository>().getLong(KEY_TIME_OUT_CONNECTION)
+        val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)
 
         OkHttpClient.Builder()
                 .callTimeout(connectionTimeout, TimeUnit.MILLISECONDS)

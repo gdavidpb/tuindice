@@ -6,9 +6,7 @@ import androidx.exifinterface.media.ExifInterface
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
-import com.gdavidpb.tuindice.utils.PATH_PROFILE_PICTURES
-import com.gdavidpb.tuindice.utils.QUALITY_PROFILE_PICTURE
-import com.gdavidpb.tuindice.utils.SAMPLE_PROFILE_PICTURE
+import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.utils.extensions.decodeScaleFactor
 import com.gdavidpb.tuindice.utils.extensions.decodeScaledBitmap
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
@@ -24,16 +22,22 @@ open class UpdateProfilePictureUseCase(
         private val remoteStorageRepository: RemoteStorageRepository,
         private val networkRepository: NetworkRepository
 ) : EventUseCase<Uri, String, ProfilePictureError>() {
+
+    object Settings {
+        const val SAMPLE = 1024
+        const val QUALITY = 90
+    }
+
     override suspend fun executeOnBackground(params: Uri): String {
         val activeUId = authRepository.getActiveAuth().uid
-        val resource = File(PATH_PROFILE_PICTURES, "$activeUId.jpg").path
+        val resource = File(Paths.PROFILE_PICTURES, "$activeUId.jpg").path
 
         val rotationDegrees = contentRepository.openInputStream(params).use { inputStream ->
             ExifInterface(inputStream).rotationDegrees.toFloat()
         }
 
         val scaleFactor = contentRepository.openInputStream(params).use { inputStream ->
-            inputStream.decodeScaleFactor(SAMPLE_PROFILE_PICTURE)
+            inputStream.decodeScaleFactor(Settings.SAMPLE)
         }
 
         val bitmap = contentRepository.openInputStream(params).use { inputStream ->
@@ -45,7 +49,7 @@ open class UpdateProfilePictureUseCase(
         val fileOutputStream = storageRepository.outputStream(resource)
 
         fileOutputStream.use { outputStream ->
-            val compress = bitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY_PROFILE_PICTURE, outputStream)
+            val compress = bitmap.compress(Bitmap.CompressFormat.JPEG, Settings.QUALITY, outputStream)
 
             if (compress)
                 outputStream.flush()

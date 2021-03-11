@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.utils.DEFAULT_SHRED_PASSES
 import java.io.File
 import java.io.FileOutputStream
 import java.security.SecureRandom
@@ -13,12 +12,12 @@ import java.security.SecureRandom
 fun Uri.fileProviderUri(context: Context): Uri =
         FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID, toFile())
 
-fun File.shred() {
+fun File.shred(passes: Int) {
     val random = SecureRandom()
     val length = length()
     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
 
-    repeat(DEFAULT_SHRED_PASSES) {
+    repeat(passes) {
         FileOutputStream(this).use { stream ->
             do {
                 random.nextBytes(buffer)

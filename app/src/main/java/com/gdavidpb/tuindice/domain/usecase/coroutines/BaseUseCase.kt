@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.domain.usecase.coroutines
 
 import androidx.lifecycle.LiveData
+import com.gdavidpb.tuindice.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.utils.KEY_HANDLED
-import com.gdavidpb.tuindice.utils.KEY_USE_CASE
-import com.gdavidpb.tuindice.utils.extensions.getTimeout
-import com.gdavidpb.tuindice.utils.extensions.hasTimeout
+import com.gdavidpb.tuindice.utils.ReportKeys
+import com.gdavidpb.tuindice.utils.extensions.getTimeoutKey
+import com.gdavidpb.tuindice.utils.extensions.hasTimeoutKey
 import kotlinx.coroutines.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -17,6 +17,7 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
         protected open val foregroundContext: CoroutineContext = Dispatchers.Main
 ) : KoinComponent {
     private val reportingRepository by inject<ReportingRepository>()
+    private val configRepository by inject<ConfigRepository>()
 
     abstract suspend fun executeOnBackground(params: P): T?
 
@@ -38,7 +39,12 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
                 withContext(backgroundContext) {
                     suspend fun execute() = executeOnBackground(params)?.also { executeOnHook(liveData, it) }
 
-                    if (hasTimeout()) withTimeout(timeMillis = getTimeout()) { execute() } else execute()
+                    if (hasTimeoutKey()) {
+                        val key = getTimeoutKey()
+                        val timeMillis = configRepository.getLong(key)
+
+                        withTimeout(timeMillis) { execute() }
+                    } else execute()
                 }
             }.onSuccess { response ->
                 if (response != null)
@@ -62,8 +68,8 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
     }
 
     private fun reportFailure(throwable: Throwable, isHandled: Boolean) {
-        reportingRepository.setCustomKey(KEY_USE_CASE, "${this@BaseUseCase::class.simpleName}")
-        reportingRepository.setCustomKey(KEY_HANDLED, isHandled)
+        reportingRepository.setCustomKey(ReportKeys.USE_CASE, "${this@BaseUseCase::class.simpleName}")
+        reportingRepository.setCustomKey(ReportKeys.HANDLED, isHandled)
         reportingRepository.logException(throwable)
     }
 }

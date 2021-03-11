@@ -48,7 +48,6 @@ android {
         debug {
             minifyEnabled false
             manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
 
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 

@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.domain.repository.RemoteStorageRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
-import com.gdavidpb.tuindice.utils.PATH_PROFILE_PICTURES
+import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.isObjectNotFound
 import java.io.File
@@ -17,7 +17,7 @@ open class GetProfilePictureUseCase(
 ) : ResultUseCase<Unit, String, ProfilePictureError>() {
     override suspend fun executeOnBackground(params: Unit): String? {
         val activeUId = authRepository.getActiveAuth().uid
-        val resource = File(PATH_PROFILE_PICTURES, "$activeUId.jpg").path
+        val resource = File(Paths.PROFILE_PICTURES, "$activeUId.jpg").path
         val downloadUrl = runCatching { remoteStorageRepository.resolveResource(resource) }
 
         return downloadUrl.fold(onSuccess = { url ->
