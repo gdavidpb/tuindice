@@ -9,10 +9,6 @@
         <value>300000</value>
     </entry>
     <entry>
-        <key>time_out_connection</key>
-        <value>90000</value>
-    </entry>
-    <entry>
         <key>time_synchronization</key>
         <value>3600000</value>
     </entry>
@@ -41,6 +37,14 @@
             "Otro…"
             ]
         </value>
+    </entry>
+    <entry>
+        <key>time_out_connection</key>
+        <value>90000</value>
+    </entry>
+    <entry>
+        <key>time_out_sign_in</key>
+        <value>90000</value>
     </entry>
     <entry>
         <key>dst_certificates</key>

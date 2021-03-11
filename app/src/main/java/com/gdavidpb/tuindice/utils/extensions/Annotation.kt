@@ -5,6 +5,6 @@ import com.gdavidpb.tuindice.utils.annotations.Timeout
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 
-fun BaseUseCase<*, *, *, *>.hasTimeout() = this::class.hasAnnotation<Timeout>()
+fun BaseUseCase<*, *, *, *>.hasTimeoutKey() = this::class.hasAnnotation<Timeout>()
 
-fun BaseUseCase<*, *, *, *>.getTimeout() = this::class.findAnnotation<Timeout>()?.timeMillis ?: -1
+fun BaseUseCase<*, *, *, *>.getTimeoutKey() = this::class.findAnnotation<Timeout>()!!.key
