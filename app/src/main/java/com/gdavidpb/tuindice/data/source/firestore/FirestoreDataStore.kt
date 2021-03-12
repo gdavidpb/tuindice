@@ -190,7 +190,7 @@ open class FirestoreDataStore(
         ).forEach { collection ->
             firestore
                     .collection(collection)
-                    .whereEqualTo(UserCollection.USB_ID, uid)
+                    .whereEqualTo(UserCollection.USER_ID, uid)
                     .get(Source.SERVER)
                     .await()
         }
