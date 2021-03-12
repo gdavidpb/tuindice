@@ -67,23 +67,6 @@ fun AppCompatActivity.disabledFailureDialog() {
     }
 }
 
-fun AppCompatActivity.syncFailureDialog() {
-    alert {
-        titleResource = R.string.alert_title_sync_failure
-        messageResource = R.string.alert_message_sync_failure
-
-        isCancelable = false
-
-        positiveButton(R.string.open_settings) {
-            openDataTime()
-        }
-
-        negativeButton(R.string.exit) {
-            finish()
-        }
-    }
-}
-
 fun AppCompatActivity.dataFailureDialog() {
     alert {
         titleResource = R.string.alert_title_data_failure

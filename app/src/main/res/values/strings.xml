@@ -62,11 +62,6 @@
         Este enlace está corrupto o ya fue usado, por favor solicita otro correo.
     </string>
 
-    <string name="alert_title_sync_failure">¡Revisa tu fecha y hora!</string>
-    <string name="alert_message_sync_failure">
-        Para que <b>TuIndice</b> funcione correctamente debes ajustar la fecha y hora de tu dispositivo.
-    </string>
-
     <string name="alert_title_data_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_data_failure">
         Parece que algunos servicios de la universidad no están disponibles. Intenta ingresar más tarde.

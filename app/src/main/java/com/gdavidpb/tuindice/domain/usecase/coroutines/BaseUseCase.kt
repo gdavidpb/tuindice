@@ -37,14 +37,16 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
 
             runCatching {
                 withContext(backgroundContext) {
-                    suspend fun execute() = executeOnBackground(params)?.also { executeOnHook(liveData, it) }
-
-                    if (hasTimeoutKey()) {
+                    val response = if (hasTimeoutKey()) {
                         val key = getTimeoutKey()
                         val timeMillis = configRepository.getLong(key)
 
-                        withTimeout(timeMillis) { execute() }
-                    } else execute()
+                        withTimeout(timeMillis) { executeOnBackground(params) }
+                    } else {
+                        executeOnBackground(params)
+                    }
+
+                    response?.also { executeOnHook(liveData, it) }
                 }
             }.onSuccess { response ->
                 if (response != null)

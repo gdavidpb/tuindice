@@ -6,6 +6,7 @@ object UserCollection {
 
     /* Fields */
     const val ID = "id"
+    const val USER_ID = "userId"
     const val USB_ID = "usbId"
     const val TOKEN = "token"
     const val EMAIL = "email"

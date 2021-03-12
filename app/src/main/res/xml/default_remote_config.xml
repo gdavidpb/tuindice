@@ -9,10 +9,6 @@
         <value>300000</value>
     </entry>
     <entry>
-        <key>time_synchronization</key>
-        <value>3600000</value>
-    </entry>
-    <entry>
         <key>contact_email</key>
         <value>tuindice@gmail.com</value>
     </entry>

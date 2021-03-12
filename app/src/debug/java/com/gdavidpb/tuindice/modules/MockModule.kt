@@ -113,11 +113,7 @@ val mockModule = module {
 
     single<DstCookieJar>()
 
-    single {
-        val syncTime = get<ConfigRepository>().getLong(ConfigKeys.TIME_SYNCHRONIZATION)
-
-        DstAuthInterceptor(syncTime)
-    }
+    single<DstAuthInterceptor>()
 
     factory {
         val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)

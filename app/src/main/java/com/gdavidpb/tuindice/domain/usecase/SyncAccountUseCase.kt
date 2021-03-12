@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.domain.usecase
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
 import com.gdavidpb.tuindice.domain.model.exception.NoDataException
-import com.gdavidpb.tuindice.domain.model.exception.SynchronizationException
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.model.service.DstData
 import com.gdavidpb.tuindice.domain.repository.*
@@ -64,7 +63,6 @@ open class SyncAccountUseCase(
         return when {
             throwable is NoAuthenticatedException -> SyncError.NoAuthenticated
             throwable is NoDataException -> SyncError.NoDataAvailable
-            throwable is SynchronizationException -> SyncError.NoSynced
             causes.isAccountDisabled() -> SyncError.AccountDisabled
             throwable.isConnectionIssue() -> SyncError.NoConnection(networkRepository.isAvailable())
             else -> null

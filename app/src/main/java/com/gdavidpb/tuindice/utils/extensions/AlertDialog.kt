@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
+import android.content.DialogInterface
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
@@ -29,16 +30,16 @@ var (AlertDialog.Builder).isCancelable: Boolean
 
 fun (AlertDialog.Builder).positiveButton(
         @StringRes buttonTextResource: Int,
-        onClicked: () -> Unit = {}
+        onClicked: (dialog: DialogInterface) -> Unit = {}
 ) {
-    setPositiveButton(buttonTextResource) { _, _ -> onClicked() }
+    setPositiveButton(buttonTextResource) { dialog, _ -> onClicked(dialog) }
 }
 
 fun (AlertDialog.Builder).negativeButton(
         @StringRes buttonTextResource: Int,
-        onClicked: () -> Unit = {}
+        onClicked: (dialog: DialogInterface) -> Unit = {}
 ) {
-    setNegativeButton(buttonTextResource) { _, _ -> onClicked() }
+    setNegativeButton(buttonTextResource) { dialog, _ -> onClicked(dialog) }
 }
 
 fun (AlertDialog.Builder).createView(@LayoutRes layout: Int, init: View.() -> Unit): View =

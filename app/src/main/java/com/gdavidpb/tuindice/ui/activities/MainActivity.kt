@@ -15,7 +15,6 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.dialogs.dataFailureDialog
 import com.gdavidpb.tuindice.ui.dialogs.disabledFailureDialog
 import com.gdavidpb.tuindice.ui.dialogs.fatalFailureRestart
-import com.gdavidpb.tuindice.ui.dialogs.syncFailureDialog
 import com.gdavidpb.tuindice.utils.IdempotentLocker
 import com.gdavidpb.tuindice.utils.TIME_EXIT_LOCKER
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -139,7 +138,6 @@ class MainActivity : AppCompatActivity() {
         when (error) {
             is SyncError.NoAuthenticated -> fatalFailureRestart()
             is SyncError.NoDataAvailable -> dataFailureDialog()
-            is SyncError.NoSynced -> syncFailureDialog()
             is SyncError.AccountDisabled -> disabledFailureDialog()
         }
     }
