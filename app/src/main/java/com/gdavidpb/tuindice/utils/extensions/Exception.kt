@@ -7,7 +7,6 @@ import com.google.firebase.auth.FirebaseAuthActionCodeException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.storage.StorageException
-import com.google.firebase.storage.StorageException.*
 import retrofit2.HttpException
 import java.io.InterruptedIOException
 import java.net.ConnectException
@@ -16,18 +15,14 @@ import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
 import javax.net.ssl.SSLHandshakeException
 
-fun Throwable.isObjectNotFound() = when (val internal = cause) {
-    is StorageException -> {
-        internal.errorCode == ERROR_OBJECT_NOT_FOUND ||
-                internal.errorCode == ERROR_BUCKET_NOT_FOUND ||
-                internal.errorCode == ERROR_PROJECT_NOT_FOUND
-    }
-    else -> false
-}
-
 fun List<Throwable>.isInvalidLink() = contains<FirebaseAuthActionCodeException>()
 
 fun List<Throwable>.isAccountDisabled() = contains<FirebaseAuthInvalidUserException>()
+
+fun Throwable.isObjectNotFound() = this is StorageException &&
+        (errorCode == StorageException.ERROR_OBJECT_NOT_FOUND ||
+                errorCode == StorageException.ERROR_BUCKET_NOT_FOUND ||
+                errorCode == StorageException.ERROR_PROJECT_NOT_FOUND)
 
 fun Throwable?.isInvalidCredentials() =
         this is FirebaseAuthInvalidCredentialsException ||
