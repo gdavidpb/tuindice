@@ -58,6 +58,6 @@ fun Collection<Quarter>.computeGradeSum(until: Quarter = first()) =
                 /* Group by code */
                 .groupBy { it.code }
                 /* If you've seen this subject more than once and now you approved this */
-                .map { (_, subjects) -> subjects.filterNoEffect() }
-                .flatten()
+                .flatMap { (_, subjects) -> subjects.filterNoEffect() }
+                /* Compute grade */
                 .computeGrade()

@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.utils.extensions.*
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 import java.util.*
 import kotlin.math.floor
@@ -15,6 +16,18 @@ class ComputationTest {
         const val STATUS_QUARTER_CURRENT = 0
         const val STATUS_QUARTER_COMPLETED = 1
         const val STATUS_QUARTER_RETIRED = 3
+
+        const val STATUS_SUBJECT_OK = 0
+        const val STATUS_SUBJECT_RETIRED = 1
+
+        val DEFAULT_LOCALE: Locale = Locale("es", "VE")
+        val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone("America/Caracas")
+    }
+
+    @Before
+    fun setDefaultLocaleTimeZone() {
+        Locale.setDefault(TestValues.DEFAULT_LOCALE)
+        TimeZone.setDefault(TestValues.DEFAULT_TIME_ZONE)
     }
 
     @Test
@@ -173,7 +186,7 @@ class ComputationTest {
                 status = TestValues.STATUS_QUARTER_CURRENT,
                 subjects = mutableListOf(
                         createSubject(code = "MA1112", grade = 5, credits = 4),
-                        createSubject(code = "ID1113", grade = 5, credits = 3, status = TestValues.STATUS_QUARTER_RETIRED)
+                        createSubject(code = "ID1113", grade = 5, credits = 3, status = TestValues.STATUS_SUBJECT_RETIRED)
                 )
         )
 
@@ -235,7 +248,7 @@ class ComputationTest {
             name: String = "",
             grade: Int = 0,
             credits: Int = 0,
-            status: Int = 0
+            status: Int = TestValues.STATUS_SUBJECT_OK
     ) = Subject(
             id = "",
             qid = "",
