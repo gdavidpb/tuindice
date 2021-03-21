@@ -91,7 +91,8 @@ class SubjectFragment : NavigationFragment() {
     private fun onAddEvaluationClicked() {
         navigate(SubjectFragmentDirections.navToEvaluation(
                 title = getString(R.string.title_add_evaluation),
-                subjectId = args.subjectId
+                subjectId = args.subjectId,
+                subjectCode = args.subjectCode
         ))
     }
 
@@ -169,6 +170,7 @@ class SubjectFragment : NavigationFragment() {
             navigate(SubjectFragmentDirections.navToEvaluation(
                     title = getString(R.string.title_edit_evaluation),
                     subjectId = args.subjectId,
+                    subjectCode = args.subjectCode,
                     evaluationId = item.id
             ))
         }

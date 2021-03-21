@@ -200,7 +200,8 @@ class RecordFragment : NavigationFragment() {
     inner class QuarterManager : QuarterAdapter.AdapterManager, ItemTouchHelper.Callback() {
         override fun onSubjectClicked(quarterItem: QuarterItem, subjectItem: SubjectItem) {
             navigate(RecordFragmentDirections.navToSubject(
-                    subjectId = subjectItem.id
+                    subjectId = subjectItem.id,
+                    subjectCode = subjectItem.code
             ))
         }
 

@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetSubjectUseCase
 import com.gdavidpb.tuindice.domain.usecase.UpdateEvaluationUseCase
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.utils.extensions.execute
 
@@ -33,6 +32,4 @@ class EvaluationViewModel(
 
     fun updateEvaluation(evaluation: Evaluation) =
             execute(useCase = updateEvaluationUseCase, params = evaluation, liveData = evaluationUpdate)
-
-    fun getSelectedSubject() = (subject.value as? Result.OnSuccess<Subject, Nothing>)?.run { value }
 }

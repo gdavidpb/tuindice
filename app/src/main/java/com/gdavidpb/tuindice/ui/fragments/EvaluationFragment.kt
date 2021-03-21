@@ -77,12 +77,11 @@ class EvaluationFragment : NavigationFragment() {
             R.id.menu_done -> {
                 if (!checkChanges()) return false
 
-                val subject = viewModel.getSelectedSubject() ?: return false
                 val changes = collectChanges()
                 val evaluation = changes.toEvaluation(
                         id = args.evaluationId ?: "",
                         sid = args.subjectId,
-                        subjectCode = subject.code
+                        subjectCode = args.subjectCode
                 )
 
                 if (isNewEvaluation)

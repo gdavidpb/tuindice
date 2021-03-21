@@ -20,6 +20,7 @@ import java.util.*
 
 fun Subject.toSubjectItem(context: Context) = SubjectItem(
         id = id,
+        code = code,
         nameText = name,
         codeText = spanSubjectCode(context),
         gradeText = grade.formatGrade(context),

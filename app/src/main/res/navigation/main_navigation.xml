@@ -129,6 +129,9 @@
         <argument
             android:name="subjectId"
             app:argType="string" />
+        <argument
+            android:name="subjectCode"
+            app:argType="string" />
 
         <action
             android:id="@+id/nav_to_evaluation"
@@ -149,6 +152,9 @@
             app:argType="string" />
         <argument
             android:name="subjectId"
+            app:argType="string" />
+        <argument
+            android:name="subjectCode"
             app:argType="string" />
         <argument
             android:name="evaluationId"
