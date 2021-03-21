@@ -33,23 +33,23 @@ class ComputationTest {
     @Test
     fun toGrade_Test() {
         (0 until 30)
-                .all { it.toDouble().toGrade() == 1 }
+                .all { it.toDouble().toSubjectGrade() == 1 }
                 .also(::assertTrue)
 
         (30 until 50)
-                .all { it.toDouble().toGrade() == 2 }
+                .all { it.toDouble().toSubjectGrade() == 2 }
                 .also(::assertTrue)
 
         (50 until 70)
-                .all { it.toDouble().toGrade() == 3 }
+                .all { it.toDouble().toSubjectGrade() == 3 }
                 .also(::assertTrue)
 
         (70 until 85)
-                .all { it.toDouble().toGrade() == 4 }
+                .all { it.toDouble().toSubjectGrade() == 4 }
                 .also(::assertTrue)
 
         (85..100)
-                .all { it.toDouble().toGrade() == 5 }
+                .all { it.toDouble().toSubjectGrade() == 5 }
                 .also(::assertTrue)
     }
 

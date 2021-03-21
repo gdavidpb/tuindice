@@ -7,6 +7,8 @@ import com.gdavidpb.tuindice.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetSubjectUseCase
 import com.gdavidpb.tuindice.domain.usecase.UpdateEvaluationUseCase
+import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
+import com.gdavidpb.tuindice.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.utils.extensions.execute
 
@@ -19,7 +21,7 @@ class EvaluationViewModel(
     val subject = LiveResult<Subject, Nothing>()
     val evaluation = LiveResult<Evaluation, Nothing>()
     val add = LiveResult<Evaluation, Nothing>()
-    val evaluationUpdate = LiveResult<Evaluation, Nothing>()
+    val evaluationUpdate = LiveCompletable<Nothing>()
 
     fun getSubject(sid: String) =
             execute(useCase = getSubjectUseCase, params = sid, liveData = subject)
@@ -30,6 +32,6 @@ class EvaluationViewModel(
     fun addEvaluation(evaluation: Evaluation) =
             execute(useCase = addEvaluationUseCase, params = evaluation, liveData = add)
 
-    fun updateEvaluation(evaluation: Evaluation) =
-            execute(useCase = updateEvaluationUseCase, params = evaluation, liveData = evaluationUpdate)
+    fun updateEvaluation(request: UpdateEvaluationRequest) =
+            execute(useCase = updateEvaluationUseCase, params = request, liveData = evaluationUpdate)
 }

@@ -7,8 +7,12 @@ import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.model.service.*
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
+import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
+import com.gdavidpb.tuindice.domain.usecase.request.UpdateSubjectRequest
 import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.extensions.toSubjectStatus
 import com.gdavidpb.tuindice.utils.mappers.*
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.tasks.await
 
@@ -32,7 +36,7 @@ open class FirestoreDataStore(
                 .limit(1)
                 .get(Source.CACHE)
                 .await()
-                .map { it.toQuarter(subjects = getSubjects(uid = uid, qid = it.id)) }
+                .map { it.toQuarter(subjects = getQuarterSubjects(uid = uid, qid = it.id)) }
                 .firstOrNull()
     }
 
@@ -69,15 +73,6 @@ open class FirestoreDataStore(
                 .map { it.toEvaluation() }
     }
 
-    override suspend fun getEvaluations(uid: String): List<Evaluation> {
-        return firestore
-                .collection(EvaluationCollection.COLLECTION)
-                .whereEqualTo(EvaluationCollection.USER_ID, uid)
-                .get(Source.CACHE)
-                .await()
-                .map { it.toEvaluation() }
-    }
-
     override suspend fun getSubject(uid: String, sid: String): Subject {
         return firestore
                 .collection(SubjectCollection.COLLECTION)
@@ -87,7 +82,7 @@ open class FirestoreDataStore(
                 .toSubject()
     }
 
-    override suspend fun getSubjects(uid: String, qid: String): List<Subject> {
+    override suspend fun getQuarterSubjects(uid: String, qid: String): List<Subject> {
         return firestore
                 .collection(SubjectCollection.COLLECTION)
                 .whereEqualTo(SubjectCollection.USER_ID, uid)
@@ -106,20 +101,27 @@ open class FirestoreDataStore(
                 .toEvaluation()
     }
 
-    override suspend fun updateEvaluation(uid: String, evaluation: Evaluation) {
+    override suspend fun updateEvaluation(uid: String, request: UpdateEvaluationRequest) {
         val evaluationRef = firestore
                 .collection(EvaluationCollection.COLLECTION)
-                .document(evaluation.id)
+                .document(request.id)
 
-        val entity = evaluation.toEvaluationEntity(uid)
+        val values = mapOf(
+                EvaluationCollection.TYPE to request.type.ordinal,
+                EvaluationCollection.GRADE to request.grade,
+                EvaluationCollection.MAX_GRADE to request.maxGrade,
+                EvaluationCollection.DATE to Timestamp(request.date),
+                EvaluationCollection.NOTES to request.notes,
+                EvaluationCollection.DONE to request.isDone
+        )
 
-        evaluationRef.set(entity, SetOptions.merge())
+        evaluationRef.set(values, SetOptions.merge()).await()
     }
 
-    override suspend fun removeEvaluation(uid: String, id: String) {
+    override suspend fun removeEvaluation(uid: String, eid: String) {
         firestore
                 .collection(EvaluationCollection.COLLECTION)
-                .document(id)
+                .document(eid)
                 .delete()
                 .await()
     }
@@ -137,35 +139,17 @@ open class FirestoreDataStore(
                 }
     }
 
-    override suspend fun updateSubject(uid: String, sid: String, grade: Int) {
+    override suspend fun updateSubject(uid: String, request: UpdateSubjectRequest) {
         val subjectRef = firestore
                 .collection(SubjectCollection.COLLECTION)
-                .document(sid)
-
-        val status = if (grade != 0) STATUS_SUBJECT_OK else STATUS_SUBJECT_RETIRED
+                .document(request.id)
 
         val values = mapOf(
-                SubjectCollection.GRADE to grade,
-                SubjectCollection.STATUS to status
+                SubjectCollection.GRADE to request.grade,
+                SubjectCollection.STATUS to request.grade.toSubjectStatus()
         )
 
         subjectRef.set(values, SetOptions.merge()).await()
-    }
-
-    override suspend fun removeSubjects(uid: String, vararg sid: String) {
-        if (sid.isEmpty()) return
-
-        val batch = firestore.batch()
-
-        sid.forEach { subjectId ->
-            val subjectRef = firestore
-                    .collection(SubjectCollection.COLLECTION)
-                    .document(subjectId)
-
-            batch.delete(subjectRef)
-        }
-
-        batch.commit().await()
     }
 
     override suspend fun setAuthData(uid: String, data: DstAuth) {

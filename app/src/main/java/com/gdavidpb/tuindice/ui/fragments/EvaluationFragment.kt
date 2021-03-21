@@ -15,13 +15,12 @@ import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.EvaluationType
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
-import com.gdavidpb.tuindice.presentation.model.EvaluationUpdate
+import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.ui.customs.EvaluationDatePicker
 import com.gdavidpb.tuindice.utils.DECIMALS_DIV
 import com.gdavidpb.tuindice.utils.MAX_EVALUATION_GRADE
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.gdavidpb.tuindice.utils.mappers.toEvaluation
 import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.fragment_evaluation.*
 import org.koin.android.ext.android.inject
@@ -77,17 +76,10 @@ class EvaluationFragment : NavigationFragment() {
             R.id.menu_done -> {
                 if (!checkChanges()) return false
 
-                val changes = collectChanges()
-                val evaluation = changes.toEvaluation(
-                        id = args.evaluationId ?: "",
-                        sid = args.subjectId,
-                        subjectCode = args.subjectCode
-                )
-
                 if (isNewEvaluation)
-                    viewModel.addEvaluation(evaluation)
+                    viewModel.addEvaluation(evaluation = collectAddEvaluation())
                 else
-                    viewModel.updateEvaluation(evaluation)
+                    viewModel.updateEvaluation(request = collectUpdateEvaluation())
 
                 navigateUp()
 
@@ -222,18 +214,41 @@ class EvaluationFragment : NavigationFragment() {
         }
     }
 
-    private fun collectChanges(): EvaluationUpdate {
+    private fun collectAddEvaluation(): Evaluation {
         val evaluationType = cGroupEvaluation
                 .checkedChipIndex
                 .let { index -> EvaluationType.values()[index] }
 
         val maxGrade = sBarMaxGrade.progress.toGrade()
 
-        return EvaluationUpdate(
+        return Evaluation(
+                id = args.evaluationId ?: "",
+                sid = args.subjectId,
+                subjectCode = args.subjectCode,
                 type = evaluationType,
+                grade = maxGrade,
                 maxGrade = maxGrade,
-                date = this.datePicker.selectedDate,
-                notes = "${this.eTextNotes.text}"
+                date = datePicker.selectedDate,
+                notes = "${eTextNotes.text}",
+                isDone = false
+        )
+    }
+
+    private fun collectUpdateEvaluation(): UpdateEvaluationRequest {
+        val evaluationType = cGroupEvaluation
+                .checkedChipIndex
+                .let { index -> EvaluationType.values()[index] }
+
+        val maxGrade = sBarMaxGrade.progress.toGrade()
+
+        return UpdateEvaluationRequest(
+                id = args.evaluationId ?: "",
+                type = evaluationType,
+                grade = maxGrade,
+                maxGrade = maxGrade,
+                date = datePicker.selectedDate,
+                notes = "${eTextNotes.text}",
+                isDone = false
         )
     }
 

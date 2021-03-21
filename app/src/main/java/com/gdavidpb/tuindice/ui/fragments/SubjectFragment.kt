@@ -15,12 +15,13 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
+import com.gdavidpb.tuindice.domain.usecase.request.UpdateSubjectRequest
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
 import com.gdavidpb.tuindice.utils.DECIMALS_GRADE_SUBJECT
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.gdavidpb.tuindice.utils.mappers.toEvaluation
 import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_subject.*
@@ -60,7 +61,6 @@ class SubjectFragment : NavigationFragment() {
         btnAddEvaluation.onClickOnce(::onAddEvaluationClicked)
 
         with(viewModel) {
-            observe(evaluationUpdate, ::updateEvaluationObserver)
             observe(subject, ::subjectObserver)
             observe(evaluations, ::evaluationsObserver)
 
@@ -76,9 +76,12 @@ class SubjectFragment : NavigationFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_done -> {
-                val subjectGrade = evaluationAdapter.computeGradeSum().toGrade()
+                val request = UpdateSubjectRequest(
+                        id = args.subjectId,
+                        grade = evaluationAdapter.computeGradeSum().toSubjectGrade()
+                )
 
-                viewModel.updateSubject(sid = args.subjectId, grade = subjectGrade)
+                viewModel.updateSubject(request)
 
                 navigateUp()
 
@@ -101,21 +104,10 @@ class SubjectFragment : NavigationFragment() {
 
         if (animate) {
             tViewTotalGrade.animateGrade(value = gradeSum, decimals = DECIMALS_GRADE_SUBJECT)
-            tViewGrade.animateGrade(value = gradeSum.toGrade())
+            tViewGrade.animateGrade(value = gradeSum.toSubjectGrade())
         } else {
             tViewTotalGrade.text = gradeSum.formatGrade(DECIMALS_GRADE_SUBJECT)
-            tViewGrade.text = gradeSum.toGrade().formatGrade()
-        }
-    }
-
-    private fun updateEvaluationObserver(result: Result<Evaluation, Nothing>?) {
-        when (result) {
-            is Result.OnSuccess -> {
-                val context = requireContext()
-                val response = result.value
-
-                evaluationAdapter.replaceItem(item = response.toEvaluationItem(context))
-            }
+            tViewGrade.text = gradeSum.toSubjectGrade().formatGrade()
         }
     }
 
@@ -178,15 +170,19 @@ class SubjectFragment : NavigationFragment() {
         override fun onEvaluationChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean) {
             evaluationAdapter.replaceItemAt(item = item, position = position)
 
-            if (dispatchChanges)
-                viewModel.updateEvaluation(evaluation = item.toEvaluation())
-        }
+            if (dispatchChanges) {
+                val request = UpdateEvaluationRequest(
+                        id = item.data.id,
+                        type = item.data.type,
+                        grade = item.data.grade,
+                        maxGrade = item.data.maxGrade,
+                        date = item.data.date,
+                        notes = item.data.notes,
+                        isDone = item.data.isDone
+                )
 
-        override fun onEvaluationDoneChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean) {
-            evaluationAdapter.replaceItemAt(item = item, position = position)
-
-            if (dispatchChanges)
-                viewModel.updateEvaluation(evaluation = item.toEvaluation())
+                viewModel.updateEvaluation(request)
+            }
         }
 
         override fun getItem(position: Int): EvaluationItem {

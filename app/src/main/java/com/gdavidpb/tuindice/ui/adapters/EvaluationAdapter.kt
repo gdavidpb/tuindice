@@ -21,7 +21,6 @@ class EvaluationAdapter(
         fun onEvaluationClicked(item: EvaluationItem, position: Int)
 
         fun onEvaluationChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean)
-        fun onEvaluationDoneChanged(item: EvaluationItem, position: Int, dispatchChanges: Boolean)
 
         fun onDataChanged()
         fun onDataUpdated()

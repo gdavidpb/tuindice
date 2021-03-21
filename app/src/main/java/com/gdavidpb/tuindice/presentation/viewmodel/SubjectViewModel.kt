@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.*
-import com.gdavidpb.tuindice.domain.usecase.request.SubjectUpdateRequest
+import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
+import com.gdavidpb.tuindice.domain.usecase.request.UpdateSubjectRequest
 import com.gdavidpb.tuindice.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.utils.extensions.execute
@@ -18,22 +19,22 @@ class SubjectViewModel(
 ) : ViewModel() {
     val subject = LiveResult<Subject, Nothing>()
     val evaluations = LiveResult<List<Evaluation>, Nothing>()
-    val evaluationUpdate = LiveResult<Evaluation, Nothing>()
+    val evaluationUpdate = LiveCompletable<Nothing>()
     val subjectUpdate = LiveCompletable<Nothing>()
-    val remove = LiveCompletable<Nothing>()
+    val evaluationRemove = LiveCompletable<Nothing>()
 
     fun getSubject(sid: String) =
             execute(useCase = getSubjectUseCase, params = sid, liveData = subject)
 
-    fun updateSubject(sid: String, grade: Int) =
-            execute(useCase = updateSubjectUseCase, params = SubjectUpdateRequest(sid, grade), liveData = subjectUpdate)
+    fun updateSubject(request: UpdateSubjectRequest) =
+            execute(useCase = updateSubjectUseCase, params = request, liveData = subjectUpdate)
 
     fun getSubjectEvaluations(sid: String) =
             execute(useCase = getSubjectEvaluationsUseCase, params = sid, liveData = evaluations)
 
-    fun updateEvaluation(evaluation: Evaluation) =
-            execute(useCase = updateEvaluationUseCase, params = evaluation, liveData = evaluationUpdate)
+    fun updateEvaluation(request: UpdateEvaluationRequest) =
+            execute(useCase = updateEvaluationUseCase, params = request, liveData = evaluationUpdate)
 
     fun removeEvaluation(id: String) =
-            execute(useCase = removeEvaluationUseCase, params = id, liveData = remove)
+            execute(useCase = removeEvaluationUseCase, params = id, liveData = evaluationRemove)
 }

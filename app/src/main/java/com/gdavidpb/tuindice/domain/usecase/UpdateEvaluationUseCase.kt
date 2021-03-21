@@ -1,19 +1,17 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
-import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
+import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
+import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
 
 open class UpdateEvaluationUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
-) : ResultUseCase<Evaluation, Evaluation, Nothing>() {
-    override suspend fun executeOnBackground(params: Evaluation): Evaluation {
+) : CompletableUseCase<UpdateEvaluationRequest, Nothing>() {
+    override suspend fun executeOnBackground(params: UpdateEvaluationRequest) {
         val activeUId = authRepository.getActiveAuth().uid
 
-        databaseRepository.updateEvaluation(uid = activeUId, evaluation = params)
-
-        return params
+        databaseRepository.updateEvaluation(uid = activeUId, request = params)
     }
 }

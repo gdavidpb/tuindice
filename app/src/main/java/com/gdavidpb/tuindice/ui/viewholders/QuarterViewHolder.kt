@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_MOCK
-import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_OK
 import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_RETIRED
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
@@ -99,10 +98,7 @@ open class QuarterViewHolder(
                     if (fromUser) {
                         val subject = subjectItem.data
 
-                        val updatedStatus = if (updatedGrade == 0)
-                            STATUS_SUBJECT_RETIRED
-                        else
-                            STATUS_SUBJECT_OK
+                        val updatedStatus = updatedGrade.toSubjectStatus()
 
                         /* Create a updated subject */
                         val updatedSubject = subject.copy(

@@ -82,7 +82,7 @@ open class EvaluationViewHolder(
                 val updatedEvaluation = item.data.copy(isDone = isChecked)
                 val updatedItem = updatedEvaluation.toEvaluationItem(context)
 
-                manager.onEvaluationDoneChanged(updatedItem, adapterPosition, true)
+                manager.onEvaluationChanged(updatedItem, adapterPosition, true)
             }
         }
     }

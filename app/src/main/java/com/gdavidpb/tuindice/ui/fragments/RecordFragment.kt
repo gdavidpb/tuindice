@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.GetEnrollmentError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
+import com.gdavidpb.tuindice.domain.usecase.request.UpdateSubjectRequest
 import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
@@ -206,8 +207,14 @@ class RecordFragment : NavigationFragment() {
         }
 
         override fun onSubjectChanged(item: SubjectItem, dispatchChanges: Boolean) {
-            if (dispatchChanges)
-                viewModel.updateSubject(sid = item.id, grade = item.data.grade)
+            if (dispatchChanges) {
+                val request = UpdateSubjectRequest(
+                        id = item.id,
+                        grade = item.data.grade
+                )
+
+                viewModel.updateSubject(request)
+            }
         }
 
         override fun onQuarterChanged(item: QuarterItem, position: Int) {

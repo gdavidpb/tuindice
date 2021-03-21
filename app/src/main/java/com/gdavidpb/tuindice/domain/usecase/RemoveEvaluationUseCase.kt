@@ -11,6 +11,6 @@ open class RemoveEvaluationUseCase(
     override suspend fun executeOnBackground(params: String) {
         val activeUId = authRepository.getActiveAuth().uid
 
-        databaseRepository.removeEvaluation(uid = activeUId, id = params)
+        databaseRepository.removeEvaluation(uid = activeUId, eid = params)
     }
 }

@@ -5,11 +5,10 @@ import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.model.service.DstRecordStats
 import com.gdavidpb.tuindice.domain.model.service.DstSubject
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.utils.STATUS_QUARTER_COMPLETED
-import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.utils.extensions.component6
 import com.gdavidpb.tuindice.utils.extensions.component7
 import com.gdavidpb.tuindice.utils.extensions.component8
+import com.gdavidpb.tuindice.utils.extensions.toQuarterStatus
 import com.gdavidpb.tuindice.utils.mappers.formatSubjectName
 import com.gdavidpb.tuindice.utils.mappers.toStartEndDate
 import org.jsoup.nodes.Element
@@ -75,7 +74,7 @@ open class DstRecordDataConverter : ElementConverter<DstRecord>, KoinComponent {
                     subjects = subjects,
                     grade = grade,
                     gradeSum = gradeSum,
-                    status = if (grade != 0.0) STATUS_QUARTER_COMPLETED else STATUS_QUARTER_RETIRED
+                    status = grade.toQuarterStatus()
             )
         }
 
