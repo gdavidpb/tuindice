@@ -22,8 +22,10 @@ import kotlinx.android.synthetic.main.item_subject.view.*
 open class QuarterViewHolder(
         itemView: View,
         private val manager: QuarterAdapter.AdapterManager
-) : BaseViewHolder<QuarterItem>(itemView) {
+) : BaseViewHolder<QuarterItem, Nothing>(itemView) {
     override fun bindView(item: QuarterItem) {
+        super.bindView(item)
+
         with(itemView) {
             /* Quarter has not grade sum */
             if (item.data.gradeSum == 0.0 && item.subjectsItems.isNotEmpty()) {

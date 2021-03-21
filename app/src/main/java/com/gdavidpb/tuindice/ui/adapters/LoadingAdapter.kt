@@ -12,8 +12,11 @@ class LoadingAdapter(
 ) : BaseAdapter() {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val itemView = (convertView
-                ?: LayoutInflater.from(parent.context).inflate(R.layout.view_text_view_loading, parent, false)) as TextView
+        val itemView = convertView ?: LayoutInflater
+                .from(parent.context)
+                .inflate(R.layout.view_text_view_loading, parent, false)
+
+        itemView as TextView
 
         itemView.text = items[position]
 

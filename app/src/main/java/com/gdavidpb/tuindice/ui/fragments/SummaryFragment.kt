@@ -343,6 +343,6 @@ class SummaryFragment : NavigationFragment() {
 
         val items = listOf(subjectsSummary, creditsSummary)
 
-        summaryAdapter.swapItems(items)
+        summaryAdapter.submitList(items)
     }
 }

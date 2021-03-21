@@ -10,16 +10,25 @@ import com.gdavidpb.tuindice.utils.extensions.onClickOnce
 
 open class AboutViewHolder(
         itemView: View
-) : BaseViewHolder<AboutItemBase>(itemView = itemView) {
+) : BaseViewHolder<AboutItemBase, Nothing>(itemView = itemView) {
+
+    init {
+        with(itemView) {
+            onClickOnce {
+                getItem().onClick()
+            }
+        }
+    }
+
     override fun bindView(item: AboutItemBase) {
+        super.bindView(item)
+
         item as AboutItem
 
         with(itemView as AppCompatButton) {
             text = item.content
 
             drawables(start = item.drawable)
-
-            onClickOnce(item::onClick)
         }
     }
 }

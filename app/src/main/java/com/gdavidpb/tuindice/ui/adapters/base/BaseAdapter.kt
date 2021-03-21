@@ -3,107 +3,158 @@ package com.gdavidpb.tuindice.ui.adapters.base
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
+import java.util.Collections.synchronizedList
 
-abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewHolder<T>>() {
-    protected val items = mutableListOf<T>()
+abstract class BaseAdapter<T : Any, Q : Any> : RecyclerView.Adapter<BaseViewHolder<T, Q>>() {
 
-    override fun getItemCount() = items.size
+    protected val currentList: MutableList<T> = synchronizedList(mutableListOf<T>())
 
-    override fun onBindViewHolder(holder: BaseViewHolder<T>, position: Int) {
-        val item = items[position]
+    open fun provideComparator(): Comparator<T> {
+        return Comparator { _, _ -> 0 }
+    }
+
+    override fun getItemCount(): Int {
+        return currentList.size
+    }
+
+    override fun onBindViewHolder(holder: BaseViewHolder<T, Q>, position: Int) {
+        val item = currentList[position]
 
         holder.bindView(item)
     }
 
-    open fun provideComparator() = Comparator<T> { _, _ -> 0 }
+    @Suppress("UNCHECKED_CAST")
+    override fun onBindViewHolder(holder: BaseViewHolder<T, Q>, position: Int, payloads: MutableList<Any>) {
+        val item = currentList[position]
 
-    open fun swapItems(new: List<T>) {
-        val diffUtil = GenericDiffUtil(old = items, new = new, comparator = provideComparator())
+        if (payloads.isEmpty()) {
+            holder.bindView(item)
+        } else {
+            val params = payloads as List<Any>
+            val payload = params[0] as Q
 
-        DiffUtil.calculateDiff(diffUtil, true).dispatchUpdatesTo(this)
-
-        items.clear()
-        items.addAll(new)
-    }
-
-    open fun getItem(position: Int): T {
-        return items[position]
-    }
-
-    open fun addItem(item: T, notifyChange: Boolean = true) {
-        items.add(item)
-
-        if (notifyChange)
-            notifyItemInserted(items.size - 1)
-    }
-
-    open fun removeItem(item: T, notifyChange: Boolean = true) {
-        val comparator = provideComparator()
-
-        items.indexOfFirst {
-            comparator.compare(item, it) == 0
-        }.also { position ->
-            if (position != -1) removeItemAt(position, notifyChange)
+            holder.bindPayload(item, payload)
         }
     }
 
+    open fun notifyItemPayload(position: Int, payload: Q) {
+        notifyItemChanged(position, payload)
+    }
+
+    open fun submitList(list: List<T>) {
+        val oldListIsEmpty = currentList.isEmpty()
+        val newListIsEmpty = list.isEmpty()
+
+        val diffUtil = ListDiffUtil(oldList = currentList, newList = list, comparator = provideComparator())
+        val diffResult = DiffUtil.calculateDiff(diffUtil, true)
+
+        currentList.clear()
+        currentList.addAll(list)
+
+        diffResult.dispatchUpdatesTo(this)
+
+        if (oldListIsEmpty && newListIsEmpty) notifyDataSetChanged()
+    }
+
+    open fun getItem(position: Int): T {
+        return currentList[position]
+    }
+
+    open fun addItem(item: T, position: Int = currentList.size) {
+        currentList.add(position, item)
+
+        notifyItemInserted(position)
+    }
+
+    open fun removeItem(item: T) {
+        val position = getItemPosition(item)
+
+        currentList.removeAt(position)
+
+        notifyItemRemoved(position)
+    }
+
+    open fun updateItem(item: T, update: T.() -> T) {
+        val position = getItemPosition(item)
+
+        currentList[position] = currentList[position].update()
+
+        notifyItemChanged(position)
+    }
+
+    open fun updateItem(item: T, notify: Boolean = true) {
+        val position = getItemPosition(item)
+
+        currentList[position] = item
+
+        if (notify) notifyItemChanged(position)
+    }
+
+    @Deprecated("Remove after migration")
     open fun removeItemAt(position: Int, notifyChange: Boolean = true) {
-        items.removeAt(position)
+        currentList.removeAt(position)
 
-        if (notifyChange)
-            notifyItemRemoved(position)
+        if (notifyChange) notifyItemRemoved(position)
     }
 
+    @Deprecated("Remove after migration")
     open fun addItemAt(item: T, position: Int, notifyChange: Boolean = true) {
-        items.add(position, item)
+        currentList.add(position, item)
 
-        if (notifyChange)
-            notifyItemInserted(position)
+        if (notifyChange) notifyItemInserted(position)
     }
 
+    @Deprecated("Remove after migration")
     fun replaceItem(item: T, notifyChange: Boolean = true) {
         val comparator = provideComparator()
 
-        items.indexOfFirst {
+        currentList.indexOfFirst {
             comparator.compare(item, it) == 0
         }.also { position ->
             if (position != -1) replaceItemAt(item, position, notifyChange)
         }
     }
 
+    @Deprecated("Remove after migration")
     open fun replaceItemAt(item: T, position: Int, notifyChange: Boolean = true) {
-        items[position] = item
+        currentList[position] = item
 
-        if (notifyChange)
-            notifyItemChanged(position, item)
+        if (notifyChange) notifyItemChanged(position)
     }
 
-    inline fun <reified Q : T> Q.compareTo(b: Any, comparator: (a: Q, b: Q) -> Boolean): Int {
-        return if (b is Q && comparator(this, b)) 0 else -1
+    open fun getItemPosition(item: T): Int {
+        check(hasStableIds()) { "In order to use modifiers by item you have to set up stable ids." }
+
+        val comparator = provideComparator()
+
+        return currentList.indexOfFirst { comparator.compare(it, item) == 0 }
     }
 
-    private inner class GenericDiffUtil(
-            private val old: List<T>,
-            private val new: List<T>,
-            private val comparator: Comparator<T>
+    private class ListDiffUtil<Q>(
+            private val oldList: List<Q>,
+            private val newList: List<Q>,
+            private val comparator: Comparator<Q>
     ) : DiffUtil.Callback() {
+        override fun getOldListSize(): Int {
+            return oldList.size
+        }
 
-        override fun getOldListSize() = old.size
-
-        override fun getNewListSize() = new.size
+        override fun getNewListSize(): Int {
+            return newList.size
+        }
 
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val oldItem = old[oldItemPosition]
-            val newItem = new[newItemPosition]
+            val oldItem = oldList[oldItemPosition]
+            val newItem = newList[newItemPosition]
 
-            return comparator.compare(oldItem, newItem) == 0
+            return oldItem == newItem
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val oldItem = old[oldItemPosition]
-            val newItem = new[newItemPosition]
+            val oldItem = oldList[oldItemPosition]
+            val newItem = newList[newItemPosition]
 
-            return oldItem == newItem
+            return comparator.compare(oldItem, newItem) == 0
         }
     }
 }

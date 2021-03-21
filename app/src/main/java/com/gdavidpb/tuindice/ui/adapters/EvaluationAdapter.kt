@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 
 class EvaluationAdapter(
         private val manager: AdapterManager
-) : BaseAdapter<EvaluationItem>() {
+) : BaseAdapter<EvaluationItem, Nothing>() {
 
     private val adapterSorter = compareBy(
             EvaluationItem::isDone,
@@ -31,20 +31,20 @@ class EvaluationAdapter(
 
     override fun provideComparator() = compareBy(EvaluationItem::id)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<EvaluationItem> {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<EvaluationItem, Nothing> {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_evaluation, parent, false)
 
         return EvaluationViewHolder(itemView, manager)
     }
 
-    override fun swapItems(new: List<EvaluationItem>) {
-        super.swapItems(new = new.sortedWith(adapterSorter))
+    override fun submitList(list: List<EvaluationItem>) {
+        super.submitList(list.sortedWith(adapterSorter))
 
         manager.onDataChanged()
     }
 
-    override fun addItem(item: EvaluationItem, notifyChange: Boolean) {
-        super.addItem(item, notifyChange)
+    override fun addItem(item: EvaluationItem, position: Int) {
+        super.addItem(item, position)
 
         manager.onDataChanged()
     }
@@ -68,10 +68,10 @@ class EvaluationAdapter(
     }
 
     fun ensureSorting() {
-        super.swapItems(new = items.sortedWith(adapterSorter))
+        super.submitList(currentList.sortedWith(adapterSorter))
     }
 
     fun computeGradeSum(): Double {
-        return items.sumByDouble { evaluation -> evaluation.data.grade }
+        return currentList.sumByDouble { evaluation -> evaluation.data.grade }
     }
 }

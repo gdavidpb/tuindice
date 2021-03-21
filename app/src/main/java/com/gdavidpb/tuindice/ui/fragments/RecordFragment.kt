@@ -136,7 +136,7 @@ class RecordFragment : NavigationFragment() {
                     quarter.toQuarterItem(context)
                 }
 
-                quarterAdapter.swapItems(new = items)
+                quarterAdapter.submitList(items)
 
                 if (quarters.isEmpty()) {
                     rViewRecord.gone()

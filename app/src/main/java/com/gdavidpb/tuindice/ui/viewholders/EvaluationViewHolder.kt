@@ -15,8 +15,10 @@ import kotlinx.android.synthetic.main.item_evaluation.view.*
 open class EvaluationViewHolder(
         itemView: View,
         private val manager: EvaluationAdapter.AdapterManager
-) : BaseViewHolder<EvaluationItem>(itemView) {
+) : BaseViewHolder<EvaluationItem, Nothing>(itemView) {
     override fun bindView(item: EvaluationItem) {
+        super.bindView(item)
+
         with(itemView) {
             this as CardView
 

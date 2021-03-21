@@ -7,8 +7,10 @@ import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 
 open class SummaryViewHolder(
         itemView: View
-) : BaseViewHolder<SummaryItem>(itemView) {
+) : BaseViewHolder<SummaryItem, Nothing>(itemView) {
     override fun bindView(item: SummaryItem) {
+        super.bindView(item)
+
         itemView as StatusCardView
 
         with(itemView) {

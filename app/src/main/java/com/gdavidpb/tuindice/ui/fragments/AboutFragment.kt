@@ -164,7 +164,7 @@ class AboutFragment : NavigationFragment() {
             */
         }.build()
 
-        aboutAdapter.swapItems(new = data)
+        aboutAdapter.submitList(data)
     }
 
     private fun startPlayStore() {

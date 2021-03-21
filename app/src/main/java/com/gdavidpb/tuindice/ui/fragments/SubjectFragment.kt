@@ -139,7 +139,7 @@ class SubjectFragment : NavigationFragment() {
                     evaluation.toEvaluationItem(context)
                 }
 
-                evaluationAdapter.swapItems(new = items)
+                evaluationAdapter.submitList(items)
             }
         }
     }

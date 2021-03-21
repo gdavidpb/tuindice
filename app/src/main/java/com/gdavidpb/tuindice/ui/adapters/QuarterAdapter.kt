@@ -14,7 +14,7 @@ import kotlin.math.roundToInt
 
 class QuarterAdapter(
         private val manager: AdapterManager
-) : BaseAdapter<QuarterItem>() {
+) : BaseAdapter<QuarterItem, Nothing>() {
 
     interface AdapterManager {
         fun onSubjectClicked(quarterItem: QuarterItem, subjectItem: SubjectItem)
@@ -30,15 +30,15 @@ class QuarterAdapter(
     }
 
     private val averageSubjects by lazy {
-        if (items.isNotEmpty())
-            (items.sumBy { it.data.subjects.size } / items.size.toFloat()).roundToInt()
+        if (currentList.isNotEmpty())
+            (currentList.sumBy { it.subjectsItems.size } / currentList.size.toFloat()).roundToInt()
         else
             0
     }
 
     override fun provideComparator() = compareBy(QuarterItem::id)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<QuarterItem> {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<QuarterItem, Nothing> {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_quarter, parent, false)
 
         /* Default inflation */
@@ -52,10 +52,10 @@ class QuarterAdapter(
     }
 
     override fun getItemId(position: Int): Long {
-        return items[position].id.hashCode().toLong()
+        return currentList[position].id.hashCode().toLong()
     }
 
     fun computeGradeSum(until: QuarterItem): Double {
-        return items.computeGradeSumUntil(until)
+        return currentList.computeGradeSumUntil(until)
     }
 }

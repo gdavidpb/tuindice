@@ -11,11 +11,11 @@ import com.gdavidpb.tuindice.ui.viewholders.AboutHeaderViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.AboutViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 
-class AboutAdapter : BaseAdapter<AboutItemBase>() {
+class AboutAdapter : BaseAdapter<AboutItemBase, Nothing>() {
 
     private enum class ViewType { HEADER, ABOUT }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<AboutItemBase> {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<AboutItemBase, Nothing> {
         val viewTypeClass = ViewType.values()[viewType]
 
         val layout = when (viewTypeClass) {
@@ -31,9 +31,9 @@ class AboutAdapter : BaseAdapter<AboutItemBase>() {
         }
     }
 
-    override fun getItemViewType(position: Int) = when (items[position]) {
+    override fun getItemViewType(position: Int) = when (currentList[position]) {
         is AboutItem -> ViewType.ABOUT.ordinal
         is AboutHeaderItem -> ViewType.HEADER.ordinal
-        else -> throw NoWhenBranchMatchedException("viewType: '${items[position]}'")
+        else -> throw NoWhenBranchMatchedException("viewType: '${currentList[position]}'")
     }
 }
