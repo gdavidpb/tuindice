@@ -27,6 +27,7 @@ val defaultPersonalResponse = DstPersonalDataSelector(
 val septDec2019 = createQuarter(
         startDate = "01-09-2019".parse("dd-MM-yyyy")!!,
         endDate = "01-12-2019".parse("dd-MM-yyyy")!!,
+        gradeSum = 3.6428,
         subjects = listOf(
                 createSubject(
                         code = "CI3715",
@@ -52,6 +53,7 @@ val septDec2019 = createQuarter(
 val aprJul2019 = createQuarter(
         startDate = "01-04-2019".parse("dd-MM-yyyy")!!,
         endDate = "01-07-2019".parse("dd-MM-yyyy")!!,
+        gradeSum = 3.2143,
         subjects = listOf(
                 createSubject(
                         code = "CI2692",
@@ -78,6 +80,7 @@ val aprJul2019 = createQuarter(
 val janMar2019 = createQuarter(
         startDate = "01-01-2019".parse("dd-MM-yyyy")!!,
         endDate = "01-03-2019".parse("dd-MM-yyyy")!!,
+        gradeSum = 2.7777,
         subjects = listOf(
                 createSubject(
                         code = "CI2691",
@@ -101,7 +104,7 @@ val janMar2019 = createQuarter(
         )
 )
 
-val dstRecordStats = DstRecordStats(grade = 4.5644,
+val dstRecordStats = DstRecordStats(grade = 3.6428,
         enrolledSubjects = 23, enrolledCredits = 124, approvedSubjects = 18, approvedCredits = 99,
         retiredSubjects = 3, retiredCredits = 12, failedSubjects = 2, failedCredits = 13)
 

@@ -5,23 +5,28 @@ import com.gdavidpb.tuindice.domain.model.service.DstQuarter
 import com.gdavidpb.tuindice.domain.model.service.DstSubject
 import java.util.*
 
-fun createQuarter(startDate: Date,
-                  endDate: Date,
-                  subjects: List<DstSubject>,
-                  status: Int = STATUS_QUARTER_COMPLETED) = DstQuarter(
+fun createQuarter(
+        startDate: Date,
+        endDate: Date,
+        subjects: List<DstSubject>,
+        gradeSum: Double = 0.0,
+        status: Int = STATUS_QUARTER_COMPLETED
+) = DstQuarter(
         startDate = startDate,
         endDate = endDate,
         grade = subjects.computeGrade(),
-        gradeSum = 0.0,
+        gradeSum = gradeSum,
         status = status,
         subjects = subjects
 )
 
-fun createSubject(code: String,
-                  name: String,
-                  credits: Int,
-                  grade: Int,
-                  status: String = "") = DstSubject(
+fun createSubject(
+        code: String,
+        name: String,
+        credits: Int,
+        grade: Int,
+        status: String = ""
+) = DstSubject(
         code = code,
         name = name,
         credits = credits,
@@ -29,9 +34,11 @@ fun createSubject(code: String,
         status = status
 )
 
-fun createScheduledSubject(code: String,
-                           name: String,
-                           credits: Int) = DstScheduledSubject(
+fun createScheduledSubject(
+        code: String,
+        name: String,
+        credits: Int
+) = DstScheduledSubject(
         code = code,
         section = 0,
         name = name,
