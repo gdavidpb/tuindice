@@ -26,6 +26,16 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <com.gdavidpb.tuindice.ui.customs.TopProgressBar
+        android:id="@+id/pBarSync"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/appBar"
+        tools:visibility="visible" />
+
     <fragment
         android:id="@+id/mainNavHostFragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -33,22 +43,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_height="0dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appBar"
+        app:layout_constraintTop_toBottomOf="@id/pBarSync"
         app:defaultNavHost="true"
         app:layout_constraintBottom_toTopOf="@id/bottomNavView"
         app:navGraph="@navigation/main_navigation" />
-
-    <com.gdavidpb.tuindice.ui.customs.TopProgressBar
-        android:id="@+id/pBarSync"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavView"
