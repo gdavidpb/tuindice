@@ -25,6 +25,8 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
         private lateinit var disabledColor: ColorStateList
     }
 
+    private var checkedChangeListener: OnCheckedChangeListener? = null
+
     override fun onDraw(canvas: Canvas) {
         onDrawHook(canvas) { canvasHook -> super.onDraw(canvasHook) }
 
@@ -66,5 +68,20 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
         disabledColor = ColorStateList.valueOf(context.getCompatColor(R.color.color_disabled))
 
         bitmapHook.recycle()
+    }
+
+    override fun setOnCheckedChangeListener(listener: OnCheckedChangeListener?) {
+        checkedChangeListener = listener
+        super.setOnCheckedChangeListener(listener)
+    }
+
+    fun setChecked(checked: Boolean, notify: Boolean) {
+        if (notify) {
+            isChecked = checked
+        } else {
+            super.setOnCheckedChangeListener(null)
+            isChecked = checked
+            super.setOnCheckedChangeListener(checkedChangeListener)
+        }
     }
 }

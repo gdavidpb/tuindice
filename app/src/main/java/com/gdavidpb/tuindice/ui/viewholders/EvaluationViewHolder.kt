@@ -22,9 +22,7 @@ open class EvaluationViewHolder(
         with(itemView) {
             this as CardView
 
-            cBoxEvaluation.setOnCheckedChangeListener(null)
-
-            cBoxEvaluation.isChecked = item.isDone
+            cBoxEvaluation.setChecked(checked = item.isDone, notify = false)
 
             sBarGrade.max = item.data.maxGrade.toProgress()
             sBarGrade.progress = item.data.grade.toProgress()

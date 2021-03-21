@@ -14,6 +14,7 @@
         android:id="@+id/viewEvaluationColor"
         android:layout_width="@dimen/dp_8"
         android:layout_height="match_parent"
+        tools:layout_height="128dp"
         tools:background="@color/quarter_completed" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
