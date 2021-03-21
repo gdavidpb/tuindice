@@ -8,7 +8,10 @@ import android.text.style.TypefaceSpan
 import androidx.core.text.buildSpannedString
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.*
-import com.gdavidpb.tuindice.presentation.model.*
+import com.gdavidpb.tuindice.presentation.model.EvaluationItem
+import com.gdavidpb.tuindice.presentation.model.QuarterItem
+import com.gdavidpb.tuindice.presentation.model.SubjectItem
+import com.gdavidpb.tuindice.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import java.util.*
@@ -55,18 +58,28 @@ fun Evaluation.toEvaluationItem(context: Context) = EvaluationItem(
         data = this
 )
 
-fun Account.toSummarySubjectsItem() = SummarySubjectsItem(
-        enrolledSubjects = enrolledSubjects,
-        approvedSubjects = approvedSubjects,
-        retiredSubjects = retiredSubjects,
-        failedSubjects = failedSubjects
+fun Account.toSubjectsSummaryItem(context: Context) = SummaryItem(
+        headerText = context.resources.getQuantityString(
+                R.plurals.text_subjects_header,
+                enrolledSubjects,
+                enrolledSubjects
+        ),
+        enrolled = enrolledSubjects,
+        approved = approvedSubjects,
+        retired = retiredSubjects,
+        failed = failedSubjects
 )
 
-fun Account.toSummaryCreditsItem() = SummaryCreditsItem(
-        enrolledCredits = enrolledCredits,
-        approvedCredits = approvedCredits,
-        retiredCredits = retiredCredits,
-        failedCredits = failedCredits
+fun Account.toCreditsSummaryItem(context: Context) = SummaryItem(
+        headerText = context.resources.getQuantityString(
+                R.plurals.text_credits_header,
+                enrolledCredits,
+                enrolledCredits
+        ),
+        enrolled = enrolledCredits,
+        approved = approvedCredits,
+        retired = retiredCredits,
+        failed = failedCredits
 )
 
 /* Format */

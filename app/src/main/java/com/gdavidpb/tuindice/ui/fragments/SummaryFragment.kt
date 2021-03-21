@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -25,6 +26,8 @@ import com.gdavidpb.tuindice.utils.Actions
 import com.gdavidpb.tuindice.utils.Extras
 import com.gdavidpb.tuindice.utils.RequestCodes
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.mappers.toCreditsSummaryItem
+import com.gdavidpb.tuindice.utils.mappers.toSubjectsSummaryItem
 import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -136,7 +139,10 @@ class SummaryFragment : NavigationFragment() {
     private fun profileObserver(result: Result<Account, Nothing>?) {
         when (result) {
             is Result.OnSuccess -> {
-                loadAccount(account = result.value)
+                val context = requireContext()
+                val account = result.value
+
+                loadProfile(account, context)
             }
         }
     }
@@ -312,10 +318,8 @@ class SummaryFragment : NavigationFragment() {
         startActivityForResult(chooser, RequestCodes.PROFILE_PICTURE)
     }
 
-    private fun loadAccount(account: Account) {
-        val context = requireContext()
-
-        summaryAdapter.setAccount(account)
+    private fun loadProfile(account: Account, context: Context) {
+        /* Load account */
 
         val shortName = account.toShortName()
         val lastUpdate = context.getString(R.string.text_last_update, account.lastUpdate.formatLastUpdate())
@@ -331,5 +335,14 @@ class SummaryFragment : NavigationFragment() {
             tViewGrade.animateGrade(value = account.grade.toFloat())
         } else
             tViewGrade.gone()
+
+        /* Load summary */
+
+        val subjectsSummary = account.toSubjectsSummaryItem(context)
+        val creditsSummary = account.toCreditsSummaryItem(context)
+
+        val items = listOf(subjectsSummary, creditsSummary)
+
+        summaryAdapter.swapItems(items)
     }
 }
