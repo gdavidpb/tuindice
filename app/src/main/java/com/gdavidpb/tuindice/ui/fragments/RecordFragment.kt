@@ -21,7 +21,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.ui.dialogs.credentialsChangedDialog
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_CURRENT
-import com.gdavidpb.tuindice.utils.STATUS_QUARTER_GUESS
+import com.gdavidpb.tuindice.utils.STATUS_QUARTER_MOCK
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
 import kotlinx.android.synthetic.main.dialog_progress.view.*
@@ -225,8 +225,8 @@ class RecordFragment : NavigationFragment() {
             val position = viewHolder.adapterPosition
             val item = quarterAdapter.getItem(position)
 
-            /* Let swipes over the first with "guess" status */
-            return if (item.data.status == STATUS_QUARTER_GUESS && position == 0)
+            /* Let swipes over the first with "mock" status */
+            return if (item.data.status == STATUS_QUARTER_MOCK && position == 0)
                 makeMovementFlags(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT)
             else
                 0

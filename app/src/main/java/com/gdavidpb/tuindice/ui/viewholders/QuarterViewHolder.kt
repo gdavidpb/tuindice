@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_CURRENT
-import com.gdavidpb.tuindice.utils.STATUS_QUARTER_GUESS
+import com.gdavidpb.tuindice.utils.STATUS_QUARTER_MOCK
 import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_OK
 import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_RETIRED
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -49,7 +49,7 @@ open class QuarterViewHolder(
     }
 
     private fun bindViewSubjects(quarterItem: QuarterItem, container: ViewGroup) {
-        val hasGradeBar = quarterItem.data.status == STATUS_QUARTER_CURRENT || quarterItem.data.status == STATUS_QUARTER_GUESS
+        val hasGradeBar = quarterItem.data.status == STATUS_QUARTER_CURRENT || quarterItem.data.status == STATUS_QUARTER_MOCK
 
         quarterItem.subjectsItems.forEachIndexed { index, subjectItem ->
             with(receiver = container.getChildAt(index)) {

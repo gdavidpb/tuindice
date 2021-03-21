@@ -86,7 +86,7 @@ const val MAX_MULTIPLE_EVENT = 2
 /* Status */
 const val STATUS_QUARTER_CURRENT = 0
 const val STATUS_QUARTER_COMPLETED = 1
-const val STATUS_QUARTER_GUESS = 2
+const val STATUS_QUARTER_MOCK = 2
 const val STATUS_QUARTER_RETIRED = 3
 
 const val STATUS_SUBJECT_OK = 0

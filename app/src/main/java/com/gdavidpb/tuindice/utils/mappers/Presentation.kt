@@ -87,7 +87,7 @@ fun Account.toCreditsSummaryItem(context: Context) = SummaryItem(
 fun Int.toQuarterColor() = when (this) {
     STATUS_QUARTER_CURRENT -> R.color.quarter_current
     STATUS_QUARTER_COMPLETED -> R.color.quarter_completed
-    STATUS_QUARTER_GUESS -> R.color.quarter_guess
+    STATUS_QUARTER_MOCK -> R.color.quarter_mock
     STATUS_QUARTER_RETIRED -> R.color.quarter_retired
     else -> throw IllegalArgumentException("toQuarterColor: '$this'")
 }

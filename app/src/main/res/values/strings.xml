@@ -121,9 +121,9 @@
     <string name="subject_credits">%1$d Cr.</string>
 
     <!--
-    <string name="dialog_guess_title">Proyección</string>
+    <string name="dialog_mock_title">Proyección</string>
 
-    <string name="hint_guess_search">Código o nombre de la materia</string>
+    <string name="hint_mock_search">Código o nombre de la materia</string>
     -->
 
     <string name="dialog_enrollment_downloading">Obteniendo comprobante…</string>
