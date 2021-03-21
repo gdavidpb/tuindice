@@ -152,7 +152,6 @@ open class FirestoreMockDataStore(
         subjectRef.set(values, SetOptions.merge()).await()
     }
 
-
     override suspend fun setAuthData(uid: String, data: DstAuth) {
         val userRef = firestore
                 .collection(UserCollection.COLLECTION)
@@ -175,7 +174,7 @@ open class FirestoreMockDataStore(
         ).forEach { collection ->
             firestore
                     .collection(collection)
-                    .whereEqualTo(UserCollection.USB_ID, uid)
+                    .whereEqualTo(UserCollection.USER_ID, uid)
                     .get(Source.SERVER)
                     .await()
         }
