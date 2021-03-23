@@ -1,89 +1,122 @@
 package com.gdavidpb.tuindice.ui.viewholders
 
-import android.graphics.Color
 import android.view.View
 import androidx.cardview.widget.CardView
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
+import com.gdavidpb.tuindice.ui.adapters.payloads.EvaluationPayload
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.ResourcesManager
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
 import kotlinx.android.synthetic.main.item_evaluation.view.*
 
 open class EvaluationViewHolder(
         itemView: View,
         private val manager: EvaluationAdapter.AdapterManager
-) : BaseViewHolder<EvaluationItem, Nothing>(itemView) {
-    override fun bindView(item: EvaluationItem) {
-        super.bindView(item)
+) : BaseViewHolder<EvaluationItem, EvaluationPayload>(itemView) {
 
+    init {
         with(itemView) {
-            this as CardView
+            onClickOnce {
+                val item = getItem()
 
-            cBoxEvaluation.setChecked(checked = item.isDone, notify = false)
-
-            sBarGrade.max = item.data.maxGrade.toProgress()
-            sBarGrade.progress = item.data.grade.toProgress()
-
-            tViewEvaluationType.text = item.typeText
-            tViewEvaluationNotes.text = item.notesText
-            tViewEvaluationGrade.text = item.gradeText
-            tViewEvaluationDate.text = item.dateText
-
-            cBoxEvaluation.isEnabled = !item.isSwiping
-            sBarGrade.isEnabled = !item.isDone && !item.isSwiping
-
-            val cardColor = if (item.isSwiping)
-                ResourcesManager.getColor(R.color.color_disabled, context)
-            else
-                item.color
-
-            val cardBackgroundColor = if (item.isSwiping)
-                ResourcesManager.getColor(R.color.color_swipe, context)
-            else
-                Color.WHITE
-
-            viewEvaluationColor.backgroundColor = cardColor
-
-            setCardBackgroundColor(cardBackgroundColor)
-
-            if (item.isDone) {
-                tViewEvaluationDate.strikeThrough()
-                tViewEvaluationNotes.strikeThrough()
-
-                setOnClickListener(null)
-            } else {
-                tViewEvaluationDate.clearStrikeThrough()
-                tViewEvaluationNotes.clearStrikeThrough()
-
-                onClickOnce { manager.onEvaluationClicked(item, adapterPosition) }
+                if (!item.isDone)
+                    manager.onEvaluationClicked(item)
             }
 
             sBarGrade.onSeekBarChange {
                 onProgressChanged { progress, fromUser ->
                     if (fromUser) {
-                        val updatedEvaluation = item.data.copy(grade = progress.toGrade())
-                        val updatedItem = updatedEvaluation.toEvaluationItem(context)
+                        val item = getItem()
+                        val grade = progress.toGrade()
 
-                        manager.onEvaluationChanged(updatedItem, adapterPosition, false)
+                        manager.onEvaluationGradeChanged(item, grade, false)
                     }
                 }
 
-                onStopTrackingTouch {
-                    val updatedItem = manager.getItem(adapterPosition)
+                onStopTrackingTouch { progress ->
+                    val item = getItem()
+                    val grade = progress.toGrade()
 
-                    manager.onEvaluationChanged(updatedItem, adapterPosition, true)
+                    manager.onEvaluationGradeChanged(item, grade, true)
                 }
             }
 
             cBoxEvaluation.setOnCheckedChangeListener { _, isChecked ->
-                val updatedEvaluation = item.data.copy(isDone = isChecked)
-                val updatedItem = updatedEvaluation.toEvaluationItem(context)
+                val item = getItem()
 
-                manager.onEvaluationChanged(updatedItem, adapterPosition, true)
+                manager.onEvaluationDoneChanged(item, isChecked, true)
             }
+        }
+    }
+
+    override fun bindView(item: EvaluationItem) {
+        super.bindView(item)
+
+        itemView as CardView
+
+        with(itemView) {
+            setGrades(grade = item.grade, maxGrade = item.maxGrade)
+            setStates(isDone = item.isDone, isSwiping = item.isSwiping)
+            setAdditionalData(type = item.typeText, notes = item.notesText, date = item.dateText)
+        }
+    }
+
+    override fun bindPayload(item: EvaluationItem, payload: List<EvaluationPayload>) {
+        super.bindPayload(item, payload)
+
+        itemView as CardView
+
+        with(itemView) {
+            payload.forEach {
+                when (it) {
+                    is EvaluationPayload.UpdateGrade -> setGrades(grade = it.grade, maxGrade = item.maxGrade)
+                    is EvaluationPayload.UpdateStates -> setStates(isDone = it.isDone, isSwiping = it.isSwiping)
+                }
+            }
+        }
+    }
+
+    private fun CardView.setAdditionalData(type: CharSequence, notes: CharSequence, date: CharSequence) {
+        tViewEvaluationType.text = type
+        tViewEvaluationNotes.text = notes
+        tViewEvaluationDate.text = date
+    }
+
+    private fun CardView.setGrades(grade: Double, maxGrade: Double) {
+        val gradeText = context.getString(R.string.evaluation_grade_max, grade, maxGrade)
+
+        sBarGrade.max = maxGrade.toProgress()
+        sBarGrade.progress = grade.toProgress()
+        tViewEvaluationGrade.text = gradeText
+    }
+
+    private fun CardView.setStates(isDone: Boolean, isSwiping: Boolean) {
+        val cardColor = when {
+            isSwiping -> R.color.color_disabled
+            isDone -> R.color.color_retired
+            else -> R.color.color_approved
+        }.let { resource -> ResourcesManager.getColor(resource, context) }
+
+        val cardBackgroundColor = when {
+            isSwiping -> R.color.color_swipe
+            else -> android.R.color.white
+        }.let { resource -> ResourcesManager.getColor(resource, context) }
+
+        viewEvaluationColor.backgroundColor = cardColor
+        setCardBackgroundColor(cardBackgroundColor)
+        cBoxEvaluation.setChecked(checked = isDone, notify = false)
+
+        cBoxEvaluation.isEnabled = !isSwiping
+        sBarGrade.isEnabled = !isDone && !isSwiping
+
+        if (isDone) {
+            tViewEvaluationDate.strikeThrough()
+            tViewEvaluationNotes.strikeThrough()
+        } else {
+            tViewEvaluationDate.clearStrikeThrough()
+            tViewEvaluationNotes.clearStrikeThrough()
         }
     }
 }

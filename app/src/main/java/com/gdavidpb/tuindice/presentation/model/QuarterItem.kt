@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.presentation.model
 import com.gdavidpb.tuindice.domain.model.Quarter
 
 data class QuarterItem(
+        val uid: Long,
         val id: String,
         val color: Int,
         val startEndDateText: CharSequence,

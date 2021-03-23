@@ -7,13 +7,6 @@
     android:background="@color/color_background"
     android:paddingTop="@dimen/dp_8">
 
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/groupEvaluations"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="viewGradient,rViewEvaluations" />
-
     <TextView
         android:id="@+id/tViewTotalGrade"
         android:layout_width="wrap_content"
@@ -113,39 +106,44 @@
         app:layout_constraintTop_toBottomOf="@id/tViewSubjectCode"
         tools:text="Matematicas I" />
 
-    <TextView
-        android:id="@+id/tViewEvaluations"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dp_16"
-        android:layout_marginEnd="@dimen/dp_16"
-        app:drawableTopCompat="@drawable/il_evaluations_empty"
-        android:drawablePadding="@dimen/dp_16"
-        android:fontFamily="sans-serif-light"
-        android:text="@string/label_empty_evaluations"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rViewEvaluations"
+    <ViewFlipper
+        android:id="@+id/fViewEvaluations"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/dp_16"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tViewLabelAccumulated" />
+        app:layout_constraintTop_toBottomOf="@id/tViewLabelAccumulated">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rViewEvaluations"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/dp_16"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tViewLabelAccumulated"
+            tools:listitem="@layout/item_evaluation" />
+
+        <TextView
+            android:id="@+id/tViewEvaluations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/dp_16"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:drawablePadding="@dimen/dp_16"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/label_empty_evaluations"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            app:drawableTopCompat="@drawable/il_evaluations_empty" />
+
+    </ViewFlipper>
 
     <View
         android:id="@+id/viewGradient"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_2"
         android:background="@drawable/sh_gradient"
-        app:layout_constraintTop_toTopOf="@id/rViewEvaluations" />
+        app:layout_constraintTop_toTopOf="@id/fViewEvaluations" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnAddEvaluation"

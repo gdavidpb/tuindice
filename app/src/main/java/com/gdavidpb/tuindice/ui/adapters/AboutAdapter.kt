@@ -23,7 +23,9 @@ class AboutAdapter : BaseAdapter<AboutItemBase, Nothing>() {
             ViewType.HEADER -> R.layout.item_about_header
         }
 
-        val itemView = LayoutInflater.from(parent.context).inflate(layout, parent, false)
+        val itemView = LayoutInflater
+                .from(parent.context)
+                .inflate(layout, parent, false)
 
         return when (viewTypeClass) {
             ViewType.ABOUT -> AboutViewHolder(itemView)

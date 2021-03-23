@@ -14,7 +14,7 @@ abstract class BaseViewHolder<T : Any, Q : Any>(itemView: View) : RecyclerView.V
         this.item = item
     }
 
-    open fun bindPayload(item: T, payload: Q) {
+    open fun bindPayload(item: T, payload: List<Q>) {
         this.item = item
     }
 }

@@ -32,6 +32,7 @@ fun Quarter.toQuarterItem(context: Context): QuarterItem {
     val quarterColor = ResourcesManager.getColor(status.toQuarterColor(), context)
 
     return QuarterItem(
+            uid = id.hashCode().toLong(),
             id = id,
             color = quarterColor,
             startEndDateText = (startDate to endDate).formatQuarterTitle(),
@@ -43,17 +44,15 @@ fun Quarter.toQuarterItem(context: Context): QuarterItem {
     )
 }
 
-fun EvaluationItem.toEvaluation() = data
-
 fun Evaluation.toEvaluationItem(context: Context) = EvaluationItem(
+        uid = id.hashCode().toLong(),
         id = id,
+        grade = grade,
+        maxGrade = maxGrade,
+        date = date,
         typeText = type.formatEvaluationTypeName(context),
         notesText = if (notes.isNotEmpty()) notes else "─",
-        gradeText = context.getString(R.string.evaluation_grade_max, grade, maxGrade),
-        grade = grade,
         dateText = date.formatEvaluationDate(),
-        date = date,
-        color = ResourcesManager.getColor(if (isDone) R.color.color_retired else R.color.color_approved, context),
         isDone = isDone,
         isSwiping = false,
         data = this

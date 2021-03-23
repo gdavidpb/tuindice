@@ -25,10 +25,6 @@ class QuarterAdapter(
         fun getItem(position: Int): QuarterItem
     }
 
-    init {
-        setHasStableIds(true)
-    }
-
     private val averageSubjects by lazy {
         if (currentList.isNotEmpty())
             (currentList.sumBy { it.subjectsItems.size } / currentList.size.toFloat()).roundToInt()
@@ -39,12 +35,16 @@ class QuarterAdapter(
     override fun provideComparator() = compareBy(QuarterItem::id)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<QuarterItem, Nothing> {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_quarter, parent, false)
+        val itemView = LayoutInflater
+                .from(parent.context)
+                .inflate(R.layout.item_quarter, parent, false)
 
         /* Default inflation */
         with(itemView) {
             repeat(averageSubjects) {
-                LayoutInflater.from(lLayoutQuarterContainer.context).inflate(R.layout.item_subject, lLayoutQuarterContainer)
+                LayoutInflater
+                        .from(lLayoutQuarterContainer.context)
+                        .inflate(R.layout.item_subject, lLayoutQuarterContainer)
             }
         }
 
@@ -52,7 +52,7 @@ class QuarterAdapter(
     }
 
     override fun getItemId(position: Int): Long {
-        return currentList[position].id.hashCode().toLong()
+        return currentList[position].uid
     }
 
     fun computeGradeSum(until: QuarterItem): Double {
