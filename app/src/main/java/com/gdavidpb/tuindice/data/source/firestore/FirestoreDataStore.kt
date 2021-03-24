@@ -115,7 +115,7 @@ open class FirestoreDataStore(
                 EvaluationCollection.DONE to request.isDone
         )
 
-        evaluationRef.set(values, SetOptions.merge()).await()
+        evaluationRef.set(values, SetOptions.merge())
     }
 
     override suspend fun removeEvaluation(uid: String, eid: String) {
@@ -123,7 +123,6 @@ open class FirestoreDataStore(
                 .collection(EvaluationCollection.COLLECTION)
                 .document(eid)
                 .delete()
-                .await()
     }
 
     override suspend fun addEvaluation(uid: String, evaluation: Evaluation): Evaluation {
@@ -149,7 +148,7 @@ open class FirestoreDataStore(
                 SubjectCollection.STATUS to request.grade.toSubjectStatus()
         )
 
-        subjectRef.set(values, SetOptions.merge()).await()
+        subjectRef.set(values, SetOptions.merge())
     }
 
     override suspend fun setAuthData(uid: String, data: DstAuth) {
