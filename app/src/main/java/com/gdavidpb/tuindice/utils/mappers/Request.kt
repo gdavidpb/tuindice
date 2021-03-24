@@ -12,6 +12,7 @@ fun Evaluation.toUpdateRequest(
         date: Date = this.date,
         notes: String = this.notes,
         isDone: Boolean = this.isDone,
+        dispatchChanges: Boolean
 ) = UpdateEvaluationRequest(
         id = id,
         type = type,
@@ -19,5 +20,15 @@ fun Evaluation.toUpdateRequest(
         maxGrade = maxGrade,
         date = date,
         notes = notes,
-        isDone = isDone
+        isDone = isDone,
+        dispatchChanges = dispatchChanges
+)
+
+fun Evaluation.applyRequest(request: UpdateEvaluationRequest) = copy(
+        type = request.type,
+        grade = request.grade,
+        maxGrade = request.maxGrade,
+        date = request.date,
+        notes = request.notes,
+        isDone = request.isDone
 )

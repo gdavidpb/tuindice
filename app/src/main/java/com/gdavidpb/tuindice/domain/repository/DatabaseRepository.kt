@@ -22,7 +22,7 @@ interface DatabaseRepository {
 
     suspend fun getEvaluation(uid: String, eid: String): Evaluation
     suspend fun addEvaluation(uid: String, evaluation: Evaluation): Evaluation
-    suspend fun updateEvaluation(uid: String, request: UpdateEvaluationRequest)
+    suspend fun updateEvaluation(uid: String, request: UpdateEvaluationRequest): Evaluation
     suspend fun removeEvaluation(uid: String, eid: String)
     suspend fun getSubjectEvaluations(uid: String, sid: String): List<Evaluation>
 

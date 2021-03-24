@@ -5,7 +5,6 @@ import androidx.cardview.widget.CardView
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
-import com.gdavidpb.tuindice.ui.adapters.payloads.EvaluationPayload
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.ResourcesManager
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -14,7 +13,7 @@ import kotlinx.android.synthetic.main.item_evaluation.view.*
 open class EvaluationViewHolder(
         itemView: View,
         private val manager: EvaluationAdapter.AdapterManager
-) : BaseViewHolder<EvaluationItem, EvaluationPayload>(itemView) {
+) : BaseViewHolder<EvaluationItem>(itemView) {
 
     init {
         with(itemView) {
@@ -60,21 +59,6 @@ open class EvaluationViewHolder(
             setGrades(grade = item.grade, maxGrade = item.maxGrade)
             setStates(isDone = item.isDone, isSwiping = item.isSwiping)
             setAdditionalData(type = item.typeText, notes = item.notesText, date = item.dateText)
-        }
-    }
-
-    override fun bindPayload(item: EvaluationItem, payload: List<EvaluationPayload>) {
-        super.bindPayload(item, payload)
-
-        itemView as CardView
-
-        with(itemView) {
-            payload.forEach {
-                when (it) {
-                    is EvaluationPayload.UpdateGrade -> setGrades(grade = it.grade, maxGrade = item.maxGrade)
-                    is EvaluationPayload.UpdateStates -> setStates(isDone = it.isDone, isSwiping = it.isSwiping)
-                }
-            }
         }
     }
 

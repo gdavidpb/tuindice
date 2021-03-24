@@ -68,6 +68,7 @@ class SubjectFragment : NavigationFragment() {
         with(viewModel) {
             observe(subject, ::subjectObserver)
             observe(evaluations, ::evaluationsObserver)
+            observe(evaluationUpdate, ::evaluationObserver)
 
             getSubject(sid = args.subjectId)
             getSubjectEvaluations(sid = args.subjectId)
@@ -142,6 +143,19 @@ class SubjectFragment : NavigationFragment() {
         }
     }
 
+    private fun evaluationObserver(result: Result<Evaluation, Nothing>?) {
+        when (result) {
+            is Result.OnSuccess -> {
+                val context = requireContext()
+                val evaluation = result.value
+
+                val item = evaluation.toEvaluationItem(context)
+
+                evaluationAdapter.updateEvaluation(item)
+            }
+        }
+    }
+
     inner class EvaluationManager : EvaluationAdapter.AdapterManager, ItemTouchHelper.Callback() {
         override fun onEvaluationClicked(item: EvaluationItem) {
             navigate(SubjectFragmentDirections.navToEvaluation(
@@ -153,23 +167,21 @@ class SubjectFragment : NavigationFragment() {
         }
 
         override fun onEvaluationGradeChanged(item: EvaluationItem, grade: Double, dispatchChanges: Boolean) {
-            evaluationAdapter.setEvaluationGrade(item, grade)
+            val request = item.data.toUpdateRequest(
+                    grade = grade,
+                    dispatchChanges = dispatchChanges
+            )
 
-            if (dispatchChanges) {
-                val request = item.data.toUpdateRequest(grade = grade)
-
-                viewModel.updateEvaluation(request)
-            }
+            viewModel.updateEvaluation(request)
         }
 
         override fun onEvaluationDoneChanged(item: EvaluationItem, done: Boolean, dispatchChanges: Boolean) {
-            evaluationAdapter.setEvaluationDone(item, done)
+            val request = item.data.toUpdateRequest(
+                    isDone = done,
+                    dispatchChanges = dispatchChanges
+            )
 
-            if (dispatchChanges) {
-                val request = item.data.toUpdateRequest(isDone = done)
-
-                viewModel.updateEvaluation(request)
-            }
+            viewModel.updateEvaluation(request)
         }
 
         override fun onEvaluationAdded(item: EvaluationItem) {
@@ -237,18 +249,24 @@ class SubjectFragment : NavigationFragment() {
             if (actionState != ACTION_STATE_SWIPE) return
 
             val position = viewHolder.adapterPosition
+
+            if (position == RecyclerView.NO_POSITION) return
+
             val item = evaluationAdapter.getEvaluation(position)
 
-            evaluationAdapter.setEvaluationSwiping(item = item, swiping = true)
+            evaluationAdapter.updateEvaluation(item.copy(isSwiping = true))
         }
 
         override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
             super.clearView(recyclerView, viewHolder)
 
             val position = viewHolder.adapterPosition
+
+            if (position == RecyclerView.NO_POSITION) return
+
             val item = evaluationAdapter.getEvaluation(position)
 
-            evaluationAdapter.setEvaluationSwiping(item = item, swiping = true)
+            evaluationAdapter.updateEvaluation(item.copy(isSwiping = false))
         }
     }
 }

@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.utils.extensions.onClickOnce
 
 open class AboutViewHolder(
         itemView: View
-) : BaseViewHolder<AboutItemBase, Nothing>(itemView = itemView) {
+) : BaseViewHolder<AboutItemBase>(itemView = itemView) {
 
     init {
         with(itemView) {

@@ -8,11 +8,11 @@ import com.gdavidpb.tuindice.ui.adapters.base.BaseAdapter
 import com.gdavidpb.tuindice.ui.viewholders.SummaryViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 
-class SummaryAdapter : BaseAdapter<SummaryItem, Nothing>() {
+class SummaryAdapter : BaseAdapter<SummaryItem>() {
 
     private enum class ViewType { SUBJECTS, CREDITS }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<SummaryItem, Nothing> {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<SummaryItem> {
         val layout = when (ViewType.values()[viewType]) {
             ViewType.SUBJECTS -> R.layout.item_summary_subjects
             ViewType.CREDITS -> R.layout.item_summary_credits

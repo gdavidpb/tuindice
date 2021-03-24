@@ -248,7 +248,8 @@ class EvaluationFragment : NavigationFragment() {
                 maxGrade = maxGrade,
                 date = datePicker.selectedDate,
                 notes = "${eTextNotes.text}",
-                isDone = false
+                isDone = false,
+                dispatchChanges = true
         )
     }
 

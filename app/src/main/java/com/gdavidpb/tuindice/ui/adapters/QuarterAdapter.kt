@@ -14,7 +14,7 @@ import kotlin.math.roundToInt
 
 class QuarterAdapter(
         private val manager: AdapterManager
-) : BaseAdapter<QuarterItem, Nothing>() {
+) : BaseAdapter<QuarterItem>() {
 
     interface AdapterManager {
         fun onSubjectClicked(quarterItem: QuarterItem, subjectItem: SubjectItem)
@@ -34,7 +34,7 @@ class QuarterAdapter(
 
     override fun provideComparator() = compareBy(QuarterItem::id)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<QuarterItem, Nothing> {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<QuarterItem> {
         val itemView = LayoutInflater
                 .from(parent.context)
                 .inflate(R.layout.item_quarter, parent, false)

@@ -5,13 +5,12 @@ import android.view.ViewGroup
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.ui.adapters.base.BaseAdapter
-import com.gdavidpb.tuindice.ui.adapters.payloads.EvaluationPayload
 import com.gdavidpb.tuindice.ui.viewholders.EvaluationViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 
 class EvaluationAdapter(
         private val manager: AdapterManager
-) : BaseAdapter<EvaluationItem, EvaluationPayload>() {
+) : BaseAdapter<EvaluationItem>() {
 
     private val adapterSorter = compareBy(
             EvaluationItem::isDone,
@@ -32,7 +31,7 @@ class EvaluationAdapter(
 
     override fun provideComparator() = compareBy(EvaluationItem::id)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<EvaluationItem, EvaluationPayload> {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<EvaluationItem> {
         val itemView = LayoutInflater
                 .from(parent.context)
                 .inflate(R.layout.item_evaluation, parent, false)
@@ -64,31 +63,9 @@ class EvaluationAdapter(
         manager.onEvaluationRemoved(item)
     }
 
-    fun setEvaluationGrade(item: EvaluationItem, grade: Double) {
-        updateItem(
-                item = item.copy(grade = grade),
-                EvaluationPayload.UpdateGrade(grade = grade)
-        )
-
+    fun updateEvaluation(item: EvaluationItem) {
+        updateItem(item)
         manager.onEvaluationUpdated(item)
-    }
-
-    fun setEvaluationDone(item: EvaluationItem, done: Boolean) {
-        updateItem(
-                item = item.copy(isDone = done),
-                EvaluationPayload.UpdateStates(isDone = done, isSwiping = item.isSwiping)
-        )
-
-        submitSortedList()
-
-        manager.onEvaluationUpdated(item)
-    }
-
-    fun setEvaluationSwiping(item: EvaluationItem, swiping: Boolean) {
-        updateItem(
-                item = item.copy(isSwiping = swiping),
-                EvaluationPayload.UpdateStates(isSwiping = swiping, isDone = item.isDone)
-        )
     }
 
     fun computeGradeSum(): Double {

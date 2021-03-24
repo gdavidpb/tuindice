@@ -10,5 +10,6 @@ data class UpdateEvaluationRequest(
         val maxGrade: Double,
         val date: Date,
         val notes: String,
-        val isDone: Boolean
+        val isDone: Boolean,
+        val dispatchChanges: Boolean
 )

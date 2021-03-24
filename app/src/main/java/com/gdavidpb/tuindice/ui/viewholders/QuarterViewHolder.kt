@@ -21,7 +21,7 @@ import kotlinx.android.synthetic.main.item_subject.view.*
 open class QuarterViewHolder(
         itemView: View,
         private val manager: QuarterAdapter.AdapterManager
-) : BaseViewHolder<QuarterItem, Nothing>(itemView) {
+) : BaseViewHolder<QuarterItem>(itemView) {
     override fun bindView(item: QuarterItem) {
         super.bindView(item)
 

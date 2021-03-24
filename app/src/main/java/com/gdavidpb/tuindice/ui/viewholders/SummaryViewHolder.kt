@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 
 open class SummaryViewHolder(
         itemView: View
-) : BaseViewHolder<SummaryItem, Nothing>(itemView) {
+) : BaseViewHolder<SummaryItem>(itemView) {
     override fun bindView(item: SummaryItem) {
         super.bindView(item)
 

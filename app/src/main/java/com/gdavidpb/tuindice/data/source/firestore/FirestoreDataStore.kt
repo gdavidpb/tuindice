@@ -101,7 +101,7 @@ open class FirestoreDataStore(
                 .toEvaluation()
     }
 
-    override suspend fun updateEvaluation(uid: String, request: UpdateEvaluationRequest) {
+    override suspend fun updateEvaluation(uid: String, request: UpdateEvaluationRequest): Evaluation {
         val evaluationRef = firestore
                 .collection(EvaluationCollection.COLLECTION)
                 .document(request.id)
@@ -116,6 +116,11 @@ open class FirestoreDataStore(
         )
 
         evaluationRef.set(values, SetOptions.merge())
+
+        return evaluationRef
+                .get(Source.CACHE)
+                .await()
+                .toEvaluation()
     }
 
     override suspend fun removeEvaluation(uid: String, eid: String) {

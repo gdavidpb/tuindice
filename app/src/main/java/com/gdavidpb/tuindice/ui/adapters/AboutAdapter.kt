@@ -11,11 +11,11 @@ import com.gdavidpb.tuindice.ui.viewholders.AboutHeaderViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.AboutViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 
-class AboutAdapter : BaseAdapter<AboutItemBase, Nothing>() {
+class AboutAdapter : BaseAdapter<AboutItemBase>() {
 
     private enum class ViewType { HEADER, ABOUT }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<AboutItemBase, Nothing> {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<AboutItemBase> {
         val viewTypeClass = ViewType.values()[viewType]
 
         val layout = when (viewTypeClass) {

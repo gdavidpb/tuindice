@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 
 open class AboutHeaderViewHolder(
         itemView: View
-) : BaseViewHolder<AboutItemBase, Nothing>(itemView = itemView) {
+) : BaseViewHolder<AboutItemBase>(itemView = itemView) {
     override fun bindView(item: AboutItemBase) {
         item as AboutHeaderItem
         itemView as TextView

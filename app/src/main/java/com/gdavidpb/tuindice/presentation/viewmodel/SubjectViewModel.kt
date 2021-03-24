@@ -19,7 +19,7 @@ class SubjectViewModel(
 ) : ViewModel() {
     val subject = LiveResult<Subject, Nothing>()
     val evaluations = LiveResult<List<Evaluation>, Nothing>()
-    val evaluationUpdate = LiveCompletable<Nothing>()
+    val evaluationUpdate = LiveResult<Evaluation, Nothing>()
     val subjectUpdate = LiveCompletable<Nothing>()
     val evaluationRemove = LiveCompletable<Nothing>()
 

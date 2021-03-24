@@ -5,7 +5,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import java.util.Collections.synchronizedList
 
-abstract class BaseAdapter<T : Any, Q : Any> : RecyclerView.Adapter<BaseViewHolder<T, Q>>() {
+abstract class BaseAdapter<T : Any> : RecyclerView.Adapter<BaseViewHolder<T>>() {
 
     protected val currentList: MutableList<T> = synchronizedList(mutableListOf<T>())
 
@@ -17,23 +17,17 @@ abstract class BaseAdapter<T : Any, Q : Any> : RecyclerView.Adapter<BaseViewHold
         return currentList.size
     }
 
-    override fun onBindViewHolder(holder: BaseViewHolder<T, Q>, position: Int) {
+    override fun onBindViewHolder(holder: BaseViewHolder<T>, position: Int) {
         val item = currentList[position]
 
         holder.bindView(item)
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun onBindViewHolder(holder: BaseViewHolder<T, Q>, position: Int, payloads: MutableList<Any>) {
-        val item = currentList[position]
+    override fun onBindViewHolder(holder: BaseViewHolder<T>, position: Int, payloads: MutableList<Any>) {
+        val item = if (payloads.isEmpty()) currentList[position] else payloads.first() as T
 
-        if (payloads.isEmpty()) {
-            holder.bindView(item)
-        } else {
-            val payload = payloads[0] as List<Q>
-
-            holder.bindPayload(item, payload)
-        }
+        holder.bindView(item)
     }
 
     open fun submitList(list: List<T>) {
@@ -64,12 +58,12 @@ abstract class BaseAdapter<T : Any, Q : Any> : RecyclerView.Adapter<BaseViewHold
         if (notify) notifyItemRemoved(position)
     }
 
-    open fun updateItem(item: T, vararg payload: Q) {
+    open fun updateItem(item: T) {
         val position = getItemPosition(item)
 
         currentList[position] = item
 
-        notifyItemChanged(position, payload.toList())
+        notifyItemChanged(position, item)
     }
 
     @Deprecated("Remove after migration")
