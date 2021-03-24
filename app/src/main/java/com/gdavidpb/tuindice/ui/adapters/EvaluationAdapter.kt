@@ -16,7 +16,7 @@ class EvaluationAdapter(
     private val adapterSorter = compareBy(
             EvaluationItem::isDone,
             EvaluationItem::date
-    ).thenByDescending(EvaluationItem::grade)
+    )
 
     interface AdapterManager {
         fun onEvaluationClicked(item: EvaluationItem)
@@ -27,7 +27,7 @@ class EvaluationAdapter(
         fun onEvaluationRemoved(item: EvaluationItem)
         fun onEvaluationUpdated(item: EvaluationItem)
 
-        fun onSubmitList(items: List<EvaluationItem>)
+        fun onSubmitEvaluations(items: List<EvaluationItem>)
     }
 
     override fun provideComparator() = compareBy(EvaluationItem::id)
@@ -44,9 +44,9 @@ class EvaluationAdapter(
         return currentList[position].uid
     }
 
-    fun submitEvaluations(list: List<EvaluationItem>) {
-        submitSortedList(list)
-        manager.onSubmitList(currentList)
+    fun submitEvaluations(items: List<EvaluationItem>) {
+        submitSortedList(items)
+        manager.onSubmitEvaluations(currentList)
     }
 
     fun getEvaluation(position: Int): EvaluationItem {
@@ -54,18 +54,18 @@ class EvaluationAdapter(
     }
 
     fun addEvaluation(item: EvaluationItem, position: Int) {
-        super.addItem(item, position, true)
+        addItem(item, position)
         submitSortedList()
         manager.onEvaluationAdded(item)
     }
 
     fun removeEvaluation(item: EvaluationItem) {
-        super.removeItem(item, true)
+        removeItem(item)
         manager.onEvaluationRemoved(item)
     }
 
     fun setEvaluationGrade(item: EvaluationItem, grade: Double) {
-        super.updateItem(
+        updateItem(
                 item = item.copy(grade = grade),
                 EvaluationPayload.UpdateGrade(grade = grade)
         )
@@ -74,7 +74,7 @@ class EvaluationAdapter(
     }
 
     fun setEvaluationDone(item: EvaluationItem, done: Boolean) {
-        super.updateItem(
+        updateItem(
                 item = item.copy(isDone = done),
                 EvaluationPayload.UpdateStates(isDone = done, isSwiping = item.isSwiping)
         )
@@ -85,7 +85,7 @@ class EvaluationAdapter(
     }
 
     fun setEvaluationSwiping(item: EvaluationItem, swiping: Boolean) {
-        super.updateItem(
+        updateItem(
                 item = item.copy(isSwiping = swiping),
                 EvaluationPayload.UpdateStates(isSwiping = swiping, isDone = item.isDone)
         )

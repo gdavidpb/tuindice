@@ -19,8 +19,10 @@ import java.util.*
 /* Presentation */
 
 fun Subject.toSubjectItem(context: Context) = SubjectItem(
+        uid = id.hashCode().toLong(),
         id = id,
         code = code,
+        isRetired = (status == STATUS_SUBJECT_RETIRED),
         nameText = name,
         codeText = spanSubjectCode(context),
         gradeText = grade.formatGrade(context),

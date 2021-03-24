@@ -118,8 +118,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="@dimen/dp_16"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tViewLabelAccumulated"
             tools:listitem="@layout/item_evaluation" />
 
         <TextView

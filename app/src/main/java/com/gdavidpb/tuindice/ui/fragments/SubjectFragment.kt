@@ -15,7 +15,6 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
-import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateSubjectRequest
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
@@ -23,6 +22,7 @@ import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
 import com.gdavidpb.tuindice.utils.DECIMALS_GRADE_SUBJECT
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
+import com.gdavidpb.tuindice.utils.mappers.toUpdateRequest
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_subject.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -156,15 +156,7 @@ class SubjectFragment : NavigationFragment() {
             evaluationAdapter.setEvaluationGrade(item, grade)
 
             if (dispatchChanges) {
-                val request = UpdateEvaluationRequest(
-                        id = item.data.id,
-                        type = item.data.type,
-                        grade = grade,
-                        maxGrade = item.data.maxGrade,
-                        date = item.data.date,
-                        notes = item.data.notes,
-                        isDone = item.data.isDone
-                )
+                val request = item.data.toUpdateRequest(grade = grade)
 
                 viewModel.updateEvaluation(request)
             }
@@ -174,15 +166,7 @@ class SubjectFragment : NavigationFragment() {
             evaluationAdapter.setEvaluationDone(item, done)
 
             if (dispatchChanges) {
-                val request = UpdateEvaluationRequest(
-                        id = item.data.id,
-                        type = item.data.type,
-                        grade = item.data.grade,
-                        maxGrade = item.data.maxGrade,
-                        date = item.data.date,
-                        notes = item.data.notes,
-                        isDone = done
-                )
+                val request = item.data.toUpdateRequest(isDone = done)
 
                 viewModel.updateEvaluation(request)
             }
@@ -200,7 +184,7 @@ class SubjectFragment : NavigationFragment() {
             updateGrades(false)
         }
 
-        override fun onSubmitList(items: List<EvaluationItem>) {
+        override fun onSubmitEvaluations(items: List<EvaluationItem>) {
             updateGrades(true)
 
             fViewEvaluations.displayedChild = if (items.isNotEmpty()) Flipper.CONTENT else Flipper.EMPTY
@@ -222,9 +206,6 @@ class SubjectFragment : NavigationFragment() {
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             val position = viewHolder.adapterPosition
-
-            if (position == RecyclerView.NO_POSITION) return
-
             val item = evaluationAdapter.getEvaluation(position)
 
             evaluationAdapter.removeEvaluation(item)
@@ -251,11 +232,11 @@ class SubjectFragment : NavigationFragment() {
         override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
             super.onSelectedChanged(viewHolder, actionState)
 
-            val position = viewHolder?.adapterPosition ?: RecyclerView.NO_POSITION
+            viewHolder ?: return
 
             if (actionState != ACTION_STATE_SWIPE) return
-            if (position == RecyclerView.NO_POSITION) return
 
+            val position = viewHolder.adapterPosition
             val item = evaluationAdapter.getEvaluation(position)
 
             evaluationAdapter.setEvaluationSwiping(item = item, swiping = true)
@@ -265,9 +246,6 @@ class SubjectFragment : NavigationFragment() {
             super.clearView(recyclerView, viewHolder)
 
             val position = viewHolder.adapterPosition
-
-            if (position == RecyclerView.NO_POSITION) return
-
             val item = evaluationAdapter.getEvaluation(position)
 
             evaluationAdapter.setEvaluationSwiping(item = item, swiping = true)
