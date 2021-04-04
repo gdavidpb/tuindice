@@ -26,11 +26,6 @@ object Extras {
     const val REMOVE_PROFILE_PICTURE = "REMOVE_PROFILE_PICTURE"
 }
 
-/* Headers */
-object Headers {
-    const val DATE = "Date"
-}
-
 /* Preferences keys */
 object SettingsKeys {
     const val USB_ID = "email"
@@ -48,7 +43,6 @@ object ConfigKeys {
     const val LOADING_MESSAGES = "loading_messages"
     const val DST_CERTIFICATES = "dst_certificates"
     const val TIME_VERIFICATION_COUNT_DOWN = "time_verification_count_down"
-    const val TIME_SYNCHRONIZATION = "time_synchronization"
     const val SYNCS_TO_SUGGEST_REVIEW = "syncs_to_suggest_review"
     const val TIME_OUT_SIGN_IN = "time_out_sign_in"
     const val TIME_OUT_CONNECTION = "time_out_connection"

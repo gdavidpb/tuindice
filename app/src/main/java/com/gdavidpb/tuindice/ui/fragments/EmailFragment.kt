@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.ui.fragments
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
@@ -75,7 +76,7 @@ class EmailFragment : NavigationFragment() {
     }
 
     private fun showLoading(value: Boolean) {
-        pBarResend.visibleIf(value)
+        pBarResend.isVisible = value
         btnResend.isEnabled = !value
         btnResend.text = if (value) null else getString(R.string.button_resend)
     }

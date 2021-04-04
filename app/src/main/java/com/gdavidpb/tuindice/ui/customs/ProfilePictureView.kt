@@ -5,6 +5,8 @@ import android.net.ConnectivityManager
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.utils.CircleTransform
@@ -31,14 +33,14 @@ class ProfilePictureView(context: Context, attrs: AttributeSet)
 
     fun setLoading(value: Boolean) {
         if (value) {
-            pBarProfile.visible()
+            pBarProfile.isVisible = true
 
-            gPicture.disable()
+            gPicture.isEnabled = false
             gPicture.animateScaleDown()
         } else {
-            pBarProfile.invisible()
+            pBarProfile.isInvisible = true
 
-            gPicture.enable()
+            gPicture.isEnabled = true
             gPicture.animateScaleUp()
         }
     }

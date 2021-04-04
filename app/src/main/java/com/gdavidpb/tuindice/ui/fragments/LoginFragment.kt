@@ -6,6 +6,7 @@ import android.text.style.TypefaceSpan
 import android.text.style.UnderlineSpan
 import android.view.View
 import android.view.animation.OvershootInterpolator
+import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.utils.Validation
@@ -115,7 +116,7 @@ class LoginFragment : NavigationFragment() {
 
     private fun showLoading(value: Boolean) {
         val layout = if (value) {
-            vFlipperLoading.visible()
+            vFlipperLoading.isVisible = true
 
             if (vFlipperLoading.adapter == null) {
                 val items = loadingMessages.shuffled()
@@ -127,7 +128,7 @@ class LoginFragment : NavigationFragment() {
 
             R.layout.fragment_login_loading
         } else {
-            vFlipperLoading.gone()
+            vFlipperLoading.isVisible = false
             vFlipperLoading.stopFlipping()
 
             R.layout.fragment_login

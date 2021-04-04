@@ -3,11 +3,10 @@ package com.gdavidpb.tuindice.ui.customs
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
+import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.extensions.animatePercent
-import com.gdavidpb.tuindice.utils.extensions.gone
 import com.gdavidpb.tuindice.utils.extensions.loadAttributes
-import com.gdavidpb.tuindice.utils.extensions.visible
 import kotlinx.android.synthetic.main.view_status_card_view.view.*
 
 class StatusCardView(context: Context, attrs: AttributeSet)
@@ -79,9 +78,9 @@ class StatusCardView(context: Context, attrs: AttributeSet)
         ).forEach { (textView, value) ->
             if (value > 0) {
                 textView.text = "$value"
-                textView.visible()
+                textView.isVisible = true
             } else
-                textView.gone()
+                textView.isVisible = false
         }
     }
 }

@@ -72,11 +72,11 @@ open class QuarterViewHolder(
 
     private fun View.setGradeBar(quarterItem: QuarterItem, subjectItem: SubjectItem) {
         if (!quarterItem.isEditable) {
-            sBarGrade.gone()
+            sBarGrade.isVisible = false
 
             sBarGrade.setOnSeekBarChangeListener(null)
         } else {
-            sBarGrade.visible()
+            sBarGrade.isVisible = true
 
             sBarGrade.onSeekBarChange {
                 onProgressChanged { grade, fromUser ->

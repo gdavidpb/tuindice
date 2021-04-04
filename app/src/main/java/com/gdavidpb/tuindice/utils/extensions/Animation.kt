@@ -10,6 +10,8 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.TextView
 import androidx.constraintlayout.widget.Guideline
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 
 fun View.matrixAnimation(): ViewPropertyAnimator = animate().apply { cancel() }
 
@@ -18,7 +20,7 @@ fun View.animateScaleDown() = matrixAnimation()
         .setInterpolator(DecelerateInterpolator())
         .scaleX(0f)
         .scaleY(0f)
-        .withEndAction { invisible() }
+        .withEndAction { isInvisible = true }
         .start()
 
 fun View.animateScaleUp() = matrixAnimation()
@@ -26,7 +28,7 @@ fun View.animateScaleUp() = matrixAnimation()
         .setInterpolator(AccelerateInterpolator())
         .scaleX(1f)
         .scaleY(1f)
-        .withStartAction { visible() }
+        .withStartAction { isVisible = true }
         .start()
 
 fun View.animateLookAtMe(factor: Float = 3f) = matrixAnimation()

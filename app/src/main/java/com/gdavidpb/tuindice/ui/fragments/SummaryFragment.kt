@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
@@ -331,10 +332,10 @@ class SummaryFragment : NavigationFragment() {
         tViewLastUpdate.drawables(start = context.getCompatDrawable(R.drawable.ic_sync, R.color.color_secondary_text))
 
         if (account.grade > 0.0) {
-            tViewGrade.visible()
+            tViewGrade.isVisible = true
             tViewGrade.animateGrade(value = account.grade.toFloat())
         } else
-            tViewGrade.gone()
+            tViewGrade.isVisible = false
 
         /* Load summary */
 

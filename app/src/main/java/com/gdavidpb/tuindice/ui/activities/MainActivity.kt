@@ -107,15 +107,15 @@ class MainActivity : AppCompatActivity() {
     private fun syncObserver(result: Result<Boolean, SyncError>?) {
         when (result) {
             is Result.OnLoading -> {
-                pBarSync.visibleIf(true)
+                pBarSync.isVisible = true
             }
             is Result.OnSuccess -> {
-                pBarSync.visibleIf(false)
+                pBarSync.isVisible = false
 
                 viewModel.checkReview(reviewManager)
             }
             is Result.OnError -> {
-                pBarSync.visibleIf(false)
+                pBarSync.isVisible = false
 
                 syncErrorHandler(error = result.error)
             }
