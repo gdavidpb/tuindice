@@ -309,6 +309,7 @@ val appModule = module {
     factory<GetProfilePictureUseCase>()
     factory<RemoveProfilePictureUseCase>()
     factory<RequestReviewUseCase>()
+    factory<RemoveQuarterUseCase>()
 
     /* Utils */
 

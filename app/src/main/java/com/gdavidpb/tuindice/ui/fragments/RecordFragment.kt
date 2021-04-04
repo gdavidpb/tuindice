@@ -253,22 +253,50 @@ class RecordFragment : NavigationFragment() {
             quarterAdapter.removeQuarter(item)
 
             snackBar {
-                message = getString(R.string.snack_bar_message_item_removed, item.startEndDateText)
+                message = getString(R.string.snack_bar_message_item_removed, item.TitleText)
 
                 action(R.string.snack_bar_action_undone) {
                     rViewRecord.scrollToPosition(0)
 
-                    // TODO swiping status
+                    val updatedItem = item.copy(isSwiping = false)
 
-                    quarterAdapter.addQuarter(item, position)
+                    quarterAdapter.addQuarter(item = updatedItem, position = position)
                 }
 
                 onDismissed { event ->
                     if (event != Snackbar.Callback.DISMISS_EVENT_ACTION) {
-                        // TODO view model remove quarter
+                        viewModel.removeQuarter(id = item.id)
                     }
                 }
             }
+        }
+
+        override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+            super.onSelectedChanged(viewHolder, actionState)
+
+            viewHolder ?: return
+
+            if (actionState != ItemTouchHelper.ACTION_STATE_SWIPE) return
+
+            val position = viewHolder.adapterPosition
+
+            if (position == RecyclerView.NO_POSITION) return
+
+            val item = quarterAdapter.getQuarter(position)
+
+            quarterAdapter.updateQuarter(item.copy(isSwiping = true))
+        }
+
+        override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+            super.clearView(recyclerView, viewHolder)
+
+            val position = viewHolder.adapterPosition
+
+            if (position == RecyclerView.NO_POSITION) return
+
+            val item = quarterAdapter.getQuarter(position)
+
+            quarterAdapter.updateQuarter(item.copy(isSwiping = false))
         }
     }
 }

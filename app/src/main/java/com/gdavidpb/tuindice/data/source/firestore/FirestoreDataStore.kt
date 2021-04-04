@@ -121,6 +121,13 @@ open class FirestoreDataStore(
                 .toQuarter(subjects = getQuarterSubjects(uid = uid, qid = update.qid))
     }
 
+    override suspend fun removeQuarter(uid: String, qid: String) {
+        firestore
+                .collection(QuarterCollection.COLLECTION)
+                .document(qid)
+                .delete()
+    }
+
     override suspend fun getSubject(uid: String, sid: String): Subject {
         return firestore
                 .collection(SubjectCollection.COLLECTION)

@@ -78,20 +78,14 @@ open class EvaluationViewHolder(
 
     private fun CardView.setStates(isDone: Boolean, isSwiping: Boolean) {
         val cardColor = when {
-            isSwiping -> R.color.color_disabled
             isDone -> R.color.color_retired
             else -> R.color.color_approved
         }.let { resource -> ResourcesManager.getColor(resource, context) }
 
-        val cardBackgroundColor = when {
-            isSwiping -> R.color.color_swipe
-            else -> android.R.color.white
-        }.let { resource -> ResourcesManager.getColor(resource, context) }
-
         viewEvaluationColor.backgroundColor = cardColor
-        setCardBackgroundColor(cardBackgroundColor)
         cBoxEvaluation.setChecked(checked = isDone, notify = false)
 
+        isEnabled = !isSwiping
         cBoxEvaluation.isEnabled = !isSwiping
         sBarGrade.isEnabled = !isDone && !isSwiping
 
