@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -139,10 +138,9 @@ class SummaryFragment : NavigationFragment() {
     private fun profileObserver(result: Result<Account, Nothing>?) {
         when (result) {
             is Result.OnSuccess -> {
-                val context = requireContext()
                 val account = result.value
 
-                loadProfile(account, context)
+                loadProfile(account)
             }
         }
     }
@@ -318,7 +316,9 @@ class SummaryFragment : NavigationFragment() {
         startActivityForResult(chooser, RequestCodes.PROFILE_PICTURE)
     }
 
-    private fun loadProfile(account: Account, context: Context) {
+    private fun loadProfile(account: Account) {
+        val context = requireContext()
+
         /* Load account */
 
         val shortName = account.toShortName()
@@ -343,6 +343,6 @@ class SummaryFragment : NavigationFragment() {
 
         val items = listOf(subjectsSummary, creditsSummary)
 
-        summaryAdapter.submitList(items)
+        summaryAdapter.submitSummary(items)
     }
 }

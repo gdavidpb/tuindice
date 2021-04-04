@@ -25,6 +25,10 @@ class SummaryAdapter : BaseAdapter<SummaryItem>() {
         return SummaryViewHolder(itemView)
     }
 
+    fun submitSummary(items: List<SummaryItem>) {
+        submitList(items)
+    }
+
     override fun getItemViewType(position: Int) = when (position) {
         0 -> ViewType.SUBJECTS.ordinal
         1 -> ViewType.CREDITS.ordinal

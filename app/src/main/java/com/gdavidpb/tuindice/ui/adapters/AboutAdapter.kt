@@ -33,6 +33,10 @@ class AboutAdapter : BaseAdapter<AboutItemBase>() {
         }
     }
 
+    fun submitAbout(items: List<AboutItemBase>) {
+        submitList(items)
+    }
+
     override fun getItemViewType(position: Int) = when (currentList[position]) {
         is AboutItem -> ViewType.ABOUT.ordinal
         is AboutHeaderItem -> ViewType.HEADER.ordinal
