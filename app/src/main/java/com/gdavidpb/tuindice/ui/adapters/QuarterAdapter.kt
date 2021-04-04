@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.ui.adapters.base.BaseAdapter
 import com.gdavidpb.tuindice.ui.viewholders.QuarterViewHolder
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
-import com.gdavidpb.tuindice.utils.extensions.computeGradeSumUntil
 import kotlinx.android.synthetic.main.item_quarter.view.*
 import kotlin.math.roundToInt
 
@@ -18,11 +17,9 @@ class QuarterAdapter(
 
     interface AdapterManager {
         fun onSubjectClicked(quarterItem: QuarterItem, subjectItem: SubjectItem)
-        fun onSubjectChanged(item: SubjectItem, dispatchChanges: Boolean)
-        fun onQuarterChanged(item: QuarterItem, position: Int)
+        fun onSubjectGradeChanged(quarterItem: QuarterItem, subjectItem: SubjectItem, grade: Int, dispatchChanges: Boolean)
 
-        fun computeGradeSum(quarter: QuarterItem): Double
-        fun getItem(position: Int): QuarterItem
+        fun onSubmitQuarters(items: List<QuarterItem>)
     }
 
     private val averageSubjects by lazy {
@@ -55,7 +52,24 @@ class QuarterAdapter(
         return currentList[position].uid
     }
 
-    fun computeGradeSum(until: QuarterItem): Double {
-        return currentList.computeGradeSumUntil(until)
+    fun submitQuarters(items: List<QuarterItem>) {
+        submitList(items)
+        manager.onSubmitQuarters(items)
+    }
+
+    fun getQuarter(position: Int): QuarterItem {
+        return getItem(position)
+    }
+
+    fun addQuarter(item: QuarterItem, position: Int) {
+        addItem(item, position)
+    }
+
+    fun removeQuarter(item: QuarterItem) {
+        removeItem(item)
+    }
+
+    fun updateQuarter(item: QuarterItem) {
+        updateItem(item)
     }
 }

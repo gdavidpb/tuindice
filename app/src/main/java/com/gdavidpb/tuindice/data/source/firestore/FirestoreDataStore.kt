@@ -1,14 +1,9 @@
 package com.gdavidpb.tuindice.data.source.firestore
 
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.domain.model.Evaluation
-import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.Subject
+import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.domain.model.service.*
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
-import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
-import com.gdavidpb.tuindice.domain.usecase.request.UpdateSubjectRequest
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.toSubjectStatus
 import com.gdavidpb.tuindice.utils.mappers.*
@@ -26,142 +21,6 @@ open class FirestoreDataStore(
                 .get(Source.CACHE)
                 .await()
                 .toAccount()
-    }
-
-    override suspend fun getCurrentQuarter(uid: String): Quarter? {
-        return firestore
-                .collection(QuarterCollection.COLLECTION)
-                .whereEqualTo(QuarterCollection.USER_ID, uid)
-                .whereEqualTo(QuarterCollection.STATUS, STATUS_QUARTER_CURRENT)
-                .limit(1)
-                .get(Source.CACHE)
-                .await()
-                .map { it.toQuarter(subjects = getQuarterSubjects(uid = uid, qid = it.id)) }
-                .firstOrNull()
-    }
-
-    override suspend fun getQuarters(uid: String): List<Quarter> {
-        val quarters = firestore
-                .collection(QuarterCollection.COLLECTION)
-                .whereEqualTo(QuarterCollection.USER_ID, uid)
-                .orderBy(QuarterCollection.START_DATE, Query.Direction.DESCENDING)
-                .get(Source.CACHE)
-                .await()
-
-        val subjects = firestore
-                .collection(SubjectCollection.COLLECTION)
-                .whereEqualTo(SubjectCollection.USER_ID, uid)
-                .get(Source.CACHE)
-                .await()
-                .map { it.toSubject() }
-                .groupBy { it.qid }
-
-        return quarters.map {
-            val quarterSubjects = subjects[it.id] ?: listOf()
-
-            it.toQuarter(quarterSubjects)
-        }
-    }
-
-    override suspend fun getSubjectEvaluations(uid: String, sid: String): List<Evaluation> {
-        return firestore
-                .collection(EvaluationCollection.COLLECTION)
-                .whereEqualTo(EvaluationCollection.USER_ID, uid)
-                .whereEqualTo(EvaluationCollection.SUBJECT_ID, sid)
-                .get(Source.CACHE)
-                .await()
-                .map { it.toEvaluation() }
-    }
-
-    override suspend fun getSubject(uid: String, sid: String): Subject {
-        return firestore
-                .collection(SubjectCollection.COLLECTION)
-                .document(sid)
-                .get(Source.CACHE)
-                .await()
-                .toSubject()
-    }
-
-    override suspend fun getQuarterSubjects(uid: String, qid: String): List<Subject> {
-        return firestore
-                .collection(SubjectCollection.COLLECTION)
-                .whereEqualTo(SubjectCollection.USER_ID, uid)
-                .whereEqualTo(SubjectCollection.QUARTER_ID, qid)
-                .get(Source.CACHE)
-                .await()
-                .map { it.toSubject() }
-    }
-
-    override suspend fun getEvaluation(uid: String, eid: String): Evaluation {
-        return firestore
-                .collection(EvaluationCollection.COLLECTION)
-                .document(eid)
-                .get(Source.CACHE)
-                .await()
-                .toEvaluation()
-    }
-
-    override suspend fun updateEvaluation(uid: String, request: UpdateEvaluationRequest): Evaluation {
-        val evaluationRef = firestore
-                .collection(EvaluationCollection.COLLECTION)
-                .document(request.id)
-
-        val values = mapOf(
-                EvaluationCollection.TYPE to request.type.ordinal,
-                EvaluationCollection.GRADE to request.grade,
-                EvaluationCollection.MAX_GRADE to request.maxGrade,
-                EvaluationCollection.DATE to Timestamp(request.date),
-                EvaluationCollection.NOTES to request.notes,
-                EvaluationCollection.DONE to request.isDone
-        )
-
-        evaluationRef.set(values, SetOptions.merge())
-
-        return evaluationRef
-                .get(Source.CACHE)
-                .await()
-                .toEvaluation()
-    }
-
-    override suspend fun removeEvaluation(uid: String, eid: String) {
-        firestore
-                .collection(EvaluationCollection.COLLECTION)
-                .document(eid)
-                .delete()
-    }
-
-    override suspend fun addEvaluation(uid: String, evaluation: Evaluation): Evaluation {
-        val entity = evaluation.toEvaluationEntity(uid)
-
-        return firestore
-                .collection(EvaluationCollection.COLLECTION)
-                .document()
-                .let { document ->
-                    document.set(entity)
-
-                    evaluation.copy(id = document.id)
-                }
-    }
-
-    override suspend fun updateSubject(uid: String, request: UpdateSubjectRequest) {
-        val subjectRef = firestore
-                .collection(SubjectCollection.COLLECTION)
-                .document(request.id)
-
-        val values = mapOf(
-                SubjectCollection.GRADE to request.grade,
-                SubjectCollection.STATUS to request.grade.toSubjectStatus()
-        )
-
-        subjectRef.set(values, SetOptions.merge())
-    }
-
-    override suspend fun setAuthData(uid: String, data: DstAuth) {
-        val userRef = firestore
-                .collection(UserCollection.COLLECTION)
-                .document(uid)
-
-        userRef.set(data, SetOptions.merge()).await()
     }
 
     override suspend fun syncAccount(uid: String, data: Collection<DstData>) {
@@ -198,6 +57,168 @@ open class FirestoreDataStore(
         batch.commit().await()
     }
 
+    override suspend fun getQuarters(uid: String): List<Quarter> {
+        val quarters = firestore
+                .collection(QuarterCollection.COLLECTION)
+                .whereEqualTo(QuarterCollection.USER_ID, uid)
+                .orderBy(QuarterCollection.START_DATE, Query.Direction.DESCENDING)
+                .get(Source.CACHE)
+                .await()
+
+        val subjects = firestore
+                .collection(SubjectCollection.COLLECTION)
+                .whereEqualTo(SubjectCollection.USER_ID, uid)
+                .get(Source.CACHE)
+                .await()
+                .map { it.toSubject() }
+                .groupBy { it.qid }
+
+        return quarters.map {
+            val quarterSubjects = subjects[it.id] ?: listOf()
+
+            it.toQuarter(quarterSubjects)
+        }
+    }
+
+    override suspend fun getQuarter(uid: String, qid: String): Quarter {
+        val quarterRef = firestore
+                .collection(QuarterCollection.COLLECTION)
+                .document(qid)
+
+        return quarterRef
+                .get(Source.CACHE)
+                .await()
+                .toQuarter(subjects = getQuarterSubjects(uid = uid, qid = qid))
+    }
+
+    override suspend fun getCurrentQuarter(uid: String): Quarter? {
+        return firestore
+                .collection(QuarterCollection.COLLECTION)
+                .whereEqualTo(QuarterCollection.USER_ID, uid)
+                .whereEqualTo(QuarterCollection.STATUS, STATUS_QUARTER_CURRENT)
+                .limit(1)
+                .get(Source.CACHE)
+                .await()
+                .map { it.toQuarter(subjects = getQuarterSubjects(uid = uid, qid = it.id)) }
+                .firstOrNull()
+    }
+
+    override suspend fun updateQuarter(uid: String, update: QuarterUpdate): Quarter {
+        val quarterRef = firestore
+                .collection(QuarterCollection.COLLECTION)
+                .document(update.qid)
+
+        val values = mapOf(
+                QuarterCollection.GRADE to update.grade,
+                QuarterCollection.GRADE_SUM to update.gradeSum
+        )
+
+        quarterRef.set(values, SetOptions.merge())
+
+        return quarterRef
+                .get(Source.CACHE)
+                .await()
+                .toQuarter(subjects = getQuarterSubjects(uid = uid, qid = update.qid))
+    }
+
+    override suspend fun getSubject(uid: String, sid: String): Subject {
+        return firestore
+                .collection(SubjectCollection.COLLECTION)
+                .document(sid)
+                .get(Source.CACHE)
+                .await()
+                .toSubject()
+    }
+
+    override suspend fun getQuarterSubjects(uid: String, qid: String): List<Subject> {
+        return firestore
+                .collection(SubjectCollection.COLLECTION)
+                .whereEqualTo(SubjectCollection.USER_ID, uid)
+                .whereEqualTo(SubjectCollection.QUARTER_ID, qid)
+                .get(Source.CACHE)
+                .await()
+                .map { it.toSubject() }
+    }
+
+    override suspend fun updateSubject(uid: String, update: SubjectUpdate): Subject {
+        val subjectRef = firestore
+                .collection(SubjectCollection.COLLECTION)
+                .document(update.sid)
+
+        val subjectValues = mapOf(
+                SubjectCollection.GRADE to update.grade,
+                SubjectCollection.STATUS to update.grade.toSubjectStatus()
+        )
+
+        subjectRef.set(subjectValues, SetOptions.merge())
+
+        return subjectRef
+                .get(Source.CACHE)
+                .await()
+                .toSubject()
+    }
+
+    override suspend fun getEvaluation(uid: String, eid: String): Evaluation {
+        return firestore
+                .collection(EvaluationCollection.COLLECTION)
+                .document(eid)
+                .get(Source.CACHE)
+                .await()
+                .toEvaluation()
+    }
+
+    override suspend fun addEvaluation(uid: String, evaluation: Evaluation): Evaluation {
+        val entity = evaluation.toEvaluationEntity(uid)
+
+        return firestore
+                .collection(EvaluationCollection.COLLECTION)
+                .document()
+                .let { document ->
+                    document.set(entity)
+
+                    evaluation.copy(id = document.id)
+                }
+    }
+
+    override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate): Evaluation {
+        val evaluationRef = firestore
+                .collection(EvaluationCollection.COLLECTION)
+                .document(update.eid)
+
+        val values = mapOf(
+                EvaluationCollection.TYPE to update.type.ordinal,
+                EvaluationCollection.GRADE to update.grade,
+                EvaluationCollection.MAX_GRADE to update.maxGrade,
+                EvaluationCollection.DATE to Timestamp(update.date),
+                EvaluationCollection.NOTES to update.notes,
+                EvaluationCollection.DONE to update.isDone
+        )
+
+        evaluationRef.set(values, SetOptions.merge())
+
+        return evaluationRef
+                .get(Source.CACHE)
+                .await()
+                .toEvaluation()
+    }
+
+    override suspend fun removeEvaluation(uid: String, eid: String) {
+        firestore
+                .collection(EvaluationCollection.COLLECTION)
+                .document(eid)
+                .delete()
+    }
+
+    override suspend fun getSubjectEvaluations(uid: String, sid: String): List<Evaluation> {
+        return firestore
+                .collection(EvaluationCollection.COLLECTION)
+                .whereEqualTo(EvaluationCollection.USER_ID, uid)
+                .whereEqualTo(EvaluationCollection.SUBJECT_ID, sid)
+                .get(Source.CACHE)
+                .await()
+                .map { it.toEvaluation() }
+    }
+
     override suspend fun setToken(uid: String, token: String) {
         val userRef = firestore
                 .collection(UserCollection.COLLECTION)
@@ -208,6 +229,14 @@ open class FirestoreDataStore(
         )
 
         userRef.set(values, SetOptions.merge())
+    }
+
+    override suspend fun setAuthData(uid: String, data: DstAuth) {
+        val userRef = firestore
+                .collection(UserCollection.COLLECTION)
+                .document(uid)
+
+        userRef.set(data, SetOptions.merge()).await()
     }
 
     override suspend fun clearPersistence() {

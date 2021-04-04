@@ -6,30 +6,32 @@
     android:layout_height="match_parent"
     android:background="@color/color_background">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rViewRecord"
+    <ViewFlipper
+        android:id="@+id/fViewRecord"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:visibility="gone" />
+        android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tViewRecord"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dp_16"
-        android:layout_marginEnd="@dimen/dp_16"
-        app:drawableTopCompat="@drawable/il_record_empty"
-        android:drawablePadding="@dimen/dp_16"
-        android:fontFamily="sans-serif-light"
-        android:text="@string/label_empty_record"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rViewRecord"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/item_quarter" />
+
+        <TextView
+            android:id="@+id/tViewRecord"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="@dimen/dp_16"
+            android:layout_marginEnd="@dimen/dp_16"
+            android:drawablePadding="@dimen/dp_16"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/label_empty_record"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            app:drawableTopCompat="@drawable/il_record_empty" />
+
+    </ViewFlipper>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnAddQuarter"

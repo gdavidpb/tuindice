@@ -294,7 +294,7 @@ val appModule = module {
     factory<CountdownUseCase>()
     factory<GetProfileUseCase>()
     factory<GetQuartersUseCase>()
-    factory<UpdateSubjectUseCase>()
+    factory<UpdateQuarterUseCase>()
     factory<SetLastScreenUseCase>()
     factory<GetEnrollmentProofUseCase>()
     factory<GetSubjectUseCase>()

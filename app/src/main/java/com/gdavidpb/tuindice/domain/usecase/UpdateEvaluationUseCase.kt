@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
-import com.gdavidpb.tuindice.utils.mappers.applyRequest
+import com.gdavidpb.tuindice.utils.mappers.applyUpdate
 
 open class UpdateEvaluationUseCase(
         private val authRepository: AuthRepository,
@@ -16,10 +16,10 @@ open class UpdateEvaluationUseCase(
 
         return if (params.dispatchChanges)
             databaseRepository
-                    .updateEvaluation(uid = activeUId, request = params)
+                    .updateEvaluation(uid = activeUId, update = params.update)
         else
             databaseRepository
-                    .getEvaluation(uid = activeUId, eid = params.id)
-                    .applyRequest(params)
+                    .getEvaluation(uid = activeUId, eid = params.update.eid)
+                    .applyUpdate(update = params.update)
     }
 }

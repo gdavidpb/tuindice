@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.service.DstQuarter
 import com.gdavidpb.tuindice.domain.model.service.DstSubject
-import com.gdavidpb.tuindice.presentation.model.EvaluationUpdate
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.base64
 import com.gdavidpb.tuindice.utils.extensions.computeCredits
@@ -102,18 +101,6 @@ fun DocumentSnapshot.toEvaluation() = Evaluation(
 )
 
 /* Write to database */
-
-fun EvaluationUpdate.toEvaluation(id: String, sid: String, subjectCode: String) = Evaluation(
-        id = id,
-        sid = sid,
-        subjectCode = subjectCode,
-        type = type,
-        grade = maxGrade,
-        maxGrade = maxGrade,
-        date = date,
-        notes = notes,
-        isDone = false
-)
 
 fun DstEnrollment.toQuarterEntity(uid: String) = QuarterEntity(
         userId = uid,

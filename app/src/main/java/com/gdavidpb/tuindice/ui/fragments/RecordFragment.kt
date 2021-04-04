@@ -14,7 +14,6 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.GetEnrollmentError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
-import com.gdavidpb.tuindice.domain.usecase.request.UpdateSubjectRequest
 import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
@@ -22,9 +21,10 @@ import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.ui.dialogs.credentialsChangedDialog
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_CURRENT
-import com.gdavidpb.tuindice.utils.STATUS_QUARTER_MOCK
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
+import com.gdavidpb.tuindice.utils.mappers.toUpdateRequest
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.dialog_progress.view.*
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -48,6 +48,11 @@ class RecordFragment : NavigationFragment() {
 
             isCancelable = false
         }
+    }
+
+    private object Flipper {
+        const val CONTENT = 0
+        const val EMPTY = 1
     }
 
     override fun onCreateView() = R.layout.fragment_record
@@ -83,6 +88,7 @@ class RecordFragment : NavigationFragment() {
         with(viewModel) {
             observe(quarters, ::quartersObserver)
             observe(enrollment, ::enrollmentObserver)
+            observe(quarterUpdate, ::quarterObserver)
 
             getQuarters()
         }
@@ -137,15 +143,7 @@ class RecordFragment : NavigationFragment() {
                     quarter.toQuarterItem(context)
                 }
 
-                quarterAdapter.submitList(items)
-
-                if (quarters.isEmpty()) {
-                    rViewRecord.gone()
-                    tViewRecord.visible()
-                } else {
-                    tViewRecord.gone()
-                    rViewRecord.visible()
-                }
+                quarterAdapter.submitQuarters(items)
             }
         }
     }
@@ -182,6 +180,18 @@ class RecordFragment : NavigationFragment() {
         }
     }
 
+    private fun quarterObserver(result: Result<Quarter, Nothing>?) {
+        when (result) {
+            is Result.OnSuccess -> {
+                val context = requireContext()
+                val quarter = result.value
+                val item = quarter.toQuarterItem(context)
+
+                quarterAdapter.updateQuarter(item)
+            }
+        }
+    }
+
     private fun enrollmentErrorHandler(error: GetEnrollmentError?) {
         when (error) {
             is GetEnrollmentError.InvalidCredentials -> requireAppCompatActivity().credentialsChangedDialog()
@@ -201,40 +211,32 @@ class RecordFragment : NavigationFragment() {
     inner class QuarterManager : QuarterAdapter.AdapterManager, ItemTouchHelper.Callback() {
         override fun onSubjectClicked(quarterItem: QuarterItem, subjectItem: SubjectItem) {
             navigate(RecordFragmentDirections.navToSubject(
+                    quarterId = quarterItem.id,
                     subjectId = subjectItem.id,
                     subjectCode = subjectItem.code
             ))
         }
 
-        override fun onSubjectChanged(item: SubjectItem, dispatchChanges: Boolean) {
-            if (dispatchChanges) {
-                val request = UpdateSubjectRequest(
-                        id = item.id,
-                        grade = item.data.grade
-                )
+        override fun onSubjectGradeChanged(quarterItem: QuarterItem, subjectItem: SubjectItem, grade: Int, dispatchChanges: Boolean) {
+            val request = quarterItem.data.toUpdateRequest(
+                    sid = subjectItem.id,
+                    grade = grade,
+                    dispatchChanges = dispatchChanges
+            )
 
-                viewModel.updateSubject(request)
-            }
+            viewModel.updateQuarter(request)
         }
 
-        override fun onQuarterChanged(item: QuarterItem, position: Int) {
-            quarterAdapter.replaceItemAt(item, position, false)
-        }
-
-        override fun getItem(position: Int): QuarterItem {
-            return quarterAdapter.getItem(position)
-        }
-
-        override fun computeGradeSum(quarter: QuarterItem): Double {
-            return quarterAdapter.computeGradeSum(until = quarter)
+        override fun onSubmitQuarters(items: List<QuarterItem>) {
+            fViewRecord.displayedChild = if (items.isNotEmpty()) Flipper.CONTENT else Flipper.EMPTY
         }
 
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
             val position = viewHolder.adapterPosition
-            val item = quarterAdapter.getItem(position)
+            val item = quarterAdapter.getQuarter(position)
 
             /* Let swipes over the first with "mock" status */
-            return if (item.data.status == STATUS_QUARTER_MOCK && position == 0)
+            return if (item.isMock && position == 0)
                 makeMovementFlags(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT)
             else
                 0
@@ -246,17 +248,25 @@ class RecordFragment : NavigationFragment() {
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             val position = viewHolder.adapterPosition
-            val item = quarterAdapter.getItem(position)
+            val item = quarterAdapter.getQuarter(position)
 
-            quarterAdapter.removeItemAt(position)
+            quarterAdapter.removeQuarter(item)
 
             snackBar {
                 message = getString(R.string.snack_bar_message_item_removed, item.startEndDateText)
 
                 action(R.string.snack_bar_action_undone) {
-                    quarterAdapter.addItemAt(item, position)
-
                     rViewRecord.scrollToPosition(0)
+
+                    // TODO swiping status
+
+                    quarterAdapter.addQuarter(item, position)
+                }
+
+                onDismissed { event ->
+                    if (event != Snackbar.Callback.DISMISS_EVENT_ACTION) {
+                        // TODO view model remove quarter
+                    }
                 }
             }
         }

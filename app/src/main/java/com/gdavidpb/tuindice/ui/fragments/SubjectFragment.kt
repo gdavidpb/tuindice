@@ -15,7 +15,7 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
-import com.gdavidpb.tuindice.domain.usecase.request.UpdateSubjectRequest
+import com.gdavidpb.tuindice.domain.usecase.request.UpdateQuarterRequest
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
@@ -82,12 +82,14 @@ class SubjectFragment : NavigationFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_done -> {
-                val request = UpdateSubjectRequest(
-                        id = args.subjectId,
-                        grade = evaluationAdapter.computeGradeSum().toSubjectGrade()
+                val request = UpdateQuarterRequest(
+                        qid = args.quarterId,
+                        sid = args.subjectId,
+                        grade = evaluationAdapter.computeGradeSum().toSubjectGrade(),
+                        dispatchChanges = true
                 )
 
-                viewModel.updateSubject(request)
+                viewModel.updateQuarter(request)
 
                 navigateUp()
 
@@ -148,7 +150,6 @@ class SubjectFragment : NavigationFragment() {
             is Result.OnSuccess -> {
                 val context = requireContext()
                 val evaluation = result.value
-
                 val item = evaluation.toEvaluationItem(context)
 
                 evaluationAdapter.updateEvaluation(item)

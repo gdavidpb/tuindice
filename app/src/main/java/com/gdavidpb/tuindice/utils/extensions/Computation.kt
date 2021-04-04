@@ -32,6 +32,17 @@ fun Collection<Subject>.filterNoEffect(): Collection<Subject> {
         this
 }
 
+fun Account.isUpdated(): Boolean {
+    val now = Date()
+    val outdated = lastUpdate.tomorrow()
+
+    return now.before(outdated)
+}
+
+fun Collection<Subject>.computeCredits() = sumBy {
+    if (it.grade != 0) it.credits else 0
+}
+
 fun Collection<Subject>.computeGrade(): Double {
     val creditsSum = computeCredits().toDouble()
 
@@ -42,17 +53,6 @@ fun Collection<Subject>.computeGrade(): Double {
     val grade = if (creditsSum != 0.0) weightedSum / creditsSum else 0.0
 
     return floor(grade * 10000.0) / 10000.0
-}
-
-fun Collection<Subject>.computeCredits() = sumBy {
-    if (it.grade != 0) it.credits else 0
-}
-
-fun Account.isUpdated(): Boolean {
-    val now = Date()
-    val outdated = lastUpdate.tomorrow()
-
-    return now.before(outdated)
 }
 
 fun Collection<Quarter>.computeGradeSum(until: Quarter = first()) =

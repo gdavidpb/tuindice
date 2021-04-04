@@ -13,6 +13,7 @@ import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.EvaluationType
+import com.gdavidpb.tuindice.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
@@ -241,16 +242,17 @@ class EvaluationFragment : NavigationFragment() {
 
         val maxGrade = sBarMaxGrade.progress.toGrade()
 
-        return UpdateEvaluationRequest(
-                id = args.evaluationId ?: "",
+        val update = EvaluationUpdate(
+                eid = args.evaluationId ?: "",
                 type = evaluationType,
                 grade = maxGrade,
                 maxGrade = maxGrade,
                 date = datePicker.selectedDate,
                 notes = "${eTextNotes.text}",
-                isDone = false,
-                dispatchChanges = true
+                isDone = false
         )
+
+        return UpdateEvaluationRequest(update = update, dispatchChanges = true)
     }
 
     private fun updateGradeValue(value: Double) {

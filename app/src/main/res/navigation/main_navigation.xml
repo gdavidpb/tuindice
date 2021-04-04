@@ -127,6 +127,9 @@
         android:label="@string/nav_subject"
         tools:layout="@layout/fragment_about">
         <argument
+            android:name="quarterId"
+            app:argType="string" />
+        <argument
             android:name="subjectId"
             app:argType="string" />
         <argument

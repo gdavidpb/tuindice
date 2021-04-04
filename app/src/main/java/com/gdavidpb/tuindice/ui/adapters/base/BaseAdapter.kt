@@ -30,7 +30,7 @@ abstract class BaseAdapter<T : Any> : RecyclerView.Adapter<BaseViewHolder<T>>() 
         holder.bindView(item)
     }
 
-    open fun submitList(list: List<T>) {
+    protected fun submitList(list: List<T>) {
         val diffUtil = ListDiffUtil(oldList = currentList, newList = list, comparator = provideComparator())
         val diffResult = DiffUtil.calculateDiff(diffUtil, true)
 
@@ -40,17 +40,17 @@ abstract class BaseAdapter<T : Any> : RecyclerView.Adapter<BaseViewHolder<T>>() 
         diffResult.dispatchUpdatesTo(this)
     }
 
-    open fun getItem(position: Int): T {
+    protected fun getItem(position: Int): T {
         return currentList[position]
     }
 
-    open fun addItem(item: T, position: Int = currentList.size, notify: Boolean = true) {
+    protected fun addItem(item: T, position: Int = currentList.size, notify: Boolean = true) {
         currentList.add(position, item)
 
         if (notify) notifyItemInserted(position)
     }
 
-    open fun removeItem(item: T, notify: Boolean = true) {
+    protected fun removeItem(item: T, notify: Boolean = true) {
         val position = getItemPosition(item)
 
         currentList.removeAt(position)
@@ -58,33 +58,12 @@ abstract class BaseAdapter<T : Any> : RecyclerView.Adapter<BaseViewHolder<T>>() 
         if (notify) notifyItemRemoved(position)
     }
 
-    open fun updateItem(item: T) {
+    protected fun updateItem(item: T) {
         val position = getItemPosition(item)
 
         currentList[position] = item
 
         notifyItemChanged(position, item)
-    }
-
-    @Deprecated("Remove after migration")
-    open fun removeItemAt(position: Int, notifyChange: Boolean = true) {
-        currentList.removeAt(position)
-
-        if (notifyChange) notifyItemRemoved(position)
-    }
-
-    @Deprecated("Remove after migration")
-    open fun addItemAt(item: T, position: Int, notifyChange: Boolean = true) {
-        currentList.add(position, item)
-
-        if (notifyChange) notifyItemInserted(position)
-    }
-
-    @Deprecated("Remove after migration")
-    open fun replaceItemAt(item: T, position: Int, notifyChange: Boolean = true) {
-        currentList[position] = item
-
-        if (notifyChange) notifyItemChanged(position)
     }
 
     open fun getItemPosition(item: T): Int {

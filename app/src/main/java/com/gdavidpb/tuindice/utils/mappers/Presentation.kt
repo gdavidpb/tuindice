@@ -37,6 +37,8 @@ fun Quarter.toQuarterItem(context: Context): QuarterItem {
             uid = id.hashCode().toLong(),
             id = id,
             color = quarterColor,
+            isMock = (status == STATUS_QUARTER_MOCK),
+            isEditable = (status == STATUS_QUARTER_CURRENT || status == STATUS_QUARTER_MOCK),
             startEndDateText = (startDate to endDate).formatQuarterTitle(),
             gradeDiffText = grade.formatGradeDiff(quarterColor, context),
             gradeSumText = gradeSum.formatGradeSum(quarterColor, context),

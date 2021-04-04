@@ -6,6 +6,8 @@ data class QuarterItem(
         val uid: Long,
         val id: String,
         val color: Int,
+        val isMock: Boolean,
+        val isEditable: Boolean,
         val startEndDateText: CharSequence,
         val gradeDiffText: CharSequence,
         val gradeSumText: CharSequence,
