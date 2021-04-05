@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.data.model.database.SubjectUpdate
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
@@ -82,10 +83,14 @@ class SubjectFragment : NavigationFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_done -> {
+                val update = SubjectUpdate(
+                        grade = evaluationAdapter.computeGradeSum().toSubjectGrade()
+                )
+
                 val request = UpdateQuarterRequest(
                         qid = args.quarterId,
                         sid = args.subjectId,
-                        grade = evaluationAdapter.computeGradeSum().toSubjectGrade(),
+                        update = update,
                         dispatchChanges = true
                 )
 

@@ -16,10 +16,10 @@ open class UpdateEvaluationUseCase(
 
         return if (params.dispatchChanges)
             databaseRepository
-                    .updateEvaluation(uid = activeUId, update = params.update)
+                    .updateEvaluation(uid = activeUId, eid = params.eid, update = params.update)
         else
             databaseRepository
-                    .getEvaluation(uid = activeUId, eid = params.update.eid)
+                    .getEvaluation(uid = activeUId, eid = params.eid)
                     .applyUpdate(update = params.update)
     }
 }

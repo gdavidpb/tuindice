@@ -11,9 +11,9 @@ import androidx.core.view.forEach
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.data.model.database.EvaluationUpdate
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.EvaluationType
-import com.gdavidpb.tuindice.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.utils.DECIMALS_DIV
 import com.gdavidpb.tuindice.utils.MAX_EVALUATION_GRADE
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.chip.Chip
+import com.google.firebase.Timestamp
 import kotlinx.android.synthetic.main.fragment_evaluation.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -242,17 +243,18 @@ class EvaluationFragment : NavigationFragment() {
 
         val maxGrade = sBarMaxGrade.progress.toGrade()
 
+        val evaluationId = args.evaluationId ?: ""
+
         val update = EvaluationUpdate(
-                eid = args.evaluationId ?: "",
-                type = evaluationType,
+                type = evaluationType.ordinal,
                 grade = maxGrade,
                 maxGrade = maxGrade,
-                date = datePicker.selectedDate,
+                date = Timestamp(datePicker.selectedDate),
                 notes = "${eTextNotes.text}",
                 isDone = false
         )
 
-        return UpdateEvaluationRequest(update = update, dispatchChanges = true)
+        return UpdateEvaluationRequest(eid = evaluationId, update = update, dispatchChanges = true)
     }
 
     private fun updateGradeValue(value: Double) {

@@ -1,14 +1,16 @@
 package com.gdavidpb.tuindice.domain.usecase
 
+import com.gdavidpb.tuindice.data.model.database.QuarterUpdate
+import com.gdavidpb.tuindice.data.model.database.SubjectUpdate
 import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.QuarterUpdate
-import com.gdavidpb.tuindice.domain.model.SubjectUpdate
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateQuarterRequest
+import com.gdavidpb.tuindice.utils.extensions.computeCredits
 import com.gdavidpb.tuindice.utils.extensions.computeGrade
 import com.gdavidpb.tuindice.utils.extensions.computeGradeSum
+import com.gdavidpb.tuindice.utils.mappers.applyUpdate
 
 // TODO optimize use case
 open class UpdateQuarterUseCase(
@@ -19,9 +21,9 @@ open class UpdateQuarterUseCase(
         val activeUId = authRepository.getActiveAuth().uid
 
         return if (params.dispatchChanges) {
-            val subjectUpdate = SubjectUpdate(sid = params.sid, grade = params.grade)
+            val subjectUpdate = SubjectUpdate(grade = params.update.grade)
 
-            databaseRepository.updateSubject(uid = activeUId, update = subjectUpdate)
+            databaseRepository.updateSubject(uid = activeUId, sid = params.sid, update = subjectUpdate)
 
             val quarters = databaseRepository.getQuarters(uid = activeUId)
             val quarter = quarters.find { it.id == params.qid }
@@ -30,10 +32,11 @@ open class UpdateQuarterUseCase(
 
             val grade = quarter.subjects.computeGrade()
             val gradeSum = quarters.computeGradeSum(until = quarter)
+            val credits = quarter.subjects.computeCredits()
 
-            val quarterUpdate = QuarterUpdate(qid = params.qid, grade = grade, gradeSum = gradeSum)
+            val quarterUpdate = QuarterUpdate(grade = grade, gradeSum = gradeSum, credits = credits)
 
-            databaseRepository.updateQuarter(uid = activeUId, update = quarterUpdate)
+            databaseRepository.updateQuarter(uid = activeUId, qid = params.qid, update = quarterUpdate)
         } else {
             val quarters = databaseRepository.getQuarters(uid = activeUId)
             val quarter = quarters.find { it.id == params.qid }
@@ -45,14 +48,17 @@ open class UpdateQuarterUseCase(
 
             checkNotNull(subject)
 
-            val updatedSubject = subject.copy(grade = params.grade)
+            val updatedSubject = subject.copy(grade = params.update.grade)
 
             quarter.subjects[subjectIndex] = updatedSubject
 
             val grade = quarter.subjects.computeGrade()
             val gradeSum = quarters.computeGradeSum(until = quarter)
+            val credits = quarter.subjects.computeCredits()
 
-            quarter.copy(grade = grade, gradeSum = gradeSum)
+            val quarterUpdate = QuarterUpdate(grade = grade, gradeSum = gradeSum, credits = credits)
+
+            quarter.applyUpdate(quarterUpdate)
         }
     }
 }

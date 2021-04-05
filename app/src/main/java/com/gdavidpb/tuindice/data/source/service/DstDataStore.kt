@@ -33,6 +33,7 @@ open class DstDataStore(
                 .toRecord()
     }
 
+    // TODO check getOrThrow()
     override suspend fun getEnrollment(): DstEnrollment? {
         return runCatching {
             enrollmentService.getEnrollment().body()

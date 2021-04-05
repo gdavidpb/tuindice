@@ -1,13 +1,17 @@
 package com.gdavidpb.tuindice.data.source.firestore
 
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.domain.model.*
+import com.gdavidpb.tuindice.data.model.database.EvaluationUpdate
+import com.gdavidpb.tuindice.data.model.database.QuarterUpdate
+import com.gdavidpb.tuindice.data.model.database.SubjectUpdate
+import com.gdavidpb.tuindice.domain.model.Account
+import com.gdavidpb.tuindice.domain.model.Evaluation
+import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.model.service.*
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.utils.*
-import com.gdavidpb.tuindice.utils.extensions.toSubjectStatus
 import com.gdavidpb.tuindice.utils.mappers.*
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.tasks.await
 
@@ -103,22 +107,17 @@ open class FirestoreDataStore(
                 .firstOrNull()
     }
 
-    override suspend fun updateQuarter(uid: String, update: QuarterUpdate): Quarter {
+    override suspend fun updateQuarter(uid: String, qid: String, update: QuarterUpdate): Quarter {
         val quarterRef = firestore
                 .collection(QuarterCollection.COLLECTION)
-                .document(update.qid)
+                .document(qid)
 
-        val values = mapOf(
-                QuarterCollection.GRADE to update.grade,
-                QuarterCollection.GRADE_SUM to update.gradeSum
-        )
-
-        quarterRef.set(values, SetOptions.merge())
+        quarterRef.set(update, SetOptions.merge())
 
         return quarterRef
                 .get(Source.CACHE)
                 .await()
-                .toQuarter(subjects = getQuarterSubjects(uid = uid, qid = update.qid))
+                .toQuarter(subjects = getQuarterSubjects(uid = uid, qid = qid))
     }
 
     override suspend fun removeQuarter(uid: String, qid: String) {
@@ -147,17 +146,12 @@ open class FirestoreDataStore(
                 .map { it.toSubject() }
     }
 
-    override suspend fun updateSubject(uid: String, update: SubjectUpdate): Subject {
+    override suspend fun updateSubject(uid: String, sid: String, update: SubjectUpdate): Subject {
         val subjectRef = firestore
                 .collection(SubjectCollection.COLLECTION)
-                .document(update.sid)
+                .document(sid)
 
-        val subjectValues = mapOf(
-                SubjectCollection.GRADE to update.grade,
-                SubjectCollection.STATUS to update.grade.toSubjectStatus()
-        )
-
-        subjectRef.set(subjectValues, SetOptions.merge())
+        subjectRef.set(update, SetOptions.merge())
 
         return subjectRef
                 .get(Source.CACHE)
@@ -187,21 +181,12 @@ open class FirestoreDataStore(
                 }
     }
 
-    override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate): Evaluation {
+    override suspend fun updateEvaluation(uid: String, eid: String, update: EvaluationUpdate): Evaluation {
         val evaluationRef = firestore
                 .collection(EvaluationCollection.COLLECTION)
-                .document(update.eid)
+                .document(eid)
 
-        val values = mapOf(
-                EvaluationCollection.TYPE to update.type.ordinal,
-                EvaluationCollection.GRADE to update.grade,
-                EvaluationCollection.MAX_GRADE to update.maxGrade,
-                EvaluationCollection.DATE to Timestamp(update.date),
-                EvaluationCollection.NOTES to update.notes,
-                EvaluationCollection.DONE to update.isDone
-        )
-
-        evaluationRef.set(values, SetOptions.merge())
+        evaluationRef.set(update, SetOptions.merge())
 
         return evaluationRef
                 .get(Source.CACHE)
@@ -316,7 +301,14 @@ open class FirestoreDataStore(
                 .collection(QuarterCollection.COLLECTION)
                 .document(quarterId)
 
-        set(quarterRef, quarter, SetOptions.merge())
+        val quarterValues = mapOf(
+                QuarterCollection.USER_ID to quarter.userId,
+                QuarterCollection.START_DATE to quarter.startDate,
+                QuarterCollection.END_DATE to quarter.endDate,
+                QuarterCollection.STATUS to quarter.status
+        )
+
+        set(quarterRef, quarterValues, SetOptions.merge())
 
         data.schedule.forEach { scheduleSubject ->
             val subject = scheduleSubject.toSubjectEntity(uid = uid, qid = quarterId)
@@ -327,9 +319,15 @@ open class FirestoreDataStore(
                     .collection(SubjectCollection.COLLECTION)
                     .document(subjectId)
 
-            val currentSubject = subject.toCurrentSubjectEntity()
+            val subjectValues = mapOf(
+                    SubjectCollection.USER_ID to subject.userId,
+                    SubjectCollection.QUARTER_ID to subject.quarterId,
+                    SubjectCollection.CODE to subject.code,
+                    SubjectCollection.NAME to subject.name,
+                    SubjectCollection.CREDITS to subject.credits
+            )
 
-            set(subjectRef, currentSubject, SetOptions.merge())
+            set(subjectRef, subjectValues, SetOptions.merge())
         }
     }
 }

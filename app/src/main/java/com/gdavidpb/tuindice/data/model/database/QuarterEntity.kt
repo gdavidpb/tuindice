@@ -8,5 +8,6 @@ data class QuarterEntity(
         val endDate: Timestamp,
         val grade: Double,
         val gradeSum: Double,
+        val credits: Int,
         val status: Int
 )

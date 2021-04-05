@@ -38,6 +38,7 @@ object QuarterCollection {
     const val END_DATE = "endDate"
     const val GRADE = "grade"
     const val GRADE_SUM = "gradeSum"
+    const val CREDITS = "credits"
     const val STATUS = "status"
 }
 

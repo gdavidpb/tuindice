@@ -43,6 +43,7 @@ fun DstAuthResponseSelector.toAuthResponse(): SignInResponse {
 }
 
 fun DstEnrollmentDataSelector.toEnrollment(): DstEnrollment {
+    // TODO check defaultDate?
     val defaultDate = Date(0)
 
     val schedule = schedule?.run {

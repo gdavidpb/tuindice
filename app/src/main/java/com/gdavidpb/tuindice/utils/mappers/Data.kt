@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.utils.mappers
 
-import com.gdavidpb.tuindice.data.model.database.CurrentSubjectEntity
 import com.gdavidpb.tuindice.data.model.database.EvaluationEntity
 import com.gdavidpb.tuindice.data.model.database.QuarterEntity
 import com.gdavidpb.tuindice.data.model.database.SubjectEntity
@@ -10,7 +9,6 @@ import com.gdavidpb.tuindice.domain.model.service.DstQuarter
 import com.gdavidpb.tuindice.domain.model.service.DstSubject
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.base64
-import com.gdavidpb.tuindice.utils.extensions.computeCredits
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import java.util.*
@@ -67,7 +65,7 @@ fun DocumentSnapshot.toQuarter(subjects: List<Subject>) = Quarter(
         endDate = getDate(QuarterCollection.END_DATE) ?: Date(),
         grade = getDouble(QuarterCollection.GRADE) ?: 0.0,
         gradeSum = getDouble(QuarterCollection.GRADE_SUM) ?: 0.0,
-        credits = subjects.computeCredits(),
+        credits = getLong(QuarterCollection.CREDITS)?.toInt() ?: 0,
         status = getLong(QuarterCollection.STATUS)?.toInt() ?: 0,
         subjects = subjects.toMutableList()
 )
@@ -106,8 +104,9 @@ fun DstEnrollment.toQuarterEntity(uid: String) = QuarterEntity(
         userId = uid,
         startDate = Timestamp(startDate),
         endDate = Timestamp(endDate),
-        grade = MAX_SUBJECT_GRADE.toDouble(),
+        grade = 0.0,
         gradeSum = 0.0,
+        credits = 0,
         status = STATUS_QUARTER_CURRENT
 )
 
@@ -118,19 +117,11 @@ fun ScheduleSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
         name = name,
         credits = credits,
         grade = MAX_SUBJECT_GRADE,
-        status = status.formatSubjectStatusValue()
+        status = STATUS_SUBJECT_OK
 )
 
 fun QuarterEntity.quarterTitle() = (startDate.toDate() to endDate.toDate())
         .formatQuarterTitle()
-
-fun SubjectEntity.toCurrentSubjectEntity() = CurrentSubjectEntity(
-        userId = userId,
-        quarterId = quarterId,
-        code = code,
-        name = name,
-        credits = credits
-)
 
 fun DstQuarter.toQuarterEntity(uid: String) = QuarterEntity(
         userId = uid,
@@ -138,6 +129,7 @@ fun DstQuarter.toQuarterEntity(uid: String) = QuarterEntity(
         endDate = Timestamp(endDate),
         grade = grade,
         gradeSum = gradeSum,
+        credits = subjects.sumBy { it.credits },
         status = status
 )
 
