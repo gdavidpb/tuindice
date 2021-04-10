@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.utils.mappers
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.extensions.computeCredits
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
@@ -33,13 +34,14 @@ fun DocumentSnapshot.toAccount() = Account(
         appVersionCode = getLong(UserCollection.APP_VERSION_CODE)?.toInt() ?: 0
 )
 
+// TODO set credits default value to 0
 fun DocumentSnapshot.toQuarter(subjects: List<Subject>) = Quarter(
         id = id,
         startDate = getDate(QuarterCollection.START_DATE) ?: Date(),
         endDate = getDate(QuarterCollection.END_DATE) ?: Date(),
         grade = getDouble(QuarterCollection.GRADE) ?: 0.0,
         gradeSum = getDouble(QuarterCollection.GRADE_SUM) ?: 0.0,
-        credits = getLong(QuarterCollection.CREDITS)?.toInt() ?: 0,
+        credits = getLong(QuarterCollection.CREDITS)?.toInt() ?: subjects.computeCredits(),
         status = getLong(QuarterCollection.STATUS)?.toInt() ?: 0,
         subjects = subjects.toMutableList()
 )
