@@ -67,6 +67,8 @@ class SubjectFragment : NavigationFragment() {
         btnAddEvaluation.onClickOnce(::onAddEvaluationClicked)
 
         with(viewModel) {
+            evaluationUpdate.value = null
+
             observe(subject, ::subjectObserver)
             observe(evaluations, ::evaluationsObserver)
             observe(evaluationUpdate, ::evaluationObserver)
@@ -122,6 +124,8 @@ class SubjectFragment : NavigationFragment() {
             tViewTotalGrade.text = gradeSum.formatGrade(DECIMALS_GRADE_SUBJECT)
             tViewGrade.text = gradeSum.toSubjectGrade().formatGrade()
         }
+
+        fViewEvaluations.displayedChild = if (evaluationAdapter.itemCount > 0) Flipper.CONTENT else Flipper.EMPTY
     }
 
     private fun subjectObserver(result: Result<Subject, Nothing>?) {
@@ -204,8 +208,6 @@ class SubjectFragment : NavigationFragment() {
 
         override fun onSubmitEvaluations(items: List<EvaluationItem>) {
             updateGrades(true)
-
-            fViewEvaluations.displayedChild = if (items.isNotEmpty()) Flipper.CONTENT else Flipper.EMPTY
         }
 
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
