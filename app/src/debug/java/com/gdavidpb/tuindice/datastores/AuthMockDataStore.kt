@@ -2,8 +2,10 @@ package com.gdavidpb.tuindice.datastores
 
 import android.content.SharedPreferences
 import com.gdavidpb.tuindice.domain.model.Auth
+import com.gdavidpb.tuindice.domain.model.exception.UnauthenticatedException
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.utils.SettingsKeys
+import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
 
 open class AuthMockDataStore(
         private val sharedPreferences: SharedPreferences
@@ -16,8 +18,10 @@ open class AuthMockDataStore(
     }
 
     override suspend fun getActiveAuth(): Auth {
-        val email = sharedPreferences.getString(SettingsKeys.USB_ID, null)
-                ?: error("unauthenticated")
+        val email = sharedPreferences
+                .getString(SettingsKeys.USB_ID, null)
+                ?.toUsbEmail()
+                ?: throw UnauthenticatedException()
 
         return Auth(uid = uid, email = email)
     }

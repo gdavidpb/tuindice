@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.utils.mappers
 
+import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.utils.*
-import com.google.firebase.BuildConfig
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
