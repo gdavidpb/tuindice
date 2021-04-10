@@ -112,6 +112,12 @@ class SummaryFragment : NavigationFragment() {
         viewModel.createProfilePictureFile()
     }
 
+    private fun onLastUpdateInfoClick() {
+        snackBar {
+            messageResource = R.string.snack_bar_no_service
+        }
+    }
+
     private fun signOutObserver(result: Completable<Nothing>?) {
         when (result) {
             is Completable.OnComplete -> {
@@ -132,6 +138,9 @@ class SummaryFragment : NavigationFragment() {
 
                 if (pendingUpdate)
                     viewModel.getProfile()
+            }
+            is Result.OnError -> {
+                syncErrorHandler(error = result.error)
             }
         }
     }
@@ -252,6 +261,17 @@ class SummaryFragment : NavigationFragment() {
         }
     }
 
+    private fun syncErrorHandler(error: SyncError?) {
+        when (error) {
+            is SyncError.NoConnection -> {
+                if (error.isNetworkAvailable) {
+                    tViewLastUpdate.drawables(start = R.drawable.ic_sync_problem)
+                    tViewLastUpdate.onClickOnce(::onLastUpdateInfoClick)
+                }
+            }
+        }
+    }
+
     private fun profilePictureErrorHandler(error: ProfilePictureError?) {
         when (error) {
             is ProfilePictureError.NoData -> vProfilePicture.loadDefaultProfilePicture()
@@ -329,7 +349,7 @@ class SummaryFragment : NavigationFragment() {
         tViewCareer.text = account.careerName
 
         tViewLastUpdate.text = lastUpdate
-        tViewLastUpdate.drawables(start = context.getCompatDrawable(R.drawable.ic_sync, R.color.color_secondary_text))
+        tViewLastUpdate.isVisible = true
 
         if (account.grade > 0.0) {
             tViewGrade.isVisible = true

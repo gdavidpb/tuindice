@@ -65,8 +65,8 @@ fun FragmentActivity.isGoogleServicesAvailable(): Boolean {
                 }.show()
             else
                 alert {
-                    titleResource = R.string.alert_title_no_services_failure
-                    messageResource = R.string.alert_message_no_services_failure
+                    titleResource = R.string.alert_title_no_gms_failure
+                    messageResource = R.string.alert_message_no_gms_failure
 
                     isCancelable = false
 

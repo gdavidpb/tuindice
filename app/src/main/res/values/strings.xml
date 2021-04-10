@@ -62,17 +62,19 @@
         Este enlace está corrupto o ya fue usado, por favor solicita otro correo.
     </string>
 
-    <string name="alert_title_no_services_failure">¡Oops, lo sentimos!</string>
-    <string name="alert_message_no_services_failure">Parece que tu dispositivo  no dispone de Google Play Services ;(</string>
+    <string name="alert_title_no_gms_failure">¡Oops, lo sentimos!</string>
+    <string name="alert_message_no_gms_failure">Parece que tu dispositivo  no dispone de Google Play Services ;(</string>
 
     <string name="alert_title_sign_out">Atención</string>
     <string name="alert_message_sign_out">¿Estás seguro que deseas salir?</string>
 
     <string name="selector_title_report">¿Cómo te podemos ayudar?</string>
 
+    <string name="snack_bar_no_service">No pudimos actualizar, intentaremos más tarde</string>
+
     <string name="snack_bar_error_occurred">¡Ha ocurrido un error!</string>
 
-    <string name="snack_bar_message_item_removed">%1$s removido</string>
+    <string name="snack_bar_item_removed">%1$s removido</string>
     <string name="snack_bar_action_undone">Deshacer</string>
 
     <!-- SummaryFragment -->
@@ -81,6 +83,7 @@
     <string name="text_5_dot">/ 5.0</string>
 
     <string name="text_last_update">Última actualización: %1$s</string>
+    <string name="description_last_update">Estado</string>
 
     <plurals name="text_subjects_header">
         <item quantity="one">%d materia cursada</item>

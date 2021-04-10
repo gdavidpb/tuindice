@@ -253,7 +253,7 @@ class RecordFragment : NavigationFragment() {
             quarterAdapter.removeQuarter(item)
 
             snackBar {
-                message = getString(R.string.snack_bar_message_item_removed, item.TitleText)
+                message = getString(R.string.snack_bar_item_removed, item.TitleText)
 
                 action(R.string.snack_bar_action_undone) {
                     rViewRecord.scrollToPosition(0)

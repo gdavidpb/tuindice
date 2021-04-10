@@ -58,16 +58,16 @@
         android:id="@+id/tViewLastUpdate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/dp_6"
+        android:clickable="true"
+        android:focusable="true"
         android:drawablePadding="@dimen/dp_2"
-        android:gravity="center_vertical"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
+        android:paddingVertical="@dimen/dp_6"
         app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"
+        app:drawableStartCompat="@drawable/ic_sync"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tViewCareer"
-        tools:drawableStart="@drawable/ic_sync"
-        tools:drawableTint="@color/color_secondary_text"
+        tools:visibility="visible"
         tools:text="Última actualización: Hoy, 3:42 p.m." />
 
     <androidx.recyclerview.widget.RecyclerView

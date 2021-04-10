@@ -240,7 +240,7 @@ class SubjectFragment : NavigationFragment() {
             evaluationAdapter.removeEvaluation(item)
 
             snackBar {
-                message = getString(R.string.snack_bar_message_item_removed, item.typeText)
+                message = getString(R.string.snack_bar_item_removed, item.typeText)
 
                 action(R.string.snack_bar_action_undone) {
                     rViewEvaluations.scrollToPosition(0)
