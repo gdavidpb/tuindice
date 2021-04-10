@@ -69,4 +69,5 @@ object EvaluationCollection {
     const val DATE = "date"
     const val NOTES = "notes"
     const val DONE = "done"
+    const val LAST_MODIFIED = "lastModified"
 }

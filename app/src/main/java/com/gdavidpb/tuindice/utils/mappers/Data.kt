@@ -69,7 +69,7 @@ fun DocumentSnapshot.toEvaluation() = Evaluation(
                 ?: EvaluationType.OTHER.ordinal)],
         grade = getDouble(EvaluationCollection.GRADE) ?: 0.0,
         maxGrade = getDouble(EvaluationCollection.MAX_GRADE) ?: 0.0,
-        date = getDate(EvaluationCollection.DATE) ?: Date(),
+        date = getDate(EvaluationCollection.DATE) ?: Date(0),
         notes = getString(EvaluationCollection.NOTES) ?: "",
         isDone = getBoolean(EvaluationCollection.DONE) ?: false
 )
@@ -118,14 +118,16 @@ fun Subject.toSubjectEntity(uid: String) = mapOf(
         SubjectCollection.STATUS to status
 )
 
-fun Evaluation.toEvaluationEntity(uid: String) = mapOf(
+fun Evaluation.toEvaluationEntity(uid: String) = mutableMapOf(
         EvaluationCollection.USER_ID to uid,
         EvaluationCollection.SUBJECT_ID to sid,
         EvaluationCollection.SUBJECT_CODE to subjectCode,
         EvaluationCollection.TYPE to type.ordinal,
         EvaluationCollection.GRADE to grade,
         EvaluationCollection.MAX_GRADE to maxGrade,
-        EvaluationCollection.DATE to Timestamp(date),
-        EvaluationCollection.NOTES to notes.trim().take(MAX_EVALUATION_NOTES),
         EvaluationCollection.DONE to isDone,
-)
+        EvaluationCollection.LAST_MODIFIED to FieldValue.serverTimestamp()
+).apply {
+    if (date.time != 0L) put(EvaluationCollection.DATE, Timestamp(date))
+    if (notes.isNotBlank()) put(EvaluationCollection.NOTES, notes.trim().take(MAX_EVALUATION_NOTES))
+}
