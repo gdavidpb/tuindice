@@ -4,6 +4,9 @@ import android.view.View
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.google.android.material.snackbar.BaseTransientBottomBar.*
 import com.google.android.material.snackbar.Snackbar
 
@@ -65,5 +68,18 @@ data class SnackBarBuilder(
     }
 }
 
-inline fun Fragment.snackBar(length: Int = Snackbar.LENGTH_LONG, builder: SnackBarBuilder.() -> Unit) =
-        SnackBarBuilder(requireView(), length).apply(builder).build().show()
+inline fun Fragment.snackBar(length: Int = Snackbar.LENGTH_LONG, builder: SnackBarBuilder.() -> Unit) {
+    val snackBar = SnackBarBuilder(requireView(), length).apply(builder).build()
+
+    val lifecycleObserver = object : LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+        fun onPause() = snackBar.dismiss()
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+        fun onStop() = snackBar.dismiss()
+    }
+
+    lifecycle.addObserver(lifecycleObserver)
+
+    snackBar.show()
+}
