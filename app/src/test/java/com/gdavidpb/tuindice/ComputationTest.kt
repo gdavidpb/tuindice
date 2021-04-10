@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice
 
-import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -128,11 +127,8 @@ class ComputationTest {
             time
         }
 
-        val updatedAccount = createAccount(lastUpdate = today)
-        val outdatedAccount = createAccount(lastUpdate = yesterday)
-
-        val actualTrue = updatedAccount.isUpdated()
-        val actualFalse = outdatedAccount.isUpdated()
+        val actualTrue = today.isUpdated()
+        val actualFalse = yesterday.isUpdated()
 
         assertTrue(actualTrue)
         assertFalse(actualFalse)
@@ -200,32 +196,6 @@ class ComputationTest {
 
         assertEquals(expectedGradeSum, actualGradeSum, 0.0)
     }
-
-    private fun createAccount(
-            lastUpdate: Date = Date()
-    ) = Account(
-            uid = "",
-            id = "",
-            usbId = "",
-            email = "",
-            fullName = "",
-            firstNames = "",
-            lastNames = "",
-            careerName = "",
-            careerCode = 0,
-            scholarship = false,
-            grade = 0.0,
-            enrolledSubjects = 0,
-            enrolledCredits = 0,
-            approvedSubjects = 0,
-            approvedCredits = 0,
-            retiredSubjects = 0,
-            retiredCredits = 0,
-            failedSubjects = 0,
-            failedCredits = 0,
-            lastUpdate = lastUpdate,
-            appVersionCode = 0
-    )
 
     private fun createQuarter(
             startDate: Date = Date(),
