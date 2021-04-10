@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.model.database.SubjectUpdate
 import com.gdavidpb.tuindice.domain.model.Evaluation
+import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateQuarterRequest
@@ -67,10 +68,12 @@ class SubjectFragment : NavigationFragment() {
         btnAddEvaluation.onClickOnce(::onAddEvaluationClicked)
 
         with(viewModel) {
+            quarterUpdate.value = null
             evaluationUpdate.value = null
 
             observe(subject, ::subjectObserver)
             observe(evaluations, ::evaluationsObserver)
+            observe(quarterUpdate, ::quarterObserver)
             observe(evaluationUpdate, ::evaluationObserver)
 
             getSubject(sid = args.subjectId)
@@ -97,8 +100,6 @@ class SubjectFragment : NavigationFragment() {
                 )
 
                 viewModel.updateQuarter(request)
-
-                navigateUp()
 
                 true
             }
@@ -150,6 +151,14 @@ class SubjectFragment : NavigationFragment() {
                 }
 
                 evaluationAdapter.submitEvaluations(items)
+            }
+        }
+    }
+
+    private fun quarterObserver(result: Result<Quarter, Nothing>?) {
+        when (result) {
+            is Result.OnSuccess -> {
+                navigateUp()
             }
         }
     }
