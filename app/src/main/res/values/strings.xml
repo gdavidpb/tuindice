@@ -340,14 +340,14 @@
     <string name="button_cancel"><u>Ingresar con otra cuenta</u></string>
     <string name="button_resend">Enviar nuevamente</string>
 
-    <!-- LoginFragment -->
+    <!-- SignInFragment -->
 
-    <string name="label_login_fragment">TuIndice</string>
+    <string name="label_sign_in_fragment">TuIndice</string>
 
     <string name="hint_usb_id">USBID</string>
     <string name="hintPassword">Contraseña</string>
 
-    <string name="button_login">Iniciar sesión</string>
+    <string name="button_sign_in">Iniciar sesión</string>
     <string name="label_policies">
         Al usar la aplicación, aceptas los\n
         Términos y condiciones y Política de privacidad

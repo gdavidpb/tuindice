@@ -10,8 +10,8 @@
         android:name="com.gdavidpb.tuindice.ui.fragments.SplashFragment"
         tools:layout="@layout/fragment_splash">
         <action
-            android:id="@+id/nav_to_login"
-            app:destination="@id/fragment_login"
+            android:id="@+id/nav_to_sign_in"
+            app:destination="@id/fragment_sign_in"
             app:enterAnim="@anim/slide_in_from_bottom"
             app:exitAnim="@anim/slide_out_to_top"
             app:popUpTo="@id/fragment_splash"
@@ -44,8 +44,8 @@
             app:argType="integer" />
 
         <action
-            android:id="@+id/nav_to_login"
-            app:destination="@id/fragment_login"
+            android:id="@+id/nav_to_sign_in"
+            app:destination="@id/fragment_sign_in"
             app:enterAnim="@anim/slide_in_from_top"
             app:exitAnim="@anim/slide_out_to_bottom"
             app:popUpTo="@id/fragment_email"
@@ -53,16 +53,16 @@
     </fragment>
 
     <fragment
-        android:id="@+id/fragment_login"
-        android:name="com.gdavidpb.tuindice.ui.fragments.LoginFragment"
-        android:label="@string/label_login_fragment"
-        tools:layout="@layout/fragment_login">
+        android:id="@+id/fragment_sign_in"
+        android:name="com.gdavidpb.tuindice.ui.fragments.SignInFragment"
+        android:label="@string/label_sign_in_fragment"
+        tools:layout="@layout/fragment_sign_in">
         <action
             android:id="@+id/nav_to_splash"
             app:destination="@id/fragment_splash"
             app:enterAnim="@anim/slide_in_from_top"
             app:exitAnim="@anim/slide_out_to_bottom"
-            app:popUpTo="@id/fragment_login"
+            app:popUpTo="@id/fragment_sign_in"
             app:popUpToInclusive="true" />
         <action
             android:id="@+id/nav_to_url"
@@ -79,8 +79,8 @@
         android:label="@string/nav_summary"
         tools:layout="@layout/fragment_summary">
         <action
-            android:id="@+id/nav_to_login"
-            app:destination="@id/fragment_login"
+            android:id="@+id/nav_to_sign_in"
+            app:destination="@id/fragment_sign_in"
             app:enterAnim="@anim/slide_in_from_top"
             app:exitAnim="@anim/slide_out_to_bottom"
             app:popUpTo="@id/fragment_summary"

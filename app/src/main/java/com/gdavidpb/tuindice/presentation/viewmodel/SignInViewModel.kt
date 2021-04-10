@@ -12,7 +12,7 @@ import com.gdavidpb.tuindice.utils.extensions.LiveEvent
 import com.gdavidpb.tuindice.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.utils.extensions.execute
 
-class LoginViewModel(
+class SignInViewModel(
         private val signInUseCase: SignInUseCase,
         private val syncAccountUseCase: SyncAccountUseCase
 ) : ViewModel() {

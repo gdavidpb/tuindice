@@ -103,11 +103,11 @@ class EmailFragment : NavigationFragment() {
     private fun signOutObserver(result: Completable<Nothing>?) {
         when (result) {
             is Completable.OnComplete -> {
-                navigate(EmailFragmentDirections.navToLogin())
+                navigate(EmailFragmentDirections.navToSignIn())
             }
             is Completable.OnError -> {
                 requireAppCompatActivity().clearApplicationUserData()
-                navigate(EmailFragmentDirections.navToLogin())
+                navigate(EmailFragmentDirections.navToSignIn())
             }
         }
     }

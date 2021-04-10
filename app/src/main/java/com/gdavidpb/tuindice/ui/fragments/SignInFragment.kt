@@ -18,18 +18,18 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
-import com.gdavidpb.tuindice.presentation.viewmodel.LoginViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.ui.adapters.LoadingAdapter
 import com.gdavidpb.tuindice.ui.dialogs.disabledAccountDialog
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.android.synthetic.main.fragment_login.*
+import kotlinx.android.synthetic.main.fragment_sign_in.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class LoginFragment : NavigationFragment() {
+class SignInFragment : NavigationFragment() {
 
-    private val viewModel by viewModel<LoginViewModel>()
+    private val viewModel by viewModel<SignInViewModel>()
 
     private val loadingMessages by config<List<String>>(ConfigKeys.LOADING_MESSAGES)
 
@@ -41,7 +41,7 @@ class LoginFragment : NavigationFragment() {
         )
     }
 
-    override fun onCreateView() = R.layout.fragment_login
+    override fun onCreateView() = R.layout.fragment_sign_in
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -69,14 +69,14 @@ class LoginFragment : NavigationFragment() {
             }
 
             setLink(getString(R.string.link_terms_and_conditions)) {
-                navigate(LoginFragmentDirections.navToUrl(
+                navigate(SignInFragmentDirections.navToUrl(
                         title = getString(R.string.label_terms_and_conditions),
                         url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS
                 ))
             }
 
             setLink(getString(R.string.link_privacy_policy)) {
-                navigate(LoginFragmentDirections.navToUrl(
+                navigate(SignInFragmentDirections.navToUrl(
                         title = getString(R.string.label_privacy_policy),
                         url = BuildConfig.URL_APP_PRIVACY_POLICY
                 ))
@@ -126,15 +126,15 @@ class LoginFragment : NavigationFragment() {
 
             vFlipperLoading.startFlipping()
 
-            R.layout.fragment_login_loading
+            R.layout.fragment_sign_in_loading
         } else {
             vFlipperLoading.isVisible = false
             vFlipperLoading.stopFlipping()
 
-            R.layout.fragment_login
+            R.layout.fragment_sign_in
         }
 
-        cLayoutLogin.beginTransition(targetLayout = layout) {
+        cLayoutSignIn.beginTransition(targetLayout = layout) {
             interpolator = OvershootInterpolator()
             duration = 1000
         }
@@ -178,7 +178,7 @@ class LoginFragment : NavigationFragment() {
     private fun syncObserver(result: Result<Boolean, SyncError>?) {
         when (result) {
             is Result.OnSuccess -> {
-                navigate(LoginFragmentDirections.navToSplash())
+                navigate(SignInFragmentDirections.navToSplash())
             }
             is Result.OnError -> {
                 showLoading(false)

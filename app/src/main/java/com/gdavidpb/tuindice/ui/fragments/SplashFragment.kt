@@ -86,8 +86,8 @@ class SplashFragment : NavigationFragment() {
                         mode = EmailFragment.Mode.VERIFY.ordinal
                 ))
             }
-            is StartUpAction.Login -> {
-                navigate(SplashFragmentDirections.navToLogin())
+            is StartUpAction.SignIn -> {
+                navigate(SplashFragmentDirections.navToSignIn())
             }
         }
     }

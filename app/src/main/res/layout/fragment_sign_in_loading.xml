@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cLayoutLogin"
+    android:id="@+id/cLayoutSignIn"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -63,17 +63,15 @@
         android:contentDescription="@string/app_name"
         android:focusable="true"
         android:background="@android:color/transparent"
-        app:layout_constraintBottom_toTopOf="@id/tInputUsbId"
+        app:layout_constraintBottom_toBottomOf="@id/guidelineCenterTop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
         app:srcCompat="@drawable/ic_launcher" />
 
     <AdapterViewFlipper
         android:id="@+id/vFlipperLoading"
-        android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_width="0dp"
         android:layout_marginTop="@dimen/dp_8"
         android:layout_marginBottom="@dimen/dp_8"
         android:animateFirstView="true"
@@ -81,7 +79,8 @@
         android:inAnimation="@animator/left_in"
         android:outAnimation="@animator/right_out"
         app:layout_constraintBottom_toBottomOf="@id/guidelineCenterBottom"
-        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/guidelineCenterTop"
         app:layout_constraintVertical_chainStyle="packed"
         tools:visibility="gone" />
@@ -91,17 +90,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:indeterminate="true"
-        app:layout_constraintStart_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/vFlipperLoading" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/guidelineCenterBottom" />
 
     <com.gdavidpb.tuindice.ui.customs.UsbIdInput
         android:id="@+id/tInputUsbId"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
-        app:layout_constraintStart_toStartOf="@id/guidelineStart"
         android:layout_marginTop="@dimen/dp_32"
         app:layout_constraintBottom_toTopOf="@id/tInputPassword"
+        app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iViewLogo"
         app:layout_constraintVertical_chainStyle="packed" />
 
@@ -110,10 +109,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_4"
-        app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
-        app:layout_constraintStart_toStartOf="@id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/tInputUsbId"
         app:layout_constraintBottom_toTopOf="@id/btnSignIn"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tInputUsbId"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <androidx.appcompat.widget.AppCompatButton
@@ -121,14 +119,12 @@
         android:layout_width="0dp"
         android:layout_height="@dimen/dp_38"
         android:background="@drawable/sh_button"
-        android:text="@string/button_login"
+        android:text="@string/button_sign_in"
         android:textColor="@color/color_text_icon"
         app:backgroundTint="@drawable/sl_button"
-        android:layout_marginTop="@dimen/dp_24"
-        app:layout_constraintBottom_toTopOf="@id/tViewPolicies"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
-        app:layout_constraintTop_toBottomOf="@id/tInputPassword"
+        app:layout_constraintTop_toBottomOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <com.gdavidpb.tuindice.ui.customs.LinkTextView
@@ -142,7 +138,7 @@
         android:textAlignment="center"
         android:textColor="@color/color_secondary_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/guidelineBottom"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

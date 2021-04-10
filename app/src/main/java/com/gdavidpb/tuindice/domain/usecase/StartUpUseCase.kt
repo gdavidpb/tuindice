@@ -85,7 +85,7 @@ open class StartUpUseCase(
 
                 StartUpAction.Reset(email = email)
             }
-            else -> StartUpAction.Login
+            else -> StartUpAction.SignIn
         }
     }
 

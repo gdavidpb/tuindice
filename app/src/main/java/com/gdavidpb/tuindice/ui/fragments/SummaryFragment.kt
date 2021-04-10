@@ -121,12 +121,12 @@ class SummaryFragment : NavigationFragment() {
     private fun signOutObserver(result: Completable<Nothing>?) {
         when (result) {
             is Completable.OnComplete -> {
-                navigateToLogin()
+                navigateToSignIn()
             }
             is Completable.OnError -> {
                 requireAppCompatActivity().clearApplicationUserData()
 
-                navigateToLogin()
+                navigateToSignIn()
             }
         }
     }
@@ -280,10 +280,10 @@ class SummaryFragment : NavigationFragment() {
         }
     }
 
-    private fun navigateToLogin() {
+    private fun navigateToSignIn() {
         findNavController().popStackToRoot()
 
-        navigate(SummaryFragmentDirections.navToLogin())
+        navigate(SummaryFragmentDirections.navToSignIn())
     }
 
     private fun signOutDialog() {

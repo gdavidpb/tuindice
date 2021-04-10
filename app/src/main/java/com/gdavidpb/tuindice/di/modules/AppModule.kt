@@ -252,7 +252,7 @@ val appModule = module {
     viewModel<SplashViewModel>()
     viewModel<SummaryViewModel>()
     viewModel<RecordViewModel>()
-    viewModel<LoginViewModel>()
+    viewModel<SignInViewModel>()
     viewModel<EmailViewModel>()
     viewModel<SubjectViewModel>()
     viewModel<EvaluationViewModel>()

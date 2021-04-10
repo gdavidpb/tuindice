@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             R.id.fragment_pensum to true,
             R.id.fragment_about to true,
             R.id.fragment_splash to false,
-            R.id.fragment_login to false,
+            R.id.fragment_sign_in to false,
             R.id.fragment_email to false
     )
 
