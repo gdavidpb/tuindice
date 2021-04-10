@@ -53,20 +53,24 @@ abstract class BaseAdapter<T : Any> : RecyclerView.Adapter<BaseViewHolder<T>>() 
     protected fun removeItem(item: T, notify: Boolean = true) {
         val position = getItemPosition(item)
 
-        currentList.removeAt(position)
+        if (position in currentList.indices) {
+            currentList.removeAt(position)
 
-        if (notify) notifyItemRemoved(position)
+            if (notify) notifyItemRemoved(position)
+        }
     }
 
     protected fun updateItem(item: T) {
         val position = getItemPosition(item)
 
-        currentList[position] = item
+        if (position in currentList.indices) {
+            currentList[position] = item
 
-        notifyItemChanged(position, item)
+            notifyItemChanged(position, item)
+        }
     }
 
-    open fun getItemPosition(item: T): Int {
+    private fun getItemPosition(item: T): Int {
         val comparator = provideComparator()
 
         return currentList.indexOfFirst { comparator.compare(it, item) == 0 }
