@@ -13,7 +13,7 @@ val defaultEnrollmentResponse = DstEnrollmentDataSelector(
                 createScheduledSubject(code = "CI3641", name = "LENGUAJES DE PROGRAMACION I", credits = 3),
                 createScheduledSubject(code = "CCX154", name = "MUJER Y DESARROLLO INTEGRAL", credits = 3)
         ),
-        period = DstPeriod("01-01-2020".parse("dd-MM-yyyy"), "01-03-2020".parse("dd-MM-yyyy")),
+        period = DstPeriod("01-01-2020".parse("dd-MM-yyyy")!!, "01-03-2020".parse("dd-MM-yyyy")!!),
         globalStatus = "",
         enrollmentStatus = ""
 )

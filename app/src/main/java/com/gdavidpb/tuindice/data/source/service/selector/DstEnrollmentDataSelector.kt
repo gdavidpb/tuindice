@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.service.selector
 
-import com.gdavidpb.tuindice.data.model.service.DstScheduledSubject
+import com.gdavidpb.tuindice.domain.model.service.DstScheduledSubject
 import com.gdavidpb.tuindice.data.source.service.converter.DstPeriodConverter
 import com.gdavidpb.tuindice.data.source.service.converter.DstScheduleConverter
 import com.gdavidpb.tuindice.domain.model.service.DstPeriod

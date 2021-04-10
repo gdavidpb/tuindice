@@ -8,44 +8,33 @@ import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.ScheduleEntry
 import com.gdavidpb.tuindice.domain.model.ScheduleSubject
 import com.gdavidpb.tuindice.domain.model.SignInResponse
+import com.gdavidpb.tuindice.domain.model.exception.ParseException
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
-import java.util.*
 
-fun DstPersonalDataSelector.toPersonalData() = selected
+fun DstPersonalDataSelector.toPersonalData() = selected ?: throw ParseException("toPersonalData")
 
 fun DstRecordDataSelector.toRecord() = selected?.run {
     DstRecord(stats = stats, quarters = quarters)
-}
+} ?: throw ParseException("toRecord")
 
 fun DstAuthResponseSelector.toAuthResponse(): SignInResponse {
-    val message = arrayOf(
-            invalidCredentialsMessage,
-            notEnrolledMessage,
-            expiredSessionMessage
-    ).firstOrNull {
-        it.isNotEmpty()
-    } ?: ""
-
-    val code = when {
-        invalidCredentialsMessage.isNotEmpty() -> AuthResponseCode.INVALID_CREDENTIALS
-        notEnrolledMessage.isNotEmpty() -> AuthResponseCode.NOT_ENROLLED
-        expiredSessionMessage.isNotEmpty() -> AuthResponseCode.SESSION_EXPIRED
-        else -> AuthResponseCode.SUCCESS
+    val (code, message) = when {
+        invalidCredentialsMessage.isNotEmpty() -> AuthResponseCode.INVALID_CREDENTIALS to invalidCredentialsMessage
+        notEnrolledMessage.isNotEmpty() -> AuthResponseCode.NOT_ENROLLED to notEnrolledMessage
+        expiredSessionMessage.isNotEmpty() -> AuthResponseCode.SESSION_EXPIRED to expiredSessionMessage
+        else -> AuthResponseCode.SUCCESS to ""
     }
 
     return SignInResponse(
-            isSuccessful = code == AuthResponseCode.SUCCESS || code == AuthResponseCode.NOT_ENROLLED,
+            isSuccessful = (code == AuthResponseCode.SUCCESS),
             code = code,
             message = message,
-            name = fullName.substringAfter(" | ")
+            fullName = fullName.substringAfter(" | ")
     )
 }
 
 fun DstEnrollmentDataSelector.toEnrollment(): DstEnrollment {
-    // TODO check defaultDate?
-    val defaultDate = Date(0)
-
     val schedule = schedule?.run {
         map {
             ScheduleSubject(
@@ -67,8 +56,8 @@ fun DstEnrollmentDataSelector.toEnrollment(): DstEnrollment {
     }
 
     return DstEnrollment(
-            startDate = period?.startDate ?: defaultDate,
-            endDate = period?.endDate ?: defaultDate,
+            startDate = period?.startDate ?: throw ParseException("toEnrollment"),
+            endDate = period?.endDate ?: throw ParseException("toEnrollment"),
             schedule = schedule ?: listOf(),
             globalStatus = globalStatus ?: "",
             enrollmentStatus = enrollmentStatus ?: ""

@@ -160,7 +160,7 @@ class LoginFragment : NavigationFragment() {
                 showLoading(true)
             }
             is Event.OnSuccess -> {
-                viewModel.trySyncAccount()
+                viewModel.syncAccount()
             }
             is Event.OnTimeout -> {
                 showLoading(false)
@@ -182,6 +182,8 @@ class LoginFragment : NavigationFragment() {
             }
             is Result.OnError -> {
                 showLoading(false)
+
+                defaultErrorSnackBar { onSignInClick() }
             }
         }
     }

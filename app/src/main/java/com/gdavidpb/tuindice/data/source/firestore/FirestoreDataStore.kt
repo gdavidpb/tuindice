@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.data.source.firestore
 
-import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.data.model.database.EvaluationUpdate
 import com.gdavidpb.tuindice.data.model.database.QuarterUpdate
 import com.gdavidpb.tuindice.data.model.database.SubjectUpdate
@@ -8,16 +7,60 @@ import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
-import com.gdavidpb.tuindice.domain.model.service.*
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.utils.*
+import com.gdavidpb.tuindice.utils.extensions.isUpdated
 import com.gdavidpb.tuindice.utils.mappers.*
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.tasks.await
+import java.util.concurrent.atomic.AtomicReference
 
 open class FirestoreDataStore(
         private val firestore: FirebaseFirestore
 ) : DatabaseRepository {
+
+    private val atomicBatch = AtomicReference<WriteBatch>(null)
+
+    private object MergeOptions {
+        val mergeAll = SetOptions.merge()
+
+        val noMergeQuarter = SetOptions.mergeFields(
+                QuarterCollection.USER_ID,
+                QuarterCollection.START_DATE,
+                QuarterCollection.END_DATE,
+                QuarterCollection.STATUS
+        )
+
+        val noMergeSubject = SetOptions.mergeFields(
+                SubjectCollection.USER_ID,
+                SubjectCollection.QUARTER_ID,
+                SubjectCollection.CODE,
+                SubjectCollection.NAME,
+                SubjectCollection.CREDITS
+        )
+    }
+
+    override suspend fun isUpdated(uid: String): Boolean {
+        return firestore
+                .collection(UserCollection.COLLECTION)
+                .document(uid)
+                .get(Source.CACHE)
+                .await()
+                .getTimestamp(UserCollection.LAST_UPDATE)
+                ?.toDate()
+                ?.isUpdated()
+                ?: false
+    }
+
+    override suspend fun addAccount(uid: String, account: Account) {
+        val entity = account.toAccountEntity()
+
+        firestore
+                .collection(UserCollection.COLLECTION)
+                .document(uid)
+                .let { document -> set(document, entity) }
+    }
+
     override suspend fun getAccount(uid: String): Account {
         return firestore
                 .collection(UserCollection.COLLECTION)
@@ -27,38 +70,34 @@ open class FirestoreDataStore(
                 .toAccount()
     }
 
-    override suspend fun syncAccount(uid: String, data: Collection<DstData>) {
+    override suspend fun addQuarter(uid: String, quarter: Quarter): Quarter {
+        val quarterEntity = quarter.toQuarterEntity(uid)
+        val (quarterSetOptions, subjectSetOptions) = computeQuarterMerges(quarter)
+
         firestore
-                .collection(UserCollection.COLLECTION)
-                .document(uid)
-                .get(Source.SERVER)
-                .await()
+                .collection(QuarterCollection.COLLECTION)
+                .document(quarter.id)
+                .let { document -> set(document, quarterEntity, quarterSetOptions) }
 
-        arrayOf(
-                QuarterCollection.COLLECTION,
-                SubjectCollection.COLLECTION,
-                EvaluationCollection.COLLECTION
-        ).forEach { collection ->
+        quarter.subjects.forEach { subject ->
+            val subjectEntity = subject.toSubjectEntity(uid = uid)
+
             firestore
-                    .collection(collection)
-                    .whereEqualTo(UserCollection.USER_ID, uid)
-                    .get(Source.SERVER)
-                    .await()
+                    .collection(SubjectCollection.COLLECTION)
+                    .document(subject.id)
+                    .let { document -> set(document, subjectEntity, subjectSetOptions) }
         }
 
-        val batch = firestore.batch()
+        return quarter
+    }
 
-        batch.updateLastUpdate(uid)
-
-        data.forEach { entry ->
-            when (entry) {
-                is DstPersonal -> batch.updatePersonalData(uid, entry)
-                is DstRecord -> batch.updateRecordData(uid, entry)
-                is DstEnrollment -> batch.updateEnrollmentData(uid, entry)
-            }
-        }
-
-        batch.commit().await()
+    override suspend fun getQuarter(uid: String, qid: String): Quarter {
+        return firestore
+                .collection(QuarterCollection.COLLECTION)
+                .document(qid)
+                .get(Source.CACHE)
+                .await()
+                .toQuarter(subjects = getQuarterSubjects(uid = uid, qid = qid))
     }
 
     override suspend fun getQuarters(uid: String): List<Quarter> {
@@ -84,17 +123,6 @@ open class FirestoreDataStore(
         }
     }
 
-    override suspend fun getQuarter(uid: String, qid: String): Quarter {
-        val quarterRef = firestore
-                .collection(QuarterCollection.COLLECTION)
-                .document(qid)
-
-        return quarterRef
-                .get(Source.CACHE)
-                .await()
-                .toQuarter(subjects = getQuarterSubjects(uid = uid, qid = qid))
-    }
-
     override suspend fun getCurrentQuarter(uid: String): Quarter? {
         return firestore
                 .collection(QuarterCollection.COLLECTION)
@@ -108,13 +136,10 @@ open class FirestoreDataStore(
     }
 
     override suspend fun updateQuarter(uid: String, qid: String, update: QuarterUpdate): Quarter {
-        val quarterRef = firestore
+        return firestore
                 .collection(QuarterCollection.COLLECTION)
                 .document(qid)
-
-        quarterRef.set(update, SetOptions.merge())
-
-        return quarterRef
+                .apply { set(update, SetOptions.merge()) }
                 .get(Source.CACHE)
                 .await()
                 .toQuarter(subjects = getQuarterSubjects(uid = uid, qid = qid))
@@ -124,7 +149,7 @@ open class FirestoreDataStore(
         firestore
                 .collection(QuarterCollection.COLLECTION)
                 .document(qid)
-                .delete()
+                .let { document -> delete(document) }
     }
 
     override suspend fun getSubject(uid: String, sid: String): Subject {
@@ -147,25 +172,13 @@ open class FirestoreDataStore(
     }
 
     override suspend fun updateSubject(uid: String, sid: String, update: SubjectUpdate): Subject {
-        val subjectRef = firestore
+        return firestore
                 .collection(SubjectCollection.COLLECTION)
                 .document(sid)
-
-        subjectRef.set(update, SetOptions.merge())
-
-        return subjectRef
+                .apply { set(update, SetOptions.merge()) }
                 .get(Source.CACHE)
                 .await()
                 .toSubject()
-    }
-
-    override suspend fun getEvaluation(uid: String, eid: String): Evaluation {
-        return firestore
-                .collection(EvaluationCollection.COLLECTION)
-                .document(eid)
-                .get(Source.CACHE)
-                .await()
-                .toEvaluation()
     }
 
     override suspend fun addEvaluation(uid: String, evaluation: Evaluation): Evaluation {
@@ -175,30 +188,19 @@ open class FirestoreDataStore(
                 .collection(EvaluationCollection.COLLECTION)
                 .document()
                 .let { document ->
-                    document.set(entity)
+                    set(document, entity)
 
                     evaluation.copy(id = document.id)
                 }
     }
 
-    override suspend fun updateEvaluation(uid: String, eid: String, update: EvaluationUpdate): Evaluation {
-        val evaluationRef = firestore
+    override suspend fun getEvaluation(uid: String, eid: String): Evaluation {
+        return firestore
                 .collection(EvaluationCollection.COLLECTION)
                 .document(eid)
-
-        evaluationRef.set(update, SetOptions.merge())
-
-        return evaluationRef
                 .get(Source.CACHE)
                 .await()
                 .toEvaluation()
-    }
-
-    override suspend fun removeEvaluation(uid: String, eid: String) {
-        firestore
-                .collection(EvaluationCollection.COLLECTION)
-                .document(eid)
-                .delete()
     }
 
     override suspend fun getSubjectEvaluations(uid: String, sid: String): List<Evaluation> {
@@ -211,27 +213,60 @@ open class FirestoreDataStore(
                 .map { it.toEvaluation() }
     }
 
+    override suspend fun updateEvaluation(uid: String, eid: String, update: EvaluationUpdate): Evaluation {
+        return firestore
+                .collection(EvaluationCollection.COLLECTION)
+                .document(eid)
+                .apply { set(update, SetOptions.merge()) }
+                .get(Source.CACHE)
+                .await()
+                .toEvaluation()
+    }
+
+    override suspend fun removeEvaluation(uid: String, eid: String) {
+        firestore
+                .collection(EvaluationCollection.COLLECTION)
+                .document(eid)
+                .let { document -> delete(document) }
+    }
+
     override suspend fun setToken(uid: String, token: String) {
-        val userRef = firestore
+        firestore
                 .collection(UserCollection.COLLECTION)
                 .document(uid)
-
-        val values = mapOf(
-                UserCollection.TOKEN to token
-        )
-
-        userRef.set(values, SetOptions.merge())
+                .let { document -> set(document, mapOf(UserCollection.TOKEN to token)) }
     }
 
-    override suspend fun setAuthData(uid: String, data: DstAuth) {
-        val userRef = firestore
+    override suspend fun runBatch(batch: suspend DatabaseRepository.() -> Unit) {
+        val isReady = atomicBatch.compareAndSet(null, firestore.batch())
+
+        if (isReady) {
+            batch()
+            atomicBatch.getAndSet(null).commit().await()
+        }
+    }
+
+    override suspend fun cache(uid: String) {
+        firestore
                 .collection(UserCollection.COLLECTION)
                 .document(uid)
+                .get(Source.SERVER)
+                .await()
 
-        userRef.set(data, SetOptions.merge()).await()
+        arrayOf(
+                QuarterCollection.COLLECTION,
+                SubjectCollection.COLLECTION,
+                EvaluationCollection.COLLECTION
+        ).forEach { collection ->
+            firestore
+                    .collection(collection)
+                    .whereEqualTo(UserCollection.USER_ID, uid)
+                    .get(Source.SERVER)
+                    .await()
+        }
     }
 
-    override suspend fun clearPersistence() {
+    override suspend fun clearCache() {
         firestore.clearPersistence().await()
     }
 
@@ -239,95 +274,36 @@ open class FirestoreDataStore(
         firestore.terminate().await()
     }
 
-    private fun WriteBatch.updateLastUpdate(uid: String) {
-        val userRef = firestore
-                .collection(UserCollection.COLLECTION)
-                .document(uid)
-
-        val values = mapOf(
-                UserCollection.LAST_UPDATE to FieldValue.serverTimestamp(),
-                UserCollection.APP_VERSION_CODE to BuildConfig.VERSION_CODE
-        )
-
-        set(userRef, values, SetOptions.merge())
+    private fun set(documentRef: DocumentReference, data: Any, options: SetOptions = SetOptions.merge()) {
+        atomicBatch.get()
+                ?.apply { set(documentRef, data, options) }
+                ?: documentRef.set(data, options)
     }
 
-    private fun WriteBatch.updatePersonalData(uid: String, data: DstPersonal) {
-        val userRef = firestore
-                .collection(UserCollection.COLLECTION)
-                .document(uid)
-
-        set(userRef, data, SetOptions.merge())
+    private fun delete(documentRef: DocumentReference) {
+        atomicBatch.get()
+                ?.apply { delete(documentRef) }
+                ?: documentRef.delete()
     }
 
-    private fun WriteBatch.updateRecordData(uid: String, data: DstRecord) {
-        val userRef = firestore
-                .collection(UserCollection.COLLECTION)
-                .document(uid)
+    private suspend fun computeQuarterMerges(quarter: Quarter): Pair<SetOptions, SetOptions> {
+        val isFinished = (quarter.status == STATUS_QUARTER_COMPLETED) || (quarter.status == STATUS_QUARTER_RETIRED)
 
-        set(userRef, data.stats, SetOptions.merge())
-
-        data.quarters.forEach { dstQuarter ->
-            val quarter = dstQuarter.toQuarterEntity(uid)
-
-            val quarterId = quarter.generateId()
-
-            val quarterRef = firestore
+        return if (isFinished) {
+            MergeOptions.mergeAll to MergeOptions.mergeAll
+        } else {
+            val snapshot = firestore
                     .collection(QuarterCollection.COLLECTION)
-                    .document(quarterId)
+                    .document(quarter.id)
+                    .get(Source.SERVER)
+                    .await()
 
-            set(quarterRef, quarter, SetOptions.merge())
+            val exists = snapshot.exists()
 
-            dstQuarter.subjects.forEach { dstSubject ->
-                val subject = dstSubject.toSubjectEntity(uid = uid, qid = quarterId)
+            val quarterSetOptions = if (exists) MergeOptions.noMergeQuarter else MergeOptions.mergeAll
+            val subjectSetOptions = if (exists) MergeOptions.noMergeSubject else MergeOptions.mergeAll
 
-                val subjectId = subject.generateId()
-
-                val subjectRef = firestore
-                        .collection(SubjectCollection.COLLECTION)
-                        .document(subjectId)
-
-                set(subjectRef, subject, SetOptions.merge())
-            }
-        }
-    }
-
-    private fun WriteBatch.updateEnrollmentData(uid: String, data: DstEnrollment) {
-        val quarter = data.toQuarterEntity(uid)
-
-        val quarterId = quarter.generateId()
-
-        val quarterRef = firestore
-                .collection(QuarterCollection.COLLECTION)
-                .document(quarterId)
-
-        val quarterValues = mapOf(
-                QuarterCollection.USER_ID to quarter.userId,
-                QuarterCollection.START_DATE to quarter.startDate,
-                QuarterCollection.END_DATE to quarter.endDate,
-                QuarterCollection.STATUS to quarter.status
-        )
-
-        set(quarterRef, quarterValues, SetOptions.merge())
-
-        data.schedule.forEach { scheduleSubject ->
-            val subject = scheduleSubject.toSubjectEntity(uid = uid, qid = quarterId)
-
-            val subjectId = subject.generateId()
-
-            val subjectRef = firestore
-                    .collection(SubjectCollection.COLLECTION)
-                    .document(subjectId)
-
-            val subjectValues = mapOf(
-                    SubjectCollection.USER_ID to subject.userId,
-                    SubjectCollection.QUARTER_ID to subject.quarterId,
-                    SubjectCollection.CODE to subject.code,
-                    SubjectCollection.NAME to subject.name,
-                    SubjectCollection.CREDITS to subject.credits
-            )
-
-            set(subjectRef, subjectValues, SetOptions.merge())
+            quarterSetOptions to subjectSetOptions
         }
     }
 }

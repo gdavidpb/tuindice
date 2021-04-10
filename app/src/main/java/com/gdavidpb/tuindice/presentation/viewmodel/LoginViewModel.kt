@@ -30,6 +30,6 @@ class LoginViewModel(
         execute(useCase = signInUseCase, params = request, liveData = signIn)
     }
 
-    fun trySyncAccount() =
+    fun syncAccount() =
             execute(useCase = syncAccountUseCase, params = Unit, liveData = sync)
 }

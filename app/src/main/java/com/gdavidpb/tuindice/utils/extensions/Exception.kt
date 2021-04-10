@@ -34,7 +34,7 @@ fun Throwable?.isInvalidCredentials() = when (this) {
 }
 
 fun Throwable?.isUserNotFound() = when (this) {
-    is FirebaseAuthInvalidUserException -> errorCode == "ERROR_USER_NOT_FOUND"
+    is FirebaseAuthInvalidUserException -> (errorCode == "ERROR_USER_NOT_FOUND")
     else -> false
 }
 

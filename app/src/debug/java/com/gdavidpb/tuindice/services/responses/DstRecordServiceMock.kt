@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.utils.mappers.formatSubjectStatusDescription
 
 val defaultPersonalResponse = DstPersonalDataSelector(
         selected = DstPersonal(
-                usbId = "11-11111",
+                usbId = "1111111",
                 id = "0",
                 firstNames = "Luis Pedro",
                 lastNames = "Pérez Martínez",

@@ -5,8 +5,8 @@ object UserCollection {
     const val COLLECTION = "users"
 
     /* Fields */
-    const val ID = "id"
     const val USER_ID = "userId"
+    const val ID = "id"
     const val USB_ID = "usbId"
     const val TOKEN = "token"
     const val EMAIL = "email"
@@ -25,6 +25,7 @@ object UserCollection {
     const val APPROVED_SUBJECT = "approvedSubjects"
     const val ENROLLED_CREDITS = "enrolledCredits"
     const val ENROLLED_SUBJECTS = "enrolledSubjects"
+    const val APPROVED_RELATION = "approvedRelation"
     const val LAST_UPDATE = "lastUpdate"
     const val APP_VERSION_CODE = "appVersionCode"
 }

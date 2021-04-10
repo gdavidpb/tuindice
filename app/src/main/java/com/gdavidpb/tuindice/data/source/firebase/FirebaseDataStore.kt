@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.source.firebase
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Auth
-import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
+import com.gdavidpb.tuindice.domain.model.exception.UnauthenticatedException
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.utils.extensions.mode
 import com.gdavidpb.tuindice.utils.mappers.toAuth
@@ -20,7 +20,7 @@ open class FirebaseDataStore(
     override suspend fun getActiveAuth(): Auth {
         return auth.currentUser
                 ?.toAuth()
-                ?: throw NoAuthenticatedException()
+                ?: throw UnauthenticatedException()
     }
 
     override suspend fun signUp(email: String, password: String): Auth {
@@ -28,7 +28,7 @@ open class FirebaseDataStore(
                 .await()
                 .user
                 ?.toAuth()
-                ?: throw NoAuthenticatedException()
+                ?: throw UnauthenticatedException()
     }
 
     override suspend fun signIn(email: String, password: String): Auth {
@@ -36,7 +36,7 @@ open class FirebaseDataStore(
                 .await()
                 .user
                 ?.toAuth()
-                ?: throw NoAuthenticatedException()
+                ?: throw UnauthenticatedException()
     }
 
     override suspend fun signOut() {
@@ -59,7 +59,7 @@ open class FirebaseDataStore(
     override suspend fun sendVerificationEmail() {
         val continueUrl = BuildConfig.URL_SIGN.format("test")
 
-        val currentUser = auth.currentUser ?: throw NoAuthenticatedException()
+        val currentUser = auth.currentUser ?: throw UnauthenticatedException()
 
         val actionCodeSettings = ActionCodeSettings
                 .newBuilder()
@@ -80,11 +80,11 @@ open class FirebaseDataStore(
     }
 
     override suspend fun isEmailVerified(): Boolean {
-        val outdatedUser = auth.currentUser ?: throw NoAuthenticatedException()
+        val outdatedUser = auth.currentUser ?: throw UnauthenticatedException()
 
         outdatedUser.reload().await()
 
-        val updatedUser = auth.currentUser ?: throw NoAuthenticatedException()
+        val updatedUser = auth.currentUser ?: throw UnauthenticatedException()
 
         return updatedUser.isEmailVerified
     }

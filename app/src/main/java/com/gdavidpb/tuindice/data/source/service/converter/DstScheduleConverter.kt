@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.service.converter
 
-import com.gdavidpb.tuindice.data.model.service.DstScheduleEntry
-import com.gdavidpb.tuindice.data.model.service.DstScheduledSubject
+import com.gdavidpb.tuindice.domain.model.service.DstScheduleEntry
+import com.gdavidpb.tuindice.domain.model.service.DstScheduledSubject
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector

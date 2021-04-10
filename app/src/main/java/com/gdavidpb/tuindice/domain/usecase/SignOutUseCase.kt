@@ -15,7 +15,7 @@ open class SignOutUseCase(
         authRepository.signOut()
         settingsRepository.clear()
         databaseRepository.close()
-        databaseRepository.clearPersistence()
+        databaseRepository.clearCache()
         storageRepository.clear()
         dependenciesRepository.restart()
     }

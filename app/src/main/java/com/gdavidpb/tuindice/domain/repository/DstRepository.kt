@@ -8,9 +8,9 @@ import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import okhttp3.ResponseBody
 
 interface DstRepository {
-    suspend fun getPersonalData(): DstPersonal?
-    suspend fun getRecordData(): DstRecord?
-    suspend fun getEnrollment(): DstEnrollment?
+    suspend fun getPersonalData(): DstPersonal
+    suspend fun getRecordData(): DstRecord
+    suspend fun getEnrollment(): DstEnrollment
     suspend fun getEnrollmentProof(): ResponseBody
 
     suspend fun signIn(request: SignInRequest): SignInResponse

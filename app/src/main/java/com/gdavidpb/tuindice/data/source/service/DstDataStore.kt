@@ -21,42 +21,42 @@ open class DstDataStore(
         private val recordService: DstRecordService,
         private val enrollmentService: DstEnrollmentService
 ) : DstRepository {
-    override suspend fun getPersonalData(): DstPersonal? {
+    override suspend fun getPersonalData(): DstPersonal {
         return recordService.getPersonalData()
                 .getOrThrow()
                 .toPersonalData()
     }
 
-    override suspend fun getRecordData(): DstRecord? {
+    override suspend fun getRecordData(): DstRecord {
         return recordService.getRecordData()
                 .getOrThrow()
                 .toRecord()
     }
 
-    // TODO check getOrThrow()
-    override suspend fun getEnrollment(): DstEnrollment? {
-        return runCatching {
-            enrollmentService.getEnrollment().body()
-        }.getOrNull()?.toEnrollment()
+    override suspend fun getEnrollment(): DstEnrollment {
+        return enrollmentService.getEnrollment()
+                .getOrThrow()
+                .toEnrollment()
     }
 
     override suspend fun getEnrollmentProof(): ResponseBody {
         return enrollmentService.getEnrollmentProof()
                 .getOrThrow()
                 .also { response ->
-                    val isOK = "${response.contentType()}" == "application/pdf"
-
-                    if (!isOK) throw StreamCorruptedException()
+                    check("${response.contentType()}" == "application/pdf") {
+                        throw StreamCorruptedException()
+                    }
                 }
     }
 
     override suspend fun signIn(request: SignInRequest): SignInResponse {
         return authService.auth(request.serviceUrl, request.usbId, request.password)
                 .getOrThrow()
-                .toAuthResponse().also { response ->
-                    val isOK = response.code == AuthResponseCode.SUCCESS || response.code == AuthResponseCode.NOT_ENROLLED
-
-                    if (!isOK) throw AuthenticationException(code = response.code, message = response.message)
+                .toAuthResponse()
+                .also { response ->
+                    check((response.code == AuthResponseCode.SUCCESS) || (response.code == AuthResponseCode.NOT_ENROLLED)) {
+                        throw AuthenticationException(code = response.code, message = response.message)
+                    }
                 }
     }
 }

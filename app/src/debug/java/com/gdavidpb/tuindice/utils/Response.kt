@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.utils
 
-import com.gdavidpb.tuindice.data.model.service.DstScheduledSubject
+import com.gdavidpb.tuindice.domain.model.service.DstScheduledSubject
 import com.gdavidpb.tuindice.domain.model.service.DstQuarter
 import com.gdavidpb.tuindice.domain.model.service.DstSubject
 import java.util.*

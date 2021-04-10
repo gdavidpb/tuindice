@@ -1,8 +1,9 @@
 package com.gdavidpb.tuindice.utils.extensions
 
-import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.domain.model.ScheduleSubject
 import com.gdavidpb.tuindice.domain.model.Subject
+import com.gdavidpb.tuindice.domain.model.service.DstSubject
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_COMPLETED
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_OK
@@ -32,15 +33,26 @@ fun Collection<Subject>.filterNoEffect(): Collection<Subject> {
         this
 }
 
-fun Account.isUpdated(): Boolean {
+fun Date.isUpdated(): Boolean {
     val now = Date()
-    val outdated = lastUpdate.tomorrow()
+    val outdated = tomorrow()
 
     return now.before(outdated)
 }
 
+@JvmName("subjectsComputeCredits")
 fun Collection<Subject>.computeCredits() = sumBy {
     if (it.grade != 0) it.credits else 0
+}
+
+@JvmName("dstSubjectsComputeCredits")
+fun Collection<DstSubject>.computeCredits() = sumBy {
+    if (it.grade != 0) it.credits else 0
+}
+
+@JvmName("scheduleSubjectsComputeCredits")
+fun Collection<ScheduleSubject>.computeCredits() = sumBy {
+    if (it.status.isEmpty()) it.credits else 0
 }
 
 fun Collection<Subject>.computeGrade(): Double {

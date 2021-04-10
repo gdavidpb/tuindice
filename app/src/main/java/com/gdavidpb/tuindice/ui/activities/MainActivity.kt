@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.ui.dialogs.dataFailureDialog
 import com.gdavidpb.tuindice.ui.dialogs.disabledFailureDialog
 import com.gdavidpb.tuindice.ui.dialogs.fatalFailureRestart
 import com.gdavidpb.tuindice.utils.IdempotentLocker
@@ -136,9 +135,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun syncErrorHandler(error: SyncError?) {
         when (error) {
-            is SyncError.NoAuthenticated -> fatalFailureRestart()
-            is SyncError.NoDataAvailable -> dataFailureDialog()
+            is SyncError.Unauthenticated -> fatalFailureRestart()
             is SyncError.AccountDisabled -> disabledFailureDialog()
+            is SyncError.InvalidCredentials -> TODO("Your credentials has changed.")
         }
     }
 }

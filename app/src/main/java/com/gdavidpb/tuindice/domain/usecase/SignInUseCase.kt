@@ -1,8 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.SignInResponse
-import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
@@ -18,8 +16,8 @@ import java.io.File
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 open class SignInUseCase(
         private val dstRepository: DstRepository,
-        private val storageRepository: StorageRepository<File>,
         private val databaseRepository: DatabaseRepository,
+        private val storageRepository: StorageRepository<File>,
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
         private val networkRepository: NetworkRepository
@@ -37,16 +35,16 @@ open class SignInUseCase(
         /* Try to sign in to Firebase */
         runCatching {
             authRepository.signIn(email = email, password = params.password)
-        }.onSuccess { activeAuth ->
-            storeAccount(auth = activeAuth, credentials = credentials, response = authResponse)
+        }.onSuccess {
+            handleSignInSuccess(credentials = credentials)
         }.onFailure { throwable ->
             val cause = throwable.cause
 
             when {
-                throwable.causes().isUserNotFound() -> {
-                    val activeAuth = authRepository.signUp(email = email, password = params.password)
+                cause.isUserNotFound() -> {
+                    authRepository.signUp(email = email, password = params.password)
 
-                    storeAccount(auth = activeAuth, credentials = credentials, response = authResponse)
+                    handleSignInSuccess(credentials = credentials)
                 }
                 cause.isInvalidCredentials() -> {
                     authRepository.sendPasswordResetEmail(email = email)
@@ -56,6 +54,11 @@ open class SignInUseCase(
                 else -> throw throwable
             }
         }
+
+        /* Cache database */
+        val activeAuth = authRepository.getActiveAuth()
+
+        databaseRepository.cache(uid = activeAuth.uid)
 
         return authResponse
     }
@@ -71,16 +74,8 @@ open class SignInUseCase(
         }
     }
 
-    private suspend fun storeAccount(auth: Auth, credentials: DstCredentials, response: SignInResponse) {
-        val authData = DstAuth(
-                usbId = credentials.usbId,
-                email = auth.email,
-                fullName = response.name
-        )
-
+    private suspend fun handleSignInSuccess(credentials: DstCredentials) {
         if (!authRepository.isEmailVerified()) authRepository.sendVerificationEmail()
-
-        databaseRepository.setAuthData(uid = auth.uid, data = authData)
 
         settingsRepository.storeCredentials(credentials = credentials)
     }

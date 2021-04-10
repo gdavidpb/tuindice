@@ -1,19 +1,18 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
-import com.gdavidpb.tuindice.domain.model.exception.NoDataException
+import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.domain.model.SignInResponse
+import com.gdavidpb.tuindice.domain.model.exception.UnauthenticatedException
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
-import com.gdavidpb.tuindice.domain.model.service.DstData
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.Paths
-import com.gdavidpb.tuindice.utils.extensions.causes
-import com.gdavidpb.tuindice.utils.extensions.isAccountDisabled
-import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
-import com.gdavidpb.tuindice.utils.extensions.isUpdated
+import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.mappers.buildAccount
+import com.gdavidpb.tuindice.utils.mappers.toQuarter
 import java.io.File
 
 open class SyncAccountUseCase(
@@ -24,81 +23,88 @@ open class SyncAccountUseCase(
         private val settingsRepository: SettingsRepository,
         private val networkRepository: NetworkRepository
 ) : ResultUseCase<Unit, Boolean, SyncError>() {
-    override suspend fun executeOnBackground(params: Unit): Boolean? {
-        val activeUId = authRepository.getActiveAuth().uid
-        val activeAccount = databaseRepository.getAccount(uid = activeUId)
-        val thereIsDataInCache = databaseRepository.getQuarters(uid = activeUId).isNotEmpty()
+    override suspend fun executeOnBackground(params: Unit): Boolean {
+        val activeAuth = authRepository.getActiveAuth()
+        val isUpdated = databaseRepository.isUpdated(uid = activeAuth.uid)
 
-        /* Check if account is up-to-date, return no update required */
-        if (activeAccount.isUpdated())
-            if (thereIsDataInCache)
-                return false
-            else
-                throw NoDataException()
-
-        /* Collected data */
-        val collectedData = mutableListOf<DstData>()
+        if (isUpdated) return false
 
         /* Get credentials */
         val credentials = settingsRepository.getCredentials()
 
         /* Record service auth */
-        collectedData.addRecordData(credentials)
+        val recordAuth = credentials.auth(serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH)
+
+        val personal = dstRepository.getPersonalData()
+        val record = dstRepository.getRecordData()
 
         /* Enrollment service auth */
-        collectedData.addEnrollmentData(credentials)
+        val enrollmentAuth = credentials.auth(serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH)
 
-        /* Should responses more than one service */
-        return (collectedData.size > 1).also { pendingUpdate ->
-            if (pendingUpdate) {
-                /* Sync account */
-                databaseRepository.syncAccount(uid = activeUId, data = collectedData)
+        val enrollment = if (enrollmentAuth.isSuccessful)
+            dstRepository.getEnrollment()
+        else
+            null
+
+        databaseRepository.runBatch {
+            /* Add account */
+            val account = buildAccount(
+                    auth = activeAuth,
+                    sigIn = recordAuth,
+                    personal = personal,
+                    record = record
+            )
+
+            addAccount(uid = activeAuth.uid, account = account)
+
+            val quarters = mutableListOf<Quarter>()
+
+            /* Add record quarters */
+            val recordQuarters = record.quarters.map { it.toQuarter(uid = activeAuth.uid) }
+
+            quarters.addAll(recordQuarters)
+
+            /* Add enrollment quarter */
+            if (enrollment != null) {
+                val enrollmentQuarter = enrollment.toQuarter(uid = activeAuth.uid)
+
+                quarters.add(enrollmentQuarter)
+
+                /* Compute gradeSum */
+                val gradeSum = quarters.computeGradeSum(until = enrollmentQuarter)
+
+                quarters.add(quarters.removeLast().copy(gradeSum = gradeSum))
+            }
+
+            quarters.forEach { quarter ->
+                addQuarter(uid = activeAuth.uid, quarter = quarter)
             }
         }
+
+        return true
     }
 
     override suspend fun executeOnException(throwable: Throwable): SyncError? {
         val causes = throwable.causes()
 
         return when {
-            throwable is NoAuthenticatedException -> SyncError.NoAuthenticated
-            throwable is NoDataException -> SyncError.NoDataAvailable
+            throwable is UnauthenticatedException -> SyncError.Unauthenticated
             causes.isAccountDisabled() -> SyncError.AccountDisabled
+            throwable.isInvalidCredentials() -> SyncError.InvalidCredentials
             throwable.isConnectionIssue() -> SyncError.NoConnection(networkRepository.isAvailable())
             else -> null
         }
     }
 
-    private suspend fun MutableList<DstData>.addRecordData(credentials: DstCredentials) {
+    private suspend fun DstCredentials.auth(serviceUrl: String): SignInResponse {
         storageRepository.delete(Paths.COOKIES)
 
-        val recordAuthRequest = SignInRequest(
-                usbId = credentials.usbId,
-                password = credentials.password,
-                serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH
+        val request = SignInRequest(
+                usbId = usbId,
+                password = password,
+                serviceUrl = serviceUrl
         )
 
-        val recordAuthResponse = dstRepository.signIn(recordAuthRequest)
-
-        if (recordAuthResponse.isSuccessful) {
-            dstRepository.getPersonalData()?.let(::add)
-            dstRepository.getRecordData()?.let(::add)
-        }
-    }
-
-    private suspend fun MutableList<DstData>.addEnrollmentData(credentials: DstCredentials) {
-        storageRepository.delete(Paths.COOKIES)
-
-        val enrollmentAuthRequest = SignInRequest(
-                usbId = credentials.usbId,
-                password = credentials.password,
-                serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH
-        )
-
-        val enrollmentAuthResponse = dstRepository.signIn(enrollmentAuthRequest)
-
-        if (enrollmentAuthResponse.isSuccessful) {
-            dstRepository.getEnrollment()?.let(::add)
-        }
+        return dstRepository.signIn(request)
     }
 }

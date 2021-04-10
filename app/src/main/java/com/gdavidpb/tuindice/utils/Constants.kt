@@ -72,6 +72,7 @@ val ROMANS = hashMapOf(
 const val TIME_EXIT_LOCKER = 2000L
 
 /* Values */
+const val MAX_QUARTER_GRADE = 5.0
 const val MAX_SUBJECT_GRADE = 5
 const val MAX_EVALUATION_GRADE = 100.0
 const val MAX_EVALUATION_NOTES = 128

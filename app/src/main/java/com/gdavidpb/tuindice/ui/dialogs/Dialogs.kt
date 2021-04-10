@@ -67,23 +67,6 @@ fun AppCompatActivity.disabledFailureDialog() {
     }
 }
 
-fun AppCompatActivity.dataFailureDialog() {
-    alert {
-        titleResource = R.string.alert_title_data_failure
-        messageResource = R.string.alert_message_data_failure
-
-        isCancelable = false
-
-        positiveButton(R.string.restart) {
-            fatalFailureRestart()
-        }
-
-        negativeButton(R.string.exit) {
-            finish()
-        }
-    }
-}
-
 fun AppCompatActivity.disabledAccountDialog() {
     clearApplicationUserData()
 

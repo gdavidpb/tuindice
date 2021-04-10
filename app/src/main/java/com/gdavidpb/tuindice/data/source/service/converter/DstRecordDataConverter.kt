@@ -37,7 +37,7 @@ open class DstRecordDataConverter : ElementConverter<DstRecord>, KoinComponent {
                     0, 0
             )
 
-            return DstRecord(stats)
+            return DstRecord(stats, listOf())
         }
 
         /* Select quarter tables, drop history */

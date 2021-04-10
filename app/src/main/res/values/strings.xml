@@ -62,11 +62,6 @@
         Este enlace está corrupto o ya fue usado, por favor solicita otro correo.
     </string>
 
-    <string name="alert_title_data_failure">¡Oops, lo sentimos!</string>
-    <string name="alert_message_data_failure">
-        Parece que algunos servicios de la universidad no están disponibles. Intenta ingresar más tarde.
-    </string>
-
     <string name="alert_title_no_services_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_no_services_failure">Parece que tu dispositivo  no dispone de Google Play Services ;(</string>
 

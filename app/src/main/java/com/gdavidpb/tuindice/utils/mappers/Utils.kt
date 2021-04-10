@@ -2,7 +2,8 @@ package com.gdavidpb.tuindice.utils.mappers
 
 import android.graphics.Color
 import com.gdavidpb.tuindice.domain.model.Auth
-import com.gdavidpb.tuindice.domain.model.exception.NoAuthenticatedException
+import com.gdavidpb.tuindice.domain.model.exception.ParseException
+import com.gdavidpb.tuindice.domain.model.exception.UnauthenticatedException
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.REF_BASE
@@ -19,7 +20,7 @@ fun SignInRequest.toDstCredentials() = DstCredentials(usbId = usbId, password = 
 
 fun FirebaseUser.toAuth() = Auth(
         uid = uid,
-        email = email ?: throw NoAuthenticatedException()
+        email = email ?: throw UnauthenticatedException()
 )
 
 infix fun Int.distanceTo(x: Int): Double {
@@ -33,7 +34,9 @@ infix fun Int.distanceTo(x: Int): Double {
 }
 
 fun String.toStartEndDate(refYear: Int): List<Date> {
-    val normalizedText = "\\w+\\s*-\\s*\\w+\\s*\\d{4}".toRegex().find(this)!!.value
+    val normalizedText = "\\w+\\s*-\\s*\\w+\\s*\\d{4}".toRegex().find(this)?.value
+
+    checkNotNull(normalizedText) { throw ParseException("toStartEndDate: $this") }
 
     val year = normalizedText.substringAfterLast(' ').trimAll().toIntOrNull() ?: 0
     val months = normalizedText.substringBeforeLast(' ').trimAll()
@@ -46,11 +49,16 @@ fun String.toStartEndDate(refYear: Int): List<Date> {
             }
 }
 
-fun String.toRefYear() = "^[^-]+".toRegex().find(this)!!.value.toInt() + REF_BASE
+fun String.toRefYear(): Int {
+    val yearText = "^[^-]+".toRegex().find(this)?.value
+
+    checkNotNull(yearText) { throw ParseException("toRefYear: $this") }
+
+    return yearText.toInt() + REF_BASE
+}
 
 private fun checkIntegrity(input: String, output: List<Date>, refYear: Int) {
-    if (output.size != 2)
-        throw IllegalArgumentException("toStartEndDate: '$input'")
+    check(output.size == 2) { throw ParseException("checkIntegrity: $input") }
 
     val startYear = output[0].get(Calendar.YEAR)
     val endYear = output[1].get(Calendar.YEAR)
@@ -64,8 +72,7 @@ private fun checkIntegrity(input: String, output: List<Date>, refYear: Int) {
     } else
         isInvalidDistance
 
-    if (isInvalid)
-        throw IllegalArgumentException("toStartEndDate: '$input'")
+    check(!isInvalid) { throw ParseException("checkIntegrity: $input") }
 }
 
 fun runCatchingIsSuccess(block: () -> Unit) = runCatching { block() }

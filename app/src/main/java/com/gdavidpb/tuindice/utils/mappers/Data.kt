@@ -1,39 +1,12 @@
 package com.gdavidpb.tuindice.utils.mappers
 
-import com.gdavidpb.tuindice.data.model.database.EvaluationEntity
-import com.gdavidpb.tuindice.data.model.database.QuarterEntity
-import com.gdavidpb.tuindice.data.model.database.SubjectEntity
 import com.gdavidpb.tuindice.domain.model.*
-import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
-import com.gdavidpb.tuindice.domain.model.service.DstQuarter
-import com.gdavidpb.tuindice.domain.model.service.DstSubject
 import com.gdavidpb.tuindice.utils.*
-import com.gdavidpb.tuindice.utils.extensions.base64
+import com.google.firebase.BuildConfig
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import java.util.*
-
-/* Identifiers generation */
-
-private val digestConcat = DigestConcat(algorithm = "SHA-256")
-
-fun QuarterEntity.generateId() = digestConcat
-        .concat(data = userId)
-        .concat(data = quarterTitle())
-        .build()
-        .base64()
-        .replace("[/+=\n]+".toRegex(), "")
-        .substring(userId.indices)
-
-fun SubjectEntity.generateId() = digestConcat
-        .concat(data = quarterId)
-        .concat(data = code)
-        .build()
-        .base64()
-        .replace("[/+=\n]+".toRegex(), "")
-        .substring(userId.indices)
-
-/* Read from database */
 
 fun DocumentSnapshot.toAccount() = Account(
         uid = id,
@@ -55,6 +28,7 @@ fun DocumentSnapshot.toAccount() = Account(
         retiredCredits = getLong(UserCollection.RETIRED_CREDITS)?.toInt() ?: 0,
         failedSubjects = getLong(UserCollection.FAILED_SUBJECTS)?.toInt() ?: 0,
         failedCredits = getLong(UserCollection.FAILED_CREDITS)?.toInt() ?: 0,
+        approvedRelation = getDouble(UserCollection.APPROVED_RELATION) ?: 0.0,
         lastUpdate = getDate(UserCollection.LAST_UPDATE) ?: Date(0),
         appVersionCode = getLong(UserCollection.APP_VERSION_CODE)?.toInt() ?: 0
 )
@@ -98,59 +72,58 @@ fun DocumentSnapshot.toEvaluation() = Evaluation(
         isDone = getBoolean(EvaluationCollection.DONE) ?: false
 )
 
-/* Write to database */
-
-fun DstEnrollment.toQuarterEntity(uid: String) = QuarterEntity(
-        userId = uid,
-        startDate = Timestamp(startDate),
-        endDate = Timestamp(endDate),
-        grade = 0.0,
-        gradeSum = 0.0,
-        credits = 0,
-        status = STATUS_QUARTER_CURRENT
+fun Account.toAccountEntity() = mapOf(
+        UserCollection.ID to id,
+        UserCollection.USB_ID to usbId,
+        UserCollection.EMAIL to email,
+        UserCollection.FULL_NAME to fullName,
+        UserCollection.FIRST_NAMES to firstNames,
+        UserCollection.LAST_NAMES to lastNames,
+        UserCollection.CAREER_NAME to careerName,
+        UserCollection.CAREER_CODE to careerCode,
+        UserCollection.SCHOLARSHIP to scholarship,
+        UserCollection.GRADE to grade,
+        UserCollection.ENROLLED_SUBJECTS to enrolledSubjects,
+        UserCollection.ENROLLED_CREDITS to enrolledCredits,
+        UserCollection.APPROVED_SUBJECT to approvedSubjects,
+        UserCollection.APPROVED_CREDITS to approvedCredits,
+        UserCollection.RETIRED_SUBJECTS to retiredSubjects,
+        UserCollection.RETIRED_CREDITS to retiredCredits,
+        UserCollection.FAILED_SUBJECTS to failedSubjects,
+        UserCollection.FAILED_CREDITS to failedCredits,
+        UserCollection.APPROVED_RELATION to approvedCredits.toDouble() / enrolledCredits.toDouble(),
+        UserCollection.LAST_UPDATE to FieldValue.serverTimestamp(),
+        UserCollection.APP_VERSION_CODE to BuildConfig.VERSION_CODE
 )
 
-fun ScheduleSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
-        userId = uid,
-        quarterId = qid,
-        code = code,
-        name = name,
-        credits = credits,
-        grade = MAX_SUBJECT_GRADE,
-        status = STATUS_SUBJECT_OK
+fun Quarter.toQuarterEntity(uid: String) = mapOf(
+        QuarterCollection.USER_ID to uid,
+        QuarterCollection.START_DATE to Timestamp(startDate),
+        QuarterCollection.END_DATE to Timestamp(endDate),
+        QuarterCollection.GRADE to grade,
+        QuarterCollection.GRADE_SUM to gradeSum,
+        QuarterCollection.CREDITS to credits,
+        QuarterCollection.STATUS to status
 )
 
-fun QuarterEntity.quarterTitle() = (startDate.toDate() to endDate.toDate())
-        .formatQuarterTitle()
-
-fun DstQuarter.toQuarterEntity(uid: String) = QuarterEntity(
-        userId = uid,
-        startDate = Timestamp(startDate),
-        endDate = Timestamp(endDate),
-        grade = grade,
-        gradeSum = gradeSum,
-        credits = subjects.sumBy { it.credits },
-        status = status
+fun Subject.toSubjectEntity(uid: String) = mapOf(
+        SubjectCollection.USER_ID to uid,
+        SubjectCollection.QUARTER_ID to qid,
+        SubjectCollection.CODE to code,
+        SubjectCollection.NAME to name,
+        SubjectCollection.CREDITS to credits,
+        SubjectCollection.GRADE to grade,
+        SubjectCollection.STATUS to status
 )
 
-fun DstSubject.toSubjectEntity(uid: String, qid: String) = SubjectEntity(
-        userId = uid,
-        quarterId = qid,
-        code = code,
-        name = name,
-        credits = credits,
-        grade = grade,
-        status = status.formatSubjectStatusValue()
-)
-
-fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
-        userId = uid,
-        subjectId = sid,
-        subjectCode = subjectCode,
-        type = type.ordinal,
-        grade = grade,
-        maxGrade = maxGrade,
-        date = Timestamp(date),
-        notes = notes.trim().take(MAX_EVALUATION_NOTES),
-        isDone = isDone
+fun Evaluation.toEvaluationEntity(uid: String) = mapOf(
+        EvaluationCollection.USER_ID to uid,
+        EvaluationCollection.SUBJECT_ID to sid,
+        EvaluationCollection.SUBJECT_CODE to subjectCode,
+        EvaluationCollection.TYPE to type.ordinal,
+        EvaluationCollection.GRADE to grade,
+        EvaluationCollection.MAX_GRADE to maxGrade,
+        EvaluationCollection.DATE to Timestamp(date),
+        EvaluationCollection.NOTES to notes.trim().take(MAX_EVALUATION_NOTES),
+        EvaluationCollection.DONE to isDone,
 )

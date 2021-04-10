@@ -4,5 +4,5 @@ data class SignInResponse(
         val isSuccessful: Boolean,
         val code: AuthResponseCode,
         val message: String,
-        val name: String
+        val fullName: String
 )

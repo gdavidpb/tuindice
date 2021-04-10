@@ -9,4 +9,4 @@ data class DstEnrollment(
         val schedule: List<ScheduleSubject> = listOf(),
         val globalStatus: String,
         val enrollmentStatus: String
-) : DstData
+)
