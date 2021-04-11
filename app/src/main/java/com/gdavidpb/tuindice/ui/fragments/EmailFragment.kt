@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
@@ -32,15 +33,6 @@ class EmailFragment : NavigationFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        with(viewModel) {
-            observe(countdown, ::countdownObserver)
-            observe(signOut, ::signOutObserver)
-            observe(verificationEmail, ::sendEmailVerificationObserver)
-            observe(resetPasswordEmail, ::resetPasswordObserver)
-
-            startCountdown(time = countdownTime)
-        }
-
         /* Logo animation */
         iViewLogo.animateZoomInOut()
 
@@ -60,6 +52,19 @@ class EmailFragment : NavigationFragment() {
 
         btnResend.onClickOnce(::onResendClick)
         btnReset.onClickOnce(::onResetClick)
+
+        viewModel.startCountdown(time = countdownTime)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        with(viewModel) {
+            observe(countdown, ::countdownObserver)
+            observe(signOut, ::signOutObserver)
+            observe(verificationEmail, ::sendEmailVerificationObserver)
+            observe(resetPasswordEmail, ::resetPasswordObserver)
+        }
     }
 
     private fun onResendClick() {

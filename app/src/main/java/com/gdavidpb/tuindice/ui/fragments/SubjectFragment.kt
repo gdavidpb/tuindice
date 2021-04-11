@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -68,16 +69,22 @@ class SubjectFragment : NavigationFragment() {
         btnAddEvaluation.onClickOnce(::onAddEvaluationClicked)
 
         with(viewModel) {
-            quarterUpdate.value = null
-            evaluationUpdate.value = null
+            quarterUpdate.value = null // TODO check
+            evaluationUpdate.value = null // TODO check
 
+            getSubject(sid = args.subjectId)
+            getSubjectEvaluations(sid = args.subjectId)
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        with(viewModel) {
             observe(subject, ::subjectObserver)
             observe(evaluations, ::evaluationsObserver)
             observe(quarterUpdate, ::quarterObserver)
             observe(evaluationUpdate, ::evaluationObserver)
-
-            getSubject(sid = args.subjectId)
-            getSubjectEvaluations(sid = args.subjectId)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -54,10 +55,6 @@ class EvaluationFragment : NavigationFragment() {
         initListeners()
 
         with(viewModel) {
-            observe(subject, ::subjectObserver)
-            observe(evaluation, ::evaluationObserver)
-            observe(add, ::addEvaluationObserver)
-
             getSubject(sid = args.subjectId)
 
             val evaluationId = args.evaluationId
@@ -66,6 +63,16 @@ class EvaluationFragment : NavigationFragment() {
                 getEvaluation(eid = evaluationId)
             else
                 initEvaluation(evaluation = null)
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        with(viewModel) {
+            observe(subject, ::subjectObserver)
+            observe(evaluation, ::evaluationObserver)
+            observe(add, ::addEvaluationObserver)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -28,13 +29,14 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.dialog_progress.view.*
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 
 class RecordFragment : NavigationFragment() {
 
     private val mainViewModel by sharedViewModel<MainViewModel>()
 
-    private val viewModel by sharedViewModel<RecordViewModel>()
+    private val viewModel by viewModel<RecordViewModel>()
 
     private val quarterManager = QuarterManager()
 
@@ -81,6 +83,12 @@ class RecordFragment : NavigationFragment() {
 
         // btnAddQuarter.onClickOnce(::onAddQuarterClicked)
 
+        viewModel.getQuarters()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
         with(mainViewModel) {
             observe(sync, ::syncObserver)
         }
@@ -89,8 +97,6 @@ class RecordFragment : NavigationFragment() {
             observe(quarters, ::quartersObserver)
             observe(enrollment, ::enrollmentObserver)
             observe(quarterUpdate, ::quarterObserver)
-
-            getQuarters()
         }
     }
 

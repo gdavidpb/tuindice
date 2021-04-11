@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -56,6 +57,15 @@ class SummaryFragment : NavigationFragment() {
 
         vProfilePicture.onClickOnce(::onEditProfilePictureClick)
 
+        with(viewModel) {
+            getProfile()
+            getProfilePicture()
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
         with(mainViewModel) {
             observe(sync, ::syncObserver)
         }
@@ -70,9 +80,6 @@ class SummaryFragment : NavigationFragment() {
             observe(loadProfilePicture, ::loadProfilePictureObserver)
             observe(updateProfilePicture, ::updateProfilePictureObserver)
             observe(removeProfilePicture, ::removeProfilePictureObserver)
-
-            getProfile()
-            getProfilePicture()
         }
     }
 
