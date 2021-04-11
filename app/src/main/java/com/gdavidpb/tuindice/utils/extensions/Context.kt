@@ -8,15 +8,16 @@ import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
-import android.util.TypedValue
 import android.widget.Toast
-import androidx.annotation.*
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.PreferenceManager
-import androidx.security.crypto.EncryptedFile
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.gdavidpb.tuindice.BuildConfig
@@ -67,18 +68,6 @@ fun Context.versionName(): String {
             getString(environmentRes),
             BuildConfig.VERSION_NAME,
             BuildConfig.VERSION_CODE)
-}
-
-fun Context.getFloat(@FractionRes resId: Int): Float = TypedValue().let { outValue ->
-    resources.getValue(resId, outValue, true)
-
-    outValue.float
-}
-
-fun Context.getInt(@IntegerRes resId: Int): Int = TypedValue().let { outValue ->
-    resources.getValue(resId, outValue, true)
-
-    outValue.data
 }
 
 fun Context.getCompatColor(@ColorRes colorRes: Int): Int = ContextCompat.getColor(this, colorRes)
@@ -140,27 +129,4 @@ fun Context.encryptedSharedPreferences(): SharedPreferences {
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
     }
-}
-
-@Suppress("DEPRECATION")
-fun Context.encryptedFile(file: File): EncryptedFile {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        val masterKey = provideMasterKey()
-
-        EncryptedFile.Builder(
-                this,
-                file,
-                masterKey,
-                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
-        )
-    } else {
-        val masterKeyAlias = BuildConfig.MASTER_KEY_ALIAS
-
-        EncryptedFile.Builder(
-                file,
-                this,
-                masterKeyAlias,
-                EncryptedFile.FileEncryptionScheme.AES256_GCM_HKDF_4KB
-        )
-    }.build()
 }

@@ -72,8 +72,6 @@ class GetEnrollmentProofUseCase(
     }
 
     private suspend fun Credentials.auth(serviceUrl: String): DstAuth {
-        storageRepository.delete(Paths.COOKIES)
-
         val request = toDstCredentials(serviceUrl)
 
         return dstRepository.signIn(request)

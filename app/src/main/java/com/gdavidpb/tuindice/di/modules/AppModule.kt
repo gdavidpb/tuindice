@@ -15,7 +15,9 @@ import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
-import com.gdavidpb.tuindice.data.source.storage.*
+import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataSource
+import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataSource
+import com.gdavidpb.tuindice.data.source.storage.LocalStorageDataSource
 import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataSource
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
@@ -257,15 +259,6 @@ val appModule = module {
     viewModel<SubjectViewModel>()
     viewModel<EvaluationViewModel>()
     viewModel<PensumViewModel>()
-
-    /* Factories */
-
-    factory<LocalStorageDataSourceFactory>()
-
-    /* Data stores */
-
-    factory<ClearStorageDataSource>()
-    factory<EncryptedStorageDataSource>()
 
     /* Repositories */
 

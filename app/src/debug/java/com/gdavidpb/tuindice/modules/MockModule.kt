@@ -11,7 +11,8 @@ import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
-import com.gdavidpb.tuindice.data.source.storage.*
+import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataSource
+import com.gdavidpb.tuindice.data.source.storage.LocalStorageDataSource
 import com.gdavidpb.tuindice.datasources.*
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
@@ -179,15 +180,6 @@ val mockModule = module {
     viewModel<SubjectViewModel>()
     viewModel<EvaluationViewModel>()
     viewModel<PensumViewModel>()
-
-    /* Factories */
-
-    factory<LocalStorageDataSourceFactory>()
-
-    /* Data stores */
-
-    factory<ClearStorageDataSource>()
-    factory<EncryptedStorageDataSource>()
 
     /* Repositories */
 

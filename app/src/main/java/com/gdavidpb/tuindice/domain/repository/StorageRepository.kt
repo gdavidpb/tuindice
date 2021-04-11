@@ -8,8 +8,6 @@ interface StorageRepository<T> {
     fun create(path: String): T
     fun inputStream(path: String): InputStream
     fun outputStream(path: String): OutputStream
-    fun encryptedInputStream(path: String): InputStream
-    fun encryptedOutputStream(path: String): OutputStream
     fun delete(path: String)
     fun exists(path: String): Boolean
     fun clear()

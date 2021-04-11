@@ -1,47 +1,69 @@
 package com.gdavidpb.tuindice.data.source.storage
 
+import android.content.Context
 import com.gdavidpb.tuindice.domain.repository.StorageRepository
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.InputStream
 import java.io.OutputStream
 
-class LocalStorageDataSource(
-        private val factory: LocalStorageDataSourceFactory
+open class LocalStorageDataSource(
+        protected val context: Context
 ) : StorageRepository<File> {
+
+    private val root: File = context.filesDir
+
+    private fun ensurePath(path: String) = File(root, path).also { it.parentFile?.mkdirs() }
+
     override fun get(path: String): File {
-        return factory.retrieveClear().get(path)
+        return File(root, path)
     }
 
     override fun create(path: String): File {
-        return factory.retrieveClear().create(path)
-    }
+        val outputFile = ensurePath(path)
 
-    override fun inputStream(path: String): InputStream {
-        return factory.retrieveClear().inputStream(path)
+        outputFile.createNewFile()
+
+        return outputFile
     }
 
     override fun outputStream(path: String): OutputStream {
-        return factory.retrieveClear().outputStream(path)
+        val file = ensurePath(path)
+
+        return file.outputStream()
     }
 
-    override fun encryptedInputStream(path: String): InputStream {
-        return factory.retrieveEncrypted().inputStream(path)
-    }
+    override fun inputStream(path: String): InputStream {
+        val file = File(root, path)
 
-    override fun encryptedOutputStream(path: String): OutputStream {
-        return factory.retrieveEncrypted().outputStream(path)
+        return file.inputStream()
     }
 
     override fun delete(path: String) {
-        factory.retrieveClear().delete(path)
+        runCatching {
+            File(root, path).let {
+                if (it.isDirectory)
+                    it.deleteRecursively()
+                else
+                    it.delete()
+            }
+        }.onFailure { throwable ->
+            if (throwable !is FileNotFoundException) throw throwable
+        }
     }
 
     override fun exists(path: String): Boolean {
-        return factory.retrieveClear().exists(path)
+        val file = File(root, path)
+
+        return file.exists()
     }
 
     override fun clear() {
-        factory.retrieveClear().clear()
+        runCatching {
+            root.deleteRecursively()
+            root.mkdir()
+        }.onFailure { throwable ->
+            if (throwable !is FileNotFoundException) throw throwable
+        }
     }
-
 }
