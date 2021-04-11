@@ -2,7 +2,7 @@
 <defaultsMap>
     <entry>
         <key>syncs_to_suggest_review</key>
-        <value>10</value>
+        <value>3</value>
     </entry>
     <entry>
         <key>time_verification_count_down</key>
