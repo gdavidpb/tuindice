@@ -17,7 +17,7 @@ class UpdateQuarterUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
 ) : ResultUseCase<UpdateQuarterRequest, Quarter, Nothing>() {
-    override suspend fun executeOnBackground(params: UpdateQuarterRequest): Quarter? {
+    override suspend fun executeOnBackground(params: UpdateQuarterRequest): Quarter {
         val activeUId = authRepository.getActiveAuth().uid
 
         return if (params.dispatchChanges) {

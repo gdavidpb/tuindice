@@ -9,7 +9,7 @@ class GetSubjectEvaluationsUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
 ) : ResultUseCase<String, List<Evaluation>, Nothing>() {
-    override suspend fun executeOnBackground(params: String): List<Evaluation>? {
+    override suspend fun executeOnBackground(params: String): List<Evaluation> {
         val activeUId = authRepository.getActiveAuth().uid
 
         return databaseRepository.getSubjectEvaluations(uid = activeUId, sid = params)

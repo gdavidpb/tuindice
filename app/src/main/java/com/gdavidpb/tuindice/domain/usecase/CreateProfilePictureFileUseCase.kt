@@ -14,7 +14,7 @@ class CreateProfilePictureFileUseCase(
         private val authRepository: AuthRepository,
         private val storageRepository: StorageRepository<File>
 ) : EventUseCase<Unit, Uri, ProfilePictureError>() {
-    override suspend fun executeOnBackground(params: Unit): Uri? {
+    override suspend fun executeOnBackground(params: Unit): Uri {
         val activeUId = authRepository.getActiveAuth().uid
         val resource = File(Paths.PROFILE_PICTURES, "$activeUId.jpg").path
 

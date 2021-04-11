@@ -9,7 +9,7 @@ class GetProfileUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
 ) : ResultUseCase<Unit, Account, Nothing>() {
-    override suspend fun executeOnBackground(params: Unit): Account? {
+    override suspend fun executeOnBackground(params: Unit): Account {
         val activeUId = authRepository.getActiveAuth().uid
 
         return databaseRepository.getAccount(uid = activeUId)

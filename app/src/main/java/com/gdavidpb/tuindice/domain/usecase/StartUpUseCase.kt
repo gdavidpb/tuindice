@@ -16,7 +16,7 @@ class StartUpUseCase(
         private val configRepository: ConfigRepository,
         private val networkRepository: NetworkRepository
 ) : ResultUseCase<String, StartUpAction, StartUpError>() {
-    override suspend fun executeOnBackground(params: String): StartUpAction? {
+    override suspend fun executeOnBackground(params: String): StartUpAction {
         val isActiveAuth = authRepository.isActiveAuth()
         val isPasswordResetLink = authRepository.isResetPasswordLink(params)
         val isVerifyEmailLink = authRepository.isVerifyEmailLink(params)
@@ -80,7 +80,7 @@ class StartUpUseCase(
         }
     }
 
-    override suspend fun executeOnException(throwable: Throwable): StartUpError? {
+    override suspend fun executeOnException(throwable: Throwable): StartUpError {
         val causes = throwable.causes()
 
         return when {

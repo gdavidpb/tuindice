@@ -15,7 +15,7 @@ class GetProfilePictureUseCase(
         private val remoteStorageRepository: RemoteStorageRepository,
         private val networkRepository: NetworkRepository
 ) : ResultUseCase<Unit, String, ProfilePictureError>() {
-    override suspend fun executeOnBackground(params: Unit): String? {
+    override suspend fun executeOnBackground(params: Unit): String {
         val activeUId = authRepository.getActiveAuth().uid
         val resource = File(Paths.PROFILE_PICTURES, "$activeUId.jpg").path
         val downloadUrl = runCatching { remoteStorageRepository.resolveResource(resource) }

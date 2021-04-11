@@ -9,7 +9,7 @@ class GetSubjectUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
 ) : ResultUseCase<String, Subject, Nothing>() {
-    override suspend fun executeOnBackground(params: String): Subject? {
+    override suspend fun executeOnBackground(params: String): Subject {
         val activeUId = authRepository.getActiveAuth().uid
 
         return databaseRepository.getSubject(uid = activeUId, sid = params)
