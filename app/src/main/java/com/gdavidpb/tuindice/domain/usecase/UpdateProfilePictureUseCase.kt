@@ -6,7 +6,9 @@ import androidx.exifinterface.media.ExifInterface
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
+import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.Paths
+import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.decodeScaleFactor
 import com.gdavidpb.tuindice.utils.extensions.decodeScaledBitmap
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
@@ -15,6 +17,7 @@ import java.io.File
 import java.io.IOException
 
 @Suppress("BlockingMethodInNonBlockingContext")
+@Timeout(key = ConfigKeys.TIME_OUT_PROFILE_PICTURE)
 class UpdateProfilePictureUseCase(
         private val authRepository: AuthRepository,
         private val contentRepository: ContentRepository,

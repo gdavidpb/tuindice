@@ -5,11 +5,14 @@ import com.gdavidpb.tuindice.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.domain.repository.RemoteStorageRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
+import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.Paths
+import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.isObjectNotFound
 import java.io.File
 
+@Timeout(key = ConfigKeys.TIME_OUT_PROFILE_PICTURE)
 class GetProfilePictureUseCase(
         private val authRepository: AuthRepository,
         private val remoteStorageRepository: RemoteStorageRepository,

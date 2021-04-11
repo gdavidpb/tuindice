@@ -202,6 +202,13 @@ class SummaryFragment : NavigationFragment() {
                     messageResource = R.string.snack_bar_profile_picture_updated
                 }
             }
+            is Event.OnTimeout -> {
+                vProfilePicture.setLoading(false)
+
+                snackBar {
+                    messageResource = R.string.snack_service_timeout
+                }
+            }
             is Event.OnError -> {
                 vProfilePicture.setLoading(false)
 
@@ -238,6 +245,14 @@ class SummaryFragment : NavigationFragment() {
                         liveData = loadProfilePicture
                 )
             }
+            is Result.OnTimeout -> {
+                vProfilePicture.setLoading(false)
+                vProfilePicture.loadDefaultProfilePicture()
+
+                snackBar {
+                    messageResource = R.string.snack_service_timeout
+                }
+            }
             is Result.OnError -> {
                 vProfilePicture.setLoading(false)
                 vProfilePicture.loadDefaultProfilePicture()
@@ -258,6 +273,15 @@ class SummaryFragment : NavigationFragment() {
 
                 snackBar {
                     messageResource = R.string.snack_bar_profile_picture_removed
+                }
+            }
+            is Event.OnTimeout -> {
+                vProfilePicture.setLoading(false)
+
+                snackBar {
+                    messageResource = R.string.snack_service_timeout
+
+                    action(R.string.retry) { viewModel.removeProfilePicture() }
                 }
             }
             is Event.OnError -> {

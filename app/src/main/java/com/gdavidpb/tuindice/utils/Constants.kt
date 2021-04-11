@@ -44,9 +44,10 @@ object ConfigKeys {
     const val DST_CERTIFICATES = "dst_certificates"
     const val TIME_VERIFICATION_COUNT_DOWN = "time_verification_count_down"
     const val SYNCS_TO_SUGGEST_REVIEW = "syncs_to_suggest_review"
+    const val TIME_OUT_CONNECTION = "time_out_connection"
     const val TIME_OUT_SIGN_IN = "time_out_sign_in"
     const val TIME_OUT_GET_ENROLLMENT = "time_out_get_enrollment"
-    const val TIME_OUT_CONNECTION = "time_out_connection"
+    const val TIME_OUT_PROFILE_PICTURE = "time_out_profile_picture"
 }
 
 /* Reporting keys */
