@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Credentials
-import com.gdavidpb.tuindice.domain.model.exception.NoEnrolledException
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
@@ -29,7 +28,6 @@ open class GetEnrollmentProofUseCase(
         val activeUId = authRepository.getActiveAuth().uid
 
         val currentQuarter = databaseRepository.getCurrentQuarter(uid = activeUId)
-                ?: throw NoEnrolledException()
 
         /* Try to get current quarter enrollment proof file */
         val enrollmentTitle = with(currentQuarter) {
