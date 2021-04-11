@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.datastores
+package com.gdavidpb.tuindice.datasources
 
 import com.gdavidpb.tuindice.data.model.database.EvaluationUpdate
 import com.gdavidpb.tuindice.data.model.database.QuarterUpdate
@@ -15,7 +15,7 @@ import com.google.firebase.firestore.*
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.atomic.AtomicReference
 
-open class FirestoreMockDataStore(
+open class FirestoreMockDataSource(
         private val firestore: FirebaseFirestore
 ) : DatabaseRepository {
     private val atomicBatch = AtomicReference<WriteBatch>(null)

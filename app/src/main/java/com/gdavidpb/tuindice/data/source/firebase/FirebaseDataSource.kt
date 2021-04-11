@@ -10,7 +10,7 @@ import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
 
-open class FirebaseDataStore(
+open class FirebaseDataSource(
         private val auth: FirebaseAuth
 ) : AuthRepository {
     override suspend fun isActiveAuth(): Boolean {

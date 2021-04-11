@@ -1,16 +1,17 @@
-package com.gdavidpb.tuindice.data.source.config
+package com.gdavidpb.tuindice.datasources
 
 import com.gdavidpb.tuindice.domain.repository.ConfigRepository
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.gson.Gson
-import kotlinx.coroutines.tasks.await
-import okio.IOException
+import java.io.IOException
 
-open class RemoteConfigDataStore(
+open class RemoteConfigMockDataSource(
         private val remoteConfig: FirebaseRemoteConfig,
         private val googleJson: Gson
 ) : ConfigRepository {
-    override suspend fun tryFetchAndActivate() = runCatching { remoteConfig.fetchAndActivate().await() }.getOrNull() == true
+    override suspend fun tryFetchAndActivate(): Boolean {
+        return true
+    }
 
     override fun getString(key: String) = remoteConfig.getString(key)
 

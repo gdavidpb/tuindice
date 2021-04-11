@@ -15,7 +15,7 @@ import com.google.firebase.firestore.*
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.atomic.AtomicReference
 
-open class FirestoreDataStore(
+open class FirestoreDataSource(
         private val firestore: FirebaseFirestore
 ) : DatabaseRepository {
 

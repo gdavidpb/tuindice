@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.domain.repository.MessagingRepository
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
 
-open class FirebaseCloudMessagingDataStore(
+open class FirebaseCloudMessagingDataSource(
         private val firebaseMessaging: FirebaseMessaging
 ) : MessagingRepository {
     override suspend fun getToken(): String? {

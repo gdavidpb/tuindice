@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.data.source.crashlytics
 import android.util.Log
 import com.gdavidpb.tuindice.domain.repository.ReportingRepository
 
-open class DebugReportingDataStore : ReportingRepository {
+open class DebugReportingDataSource : ReportingRepository {
     override fun setIdentifier(identifier: String) {
         Log.d("setIdentifier", identifier)
     }

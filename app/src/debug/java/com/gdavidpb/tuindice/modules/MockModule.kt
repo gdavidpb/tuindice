@@ -6,13 +6,13 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataStore
-import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataStore
-import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataStore
+import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataSource
+import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataSource
+import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.service.*
-import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
+import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.data.source.storage.*
-import com.gdavidpb.tuindice.datastores.*
+import com.gdavidpb.tuindice.datasources.*
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
@@ -182,28 +182,28 @@ val mockModule = module {
 
     /* Factories */
 
-    factory<LocalStorageDataStoreFactory>()
+    factory<LocalStorageDataSourceFactory>()
 
     /* Data stores */
 
-    factory<ClearStorageDataStore>()
-    factory<EncryptedStorageDataStore>()
+    factory<ClearStorageDataSource>()
+    factory<EncryptedStorageDataSource>()
 
     /* Repositories */
 
-    factoryBy<DstRepository, DstDataStore>()
-    factoryBy<SettingsRepository, PreferencesDataStore>()
-    factoryBy<StorageRepository<File>, LocalStorageDataRepository>()
-    factoryBy<RemoteStorageRepository, RemoteStorageMockDataStore>()
-    factoryBy<AuthRepository, AuthMockDataStore>()
-    factoryBy<DatabaseRepository, FirestoreMockDataStore>()
-    factoryBy<MessagingRepository, MessagingMockDataStore>()
-    factoryBy<ContentRepository, ContentResolverDataStore>()
-    factoryBy<LinkRepository, DynamicLinkDataStore>()
-    factoryBy<ConfigRepository, RemoteConfigMockDataStore>()
-    factoryBy<ReportingRepository, DebugReportingDataStore>()
-    factoryBy<DependenciesRepository, DebugKoinDataStore>()
-    factoryBy<NetworkRepository, AndroidNetworkDataStore>()
+    factoryBy<DstRepository, DstDataSource>()
+    factoryBy<SettingsRepository, PreferencesDataSource>()
+    factoryBy<StorageRepository<File>, LocalStorageDataSource>()
+    factoryBy<RemoteStorageRepository, RemoteStorageMockDataSource>()
+    factoryBy<AuthRepository, AuthMockDataSource>()
+    factoryBy<DatabaseRepository, FirestoreMockDataSource>()
+    factoryBy<MessagingRepository, MessagingMockDataSource>()
+    factoryBy<ContentRepository, ContentResolverDataSource>()
+    factoryBy<LinkRepository, DynamicLinkDataSource>()
+    factoryBy<ConfigRepository, RemoteConfigMockDataSource>()
+    factoryBy<ReportingRepository, DebugReportingDataSource>()
+    factoryBy<DependenciesRepository, DebugKoinDataSource>()
+    factoryBy<NetworkRepository, AndroidNetworkDataSource>()
 
     /* Use cases */
 

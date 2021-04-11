@@ -1,15 +1,15 @@
 package com.gdavidpb.tuindice.data.source.storage
 
 import android.content.Context
-import com.gdavidpb.tuindice.data.repository.LocalStorageDataStore
+import com.gdavidpb.tuindice.domain.repository.StorageRepository
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.io.OutputStream
 
-open class ClearStorageDataStore(
+open class ClearStorageDataSource(
         protected val context: Context
-) : LocalStorageDataStore {
+) : StorageRepository<File> {
 
     protected val root: File = context.filesDir
 
@@ -65,5 +65,13 @@ open class ClearStorageDataStore(
         }.onFailure { throwable ->
             if (throwable !is FileNotFoundException) throw throwable
         }
+    }
+
+    override fun encryptedInputStream(path: String): InputStream {
+        throw NotImplementedError()
+    }
+
+    override fun encryptedOutputStream(path: String): OutputStream {
+        throw NotImplementedError()
     }
 }

@@ -6,17 +6,17 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataStore
-import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataStore
-import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataStore
-import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataStore
-import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataStore
-import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataStore
-import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataStore
+import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
+import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataSource
+import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataSource
+import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataSource
+import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataSource
+import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataSource
+import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.service.*
-import com.gdavidpb.tuindice.data.source.settings.PreferencesDataStore
+import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.data.source.storage.*
-import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataStore
+import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataSource
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
@@ -260,28 +260,28 @@ val appModule = module {
 
     /* Factories */
 
-    factory<LocalStorageDataStoreFactory>()
+    factory<LocalStorageDataSourceFactory>()
 
     /* Data stores */
 
-    factory<ClearStorageDataStore>()
-    factory<EncryptedStorageDataStore>()
+    factory<ClearStorageDataSource>()
+    factory<EncryptedStorageDataSource>()
 
     /* Repositories */
 
-    factoryBy<DstRepository, DstDataStore>()
-    factoryBy<SettingsRepository, PreferencesDataStore>()
-    factoryBy<StorageRepository<File>, LocalStorageDataRepository>()
-    factoryBy<RemoteStorageRepository, FirebaseStorageDataStore>()
-    factoryBy<AuthRepository, FirebaseDataStore>()
-    factoryBy<DatabaseRepository, FirestoreDataStore>()
-    factoryBy<MessagingRepository, FirebaseCloudMessagingDataStore>()
-    factoryBy<ContentRepository, ContentResolverDataStore>()
-    factoryBy<LinkRepository, DynamicLinkDataStore>()
-    factoryBy<ConfigRepository, RemoteConfigDataStore>()
-    factoryBy<ReportingRepository, CrashlyticsReportingDataStore>()
-    factoryBy<DependenciesRepository, ReleaseKoinDataStore>()
-    factoryBy<NetworkRepository, AndroidNetworkDataStore>()
+    factoryBy<DstRepository, DstDataSource>()
+    factoryBy<SettingsRepository, PreferencesDataSource>()
+    factoryBy<StorageRepository<File>, LocalStorageDataSource>()
+    factoryBy<RemoteStorageRepository, FirebaseStorageDataSource>()
+    factoryBy<AuthRepository, FirebaseDataSource>()
+    factoryBy<DatabaseRepository, FirestoreDataSource>()
+    factoryBy<MessagingRepository, FirebaseCloudMessagingDataSource>()
+    factoryBy<ContentRepository, ContentResolverDataSource>()
+    factoryBy<LinkRepository, DynamicLinkDataSource>()
+    factoryBy<ConfigRepository, RemoteConfigDataSource>()
+    factoryBy<ReportingRepository, CrashlyticsReportingDataSource>()
+    factoryBy<DependenciesRepository, ReleaseKoinDataSource>()
+    factoryBy<NetworkRepository, AndroidNetworkDataSource>()
 
     /* Use cases */
 

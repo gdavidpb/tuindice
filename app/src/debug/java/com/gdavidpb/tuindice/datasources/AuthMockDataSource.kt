@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.datastores
+package com.gdavidpb.tuindice.datasources
 
 import android.content.SharedPreferences
 import com.gdavidpb.tuindice.domain.model.Auth
@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.utils.SettingsKeys
 import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
 
-open class AuthMockDataStore(
+open class AuthMockDataSource(
         private val sharedPreferences: SharedPreferences
 ) : AuthRepository {
 

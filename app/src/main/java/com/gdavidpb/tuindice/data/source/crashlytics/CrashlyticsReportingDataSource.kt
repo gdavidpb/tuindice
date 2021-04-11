@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.data.source.crashlytics
 import com.gdavidpb.tuindice.domain.repository.ReportingRepository
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
-open class CrashlyticsReportingDataStore(
+open class CrashlyticsReportingDataSource(
         private val crashlytics: FirebaseCrashlytics
 ) : ReportingRepository {
     override fun setIdentifier(identifier: String) {

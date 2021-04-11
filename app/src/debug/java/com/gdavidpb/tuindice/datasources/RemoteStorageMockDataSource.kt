@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.datastores
+package com.gdavidpb.tuindice.datasources
 
 import android.content.Context
 import android.net.Uri
@@ -9,7 +9,7 @@ import java.io.FileNotFoundException
 import java.io.InputStream
 
 @Suppress("BlockingMethodInNonBlockingContext")
-open class RemoteStorageMockDataStore(
+open class RemoteStorageMockDataSource(
         context: Context
 ) : RemoteStorageRepository {
 

@@ -16,7 +16,7 @@ import com.gdavidpb.tuindice.utils.mappers.toRecord
 import okhttp3.ResponseBody
 import java.io.StreamCorruptedException
 
-open class DstDataStore(
+open class DstDataSource(
         private val authService: DstAuthService,
         private val recordService: DstRecordService,
         private val enrollmentService: DstEnrollmentService

@@ -6,9 +6,9 @@ import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 
-open class EncryptedStorageDataStore(
+open class EncryptedStorageDataSource(
         context: Context
-) : ClearStorageDataStore(context) {
+) : ClearStorageDataSource(context) {
     override fun outputStream(path: String): OutputStream {
         val outputFile = ensurePath(path)
 

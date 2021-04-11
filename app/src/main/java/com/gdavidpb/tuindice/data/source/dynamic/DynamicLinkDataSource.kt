@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.domain.repository.LinkRepository
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import kotlinx.coroutines.tasks.await
 
-open class DynamicLinkDataStore(
+open class DynamicLinkDataSource(
         private val dynamicLinks: FirebaseDynamicLinks
 ) : LinkRepository {
     override suspend fun resolveLink(data: String): String {

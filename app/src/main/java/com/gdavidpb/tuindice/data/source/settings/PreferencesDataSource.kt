@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.utils.mappers.toRefYear
 import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
 import java.util.*
 
-open class PreferencesDataStore(
+open class PreferencesDataSource(
         private val preferences: SharedPreferences
 ) : SettingsRepository {
     override fun startCountdown(reset: Boolean): Long {

@@ -5,8 +5,8 @@ import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 
-class LocalStorageDataRepository(
-        private val factory: LocalStorageDataStoreFactory
+class LocalStorageDataSource(
+        private val factory: LocalStorageDataSourceFactory
 ) : StorageRepository<File> {
     override fun get(path: String): File {
         return factory.retrieveClear().get(path)
