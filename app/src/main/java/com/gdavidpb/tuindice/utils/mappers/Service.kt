@@ -7,8 +7,8 @@ import com.gdavidpb.tuindice.data.source.service.selector.DstRecordDataSelector
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.ScheduleEntry
 import com.gdavidpb.tuindice.domain.model.ScheduleSubject
-import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.exception.ParseException
+import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 
@@ -29,8 +29,7 @@ fun DstAuthResponseSelector.toAuthResponse(): DstAuth {
     return DstAuth(
             isSuccessful = (code == AuthResponseCode.SUCCESS),
             code = code,
-            message = message,
-            fullName = fullName.substringAfter(" | ")
+            message = message
     )
 }
 

@@ -30,7 +30,7 @@ class SyncAccountUseCase(
         val credentials = settingsRepository.getCredentials()
 
         /* Record service auth */
-        val recordAuth = credentials.auth(serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH)
+        credentials.auth(serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH)
 
         val personal = dstRepository.getPersonalData()
         val record = dstRepository.getRecordData()
@@ -47,7 +47,6 @@ class SyncAccountUseCase(
             /* Add account */
             val account = buildAccount(
                     auth = activeAuth,
-                    sigIn = recordAuth,
                     personal = personal,
                     record = record
             )

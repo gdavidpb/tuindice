@@ -29,12 +29,12 @@ fun generateSubjectId(uid: String, qid: String, code: String) = digestConcat
         .replace("[/+=\n]+".toRegex(), "")
         .substring(uid.indices)
 
-fun buildAccount(auth: Auth, sigIn: DstAuth, personal: DstPersonal, record: DstRecord) = Account(
+fun buildAccount(auth: Auth, personal: DstPersonal, record: DstRecord) = Account(
         uid = auth.uid,
         id = personal.id,
         usbId = personal.usbId,
         email = auth.email,
-        fullName = sigIn.fullName,
+        fullName = "${personal.firstNames} ${personal.lastNames}",
         firstNames = personal.firstNames,
         lastNames = personal.lastNames,
         careerName = personal.careerName,
