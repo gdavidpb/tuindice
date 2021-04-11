@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.StartUpError
-import com.gdavidpb.tuindice.domain.usecase.request.ResetRequest
 import com.gdavidpb.tuindice.utils.extensions.*
 
 open class StartUpUseCase(
@@ -44,18 +43,9 @@ open class StartUpUseCase(
             }
             isPasswordResetLink && hasCredentials -> {
                 val oobCode = linkRepository.resolveLink(data = params).oobCode
-
-                val email = settingsRepository.getEmail()
                 val credentials = settingsRepository.getCredentials()
 
-                // TODO check ResetRequest class
-                val request = ResetRequest(
-                        code = oobCode,
-                        email = email,
-                        password = credentials.password
-                )
-
-                authRepository.confirmPasswordReset(code = request.code, password = request.password)
+                authRepository.confirmPasswordReset(code = oobCode, password = credentials.password)
 
                 val activeAuth = authRepository.signIn(credentials = credentials)
                 val activeAccount = databaseRepository.getAccount(uid = activeAuth.uid)
