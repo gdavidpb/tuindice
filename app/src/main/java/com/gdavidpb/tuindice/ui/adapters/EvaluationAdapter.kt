@@ -65,6 +65,7 @@ class EvaluationAdapter(
 
     fun updateEvaluation(item: EvaluationItem) {
         updateItem(item)
+        submitSortedList()
         manager.onEvaluationUpdated(item)
     }
 

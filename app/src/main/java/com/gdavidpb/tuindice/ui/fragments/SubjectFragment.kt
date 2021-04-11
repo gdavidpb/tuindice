@@ -69,9 +69,6 @@ class SubjectFragment : NavigationFragment() {
         btnAddEvaluation.onClickOnce(::onAddEvaluationClicked)
 
         with(viewModel) {
-            quarterUpdate.value = null // TODO check
-            evaluationUpdate.value = null // TODO check
-
             getSubject(sid = args.subjectId)
             getSubjectEvaluations(sid = args.subjectId)
         }
