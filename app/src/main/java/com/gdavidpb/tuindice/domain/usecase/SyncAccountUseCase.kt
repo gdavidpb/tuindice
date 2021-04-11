@@ -1,17 +1,17 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
+import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.SignInResponse
 import com.gdavidpb.tuindice.domain.model.exception.UnauthenticatedException
-import com.gdavidpb.tuindice.domain.model.service.DstCredentials
+import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
-import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.buildAccount
+import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import com.gdavidpb.tuindice.utils.mappers.toQuarter
 import java.io.File
 
@@ -96,14 +96,10 @@ open class SyncAccountUseCase(
         }
     }
 
-    private suspend fun DstCredentials.auth(serviceUrl: String): SignInResponse {
+    private suspend fun Credentials.auth(serviceUrl: String): DstAuth {
         storageRepository.delete(Paths.COOKIES)
 
-        val request = SignInRequest(
-                usbId = usbId,
-                password = password,
-                serviceUrl = serviceUrl
-        )
+        val request = toDstCredentials(serviceUrl)
 
         return dstRepository.signIn(request)
     }

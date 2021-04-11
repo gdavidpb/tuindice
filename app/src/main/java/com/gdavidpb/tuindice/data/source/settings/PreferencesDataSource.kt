@@ -3,11 +3,11 @@ package com.gdavidpb.tuindice.data.source.settings
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.domain.model.service.DstCredentials
+import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.utils.SettingsKeys
 import com.gdavidpb.tuindice.utils.mappers.toRefYear
-import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
+import com.gdavidpb.tuindice.utils.mappers.asUsbEmail
 import java.util.*
 
 open class PreferencesDataSource(
@@ -36,22 +36,22 @@ open class PreferencesDataSource(
     }
 
     override fun getEmail(): String {
-        return preferences.getString(SettingsKeys.USB_ID, null)?.toUsbEmail() ?: ""
+        return preferences.getString(SettingsKeys.USB_ID, null)?.asUsbEmail() ?: ""
     }
 
     override fun hasCredentials(): Boolean {
         return preferences.contains(SettingsKeys.USB_ID) && preferences.contains(SettingsKeys.PASSWORD)
     }
 
-    override fun storeCredentials(credentials: DstCredentials) {
+    override fun storeCredentials(credentials: Credentials) {
         preferences.edit {
             putString(SettingsKeys.USB_ID, credentials.usbId)
             putString(SettingsKeys.PASSWORD, credentials.password)
         }
     }
 
-    override fun getCredentials(): DstCredentials {
-        return DstCredentials(
+    override fun getCredentials(): Credentials {
+        return Credentials(
                 usbId = preferences.getString(SettingsKeys.USB_ID, null) ?: "",
                 password = preferences.getString(SettingsKeys.PASSWORD, null) ?: ""
         )

@@ -166,7 +166,16 @@ fun String.capitalize() =
         else
             this
 
-fun String.toUsbEmail() = "$this@usb.ve"
+fun String.asUsbEmail() = addSuffix("@usb.ve")
+
+fun String.asUsbId() = removeSuffix("@usb.ve")
+
+fun String.addSuffix(suffix: String): String {
+    return if (!endsWith(suffix))
+        "$this$suffix"
+    else
+        this
+}
 
 fun String.formatSubjectName(): String {
     var result = replace("^\"|\"$".toRegex(), "")

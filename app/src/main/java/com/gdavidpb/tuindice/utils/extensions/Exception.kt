@@ -16,9 +16,13 @@ import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
 import javax.net.ssl.SSLHandshakeException
 
-fun List<Throwable>.isInvalidLink() = contains<FirebaseAuthActionCodeException>()
+fun List<Throwable>.isInvalidLink() = any<FirebaseAuthActionCodeException>()
 
-fun List<Throwable>.isAccountDisabled() = contains<FirebaseAuthInvalidUserException>()
+fun List<Throwable>.isCredentialsChanged() = any<FirebaseAuthInvalidCredentialsException>()
+
+fun List<Throwable>.isAccountDisabled() = find<FirebaseAuthInvalidUserException>()?.errorCode == "ERROR_USER_DISABLED"
+
+fun List<Throwable>.isUserNotFound() = find<FirebaseAuthInvalidUserException>()?.errorCode == "ERROR_USER_NOT_FOUND"
 
 fun Throwable.isObjectNotFound() = this is StorageException && when (errorCode) {
     StorageException.ERROR_OBJECT_NOT_FOUND -> true
@@ -27,14 +31,8 @@ fun Throwable.isObjectNotFound() = this is StorageException && when (errorCode) 
     else -> false
 }
 
-fun Throwable?.isInvalidCredentials() = when (this) {
-    is FirebaseAuthInvalidCredentialsException -> true
-    is AuthenticationException -> (code == AuthResponseCode.INVALID_CREDENTIALS)
-    else -> false
-}
-
-fun Throwable?.isUserNotFound() = when (this) {
-    is FirebaseAuthInvalidUserException -> (errorCode == "ERROR_USER_NOT_FOUND")
+fun Throwable.isInvalidCredentials() = this is AuthenticationException && when (code) {
+    AuthResponseCode.INVALID_CREDENTIALS -> true
     else -> false
 }
 

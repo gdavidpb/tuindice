@@ -2,9 +2,11 @@ package com.gdavidpb.tuindice.data.source.firebase
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Auth
+import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.exception.UnauthenticatedException
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.utils.extensions.mode
+import com.gdavidpb.tuindice.utils.mappers.asUsbEmail
 import com.gdavidpb.tuindice.utils.mappers.toAuth
 import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
@@ -23,16 +25,20 @@ open class FirebaseDataSource(
                 ?: throw UnauthenticatedException()
     }
 
-    override suspend fun signUp(email: String, password: String): Auth {
-        return auth.createUserWithEmailAndPassword(email, password)
+    override suspend fun signUp(credentials: Credentials): Auth {
+        val email = credentials.usbId.asUsbEmail()
+
+        return auth.createUserWithEmailAndPassword(email, credentials.password)
                 .await()
                 .user
                 ?.toAuth()
                 ?: throw UnauthenticatedException()
     }
 
-    override suspend fun signIn(email: String, password: String): Auth {
-        return auth.signInWithEmailAndPassword(email, password)
+    override suspend fun signIn(credentials: Credentials): Auth {
+        val email = credentials.usbId.asUsbEmail()
+
+        return auth.signInWithEmailAndPassword(email, credentials.password)
                 .await()
                 .user
                 ?.toAuth()

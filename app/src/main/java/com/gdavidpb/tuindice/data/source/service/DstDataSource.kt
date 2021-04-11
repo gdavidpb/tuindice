@@ -1,18 +1,11 @@
 package com.gdavidpb.tuindice.data.source.service
 
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
-import com.gdavidpb.tuindice.domain.model.SignInResponse
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
-import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
-import com.gdavidpb.tuindice.domain.model.service.DstPersonal
-import com.gdavidpb.tuindice.domain.model.service.DstRecord
+import com.gdavidpb.tuindice.domain.model.service.*
 import com.gdavidpb.tuindice.domain.repository.DstRepository
-import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.extensions.getOrThrow
-import com.gdavidpb.tuindice.utils.mappers.toAuthResponse
-import com.gdavidpb.tuindice.utils.mappers.toEnrollment
-import com.gdavidpb.tuindice.utils.mappers.toPersonalData
-import com.gdavidpb.tuindice.utils.mappers.toRecord
+import com.gdavidpb.tuindice.utils.mappers.*
 import okhttp3.ResponseBody
 import java.io.StreamCorruptedException
 
@@ -49,8 +42,14 @@ open class DstDataSource(
                 }
     }
 
-    override suspend fun signIn(request: SignInRequest): SignInResponse {
-        return authService.auth(request.serviceUrl, request.usbId, request.password)
+    override suspend fun signIn(credentials: DstCredentials): DstAuth {
+        val usbId = credentials.usbId.asUsbId()
+
+        return authService.auth(
+                serviceUrl = credentials.serviceUrl,
+                usbId = usbId,
+                password = credentials.password
+        )
                 .getOrThrow()
                 .toAuthResponse()
                 .also { response ->

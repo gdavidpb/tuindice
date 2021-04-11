@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.data.source.service.selector.DstRecordDataSelector
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.ScheduleEntry
 import com.gdavidpb.tuindice.domain.model.ScheduleSubject
-import com.gdavidpb.tuindice.domain.model.SignInResponse
+import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.exception.ParseException
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
@@ -18,7 +18,7 @@ fun DstRecordDataSelector.toRecord() = selected?.run {
     DstRecord(stats = stats, quarters = quarters)
 } ?: throw ParseException("toRecord")
 
-fun DstAuthResponseSelector.toAuthResponse(): SignInResponse {
+fun DstAuthResponseSelector.toAuthResponse(): DstAuth {
     val (code, message) = when {
         invalidCredentialsMessage.isNotEmpty() -> AuthResponseCode.INVALID_CREDENTIALS to invalidCredentialsMessage
         notEnrolledMessage.isNotEmpty() -> AuthResponseCode.NOT_ENROLLED to notEnrolledMessage
@@ -26,7 +26,7 @@ fun DstAuthResponseSelector.toAuthResponse(): SignInResponse {
         else -> AuthResponseCode.SUCCESS to ""
     }
 
-    return SignInResponse(
+    return DstAuth(
             isSuccessful = (code == AuthResponseCode.SUCCESS),
             code = code,
             message = message,

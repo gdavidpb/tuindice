@@ -2,10 +2,11 @@ package com.gdavidpb.tuindice.datasources
 
 import android.content.SharedPreferences
 import com.gdavidpb.tuindice.domain.model.Auth
+import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.exception.UnauthenticatedException
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.utils.SettingsKeys
-import com.gdavidpb.tuindice.utils.mappers.toUsbEmail
+import com.gdavidpb.tuindice.utils.mappers.asUsbEmail
 
 open class AuthMockDataSource(
         private val sharedPreferences: SharedPreferences
@@ -20,18 +21,18 @@ open class AuthMockDataSource(
     override suspend fun getActiveAuth(): Auth {
         val email = sharedPreferences
                 .getString(SettingsKeys.USB_ID, null)
-                ?.toUsbEmail()
+                ?.asUsbEmail()
                 ?: throw UnauthenticatedException()
 
         return Auth(uid = uid, email = email)
     }
 
-    override suspend fun signIn(email: String, password: String): Auth {
-        return Auth(uid = uid, email = email)
+    override suspend fun signIn(credentials: Credentials): Auth {
+        return Auth(uid = uid, email = credentials.usbId.asUsbEmail())
     }
 
-    override suspend fun signUp(email: String, password: String): Auth {
-        return Auth(uid = uid, email = email)
+    override suspend fun signUp(credentials: Credentials): Auth {
+        return Auth(uid = uid, email = credentials.usbId.asUsbEmail())
     }
 
     override suspend fun signOut() {

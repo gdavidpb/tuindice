@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.repository
 
-import com.gdavidpb.tuindice.domain.model.service.DstCredentials
+import com.gdavidpb.tuindice.domain.model.Credentials
 
 interface SettingsRepository {
     fun startCountdown(reset: Boolean): Long
@@ -8,8 +8,8 @@ interface SettingsRepository {
 
     fun getEmail(): String
     fun hasCredentials(): Boolean
-    fun getCredentials(): DstCredentials
-    fun storeCredentials(credentials: DstCredentials)
+    fun getCredentials(): Credentials
+    fun storeCredentials(credentials: Credentials)
     fun getCredentialYear(): Int
     fun isReviewSuggested(value: Int): Boolean
 

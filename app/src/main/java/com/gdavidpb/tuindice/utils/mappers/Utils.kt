@@ -2,10 +2,10 @@ package com.gdavidpb.tuindice.utils.mappers
 
 import android.graphics.Color
 import com.gdavidpb.tuindice.domain.model.Auth
+import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.exception.ParseException
 import com.gdavidpb.tuindice.domain.model.exception.UnauthenticatedException
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
-import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.REF_BASE
 import com.gdavidpb.tuindice.utils.extensions.get
 import com.gdavidpb.tuindice.utils.extensions.parse
@@ -16,7 +16,11 @@ import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-fun SignInRequest.toDstCredentials() = DstCredentials(usbId = usbId, password = password)
+fun Credentials.toDstCredentials(serviceUrl: String) = DstCredentials(
+        usbId = usbId,
+        password = password,
+        serviceUrl = serviceUrl
+)
 
 fun FirebaseUser.toAuth() = Auth(
         uid = uid,

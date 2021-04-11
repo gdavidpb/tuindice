@@ -29,7 +29,7 @@ fun generateSubjectId(uid: String, qid: String, code: String) = digestConcat
         .replace("[/+=\n]+".toRegex(), "")
         .substring(uid.indices)
 
-fun buildAccount(auth: Auth, sigIn: SignInResponse, personal: DstPersonal, record: DstRecord) = Account(
+fun buildAccount(auth: Auth, sigIn: DstAuth, personal: DstPersonal, record: DstRecord) = Account(
         uid = auth.uid,
         id = personal.id,
         usbId = personal.usbId,

@@ -1,17 +1,19 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
+import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.exception.NoEnrolledException
+import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.GetEnrollmentError
-import com.gdavidpb.tuindice.domain.usecase.request.SignInRequest
 import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.utils.extensions.copyToAndClose
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.isInvalidCredentials
 import com.gdavidpb.tuindice.utils.extensions.isNotEnrolled
 import com.gdavidpb.tuindice.utils.mappers.formatQuarterTitle
+import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import java.io.File
 import java.io.StreamCorruptedException
 
@@ -42,13 +44,7 @@ open class GetEnrollmentProofUseCase(
             val credentials = settingsRepository.getCredentials()
 
             /* Enrollment service auth */
-            val enrollmentAuthRequest = SignInRequest(
-                    usbId = credentials.usbId,
-                    password = credentials.password,
-                    serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH
-            )
-
-            dstRepository.signIn(enrollmentAuthRequest)
+            credentials.auth(serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH)
 
             /* Get enrollment proof file from dst service */
 
@@ -72,5 +68,13 @@ open class GetEnrollmentProofUseCase(
             throwable.isConnectionIssue() -> GetEnrollmentError.NoConnection(networkRepository.isAvailable())
             else -> null
         }
+    }
+
+    private suspend fun Credentials.auth(serviceUrl: String): DstAuth {
+        storageRepository.delete(Paths.COOKIES)
+
+        val request = toDstCredentials(serviceUrl)
+
+        return dstRepository.signIn(request)
     }
 }

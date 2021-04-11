@@ -48,6 +48,7 @@ open class StartUpUseCase(
                 val email = settingsRepository.getEmail()
                 val credentials = settingsRepository.getCredentials()
 
+                // TODO check ResetRequest class
                 val request = ResetRequest(
                         code = oobCode,
                         email = email,
@@ -56,7 +57,7 @@ open class StartUpUseCase(
 
                 authRepository.confirmPasswordReset(code = request.code, password = request.password)
 
-                val activeAuth = authRepository.signIn(email = request.email, password = request.password)
+                val activeAuth = authRepository.signIn(credentials = credentials)
                 val activeAccount = databaseRepository.getAccount(uid = activeAuth.uid)
 
                 settingsRepository.resetCountdown()

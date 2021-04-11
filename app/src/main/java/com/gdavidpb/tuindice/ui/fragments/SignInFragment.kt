@@ -13,8 +13,7 @@ import com.gdavidpb.tuindice.data.utils.Validation
 import com.gdavidpb.tuindice.data.utils.`do`
 import com.gdavidpb.tuindice.data.utils.`when`
 import com.gdavidpb.tuindice.data.utils.firstInvalid
-import com.gdavidpb.tuindice.domain.model.SignInResponse
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
@@ -154,20 +153,20 @@ class SignInFragment : NavigationFragment() {
         }
     }
 
-    private fun signInObserver(result: Event<SignInResponse, SignInError>?) {
+    private fun signInObserver(result: Completable<SignInError>?) {
         when (result) {
-            is Event.OnLoading -> {
+            is Completable.OnLoading -> {
                 showLoading(true)
             }
-            is Event.OnSuccess -> {
+            is Completable.OnComplete -> {
                 viewModel.syncAccount()
             }
-            is Event.OnTimeout -> {
+            is Completable.OnTimeout -> {
                 showLoading(false)
 
                 timeoutSnackBar()
             }
-            is Event.OnError -> {
+            is Completable.OnError -> {
                 showLoading(false)
 
                 signInErrorHandler(error = result.error)
