@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import java.io.File
 
-open class RemoveProfilePictureUseCase(
+class RemoveProfilePictureUseCase(
         private val authRepository: AuthRepository,
         private val remoteStorageRepository: RemoteStorageRepository,
         private val networkRepository: NetworkRepository

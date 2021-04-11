@@ -15,7 +15,7 @@ import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import com.gdavidpb.tuindice.utils.mappers.toQuarter
 import java.io.File
 
-open class SyncAccountUseCase(
+class SyncAccountUseCase(
         private val dstRepository: DstRepository,
         private val storageRepository: StorageRepository<File>,
         private val authRepository: AuthRepository,

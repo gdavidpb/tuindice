@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
 import java.io.File
 
-open class SignOutUseCase(
+class SignOutUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,

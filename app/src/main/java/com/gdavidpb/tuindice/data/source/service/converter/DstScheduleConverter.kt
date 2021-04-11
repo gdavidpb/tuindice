@@ -6,7 +6,7 @@ import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector
 
-open class DstScheduleConverter : ElementConverter<List<DstScheduledSubject>> {
+class DstScheduleConverter : ElementConverter<List<DstScheduledSubject>> {
     override fun convert(node: Element, selector: Selector): List<DstScheduledSubject> {
         val subjectStartRegex = "^[A-Z0-9]+\\s*\\[\\+]$".toRegex()
         val subjectEndRegex = "^\\[[A-Z0-9]+]\\s*[^$]+$".toRegex()

@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 
-open class GetSubjectUseCase(
+class GetSubjectUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
 ) : ResultUseCase<String, Subject, Nothing>() {

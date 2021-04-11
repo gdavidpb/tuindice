@@ -13,7 +13,7 @@ import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import java.io.File
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
-open class SignInUseCase(
+class SignInUseCase(
         private val dstRepository: DstRepository,
         private val databaseRepository: DatabaseRepository,
         private val storageRepository: StorageRepository<File>,

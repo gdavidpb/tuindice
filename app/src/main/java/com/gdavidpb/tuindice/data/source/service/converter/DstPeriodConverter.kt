@@ -9,7 +9,7 @@ import org.koin.core.inject
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector
 
-open class DstPeriodConverter : ElementConverter<DstPeriod>, KoinComponent {
+class DstPeriodConverter : ElementConverter<DstPeriod>, KoinComponent {
 
     private val settingsRepository by inject<SettingsRepository>()
 

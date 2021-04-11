@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.utils.extensions.causes
 import com.gdavidpb.tuindice.utils.extensions.isAccountDisabled
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 
-open class ResendVerifyEmailUseCase(
+class ResendVerifyEmailUseCase(
         private val authRepository: AuthRepository,
         private val networkRepository: NetworkRepository
 ) : CompletableUseCase<Unit, SendVerificationEmailError>() {

@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.extensions.drawables
 import com.gdavidpb.tuindice.utils.extensions.onClickOnce
 
-open class AboutViewHolder(
+class AboutViewHolder(
         itemView: View
 ) : BaseViewHolder<AboutItemBase>(itemView = itemView) {
 

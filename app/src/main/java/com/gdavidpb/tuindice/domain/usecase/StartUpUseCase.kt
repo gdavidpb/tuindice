@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.StartUpError
 import com.gdavidpb.tuindice.utils.extensions.*
 
-open class StartUpUseCase(
+class StartUpUseCase(
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,

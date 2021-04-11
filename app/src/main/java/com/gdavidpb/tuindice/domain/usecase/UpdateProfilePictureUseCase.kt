@@ -15,7 +15,7 @@ import java.io.File
 import java.io.IOException
 
 @Suppress("BlockingMethodInNonBlockingContext")
-open class UpdateProfilePictureUseCase(
+class UpdateProfilePictureUseCase(
         private val authRepository: AuthRepository,
         private val contentRepository: ContentRepository,
         private val storageRepository: StorageRepository<File>,

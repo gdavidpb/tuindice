@@ -16,7 +16,7 @@ import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import java.io.File
 import java.io.StreamCorruptedException
 
-open class GetEnrollmentProofUseCase(
+class GetEnrollmentProofUseCase(
         private val authRepository: AuthRepository,
         private val dstRepository: DstRepository,
         private val databaseRepository: DatabaseRepository,

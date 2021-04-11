@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.utils.Paths
 import java.io.File
 import java.io.IOException
 
-open class CreateProfilePictureFileUseCase(
+class CreateProfilePictureFileUseCase(
         private val authRepository: AuthRepository,
         private val storageRepository: StorageRepository<File>
 ) : EventUseCase<Unit, Uri, ProfilePictureError>() {

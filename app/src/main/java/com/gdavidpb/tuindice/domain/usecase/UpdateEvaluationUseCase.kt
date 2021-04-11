@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.utils.mappers.applyUpdate
 
-open class UpdateEvaluationUseCase(
+class UpdateEvaluationUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
 ) : ResultUseCase<UpdateEvaluationRequest, Evaluation, Nothing>() {

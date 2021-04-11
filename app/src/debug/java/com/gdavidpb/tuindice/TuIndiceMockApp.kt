@@ -13,7 +13,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import java.util.*
 
-open class TuIndiceMockApp : Application() {
+class TuIndiceMockApp : Application() {
     override fun onCreate() {
         super.onCreate()
 

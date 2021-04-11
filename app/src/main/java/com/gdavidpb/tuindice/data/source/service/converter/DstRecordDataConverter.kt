@@ -18,7 +18,7 @@ import org.koin.core.inject
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector
 
-open class DstRecordDataConverter : ElementConverter<DstRecord>, KoinComponent {
+class DstRecordDataConverter : ElementConverter<DstRecord>, KoinComponent {
 
     private val settingsRepository by inject<SettingsRepository>()
 

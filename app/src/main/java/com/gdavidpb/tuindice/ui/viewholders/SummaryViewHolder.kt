@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.ui.customs.StatusCardView
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 
-open class SummaryViewHolder(
+class SummaryViewHolder(
         itemView: View
 ) : BaseViewHolder<SummaryItem>(itemView) {
     override fun bindView(item: SummaryItem) {

@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.utils.Paths
 import java.io.File
 
-open class GetProfilePictureFileUseCase(
+class GetProfilePictureFileUseCase(
         private val authRepository: AuthRepository,
         private val storageRepository: StorageRepository<File>
 ) : EventUseCase<Uri?, Uri, Nothing>() {

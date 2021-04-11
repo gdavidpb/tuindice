@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.utils.extensions.causes
 import com.gdavidpb.tuindice.utils.extensions.isAccountDisabled
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 
-open class ResendResetPasswordEmailUseCase(
+class ResendResetPasswordEmailUseCase(
         private val authRepository: AuthRepository,
         private val settingsRepository: SettingsRepository,
         private val networkRepository: NetworkRepository

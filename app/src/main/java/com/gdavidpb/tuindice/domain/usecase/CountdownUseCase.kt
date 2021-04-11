@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flow
 import java.util.*
 import kotlin.math.max
 
-open class CountdownUseCase(
+class CountdownUseCase(
         private val settingsRepository: SettingsRepository
 ) : FlowUseCase<CountdownRequest, Long, Nothing>() {
     override suspend fun executeOnBackground(params: CountdownRequest): Flow<Long> {

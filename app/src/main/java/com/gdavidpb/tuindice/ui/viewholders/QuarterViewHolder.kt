@@ -17,7 +17,7 @@ import com.gdavidpb.tuindice.utils.extensions.onSeekBarChange
 import kotlinx.android.synthetic.main.item_quarter.view.*
 import kotlinx.android.synthetic.main.item_subject.view.*
 
-open class QuarterViewHolder(
+class QuarterViewHolder(
         itemView: View,
         private val manager: QuarterAdapter.AdapterManager
 ) : BaseViewHolder<QuarterItem>(itemView) {

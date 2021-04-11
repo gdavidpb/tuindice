@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.utils.ResourcesManager
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.item_evaluation.view.*
 
-open class EvaluationViewHolder(
+ class EvaluationViewHolder(
         itemView: View,
         private val manager: EvaluationAdapter.AdapterManager
 ) : BaseViewHolder<EvaluationItem>(itemView) {

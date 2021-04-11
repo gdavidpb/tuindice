@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.isObjectNotFound
 import java.io.File
 
-open class GetProfilePictureUseCase(
+class GetProfilePictureUseCase(
         private val authRepository: AuthRepository,
         private val remoteStorageRepository: RemoteStorageRepository,
         private val networkRepository: NetworkRepository

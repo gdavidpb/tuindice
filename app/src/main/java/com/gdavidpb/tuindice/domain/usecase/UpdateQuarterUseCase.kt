@@ -13,7 +13,7 @@ import com.gdavidpb.tuindice.utils.extensions.computeGradeSum
 import com.gdavidpb.tuindice.utils.mappers.applyUpdate
 
 // TODO optimize use case
-open class UpdateQuarterUseCase(
+class UpdateQuarterUseCase(
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository
 ) : ResultUseCase<UpdateQuarterRequest, Quarter, Nothing>() {
