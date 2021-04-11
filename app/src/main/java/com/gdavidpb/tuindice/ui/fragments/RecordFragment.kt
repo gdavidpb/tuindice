@@ -176,6 +176,17 @@ class RecordFragment : NavigationFragment() {
                     }
                 }
             }
+            is Event.OnTimeout -> {
+                loadingDialog.dismiss()
+
+                setMenuVisibility(true)
+
+                snackBar {
+                    messageResource = R.string.snack_service_timeout
+
+                    action(R.string.retry) { viewModel.openEnrollmentProof() }
+                }
+            }
             is Event.OnError -> {
                 loadingDialog.dismiss()
 

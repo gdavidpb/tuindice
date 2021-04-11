@@ -6,7 +6,9 @@ import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.GetEnrollmentError
+import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.Paths
+import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.copyToAndClose
 import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
 import com.gdavidpb.tuindice.utils.extensions.isInvalidCredentials
@@ -16,6 +18,7 @@ import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import java.io.File
 import java.io.StreamCorruptedException
 
+@Timeout(key = ConfigKeys.TIME_OUT_GET_ENROLLMENT)
 class GetEnrollmentProofUseCase(
         private val authRepository: AuthRepository,
         private val dstRepository: DstRepository,
