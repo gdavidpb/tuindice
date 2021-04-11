@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.domain.usecase
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.repository.*
-import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
+import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.annotations.Timeout
@@ -20,7 +20,7 @@ open class SignInUseCase(
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
         private val networkRepository: NetworkRepository
-) : CompletableUseCase<Credentials, SignInError>() {
+) : EventUseCase<Credentials, Unit, SignInError>() {
     override suspend fun executeOnBackground(params: Credentials) {
         authRepository.signOut()
         settingsRepository.clear()

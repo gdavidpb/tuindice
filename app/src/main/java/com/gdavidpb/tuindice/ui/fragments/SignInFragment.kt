@@ -13,16 +13,13 @@ import com.gdavidpb.tuindice.data.utils.Validation
 import com.gdavidpb.tuindice.data.utils.`do`
 import com.gdavidpb.tuindice.data.utils.`when`
 import com.gdavidpb.tuindice.data.utils.firstInvalid
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
-import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.ui.adapters.LoadingAdapter
 import com.gdavidpb.tuindice.ui.dialogs.disabledAccountDialog
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.fragment_sign_in.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -49,7 +46,6 @@ class SignInFragment : NavigationFragment() {
 
         with(viewModel) {
             observe(signIn, ::signInObserver)
-            observe(sync, ::syncObserver)
         }
     }
 
@@ -93,10 +89,8 @@ class SignInFragment : NavigationFragment() {
     private fun onSignInClick() {
         validations.firstInvalid {
             when (this) {
-                is TextInputLayout -> {
+                is View -> {
                     requestFocus()
-
-                    selectAll()
 
                     animateLookAtMe()
                 }
@@ -153,36 +147,23 @@ class SignInFragment : NavigationFragment() {
         }
     }
 
-    private fun signInObserver(result: Completable<SignInError>?) {
+    private fun signInObserver(result: Event<Unit, SignInError>?) {
         when (result) {
-            is Completable.OnLoading -> {
+            is Event.OnLoading -> {
                 showLoading(true)
             }
-            is Completable.OnComplete -> {
-                viewModel.syncAccount()
+            is Event.OnSuccess -> {
+                navigate(SignInFragmentDirections.navToSplash())
             }
-            is Completable.OnTimeout -> {
+            is Event.OnTimeout -> {
                 showLoading(false)
 
                 timeoutSnackBar()
             }
-            is Completable.OnError -> {
+            is Event.OnError -> {
                 showLoading(false)
 
                 signInErrorHandler(error = result.error)
-            }
-        }
-    }
-
-    private fun syncObserver(result: Result<Boolean, SyncError>?) {
-        when (result) {
-            is Result.OnSuccess -> {
-                navigate(SignInFragmentDirections.navToSplash())
-            }
-            is Result.OnError -> {
-                showLoading(false)
-
-                defaultErrorSnackBar { onSignInClick() }
             }
         }
     }

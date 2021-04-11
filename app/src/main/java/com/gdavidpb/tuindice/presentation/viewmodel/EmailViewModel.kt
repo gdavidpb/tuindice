@@ -18,7 +18,6 @@ class EmailViewModel(
         private val signOutUseCase: SignOutUseCase,
         private val countdownUseCase: CountdownUseCase
 ) : ViewModel() {
-
     val countdown = LiveFlow<Long, Nothing>()
     val signOut = LiveCompletable<Nothing>()
     val resetPasswordEmail = LiveCompletable<SendResetPasswordEmailError>()

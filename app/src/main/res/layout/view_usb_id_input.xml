@@ -25,6 +25,7 @@
         android:imeOptions="actionNext"
         android:inputType="number"
         android:maxLength="8"
+        android:selectAllOnFocus="true"
         android:textColor="@color/color_text_input_layout_text" />
 
 </com.google.android.material.textfield.TextInputLayout>
