@@ -39,7 +39,6 @@ import org.koin.dsl.module
 import org.koin.experimental.builder.factory
 import org.koin.experimental.builder.factoryBy
 import org.koin.experimental.builder.single
-import pl.droidsonroids.retrofit2.JspoonConverterFactory
 import retrofit2.Retrofit
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -129,11 +128,6 @@ val mockModule = module {
                 .addInterceptor(get<HttpLoggingInterceptor>())
     }
 
-    factory {
-        Retrofit.Builder()
-                .addConverterFactory(JspoonConverterFactory.create())
-    }
-
     factory<ReviewManager> {
         FakeReviewManager(androidContext())
     }
@@ -141,8 +135,12 @@ val mockModule = module {
     /* Dst auth service */
 
     single {
+        val httpClient = get<OkHttpClient.Builder>()
+                .build()
+
         Retrofit.Builder()
                 .baseUrl(BuildConfig.ENDPOINT_DST_SECURE)
+                .client(httpClient)
                 .build()
                 .createMockService<DstAuthService, DstAuthServiceMock>()
     }
@@ -153,9 +151,9 @@ val mockModule = module {
         val httpClient = get<OkHttpClient.Builder>()
                 .build()
 
-        get<Retrofit.Builder>()
-                .client(httpClient)
+        Retrofit.Builder()
                 .baseUrl(BuildConfig.ENDPOINT_DST_RECORD)
+                .client(httpClient)
                 .build()
                 .createMockService<DstRecordService, DstRecordServiceMock>()
     }
@@ -163,8 +161,12 @@ val mockModule = module {
     /* Dst enrollment service */
 
     single {
+        val httpClient = get<OkHttpClient.Builder>()
+                .build()
+
         Retrofit.Builder()
                 .baseUrl(BuildConfig.ENDPOINT_DST_RECORD)
+                .client(httpClient)
                 .build()
                 .createMockService<DstEnrollmentService, DstEnrollmentServiceMock>()
     }

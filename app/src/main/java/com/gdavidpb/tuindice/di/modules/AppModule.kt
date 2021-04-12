@@ -200,11 +200,6 @@ val appModule = module {
     }
 
     factory {
-        Retrofit.Builder()
-                .addConverterFactory(JspoonConverterFactory.create())
-    }
-
-    factory {
         ReviewManagerFactory.create(androidContext())
     }
 
@@ -215,9 +210,10 @@ val appModule = module {
                 .addInterceptor(get<DstAuthInterceptor>())
                 .build()
 
-        get<Retrofit.Builder>()
-                .client(httpClient)
+        Retrofit.Builder()
                 .baseUrl(BuildConfig.ENDPOINT_DST_SECURE)
+                .addConverterFactory(JspoonConverterFactory.create())
+                .client(httpClient)
                 .build()
                 .create<DstAuthService>()
     }
@@ -228,9 +224,10 @@ val appModule = module {
         val httpClient = get<OkHttpClient.Builder>()
                 .build()
 
-        get<Retrofit.Builder>()
-                .client(httpClient)
+        Retrofit.Builder()
                 .baseUrl(BuildConfig.ENDPOINT_DST_RECORD)
+                .addConverterFactory(JspoonConverterFactory.create())
+                .client(httpClient)
                 .build()
                 .create<DstRecordService>()
     }
@@ -241,9 +238,10 @@ val appModule = module {
         val httpClient = get<OkHttpClient.Builder>()
                 .build()
 
-        get<Retrofit.Builder>()
-                .client(httpClient)
+        Retrofit.Builder()
                 .baseUrl(BuildConfig.ENDPOINT_DST_ENROLLMENT)
+                .addConverterFactory(JspoonConverterFactory.create())
+                .client(httpClient)
                 .build()
                 .create<DstEnrollmentService>()
     }
