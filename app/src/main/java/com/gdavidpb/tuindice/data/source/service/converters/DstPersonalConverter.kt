@@ -1,11 +1,11 @@
-package com.gdavidpb.tuindice.data.source.service.converter
+package com.gdavidpb.tuindice.data.source.service.converters
 
 import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector
 
-class DstPersonalDataConverter : ElementConverter<DstPersonal> {
+class DstPersonalConverter : ElementConverter<DstPersonal> {
     override fun convert(node: Element, selector: Selector): DstPersonal {
         return node.select("td td").run {
             val (careerCode, careerName) = get(4).text().split("\\s*-\\s*".toRegex())

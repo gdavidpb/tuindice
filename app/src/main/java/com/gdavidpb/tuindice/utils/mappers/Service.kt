@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.utils.mappers
 
-import com.gdavidpb.tuindice.data.source.service.selector.DstAuthResponseSelector
-import com.gdavidpb.tuindice.data.source.service.selector.DstEnrollmentDataSelector
-import com.gdavidpb.tuindice.data.source.service.selector.DstPersonalDataSelector
-import com.gdavidpb.tuindice.data.source.service.selector.DstRecordDataSelector
+import com.gdavidpb.tuindice.data.source.service.selectors.DstAuthResponse
+import com.gdavidpb.tuindice.data.source.service.selectors.DstEnrollmentResponse
+import com.gdavidpb.tuindice.data.source.service.selectors.DstPersonalResponse
+import com.gdavidpb.tuindice.data.source.service.selectors.DstRecordResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.ScheduleEntry
 import com.gdavidpb.tuindice.domain.model.ScheduleSubject
@@ -12,13 +12,13 @@ import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 
-fun DstPersonalDataSelector.toPersonalData() = selected ?: throw ParseException("toPersonalData")
+fun DstPersonalResponse.toPersonal() = selected ?: throw ParseException("toPersonalData")
 
-fun DstRecordDataSelector.toRecord() = selected?.run {
+fun DstRecordResponse.toRecord() = selected?.run {
     DstRecord(stats = stats, quarters = quarters)
 } ?: throw ParseException("toRecord")
 
-fun DstAuthResponseSelector.toAuthResponse(): DstAuth {
+fun DstAuthResponse.toAuth(): DstAuth {
     val (code, message) = when {
         invalidCredentialsMessage.isNotEmpty() -> AuthResponseCode.INVALID_CREDENTIALS to invalidCredentialsMessage
         notEnrolledMessage.isNotEmpty() -> AuthResponseCode.NOT_ENROLLED to notEnrolledMessage
@@ -33,7 +33,7 @@ fun DstAuthResponseSelector.toAuthResponse(): DstAuth {
     )
 }
 
-fun DstEnrollmentDataSelector.toEnrollment(): DstEnrollment {
+fun DstEnrollmentResponse.toEnrollment(): DstEnrollment {
     val schedule = schedule?.run {
         map {
             ScheduleSubject(

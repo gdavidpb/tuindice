@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.source.service.converter
+package com.gdavidpb.tuindice.data.source.service.converters
 
 import com.gdavidpb.tuindice.domain.model.service.DstScheduleEntry
 import com.gdavidpb.tuindice.domain.model.service.DstScheduledSubject

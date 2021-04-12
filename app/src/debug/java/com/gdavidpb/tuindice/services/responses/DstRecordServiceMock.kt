@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.services.responses
 
-import com.gdavidpb.tuindice.data.source.service.selector.DstPersonalDataSelector
-import com.gdavidpb.tuindice.data.source.service.selector.DstRecordDataSelector
+import com.gdavidpb.tuindice.data.source.service.selectors.DstPersonalResponse
+import com.gdavidpb.tuindice.data.source.service.selectors.DstRecordResponse
 import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.model.service.DstRecordStats
@@ -12,7 +12,7 @@ import com.gdavidpb.tuindice.utils.createSubject
 import com.gdavidpb.tuindice.utils.extensions.parse
 import com.gdavidpb.tuindice.utils.mappers.formatSubjectStatusDescription
 
-val defaultPersonalResponse = DstPersonalDataSelector(
+val defaultPersonalResponse = DstPersonalResponse(
         selected = DstPersonal(
                 usbId = "1111111",
                 id = "0",
@@ -113,6 +113,6 @@ val dstRecord = DstRecord(
         quarters = listOf(septDec2019, aprJul2019, janMar2019)
 )
 
-val defaultRecordResponse = DstRecordDataSelector(
+val defaultRecordResponse = DstRecordResponse(
         selected = dstRecord
 )

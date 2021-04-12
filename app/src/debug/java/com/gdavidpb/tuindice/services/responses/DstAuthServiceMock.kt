@@ -1,5 +1,5 @@
 package com.gdavidpb.tuindice.services.responses
 
-import com.gdavidpb.tuindice.data.source.service.selector.DstAuthResponseSelector
+import com.gdavidpb.tuindice.data.source.service.selectors.DstAuthResponse
 
-val dstDefaultAuthResponse = DstAuthResponseSelector()
+val dstDefaultAuthResponse = DstAuthResponse()

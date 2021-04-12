@@ -1,8 +1,8 @@
-package com.gdavidpb.tuindice.data.source.service.selector
+package com.gdavidpb.tuindice.data.source.service.selectors
 
 import pl.droidsonroids.jspoon.annotation.Selector
 
-data class DstAuthResponseSelector(
+data class DstAuthResponse(
         @Selector("#status")
         var invalidCredentialsMessage: String = "",
         @Selector("p:contains(Usted no está inscrito para ninguno de los períodos configurados)")

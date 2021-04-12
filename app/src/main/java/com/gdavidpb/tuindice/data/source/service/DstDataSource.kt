@@ -17,7 +17,7 @@ open class DstDataSource(
     override suspend fun getPersonalData(): DstPersonal {
         return recordService.getPersonalData()
                 .getOrThrow()
-                .toPersonalData()
+                .toPersonal()
     }
 
     override suspend fun getRecordData(): DstRecord {
@@ -51,7 +51,7 @@ open class DstDataSource(
                 password = credentials.password
         )
                 .getOrThrow()
-                .toAuthResponse()
+                .toAuth()
                 .also { response ->
                     check((response.code == AuthResponseCode.SUCCESS) || (response.code == AuthResponseCode.NOT_ENROLLED)) {
                         throw AuthenticationException(code = response.code, message = response.message)

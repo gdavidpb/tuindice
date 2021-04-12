@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.services.responses
 
-import com.gdavidpb.tuindice.data.source.service.selector.DstEnrollmentDataSelector
+import com.gdavidpb.tuindice.data.source.service.selectors.DstEnrollmentResponse
 import com.gdavidpb.tuindice.domain.model.service.DstPeriod
 import com.gdavidpb.tuindice.utils.createScheduledSubject
 import com.gdavidpb.tuindice.utils.extensions.parse
 
-val defaultEnrollmentResponse = DstEnrollmentDataSelector(
+val defaultEnrollmentResponse = DstEnrollmentResponse(
         schedule = listOf(
                 createScheduledSubject(code = "CI4835", name = "REDES DE COMPUTADORAS I", credits = 5),
                 createScheduledSubject(code = "CI6450", name = "TOPICOS EN INTELIGENCIA ARTIFICIAL I", credits = 4),

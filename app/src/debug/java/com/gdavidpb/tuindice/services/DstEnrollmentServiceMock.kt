@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.services
 import android.content.res.Resources
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.service.DstEnrollmentService
-import com.gdavidpb.tuindice.data.source.service.selector.DstEnrollmentDataSelector
+import com.gdavidpb.tuindice.data.source.service.selectors.DstEnrollmentResponse
 import com.gdavidpb.tuindice.services.responses.defaultEnrollmentResponse
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
@@ -18,7 +18,7 @@ class DstEnrollmentServiceMock(
 ) : DstEnrollmentService, KoinComponent {
     private val resources by inject<Resources>()
 
-    override suspend fun getEnrollment(mode: String): Response<DstEnrollmentDataSelector> {
+    override suspend fun getEnrollment(mode: String): Response<DstEnrollmentResponse> {
         val response = defaultEnrollmentResponse
 
         return delegate
