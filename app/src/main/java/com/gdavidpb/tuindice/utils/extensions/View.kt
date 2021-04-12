@@ -84,8 +84,6 @@ fun RecyclerView.onScrollStateChanged(listener: (newState: Int) -> Unit) {
     })
 }
 
-fun TextInputLayout.selectAll() = editText?.selectAll()
-
 fun TextView.drawables(
         start: Drawable? = null,
         top: Drawable? = null,

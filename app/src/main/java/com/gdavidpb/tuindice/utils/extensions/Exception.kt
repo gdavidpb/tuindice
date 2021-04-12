@@ -18,8 +18,6 @@ import javax.net.ssl.SSLHandshakeException
 
 fun List<Throwable>.isInvalidLink() = any<FirebaseAuthActionCodeException>()
 
-fun List<Throwable>.isCredentialsChanged() = any<FirebaseAuthInvalidCredentialsException>()
-
 fun List<Throwable>.isAccountDisabled() = find<FirebaseAuthInvalidUserException>()?.errorCode == "ERROR_USER_DISABLED"
 
 fun List<Throwable>.isUserNotFound() = find<FirebaseAuthInvalidUserException>()?.errorCode == "ERROR_USER_NOT_FOUND"
@@ -31,8 +29,9 @@ fun Throwable.isObjectNotFound() = this is StorageException && when (errorCode) 
     else -> false
 }
 
-fun Throwable.isInvalidCredentials() = this is AuthenticationException && when (code) {
-    AuthResponseCode.INVALID_CREDENTIALS -> true
+fun Throwable.isInvalidCredentials() = when (this) {
+    is FirebaseAuthInvalidCredentialsException -> true
+    is AuthenticationException -> (code == AuthResponseCode.INVALID_CREDENTIALS)
     else -> false
 }
 

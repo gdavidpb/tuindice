@@ -35,24 +35,10 @@ open class AuthMockDataSource(
     override suspend fun confirmPasswordReset(code: String, password: String) {
     }
 
-    override suspend fun confirmVerifyEmail(code: String) {
-    }
-
     override suspend fun sendPasswordResetEmail(email: String) {
     }
 
-    override suspend fun sendVerificationEmail() {
-    }
-
-    override suspend fun isEmailVerified(): Boolean {
-        return true
-    }
-
     override suspend fun isResetPasswordLink(link: String): Boolean {
-        return false
-    }
-
-    override suspend fun isVerifyEmailLink(link: String): Boolean {
         return false
     }
 }

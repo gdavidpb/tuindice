@@ -79,16 +79,9 @@ class SplashFragment : NavigationFragment() {
 
                 mainViewModel.trySyncAccount()
             }
-            is StartUpAction.Reset -> {
-                navigate(SplashFragmentDirections.navToEmail(
-                        email = action.email,
-                        mode = EmailFragment.Mode.RESET.ordinal
-                ))
-            }
-            is StartUpAction.Verify -> {
-                navigate(SplashFragmentDirections.navToEmail(
-                        email = action.email,
-                        mode = EmailFragment.Mode.VERIFY.ordinal
+            is StartUpAction.ResetPassword -> {
+                navigate(SplashFragmentDirections.navToResetPassword(
+                        email = action.email
                 ))
             }
             is StartUpAction.SignIn -> {

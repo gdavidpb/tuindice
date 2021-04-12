@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.gdavidpb.tuindice.utils.mappers.asUsbEmail
 import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import java.io.File
 
@@ -33,11 +32,10 @@ class SignInUseCase(
         }.onFailure { throwable ->
             val causes = throwable.causes()
 
-            when {
-                causes.isUserNotFound() -> handleUserNoExists(credentials = params)
-                causes.isCredentialsChanged() -> handleCredentialsChanged(credentials = params)
-                else -> throw throwable
-            }
+            if (causes.isUserNotFound())
+                handleUserNoExists(credentials = params)
+            else
+                throw throwable
         }
     }
 
@@ -55,8 +53,6 @@ class SignInUseCase(
     private suspend fun handleUserExists(credentials: Credentials) {
         val activeAuth = authRepository.getActiveAuth()
 
-        if (!authRepository.isEmailVerified()) authRepository.sendVerificationEmail()
-
         settingsRepository.storeCredentials(credentials)
 
         databaseRepository.cache(uid = activeAuth.uid)
@@ -70,13 +66,5 @@ class SignInUseCase(
         authRepository.signUp(credentials)
 
         handleUserExists(credentials = credentials)
-    }
-
-    private suspend fun handleCredentialsChanged(credentials: Credentials) {
-        val email = credentials.usbId.asUsbEmail()
-
-        authRepository.sendPasswordResetEmail(email)
-
-        settingsRepository.storeCredentials(credentials)
     }
 }

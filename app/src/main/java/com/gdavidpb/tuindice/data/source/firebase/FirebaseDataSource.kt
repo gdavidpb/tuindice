@@ -62,41 +62,8 @@ open class FirebaseDataSource(
         auth.sendPasswordResetEmail(email, actionCodeSettings).await()
     }
 
-    override suspend fun sendVerificationEmail() {
-        val continueUrl = BuildConfig.URL_SIGN.format("test")
-
-        val currentUser = auth.currentUser ?: throw UnauthenticatedException()
-
-        val actionCodeSettings = ActionCodeSettings
-                .newBuilder()
-                .setUrl(continueUrl)
-                .setHandleCodeInApp(true)
-                .setAndroidPackageName(BuildConfig.APPLICATION_ID, true, null)
-                .build()
-
-        currentUser.sendEmailVerification(actionCodeSettings).await()
-    }
-
-    override suspend fun confirmVerifyEmail(code: String) {
-        auth.applyActionCode(code).await()
-    }
-
     override suspend fun confirmPasswordReset(code: String, password: String) {
         auth.confirmPasswordReset(code, password).await()
-    }
-
-    override suspend fun isEmailVerified(): Boolean {
-        val outdatedUser = auth.currentUser ?: throw UnauthenticatedException()
-
-        outdatedUser.reload().await()
-
-        val updatedUser = auth.currentUser ?: throw UnauthenticatedException()
-
-        return updatedUser.isEmailVerified
-    }
-
-    override suspend fun isVerifyEmailLink(link: String): Boolean {
-        return link.mode == "verifyEmail"
     }
 
     override suspend fun isResetPasswordLink(link: String): Boolean {

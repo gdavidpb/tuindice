@@ -84,7 +84,7 @@ fun <T, Q> LiveFlow<T, Q>.postComplete() = postValue(Flow.OnComplete())
 fun <T, Q> LiveFlow<T, Q>.postError(error: Q?) = postValue(Flow.OnError(error))
 
 @JvmName("postTimeoutFlow")
-fun <T, Q> LiveFlow<T, Q>.postTimeout() = postValue(Flow.OnCancel())
+fun <T, Q> LiveFlow<T, Q>.postTimeout() = postValue(Flow.OnTimeout())
 
 @JvmName("postCancelFlow")
 fun <T, Q> LiveFlow<T, Q>.postCancel() = postValue(Flow.OnCancel())

@@ -11,11 +11,6 @@ interface AuthRepository {
     suspend fun signOut()
 
     suspend fun confirmPasswordReset(code: String, password: String)
-    suspend fun confirmVerifyEmail(code: String)
     suspend fun sendPasswordResetEmail(email: String)
-    suspend fun sendVerificationEmail()
-    suspend fun isEmailVerified(): Boolean
-
     suspend fun isResetPasswordLink(link: String): Boolean
-    suspend fun isVerifyEmailLink(link: String): Boolean
 }

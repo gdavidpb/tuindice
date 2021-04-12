@@ -14,7 +14,6 @@
     <string name="accept">Aceptar</string>
     <string name="retry">Reintentar</string>
     <string name="restart">Reiniciar</string>
-    <string name="open_settings">Ir a la configuración</string>
 
     <string name="app_version">%1$s v%2$s (%3$d)</string>
 
@@ -80,10 +79,8 @@
     <!-- SummaryFragment -->
 
     <string name="text_5">/ 5</string>
-    <string name="text_5_dot">/ 5.0</string>
 
     <string name="text_last_update">Última actualización: %1$s</string>
-    <string name="description_last_update">Estado</string>
 
     <plurals name="text_subjects_header">
         <item quantity="one">%d materia cursada</item>
@@ -310,25 +307,15 @@
     <string name="toast_evaluation_value_missed">Establece un valor</string>
     <string name="toast_evaluation_date_missed">Selecciona una fecha</string>
 
-    <!-- EmailFragment -->
+    <!-- ResetPasswordFragment -->
 
     <string name="snack_bar_resend">Correo reenviado</string>
 
-    <string name="label_verify">
-        Verifica tu cuenta
-    </string>
-
-    <string name="label_reset">
+    <string name="label_reset_password">
         Tu contraseña ha cambiado
     </string>
 
-    <string name="message_verify">
-        Hemos enviado un enlace de verificación a tu correo
-        institucional (%1$s).\n\n
-        Revísalo y estamos listos ;)
-    </string>
-
-    <string name="message_reset">
+    <string name="message_reset_password">
         Hemos enviado un enlace de actualización de contraseña
         a tu correo institucional (%1$s).\n\n
         Revísalo y podrás continuar ;)

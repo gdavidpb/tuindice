@@ -1,8 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import android.app.ActivityManager
-import android.content.Intent
-import android.provider.Settings
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -39,13 +37,6 @@ fun FragmentActivity.selector(
     titleResource = textResource
 
     setItems(items) { _, which -> onClick(items[which]) }
-}
-
-fun FragmentActivity.openDataTime() {
-    val intent = Intent(Settings.ACTION_DATE_SETTINGS)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-    startActivityForResult(intent, 0)
 }
 
 fun FragmentActivity.isGoogleServicesAvailable(): Boolean {

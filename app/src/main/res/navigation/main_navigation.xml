@@ -18,8 +18,8 @@
             app:popUpToInclusive="true" />
 
         <action
-            android:id="@+id/nav_to_email"
-            app:destination="@id/fragment_email"
+            android:id="@+id/nav_to_reset_password"
+            app:destination="@id/fragment_reset_password"
             app:enterAnim="@anim/slide_in_from_bottom"
             app:exitAnim="@anim/slide_out_to_top"
             app:popUpTo="@id/fragment_splash"
@@ -33,22 +33,19 @@
     </fragment>
 
     <fragment
-        android:id="@+id/fragment_email"
-        android:name="com.gdavidpb.tuindice.ui.fragments.EmailFragment"
-        tools:layout="@layout/fragment_email">
+        android:id="@+id/fragment_reset_password"
+        android:name="com.gdavidpb.tuindice.ui.fragments.ResetPasswordFragment"
+        tools:layout="@layout/fragment_reset_password">
         <argument
             android:name="email"
             app:argType="string" />
-        <argument
-            android:name="mode"
-            app:argType="integer" />
 
         <action
             android:id="@+id/nav_to_sign_in"
             app:destination="@id/fragment_sign_in"
             app:enterAnim="@anim/slide_in_from_top"
             app:exitAnim="@anim/slide_out_to_bottom"
-            app:popUpTo="@id/fragment_email"
+            app:popUpTo="@id/fragment_reset_password"
             app:popUpToInclusive="true" />
     </fragment>
 
