@@ -7,16 +7,15 @@ import com.gdavidpb.tuindice.data.source.service.selectors.DstRecordResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.ScheduleEntry
 import com.gdavidpb.tuindice.domain.model.ScheduleSubject
-import com.gdavidpb.tuindice.domain.model.exception.ParseException
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 
-fun DstPersonalResponse.toPersonal() = selected ?: throw ParseException("toPersonalData")
+fun DstPersonalResponse.toPersonal() = selected ?: error("toPersonalData")
 
 fun DstRecordResponse.toRecord() = selected?.run {
     DstRecord(stats = stats, quarters = quarters)
-} ?: throw ParseException("toRecord")
+} ?: error("toRecord")
 
 fun DstAuthResponse.toAuth(): DstAuth {
     val (code, message) = when {
@@ -55,8 +54,8 @@ fun DstEnrollmentResponse.toEnrollment(): DstEnrollment {
     }
 
     return DstEnrollment(
-            startDate = period?.startDate ?: throw ParseException("toEnrollment"),
-            endDate = period?.endDate ?: throw ParseException("toEnrollment"),
+            startDate = period?.startDate ?: error("toEnrollment"),
+            endDate = period?.endDate ?: error("toEnrollment"),
             schedule = schedule ?: listOf(),
             globalStatus = globalStatus ?: "",
             enrollmentStatus = enrollmentStatus ?: ""
