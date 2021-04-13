@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.data.source.firebase
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.Credentials
-import com.gdavidpb.tuindice.domain.model.exception.UnauthenticatedException
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.utils.extensions.mode
 import com.gdavidpb.tuindice.utils.mappers.asUsbEmail
@@ -22,7 +21,7 @@ open class FirebaseDataSource(
     override suspend fun getActiveAuth(): Auth {
         return auth.currentUser
                 ?.toAuth()
-                ?: throw UnauthenticatedException()
+                ?: error("getActiveAuth")
     }
 
     override suspend fun signUp(credentials: Credentials): Auth {
@@ -32,7 +31,7 @@ open class FirebaseDataSource(
                 .await()
                 .user
                 ?.toAuth()
-                ?: throw UnauthenticatedException()
+                ?: error("signUp")
     }
 
     override suspend fun signIn(credentials: Credentials): Auth {
@@ -42,7 +41,7 @@ open class FirebaseDataSource(
                 .await()
                 .user
                 ?.toAuth()
-                ?: throw UnauthenticatedException()
+                ?: error("signIn")
     }
 
     override suspend fun signOut() {

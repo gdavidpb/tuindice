@@ -4,7 +4,6 @@ import android.graphics.Color
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.exception.ParseException
-import com.gdavidpb.tuindice.domain.model.exception.UnauthenticatedException
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.utils.REF_BASE
 import com.gdavidpb.tuindice.utils.extensions.get
@@ -24,7 +23,7 @@ fun Credentials.toDstCredentials(serviceUrl: String) = DstCredentials(
 
 fun FirebaseUser.toAuth() = Auth(
         uid = uid,
-        email = email ?: throw UnauthenticatedException()
+        email = email ?: error("email")
 )
 
 infix fun Int.distanceTo(x: Int): Double {

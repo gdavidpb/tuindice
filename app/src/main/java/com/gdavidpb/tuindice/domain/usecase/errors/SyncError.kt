@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.domain.usecase.errors
 
 sealed class SyncError {
-    object Unauthenticated : SyncError()
+    object IllegalState : SyncError()
     object AccountDisabled : SyncError()
     @Deprecated("Rename to CredentialsChanged")
     object InvalidCredentials : SyncError()

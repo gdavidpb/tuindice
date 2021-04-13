@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.domain.usecase
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.exception.UnauthenticatedException
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
@@ -84,7 +83,7 @@ class SyncAccountUseCase(
         val causes = throwable.causes()
 
         return when {
-            throwable is UnauthenticatedException -> SyncError.Unauthenticated
+            throwable is IllegalStateException -> SyncError.IllegalState
             causes.isAccountDisabled() -> SyncError.AccountDisabled
             throwable.isInvalidCredentials() -> SyncError.InvalidCredentials
             throwable.isConnectionIssue() -> SyncError.NoConnection(networkRepository.isAvailable())

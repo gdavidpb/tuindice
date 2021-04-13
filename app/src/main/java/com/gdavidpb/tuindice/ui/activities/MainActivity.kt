@@ -136,7 +136,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun syncErrorHandler(error: SyncError?) {
         when (error) {
-            is SyncError.Unauthenticated -> fatalFailureRestart()
+            is SyncError.IllegalState -> fatalFailureRestart()
             is SyncError.AccountDisabled -> disabledFailureDialog()
             is SyncError.InvalidCredentials -> credentialsChangedDialog()
         }
