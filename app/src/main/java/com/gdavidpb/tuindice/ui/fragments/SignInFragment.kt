@@ -20,7 +20,7 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.ui.adapters.LoadingAdapter
-import com.gdavidpb.tuindice.ui.dialogs.disabledAccountDialog
+import com.gdavidpb.tuindice.ui.dialogs.disabledAccountFailureDialog
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_sign_in.*
@@ -194,7 +194,7 @@ class SignInFragment : NavigationFragment() {
             is SignInError.Timeout -> errorSnackBar(R.string.snack_timeout) { onSignInClick() }
             is SignInError.InvalidCredentials -> invalidCredentialsSnackBar()
             is SignInError.OutdatedPassword -> navToSplash()
-            is SignInError.AccountDisabled -> requireAppCompatActivity().disabledAccountDialog()
+            is SignInError.AccountDisabled -> requireAppCompatActivity().disabledAccountFailureDialog()
             is SignInError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
             else -> errorSnackBar { onSignInClick() }
         }

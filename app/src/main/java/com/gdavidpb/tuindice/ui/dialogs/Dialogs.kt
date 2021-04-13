@@ -51,23 +51,7 @@ fun AppCompatActivity.credentialsChangedDialog() {
     }
 }
 
-
-fun AppCompatActivity.disabledFailureDialog() {
-    clearApplicationUserData()
-
-    alert {
-        titleResource = R.string.alert_title_disabled_failure
-        messageResource = R.string.alert_message_disabled_failure
-
-        isCancelable = false
-
-        positiveButton(R.string.exit) {
-            finish()
-        }
-    }
-}
-
-fun AppCompatActivity.disabledAccountDialog() {
+fun AppCompatActivity.disabledAccountFailureDialog() {
     clearApplicationUserData()
 
     alert {

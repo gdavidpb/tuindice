@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Flow
 import com.gdavidpb.tuindice.domain.usecase.errors.SendResetPasswordEmailError
 import com.gdavidpb.tuindice.presentation.viewmodel.EmailViewModel
-import com.gdavidpb.tuindice.ui.dialogs.disabledAccountDialog
+import com.gdavidpb.tuindice.ui.dialogs.disabledAccountFailureDialog
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_reset_password.*
@@ -115,7 +115,7 @@ class ResetPasswordFragment : NavigationFragment() {
 
     private fun resetPasswordErrorHandler(error: SendResetPasswordEmailError?) {
         when (error) {
-            is SendResetPasswordEmailError.AccountDisabled -> requireAppCompatActivity().disabledAccountDialog()
+            is SendResetPasswordEmailError.AccountDisabled -> requireAppCompatActivity().disabledAccountFailureDialog()
             is SendResetPasswordEmailError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onResendClick() }
             else -> errorSnackBar { onResendClick() }
         }
