@@ -34,7 +34,10 @@ interface DatabaseRepository {
     suspend fun setToken(uid: String, token: String)
 
     suspend fun runBatch(batch: suspend DatabaseRepository.() -> Unit)
+
+    suspend fun hasCache(uid: String): Boolean
     suspend fun cache(uid: String)
     suspend fun clearCache()
+
     suspend fun close()
 }

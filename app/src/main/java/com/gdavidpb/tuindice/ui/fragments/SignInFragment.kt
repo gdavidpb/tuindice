@@ -15,7 +15,9 @@ import com.gdavidpb.tuindice.data.utils.`do`
 import com.gdavidpb.tuindice.data.utils.`when`
 import com.gdavidpb.tuindice.data.utils.firstInvalid
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
+import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.ui.adapters.LoadingAdapter
 import com.gdavidpb.tuindice.ui.dialogs.disabledAccountDialog
@@ -80,6 +82,7 @@ class SignInFragment : NavigationFragment() {
 
         with(viewModel) {
             observe(signIn, ::signInObserver)
+            observe(sync, ::syncObserver)
         }
     }
 
@@ -148,13 +151,18 @@ class SignInFragment : NavigationFragment() {
         }
     }
 
-    private fun signInObserver(result: Event<Unit, SignInError>?) {
+    private fun signInObserver(result: Event<Boolean, SignInError>?) {
         when (result) {
             is Event.OnLoading -> {
                 showLoading(true)
             }
             is Event.OnSuccess -> {
-                navigate(SignInFragmentDirections.navToSplash())
+                val hasCache = result.value
+
+                if (hasCache)
+                    navigate(SignInFragmentDirections.navToSplash())
+                else
+                    viewModel.trySyncAccount()
             }
             is Event.OnTimeout -> {
                 showLoading(false)
@@ -169,11 +177,31 @@ class SignInFragment : NavigationFragment() {
         }
     }
 
+    private fun syncObserver(result: Result<Boolean, SyncError>?) {
+        when (result) {
+            is Result.OnSuccess -> {
+                navigate(SignInFragmentDirections.navToSplash())
+            }
+            is Result.OnError -> {
+                viewModel.signOut()
+
+                syncErrorHandler(error = result.error)
+            }
+        }
+    }
+
     private fun signInErrorHandler(error: SignInError?) {
         when (error) {
             is SignInError.InvalidCredentials -> invalidCredentialsSnackBar()
             is SignInError.AccountDisabled -> requireAppCompatActivity().disabledAccountDialog()
             is SignInError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
+            else -> defaultErrorSnackBar { onSignInClick() }
+        }
+    }
+
+    private fun syncErrorHandler(error: SyncError?) {
+        when (error) {
+            is SyncError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
             else -> defaultErrorSnackBar { onSignInClick() }
         }
     }

@@ -247,6 +247,15 @@ open class FirestoreMockDataSource(
         }
     }
 
+    override suspend fun hasCache(uid: String): Boolean {
+        return firestore
+                .collection(UserCollection.COLLECTION)
+                .document(uid)
+                .get()
+                .await()
+                .exists()
+    }
+
     override suspend fun cache(uid: String) {
         firestore
                 .collection(UserCollection.COLLECTION)

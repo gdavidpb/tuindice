@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.gdavidpb.tuindice.utils.mappers.asUsbEmail
 import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
@@ -18,8 +17,8 @@ class SignInUseCase(
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
         private val networkRepository: NetworkRepository
-) : EventUseCase<Credentials, Unit, SignInError>() {
-    override suspend fun executeOnBackground(params: Credentials) {
+) : EventUseCase<Credentials, Boolean, SignInError>() {
+    override suspend fun executeOnBackground(params: Credentials): Boolean {
         val dstCredentials = params.toDstCredentials(serviceUrl = BuildConfig.ENDPOINT_DST_SECURE_AUTH)
 
         dstRepository.signIn(credentials = dstCredentials)
@@ -31,12 +30,15 @@ class SignInUseCase(
         }.onFailure { throwable ->
             val causes = throwable.causes()
 
-            when {
-                causes.isUserNotFound() -> handleUserNoExists(credentials = params)
-                causes.haveCredentialsChanged() -> handleCredentialsChanged(credentials = params)
-                else -> throw throwable
-            }
+            if (causes.isUserNotFound())
+                handleUserNoExists(credentials = params)
+            else
+                throw throwable
         }
+
+        val activeAuth = authRepository.getActiveAuth()
+
+        return databaseRepository.hasCache(uid = activeAuth.uid)
     }
 
     override suspend fun executeOnException(throwable: Throwable): SignInError? {
@@ -62,13 +64,5 @@ class SignInUseCase(
         authRepository.signUp(credentials)
 
         handleUserExists(credentials)
-    }
-
-    private suspend fun handleCredentialsChanged(credentials: Credentials) {
-        val email = credentials.usbId.asUsbEmail()
-
-        authRepository.sendPasswordResetEmail(email)
-
-        settingsRepository.storeCredentials(credentials)
     }
 }

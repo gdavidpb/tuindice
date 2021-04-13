@@ -248,6 +248,15 @@ open class FirestoreDataSource(
         }
     }
 
+    override suspend fun hasCache(uid: String): Boolean {
+        return firestore
+                .collection(UserCollection.COLLECTION)
+                .document(uid)
+                .get(Source.CACHE)
+                .await()
+                .exists()
+    }
+
     override suspend fun cache(uid: String) {
         firestore
                 .collection(UserCollection.COLLECTION)
