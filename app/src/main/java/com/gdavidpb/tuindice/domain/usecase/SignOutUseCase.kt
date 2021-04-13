@@ -14,8 +14,8 @@ class SignOutUseCase(
     override suspend fun executeOnBackground(params: Unit) {
         authRepository.signOut()
         settingsRepository.clear()
-        databaseRepository.close()
         databaseRepository.clearCache()
+        databaseRepository.close()
         storageRepository.clear()
         dependenciesRepository.restart()
     }
