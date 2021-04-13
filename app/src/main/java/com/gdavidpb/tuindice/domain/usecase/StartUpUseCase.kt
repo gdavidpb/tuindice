@@ -21,41 +21,12 @@ class StartUpUseCase(
         val isPasswordResetLink = authRepository.isResetPasswordLink(params)
         val hasCredentials = settingsRepository.hasCredentials()
 
-        val lastScreen = settingsRepository.getLastScreen()
-
         configRepository.tryFetchAndActivate()
 
         return when {
-            isPasswordResetLink && hasCredentials -> {
-                val oobCode = linkRepository.resolveLink(data = params).oobCode
-                val credentials = settingsRepository.getCredentials()
-
-                authRepository.confirmPasswordReset(code = oobCode, password = credentials.password)
-
-                val activeAuth = authRepository.signIn(credentials = credentials)
-                val activeAccount = databaseRepository.getAccount(uid = activeAuth.uid)
-
-                settingsRepository.resetCountdown()
-
-                StartUpAction.Main(screen = lastScreen, account = activeAccount)
-            }
-            isActiveAuth -> {
-                val activeAuth = authRepository.getActiveAuth()
-                val activeAccount = databaseRepository.getAccount(uid = activeAuth.uid)
-
-                reportingRepository.setIdentifier(activeAuth.uid)
-
-                val token = messagingRepository.getToken()
-
-                if (token != null) databaseRepository.setToken(uid = activeAuth.uid, token = token)
-
-                StartUpAction.Main(screen = lastScreen, account = activeAccount)
-            }
-            hasCredentials -> {
-                val email = settingsRepository.getEmail()
-
-                StartUpAction.ResetPassword(email = email)
-            }
+            isPasswordResetLink && hasCredentials -> handlePasswordResetLink(link = params)
+            isActiveAuth -> handleSignedIn()
+            hasCredentials -> handlePasswordReset()
             else -> StartUpAction.SignIn
         }
     }
@@ -69,5 +40,40 @@ class StartUpUseCase(
             throwable.isConnectionIssue() -> StartUpError.NoConnection(networkRepository.isAvailable())
             else -> StartUpError.UnableToStart
         }
+    }
+
+    private suspend fun handlePasswordResetLink(link: String): StartUpAction {
+        val lastScreen = settingsRepository.getLastScreen()
+        val oobCode = linkRepository.resolveLink(data = link).oobCode
+        val credentials = settingsRepository.getCredentials()
+
+        authRepository.confirmPasswordReset(code = oobCode, password = credentials.password)
+
+        val activeAuth = authRepository.signIn(credentials = credentials)
+        val activeAccount = databaseRepository.getAccount(uid = activeAuth.uid)
+
+        settingsRepository.resetCountdown()
+
+        return StartUpAction.Main(screen = lastScreen, account = activeAccount)
+    }
+
+    private suspend fun handleSignedIn(): StartUpAction {
+        val lastScreen = settingsRepository.getLastScreen()
+        val activeAuth = authRepository.getActiveAuth()
+        val activeAccount = databaseRepository.getAccount(uid = activeAuth.uid)
+
+        reportingRepository.setIdentifier(activeAuth.uid)
+
+        val token = messagingRepository.getToken()
+
+        if (token != null) databaseRepository.setToken(uid = activeAuth.uid, token = token)
+
+        return StartUpAction.Main(screen = lastScreen, account = activeAccount)
+    }
+
+    private fun handlePasswordReset(): StartUpAction {
+        val email = settingsRepository.getEmail()
+
+        return StartUpAction.ResetPassword(email = email)
     }
 }
