@@ -10,6 +10,7 @@ data class QuarterItem(
         val color: Int,
         val isMock: Boolean,
         val isEditable: Boolean,
+        val isCurrent: Boolean,
         val TitleText: CharSequence,
         val gradeDiffText: CharSequence,
         val gradeSumText: CharSequence,

@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
-import com.gdavidpb.tuindice.domain.model.exception.NoEnrolledException
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.isUpdated
@@ -121,19 +120,6 @@ open class FirestoreMockDataSource(
 
             it.toQuarter(quarterSubjects)
         }
-    }
-
-    override suspend fun getCurrentQuarter(uid: String): Quarter {
-        return firestore
-                .collection(QuarterCollection.COLLECTION)
-                .whereEqualTo(QuarterCollection.USER_ID, uid)
-                .whereEqualTo(QuarterCollection.STATUS, STATUS_QUARTER_CURRENT)
-                .limit(1)
-                .get()
-                .await()
-                .map { it.toQuarter(subjects = getQuarterSubjects(uid = uid, qid = it.id)) }
-                .firstOrNull()
-                ?: throw NoEnrolledException()
     }
 
     override suspend fun updateQuarter(uid: String, qid: String, update: QuarterUpdate): Quarter {

@@ -21,7 +21,6 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.ui.dialogs.credentialsChangedDialog
-import com.gdavidpb.tuindice.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
 import com.gdavidpb.tuindice.utils.mappers.toUpdateRequest
@@ -69,19 +68,8 @@ class RecordFragment : NavigationFragment() {
             layoutManager = LinearLayoutManager(context)
             adapter = quarterAdapter
 
-            /*
-            onScrollStateChanged { newState ->
-                if (newState == SCROLL_STATE_IDLE)
-                    btnAddQuarter.show()
-                else
-                    btnAddQuarter.hide()
-            }
-            */
-
             ItemTouchHelper(quarterManager).attachToRecyclerView(this)
         }
-
-        // btnAddQuarter.onClickOnce(::onAddQuarterClicked)
 
         viewModel.getQuarters()
     }
@@ -107,7 +95,10 @@ class RecordFragment : NavigationFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_enrollment -> {
-                viewModel.openEnrollmentProof()
+                val currentQuarterItem = quarterAdapter.getCurrentQuarter()
+
+                if (currentQuarterItem != null)
+                    viewModel.openEnrollmentProof(quarter = currentQuarterItem.data)
 
                 true
             }
@@ -119,6 +110,15 @@ class RecordFragment : NavigationFragment() {
         snackBar {
             messageResource = R.string.snack_bar_enrollment_not_found
         }
+    }
+
+    private fun openEnrollmentProof() {
+        val currentQuarterItem = quarterAdapter.getCurrentQuarter()
+
+        if (currentQuarterItem != null)
+            viewModel.openEnrollmentProof(quarter = currentQuarterItem.data)
+        else
+            notFoundSnackBar()
     }
 
     private fun syncObserver(result: Result<Boolean, SyncError>?) {
@@ -139,15 +139,13 @@ class RecordFragment : NavigationFragment() {
 
                 val quarters = result.value
 
-                val hasCurrentQuarter = quarters.any { quarter ->
-                    quarter.status == STATUS_QUARTER_CURRENT
-                }
-
-                setMenuVisibility(hasCurrentQuarter)
-
                 val items = quarters.map { quarter ->
                     quarter.toQuarterItem(context)
                 }
+
+                val hasCurrentQuarter = items.any { quarter -> quarter.isCurrent }
+
+                setMenuVisibility(hasCurrentQuarter)
 
                 quarterAdapter.submitQuarters(items)
             }
@@ -184,7 +182,7 @@ class RecordFragment : NavigationFragment() {
                 snackBar {
                     messageResource = R.string.snack_service_timeout
 
-                    action(R.string.retry) { viewModel.openEnrollmentProof() }
+                    action(R.string.retry) { openEnrollmentProof() }
                 }
             }
             is Event.OnError -> {
@@ -212,18 +210,12 @@ class RecordFragment : NavigationFragment() {
     private fun enrollmentErrorHandler(error: GetEnrollmentError?) {
         when (error) {
             is GetEnrollmentError.InvalidCredentials -> requireAppCompatActivity().credentialsChangedDialog()
-            is GetEnrollmentError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { viewModel.openEnrollmentProof() }
+            is GetEnrollmentError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { openEnrollmentProof() }
             is GetEnrollmentError.NotEnrolled -> notFoundSnackBar()
             is GetEnrollmentError.NotFound -> notFoundSnackBar()
-            else -> defaultErrorSnackBar { viewModel.openEnrollmentProof() }
+            else -> defaultErrorSnackBar { openEnrollmentProof() }
         }
     }
-
-    /*
-    private fun onAddQuarterClicked() {
-
-    }
-    */
 
     inner class QuarterManager : QuarterAdapter.AdapterManager, ItemTouchHelper.Callback() {
         override fun onSubjectClicked(quarterItem: QuarterItem, subjectItem: SubjectItem) {

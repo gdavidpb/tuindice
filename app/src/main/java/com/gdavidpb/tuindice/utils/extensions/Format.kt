@@ -35,6 +35,14 @@ fun Float.formatGrade(decimals: Int) = "%.${decimals}f".format(this)
 
 fun Int.formatGrade() = "%d".format(this)
 
+fun Date.formatQuarterName(date: Date): String {
+    val start = format("MMM")?.capitalize()
+    val end = date.format("MMM")?.capitalize()
+    val year = format("yyyy")
+
+    return "$start - $end $year".replace("\\.".toRegex(), "")
+}
+
 private val dateFormatCache = hashMapOf<String, SimpleDateFormat>()
 
 fun Date.format(format: String) = dateFormatCache.getOrPut(format) {

@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.utils.extensions
 
 import com.gdavidpb.tuindice.domain.model.AuthErrorCode
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
-import com.gdavidpb.tuindice.domain.model.exception.NoEnrolledException
 import com.google.firebase.auth.FirebaseAuthActionCodeException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -37,7 +36,6 @@ fun Throwable.isInvalidCredentials() = when (this) {
 }
 
 fun Throwable.isNotEnrolled() = when (this) {
-    is NoEnrolledException -> true
     is AuthenticationException -> (errorCode == AuthErrorCode.NOT_ENROLLED)
     else -> false
 }

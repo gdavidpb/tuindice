@@ -31,8 +31,8 @@ class RecordViewModel(
     fun updateQuarter(request: UpdateQuarterRequest) =
             execute(useCase = updateQuarterUseCase, params = request, liveData = quarterUpdate)
 
-    fun openEnrollmentProof() =
-            execute(useCase = getEnrollmentProofUseCase, params = Unit, liveData = enrollment)
+    fun openEnrollmentProof(quarter: Quarter) =
+            execute(useCase = getEnrollmentProofUseCase, params = quarter, liveData = enrollment)
 
     fun removeQuarter(id: String) =
             execute(useCase = removeQuarterUseCase, params = id, liveData = quarterRemove)

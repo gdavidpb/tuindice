@@ -72,4 +72,8 @@ class QuarterAdapter(
     fun updateQuarter(item: QuarterItem) {
         updateItem(item)
     }
+
+    fun getCurrentQuarter(): QuarterItem? {
+        return currentList.find { it.isCurrent }
+    }
 }

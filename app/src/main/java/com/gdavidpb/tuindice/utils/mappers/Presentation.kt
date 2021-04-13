@@ -39,7 +39,8 @@ fun Quarter.toQuarterItem(context: Context): QuarterItem {
             color = quarterColor,
             isMock = (status == STATUS_QUARTER_MOCK),
             isEditable = (status == STATUS_QUARTER_CURRENT || status == STATUS_QUARTER_MOCK),
-            TitleText = (startDate to endDate).formatQuarterTitle(),
+            TitleText = startDate.formatQuarterName(endDate),
+            isCurrent = (status == STATUS_QUARTER_CURRENT),
             gradeDiffText = grade.formatGradeDiff(quarterColor, context),
             gradeSumText = gradeSum.formatGradeSum(quarterColor, context),
             creditsText = credits.formatCredits(quarterColor, context),
@@ -105,14 +106,6 @@ fun Int.formatGrade(context: Context) =
 
 fun Int.formatCredits(context: Context) =
         context.getString(R.string.subject_credits, this)
-
-fun Pair<Date, Date>.formatQuarterTitle(): String {
-    val start = first.format("MMM")?.capitalize()
-    val end = second.format("MMM")?.capitalize()
-    val year = first.format("yyyy")
-
-    return "$start - $end $year".replace("\\.".toRegex(), "")
-}
 
 fun Double.formatGradeDiff(color: Int, context: Context) =
         context.getString(R.string.quarter_grade_diff, this).spanGrade(color)

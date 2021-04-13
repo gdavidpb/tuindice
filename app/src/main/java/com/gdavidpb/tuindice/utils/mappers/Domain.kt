@@ -9,13 +9,14 @@ import com.gdavidpb.tuindice.utils.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.utils.extensions.base64
 import com.gdavidpb.tuindice.utils.extensions.computeCredits
+import com.gdavidpb.tuindice.utils.extensions.formatQuarterName
 import java.util.*
 
 private val digestConcat = DigestConcat(algorithm = "SHA-256")
 
 fun generateQuarterId(uid: String, startDate: Date, endDate: Date) = digestConcat
         .concat(data = uid)
-        .concat(data = (startDate to endDate).formatQuarterTitle())
+        .concat(data = startDate.formatQuarterName(endDate))
         .build()
         .base64()
         .replace("[/+=\n]+".toRegex(), "")
