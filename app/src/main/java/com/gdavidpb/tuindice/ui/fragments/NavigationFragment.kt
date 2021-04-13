@@ -36,16 +36,13 @@ abstract class NavigationFragment : Fragment() {
 
     protected fun navigateUp() = findNavController().navigateUp()
 
-    @Deprecated("Migrate to errorSnackBar")
-    protected fun noConnectionSnackBar(isNetworkAvailable: Boolean, retry: (() -> Unit)? = null) {
-        snackBar {
-            messageResource = if (isNetworkAvailable)
-                R.string.snack_service_unreachable
-            else
-                R.string.snack_network_unavailable
+    protected fun connectionSnackBar(isNetworkAvailable: Boolean, retry: (() -> Unit)? = null) {
+        val message = if (isNetworkAvailable)
+            R.string.snack_service_unreachable
+        else
+            R.string.snack_network_unavailable
 
-            if (retry != null) action(R.string.retry) { retry() }
-        }
+        errorSnackBar(message, retry)
     }
 
     protected fun errorSnackBar(@StringRes message: Int = R.string.snack_default_error, retry: (() -> Unit)? = null) {

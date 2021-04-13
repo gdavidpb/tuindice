@@ -195,7 +195,7 @@ class SignInFragment : NavigationFragment() {
             is SignInError.InvalidCredentials -> invalidCredentialsSnackBar()
             is SignInError.OutdatedPassword -> navToSplash()
             is SignInError.AccountDisabled -> requireAppCompatActivity().disabledAccountDialog()
-            is SignInError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
+            is SignInError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
             else -> errorSnackBar { onSignInClick() }
         }
     }
@@ -203,7 +203,7 @@ class SignInFragment : NavigationFragment() {
     private fun syncErrorHandler(error: SyncError?) {
         when (error) {
             is SyncError.Timeout -> errorSnackBar(R.string.snack_timeout) { onSignInClick() }
-            is SyncError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
+            is SyncError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
             else -> errorSnackBar { onSignInClick() }
         }
     }

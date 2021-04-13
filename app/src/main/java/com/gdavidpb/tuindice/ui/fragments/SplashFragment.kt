@@ -59,7 +59,7 @@ class SplashFragment : NavigationFragment() {
                 is StartUpError.InvalidLink -> linkFailureDialog()
                 is StartUpError.UnableToStart -> fatalFailureDialog()
                 is StartUpError.AccountDisabled -> disabledFailureDialog()
-                is StartUpError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable)
+                is StartUpError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
             }
         }
     }

@@ -116,7 +116,7 @@ class ResetPasswordFragment : NavigationFragment() {
     private fun resetPasswordErrorHandler(error: SendResetPasswordEmailError?) {
         when (error) {
             is SendResetPasswordEmailError.AccountDisabled -> requireAppCompatActivity().disabledAccountDialog()
-            is SendResetPasswordEmailError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { onResendClick() }
+            is SendResetPasswordEmailError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onResendClick() }
             else -> errorSnackBar { onResendClick() }
         }
     }

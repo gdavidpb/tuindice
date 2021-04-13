@@ -283,7 +283,7 @@ class SummaryFragment : NavigationFragment() {
         when (error) {
             is ProfilePictureError.Timeout -> errorSnackBar(R.string.snack_timeout)
             is ProfilePictureError.NoData -> vProfilePicture.loadDefaultProfilePicture()
-            is ProfilePictureError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable)
+            is ProfilePictureError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
             else -> errorSnackBar()
         }
     }
