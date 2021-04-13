@@ -46,6 +46,7 @@ object ConfigKeys {
     const val SYNCS_TO_SUGGEST_REVIEW = "syncs_to_suggest_review"
     const val TIME_OUT_CONNECTION = "time_out_connection"
     const val TIME_OUT_SIGN_IN = "time_out_sign_in"
+    const val TIME_OUT_SYNC = "time_out_sync"
     const val TIME_OUT_GET_ENROLLMENT = "time_out_get_enrollment"
     const val TIME_OUT_PROFILE_PICTURE = "time_out_profile_picture"
 }

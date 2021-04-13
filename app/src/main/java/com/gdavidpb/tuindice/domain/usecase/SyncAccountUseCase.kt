@@ -7,11 +7,14 @@ import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
+import com.gdavidpb.tuindice.utils.ConfigKeys
+import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.buildAccount
 import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import com.gdavidpb.tuindice.utils.mappers.toQuarter
 
+@Timeout(key = ConfigKeys.TIME_OUT_SYNC)
 class SyncAccountUseCase(
         private val dstRepository: DstRepository,
         private val authRepository: AuthRepository,
@@ -83,10 +86,10 @@ class SyncAccountUseCase(
         val causes = throwable.causes()
 
         return when {
-            throwable is IllegalStateException -> SyncError.IllegalState
             causes.isAccountDisabled() -> SyncError.AccountDisabled
+            throwable.isTimeout() -> SyncError.Timeout
             throwable.isInvalidCredentials() -> SyncError.InvalidCredentials
-            throwable.isConnectionIssue() -> SyncError.NoConnection(networkRepository.isAvailable())
+            throwable.isConnection() -> SyncError.NoConnection(networkRepository.isAvailable())
             else -> null
         }
     }

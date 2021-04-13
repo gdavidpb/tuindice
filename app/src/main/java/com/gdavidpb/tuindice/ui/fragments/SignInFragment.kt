@@ -145,7 +145,7 @@ class SignInFragment : NavigationFragment() {
 
     private fun timeoutSnackBar() {
         snackBar {
-            messageResource = R.string.snack_service_timeout
+            messageResource = R.string.snack_timeout
 
             action(R.string.retry) { onSignInClick() }
         }
@@ -167,11 +167,6 @@ class SignInFragment : NavigationFragment() {
                     navToSplash()
                 else
                     viewModel.trySyncAccount()
-            }
-            is Event.OnTimeout -> {
-                showLoading(false)
-
-                timeoutSnackBar()
             }
             is Event.OnError -> {
                 showLoading(false)
@@ -196,18 +191,20 @@ class SignInFragment : NavigationFragment() {
 
     private fun signInErrorHandler(error: SignInError?) {
         when (error) {
+            is SignInError.Timeout -> errorSnackBar(R.string.snack_timeout) { onSignInClick() }
             is SignInError.InvalidCredentials -> invalidCredentialsSnackBar()
             is SignInError.OutdatedPassword -> navToSplash()
             is SignInError.AccountDisabled -> requireAppCompatActivity().disabledAccountDialog()
             is SignInError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
-            else -> defaultErrorSnackBar { onSignInClick() }
+            else -> errorSnackBar { onSignInClick() }
         }
     }
 
     private fun syncErrorHandler(error: SyncError?) {
         when (error) {
+            is SyncError.Timeout -> errorSnackBar(R.string.snack_timeout) { onSignInClick() }
             is SyncError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
-            else -> defaultErrorSnackBar { onSignInClick() }
+            else -> errorSnackBar { onSignInClick() }
         }
     }
 }
