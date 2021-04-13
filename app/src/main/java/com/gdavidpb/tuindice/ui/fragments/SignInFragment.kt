@@ -151,6 +151,10 @@ class SignInFragment : NavigationFragment() {
         }
     }
 
+    private fun navToSplash() {
+        navigate(SignInFragmentDirections.navToSplash())
+    }
+
     private fun signInObserver(result: Event<Boolean, SignInError>?) {
         when (result) {
             is Event.OnLoading -> {
@@ -160,7 +164,7 @@ class SignInFragment : NavigationFragment() {
                 val hasCache = result.value
 
                 if (hasCache)
-                    navigate(SignInFragmentDirections.navToSplash())
+                    navToSplash()
                 else
                     viewModel.trySyncAccount()
             }
@@ -180,7 +184,7 @@ class SignInFragment : NavigationFragment() {
     private fun syncObserver(result: Result<Boolean, SyncError>?) {
         when (result) {
             is Result.OnSuccess -> {
-                navigate(SignInFragmentDirections.navToSplash())
+                navToSplash()
             }
             is Result.OnError -> {
                 viewModel.signOut()
@@ -193,6 +197,7 @@ class SignInFragment : NavigationFragment() {
     private fun signInErrorHandler(error: SignInError?) {
         when (error) {
             is SignInError.InvalidCredentials -> invalidCredentialsSnackBar()
+            is SignInError.OutdatedPassword -> navToSplash()
             is SignInError.AccountDisabled -> requireAppCompatActivity().disabledAccountDialog()
             is SignInError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
             else -> defaultErrorSnackBar { onSignInClick() }
