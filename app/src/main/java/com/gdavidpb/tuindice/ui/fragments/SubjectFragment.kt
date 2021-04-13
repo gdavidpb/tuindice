@@ -224,7 +224,7 @@ class SubjectFragment : NavigationFragment() {
         }
 
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-            val position = viewHolder.adapterPosition
+            val position = viewHolder.absoluteAdapterPosition
             val item = evaluationAdapter.getEvaluation(position)
 
             return if (item.isDone)
@@ -238,7 +238,7 @@ class SubjectFragment : NavigationFragment() {
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            val position = viewHolder.adapterPosition
+            val position = viewHolder.absoluteAdapterPosition
             val item = evaluationAdapter.getEvaluation(position)
 
             evaluationAdapter.removeEvaluation(item)
@@ -269,7 +269,7 @@ class SubjectFragment : NavigationFragment() {
 
             if (actionState != ACTION_STATE_SWIPE) return
 
-            val position = viewHolder.adapterPosition
+            val position = viewHolder.absoluteAdapterPosition
 
             if (position == RecyclerView.NO_POSITION) return
 
@@ -281,7 +281,7 @@ class SubjectFragment : NavigationFragment() {
         override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
             super.clearView(recyclerView, viewHolder)
 
-            val position = viewHolder.adapterPosition
+            val position = viewHolder.absoluteAdapterPosition
 
             if (position == RecyclerView.NO_POSITION) return
 

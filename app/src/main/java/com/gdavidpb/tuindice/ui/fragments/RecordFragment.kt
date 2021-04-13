@@ -231,7 +231,7 @@ class RecordFragment : NavigationFragment() {
         }
 
         override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-            val position = viewHolder.adapterPosition
+            val position = viewHolder.absoluteAdapterPosition
             val item = quarterAdapter.getQuarter(position)
 
             /* Let swipes over the first with "mock" status */
@@ -246,7 +246,7 @@ class RecordFragment : NavigationFragment() {
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            val position = viewHolder.adapterPosition
+            val position = viewHolder.absoluteAdapterPosition
             val item = quarterAdapter.getQuarter(position)
 
             quarterAdapter.removeQuarter(item)
@@ -277,7 +277,7 @@ class RecordFragment : NavigationFragment() {
 
             if (actionState != ItemTouchHelper.ACTION_STATE_SWIPE) return
 
-            val position = viewHolder.adapterPosition
+            val position = viewHolder.absoluteAdapterPosition
 
             if (position == RecyclerView.NO_POSITION) return
 
@@ -289,7 +289,7 @@ class RecordFragment : NavigationFragment() {
         override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
             super.clearView(recyclerView, viewHolder)
 
-            val position = viewHolder.adapterPosition
+            val position = viewHolder.absoluteAdapterPosition
 
             if (position == RecyclerView.NO_POSITION) return
 
