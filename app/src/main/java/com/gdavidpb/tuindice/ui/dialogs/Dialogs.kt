@@ -81,9 +81,3 @@ fun AppCompatActivity.disabledAccountDialog() {
         }
     }
 }
-
-fun AppCompatActivity.fatalFailureRestart() {
-    clearApplicationUserData()
-
-    recreate()
-}

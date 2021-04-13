@@ -17,10 +17,6 @@ abstract class CompletableUseCase<P, Q> : BaseUseCase<P, Unit, Q, LiveCompletabl
         liveData.postError(error)
     }
 
-    override suspend fun onTimeout(liveData: LiveCompletable<Q>) {
-        liveData.postTimeout()
-    }
-
     override suspend fun onCancel(liveData: LiveCompletable<Q>) {
         liveData.postCancel()
     }

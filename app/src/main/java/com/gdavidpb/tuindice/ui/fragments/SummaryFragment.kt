@@ -121,7 +121,7 @@ class SummaryFragment : NavigationFragment() {
 
     private fun onLastUpdateInfoClick() {
         snackBar {
-            messageResource = R.string.snack_bar_no_service
+            messageResource = R.string.snack_no_service
         }
     }
 
@@ -199,14 +199,7 @@ class SummaryFragment : NavigationFragment() {
                 )
 
                 snackBar {
-                    messageResource = R.string.snack_bar_profile_picture_updated
-                }
-            }
-            is Event.OnTimeout -> {
-                vProfilePicture.setLoading(false)
-
-                snackBar {
-                    messageResource = R.string.snack_service_timeout
+                    messageResource = R.string.snack_profile_picture_updated
                 }
             }
             is Event.OnError -> {
@@ -245,14 +238,6 @@ class SummaryFragment : NavigationFragment() {
                         liveData = loadProfilePicture
                 )
             }
-            is Result.OnTimeout -> {
-                vProfilePicture.setLoading(false)
-                vProfilePicture.loadDefaultProfilePicture()
-
-                snackBar {
-                    messageResource = R.string.snack_service_timeout
-                }
-            }
             is Result.OnError -> {
                 vProfilePicture.setLoading(false)
                 vProfilePicture.loadDefaultProfilePicture()
@@ -272,16 +257,7 @@ class SummaryFragment : NavigationFragment() {
                 vProfilePicture.loadDefaultProfilePicture()
 
                 snackBar {
-                    messageResource = R.string.snack_bar_profile_picture_removed
-                }
-            }
-            is Event.OnTimeout -> {
-                vProfilePicture.setLoading(false)
-
-                snackBar {
-                    messageResource = R.string.snack_service_timeout
-
-                    action(R.string.retry) { viewModel.removeProfilePicture() }
+                    messageResource = R.string.snack_profile_picture_removed
                 }
             }
             is Event.OnError -> {
@@ -305,9 +281,10 @@ class SummaryFragment : NavigationFragment() {
 
     private fun profilePictureErrorHandler(error: ProfilePictureError?) {
         when (error) {
+            is ProfilePictureError.Timeout -> errorSnackBar(R.string.snack_timeout)
             is ProfilePictureError.NoData -> vProfilePicture.loadDefaultProfilePicture()
             is ProfilePictureError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable)
-            else -> defaultErrorSnackBar()
+            else -> errorSnackBar()
         }
     }
 

@@ -69,12 +69,12 @@
 
     <string name="selector_title_report">¿Cómo te podemos ayudar?</string>
 
-    <string name="snack_bar_no_service">No pudimos actualizar, intentaremos más tarde</string>
+    <string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
 
-    <string name="snack_bar_error_occurred">¡Ha ocurrido un error!</string>
+    <string name="snack_default_error">¡Ha ocurrido un error!</string>
 
-    <string name="snack_bar_item_removed">%1$s removido</string>
-    <string name="snack_bar_action_undone">Deshacer</string>
+    <string name="snack_item_removed">%1$s removido</string>
+    <string name="snack_action_undone">Deshacer</string>
 
     <!-- SummaryFragment -->
 
@@ -102,8 +102,8 @@
 
     <string name="label_profile_picture_chooser">Foto de perfil</string>
 
-    <string name="snack_bar_profile_picture_updated">Foto de perfil actualizada</string>
-    <string name="snack_bar_profile_picture_removed">Foto de perfil removida</string>
+    <string name="snack_profile_picture_updated">Foto de perfil actualizada</string>
+    <string name="snack_profile_picture_removed">Foto de perfil removida</string>
 
     <!-- RecordFragment -->
 
@@ -122,8 +122,8 @@
     -->
 
     <string name="dialog_enrollment_downloading">Obteniendo comprobante…</string>
-    <string name="snack_bar_enrollment_unsupported">Archivo no soportado ;(</string>
-    <string name="snack_bar_enrollment_not_found">Comprobante no disponible</string>
+    <string name="snack_enrollment_unsupported">Archivo no soportado ;(</string>
+    <string name="snack_enrollment_not_found">Comprobante no disponible</string>
 
     <string name="cd_add_quarter">Agregar trimestre</string>
 
@@ -309,7 +309,7 @@
 
     <!-- ResetPasswordFragment -->
 
-    <string name="snack_bar_resend">Correo reenviado</string>
+    <string name="snack_resend">Correo reenviado</string>
 
     <string name="label_reset_password">
         Tu contraseña ha cambiado
@@ -348,7 +348,7 @@
 
     <string name="snack_network_unavailable">Comprueba tu conexión</string>
     <string name="snack_service_unreachable">Servicio no disponible</string>
-    <string name="snack_service_timeout">Tiempo de espera agotado</string>
+    <string name="snack_timeout">Tiempo de espera agotado</string>
     <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
 
     <!-- RemoveProfilePictureActivity -->

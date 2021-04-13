@@ -80,7 +80,7 @@ class ProfilePictureView(context: Context, attrs: AttributeSet)
                 _hasProfilePicture = false
                 val error = when {
                     e is IOException -> ProfilePictureError.IO
-                    e.isConnectionIssue() -> ProfilePictureError.NoConnection(connectivityManager.isNetworkAvailable())
+                    e.isConnection() -> ProfilePictureError.NoConnection(connectivityManager.isNetworkAvailable())
                     else -> null
                 }
 

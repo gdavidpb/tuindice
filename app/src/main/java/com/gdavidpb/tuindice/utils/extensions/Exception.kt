@@ -7,12 +7,14 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.storage.StorageException
+import kotlinx.coroutines.TimeoutCancellationException
 import retrofit2.HttpException
 import java.io.InterruptedIOException
 import java.net.ConnectException
 import java.net.SocketException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeoutException
 import javax.net.ssl.SSLHandshakeException
 
 fun List<Throwable>.isInvalidLink() = any<FirebaseAuthActionCodeException>()
@@ -40,7 +42,13 @@ fun Throwable.isNotEnrolled() = when (this) {
     else -> false
 }
 
-fun Throwable.isConnectionIssue() = when (this) {
+fun Throwable.isTimeout() = when (this) {
+    is TimeoutException -> true
+    is TimeoutCancellationException -> true
+    else -> false
+}
+
+fun Throwable.isConnection() = when (this) {
     is SocketException -> true
     is InterruptedIOException -> true
     is UnknownHostException -> true

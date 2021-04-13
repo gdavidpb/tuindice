@@ -9,10 +9,7 @@ import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.utils.annotations.Timeout
-import com.gdavidpb.tuindice.utils.extensions.decodeScaleFactor
-import com.gdavidpb.tuindice.utils.extensions.decodeScaledBitmap
-import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
-import com.gdavidpb.tuindice.utils.extensions.rotate
+import com.gdavidpb.tuindice.utils.extensions.*
 import java.io.File
 import java.io.IOException
 
@@ -74,7 +71,8 @@ class UpdateProfilePictureUseCase(
     override suspend fun executeOnException(throwable: Throwable): ProfilePictureError? {
         return when {
             throwable is IOException -> ProfilePictureError.IO
-            throwable.isConnectionIssue() -> ProfilePictureError.NoConnection(networkRepository.isAvailable())
+            throwable.isTimeout() -> ProfilePictureError.Timeout
+            throwable.isConnection() -> ProfilePictureError.NoConnection(networkRepository.isAvailable())
             else -> null
         }
     }

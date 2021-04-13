@@ -14,7 +14,6 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.dialogs.credentialsChangedDialog
 import com.gdavidpb.tuindice.ui.dialogs.disabledFailureDialog
-import com.gdavidpb.tuindice.ui.dialogs.fatalFailureRestart
 import com.gdavidpb.tuindice.utils.IdempotentLocker
 import com.gdavidpb.tuindice.utils.TIME_EXIT_LOCKER
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -136,7 +135,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun syncErrorHandler(error: SyncError?) {
         when (error) {
-            is SyncError.IllegalState -> fatalFailureRestart()
             is SyncError.AccountDisabled -> disabledFailureDialog()
             is SyncError.InvalidCredentials -> credentialsChangedDialog()
         }

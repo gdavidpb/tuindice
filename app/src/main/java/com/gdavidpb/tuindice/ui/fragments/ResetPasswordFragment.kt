@@ -66,7 +66,7 @@ class ResetPasswordFragment : NavigationFragment() {
 
     private fun resendSnackBar() {
         snackBar {
-            messageResource = R.string.snack_bar_resend
+            messageResource = R.string.snack_resend
         }
     }
 
@@ -117,7 +117,7 @@ class ResetPasswordFragment : NavigationFragment() {
         when (error) {
             is SendResetPasswordEmailError.AccountDisabled -> requireAppCompatActivity().disabledAccountDialog()
             is SendResetPasswordEmailError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { onResendClick() }
-            else -> defaultErrorSnackBar { onResendClick() }
+            else -> errorSnackBar { onResendClick() }
         }
     }
 }

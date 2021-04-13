@@ -108,7 +108,7 @@ class RecordFragment : NavigationFragment() {
 
     private fun notFoundSnackBar() {
         snackBar {
-            messageResource = R.string.snack_bar_enrollment_not_found
+            messageResource = R.string.snack_enrollment_not_found
         }
     }
 
@@ -170,19 +170,8 @@ class RecordFragment : NavigationFragment() {
                     requireContext().openPdf(file = enrollmentFile)
                 }.onFailure {
                     snackBar {
-                        messageResource = R.string.snack_bar_enrollment_unsupported
+                        messageResource = R.string.snack_enrollment_unsupported
                     }
-                }
-            }
-            is Event.OnTimeout -> {
-                loadingDialog.dismiss()
-
-                setMenuVisibility(true)
-
-                snackBar {
-                    messageResource = R.string.snack_service_timeout
-
-                    action(R.string.retry) { openEnrollmentProof() }
                 }
             }
             is Event.OnError -> {
@@ -209,11 +198,12 @@ class RecordFragment : NavigationFragment() {
 
     private fun enrollmentErrorHandler(error: GetEnrollmentError?) {
         when (error) {
+            is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { openEnrollmentProof() }
             is GetEnrollmentError.InvalidCredentials -> requireAppCompatActivity().credentialsChangedDialog()
             is GetEnrollmentError.NoConnection -> noConnectionSnackBar(error.isNetworkAvailable) { openEnrollmentProof() }
             is GetEnrollmentError.NotEnrolled -> notFoundSnackBar()
             is GetEnrollmentError.NotFound -> notFoundSnackBar()
-            else -> defaultErrorSnackBar { openEnrollmentProof() }
+            else -> errorSnackBar { openEnrollmentProof() }
         }
     }
 
@@ -262,9 +252,9 @@ class RecordFragment : NavigationFragment() {
             quarterAdapter.removeQuarter(item)
 
             snackBar {
-                message = getString(R.string.snack_bar_item_removed, item.TitleText)
+                message = getString(R.string.snack_item_removed, item.TitleText)
 
-                action(R.string.snack_bar_action_undone) {
+                action(R.string.snack_action_undone) {
                     rViewRecord.scrollToPosition(0)
 
                     val updatedItem = item.copy(isSwiping = false)

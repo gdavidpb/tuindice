@@ -26,9 +26,6 @@ fun <T, Q> LiveEvent<T, Q>.postError(error: Q?) = postValue(Event.OnError(error)
 @JvmName("postLoadingEvent")
 fun <T, Q> LiveEvent<T, Q>.postLoading() = reset().also { postValue(Event.OnLoading()) }
 
-@JvmName("postTimeoutEvent")
-fun <T, Q> LiveEvent<T, Q>.postTimeout() = postValue(Event.OnTimeout())
-
 @JvmName("postCancelEvent")
 fun <T, Q> LiveEvent<T, Q>.postCancel() = postValue(Event.OnCancel())
 
@@ -46,9 +43,6 @@ fun <T, Q> LiveResult<T, Q>.postError(error: Q?) = postValue(Result.OnError(erro
 @JvmName("postLoadingResult")
 fun <T, Q> LiveResult<T, Q>.postLoading() = postValue(Result.OnLoading())
 
-@JvmName("postTimeoutResult")
-fun <T, Q> LiveResult<T, Q>.postTimeout() = postValue(Result.OnTimeout())
-
 @JvmName("postCancelResult")
 fun <T, Q> LiveResult<T, Q>.postCancel() = postValue(Result.OnCancel())
 
@@ -62,9 +56,6 @@ fun <Q> LiveCompletable<Q>.postError(error: Q?) = postValue(Completable.OnError(
 
 @JvmName("postLoadingCompletable")
 fun <Q> LiveCompletable<Q>.postLoading() = postValue(Completable.OnLoading())
-
-@JvmName("postTimeoutCompletable")
-fun <Q> LiveCompletable<Q>.postTimeout() = postValue(Completable.OnTimeout())
 
 @JvmName("postCancelCompletable")
 fun <Q> LiveCompletable<Q>.postCancel() = postValue(Completable.OnCancel())
@@ -82,9 +73,6 @@ fun <T, Q> LiveFlow<T, Q>.postComplete() = postValue(Flow.OnComplete())
 
 @JvmName("postErrorFlow")
 fun <T, Q> LiveFlow<T, Q>.postError(error: Q?) = postValue(Flow.OnError(error))
-
-@JvmName("postTimeoutFlow")
-fun <T, Q> LiveFlow<T, Q>.postTimeout() = postValue(Flow.OnTimeout())
 
 @JvmName("postCancelFlow")
 fun <T, Q> LiveFlow<T, Q>.postCancel() = postValue(Flow.OnCancel())

@@ -49,9 +49,10 @@ class SignInUseCase(
 
         return when {
             throwable is OutdatedPasswordException -> SignInError.OutdatedPassword
+            throwable.isTimeout() -> SignInError.Timeout
             causes.isAccountDisabled() -> SignInError.AccountDisabled
             throwable.isInvalidCredentials() -> SignInError.InvalidCredentials
-            throwable.isConnectionIssue() -> SignInError.NoConnection(networkRepository.isAvailable())
+            throwable.isConnection() -> SignInError.NoConnection(networkRepository.isAvailable())
             else -> null
         }
     }

@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SendResetPasswordEmailError
 import com.gdavidpb.tuindice.utils.extensions.causes
 import com.gdavidpb.tuindice.utils.extensions.isAccountDisabled
-import com.gdavidpb.tuindice.utils.extensions.isConnectionIssue
+import com.gdavidpb.tuindice.utils.extensions.isConnection
 
 class SendResetPasswordEmailUseCase(
         private val authRepository: AuthRepository,
@@ -25,7 +25,7 @@ class SendResetPasswordEmailUseCase(
 
         return when {
             causes.isAccountDisabled() -> SendResetPasswordEmailError.AccountDisabled
-            throwable.isConnectionIssue() -> SendResetPasswordEmailError.NoConnection(networkRepository.isAvailable())
+            throwable.isConnection() -> SendResetPasswordEmailError.NoConnection(networkRepository.isAvailable())
             else -> null
         }
     }

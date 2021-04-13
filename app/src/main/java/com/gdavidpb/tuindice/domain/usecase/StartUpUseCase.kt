@@ -37,7 +37,7 @@ class StartUpUseCase(
         return when {
             causes.isInvalidLink() -> StartUpError.InvalidLink
             causes.isAccountDisabled() -> StartUpError.AccountDisabled
-            throwable.isConnectionIssue() -> StartUpError.NoConnection(networkRepository.isAvailable())
+            throwable.isConnection() -> StartUpError.NoConnection(networkRepository.isAvailable())
             else -> StartUpError.UnableToStart
         }
     }

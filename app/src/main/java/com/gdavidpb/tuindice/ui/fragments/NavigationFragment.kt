@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
@@ -35,6 +36,7 @@ abstract class NavigationFragment : Fragment() {
 
     protected fun navigateUp() = findNavController().navigateUp()
 
+    @Deprecated("Migrate to errorSnackBar")
     protected fun noConnectionSnackBar(isNetworkAvailable: Boolean, retry: (() -> Unit)? = null) {
         snackBar {
             messageResource = if (isNetworkAvailable)
@@ -46,9 +48,9 @@ abstract class NavigationFragment : Fragment() {
         }
     }
 
-    protected fun defaultErrorSnackBar(retry: (() -> Unit)? = null) {
+    protected fun errorSnackBar(@StringRes message: Int = R.string.snack_default_error, retry: (() -> Unit)? = null) {
         snackBar {
-            messageResource = R.string.snack_bar_error_occurred
+            messageResource = message
 
             if (retry != null) action(R.string.retry) { retry() }
         }

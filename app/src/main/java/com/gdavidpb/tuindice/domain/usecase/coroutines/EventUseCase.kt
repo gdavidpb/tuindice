@@ -19,10 +19,6 @@ abstract class EventUseCase<P, T, Q> : BaseUseCase<P, T, Q, LiveEvent<T, Q>>() {
         liveData.postError(error)
     }
 
-    override suspend fun onTimeout(liveData: LiveEvent<T, Q>) {
-        liveData.postTimeout()
-    }
-
     override suspend fun onCancel(liveData: LiveEvent<T, Q>) {
         liveData.postCancel()
     }

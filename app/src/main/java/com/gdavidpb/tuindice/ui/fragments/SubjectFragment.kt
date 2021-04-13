@@ -244,9 +244,9 @@ class SubjectFragment : NavigationFragment() {
             evaluationAdapter.removeEvaluation(item)
 
             snackBar {
-                message = getString(R.string.snack_bar_item_removed, item.typeText)
+                message = getString(R.string.snack_item_removed, item.typeText)
 
-                action(R.string.snack_bar_action_undone) {
+                action(R.string.snack_action_undone) {
                     rViewEvaluations.scrollToPosition(0)
 
                     val updatedItem = item.copy(isSwiping = false)

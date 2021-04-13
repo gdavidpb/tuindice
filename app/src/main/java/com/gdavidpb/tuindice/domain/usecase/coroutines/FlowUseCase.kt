@@ -23,10 +23,6 @@ abstract class FlowUseCase<P, T, Q> : BaseUseCase<P, Flow<T>, Q, LiveFlow<T, Q>>
         liveData.postError(error)
     }
 
-    override suspend fun onTimeout(liveData: LiveFlow<T, Q>) {
-        liveData.postTimeout()
-    }
-
     override suspend fun onCancel(liveData: LiveFlow<T, Q>) {
         liveData.postCancel()
     }
