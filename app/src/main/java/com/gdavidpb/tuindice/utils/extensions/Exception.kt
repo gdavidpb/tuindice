@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
-import com.gdavidpb.tuindice.domain.model.AuthResponseCode
+import com.gdavidpb.tuindice.domain.model.AuthErrorCode
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.exception.NoEnrolledException
 import com.google.firebase.auth.FirebaseAuthActionCodeException
@@ -18,6 +18,8 @@ import javax.net.ssl.SSLHandshakeException
 
 fun List<Throwable>.isInvalidLink() = any<FirebaseAuthActionCodeException>()
 
+fun List<Throwable>.haveCredentialsChanged() = any<FirebaseAuthInvalidCredentialsException>()
+
 fun List<Throwable>.isAccountDisabled() = find<FirebaseAuthInvalidUserException>()?.errorCode == "ERROR_USER_DISABLED"
 
 fun List<Throwable>.isUserNotFound() = find<FirebaseAuthInvalidUserException>()?.errorCode == "ERROR_USER_NOT_FOUND"
@@ -30,14 +32,13 @@ fun Throwable.isObjectNotFound() = this is StorageException && when (errorCode) 
 }
 
 fun Throwable.isInvalidCredentials() = when (this) {
-    is FirebaseAuthInvalidCredentialsException -> true
-    is AuthenticationException -> (code == AuthResponseCode.INVALID_CREDENTIALS)
+    is AuthenticationException -> (errorCode == AuthErrorCode.INVALID_CREDENTIALS)
     else -> false
 }
 
 fun Throwable.isNotEnrolled() = when (this) {
     is NoEnrolledException -> true
-    is AuthenticationException -> (code == AuthResponseCode.NOT_ENROLLED)
+    is AuthenticationException -> (errorCode == AuthErrorCode.NOT_ENROLLED)
     else -> false
 }
 
@@ -53,12 +54,11 @@ fun Throwable.isConnectionIssue() = when (this) {
     else -> false
 }
 
-fun Throwable.causes(): List<Throwable> {
-    val hashSet = hashSetOf(this)
+tailrec fun Throwable.causes(causes: HashSet<Throwable> = hashSetOf(this)): List<Throwable> {
+    val throwableCause = cause ?: return listOf(this)
 
-    var throwableCause = cause
-
-    while (throwableCause?.let(hashSet::add) == true) throwableCause = throwableCause.cause
-
-    return hashSet.toList()
+    return if (causes.add(throwableCause))
+        throwableCause.causes(causes)
+    else
+        causes.toList()
 }

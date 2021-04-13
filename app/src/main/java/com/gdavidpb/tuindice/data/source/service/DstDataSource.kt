@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.data.source.service
 
+import com.gdavidpb.tuindice.domain.model.AuthErrorCode
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.service.*
@@ -53,8 +54,12 @@ open class DstDataSource(
                 .getOrThrow()
                 .toAuth()
                 .also { response ->
-                    check((response.code == AuthResponseCode.SUCCESS) || (response.code == AuthResponseCode.NOT_ENROLLED)) {
-                        throw AuthenticationException(code = response.code, message = response.message)
+                    check(response.code != AuthResponseCode.INVALID_CREDENTIALS) {
+                        throw AuthenticationException(errorCode = AuthErrorCode.INVALID_CREDENTIALS, message = response.message)
+                    }
+
+                    check(response.code != AuthResponseCode.SESSION_EXPIRED) {
+                        throw AuthenticationException(errorCode = AuthErrorCode.SESSION_EXPIRED, message = response.message)
                     }
                 }
     }

@@ -8,22 +8,21 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.mappers.asUsbEmail
 import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
-import java.io.File
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class SignInUseCase(
         private val dstRepository: DstRepository,
         private val databaseRepository: DatabaseRepository,
-        private val storageRepository: StorageRepository<File>,
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
         private val networkRepository: NetworkRepository
 ) : EventUseCase<Credentials, Unit, SignInError>() {
     override suspend fun executeOnBackground(params: Credentials) {
-        authRepository.signOut()
-        settingsRepository.clear()
-        storageRepository.clear()
+        val dstCredentials = params.toDstCredentials(serviceUrl = BuildConfig.ENDPOINT_DST_SECURE_AUTH)
+
+        dstRepository.signIn(credentials = dstCredentials)
 
         runCatching {
             authRepository.signIn(credentials = params)
@@ -32,10 +31,11 @@ class SignInUseCase(
         }.onFailure { throwable ->
             val causes = throwable.causes()
 
-            if (causes.isUserNotFound())
-                handleUserNoExists(credentials = params)
-            else
-                throw throwable
+            when {
+                causes.isUserNotFound() -> handleUserNoExists(credentials = params)
+                causes.haveCredentialsChanged() -> handleCredentialsChanged(credentials = params)
+                else -> throw throwable
+            }
         }
     }
 
@@ -59,12 +59,16 @@ class SignInUseCase(
     }
 
     private suspend fun handleUserNoExists(credentials: Credentials) {
-        val dstCredentials = credentials.toDstCredentials(serviceUrl = BuildConfig.ENDPOINT_DST_SECURE_AUTH)
-
-        dstRepository.signIn(credentials = dstCredentials)
-
         authRepository.signUp(credentials)
 
-        handleUserExists(credentials = credentials)
+        handleUserExists(credentials)
+    }
+
+    private suspend fun handleCredentialsChanged(credentials: Credentials) {
+        val email = credentials.usbId.asUsbEmail()
+
+        authRepository.sendPasswordResetEmail(email)
+
+        settingsRepository.storeCredentials(credentials)
     }
 }
