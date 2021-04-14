@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Flow
 import com.gdavidpb.tuindice.domain.usecase.errors.SendResetPasswordEmailError
-import com.gdavidpb.tuindice.presentation.viewmodel.EmailViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.ResetPasswordViewModel
 import com.gdavidpb.tuindice.ui.dialogs.disabledAccountFailureDialog
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.fragment_reset_password.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ResetPasswordFragment : NavigationFragment() {
-    private val viewModel by viewModel<EmailViewModel>()
+    private val viewModel by viewModel<ResetPasswordViewModel>()
 
     private val countdownTime by config<Long>(ConfigKeys.TIME_VERIFICATION_COUNT_DOWN)
 
@@ -29,8 +29,6 @@ class ResetPasswordFragment : NavigationFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         iViewLogo.animateZoomInOut()
-
-        iViewLogo.setImageResource(R.drawable.il_reset_password)
         tViewResetPasswordMessage.text = getString(R.string.message_reset_password, args.email)
 
         btnResend.onClickOnce(::onResendClick)

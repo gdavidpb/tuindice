@@ -20,7 +20,6 @@ import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
-import com.gdavidpb.tuindice.ui.dialogs.credentialsChangedDialog
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
 import com.gdavidpb.tuindice.utils.mappers.toUpdateRequest
@@ -199,7 +198,7 @@ class RecordFragment : NavigationFragment() {
     private fun enrollmentErrorHandler(error: GetEnrollmentError?) {
         when (error) {
             is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { openEnrollmentProof() }
-            is GetEnrollmentError.InvalidCredentials -> requireAppCompatActivity().credentialsChangedDialog() // TODO
+            is GetEnrollmentError.OutdatedPassword -> TODO()
             is GetEnrollmentError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { openEnrollmentProof() }
             is GetEnrollmentError.NotEnrolled -> notFoundSnackBar()
             is GetEnrollmentError.NotFound -> notFoundSnackBar()

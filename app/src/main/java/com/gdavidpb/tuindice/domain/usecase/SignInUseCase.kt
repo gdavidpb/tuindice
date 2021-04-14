@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.domain.usecase
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.exception.OutdatedPasswordException
+import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
@@ -21,9 +22,7 @@ class SignInUseCase(
         private val networkRepository: NetworkRepository
 ) : EventUseCase<Credentials, Boolean, SignInError>() {
     override suspend fun executeOnBackground(params: Credentials): Boolean {
-        val dstCredentials = params.toDstCredentials(serviceUrl = BuildConfig.ENDPOINT_DST_SECURE_AUTH)
-
-        dstRepository.signIn(credentials = dstCredentials)
+        params.auth(serviceUrl = BuildConfig.ENDPOINT_DST_SECURE_AUTH)
 
         runCatching {
             authRepository.signIn(credentials = params)
@@ -48,9 +47,9 @@ class SignInUseCase(
         val causes = throwable.causes()
 
         return when {
+            causes.isAccountDisabled() -> SignInError.AccountDisabled
             throwable is OutdatedPasswordException -> SignInError.OutdatedPassword
             throwable.isTimeout() -> SignInError.Timeout
-            causes.isAccountDisabled() -> SignInError.AccountDisabled
             throwable.isInvalidCredentials() -> SignInError.InvalidCredentials
             throwable.isConnection() -> SignInError.NoConnection(networkRepository.isAvailable())
             else -> null
@@ -79,5 +78,11 @@ class SignInUseCase(
         authRepository.sendPasswordResetEmail(email)
 
         throw OutdatedPasswordException()
+    }
+
+    private suspend fun Credentials.auth(serviceUrl: String): DstAuth {
+        val request = toDstCredentials(serviceUrl)
+
+        return dstRepository.signIn(request)
     }
 }

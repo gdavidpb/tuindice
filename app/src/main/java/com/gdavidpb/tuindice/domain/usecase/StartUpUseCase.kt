@@ -35,8 +35,8 @@ class StartUpUseCase(
         val causes = throwable.causes()
 
         return when {
-            causes.isInvalidLink() -> StartUpError.InvalidLink
             causes.isAccountDisabled() -> StartUpError.AccountDisabled
+            causes.isInvalidLink() -> StartUpError.InvalidLink
             throwable.isConnection() -> StartUpError.NoConnection(networkRepository.isAvailable())
             else -> StartUpError.UnableToStart
         }

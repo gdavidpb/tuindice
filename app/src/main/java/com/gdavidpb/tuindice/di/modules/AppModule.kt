@@ -253,7 +253,7 @@ val appModule = module {
     viewModel<SummaryViewModel>()
     viewModel<RecordViewModel>()
     viewModel<SignInViewModel>()
-    viewModel<EmailViewModel>()
+    viewModel<ResetPasswordViewModel>()
     viewModel<SubjectViewModel>()
     viewModel<EvaluationViewModel>()
     viewModel<PensumViewModel>()

@@ -52,15 +52,14 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
                 else
                     onEmpty(liveData)
             }.onFailure { throwable ->
-                when (throwable) {
-                    is CancellationException, !is TimeoutCancellationException -> onCancel(liveData)
-                    else -> {
-                        val error = runCatching { executeOnException(throwable) }.getOrNull()
+                if (throwable !is CancellationException || throwable is TimeoutCancellationException) {
+                    val error = runCatching { executeOnException(throwable) }.getOrNull()
 
-                        reportFailure(throwable = throwable, isHandled = (error != null))
+                    reportFailure(throwable = throwable, isHandled = (error != null))
 
-                        onFailure(liveData, error)
-                    }
+                    onFailure(liveData, error)
+                } else {
+                    onCancel(liveData)
                 }
             }
         }

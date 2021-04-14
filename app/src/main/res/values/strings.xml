@@ -309,17 +309,16 @@
 
     <!-- ResetPasswordFragment -->
 
-    <string name="snack_resend">Correo reenviado</string>
-
-    <string name="label_reset_password">
-        Tu contraseña ha cambiado
-    </string>
+    <string name="label_reset_password_fragment">TuIndice</string>
+    <string name="label_reset_password">Tu contraseña ha cambiado</string>
 
     <string name="message_reset_password">
         Hemos enviado un enlace de actualización de contraseña
         a tu correo institucional (%1$s).\n\n
         Revísalo y podrás continuar ;)
     </string>
+
+    <string name="snack_resend">Correo reenviado</string>
 
     <string name="text_0">00:00</string>
     <string name="text_or">─ O ─</string>

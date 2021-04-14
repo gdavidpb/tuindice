@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.domain.usecase
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.domain.model.exception.OutdatedPasswordException
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
@@ -87,8 +88,8 @@ class SyncAccountUseCase(
 
         return when {
             causes.isAccountDisabled() -> SyncError.AccountDisabled
+            throwable is OutdatedPasswordException -> SyncError.OutdatedPassword
             throwable.isTimeout() -> SyncError.Timeout
-            throwable.isInvalidCredentials() -> SyncError.InvalidCredentials
             throwable.isConnection() -> SyncError.NoConnection(networkRepository.isAvailable())
             else -> null
         }
@@ -97,6 +98,13 @@ class SyncAccountUseCase(
     private suspend fun Credentials.auth(serviceUrl: String): DstAuth {
         val request = toDstCredentials(serviceUrl)
 
-        return dstRepository.signIn(request)
+        return runCatching {
+            dstRepository.signIn(request)
+        }.getOrElse { throwable ->
+            when {
+                throwable.isInvalidCredentials() -> throw OutdatedPasswordException()
+                else -> throw throwable
+            }
+        }
     }
 }

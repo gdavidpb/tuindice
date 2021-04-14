@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.domain.usecase
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.domain.model.exception.OutdatedPasswordException
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.repository.NetworkRepository
@@ -45,10 +46,13 @@ class GetEnrollmentProofUseCase(
     }
 
     override suspend fun executeOnException(throwable: Throwable): GetEnrollmentError? {
+        val causes = throwable.causes()
+
         return when {
+            causes.isAccountDisabled() -> GetEnrollmentError.AccountDisabled
+            throwable is OutdatedPasswordException -> GetEnrollmentError.OutdatedPassword
             throwable is StreamCorruptedException -> GetEnrollmentError.NotFound
             throwable.isTimeout() -> GetEnrollmentError.Timeout
-            throwable.isInvalidCredentials() -> GetEnrollmentError.InvalidCredentials
             throwable.isNotEnrolled() -> GetEnrollmentError.NotEnrolled
             throwable.isConnection() -> GetEnrollmentError.NoConnection(networkRepository.isAvailable())
             else -> null
@@ -58,6 +62,13 @@ class GetEnrollmentProofUseCase(
     private suspend fun Credentials.auth(serviceUrl: String): DstAuth {
         val request = toDstCredentials(serviceUrl)
 
-        return dstRepository.signIn(request)
+        return runCatching {
+            dstRepository.signIn(request)
+        }.getOrElse { throwable ->
+            when {
+                throwable.isInvalidCredentials() -> throw OutdatedPasswordException()
+                else -> throw throwable
+            }
+        }
     }
 }
