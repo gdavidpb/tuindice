@@ -321,10 +321,9 @@
     <string name="snack_resend">Correo reenviado</string>
 
     <string name="text_0">00:00</string>
-    <string name="text_or">─ O ─</string>
 
-    <string name="button_cancel"><u>Ingresar con otra cuenta</u></string>
-    <string name="button_resend">Enviar nuevamente</string>
+    <string name="button_reset_password_cancel">Cancelar</string>
+    <string name="button_reset_password_resend">Enviar nuevamente</string>
 
     <!-- SignInFragment -->
 

@@ -32,7 +32,7 @@ class ResetPasswordFragment : NavigationFragment() {
         tViewResetPasswordMessage.text = getString(R.string.message_reset_password, args.email)
 
         btnResend.onClickOnce(::onResendClick)
-        btnReset.onClickOnce(::onResetClick)
+        btnCancel.onClickOnce(::onResetClick)
 
         viewModel.startCountdown(time = countdownTime)
     }
@@ -59,7 +59,7 @@ class ResetPasswordFragment : NavigationFragment() {
     private fun showLoading(value: Boolean) {
         pBarResend.isVisible = value
         btnResend.isEnabled = !value
-        btnResend.text = if (value) null else getString(R.string.button_resend)
+        btnResend.text = if (value) null else getString(R.string.button_reset_password_resend)
     }
 
     private fun resendSnackBar() {
