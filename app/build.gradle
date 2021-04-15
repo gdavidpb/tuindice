@@ -139,12 +139,12 @@ dependencies {
     implementation "org.koin:koin-androidx-viewmodel:$koin_version"
 
     /* Google */
-    implementation "com.google.firebase:firebase-core:18.0.2"
-    implementation "com.google.firebase:firebase-auth:20.0.3"
+    implementation "com.google.firebase:firebase-core:18.0.3"
+    implementation "com.google.firebase:firebase-auth:20.0.4"
     implementation 'com.google.firebase:firebase-firestore:22.1.2'
     implementation "com.google.firebase:firebase-dynamic-links:19.1.1"
     implementation "com.google.firebase:firebase-functions:19.2.0"
-    implementation "com.google.firebase:firebase-messaging:21.0.1"
+    implementation "com.google.firebase:firebase-messaging:21.1.0"
     implementation 'com.google.firebase:firebase-storage:19.2.2'
     implementation 'com.google.firebase:firebase-crashlytics:17.4.1'
     implementation "com.google.firebase:firebase-config:20.0.4"
