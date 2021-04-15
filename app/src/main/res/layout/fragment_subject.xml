@@ -7,7 +7,7 @@
     android:background="@color/color_background"
     android:paddingTop="@dimen/dp_8">
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewTotalGrade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="@id/iViewCompare"
         tools:text="56" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewLabelTotalGrade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
         app:layout_constraintEnd_toStartOf="@id/iViewCompare"
         app:layout_constraintStart_toEndOf="@id/tViewTotalGrade" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewLabelAccumulated"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tViewSubjectName" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewGrade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
         app:layout_constraintTop_toTopOf="@id/iViewCompare"
         tools:text="3" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewLabelGrade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/tViewGrade" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewLabelFinal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -82,7 +82,7 @@
         app:layout_constraintStart_toStartOf="@id/tViewGrade"
         app:layout_constraintTop_toBottomOf="@id/tViewGrade" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewSubjectCode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -95,12 +95,11 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="MA1111" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewSubjectName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tViewSubjectCode"
@@ -120,7 +119,7 @@
             android:layout_marginTop="@dimen/dp_16"
             tools:listitem="@layout/item_evaluation" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tViewEvaluations"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

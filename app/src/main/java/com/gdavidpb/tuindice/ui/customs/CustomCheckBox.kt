@@ -6,14 +6,14 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.util.AttributeSet
-import androidx.appcompat.widget.AppCompatCheckBox
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.extensions.getCompatColor
 import com.gdavidpb.tuindice.utils.mappers.distanceTo
+import com.google.android.material.checkbox.MaterialCheckBox
 import java.util.concurrent.atomic.AtomicBoolean
 
 class CustomCheckBox(context: Context, attrs: AttributeSet)
-    : AppCompatCheckBox(context, attrs), ViewHook {
+    : MaterialCheckBox(context, attrs), ViewHook {
 
     companion object {
         private const val backgroundColor = Color.WHITE
@@ -22,7 +22,6 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
 
         private lateinit var checkedColor: ColorStateList
         private lateinit var uncheckedColor: ColorStateList
-        private lateinit var disabledColor: ColorStateList
     }
 
     private var checkedChangeListener: OnCheckedChangeListener? = null
@@ -30,11 +29,10 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
     override fun onDraw(canvas: Canvas) {
         onDrawHook(canvas) { canvasHook -> super.onDraw(canvasHook) }
 
-        buttonTintList = when {
-            !isEnabled -> disabledColor
-            isChecked -> checkedColor
-            else -> uncheckedColor
-        }
+        buttonTintList = if (isChecked)
+            checkedColor
+        else
+            uncheckedColor
 
         super.onDraw(canvas)
     }
@@ -65,7 +63,6 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
                 }
 
         checkedColor = ColorStateList.valueOf(context.getCompatColor(R.color.color_retired))
-        disabledColor = ColorStateList.valueOf(context.getCompatColor(R.color.color_disabled))
 
         bitmapHook.recycle()
     }

@@ -30,7 +30,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:visibility="visible" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -43,18 +43,17 @@
         app:layout_constraintTop_toBottomOf="@id/tViewGrade"
         tools:text="Gerardo Prado" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewCareer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tViewName"
         tools:text="Ingeniería de la Computación" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewLastUpdate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

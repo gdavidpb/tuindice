@@ -17,7 +17,7 @@
             android:layout_height="match_parent"
             tools:listitem="@layout/item_quarter" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tViewRecord"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

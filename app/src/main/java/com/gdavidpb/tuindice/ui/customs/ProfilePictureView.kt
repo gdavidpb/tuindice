@@ -9,7 +9,6 @@ import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
-import com.gdavidpb.tuindice.utils.CircleTransform
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
@@ -58,7 +57,6 @@ class ProfilePictureView(context: Context, attrs: AttributeSet)
                 load(url)
                         .noFade()
                         .stableKey(url)
-                        .transform(CircleTransform())
                         .error(R.mipmap.ic_launcher_round)
                         .into(iViewProfile, liveData)
             }

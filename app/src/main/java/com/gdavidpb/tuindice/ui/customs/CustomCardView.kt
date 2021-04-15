@@ -6,10 +6,10 @@ import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
 import android.util.AttributeSet
-import androidx.cardview.widget.CardView
+import com.google.android.material.card.MaterialCardView
 
 class CustomCardView(context: Context, attrs: AttributeSet)
-    : CardView(context, attrs) {
+    : MaterialCardView(context, attrs) {
 
     companion object {
         private val paint = Paint().apply {

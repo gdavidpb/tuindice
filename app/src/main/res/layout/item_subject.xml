@@ -8,31 +8,29 @@
     android:layerType="hardware"
     tools:padding="@dimen/dp_16">
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewSubjectCode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawablePadding="@dimen/dp_6"
         android:fontFamily="sans-serif-black"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
         android:textColor="@color/color_secondary_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:drawableStart="@drawable/ic_open_in"
         tools:text="MA1111" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewSubjectGrade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-black"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
         android:textColor="@color/color_secondary_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="3 / 5" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewSubjectName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -41,19 +39,17 @@
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
         android:maxLines="1"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
         android:textColor="@color/color_secondary_text"
         app:layout_constraintEnd_toStartOf="@id/tViewSubjectCredits"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tViewSubjectCode"
         tools:text="Matemática I" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewSubjectCredits"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-light"
-        android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
         android:textColor="@color/color_secondary_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tViewSubjectGrade"
@@ -64,8 +60,7 @@
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/dp_8"
-        android:paddingBottom="@dimen/dp_8"
+        android:paddingVertical="@dimen/dp_8"
         android:max="5"
         app:layout_constraintTop_toBottomOf="@id/tViewSubjectName"
         app:tickMark="@drawable/sh_tick_mark"

@@ -14,4 +14,10 @@
         <item name="android:windowBackground">@drawable/bk_splash</item>
     </style>
 
+    <!-- ImageView -->
+    <style name="CircularShapeableImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
 </resources>

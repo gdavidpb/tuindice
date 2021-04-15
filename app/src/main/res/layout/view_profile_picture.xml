@@ -5,23 +5,23 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-
     <androidx.constraintlayout.widget.Group
         android:id="@+id/gPicture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:constraint_referenced_ids="iViewProfile,iViewEditProfile" />
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iViewProfile"
         android:layout_width="@dimen/size_profile"
         android:layout_height="@dimen/size_profile"
         android:visibility="invisible"
+        app:shapeAppearanceOverlay="@style/CircularShapeableImageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ContentDescription"
-        tools:src="@mipmap/ic_launcher_round"
+        tools:srcCompat="@mipmap/ic_launcher_round"
         tools:visibility="visible" />
 
     <ImageView

@@ -20,14 +20,15 @@
         networkView:resetInterpolator="@android:anim/decelerate_interpolator"
         networkView:zoomInterpolator="@android:anim/overshoot_interpolator" />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/pensumNetworkReset"
-        style="@style/Widget.AppCompat.Button.Borderless"
+        style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
         android:layout_width="@dimen/dp_48"
         android:layout_height="@dimen/dp_48"
         android:layout_margin="@dimen/dp_12"
-        android:background="@color/color_canvas_overlay"
-        android:src="@drawable/ic_zoom_out"
+        networkView:icon="@drawable/ic_zoom_out"
+        networkView:iconTint="@color/color_text_icon"
+        networkView:rippleColor="?attr/colorControlHighlight"
         networkView:layout_constraintBottom_toBottomOf="parent"
         networkView:layout_constraintEnd_toEndOf="parent" />
 

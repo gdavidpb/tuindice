@@ -21,11 +21,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_8"
-        android:paddingStart="@dimen/dp_16"
-        android:paddingTop="@dimen/dp_8"
-        android:paddingEnd="@dimen/dp_16">
+        android:paddingHorizontal="@dimen/dp_16"
+        android:paddingVertical="@dimen/dp_8">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tViewQuarterTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -36,7 +35,7 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Sep. - Dic. 2017" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tViewQuarterGradeDiff"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -49,7 +48,7 @@
             app:layout_constraintTop_toBottomOf="@id/tViewQuarterTitle"
             tools:text="Δx 0.0000" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tViewQuarterGradeSum"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -62,7 +61,7 @@
             app:layout_constraintTop_toBottomOf="@id/tViewQuarterTitle"
             tools:text="∑x 0.0000" />
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tViewQuarterCredits"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

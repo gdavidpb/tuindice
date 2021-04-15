@@ -5,13 +5,13 @@ import android.content.Context
 import android.text.style.RelativeSizeSpan
 import android.util.AttributeSet
 import android.view.animation.DecelerateInterpolator
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.text.buildSpannedString
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.google.android.material.textview.MaterialTextView
 
 class GradeTextView(context: Context, attrs: AttributeSet)
-    : AppCompatTextView(context, attrs) {
+    : MaterialTextView(context, attrs) {
 
     private object Defaults {
         const val DECIMALS = 2
