@@ -25,11 +25,18 @@ open class AuthMockDataSource(
         return Auth(uid = uid, email = email)
     }
 
+    override suspend fun reSignIn(credentials: Credentials): Auth {
+        return Auth(uid = uid, email = email)
+    }
+
     override suspend fun signUp(credentials: Credentials): Auth {
         return Auth(uid = uid, email = email)
     }
 
     override suspend fun signOut() {
+    }
+
+    override suspend fun updatePassword(newPassword: String) {
     }
 
     override suspend fun confirmPasswordReset(code: String, password: String) {

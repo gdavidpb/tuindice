@@ -353,7 +353,9 @@
     </string>
 
     <string name="button_update_password_later">Más tarde</string>
-    <string name="button_update_password_update">Confirmar</string>
+    <string name="button_update_password_confirm">Confirmar</string>
+
+    <string name="snack_invalid_password">Contraseña inválida</string>
 
     <!-- RemoveProfilePictureActivity -->
 

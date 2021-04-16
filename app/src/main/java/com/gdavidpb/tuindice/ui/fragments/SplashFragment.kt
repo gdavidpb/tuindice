@@ -14,7 +14,9 @@ import com.gdavidpb.tuindice.presentation.viewmodel.SplashViewModel
 import com.gdavidpb.tuindice.ui.dialogs.disabledAccountFailureDialog
 import com.gdavidpb.tuindice.ui.dialogs.fatalFailureDialog
 import com.gdavidpb.tuindice.ui.dialogs.linkFailureDialog
+import com.gdavidpb.tuindice.utils.extensions.connectionSnackBar
 import com.gdavidpb.tuindice.utils.extensions.observe
+import com.gdavidpb.tuindice.utils.extensions.requireAppCompatActivity
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 

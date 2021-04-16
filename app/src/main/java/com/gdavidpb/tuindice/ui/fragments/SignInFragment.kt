@@ -137,20 +137,6 @@ class SignInFragment : NavigationFragment() {
         }
     }
 
-    private fun invalidCredentialsSnackBar() {
-        snackBar {
-            messageResource = R.string.snack_invalid_credentials
-        }
-    }
-
-    private fun timeoutSnackBar() {
-        snackBar {
-            messageResource = R.string.snack_timeout
-
-            action(R.string.retry) { onSignInClick() }
-        }
-    }
-
     private fun navToSplash() {
         navigate(SignInFragmentDirections.navToSplash())
     }
@@ -192,7 +178,7 @@ class SignInFragment : NavigationFragment() {
     private fun signInErrorHandler(error: SignInError?) {
         when (error) {
             is SignInError.Timeout -> errorSnackBar(R.string.snack_timeout) { onSignInClick() }
-            is SignInError.InvalidCredentials -> invalidCredentialsSnackBar()
+            is SignInError.InvalidCredentials -> errorSnackBar(R.string.snack_invalid_credentials)
             is SignInError.OutdatedPassword -> navToSplash()
             is SignInError.AccountDisabled -> requireAppCompatActivity().disabledAccountFailureDialog()
             is SignInError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
