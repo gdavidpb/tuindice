@@ -6,6 +6,8 @@
     android:layout_height="wrap_content"
     android:autoLink="web"
     style="@style/Widget.MaterialComponents.Button.TextButton"
+    android:textAllCaps="false"
+    android:textAppearance="@style/TextAppearance.AppCompat.Small"
     android:gravity="start|center_vertical"
     android:paddingHorizontal="@dimen/dp_16"
     android:paddingVertical="@dimen/dp_8"
