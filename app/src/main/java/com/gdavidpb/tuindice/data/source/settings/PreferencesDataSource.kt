@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.utils.SettingsKeys
-import com.gdavidpb.tuindice.utils.mappers.toRefYear
 import com.gdavidpb.tuindice.utils.mappers.asUsbEmail
 import java.util.*
 
@@ -55,12 +54,6 @@ open class PreferencesDataSource(
                 usbId = preferences.getString(SettingsKeys.USB_ID, null) ?: "",
                 password = preferences.getString(SettingsKeys.PASSWORD, null) ?: ""
         )
-    }
-
-    override fun getCredentialYear(): Int {
-        val usbId = preferences.getString(SettingsKeys.USB_ID, null) ?: ""
-
-        return if (usbId.isNotEmpty()) usbId.toRefYear() else -1
     }
 
     override fun getLastScreen(): Int {

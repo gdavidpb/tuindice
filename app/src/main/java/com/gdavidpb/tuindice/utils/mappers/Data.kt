@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.computeCredits
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import java.util.*
@@ -131,3 +132,8 @@ fun Evaluation.toEvaluationEntity(uid: String) = mutableMapOf(
     if (date.time != 0L) put(EvaluationCollection.DATE, Timestamp(date))
     if (notes.isNotBlank()) put(EvaluationCollection.NOTES, notes.trim().take(MAX_EVALUATION_NOTES))
 }
+
+fun FirebaseUser.toAuth() = Auth(
+        uid = uid,
+        email = email ?: error("email")
+)

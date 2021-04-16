@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.exception.OutdatedPasswordException
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
+import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
@@ -11,7 +12,6 @@ import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.asUsbEmail
-import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class SignInUseCase(
@@ -81,8 +81,12 @@ class SignInUseCase(
     }
 
     private suspend fun Credentials.auth(serviceUrl: String): DstAuth {
-        val request = toDstCredentials(serviceUrl)
+        val credentials = DstCredentials(
+                usbId = usbId,
+                password = password,
+                serviceUrl = serviceUrl
+        )
 
-        return dstRepository.signIn(request)
+        return dstRepository.signIn(credentials)
     }
 }

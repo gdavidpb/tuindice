@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.services
 
 import com.gdavidpb.tuindice.data.source.service.DstRecordService
-import com.gdavidpb.tuindice.data.source.service.selectors.DstPersonalResponse
-import com.gdavidpb.tuindice.data.source.service.selectors.DstRecordResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstPersonalResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstRecordResponse
 import com.gdavidpb.tuindice.services.responses.defaultPersonalResponse
 import com.gdavidpb.tuindice.services.responses.defaultRecordResponse
 import retrofit2.Response

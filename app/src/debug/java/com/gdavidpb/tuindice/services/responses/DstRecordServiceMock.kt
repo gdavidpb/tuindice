@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.services.responses
 
-import com.gdavidpb.tuindice.data.source.service.selectors.DstPersonalResponse
-import com.gdavidpb.tuindice.data.source.service.selectors.DstRecordResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstPersonalResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstRecordResponse
 import com.gdavidpb.tuindice.domain.model.service.DstPersonal
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.model.service.DstRecordStats

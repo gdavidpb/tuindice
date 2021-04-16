@@ -10,7 +10,6 @@ interface SettingsRepository {
     fun hasCredentials(): Boolean
     fun getCredentials(): Credentials
     fun storeCredentials(credentials: Credentials)
-    fun getCredentialYear(): Int
     fun isReviewSuggested(value: Int): Boolean
 
     fun getLastScreen(): Int

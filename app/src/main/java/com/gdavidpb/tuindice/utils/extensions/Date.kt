@@ -112,12 +112,6 @@ fun Date.add(field: Int, value: Int): Date = Calendar.getInstance().run {
     time
 }
 
-fun Date.get(field: Int): Int = Calendar.getInstance().run {
-    time = this@get
-
-    get(field)
-}
-
 private fun Date.checkInRange(startTransformation: Calendar.() -> Unit, endTransformation: Calendar.() -> Unit): Boolean {
     val start = Calendar.getInstance().apply(startTransformation).time
     val end = Calendar.getInstance().apply(endTransformation).time

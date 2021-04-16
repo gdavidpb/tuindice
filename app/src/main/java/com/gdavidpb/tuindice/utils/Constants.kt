@@ -57,20 +57,6 @@ object ReportKeys {
     const val HANDLED = "HANDLED"
 }
 
-/* Romans */
-val ROMANS = hashMapOf(
-        "1" to "I",
-        "2" to "II",
-        "3" to "III",
-        "4" to "IV",
-        "5" to "V",
-        "6" to "VI",
-        "7" to "VII",
-        "8" to "VIII",
-        "9" to "IX",
-        "10" to "X"
-)
-
 /* Times */
 const val TIME_EXIT_LOCKER = 2000L
 
@@ -90,8 +76,6 @@ const val STATUS_QUARTER_RETIRED = 3
 const val STATUS_SUBJECT_OK = 0
 const val STATUS_SUBJECT_RETIRED = 1
 const val STATUS_SUBJECT_NO_EFFECT = 2
-
-const val REF_BASE = 2000
 
 /* Decimals */
 const val DECIMALS_GRADE_SUBJECT = 2

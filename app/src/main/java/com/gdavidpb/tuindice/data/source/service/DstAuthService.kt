@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.service
 
-import com.gdavidpb.tuindice.data.source.service.selectors.DstAuthResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstAuthResponse
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded

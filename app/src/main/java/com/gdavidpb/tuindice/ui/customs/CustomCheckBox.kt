@@ -8,9 +8,10 @@ import android.graphics.Color
 import android.util.AttributeSet
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.extensions.getCompatColor
-import com.gdavidpb.tuindice.utils.mappers.distanceTo
 import com.google.android.material.checkbox.MaterialCheckBox
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class CustomCheckBox(context: Context, attrs: AttributeSet)
     : MaterialCheckBox(context, attrs), ViewHook {
@@ -80,5 +81,15 @@ class CustomCheckBox(context: Context, attrs: AttributeSet)
             isChecked = checked
             super.setOnCheckedChangeListener(checkedChangeListener)
         }
+    }
+
+    private infix fun Int.distanceTo(x: Int): Double {
+        val (a, b, c) = arrayOf(
+                (Color.red(x) - Color.red(this)).toDouble(),
+                (Color.green(x) - Color.green(this)).toDouble(),
+                (Color.blue(x) - Color.blue(this)).toDouble()
+        )
+
+        return sqrt(a.pow(2.0) + b.pow(2.0) + c.pow(2.0))
     }
 }

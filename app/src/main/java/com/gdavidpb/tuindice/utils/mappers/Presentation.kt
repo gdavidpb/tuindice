@@ -170,17 +170,6 @@ fun String.addSuffix(suffix: String): String {
         this
 }
 
-fun String.formatSubjectName(): String {
-    var result = replace("^\"|\"$".toRegex(), "")
-            .replace("(?<=\\w)\\.(?=\\w)".toRegex(), " ")
-
-    ROMANS.forEach { (key, value) ->
-        result = result.replace("(?<=\\b)$key(?=\\b|$)".toRegex(), value)
-    }
-
-    return result
-}
-
 /* Span */
 
 fun Subject.spanSubjectCode(context: Context): CharSequence {

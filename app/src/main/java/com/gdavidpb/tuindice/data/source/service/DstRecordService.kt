@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.service
 
-import com.gdavidpb.tuindice.data.source.service.selectors.DstPersonalResponse
-import com.gdavidpb.tuindice.data.source.service.selectors.DstRecordResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstPersonalResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstRecordResponse
 import retrofit2.Response
 import retrofit2.http.GET
 

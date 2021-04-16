@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.source.service.selectors
+package com.gdavidpb.tuindice.data.source.service.responses
 
 import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.data.source.service.converters.DstRecordConverter

@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.exception.OutdatedPasswordException
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
+import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
@@ -15,7 +16,6 @@ import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.*
-import com.gdavidpb.tuindice.utils.mappers.toDstCredentials
 import java.io.File
 import java.io.StreamCorruptedException
 
@@ -60,10 +60,14 @@ class GetEnrollmentProofUseCase(
     }
 
     private suspend fun Credentials.auth(serviceUrl: String): DstAuth {
-        val request = toDstCredentials(serviceUrl)
+        val credentials = DstCredentials(
+                usbId = usbId,
+                password = password,
+                serviceUrl = serviceUrl
+        )
 
         return runCatching {
-            dstRepository.signIn(request)
+            dstRepository.signIn(credentials)
         }.getOrElse { throwable ->
             when {
                 throwable.isInvalidCredentials() -> throw OutdatedPasswordException()

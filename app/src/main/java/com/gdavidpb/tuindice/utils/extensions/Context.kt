@@ -23,7 +23,6 @@ import androidx.security.crypto.MasterKey
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.ResourcesManager
-import com.gdavidpb.tuindice.utils.mappers.runCatchingIsSuccess
 import java.io.File
 
 fun Context.openPdf(file: File) {
@@ -34,27 +33,33 @@ fun Context.openPdf(file: File) {
     }
 }
 
-fun Context.share(text: String, subject: String = "") = runCatchingIsSuccess {
-    Intent(Intent.ACTION_SEND).apply {
-        type = "text/plain"
-        putExtra(Intent.EXTRA_SUBJECT, subject)
-        putExtra(Intent.EXTRA_TEXT, text)
-    }.also { intent ->
-        startActivity(Intent.createChooser(intent, null))
+fun Context.share(text: String, subject: String = "") {
+    runCatching {
+        Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, text)
+        }.also { intent ->
+            startActivity(Intent.createChooser(intent, null))
+        }
     }
 }
 
-fun Context.email(email: String, subject: String = "", text: String = "") = runCatchingIsSuccess {
-    Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")).apply {
-        putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
+fun Context.email(email: String, subject: String = "", text: String = "") {
+    runCatching {
+        Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")).apply {
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
 
-        if (subject.isNotEmpty()) putExtra(Intent.EXTRA_SUBJECT, subject)
-        if (text.isNotEmpty()) putExtra(Intent.EXTRA_TEXT, text)
-    }.also(::startActivity)
+            if (subject.isNotEmpty()) putExtra(Intent.EXTRA_SUBJECT, subject)
+            if (text.isNotEmpty()) putExtra(Intent.EXTRA_TEXT, text)
+        }.also(::startActivity)
+    }
 }
 
-fun Context.browse(url: String) = runCatchingIsSuccess {
-    Intent(Intent.ACTION_VIEW, Uri.parse(url)).also(::startActivity)
+fun Context.browse(url: String) {
+    runCatching {
+        Intent(Intent.ACTION_VIEW, Uri.parse(url)).also(::startActivity)
+    }
 }
 
 fun Context.toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {

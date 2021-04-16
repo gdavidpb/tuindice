@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.data.source.service.converters
 
 import com.gdavidpb.tuindice.domain.model.service.DstScheduleEntry
 import com.gdavidpb.tuindice.domain.model.service.DstScheduledSubject
+import com.gdavidpb.tuindice.utils.mappers.parseSubjectName
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.ElementConverter
 import pl.droidsonroids.jspoon.annotation.Selector
@@ -52,7 +53,7 @@ class DstScheduleConverter : ElementConverter<List<DstScheduledSubject>> {
                     DstScheduledSubject(
                             code = code,
                             section = section,
-                            name = name,
+                            name = name.parseSubjectName(),
                             credits = credits,
                             status = status,
                             schedule = schedule

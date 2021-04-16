@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.services.responses
 
-import com.gdavidpb.tuindice.data.source.service.selectors.DstEnrollmentResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstEnrollmentResponse
 import com.gdavidpb.tuindice.domain.model.service.DstPeriod
 import com.gdavidpb.tuindice.utils.createScheduledSubject
 import com.gdavidpb.tuindice.utils.extensions.parse

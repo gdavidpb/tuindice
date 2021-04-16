@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.source.service.selectors
+package com.gdavidpb.tuindice.data.source.service.responses
 
 import pl.droidsonroids.jspoon.annotation.Selector
 

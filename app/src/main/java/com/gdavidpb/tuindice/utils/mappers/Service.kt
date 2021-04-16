@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.utils.mappers
 
-import com.gdavidpb.tuindice.data.source.service.selectors.DstAuthResponse
-import com.gdavidpb.tuindice.data.source.service.selectors.DstEnrollmentResponse
-import com.gdavidpb.tuindice.data.source.service.selectors.DstPersonalResponse
-import com.gdavidpb.tuindice.data.source.service.selectors.DstRecordResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstAuthResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstEnrollmentResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstPersonalResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstRecordResponse
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.ScheduleEntry
 import com.gdavidpb.tuindice.domain.model.ScheduleSubject
@@ -38,7 +38,7 @@ fun DstEnrollmentResponse.toEnrollment(): DstEnrollment {
             ScheduleSubject(
                     code = it.code,
                     section = it.section,
-                    name = it.name.formatSubjectName(),
+                    name = it.name,
                     credits = it.credits,
                     status = it.status,
                     schedule = it.schedule.map { entry ->

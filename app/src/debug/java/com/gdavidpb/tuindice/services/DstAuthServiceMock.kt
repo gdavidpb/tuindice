@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.services
 
 import com.gdavidpb.tuindice.data.source.service.DstAuthService
-import com.gdavidpb.tuindice.data.source.service.selectors.DstAuthResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstAuthResponse
 import com.gdavidpb.tuindice.services.responses.dstDefaultAuthResponse
 import retrofit2.Response
 import retrofit2.mock.BehaviorDelegate

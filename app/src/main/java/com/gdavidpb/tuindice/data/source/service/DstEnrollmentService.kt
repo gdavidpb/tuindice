@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.service
 
-import com.gdavidpb.tuindice.data.source.service.selectors.DstEnrollmentResponse
+import com.gdavidpb.tuindice.data.source.service.responses.DstEnrollmentResponse
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.GET
