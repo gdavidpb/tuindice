@@ -9,12 +9,8 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
-import androidx.annotation.ColorRes
-import androidx.annotation.DrawableRes
-import androidx.annotation.RequiresApi
-import androidx.annotation.StringRes
+import androidx.annotation.*
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.PreferenceManager
@@ -75,7 +71,8 @@ fun Context.versionName(): String {
             BuildConfig.VERSION_CODE)
 }
 
-fun Context.getCompatColor(@ColorRes colorRes: Int): Int = ContextCompat.getColor(this, colorRes)
+@ColorInt
+fun Context.getCompatColor(@ColorRes colorRes: Int): Int = ResourcesManager.getColor(colorRes, this)
 
 fun Context.getCompatVector(@DrawableRes drawableRes: Int, width: Int, height: Int): Drawable {
     return DrawableCompat.wrap(AppCompatResources.getDrawable(this, drawableRes)!!).apply {
@@ -86,7 +83,7 @@ fun Context.getCompatVector(@DrawableRes drawableRes: Int, width: Int, height: I
 fun Context.getCompatDrawable(@DrawableRes resId: Int): Drawable = AppCompatResources.getDrawable(this, resId)!!
 
 fun Context.getCompatDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes: Int): Drawable {
-    val color = ResourcesManager.getColor(colorRes, this)
+    val color = getCompatColor(colorRes)
     val drawable = DrawableCompat.wrap(getCompatDrawable(drawableRes))
 
     return drawable.apply {

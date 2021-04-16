@@ -31,7 +31,7 @@ fun Subject.toSubjectItem(context: Context) = SubjectItem(
 )
 
 fun Quarter.toQuarterItem(context: Context): QuarterItem {
-    val quarterColor = ResourcesManager.getColor(status.toQuarterColor(), context)
+    val quarterColor = context.getCompatColor(status.toQuarterColor())
 
     return QuarterItem(
             uid = id.hashCode().toLong(),
@@ -179,7 +179,7 @@ fun Subject.spanSubjectCode(context: Context): CharSequence {
         code
     else buildSpannedString {
         val content = context.getString(R.string.subject_title, code, statusText)
-        val colorSecondary = ResourcesManager.getColor(R.color.color_secondary_text, context)
+        val colorSecondary = context.getCompatColor(R.color.color_secondary_text)
 
         append(content.substringBefore(' '))
         append(' ')

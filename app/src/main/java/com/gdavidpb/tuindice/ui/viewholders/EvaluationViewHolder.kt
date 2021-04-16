@@ -6,11 +6,10 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
-import com.gdavidpb.tuindice.utils.ResourcesManager
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.item_evaluation.view.*
 
- class EvaluationViewHolder(
+class EvaluationViewHolder(
         itemView: View,
         private val manager: EvaluationAdapter.AdapterManager
 ) : BaseViewHolder<EvaluationItem>(itemView) {
@@ -80,7 +79,7 @@ import kotlinx.android.synthetic.main.item_evaluation.view.*
         val cardColor = when {
             isDone -> R.color.color_retired
             else -> R.color.color_approved
-        }.let { resource -> ResourcesManager.getColor(resource, context) }
+        }.let { resource -> context.getCompatColor(resource) }
 
         viewEvaluationColor.backgroundColor = cardColor
         cBoxEvaluation.setChecked(checked = isDone, notify = false)
