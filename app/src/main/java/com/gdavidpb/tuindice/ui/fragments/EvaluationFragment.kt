@@ -131,8 +131,8 @@ class EvaluationFragment : NavigationFragment() {
     }
 
     private fun initListeners() {
-        tViewLabelNotes.onClickOnce { onNotesClicked() }
-        tViewDate.onClickOnce { onDateClicked() }
+        tViewLabelNotes.onClickOnce(::onNotesClick)
+        tViewDate.onClickOnce(::onDateClick)
 
         cGroupEvaluation.setOnCheckedChangeListener { _, _ ->
             syncChipGroup()
@@ -268,7 +268,7 @@ class EvaluationFragment : NavigationFragment() {
         tViewLabelGradeValue.text = getString(R.string.label_evaluation_grade_value, value)
     }
 
-    private fun onDateClicked() {
+    private fun onDateClick() {
         requireActivity().datePicker {
             if (datePicker.selectedDate.time != 0L)
                 selectedDate = datePicker.selectedDate
@@ -287,7 +287,7 @@ class EvaluationFragment : NavigationFragment() {
         }
     }
 
-    private fun onNotesClicked() {
+    private fun onNotesClick() {
         eTextNotes.isVisible = !eTextNotes.isVisible
 
         checkNotes()

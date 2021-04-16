@@ -66,7 +66,7 @@ class SubjectFragment : NavigationFragment() {
             ItemTouchHelper(evaluationManager).attachToRecyclerView(this)
         }
 
-        btnAddEvaluation.onClickOnce(::onAddEvaluationClicked)
+        btnAddEvaluation.onClickOnce(::onAddEvaluationClick)
 
         with(viewModel) {
             getSubject(sid = args.subjectId)
@@ -111,7 +111,7 @@ class SubjectFragment : NavigationFragment() {
         }
     }
 
-    private fun onAddEvaluationClicked() {
+    private fun onAddEvaluationClick() {
         navigate(SubjectFragmentDirections.navToEvaluation(
                 title = getString(R.string.title_add_evaluation),
                 subjectId = args.subjectId,

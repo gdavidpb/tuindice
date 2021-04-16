@@ -19,10 +19,10 @@ class PensumFragment : NavigationFragment() {
 
         setHasOptionsMenu(false)
 
-        pensumNetworkReset.onClickOnce(::onResetNetworkClicked)
+        pensumNetworkReset.onClickOnce(::onResetNetworkClick)
     }
 
-    private fun onResetNetworkClicked() {
+    private fun onResetNetworkClick() {
         pensumNetwork.reset()
     }
 }

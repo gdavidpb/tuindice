@@ -30,16 +30,16 @@ var (AlertDialog.Builder).isCancelable: Boolean
 
 fun (AlertDialog.Builder).positiveButton(
         @StringRes buttonTextResource: Int,
-        onClicked: (dialog: DialogInterface) -> Unit = {}
+        onClick: (dialog: DialogInterface) -> Unit = {}
 ) {
-    setPositiveButton(buttonTextResource) { dialog, _ -> onClicked(dialog) }
+    setPositiveButton(buttonTextResource) { dialog, _ -> onClick(dialog) }
 }
 
 fun (AlertDialog.Builder).negativeButton(
         @StringRes buttonTextResource: Int,
-        onClicked: (dialog: DialogInterface) -> Unit = {}
+        onClick: (dialog: DialogInterface) -> Unit = {}
 ) {
-    setNegativeButton(buttonTextResource) { dialog, _ -> onClicked(dialog) }
+    setNegativeButton(buttonTextResource) { dialog, _ -> onClick(dialog) }
 }
 
 fun (AlertDialog.Builder).createView(@LayoutRes layout: Int, init: View.() -> Unit): View =
