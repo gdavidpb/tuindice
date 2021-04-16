@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.dialogs.disabledAccountFailureDialog
+import com.gdavidpb.tuindice.ui.dialogs.updatePasswordDialog
 import com.gdavidpb.tuindice.utils.IdempotentLocker
 import com.gdavidpb.tuindice.utils.TIME_EXIT_LOCKER
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -135,7 +136,7 @@ class MainActivity : AppCompatActivity() {
     private fun syncErrorHandler(error: SyncError?) {
         when (error) {
             is SyncError.AccountDisabled -> disabledAccountFailureDialog()
-            is SyncError.OutdatedPassword -> TODO()
+            is SyncError.OutdatedPassword -> updatePasswordDialog()
         }
     }
 }

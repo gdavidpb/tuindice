@@ -198,7 +198,6 @@ class RecordFragment : NavigationFragment() {
     private fun enrollmentErrorHandler(error: GetEnrollmentError?) {
         when (error) {
             is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { openEnrollmentProof() }
-            is GetEnrollmentError.OutdatedPassword -> TODO()
             is GetEnrollmentError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { openEnrollmentProof() }
             is GetEnrollmentError.NotEnrolled -> notFoundSnackBar()
             is GetEnrollmentError.NotFound -> notFoundSnackBar()

@@ -44,11 +44,6 @@
         Parece que algo ha salido muy mal por acá. Debes reiniciar <b>TuIndice</b> para continuar.
     </string>
 
-    <string name="alert_title_credentials_failure">¡Tu contraseña ha cambiado!</string>
-    <string name="alert_message_credentials_failure">
-        Parece que tu contraseña ha cambiado. Vuelve a iniciar sesión para seguir disfrutando de <b>TuIndice</b>.
-    </string>
-
     <string name="alert_title_disabled_failure">Tu cuenta ha sido inhabilitada</string>
     <string name="alert_message_disabled_failure">
         Tu cuenta ha sido inhabilitada por violar las políticas de <b>TuIndice</b>.\n\n
@@ -348,6 +343,17 @@
     <string name="snack_service_unreachable">Servicio no disponible</string>
     <string name="snack_timeout">Tiempo de espera agotado</string>
     <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
+
+    <!-- UpdateBottomSheetDialog -->
+
+    <string name="label_update_password">Tu contraseña ha cambiado</string>
+
+    <string name="message_update_password">
+        Confirma tu contraseña para seguir disfrutando de <b>TuIndice</b>.
+    </string>
+
+    <string name="button_update_password_later">Más tarde</string>
+    <string name="button_update_password_update">Confirmar</string>
 
     <!-- RemoveProfilePictureActivity -->
 

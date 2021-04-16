@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.domain.usecase
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.exception.OutdatedPasswordException
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.DstRepository
@@ -50,8 +49,8 @@ class GetEnrollmentProofUseCase(
 
         return when {
             causes.isAccountDisabled() -> GetEnrollmentError.AccountDisabled
-            throwable is OutdatedPasswordException -> GetEnrollmentError.OutdatedPassword
             throwable is StreamCorruptedException -> GetEnrollmentError.NotFound
+            throwable.isInvalidCredentials() -> GetEnrollmentError.NotFound
             throwable.isTimeout() -> GetEnrollmentError.Timeout
             throwable.isNotEnrolled() -> GetEnrollmentError.NotEnrolled
             throwable.isConnection() -> GetEnrollmentError.NoConnection(networkRepository.isAvailable())
@@ -66,13 +65,6 @@ class GetEnrollmentProofUseCase(
                 serviceUrl = serviceUrl
         )
 
-        return runCatching {
-            dstRepository.signIn(credentials)
-        }.getOrElse { throwable ->
-            when {
-                throwable.isInvalidCredentials() -> throw OutdatedPasswordException()
-                else -> throw throwable
-            }
-        }
+        return dstRepository.signIn(credentials)
     }
 }
