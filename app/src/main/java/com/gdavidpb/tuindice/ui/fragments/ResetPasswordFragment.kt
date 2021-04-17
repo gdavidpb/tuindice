@@ -113,6 +113,7 @@ class ResetPasswordFragment : NavigationFragment() {
 
     private fun resetPasswordErrorHandler(error: SendResetPasswordEmailError?) {
         when (error) {
+            is SendResetPasswordEmailError.Timeout -> errorSnackBar(R.string.snack_timeout) { onResendClick() }
             is SendResetPasswordEmailError.AccountDisabled -> requireAppCompatActivity().disabledAccountFailureDialog()
             is SendResetPasswordEmailError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onResendClick() }
             else -> errorSnackBar { onResendClick() }

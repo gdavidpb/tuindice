@@ -5,10 +5,14 @@ import com.gdavidpb.tuindice.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SendResetPasswordEmailError
+import com.gdavidpb.tuindice.utils.ConfigKeys
+import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.causes
 import com.gdavidpb.tuindice.utils.extensions.isAccountDisabled
 import com.gdavidpb.tuindice.utils.extensions.isConnection
+import com.gdavidpb.tuindice.utils.extensions.isTimeout
 
+@Timeout(key = ConfigKeys.TIME_OUT_RESET_PASSWORD)
 class SendResetPasswordEmailUseCase(
         private val authRepository: AuthRepository,
         private val settingsRepository: SettingsRepository,
@@ -24,6 +28,7 @@ class SendResetPasswordEmailUseCase(
         val causes = throwable.causes()
 
         return when {
+            throwable.isTimeout() -> SendResetPasswordEmailError.Timeout
             causes.isAccountDisabled() -> SendResetPasswordEmailError.AccountDisabled
             throwable.isConnection() -> SendResetPasswordEmailError.NoConnection(networkRepository.isAvailable())
             else -> null

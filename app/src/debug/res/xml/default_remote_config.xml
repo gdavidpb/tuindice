@@ -72,4 +72,8 @@
         <key>time_out_update_password</key>
         <value>90000</value>
     </entry>
+    <entry>
+        <key>time_out_reset_password</key>
+        <value>90000</value>
+    </entry>
 </defaultsMap>
