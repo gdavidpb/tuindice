@@ -5,10 +5,10 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 
 object ResourcesManager {
-    private val cachedColors = hashMapOf<Int, Int>()
+    private val colorsCache = hashMapOf<Int, Int>()
 
     fun getColor(@ColorRes colorRes: Int, context: Context) =
-            cachedColors.getOrPut(colorRes) {
+            colorsCache.getOrPut(colorRes) {
                 ContextCompat.getColor(context, colorRes)
             }
 }
