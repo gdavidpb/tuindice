@@ -8,9 +8,7 @@ import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.utils.annotations.Timeout
-import com.gdavidpb.tuindice.utils.extensions.isConnection
-import com.gdavidpb.tuindice.utils.extensions.isObjectNotFound
-import com.gdavidpb.tuindice.utils.extensions.isTimeout
+import com.gdavidpb.tuindice.utils.extensions.*
 import java.io.File
 
 @Timeout(key = ConfigKeys.TIME_OUT_PROFILE_PICTURE)
@@ -35,7 +33,10 @@ class GetProfilePictureUseCase(
     }
 
     override suspend fun executeOnException(throwable: Throwable): ProfilePictureError? {
+        val causes = throwable.causes()
+
         return when {
+            causes.isAccountDisabled() -> ProfilePictureError.AccountDisabled
             throwable.isTimeout() -> ProfilePictureError.Timeout
             throwable.isConnection() -> ProfilePictureError.NoConnection(networkRepository.isAvailable())
             else -> null

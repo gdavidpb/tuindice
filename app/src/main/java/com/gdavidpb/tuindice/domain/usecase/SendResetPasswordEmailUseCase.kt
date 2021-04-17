@@ -28,8 +28,8 @@ class SendResetPasswordEmailUseCase(
         val causes = throwable.causes()
 
         return when {
-            throwable.isTimeout() -> SendResetPasswordEmailError.Timeout
             causes.isAccountDisabled() -> SendResetPasswordEmailError.AccountDisabled
+            throwable.isTimeout() -> SendResetPasswordEmailError.Timeout
             throwable.isConnection() -> SendResetPasswordEmailError.NoConnection(networkRepository.isAvailable())
             else -> null
         }

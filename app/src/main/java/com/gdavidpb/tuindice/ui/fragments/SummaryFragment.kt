@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
+import com.gdavidpb.tuindice.ui.dialogs.disabledAccountFailureDialog
 import com.gdavidpb.tuindice.utils.Actions
 import com.gdavidpb.tuindice.utils.Extras
 import com.gdavidpb.tuindice.utils.RequestCodes
@@ -281,6 +282,7 @@ class SummaryFragment : NavigationFragment() {
 
     private fun profilePictureErrorHandler(error: ProfilePictureError?) {
         when (error) {
+            is ProfilePictureError.AccountDisabled -> requireAppCompatActivity().disabledAccountFailureDialog()
             is ProfilePictureError.Timeout -> errorSnackBar(R.string.snack_timeout)
             is ProfilePictureError.NoData -> vProfilePicture.loadDefaultProfilePicture()
             is ProfilePictureError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
