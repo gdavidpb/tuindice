@@ -116,7 +116,7 @@ class AboutFragment : NavigationFragment() {
 
             item {
                 title(R.string.about_dev_report)
-                tintedDrawable(R.drawable.ic_report, R.color.color_secondary_text)
+                tintedDrawable(R.drawable.ic_bug_report, R.color.color_secondary_text)
                 onClick {
                     showReportSelector()
                 }
