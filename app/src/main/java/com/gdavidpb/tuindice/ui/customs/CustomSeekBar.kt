@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatSeekBar
-import com.gdavidpb.tuindice.R
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.ceil
 
@@ -19,13 +18,9 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
 
         private val onDrawLocker = AtomicBoolean(false)
 
-        private lateinit var tickPaint: Paint
+        private val tickPaint = Paint().apply { isAntiAlias = true }
 
         private var tickSize = 0f
-    }
-
-    init {
-        tickSize = resources.getDimension(R.dimen.size_tick)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -66,11 +61,7 @@ class CustomSeekBar(context: Context, attrs: AttributeSet)
 
         val barColor = getBarColor(bitmapHook)
 
-        tickPaint = Paint().apply {
-            isAntiAlias = true
-
-            color = barColor
-        }
+        tickPaint.color = barColor
 
         tickSize = getTickSize(bitmapHook, barColor)
 
