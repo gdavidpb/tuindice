@@ -110,6 +110,7 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 
     private fun updatePasswordErrorHandler(error: UpdatePasswordError?) {
         when (error) {
+            is UpdatePasswordError.Timeout -> errorSnackBar(R.string.snack_timeout) { onConfirmClick() }
             is UpdatePasswordError.InvalidCredentials -> errorSnackBar(R.string.snack_invalid_password)
             is UpdatePasswordError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onConfirmClick() }
             else -> errorSnackBar { onConfirmClick() }

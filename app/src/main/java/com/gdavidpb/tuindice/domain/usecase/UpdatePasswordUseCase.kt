@@ -10,9 +10,13 @@ import com.gdavidpb.tuindice.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.UpdatePasswordError
+import com.gdavidpb.tuindice.utils.ConfigKeys
+import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.isConnection
 import com.gdavidpb.tuindice.utils.extensions.isInvalidCredentials
+import com.gdavidpb.tuindice.utils.extensions.isTimeout
 
+@Timeout(key = ConfigKeys.TIME_OUT_UPDATE_PASSWORD)
 class UpdatePasswordUseCase(
         private val dstRepository: DstRepository,
         private val authRepository: AuthRepository,
@@ -33,6 +37,7 @@ class UpdatePasswordUseCase(
 
     override suspend fun executeOnException(throwable: Throwable): UpdatePasswordError? {
         return when {
+            throwable.isTimeout() -> UpdatePasswordError.Timeout
             throwable.isInvalidCredentials() -> UpdatePasswordError.InvalidCredentials
             throwable.isConnection() -> UpdatePasswordError.NoConnection(networkRepository.isAvailable())
             else -> null

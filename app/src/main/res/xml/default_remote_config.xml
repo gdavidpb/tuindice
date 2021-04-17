@@ -55,6 +55,10 @@
         <value>90000</value>
     </entry>
     <entry>
+        <key>time_out_update_password</key>
+        <value>90000</value>
+    </entry>
+    <entry>
         <key>dst_certificates</key>
         <value>
             eJwzaGJ2M2hi0mNi5DLgZePUavNo+87LyMjKymDQeMJQyUCBjTmUhUtYMjQvsyy1qDgzJTFFITgz

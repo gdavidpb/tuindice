@@ -49,6 +49,7 @@ object ConfigKeys {
     const val TIME_OUT_SYNC = "time_out_sync"
     const val TIME_OUT_GET_ENROLLMENT = "time_out_get_enrollment"
     const val TIME_OUT_PROFILE_PICTURE = "time_out_profile_picture"
+    const val TIME_OUT_UPDATE_PASSWORD = "time_out_update_password"
 }
 
 /* Reporting keys */
