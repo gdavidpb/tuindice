@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
+import com.gdavidpb.tuindice.ui.dialogs.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.ui.dialogs.disabledAccountFailureDialog
 import com.gdavidpb.tuindice.utils.Actions
 import com.gdavidpb.tuindice.utils.Extras
@@ -297,16 +298,13 @@ class SummaryFragment : NavigationFragment() {
     }
 
     private fun signOutDialog() {
-        alert {
-            titleResource = R.string.alert_title_sign_out
-            messageResource = R.string.alert_message_sign_out
-
-            positiveButton(R.string.yes) {
-                viewModel.signOut()
-            }
-
-            negativeButton(R.string.cancel)
-        }
+        ConfirmationBottomSheetDialog(
+                titleResource = R.string.dialog_title_sign_out,
+                messageResource = R.string.dialog_message_sign_out,
+                positiveResource = R.string.yes,
+                negativeResource = R.string.cancel,
+                positiveOnClick = { viewModel.signOut() },
+        ).show(childFragmentManager, "confirmationDialog")
     }
 
     private fun removeProfilePictureDialog() {

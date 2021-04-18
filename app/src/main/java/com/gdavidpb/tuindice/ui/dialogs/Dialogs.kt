@@ -4,10 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.extensions.*
 
-fun AppCompatActivity.updatePasswordDialog() {
-    UpdatePasswordBottomSheetDialog().show(supportFragmentManager, "updatePasswordDialog")
-}
-
 fun AppCompatActivity.linkFailureDialog() {
     alert {
         titleResource = R.string.alert_title_link_failure

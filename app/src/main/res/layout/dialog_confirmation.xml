@@ -1,81 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:animateLayoutChanges="true"
     android:padding="@dimen/dp_24">
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tViewUpdatePasswordTitle"
+        android:id="@+id/tViewQuestionTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-condensed-medium"
-        android:text="@string/dialog_title_reset_password"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
         android:textColor="@android:color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Titulo" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tViewUpdatePasswordMessage"
+        android:id="@+id/tViewQuestionMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_8"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-        android:text="@string/dialog_message_update_password"
         android:textColor="@color/color_secondary_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tViewUpdatePasswordTitle" />
-
-    <com.gdavidpb.tuindice.ui.customs.PasswordInput
-        android:id="@+id/tInputPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_24"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tViewUpdatePasswordMessage" />
+        app:layout_constraintTop_toBottomOf="@id/tViewQuestionTitle"
+        tools:text="Mensaje" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnCancel"
+        android:id="@+id/btnNegative"
         style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_16"
         android:layout_marginEnd="@dimen/dp_32"
-        android:text="@string/dialog_button_update_password_later"
         android:textColor="@color/color_secondary_text"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btnConfirm"
+        app:layout_constraintEnd_toStartOf="@id/btnPositive"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tInputPassword"
-        app:rippleColor="?attr/colorControlHighlight" />
+        app:layout_constraintTop_toBottomOf="@id/tViewQuestionMessage"
+        app:rippleColor="?attr/colorControlHighlight"
+        tools:text="@string/cancel" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnConfirm"
+        android:id="@+id/btnPositive"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_16"
         app:cornerRadius="@dimen/dp_6"
-        android:text="@string/dialog_button_update_password_confirm"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/btnCancel"
-        app:layout_constraintTop_toBottomOf="@id/tInputPassword" />
-
-    <ProgressBar
-        android:id="@+id/pBarUpdate"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:indeterminateTint="@color/color_text_icon"
-        android:padding="@dimen/dp_12"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/btnConfirm"
-        app:layout_constraintEnd_toEndOf="@id/btnConfirm"
-        app:layout_constraintStart_toStartOf="@id/btnConfirm"
-        app:layout_constraintTop_toTopOf="@id/btnConfirm" />
+        app:layout_constraintStart_toEndOf="@id/btnNegative"
+        app:layout_constraintTop_toBottomOf="@id/tViewQuestionMessage"
+        tools:text="@string/accept" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

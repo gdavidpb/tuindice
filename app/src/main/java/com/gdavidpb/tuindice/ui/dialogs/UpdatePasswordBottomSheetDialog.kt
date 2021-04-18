@@ -63,7 +63,7 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
         pBarUpdate.isVisible = value
         tInputPassword.isEnabled = !value
         btnConfirm.isEnabled = !value
-        btnConfirm.text = if (value) null else getString(R.string.button_update_password_confirm)
+        btnConfirm.text = if (value) null else getString(R.string.dialog_button_update_password_confirm)
     }
 
     private fun onConfirmClick() {

@@ -12,8 +12,8 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.ui.dialogs.UpdatePasswordBottomSheetDialog
 import com.gdavidpb.tuindice.ui.dialogs.disabledAccountFailureDialog
-import com.gdavidpb.tuindice.ui.dialogs.updatePasswordDialog
 import com.gdavidpb.tuindice.utils.IdempotentLocker
 import com.gdavidpb.tuindice.utils.TIME_EXIT_LOCKER
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -101,6 +101,11 @@ class MainActivity : AppCompatActivity() {
         appBar.isVisible = showAppBar
 
         if (showBottomNav) viewModel.setLastScreen(navId = destination.id)
+    }
+
+    private fun updatePasswordDialog() {
+        UpdatePasswordBottomSheetDialog()
+                .show(supportFragmentManager, "updatePasswordDialog")
     }
 
     private fun syncObserver(result: Result<Boolean, SyncError>?) {
