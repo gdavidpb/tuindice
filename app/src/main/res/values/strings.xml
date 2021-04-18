@@ -108,7 +108,7 @@
 
     <string name="subject_title">%1$s (%2$s)</string>
     <string name="subject_grade">%1$d / 5</string>
-    <string name="subject_credits">%1$d Cr.</string>
+    <string name="subject_credits">%1$d Crs.</string>
 
     <!--
     <string name="dialog_mock_title">Proyección</string>

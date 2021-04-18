@@ -41,7 +41,7 @@ class EvaluationViewHolder(
                 }
             }
 
-            cBoxEvaluation.setOnCheckedChangeListener { _, isChecked ->
+            cBoxEvaluation.onCheckedChange { isChecked ->
                 val item = getItem()
 
                 manager.onEvaluationDoneChanged(item, isChecked, true)
