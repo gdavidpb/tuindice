@@ -22,8 +22,8 @@ class ResetPasswordViewModel(
     fun signOut() =
             execute(useCase = signOutUseCase, params = Unit, liveData = signOut)
 
-    fun startCountdown(time: Long, reset: Boolean = false) =
-            execute(useCase = countdownUseCase, params = CountdownRequest(time, reset), liveData = countdown)
+    fun startCountdown(duration: Long, reset: Boolean = false) =
+            execute(useCase = countdownUseCase, params = CountdownRequest(duration, reset), liveData = countdown)
 
     fun sendResetPasswordEmail() =
             execute(useCase = sendResetPasswordEmailUseCase, params = Unit, liveData = resetPasswordEmail)

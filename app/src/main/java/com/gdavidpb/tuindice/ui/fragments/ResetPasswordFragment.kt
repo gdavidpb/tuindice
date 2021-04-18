@@ -19,7 +19,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class ResetPasswordFragment : NavigationFragment() {
     private val viewModel by viewModel<ResetPasswordViewModel>()
 
-    private val countdownTime by config<Long>(ConfigKeys.TIME_VERIFICATION_COUNT_DOWN)
+    private val countdownDuration by config<Long>(ConfigKeys.TIME_VERIFICATION_COUNT_DOWN)
 
     private val args by navArgs<ResetPasswordFragmentArgs>()
 
@@ -34,7 +34,7 @@ class ResetPasswordFragment : NavigationFragment() {
         btnResend.onClickOnce(::onResendClick)
         btnCancel.onClickOnce(::onResetClick)
 
-        viewModel.startCountdown(time = countdownTime)
+        viewModel.startCountdown(duration = countdownDuration)
     }
 
     override fun onAttach(context: Context) {
@@ -48,18 +48,11 @@ class ResetPasswordFragment : NavigationFragment() {
     }
 
     private fun onResendClick() {
-        viewModel.startCountdown(time = countdownTime, reset = true)
         viewModel.sendResetPasswordEmail()
     }
 
     private fun onResetClick() {
         viewModel.signOut()
-    }
-
-    private fun showLoading(value: Boolean) {
-        pBarResend.isVisible = value
-        btnResend.isEnabled = !value
-        btnResend.text = if (value) null else getString(R.string.button_reset_password_resend)
     }
 
     private fun resendSnackBar() {
@@ -70,6 +63,9 @@ class ResetPasswordFragment : NavigationFragment() {
 
     private fun countdownObserver(result: Flow<Long, Nothing>?) {
         when (result) {
+            is Flow.OnStart -> {
+                btnResend.isEnabled = false
+            }
             is Flow.OnNext -> {
                 tViewCountdown.text = (result.value).toCountdown()
             }
@@ -96,15 +92,22 @@ class ResetPasswordFragment : NavigationFragment() {
     private fun resetPasswordObserver(result: Completable<SendResetPasswordEmailError>?) {
         when (result) {
             is Completable.OnLoading -> {
-                showLoading(true)
+                pBarResend.isVisible = true
+                btnResend.isEnabled = false
+                btnResend.text = null
             }
             is Completable.OnComplete -> {
-                showLoading(false)
+                pBarResend.isVisible = false
+                btnResend.text = getString(R.string.button_reset_password_resend)
 
                 resendSnackBar()
+
+                viewModel.startCountdown(duration = countdownDuration, reset = true)
             }
             is Completable.OnError -> {
-                showLoading(false)
+                pBarResend.isVisible = false
+                btnResend.isEnabled = true
+                btnResend.text = getString(R.string.button_reset_password_resend)
 
                 resetPasswordErrorHandler(error = result.error)
             }

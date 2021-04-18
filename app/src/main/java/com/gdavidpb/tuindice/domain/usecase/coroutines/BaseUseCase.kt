@@ -20,8 +20,8 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
 
     abstract suspend fun executeOnBackground(params: P): T?
 
+    open suspend fun executeOnResponse(liveData: L, response: T) {}
     open suspend fun executeOnException(throwable: Throwable): Q? = null
-    open suspend fun executeOnHook(liveData: L, response: T) {}
 
     protected abstract suspend fun onStart(liveData: L)
     protected abstract suspend fun onEmpty(liveData: L)
@@ -44,7 +44,7 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
                         executeOnBackground(params)
                     }
 
-                    response?.also { executeOnHook(liveData, it) }
+                    response?.also { executeOnResponse(liveData, it) }
                 }
             }.onSuccess { response ->
                 if (response != null)

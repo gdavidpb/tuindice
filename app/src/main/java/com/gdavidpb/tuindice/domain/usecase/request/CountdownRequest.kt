@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase.request
 
 data class CountdownRequest(
-        val time: Long,
+        val duration: Long,
         val reset: Boolean
 )
