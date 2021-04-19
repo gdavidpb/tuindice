@@ -43,7 +43,7 @@ open class SignInUseCase(
             val cause = throwable.cause
 
             when {
-                cause.isUserNotFound() -> {
+                throwable.causes().isUserNotFound() -> {
                     val activeAuth = authRepository.signUp(email = email, password = params.password)
 
                     storeAccount(auth = activeAuth, credentials = credentials, response = authResponse)

@@ -28,8 +28,7 @@ fun Throwable?.isInvalidCredentials() =
         this is FirebaseAuthInvalidCredentialsException ||
                 ((this as? AuthenticationException)?.code) == AuthResponseCode.INVALID_CREDENTIALS
 
-fun Throwable?.isUserNotFound() =
-        (this as? FirebaseAuthInvalidUserException)?.errorCode == "ERROR_USER_NOT_FOUND"
+fun List<Throwable>.isUserNotFound() = find<FirebaseAuthInvalidUserException>()?.errorCode == "ERROR_USER_NOT_FOUND"
 
 fun Throwable.isNotEnrolled() =
         this is NoEnrolledException ||
@@ -46,12 +45,11 @@ fun Throwable.isConnectionIssue() = when (this) {
     else -> false
 }
 
-fun Throwable.causes(): List<Throwable> {
-    val hashSet = hashSetOf(this)
+tailrec fun Throwable.causes(causes: HashSet<Throwable> = hashSetOf(this)): List<Throwable> {
+    val throwableCause = cause ?: return listOf(this)
 
-    var throwableCause = cause
-
-    while (throwableCause?.let(hashSet::add) == true) throwableCause = throwableCause.cause
-
-    return hashSet.toList()
+    return if (causes.add(throwableCause))
+        throwableCause.causes(causes)
+    else
+        causes.toList()
 }
