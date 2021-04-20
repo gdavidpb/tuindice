@@ -7,8 +7,6 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SendResetPasswordEmailError
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.annotations.Timeout
-import com.gdavidpb.tuindice.utils.extensions.causes
-import com.gdavidpb.tuindice.utils.extensions.isAccountDisabled
 import com.gdavidpb.tuindice.utils.extensions.isConnection
 import com.gdavidpb.tuindice.utils.extensions.isTimeout
 
@@ -25,10 +23,7 @@ class SendResetPasswordEmailUseCase(
     }
 
     override suspend fun executeOnException(throwable: Throwable): SendResetPasswordEmailError? {
-        val causes = throwable.causes()
-
         return when {
-            causes.isAccountDisabled() -> SendResetPasswordEmailError.AccountDisabled
             throwable.isTimeout() -> SendResetPasswordEmailError.Timeout
             throwable.isConnection() -> SendResetPasswordEmailError.NoConnection(networkRepository.isAvailable())
             else -> null

@@ -5,7 +5,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
@@ -65,12 +64,6 @@ class ResetPasswordFragment : NavigationFragment() {
         }
     }
 
-    private fun navToAccountDisabled() {
-        val navOptions = findNavController().navOptionsClean()
-
-        navigate(ResetPasswordFragmentDirections.navToAccountDisabled(), navOptions)
-    }
-
     private fun countdownObserver(result: Flow<Long, Nothing>?) {
         when (result) {
             is Flow.OnStart -> {
@@ -128,7 +121,6 @@ class ResetPasswordFragment : NavigationFragment() {
         when (error) {
             is SendResetPasswordEmailError.Timeout -> errorSnackBar(R.string.snack_timeout) { onResendClick() }
             is SendResetPasswordEmailError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onResendClick() }
-            is SendResetPasswordEmailError.AccountDisabled -> navToAccountDisabled()
             else -> errorSnackBar { onResendClick() }
         }
     }
