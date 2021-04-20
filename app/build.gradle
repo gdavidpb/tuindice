@@ -55,7 +55,6 @@ android {
 
             buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
             buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
-            buildConfigField "String", "URL_SIGN", "\"https://tu-indice-usb.firebaseapp.com?sign=%s\""
 
             buildConfigField "String", "URL_APP_TWITTER", "\"https://twitter.com/TuIndice\""
             buildConfigField "String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\""
@@ -87,7 +86,6 @@ android {
 
             buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
             buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
-            buildConfigField "String", "URL_SIGN", "\"https://tu-indice-usb.firebaseapp.com?sign=%s\""
 
             buildConfigField "String", "URL_APP_TWITTER", "\"https://twitter.com/TuIndice\""
             buildConfigField "String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\""

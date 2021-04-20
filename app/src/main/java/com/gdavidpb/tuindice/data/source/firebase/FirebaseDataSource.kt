@@ -73,11 +73,8 @@ open class FirebaseDataSource(
     }
 
     override suspend fun sendPasswordResetEmail(email: String) {
-        val continueUrl = BuildConfig.URL_SIGN.format("test")
-
         val actionCodeSettings = ActionCodeSettings
                 .newBuilder()
-                .setUrl(continueUrl)
                 .setHandleCodeInApp(true)
                 .setAndroidPackageName(BuildConfig.APPLICATION_ID, true, null)
                 .build()
