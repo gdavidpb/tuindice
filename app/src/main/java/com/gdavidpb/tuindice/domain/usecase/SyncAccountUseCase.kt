@@ -22,13 +22,21 @@ import com.gdavidpb.tuindice.utils.mappers.toQuarter
 class SyncAccountUseCase(
         private val dstRepository: DstRepository,
         private val authRepository: AuthRepository,
+        private val configRepository: ConfigRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
+        private val messagingRepository: MessagingRepository,
         private val networkRepository: NetworkRepository
 ) : ResultUseCase<Unit, Boolean, SyncError>() {
     override suspend fun executeOnBackground(params: Unit): Boolean {
         val activeAuth = authRepository.getActiveAuth()
         val isUpdated = databaseRepository.isUpdated(uid = activeAuth.uid)
+
+        configRepository.tryFetchAndActivate()
+
+        val token = messagingRepository.getToken()
+
+        if (token != null) databaseRepository.updateToken(uid = activeAuth.uid, token = token)
 
         if (isUpdated) return false
 

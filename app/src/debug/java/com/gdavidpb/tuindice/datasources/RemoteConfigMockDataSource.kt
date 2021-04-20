@@ -9,17 +9,24 @@ open class RemoteConfigMockDataSource(
         private val remoteConfig: FirebaseRemoteConfig,
         private val googleJson: Gson
 ) : ConfigRepository {
-    override suspend fun tryFetchAndActivate(): Boolean {
-        return true
+    override suspend fun tryFetchAndActivate() {
     }
 
-    override fun getString(key: String) = remoteConfig.getString(key)
+    override fun getString(key: String): String {
+        return remoteConfig.getString(key)
+    }
 
-    override fun getBoolean(key: String) = remoteConfig.getBoolean(key)
+    override fun getBoolean(key: String): Boolean {
+        return remoteConfig.getBoolean(key)
+    }
 
-    override fun getDouble(key: String) = remoteConfig.getDouble(key)
+    override fun getDouble(key: String): Double {
+        return remoteConfig.getDouble(key)
+    }
 
-    override fun getLong(key: String) = remoteConfig.getLong(key)
+    override fun getLong(key: String): Long {
+        return remoteConfig.getLong(key)
+    }
 
     override fun getStringList(key: String): List<String> {
         val json = remoteConfig.getString(key)

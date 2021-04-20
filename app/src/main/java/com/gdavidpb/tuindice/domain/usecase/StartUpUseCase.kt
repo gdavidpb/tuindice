@@ -10,18 +10,14 @@ class StartUpUseCase(
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
         private val databaseRepository: DatabaseRepository,
-        private val messagingRepository: MessagingRepository,
         private val reportingRepository: ReportingRepository,
         private val linkRepository: LinkRepository,
-        private val configRepository: ConfigRepository,
         private val networkRepository: NetworkRepository
 ) : ResultUseCase<String, StartUpAction, StartUpError>() {
     override suspend fun executeOnBackground(params: String): StartUpAction {
         val isActiveAuth = authRepository.isActiveAuth()
         val isPasswordResetLink = authRepository.isResetPasswordLink(params)
         val hasCredentials = settingsRepository.hasCredentials()
-
-        configRepository.tryFetchAndActivate()
 
         return when {
             isPasswordResetLink && hasCredentials -> handlePasswordResetLink(link = params)
@@ -66,10 +62,6 @@ class StartUpUseCase(
         check(hasCache) { "handleSignedIn no cache" }
 
         reportingRepository.setIdentifier(activeAuth.uid)
-
-        val token = messagingRepository.getToken()
-
-        if (token != null) databaseRepository.setToken(uid = activeAuth.uid, token = token)
 
         return StartUpAction.Main(screen = lastScreen, account = activeAccount)
     }

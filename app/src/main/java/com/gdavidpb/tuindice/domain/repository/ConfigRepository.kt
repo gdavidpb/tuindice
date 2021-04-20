@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.domain.repository
 
 interface ConfigRepository {
-    suspend fun tryFetchAndActivate(): Boolean
+    suspend fun tryFetchAndActivate()
     fun getString(key: String): String
     fun getBoolean(key: String): Boolean
     fun getDouble(key: String): Double

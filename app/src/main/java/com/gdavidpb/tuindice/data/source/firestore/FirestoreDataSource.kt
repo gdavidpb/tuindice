@@ -218,11 +218,12 @@ open class FirestoreDataSource(
                 .let { document -> delete(document) }
     }
 
-    override suspend fun setToken(uid: String, token: String) {
+    override suspend fun updateToken(uid: String, token: String) {
         firestore
                 .collection(UserCollection.COLLECTION)
                 .document(uid)
-                .let { document -> set(document, mapOf(UserCollection.TOKEN to token)) }
+                .set(mapOf(UserCollection.TOKEN to token), SetOptions.merge())
+                .await()
     }
 
     override suspend fun runBatch(batch: suspend DatabaseRepository.() -> Unit) {
