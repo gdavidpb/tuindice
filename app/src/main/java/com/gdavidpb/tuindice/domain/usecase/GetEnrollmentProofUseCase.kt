@@ -45,10 +45,7 @@ class GetEnrollmentProofUseCase(
     }
 
     override suspend fun executeOnException(throwable: Throwable): GetEnrollmentError? {
-        val causes = throwable.causes()
-
         return when {
-            causes.isAccountDisabled() -> GetEnrollmentError.AccountDisabled
             throwable is StreamCorruptedException -> GetEnrollmentError.NotFound
             throwable.isInvalidCredentials() -> GetEnrollmentError.NotFound
             throwable.isTimeout() -> GetEnrollmentError.Timeout

@@ -8,8 +8,6 @@ import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.utils.annotations.Timeout
-import com.gdavidpb.tuindice.utils.extensions.causes
-import com.gdavidpb.tuindice.utils.extensions.isAccountDisabled
 import com.gdavidpb.tuindice.utils.extensions.isConnection
 import com.gdavidpb.tuindice.utils.extensions.isTimeout
 import java.io.File
@@ -28,10 +26,7 @@ class RemoveProfilePictureUseCase(
     }
 
     override suspend fun executeOnException(throwable: Throwable): ProfilePictureError? {
-        val causes = throwable.causes()
-
         return when {
-            causes.isAccountDisabled() -> ProfilePictureError.AccountDisabled
             throwable.isTimeout() -> ProfilePictureError.Timeout
             throwable.isConnection() -> ProfilePictureError.NoConnection(networkRepository.isAvailable())
             else -> null

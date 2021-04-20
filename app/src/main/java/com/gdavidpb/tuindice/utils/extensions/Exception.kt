@@ -19,11 +19,11 @@ import javax.net.ssl.SSLHandshakeException
 
 fun List<Throwable>.isInvalidLink() = any<FirebaseAuthActionCodeException>()
 
+fun List<Throwable>.haveCredentialsChanged() = any<FirebaseAuthInvalidCredentialsException>()
+
 fun List<Throwable>.isAccountDisabled() = find<FirebaseAuthInvalidUserException>()?.errorCode == "ERROR_USER_DISABLED"
 
 fun List<Throwable>.isUserNotFound() = find<FirebaseAuthInvalidUserException>()?.errorCode == "ERROR_USER_NOT_FOUND"
-
-fun List<Throwable>.haveCredentialsChanged() = any<FirebaseAuthInvalidCredentialsException>()
 
 fun Throwable.isObjectNotFound() = this is StorageException && when (errorCode) {
     StorageException.ERROR_OBJECT_NOT_FOUND -> true
@@ -61,9 +61,9 @@ fun Throwable.isConnection() = when (this) {
 }
 
 tailrec fun Throwable.causes(causes: HashSet<Throwable> = hashSetOf(this)): List<Throwable> {
-    val throwableCause = cause ?: return listOf(this)
+    val throwableCause = cause
 
-    return if (causes.add(throwableCause))
+    return if (throwableCause != null && causes.add(throwableCause))
         throwableCause.causes(causes)
     else
         causes.toList()

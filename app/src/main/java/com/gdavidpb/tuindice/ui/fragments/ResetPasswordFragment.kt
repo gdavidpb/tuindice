@@ -1,19 +1,21 @@
 package com.gdavidpb.tuindice.ui.fragments
 
+import android.app.ActivityManager
 import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Flow
 import com.gdavidpb.tuindice.domain.usecase.errors.SendResetPasswordEmailError
 import com.gdavidpb.tuindice.presentation.viewmodel.ResetPasswordViewModel
-import com.gdavidpb.tuindice.ui.dialogs.disabledAccountFailureDialog
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_reset_password.*
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ResetPasswordFragment : NavigationFragment() {
@@ -22,6 +24,8 @@ class ResetPasswordFragment : NavigationFragment() {
     private val countdownDuration by config<Long>(ConfigKeys.TIME_VERIFICATION_COUNT_DOWN)
 
     private val args by navArgs<ResetPasswordFragmentArgs>()
+
+    private val activityManager by inject<ActivityManager>()
 
     override fun onCreateView() = R.layout.fragment_reset_password
 
@@ -61,6 +65,12 @@ class ResetPasswordFragment : NavigationFragment() {
         }
     }
 
+    private fun navToAccountDisabled() {
+        val navOptions = findNavController().navOptionsClean()
+
+        navigate(ResetPasswordFragmentDirections.navToAccountDisabled(), navOptions)
+    }
+
     private fun countdownObserver(result: Flow<Long, Nothing>?) {
         when (result) {
             is Flow.OnStart -> {
@@ -83,7 +93,7 @@ class ResetPasswordFragment : NavigationFragment() {
                 navigate(ResetPasswordFragmentDirections.navToSignIn())
             }
             is Completable.OnError -> {
-                requireAppCompatActivity().clearApplicationUserData()
+                activityManager.clearApplicationUserData()
                 navigate(ResetPasswordFragmentDirections.navToSignIn())
             }
         }
@@ -117,8 +127,8 @@ class ResetPasswordFragment : NavigationFragment() {
     private fun resetPasswordErrorHandler(error: SendResetPasswordEmailError?) {
         when (error) {
             is SendResetPasswordEmailError.Timeout -> errorSnackBar(R.string.snack_timeout) { onResendClick() }
-            is SendResetPasswordEmailError.AccountDisabled -> requireAppCompatActivity().disabledAccountFailureDialog()
             is SendResetPasswordEmailError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onResendClick() }
+            is SendResetPasswordEmailError.AccountDisabled -> navToAccountDisabled()
             else -> errorSnackBar { onResendClick() }
         }
     }

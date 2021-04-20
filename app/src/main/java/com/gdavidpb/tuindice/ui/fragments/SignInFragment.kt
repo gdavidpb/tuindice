@@ -7,7 +7,9 @@ import android.text.style.TypefaceSpan
 import android.text.style.UnderlineSpan
 import android.view.View
 import android.view.animation.OvershootInterpolator
+import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
+import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.utils.Validation
@@ -20,10 +22,10 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.ui.adapters.LoadingAdapter
-import com.gdavidpb.tuindice.ui.dialogs.disabledAccountFailureDialog
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_sign_in.*
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SignInFragment : NavigationFragment() {
@@ -31,6 +33,8 @@ class SignInFragment : NavigationFragment() {
     private val viewModel by viewModel<SignInViewModel>()
 
     private val loadingMessages by config<List<String>>(ConfigKeys.LOADING_MESSAGES)
+
+    private val inputMethodManager by inject<InputMethodManager>()
 
     private val validations by lazy {
         arrayOf<Validation<*>>(
@@ -100,7 +104,9 @@ class SignInFragment : NavigationFragment() {
                 }
             }
         }.isNull {
-            requireAppCompatActivity().hideSoftKeyboard()
+            val activity = requireActivity()
+
+            inputMethodManager.hideSoftKeyboard(activity)
 
             iViewLogo.performClick()
 
@@ -139,6 +145,12 @@ class SignInFragment : NavigationFragment() {
 
     private fun navToSplash() {
         navigate(SignInFragmentDirections.navToSplash())
+    }
+
+    private fun navToAccountDisabled() {
+        val navOptions = findNavController().navOptionsClean()
+
+        navigate(SignInFragmentDirections.navToAccountDisabled(), navOptions)
     }
 
     private fun signInObserver(result: Event<Boolean, SignInError>?) {
@@ -180,8 +192,8 @@ class SignInFragment : NavigationFragment() {
             is SignInError.Timeout -> errorSnackBar(R.string.snack_timeout) { onSignInClick() }
             is SignInError.InvalidCredentials -> errorSnackBar(R.string.snack_invalid_credentials)
             is SignInError.OutdatedPassword -> navToSplash()
-            is SignInError.AccountDisabled -> requireAppCompatActivity().disabledAccountFailureDialog()
             is SignInError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
+            is SignInError.AccountDisabled -> navToAccountDisabled()
             else -> errorSnackBar { onSignInClick() }
         }
     }

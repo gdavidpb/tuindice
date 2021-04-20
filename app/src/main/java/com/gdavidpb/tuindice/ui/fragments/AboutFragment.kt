@@ -50,7 +50,7 @@ class AboutFragment : NavigationFragment() {
                 title(R.string.about_license)
                 tintedDrawable(R.drawable.ic_cc, R.color.color_secondary_text)
                 onClick {
-                    context.browse(url = BuildConfig.URL_CREATIVE_COMMONS)
+                    browse(url = BuildConfig.URL_CREATIVE_COMMONS)
                 }
             }
 
@@ -74,7 +74,7 @@ class AboutFragment : NavigationFragment() {
                 title(R.string.about_twitter)
                 tintedDrawable(R.drawable.ic_twitter, R.color.color_secondary_text)
                 onClick {
-                    context.browse(url = BuildConfig.URL_APP_TWITTER)
+                    browse(url = BuildConfig.URL_APP_TWITTER)
                 }
             }
 
@@ -180,7 +180,7 @@ class AboutFragment : NavigationFragment() {
         runCatching {
             startActivity(intent)
         }.onFailure {
-            context.browse(url = getString(R.string.about_google_play, context.packageName))
+            browse(url = getString(R.string.about_google_play, context.packageName))
         }
     }
 
@@ -191,7 +191,7 @@ class AboutFragment : NavigationFragment() {
                     url = url
             ))
         }.onFailure {
-            requireContext().browse(url)
+            browse(url)
         }
     }
 

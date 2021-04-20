@@ -1,17 +1,16 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Build
-import android.widget.Toast
-import androidx.annotation.*
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.PreferenceManager
 import androidx.security.crypto.EncryptedSharedPreferences
@@ -19,48 +18,6 @@ import androidx.security.crypto.MasterKey
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.ResourcesManager
-import java.io.File
-
-fun Context.openPdf(file: File) {
-    FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID, file).also { uri ->
-        Intent(Intent.ACTION_VIEW, uri)
-                .setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-                .let(::startActivity)
-    }
-}
-
-fun Context.share(text: String, subject: String = "") {
-    runCatching {
-        Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, text)
-        }.also { intent ->
-            startActivity(Intent.createChooser(intent, null))
-        }
-    }
-}
-
-fun Context.email(email: String, subject: String = "", text: String = "") {
-    runCatching {
-        Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")).apply {
-            putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
-
-            if (subject.isNotEmpty()) putExtra(Intent.EXTRA_SUBJECT, subject)
-            if (text.isNotEmpty()) putExtra(Intent.EXTRA_TEXT, text)
-        }.also(::startActivity)
-    }
-}
-
-fun Context.browse(url: String) {
-    runCatching {
-        Intent(Intent.ACTION_VIEW, Uri.parse(url)).also(::startActivity)
-    }
-}
-
-fun Context.toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
-    Toast.makeText(this, resId, duration).show()
-}
 
 fun Context.versionName(): String {
     val environmentRes = if (BuildConfig.DEBUG) R.string.debug else R.string.release

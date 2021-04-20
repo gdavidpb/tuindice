@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.ui.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.R
@@ -11,12 +12,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.StartUpError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.SplashViewModel
-import com.gdavidpb.tuindice.ui.dialogs.disabledAccountFailureDialog
-import com.gdavidpb.tuindice.ui.dialogs.fatalFailureDialog
-import com.gdavidpb.tuindice.ui.dialogs.linkFailureDialog
-import com.gdavidpb.tuindice.utils.extensions.connectionSnackBar
-import com.gdavidpb.tuindice.utils.extensions.observe
-import com.gdavidpb.tuindice.utils.extensions.requireAppCompatActivity
+import com.gdavidpb.tuindice.utils.extensions.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -44,6 +40,12 @@ class SplashFragment : NavigationFragment() {
         }
     }
 
+    private fun navToAccountDisabled() {
+        val navOptions = findNavController().navOptionsClean()
+
+        navigate(SplashFragmentDirections.navToAccountDisabled(), navOptions)
+    }
+
     private fun startUpObserver(result: Result<StartUpAction, StartUpError>?) {
         when (result) {
             is Result.OnSuccess -> {
@@ -56,12 +58,12 @@ class SplashFragment : NavigationFragment() {
     }
 
     private fun startUpErrorHandler(error: StartUpError?) {
-        with(requireAppCompatActivity()) {
+        with(requireActivity() as AppCompatActivity) {
             when (error) {
                 is StartUpError.InvalidLink -> linkFailureDialog()
                 is StartUpError.UnableToStart -> fatalFailureDialog()
-                is StartUpError.AccountDisabled -> disabledAccountFailureDialog()
                 is StartUpError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
+                is StartUpError.AccountDisabled -> navToAccountDisabled()
             }
         }
     }

@@ -1,8 +1,7 @@
-package com.gdavidpb.tuindice.ui.dialogs
+package com.gdavidpb.tuindice.utils.extensions
 
 import androidx.appcompat.app.AppCompatActivity
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.utils.extensions.*
 
 fun AppCompatActivity.linkFailureDialog() {
     alert {
@@ -25,27 +24,12 @@ fun AppCompatActivity.fatalFailureDialog() {
         isCancelable = false
 
         positiveButton(R.string.restart) {
-            clearApplicationUserData()
+            // TODO clearApplicationUserData()
 
             recreate()
         }
 
         negativeButton(R.string.exit) {
-            finish()
-        }
-    }
-}
-
-fun AppCompatActivity.disabledAccountFailureDialog() {
-    clearApplicationUserData()
-
-    alert {
-        titleResource = R.string.alert_title_disabled_failure
-        messageResource = R.string.alert_message_disabled_failure
-
-        isCancelable = false
-
-        positiveButton(R.string.accept) {
             finish()
         }
     }

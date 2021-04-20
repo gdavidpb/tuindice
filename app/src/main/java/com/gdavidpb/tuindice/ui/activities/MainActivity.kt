@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.dialogs.UpdatePasswordBottomSheetDialog
-import com.gdavidpb.tuindice.ui.dialogs.disabledAccountFailureDialog
 import com.gdavidpb.tuindice.utils.IdempotentLocker
 import com.gdavidpb.tuindice.utils.TIME_EXIT_LOCKER
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -40,7 +39,8 @@ class MainActivity : AppCompatActivity() {
             R.id.fragment_about to true,
             R.id.fragment_splash to false,
             R.id.fragment_sign_in to false,
-            R.id.fragment_reset_password to false
+            R.id.fragment_reset_password to false,
+            R.id.fragment_account_disabled to false
     )
 
     private val appBarConfiguration by lazy {
@@ -140,7 +140,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun syncErrorHandler(error: SyncError?) {
         when (error) {
-            is SyncError.AccountDisabled -> disabledAccountFailureDialog()
             is SyncError.OutdatedPassword -> updatePasswordDialog()
         }
     }

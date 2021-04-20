@@ -69,10 +69,7 @@ class UpdateProfilePictureUseCase(
     }
 
     override suspend fun executeOnException(throwable: Throwable): ProfilePictureError? {
-        val causes = throwable.causes()
-
         return when {
-            causes.isAccountDisabled() -> ProfilePictureError.AccountDisabled
             throwable is IOException -> ProfilePictureError.IO
             throwable.isTimeout() -> ProfilePictureError.Timeout
             throwable.isConnection() -> ProfilePictureError.NoConnection(networkRepository.isAvailable())

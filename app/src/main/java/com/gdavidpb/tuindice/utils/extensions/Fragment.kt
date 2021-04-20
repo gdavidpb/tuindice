@@ -1,21 +1,8 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.gdavidpb.tuindice.R
-
-fun Fragment.selector(
-        @StringRes textResource: Int,
-        items: Array<String>,
-        onClick: (String) -> Unit
-) = requireActivity().selector(textResource, items, onClick)
-
-fun Fragment.email(email: String, subject: String = "", text: String = "") = requireContext().email(email, subject, text)
-
-fun Fragment.share(text: String, subject: String = "") = requireContext().share(text, subject)
-
-fun Fragment.requireAppCompatActivity() = requireActivity() as AppCompatActivity
 
 fun Fragment.connectionSnackBar(isNetworkAvailable: Boolean, retry: (() -> Unit)? = null) {
     val message = if (isNetworkAvailable)

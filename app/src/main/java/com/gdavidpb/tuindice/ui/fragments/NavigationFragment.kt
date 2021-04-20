@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.utils.extensions.contentView
 import org.koin.android.ext.android.inject
@@ -26,7 +27,7 @@ abstract class NavigationFragment : Fragment() {
         activity?.contentView?.background = view.background
     }
 
-    protected fun navigate(directions: NavDirections) = findNavController().navigate(directions)
+    protected fun navigate(directions: NavDirections, navOptions: NavOptions? = null) = findNavController().navigate(directions, navOptions)
 
     protected fun navigateUp() = findNavController().navigateUp()
 }

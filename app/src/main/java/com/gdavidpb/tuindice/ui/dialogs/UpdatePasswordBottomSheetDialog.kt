@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.R
@@ -19,6 +20,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.UpdatePasswordViewModel
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.dialog_update_password.*
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -27,6 +29,8 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
     private val viewModel by viewModel<UpdatePasswordViewModel>()
 
     private val mainViewModel by sharedViewModel<MainViewModel>()
+
+    private val inputMethodManager by inject<InputMethodManager>()
 
     private val validations by lazy {
         arrayOf<Validation<*>>(
@@ -78,7 +82,7 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
         }.isNull {
             val activity = requireActivity() as AppCompatActivity
 
-            activity.hideSoftKeyboard()
+            inputMethodManager.hideSoftKeyboard(activity)
 
             viewModel.updatePassword(password = tInputPassword.getPassword())
         }

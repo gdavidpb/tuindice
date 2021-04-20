@@ -11,14 +11,12 @@
     <dimen name="dp_16">16dp</dimen>
     <dimen name="dp_24">24dp</dimen>
     <dimen name="dp_32">32dp</dimen>
-    <dimen name="dp_38">38dp</dimen>
     <dimen name="dp_48">48dp</dimen>
 
     <dimen name="sp_32">32sp</dimen>
     <dimen name="sp_42">42sp</dimen>
 
     <dimen name="size_tick">6dp</dimen>
-    <dimen name="size_button">150dp</dimen>
     <dimen name="size_profile">86dp</dimen>
 
     <!-- CanvasView / NetworkView -->

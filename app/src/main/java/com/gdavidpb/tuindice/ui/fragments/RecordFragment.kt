@@ -166,7 +166,7 @@ class RecordFragment : NavigationFragment() {
                 val enrollmentFile = result.value
 
                 runCatching {
-                    requireContext().openPdf(file = enrollmentFile)
+                    openPdf(file = enrollmentFile)
                 }.onFailure {
                     snackBar {
                         messageResource = R.string.snack_enrollment_unsupported

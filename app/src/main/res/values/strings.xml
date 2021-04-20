@@ -44,13 +44,6 @@
         Parece que algo ha salido muy mal por acá. Debes reiniciar <b>TuIndice</b> para continuar.
     </string>
 
-    <string name="alert_title_disabled_failure">Tu cuenta ha sido inhabilitada</string>
-    <string name="alert_message_disabled_failure">
-        Tu cuenta ha sido inhabilitada por violar las políticas de <b>TuIndice</b>.\n\n
-        Si crees que se trata de un error o quieres obtener más información, escríbemos desde tu
-        correo institucional a <u><b>tuindice@gmail.com</b></u>.
-    </string>
-
     <string name="alert_title_link_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_link_failure">
         Este enlace está corrupto o ya fue usado, por favor solicita otro correo.
@@ -341,6 +334,17 @@
     <string name="snack_service_unreachable">Servicio no disponible</string>
     <string name="snack_timeout">Tiempo de espera agotado</string>
     <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
+
+    <!-- AccountDisabledFragment -->
+
+    <string name="label_account_disabled_fragment">TuIndice</string>
+
+    <string name="dialog_title_account_disabled">Tu cuenta ha sido inhabilitada</string>
+    <string name="dialog_message_account_disabled">
+        Tu cuenta ha sido inhabilitada por violar los <u>%1$s</u> de la aplicación.\n\n
+        Si crees que se trata de un error o quieres obtener más información, escríbemos desde tu
+        correo institucional a <u>%2$s</u>.
+    </string>
 
     <!-- UpdateBottomSheetDialog -->
 

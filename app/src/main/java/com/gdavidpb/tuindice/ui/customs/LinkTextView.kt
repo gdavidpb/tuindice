@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.ui.customs
 
 import android.content.Context
+import android.graphics.Rect
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
@@ -18,6 +19,10 @@ class LinkTextView(context: Context, attrs: AttributeSet)
 
     init {
         movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
+        return false
     }
 
     fun setSpans(provider: () -> List<Any>) {

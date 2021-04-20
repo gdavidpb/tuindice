@@ -81,7 +81,7 @@ class BrowserFragment : NavigationFragment() {
             setMessage(spannedMessage)
 
             positiveButton(R.string.yes) {
-                requireContext().browse(url = externalUrl)
+                browse(url = externalUrl)
             }
 
             negativeButton(R.string.cancel)

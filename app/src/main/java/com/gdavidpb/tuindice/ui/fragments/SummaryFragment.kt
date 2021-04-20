@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.app.Activity
+import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -24,7 +25,6 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.ui.dialogs.ConfirmationBottomSheetDialog
-import com.gdavidpb.tuindice.ui.dialogs.disabledAccountFailureDialog
 import com.gdavidpb.tuindice.utils.Actions
 import com.gdavidpb.tuindice.utils.Extras
 import com.gdavidpb.tuindice.utils.RequestCodes
@@ -32,6 +32,7 @@ import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toCreditsSummaryItem
 import com.gdavidpb.tuindice.utils.mappers.toSubjectsSummaryItem
 import kotlinx.android.synthetic.main.fragment_summary.*
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -44,6 +45,8 @@ class SummaryFragment : NavigationFragment() {
     private val loadProfilePicture = LiveCompletable<ProfilePictureError>()
 
     private val summaryAdapter = SummaryAdapter()
+
+    private val activityManager by inject<ActivityManager>()
 
     override fun onCreateView() = R.layout.fragment_summary
 
@@ -127,13 +130,105 @@ class SummaryFragment : NavigationFragment() {
         }
     }
 
+    private fun navigateToSignIn() {
+        findNavController().popStackToRoot()
+
+        navigate(SummaryFragmentDirections.navToSignIn())
+    }
+
+    private fun navToAccountDisabled() {
+        findNavController().popStackToRoot()
+
+        val navOptions = findNavController().navOptionsClean()
+
+        navigate(SummaryFragmentDirections.navToAccountDisabled(), navOptions)
+    }
+
+    private fun signOutDialog() {
+        ConfirmationBottomSheetDialog(
+                titleResource = R.string.dialog_title_sign_out,
+                messageResource = R.string.dialog_message_sign_out,
+                positiveResource = R.string.yes,
+                negativeResource = R.string.cancel,
+                positiveOnClick = { viewModel.signOut() },
+        ).show(childFragmentManager, "confirmationDialog")
+    }
+
+    private fun removeProfilePictureDialog() {
+        alert {
+            titleResource = R.string.alert_title_remove_profile_picture_failure
+            messageResource = R.string.alert_message_remove_profile_picture_failure
+
+            positiveButton(R.string.yes) {
+                viewModel.removeProfilePicture()
+            }
+
+            negativeButton(R.string.cancel)
+        }
+    }
+
+    private fun requestProfilePictureInput(outputUri: Uri) {
+        val removeIntent = Intent(Actions.REMOVE_PROFILE_PICTURE)
+
+        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
+
+        val galleryIntent = Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+
+        val chooser = Intent.createChooser(galleryIntent, getString(R.string.label_profile_picture_chooser))
+
+        val hasCamera = packageManager.hasCamera()
+        val hasProfilePicture = vProfilePicture.hasProfilePicture
+
+        val intents = mutableListOf<Intent>().apply {
+            if (hasCamera) add(cameraIntent)
+            if (hasProfilePicture) add(removeIntent)
+        }.toTypedArray()
+
+        if (intents.isNotEmpty())
+            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents)
+
+        startActivityForResult(chooser, RequestCodes.PROFILE_PICTURE)
+    }
+
+    private fun loadProfile(account: Account) {
+        val context = requireContext()
+
+        /* Load account */
+
+        val shortName = account.toShortName()
+        val lastUpdate = context.getString(R.string.text_last_update, account.lastUpdate.formatLastUpdate())
+
+        tViewName.text = shortName
+        tViewCareer.text = account.careerName
+
+        tViewLastUpdate.text = lastUpdate
+        tViewLastUpdate.isVisible = true
+
+        if (account.grade > 0.0) {
+            tViewGrade.isVisible = true
+            tViewGrade.animateGrade(value = account.grade.toFloat())
+        } else
+            tViewGrade.isVisible = false
+
+        /* Load summary */
+
+        val subjectsSummary = account.toSubjectsSummaryItem(context)
+        val creditsSummary = account.toCreditsSummaryItem(context)
+
+        val items = listOf(subjectsSummary, creditsSummary)
+
+        summaryAdapter.submitSummary(items)
+    }
+
     private fun signOutObserver(result: Completable<Nothing>?) {
         when (result) {
             is Completable.OnComplete -> {
                 navigateToSignIn()
             }
             is Completable.OnError -> {
-                requireAppCompatActivity().clearApplicationUserData()
+                activityManager.clearApplicationUserData()
 
                 navigateToSignIn()
             }
@@ -283,95 +378,10 @@ class SummaryFragment : NavigationFragment() {
 
     private fun profilePictureErrorHandler(error: ProfilePictureError?) {
         when (error) {
-            is ProfilePictureError.AccountDisabled -> requireAppCompatActivity().disabledAccountFailureDialog()
             is ProfilePictureError.Timeout -> errorSnackBar(R.string.snack_timeout)
             is ProfilePictureError.NoData -> vProfilePicture.loadDefaultProfilePicture()
             is ProfilePictureError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
             else -> errorSnackBar()
         }
-    }
-
-    private fun navigateToSignIn() {
-        findNavController().popStackToRoot()
-
-        navigate(SummaryFragmentDirections.navToSignIn())
-    }
-
-    private fun signOutDialog() {
-        ConfirmationBottomSheetDialog(
-                titleResource = R.string.dialog_title_sign_out,
-                messageResource = R.string.dialog_message_sign_out,
-                positiveResource = R.string.yes,
-                negativeResource = R.string.cancel,
-                positiveOnClick = { viewModel.signOut() },
-        ).show(childFragmentManager, "confirmationDialog")
-    }
-
-    private fun removeProfilePictureDialog() {
-        alert {
-            titleResource = R.string.alert_title_remove_profile_picture_failure
-            messageResource = R.string.alert_message_remove_profile_picture_failure
-
-            positiveButton(R.string.yes) {
-                viewModel.removeProfilePicture()
-            }
-
-            negativeButton(R.string.cancel)
-        }
-    }
-
-    private fun requestProfilePictureInput(outputUri: Uri) {
-        val removeIntent = Intent(Actions.REMOVE_PROFILE_PICTURE)
-
-        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                .putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
-
-        val galleryIntent = Intent(Intent.ACTION_PICK,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-
-        val chooser = Intent.createChooser(galleryIntent, getString(R.string.label_profile_picture_chooser))
-
-        val hasCamera = packageManager.hasCamera()
-        val hasProfilePicture = vProfilePicture.hasProfilePicture
-
-        val intents = mutableListOf<Intent>().apply {
-            if (hasCamera) add(cameraIntent)
-            if (hasProfilePicture) add(removeIntent)
-        }.toTypedArray()
-
-        if (intents.isNotEmpty())
-            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents)
-
-        startActivityForResult(chooser, RequestCodes.PROFILE_PICTURE)
-    }
-
-    private fun loadProfile(account: Account) {
-        val context = requireContext()
-
-        /* Load account */
-
-        val shortName = account.toShortName()
-        val lastUpdate = context.getString(R.string.text_last_update, account.lastUpdate.formatLastUpdate())
-
-        tViewName.text = shortName
-        tViewCareer.text = account.careerName
-
-        tViewLastUpdate.text = lastUpdate
-        tViewLastUpdate.isVisible = true
-
-        if (account.grade > 0.0) {
-            tViewGrade.isVisible = true
-            tViewGrade.animateGrade(value = account.grade.toFloat())
-        } else
-            tViewGrade.isVisible = false
-
-        /* Load summary */
-
-        val subjectsSummary = account.toSubjectsSummaryItem(context)
-        val creditsSummary = account.toCreditsSummaryItem(context)
-
-        val items = listOf(subjectsSummary, creditsSummary)
-
-        summaryAdapter.submitSummary(items)
     }
 }

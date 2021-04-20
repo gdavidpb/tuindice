@@ -27,7 +27,6 @@ class CreateProfilePictureFileUseCase(
         val causes = throwable.causes()
 
         return when {
-            causes.isAccountDisabled() -> ProfilePictureError.AccountDisabled
             throwable is IOException -> ProfilePictureError.IO
             else -> null
         }
