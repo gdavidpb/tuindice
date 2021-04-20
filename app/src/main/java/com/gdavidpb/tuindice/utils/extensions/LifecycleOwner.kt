@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import com.gdavidpb.tuindice.BuildConfig
+import com.gdavidpb.tuindice.R
 import java.io.File
 
 fun LifecycleOwner.openPdf(file: File) {
@@ -66,29 +67,38 @@ fun LifecycleOwner.selector(
         items: Array<String>,
         onClick: (String) -> Unit
 ): AlertDialog {
-    return when (this) {
-        is Fragment -> alert {
-            titleResource = textResource
+    return alert {
+        titleResource = textResource
 
-            setItems(items) { _, which -> onClick(items[which]) }
-        }
-        is FragmentActivity -> alert {
-            titleResource = textResource
-
-            setItems(items) { _, which -> onClick(items[which]) }
-        }
-        else -> throw NoWhenBranchMatchedException()
+        setItems(items) { _, which -> onClick(items[which]) }
     }
 }
 
-private fun LifecycleOwner.startActivity(intent: Intent) = when (this) {
-    is FragmentActivity -> startActivity(intent)
+fun LifecycleOwner.connectionSnackBar(isNetworkAvailable: Boolean, retry: (() -> Unit)? = null) {
+    val message = if (isNetworkAvailable)
+        R.string.snack_service_unreachable
+    else
+        R.string.snack_network_unavailable
+
+    errorSnackBar(message, retry)
+}
+
+fun LifecycleOwner.errorSnackBar(@StringRes message: Int = R.string.snack_default_error, retry: (() -> Unit)? = null) {
+    snackBar {
+        messageResource = message
+
+        if (retry != null) action(R.string.retry) { retry() }
+    }
+}
+
+fun LifecycleOwner.startActivity(intent: Intent) = when (this) {
     is Fragment -> startActivity(intent)
+    is FragmentActivity -> startActivity(intent)
     else -> throw NoWhenBranchMatchedException()
 }
 
-private fun LifecycleOwner.context() = when (this) {
-    is FragmentActivity -> this
+fun LifecycleOwner.context() = when (this) {
     is Fragment -> requireContext()
+    is FragmentActivity -> this
     else -> throw NoWhenBranchMatchedException()
 }

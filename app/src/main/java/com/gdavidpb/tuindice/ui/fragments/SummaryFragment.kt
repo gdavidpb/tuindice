@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.app.Activity
-import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -32,7 +31,6 @@ import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toCreditsSummaryItem
 import com.gdavidpb.tuindice.utils.mappers.toSubjectsSummaryItem
 import kotlinx.android.synthetic.main.fragment_summary.*
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -45,8 +43,6 @@ class SummaryFragment : NavigationFragment() {
     private val loadProfilePicture = LiveCompletable<ProfilePictureError>()
 
     private val summaryAdapter = SummaryAdapter()
-
-    private val activityManager by inject<ActivityManager>()
 
     override fun onCreateView() = R.layout.fragment_summary
 
@@ -136,14 +132,6 @@ class SummaryFragment : NavigationFragment() {
         navigate(SummaryFragmentDirections.navToSignIn())
     }
 
-    private fun navToAccountDisabled() {
-        findNavController().popStackToRoot()
-
-        val navOptions = findNavController().navOptionsClean()
-
-        navigate(SummaryFragmentDirections.navToAccountDisabled(), navOptions)
-    }
-
     private fun signOutDialog() {
         ConfirmationBottomSheetDialog(
                 titleResource = R.string.dialog_title_sign_out,
@@ -228,9 +216,7 @@ class SummaryFragment : NavigationFragment() {
                 navigateToSignIn()
             }
             is Completable.OnError -> {
-                activityManager.clearApplicationUserData()
-
-                navigateToSignIn()
+                requireActivity().recreate()
             }
         }
     }

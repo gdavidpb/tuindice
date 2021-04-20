@@ -11,10 +11,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.annotations.Timeout
-import com.gdavidpb.tuindice.utils.extensions.computeGradeSum
-import com.gdavidpb.tuindice.utils.extensions.isConnection
-import com.gdavidpb.tuindice.utils.extensions.isInvalidCredentials
-import com.gdavidpb.tuindice.utils.extensions.isTimeout
+import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.buildAccount
 import com.gdavidpb.tuindice.utils.mappers.toQuarter
 
@@ -39,6 +36,9 @@ class SyncAccountUseCase(
         if (token != null) databaseRepository.updateToken(uid = activeAuth.uid, token = token)
 
         if (isUpdated) return false
+
+        /* Reload auth */
+        authRepository.reloadActiveAuth()
 
         /* Get credentials */
         val credentials = settingsRepository.getCredentials()
@@ -95,7 +95,10 @@ class SyncAccountUseCase(
     }
 
     override suspend fun executeOnException(throwable: Throwable): SyncError? {
+        val causes = throwable.causes()
+
         return when {
+            causes.isAccountDisabled() -> SyncError.AccountDisabled
             throwable is OutdatedPasswordException -> SyncError.OutdatedPassword
             throwable.isTimeout() -> SyncError.Timeout
             throwable.isConnection() -> SyncError.NoConnection(networkRepository.isAvailable())

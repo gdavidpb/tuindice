@@ -4,7 +4,10 @@ import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.StartUpError
-import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.extensions.causes
+import com.gdavidpb.tuindice.utils.extensions.isConnection
+import com.gdavidpb.tuindice.utils.extensions.isInvalidLink
+import com.gdavidpb.tuindice.utils.extensions.oobCode
 
 class StartUpUseCase(
         private val settingsRepository: SettingsRepository,
@@ -27,14 +30,13 @@ class StartUpUseCase(
         }
     }
 
-    override suspend fun executeOnException(throwable: Throwable): StartUpError {
+    override suspend fun executeOnException(throwable: Throwable): StartUpError? {
         val causes = throwable.causes()
 
         return when {
-            causes.isAccountDisabled() -> StartUpError.AccountDisabled
             causes.isInvalidLink() -> StartUpError.InvalidLink
             throwable.isConnection() -> StartUpError.NoConnection(networkRepository.isAvailable())
-            else -> StartUpError.UnableToStart
+            else -> null
         }
     }
 

@@ -13,7 +13,6 @@
     <string name="exit">Salir</string>
     <string name="accept">Aceptar</string>
     <string name="retry">Reintentar</string>
-    <string name="restart">Reiniciar</string>
 
     <string name="app_version">%1$s v%2$s (%3$d)</string>
 
@@ -44,11 +43,6 @@
         Parece que algo ha salido muy mal por acá. Debes reiniciar <b>TuIndice</b> para continuar.
     </string>
 
-    <string name="alert_title_link_failure">¡Oops, lo sentimos!</string>
-    <string name="alert_message_link_failure">
-        Este enlace está corrupto o ya fue usado, por favor solicita otro correo.
-    </string>
-
     <string name="alert_title_no_gms_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_no_gms_failure">Parece que tu dispositivo  no dispone de Google Play Services ;(</string>
 
@@ -56,6 +50,8 @@
     <string name="dialog_message_sign_out">¿Estás seguro que deseas cerrar sesión?</string>
 
     <string name="selector_title_report">¿Cómo te podemos ayudar?</string>
+
+    <string name="snack_invalid_link">Enlace inválido</string>
 
     <string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
 
@@ -334,17 +330,7 @@
     <string name="snack_service_unreachable">Servicio no disponible</string>
     <string name="snack_timeout">Tiempo de espera agotado</string>
     <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
-
-    <!-- AccountDisabledFragment -->
-
-    <string name="label_account_disabled_fragment">TuIndice</string>
-
-    <string name="dialog_title_account_disabled">Tu cuenta ha sido inhabilitada</string>
-    <string name="dialog_message_account_disabled">
-        Tu cuenta ha sido inhabilitada por violar los <u>%1$s</u> de la aplicación.\n\n
-        Si crees que se trata de un error o quieres obtener más información, escríbemos desde tu
-        correo institucional a <u>%2$s</u>.
-    </string>
+    <string name="snack_account_disabled">Cuenta inhabilitada</string>
 
     <!-- UpdateBottomSheetDialog -->
 

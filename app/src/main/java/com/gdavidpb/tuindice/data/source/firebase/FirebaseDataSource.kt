@@ -25,6 +25,10 @@ open class FirebaseDataSource(
                 ?: error("getActiveAuth")
     }
 
+    override suspend fun reloadActiveAuth() {
+        auth.currentUser?.reload()
+    }
+
     override suspend fun signIn(credentials: Credentials): Auth {
         val email = credentials.usbId.asUsbEmail()
 

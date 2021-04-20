@@ -9,7 +9,6 @@ import android.view.View
 import android.view.animation.OvershootInterpolator
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
-import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.utils.Validation
@@ -147,12 +146,6 @@ class SignInFragment : NavigationFragment() {
         navigate(SignInFragmentDirections.navToSplash())
     }
 
-    private fun navToAccountDisabled() {
-        val navOptions = findNavController().navOptionsClean()
-
-        navigate(SignInFragmentDirections.navToAccountDisabled(), navOptions)
-    }
-
     private fun signInObserver(result: Event<Boolean, SignInError>?) {
         when (result) {
             is Event.OnLoading -> {
@@ -193,7 +186,7 @@ class SignInFragment : NavigationFragment() {
             is SignInError.InvalidCredentials -> errorSnackBar(R.string.snack_invalid_credentials)
             is SignInError.OutdatedPassword -> navToSplash()
             is SignInError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
-            is SignInError.AccountDisabled -> navToAccountDisabled()
+            is SignInError.AccountDisabled -> errorSnackBar(R.string.snack_account_disabled)
             else -> errorSnackBar { onSignInClick() }
         }
     }

@@ -21,6 +21,9 @@ open class AuthMockDataSource(
         return Auth(uid = uid, email = email)
     }
 
+    override suspend fun reloadActiveAuth() {
+    }
+
     override suspend fun signIn(credentials: Credentials): Auth {
         return Auth(uid = uid, email = email)
     }

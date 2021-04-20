@@ -4,8 +4,10 @@ import android.view.View
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.google.android.material.snackbar.BaseTransientBottomBar.*
 import com.google.android.material.snackbar.Snackbar
@@ -68,15 +70,27 @@ data class SnackBarBuilder(
     }
 }
 
-inline fun Fragment.snackBar(length: Int = Snackbar.LENGTH_LONG, builder: SnackBarBuilder.() -> Unit) {
-    val snackBar = SnackBarBuilder(requireView(), length).apply(builder).build()
+inline fun LifecycleOwner.snackBar(length: Int = Snackbar.LENGTH_LONG, builder: SnackBarBuilder.() -> Unit) {
+    val view = when (this) {
+        is Fragment -> requireView()
+        is FragmentActivity -> contentView
+        else -> throw NoWhenBranchMatchedException()
+    } ?: return
+
+    val snackBar = SnackBarBuilder(view, length).apply(builder).build()
 
     val lifecycleObserver = object : LifecycleObserver {
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        fun onPause() = snackBar.dismiss()
+        fun onPause() {
+            lifecycle.removeObserver(this)
+            snackBar.dismiss()
+        }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-        fun onStop() = snackBar.dismiss()
+        fun onStop() {
+            lifecycle.removeObserver(this)
+            snackBar.dismiss()
+        }
     }
 
     lifecycle.addObserver(lifecycleObserver)

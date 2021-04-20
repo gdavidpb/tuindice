@@ -5,12 +5,6 @@
     android:id="@+id/main_navigation"
     app:startDestination="@+id/fragment_splash">
 
-    <action
-        android:id="@+id/nav_to_account_disabled"
-        app:destination="@id/fragment_account_disabled"
-        app:enterAnim="@anim/slide_in_from_bottom"
-        app:exitAnim="@anim/slide_out_to_top" />
-
     <fragment
         android:id="@+id/fragment_splash"
         android:name="com.gdavidpb.tuindice.ui.fragments.SplashFragment"
@@ -166,12 +160,6 @@
             app:popUpTo="@id/fragment_reset_password"
             app:popUpToInclusive="true" />
     </fragment>
-
-    <fragment
-        android:id="@+id/fragment_account_disabled"
-        android:name="com.gdavidpb.tuindice.ui.fragments.AccountDisabledFragment"
-        android:label="@string/label_account_disabled_fragment"
-        tools:layout="@layout/fragment_account_disabled" />
 
     <fragment
         android:id="@+id/fragment_browser"

@@ -5,8 +5,7 @@ import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
 import com.gdavidpb.tuindice.utils.NO_GETTER
 import kotlin.DeprecationLevel.ERROR
 
@@ -47,8 +46,5 @@ fun (AlertDialog.Builder).createView(@LayoutRes layout: Int, init: View.() -> Un
                 .apply(init)
                 .also { view -> setView(view) }
 
-inline fun FragmentActivity.alert(builder: AlertDialog.Builder.() -> Unit): AlertDialog =
-        AlertDialog.Builder(this).apply(builder).show()
-
-inline fun Fragment.alert(builder: AlertDialog.Builder.() -> Unit): AlertDialog =
-        AlertDialog.Builder(requireActivity()).apply(builder).show()
+inline fun LifecycleOwner.alert(builder: AlertDialog.Builder.() -> Unit): AlertDialog =
+        AlertDialog.Builder(context()).apply(builder).show()
