@@ -33,8 +33,8 @@
 
     <string name="toast_repeat_to_exit">Repite para salir</string>
 
-    <string name="alert_title_remove_profile_picture_failure">Atención</string>
-    <string name="alert_message_remove_profile_picture_failure">
+    <string name="dialog_title_remove_profile_picture_failure">Atención</string>
+    <string name="dialog_message_remove_profile_picture_failure">
         ¿Estás seguro que deseas remover tu foto de perfil?
     </string>
 
@@ -241,8 +241,8 @@
     <string name="label_terms_and_conditions">TuIndice - Términos y condiciones</string>
     <string name="label_privacy_policy">TuIndice - Política de privacidad</string>
 
-    <string name="alert_title_warning_external">Atención</string>
-    <string name="alert_message_warning_external">Estás saliendo de TuIndice. ¿Deseas abrir el siguiente enlace?\n\n%s</string>
+    <string name="dialog_title_warning_external">Atención</string>
+    <string name="dialog_message_warning_external">¿Deseas abrir el siguiente enlace?\n\n%s</string>
 
     <!-- SubjectFragment -->
 

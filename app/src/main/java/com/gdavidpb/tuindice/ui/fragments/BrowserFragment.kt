@@ -14,7 +14,9 @@ import android.webkit.WebViewClient
 import androidx.core.text.buildSpannedString
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.ui.dialogs.ConfirmationBottomSheetDialog
+import com.gdavidpb.tuindice.utils.extensions.browse
+import com.gdavidpb.tuindice.utils.extensions.getCompatColor
 import kotlinx.android.synthetic.main.fragment_browser.*
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -60,7 +62,7 @@ class BrowserFragment : NavigationFragment() {
         val primaryColor = requireContext().getCompatColor(R.color.color_primary_text)
         val secondaryColor = requireContext().getCompatColor(R.color.color_disabled_text)
 
-        val message = getString(R.string.alert_message_warning_external, externalUrl)
+        val message = getString(R.string.dialog_message_warning_external, externalUrl)
 
         val spannedMessage = buildSpannedString {
             append(message)
@@ -75,16 +77,12 @@ class BrowserFragment : NavigationFragment() {
             setSpan(ForegroundColorSpan(primaryColor), startHost, endHost, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
         }
 
-        alert {
-            titleResource = R.string.alert_title_warning_external
-
-            setMessage(spannedMessage)
-
-            positiveButton(R.string.yes) {
-                browse(url = externalUrl)
-            }
-
-            negativeButton(R.string.cancel)
-        }
+        ConfirmationBottomSheetDialog(
+                titleResource = R.string.dialog_title_warning_external,
+                messageText = spannedMessage,
+                positiveResource = R.string.yes,
+                negativeResource = R.string.cancel,
+                positiveOnClick = { browse(url = externalUrl) },
+        ).show(childFragmentManager, "showExternalResourceDialog")
     }
 }

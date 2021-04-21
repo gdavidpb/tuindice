@@ -139,20 +139,17 @@ class SummaryFragment : NavigationFragment() {
                 positiveResource = R.string.yes,
                 negativeResource = R.string.cancel,
                 positiveOnClick = { viewModel.signOut() },
-        ).show(childFragmentManager, "confirmationDialog")
+        ).show(childFragmentManager, "signOutDialog")
     }
 
     private fun removeProfilePictureDialog() {
-        alert {
-            titleResource = R.string.alert_title_remove_profile_picture_failure
-            messageResource = R.string.alert_message_remove_profile_picture_failure
-
-            positiveButton(R.string.yes) {
-                viewModel.removeProfilePicture()
-            }
-
-            negativeButton(R.string.cancel)
-        }
+        ConfirmationBottomSheetDialog(
+                titleResource = R.string.dialog_title_remove_profile_picture_failure,
+                messageResource = R.string.dialog_message_remove_profile_picture_failure,
+                positiveResource = R.string.yes,
+                negativeResource = R.string.cancel,
+                positiveOnClick = { viewModel.removeProfilePicture() },
+        ).show(childFragmentManager, "removeProfilePictureDialog")
     }
 
     private fun requestProfilePictureInput(outputUri: Uri) {
