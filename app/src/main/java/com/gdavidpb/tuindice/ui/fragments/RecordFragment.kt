@@ -20,11 +20,11 @@ import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
+import com.gdavidpb.tuindice.ui.dialogs.EnrollmentDownloadingBottomSheetDialog
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
 import com.gdavidpb.tuindice.utils.mappers.toUpdateRequest
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.dialog_progress.view.*
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -40,14 +40,8 @@ class RecordFragment : NavigationFragment() {
 
     private val quarterAdapter = QuarterAdapter(manager = quarterManager)
 
-    private val loadingDialog by lazy {
-        alert {
-            createView(R.layout.dialog_progress) {
-                tViewDialogTitle.text = getString(R.string.dialog_enrollment_downloading)
-            }
-
-            isCancelable = false
-        }
+    private val downloadingDialog by lazy {
+        EnrollmentDownloadingBottomSheetDialog()
     }
 
     private object Flipper {
@@ -154,12 +148,12 @@ class RecordFragment : NavigationFragment() {
     private fun enrollmentObserver(result: Event<File, GetEnrollmentError>?) {
         when (result) {
             is Event.OnLoading -> {
-                loadingDialog.show()
+                downloadingDialog.show(childFragmentManager, "downloadingDialog")
 
                 setMenuVisibility(false)
             }
             is Event.OnSuccess -> {
-                loadingDialog.dismiss()
+                downloadingDialog.dismiss()
 
                 setMenuVisibility(true)
 
@@ -174,11 +168,16 @@ class RecordFragment : NavigationFragment() {
                 }
             }
             is Event.OnError -> {
-                loadingDialog.dismiss()
+                downloadingDialog.dismiss()
 
                 setMenuVisibility(true)
 
                 enrollmentErrorHandler(error = result.error)
+            }
+            is Event.OnCancel -> {
+                downloadingDialog.dismiss()
+
+                setMenuVisibility(true)
             }
         }
     }

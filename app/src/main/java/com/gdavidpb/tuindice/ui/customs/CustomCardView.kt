@@ -6,6 +6,7 @@ import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
 import android.util.AttributeSet
+import com.gdavidpb.tuindice.R
 import com.google.android.material.card.MaterialCardView
 
 class CustomCardView(context: Context, attrs: AttributeSet)
@@ -17,6 +18,12 @@ class CustomCardView(context: Context, attrs: AttributeSet)
                     .apply { setSaturation(0f) }
                     .let(::ColorMatrixColorFilter)
         }
+    }
+
+    init {
+        useCompatPadding = true
+        preventCornerOverlap = true
+        radius = resources.getDimension(R.dimen.dp_6)
     }
 
     override fun setEnabled(enabled: Boolean) {

@@ -47,6 +47,8 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
             onConfirmClick()
         }
 
+        isCancelable = false
+
         btnConfirm.onClickOnce(::onConfirmClick)
         btnCancel.onClickOnce(::onCancelClick)
     }
@@ -57,10 +59,6 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
         with(viewModel) {
             observe(updatePassword, ::updatePasswordObserver)
         }
-    }
-
-    override fun isCancelable(): Boolean {
-        return false
     }
 
     private fun showLoading(value: Boolean) {

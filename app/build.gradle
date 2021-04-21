@@ -176,6 +176,9 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutines_version"
 
+    /* Lottie */
+    implementation "com.airbnb.android:lottie:3.7.0"
+
     /* Picasso */
     implementation "com.squareup.picasso:picasso:2.71828"
 }

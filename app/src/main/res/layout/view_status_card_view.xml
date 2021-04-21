@@ -4,10 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="@dimen/dp_8"
-    app:cardCornerRadius="@dimen/dp_4"
-    app:cardPreventCornerOverlap="true"
-    app:cardUseCompatPadding="true">
+    android:layout_marginHorizontal="@dimen/dp_8">
 
     <View
         android:layout_width="@dimen/dp_8"

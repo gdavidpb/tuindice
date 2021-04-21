@@ -105,11 +105,12 @@
     <string name="hint_mock_search">Código o nombre de la materia</string>
     -->
 
-    <string name="dialog_enrollment_downloading">Obteniendo comprobante…</string>
     <string name="snack_enrollment_unsupported">Archivo no soportado ;(</string>
     <string name="snack_enrollment_not_found">Comprobante no disponible</string>
 
     <string name="cd_add_quarter">Agregar trimestre</string>
+
+    <string name="dialog_message_enrollment_downloading">Obteniendo comprobante…</string>
 
     <string name="label_empty_record">
         <b>¡Parece que alguien es nuevo por acá!\n\n</b>
