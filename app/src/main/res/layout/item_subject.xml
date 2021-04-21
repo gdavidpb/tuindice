@@ -4,29 +4,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/dp_16"
     android:layerType="hardware"
     tools:padding="@dimen/dp_16">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewSubjectCode"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:drawablePadding="@dimen/dp_6"
-        android:fontFamily="sans-serif-black"
+        android:ellipsize="end"
+        android:fontFamily="sans-serif-medium"
+        android:maxLines="1"
+        android:textSize="@dimen/sp_16"
         android:textColor="@color/color_secondary_text"
+        app:layout_constraintEnd_toStartOf="@id/tViewSubjectGrade"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:drawableStart="@drawable/ic_open_in"
         tools:text="MA1111" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewSubjectGrade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-black"
+        android:layout_marginStart="@dimen/dp_16"
+        android:fontFamily="sans-serif-medium"
+        android:textSize="@dimen/sp_16"
         android:textColor="@color/color_secondary_text"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/iViewSubjectOptions"
+        app:layout_constraintStart_toEndOf="@id/tViewSubjectCode"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="3 / 5" />
 
@@ -34,12 +38,12 @@
         android:id="@+id/tViewSubjectName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="@dimen/dp_16"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
         android:maxLines="1"
         android:textColor="@color/color_secondary_text"
+        android:layout_marginBottom="@dimen/dp_8"
+        app:layout_constraintBottom_toTopOf="@id/sBarSubjectGrade"
         app:layout_constraintEnd_toStartOf="@id/tViewSubjectCredits"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tViewSubjectCode"
@@ -49,21 +53,39 @@
         android:id="@+id/tViewSubjectCredits"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_16"
         android:fontFamily="sans-serif-light"
         android:textColor="@color/color_secondary_text"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/tViewSubjectGrade"
+        app:layout_constraintStart_toEndOf="@id/tViewSubjectName"
         app:layout_constraintTop_toBottomOf="@id/tViewSubjectGrade"
-        tools:text="4 Crs." />
+        tools:text="4 UC" />
 
     <com.gdavidpb.tuindice.ui.customs.CustomSeekBar
-        android:id="@+id/sBarGrade"
+        android:id="@+id/sBarSubjectGrade"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_8"
         android:paddingVertical="@dimen/dp_8"
         android:max="5"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/tViewSubjectGrade"
         app:layout_constraintTop_toBottomOf="@id/tViewSubjectName"
+        app:layout_constraintStart_toStartOf="parent"
         app:tickMark="@drawable/sh_tick_mark"
         tools:progress="3" />
+
+    <ImageButton
+        android:id="@+id/iViewSubjectOptions"
+        android:layout_width="@dimen/dp_32"
+        android:layout_height="@dimen/dp_32"
+        android:layout_marginStart="@dimen/dp_16"
+        android:background="?android:attr/selectableItemBackground"
+        android:src="@drawable/ic_more"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tViewSubjectGrade"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

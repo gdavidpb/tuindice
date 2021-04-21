@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
 import com.gdavidpb.tuindice.utils.extensions.backgroundColor
-import com.gdavidpb.tuindice.utils.extensions.drawables
 import com.gdavidpb.tuindice.utils.extensions.onClickOnce
 import com.gdavidpb.tuindice.utils.extensions.onSeekBarChange
 import kotlinx.android.synthetic.main.item_quarter.view.*
@@ -84,32 +83,29 @@ class QuarterViewHolder(
         tViewSubjectGrade.text = subjectItem.gradeText
         tViewSubjectCredits.text = subjectItem.creditsText
 
-        sBarGrade.progress = subjectItem.data.grade
+        sBarSubjectGrade.progress = subjectItem.data.grade
     }
 
     private fun View.setEditable(quarterItem: QuarterItem, subjectItem: SubjectItem) {
         val isClickable = quarterItem.isEditable && !subjectItem.isRetired
 
-        if (isClickable) {
-            tViewSubjectCode.drawables(start = R.drawable.ic_open_in)
+        iViewSubjectOptions.isVisible = isClickable
 
-            onClickOnce { manager.onSubjectClicked(quarterItem, subjectItem) }
-        } else {
-            tViewSubjectCode.drawables(start = 0)
-
-            setOnClickListener(null)
-        }
+        if (isClickable)
+            iViewSubjectOptions.onClickOnce { manager.onSubjectOptionsClicked(quarterItem, subjectItem) }
+        else
+            iViewSubjectOptions.setOnClickListener(null)
     }
 
     private fun View.setGradeBar(quarterItem: QuarterItem, subjectItem: SubjectItem) {
         if (!quarterItem.isEditable) {
-            sBarGrade.isVisible = false
+            sBarSubjectGrade.isVisible = false
 
-            sBarGrade.setOnSeekBarChangeListener(null)
+            sBarSubjectGrade.setOnSeekBarChangeListener(null)
         } else {
-            sBarGrade.isVisible = true
+            sBarSubjectGrade.isVisible = true
 
-            sBarGrade.onSeekBarChange {
+            sBarSubjectGrade.onSeekBarChange {
                 onProgressChanged { grade, fromUser ->
                     if (fromUser)
                         manager.onSubjectGradeChanged(quarterItem, subjectItem, grade, false)

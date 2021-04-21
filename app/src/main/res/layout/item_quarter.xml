@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="@dimen/dp_4">
 
     <View
         android:id="@+id/viewQuarterColor"
@@ -28,7 +29,7 @@
             android:textColor="@color/color_primary_text"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Sep. - Dic. 2017" />
+            tools:text="Sep - Dic 2017" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tViewQuarterGradeDiff"
@@ -37,6 +38,7 @@
             android:layout_marginTop="@dimen/dp_8"
             android:gravity="center"
             android:textColor="@color/color_secondary_text"
+            android:textSize="@dimen/sp_16"
             app:layout_constraintEnd_toStartOf="@id/tViewQuarterGradeSum"
             app:layout_constraintHorizontal_weight="0.33"
             app:layout_constraintStart_toStartOf="parent"
@@ -50,6 +52,7 @@
             android:layout_marginTop="@dimen/dp_8"
             android:gravity="center"
             android:textColor="@color/color_secondary_text"
+            android:textSize="@dimen/sp_16"
             app:layout_constraintEnd_toStartOf="@id/tViewQuarterCredits"
             app:layout_constraintHorizontal_weight="0.33"
             app:layout_constraintStart_toEndOf="@id/tViewQuarterGradeDiff"
@@ -64,10 +67,11 @@
             android:gravity="center"
             android:textColor="@color/color_secondary_text"
             app:layout_constraintEnd_toEndOf="parent"
+            android:textSize="@dimen/sp_16"
             app:layout_constraintHorizontal_weight="0.33"
             app:layout_constraintStart_toEndOf="@id/tViewQuarterGradeSum"
             app:layout_constraintTop_toBottomOf="@id/tViewQuarterTitle"
-            tools:text="⦿ 13 Crs." />
+            tools:text="⦿ 13 UC" />
 
         <LinearLayout
             android:id="@+id/lLayoutQuarterContainer"
