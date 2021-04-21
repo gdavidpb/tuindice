@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import androidx.core.view.isGone
 import androidx.fragment.app.DialogFragment
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.extensions.onClickOnce
@@ -16,8 +17,8 @@ class ConfirmationBottomSheetDialog(
         private val titleText: CharSequence = "",
         @StringRes private val messageResource: Int = 0,
         private val messageText: CharSequence = "",
-        @StringRes private val positiveResource: Int,
-        @StringRes private val negativeResource: Int,
+        @StringRes private val positiveResource: Int = 0,
+        @StringRes private val negativeResource: Int = 0,
         private val positiveOnClick: DialogFragment.() -> Unit = {},
         private val negativeOnClick: DialogFragment.() -> Unit = {}
 ) : BottomSheetDialogFragment() {
@@ -38,8 +39,15 @@ class ConfirmationBottomSheetDialog(
             messageText.isNotEmpty() -> tViewQuestionMessage.text = messageText
         }
 
-        btnPositive.setText(positiveResource)
-        btnNegative.setText(negativeResource)
+        if (positiveResource != 0)
+            btnPositive.setText(positiveResource)
+        else
+            btnPositive.isGone = true
+
+        if (negativeResource != 0)
+            btnNegative.setText(negativeResource)
+        else
+            btnNegative.isGone = true
 
         btnPositive.onClickOnce { positiveOnClick(); dismiss() }
         btnNegative.onClickOnce { negativeOnClick(); dismiss() }

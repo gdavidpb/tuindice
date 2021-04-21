@@ -3,6 +3,8 @@ package com.gdavidpb.tuindice.utils.extensions
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
+import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.ui.dialogs.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.utils.RequestCodes
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -26,18 +28,12 @@ fun FragmentActivity.isGoogleServicesAvailable(): Boolean {
                     setOnDismissListener { finish() }
                 }.show()
             else
-                TODO()
-        /*
-                alert {
-                    titleResource = R.string.alert_title_no_gms_failure
-                    messageResource = R.string.alert_message_no_gms_failure
-
-                    isCancelable = false
-
-                    positiveButton(R.string.exit) {
-                        finish()
-                    }
-                }
-         */
+                ConfirmationBottomSheetDialog(
+                        titleResource = R.string.dialog_title_no_gms_failure,
+                        messageResource = R.string.dialog_message_no_gms_failure,
+                        positiveResource = R.string.exit,
+                        positiveOnClick = { finish() },
+                ).apply { isCancelable = false }
+                        .show(supportFragmentManager, "playServicesDialog")
     }
 }
