@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -65,11 +66,11 @@ fun LifecycleOwner.selector(
         @StringRes textResource: Int,
         items: Array<String>,
         onClick: (String) -> Unit
-) = alert {
-    titleResource = textResource
+): AlertDialog = AlertDialog.Builder(context()).apply {
+    setTitle(textResource)
 
     setItems(items) { _, which -> onClick(items[which]) }
-}
+}.show()
 
 fun LifecycleOwner.connectionSnackBar(isNetworkAvailable: Boolean, retry: (() -> Unit)? = null) {
     val message = if (isNetworkAvailable)

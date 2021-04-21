@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.utils.extensions
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
-import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.RequestCodes
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -27,6 +26,8 @@ fun FragmentActivity.isGoogleServicesAvailable(): Boolean {
                     setOnDismissListener { finish() }
                 }.show()
             else
+                TODO()
+        /*
                 alert {
                     titleResource = R.string.alert_title_no_gms_failure
                     messageResource = R.string.alert_message_no_gms_failure
@@ -37,5 +38,6 @@ fun FragmentActivity.isGoogleServicesAvailable(): Boolean {
                         finish()
                     }
                 }
+         */
     }
 }

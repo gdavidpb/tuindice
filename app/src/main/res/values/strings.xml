@@ -38,11 +38,6 @@
         ¿Estás seguro que deseas remover tu foto de perfil?
     </string>
 
-    <string name="alert_title_fatal_failure">¡Oops, lo sentimos!</string>
-    <string name="alert_message_fatal_failure">
-        Parece que algo ha salido muy mal por acá. Debes reiniciar <b>TuIndice</b> para continuar.
-    </string>
-
     <string name="alert_title_no_gms_failure">¡Oops, lo sentimos!</string>
     <string name="alert_message_no_gms_failure">Parece que tu dispositivo  no dispone de Google Play Services ;(</string>
 
