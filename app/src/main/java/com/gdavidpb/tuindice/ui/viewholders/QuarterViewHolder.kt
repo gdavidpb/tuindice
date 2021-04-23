@@ -87,22 +87,18 @@ class QuarterViewHolder(
     }
 
     private fun View.setEditable(quarterItem: QuarterItem, subjectItem: SubjectItem) {
-        val isClickable = quarterItem.isEditable && !subjectItem.isRetired
+        val areOptionsAvailable = quarterItem.isEditable
 
-        iViewSubjectOptions.isVisible = isClickable
+        iViewSubjectOptions.isVisible = areOptionsAvailable
 
-        if (isClickable)
+        if (areOptionsAvailable)
             iViewSubjectOptions.onClickOnce { manager.onSubjectOptionsClicked(quarterItem, subjectItem) }
         else
             iViewSubjectOptions.setOnClickListener(null)
     }
 
     private fun View.setGradeBar(quarterItem: QuarterItem, subjectItem: SubjectItem) {
-        if (!quarterItem.isEditable) {
-            sBarSubjectGrade.isVisible = false
-
-            sBarSubjectGrade.setOnSeekBarChangeListener(null)
-        } else {
+        if (quarterItem.isEditable) {
             sBarSubjectGrade.isVisible = true
 
             sBarSubjectGrade.onSeekBarChange {
@@ -115,6 +111,10 @@ class QuarterViewHolder(
                     manager.onSubjectGradeChanged(quarterItem, subjectItem, grade, true)
                 }
             }
+        } else {
+            sBarSubjectGrade.isVisible = false
+
+            sBarSubjectGrade.setOnSeekBarChangeListener(null)
         }
     }
 }

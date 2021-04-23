@@ -15,12 +15,14 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.GetEnrollmentError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
+import com.gdavidpb.tuindice.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.ui.dialogs.EnrollmentDownloadingBottomSheetDialog
+import com.gdavidpb.tuindice.ui.dialogs.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
 import com.gdavidpb.tuindice.utils.mappers.toUpdateRequest
@@ -47,6 +49,11 @@ class RecordFragment : NavigationFragment() {
     private object Flipper {
         const val CONTENT = 0
         const val EMPTY = 1
+    }
+
+    private object SubjectMenu {
+        const val EDIT_SUBJECT = 0
+        const val RETIRE_SUBJECT = 1
     }
 
     override fun onCreateView() = R.layout.fragment_record
@@ -103,6 +110,50 @@ class RecordFragment : NavigationFragment() {
         snackBar {
             messageResource = R.string.snack_enrollment_not_found
         }
+    }
+
+    private fun showSubjectMenuDialog(quarterItem: QuarterItem, subjectItem: SubjectItem) {
+        val title = getString(
+                R.string.label_evaluation_subject_header,
+                subjectItem.code,
+                subjectItem.data.name
+        )
+
+        MenuBottomSheetDialog(
+                titleText = title,
+                menuItems = listOf(
+                        BottomMenuItem(
+                                iconResource = R.drawable.ic_list,
+                                textResource = R.string.menu_subject_evaluation
+                        ),
+                        BottomMenuItem(
+                                iconResource = R.drawable.ic_not_interested,
+                                textResource = R.string.menu_subject_retire
+                        )
+                ),
+                onItemSelected = { position ->
+                    when (position) {
+                        SubjectMenu.EDIT_SUBJECT -> navToSubject(quarterItem, subjectItem)
+                        SubjectMenu.RETIRE_SUBJECT -> {
+                            val request = quarterItem.data.toUpdateRequest(
+                                    sid = subjectItem.id,
+                                    grade = 0,
+                                    dispatchChanges = true
+                            )
+
+                            viewModel.updateQuarter(request)
+                        }
+                    }
+                }
+        ).show(childFragmentManager, "subjectMenuDialog")
+    }
+
+    private fun navToSubject(quarterItem: QuarterItem, subjectItem: SubjectItem) {
+        navigate(RecordFragmentDirections.navToSubject(
+                quarterId = quarterItem.id,
+                subjectId = subjectItem.id,
+                subjectCode = subjectItem.code
+        ))
     }
 
     private fun openEnrollmentProof() {
@@ -206,11 +257,7 @@ class RecordFragment : NavigationFragment() {
 
     inner class QuarterManager : QuarterAdapter.AdapterManager, ItemTouchHelper.Callback() {
         override fun onSubjectOptionsClicked(quarterItem: QuarterItem, subjectItem: SubjectItem) {
-            navigate(RecordFragmentDirections.navToSubject(
-                    quarterId = quarterItem.id,
-                    subjectId = subjectItem.id,
-                    subjectCode = subjectItem.code
-            ))
+            showSubjectMenuDialog(quarterItem = quarterItem, subjectItem = subjectItem)
         }
 
         override fun onSubjectGradeChanged(quarterItem: QuarterItem, subjectItem: SubjectItem, grade: Int, dispatchChanges: Boolean) {

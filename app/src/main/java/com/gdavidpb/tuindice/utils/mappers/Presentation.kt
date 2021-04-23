@@ -38,7 +38,7 @@ fun Quarter.toQuarterItem(context: Context): QuarterItem {
             id = id,
             color = quarterColor,
             isMock = (status == STATUS_QUARTER_MOCK),
-            isEditable = (status == STATUS_QUARTER_CURRENT || status == STATUS_QUARTER_MOCK),
+            isEditable = (status == STATUS_QUARTER_CURRENT) || (status == STATUS_QUARTER_MOCK),
             TitleText = startDate.formatQuarterName(endDate),
             isCurrent = (status == STATUS_QUARTER_CURRENT),
             gradeDiffText = grade.formatGradeDiff(quarterColor, context),

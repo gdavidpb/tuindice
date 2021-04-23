@@ -32,11 +32,13 @@ class ConfirmationBottomSheetDialog(
         when {
             titleResource != 0 -> tViewQuestionTitle.setText(titleResource)
             titleText.isNotEmpty() -> tViewQuestionTitle.text = titleText
+            else -> error("'titleResource' or 'titleText' is missed")
         }
 
         when {
             messageResource != 0 -> tViewQuestionMessage.setText(messageResource)
             messageText.isNotEmpty() -> tViewQuestionMessage.text = messageText
+            else -> error("'messageResource' or 'messageText' is missed")
         }
 
         if (positiveResource != 0)

@@ -94,6 +94,9 @@
     <string name="subject_grade">%1$d / 5</string>
     <string name="subject_credits">%1$d UC</string>
 
+    <string name="menu_subject_evaluation">Ver plan de evaluación</string>
+    <string name="menu_subject_retire">Retirar materia</string>
+
     <!--
     <string name="dialog_mock_title">Proyección</string>
 
@@ -104,8 +107,6 @@
     <string name="snack_enrollment_not_found">Comprobante no disponible</string>
 
     <string name="cd_add_quarter">Agregar trimestre</string>
-
-    <string name="dialog_message_enrollment_downloading">Obteniendo comprobante…</string>
 
     <string name="label_empty_record">
         <b>¡Parece que alguien es nuevo por acá!\n\n</b>
@@ -327,6 +328,10 @@
     <string name="snack_timeout">Tiempo de espera agotado</string>
     <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
     <string name="snack_account_disabled">Cuenta inhabilitada</string>
+
+    <!-- EnrollmentDownloadingBottomSheetDialog -->
+
+    <string name="dialog_message_enrollment_downloading">Obteniendo comprobante…</string>
 
     <!-- UpdateBottomSheetDialog -->
 

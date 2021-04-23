@@ -91,7 +91,7 @@ class SummaryFragment : NavigationFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_sign_out -> {
-                signOutDialog()
+                showSignOutDialog()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -103,15 +103,11 @@ class SummaryFragment : NavigationFragment() {
 
         if (resultCode == Activity.RESULT_OK) {
             val removeProfilePicture = data.hasExtra(Extras.REMOVE_PROFILE_PICTURE)
-            val requestProfilePicture = requestCode == RequestCodes.PROFILE_PICTURE
+            val requestProfilePicture = (requestCode == RequestCodes.PROFILE_PICTURE)
 
             when {
-                removeProfilePicture -> {
-                    removeProfilePictureDialog()
-                }
-                requestProfilePicture -> {
-                    viewModel.getProfilePictureFile(optionalUri = data.data)
-                }
+                removeProfilePicture -> showRemoveProfilePictureDialog()
+                requestProfilePicture -> viewModel.getProfilePictureFile(optionalUri = data.data)
             }
         }
     }
@@ -132,7 +128,7 @@ class SummaryFragment : NavigationFragment() {
         navigate(SummaryFragmentDirections.navToSignIn())
     }
 
-    private fun signOutDialog() {
+    private fun showSignOutDialog() {
         ConfirmationBottomSheetDialog(
                 titleResource = R.string.dialog_title_sign_out,
                 messageResource = R.string.dialog_message_sign_out,
@@ -142,7 +138,7 @@ class SummaryFragment : NavigationFragment() {
         ).show(childFragmentManager, "signOutDialog")
     }
 
-    private fun removeProfilePictureDialog() {
+    private fun showRemoveProfilePictureDialog() {
         ConfirmationBottomSheetDialog(
                 titleResource = R.string.dialog_title_remove_profile_picture_failure,
                 messageResource = R.string.dialog_message_remove_profile_picture_failure,

@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
         if (showBottomNav) viewModel.setLastScreen(navId = destination.id)
     }
 
-    private fun updatePasswordDialog() {
+    private fun showUpdatePasswordDialog() {
         UpdatePasswordBottomSheetDialog()
                 .show(supportFragmentManager, "updatePasswordDialog")
     }
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity() {
     private fun syncErrorHandler(error: SyncError?) {
         when (error) {
             is SyncError.AccountDisabled -> viewModel.signOut()
-            is SyncError.OutdatedPassword -> updatePasswordDialog()
+            is SyncError.OutdatedPassword -> showUpdatePasswordDialog()
         }
     }
 }
