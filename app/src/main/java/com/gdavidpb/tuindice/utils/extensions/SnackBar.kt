@@ -70,6 +70,12 @@ data class SnackBarBuilder(
     }
 }
 
+fun LifecycleOwner.snackBar(@StringRes resId: Int) {
+    snackBar {
+        messageResource = resId
+    }
+}
+
 inline fun LifecycleOwner.snackBar(length: Int = Snackbar.LENGTH_LONG, builder: SnackBarBuilder.() -> Unit) {
     val view = when (this) {
         is Fragment -> requireView()

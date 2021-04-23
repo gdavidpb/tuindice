@@ -12,17 +12,34 @@ import com.gdavidpb.tuindice.utils.extensions.onClickOnce
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.dialog_confirmation.*
 
-class ConfirmationBottomSheetDialog(
-        @StringRes private val titleResource: Int = 0,
-        private val titleText: CharSequence = "",
-        @StringRes private val messageResource: Int = 0,
-        private val messageText: CharSequence = "",
-        @StringRes private val positiveResource: Int = 0,
-        @StringRes private val negativeResource: Int = 0,
-        private val positiveOnClick: DialogFragment.() -> Unit = {},
-        private val negativeOnClick: DialogFragment.() -> Unit = {}
-) : BottomSheetDialogFragment() {
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+class ConfirmationBottomSheetDialog : BottomSheetDialogFragment() {
+    @StringRes
+    var titleResource: Int = 0
+    var titleText: CharSequence = ""
+
+    @StringRes
+    var messageResource: Int = 0
+    var messageText: CharSequence = ""
+
+    @StringRes
+    private var positiveResource: Int = 0
+    private var positiveOnClick: DialogFragment.() -> Unit = {}
+
+    @StringRes
+    private var negativeResource: Int = 0
+    private var negativeOnClick: DialogFragment.() -> Unit = {}
+
+    fun positiveButton(@StringRes resId: Int, onClick: DialogFragment.() -> Unit = {}) {
+        positiveResource = resId
+        positiveOnClick = onClick
+    }
+
+    fun negativeButton(@StringRes resId: Int, onClick: DialogFragment.() -> Unit = {}) {
+        negativeResource = resId
+        negativeOnClick = onClick
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.dialog_confirmation, container, false)
     }
 

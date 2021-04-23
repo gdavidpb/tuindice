@@ -52,7 +52,7 @@ class RecordFragment : NavigationFragment() {
     }
 
     private object SubjectMenu {
-        const val EDIT_SUBJECT = 0
+        const val OPEN_SUBJECT_EVALUATIONS = 0
         const val RETIRE_SUBJECT = 1
     }
 
@@ -106,46 +106,43 @@ class RecordFragment : NavigationFragment() {
         }
     }
 
-    private fun notFoundSnackBar() {
-        snackBar {
-            messageResource = R.string.snack_enrollment_not_found
+    private fun onSubjectOptionSelected(quarterItem: QuarterItem, subjectItem: SubjectItem, position: Int) {
+        when (position) {
+            SubjectMenu.OPEN_SUBJECT_EVALUATIONS -> {
+                navToSubject(quarterItem, subjectItem)
+            }
+            SubjectMenu.RETIRE_SUBJECT -> {
+                val request = quarterItem.data.toUpdateRequest(
+                        sid = subjectItem.id,
+                        grade = 0,
+                        dispatchChanges = true
+                )
+
+                viewModel.updateQuarter(request)
+            }
         }
     }
 
     private fun showSubjectMenuDialog(quarterItem: QuarterItem, subjectItem: SubjectItem) {
-        val title = getString(
-                R.string.label_evaluation_subject_header,
-                subjectItem.code,
-                subjectItem.data.name
-        )
+        val items = mutableListOf(
+                BottomMenuItem(iconResource = R.drawable.ic_list, textResource = R.string.menu_subject_evaluation)
+        ).apply {
+            if (!subjectItem.isRetired)
+                add(BottomMenuItem(
+                        iconResource = R.drawable.ic_not_interested,
+                        textResource = R.string.menu_subject_retire
+                ))
+        }
 
-        MenuBottomSheetDialog(
-                titleText = title,
-                menuItems = listOf(
-                        BottomMenuItem(
-                                iconResource = R.drawable.ic_list,
-                                textResource = R.string.menu_subject_evaluation
-                        ),
-                        BottomMenuItem(
-                                iconResource = R.drawable.ic_not_interested,
-                                textResource = R.string.menu_subject_retire
-                        )
-                ),
-                onItemSelected = { position ->
-                    when (position) {
-                        SubjectMenu.EDIT_SUBJECT -> navToSubject(quarterItem, subjectItem)
-                        SubjectMenu.RETIRE_SUBJECT -> {
-                            val request = quarterItem.data.toUpdateRequest(
-                                    sid = subjectItem.id,
-                                    grade = 0,
-                                    dispatchChanges = true
-                            )
+        val title = getString(R.string.label_evaluation_subject_header, subjectItem.code, subjectItem.data.name)
 
-                            viewModel.updateQuarter(request)
-                        }
-                    }
-                }
-        ).show(childFragmentManager, "subjectMenuDialog")
+        bottomSheetDialog<MenuBottomSheetDialog> {
+            titleText = title
+
+            onItemSelected(items) { position ->
+                onSubjectOptionSelected(quarterItem, subjectItem, position)
+            }
+        }
     }
 
     private fun navToSubject(quarterItem: QuarterItem, subjectItem: SubjectItem) {
@@ -162,7 +159,7 @@ class RecordFragment : NavigationFragment() {
         if (currentQuarterItem != null)
             viewModel.openEnrollmentProof(quarter = currentQuarterItem.data)
         else
-            notFoundSnackBar()
+            snackBar(R.string.snack_enrollment_not_found)
     }
 
     private fun syncObserver(result: Result<Boolean, SyncError>?) {
@@ -213,9 +210,7 @@ class RecordFragment : NavigationFragment() {
                 runCatching {
                     openPdf(file = enrollmentFile)
                 }.onFailure {
-                    snackBar {
-                        messageResource = R.string.snack_enrollment_unsupported
-                    }
+                    snackBar(R.string.snack_enrollment_unsupported)
                 }
             }
             is Event.OnError -> {
@@ -249,8 +244,8 @@ class RecordFragment : NavigationFragment() {
         when (error) {
             is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { openEnrollmentProof() }
             is GetEnrollmentError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { openEnrollmentProof() }
-            is GetEnrollmentError.NotEnrolled -> notFoundSnackBar()
-            is GetEnrollmentError.NotFound -> notFoundSnackBar()
+            is GetEnrollmentError.NotEnrolled -> snackBar(R.string.snack_enrollment_not_found)
+            is GetEnrollmentError.NotFound -> snackBar(R.string.snack_enrollment_not_found)
             else -> errorSnackBar { openEnrollmentProof() }
         }
     }

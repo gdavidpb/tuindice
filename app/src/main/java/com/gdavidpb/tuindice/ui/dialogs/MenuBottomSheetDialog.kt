@@ -11,15 +11,17 @@ import com.gdavidpb.tuindice.ui.adapters.BottomMenuAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.dialog_bottom_menu.*
 
-open class MenuBottomSheetDialog(
-        @StringRes private val titleResource: Int = 0,
-        private val titleText: CharSequence = "",
-        private val menuItems: List<BottomMenuItem>,
-        private val onItemSelected: (Int) -> Unit,
-) : BottomSheetDialogFragment() {
+open class MenuBottomSheetDialog : BottomSheetDialogFragment() {
+    @StringRes
+    var titleResource: Int = 0
+    var titleText: CharSequence = ""
 
-    private val menuAdapter by lazy {
-        BottomMenuAdapter(items = menuItems, manager = MenuManager())
+    private var menuItems: List<BottomMenuItem> = listOf()
+    private var onItemSelected: (Int) -> Unit = {}
+
+    fun onItemSelected(items: List<BottomMenuItem>, onSelected: (Int) -> Unit) {
+        menuItems = items
+        onItemSelected = onSelected
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -35,7 +37,9 @@ open class MenuBottomSheetDialog(
             else -> error("'titleResource' or 'titleText' is missed")
         }
 
-        rViewMenu.adapter = menuAdapter
+        check(menuItems.isNotEmpty())
+
+        rViewMenu.adapter = BottomMenuAdapter(items = menuItems, manager = MenuManager())
     }
 
     private inner class MenuManager : BottomMenuAdapter.AdapterManager {

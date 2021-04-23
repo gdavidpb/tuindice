@@ -116,12 +116,6 @@ class SummaryFragment : NavigationFragment() {
         viewModel.createProfilePictureFile()
     }
 
-    private fun onLastUpdateInfoClick() {
-        snackBar {
-            messageResource = R.string.snack_no_service
-        }
-    }
-
     private fun navigateToSignIn() {
         findNavController().popStackToRoot()
 
@@ -129,23 +123,23 @@ class SummaryFragment : NavigationFragment() {
     }
 
     private fun showSignOutDialog() {
-        ConfirmationBottomSheetDialog(
-                titleResource = R.string.dialog_title_sign_out,
-                messageResource = R.string.dialog_message_sign_out,
-                positiveResource = R.string.yes,
-                negativeResource = R.string.cancel,
-                positiveOnClick = { viewModel.signOut() },
-        ).show(childFragmentManager, "signOutDialog")
+        bottomSheetDialog<ConfirmationBottomSheetDialog> {
+            titleResource = R.string.dialog_title_sign_out
+            messageResource = R.string.dialog_message_sign_out
+
+            positiveButton(R.string.yes) { viewModel.signOut() }
+            negativeButton(R.string.cancel)
+        }
     }
 
     private fun showRemoveProfilePictureDialog() {
-        ConfirmationBottomSheetDialog(
-                titleResource = R.string.dialog_title_remove_profile_picture_failure,
-                messageResource = R.string.dialog_message_remove_profile_picture_failure,
-                positiveResource = R.string.yes,
-                negativeResource = R.string.cancel,
-                positiveOnClick = { viewModel.removeProfilePicture() },
-        ).show(childFragmentManager, "removeProfilePictureDialog")
+        bottomSheetDialog<ConfirmationBottomSheetDialog> {
+            titleResource = R.string.dialog_title_remove_profile_picture_failure
+            messageResource = R.string.dialog_message_remove_profile_picture_failure
+
+            positiveButton(R.string.yes) { viewModel.removeProfilePicture() }
+            negativeButton(R.string.cancel)
+        }
     }
 
     private fun requestProfilePictureInput(outputUri: Uri) {
@@ -274,9 +268,7 @@ class SummaryFragment : NavigationFragment() {
                         liveData = loadProfilePicture
                 )
 
-                snackBar {
-                    messageResource = R.string.snack_profile_picture_updated
-                }
+                snackBar(R.string.snack_profile_picture_updated)
             }
             is Event.OnError -> {
                 vProfilePicture.setLoading(false)
@@ -332,9 +324,7 @@ class SummaryFragment : NavigationFragment() {
                 vProfilePicture.setLoading(false)
                 vProfilePicture.loadDefaultProfilePicture()
 
-                snackBar {
-                    messageResource = R.string.snack_profile_picture_removed
-                }
+                snackBar(R.string.snack_profile_picture_removed)
             }
             is Event.OnError -> {
                 vProfilePicture.setLoading(false)
@@ -349,7 +339,7 @@ class SummaryFragment : NavigationFragment() {
             is SyncError.NoConnection -> {
                 if (error.isNetworkAvailable) {
                     tViewLastUpdate.drawables(start = R.drawable.ic_sync_problem)
-                    tViewLastUpdate.onClickOnce(::onLastUpdateInfoClick)
+                    tViewLastUpdate.onClickOnce { snackBar(R.string.snack_no_service) }
                 }
             }
         }

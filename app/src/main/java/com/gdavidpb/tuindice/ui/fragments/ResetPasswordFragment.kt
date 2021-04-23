@@ -54,12 +54,6 @@ class ResetPasswordFragment : NavigationFragment() {
         viewModel.signOut()
     }
 
-    private fun resendSnackBar() {
-        snackBar {
-            messageResource = R.string.snack_resend
-        }
-    }
-
     private fun countdownObserver(result: Flow<Long, Nothing>?) {
         when (result) {
             is Flow.OnStart -> {
@@ -98,7 +92,7 @@ class ResetPasswordFragment : NavigationFragment() {
                 pBarResend.isVisible = false
                 btnResend.text = getString(R.string.button_reset_password_resend)
 
-                resendSnackBar()
+                snackBar(R.string.snack_resend)
 
                 viewModel.startCountdown(duration = countdownDuration, reset = true)
             }

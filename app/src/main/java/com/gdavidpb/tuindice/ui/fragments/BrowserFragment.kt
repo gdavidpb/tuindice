@@ -15,6 +15,7 @@ import androidx.core.text.buildSpannedString
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.dialogs.ConfirmationBottomSheetDialog
+import com.gdavidpb.tuindice.utils.extensions.bottomSheetDialog
 import com.gdavidpb.tuindice.utils.extensions.browse
 import com.gdavidpb.tuindice.utils.extensions.getCompatColor
 import kotlinx.android.synthetic.main.fragment_browser.*
@@ -77,12 +78,12 @@ class BrowserFragment : NavigationFragment() {
             setSpan(ForegroundColorSpan(primaryColor), startHost, endHost, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
         }
 
-        ConfirmationBottomSheetDialog(
-                titleResource = R.string.dialog_title_warning_external,
-                messageText = spannedMessage,
-                positiveResource = R.string.yes,
-                negativeResource = R.string.cancel,
-                positiveOnClick = { browse(url = externalUrl) },
-        ).show(childFragmentManager, "showExternalResourceDialog")
+        bottomSheetDialog<ConfirmationBottomSheetDialog> {
+            titleResource = R.string.dialog_title_warning_external
+            messageText = spannedMessage
+
+            positiveButton(R.string.yes) { browse(url = externalUrl) }
+            negativeButton(R.string.cancel)
+        }
     }
 }

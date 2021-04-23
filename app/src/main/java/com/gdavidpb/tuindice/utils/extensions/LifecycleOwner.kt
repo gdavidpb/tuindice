@@ -11,7 +11,9 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.io.File
+import kotlin.reflect.full.createInstance
 
 fun LifecycleOwner.openPdf(file: File) {
     val uri = FileProvider.getUriForFile(context(), BuildConfig.APPLICATION_ID, file)
@@ -86,6 +88,25 @@ fun LifecycleOwner.errorSnackBar(@StringRes message: Int = R.string.snack_defaul
         messageResource = message
 
         if (retry != null) action(R.string.retry) { retry() }
+    }
+}
+
+inline fun <reified T : BottomSheetDialogFragment> LifecycleOwner.bottomSheetDialog(
+        builder: T.() -> Unit
+): BottomSheetDialogFragment {
+    val fragmentManager = when (this) {
+        is Fragment -> childFragmentManager
+        is FragmentActivity -> supportFragmentManager
+        else -> throw NoWhenBranchMatchedException()
+    }
+
+    val dialog = T::class.createInstance()
+    val tag = T::class.simpleName
+
+    return dialog.apply {
+        builder()
+
+        show(fragmentManager, tag)
     }
 }
 

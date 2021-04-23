@@ -28,12 +28,13 @@ fun FragmentActivity.isGoogleServicesAvailable(): Boolean {
                     setOnDismissListener { finish() }
                 }.show()
             else
-                ConfirmationBottomSheetDialog(
-                        titleResource = R.string.dialog_title_no_gms_failure,
-                        messageResource = R.string.dialog_message_no_gms_failure,
-                        positiveResource = R.string.exit,
-                        positiveOnClick = { finish() },
-                ).apply { isCancelable = false }
-                        .show(supportFragmentManager, "playServicesDialog")
+                bottomSheetDialog<ConfirmationBottomSheetDialog> {
+                    titleResource = R.string.dialog_title_no_gms_failure
+                    messageResource = R.string.dialog_message_no_gms_failure
+
+                    positiveButton(R.string.exit) { finish() }
+                }.apply {
+                    isCancelable = false
+                }
     }
 }
