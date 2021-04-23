@@ -299,7 +299,7 @@ class EvaluationFragment : NavigationFragment() {
                 val subject = result.value
 
                 val subjectHeader = getString(
-                        R.string.label_evaluation_subject_header,
+                        R.string.label_evaluation_plan_header,
                         subject.code, subject.name
                 )
 

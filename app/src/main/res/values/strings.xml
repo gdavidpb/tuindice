@@ -94,7 +94,7 @@
     <string name="subject_grade">%1$d / 5</string>
     <string name="subject_credits">%1$d UC</string>
 
-    <string name="menu_subject_evaluations">Ver plan de evaluación</string>
+    <string name="menu_subject_show_evaluations">Ver plan de evaluación</string>
     <string name="menu_subject_remove">Retirar materia</string>
 
     <!--
@@ -240,7 +240,7 @@
     <string name="dialog_title_warning_external">Atención</string>
     <string name="dialog_message_warning_external">¿Deseas abrir el siguiente enlace?\n\n%s</string>
 
-    <!-- SubjectFragment -->
+    <!-- EvaluationPlanFragment -->
 
     <string name="text_100">/ 100</string>
     <string name="content_equal">Igual a</string>
@@ -254,6 +254,11 @@
         <b>Parece que no hay nada por acá\n\n</b>
         ¡Recuerda que la organización es el secreto del éxito!
     </string>
+
+    <string name="menu_evaluation_add">Agregar evaluación</string>
+    <string name="menu_evaluation_plan_use_grade">Usar esta <b>Nota final</b> para la materia</string>
+
+    <!-- EvaluationFragment -->
 
     <string name="evaluation_other">Otra</string>
     <string name="evaluation_test">Parcial</string>
@@ -269,8 +274,6 @@
     <string name="evaluation_quiz">Quiz</string>
     <string name="evaluation_presentation">Exposición</string>
 
-    <!-- EvaluationFragment -->
-
     <string name="title_add_evaluation">Agregar evaluación</string>
     <string name="title_edit_evaluation">Modificar evaluación</string>
 
@@ -282,7 +285,7 @@
     <string name="label_evaluation_no_date">Evaluación continua</string>
 
     <string name="label_evaluation_grade_value">%1$.2f pts</string>
-    <string name="label_evaluation_subject_header">%1$s ─ %2$s</string>
+    <string name="label_evaluation_plan_header">%1$s ─ %2$s</string>
 
     <string name="toast_evaluation_type_missed">Selecciona un tipo</string>
     <string name="toast_evaluation_value_missed">Establece un valor</string>

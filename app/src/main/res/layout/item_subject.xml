@@ -29,7 +29,7 @@
         android:fontFamily="sans-serif-medium"
         android:textSize="@dimen/sp_16"
         android:textColor="@color/color_secondary_text"
-        app:layout_constraintEnd_toStartOf="@id/iViewSubjectOptions"
+        app:layout_constraintEnd_toStartOf="@id/btnSubjectOptions"
         app:layout_constraintStart_toEndOf="@id/tViewSubjectCode"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="3 / 5" />
@@ -76,13 +76,14 @@
         app:tickMark="@drawable/sh_tick_mark"
         tools:progress="3" />
 
-    <ImageButton
-        android:id="@+id/iViewSubjectOptions"
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btnSubjectOptions"
         android:layout_width="@dimen/dp_32"
         android:layout_height="@dimen/dp_32"
         android:layout_marginStart="@dimen/dp_16"
         android:background="?android:attr/selectableItemBackground"
         android:src="@drawable/ic_more"
+        android:tint="@color/color_secondary_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/tViewSubjectGrade"
         app:layout_constraintTop_toTopOf="parent"

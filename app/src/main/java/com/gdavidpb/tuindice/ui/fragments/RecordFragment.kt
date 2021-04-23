@@ -51,8 +51,8 @@ class RecordFragment : NavigationFragment() {
     }
 
     private object SubjectMenu {
-        const val ID_SUBJECT_EVALUATIONS = 0
-        const val ID_SUBJECT_REMOVE = 1
+        const val ID_SHOW_SUBJECT_EVALUATIONS = 0
+        const val ID_REMOVE_SUBJECT = 1
     }
 
     override fun onCreateView() = R.layout.fragment_record
@@ -106,10 +106,15 @@ class RecordFragment : NavigationFragment() {
 
     private fun onSubjectOptionSelected(quarterItem: QuarterItem, subjectItem: SubjectItem, itemId: Int) {
         when (itemId) {
-            SubjectMenu.ID_SUBJECT_EVALUATIONS -> {
-                navToSubject(quarterItem, subjectItem)
+            SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS -> {
+                navigate(RecordFragmentDirections.navToEvaluationPlan(
+                        quarterId = quarterItem.id,
+                        subjectId = subjectItem.id,
+                        subjectCode = subjectItem.data.code,
+                        subjectName = subjectItem.data.name
+                ))
             }
-            SubjectMenu.ID_SUBJECT_REMOVE -> {
+            SubjectMenu.ID_REMOVE_SUBJECT -> {
                 val request = quarterItem.data.toUpdateRequest(
                         sid = subjectItem.id,
                         grade = 0,
@@ -122,22 +127,22 @@ class RecordFragment : NavigationFragment() {
     }
 
     private fun showSubjectMenuDialog(quarterItem: QuarterItem, subjectItem: SubjectItem) {
+        val title = getString(R.string.label_evaluation_plan_header, subjectItem.code, subjectItem.data.name)
+
         val items = mutableListOf(
                 BottomMenuItem(
-                        itemId = SubjectMenu.ID_SUBJECT_EVALUATIONS,
+                        itemId = SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS,
                         iconResource = R.drawable.ic_list,
-                        textResource = R.string.menu_subject_evaluations
+                        textResource = R.string.menu_subject_show_evaluations
                 )
         ).apply {
             if (!subjectItem.isRetired)
                 add(BottomMenuItem(
-                        itemId = SubjectMenu.ID_SUBJECT_REMOVE,
+                        itemId = SubjectMenu.ID_REMOVE_SUBJECT,
                         iconResource = R.drawable.ic_not_interested,
                         textResource = R.string.menu_subject_remove
                 ))
         }
-
-        val title = getString(R.string.label_evaluation_subject_header, subjectItem.code, subjectItem.data.name)
 
         bottomSheetDialog<MenuBottomSheetDialog> {
             titleText = title
@@ -146,14 +151,6 @@ class RecordFragment : NavigationFragment() {
                 onSubjectOptionSelected(quarterItem, subjectItem, itemId)
             }
         }
-    }
-
-    private fun navToSubject(quarterItem: QuarterItem, subjectItem: SubjectItem) {
-        navigate(RecordFragmentDirections.navToEvaluationPlan(
-                quarterId = quarterItem.id,
-                subjectId = subjectItem.id,
-                subjectCode = subjectItem.code
-        ))
     }
 
     private fun openEnrollmentProof() {

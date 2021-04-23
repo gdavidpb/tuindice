@@ -2,9 +2,6 @@ package com.gdavidpb.tuindice.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -15,12 +12,13 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.model.database.SubjectUpdate
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateQuarterRequest
+import com.gdavidpb.tuindice.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.viewmodel.EvaluationPlanViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
+import com.gdavidpb.tuindice.ui.dialogs.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.utils.DECIMALS_GRADE_SUBJECT
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
@@ -44,30 +42,37 @@ class EvaluationPlanFragment : NavigationFragment() {
         const val EMPTY = 1
     }
 
+    private object EvaluationsMenu {
+        const val ID_ADD_EVALUATION = 0
+        const val ID_USE_PLAN_GRADE = 1
+    }
+
     override fun onCreateView() = R.layout.fragment_evaluation_plan
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setHasOptionsMenu(true)
+        setHasOptionsMenu(false)
+
+        tViewSubjectName.text = args.subjectName
+        tViewSubjectCode.text = args.subjectCode
 
         with(rViewEvaluations) {
             adapter = evaluationAdapter
 
             onScrollStateChanged { newState ->
                 if (newState == SCROLL_STATE_IDLE)
-                    btnAddEvaluation.show()
+                    btnEvaluationOptions.show()
                 else
-                    btnAddEvaluation.hide()
+                    btnEvaluationOptions.hide()
             }
 
             ItemTouchHelper(evaluationManager).attachToRecyclerView(this)
         }
 
-        btnAddEvaluation.onClickOnce(::onAddEvaluationClick)
+        btnEvaluationOptions.onClickOnce(::showEvaluationsMenuDialog)
 
         with(viewModel) {
-            getSubject(sid = args.subjectId)
             getSubjectEvaluations(sid = args.subjectId)
         }
     }
@@ -76,20 +81,49 @@ class EvaluationPlanFragment : NavigationFragment() {
         super.onAttach(context)
 
         with(viewModel) {
-            observe(subject, ::subjectObserver)
             observe(evaluations, ::evaluationsObserver)
             observe(quarterUpdate, ::quarterObserver)
             observe(evaluationUpdate, ::evaluationObserver)
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_subject, menu)
+    private fun showEvaluationsMenuDialog() {
+        val title = getString(R.string.label_evaluation_plan_header, args.subjectCode, args.subjectName)
+
+        val items = mutableListOf(
+                BottomMenuItem(
+                        itemId = EvaluationsMenu.ID_ADD_EVALUATION,
+                        textResource = R.string.menu_evaluation_add,
+                        iconResource = R.drawable.ic_add
+                )
+        ).apply {
+            if (evaluationAdapter.itemCount > 0)
+                add(BottomMenuItem(
+                        itemId = EvaluationsMenu.ID_USE_PLAN_GRADE,
+                        textResource = R.string.menu_evaluation_plan_use_grade,
+                        iconResource = R.drawable.ic_done
+                ))
+        }
+
+        bottomSheetDialog<MenuBottomSheetDialog> {
+            titleText = title
+
+            onItemSelected(items) { itemId ->
+                onEvaluationsOptionSelected(itemId)
+            }
+        }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_done -> {
+    private fun onEvaluationsOptionSelected(itemId: Int) {
+        when (itemId) {
+            EvaluationsMenu.ID_ADD_EVALUATION -> {
+                navigate(EvaluationPlanFragmentDirections.navToEvaluation(
+                        title = getString(R.string.title_add_evaluation),
+                        subjectId = args.subjectId,
+                        subjectCode = args.subjectCode
+                ))
+            }
+            EvaluationsMenu.ID_USE_PLAN_GRADE -> {
                 val update = SubjectUpdate(
                         grade = evaluationAdapter.computeGradeSum().toSubjectGrade()
                 )
@@ -102,19 +136,8 @@ class EvaluationPlanFragment : NavigationFragment() {
                 )
 
                 viewModel.updateQuarter(request)
-
-                true
             }
-            else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    private fun onAddEvaluationClick() {
-        navigate(EvaluationPlanFragmentDirections.navToEvaluation(
-                title = getString(R.string.title_add_evaluation),
-                subjectId = args.subjectId,
-                subjectCode = args.subjectCode
-        ))
     }
 
     private fun updateGrades(animate: Boolean) {
@@ -129,17 +152,6 @@ class EvaluationPlanFragment : NavigationFragment() {
         }
 
         fViewEvaluations.displayedChild = if (evaluationAdapter.itemCount > 0) Flipper.CONTENT else Flipper.EMPTY
-    }
-
-    private fun subjectObserver(result: Result<Subject, Nothing>?) {
-        when (result) {
-            is Result.OnSuccess -> {
-                val subject = result.value
-
-                tViewSubjectName.text = subject.name
-                tViewSubjectCode.text = subject.code
-            }
-        }
     }
 
     private fun evaluationsObserver(result: Result<List<Evaluation>, Nothing>?) {
