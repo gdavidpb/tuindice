@@ -12,7 +12,6 @@ import android.view.MenuItem
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
@@ -51,10 +50,7 @@ class SummaryFragment : NavigationFragment() {
 
         setHasOptionsMenu(true)
 
-        with(rViewSummary) {
-            layoutManager = LinearLayoutManager(context)
-            adapter = summaryAdapter
-        }
+        rViewSummary.adapter = summaryAdapter
 
         vProfilePicture.onClickOnce(::onEditProfilePictureClick)
 

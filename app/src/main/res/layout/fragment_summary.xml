@@ -76,6 +76,7 @@
         android:layout_marginTop="@dimen/dp_16"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tViewLastUpdate"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:itemCount="2"
         tools:listitem="@layout/view_status_card_view" />
 

@@ -7,7 +7,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Quarter
@@ -65,7 +64,6 @@ class RecordFragment : NavigationFragment() {
         setMenuVisibility(false)
 
         with(rViewRecord) {
-            layoutManager = LinearLayoutManager(context)
             adapter = quarterAdapter
 
             ItemTouchHelper(quarterManager).attachToRecyclerView(this)

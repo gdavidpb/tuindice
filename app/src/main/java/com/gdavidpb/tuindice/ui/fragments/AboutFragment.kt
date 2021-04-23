@@ -6,7 +6,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
@@ -29,10 +28,7 @@ class AboutFragment : NavigationFragment() {
 
         setHasOptionsMenu(false)
 
-        with(rViewAbout) {
-            layoutManager = LinearLayoutManager(context)
-            adapter = aboutAdapter
-        }
+        rViewAbout.adapter = aboutAdapter
 
         val context = requireContext()
         val versionName = requireContext().versionName()
