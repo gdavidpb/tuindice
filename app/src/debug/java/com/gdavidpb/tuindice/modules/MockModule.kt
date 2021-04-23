@@ -180,7 +180,7 @@ val mockModule = module {
     viewModel<SignInViewModel>()
     viewModel<ResetPasswordViewModel>()
     viewModel<UpdatePasswordViewModel>()
-    viewModel<SubjectViewModel>()
+    viewModel<EvaluationPlanViewModel>()
     viewModel<EvaluationViewModel>()
     viewModel<PensumViewModel>()
 

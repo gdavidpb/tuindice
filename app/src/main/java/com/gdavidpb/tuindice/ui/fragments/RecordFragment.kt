@@ -151,7 +151,7 @@ class RecordFragment : NavigationFragment() {
     }
 
     private fun navToSubject(quarterItem: QuarterItem, subjectItem: SubjectItem) {
-        navigate(RecordFragmentDirections.navToSubject(
+        navigate(RecordFragmentDirections.navToEvaluationPlan(
                 quarterId = quarterItem.id,
                 subjectId = subjectItem.id,
                 subjectCode = subjectItem.code

@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.utils.extensions.execute
 
-class SubjectViewModel(
+class EvaluationPlanViewModel(
         private val getSubjectUseCase: GetSubjectUseCase,
         private val getSubjectEvaluationsUseCase: GetSubjectEvaluationsUseCase,
         private val updateEvaluationUseCase: UpdateEvaluationUseCase,

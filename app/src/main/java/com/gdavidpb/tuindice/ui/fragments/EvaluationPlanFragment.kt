@@ -9,7 +9,6 @@ import android.view.View
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_SWIPE
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.gdavidpb.tuindice.R
@@ -20,32 +19,32 @@ import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateQuarterRequest
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
-import com.gdavidpb.tuindice.presentation.viewmodel.SubjectViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.EvaluationPlanViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
 import com.gdavidpb.tuindice.utils.DECIMALS_GRADE_SUBJECT
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
 import com.gdavidpb.tuindice.utils.mappers.toUpdateRequest
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.fragment_subject.*
+import kotlinx.android.synthetic.main.fragment_evaluation_plan.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SubjectFragment : NavigationFragment() {
+class EvaluationPlanFragment : NavigationFragment() {
 
-    private val viewModel by viewModel<SubjectViewModel>()
+    private val viewModel by viewModel<EvaluationPlanViewModel>()
 
     private val evaluationManager = EvaluationManager()
 
     private val evaluationAdapter = EvaluationAdapter(manager = evaluationManager)
 
-    private val args by navArgs<SubjectFragmentArgs>()
+    private val args by navArgs<EvaluationPlanFragmentArgs>()
 
     private object Flipper {
         const val CONTENT = 0
         const val EMPTY = 1
     }
 
-    override fun onCreateView() = R.layout.fragment_subject
+    override fun onCreateView() = R.layout.fragment_evaluation_plan
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,7 +52,6 @@ class SubjectFragment : NavigationFragment() {
         setHasOptionsMenu(true)
 
         with(rViewEvaluations) {
-            layoutManager = LinearLayoutManager(context)
             adapter = evaluationAdapter
 
             onScrollStateChanged { newState ->
@@ -112,7 +110,7 @@ class SubjectFragment : NavigationFragment() {
     }
 
     private fun onAddEvaluationClick() {
-        navigate(SubjectFragmentDirections.navToEvaluation(
+        navigate(EvaluationPlanFragmentDirections.navToEvaluation(
                 title = getString(R.string.title_add_evaluation),
                 subjectId = args.subjectId,
                 subjectCode = args.subjectCode
@@ -181,7 +179,7 @@ class SubjectFragment : NavigationFragment() {
 
     inner class EvaluationManager : EvaluationAdapter.AdapterManager, ItemTouchHelper.Callback() {
         override fun onEvaluationClicked(item: EvaluationItem) {
-            navigate(SubjectFragmentDirections.navToEvaluation(
+            navigate(EvaluationPlanFragmentDirections.navToEvaluation(
                     title = getString(R.string.title_edit_evaluation),
                     subjectId = args.subjectId,
                     subjectCode = args.subjectCode,
