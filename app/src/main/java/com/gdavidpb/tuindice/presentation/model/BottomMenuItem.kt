@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 
 data class BottomMenuItem(
+        val itemId: Int,
         @DrawableRes
         val iconResource: Int,
         @StringRes

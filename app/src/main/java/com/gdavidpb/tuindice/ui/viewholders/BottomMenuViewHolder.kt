@@ -15,7 +15,9 @@ class BottomMenuViewHolder(
 
     init {
         with(itemView) {
-            onClickOnce { manager.onMenuItemClicked(position = absoluteAdapterPosition) }
+            onClickOnce {
+                manager.onMenuItemClicked(itemId = getItem().itemId)
+            }
         }
     }
 

@@ -13,7 +13,7 @@ class BottomMenuAdapter(
 ) : RecyclerView.Adapter<BottomMenuViewHolder>() {
 
     interface AdapterManager {
-        fun onMenuItemClicked(position: Int)
+        fun onMenuItemClicked(itemId: Int)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BottomMenuViewHolder {

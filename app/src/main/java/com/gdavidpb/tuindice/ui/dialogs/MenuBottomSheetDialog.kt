@@ -43,8 +43,8 @@ open class MenuBottomSheetDialog : BottomSheetDialogFragment() {
     }
 
     private inner class MenuManager : BottomMenuAdapter.AdapterManager {
-        override fun onMenuItemClicked(position: Int) {
-            onItemSelected(position)
+        override fun onMenuItemClicked(itemId: Int) {
+            onItemSelected(itemId)
 
             dismiss()
         }

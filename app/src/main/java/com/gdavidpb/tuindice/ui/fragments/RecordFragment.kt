@@ -52,8 +52,8 @@ class RecordFragment : NavigationFragment() {
     }
 
     private object SubjectMenu {
-        const val OPEN_SUBJECT_EVALUATIONS = 0
-        const val RETIRE_SUBJECT = 1
+        const val ID_SUBJECT_EVALUATIONS = 0
+        const val ID_SUBJECT_REMOVE = 1
     }
 
     override fun onCreateView() = R.layout.fragment_record
@@ -106,12 +106,12 @@ class RecordFragment : NavigationFragment() {
         }
     }
 
-    private fun onSubjectOptionSelected(quarterItem: QuarterItem, subjectItem: SubjectItem, position: Int) {
-        when (position) {
-            SubjectMenu.OPEN_SUBJECT_EVALUATIONS -> {
+    private fun onSubjectOptionSelected(quarterItem: QuarterItem, subjectItem: SubjectItem, itemId: Int) {
+        when (itemId) {
+            SubjectMenu.ID_SUBJECT_EVALUATIONS -> {
                 navToSubject(quarterItem, subjectItem)
             }
-            SubjectMenu.RETIRE_SUBJECT -> {
+            SubjectMenu.ID_SUBJECT_REMOVE -> {
                 val request = quarterItem.data.toUpdateRequest(
                         sid = subjectItem.id,
                         grade = 0,
@@ -125,12 +125,17 @@ class RecordFragment : NavigationFragment() {
 
     private fun showSubjectMenuDialog(quarterItem: QuarterItem, subjectItem: SubjectItem) {
         val items = mutableListOf(
-                BottomMenuItem(iconResource = R.drawable.ic_list, textResource = R.string.menu_subject_evaluation)
+                BottomMenuItem(
+                        itemId = SubjectMenu.ID_SUBJECT_EVALUATIONS,
+                        iconResource = R.drawable.ic_list,
+                        textResource = R.string.menu_subject_evaluations
+                )
         ).apply {
             if (!subjectItem.isRetired)
                 add(BottomMenuItem(
+                        itemId = SubjectMenu.ID_SUBJECT_REMOVE,
                         iconResource = R.drawable.ic_not_interested,
-                        textResource = R.string.menu_subject_retire
+                        textResource = R.string.menu_subject_remove
                 ))
         }
 
@@ -139,8 +144,8 @@ class RecordFragment : NavigationFragment() {
         bottomSheetDialog<MenuBottomSheetDialog> {
             titleText = title
 
-            onItemSelected(items) { position ->
-                onSubjectOptionSelected(quarterItem, subjectItem, position)
+            onItemSelected(items) { itemId ->
+                onSubjectOptionSelected(quarterItem, subjectItem, itemId)
             }
         }
     }

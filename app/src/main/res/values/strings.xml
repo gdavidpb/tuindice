@@ -94,8 +94,8 @@
     <string name="subject_grade">%1$d / 5</string>
     <string name="subject_credits">%1$d UC</string>
 
-    <string name="menu_subject_evaluation">Ver plan de evaluación</string>
-    <string name="menu_subject_retire">Retirar materia</string>
+    <string name="menu_subject_evaluations">Ver plan de evaluación</string>
+    <string name="menu_subject_remove">Retirar materia</string>
 
     <!--
     <string name="dialog_mock_title">Proyección</string>
