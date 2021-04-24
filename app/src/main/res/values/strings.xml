@@ -6,7 +6,8 @@
 
     <!-- Simple words/phrases -->
 
-    <string name="yes">Si</string>
+    <string name="open">Abrir</string>
+    <string name="remove">Remover</string>
     <string name="release">Producción</string>
     <string name="debug">Desarrollo</string>
     <string name="cancel">Cancelar</string>
@@ -256,7 +257,7 @@
     </string>
 
     <string name="menu_evaluation_add">Agregar evaluación</string>
-    <string name="menu_evaluation_plan_use_grade">Usar esta <b>Nota final</b> para la materia</string>
+    <string name="menu_evaluation_plan_use_grade">Usar <b>Nota final</b> para la materia</string>
 
     <!-- EvaluationFragment -->
 
@@ -274,6 +275,8 @@
     <string name="evaluation_quiz">Quiz</string>
     <string name="evaluation_presentation">Exposición</string>
 
+    <string name="button_evaluation_save">Guardar</string>
+
     <string name="title_add_evaluation">Agregar evaluación</string>
     <string name="title_edit_evaluation">Modificar evaluación</string>
 
@@ -288,7 +291,7 @@
     <string name="label_evaluation_plan_header">%1$s ─ %2$s</string>
 
     <string name="toast_evaluation_type_missed">Selecciona un tipo</string>
-    <string name="toast_evaluation_value_missed">Establece un valor</string>
+    <string name="toast_evaluation_value_missed">Elige un valor</string>
     <string name="toast_evaluation_date_missed">Selecciona una fecha</string>
 
     <!-- ResetPasswordFragment -->

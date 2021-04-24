@@ -2,9 +2,6 @@ package com.gdavidpb.tuindice.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
@@ -49,10 +46,12 @@ class EvaluationFragment : NavigationFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setHasOptionsMenu(true)
+        setHasOptionsMenu(false)
 
         initChipGroup()
         initListeners()
+
+        btnSave.onClickOnce(::onSaveClick)
 
         with(viewModel) {
             getSubject(sid = args.subjectId)
@@ -76,25 +75,16 @@ class EvaluationFragment : NavigationFragment() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_evaluation, menu)
-    }
+    private fun onSaveClick() {
+        val isOk = checkChanges()
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_done -> {
-                if (!checkChanges()) return false
+        if (isOk) {
+            if (isNewEvaluation)
+                viewModel.addEvaluation(evaluation = collectAddEvaluation())
+            else
+                viewModel.updateEvaluation(request = collectUpdateEvaluation())
 
-                if (isNewEvaluation)
-                    viewModel.addEvaluation(evaluation = collectAddEvaluation())
-                else
-                    viewModel.updateEvaluation(request = collectUpdateEvaluation())
-
-                navigateUp()
-
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
+            navigateUp()
         }
     }
 

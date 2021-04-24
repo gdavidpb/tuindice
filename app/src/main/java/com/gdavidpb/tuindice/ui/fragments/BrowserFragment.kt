@@ -82,7 +82,7 @@ class BrowserFragment : NavigationFragment() {
             titleResource = R.string.dialog_title_warning_external
             messageText = spannedMessage
 
-            positiveButton(R.string.yes) { browse(url = externalUrl) }
+            positiveButton(R.string.open) { browse(url = externalUrl) }
             negativeButton(R.string.cancel)
         }
     }

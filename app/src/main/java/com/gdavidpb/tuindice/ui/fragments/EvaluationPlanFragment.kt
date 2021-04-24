@@ -44,7 +44,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 
     private object EvaluationsMenu {
         const val ID_ADD_EVALUATION = 0
-        const val ID_USE_PLAN_GRADE = 1
+        const val ID_USE_EVALUATION_PLAN_GRADE = 1
     }
 
     override fun onCreateView() = R.layout.fragment_evaluation_plan
@@ -99,7 +99,7 @@ class EvaluationPlanFragment : NavigationFragment() {
         ).apply {
             if (evaluationAdapter.itemCount > 0)
                 add(BottomMenuItem(
-                        itemId = EvaluationsMenu.ID_USE_PLAN_GRADE,
+                        itemId = EvaluationsMenu.ID_USE_EVALUATION_PLAN_GRADE,
                         textResource = R.string.menu_evaluation_plan_use_grade,
                         iconResource = R.drawable.ic_done
                 ))
@@ -123,7 +123,7 @@ class EvaluationPlanFragment : NavigationFragment() {
                         subjectCode = args.subjectCode
                 ))
             }
-            EvaluationsMenu.ID_USE_PLAN_GRADE -> {
+            EvaluationsMenu.ID_USE_EVALUATION_PLAN_GRADE -> {
                 val update = SubjectUpdate(
                         grade = evaluationAdapter.computeGradeSum().toSubjectGrade()
                 )

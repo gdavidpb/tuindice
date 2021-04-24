@@ -123,7 +123,7 @@ class SummaryFragment : NavigationFragment() {
             titleResource = R.string.dialog_title_sign_out
             messageResource = R.string.dialog_message_sign_out
 
-            positiveButton(R.string.yes) { viewModel.signOut() }
+            positiveButton(R.string.menu_sign_out) { viewModel.signOut() }
             negativeButton(R.string.cancel)
         }
     }
@@ -133,7 +133,7 @@ class SummaryFragment : NavigationFragment() {
             titleResource = R.string.dialog_title_remove_profile_picture_failure
             messageResource = R.string.dialog_message_remove_profile_picture_failure
 
-            positiveButton(R.string.yes) { viewModel.removeProfilePicture() }
+            positiveButton(R.string.remove) { viewModel.removeProfilePicture() }
             negativeButton(R.string.cancel)
         }
     }
