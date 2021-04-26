@@ -12,6 +12,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.text.buildSpannedString
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.ui.dialogs.ConfirmationBottomSheetDialog
@@ -38,11 +39,11 @@ class BrowserFragment : NavigationFragment() {
 
             webViewClient = object : WebViewClient() {
                 override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
-                    sWebView.isRefreshing = true
+                    lifecycleScope.launchWhenResumed { sWebView.isRefreshing = true }
                 }
 
                 override fun onPageFinished(view: WebView, url: String) {
-                    sWebView.isRefreshing = false
+                    lifecycleScope.launchWhenResumed { sWebView.isRefreshing = false }
                 }
 
                 override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
