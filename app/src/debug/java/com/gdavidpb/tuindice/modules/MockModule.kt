@@ -106,7 +106,11 @@ val mockModule = module {
     }
 
     single {
-        HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
+        val logger = HttpLoggingInterceptor.Logger { message ->
+            get<ReportingRepository>().logMessage(message)
+        }
+
+        HttpLoggingInterceptor(logger).apply { level = HttpLoggingInterceptor.Level.BODY }
     }
 
     single<DstHostNameVerifier>()

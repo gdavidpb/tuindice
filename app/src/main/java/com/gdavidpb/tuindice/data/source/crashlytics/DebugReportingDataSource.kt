@@ -12,6 +12,10 @@ open class DebugReportingDataSource : ReportingRepository {
         throwable.printStackTrace()
     }
 
+    override fun logMessage(message: String) {
+        Log.d("log", message)
+    }
+
     override fun <T : Any> setCustomKey(key: String, value: T) {
         Log.d("setCustomKey", "$key = $value (${value::class.java.name})")
     }

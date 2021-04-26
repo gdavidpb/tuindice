@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.source.crashlytics
 
 import com.gdavidpb.tuindice.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.utils.extensions.noSensitiveData
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 open class CrashlyticsReportingDataSource(
@@ -12,6 +13,10 @@ open class CrashlyticsReportingDataSource(
 
     override fun logException(throwable: Throwable) {
         crashlytics.recordException(throwable)
+    }
+
+    override fun logMessage(message: String) {
+        crashlytics.log(message.noSensitiveData())
     }
 
     override fun <T : Any> setCustomKey(key: String, value: T) {
