@@ -80,12 +80,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/fragment_pensum"
-        android:name="com.gdavidpb.tuindice.ui.fragments.PensumFragment"
-        android:label="@string/nav_pensum"
-        tools:layout="@layout/fragment_pensum" />
-
-    <fragment
         android:id="@+id/fragment_about"
         android:name="com.gdavidpb.tuindice.ui.fragments.AboutFragment"
         android:label="@string/nav_about"

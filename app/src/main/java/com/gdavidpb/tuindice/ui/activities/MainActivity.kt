@@ -36,7 +36,6 @@ class MainActivity : AppCompatActivity() {
     private val destinations = mapOf(
             R.id.fragment_summary to true,
             R.id.fragment_record to true,
-            R.id.fragment_pensum to true,
             R.id.fragment_about to true,
             R.id.fragment_splash to false,
             R.id.fragment_sign_in to false,
