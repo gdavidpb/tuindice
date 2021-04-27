@@ -73,7 +73,7 @@ open class PreferencesDataSource(
             putInt(SettingsKeys.SYNCS_COUNTER, counter)
         }
 
-        return counter == value
+        return counter % value == 0
     }
 
     override fun clear() {
