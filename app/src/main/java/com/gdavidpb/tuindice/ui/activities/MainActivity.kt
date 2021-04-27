@@ -10,13 +10,18 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.dialogs.UpdatePasswordBottomSheetDialog
 import com.gdavidpb.tuindice.utils.IdempotentLocker
+import com.gdavidpb.tuindice.utils.RequestCodes
 import com.gdavidpb.tuindice.utils.TIME_EXIT_LOCKER
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.google.android.play.core.appupdate.AppUpdateInfo
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
@@ -27,6 +32,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : AppCompatActivity() {
 
     private val reviewManager by inject<ReviewManager>()
+
+    private val updateManager by inject<AppUpdateManager>()
 
     private val viewModel by viewModel<MainViewModel>()
 
@@ -75,8 +82,15 @@ class MainActivity : AppCompatActivity() {
         with(viewModel) {
             observe(sync, ::syncObserver)
             observe(requestReview, ::requestReviewObserver)
+            observe(updateInfo, ::updateInfoObserver)
             observe(signOut, ::signOutObserver)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        viewModel.checkUpdate(updateManager)
     }
 
     override fun onBackPressed() {
@@ -126,14 +140,32 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestReviewObserver(result: Result<ReviewInfo, Nothing>?) {
+    private fun requestReviewObserver(result: Event<ReviewInfo, Nothing>?) {
         when (result) {
-            is Result.OnSuccess -> {
+            is Event.OnSuccess -> {
                 val reviewInfo = result.value
 
                 lifecycleScope.launchWhenResumed {
-                    reviewManager.launchReview(this@MainActivity, reviewInfo)
+                    reviewManager.launchReview(
+                            this@MainActivity,
+                            reviewInfo
+                    )
                 }
+            }
+        }
+    }
+
+    private fun updateInfoObserver(result: Event<AppUpdateInfo, Nothing>?) {
+        when (result) {
+            is Event.OnSuccess -> {
+                val updateInfo = result.value
+
+                updateManager.startUpdateFlowForResult(
+                        updateInfo,
+                        AppUpdateType.IMMEDIATE,
+                        this@MainActivity,
+                        RequestCodes.APP_UPDATE_REQUEST
+                )
             }
         }
     }

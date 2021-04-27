@@ -99,7 +99,7 @@ class SummaryFragment : NavigationFragment() {
 
         if (resultCode == Activity.RESULT_OK) {
             val removeProfilePicture = data.hasExtra(Extras.REMOVE_PROFILE_PICTURE)
-            val requestProfilePicture = (requestCode == RequestCodes.PROFILE_PICTURE)
+            val requestProfilePicture = (requestCode == RequestCodes.PROFILE_PICTURE_REQUEST)
 
             when {
                 removeProfilePicture -> showRemoveProfilePictureDialog()
@@ -160,7 +160,7 @@ class SummaryFragment : NavigationFragment() {
         if (intents.isNotEmpty())
             chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents)
 
-        startActivityForResult(chooser, RequestCodes.PROFILE_PICTURE)
+        startActivityForResult(chooser, RequestCodes.PROFILE_PICTURE_REQUEST)
     }
 
     private fun loadProfile(account: Account) {

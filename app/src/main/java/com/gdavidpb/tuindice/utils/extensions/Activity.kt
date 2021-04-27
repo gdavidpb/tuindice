@@ -22,7 +22,7 @@ fun FragmentActivity.isGoogleServicesAvailable(): Boolean {
                 googleApiAvailability.getErrorDialog(
                         this,
                         status,
-                        RequestCodes.PLAY_SERVICES_RESOLUTION
+                        RequestCodes.PLAY_SERVICES_RESOLUTION_REQUEST
                 ).apply {
                     setOnCancelListener { finish() }
                     setOnDismissListener { finish() }

@@ -9,6 +9,10 @@
         <value>300000</value>
     </entry>
     <entry>
+        <key>time_update_staleness_days</key>
+        <value>7</value>
+    </entry>
+    <entry>
         <key>contact_email</key>
         <value>tuindice@gmail.com</value>
     </entry>

@@ -23,6 +23,8 @@ import com.gdavidpb.tuindice.services.DstRecordServiceMock
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.createMockService
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.testing.FakeReviewManager
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
@@ -80,6 +82,12 @@ val mockModule = module {
     /* Utils */
 
     single<Gson>()
+
+    /* Google */
+
+    single<AppUpdateManager> {
+        FakeAppUpdateManager(androidContext())
+    }
 
     /* Firebase */
 
@@ -231,6 +239,7 @@ val mockModule = module {
     factory<RemoveProfilePictureUseCase>()
     factory<RequestReviewUseCase>()
     factory<RemoveQuarterUseCase>()
+    factory<GetUpdateInfoUseCase>()
 
     /* Utils */
 
