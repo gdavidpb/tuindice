@@ -76,6 +76,20 @@ open class PreferencesDataSource(
         return counter % value == 0
     }
 
+    override fun storeTopicSubscription(topic: String) {
+        val topics = preferences.getStringSet(SettingsKeys.SUBSCRIBED_TOPICS, setOf()) ?: setOf()
+
+        preferences.edit {
+            putStringSet(SettingsKeys.SUBSCRIBED_TOPICS, topics + topic)
+        }
+    }
+
+    override fun isSubscribedToTopic(topic: String): Boolean {
+        val topics = preferences.getStringSet(SettingsKeys.SUBSCRIBED_TOPICS, setOf()) ?: setOf()
+
+        return topics.contains(topic)
+    }
+
     override fun clear() {
         preferences.edit {
             clear()

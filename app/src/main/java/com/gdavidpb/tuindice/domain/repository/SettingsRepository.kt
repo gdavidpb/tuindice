@@ -10,7 +10,11 @@ interface SettingsRepository {
     fun hasCredentials(): Boolean
     fun getCredentials(): Credentials
     fun storeCredentials(credentials: Credentials)
+
     fun isReviewSuggested(value: Int): Boolean
+
+    fun storeTopicSubscription(topic: String)
+    fun isSubscribedToTopic(topic: String): Boolean
 
     fun getLastScreen(): Int
     fun setLastScreen(screen: Int)

@@ -10,4 +10,12 @@ open class FirebaseCloudMessagingDataSource(
     override suspend fun getToken(): String? {
         return firebaseMessaging.token.awaitCatching()
     }
+
+    override suspend fun subscribeToTopic(topic: String) {
+        firebaseMessaging.subscribeToTopic(topic).awaitCatching()
+    }
+
+    override suspend fun unsubscribeFromTopic(topic: String) {
+        firebaseMessaging.unsubscribeFromTopic(topic)
+    }
 }

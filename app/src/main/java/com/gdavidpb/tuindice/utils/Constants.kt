@@ -17,13 +17,19 @@ object Actions {
 
 /* Request codes */
 object RequestCodes {
-    const val PROFILE_PICTURE = 1000
-    const val PLAY_SERVICES_RESOLUTION = 2404
+    const val PROFILE_PICTURE_REQUEST = 1000
+    const val APP_UPDATE_REQUEST = 1001
+    const val PLAY_SERVICES_RESOLUTION_REQUEST = 2404
 }
 
 /* Extras */
 object Extras {
     const val REMOVE_PROFILE_PICTURE = "REMOVE_PROFILE_PICTURE"
+}
+
+/* Subscription topics */
+object Topics {
+    const val TOPIC_GENERAL = "general"
 }
 
 /* Preferences keys */
@@ -33,6 +39,7 @@ object SettingsKeys {
     const val COUNT_DOWN = "countdown"
     const val LAST_SCREEN = "lastScreen"
     const val SYNCS_COUNTER = "syncsCounter"
+    const val SUBSCRIBED_TOPICS = "subscribedTopics"
 }
 
 /* Remote config keys */
@@ -43,6 +50,7 @@ object ConfigKeys {
     const val LOADING_MESSAGES = "loading_messages"
     const val DST_CERTIFICATES = "dst_certificates"
     const val TIME_VERIFICATION_COUNT_DOWN = "time_verification_count_down"
+    const val TIME_UPDATE_STALENESS_DAYS = "time_update_staleness_days"
     const val SYNCS_TO_SUGGEST_REVIEW = "syncs_to_suggest_review"
     const val TIME_OUT_CONNECTION = "time_out_connection"
     const val TIME_OUT_SIGN_IN = "time_out_sign_in"
