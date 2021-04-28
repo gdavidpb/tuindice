@@ -104,28 +104,6 @@ class RecordFragment : NavigationFragment() {
         }
     }
 
-    private fun onSubjectOptionSelected(quarterItem: QuarterItem, subjectItem: SubjectItem, itemId: Int) {
-        when (itemId) {
-            SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS -> {
-                navigate(RecordFragmentDirections.navToEvaluationPlan(
-                        quarterId = quarterItem.id,
-                        subjectId = subjectItem.id,
-                        subjectCode = subjectItem.data.code,
-                        subjectName = subjectItem.data.name
-                ))
-            }
-            SubjectMenu.ID_REMOVE_SUBJECT -> {
-                val request = quarterItem.data.toUpdateRequest(
-                        sid = subjectItem.id,
-                        grade = 0,
-                        dispatchChanges = true
-                )
-
-                viewModel.updateQuarter(request)
-            }
-        }
-    }
-
     private fun showSubjectMenuDialog(quarterItem: QuarterItem, subjectItem: SubjectItem) {
         val title = getString(R.string.label_evaluation_plan_header, subjectItem.code, subjectItem.data.name)
 
@@ -151,6 +129,32 @@ class RecordFragment : NavigationFragment() {
                 onSubjectOptionSelected(quarterItem, subjectItem, itemId)
             }
         }
+    }
+
+    private fun onSubjectOptionSelected(quarterItem: QuarterItem, subjectItem: SubjectItem, itemId: Int) {
+        when (itemId) {
+            SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS -> showSubjectEvaluations(quarterItem, subjectItem)
+            SubjectMenu.ID_REMOVE_SUBJECT -> removeSubject(quarterItem, subjectItem)
+        }
+    }
+
+    private fun showSubjectEvaluations(quarterItem: QuarterItem, subjectItem: SubjectItem) {
+        navigate(RecordFragmentDirections.navToEvaluationPlan(
+                quarterId = quarterItem.id,
+                subjectId = subjectItem.id,
+                subjectCode = subjectItem.data.code,
+                subjectName = subjectItem.data.name
+        ))
+    }
+
+    private fun removeSubject(quarterItem: QuarterItem, subjectItem: SubjectItem) {
+        val request = quarterItem.data.toUpdateRequest(
+                sid = subjectItem.id,
+                grade = 0,
+                dispatchChanges = true
+        )
+
+        viewModel.updateQuarter(request)
     }
 
     private fun openEnrollmentProof() {
