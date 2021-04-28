@@ -60,7 +60,6 @@ fun Evaluation.toEvaluationItem(context: Context) = EvaluationItem(
         notesText = if (notes.isNotEmpty()) notes else "─",
         dateText = date.formatEvaluationDate(),
         isDone = isDone,
-        isSwiping = false,
         data = this
 )
 

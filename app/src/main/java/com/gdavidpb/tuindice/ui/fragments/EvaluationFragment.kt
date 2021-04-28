@@ -76,6 +76,8 @@ class EvaluationFragment : NavigationFragment() {
     }
 
     private fun onSaveClick() {
+        inputMethodManager.hideSoftKeyboard(eTextNotes)
+
         val isOk = checkChanges()
 
         if (isOk) {

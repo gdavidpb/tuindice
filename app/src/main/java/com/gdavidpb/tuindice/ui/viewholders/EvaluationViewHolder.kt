@@ -23,6 +23,12 @@ class EvaluationViewHolder(
                     manager.onEvaluationClicked(item)
             }
 
+            btnEvaluationOptions.onClickOnce {
+                val item = getItem()
+
+                manager.onEvaluationOptionsClicked(item, absoluteAdapterPosition)
+            }
+
             sBarGrade.onSeekBarChange {
                 onProgressChanged { progress, fromUser ->
                     if (fromUser) {
@@ -55,8 +61,8 @@ class EvaluationViewHolder(
         itemView as CardView
 
         with(itemView) {
+            setStates(isDone = item.isDone)
             setGrades(grade = item.grade, maxGrade = item.maxGrade)
-            setStates(isDone = item.isDone, isSwiping = item.isSwiping)
             setAdditionalData(type = item.typeText, notes = item.notesText, date = item.dateText)
         }
     }
@@ -75,7 +81,7 @@ class EvaluationViewHolder(
         tViewEvaluationGrade.text = gradeText
     }
 
-    private fun CardView.setStates(isDone: Boolean, isSwiping: Boolean) {
+    private fun CardView.setStates(isDone: Boolean) {
         val cardColor = when {
             isDone -> R.color.color_retired
             else -> R.color.color_approved
@@ -84,9 +90,7 @@ class EvaluationViewHolder(
         viewEvaluationColor.backgroundColor = cardColor
         cBoxEvaluation.setChecked(checked = isDone, notify = false)
 
-        isEnabled = !isSwiping
-        cBoxEvaluation.isEnabled = !isSwiping
-        sBarGrade.isEnabled = !isDone && !isSwiping
+        sBarGrade.isEnabled = !isDone
 
         if (isDone) {
             tViewEvaluationDate.strikeThrough()

@@ -13,6 +13,5 @@ data class EvaluationItem(
         val dateText: CharSequence,
         val date: Date,
         val isDone: Boolean,
-        val isSwiping: Boolean,
         val data: Evaluation
 )

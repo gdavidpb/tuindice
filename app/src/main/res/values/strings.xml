@@ -259,6 +259,11 @@
     <string name="menu_evaluation_add">Agregar evaluación</string>
     <string name="menu_evaluation_plan_use_grade">Usar <b>Nota final</b> para la materia</string>
 
+    <string name="menu_evaluation_edit">Modificar evaluación</string>
+    <string name="menu_evaluation_mark_as_done">Marcar como finalizada</string>
+    <string name="menu_evaluation_un_mark_as_done">Desmarcar como finalizada</string>
+    <string name="menu_evaluation_delete">Eliminar evaluación</string>
+
     <!-- EvaluationFragment -->
 
     <string name="evaluation_other">Otra</string>
@@ -289,6 +294,7 @@
 
     <string name="label_evaluation_grade_value">%1$.2f pts</string>
     <string name="label_evaluation_plan_header">%1$s ─ %2$s</string>
+    <string name="label_evaluation_header">%1$s ─ %2$s</string>
 
     <string name="toast_evaluation_type_missed">Selecciona un tipo</string>
     <string name="toast_evaluation_value_missed">Elige un valor</string>

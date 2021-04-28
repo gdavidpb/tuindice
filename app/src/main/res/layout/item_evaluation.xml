@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.gdavidpb.tuindice.ui.customs.CustomCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="@dimen/dp_8">
+    android:layout_marginVertical="@dimen/dp_4"
+    app:cardCornerRadius="@dimen/dp_6"
+    app:cardPreventCornerOverlap="true"
+    app:cardUseCompatPadding="true">
 
     <View
         android:id="@+id/viewEvaluationColor"
@@ -17,7 +20,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_8"
-        android:animateLayoutChanges="true"
         android:paddingHorizontal="@dimen/dp_16"
         android:paddingVertical="@dimen/dp_8">
 
@@ -30,18 +32,24 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tViewEvaluationType"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-black"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:textColor="@color/color_secondary_text"
+            app:layout_constraintEnd_toStartOf="@id/tViewEvaluationGrade"
             app:layout_constraintStart_toEndOf="@id/cBoxEvaluation"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Parcial" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tViewEvaluationDate"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            app:layout_constraintEnd_toEndOf="@id/tViewEvaluationGrade"
             app:layout_constraintStart_toStartOf="@id/tViewEvaluationType"
             app:layout_constraintTop_toBottomOf="@id/tViewEvaluationType"
             tools:text="Este Jueves — 16/01" />
@@ -52,7 +60,9 @@
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-black"
             android:textColor="@color/color_secondary_text"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="@dimen/dp_16"
+            app:layout_constraintEnd_toStartOf="@id/btnEvaluationOptions"
+            app:layout_constraintStart_toEndOf="@id/tViewEvaluationType"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="28.50 / 35" />
 
@@ -65,20 +75,35 @@
             android:maxLength="128"
             android:maxLines="1"
             android:textColor="@color/color_secondary_text"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/tViewEvaluationGrade"
             app:layout_constraintStart_toStartOf="@id/tViewEvaluationType"
             app:layout_constraintTop_toBottomOf="@id/tViewEvaluationDate"
             tools:text="Este parcial no lo puedo raspar chamo" />
 
         <SeekBar
             android:id="@+id/sBarGrade"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingVertical="@dimen/dp_8"
             tools:max="35"
+            app:layout_constraintEnd_toEndOf="@id/tViewEvaluationGrade"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tViewEvaluationNotes"
             tools:progress="28" />
 
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btnEvaluationOptions"
+            android:layout_width="@dimen/dp_32"
+            android:layout_height="@dimen/dp_32"
+            android:layout_marginStart="@dimen/dp_16"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/ic_more"
+            android:tint="@color/color_secondary_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tViewEvaluationGrade"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</com.gdavidpb.tuindice.ui.customs.CustomCardView>
+</com.google.android.material.card.MaterialCardView>
