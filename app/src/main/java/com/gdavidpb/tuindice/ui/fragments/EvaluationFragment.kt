@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -9,6 +8,10 @@ import android.view.inputmethod.InputMethodManager
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.model.database.EvaluationUpdate
+import com.gdavidpb.tuindice.data.utils.Validation
+import com.gdavidpb.tuindice.data.utils.`do`
+import com.gdavidpb.tuindice.data.utils.`when`
+import com.gdavidpb.tuindice.data.utils.firstInvalid
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.EvaluationType
 import com.gdavidpb.tuindice.domain.model.Subject
@@ -16,6 +19,7 @@ import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.ui.customs.EvaluationDatePicker
+import com.gdavidpb.tuindice.utils.MAX_EVALUATION_GRADE
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.chip.Chip
 import com.google.firebase.Timestamp
@@ -30,20 +34,22 @@ class EvaluationFragment : NavigationFragment() {
 
     private val args by navArgs<EvaluationFragmentArgs>()
 
-    private val isNewEvaluation by lazy { args.evaluationId == null }
+    private val isNewEvaluation by lazy { (args.evaluationId == null) }
 
     private val inputMethodManager by inject<InputMethodManager>()
 
+    private val validations by lazy {
+        arrayOf<Validation<*>>(
+                `when`(tInputEvaluationName) { !isValid() } `do` { snackBar(R.string.toast_evaluation_name_missed) },
+                `when`(tInputEvaluationGrade) { getGrade() > MAX_EVALUATION_GRADE } `do` { snackBar(R.string.toast_evaluation_grade_invalid) },
+                `when`(tInputEvaluationGrade) { !isValid() } `do` { snackBar(R.string.toast_evaluation_grade_missed) },
+                `when`(datePicker) { !isValidState } `do` { snackBar(R.string.toast_evaluation_date_missed) },
+                `when`(cGroupEvaluation) { checkedChipId == -1 } `do` { snackBar(R.string.toast_evaluation_type_missed) }
+        )
+    }
+
     private val datePicker by lazy {
         EvaluationDatePicker(tViewEvaluationDate)
-    }
-
-    private val primaryTint by lazy {
-        ColorStateList.valueOf(requireContext().getCompatColor(R.color.color_primary))
-    }
-
-    private val secondaryTint by lazy {
-        ColorStateList.valueOf(requireContext().getCompatColor(R.color.color_secondary_text))
     }
 
     override fun onCreateView() = R.layout.fragment_evaluation
@@ -61,10 +67,7 @@ class EvaluationFragment : NavigationFragment() {
 
             val evaluationId = args.evaluationId
 
-            if (evaluationId != null)
-                getEvaluation(eid = evaluationId)
-            else
-                initEvaluation(evaluation = null)
+            if (evaluationId != null) getEvaluation(eid = evaluationId)
         }
     }
 
@@ -78,36 +81,21 @@ class EvaluationFragment : NavigationFragment() {
         }
     }
 
-    private fun onSaveClick() {
-        val isOk = checkChanges()
+    private fun initEvaluation(evaluation: Evaluation) {
+        val grade = evaluation.grade
+        val notes = evaluation.notes
+        val date = evaluation.date
+        val evaluationType = evaluation.type.ordinal
 
-        if (isOk) {
-            if (isNewEvaluation)
-                viewModel.addEvaluation(evaluation = collectAddEvaluation())
-            else
-                viewModel.updateEvaluation(request = collectUpdateEvaluation())
+        eTextEvaluationGrade.setText(grade.formatGrade())
+        sEvaluationDate.isChecked = (date.time != 0L)
+        cGroupEvaluation.checkedChipIndex = evaluationType
 
-            navigateUp()
-        }
-    }
+        datePicker.selectedDate = date
+        datePicker.isDateSelectable = sEvaluationDate.isChecked
 
-    private fun initEvaluation(evaluation: Evaluation?) {
-        if (evaluation != null) {
-            val grade = evaluation.grade
-            val notes = evaluation.notes
-            val date = evaluation.date
-            val evaluationType = evaluation.type.ordinal
-
-            eTextEvaluationGrade.setText("$grade")
-            sEvaluationDate.isChecked = date.time != 0L
-            cGroupEvaluation.checkedChipIndex = evaluationType
-
-            datePicker.selectedDate = date
-            datePicker.isDateSelectable = sEvaluationDate.isChecked
-
-            eTextEvaluationName.setText(notes)
-            eTextEvaluationName.setSelection(notes.length)
-        }
+        eTextEvaluationName.setText(notes)
+        eTextEvaluationName.setSelection(notes.length)
     }
 
     private fun initListeners() {
@@ -116,18 +104,15 @@ class EvaluationFragment : NavigationFragment() {
 
         sEvaluationDate.onCheckedChange { isChecked ->
             datePicker.isDateSelectable = isChecked
+            tViewEvaluationDate.isClickable = isChecked
         }
 
-        eTextEvaluationName.setOnFocusChangeListener { _, hasFocus ->
-            val tint = if (hasFocus) primaryTint else secondaryTint
-
-            tInputEvaluationName.setStartIconTintList(tint)
+        tInputEvaluationName.onValidate {
+            getName().isNotBlank()
         }
 
-        eTextEvaluationGrade.setOnFocusChangeListener { _, hasFocus ->
-            val tint = if (hasFocus) primaryTint else secondaryTint
-
-            tInputEvaluationGrade.setStartIconTintList(tint)
+        tInputEvaluationGrade.onValidate {
+            getGrade() in (0.0..MAX_EVALUATION_GRADE)
         }
 
         eTextEvaluationGrade.setOnEditorActionListener { _, actionId, _ ->
@@ -136,7 +121,6 @@ class EvaluationFragment : NavigationFragment() {
                 !sEvaluationDate.isChecked -> true
                 else -> {
                     tViewEvaluationDate.performClick()
-                    inputMethodManager.hideSoftKeyboard(eTextEvaluationGrade)
                     false
                 }
             }
@@ -153,72 +137,28 @@ class EvaluationFragment : NavigationFragment() {
         }
     }
 
-    private fun checkChanges(): Boolean {
-        return when {
-            eTextEvaluationName.text.isNullOrBlank() -> {
-                tInputEvaluationName.animateLookAtMe()
-                R.string.toast_evaluation_name_missed
+    private fun onSaveClick() {
+        validations.firstInvalid {
+            when (this) {
+                is View -> {
+                    requestFocus()
+
+                    animateLookAtMe()
+                }
             }
-            eTextEvaluationGrade.text.toString().toDoubleOrNull() ?: 0.0 == 0.0 -> {
-                tInputEvaluationGrade.animateLookAtMe()
-                R.string.toast_evaluation_grade_missed
-            }
-            !datePicker.isValidState -> {
-                tViewEvaluationDate.animateLookAtMe()
-                R.string.toast_evaluation_date_missed
-            }
-            cGroupEvaluation.checkedChipId == -1 -> {
-                cGroupEvaluation.animateLookAtMe()
-                R.string.toast_evaluation_type_missed
-            }
-            else -> -1
-        }.let { resource ->
-            (resource == -1).also { isOk -> if (!isOk) snackBar { messageResource = resource } }
+        }.isNull {
+            if (isNewEvaluation)
+                viewModel.addEvaluation(evaluation = collectAddEvaluation())
+            else
+                viewModel.updateEvaluation(request = collectUpdateEvaluation())
+
+            navigateUp()
         }
     }
 
-    private fun collectAddEvaluation(): Evaluation {
-        val evaluationType = cGroupEvaluation
-                .checkedChipIndex
-                .let { index -> EvaluationType.values()[index] }
-
-        val maxGrade = eTextEvaluationGrade.text.toString().toDoubleOrNull() ?: 0.0
-
-        return Evaluation(
-                id = args.evaluationId ?: "",
-                sid = args.subjectId,
-                subjectCode = args.subjectCode,
-                type = evaluationType,
-                grade = maxGrade,
-                maxGrade = maxGrade,
-                date = datePicker.selectedDate,
-                notes = "${eTextEvaluationName.text}",
-                isDone = false
-        )
-    }
-
-    private fun collectUpdateEvaluation(): UpdateEvaluationRequest {
-        val evaluationType = cGroupEvaluation
-                .checkedChipIndex
-                .let { index -> EvaluationType.values()[index] }
-
-        val maxGrade = eTextEvaluationGrade.text.toString().toDoubleOrNull() ?: 0.0
-
-        val evaluationId = args.evaluationId ?: ""
-
-        val update = EvaluationUpdate(
-                type = evaluationType.ordinal,
-                grade = maxGrade,
-                maxGrade = maxGrade,
-                date = Timestamp(datePicker.selectedDate),
-                notes = "${eTextEvaluationName.text}",
-                isDone = false
-        )
-
-        return UpdateEvaluationRequest(eid = evaluationId, update = update, dispatchChanges = true)
-    }
-
     private fun onDateClick() {
+        inputMethodManager.hideSoftKeyboard(eTextEvaluationGrade)
+
         requireActivity().datePicker {
             if (datePicker.selectedDate.time != 0L)
                 selectedDate = datePicker.selectedDate
@@ -235,6 +175,53 @@ class EvaluationFragment : NavigationFragment() {
                 maxDate = endDate
             }
         }
+    }
+
+    private fun getName(): String {
+        return "${eTextEvaluationName.text}"
+    }
+
+    private fun getGrade(): Double {
+        return "${eTextEvaluationGrade.text}".toDoubleOrNull() ?: 0.0
+    }
+
+    private fun getType(): EvaluationType {
+        return cGroupEvaluation
+                .checkedChipIndex
+                .let { index -> EvaluationType.values()[index] }
+    }
+
+    private fun collectAddEvaluation(): Evaluation {
+        val maxGrade = getGrade()
+
+        return Evaluation(
+                id = args.evaluationId ?: "",
+                sid = args.subjectId,
+                subjectCode = args.subjectCode,
+                type = getType(),
+                grade = maxGrade,
+                maxGrade = maxGrade,
+                date = datePicker.selectedDate,
+                notes = getName(),
+                isDone = false
+        )
+    }
+
+    private fun collectUpdateEvaluation(): UpdateEvaluationRequest {
+        val maxGrade = getGrade()
+
+        val evaluationId = args.evaluationId ?: ""
+
+        val update = EvaluationUpdate(
+                type = getType().ordinal,
+                grade = maxGrade,
+                maxGrade = maxGrade,
+                date = Timestamp(datePicker.selectedDate),
+                notes = getName(),
+                isDone = false
+        )
+
+        return UpdateEvaluationRequest(eid = evaluationId, update = update, dispatchChanges = true)
     }
 
     private fun subjectObserver(result: Result<Subject, Nothing>?) {

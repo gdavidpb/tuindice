@@ -29,51 +29,38 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
             android:padding="@dimen/dp_16">
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.gdavidpb.tuindice.ui.customs.ValidatedTextInputLayout
                 android:id="@+id/tInputEvaluationName"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_evaluation_name"
-                app:boxCornerRadiusBottomEnd="@dimen/dp_6"
-                app:boxCornerRadiusBottomStart="@dimen/dp_6"
-                app:boxCornerRadiusTopEnd="@dimen/dp_6"
-                app:boxCornerRadiusTopStart="@dimen/dp_6"
                 app:layout_constraintTop_toTopOf="parent"
-                app:startIconDrawable="@drawable/ic_label"
-                app:startIconTint="@color/color_secondary_text">
+                app:startIconDrawable="@drawable/ic_label">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/eTextEvaluationName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/dp_8"
                     android:imeOptions="actionNext"
-                    android:importantForAutofill="no"
                     android:inputType="textShortMessage|text|textCapSentences"
                     android:maxLength="32"
                     android:maxLines="1" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+            </com.gdavidpb.tuindice.ui.customs.ValidatedTextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.gdavidpb.tuindice.ui.customs.ValidatedTextInputLayout
                 android:id="@+id/tInputEvaluationGrade"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_24"
                 android:hint="@string/hint_evaluation_grade"
-                app:boxCornerRadiusBottomEnd="@dimen/dp_6"
-                app:boxCornerRadiusBottomStart="@dimen/dp_6"
-                app:boxCornerRadiusTopEnd="@dimen/dp_6"
-                app:boxCornerRadiusTopStart="@dimen/dp_6"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tInputEvaluationName"
-                app:startIconDrawable="@drawable/ic_donut"
-                app:startIconTint="@color/color_secondary_text">
+                app:startIconDrawable="@drawable/ic_donut">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/eTextEvaluationGrade"
@@ -81,10 +68,10 @@
                     android:layout_height="wrap_content"
                     android:imeOptions="actionNext"
                     android:inputType="numberDecimal"
-                    android:selectAllOnFocus="true"
-                    android:textColor="@color/color_text_input_layout_text" />
+                    android:maxLength="6"
+                    android:selectAllOnFocus="true" />
 
-            </com.google.android.material.textfield.TextInputLayout>
+            </com.gdavidpb.tuindice.ui.customs.ValidatedTextInputLayout>
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tViewEvaluationDate"

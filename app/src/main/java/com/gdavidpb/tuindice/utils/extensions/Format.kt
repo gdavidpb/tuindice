@@ -29,11 +29,13 @@ fun Long.toCountdown(): String {
     return "%02d:%02d".format(min, sec)
 }
 
+fun Double.formatGrade() = if (this % 1 == 0.0) toInt().formatGrade() else formatGrade(2)
+
 fun Double.formatGrade(decimals: Int) = "%.${decimals}f".format(this)
 
 fun Float.formatGrade(decimals: Int) = "%.${decimals}f".format(this)
 
-fun Int.formatGrade() = "%d".format(this)
+fun Int.formatGrade() = "$this"
 
 fun Date.formatQuarterName(date: Date): String {
     val start = format("MMM")?.capitalize()

@@ -17,6 +17,7 @@
     <color name="color_separator">#E1E1E1</color>
     <color name="color_disabled">#E0E0E0</color>
     <color name="color_background">#F5F5F5</color>
+    <color name="color_error">#FF5252</color>
 
     <color name="quarter_completed">#FFC107</color>
     <color name="quarter_current">#FFC107</color>
@@ -26,11 +27,6 @@
     <color name="color_approved">#FFC107</color>
     <color name="color_failed">#F44336</color>
     <color name="color_retired">#B0BEC5</color>
-
-    <!-- TextInputLayout -->
-
-    <color name="color_text_input_layout_error">#FF5252</color>
-    <color name="color_text_input_layout_text">#212121</color>
 
     <!-- CanvasView / NetworkView -->
 

@@ -299,6 +299,7 @@
     <string name="toast_evaluation_grade_missed">Establece el valor de la evaluación</string>
     <string name="toast_evaluation_type_missed">Selecciona el tipo de evaluación</string>
     <string name="toast_evaluation_date_missed">Dale una fecha a la evaluación</string>
+    <string name="toast_evaluation_grade_invalid">El valor de la evaluación no debe superar los 100 puntos</string>
 
     <!-- ResetPasswordFragment -->
 
