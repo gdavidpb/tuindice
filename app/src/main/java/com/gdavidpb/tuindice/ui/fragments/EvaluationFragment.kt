@@ -82,10 +82,13 @@ class EvaluationFragment : NavigationFragment() {
     }
 
     private fun initEvaluation(evaluation: Evaluation) {
-        val grade = evaluation.grade
         val notes = evaluation.notes
+        val grade = evaluation.grade
         val date = evaluation.date
         val evaluationType = evaluation.type.ordinal
+
+        eTextEvaluationName.setText(notes)
+        eTextEvaluationName.setSelection(notes.length)
 
         eTextEvaluationGrade.setText(grade.formatGrade())
         sEvaluationDate.isChecked = (date.time != 0L)
@@ -93,9 +96,6 @@ class EvaluationFragment : NavigationFragment() {
 
         datePicker.selectedDate = date
         datePicker.isDateSelectable = sEvaluationDate.isChecked
-
-        eTextEvaluationName.setText(notes)
-        eTextEvaluationName.setSelection(notes.length)
     }
 
     private fun initListeners() {
@@ -198,11 +198,11 @@ class EvaluationFragment : NavigationFragment() {
                 id = args.evaluationId ?: "",
                 sid = args.subjectId,
                 subjectCode = args.subjectCode,
-                type = getType(),
+                notes = getName(),
                 grade = maxGrade,
                 maxGrade = maxGrade,
                 date = datePicker.selectedDate,
-                notes = getName(),
+                type = getType(),
                 isDone = false
         )
     }
@@ -213,11 +213,11 @@ class EvaluationFragment : NavigationFragment() {
         val evaluationId = args.evaluationId ?: ""
 
         val update = EvaluationUpdate(
-                type = getType().ordinal,
+                notes = getName(),
                 grade = maxGrade,
                 maxGrade = maxGrade,
                 date = Timestamp(datePicker.selectedDate),
-                notes = getName(),
+                type = getType().ordinal,
                 isDone = false
         )
 

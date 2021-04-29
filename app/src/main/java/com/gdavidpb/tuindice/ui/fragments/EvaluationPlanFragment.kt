@@ -141,11 +141,6 @@ class EvaluationPlanFragment : NavigationFragment() {
 
         val items = mutableListOf(
                 BottomMenuItem(
-                        itemId = EvaluationMenu.ID_EDIT_EVALUATION,
-                        iconResource = R.drawable.ic_edit,
-                        textResource = R.string.menu_evaluation_edit
-                ),
-                BottomMenuItem(
                         itemId = EvaluationMenu.ID_MARK_EVALUATION_AS_DONE,
                         iconResource = if (item.isDone)
                             R.drawable.ic_check_box_outline
@@ -161,7 +156,14 @@ class EvaluationPlanFragment : NavigationFragment() {
                         iconResource = R.drawable.ic_delete,
                         textResource = R.string.menu_evaluation_delete
                 )
-        )
+        ).apply {
+            if (!item.isDone)
+                add(0, BottomMenuItem(
+                        itemId = EvaluationMenu.ID_EDIT_EVALUATION,
+                        iconResource = R.drawable.ic_edit,
+                        textResource = R.string.menu_evaluation_edit
+                ))
+        }
 
         bottomSheetDialog<MenuBottomSheetDialog> {
             titleText = title

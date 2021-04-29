@@ -246,7 +246,7 @@
     <string name="text_100">/ 100</string>
     <string name="content_equal">Igual a</string>
 
-    <string name="evaluation_grade_max">%1$.2f / %2$.2f</string>
+    <string name="evaluation_grade_max">%1$s / %2$s</string>
 
     <string name="grade_accumulated">Nota acumulada</string>
     <string name="grade_final">Nota final</string>

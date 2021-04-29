@@ -6,10 +6,10 @@ data class Evaluation(
         val id: String,
         val sid: String,
         val subjectCode: String,
-        val type: EvaluationType,
+        val notes: String,
         val grade: Double,
         val maxGrade: Double,
         val date: Date,
-        val notes: String,
+        val type: EvaluationType,
         val isDone: Boolean
 )

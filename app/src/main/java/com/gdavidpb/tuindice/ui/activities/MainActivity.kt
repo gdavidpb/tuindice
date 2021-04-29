@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.ui.activities
 
 import android.os.Bundle
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -36,6 +37,8 @@ class MainActivity : AppCompatActivity() {
     private val updateManager by inject<AppUpdateManager>()
 
     private val viewModel by viewModel<MainViewModel>()
+
+    private val inputMethodManager by inject<InputMethodManager>()
 
     private val backLocker = IdempotentLocker()
 
@@ -108,6 +111,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onDestinationChanged(destination: NavDestination) {
+        inputMethodManager.hideSoftKeyboard(this)
+
         val showBottomNav = destinations[destination.id] ?: false
         val showAppBar = destination.id != R.id.fragment_splash
 

@@ -49,10 +49,6 @@ class EvaluationAdapter(
         manager.onSubmitEvaluations(items)
     }
 
-    fun getEvaluation(position: Int): EvaluationItem {
-        return getItem(position)
-    }
-
     fun addEvaluation(item: EvaluationItem, position: Int) {
         addItem(item, position)
         submitSortedList()

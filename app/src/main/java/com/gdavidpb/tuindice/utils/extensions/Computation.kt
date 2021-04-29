@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_OK
 import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_RETIRED
 import java.util.*
-import kotlin.math.floor
 import kotlin.math.roundToInt
 
 fun Double.toSubjectGrade() = when (roundToInt()) {
@@ -64,7 +63,7 @@ fun Collection<Subject>.computeGrade(): Double {
 
     val grade = if (creditsSum != 0.0) weightedSum / creditsSum else 0.0
 
-    return floor(grade * 10000.0) / 10000.0
+    return grade.round(4)
 }
 
 fun Collection<Quarter>.computeGradeSum(until: Quarter = first()) =

@@ -31,17 +31,18 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tViewEvaluationType"
+            android:id="@+id/tViewEvaluationName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-black"
+            android:fontFamily="sans-serif-medium"
             android:ellipsize="end"
             android:maxLines="1"
+            android:textSize="@dimen/sp_16"
             android:textColor="@color/color_secondary_text"
             app:layout_constraintEnd_toStartOf="@id/tViewEvaluationGrade"
             app:layout_constraintStart_toEndOf="@id/cBoxEvaluation"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Parcial" />
+            tools:text="Parcial I" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tViewEvaluationDate"
@@ -49,46 +50,47 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
+            android:layout_marginTop="@dimen/dp_4"
             app:layout_constraintEnd_toEndOf="@id/tViewEvaluationGrade"
-            app:layout_constraintStart_toStartOf="@id/tViewEvaluationType"
-            app:layout_constraintTop_toBottomOf="@id/tViewEvaluationType"
+            app:layout_constraintStart_toStartOf="@id/tViewEvaluationName"
+            app:layout_constraintTop_toBottomOf="@id/tViewEvaluationName"
             tools:text="Este Jueves — 16/01" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tViewEvaluationGrade"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-black"
+            android:fontFamily="sans-serif-medium"
+            android:textSize="@dimen/sp_16"
             android:textColor="@color/color_secondary_text"
             android:layout_marginStart="@dimen/dp_16"
             app:layout_constraintEnd_toStartOf="@id/btnEvaluationOptions"
-            app:layout_constraintStart_toEndOf="@id/tViewEvaluationType"
+            app:layout_constraintStart_toEndOf="@id/tViewEvaluationName"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="28.50 / 35" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/tViewEvaluationNotes"
+            android:id="@+id/tViewEvaluationType"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:fontFamily="sans-serif-light"
-            android:maxLength="128"
             android:maxLines="1"
             android:textColor="@color/color_secondary_text"
             app:layout_constraintEnd_toEndOf="@id/tViewEvaluationGrade"
-            app:layout_constraintStart_toStartOf="@id/tViewEvaluationType"
+            app:layout_constraintStart_toStartOf="@id/tViewEvaluationName"
             app:layout_constraintTop_toBottomOf="@id/tViewEvaluationDate"
-            tools:text="Este parcial no lo puedo raspar chamo" />
+            tools:text="Parcial" />
 
         <SeekBar
-            android:id="@+id/sBarGrade"
+            android:id="@+id/sBarEvaluationGrade"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingVertical="@dimen/dp_8"
             tools:max="35"
             app:layout_constraintEnd_toEndOf="@id/tViewEvaluationGrade"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tViewEvaluationNotes"
+            app:layout_constraintTop_toBottomOf="@id/tViewEvaluationType"
             tools:progress="28" />
 
         <androidx.appcompat.widget.AppCompatImageButton

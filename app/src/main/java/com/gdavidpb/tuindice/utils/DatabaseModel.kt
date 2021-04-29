@@ -63,11 +63,11 @@ object EvaluationCollection {
     const val USER_ID = "userId"
     const val SUBJECT_ID = "subjectId"
     const val SUBJECT_CODE = "subjectCode"
-    const val TYPE = "type"
+    const val NOTES = "notes"
     const val GRADE = "grade"
     const val MAX_GRADE = "maxGrade"
     const val DATE = "date"
-    const val NOTES = "notes"
+    const val TYPE = "type"
     const val DONE = "done"
     const val LAST_MODIFIED = "lastModified"
 }

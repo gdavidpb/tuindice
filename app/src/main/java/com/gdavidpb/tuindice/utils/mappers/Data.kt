@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.computeCredits
+import com.gdavidpb.tuindice.utils.extensions.round
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
@@ -66,12 +67,12 @@ fun DocumentSnapshot.toEvaluation() = Evaluation(
         id = id,
         sid = getString(EvaluationCollection.SUBJECT_ID) ?: "",
         subjectCode = getString(EvaluationCollection.SUBJECT_CODE) ?: "",
-        type = EvaluationType.values()[(getLong(EvaluationCollection.TYPE)?.toInt()
-                ?: EvaluationType.OTHER.ordinal)],
+        notes = getString(EvaluationCollection.NOTES) ?: "",
         grade = getDouble(EvaluationCollection.GRADE) ?: 0.0,
         maxGrade = getDouble(EvaluationCollection.MAX_GRADE) ?: 0.0,
         date = getDate(EvaluationCollection.DATE) ?: Date(0),
-        notes = getString(EvaluationCollection.NOTES) ?: "",
+        type = EvaluationType.values()[(getLong(EvaluationCollection.TYPE)?.toInt()
+                ?: EvaluationType.OTHER.ordinal)],
         isDone = getBoolean(EvaluationCollection.DONE) ?: false
 )
 
@@ -123,14 +124,14 @@ fun Evaluation.toEvaluationEntity(uid: String) = mutableMapOf(
         EvaluationCollection.USER_ID to uid,
         EvaluationCollection.SUBJECT_ID to sid,
         EvaluationCollection.SUBJECT_CODE to subjectCode,
-        EvaluationCollection.TYPE to type.ordinal,
-        EvaluationCollection.GRADE to grade,
+        EvaluationCollection.NOTES to notes.trim().take(MAX_EVALUATION_NOTES),
+        EvaluationCollection.GRADE to grade.round(2),
         EvaluationCollection.MAX_GRADE to maxGrade,
+        EvaluationCollection.TYPE to type.ordinal,
         EvaluationCollection.DONE to isDone,
         EvaluationCollection.LAST_MODIFIED to FieldValue.serverTimestamp()
 ).apply {
     if (date.time != 0L) put(EvaluationCollection.DATE, Timestamp(date))
-    if (notes.isNotBlank()) put(EvaluationCollection.NOTES, notes.trim().take(MAX_EVALUATION_NOTES))
 }
 
 fun FirebaseUser.toAuth() = Auth(

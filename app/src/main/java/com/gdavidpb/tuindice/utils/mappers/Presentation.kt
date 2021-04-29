@@ -53,12 +53,12 @@ fun Quarter.toQuarterItem(context: Context): QuarterItem {
 fun Evaluation.toEvaluationItem(context: Context) = EvaluationItem(
         uid = id.hashCode().toLong(),
         id = id,
+        notesText = if (notes.isNotEmpty()) notes else "─",
         grade = grade,
         maxGrade = maxGrade,
-        date = date,
-        typeText = type.formatEvaluationTypeName(context),
-        notesText = if (notes.isNotEmpty()) notes else "─",
         dateText = date.formatEvaluationDate(),
+        typeText = type.formatEvaluationTypeName(context),
+        date = date,
         isDone = isDone,
         data = this
 )

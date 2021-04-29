@@ -29,7 +29,7 @@ class EvaluationViewHolder(
                 manager.onEvaluationOptionsClicked(item, absoluteAdapterPosition)
             }
 
-            sBarGrade.onSeekBarChange {
+            sBarEvaluationGrade.onSeekBarChange {
                 onProgressChanged { progress, fromUser ->
                     if (fromUser) {
                         val item = getItem()
@@ -68,16 +68,16 @@ class EvaluationViewHolder(
     }
 
     private fun CardView.setAdditionalData(type: CharSequence, notes: CharSequence, date: CharSequence) {
+        tViewEvaluationName.text = notes
         tViewEvaluationType.text = type
-        tViewEvaluationNotes.text = notes
         tViewEvaluationDate.text = date
     }
 
     private fun CardView.setGrades(grade: Double, maxGrade: Double) {
-        val gradeText = context.getString(R.string.evaluation_grade_max, grade, maxGrade)
+        val gradeText = context.getString(R.string.evaluation_grade_max, grade.formatGrade(2), maxGrade.formatGrade())
 
-        sBarGrade.max = maxGrade.toProgress()
-        sBarGrade.progress = grade.toProgress()
+        sBarEvaluationGrade.max = maxGrade.toProgress()
+        sBarEvaluationGrade.progress = grade.toProgress()
         tViewEvaluationGrade.text = gradeText
     }
 
@@ -90,14 +90,14 @@ class EvaluationViewHolder(
         viewEvaluationColor.backgroundColor = cardColor
         cBoxEvaluation.setChecked(checked = isDone, notify = false)
 
-        sBarGrade.isEnabled = !isDone
+        sBarEvaluationGrade.isEnabled = !isDone
 
         if (isDone) {
             tViewEvaluationDate.strikeThrough()
-            tViewEvaluationNotes.strikeThrough()
+            tViewEvaluationType.strikeThrough()
         } else {
             tViewEvaluationDate.clearStrikeThrough()
-            tViewEvaluationNotes.clearStrikeThrough()
+            tViewEvaluationType.clearStrikeThrough()
         }
     }
 }

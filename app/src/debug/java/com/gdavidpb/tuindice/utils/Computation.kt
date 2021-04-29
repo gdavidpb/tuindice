@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.utils
 
 import com.gdavidpb.tuindice.domain.model.service.DstSubject
-import kotlin.math.floor
+import com.gdavidpb.tuindice.utils.extensions.round
 
 fun Collection<DstSubject>.computeGrade(): Double {
     val creditsSum = computeCredits().toDouble()
@@ -12,7 +12,7 @@ fun Collection<DstSubject>.computeGrade(): Double {
 
     val grade = if (creditsSum != 0.0) weightedSum / creditsSum else 0.0
 
-    return floor(grade * 10000.0) / 10000.0
+    return grade.round(4)
 }
 
 fun Collection<DstSubject>.computeCredits() = sumBy {
