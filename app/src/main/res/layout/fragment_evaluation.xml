@@ -45,6 +45,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:imeOptions="actionNext"
+                    android:selectAllOnFocus="true"
                     android:inputType="textShortMessage|text|textCapSentences"
                     android:maxLength="32"
                     android:maxLines="1" />

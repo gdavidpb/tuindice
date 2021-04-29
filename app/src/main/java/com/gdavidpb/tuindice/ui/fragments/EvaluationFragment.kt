@@ -88,7 +88,6 @@ class EvaluationFragment : NavigationFragment() {
         val evaluationType = evaluation.type.ordinal
 
         eTextEvaluationName.setText(notes)
-        eTextEvaluationName.setSelection(notes.length)
 
         eTextEvaluationGrade.setText(grade.formatGrade())
         sEvaluationDate.isChecked = (date.time != 0L)
