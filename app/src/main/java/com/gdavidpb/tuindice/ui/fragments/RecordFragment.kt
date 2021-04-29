@@ -6,8 +6,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
@@ -25,7 +23,6 @@ import com.gdavidpb.tuindice.ui.dialogs.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
 import com.gdavidpb.tuindice.utils.mappers.toUpdateRequest
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -63,11 +60,7 @@ class RecordFragment : NavigationFragment() {
         setHasOptionsMenu(true)
         setMenuVisibility(false)
 
-        with(rViewRecord) {
-            adapter = quarterAdapter
-
-            ItemTouchHelper(quarterManager).attachToRecyclerView(this)
-        }
+        rViewRecord.adapter = quarterAdapter
 
         viewModel.getQuarters()
     }
@@ -254,7 +247,7 @@ class RecordFragment : NavigationFragment() {
         }
     }
 
-    inner class QuarterManager : QuarterAdapter.AdapterManager, ItemTouchHelper.Callback() {
+    inner class QuarterManager : QuarterAdapter.AdapterManager {
         override fun onSubjectOptionsClicked(quarterItem: QuarterItem, subjectItem: SubjectItem) {
             showSubjectMenuDialog(quarterItem = quarterItem, subjectItem = subjectItem)
         }
@@ -271,74 +264,6 @@ class RecordFragment : NavigationFragment() {
 
         override fun onSubmitQuarters(items: List<QuarterItem>) {
             fViewRecord.displayedChild = if (items.isNotEmpty()) Flipper.CONTENT else Flipper.EMPTY
-        }
-
-        override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-            val position = viewHolder.absoluteAdapterPosition
-            val item = quarterAdapter.getQuarter(position)
-
-            /* Let swipes over the first with "mock" status */
-            return if (item.isMock && position == 0)
-                makeMovementFlags(0, ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT)
-            else
-                0
-        }
-
-        override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-            return false
-        }
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            val position = viewHolder.absoluteAdapterPosition
-            val item = quarterAdapter.getQuarter(position)
-
-            quarterAdapter.removeQuarter(item)
-
-            snackBar {
-                message = getString(R.string.snack_item_removed, item.TitleText)
-
-                action(R.string.snack_action_undone) {
-                    rViewRecord.scrollToPosition(0)
-
-                    val updatedItem = item.copy(isSwiping = false)
-
-                    quarterAdapter.addQuarter(item = updatedItem, position = position)
-                }
-
-                onDismissed { event ->
-                    if (event != Snackbar.Callback.DISMISS_EVENT_ACTION) {
-                        viewModel.removeQuarter(id = item.id)
-                    }
-                }
-            }
-        }
-
-        override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-            super.onSelectedChanged(viewHolder, actionState)
-
-            viewHolder ?: return
-
-            if (actionState != ItemTouchHelper.ACTION_STATE_SWIPE) return
-
-            val position = viewHolder.absoluteAdapterPosition
-
-            if (position == RecyclerView.NO_POSITION) return
-
-            val item = quarterAdapter.getQuarter(position)
-
-            quarterAdapter.updateQuarter(item.copy(isSwiping = true))
-        }
-
-        override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
-            super.clearView(recyclerView, viewHolder)
-
-            val position = viewHolder.absoluteAdapterPosition
-
-            if (position == RecyclerView.NO_POSITION) return
-
-            val item = quarterAdapter.getQuarter(position)
-
-            quarterAdapter.updateQuarter(item.copy(isSwiping = false))
         }
     }
 }

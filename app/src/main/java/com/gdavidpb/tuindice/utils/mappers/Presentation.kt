@@ -45,7 +45,6 @@ fun Quarter.toQuarterItem(context: Context): QuarterItem {
             gradeSumText = gradeSum.formatGradeSum(quarterColor, context),
             creditsText = credits.formatCredits(quarterColor, context),
             subjectsItems = subjects.map { it.toSubjectItem(context) },
-            isSwiping = false,
             data = this
     )
 }

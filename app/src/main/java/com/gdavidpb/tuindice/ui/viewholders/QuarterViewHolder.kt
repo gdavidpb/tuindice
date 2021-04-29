@@ -26,8 +26,8 @@ class QuarterViewHolder(
         itemView as CardView
 
         with(itemView) {
+            setStates(color = item.color)
             setData(title = item.TitleText, grade = item.gradeDiffText, gradeSum = item.gradeSumText, credits = item.creditsText)
-            setStates(color = item.color, isSwiping = item.isSwiping)
 
             adjustViews(count = item.subjectsItems.size)
 
@@ -35,8 +35,7 @@ class QuarterViewHolder(
         }
     }
 
-    private fun CardView.setStates(@ColorInt color: Int, isSwiping: Boolean) {
-        isEnabled = !isSwiping
+    private fun CardView.setStates(@ColorInt color: Int) {
         viewQuarterColor.backgroundColor = color
     }
 

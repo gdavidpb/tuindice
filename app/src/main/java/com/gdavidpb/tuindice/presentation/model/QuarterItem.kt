@@ -16,6 +16,5 @@ data class QuarterItem(
         val gradeSumText: CharSequence,
         val creditsText: CharSequence,
         val subjectsItems: List<SubjectItem>,
-        val isSwiping: Boolean,
         val data: Quarter
 )
