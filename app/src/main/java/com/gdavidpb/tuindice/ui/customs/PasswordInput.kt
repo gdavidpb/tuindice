@@ -15,7 +15,7 @@ class PasswordInput(context: Context, attrs: AttributeSet)
     init {
         inflate(context, R.layout.view_password_input, this)
 
-        initEvents()
+        initListeners()
     }
 
     fun isBlank() = "${textInputEditText.text}".isBlank()
@@ -36,7 +36,7 @@ class PasswordInput(context: Context, attrs: AttributeSet)
         }
     }
 
-    private fun initEvents() {
+    private fun initListeners() {
         textInputEditText.onTextChanged { _, _, _, _ ->
             if (textInputLayout.error != null)
                 textInputLayout.error = null

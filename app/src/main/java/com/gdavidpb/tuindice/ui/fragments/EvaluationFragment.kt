@@ -18,7 +18,7 @@ import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.presentation.viewmodel.EvaluationViewModel
-import com.gdavidpb.tuindice.ui.customs.EvaluationDatePicker
+import com.gdavidpb.tuindice.utils.DECIMALS_DIV
 import com.gdavidpb.tuindice.utils.MAX_EVALUATION_GRADE
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.google.android.material.chip.Chip
@@ -26,7 +26,6 @@ import com.google.firebase.Timestamp
 import kotlinx.android.synthetic.main.fragment_evaluation.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.util.*
 
 class EvaluationFragment : NavigationFragment() {
 
@@ -41,15 +40,12 @@ class EvaluationFragment : NavigationFragment() {
     private val validations by lazy {
         arrayOf<Validation<*>>(
                 `when`(tInputEvaluationName) { !isValid() } `do` { snackBar(R.string.toast_evaluation_name_missed) },
-                `when`(tInputEvaluationGrade) { getGrade() > MAX_EVALUATION_GRADE } `do` { snackBar(R.string.toast_evaluation_grade_invalid) },
+                `when`(tInputEvaluationGrade) { getGrade() > MAX_EVALUATION_GRADE } `do` { snackBar(R.string.toast_evaluation_grade_invalid_max) },
+                `when`(tInputEvaluationGrade) { getGrade() % DECIMALS_DIV != 0.0 } `do` { snackBar(R.string.toast_evaluation_grade_invalid_step) },
                 `when`(tInputEvaluationGrade) { !isValid() } `do` { snackBar(R.string.toast_evaluation_grade_missed) },
-                `when`(datePicker) { !isValidState } `do` { snackBar(R.string.toast_evaluation_date_missed) },
+                `when`(dPickerEvaluationDate) { !isValid() } `do` { snackBar(R.string.toast_evaluation_date_missed) },
                 `when`(cGroupEvaluation) { checkedChipId == -1 } `do` { snackBar(R.string.toast_evaluation_type_missed) }
         )
-    }
-
-    private val datePicker by lazy {
-        EvaluationDatePicker(tViewEvaluationDate)
     }
 
     override fun onCreateView() = R.layout.fragment_evaluation
@@ -90,36 +86,35 @@ class EvaluationFragment : NavigationFragment() {
         eTextEvaluationName.setText(notes)
 
         eTextEvaluationGrade.setText(grade.formatGrade())
-        sEvaluationDate.isChecked = (date.time != 0L)
+        dPickerEvaluationDate.isChecked = (date.time != 0L)
         cGroupEvaluation.checkedChipIndex = evaluationType
 
-        datePicker.selectedDate = date
-        datePicker.isDateSelectable = sEvaluationDate.isChecked
+        dPickerEvaluationDate.selectedDate = date
     }
 
     private fun initListeners() {
         btnEvaluationSave.onClickOnce(::onSaveClick)
-        tViewEvaluationDate.onClickOnce(::onDateClick)
-
-        sEvaluationDate.onCheckedChange { isChecked ->
-            datePicker.isDateSelectable = isChecked
-            tViewEvaluationDate.isClickable = isChecked
-        }
 
         tInputEvaluationName.onValidate {
             getName().isNotBlank()
         }
 
         tInputEvaluationGrade.onValidate {
-            getGrade() in (0.0..MAX_EVALUATION_GRADE)
+            val grade = getGrade()
+
+            (grade % DECIMALS_DIV == 0.0) && (grade in (0.0..MAX_EVALUATION_GRADE))
+        }
+
+        dPickerEvaluationDate.onShowDatePicker {
+            inputMethodManager.hideSoftKeyboard(requireActivity())
         }
 
         eTextEvaluationGrade.setOnEditorActionListener { _, actionId, _ ->
             when {
                 actionId != EditorInfo.IME_ACTION_NEXT -> true
-                !sEvaluationDate.isChecked -> true
+                !dPickerEvaluationDate.isChecked -> true
                 else -> {
-                    tViewEvaluationDate.performClick()
+                    dPickerEvaluationDate.performClick()
                     false
                 }
             }
@@ -142,7 +137,7 @@ class EvaluationFragment : NavigationFragment() {
                 is View -> {
                     requestFocus()
 
-                    animateLookAtMe()
+                    animateLookAtMe(5f)
                 }
             }
         }.isNull {
@@ -152,27 +147,6 @@ class EvaluationFragment : NavigationFragment() {
                 viewModel.updateEvaluation(request = collectUpdateEvaluation())
 
             navigateUp()
-        }
-    }
-
-    private fun onDateClick() {
-        inputMethodManager.hideSoftKeyboard(eTextEvaluationGrade)
-
-        requireActivity().datePicker {
-            if (datePicker.selectedDate.time != 0L)
-                selectedDate = datePicker.selectedDate
-
-            onDateSelected { selectedDate ->
-                datePicker.selectedDate = selectedDate
-            }
-
-            setUpDatePicker {
-                val startDate = Date().add(Calendar.YEAR, -1).time
-                val endDate = Date().add(Calendar.YEAR, 1).time
-
-                minDate = startDate
-                maxDate = endDate
-            }
         }
     }
 
@@ -200,7 +174,7 @@ class EvaluationFragment : NavigationFragment() {
                 notes = getName(),
                 grade = maxGrade,
                 maxGrade = maxGrade,
-                date = datePicker.selectedDate,
+                date = dPickerEvaluationDate.selectedDate,
                 type = getType(),
                 isDone = false
         )
@@ -215,7 +189,7 @@ class EvaluationFragment : NavigationFragment() {
                 notes = getName(),
                 grade = maxGrade,
                 maxGrade = maxGrade,
-                date = Timestamp(datePicker.selectedDate),
+                date = Timestamp(dPickerEvaluationDate.selectedDate),
                 type = getType().ordinal,
                 isDone = false
         )

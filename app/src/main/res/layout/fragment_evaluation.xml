@@ -74,40 +74,19 @@
 
             </com.gdavidpb.tuindice.ui.customs.ValidatedTextInputLayout>
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tViewEvaluationDate"
+            <com.gdavidpb.tuindice.ui.customs.EvaluationDatePickerView
+                android:id="@+id/dPickerEvaluationDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_24"
-                android:background="@drawable/sh_rect_date"
-                android:clickable="true"
-                android:drawablePadding="@dimen/dp_8"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:gravity="center_vertical"
-                android:padding="@dimen/dp_16"
-                android:text="@string/label_evaluation_select_date"
-                app:drawableStartCompat="@drawable/ic_edit_calendar"
-                app:drawableTint="@color/color_primary"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tInputEvaluationGrade" />
-
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/sEvaluationDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/dp_8"
-                android:checked="true"
-                app:layout_constraintBottom_toBottomOf="@id/tViewEvaluationDate"
-                app:layout_constraintEnd_toEndOf="@id/tViewEvaluationDate"
-                app:layout_constraintTop_toTopOf="@id/tViewEvaluationDate" />
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/cGroupEvaluation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_24"
-                app:layout_constraintTop_toBottomOf="@id/tViewEvaluationDate"
+                app:layout_constraintTop_toBottomOf="@id/dPickerEvaluationDate"
                 app:selectionRequired="true"
                 app:singleSelection="true" />
 

@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.utils.extensions
 import android.app.DatePickerDialog
 import android.content.Context
 import android.widget.DatePicker
-import androidx.fragment.app.FragmentActivity
 import java.util.*
 
 data class DatePickerDialogBuilder(
@@ -40,5 +39,5 @@ data class DatePickerDialogBuilder(
     }
 }
 
-inline fun FragmentActivity.datePicker(builder: DatePickerDialogBuilder.() -> Unit) =
+inline fun Context.datePicker(builder: (DatePickerDialogBuilder) -> Unit) =
         DatePickerDialogBuilder(this).apply(builder).build().show()
