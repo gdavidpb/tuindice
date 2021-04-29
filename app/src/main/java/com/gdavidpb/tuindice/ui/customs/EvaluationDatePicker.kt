@@ -1,13 +1,17 @@
 package com.gdavidpb.tuindice.ui.customs
 
-import android.widget.TextView
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
+import androidx.appcompat.widget.AppCompatTextView
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.NO_SETTER
+import com.gdavidpb.tuindice.utils.extensions.getCompatColor
 import com.gdavidpb.tuindice.utils.mappers.formatEvaluationDate
 import java.util.*
 import kotlin.DeprecationLevel.ERROR
 
-class EvaluationDatePicker(private val textView: TextView) {
+@Deprecated("Migrate to a custom view")
+class EvaluationDatePicker(private val textView: AppCompatTextView) {
     var selectedDate = Date(0)
         get() = if (isDateSelectable) field else Date(0)
         set(value) {
@@ -20,7 +24,11 @@ class EvaluationDatePicker(private val textView: TextView) {
         set(value) {
             field = value
 
-            textView.isEnabled = value
+            val color = if (value) R.color.color_primary else R.color.color_secondary_text
+
+            textView.compoundDrawables[0].apply {
+                colorFilter = PorterDuffColorFilter(textView.context.getCompatColor(color), PorterDuff.Mode.SRC_IN)
+            }
 
             updateText()
         }

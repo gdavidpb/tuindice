@@ -7,7 +7,7 @@
     android:background="@android:color/white">
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tViewSubjectHeader"
+        android:id="@+id/tViewEvaluationHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/color_background"
@@ -23,8 +23,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
-        app:layout_constraintBottom_toTopOf="@id/btnSave"
-        app:layout_constraintTop_toBottomOf="@id/tViewSubjectHeader">
+        app:layout_constraintBottom_toTopOf="@id/btnEvaluationSave"
+        app:layout_constraintTop_toBottomOf="@id/tViewEvaluationHeader">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -32,154 +32,103 @@
             android:animateLayoutChanges="true"
             android:padding="@dimen/dp_16">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tViewLabelType"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tInputEvaluationName"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-light"
-                android:labelFor="@id/cGroupEvaluation"
-                android:text="@string/label_evaluation_type"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:hint="@string/hint_evaluation_name"
+                app:boxCornerRadiusBottomEnd="@dimen/dp_6"
+                app:boxCornerRadiusBottomStart="@dimen/dp_6"
+                app:boxCornerRadiusTopEnd="@dimen/dp_6"
+                app:boxCornerRadiusTopStart="@dimen/dp_6"
+                app:layout_constraintTop_toTopOf="parent"
+                app:startIconDrawable="@drawable/ic_label"
+                app:startIconTint="@color/color_secondary_text">
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/cGroupEvaluation"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/eTextEvaluationName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_8"
+                    android:imeOptions="actionNext"
+                    android:importantForAutofill="no"
+                    android:inputType="textShortMessage|text|textCapSentences"
+                    android:maxLength="32"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tInputEvaluationGrade"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_8"
-                android:animateLayoutChanges="true"
-                app:layout_constraintTop_toBottomOf="@id/tViewLabelType"
-                app:selectionRequired="true"
-                app:singleSelection="true" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tViewLabelGrade"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_8"
-                android:fontFamily="sans-serif-light"
-                android:labelFor="@id/sBarMaxGrade"
-                android:text="@string/label_evaluation_max_grade"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:layout_marginTop="@dimen/dp_24"
+                android:hint="@string/hint_evaluation_grade"
+                app:boxCornerRadiusBottomEnd="@dimen/dp_6"
+                app:boxCornerRadiusBottomStart="@dimen/dp_6"
+                app:boxCornerRadiusTopEnd="@dimen/dp_6"
+                app:boxCornerRadiusTopStart="@dimen/dp_6"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/cGroupEvaluation" />
+                app:layout_constraintTop_toBottomOf="@id/tInputEvaluationName"
+                app:startIconDrawable="@drawable/ic_donut"
+                app:startIconTint="@color/color_secondary_text">
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tViewLabelGradeValue"
-                android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/eTextEvaluationGrade"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="numberDecimal"
+                    android:selectAllOnFocus="true"
+                    android:textColor="@color/color_text_input_layout_text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tViewEvaluationDate"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-light"
-                android:text="@string/label_evaluation_max_grade"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                app:layout_constraintBottom_toBottomOf="@id/tViewLabelGrade"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tViewLabelGrade"
-                tools:text="27.50 pts" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/dp_24"
                 android:background="@drawable/sh_rect_date"
-                app:layout_constraintBottom_toBottomOf="@id/sBarMaxGrade"
-                app:layout_constraintEnd_toEndOf="@id/btnGradeUp"
-                app:layout_constraintStart_toStartOf="@id/btnGradeDown"
-                app:layout_constraintTop_toTopOf="@id/sBarMaxGrade" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnGradeDown"
-                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                android:layout_width="@dimen/dp_48"
-                android:layout_height="0dp"
-                app:icon="@drawable/ic_left"
-                app:layout_constraintBottom_toBottomOf="@id/sBarMaxGrade"
+                android:clickable="true"
+                android:drawablePadding="@dimen/dp_8"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center_vertical"
+                android:padding="@dimen/dp_16"
+                android:text="@string/label_evaluation_select_date"
+                app:drawableStartCompat="@drawable/ic_edit_calendar"
+                app:drawableTint="@color/color_primary"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tViewLabelGrade"
-                app:layout_constraintTop_toTopOf="@id/sBarMaxGrade" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnGradeUp"
-                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                android:layout_width="@dimen/dp_48"
-                android:layout_height="0dp"
-                app:icon="@drawable/ic_right"
-                app:layout_constraintBottom_toBottomOf="@id/sBarMaxGrade"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tViewLabelGrade"
-                app:layout_constraintTop_toTopOf="@id/sBarMaxGrade"
-                tools:ignore="ContentDescription" />
-
-            <SeekBar
-                android:id="@+id/sBarMaxGrade"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_16"
-                android:paddingVertical="@dimen/dp_16"
-                android:progress="0"
-                app:layout_constraintEnd_toStartOf="@id/btnGradeUp"
-                app:layout_constraintStart_toEndOf="@id/btnGradeDown"
-                app:layout_constraintTop_toBottomOf="@id/tViewLabelGrade"
-                tools:max="200"
-                tools:progress="55" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tViewLabelDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_8"
-                android:fontFamily="sans-serif-light"
-                android:labelFor="@id/tViewLabelGrade"
-                android:text="@string/label_evaluation_date"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/sBarMaxGrade" />
+                app:layout_constraintTop_toBottomOf="@id/tInputEvaluationGrade" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/sEvaluationDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dp_8"
                 android:checked="true"
-                app:layout_constraintBottom_toBottomOf="@+id/tViewLabelDate"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/tViewLabelDate" />
+                app:layout_constraintBottom_toBottomOf="@id/tViewEvaluationDate"
+                app:layout_constraintEnd_toEndOf="@id/tViewEvaluationDate"
+                app:layout_constraintTop_toTopOf="@id/tViewEvaluationDate" />
 
-            <include
-                android:id="@+id/tViewDate"
-                layout="@layout/view_evaluation_date_picker" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tViewLabelNotes"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cGroupEvaluation"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_16"
-                android:clickable="true"
-                android:focusable="true"
-                android:fontFamily="sans-serif-light"
-                android:labelFor="@id/eTextNotes"
-                android:text="@string/label_evaluation_notes"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                app:drawableEndCompat="@drawable/ic_expand_more"
-                app:layout_constraintTop_toBottomOf="@id/tViewDate" />
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/eTextNotes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_8"
-                android:imeOptions="actionDone"
-                android:importantForAutofill="no"
-                android:inputType="textShortMessage|text|textCapSentences"
-                android:maxLength="128"
-                android:maxLines="1"
-                android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/tViewLabelNotes"
-                tools:visibility="visible" />
+                android:layout_marginTop="@dimen/dp_24"
+                app:layout_constraintTop_toBottomOf="@id/tViewEvaluationDate"
+                app:selectionRequired="true"
+                app:singleSelection="true" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnSave"
+        android:id="@+id/btnEvaluationSave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/dp_16"

@@ -16,11 +16,11 @@ import android.widget.TextView
 import androidx.annotation.StyleableRes
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
-import com.gdavidpb.tuindice.ui.customs.EvaluationDatePicker
 import com.gdavidpb.tuindice.utils.NO_GETTER
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
+import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.*
 import kotlin.DeprecationLevel.ERROR
 
@@ -96,8 +96,6 @@ fun TextView.drawables(
         end: Int = 0,
         bottom: Int = 0) = setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom)
 
-fun TextView.wrapEvaluationDatePicker() = EvaluationDatePicker(this)
-
 fun EditText.onTextChanged(event: (CharSequence, Int, Int, Int) -> Unit) {
     addTextChangedListener(object : TextWatcher {
         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -128,11 +126,11 @@ fun InputMethodManager.hideSoftKeyboard(activity: FragmentActivity) {
 fun TextInputLayout.text(value: String? = null) = value?.also { editText?.setText(it) }
         ?: "${editText?.text}"
 
-fun TextView.strikeThrough() {
+fun MaterialTextView.strikeThrough() {
     paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
 }
 
-fun TextView.clearStrikeThrough() {
+fun MaterialTextView.clearStrikeThrough() {
     paintFlags = paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
 }
 
