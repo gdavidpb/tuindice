@@ -88,12 +88,22 @@ class QuarterViewHolder(
     private fun View.setEditable(quarterItem: QuarterItem, subjectItem: SubjectItem) {
         val areOptionsAvailable = quarterItem.isEditable
 
-        btnSubjectOptions.isVisible = areOptionsAvailable
+        with(btnSubjectOptions) {
+            isVisible = areOptionsAvailable
 
-        if (areOptionsAvailable)
-            btnSubjectOptions.onClickOnce { manager.onSubjectOptionsClicked(quarterItem, subjectItem) }
-        else
-            btnSubjectOptions.setOnClickListener(null)
+            if (subjectItem.isRetired) {
+                alpha = 0.25f
+                isEnabled = false
+            } else {
+                alpha = 1f
+                isEnabled = true
+            }
+
+            if (areOptionsAvailable)
+                onClickOnce { manager.onSubjectOptionsClicked(quarterItem, subjectItem) }
+            else
+                setOnClickListener(null)
+        }
     }
 
     private fun View.setGradeBar(quarterItem: QuarterItem, subjectItem: SubjectItem) {
