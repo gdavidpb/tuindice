@@ -37,7 +37,7 @@ open class MenuBottomSheetDialog : BottomSheetDialogFragment() {
             else -> error("'titleResource' or 'titleText' is missed")
         }
 
-        check(menuItems.isNotEmpty())
+        check(menuItems.isNotEmpty()) { "menuItems is empty" }
 
         rViewMenu.adapter = BottomMenuAdapter(items = menuItems, manager = MenuManager())
     }

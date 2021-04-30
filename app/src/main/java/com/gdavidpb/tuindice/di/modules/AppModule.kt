@@ -153,7 +153,11 @@ val appModule = module {
             }
 
             override fun getAcceptedIssuers(): Array<X509Certificate> {
-                return get()
+                val certificates = get<Array<X509Certificate>>()
+
+                check(certificates.isNotEmpty()) { "certificates not loaded" }
+
+                return certificates
             }
 
             private fun Array<X509Certificate>.checkValidity() {
@@ -165,15 +169,17 @@ val appModule = module {
     /* Certificates */
 
     single {
-        get<ConfigRepository>()
-                .getString(ConfigKeys.DST_CERTIFICATES)
-                .inflate()
-                .let(::ByteArrayInputStream)
-                .use { inputStream ->
-                    CertificateFactory.getInstance("X.509")
-                            .generateCertificates(inputStream)
-                            .map { certificate -> certificate as X509Certificate }
-                }.toTypedArray()
+        runCatching {
+            get<ConfigRepository>()
+                    .getString(ConfigKeys.DST_CERTIFICATES)
+                    .inflate()
+                    .let(::ByteArrayInputStream)
+                    .use { inputStream ->
+                        CertificateFactory.getInstance("X.509")
+                                .generateCertificates(inputStream)
+                                .map { certificate -> certificate as X509Certificate }
+                    }.toTypedArray()
+        }.getOrDefault(emptyArray())
     }
 
     single {
