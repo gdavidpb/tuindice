@@ -83,16 +83,19 @@ class SyncAccountUseCase(
 
             quarters.addAll(recordQuarters)
 
-            /* Add enrollment quarter */
+            /* Add current quarter */
             if (enrollment != null) {
-                val enrollmentQuarter = enrollment.toQuarter(uid = activeAuth.uid)
+                val currentQuarter = enrollment.toQuarter(uid = activeAuth.uid)
 
-                quarters.add(enrollmentQuarter)
+                /* Check if current quarter is closed */
+                val isCurrentQuarterClosed = recordQuarters.any { it.id == currentQuarter.id }
 
-                /* Compute gradeSum */
-                val gradeSum = quarters.computeGradeSum(until = enrollmentQuarter)
+                if (!isCurrentQuarterClosed) {
+                    /* Compute gradeSum */
+                    val gradeSum = (recordQuarters + currentQuarter).computeGradeSum(until = currentQuarter)
 
-                quarters.add(quarters.removeLast().copy(gradeSum = gradeSum))
+                    quarters.add(currentQuarter.copy(gradeSum = gradeSum))
+                }
             }
 
             quarters.forEach { quarter ->
