@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.create
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
 import com.gdavidpb.tuindice.utils.extensions.inflate
+import com.gdavidpb.tuindice.utils.extensions.sharedPreferences
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.auth.FirebaseAuth
@@ -61,7 +62,9 @@ val appModule = module {
     /* Application */
 
     single {
-        androidContext().encryptedSharedPreferences()
+        runCatching {
+            androidContext().encryptedSharedPreferences()
+        }.getOrDefault(androidContext().sharedPreferences())
     }
 
     /* Android Services */

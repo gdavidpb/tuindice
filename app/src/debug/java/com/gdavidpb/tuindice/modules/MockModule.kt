@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.services.DstRecordServiceMock
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.createMockService
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
+import com.gdavidpb.tuindice.utils.extensions.sharedPreferences
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
 import com.google.android.play.core.review.ReviewManager
@@ -50,7 +51,9 @@ val mockModule = module {
     /* Application */
 
     single {
-        androidContext().encryptedSharedPreferences()
+        runCatching {
+            androidContext().encryptedSharedPreferences()
+        }.getOrDefault(androidContext().sharedPreferences())
     }
 
     /* Android Services */
