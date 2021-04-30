@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.utils.Validation
@@ -78,9 +77,7 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
                 }
             }
         }.isNull {
-            val activity = requireActivity() as AppCompatActivity
-
-            inputMethodManager.hideSoftKeyboard(activity)
+            hideSoftKeyboard(inputMethodManager)
 
             viewModel.updatePassword(password = tInputPassword.getPassword())
         }

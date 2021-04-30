@@ -32,16 +32,11 @@ class EvaluationDatePickerView(context: Context, attrs: AttributeSet)
         get() = sEvaluationDate.isChecked
         set(value) {
             sEvaluationDate.isChecked = value
+            tViewEvaluationDate.isClickable = value
         }
-
-    private var onShowDatePicker: () -> Unit = {}
 
     fun isValid(): Boolean {
         return !sEvaluationDate.isChecked || selectedDate.time != 0L
-    }
-
-    fun onShowDatePicker(block: () -> Unit) {
-        onShowDatePicker = block
     }
 
     private fun initListeners() {
@@ -50,8 +45,6 @@ class EvaluationDatePickerView(context: Context, attrs: AttributeSet)
         }
 
         tViewEvaluationDate.onClickOnce {
-            onShowDatePicker()
-
             context.datePicker { dialog ->
                 if (selectedDate.time != 0L)
                     dialog.selectedDate = selectedDate

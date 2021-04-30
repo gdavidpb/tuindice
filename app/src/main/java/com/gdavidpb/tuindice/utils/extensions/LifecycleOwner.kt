@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.utils.extensions
 
 import android.content.Intent
 import android.net.Uri
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
@@ -14,6 +15,19 @@ import com.gdavidpb.tuindice.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.io.File
 import kotlin.reflect.full.createInstance
+
+fun LifecycleOwner.hideSoftKeyboard(inputMethodManager: InputMethodManager) {
+    val view = when (this) {
+        is Fragment -> requireView().rootView
+        is FragmentActivity -> currentFocus
+        else -> throw NoWhenBranchMatchedException()
+    }
+
+    if (view != null) {
+        view.clearFocus()
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+}
 
 fun LifecycleOwner.openPdf(file: File) {
     val uri = FileProvider.getUriForFile(context(), BuildConfig.APPLICATION_ID, file)

@@ -8,13 +8,11 @@ import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.View
 import android.view.View.OnClickListener
-import android.view.inputmethod.InputMethodManager
 import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.StyleableRes
-import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.utils.NO_GETTER
 import com.google.android.material.chip.Chip
@@ -106,21 +104,6 @@ fun EditText.onTextChanged(event: (CharSequence, Int, Int, Int) -> Unit) {
 
         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
     })
-}
-
-fun InputMethodManager.showSoftKeyboard(view: View) {
-    if (view.requestFocus()) showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
-}
-
-fun InputMethodManager.hideSoftKeyboard(view: View) {
-    view.clearFocus()
-    hideSoftInputFromWindow(view.windowToken, 0)
-}
-
-fun InputMethodManager.hideSoftKeyboard(activity: FragmentActivity) {
-    val view = activity.currentFocus
-
-    if (view != null) hideSoftKeyboard(view)
 }
 
 fun TextInputLayout.text(value: String? = null) = value?.also { editText?.setText(it) }

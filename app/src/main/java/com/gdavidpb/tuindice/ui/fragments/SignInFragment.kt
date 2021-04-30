@@ -103,9 +103,7 @@ class SignInFragment : NavigationFragment() {
                 }
             }
         }.isNull {
-            val activity = requireActivity()
-
-            inputMethodManager.hideSoftKeyboard(activity)
+            hideSoftKeyboard(inputMethodManager)
 
             iViewLogo.performClick()
 

@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.ui.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
@@ -105,18 +104,11 @@ class EvaluationFragment : NavigationFragment() {
             (grade % DECIMALS_DIV == 0.0) && (grade in (0.0..MAX_EVALUATION_GRADE))
         }
 
-        dPickerEvaluationDate.onShowDatePicker {
-            inputMethodManager.hideSoftKeyboard(requireActivity())
-        }
+        eTextEvaluationGrade.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val token = requireView().rootView.windowToken
 
-        eTextEvaluationGrade.setOnEditorActionListener { _, actionId, _ ->
-            when {
-                actionId != EditorInfo.IME_ACTION_NEXT -> true
-                !dPickerEvaluationDate.isChecked -> true
-                else -> {
-                    dPickerEvaluationDate.performClick()
-                    false
-                }
+                inputMethodManager.hideSoftInputFromWindow(token, 0)
             }
         }
     }

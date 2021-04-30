@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onDestinationChanged(destination: NavDestination) {
-        inputMethodManager.hideSoftKeyboard(this)
+        hideSoftKeyboard(inputMethodManager)
 
         val showBottomNav = destinations[destination.id] ?: false
         val showAppBar = destination.id != R.id.fragment_splash

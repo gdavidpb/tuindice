@@ -6,8 +6,7 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="@dimen/dp_6"
     app:cardPreventCornerOverlap="true"
-    app:cardUseCompatPadding="true"
-    android:layout_marginVertical="@dimen/dp_4">
+    app:cardUseCompatPadding="true">
 
     <View
         android:id="@+id/viewQuarterColor"
