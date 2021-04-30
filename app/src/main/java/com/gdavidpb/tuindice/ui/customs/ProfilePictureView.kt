@@ -36,13 +36,17 @@ class ProfilePictureView(context: Context, attrs: AttributeSet)
         if (value) {
             pBarProfile.isVisible = true
 
-            gPicture.isEnabled = false
-            gPicture.animateScaleDown()
+            iViewProfile.isEnabled = false
+            iViewEditProfile.isEnabled = false
+            iViewProfile.animateScaleDown()
+            iViewEditProfile.animateScaleDown()
         } else {
             pBarProfile.isInvisible = true
 
-            gPicture.isEnabled = true
-            gPicture.animateScaleUp()
+            iViewProfile.isEnabled = true
+            iViewEditProfile.isEnabled = true
+            iViewProfile.animateScaleUp()
+            iViewEditProfile.animateScaleUp()
         }
     }
 
