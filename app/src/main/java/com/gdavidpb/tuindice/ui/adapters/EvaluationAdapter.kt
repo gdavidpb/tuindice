@@ -12,6 +12,10 @@ class EvaluationAdapter(
         private val manager: AdapterManager
 ) : BaseAdapter<EvaluationItem>() {
 
+    init {
+        setHasStableIds(true)
+    }
+
     private val adapterSorter = compareBy(
             EvaluationItem::isDone,
             EvaluationItem::date

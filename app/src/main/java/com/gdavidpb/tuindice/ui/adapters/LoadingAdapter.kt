@@ -27,5 +27,7 @@ class LoadingAdapter(
 
     override fun getItemId(position: Int): Long = position.toLong()
 
+    override fun hasStableIds(): Boolean = true
+
     override fun getCount(): Int = items.size
 }

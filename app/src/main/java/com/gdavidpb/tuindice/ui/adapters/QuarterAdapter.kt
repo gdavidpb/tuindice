@@ -15,6 +15,10 @@ class QuarterAdapter(
         private val manager: AdapterManager
 ) : BaseAdapter<QuarterItem>() {
 
+    init {
+        setHasStableIds(true)
+    }
+
     interface AdapterManager {
         fun onSubjectOptionsClicked(quarterItem: QuarterItem, subjectItem: SubjectItem)
         fun onSubjectGradeChanged(quarterItem: QuarterItem, subjectItem: SubjectItem, grade: Int, dispatchChanges: Boolean)
