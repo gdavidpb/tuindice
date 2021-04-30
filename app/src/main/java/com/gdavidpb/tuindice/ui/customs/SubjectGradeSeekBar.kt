@@ -10,7 +10,7 @@ import androidx.appcompat.widget.AppCompatSeekBar
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.ceil
 
-class CustomSeekBar(context: Context, attrs: AttributeSet)
+class SubjectGradeSeekBar(context: Context, attrs: AttributeSet)
     : AppCompatSeekBar(context, attrs), ViewHook {
 
     companion object {

@@ -41,14 +41,14 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.6" />
 
-    <com.gdavidpb.tuindice.ui.customs.CustomImageView
+    <com.gdavidpb.tuindice.ui.customs.BackgroundImageView
         android:id="@+id/backgroundOne"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
         android:src="@drawable/bk_pattern" />
 
-    <com.gdavidpb.tuindice.ui.customs.CustomImageView
+    <com.gdavidpb.tuindice.ui.customs.BackgroundImageView
         android:id="@+id/backgroundTwo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
 import kotlin.math.max
 
-class CustomImageView(context: Context, attrs: AttributeSet)
+class BackgroundImageView(context: Context, attrs: AttributeSet)
     : AppCompatImageView(context, attrs) {
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

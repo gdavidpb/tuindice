@@ -30,18 +30,18 @@ class EvaluationViewHolder(
             }
 
             sBarEvaluationGrade.onSeekBarChange {
-                onProgressChanged { progress, fromUser ->
+                onProgressChanged { _, fromUser ->
                     if (fromUser) {
                         val item = getItem()
-                        val grade = progress.toGrade()
+                        val grade = sBarEvaluationGrade.grade
 
                         manager.onEvaluationGradeChanged(item, grade, false)
                     }
                 }
 
-                onStopTrackingTouch { progress ->
+                onStopTrackingTouch {
                     val item = getItem()
-                    val grade = progress.toGrade()
+                    val grade = sBarEvaluationGrade.grade
 
                     manager.onEvaluationGradeChanged(item, grade, true)
                 }
@@ -76,8 +76,8 @@ class EvaluationViewHolder(
     private fun CardView.setGrades(grade: Double, maxGrade: Double) {
         val gradeText = context.getString(R.string.evaluation_grade_max, grade.formatGrade(2), maxGrade.formatGrade())
 
-        sBarEvaluationGrade.max = maxGrade.toProgress()
-        sBarEvaluationGrade.progress = grade.toProgress()
+        sBarEvaluationGrade.maxGrade = maxGrade
+        sBarEvaluationGrade.grade = grade
         tViewEvaluationGrade.text = gradeText
     }
 
