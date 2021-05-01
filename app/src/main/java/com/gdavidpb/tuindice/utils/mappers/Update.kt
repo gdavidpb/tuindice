@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.utils.mappers
 
 import com.gdavidpb.tuindice.data.model.database.EvaluationUpdate
-import com.gdavidpb.tuindice.data.model.database.QuarterUpdate
 import com.gdavidpb.tuindice.data.model.database.SubjectUpdate
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.EvaluationType
@@ -52,9 +51,4 @@ fun Evaluation.applyUpdate(update: EvaluationUpdate) = copy(
         date = update.date.toDate(),
         notes = update.notes,
         isDone = update.isDone
-)
-
-fun Quarter.applyUpdate(update: QuarterUpdate) = copy(
-        grade = update.grade,
-        gradeSum = update.gradeSum
 )

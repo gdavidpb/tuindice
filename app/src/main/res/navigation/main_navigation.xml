@@ -144,6 +144,7 @@
     <fragment
         android:id="@+id/fragment_reset_password"
         android:name="com.gdavidpb.tuindice.ui.fragments.ResetPasswordFragment"
+        android:label="@string/label_reset_password_fragment"
         tools:layout="@layout/fragment_reset_password">
         <argument
             android:name="email"

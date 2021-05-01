@@ -8,7 +8,6 @@ val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone("America/Caracas")
 
 /* Errors */
 const val NO_GETTER = "Property does not have a getter"
-const val NO_SETTER = "Property does not have a setter"
 
 /* Actions */
 object Actions {

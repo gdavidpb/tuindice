@@ -7,8 +7,6 @@ import com.gdavidpb.tuindice.domain.repository.StorageRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.utils.Paths
-import com.gdavidpb.tuindice.utils.extensions.causes
-import com.gdavidpb.tuindice.utils.extensions.isAccountDisabled
 import java.io.File
 import java.io.IOException
 
@@ -24,8 +22,6 @@ class CreateProfilePictureFileUseCase(
     }
 
     override suspend fun executeOnException(throwable: Throwable): ProfilePictureError? {
-        val causes = throwable.causes()
-
         return when {
             throwable is IOException -> ProfilePictureError.IO
             else -> null

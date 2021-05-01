@@ -288,7 +288,6 @@
     <string name="label_evaluation_select_date">Selecciona una fecha</string>
     <string name="label_evaluation_no_date">Evaluación continua</string>
 
-    <string name="label_evaluation_grade_value">%1$.2f pts</string>
     <string name="label_evaluation_plan_header">%1$s ─ %2$s</string>
     <string name="label_evaluation_header">%1$s ─ %2$s</string>
 
@@ -305,7 +304,7 @@
     <!-- ResetPasswordFragment -->
 
     <string name="label_reset_password_fragment">TuIndice</string>
-    <string name="dialog_title_reset_password">Tu contraseña ha cambiado</string>
+    <string name="title_reset_password_fragment">Tu contraseña ha cambiado</string>
 
     <string name="message_reset_password">
         Hemos enviado un enlace de actualización de contraseña
@@ -347,9 +346,9 @@
 
     <string name="dialog_message_enrollment_downloading">Obteniendo comprobante…</string>
 
-    <!-- UpdateBottomSheetDialog -->
+    <!-- UpdatePasswordBottomSheetDialog -->
 
-    <string name="label_update_password">Tu contraseña ha cambiado</string>
+    <string name="dialog_title_update_password">Tu contraseña ha cambiado</string>
 
     <string name="dialog_message_update_password">
         Confirma tu contraseña para seguir disfrutando de <b>TuIndice</b>.

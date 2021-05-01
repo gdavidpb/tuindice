@@ -116,7 +116,7 @@ dependencies {
     debugImplementation "com.squareup.retrofit2:retrofit-mock:$retrofit_version"
 
     /* AndroidX */
-    implementation 'androidx.fragment:fragment-ktx:1.3.2'
+    implementation 'androidx.fragment:fragment-ktx:1.3.3'
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
     implementation "androidx.appcompat:appcompat:1.2.0"
     implementation "androidx.cardview:cardview:1.0.0"
