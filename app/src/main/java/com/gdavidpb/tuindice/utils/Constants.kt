@@ -31,6 +31,13 @@ object Topics {
     const val TOPIC_GENERAL = "general"
 }
 
+/* Main screen keys */
+object ScreenKeys {
+    const val SUMMARY = 0
+    const val RECORD = 1
+    const val ABOUT = 2
+}
+
 /* Preferences keys */
 object SettingsKeys {
     const val USB_ID = "email"

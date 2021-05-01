@@ -43,18 +43,15 @@ class MainActivity : AppCompatActivity() {
     private val backLocker = IdempotentLocker()
 
     /* true = show bottom nav, false = hide bottom nav */
-    private val destinations = mapOf(
-            R.id.fragment_summary to true,
-            R.id.fragment_record to true,
-            R.id.fragment_about to true,
-            R.id.fragment_splash to false,
-            R.id.fragment_sign_in to false,
-            R.id.fragment_reset_password to false
+    private val destinations = listOf(
+            R.id.fragment_summary,
+            R.id.fragment_record,
+            R.id.fragment_about
     )
 
     private val appBarConfiguration by lazy {
         AppBarConfiguration(navController.graph).apply {
-            topLevelDestinations.addAll(destinations.keys)
+            topLevelDestinations.addAll(destinations)
         }
     }
 
@@ -97,9 +94,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        val isHomeDestination = destinations[navController.currentDestination?.id]
+        val isHomeDestination = destinations.contains(navController.currentDestination?.id)
 
-        if (isHomeDestination == true) {
+        if (isHomeDestination) {
             toast(R.string.toast_repeat_to_exit)
 
             val locked = backLocker.lock(UnlockIn = TIME_EXIT_LOCKER)
@@ -113,7 +110,7 @@ class MainActivity : AppCompatActivity() {
     private fun onDestinationChanged(destination: NavDestination) {
         hideSoftKeyboard(inputMethodManager)
 
-        val showBottomNav = destinations[destination.id] ?: false
+        val showBottomNav = destinations.contains(navController.currentDestination?.id)
         val showAppBar = destination.id != R.id.fragment_splash
 
         bottomNavView.isVisible = showBottomNav

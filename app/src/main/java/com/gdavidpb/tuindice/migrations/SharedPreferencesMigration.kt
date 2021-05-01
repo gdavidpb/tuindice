@@ -4,7 +4,7 @@ import android.app.ActivityManager
 import android.content.Context
 import androidx.core.content.edit
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.utils.ScreenKeys
 import com.gdavidpb.tuindice.utils.SettingsKeys
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
 import com.gdavidpb.tuindice.utils.extensions.sharedPreferences
@@ -34,7 +34,7 @@ class SharedPreferencesMigration(private val context: Context) : Migration() {
 
         val usbId = sourceSharedPreferences.getString(SettingsKeys.USB_ID, null)
         val password = sourceSharedPreferences.getString(SettingsKeys.PASSWORD, null)
-        val lastScreen = sourceSharedPreferences.getInt(SettingsKeys.LAST_SCREEN, R.id.fragment_summary)
+        val lastScreen = sourceSharedPreferences.getInt(SettingsKeys.LAST_SCREEN, ScreenKeys.SUMMARY)
 
         targetSharedPreferences.edit {
             if (usbId != null) putString(SettingsKeys.USB_ID, usbId)

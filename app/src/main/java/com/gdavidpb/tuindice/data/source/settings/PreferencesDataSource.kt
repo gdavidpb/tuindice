@@ -6,6 +6,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.utils.ScreenKeys
 import com.gdavidpb.tuindice.utils.SettingsKeys
 import com.gdavidpb.tuindice.utils.mappers.asUsbEmail
 import java.util.*
@@ -72,14 +73,26 @@ open class PreferencesDataSource(
     override fun getLastScreen(): Int {
         checkIsEncrypted()
 
-        return preferences.getInt(SettingsKeys.LAST_SCREEN, R.id.fragment_summary)
+        return when (preferences.getInt(SettingsKeys.LAST_SCREEN, R.id.fragment_summary)) {
+            ScreenKeys.SUMMARY -> R.id.fragment_summary
+            ScreenKeys.RECORD -> R.id.fragment_record
+            ScreenKeys.ABOUT -> R.id.fragment_about
+            else -> R.id.fragment_summary
+        }
     }
 
     override fun setLastScreen(screen: Int) {
         checkIsEncrypted()
 
+        val screenKey = when (screen) {
+            R.id.fragment_summary -> ScreenKeys.SUMMARY
+            R.id.fragment_record -> ScreenKeys.RECORD
+            R.id.fragment_about -> ScreenKeys.ABOUT
+            else -> ScreenKeys.SUMMARY
+        }
+
         preferences.edit {
-            putInt(SettingsKeys.LAST_SCREEN, screen)
+            putInt(SettingsKeys.LAST_SCREEN, screenKey)
         }
     }
 
