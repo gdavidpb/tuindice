@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
+import com.gdavidpb.tuindice.utils.ComputationManager
 import com.gdavidpb.tuindice.utils.Topics
 import java.io.File
 
@@ -21,5 +22,6 @@ class SignOutUseCase(
         databaseRepository.clearCache()
         storageRepository.clear()
         dependenciesRepository.restart()
+        ComputationManager.clearCache()
     }
 }

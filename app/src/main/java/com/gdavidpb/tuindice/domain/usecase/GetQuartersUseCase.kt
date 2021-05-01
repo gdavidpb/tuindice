@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
+import com.gdavidpb.tuindice.utils.ComputationManager
 
 class GetQuartersUseCase(
         private val authRepository: AuthRepository,
@@ -12,6 +13,8 @@ class GetQuartersUseCase(
     override suspend fun executeOnBackground(params: Unit): List<Quarter> {
         val activeUId = authRepository.getActiveAuth().uid
 
-        return databaseRepository.getQuarters(uid = activeUId)
+        return databaseRepository.getQuarters(uid = activeUId).also { quarters ->
+            ComputationManager.setQuarters(quarters)
+        }
     }
 }
