@@ -57,7 +57,7 @@ open class FirestoreMockDataSource(
         firestore
                 .collection(UserCollection.COLLECTION)
                 .document(uid)
-                .let { document -> set(document, entity) }
+                .also { document -> set(document, entity) }
     }
 
     override suspend fun getAccount(uid: String): Account {
@@ -71,12 +71,12 @@ open class FirestoreMockDataSource(
 
     override suspend fun addQuarter(uid: String, quarter: Quarter): Quarter {
         val quarterEntity = quarter.toQuarterEntity(uid)
-        val (quarterSetOptions, subjectSetOptions) = computeMerges(quarter)
+        val (quarterSetOptions, subjectSetOptions) = computeQuarterMerges(quarter)
 
         firestore
                 .collection(QuarterCollection.COLLECTION)
                 .document(quarter.id)
-                .let { document -> set(document, quarterEntity, quarterSetOptions) }
+                .also { document -> set(document, quarterEntity, quarterSetOptions) }
 
         quarter.subjects.forEach { subject ->
             val subjectEntity = subject.toSubjectEntity(uid = uid)
@@ -84,7 +84,7 @@ open class FirestoreMockDataSource(
             firestore
                     .collection(SubjectCollection.COLLECTION)
                     .document(subject.id)
-                    .let { document -> set(document, subjectEntity, subjectSetOptions) }
+                    .also { document -> set(document, subjectEntity, subjectSetOptions) }
         }
 
         return quarter
@@ -126,7 +126,7 @@ open class FirestoreMockDataSource(
         return firestore
                 .collection(QuarterCollection.COLLECTION)
                 .document(qid)
-                .apply { set(update, SetOptions.merge()) }
+                .also { document -> set(document, update) }
                 .get()
                 .await()
                 .toQuarter(subjects = getQuarterSubjects(uid = uid, qid = qid))
@@ -136,7 +136,7 @@ open class FirestoreMockDataSource(
         firestore
                 .collection(QuarterCollection.COLLECTION)
                 .document(qid)
-                .let { document -> delete(document) }
+                .also { document -> delete(document) }
     }
 
     override suspend fun getSubject(uid: String, sid: String): Subject {
@@ -162,7 +162,7 @@ open class FirestoreMockDataSource(
         return firestore
                 .collection(SubjectCollection.COLLECTION)
                 .document(sid)
-                .apply { set(update, SetOptions.merge()) }
+                .also { document -> set(document, update) }
                 .get()
                 .await()
                 .toSubject()
@@ -204,7 +204,7 @@ open class FirestoreMockDataSource(
         return firestore
                 .collection(EvaluationCollection.COLLECTION)
                 .document(eid)
-                .apply { set(update, SetOptions.merge()) }
+                .also { document -> set(document, update) }
                 .get()
                 .await()
                 .toEvaluation()
@@ -214,15 +214,14 @@ open class FirestoreMockDataSource(
         firestore
                 .collection(EvaluationCollection.COLLECTION)
                 .document(eid)
-                .let { document -> delete(document) }
+                .also { document -> delete(document) }
     }
 
     override suspend fun updateToken(uid: String, token: String) {
         firestore
                 .collection(UserCollection.COLLECTION)
                 .document(uid)
-                .set(mapOf(UserCollection.TOKEN to token), SetOptions.merge())
-                .await()
+                .also { document -> set(document, mapOf(UserCollection.TOKEN to token)) }
     }
 
     override suspend fun runBatch(batch: suspend DatabaseRepository.() -> Unit) {
@@ -283,7 +282,7 @@ open class FirestoreMockDataSource(
                 ?: documentRef.delete()
     }
 
-    private suspend fun computeMerges(quarter: Quarter): Pair<SetOptions, SetOptions> {
+    private suspend fun computeQuarterMerges(quarter: Quarter): Pair<SetOptions, SetOptions> {
         val isFinished = (quarter.status == STATUS_QUARTER_COMPLETED) || (quarter.status == STATUS_QUARTER_RETIRED)
 
         return if (isFinished) {

@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicReference
 open class FirestoreDataSource(
         private val firestore: FirebaseFirestore
 ) : DatabaseRepository {
-
     private val atomicBatch = AtomicReference<WriteBatch>(null)
 
     private object MergeOptions {
@@ -58,7 +57,7 @@ open class FirestoreDataSource(
         firestore
                 .collection(UserCollection.COLLECTION)
                 .document(uid)
-                .let { document -> set(document, entity) }
+                .also { document -> set(document, entity) }
     }
 
     override suspend fun getAccount(uid: String): Account {
@@ -77,7 +76,7 @@ open class FirestoreDataSource(
         firestore
                 .collection(QuarterCollection.COLLECTION)
                 .document(quarter.id)
-                .let { document -> set(document, quarterEntity, quarterSetOptions) }
+                .also { document -> set(document, quarterEntity, quarterSetOptions) }
 
         quarter.subjects.forEach { subject ->
             val subjectEntity = subject.toSubjectEntity(uid = uid)
@@ -85,7 +84,7 @@ open class FirestoreDataSource(
             firestore
                     .collection(SubjectCollection.COLLECTION)
                     .document(subject.id)
-                    .let { document -> set(document, subjectEntity, subjectSetOptions) }
+                    .also { document -> set(document, subjectEntity, subjectSetOptions) }
         }
 
         return quarter
@@ -127,7 +126,7 @@ open class FirestoreDataSource(
         return firestore
                 .collection(QuarterCollection.COLLECTION)
                 .document(qid)
-                .apply { set(update, SetOptions.merge()) }
+                .also { document -> set(document, update) }
                 .get(Source.CACHE)
                 .await()
                 .toQuarter(subjects = getQuarterSubjects(uid = uid, qid = qid))
@@ -137,7 +136,7 @@ open class FirestoreDataSource(
         firestore
                 .collection(QuarterCollection.COLLECTION)
                 .document(qid)
-                .let { document -> delete(document) }
+                .also { document -> delete(document) }
     }
 
     override suspend fun getSubject(uid: String, sid: String): Subject {
@@ -163,7 +162,7 @@ open class FirestoreDataSource(
         return firestore
                 .collection(SubjectCollection.COLLECTION)
                 .document(sid)
-                .apply { set(update, SetOptions.merge()) }
+                .also { document -> set(document, update) }
                 .get(Source.CACHE)
                 .await()
                 .toSubject()
@@ -205,7 +204,7 @@ open class FirestoreDataSource(
         return firestore
                 .collection(EvaluationCollection.COLLECTION)
                 .document(eid)
-                .apply { set(update, SetOptions.merge()) }
+                .also { document -> set(document, update) }
                 .get(Source.CACHE)
                 .await()
                 .toEvaluation()
@@ -215,15 +214,14 @@ open class FirestoreDataSource(
         firestore
                 .collection(EvaluationCollection.COLLECTION)
                 .document(eid)
-                .let { document -> delete(document) }
+                .also { document -> delete(document) }
     }
 
     override suspend fun updateToken(uid: String, token: String) {
         firestore
                 .collection(UserCollection.COLLECTION)
                 .document(uid)
-                .set(mapOf(UserCollection.TOKEN to token), SetOptions.merge())
-                .await()
+                .also { document -> set(document, mapOf(UserCollection.TOKEN to token)) }
     }
 
     override suspend fun runBatch(batch: suspend DatabaseRepository.() -> Unit) {
@@ -290,16 +288,16 @@ open class FirestoreDataSource(
         return if (isFinished) {
             MergeOptions.mergeAll to MergeOptions.mergeAll
         } else {
-            val snapshot = firestore
+            val quarterSnapshot = firestore
                     .collection(QuarterCollection.COLLECTION)
                     .document(quarter.id)
-                    .get(Source.SERVER)
+                    .get()
                     .await()
 
-            val exists = snapshot.exists()
+            val quarterExists = quarterSnapshot.exists()
 
-            val quarterSetOptions = if (exists) MergeOptions.noMergeQuarter else MergeOptions.mergeAll
-            val subjectSetOptions = if (exists) MergeOptions.noMergeSubject else MergeOptions.mergeAll
+            val quarterSetOptions = if (quarterExists) MergeOptions.noMergeQuarter else MergeOptions.mergeAll
+            val subjectSetOptions = if (quarterExists) MergeOptions.noMergeSubject else MergeOptions.mergeAll
 
             quarterSetOptions to subjectSetOptions
         }

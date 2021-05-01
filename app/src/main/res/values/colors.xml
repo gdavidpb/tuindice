@@ -21,7 +21,7 @@
 
     <color name="quarter_completed">#FFC107</color>
     <color name="quarter_current">#FFC107</color>
-    <color name="quarter_mock">#FFC107</color>
+    <color name="quarter_mock">#C39111</color>
     <color name="quarter_retired">#B0BEC5</color>
 
     <color name="color_approved">#FFC107</color>
