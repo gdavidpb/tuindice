@@ -137,7 +137,7 @@ class EvaluationPlanFragment : NavigationFragment() {
     }
 
     private fun showEvaluationMenuDialog(item: EvaluationItem, position: Int) {
-        val title = getString(R.string.label_evaluation_header, item.typeText, item.dateText)
+        val title = getString(R.string.label_evaluation_header, item.notesText, item.dateText)
 
         val items = mutableListOf(
                 BottomMenuItem(
