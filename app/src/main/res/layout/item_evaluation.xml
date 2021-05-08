@@ -6,6 +6,7 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="@dimen/dp_6"
     app:cardPreventCornerOverlap="true"
+    android:layout_marginHorizontal="@dimen/dp_6"
     app:cardUseCompatPadding="true">
 
     <View
