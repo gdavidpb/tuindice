@@ -162,6 +162,11 @@ class SignInFragment : NavigationFragment() {
 
                 signInErrorHandler(error = result.error)
             }
+            else -> {
+                showLoading(false)
+
+                errorSnackBar()
+            }
         }
     }
 
@@ -171,9 +176,16 @@ class SignInFragment : NavigationFragment() {
                 navToSplash()
             }
             is Result.OnError -> {
+                showLoading(false)
+
                 viewModel.signOut()
 
                 syncErrorHandler(error = result.error)
+            }
+            else -> {
+                showLoading(false)
+
+                errorSnackBar()
             }
         }
     }
