@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.ui.customs
 import android.content.Context
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatSeekBar
-import com.gdavidpb.tuindice.utils.DECIMALS_DIV
+import com.gdavidpb.tuindice.utils.MIN_EVALUATION_GRADE
 
 class EvaluationGradeSeekBar(context: Context, attrs: AttributeSet)
     : AppCompatSeekBar(context, attrs) {
@@ -24,7 +24,7 @@ class EvaluationGradeSeekBar(context: Context, attrs: AttributeSet)
             progress = value.toProgress()
         }
 
-    private fun Double.toProgress() = div(DECIMALS_DIV).toInt()
+    private fun Double.toProgress() = div(MIN_EVALUATION_GRADE).toInt()
 
-    private fun Int.toGrade() = times(DECIMALS_DIV)
+    private fun Int.toGrade() = times(MIN_EVALUATION_GRADE)
 }

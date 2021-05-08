@@ -36,6 +36,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:errorEnabled="true"
                 android:hint="@string/hint_evaluation_name"
                 app:layout_constraintTop_toTopOf="parent"
                 app:startIconDrawable="@drawable/ic_label">
@@ -56,8 +57,9 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_24"
+                android:layout_marginTop="@dimen/dp_16"
                 android:hint="@string/hint_evaluation_grade"
+                app:errorEnabled="true"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tInputEvaluationName"
                 app:startIconDrawable="@drawable/ic_donut">
@@ -76,7 +78,7 @@
                 android:id="@+id/dPickerEvaluationDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_24"
+                android:layout_marginTop="@dimen/dp_16"
                 app:layout_constraintTop_toBottomOf="@id/tInputEvaluationGrade" />
 
             <com.google.android.material.chip.ChipGroup

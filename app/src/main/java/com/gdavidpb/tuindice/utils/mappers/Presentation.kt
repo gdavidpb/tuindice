@@ -153,7 +153,7 @@ fun String.formatSubjectStatusValue() = when (this) {
 
 fun String.capitalize() =
         if (isNotEmpty() && this[0].isLowerCase())
-            "${substring(0, 1).toUpperCase(DEFAULT_LOCALE)}${substring(1)}"
+            "${substring(0, 1).uppercase(DEFAULT_LOCALE)}${substring(1)}"
         else
             this
 

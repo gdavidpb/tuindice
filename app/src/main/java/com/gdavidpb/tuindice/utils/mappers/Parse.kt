@@ -56,4 +56,4 @@ fun String.parseSubjectName() = replacements
                 acc.replace(target.toRegex(RegexOption.IGNORE_CASE), replacement)
             else
                 acc.replace(target, replacement)
-        }.toUpperCase(DEFAULT_LOCALE)
+        }.uppercase(DEFAULT_LOCALE)

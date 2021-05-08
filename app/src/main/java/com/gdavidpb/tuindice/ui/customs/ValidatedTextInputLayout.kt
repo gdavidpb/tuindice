@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.ui.customs
 import android.content.Context
 import android.content.res.ColorStateList
 import android.util.AttributeSet
+import androidx.annotation.StringRes
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.utils.extensions.getCompatColor
 import com.gdavidpb.tuindice.utils.extensions.onTextChanged
@@ -55,5 +56,13 @@ open class ValidatedTextInputLayout(context: Context, attrs: AttributeSet)
 
     fun isValid(): Boolean {
         return validator(this)
+    }
+
+    fun isBlank(): Boolean {
+        return editText?.text.isNullOrBlank()
+    }
+
+    fun setError(@StringRes resource: Int) {
+        error = context.getString(resource)
     }
 }

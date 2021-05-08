@@ -294,12 +294,12 @@
     <string name="hint_evaluation_name">Nombre de la evaluación</string>
     <string name="hint_evaluation_grade">Valor de la  evaluación</string>
 
-    <string name="toast_evaluation_name_missed">Dale un nombre a la evaluación</string>
-    <string name="toast_evaluation_grade_missed">Establece el valor de la evaluación</string>
     <string name="toast_evaluation_type_missed">Selecciona el tipo de evaluación</string>
-    <string name="toast_evaluation_date_missed">Dale una fecha a la evaluación</string>
-    <string name="toast_evaluation_grade_invalid_max">El valor de la evaluación no puede superar los 100 puntos</string>
-    <string name="toast_evaluation_grade_invalid_step">El valor de la evaluación debe ser múltiplo de 0.25</string>
+    <string name="toast_evaluation_date_missed">Selecciona una fecha para la evaluación</string>
+
+    <string name="error_evaluation_name_missed">La evaluación debe tener un nombre</string>
+    <string name="error_evaluation_grade_invalid_range">El valor de la evaluación debe estar entre 0.25 y 100 puntos</string>
+    <string name="error_evaluation_grade_invalid_step">El valor de la evaluación debe ser múltiplo de 0.25</string>
 
     <!-- ResetPasswordFragment -->
 

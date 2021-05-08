@@ -17,9 +17,10 @@ import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.presentation.viewmodel.EvaluationViewModel
-import com.gdavidpb.tuindice.utils.DECIMALS_DIV
 import com.gdavidpb.tuindice.utils.MAX_EVALUATION_GRADE
+import com.gdavidpb.tuindice.utils.MIN_EVALUATION_GRADE
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.mappers.capitalize
 import com.google.android.material.chip.Chip
 import com.google.firebase.Timestamp
 import kotlinx.android.synthetic.main.fragment_evaluation.*
@@ -36,12 +37,13 @@ class EvaluationFragment : NavigationFragment() {
 
     private val inputMethodManager by inject<InputMethodManager>()
 
+    private val validGradeRange = MIN_EVALUATION_GRADE..MAX_EVALUATION_GRADE
+
     private val validations by lazy {
         arrayOf<Validation<*>>(
-                `when`(tInputEvaluationName) { !isValid() } `do` { snackBar(R.string.toast_evaluation_name_missed) },
-                `when`(tInputEvaluationGrade) { getGrade() > MAX_EVALUATION_GRADE } `do` { snackBar(R.string.toast_evaluation_grade_invalid_max) },
-                `when`(tInputEvaluationGrade) { getGrade() % DECIMALS_DIV != 0.0 } `do` { snackBar(R.string.toast_evaluation_grade_invalid_step) },
-                `when`(tInputEvaluationGrade) { !isValid() } `do` { snackBar(R.string.toast_evaluation_grade_missed) },
+                `when`(tInputEvaluationName) { isBlank() } `do` { setError(R.string.error_evaluation_name_missed) },
+                `when`(tInputEvaluationGrade) { getGrade() !in validGradeRange } `do` { setError(R.string.error_evaluation_grade_invalid_range) },
+                `when`(tInputEvaluationGrade) { getGrade() % MIN_EVALUATION_GRADE != 0.0 } `do` { setError(R.string.error_evaluation_grade_invalid_step) },
                 `when`(dPickerEvaluationDate) { !isValid() } `do` { snackBar(R.string.toast_evaluation_date_missed) },
                 `when`(cGroupEvaluation) { checkedChipId == -1 } `do` { snackBar(R.string.toast_evaluation_type_missed) }
         )
@@ -101,7 +103,7 @@ class EvaluationFragment : NavigationFragment() {
         tInputEvaluationGrade.onValidate {
             val grade = getGrade()
 
-            (grade % DECIMALS_DIV == 0.0) && (grade in (0.0..MAX_EVALUATION_GRADE))
+            (grade % MIN_EVALUATION_GRADE == 0.0) && (grade in validGradeRange)
         }
 
         eTextEvaluationGrade.setOnFocusChangeListener { _, hasFocus ->
@@ -143,7 +145,7 @@ class EvaluationFragment : NavigationFragment() {
     }
 
     private fun getName(): String {
-        return "${eTextEvaluationName.text}"
+        return "${eTextEvaluationName.text}".capitalize()
     }
 
     private fun getGrade(): Double {
