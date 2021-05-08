@@ -184,7 +184,7 @@
     <string name="about_header_libs">Detrás de TuIndice</string>
 
     <string name="about_kotlin">
-        Kotlin 1.4.32\n
+        Kotlin 1.5.0\n
         Programming Language.\n
         © 2012 JetBrains\n
         https://kotlinlang.org/
@@ -197,7 +197,7 @@
     </string>
 
     <string name="about_koin">
-        Koin 2.1.6\n
+        Koin 3.0.1\n
         A pragmatic lightweight dependency injection framework for Kotlin.\n
         © 2018 Arnaud Giuliani\n
         https://insert-koin.io/

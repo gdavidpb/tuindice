@@ -7,8 +7,8 @@ import com.gdavidpb.tuindice.utils.ReportKeys
 import com.gdavidpb.tuindice.utils.extensions.getTimeoutKey
 import com.gdavidpb.tuindice.utils.extensions.hasTimeoutKey
 import kotlinx.coroutines.*
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import kotlin.coroutines.CoroutineContext
 
 abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(

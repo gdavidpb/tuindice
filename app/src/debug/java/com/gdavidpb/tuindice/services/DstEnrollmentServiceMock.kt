@@ -8,8 +8,8 @@ import com.gdavidpb.tuindice.services.responses.defaultEnrollmentResponse
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import retrofit2.Response
 import retrofit2.mock.BehaviorDelegate
 

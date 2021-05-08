@@ -14,8 +14,8 @@ import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.RequestCreator
 import kotlinx.android.synthetic.main.view_profile_picture.view.*
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.io.IOException
 
 class ProfilePictureView(context: Context, attrs: AttributeSet)
