@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
@@ -21,6 +22,7 @@ data class AboutItemBuilder(
         val context: Context,
         var content: CharSequence? = null,
         var drawable: Drawable? = null,
+        var drawableTint: ColorStateList? = null,
         var onClick: () -> Unit = {}
 )
 
@@ -41,6 +43,7 @@ fun AboutBuilder.item(builder: AboutItemBuilder.() -> Unit) {
         AboutItem(
                 content = built.content ?: error("content"),
                 drawable = built.drawable ?: error("drawable"),
+                drawableTint = built.drawableTint,
                 onClick = built.onClick
         )
     }.also { item -> content.add(item) }
@@ -57,14 +60,24 @@ fun AboutItemBuilder.title(value: String) {
     content = value.spanAbout(titleColor, subtitleColor)
 }
 
-fun AboutItemBuilder.tintedDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes: Int) {
-    drawable = context.getCompatDrawable(drawableRes, colorRes)
-}
+fun AboutItemBuilder.drawable(
+        @DrawableRes drawableRes: Int,
+        @ColorRes colorRes: Int = -1,
+        @DimenRes dimenRes: Int = -1
+) {
+    if (colorRes != -1) {
+        val color = context.getCompatColor(colorRes)
 
-fun AboutItemBuilder.sizedDrawable(@DrawableRes drawableRes: Int, @DimenRes dimenRes: Int) {
-    val size = context.resources.getDimensionPixelSize(dimenRes)
+        drawableTint = ColorStateList.valueOf(color)
+    }
 
-    drawable = context.getCompatVector(drawableRes, size, size)
+    drawable = if (dimenRes == -1) {
+        context.getCompatDrawable(drawableRes)
+    } else {
+        val size = context.resources.getDimensionPixelSize(dimenRes)
+
+        context.getCompatDrawable(drawableRes, size, size)
+    }
 }
 
 fun AboutItemBuilder.onClick(callback: () -> Unit) {

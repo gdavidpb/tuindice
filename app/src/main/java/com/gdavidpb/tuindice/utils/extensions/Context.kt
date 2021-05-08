@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.utils.extensions
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -29,25 +28,23 @@ fun Context.versionName(): String {
 }
 
 @ColorInt
-fun Context.getCompatColor(@ColorRes colorRes: Int): Int = ResourcesManager.getColor(colorRes, this)
-
-fun Context.getCompatVector(@DrawableRes drawableRes: Int, width: Int, height: Int): Drawable {
-    return DrawableCompat.wrap(AppCompatResources.getDrawable(this, drawableRes)!!).apply {
-        bounds = Rect(0, 0, width, height)
-    }
+fun Context.getCompatColor(@ColorRes colorRes: Int): Int {
+    return ResourcesManager.getColor(colorRes, this)
 }
 
-fun Context.getCompatDrawable(@DrawableRes resId: Int): Drawable = AppCompatResources.getDrawable(this, resId)!!
+fun Context.getCompatDrawable(
+    @DrawableRes resId: Int,
+    width: Int = -1,
+    height: Int = -1
+): Drawable {
+    val drawable = AppCompatResources.getDrawable(this, resId) ?: error("resId: $resId")
 
-fun Context.getCompatDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes: Int): Drawable {
-    val color = getCompatColor(colorRes)
-    val drawable = DrawableCompat.wrap(getCompatDrawable(drawableRes))
-
-    return drawable.apply {
-        DrawableCompat.setTint(this, color)
-        DrawableCompat.setTintMode(this, PorterDuff.Mode.MULTIPLY)
-
-        bounds = Rect(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+    return if (width == -1 && height == -1) {
+        drawable
+    } else {
+        DrawableCompat.wrap(drawable).apply {
+            bounds = Rect(0, 0, width, height)
+        }
     }
 }
 

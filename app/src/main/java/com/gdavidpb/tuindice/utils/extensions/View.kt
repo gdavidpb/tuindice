@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.utils.extensions
 
 import android.content.res.TypedArray
 import android.graphics.Paint
-import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
@@ -81,12 +80,6 @@ fun RecyclerView.onScrollStateChanged(listener: (newState: Int) -> Unit) {
         }
     })
 }
-
-fun TextView.drawables(
-        start: Drawable? = null,
-        top: Drawable? = null,
-        end: Drawable? = null,
-        bottom: Drawable? = null) = setCompoundDrawables(start, top, end, bottom)
 
 fun TextView.drawables(
         start: Int = 0,
