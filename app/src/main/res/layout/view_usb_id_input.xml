@@ -12,20 +12,17 @@
     app:boxCornerRadiusTopEnd="@dimen/dp_6"
     app:boxCornerRadiusTopStart="@dimen/dp_6"
     app:boxStrokeErrorColor="@color/color_error"
-    app:errorEnabled="true"
     app:errorIconDrawable="@drawable/ic_warning"
     app:errorIconTint="@color/color_error"
     app:errorTextColor="@color/color_error"
     app:startIconDrawable="@drawable/ic_account">
 
     <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/textInputEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:imeOptions="actionNext"
         android:inputType="number"
         android:maxLength="8"
-        android:selectAllOnFocus="true"
-        android:textColor="@color/color_primary_text" />
+        android:selectAllOnFocus="true" />
 
 </com.google.android.material.textfield.TextInputLayout>

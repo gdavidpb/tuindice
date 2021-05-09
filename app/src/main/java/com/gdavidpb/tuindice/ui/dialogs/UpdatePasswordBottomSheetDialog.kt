@@ -33,7 +33,7 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 
     private val validations by lazy {
         arrayOf<Validation<*>>(
-                `when`(tInputPassword) { isBlank() } `do` { setError(R.string.error_empty) }
+                `when`(tInputPassword) { isEmpty() } `do` { setError(R.string.error_empty) }
         )
     }
 

@@ -94,7 +94,7 @@
         app:layout_constraintStart_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/vFlipperLoading" />
 
-    <com.gdavidpb.tuindice.ui.customs.UsbIdInput
+    <com.gdavidpb.tuindice.ui.customs.UsbIdInputLayout
         android:id="@+id/tInputUsbId"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -105,11 +105,11 @@
         app:layout_constraintTop_toBottomOf="@id/iViewLogo"
         app:layout_constraintVertical_chainStyle="packed" />
 
-    <com.gdavidpb.tuindice.ui.customs.PasswordInput
+    <com.gdavidpb.tuindice.ui.customs.PasswordInputLayout
         android:id="@+id/tInputPassword"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_4"
+        android:layout_marginTop="@dimen/dp_8"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@id/tInputUsbId"

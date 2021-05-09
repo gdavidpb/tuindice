@@ -37,9 +37,9 @@ class SignInFragment : NavigationFragment() {
 
     private val validations by lazy {
         arrayOf<Validation<*>>(
-                `when`(tInputUsbId) { isBlank() } `do` { setError(R.string.error_empty) },
+                `when`(tInputUsbId) { isEmpty() } `do` { setError(R.string.error_empty) },
                 `when`(tInputUsbId) { !isValid() } `do` { setError(R.string.error_usb_id) },
-                `when`(tInputPassword) { isBlank() } `do` { setError(R.string.error_empty) }
+                `when`(tInputPassword) { isEmpty() } `do` { setError(R.string.error_empty) }
         )
     }
 

@@ -7,6 +7,7 @@ import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.View
 import android.view.View.OnClickListener
+import android.view.inputmethod.InputMethodManager
 import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.SeekBar
@@ -81,11 +82,17 @@ fun RecyclerView.onScrollStateChanged(listener: (newState: Int) -> Unit) {
     })
 }
 
+fun View.hideSoftKeyboard(inputMethodManager: InputMethodManager) {
+    clearFocus()
+    inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+}
+
 fun TextView.drawables(
-        start: Int = 0,
-        top: Int = 0,
-        end: Int = 0,
-        bottom: Int = 0) = setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom)
+    start: Int = 0,
+    top: Int = 0,
+    end: Int = 0,
+    bottom: Int = 0
+) = setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom)
 
 fun EditText.onTextChanged(event: (CharSequence, Int, Int, Int) -> Unit) {
     addTextChangedListener(object : TextWatcher {

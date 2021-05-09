@@ -322,7 +322,7 @@
     <string name="label_sign_in_fragment">TuIndice</string>
 
     <string name="hint_usb_id">USBID</string>
-    <string name="hintPassword">Contraseña</string>
+    <string name="hint_password">Contraseña</string>
 
     <string name="button_sign_in">Iniciar sesión</string>
     <string name="label_policies">

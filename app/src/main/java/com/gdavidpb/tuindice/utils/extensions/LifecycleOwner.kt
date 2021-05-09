@@ -23,10 +23,7 @@ fun LifecycleOwner.hideSoftKeyboard(inputMethodManager: InputMethodManager) {
         else -> throw NoWhenBranchMatchedException()
     }
 
-    if (view != null) {
-        view.clearFocus()
-        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
-    }
+    view?.hideSoftKeyboard(inputMethodManager)
 }
 
 fun LifecycleOwner.openPdf(file: File) {

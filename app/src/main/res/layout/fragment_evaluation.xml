@@ -31,48 +31,19 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/dp_16">
 
-            <com.gdavidpb.tuindice.ui.customs.ValidatedTextInputLayout
+            <com.gdavidpb.tuindice.ui.customs.EvaluationNameInputLayout
                 android:id="@+id/tInputEvaluationName"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:errorEnabled="true"
-                android:hint="@string/hint_evaluation_name"
-                app:layout_constraintTop_toTopOf="parent"
-                app:startIconDrawable="@drawable/ic_label">
+                app:layout_constraintTop_toTopOf="parent" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/eTextEvaluationName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:selectAllOnFocus="true"
-                    android:inputType="textShortMessage|text|textCapSentences"
-                    android:maxLength="32"
-                    android:maxLines="1" />
-
-            </com.gdavidpb.tuindice.ui.customs.ValidatedTextInputLayout>
-
-            <com.gdavidpb.tuindice.ui.customs.ValidatedTextInputLayout
+            <com.gdavidpb.tuindice.ui.customs.GradeInputLayout
                 android:id="@+id/tInputEvaluationGrade"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_16"
-                android:hint="@string/hint_evaluation_grade"
-                app:errorEnabled="true"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tInputEvaluationName"
-                app:startIconDrawable="@drawable/ic_donut">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/eTextEvaluationGrade"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="numberDecimal"
-                    android:maxLength="6"
-                    android:selectAllOnFocus="true" />
-
-            </com.gdavidpb.tuindice.ui.customs.ValidatedTextInputLayout>
+                app:layout_constraintTop_toBottomOf="@id/tInputEvaluationName" />
 
             <com.gdavidpb.tuindice.ui.customs.EvaluationDatePickerView
                 android:id="@+id/dPickerEvaluationDate"

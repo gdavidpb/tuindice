@@ -5,8 +5,7 @@
     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:hint="@string/hint_password"
-    android:textColorHint="@color/color_accent"
+    android:hint="@string/hint_evaluation_name"
     app:boxCornerRadiusBottomEnd="@dimen/dp_6"
     app:boxCornerRadiusBottomStart="@dimen/dp_6"
     app:boxCornerRadiusTopEnd="@dimen/dp_6"
@@ -15,15 +14,15 @@
     app:errorIconDrawable="@drawable/ic_warning"
     app:errorIconTint="@color/color_error"
     app:errorTextColor="@color/color_error"
-    app:passwordToggleEnabled="true"
-    app:startIconDrawable="@drawable/ic_password">
+    app:startIconDrawable="@drawable/ic_label">
 
     <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/eTextEvaluationName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:imeOptions="actionDone"
-        android:inputType="textPassword"
-        android:maxLength="60"
+        android:inputType="textShortMessage|text|textCapSentences"
+        android:maxLength="32"
+        android:maxLines="1"
         android:selectAllOnFocus="true" />
 
 </com.google.android.material.textfield.TextInputLayout>
