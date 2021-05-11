@@ -87,6 +87,8 @@ class SignInUseCase(
                 serviceUrl = serviceUrl
         )
 
+        dstRepository.checkCredentials(credentials)
+
         return dstRepository.signIn(credentials)
     }
 }

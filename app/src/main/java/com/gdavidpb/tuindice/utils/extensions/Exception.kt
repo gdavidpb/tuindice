@@ -34,6 +34,7 @@ fun Throwable.isObjectNotFound() = this is StorageException && when (errorCode) 
 }
 
 fun Throwable.isInvalidCredentials() = when (this) {
+    is HttpException -> (code() == HttpURLConnection.HTTP_UNAUTHORIZED)
     is AuthenticationException -> (errorCode == AuthErrorCode.INVALID_CREDENTIALS)
     else -> false
 }

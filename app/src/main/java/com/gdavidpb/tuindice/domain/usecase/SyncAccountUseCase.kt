@@ -126,6 +126,8 @@ class SyncAccountUseCase(
         )
 
         return runCatching {
+            dstRepository.checkCredentials(credentials)
+
             dstRepository.signIn(credentials)
         }.getOrElse { throwable ->
             when {
