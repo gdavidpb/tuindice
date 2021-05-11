@@ -85,8 +85,6 @@ class MainActivity : AppCompatActivity() {
             onDestinationChanged(destination)
         }
 
-        if (!isGoogleServicesAvailable()) return
-
         with(viewModel) {
             observe(sync, ::syncObserver)
             observe(requestReview, ::requestReviewObserver)

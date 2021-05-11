@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataSource
+import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
@@ -24,6 +25,7 @@ import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.createMockService
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
 import com.gdavidpb.tuindice.utils.extensions.sharedPreferences
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
 import com.google.android.play.core.review.ReviewManager
@@ -90,6 +92,10 @@ val mockModule = module {
 
     single<AppUpdateManager> {
         FakeAppUpdateManager(androidContext())
+    }
+
+    single {
+        GoogleApiAvailability.getInstance()
     }
 
     /* Firebase */
@@ -214,6 +220,7 @@ val mockModule = module {
     factoryBy<ReportingRepository, DebugReportingDataSource>()
     factoryBy<DependenciesRepository, DebugKoinDataSource>()
     factoryBy<NetworkRepository, AndroidNetworkDataSource>()
+    factoryBy<ServicesRepository, GooglePlayServicesDataSource>()
 
     /* Use cases */
 

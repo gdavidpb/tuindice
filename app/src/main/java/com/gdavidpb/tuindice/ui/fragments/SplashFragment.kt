@@ -7,14 +7,16 @@ import android.view.View
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.domain.model.ServicesStatus
 import com.gdavidpb.tuindice.domain.model.StartUpAction
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.StartUpError
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.SplashViewModel
-import com.gdavidpb.tuindice.utils.extensions.connectionSnackBar
-import com.gdavidpb.tuindice.utils.extensions.errorSnackBar
-import com.gdavidpb.tuindice.utils.extensions.observe
+import com.gdavidpb.tuindice.ui.dialogs.ConfirmationBottomSheetDialog
+import com.gdavidpb.tuindice.utils.RequestCodes
+import com.gdavidpb.tuindice.utils.extensions.*
+import com.google.android.gms.common.GoogleApiAvailability
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -26,6 +28,8 @@ class SplashFragment : NavigationFragment() {
     private val mainViewModel by sharedViewModel<MainViewModel>()
 
     private val activityManager by inject<ActivityManager>()
+
+    private val googleApiAvailability by inject<GoogleApiAvailability>()
 
     override fun onCreateView() = R.layout.fragment_splash
 
@@ -60,8 +64,33 @@ class SplashFragment : NavigationFragment() {
         when (error) {
             is StartUpError.InvalidLink -> errorSnackBar(R.string.snack_invalid_link)
             is StartUpError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
+            is StartUpError.NoServices -> handleNoServices(error.servicesStatus)
             else -> activityManager.clearApplicationUserData()
         }
+    }
+
+    private fun handleNoServices(servicesStatus: ServicesStatus) {
+        val activity = requireActivity()
+        val status = servicesStatus.status
+
+        if (googleApiAvailability.isUserResolvableError(status))
+            googleApiAvailability.getErrorDialog(
+                activity,
+                servicesStatus.status,
+                RequestCodes.PLAY_SERVICES_RESOLUTION_REQUEST
+            ).apply {
+                setOnCancelListener { activity.finish() }
+                setOnDismissListener { activity.finish() }
+            }.show()
+        else
+            bottomSheetDialog<ConfirmationBottomSheetDialog> {
+                titleResource = R.string.dialog_title_no_gms_failure
+                messageResource = R.string.dialog_message_no_gms_failure
+
+                positiveButton(R.string.exit) { activity.finish() }
+            }.apply {
+                isCancelable = false
+            }
     }
 
     private fun handleStartUpAction(action: StartUpAction) {

@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataSource
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataSource
 import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataSource
+import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
@@ -27,6 +28,7 @@ import com.gdavidpb.tuindice.utils.extensions.create
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
 import com.gdavidpb.tuindice.utils.extensions.inflate
 import com.gdavidpb.tuindice.utils.extensions.sharedPreferences
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.auth.FirebaseAuth
@@ -101,6 +103,10 @@ val appModule = module {
 
     single {
         AppUpdateManagerFactory.create(androidContext())
+    }
+
+    single {
+        GoogleApiAvailability.getInstance()
     }
 
     /* Firebase */
@@ -289,6 +295,7 @@ val appModule = module {
     factoryBy<ReportingRepository, CrashlyticsReportingDataSource>()
     factoryBy<DependenciesRepository, ReleaseKoinDataSource>()
     factoryBy<NetworkRepository, AndroidNetworkDataSource>()
+    factoryBy<ServicesRepository, GooglePlayServicesDataSource>()
 
     /* Use cases */
 
