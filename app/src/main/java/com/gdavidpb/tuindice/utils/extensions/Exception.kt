@@ -11,6 +11,7 @@ import kotlinx.coroutines.TimeoutCancellationException
 import retrofit2.HttpException
 import java.io.InterruptedIOException
 import java.net.ConnectException
+import java.net.HttpURLConnection
 import java.net.SocketException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException

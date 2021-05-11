@@ -1,9 +1,6 @@
 package com.gdavidpb.tuindice.utils.mappers
 
-import com.gdavidpb.tuindice.data.source.service.responses.DstAuthResponse
-import com.gdavidpb.tuindice.data.source.service.responses.DstEnrollmentResponse
-import com.gdavidpb.tuindice.data.source.service.responses.DstPersonalResponse
-import com.gdavidpb.tuindice.data.source.service.responses.DstRecordResponse
+import com.gdavidpb.tuindice.data.source.service.responses.*
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
 import com.gdavidpb.tuindice.domain.model.ScheduleEntry
 import com.gdavidpb.tuindice.domain.model.ScheduleSubject

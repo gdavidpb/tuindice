@@ -62,6 +62,7 @@ android {
             buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions.html\""
 
             buildConfigField "String", "ENDPOINT_DST_SECURE", "\"https://secure.dst.usb.ve/\""
+            buildConfigField "String", "ENDPOINT_DST_USB_ID", "\"http://usbid.dst.usb.ve/cgi/\""
             buildConfigField "String", "ENDPOINT_DST_RECORD", "\"http://expediente.dii.usb.ve/expediente/\""
             buildConfigField "String", "ENDPOINT_DST_ENROLLMENT", "\"http://comprobante.dii.usb.ve/nuevoComprobante/\""
             buildConfigField "String", "ENDPOINT_DST_POLL", "\"https://consulta.dii.usb.ve/\""
@@ -93,6 +94,7 @@ android {
             buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions.html\""
 
             buildConfigField "String", "ENDPOINT_DST_SECURE", "\"https://secure.dst.usb.ve/\""
+            buildConfigField "String", "ENDPOINT_DST_USB_ID", "\"http://usbid.dst.usb.ve/cgi/\""
             buildConfigField "String", "ENDPOINT_DST_RECORD", "\"http://expediente.dii.usb.ve/expediente/\""
             buildConfigField "String", "ENDPOINT_DST_ENROLLMENT", "\"http://comprobante.dii.usb.ve/nuevoComprobante/\""
             buildConfigField "String", "ENDPOINT_DST_POLL", "\"https://consulta.dii.usb.ve/\""
@@ -163,6 +165,7 @@ dependencies {
 
     /* Retrofit */
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 

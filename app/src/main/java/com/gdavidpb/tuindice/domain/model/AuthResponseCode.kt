@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.domain.model
 
 enum class AuthResponseCode {
     SUCCESS,
-    INVALID_CREDENTIALS,
     NOT_ENROLLED,
+    INVALID_CREDENTIALS,
     SESSION_EXPIRED
 }

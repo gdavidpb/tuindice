@@ -12,9 +12,47 @@ import java.io.StreamCorruptedException
 
 open class DstDataSource(
         private val authService: DstAuthService,
+        private val usbIdService: DstUsbIdService,
         private val recordService: DstRecordService,
         private val enrollmentService: DstEnrollmentService
 ) : DstRepository {
+    override suspend fun signIn(credentials: DstCredentials): DstAuth {
+        val usbId = credentials.usbId.asUsbId()
+
+        return authService.auth(
+            serviceUrl = credentials.serviceUrl,
+            usbId = usbId,
+            password = credentials.password
+        )
+            .getOrThrow()
+            .toAuth()
+            .also { response ->
+                check(response.code != AuthResponseCode.INVALID_CREDENTIALS) {
+                    throw AuthenticationException(
+                        errorCode = AuthErrorCode.INVALID_CREDENTIALS,
+                        message = response.message
+                    )
+                }
+
+                check(response.code != AuthResponseCode.SESSION_EXPIRED) {
+                    throw AuthenticationException(
+                        errorCode = AuthErrorCode.SESSION_EXPIRED,
+                        message = response.message
+                    )
+                }
+            }
+    }
+
+    override suspend fun checkCredentials(credentials: DstCredentials) {
+        val usbId = credentials.usbId.asUsbId()
+
+        usbIdService.checkCredentials(
+            usbId = usbId,
+            password = credentials.password
+        )
+            .getOrThrow()
+    }
+
     override suspend fun getPersonalData(): DstPersonal {
         return recordService.getPersonalData()
                 .getOrThrow()
@@ -39,27 +77,6 @@ open class DstDataSource(
                 .also { response ->
                     check("${response.contentType()}" == "application/pdf") {
                         throw StreamCorruptedException()
-                    }
-                }
-    }
-
-    override suspend fun signIn(credentials: DstCredentials): DstAuth {
-        val usbId = credentials.usbId.asUsbId()
-
-        return authService.auth(
-                serviceUrl = credentials.serviceUrl,
-                usbId = usbId,
-                password = credentials.password
-        )
-                .getOrThrow()
-                .toAuth()
-                .also { response ->
-                    check(response.code != AuthResponseCode.INVALID_CREDENTIALS) {
-                        throw AuthenticationException(errorCode = AuthErrorCode.INVALID_CREDENTIALS, message = response.message)
-                    }
-
-                    check(response.code != AuthResponseCode.SESSION_EXPIRED) {
-                        throw AuthenticationException(errorCode = AuthErrorCode.SESSION_EXPIRED, message = response.message)
                     }
                 }
     }
