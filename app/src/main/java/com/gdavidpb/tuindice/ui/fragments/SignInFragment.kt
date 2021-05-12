@@ -115,7 +115,10 @@ class SignInFragment : NavigationFragment() {
     }
 
     private fun showLoading(value: Boolean) {
+        if (pBarLogging.isVisible == value) return
+
         val layout = if (value) {
+            pBarLogging.isVisible = true
             vFlipperLoading.isVisible = true
 
             if (vFlipperLoading.adapter == null) {
@@ -128,6 +131,7 @@ class SignInFragment : NavigationFragment() {
 
             R.layout.fragment_sign_in_loading
         } else {
+            pBarLogging.isVisible = false
             vFlipperLoading.isVisible = false
             vFlipperLoading.stopFlipping()
 
@@ -172,6 +176,9 @@ class SignInFragment : NavigationFragment() {
 
     private fun syncObserver(result: Result<Boolean, SyncError>?) {
         when (result) {
+            is Result.OnLoading -> {
+                showLoading(true)
+            }
             is Result.OnSuccess -> {
                 navToSplash()
             }
