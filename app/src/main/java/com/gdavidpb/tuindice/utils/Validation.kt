@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.utils
+package com.gdavidpb.tuindice.utils
 
 data class Validation<T : Any>(
         val `object`: T,

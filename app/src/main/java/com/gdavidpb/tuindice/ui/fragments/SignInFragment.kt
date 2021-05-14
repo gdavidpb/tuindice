@@ -11,10 +11,10 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.data.utils.Validation
-import com.gdavidpb.tuindice.data.utils.`do`
-import com.gdavidpb.tuindice.data.utils.`when`
-import com.gdavidpb.tuindice.data.utils.firstInvalid
+import com.gdavidpb.tuindice.utils.Validation
+import com.gdavidpb.tuindice.utils.`do`
+import com.gdavidpb.tuindice.utils.`when`
+import com.gdavidpb.tuindice.utils.firstInvalid
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError

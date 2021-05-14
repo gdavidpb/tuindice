@@ -6,10 +6,10 @@ import android.view.View
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.model.database.EvaluationUpdate
-import com.gdavidpb.tuindice.data.utils.Validation
-import com.gdavidpb.tuindice.data.utils.`do`
-import com.gdavidpb.tuindice.data.utils.`when`
-import com.gdavidpb.tuindice.data.utils.firstInvalid
+import com.gdavidpb.tuindice.utils.Validation
+import com.gdavidpb.tuindice.utils.`do`
+import com.gdavidpb.tuindice.utils.`when`
+import com.gdavidpb.tuindice.utils.firstInvalid
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.EvaluationType
 import com.gdavidpb.tuindice.domain.model.Subject
