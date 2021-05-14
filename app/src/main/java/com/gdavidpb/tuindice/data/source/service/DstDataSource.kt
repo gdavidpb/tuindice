@@ -2,25 +2,28 @@ package com.gdavidpb.tuindice.data.source.service
 
 import com.gdavidpb.tuindice.domain.model.AuthErrorCode
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
+import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
-import com.gdavidpb.tuindice.domain.model.service.*
+import com.gdavidpb.tuindice.domain.model.service.DstAuth
+import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
+import com.gdavidpb.tuindice.domain.model.service.DstPersonal
+import com.gdavidpb.tuindice.domain.model.service.DstRecord
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.utils.extensions.getOrThrow
 import com.gdavidpb.tuindice.utils.mappers.*
 import okhttp3.ResponseBody
 import java.io.StreamCorruptedException
 
-open class DstDataSource(
+class DstDataSource(
         private val authService: DstAuthService,
-        private val usbIdService: DstUsbIdService,
         private val recordService: DstRecordService,
         private val enrollmentService: DstEnrollmentService
 ) : DstRepository {
-    override suspend fun signIn(credentials: DstCredentials): DstAuth {
+    override suspend fun signIn(credentials: Credentials, serviceUrl: String): DstAuth {
         val usbId = credentials.usbId.asUsbId()
 
         return authService.auth(
-            serviceUrl = credentials.serviceUrl,
+            serviceUrl = serviceUrl,
             usbId = usbId,
             password = credentials.password
         )
@@ -41,16 +44,6 @@ open class DstDataSource(
                     )
                 }
             }
-    }
-
-    override suspend fun checkCredentials(credentials: DstCredentials) {
-        val usbId = credentials.usbId.asUsbId()
-
-        usbIdService.checkCredentials(
-            usbId = usbId,
-            password = credentials.password
-        )
-            .getOrThrow()
     }
 
     override suspend fun getPersonalData(): DstPersonal {

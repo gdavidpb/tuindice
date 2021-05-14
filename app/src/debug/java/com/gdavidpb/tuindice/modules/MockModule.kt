@@ -21,7 +21,6 @@ import com.gdavidpb.tuindice.presentation.viewmodel.*
 import com.gdavidpb.tuindice.services.DstAuthServiceMock
 import com.gdavidpb.tuindice.services.DstEnrollmentServiceMock
 import com.gdavidpb.tuindice.services.DstRecordServiceMock
-import com.gdavidpb.tuindice.services.DstUsbIdServiceMock
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.createMockService
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
@@ -165,19 +164,6 @@ val mockModule = module {
                 .client(httpClient)
                 .build()
                 .createMockService<DstAuthService, DstAuthServiceMock>()
-    }
-
-    /* Dst usbId check service */
-
-    single {
-        val httpClient = get<OkHttpClient.Builder>()
-                .build()
-
-        Retrofit.Builder()
-                .baseUrl(BuildConfig.ENDPOINT_DST_USB_ID)
-                .client(httpClient)
-                .build()
-                .createMockService<DstUsbIdService, DstUsbIdServiceMock>()
     }
 
     /* Dst record service */

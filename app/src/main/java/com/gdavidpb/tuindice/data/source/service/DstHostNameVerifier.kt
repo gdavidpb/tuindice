@@ -7,9 +7,9 @@ import javax.net.ssl.SSLSession
 
 open class DstHostNameVerifier : HostnameVerifier {
     private val verifiedHostNames = arrayOf(
+            URL(BuildConfig.ENDPOINT_DST_SECURE).host,
             URL(BuildConfig.ENDPOINT_DST_RECORD).host,
-            URL(BuildConfig.ENDPOINT_DST_ENROLLMENT).host,
-            URL(BuildConfig.ENDPOINT_DST_SECURE).host
+            URL(BuildConfig.ENDPOINT_DST_ENROLLMENT).host
     )
 
     override fun verify(hostname: String, session: SSLSession): Boolean {

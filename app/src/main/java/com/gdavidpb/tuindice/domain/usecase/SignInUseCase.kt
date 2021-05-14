@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.exception.OutdatedPasswordException
-import com.gdavidpb.tuindice.domain.model.service.DstAuth
-import com.gdavidpb.tuindice.domain.model.service.DstCredentials
-import com.gdavidpb.tuindice.domain.repository.*
+import com.gdavidpb.tuindice.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
+import com.gdavidpb.tuindice.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.utils.ConfigKeys
@@ -15,14 +15,13 @@ import com.gdavidpb.tuindice.utils.mappers.asUsbEmail
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class SignInUseCase(
-        private val dstRepository: DstRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
         private val networkRepository: NetworkRepository
 ) : EventUseCase<Credentials, Boolean, SignInError>() {
     override suspend fun executeOnBackground(params: Credentials): Boolean {
-        params.auth(serviceUrl = BuildConfig.ENDPOINT_DST_SECURE_AUTH)
+        // TODO here dstRepository.checkCredentials(credentials = params)
 
         runCatching {
             authRepository.signIn(credentials = params)
@@ -78,17 +77,5 @@ class SignInUseCase(
         authRepository.sendPasswordResetEmail(email)
 
         throw OutdatedPasswordException()
-    }
-
-    private suspend fun Credentials.auth(serviceUrl: String): DstAuth {
-        val credentials = DstCredentials(
-                usbId = usbId,
-                password = password,
-                serviceUrl = serviceUrl
-        )
-
-        dstRepository.checkCredentials(credentials)
-
-        return dstRepository.signIn(credentials)
     }
 }

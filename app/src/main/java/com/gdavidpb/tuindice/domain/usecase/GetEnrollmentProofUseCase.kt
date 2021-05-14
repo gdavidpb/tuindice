@@ -1,10 +1,7 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.service.DstAuth
-import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
@@ -33,7 +30,10 @@ class GetEnrollmentProofUseCase(
         if (!enrollmentFile.exists()) {
             val credentials = settingsRepository.getCredentials()
 
-            credentials.auth(serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH)
+            dstRepository.signIn(
+                credentials = credentials,
+                serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH
+            )
 
             val inputStream = dstRepository.getEnrollmentProof().byteStream()
             val outputStream = storageRepository.outputStream(enrollmentFilePath)
@@ -53,15 +53,5 @@ class GetEnrollmentProofUseCase(
             throwable.isConnection() -> GetEnrollmentError.NoConnection(networkRepository.isAvailable())
             else -> null
         }
-    }
-
-    private suspend fun Credentials.auth(serviceUrl: String): DstAuth {
-        val credentials = DstCredentials(
-                usbId = usbId,
-                password = password,
-                serviceUrl = serviceUrl
-        )
-
-        return dstRepository.signIn(credentials)
     }
 }

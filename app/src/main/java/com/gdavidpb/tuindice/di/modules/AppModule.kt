@@ -50,7 +50,6 @@ import org.koin.experimental.builder.factoryBy
 import org.koin.experimental.builder.single
 import pl.droidsonroids.retrofit2.JspoonConverterFactory
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.security.SecureRandom
@@ -238,20 +237,6 @@ val appModule = module {
                 .client(httpClient)
                 .build()
                 .create<DstAuthService>()
-    }
-
-    /* Dst usbId check service */
-
-    single {
-        val httpClient = get<OkHttpClient.Builder>()
-                .build()
-
-        Retrofit.Builder()
-                .baseUrl(BuildConfig.ENDPOINT_DST_USB_ID)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(httpClient)
-                .build()
-                .create<DstUsbIdService>()
     }
 
     /* Dst record service */

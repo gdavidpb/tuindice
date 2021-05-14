@@ -1,11 +1,8 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.exception.OutdatedPasswordException
-import com.gdavidpb.tuindice.domain.model.service.DstAuth
-import com.gdavidpb.tuindice.domain.model.service.DstCredentials
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
@@ -52,14 +49,23 @@ class SyncAccountUseCase(
         /* Get credentials */
         val credentials = settingsRepository.getCredentials()
 
+        /* Check credentials */
+        // TODO here checkCredentials(credentials = credentials)
+
         /* Record service auth */
-        credentials.auth(serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH)
+        dstRepository.signIn(
+            credentials = credentials,
+            serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH
+        )
 
         val personal = dstRepository.getPersonalData()
         val record = dstRepository.getRecordData()
 
         /* Enrollment service auth */
-        val enrollmentAuth = credentials.auth(serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH)
+        val enrollmentAuth = dstRepository.signIn(
+            credentials = credentials,
+            serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH
+        )
 
         val enrollment = if (enrollmentAuth.isSuccessful)
             dstRepository.getEnrollment()
@@ -115,25 +121,6 @@ class SyncAccountUseCase(
             throwable.isTimeout() -> SyncError.Timeout
             throwable.isConnection() -> SyncError.NoConnection(networkRepository.isAvailable())
             else -> null
-        }
-    }
-
-    private suspend fun Credentials.auth(serviceUrl: String): DstAuth {
-        val credentials = DstCredentials(
-                usbId = usbId,
-                password = password,
-                serviceUrl = serviceUrl
-        )
-
-        return runCatching {
-            dstRepository.checkCredentials(credentials)
-
-            dstRepository.signIn(credentials)
-        }.getOrElse { throwable ->
-            when {
-                throwable.isInvalidCredentials() -> throw OutdatedPasswordException()
-                else -> throw throwable
-            }
         }
     }
 }
