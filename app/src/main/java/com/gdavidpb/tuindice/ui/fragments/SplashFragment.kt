@@ -49,6 +49,17 @@ class SplashFragment : NavigationFragment() {
         }
     }
 
+    private fun showNoServicesDialog() {
+        bottomSheetDialog<ConfirmationBottomSheetDialog> {
+            titleResource = R.string.dialog_title_no_gms_failure
+            messageResource = R.string.dialog_message_no_gms_failure
+
+            positiveButton(R.string.exit) { requireActivity().finish() }
+        }.apply {
+            isCancelable = false
+        }
+    }
+
     private fun startUpObserver(result: Result<StartUpAction, StartUpError>?) {
         when (result) {
             is Result.OnSuccess -> {
@@ -78,19 +89,12 @@ class SplashFragment : NavigationFragment() {
                 activity,
                 servicesStatus.status,
                 RequestCodes.PLAY_SERVICES_RESOLUTION_REQUEST
-            ).apply {
+            )?.apply {
                 setOnCancelListener { activity.finish() }
                 setOnDismissListener { activity.finish() }
-            }.show()
+            }?.show() ?: showNoServicesDialog()
         else
-            bottomSheetDialog<ConfirmationBottomSheetDialog> {
-                titleResource = R.string.dialog_title_no_gms_failure
-                messageResource = R.string.dialog_message_no_gms_failure
-
-                positiveButton(R.string.exit) { activity.finish() }
-            }.apply {
-                isCancelable = false
-            }
+            showNoServicesDialog()
     }
 
     private fun handleStartUpAction(action: StartUpAction) {
