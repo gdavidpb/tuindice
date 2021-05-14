@@ -6,11 +6,13 @@ import com.gdavidpb.tuindice.domain.model.Credentials
 interface AuthRepository {
     suspend fun isActiveAuth(): Boolean
     suspend fun getActiveAuth(): Auth
-    suspend fun reloadActiveAuth()
+    suspend fun reloadActiveAuth(): Auth
     suspend fun signIn(credentials: Credentials): Auth
     suspend fun reSignIn(credentials: Credentials): Auth
     suspend fun signUp(credentials: Credentials): Auth
     suspend fun signOut()
+
+    suspend fun getToken(forceRefresh: Boolean): String
 
     suspend fun updatePassword(newPassword: String)
     suspend fun confirmPasswordReset(code: String, password: String)

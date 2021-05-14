@@ -25,8 +25,11 @@ open class FirebaseDataSource(
                 ?: error("getActiveAuth")
     }
 
-    override suspend fun reloadActiveAuth() {
-        auth.currentUser?.reload()
+    override suspend fun reloadActiveAuth(): Auth {
+        return auth.currentUser
+            ?.apply { reload() }
+            ?.toAuth()
+            ?: error("reloadActiveAuth")
     }
 
     override suspend fun signIn(credentials: Credentials): Auth {
@@ -63,6 +66,14 @@ open class FirebaseDataSource(
 
     override suspend fun signOut() {
         auth.signOut()
+    }
+
+    override suspend fun getToken(forceRefresh: Boolean): String {
+        return auth.currentUser
+            ?.getIdToken(forceRefresh)
+            ?.await()
+            ?.token
+            ?: error("getToken")
     }
 
     override suspend fun updatePassword(newPassword: String) {
