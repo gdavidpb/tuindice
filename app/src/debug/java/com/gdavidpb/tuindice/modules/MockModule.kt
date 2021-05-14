@@ -8,6 +8,8 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataSource
+import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
+import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.service.*
@@ -21,6 +23,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.*
 import com.gdavidpb.tuindice.services.DstAuthServiceMock
 import com.gdavidpb.tuindice.services.DstEnrollmentServiceMock
 import com.gdavidpb.tuindice.services.DstRecordServiceMock
+import com.gdavidpb.tuindice.services.TuIndiceAPIMock
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.createMockService
 import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
@@ -45,6 +48,7 @@ import org.koin.experimental.builder.factory
 import org.koin.experimental.builder.factoryBy
 import org.koin.experimental.builder.single
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -151,6 +155,28 @@ val mockModule = module {
 
     factory<ReviewManager> {
         FakeReviewManager(androidContext())
+    }
+
+    /* TuIndice API */
+
+    single {
+        val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)
+
+        OkHttpClient.Builder()
+            .callTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+            .connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+            .readTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+            .writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+            .addInterceptor(get<HttpLoggingInterceptor>())
+            .addInterceptor(get<AuthorizationInterceptor>())
+            .build().let { httpClient ->
+                Retrofit.Builder()
+                    .baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .client(httpClient)
+                    .build()
+                    .createMockService<TuIndiceAPI, TuIndiceAPIMock>()
+            }
     }
 
     /* Dst auth service */
