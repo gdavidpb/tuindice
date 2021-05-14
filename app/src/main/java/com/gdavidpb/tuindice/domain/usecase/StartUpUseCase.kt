@@ -22,7 +22,11 @@ class StartUpUseCase(
     override suspend fun executeOnBackground(params: String): StartUpAction {
         val servicesStatus = servicesRepository.getServicesStatus()
 
-        if (!servicesStatus.isAvailable) throw ServicesUnavailableException(servicesStatus)
+        check(servicesStatus.isAvailable) { throw ServicesUnavailableException(servicesStatus) }
+
+        val isSettingsEncrypted = settingsRepository.isEncrypted()
+
+        check(isSettingsEncrypted)
 
         val isActiveAuth = authRepository.isActiveAuth()
         val isPasswordResetLink = authRepository.isResetPasswordLink(params)

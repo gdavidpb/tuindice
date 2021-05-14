@@ -19,5 +19,7 @@ interface SettingsRepository {
     fun getLastScreen(): Int
     fun setLastScreen(screen: Int)
 
+    fun isEncrypted(): Boolean
+
     fun clear()
 }
