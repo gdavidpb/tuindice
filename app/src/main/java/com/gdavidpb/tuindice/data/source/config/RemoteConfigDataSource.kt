@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.config
 
 import com.gdavidpb.tuindice.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.utils.extensions.awaitCatching
+import com.gdavidpb.tuindice.utils.extensions.awaitOrNull
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.gson.Gson
 import okio.IOException
@@ -11,7 +11,7 @@ open class RemoteConfigDataSource(
         private val googleJson: Gson
 ) : ConfigRepository {
     override suspend fun tryFetchAndActivate() {
-        remoteConfig.fetchAndActivate().awaitCatching()
+        remoteConfig.fetchAndActivate().awaitOrNull()
     }
 
     override fun getString(key: String): String {
