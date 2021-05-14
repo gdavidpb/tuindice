@@ -12,6 +12,9 @@ import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataSource
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataSource
 import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataSource
+import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
+import com.gdavidpb.tuindice.data.source.functions.CloudFunctionsDataSource
+import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.service.*
@@ -50,6 +53,7 @@ import org.koin.experimental.builder.factoryBy
 import org.koin.experimental.builder.single
 import pl.droidsonroids.retrofit2.JspoonConverterFactory
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.security.SecureRandom
@@ -118,7 +122,7 @@ val appModule = module {
     }
 
     single {
-        FirebaseStorage.getInstance()
+        FirebaseAuth.getInstance()
     }
 
     single {
@@ -126,7 +130,7 @@ val appModule = module {
     }
 
     single {
-        FirebaseAuth.getInstance()
+        FirebaseStorage.getInstance()
     }
 
     single {
@@ -205,6 +209,8 @@ val appModule = module {
 
     single<DstAuthInterceptor>()
 
+    single<AuthorizationInterceptor>()
+
     factory {
         val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)
 
@@ -222,6 +228,28 @@ val appModule = module {
 
     factory {
         ReviewManagerFactory.create(androidContext())
+    }
+
+    /* TuIndice API */
+
+    single {
+        val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)
+
+        OkHttpClient.Builder()
+            .callTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+            .connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+            .readTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+            .writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+            .addInterceptor(get<HttpLoggingInterceptor>())
+            .addInterceptor(get<AuthorizationInterceptor>())
+            .build().let { httpClient ->
+                Retrofit.Builder()
+                    .baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .client(httpClient)
+                    .build()
+                    .create<TuIndiceAPI>()
+            }
     }
 
     /* Dst auth service */
@@ -296,6 +324,7 @@ val appModule = module {
     factoryBy<DependenciesRepository, ReleaseKoinDataSource>()
     factoryBy<NetworkRepository, AndroidNetworkDataSource>()
     factoryBy<ServicesRepository, GooglePlayServicesDataSource>()
+    factoryBy<FunctionsRepository, CloudFunctionsDataSource>()
 
     /* Use cases */
 

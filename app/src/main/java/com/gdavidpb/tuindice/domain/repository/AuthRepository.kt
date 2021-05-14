@@ -12,7 +12,7 @@ interface AuthRepository {
     suspend fun signUp(credentials: Credentials): Auth
     suspend fun signOut()
 
-    suspend fun getToken(forceRefresh: Boolean): String
+    suspend fun getToken(forceRefresh: Boolean): String?
 
     suspend fun updatePassword(newPassword: String)
     suspend fun confirmPasswordReset(code: String, password: String)

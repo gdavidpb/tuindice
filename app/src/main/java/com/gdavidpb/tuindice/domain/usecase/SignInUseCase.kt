@@ -2,10 +2,7 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.exception.OutdatedPasswordException
-import com.gdavidpb.tuindice.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
-import com.gdavidpb.tuindice.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.utils.ConfigKeys
@@ -18,10 +15,11 @@ class SignInUseCase(
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
         private val authRepository: AuthRepository,
-        private val networkRepository: NetworkRepository
+        private val networkRepository: NetworkRepository,
+        private val functionsRepository: FunctionsRepository
 ) : EventUseCase<Credentials, Boolean, SignInError>() {
     override suspend fun executeOnBackground(params: Credentials): Boolean {
-        // TODO here dstRepository.checkCredentials(credentials = params)
+        functionsRepository.checkCredentials(credentials = params)
 
         runCatching {
             authRepository.signIn(credentials = params)

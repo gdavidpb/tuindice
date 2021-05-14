@@ -21,7 +21,8 @@ class SyncAccountUseCase(
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
         private val messagingRepository: MessagingRepository,
-        private val networkRepository: NetworkRepository
+        private val networkRepository: NetworkRepository,
+        private val functionsRepository: FunctionsRepository
 ) : ResultUseCase<Unit, Boolean, SyncError>() {
     override suspend fun executeOnBackground(params: Unit): Boolean {
         val activeAuth = authRepository.getActiveAuth()
@@ -50,7 +51,7 @@ class SyncAccountUseCase(
         val credentials = settingsRepository.getCredentials()
 
         /* Check credentials */
-        // TODO here checkCredentials(credentials = credentials)
+        functionsRepository.checkCredentials(credentials = credentials)
 
         /* Record service auth */
         dstRepository.signIn(

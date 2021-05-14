@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.Auth
 import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.utils.extensions.awaitCatching
 import com.gdavidpb.tuindice.utils.extensions.mode
 import com.gdavidpb.tuindice.utils.mappers.asUsbEmail
 import com.gdavidpb.tuindice.utils.mappers.toAuth
@@ -68,12 +69,11 @@ open class FirebaseDataSource(
         auth.signOut()
     }
 
-    override suspend fun getToken(forceRefresh: Boolean): String {
+    override suspend fun getToken(forceRefresh: Boolean): String? {
         return auth.currentUser
             ?.getIdToken(forceRefresh)
-            ?.await()
+            ?.awaitCatching()
             ?.token
-            ?: error("getToken")
     }
 
     override suspend fun updatePassword(newPassword: String) {
