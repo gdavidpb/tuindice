@@ -4,6 +4,5 @@ import android.content.Context
 
 object MigrationManager {
     fun execute(context: Context) {
-        SharedPreferencesMigration(context).applyIfRequired()
     }
 }

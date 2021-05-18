@@ -10,9 +10,11 @@ class AuthorizationInterceptor(
 ) : Interceptor {
 	override fun intercept(chain: Interceptor.Chain): Response {
 		val request = chain.request()
-		val token = runBlocking { authRepository.getToken(forceRefresh = false) }
+		val isActiveAuth = runBlocking { authRepository.isActiveAuth() }
 
-		return if (token != null) {
+		return if (isActiveAuth) {
+			val token = runBlocking { authRepository.getActiveToken(forceRefresh = false) }
+
 			val authRequest = request
 				.newBuilder()
 				.header("Authorization", "Bearer $token")

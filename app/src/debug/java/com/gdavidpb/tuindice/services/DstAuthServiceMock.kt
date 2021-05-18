@@ -10,10 +10,8 @@ class DstAuthServiceMock(
         private val delegate: BehaviorDelegate<DstAuthService>
 ) : DstAuthService {
     override suspend fun auth(serviceUrl: String, usbId: String, password: String, eventId: String): Response<DstAuthResponse> {
-        val response = dstDefaultAuthResponse
-
         return delegate
-                .returningResponse(response)
+                .returningResponse(dstDefaultAuthResponse)
                 .auth(serviceUrl, usbId, password, eventId)
     }
 }

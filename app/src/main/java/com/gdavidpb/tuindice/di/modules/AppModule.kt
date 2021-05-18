@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataSource
-import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataSource
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataSource
 import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataSource
 import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
@@ -28,7 +27,6 @@ import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.create
-import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
 import com.gdavidpb.tuindice.utils.extensions.inflate
 import com.gdavidpb.tuindice.utils.extensions.sharedPreferences
 import com.google.android.gms.common.GoogleApiAvailability
@@ -36,7 +34,6 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -68,9 +65,7 @@ val appModule = module {
     /* Application */
 
     single {
-        runCatching {
-            androidContext().encryptedSharedPreferences()
-        }.getOrDefault(androidContext().sharedPreferences())
+        androidContext().sharedPreferences()
     }
 
     /* Android Services */
@@ -135,10 +130,6 @@ val appModule = module {
 
     single {
         FirebaseMessaging.getInstance()
-    }
-
-    single {
-        FirebaseDynamicLinks.getInstance()
     }
 
     single {
@@ -302,8 +293,6 @@ val appModule = module {
     viewModel<SummaryViewModel>()
     viewModel<RecordViewModel>()
     viewModel<SignInViewModel>()
-    viewModel<ResetPasswordViewModel>()
-    viewModel<UpdatePasswordViewModel>()
     viewModel<EvaluationPlanViewModel>()
     viewModel<EvaluationViewModel>()
     viewModel<PensumViewModel>()
@@ -318,7 +307,6 @@ val appModule = module {
     factoryBy<DatabaseRepository, FirestoreDataSource>()
     factoryBy<MessagingRepository, FirebaseCloudMessagingDataSource>()
     factoryBy<ContentRepository, ContentResolverDataSource>()
-    factoryBy<LinkRepository, DynamicLinkDataSource>()
     factoryBy<ConfigRepository, RemoteConfigDataSource>()
     factoryBy<ReportingRepository, CrashlyticsReportingDataSource>()
     factoryBy<DependenciesRepository, ReleaseKoinDataSource>()
@@ -329,12 +317,10 @@ val appModule = module {
     /* Use cases */
 
     factory<SignInUseCase>()
+    factory<ReSignInUseCase>()
     factory<SignOutUseCase>()
     factory<SyncAccountUseCase>()
     factory<StartUpUseCase>()
-    factory<SendResetPasswordEmailUseCase>()
-    factory<UpdatePasswordUseCase>()
-    factory<CountdownUseCase>()
     factory<GetProfileUseCase>()
     factory<GetQuartersUseCase>()
     factory<UpdateQuarterUseCase>()

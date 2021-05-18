@@ -15,7 +15,9 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.SplashViewModel
 import com.gdavidpb.tuindice.ui.dialogs.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.utils.RequestCodes
-import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.extensions.bottomSheetDialog
+import com.gdavidpb.tuindice.utils.extensions.connectionSnackBar
+import com.gdavidpb.tuindice.utils.extensions.observe
 import com.google.android.gms.common.GoogleApiAvailability
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -73,7 +75,6 @@ class SplashFragment : NavigationFragment() {
 
     private fun startUpErrorHandler(error: StartUpError?) {
         when (error) {
-            is StartUpError.InvalidLink -> errorSnackBar(R.string.snack_invalid_link)
             is StartUpError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
             is StartUpError.NoServices -> handleNoServices(error.servicesStatus)
             else -> activityManager.clearApplicationUserData()
@@ -111,11 +112,6 @@ class SplashFragment : NavigationFragment() {
                 }
 
                 mainViewModel.trySyncAccount()
-            }
-            is StartUpAction.ResetPassword -> {
-                navigate(SplashFragmentDirections.navToResetPassword(
-                        email = action.email
-                ))
             }
             is StartUpAction.SignIn -> {
                 navigate(SplashFragmentDirections.navToSignIn())

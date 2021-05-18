@@ -5,10 +5,6 @@
         <value>3</value>
     </entry>
     <entry>
-        <key>time_verification_count_down</key>
-        <value>300000</value>
-    </entry>
-    <entry>
         <key>time_update_staleness_days</key>
         <value>7</value>
     </entry>
@@ -56,14 +52,6 @@
     </entry>
     <entry>
         <key>time_out_profile_picture</key>
-        <value>90000</value>
-    </entry>
-    <entry>
-        <key>time_out_update_password</key>
-        <value>90000</value>
-    </entry>
-    <entry>
-        <key>time_out_reset_password</key>
         <value>90000</value>
     </entry>
     <entry>

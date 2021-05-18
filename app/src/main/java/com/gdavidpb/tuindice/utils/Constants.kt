@@ -40,9 +40,6 @@ object ScreenKeys {
 
 /* Preferences keys */
 object SettingsKeys {
-    const val USB_ID = "email"
-    const val PASSWORD = "password"
-    const val COUNT_DOWN = "countdown"
     const val LAST_SCREEN = "lastScreen"
     const val SYNCS_COUNTER = "syncsCounter"
     const val SUBSCRIBED_TOPICS = "subscribedTopics"
@@ -55,7 +52,6 @@ object ConfigKeys {
     const val ISSUES_LIST = "issues_list"
     const val LOADING_MESSAGES = "loading_messages"
     const val DST_CERTIFICATES = "dst_certificates"
-    const val TIME_VERIFICATION_COUNT_DOWN = "time_verification_count_down"
     const val TIME_UPDATE_STALENESS_DAYS = "time_update_staleness_days"
     const val SYNCS_TO_SUGGEST_REVIEW = "syncs_to_suggest_review"
     const val TIME_OUT_CONNECTION = "time_out_connection"
@@ -63,8 +59,6 @@ object ConfigKeys {
     const val TIME_OUT_SYNC = "time_out_sync"
     const val TIME_OUT_GET_ENROLLMENT = "time_out_get_enrollment"
     const val TIME_OUT_PROFILE_PICTURE = "time_out_profile_picture"
-    const val TIME_OUT_UPDATE_PASSWORD = "time_out_update_password"
-    const val TIME_OUT_RESET_PASSWORD = "time_out_reset_password"
 }
 
 /* Reporting keys */

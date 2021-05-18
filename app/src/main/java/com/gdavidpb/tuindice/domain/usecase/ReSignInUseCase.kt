@@ -10,18 +10,24 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.mappers.asUsbId
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
-class SignInUseCase(
+class ReSignInUseCase(
         private val databaseRepository: DatabaseRepository,
         private val authRepository: AuthRepository,
         private val networkRepository: NetworkRepository,
         private val functionsRepository: FunctionsRepository
-) : EventUseCase<Credentials, Boolean, SignInError>() {
-    override suspend fun executeOnBackground(params: Credentials): Boolean {
-        if (authRepository.isActiveAuth()) authRepository.signOut()
+) : EventUseCase<String, Boolean, SignInError>() {
+    override suspend fun executeOnBackground(params: String): Boolean {
+        val activeAuth = authRepository.getActiveAuth()
+        val usbId = activeAuth.email.asUsbId()
 
-        val functionsSignIn = functionsRepository.signIn(credentials = params)
+        val credentials = Credentials(usbId = usbId, password = params)
+        val functionsSignIn = functionsRepository.signIn(credentials = credentials)
+
+        authRepository.signOut()
+
         val authSignIn = authRepository.signIn(token = functionsSignIn.token)
 
         databaseRepository.cache(uid = authSignIn.uid)

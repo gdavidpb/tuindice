@@ -7,7 +7,6 @@ import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataSource
-import com.gdavidpb.tuindice.data.source.dynamic.DynamicLinkDataSource
 import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
@@ -26,14 +25,12 @@ import com.gdavidpb.tuindice.services.DstRecordServiceMock
 import com.gdavidpb.tuindice.services.TuIndiceAPIMock
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.createMockService
-import com.gdavidpb.tuindice.utils.extensions.encryptedSharedPreferences
 import com.gdavidpb.tuindice.utils.extensions.sharedPreferences
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.testing.FakeReviewManager
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -57,9 +54,7 @@ val mockModule = module {
     /* Application */
 
     single {
-        runCatching {
-            androidContext().encryptedSharedPreferences()
-        }.getOrDefault(androidContext().sharedPreferences())
+        androidContext().sharedPreferences()
     }
 
     /* Android Services */
@@ -120,10 +115,6 @@ val mockModule = module {
         FirebaseFirestore.getInstance().apply {
             firestoreSettings = settings
         }
-    }
-
-    single {
-        FirebaseDynamicLinks.getInstance()
     }
 
     single {
@@ -225,8 +216,6 @@ val mockModule = module {
     viewModel<SummaryViewModel>()
     viewModel<RecordViewModel>()
     viewModel<SignInViewModel>()
-    viewModel<ResetPasswordViewModel>()
-    viewModel<UpdatePasswordViewModel>()
     viewModel<EvaluationPlanViewModel>()
     viewModel<EvaluationViewModel>()
     viewModel<PensumViewModel>()
@@ -241,7 +230,6 @@ val mockModule = module {
     factoryBy<DatabaseRepository, FirestoreMockDataSource>()
     factoryBy<MessagingRepository, MessagingMockDataSource>()
     factoryBy<ContentRepository, ContentResolverDataSource>()
-    factoryBy<LinkRepository, DynamicLinkDataSource>()
     factoryBy<ConfigRepository, RemoteConfigMockDataSource>()
     factoryBy<ReportingRepository, DebugReportingDataSource>()
     factoryBy<DependenciesRepository, DebugKoinDataSource>()
@@ -251,12 +239,10 @@ val mockModule = module {
     /* Use cases */
 
     factory<SignInUseCase>()
+    factory<ReSignInUseCase>()
     factory<SignOutUseCase>()
     factory<SyncAccountUseCase>()
     factory<StartUpUseCase>()
-    factory<SendResetPasswordEmailUseCase>()
-    factory<UpdatePasswordUseCase>()
-    factory<CountdownUseCase>()
     factory<GetProfileUseCase>()
     factory<GetQuartersUseCase>()
     factory<UpdateQuarterUseCase>()

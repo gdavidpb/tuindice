@@ -12,10 +12,8 @@ class DstRecordServiceMock(
         private val delegate: BehaviorDelegate<DstRecordService>
 ) : DstRecordService {
     override suspend fun getPersonalData(): Response<DstPersonalResponse> {
-        val response = defaultPersonalResponse
-
         return delegate
-                .returningResponse(response)
+                .returningResponse(defaultPersonalResponse)
                 .getPersonalData()
     }
 

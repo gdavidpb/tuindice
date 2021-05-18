@@ -8,15 +8,15 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
+import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
+import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.utils.Validation
 import com.gdavidpb.tuindice.utils.`do`
 import com.gdavidpb.tuindice.utils.`when`
-import com.gdavidpb.tuindice.utils.firstInvalid
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
-import com.gdavidpb.tuindice.domain.usecase.errors.UpdatePasswordError
-import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.presentation.viewmodel.UpdatePasswordViewModel
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.firstInvalid
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.dialog_update_password.*
 import org.koin.android.ext.android.inject
@@ -25,7 +25,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 
-    private val viewModel by viewModel<UpdatePasswordViewModel>()
+    private val viewModel by viewModel<SignInViewModel>()
 
     private val mainViewModel by sharedViewModel<MainViewModel>()
 
@@ -56,7 +56,7 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
         super.onAttach(context)
 
         with(viewModel) {
-            observe(updatePassword, ::updatePasswordObserver)
+            observe(signIn, ::signInObserver)
         }
     }
 
@@ -79,7 +79,7 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
         }.isNull {
             hideSoftKeyboard(inputMethodManager)
 
-            viewModel.updatePassword(password = tInputPassword.getPassword())
+            viewModel.reSignIn(password = tInputPassword.getPassword())
         }
     }
 
@@ -87,31 +87,38 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
         dismiss()
     }
 
-    private fun updatePasswordObserver(result: Completable<UpdatePasswordError>?) {
+    private fun signInObserver(result: Event<Boolean, SignInError>?) {
         when (result) {
-            is Completable.OnLoading -> {
+            is Event.OnLoading -> {
                 showLoading(true)
             }
-            is Completable.OnComplete -> {
+            is Event.OnSuccess -> {
                 showLoading(false)
 
                 mainViewModel.trySyncAccount()
 
                 dismiss()
             }
-            is Completable.OnError -> {
+            is Event.OnError -> {
                 showLoading(false)
 
-                updatePasswordErrorHandler(error = result.error)
+                signInErrorHandler(error = result.error)
+            }
+            else -> {
+                showLoading(false)
+
+                errorSnackBar()
             }
         }
     }
 
-    private fun updatePasswordErrorHandler(error: UpdatePasswordError?) {
+    private fun signInErrorHandler(error: SignInError?) {
         when (error) {
-            is UpdatePasswordError.Timeout -> errorSnackBar(R.string.snack_timeout) { onConfirmClick() }
-            is UpdatePasswordError.InvalidCredentials -> errorSnackBar(R.string.snack_invalid_password)
-            is UpdatePasswordError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onConfirmClick() }
+            is SignInError.Timeout -> errorSnackBar(R.string.snack_timeout) { onConfirmClick() }
+            is SignInError.InvalidCredentials -> errorSnackBar(R.string.snack_invalid_credentials)
+            is SignInError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { onConfirmClick() }
+            is SignInError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onConfirmClick() }
+            is SignInError.AccountDisabled -> errorSnackBar(R.string.snack_account_disabled)
             else -> errorSnackBar { onConfirmClick() }
         }
     }

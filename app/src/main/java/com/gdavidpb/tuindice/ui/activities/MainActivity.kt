@@ -47,8 +47,7 @@ class MainActivity : AppCompatActivity() {
             R.id.fragment_record,
             R.id.fragment_about,
             R.id.fragment_splash,
-            R.id.fragment_sign_in,
-            R.id.fragment_reset_password
+            R.id.fragment_sign_in
     )
 
     private val bottomDestinations = listOf(

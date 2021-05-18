@@ -19,10 +19,8 @@ class DstEnrollmentServiceMock(
     private val resources by inject<Resources>()
 
     override suspend fun getEnrollment(mode: String): Response<DstEnrollmentResponse> {
-        val response = defaultEnrollmentResponse
-
         return delegate
-                .returningResponse(response)
+                .returningResponse(defaultEnrollmentResponse)
                 .getEnrollment(mode)
     }
 

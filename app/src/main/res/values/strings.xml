@@ -47,8 +47,6 @@
 
     <string name="selector_title_report">¿Cómo te podemos ayudar?</string>
 
-    <string name="snack_invalid_link">Enlace inválido</string>
-
     <string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
 
     <string name="snack_default_error">¡Ha ocurrido un error!</string>
@@ -301,22 +299,6 @@
     <string name="error_evaluation_grade_invalid_range">El valor de la evaluación debe estar entre 0.25 y 100 puntos</string>
     <string name="error_evaluation_grade_invalid_step">El valor de la evaluación debe ser múltiplo de 0.25</string>
 
-    <!-- ResetPasswordFragment -->
-
-    <string name="label_reset_password_fragment">TuIndice</string>
-    <string name="title_reset_password_fragment">Tu contraseña ha cambiado</string>
-
-    <string name="message_reset_password">
-        Hemos enviado un enlace de actualización de contraseña
-        a tu correo institucional (%1$s).\n\n
-        Revísalo y podrás continuar ;)
-    </string>
-
-    <string name="snack_resend">Correo reenviado</string>
-
-    <string name="button_reset_password_cancel">Cancelar</string>
-    <string name="button_reset_password_resend">Enviar nuevamente</string>
-
     <!-- SignInFragment -->
 
     <string name="label_sign_in_fragment">TuIndice</string>
@@ -337,7 +319,7 @@
     <string name="error_usb_id">USBID inválido</string>
 
     <string name="snack_network_unavailable">Comprueba tu conexión</string>
-    <string name="snack_service_unreachable">Servicio no disponible</string>
+    <string name="snack_service_unavailable">Servicio no disponible</string>
     <string name="snack_timeout">Tiempo de espera agotado</string>
     <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
     <string name="snack_account_disabled">Cuenta inhabilitada</string>

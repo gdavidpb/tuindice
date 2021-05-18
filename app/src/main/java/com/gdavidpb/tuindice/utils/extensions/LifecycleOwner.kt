@@ -87,7 +87,7 @@ fun LifecycleOwner.selector(
 
 fun LifecycleOwner.connectionSnackBar(isNetworkAvailable: Boolean, retry: (() -> Unit)? = null) {
     val message = if (isNetworkAvailable)
-        R.string.snack_service_unreachable
+        R.string.snack_service_unavailable
     else
         R.string.snack_network_unavailable
 

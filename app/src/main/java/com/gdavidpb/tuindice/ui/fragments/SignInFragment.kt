@@ -11,17 +11,13 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.utils.Validation
-import com.gdavidpb.tuindice.utils.`do`
-import com.gdavidpb.tuindice.utils.`when`
-import com.gdavidpb.tuindice.utils.firstInvalid
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.ui.adapters.LoadingAdapter
-import com.gdavidpb.tuindice.utils.ConfigKeys
+import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_sign_in.*
 import org.koin.android.ext.android.inject
@@ -201,7 +197,7 @@ class SignInFragment : NavigationFragment() {
         when (error) {
             is SignInError.Timeout -> errorSnackBar(R.string.snack_timeout) { onSignInClick() }
             is SignInError.InvalidCredentials -> errorSnackBar(R.string.snack_invalid_credentials)
-            is SignInError.OutdatedPassword -> navToSplash()
+            is SignInError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { onSignInClick() }
             is SignInError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
             is SignInError.AccountDisabled -> errorSnackBar(R.string.snack_account_disabled)
             else -> errorSnackBar { onSignInClick() }
