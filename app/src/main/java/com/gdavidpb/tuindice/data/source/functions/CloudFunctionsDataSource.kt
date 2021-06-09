@@ -13,4 +13,9 @@ class CloudFunctionsDataSource(
 			.getOrThrow()
 			.toSignIn()
 	}
+
+	override suspend fun sync() {
+		return tuIndiceAPI.sync()
+			.getOrThrow()
+	}
 }

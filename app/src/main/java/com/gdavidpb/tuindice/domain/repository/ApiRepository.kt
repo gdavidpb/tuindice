@@ -4,4 +4,5 @@ import com.gdavidpb.tuindice.domain.model.SignIn
 
 interface ApiRepository {
 	suspend fun signIn(basicToken: String, refreshToken: Boolean): SignIn
+	suspend fun sync()
 }

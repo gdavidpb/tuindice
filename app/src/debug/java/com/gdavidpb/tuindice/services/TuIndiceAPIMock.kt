@@ -17,4 +17,10 @@ class TuIndiceAPIMock(
 			.returningResponse(defaultSignInResponse)
 			.signIn(basicToken, refreshToken)
 	}
+
+	override suspend fun sync(): Response<Unit> {
+		return delegate
+			.returningResponse(Unit)
+			.sync()
+	}
 }

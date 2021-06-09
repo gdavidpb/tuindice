@@ -14,4 +14,8 @@ interface TuIndiceAPI {
 		@Header("Authorization") basicToken: String,
 		@Header("Re-Authenticate") refreshToken: Boolean
 	): Response<SignInResponse>
+
+	@Headers("App-Version: ${BuildConfig.VERSION_CODE}")
+	@POST("sync")
+	suspend fun sync(): Response<Unit>
 }
