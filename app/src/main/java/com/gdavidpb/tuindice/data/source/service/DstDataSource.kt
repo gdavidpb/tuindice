@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.source.service
 
 import com.gdavidpb.tuindice.domain.model.AuthErrorCode
 import com.gdavidpb.tuindice.domain.model.AuthResponseCode
-import com.gdavidpb.tuindice.domain.model.Credentials
+import com.gdavidpb.tuindice.domain.model.SignInRequest
 import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.gdavidpb.tuindice.domain.model.service.DstAuth
 import com.gdavidpb.tuindice.domain.model.service.DstEnrollment
@@ -19,13 +19,13 @@ class DstDataSource(
         private val recordService: DstRecordService,
         private val enrollmentService: DstEnrollmentService
 ) : DstRepository {
-    override suspend fun signIn(credentials: Credentials, serviceUrl: String): DstAuth {
-        val usbId = credentials.usbId.asUsbId()
+    override suspend fun signIn(signInRequest: SignInRequest, serviceUrl: String): DstAuth {
+        val usbId = signInRequest.usbId.asUsbId()
 
         return authService.auth(
             serviceUrl = serviceUrl,
             usbId = usbId,
-            password = credentials.password
+            password = signInRequest.password
         )
             .getOrThrow()
             .toAuth()

@@ -312,7 +312,7 @@ val appModule = module {
     factoryBy<DependenciesRepository, ReleaseKoinDataSource>()
     factoryBy<NetworkRepository, AndroidNetworkDataSource>()
     factoryBy<ServicesRepository, GooglePlayServicesDataSource>()
-    factoryBy<FunctionsRepository, CloudFunctionsDataSource>()
+    factoryBy<ApiRepository, CloudFunctionsDataSource>()
 
     /* Use cases */
 

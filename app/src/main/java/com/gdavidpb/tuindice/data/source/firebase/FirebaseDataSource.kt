@@ -20,19 +20,12 @@ open class FirebaseDataSource(
             ?: error("getActiveAuth")
     }
 
-    override suspend fun getActiveToken(forceRefresh: Boolean): String {
+    override suspend fun getActiveToken(): String {
         return auth.currentUser
-            ?.getIdToken(forceRefresh)
+            ?.getIdToken(true)
             ?.awaitOrNull()
             ?.token
-            ?: error("getToken")
-    }
-
-    override suspend fun reloadActiveAuth(): Auth {
-        return auth.currentUser
-            ?.apply { reload() }
-            ?.toAuth()
-            ?: error("reloadActiveAuth")
+            ?: error("getActiveToken")
     }
 
     override suspend fun signIn(token: String): Auth {

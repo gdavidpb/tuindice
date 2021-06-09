@@ -1,20 +1,17 @@
 package com.gdavidpb.tuindice.data.source.functions
 
-import com.gdavidpb.tuindice.data.source.functions.requests.CheckCredentialsRequest
-import com.gdavidpb.tuindice.data.source.functions.requests.SignInRequest
+import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.data.source.functions.responses.SignInResponse
 import retrofit2.Response
-import retrofit2.http.Body
+import retrofit2.http.Header
+import retrofit2.http.Headers
 import retrofit2.http.POST
 
 interface TuIndiceAPI {
+	@Headers("App-Version: ${BuildConfig.VERSION_CODE}")
 	@POST("signIn")
 	suspend fun signIn(
-		@Body request: SignInRequest
+		@Header("Authorization") basicToken: String,
+		@Header("Re-Authenticate") refreshToken: Boolean
 	): Response<SignInResponse>
-
-	@POST("checkCredentials")
-	suspend fun checkCredentials(
-		@Body request: CheckCredentialsRequest
-	): Response<Unit>
 }

@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.model
 
-data class Credentials(
+data class SignInRequest(
         val usbId: String,
         val password: String
 )

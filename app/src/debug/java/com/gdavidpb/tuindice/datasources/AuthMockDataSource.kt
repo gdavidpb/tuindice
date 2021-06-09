@@ -22,10 +22,6 @@ open class AuthMockDataSource(
         return Auth(uid = uid, email = email)
     }
 
-    override suspend fun reloadActiveAuth(): Auth {
-        return Auth(uid = uid, email = email)
-    }
-
     override suspend fun signIn(token: String): Auth {
         return Auth(uid = uid, email = email)
     }
@@ -33,7 +29,7 @@ open class AuthMockDataSource(
     override suspend fun signOut() {
     }
 
-    override suspend fun getActiveToken(forceRefresh: Boolean): String {
+    override suspend fun getActiveToken(): String {
         return token
     }
 }

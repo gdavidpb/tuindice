@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.domain.model.Credentials
+import com.gdavidpb.tuindice.domain.model.SignInRequest
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.repository.DstRepository
 import com.gdavidpb.tuindice.domain.repository.NetworkRepository
@@ -27,10 +27,10 @@ class GetEnrollmentProofUseCase(
         val enrollmentFile = storageRepository.get(enrollmentFilePath)
 
         if (!enrollmentFile.exists()) {
-            val credentials = Credentials("", "") // TODO
+            val credentials = SignInRequest("", "") // TODO
 
             dstRepository.signIn(
-                credentials = credentials,
+                signInRequest = credentials,
                 serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH
             )
 

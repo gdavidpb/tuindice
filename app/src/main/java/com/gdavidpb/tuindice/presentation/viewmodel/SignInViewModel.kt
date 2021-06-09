@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.domain.model.Credentials
+import com.gdavidpb.tuindice.domain.model.SignInRequest
 import com.gdavidpb.tuindice.domain.usecase.ReSignInUseCase
 import com.gdavidpb.tuindice.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.domain.usecase.SignOutUseCase
@@ -24,7 +24,7 @@ class SignInViewModel(
     val sync = LiveResult<Boolean, SyncError>()
 
     fun signIn(usbId: String, password: String) {
-        val credentials = Credentials(usbId = usbId, password = password)
+        val credentials = SignInRequest(usbId = usbId, password = password)
 
         execute(useCase = signInUseCase, params = credentials, liveData = signIn)
     }

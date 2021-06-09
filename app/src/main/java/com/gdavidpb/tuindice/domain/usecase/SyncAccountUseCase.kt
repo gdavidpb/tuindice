@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.domain.model.Credentials
 import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.domain.model.SignInRequest
 import com.gdavidpb.tuindice.domain.model.exception.OutdatedPasswordException
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
@@ -18,14 +18,13 @@ import com.gdavidpb.tuindice.utils.mappers.toQuarter
 
 @Timeout(key = ConfigKeys.TIME_OUT_SYNC)
 class SyncAccountUseCase(
-        private val dstRepository: DstRepository,
-        private val authRepository: AuthRepository,
-        private val configRepository: ConfigRepository,
-        private val databaseRepository: DatabaseRepository,
-        private val settingsRepository: SettingsRepository,
-        private val messagingRepository: MessagingRepository,
-        private val networkRepository: NetworkRepository,
-        private val functionsRepository: FunctionsRepository
+    private val dstRepository: DstRepository,
+    private val authRepository: AuthRepository,
+    private val configRepository: ConfigRepository,
+    private val databaseRepository: DatabaseRepository,
+    private val settingsRepository: SettingsRepository,
+    private val messagingRepository: MessagingRepository,
+    private val networkRepository: NetworkRepository
 ) : ResultUseCase<Unit, Boolean, SyncError>() {
     override suspend fun executeOnBackground(params: Unit): Boolean {
         val activeAuth = authRepository.getActiveAuth()
@@ -47,18 +46,15 @@ class SyncAccountUseCase(
 
         if (isUpdated) return false
 
-        /* Reload auth */
-        authRepository.reloadActiveAuth()
-
         /* Get credentials */
-        val credentials = Credentials("", "") // TODO
+        val credentials = SignInRequest("", "") // TODO
 
         /* Check credentials */
-        functionsRepository.checkCredentials(credentials = credentials)
+        // TODO apiRepository.checkCredentials(credentials = credentials)
 
         /* Record service auth */
         dstRepository.signIn(
-            credentials = credentials,
+            signInRequest = credentials,
             serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH
         )
 
@@ -67,7 +63,7 @@ class SyncAccountUseCase(
 
         /* Enrollment service auth */
         val enrollmentAuth = dstRepository.signIn(
-            credentials = credentials,
+            signInRequest = credentials,
             serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH
         )
 
