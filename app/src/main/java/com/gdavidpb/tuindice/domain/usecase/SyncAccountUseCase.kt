@@ -1,8 +1,5 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.SignInRequest
 import com.gdavidpb.tuindice.domain.model.exception.OutdatedPasswordException
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
@@ -10,15 +7,12 @@ import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.Topics
 import com.gdavidpb.tuindice.utils.annotations.Timeout
-import com.gdavidpb.tuindice.utils.extensions.computeGradeSum
 import com.gdavidpb.tuindice.utils.extensions.isConnection
 import com.gdavidpb.tuindice.utils.extensions.isTimeout
-import com.gdavidpb.tuindice.utils.mappers.buildAccount
-import com.gdavidpb.tuindice.utils.mappers.toQuarter
 
 @Timeout(key = ConfigKeys.TIME_OUT_SYNC)
 class SyncAccountUseCase(
-    private val dstRepository: DstRepository,
+    private val apiRepository: ApiRepository,
     private val authRepository: AuthRepository,
     private val configRepository: ConfigRepository,
     private val databaseRepository: DatabaseRepository,
@@ -46,68 +40,11 @@ class SyncAccountUseCase(
 
         if (isUpdated) return false
 
-        /* Get credentials */
-        val credentials = SignInRequest("", "") // TODO
+        /* Call sync API */
+        apiRepository.sync()
 
-        /* Check credentials */
-        // TODO apiRepository.checkCredentials(credentials = credentials)
-
-        /* Record service auth */
-        dstRepository.signIn(
-            signInRequest = credentials,
-            serviceUrl = BuildConfig.ENDPOINT_DST_RECORD_AUTH
-        )
-
-        val personal = dstRepository.getPersonalData()
-        val record = dstRepository.getRecordData()
-
-        /* Enrollment service auth */
-        val enrollmentAuth = dstRepository.signIn(
-            signInRequest = credentials,
-            serviceUrl = BuildConfig.ENDPOINT_DST_ENROLLMENT_AUTH
-        )
-
-        val enrollment = if (enrollmentAuth.isSuccessful)
-            dstRepository.getEnrollment()
-        else
-            null
-
-        databaseRepository.runBatch {
-            /* Add account */
-            val account = buildAccount(
-                    auth = activeAuth,
-                    personal = personal,
-                    record = record
-            )
-
-            addAccount(uid = activeAuth.uid, account = account)
-
-            val quarters = mutableListOf<Quarter>()
-
-            /* Add record quarters */
-            val recordQuarters = record.quarters.map { it.toQuarter(uid = activeAuth.uid) }
-
-            quarters.addAll(recordQuarters)
-
-            /* Add current quarter */
-            if (enrollment != null) {
-                val currentQuarter = enrollment.toQuarter(uid = activeAuth.uid)
-
-                /* Check if current quarter is closed */
-                val isCurrentQuarterClosed = recordQuarters.any { it.id == currentQuarter.id }
-
-                if (!isCurrentQuarterClosed) {
-                    /* Compute gradeSum */
-                    val gradeSum = (recordQuarters + currentQuarter).computeGradeSum(until = currentQuarter)
-
-                    quarters.add(currentQuarter.copy(gradeSum = gradeSum))
-                }
-            }
-
-            quarters.forEach { quarter ->
-                addQuarter(uid = activeAuth.uid, quarter = quarter)
-            }
-        }
+        /* Refresh cache */
+        databaseRepository.cache(uid = activeAuth.uid)
 
         return true
     }
