@@ -1,17 +1,15 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.domain.model.exception.OutdatedPasswordException
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.Topics
 import com.gdavidpb.tuindice.utils.annotations.Timeout
-import com.gdavidpb.tuindice.utils.extensions.isConnection
-import com.gdavidpb.tuindice.utils.extensions.isTimeout
+import com.gdavidpb.tuindice.utils.extensions.*
 
 @Timeout(key = ConfigKeys.TIME_OUT_SYNC)
-class SyncAccountUseCase(
+class SyncUseCase(
     private val apiRepository: ApiRepository,
     private val authRepository: AuthRepository,
     private val configRepository: ConfigRepository,
@@ -51,7 +49,9 @@ class SyncAccountUseCase(
 
     override suspend fun executeOnException(throwable: Throwable): SyncError? {
         return when {
-            throwable is OutdatedPasswordException -> SyncError.OutdatedPassword
+            throwable.isUnavailable() -> SyncError.Unavailable
+            throwable.isConflict() -> SyncError.OutdatedPassword
+            throwable.isForbidden() -> SyncError.AccountDisabled
             throwable.isTimeout() -> SyncError.Timeout
             throwable.isConnection() -> SyncError.NoConnection(networkRepository.isAvailable())
             else -> null

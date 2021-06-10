@@ -241,7 +241,7 @@ val mockModule = module {
     factory<SignInUseCase>()
     factory<ReSignInUseCase>()
     factory<SignOutUseCase>()
-    factory<SyncAccountUseCase>()
+    factory<SyncUseCase>()
     factory<StartUpUseCase>()
     factory<GetProfileUseCase>()
     factory<GetQuartersUseCase>()

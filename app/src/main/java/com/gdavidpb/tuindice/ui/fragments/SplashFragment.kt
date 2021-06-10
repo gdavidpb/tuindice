@@ -111,7 +111,7 @@ class SplashFragment : NavigationFragment() {
                     navigate(SplashFragmentDirections.navToSummary())
                 }
 
-                mainViewModel.trySyncAccount()
+                mainViewModel.sync()
             }
             is StartUpAction.SignIn -> {
                 navigate(SplashFragmentDirections.navToSignIn())

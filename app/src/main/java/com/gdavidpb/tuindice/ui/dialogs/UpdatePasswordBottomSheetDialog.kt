@@ -95,7 +95,7 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
             is Event.OnSuccess -> {
                 showLoading(false)
 
-                mainViewModel.trySyncAccount()
+                mainViewModel.sync()
 
                 dismiss()
             }

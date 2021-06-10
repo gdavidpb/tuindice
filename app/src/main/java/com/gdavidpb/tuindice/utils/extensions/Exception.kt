@@ -25,6 +25,11 @@ fun Throwable.isForbidden() = when (this) {
     else -> false
 }
 
+fun Throwable.isConflict() = when (this) {
+    is HttpException -> (code() == HttpURLConnection.HTTP_CONFLICT)
+    else -> false
+}
+
 fun Throwable.isUnauthorized() = when (this) {
     is HttpException -> (code() == HttpURLConnection.HTTP_UNAUTHORIZED)
     else -> false

@@ -155,7 +155,7 @@ class SignInFragment : NavigationFragment() {
                 if (hasCache)
                     navToSplash()
                 else
-                    viewModel.trySyncAccount()
+                    viewModel.sync()
             }
             is Event.OnError -> {
                 showLoading(false)

@@ -14,11 +14,11 @@ import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 
 class MainViewModel(
-        private val signOutUseCase: SignOutUseCase,
-        private val syncAccountUseCase: SyncAccountUseCase,
-        private val setLastScreenUseCase: SetLastScreenUseCase,
-        private val requestReviewUseCase: RequestReviewUseCase,
-        private val getUpdateInfoUseCase: GetUpdateInfoUseCase
+    private val signOutUseCase: SignOutUseCase,
+    private val syncUseCase: SyncUseCase,
+    private val setLastScreenUseCase: SetLastScreenUseCase,
+    private val requestReviewUseCase: RequestReviewUseCase,
+    private val getUpdateInfoUseCase: GetUpdateInfoUseCase
 ) : ViewModel() {
     val signOut = LiveCompletable<Nothing>()
     val sync = LiveResult<Boolean, SyncError>()
@@ -29,8 +29,8 @@ class MainViewModel(
     fun signOut() =
             execute(useCase = signOutUseCase, params = Unit, liveData = signOut)
 
-    fun trySyncAccount() =
-            execute(useCase = syncAccountUseCase, params = Unit, liveData = sync)
+    fun sync() =
+            execute(useCase = syncUseCase, params = Unit, liveData = sync)
 
     fun setLastScreen(@IdRes navId: Int) =
             execute(useCase = setLastScreenUseCase, params = navId, liveData = lastScreen)
