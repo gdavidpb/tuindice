@@ -62,15 +62,6 @@ android {
             buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions.html\""
 
             buildConfigField "String", "ENDPOINT_TU_INDICE_API", "\"${config.mockAddress}:5001\""
-
-            buildConfigField "String", "ENDPOINT_DST_SECURE", "\"https://secure.dst.usb.ve/\""
-            buildConfigField "String", "ENDPOINT_DST_RECORD", "\"http://expediente.dii.usb.ve/expediente/\""
-            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT", "\"http://comprobante.dii.usb.ve/nuevoComprobante/\""
-
-            buildConfigField "String", "ENDPOINT_DST_SECURE_AUTH", "\"https://secure.dst.usb.ve/login\""
-            buildConfigField "String", "ENDPOINT_DST_RECORD_AUTH", "\"http://expediente.dii.usb.ve/expediente/login.do\""
-            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT_AUTH", "\"http://comprobante.dii.usb.ve/nuevoComprobante/CAS/login.do\""
-            buildConfigField "String", "ENDPOINT_DST_POLL_AUTH", "\"http://comprobante.dii.usb.ve/nuevoComprobante/Consulta/Secure/zk/login.zul\""
         }
         release {
             debuggable false
@@ -94,15 +85,6 @@ android {
             buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions.html\""
 
             buildConfigField "String", "ENDPOINT_TU_INDICE_API", "\"https://us-central1-tu-indice-usb.cloudfunctions.net/\""
-
-            buildConfigField "String", "ENDPOINT_DST_SECURE", "\"https://secure.dst.usb.ve/\""
-            buildConfigField "String", "ENDPOINT_DST_RECORD", "\"http://expediente.dii.usb.ve/expediente/\""
-            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT", "\"http://comprobante.dii.usb.ve/nuevoComprobante/\""
-
-            buildConfigField "String", "ENDPOINT_DST_SECURE_AUTH", "\"https://secure.dst.usb.ve/login\""
-            buildConfigField "String", "ENDPOINT_DST_RECORD_AUTH", "\"http://expediente.dii.usb.ve/expediente/login.do\""
-            buildConfigField "String", "ENDPOINT_DST_ENROLLMENT_AUTH", "\"http://comprobante.dii.usb.ve/nuevoComprobante/CAS/login.do\""
-            buildConfigField "String", "ENDPOINT_DST_POLL_AUTH", "\"http://comprobante.dii.usb.ve/nuevoComprobante/Consulta/Secure/zk/login.zul\""
         }
     }
 }
@@ -165,10 +147,6 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
-
-    /* Retrofit HTML converter */
-    implementation "pl.droidsonroids:jspoon:$jspoon_version"
-    implementation "pl.droidsonroids.retrofit2:converter-jspoon:$jspoon_version"
 
     /* Coroutines */
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"

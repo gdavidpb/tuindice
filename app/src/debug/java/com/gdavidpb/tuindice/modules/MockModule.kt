@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
-import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataSource
 import com.gdavidpb.tuindice.data.source.storage.LocalStorageDataSource
@@ -19,9 +18,6 @@ import com.gdavidpb.tuindice.datasources.*
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
-import com.gdavidpb.tuindice.services.DstAuthServiceMock
-import com.gdavidpb.tuindice.services.DstEnrollmentServiceMock
-import com.gdavidpb.tuindice.services.DstRecordServiceMock
 import com.gdavidpb.tuindice.services.TuIndiceAPIMock
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.createMockService
@@ -122,26 +118,12 @@ val mockModule = module {
             get<ReportingRepository>().logMessage(message)
         }
 
-        HttpLoggingInterceptor(logger).apply { level = HttpLoggingInterceptor.Level.BODY }
-    }
+        HttpLoggingInterceptor(logger).apply {
+            level = HttpLoggingInterceptor.Level.BODY
 
-    single<DstHostNameVerifier>()
-
-    single<DstCookieJar>()
-
-    single<DstAuthInterceptor>()
-
-    factory {
-        val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)
-
-        OkHttpClient.Builder()
-                .callTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-                .connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-                .readTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-                .writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-                .hostnameVerifier(get<DstHostNameVerifier>())
-                .cookieJar(get<DstCookieJar>())
-                .addInterceptor(get<HttpLoggingInterceptor>())
+            redactHeader("Cookie")
+            redactHeader("Authorization")
+        }
     }
 
     factory<ReviewManager> {
@@ -170,45 +152,6 @@ val mockModule = module {
             }
     }
 
-    /* Dst auth service */
-
-    single {
-        val httpClient = get<OkHttpClient.Builder>()
-                .build()
-
-        Retrofit.Builder()
-                .baseUrl(BuildConfig.ENDPOINT_DST_SECURE)
-                .client(httpClient)
-                .build()
-                .createMockService<DstAuthService, DstAuthServiceMock>()
-    }
-
-    /* Dst record service */
-
-    single {
-        val httpClient = get<OkHttpClient.Builder>()
-                .build()
-
-        Retrofit.Builder()
-                .baseUrl(BuildConfig.ENDPOINT_DST_RECORD)
-                .client(httpClient)
-                .build()
-                .createMockService<DstRecordService, DstRecordServiceMock>()
-    }
-
-    /* Dst enrollment service */
-
-    single {
-        val httpClient = get<OkHttpClient.Builder>()
-                .build()
-
-        Retrofit.Builder()
-                .baseUrl(BuildConfig.ENDPOINT_DST_RECORD)
-                .client(httpClient)
-                .build()
-                .createMockService<DstEnrollmentService, DstEnrollmentServiceMock>()
-    }
-
     /* View Models */
 
     viewModel<MainViewModel>()
@@ -222,7 +165,6 @@ val mockModule = module {
 
     /* Repositories */
 
-    factoryBy<DstRepository, DstDataSource>()
     factoryBy<SettingsRepository, PreferencesDataSource>()
     factoryBy<StorageRepository<File>, LocalStorageDataSource>()
     factoryBy<RemoteStorageRepository, RemoteStorageMockDataSource>()

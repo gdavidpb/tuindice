@@ -71,7 +71,7 @@ class EvaluationAdapter(
     }
 
     fun computeGradeSum(): Double {
-        return currentList.sumByDouble { evaluation -> evaluation.data.grade }
+        return currentList.sumOf { evaluation -> evaluation.data.grade }
     }
 
     private fun submitSortedList(list: List<EvaluationItem> = currentList) {

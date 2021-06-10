@@ -16,7 +16,6 @@ import com.gdavidpb.tuindice.data.source.functions.CloudFunctionsDataSource
 import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
-import com.gdavidpb.tuindice.data.source.service.*
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataSource
 import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataSource
@@ -27,7 +26,6 @@ import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.create
-import com.gdavidpb.tuindice.utils.extensions.inflate
 import com.gdavidpb.tuindice.utils.extensions.sharedPreferences
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -48,17 +46,10 @@ import org.koin.dsl.module
 import org.koin.experimental.builder.factory
 import org.koin.experimental.builder.factoryBy
 import org.koin.experimental.builder.single
-import pl.droidsonroids.retrofit2.JspoonConverterFactory
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.ByteArrayInputStream
 import java.io.File
-import java.security.SecureRandom
-import java.security.cert.CertificateFactory
-import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.SSLContext
-import javax.net.ssl.X509TrustManager
 
 val appModule = module {
 
@@ -136,86 +127,20 @@ val appModule = module {
         FirebaseCrashlytics.getInstance()
     }
 
-    /* SSL context */
-
-    single {
-        SSLContext.getInstance("TLS").apply {
-            init(null, arrayOf(get<X509TrustManager>()), SecureRandom())
-        }
-    }
-
-    /* X509 trust manager */
-
-    single<X509TrustManager> {
-        object : X509TrustManager {
-            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
-                chain.checkValidity()
-            }
-
-            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
-                chain.checkValidity()
-            }
-
-            override fun getAcceptedIssuers(): Array<X509Certificate> {
-                val certificates = get<Array<X509Certificate>>()
-
-                check(certificates.isNotEmpty()) { "certificates not loaded" }
-
-                return certificates
-            }
-
-            private fun Array<X509Certificate>.checkValidity() {
-                forEach { certificate -> certificate.checkValidity() }
-            }
-        }
-    }
-
-    /* Certificates */
-
-    single {
-        runCatching {
-            get<ConfigRepository>()
-                    .getString(ConfigKeys.DST_CERTIFICATES)
-                    .inflate()
-                    .let(::ByteArrayInputStream)
-                    .use { inputStream ->
-                        CertificateFactory.getInstance("X.509")
-                                .generateCertificates(inputStream)
-                                .map { certificate -> certificate as X509Certificate }
-                    }.toTypedArray()
-        }.getOrDefault(emptyArray())
-    }
-
     single {
         val logger = HttpLoggingInterceptor.Logger { message ->
             get<ReportingRepository>().logMessage(message)
         }
 
-        HttpLoggingInterceptor(logger).apply { level = HttpLoggingInterceptor.Level.BODY }
+        HttpLoggingInterceptor(logger).apply {
+            level = HttpLoggingInterceptor.Level.BODY
+
+            redactHeader("Cookie")
+            redactHeader("Authorization")
+        }
     }
-
-    single<DstHostNameVerifier>()
-
-    single<DstCookieJar>()
-
-    single<DstAuthInterceptor>()
 
     single<AuthorizationInterceptor>()
-
-    factory {
-        val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)
-
-        OkHttpClient.Builder()
-                .callTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-                .connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-                .readTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-                .writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-                .hostnameVerifier(get<DstHostNameVerifier>())
-                .cookieJar(get<DstCookieJar>())
-                .addInterceptor(get<HttpLoggingInterceptor>())
-                .followSslRedirects(true)
-                .sslSocketFactory(get<SSLContext>().socketFactory, get())
-    }
 
     factory {
         ReviewManagerFactory.create(androidContext())
@@ -243,49 +168,6 @@ val appModule = module {
             }
     }
 
-    /* Dst auth service */
-
-    single {
-        val httpClient = get<OkHttpClient.Builder>()
-                .addInterceptor(get<DstAuthInterceptor>())
-                .build()
-
-        Retrofit.Builder()
-                .baseUrl(BuildConfig.ENDPOINT_DST_SECURE)
-                .addConverterFactory(JspoonConverterFactory.create())
-                .client(httpClient)
-                .build()
-                .create<DstAuthService>()
-    }
-
-    /* Dst record service */
-
-    single {
-        val httpClient = get<OkHttpClient.Builder>()
-                .build()
-
-        Retrofit.Builder()
-                .baseUrl(BuildConfig.ENDPOINT_DST_RECORD)
-                .addConverterFactory(JspoonConverterFactory.create())
-                .client(httpClient)
-                .build()
-                .create<DstRecordService>()
-    }
-
-    /* Dst enrollment service */
-
-    single {
-        val httpClient = get<OkHttpClient.Builder>()
-                .build()
-
-        Retrofit.Builder()
-                .baseUrl(BuildConfig.ENDPOINT_DST_ENROLLMENT)
-                .addConverterFactory(JspoonConverterFactory.create())
-                .client(httpClient)
-                .build()
-                .create<DstEnrollmentService>()
-    }
-
     /* View Models */
 
     viewModel<MainViewModel>()
@@ -299,7 +181,6 @@ val appModule = module {
 
     /* Repositories */
 
-    factoryBy<DstRepository, DstDataSource>()
     factoryBy<SettingsRepository, PreferencesDataSource>()
     factoryBy<StorageRepository<File>, LocalStorageDataSource>()
     factoryBy<RemoteStorageRepository, FirebaseStorageDataSource>()

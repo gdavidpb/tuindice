@@ -144,29 +144,13 @@ fun Int.formatSubjectStatusDescription() = when (this) {
     else -> ""
 }
 
-fun String.formatSubjectStatusValue() = when (this) {
-    "Retirada" -> STATUS_SUBJECT_RETIRED
-    "RETIRADA" -> STATUS_SUBJECT_RETIRED
-    "Sin Efecto" -> STATUS_SUBJECT_NO_EFFECT
-    else -> STATUS_SUBJECT_OK
-}
-
 fun String.capitalize() =
         if (isNotEmpty() && this[0].isLowerCase())
             "${substring(0, 1).uppercase(DEFAULT_LOCALE)}${substring(1)}"
         else
             this
 
-fun String.asUsbEmail() = addSuffix("@usb.ve")
-
 fun String.asUsbId() = removeSuffix("@usb.ve")
-
-fun String.addSuffix(suffix: String): String {
-    return if (!endsWith(suffix))
-        "$this$suffix"
-    else
-        this
-}
 
 /* Span */
 

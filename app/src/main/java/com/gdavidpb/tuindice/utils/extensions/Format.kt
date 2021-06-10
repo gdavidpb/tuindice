@@ -22,13 +22,6 @@ fun Date.formatLastUpdate(): String {
     }?.capitalize() ?: "-"
 }
 
-fun Long.toCountdown(): String {
-    val min = TimeUnit.MILLISECONDS.toMinutes(this)
-    val sec = TimeUnit.MILLISECONDS.toSeconds(this - TimeUnit.MINUTES.toSeconds(min))
-
-    return "%02d:%02d".format(min, sec)
-}
-
 fun Double.formatGrade() = if (this % 1 == 0.0) toInt().formatGrade() else formatGrade(2)
 
 fun Double.formatGrade(decimals: Int) = "%.${decimals}f".format(round(decimals))
@@ -65,5 +58,3 @@ fun Account.toShortName(): String {
 
     return "$firstName $lastName"
 }
-
-fun String.trimAll() = replace("\\s+", "")

@@ -28,7 +28,7 @@ class QuarterAdapter(
 
     private val averageSubjects by lazy {
         if (currentList.isNotEmpty())
-            (currentList.sumBy { it.subjectsItems.size } / currentList.size.toFloat()).roundToInt()
+            (currentList.sumOf { it.subjectsItems.size } / currentList.size.toFloat()).roundToInt()
         else
             0
     }
