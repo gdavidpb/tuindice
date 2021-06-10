@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.repository.ApiRepository
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
@@ -14,7 +13,6 @@ import okhttp3.Credentials
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class ReSignInUseCase(
-    private val databaseRepository: DatabaseRepository,
     private val authRepository: AuthRepository,
     private val networkRepository: NetworkRepository,
     private val apiRepository: ApiRepository
@@ -33,11 +31,9 @@ class ReSignInUseCase(
             refreshToken = true
         ).token
 
-        val authSignIn = authRepository.signIn(token = bearerToken)
+        authRepository.signIn(token = bearerToken)
 
-        databaseRepository.cache(uid = authSignIn.uid)
-
-        return databaseRepository.hasCache(uid = authSignIn.uid)
+        return false
     }
 
     override suspend fun executeOnException(throwable: Throwable): SignInError? {
