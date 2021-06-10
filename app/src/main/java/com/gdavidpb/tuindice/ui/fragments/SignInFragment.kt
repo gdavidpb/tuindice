@@ -181,7 +181,7 @@ class SignInFragment : NavigationFragment() {
             is Result.OnError -> {
                 showLoading(false)
 
-                viewModel.signOut()
+                viewModel.forceSignOut()
 
                 syncErrorHandler(error = result.error)
             }

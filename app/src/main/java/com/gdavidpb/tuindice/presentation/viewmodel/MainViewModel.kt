@@ -26,7 +26,7 @@ class MainViewModel(
     val requestReview = LiveEvent<ReviewInfo, Nothing>()
     val updateInfo = LiveEvent<AppUpdateInfo, Nothing>()
 
-    fun signOut() =
+    fun forceSignOut() =
             execute(useCase = signOutUseCase, params = Unit, liveData = signOut)
 
     fun sync() =

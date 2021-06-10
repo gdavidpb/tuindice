@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.ui.dialogs.EnrollmentDownloadingBottomSheetDialog
 import com.gdavidpb.tuindice.ui.dialogs.MenuBottomSheetDialog
+import com.gdavidpb.tuindice.ui.dialogs.UpdatePasswordBottomSheetDialog
 import com.gdavidpb.tuindice.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toQuarterItem
 import com.gdavidpb.tuindice.utils.mappers.toUpdateRequest
@@ -124,20 +125,34 @@ class RecordFragment : NavigationFragment() {
         }
     }
 
-    private fun onSubjectOptionSelected(quarterItem: QuarterItem, subjectItem: SubjectItem, itemId: Int) {
+    private fun showUpdatePasswordDialog() {
+        UpdatePasswordBottomSheetDialog()
+            .show(childFragmentManager, "updatePasswordDialog")
+    }
+
+    private fun onSubjectOptionSelected(
+        quarterItem: QuarterItem,
+        subjectItem: SubjectItem,
+        itemId: Int
+    ) {
         when (itemId) {
-            SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS -> showSubjectEvaluations(quarterItem, subjectItem)
+            SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS -> showSubjectEvaluations(
+                quarterItem,
+                subjectItem
+            )
             SubjectMenu.ID_REMOVE_SUBJECT -> removeSubject(quarterItem, subjectItem)
         }
     }
 
     private fun showSubjectEvaluations(quarterItem: QuarterItem, subjectItem: SubjectItem) {
-        navigate(RecordFragmentDirections.navToEvaluationPlan(
+        navigate(
+            RecordFragmentDirections.navToEvaluationPlan(
                 quarterId = quarterItem.id,
                 subjectId = subjectItem.id,
                 subjectCode = subjectItem.data.code,
                 subjectName = subjectItem.data.name
-        ))
+            )
+        )
     }
 
     private fun removeSubject(quarterItem: QuarterItem, subjectItem: SubjectItem) {
@@ -241,8 +256,10 @@ class RecordFragment : NavigationFragment() {
         when (error) {
             is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { openEnrollmentProof() }
             is GetEnrollmentError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { openEnrollmentProof() }
-            is GetEnrollmentError.NotEnrolled -> snackBar(R.string.snack_enrollment_not_found)
             is GetEnrollmentError.NotFound -> snackBar(R.string.snack_enrollment_not_found)
+            is GetEnrollmentError.AccountDisabled -> mainViewModel.forceSignOut()
+            is GetEnrollmentError.OutdatedPassword -> showUpdatePasswordDialog()
+            is GetEnrollmentError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { openEnrollmentProof() }
             else -> errorSnackBar { openEnrollmentProof() }
         }
     }

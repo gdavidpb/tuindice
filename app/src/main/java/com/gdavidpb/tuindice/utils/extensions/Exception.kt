@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.utils.extensions
 
-import com.gdavidpb.tuindice.domain.model.AuthErrorCode
-import com.gdavidpb.tuindice.domain.model.exception.AuthenticationException
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.storage.StorageException
 import kotlinx.coroutines.TimeoutCancellationException
@@ -35,6 +33,11 @@ fun Throwable.isUnauthorized() = when (this) {
     else -> false
 }
 
+fun Throwable.isNotFound() = when (this) {
+    is HttpException -> (code() == HttpURLConnection.HTTP_NOT_FOUND)
+    else -> false
+}
+
 fun Throwable.isTimeout() = when (this) {
     is TimeoutException -> true
     is TimeoutCancellationException -> true
@@ -45,11 +48,6 @@ fun Throwable.isObjectNotFound() = this is StorageException && when (errorCode) 
     StorageException.ERROR_OBJECT_NOT_FOUND -> true
     StorageException.ERROR_BUCKET_NOT_FOUND -> true
     StorageException.ERROR_PROJECT_NOT_FOUND -> true
-    else -> false
-}
-
-fun Throwable.isNotEnrolled() = when (this) {
-    is AuthenticationException -> (errorCode == AuthErrorCode.NOT_ENROLLED)
     else -> false
 }
 

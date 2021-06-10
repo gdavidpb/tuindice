@@ -32,7 +32,7 @@ class SignInViewModel(
     fun reSignIn(password: String) =
         execute(useCase = reSignInUseCase, params = password, liveData = signIn)
 
-    fun signOut() =
+    fun forceSignOut() =
         execute(useCase = signOutUseCase, params = Unit, liveData = signOut)
 
     fun sync() =

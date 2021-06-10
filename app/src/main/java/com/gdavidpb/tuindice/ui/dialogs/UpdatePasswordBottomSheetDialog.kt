@@ -118,7 +118,7 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
             is SignInError.InvalidCredentials -> errorSnackBar(R.string.snack_invalid_credentials)
             is SignInError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { onConfirmClick() }
             is SignInError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onConfirmClick() }
-            is SignInError.AccountDisabled -> errorSnackBar(R.string.snack_account_disabled)
+            is SignInError.AccountDisabled -> mainViewModel.forceSignOut()
             else -> errorSnackBar { onConfirmClick() }
         }
     }

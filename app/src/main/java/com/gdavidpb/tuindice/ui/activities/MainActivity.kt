@@ -189,7 +189,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun syncErrorHandler(error: SyncError?) {
         when (error) {
-            is SyncError.AccountDisabled -> viewModel.signOut()
+            is SyncError.AccountDisabled -> viewModel.forceSignOut()
             is SyncError.OutdatedPassword -> showUpdatePasswordDialog()
         }
     }
