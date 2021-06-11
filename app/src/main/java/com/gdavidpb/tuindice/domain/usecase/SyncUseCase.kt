@@ -49,9 +49,9 @@ class SyncUseCase(
 
     override suspend fun executeOnException(throwable: Throwable): SyncError? {
         return when {
+            throwable.isForbidden() -> SyncError.AccountDisabled
             throwable.isUnavailable() -> SyncError.Unavailable
             throwable.isConflict() -> SyncError.OutdatedPassword
-            throwable.isForbidden() -> SyncError.AccountDisabled
             throwable.isTimeout() -> SyncError.Timeout
             throwable.isConnection() -> SyncError.NoConnection(networkRepository.isAvailable())
             else -> null

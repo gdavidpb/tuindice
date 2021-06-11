@@ -252,7 +252,7 @@ class RecordFragment : NavigationFragment() {
             is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { openEnrollmentProof() }
             is GetEnrollmentError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { openEnrollmentProof() }
             is GetEnrollmentError.NotFound -> snackBar(R.string.snack_enrollment_not_found)
-            is GetEnrollmentError.AccountDisabled -> mainViewModel.forceSignOut()
+            is GetEnrollmentError.AccountDisabled -> mainViewModel.signOut()
             is GetEnrollmentError.OutdatedPassword -> showUpdatePasswordDialog()
             is GetEnrollmentError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { openEnrollmentProof() }
             else -> errorSnackBar { openEnrollmentProof() }

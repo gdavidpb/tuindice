@@ -41,9 +41,9 @@ class SignInUseCase(
 
     override suspend fun executeOnException(throwable: Throwable): SignInError? {
         return when {
+            throwable.isForbidden() -> SignInError.AccountDisabled
             throwable.isUnavailable() -> SignInError.Unavailable
             throwable.isUnauthorized() -> SignInError.InvalidCredentials
-            throwable.isForbidden() -> SignInError.AccountDisabled
             throwable.isTimeout() -> SignInError.Timeout
             throwable.isConnection() -> SignInError.NoConnection(networkRepository.isAvailable())
             else -> null

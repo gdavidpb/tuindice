@@ -36,10 +36,10 @@ class GetEnrollmentProofUseCase(
 
     override suspend fun executeOnException(throwable: Throwable): GetEnrollmentError? {
         return when {
+            throwable.isForbidden() -> GetEnrollmentError.AccountDisabled
             throwable.isNotFound() -> GetEnrollmentError.NotFound
             throwable.isUnavailable() -> GetEnrollmentError.Unavailable
             throwable.isConflict() -> GetEnrollmentError.OutdatedPassword
-            throwable.isForbidden() -> GetEnrollmentError.AccountDisabled
             throwable.isTimeout() -> GetEnrollmentError.Timeout
             throwable.isConnection() -> GetEnrollmentError.NoConnection(networkRepository.isAvailable())
             else -> null

@@ -5,6 +5,12 @@
     android:id="@+id/main_navigation"
     app:startDestination="@+id/fragment_splash">
 
+    <action
+        android:id="@+id/nav_to_sign_in"
+        app:destination="@+id/fragment_sign_in"
+        app:popUpTo="@id/fragment_sign_in"
+        app:popUpToInclusive="true" />
+
     <fragment
         android:id="@+id/fragment_splash"
         android:name="com.gdavidpb.tuindice.ui.fragments.SplashFragment"

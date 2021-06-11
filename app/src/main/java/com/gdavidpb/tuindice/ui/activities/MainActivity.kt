@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.ui.activities
 
+import android.app.ActivityManager
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
@@ -9,6 +10,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import com.gdavidpb.tuindice.MainNavigationDirections
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
@@ -37,6 +39,8 @@ class MainActivity : AppCompatActivity() {
     private val updateManager by inject<AppUpdateManager>()
 
     private val viewModel by viewModel<MainViewModel>()
+
+    private val activityManager by inject<ActivityManager>()
 
     private val inputMethodManager by inject<InputMethodManager>()
 
@@ -179,17 +183,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun signOutObserver(result: Completable<Nothing>?) {
         when (result) {
-            is Completable.OnComplete, is Completable.OnError -> {
+            is Completable.OnComplete -> {
                 errorSnackBar(R.string.snack_account_disabled)
 
-                recreate()
+                navController.navigate(MainNavigationDirections.navToSignIn())
+            }
+            is Completable.OnError -> {
+                activityManager.clearApplicationUserData()
             }
         }
     }
 
     private fun syncErrorHandler(error: SyncError?) {
         when (error) {
-            is SyncError.AccountDisabled -> viewModel.forceSignOut()
+            is SyncError.AccountDisabled -> viewModel.signOut()
             is SyncError.OutdatedPassword -> showUpdatePasswordDialog()
         }
     }
