@@ -18,8 +18,4 @@ abstract class EventUseCase<P, T, Q> : BaseUseCase<P, T, Q, LiveEvent<T, Q>>() {
     override suspend fun onFailure(liveData: LiveEvent<T, Q>, error: Q?) {
         liveData.postError(error)
     }
-
-    override suspend fun onCancel(liveData: LiveEvent<T, Q>) {
-        liveData.postCancel()
-    }
 }

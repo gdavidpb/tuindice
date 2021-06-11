@@ -26,9 +26,6 @@ fun <T, Q> LiveEvent<T, Q>.postError(error: Q?) = postValue(Event.OnError(error)
 @JvmName("postLoadingEvent")
 fun <T, Q> LiveEvent<T, Q>.postLoading() = reset().also { postValue(Event.OnLoading()) }
 
-@JvmName("postCancelEvent")
-fun <T, Q> LiveEvent<T, Q>.postCancel() = postValue(Event.OnCancel())
-
 /* LiveResult */
 
 @JvmName("postEmptyResult")
@@ -43,9 +40,6 @@ fun <T, Q> LiveResult<T, Q>.postError(error: Q?) = postValue(Result.OnError(erro
 @JvmName("postLoadingResult")
 fun <T, Q> LiveResult<T, Q>.postLoading() = postValue(Result.OnLoading())
 
-@JvmName("postCancelResult")
-fun <T, Q> LiveResult<T, Q>.postCancel() = postValue(Result.OnCancel())
-
 /* LiveCompletable */
 
 @JvmName("postCompleteCompletable")
@@ -56,9 +50,6 @@ fun <Q> LiveCompletable<Q>.postError(error: Q?) = postValue(Completable.OnError(
 
 @JvmName("postLoadingCompletable")
 fun <Q> LiveCompletable<Q>.postLoading() = postValue(Completable.OnLoading())
-
-@JvmName("postCancelCompletable")
-fun <Q> LiveCompletable<Q>.postCancel() = postValue(Completable.OnCancel())
 
 /* LiveFlow */
 
@@ -73,9 +64,6 @@ fun <T, Q> LiveFlow<T, Q>.postComplete() = postValue(Flow.OnComplete())
 
 @JvmName("postErrorFlow")
 fun <T, Q> LiveFlow<T, Q>.postError(error: Q?) = postValue(Flow.OnError(error))
-
-@JvmName("postCancelFlow")
-fun <T, Q> LiveFlow<T, Q>.postCancel() = postValue(Flow.OnCancel())
 
 fun <T, L : MutableLiveData<T>> LifecycleOwner.observe(liveData: L, body: (T?) -> Unit) =
         liveData.observe(this, Observer(body))

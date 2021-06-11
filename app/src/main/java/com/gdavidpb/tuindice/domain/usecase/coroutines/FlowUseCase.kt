@@ -22,8 +22,4 @@ abstract class FlowUseCase<P, T, Q> : BaseUseCase<P, Flow<T>, Q, LiveFlow<T, Q>>
     override suspend fun onFailure(liveData: LiveFlow<T, Q>, error: Q?) {
         liveData.postError(error)
     }
-
-    override suspend fun onCancel(liveData: LiveFlow<T, Q>) {
-        liveData.postCancel()
-    }
 }

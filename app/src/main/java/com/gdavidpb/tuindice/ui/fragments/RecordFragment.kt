@@ -232,11 +232,6 @@ class RecordFragment : NavigationFragment() {
 
                 enrollmentErrorHandler(error = result.error)
             }
-            is Event.OnCancel -> {
-                downloadingDialog.dismiss()
-
-                setMenuVisibility(true)
-            }
         }
     }
 

@@ -27,7 +27,6 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
     protected abstract suspend fun onEmpty(liveData: L)
     protected abstract suspend fun onSuccess(liveData: L, response: T)
     protected abstract suspend fun onFailure(liveData: L, error: Q?)
-    protected abstract suspend fun onCancel(liveData: L)
 
     fun execute(params: P, liveData: L, coroutineScope: CoroutineScope) {
         coroutineScope.launch(foregroundContext) {
@@ -52,15 +51,11 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
                 else
                     onEmpty(liveData)
             }.onFailure { throwable ->
-                if (throwable !is CancellationException || throwable is TimeoutCancellationException) {
-                    val error = runCatching { executeOnException(throwable) }.getOrNull()
+                val error = runCatching { executeOnException(throwable) }.getOrNull()
 
-                    reportFailure(throwable = throwable, isHandled = (error != null))
+                reportFailure(throwable = throwable, isHandled = (error != null))
 
-                    onFailure(liveData, error)
-                } else {
-                    onCancel(liveData)
-                }
+                onFailure(liveData, error)
             }
         }
     }
