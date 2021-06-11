@@ -332,11 +332,9 @@ class SummaryFragment : NavigationFragment() {
 
     private fun syncErrorHandler(error: SyncError?) {
         when (error) {
-            is SyncError.NoConnection -> {
-                if (error.isNetworkAvailable) {
-                    tViewLastUpdate.drawables(start = R.drawable.ic_sync_problem)
-                    tViewLastUpdate.onClickOnce { snackBar(R.string.snack_no_service) }
-                }
+            is SyncError.Unavailable -> {
+                tViewLastUpdate.drawables(start = R.drawable.ic_sync_problem)
+                tViewLastUpdate.onClickOnce { snackBar(R.string.snack_no_service) }
             }
         }
     }
