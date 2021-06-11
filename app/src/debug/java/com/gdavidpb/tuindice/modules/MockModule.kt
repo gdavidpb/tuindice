@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
+import com.gdavidpb.tuindice.data.source.functions.CloudFunctionsDataSource
 import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
@@ -126,6 +127,8 @@ val mockModule = module {
         }
     }
 
+    single<AuthorizationInterceptor>()
+
     factory<ReviewManager> {
         FakeReviewManager(androidContext())
     }
@@ -177,6 +180,7 @@ val mockModule = module {
     factoryBy<DependenciesRepository, DebugKoinDataSource>()
     factoryBy<NetworkRepository, AndroidNetworkDataSource>()
     factoryBy<ServicesRepository, GooglePlayServicesDataSource>()
+    factoryBy<ApiRepository, CloudFunctionsDataSource>()
 
     /* Use cases */
 
