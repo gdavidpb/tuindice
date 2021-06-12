@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.computeCredits
+import com.gdavidpb.tuindice.utils.extensions.formatQuarterName
 import com.gdavidpb.tuindice.utils.extensions.round
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
@@ -37,16 +38,22 @@ fun DocumentSnapshot.toAccount() = Account(
 )
 
 // TODO set credits default value to 0
-fun DocumentSnapshot.toQuarter(subjects: List<Subject>) = Quarter(
-        id = id,
-        startDate = getDate(QuarterCollection.START_DATE) ?: Date(),
-        endDate = getDate(QuarterCollection.END_DATE) ?: Date(),
-        grade = getDouble(QuarterCollection.GRADE) ?: 0.0,
-        gradeSum = getDouble(QuarterCollection.GRADE_SUM) ?: 0.0,
-        credits = getLong(QuarterCollection.CREDITS)?.toInt() ?: subjects.computeCredits(),
-        status = getLong(QuarterCollection.STATUS)?.toInt() ?: 0,
-        subjects = subjects.toMutableList()
-)
+fun DocumentSnapshot.toQuarter(subjects: List<Subject>): Quarter {
+        val startDate = getDate(QuarterCollection.START_DATE) ?: Date()
+        val endDate = getDate(QuarterCollection.END_DATE) ?: Date()
+
+        return Quarter(
+                id = id,
+                name = (startDate to endDate).formatQuarterName(),
+                startDate = startDate,
+                endDate = endDate,
+                grade = getDouble(QuarterCollection.GRADE) ?: 0.0,
+                gradeSum = getDouble(QuarterCollection.GRADE_SUM) ?: 0.0,
+                credits = getLong(QuarterCollection.CREDITS)?.toInt() ?: subjects.computeCredits(),
+                status = getLong(QuarterCollection.STATUS)?.toInt() ?: 0,
+                subjects = subjects.toMutableList()
+        )
+}
 
 fun DocumentSnapshot.toSubject(): Subject {
     val grade = getLong(SubjectCollection.GRADE)?.toInt() ?: MAX_SUBJECT_GRADE

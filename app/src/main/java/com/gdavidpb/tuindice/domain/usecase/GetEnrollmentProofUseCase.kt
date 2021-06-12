@@ -19,12 +19,12 @@ class GetEnrollmentProofUseCase(
     private val networkRepository: NetworkRepository
 ) : EventUseCase<Quarter, File, GetEnrollmentError>() {
     override suspend fun executeOnBackground(params: Quarter): File {
-        val enrollmentProof = apiRepository.getEnrollmentProof()
-
-        val enrollmentFilePath = File(Paths.ENROLLMENT, "${enrollmentProof.name}.pdf").path
+        val enrollmentFilePath = File(Paths.ENROLLMENT, "${params.name}.pdf").path
         val enrollmentFile = storageRepository.get(enrollmentFilePath)
 
         if (!enrollmentFile.exists()) {
+            val enrollmentProof = apiRepository.getEnrollmentProof()
+
             val inputStream = enrollmentProof.inputStream
             val outputStream = storageRepository.outputStream(enrollmentFilePath)
 

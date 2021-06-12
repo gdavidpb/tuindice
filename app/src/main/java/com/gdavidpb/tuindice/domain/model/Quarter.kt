@@ -4,6 +4,7 @@ import java.util.*
 
 data class Quarter(
         val id: String,
+        val name: String,
         val startDate: Date,
         val endDate: Date,
         val grade: Double,

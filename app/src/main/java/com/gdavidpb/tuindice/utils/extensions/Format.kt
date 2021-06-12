@@ -30,10 +30,10 @@ fun Float.formatGrade(decimals: Int) = "%.${decimals}f".format(toDouble().round(
 
 fun Int.formatGrade() = "$this"
 
-fun Date.formatQuarterName(date: Date): String {
-    val start = format("MMM")?.capitalize()
-    val end = date.format("MMM")?.capitalize()
-    val year = format("yyyy")
+fun Pair<Date, Date>.formatQuarterName(): String {
+    val start = first.format("MMM")?.capitalize()
+    val end = second.format("MMM")?.capitalize()
+    val year = first.format("yyyy")
 
     return "$start - $end $year".replace("\\.".toRegex(), "")
 }
