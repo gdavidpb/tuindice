@@ -59,6 +59,7 @@ class SyncUseCase(
             throwable.isUnavailable() -> SyncError.Unavailable
             throwable.isConflict() -> SyncError.OutdatedPassword
             throwable.isTimeout() -> SyncError.Timeout
+            throwable.isIllegalAuthProvider() -> SyncError.IllegalAuthProvider
             throwable.isConnection() -> SyncError.NoConnection(networkRepository.isAvailable())
             else -> null
         }

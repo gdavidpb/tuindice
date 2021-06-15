@@ -184,8 +184,6 @@ class MainActivity : AppCompatActivity() {
     private fun signOutObserver(result: Completable<Nothing>?) {
         when (result) {
             is Completable.OnComplete -> {
-                errorSnackBar(R.string.snack_account_disabled)
-
                 navController.navigate(MainNavigationDirections.navToSignIn())
             }
             is Completable.OnError -> {
@@ -198,6 +196,7 @@ class MainActivity : AppCompatActivity() {
         when (error) {
             is SyncError.AccountDisabled -> viewModel.signOut()
             is SyncError.OutdatedPassword -> showUpdatePasswordDialog()
+            is SyncError.IllegalAuthProvider -> viewModel.signOut()
         }
     }
 }

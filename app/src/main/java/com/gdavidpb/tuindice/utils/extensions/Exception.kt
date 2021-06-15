@@ -25,7 +25,6 @@ fun Throwable.isForbidden() = when (this) {
 }
 
 fun Throwable.isConflict() = when (this) {
-    is IllegalAuthProviderException -> true
     is HttpException -> (code() == HttpURLConnection.HTTP_CONFLICT)
     else -> false
 }
@@ -37,6 +36,11 @@ fun Throwable.isUnauthorized() = when (this) {
 
 fun Throwable.isNotFound() = when (this) {
     is HttpException -> (code() == HttpURLConnection.HTTP_NOT_FOUND)
+    else -> false
+}
+
+fun Throwable.isIllegalAuthProvider() = when (this) {
+    is IllegalAuthProviderException -> true
     else -> false
 }
 
