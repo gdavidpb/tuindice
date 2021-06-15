@@ -31,6 +31,8 @@ class ReSignInUseCase(
             refreshToken = true
         ).token
 
+        authRepository.signOut()
+
         authRepository.signIn(token = bearerToken)
 
         return false

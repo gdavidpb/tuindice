@@ -18,7 +18,9 @@ class StartUpUseCase(
     override suspend fun executeOnBackground(params: String): StartUpAction {
         val servicesStatus = servicesRepository.getServicesStatus()
 
-        check(servicesStatus.isAvailable) { throw ServicesUnavailableException(servicesStatus) }
+        check(servicesStatus.isAvailable) {
+            throw ServicesUnavailableException(servicesStatus)
+        }
 
         val isActiveAuth = authRepository.isActiveAuth()
 

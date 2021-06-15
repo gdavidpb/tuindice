@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.utils.extensions
 
+import com.gdavidpb.tuindice.domain.model.exception.IllegalAuthProviderException
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.storage.StorageException
 import kotlinx.coroutines.TimeoutCancellationException
@@ -24,6 +25,7 @@ fun Throwable.isForbidden() = when (this) {
 }
 
 fun Throwable.isConflict() = when (this) {
+    is IllegalAuthProviderException -> true
     is HttpException -> (code() == HttpURLConnection.HTTP_CONFLICT)
     else -> false
 }
