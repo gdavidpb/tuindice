@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.data.source.functions
 
+import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
@@ -11,20 +12,18 @@ class AuthorizationInterceptor(
 	override fun intercept(chain: Interceptor.Chain): Response {
 		val request = chain.request()
 
-		val authRequest = runBlocking {
-			val isActiveAuth = authRepository.isActiveAuth()
-
-			if (isActiveAuth) {
-				val bearerToken = authRepository.getActiveToken()
-
-				request
-					.newBuilder()
-					.header("Authorization", "Bearer $bearerToken")
-					.build()
-			} else {
-				request
-			}
+		val bearerToken = runBlocking {
+			if (authRepository.isActiveAuth())
+				authRepository.getActiveToken()
+			else
+				null
 		}
+
+		val authRequest = request
+			.newBuilder()
+			.header("App-Version", "${BuildConfig.VERSION_CODE}")
+			.apply { if (bearerToken != null) header("Authorization", "Bearer $bearerToken") }
+			.build()
 
 		return chain.proceed(authRequest)
 	}
