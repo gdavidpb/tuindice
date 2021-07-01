@@ -143,7 +143,7 @@
         app:layout_constraintTop_toTopOf="@id/fViewEvaluations" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btnEvaluationOptions"
+        android:id="@+id/btnEvaluationsOptions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/dp_24"

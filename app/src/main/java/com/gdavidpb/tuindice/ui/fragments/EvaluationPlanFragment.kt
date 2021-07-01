@@ -65,13 +65,13 @@ class EvaluationPlanFragment : NavigationFragment() {
 
             onScrollStateChanged { newState ->
                 if (newState == SCROLL_STATE_IDLE)
-                    btnEvaluationOptions.show()
+                    btnEvaluationsOptions.show()
                 else
-                    btnEvaluationOptions.hide()
+                    btnEvaluationsOptions.hide()
             }
         }
 
-        btnEvaluationOptions.onClickOnce(::showEvaluationsMenuDialog)
+        btnEvaluationsOptions.onClickOnce(::showEvaluationsMenuDialog)
 
         with(viewModel) {
             getSubjectEvaluations(sid = args.subjectId)
