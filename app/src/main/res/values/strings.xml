@@ -339,7 +339,7 @@
     <string name="dialog_button_update_password_later">Más tarde</string>
     <string name="dialog_button_update_password_confirm">Confirmar</string>
 
-    <string name="snack_invalid_password">Contraseña inválida</string>
+    <string name="toast_password_updated">Contraseña actualizada</string>
 
     <!-- RemoveProfilePictureActivity -->
 

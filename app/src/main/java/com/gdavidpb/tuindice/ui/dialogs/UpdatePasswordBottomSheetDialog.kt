@@ -97,6 +97,8 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 
                 mainViewModel.sync()
 
+                toast(R.string.toast_password_updated)
+
                 dismiss()
             }
             is Event.OnError -> {
@@ -107,19 +109,24 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
             else -> {
                 showLoading(false)
 
-                errorSnackBar()
+                tInputPassword.setError(R.string.snack_default_error)
             }
         }
     }
 
     private fun signInErrorHandler(error: SignInError?) {
         when (error) {
-            is SignInError.Timeout -> errorSnackBar(R.string.snack_timeout) { onConfirmClick() }
-            is SignInError.InvalidCredentials -> errorSnackBar(R.string.snack_invalid_credentials)
-            is SignInError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { onConfirmClick() }
-            is SignInError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onConfirmClick() }
+            is SignInError.Timeout -> tInputPassword.setError(R.string.snack_timeout)
+            is SignInError.InvalidCredentials -> tInputPassword.setError(R.string.snack_invalid_credentials)
+            is SignInError.Unavailable -> tInputPassword.setError(R.string.snack_service_unavailable)
+            is SignInError.NoConnection -> tInputPassword.setError(
+                if (error.isNetworkAvailable)
+                    R.string.snack_service_unavailable
+                else
+                    R.string.snack_network_unavailable
+            )
             is SignInError.AccountDisabled -> mainViewModel.signOut()
-            else -> errorSnackBar { onConfirmClick() }
+            else -> tInputPassword.setError(R.string.snack_default_error)
         }
     }
 }
