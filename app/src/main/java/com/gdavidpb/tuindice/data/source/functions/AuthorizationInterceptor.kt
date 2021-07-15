@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.data.source.functions
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.utils.extensions.headerPutIfAbsent
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -22,7 +23,14 @@ class AuthorizationInterceptor(
 		val authRequest = request
 			.newBuilder()
 			.header("App-Version", "${BuildConfig.VERSION_CODE}")
-			.apply { if (bearerToken != null) header("Authorization", "Bearer $bearerToken") }
+			.apply {
+				if (bearerToken != null)
+					headerPutIfAbsent(
+						headers = request.headers,
+						name = "Authorization",
+						value = "Bearer $bearerToken"
+					)
+			}
 			.build()
 
 		return chain.proceed(authRequest)
