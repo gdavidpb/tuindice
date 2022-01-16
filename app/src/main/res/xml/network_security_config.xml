@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<network-security-config>
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">expediente.dii.usb.ve</domain>
-        <domain includeSubdomains="true">comprobante.dii.usb.ve</domain>
-    </domain-config>
-</network-security-config>
