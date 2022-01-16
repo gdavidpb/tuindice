@@ -36,7 +36,7 @@ class SyncUseCase(
 
         if (token != null) databaseRepository.updateToken(uid = activeAuth.uid, token = token)
 
-        /* Subscribe to version topic */
+        /* Subscribe to general topic */
         if (!settingsRepository.isSubscribedToTopic(Topics.TOPIC_GENERAL)) {
             messagingRepository.subscribeToTopic(Topics.TOPIC_GENERAL)
             settingsRepository.storeTopicSubscription(Topics.TOPIC_GENERAL)
