@@ -16,6 +16,8 @@ import org.koin.android.ext.android.inject
 abstract class NavigationFragment : Fragment() {
     protected val packageManager by inject<PackageManager>()
 
+    open fun onInitObservers() {}
+
     @LayoutRes
     abstract fun onCreateView(): Int
 
@@ -25,6 +27,8 @@ abstract class NavigationFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         activity?.contentView?.background = view.background
+
+        onInitObservers()
     }
 
     protected fun navigate(directions: NavDirections, navOptions: NavOptions? = null) = findNavController().navigate(directions, navOptions)

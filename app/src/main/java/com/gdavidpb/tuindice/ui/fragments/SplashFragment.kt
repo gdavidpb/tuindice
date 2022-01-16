@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.app.ActivityManager
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.NavOptions
@@ -43,9 +42,7 @@ class SplashFragment : NavigationFragment() {
         viewModel.fetchStartUpAction(dataString = intent.dataString ?: "")
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
+    override fun onInitObservers() {
         with(viewModel) {
             observe(startUpAction, ::startUpObserver)
         }

@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -66,9 +65,7 @@ class RecordFragment : NavigationFragment() {
         viewModel.getQuarters()
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
+    override fun onInitObservers() {
         with(mainViewModel) {
             observe(sync, ::syncObserver)
         }

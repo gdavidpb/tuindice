@@ -1,22 +1,21 @@
 package com.gdavidpb.tuindice.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.model.database.EvaluationUpdate
-import com.gdavidpb.tuindice.utils.Validation
-import com.gdavidpb.tuindice.utils.`do`
-import com.gdavidpb.tuindice.utils.`when`
-import com.gdavidpb.tuindice.utils.firstInvalid
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.EvaluationType
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.presentation.viewmodel.EvaluationViewModel
+import com.gdavidpb.tuindice.utils.Validation
+import com.gdavidpb.tuindice.utils.`do`
+import com.gdavidpb.tuindice.utils.`when`
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.firstInvalid
 import com.google.android.material.chip.Chip
 import com.google.firebase.Timestamp
 import kotlinx.android.synthetic.main.fragment_evaluation.*
@@ -60,9 +59,7 @@ class EvaluationFragment : NavigationFragment() {
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
+    override fun onInitObservers() {
         with(viewModel) {
             observe(subject, ::subjectObserver)
             observe(evaluation, ::evaluationObserver)

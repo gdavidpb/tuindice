@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.ui.fragments
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -60,9 +59,7 @@ class SummaryFragment : NavigationFragment() {
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
+    override fun onInitObservers() {
         with(mainViewModel) {
             observe(sync, ::syncObserver)
         }

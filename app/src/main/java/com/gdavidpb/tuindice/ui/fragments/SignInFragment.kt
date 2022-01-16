@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
@@ -76,9 +75,7 @@ class SignInFragment : NavigationFragment() {
         btnSignIn.onClickOnce(::onSignInClick)
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
+    override fun onInitObservers() {
         with(viewModel) {
             observe(signIn, ::signInObserver)
             observe(sync, ::syncObserver)

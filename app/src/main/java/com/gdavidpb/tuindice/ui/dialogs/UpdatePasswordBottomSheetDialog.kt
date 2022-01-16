@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.ui.dialogs
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -42,6 +41,10 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        with(viewModel) {
+            observe(signIn, ::signInObserver)
+        }
+
         tInputPassword.setAction {
             onConfirmClick()
         }
@@ -50,14 +53,6 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 
         btnConfirm.onClickOnce(::onConfirmClick)
         btnCancel.onClickOnce(::onCancelClick)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        with(viewModel) {
-            observe(signIn, ::signInObserver)
-        }
     }
 
     private fun showLoading(value: Boolean) {

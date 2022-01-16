@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.navArgs
@@ -78,9 +77,7 @@ class EvaluationPlanFragment : NavigationFragment() {
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
+    override fun onInitObservers() {
         with(viewModel) {
             observe(evaluations, ::evaluationsObserver)
             observe(quarterUpdate, ::quarterObserver)
