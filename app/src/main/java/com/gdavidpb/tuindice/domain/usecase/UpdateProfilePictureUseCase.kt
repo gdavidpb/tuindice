@@ -18,7 +18,7 @@ import java.io.IOException
 class UpdateProfilePictureUseCase(
         private val authRepository: AuthRepository,
         private val contentRepository: ContentRepository,
-        private val storageRepository: StorageRepository<File>,
+        private val storageRepository: StorageRepository,
         private val remoteStorageRepository: RemoteStorageRepository,
         private val networkRepository: NetworkRepository
 ) : EventUseCase<Uri, String, ProfilePictureError>() {

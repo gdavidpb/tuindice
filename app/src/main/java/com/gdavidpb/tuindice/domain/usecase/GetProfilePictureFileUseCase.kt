@@ -10,7 +10,7 @@ import java.io.File
 
 class GetProfilePictureFileUseCase(
         private val authRepository: AuthRepository,
-        private val storageRepository: StorageRepository<File>
+        private val storageRepository: StorageRepository
 ) : EventUseCase<Uri?, Uri, Nothing>() {
     override suspend fun executeOnBackground(params: Uri?): Uri {
         return if (params != null) {

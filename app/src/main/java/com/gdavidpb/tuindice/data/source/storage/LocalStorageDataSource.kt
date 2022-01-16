@@ -8,8 +8,8 @@ import java.io.InputStream
 import java.io.OutputStream
 
 open class LocalStorageDataSource(
-        protected val context: Context
-) : StorageRepository<File> {
+    protected val context: Context
+) : StorageRepository {
 
     private val root: File = context.filesDir
 

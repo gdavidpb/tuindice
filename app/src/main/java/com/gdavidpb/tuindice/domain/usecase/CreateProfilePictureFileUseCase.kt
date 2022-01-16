@@ -12,7 +12,7 @@ import java.io.IOException
 
 class CreateProfilePictureFileUseCase(
         private val authRepository: AuthRepository,
-        private val storageRepository: StorageRepository<File>
+        private val storageRepository: StorageRepository
 ) : EventUseCase<Unit, Uri, ProfilePictureError>() {
     override suspend fun executeOnBackground(params: Unit): Uri {
         val activeUId = authRepository.getActiveAuth().uid

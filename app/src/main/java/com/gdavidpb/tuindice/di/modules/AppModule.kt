@@ -41,16 +41,17 @@ import com.squareup.picasso.Picasso
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.experimental.dsl.viewModel
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.annotation.KoinReflectAPI
+import org.koin.dsl.bind
+import org.koin.dsl.factory
 import org.koin.dsl.module
-import org.koin.experimental.builder.factory
-import org.koin.experimental.builder.factoryBy
-import org.koin.experimental.builder.single
+import org.koin.dsl.single
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.File
 import java.util.concurrent.TimeUnit
 
+@KoinReflectAPI
 val appModule = module {
 
     /* Application */
@@ -181,19 +182,19 @@ val appModule = module {
 
     /* Repositories */
 
-    factoryBy<SettingsRepository, PreferencesDataSource>()
-    factoryBy<StorageRepository<File>, LocalStorageDataSource>()
-    factoryBy<RemoteStorageRepository, FirebaseStorageDataSource>()
-    factoryBy<AuthRepository, FirebaseDataSource>()
-    factoryBy<DatabaseRepository, FirestoreDataSource>()
-    factoryBy<MessagingRepository, FirebaseCloudMessagingDataSource>()
-    factoryBy<ContentRepository, ContentResolverDataSource>()
-    factoryBy<ConfigRepository, RemoteConfigDataSource>()
-    factoryBy<ReportingRepository, CrashlyticsReportingDataSource>()
-    factoryBy<DependenciesRepository, ReleaseKoinDataSource>()
-    factoryBy<NetworkRepository, AndroidNetworkDataSource>()
-    factoryBy<ServicesRepository, GooglePlayServicesDataSource>()
-    factoryBy<ApiRepository, CloudFunctionsDataSource>()
+    factory<PreferencesDataSource>() bind SettingsRepository::class
+    factory<LocalStorageDataSource>() bind StorageRepository::class
+    factory<FirebaseStorageDataSource>() bind RemoteStorageRepository::class
+    factory<FirebaseDataSource>() bind AuthRepository::class
+    factory<FirestoreDataSource>() bind DatabaseRepository::class
+    factory<FirebaseCloudMessagingDataSource>() bind MessagingRepository::class
+    factory<ContentResolverDataSource>() bind ContentRepository::class
+    factory<RemoteConfigDataSource>() bind ConfigRepository::class
+    factory<CrashlyticsReportingDataSource>() bind ReportingRepository::class
+    factory<ReleaseKoinDataSource>() bind DependenciesRepository::class
+    factory<AndroidNetworkDataSource>() bind NetworkRepository::class
+    factory<GooglePlayServicesDataSource>() bind ServicesRepository::class
+    factory<CloudFunctionsDataSource>() bind ApiRepository::class
 
     /* Use cases */
 

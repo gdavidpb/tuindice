@@ -32,4 +32,8 @@ open class AuthMockDataSource(
     override suspend fun getActiveToken(): String {
         return token
     }
+
+    override suspend fun getAuthProvider(): String {
+        return ""
+    }
 }

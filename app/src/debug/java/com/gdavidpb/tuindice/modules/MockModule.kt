@@ -36,16 +36,17 @@ import com.squareup.picasso.Picasso
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.experimental.dsl.viewModel
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.annotation.KoinReflectAPI
+import org.koin.dsl.bind
+import org.koin.dsl.factory
 import org.koin.dsl.module
-import org.koin.experimental.builder.factory
-import org.koin.experimental.builder.factoryBy
-import org.koin.experimental.builder.single
+import org.koin.dsl.single
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.File
 import java.util.concurrent.TimeUnit
 
+@KoinReflectAPI
 val mockModule = module {
 
     /* Application */
@@ -104,10 +105,10 @@ val mockModule = module {
 
     single {
         val settings = FirebaseFirestoreSettings.Builder()
-                .setHost("${BuildConfig.URL_MOCK}:8080")
-                .setSslEnabled(false)
-                .setPersistenceEnabled(false)
-                .build()
+            .setHost("${BuildConfig.URL_MOCK}:8080")
+            .setSslEnabled(false)
+            .setPersistenceEnabled(false)
+            .build()
 
         FirebaseFirestore.getInstance().apply {
             firestoreSettings = settings
@@ -168,19 +169,19 @@ val mockModule = module {
 
     /* Repositories */
 
-    factoryBy<SettingsRepository, PreferencesDataSource>()
-    factoryBy<StorageRepository<File>, LocalStorageDataSource>()
-    factoryBy<RemoteStorageRepository, RemoteStorageMockDataSource>()
-    factoryBy<AuthRepository, AuthMockDataSource>()
-    factoryBy<DatabaseRepository, FirestoreMockDataSource>()
-    factoryBy<MessagingRepository, MessagingMockDataSource>()
-    factoryBy<ContentRepository, ContentResolverDataSource>()
-    factoryBy<ConfigRepository, RemoteConfigMockDataSource>()
-    factoryBy<ReportingRepository, DebugReportingDataSource>()
-    factoryBy<DependenciesRepository, DebugKoinDataSource>()
-    factoryBy<NetworkRepository, AndroidNetworkDataSource>()
-    factoryBy<ServicesRepository, GooglePlayServicesDataSource>()
-    factoryBy<ApiRepository, CloudFunctionsDataSource>()
+    factory<PreferencesDataSource>() bind SettingsRepository::class
+    factory<LocalStorageDataSource>() bind StorageRepository::class
+    factory<RemoteStorageMockDataSource>() bind RemoteStorageRepository::class
+    factory<AuthMockDataSource>() bind AuthRepository::class
+    factory<FirestoreMockDataSource>() bind DatabaseRepository::class
+    factory<MessagingMockDataSource>() bind MessagingRepository::class
+    factory<ContentResolverDataSource>() bind ContentRepository::class
+    factory<RemoteConfigMockDataSource>() bind ConfigRepository::class
+    factory<DebugReportingDataSource>() bind ReportingRepository::class
+    factory<DebugKoinDataSource>() bind DependenciesRepository::class
+    factory<AndroidNetworkDataSource>() bind NetworkRepository::class
+    factory<GooglePlayServicesDataSource>() bind ServicesRepository::class
+    factory<CloudFunctionsDataSource>() bind ApiRepository::class
 
     /* Use cases */
 

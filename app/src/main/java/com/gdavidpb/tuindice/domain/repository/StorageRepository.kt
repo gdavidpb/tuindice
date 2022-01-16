@@ -1,11 +1,12 @@
 package com.gdavidpb.tuindice.domain.repository
 
+import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 
-interface StorageRepository<T> {
-    fun get(path: String): T
-    fun create(path: String): T
+interface StorageRepository {
+    fun get(path: String): File
+    fun create(path: String): File
     fun inputStream(path: String): InputStream
     fun outputStream(path: String): OutputStream
     fun delete(path: String)

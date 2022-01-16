@@ -15,7 +15,7 @@ import java.io.File
 @Timeout(key = ConfigKeys.TIME_OUT_GET_ENROLLMENT)
 class GetEnrollmentProofUseCase(
     private val apiRepository: ApiRepository,
-    private val storageRepository: StorageRepository<File>,
+    private val storageRepository: StorageRepository,
     private val networkRepository: NetworkRepository
 ) : EventUseCase<Quarter, File, GetEnrollmentError>() {
     override suspend fun executeOnBackground(params: Quarter): File {

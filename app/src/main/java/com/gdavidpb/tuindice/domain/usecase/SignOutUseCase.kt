@@ -11,7 +11,7 @@ class SignOutUseCase(
         private val messagingRepository: MessagingRepository,
         private val databaseRepository: DatabaseRepository,
         private val settingsRepository: SettingsRepository,
-        private val storageRepository: StorageRepository<File>,
+        private val storageRepository: StorageRepository,
         private val dependenciesRepository: DependenciesRepository
 ) : CompletableUseCase<Unit, Nothing>() {
     override suspend fun executeOnBackground(params: Unit) {

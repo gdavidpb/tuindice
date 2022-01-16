@@ -111,7 +111,6 @@ dependencies {
 
     /* Koin */
     implementation "io.insert-koin:koin-android:$koin_version"
-    implementation "io.insert-koin:koin-android-ext:$koin_version"
 
     /* Google */
     implementation "com.google.firebase:firebase-core:20.0.2"
