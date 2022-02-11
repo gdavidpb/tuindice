@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     private val backLocker = IdempotentLocker()
 
-    private val topDestinations = listOf(
+    private val topDestinations = setOf(
             R.id.fragment_summary,
             R.id.fragment_record,
             R.id.fragment_about,
@@ -54,16 +54,14 @@ class MainActivity : AppCompatActivity() {
             R.id.fragment_sign_in
     )
 
-    private val bottomDestinations = listOf(
+    private val bottomDestinations = setOf(
             R.id.fragment_summary,
             R.id.fragment_record,
             R.id.fragment_about
     )
 
     private val appBarConfiguration by lazy {
-        AppBarConfiguration(navController.graph).apply {
-            topLevelDestinations.addAll(topDestinations)
-        }
+        AppBarConfiguration(topDestinations)
     }
 
     private val navController by lazy {
@@ -82,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         NavigationUI.setupWithNavController(bottomNavView, navController)
         NavigationUI.setupWithNavController(toolbar, navController, appBarConfiguration)
 
-        bottomNavView.setOnNavigationItemReselectedListener { }
+        bottomNavView.setOnItemReselectedListener {  }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             onDestinationChanged(destination)

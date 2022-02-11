@@ -7,12 +7,12 @@ apply plugin: "com.google.gms.google-services"
 apply plugin: "com.google.firebase.crashlytics"
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
     defaultConfig {
         applicationId "com.gdavidpb.tuindice"
         vectorDrawables.useSupportLibrary = true
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 32
         versionCode 35
         versionName "5.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -96,15 +96,15 @@ dependencies {
     debugImplementation "com.squareup.retrofit2:retrofit-mock:$retrofit_version"
 
     /* AndroidX */
-    implementation "androidx.fragment:fragment-ktx:1.4.0"
+    implementation "androidx.fragment:fragment-ktx:1.4.1"
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
-    implementation "androidx.appcompat:appcompat:1.4.0"
+    implementation "androidx.appcompat:appcompat:1.4.1"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.browser:browser:1.4.0"
     implementation "androidx.recyclerview:recyclerview:1.2.1"
     implementation "androidx.vectordrawable:vectordrawable-animated:1.1.0"
-    implementation "androidx.constraintlayout:constraintlayout:2.1.2"
-    implementation "androidx.preference:preference-ktx:1.1.1"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.3"
+    implementation "androidx.preference:preference-ktx:1.2.0"
 
     /* Kotlin */
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
@@ -115,12 +115,12 @@ dependencies {
     /* Google */
     implementation "com.google.firebase:firebase-core:20.0.2"
     implementation "com.google.firebase:firebase-auth:21.0.1"
-    implementation "com.google.firebase:firebase-firestore:24.0.0"
+    implementation "com.google.firebase:firebase-firestore:24.0.1"
     implementation "com.google.firebase:firebase-messaging:23.0.0"
     implementation "com.google.firebase:firebase-storage:20.0.0"
-    implementation "com.google.firebase:firebase-crashlytics:18.2.6"
+    implementation "com.google.firebase:firebase-crashlytics:18.2.7"
     implementation "com.google.firebase:firebase-config:21.0.1"
-    implementation "com.google.android.material:material:1.4.0"
+    implementation "com.google.android.material:material:1.5.0"
     implementation "com.google.android.play:core:1.10.3"
     implementation "com.google.android.play:core-ktx:1.8.1"
 
