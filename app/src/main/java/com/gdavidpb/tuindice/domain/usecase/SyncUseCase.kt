@@ -39,7 +39,7 @@ class SyncUseCase(
         /* Subscribe to general topic */
         if (!settingsRepository.isSubscribedToTopic(Topics.TOPIC_GENERAL)) {
             messagingRepository.subscribeToTopic(Topics.TOPIC_GENERAL)
-            settingsRepository.storeTopicSubscription(Topics.TOPIC_GENERAL)
+            settingsRepository.saveSubscriptionTopic(Topics.TOPIC_GENERAL)
         }
 
         if (isUpdated) return false

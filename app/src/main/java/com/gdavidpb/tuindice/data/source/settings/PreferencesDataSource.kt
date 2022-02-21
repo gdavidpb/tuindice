@@ -42,7 +42,7 @@ open class PreferencesDataSource(
         return counter % value == 0
     }
 
-    override fun storeTopicSubscription(topic: String) {
+    override fun saveSubscriptionTopic(topic: String) {
         val topics = preferences.getStringSet(SettingsKeys.SUBSCRIBED_TOPICS, setOf()) ?: setOf()
 
         preferences.edit {
