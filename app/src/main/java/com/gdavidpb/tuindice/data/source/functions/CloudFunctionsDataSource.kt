@@ -17,8 +17,7 @@ class CloudFunctionsDataSource(
 	}
 
 	override suspend fun sync() {
-		return tuIndiceAPI.sync()
-			.getOrThrow()
+		throw NotImplementedError()
 	}
 
 	override suspend fun getEnrollmentProof(): EnrollmentProof {
