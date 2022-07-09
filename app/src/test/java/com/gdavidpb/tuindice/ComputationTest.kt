@@ -204,6 +204,7 @@ class ComputationTest {
             subjects: MutableList<Subject> = mutableListOf()
     ) = Quarter(
             id = "",
+            name = (startDate to endDate).formatQuarterName(),
             startDate = startDate,
             endDate = endDate,
             grade = 0.0,
