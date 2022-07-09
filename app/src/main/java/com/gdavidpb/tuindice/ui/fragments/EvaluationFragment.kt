@@ -44,8 +44,6 @@ class EvaluationFragment : NavigationFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setHasOptionsMenu(false)
-
         initChipGroup()
 
         btnEvaluationSave.onClickOnce(::onSaveClick)
@@ -161,6 +159,7 @@ class EvaluationFragment : NavigationFragment() {
 
                 tViewEvaluationHeader.text = subjectHeader
             }
+            else -> {}
         }
     }
 
@@ -171,6 +170,7 @@ class EvaluationFragment : NavigationFragment() {
 
                 initEvaluation(evaluation)
             }
+            else -> {}
         }
     }
 
@@ -181,6 +181,7 @@ class EvaluationFragment : NavigationFragment() {
 
                 initEvaluation(evaluation)
             }
+            else -> {}
         }
     }
 }

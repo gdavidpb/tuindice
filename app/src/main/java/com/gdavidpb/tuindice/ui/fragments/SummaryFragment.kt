@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.R
@@ -47,11 +48,11 @@ class SummaryFragment : NavigationFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setHasOptionsMenu(true)
-
         rViewSummary.adapter = summaryAdapter
 
         vProfilePicture.onClickOnce(::onEditProfilePictureClick)
+
+        requireActivity().addMenuProvider(SummaryMenuProvider(), viewLifecycleOwner)
 
         with(viewModel) {
             getProfile()
@@ -74,20 +75,6 @@ class SummaryFragment : NavigationFragment() {
             observe(loadProfilePicture, ::loadProfilePictureObserver)
             observe(updateProfilePicture, ::updateProfilePictureObserver)
             observe(removeProfilePicture, ::removeProfilePictureObserver)
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_summary, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_sign_out -> {
-                showSignOutDialog()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -198,6 +185,7 @@ class SummaryFragment : NavigationFragment() {
             is Completable.OnError -> {
                 requireActivity().recreate()
             }
+            else -> {}
         }
     }
 
@@ -212,6 +200,7 @@ class SummaryFragment : NavigationFragment() {
             is Result.OnError -> {
                 syncErrorHandler(error = result.error)
             }
+            else -> {}
         }
     }
 
@@ -222,6 +211,7 @@ class SummaryFragment : NavigationFragment() {
 
                 loadProfile(account)
             }
+            else -> {}
         }
     }
 
@@ -232,6 +222,7 @@ class SummaryFragment : NavigationFragment() {
 
                 viewModel.updateProfilePicture(outputUri)
             }
+            else -> {}
         }
     }
 
@@ -246,6 +237,7 @@ class SummaryFragment : NavigationFragment() {
             is Event.OnError -> {
                 profilePictureErrorHandler(error = result.error)
             }
+            else -> {}
         }
     }
 
@@ -268,6 +260,7 @@ class SummaryFragment : NavigationFragment() {
 
                 profilePictureErrorHandler(error = result.error)
             }
+            else -> {}
         }
     }
 
@@ -284,6 +277,7 @@ class SummaryFragment : NavigationFragment() {
 
                 profilePictureErrorHandler(error = result.error)
             }
+            else -> {}
         }
     }
 
@@ -305,6 +299,7 @@ class SummaryFragment : NavigationFragment() {
 
                 profilePictureErrorHandler(error = result.error)
             }
+            else -> {}
         }
     }
 
@@ -324,6 +319,7 @@ class SummaryFragment : NavigationFragment() {
 
                 profilePictureErrorHandler(error = result.error)
             }
+            else -> {}
         }
     }
 
@@ -333,6 +329,7 @@ class SummaryFragment : NavigationFragment() {
                 tViewLastUpdate.drawables(start = R.drawable.ic_sync_problem)
                 tViewLastUpdate.onClickOnce { snackBar(R.string.snack_no_service) }
             }
+            else -> {}
         }
     }
 
@@ -342,6 +339,22 @@ class SummaryFragment : NavigationFragment() {
             is ProfilePictureError.NoData -> vProfilePicture.loadDefaultProfilePicture()
             is ProfilePictureError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
             else -> errorSnackBar()
+        }
+    }
+
+    inner class SummaryMenuProvider : MenuProvider {
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            menuInflater.inflate(R.menu.menu_summary, menu)
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+            return when (menuItem.itemId) {
+                R.id.menu_sign_out -> {
+                    showSignOutDialog()
+                    true
+                }
+                else -> false
+            }
         }
     }
 }

@@ -17,8 +17,6 @@ class PensumFragment : NavigationFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setHasOptionsMenu(false)
-
         pensumNetworkReset.onClickOnce(::onResetNetworkClick)
     }
 

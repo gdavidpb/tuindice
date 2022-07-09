@@ -54,8 +54,6 @@ class EvaluationPlanFragment : NavigationFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setHasOptionsMenu(false)
-
         tViewSubjectName.text = args.subjectName
         tViewSubjectCode.text = args.subjectCode
 
@@ -252,6 +250,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 
                 evaluationAdapter.submitEvaluations(items)
             }
+            else -> {}
         }
     }
 
@@ -260,6 +259,7 @@ class EvaluationPlanFragment : NavigationFragment() {
             is Result.OnSuccess -> {
                 navigateUp()
             }
+            else -> {}
         }
     }
 
@@ -272,6 +272,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 
                 evaluationAdapter.updateEvaluation(item)
             }
+            else -> {}
         }
     }
 

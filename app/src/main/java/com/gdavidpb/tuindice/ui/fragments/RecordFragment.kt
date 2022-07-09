@@ -5,6 +5,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.core.view.MenuProvider
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
@@ -57,10 +58,11 @@ class RecordFragment : NavigationFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setHasOptionsMenu(true)
         setMenuVisibility(false)
 
         rViewRecord.adapter = quarterAdapter
+
+        requireActivity().addMenuProvider(RecordMenuProvider(), viewLifecycleOwner)
 
         viewModel.getQuarters()
     }
@@ -74,24 +76,6 @@ class RecordFragment : NavigationFragment() {
             observe(quarters, ::quartersObserver)
             observe(enrollment, ::enrollmentObserver)
             observe(quarterUpdate, ::quarterObserver)
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_record, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_enrollment -> {
-                val currentQuarterItem = quarterAdapter.getCurrentQuarter()
-
-                if (currentQuarterItem != null)
-                    viewModel.openEnrollmentProof(quarter = currentQuarterItem.data)
-
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -179,6 +163,7 @@ class RecordFragment : NavigationFragment() {
                 if (pendingUpdate)
                     viewModel.getQuarters()
             }
+	        else -> {}
         }
     }
 
@@ -199,6 +184,7 @@ class RecordFragment : NavigationFragment() {
 
                 quarterAdapter.submitQuarters(items)
             }
+	       else -> {}
         }
     }
 
@@ -229,6 +215,7 @@ class RecordFragment : NavigationFragment() {
 
                 enrollmentErrorHandler(error = result.error)
             }
+	        else -> {}
         }
     }
 
@@ -241,6 +228,7 @@ class RecordFragment : NavigationFragment() {
 
                 quarterAdapter.updateQuarter(item)
             }
+	        else -> {}
         }
     }
 
@@ -273,6 +261,26 @@ class RecordFragment : NavigationFragment() {
 
         override fun onSubmitQuarters(items: List<QuarterItem>) {
             fViewRecord.displayedChild = if (items.isNotEmpty()) Flipper.CONTENT else Flipper.EMPTY
+        }
+    }
+
+    inner class RecordMenuProvider : MenuProvider {
+        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+            menuInflater.inflate(R.menu.menu_record, menu)
+        }
+
+        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+            return when (menuItem.itemId) {
+                R.id.menu_enrollment -> {
+                    val currentQuarterItem = quarterAdapter.getCurrentQuarter()
+
+                    if (currentQuarterItem != null)
+                        viewModel.openEnrollmentProof(quarter = currentQuarterItem.data)
+
+                    true
+                }
+                else -> false
+            }
         }
     }
 }

@@ -67,6 +67,7 @@ class SplashFragment : NavigationFragment() {
             is Result.OnError -> {
                 startUpErrorHandler(error = result.error)
             }
+            else -> {}
         }
     }
 
