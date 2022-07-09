@@ -11,9 +11,8 @@ class AboutHeaderViewHolder(
 ) : BaseViewHolder<AboutItemBase>(itemView = itemView) {
     override fun bindView(item: AboutItemBase) {
         item as AboutHeaderItem
-        itemView as TextView
 
-        with(itemView) {
+        with(itemView as TextView) {
             text = item.title
         }
     }

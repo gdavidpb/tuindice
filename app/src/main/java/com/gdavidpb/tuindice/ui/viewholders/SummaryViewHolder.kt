@@ -11,9 +11,7 @@ class SummaryViewHolder(
     override fun bindView(item: SummaryItem) {
         super.bindView(item)
 
-        itemView as StatusCardView
-
-        with(itemView) {
+        with(itemView as StatusCardView) {
             headerText = item.headerText
             approvedCount = item.approved
             failedCount = item.failed

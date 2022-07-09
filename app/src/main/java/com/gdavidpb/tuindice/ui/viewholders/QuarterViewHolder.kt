@@ -23,9 +23,7 @@ class QuarterViewHolder(
     override fun bindView(item: QuarterItem) {
         super.bindView(item)
 
-        itemView as CardView
-
-        with(itemView) {
+        with(itemView as CardView) {
             setStates(color = item.color)
             setData(title = item.TitleText, grade = item.gradeDiffText, gradeSum = item.gradeSumText, credits = item.creditsText)
 

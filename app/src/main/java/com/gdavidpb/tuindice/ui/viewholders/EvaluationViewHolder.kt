@@ -58,9 +58,7 @@ class EvaluationViewHolder(
     override fun bindView(item: EvaluationItem) {
         super.bindView(item)
 
-        itemView as CardView
-
-        with(itemView) {
+        with(itemView as CardView) {
             setStates(isDone = item.isDone)
             setGrades(grade = item.grade, maxGrade = item.maxGrade)
             setAdditionalData(type = item.typeText, notes = item.notesText, date = item.dateText)
