@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.ui.activities
 import android.app.ActivityManager
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -86,6 +87,8 @@ class MainActivity : AppCompatActivity() {
             onDestinationChanged(destination)
         }
 
+	    onBackPressedDispatcher.addCallback(this, BackPressedHandler())
+
         with(viewModel) {
             observe(sync, ::syncObserver)
             observe(requestReview, ::requestReviewObserver)
@@ -98,20 +101,6 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         viewModel.checkUpdate(updateManager)
-    }
-
-    override fun onBackPressed() {
-        val isHomeDestination = topDestinations.contains(navController.currentDestination?.id)
-
-        if (isHomeDestination) {
-            toast(R.string.toast_repeat_to_exit)
-
-            val locked = backLocker.lock(UnlockIn = TIME_EXIT_LOCKER)
-
-            if (!locked) finish()
-        } else {
-            super.onBackPressed()
-        }
     }
 
     private fun onDestinationChanged(destination: NavDestination) {
@@ -146,6 +135,7 @@ class MainActivity : AppCompatActivity() {
 
                 syncErrorHandler(error = result.error)
             }
+            else -> {}
         }
     }
 
@@ -161,6 +151,7 @@ class MainActivity : AppCompatActivity() {
                     )
                 }
             }
+            else -> {}
         }
     }
 
@@ -176,6 +167,7 @@ class MainActivity : AppCompatActivity() {
                         RequestCodes.APP_UPDATE_REQUEST
                 )
             }
+            else -> {}
         }
     }
 
@@ -187,6 +179,7 @@ class MainActivity : AppCompatActivity() {
             is Completable.OnError -> {
                 activityManager.clearApplicationUserData()
             }
+            else -> {}
         }
     }
 
@@ -195,6 +188,23 @@ class MainActivity : AppCompatActivity() {
             is SyncError.AccountDisabled -> viewModel.signOut()
             is SyncError.OutdatedPassword -> showUpdatePasswordDialog()
             is SyncError.IllegalAuthProvider -> viewModel.signOut()
+            else -> {}
         }
     }
+
+	inner class BackPressedHandler : OnBackPressedCallback(true) {
+		override fun handleOnBackPressed() {
+			val isHomeDestination = topDestinations.contains(navController.currentDestination?.id)
+
+			if (isHomeDestination) {
+				toast(R.string.toast_repeat_to_exit)
+
+				val locked = backLocker.lock(UnlockIn = TIME_EXIT_LOCKER)
+
+				if (!locked) finish()
+			} else {
+				onBackPressedDispatcher.onBackPressed()
+			}
+		}
+	}
 }
