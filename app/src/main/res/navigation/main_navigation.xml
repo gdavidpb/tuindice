@@ -85,18 +85,18 @@
         tools:layout="@layout/fragment_about">
         <action
             android:id="@+id/nav_to_url"
+            app:destination="@id/fragment_browser"
             app:enterAnim="@anim/slide_in_from_right"
             app:exitAnim="@anim/slide_out_to_left"
             app:popEnterAnim="@anim/slide_in_from_left"
-            app:popExitAnim="@anim/slide_out_to_right"
-            app:destination="@id/fragment_browser" />
+            app:popExitAnim="@anim/slide_out_to_right" />
     </fragment>
 
     <fragment
         android:id="@+id/fragment_evaluation_plan"
         android:name="com.gdavidpb.tuindice.ui.fragments.EvaluationPlanFragment"
         android:label="@string/nav_subject"
-        tools:layout="@layout/fragment_about">
+        tools:layout="@layout/fragment_evaluation_plan">
         <argument
             android:name="quarterId"
             app:argType="string" />
