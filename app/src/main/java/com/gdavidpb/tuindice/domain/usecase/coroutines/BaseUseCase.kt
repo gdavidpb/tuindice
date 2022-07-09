@@ -9,11 +9,10 @@ import com.gdavidpb.tuindice.utils.extensions.hasTimeoutKey
 import kotlinx.coroutines.*
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.coroutines.CoroutineContext
 
 abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
-        protected open val backgroundContext: CoroutineContext = Dispatchers.IO,
-        protected open val foregroundContext: CoroutineContext = Dispatchers.Main
+    protected open val backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    protected open val foregroundDispatcher: CoroutineDispatcher = Dispatchers.Main
 ) : KoinComponent {
     private val reportingRepository by inject<ReportingRepository>()
     private val configRepository by inject<ConfigRepository>()
@@ -29,11 +28,11 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
     protected abstract suspend fun onFailure(liveData: L, error: Q?)
 
     fun execute(params: P, liveData: L, coroutineScope: CoroutineScope) {
-        coroutineScope.launch(foregroundContext) {
+        coroutineScope.launch(foregroundDispatcher) {
             onStart(liveData)
 
             runCatching {
-                withContext(backgroundContext) {
+                withContext(backgroundDispatcher) {
                     val response = if (hasTimeoutKey()) {
                         val key = getTimeoutKey()
                         val timeMillis = configRepository.getLong(key)
