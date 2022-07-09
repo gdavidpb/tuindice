@@ -182,20 +182,20 @@
     <string name="about_header_libs">Detrás de TuIndice</string>
 
     <string name="about_kotlin">
-        Kotlin 1.6.10\n
+        Kotlin 1.7.10\n
         Programming Language.\n
         © 2012 JetBrains\n
         https://kotlinlang.org/
     </string>
 
     <string name="about_firebase">
-        Firebase 20.1.0\n
+        Firebase 30.2.0\n
         Quickly develop high-quality apps and grow your business.\n
         © 2014 Google\nhttps://firebase.com/
     </string>
 
     <string name="about_koin">
-        Koin 3.1.5\n
+        Koin 3.2.0\n
         A pragmatic lightweight dependency injection framework for Kotlin.\n
         © 2018 Arnaud Giuliani\n
         https://insert-koin.io/
