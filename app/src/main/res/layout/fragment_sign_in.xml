@@ -51,16 +51,17 @@
         android:id="@+id/iViewLogo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
         android:clickable="true"
         android:contentDescription="@string/app_name"
         android:focusable="true"
-        android:background="@android:color/transparent"
         app:layout_constraintBottom_toTopOf="@id/tInputUsbId"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
-        app:srcCompat="@drawable/ic_launcher" />
+        app:srcCompat="@drawable/ic_launcher"
+        tools:ignore="ImageContrastCheck" />
 
     <AdapterViewFlipper
         android:id="@+id/vFlipperLoading"
@@ -121,7 +122,8 @@
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@id/tInputPassword"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:ignore="TextContrastCheck" />
 
     <com.gdavidpb.tuindice.ui.customs.LinkTextView
         android:id="@+id/tViewPolicies"
@@ -129,9 +131,10 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/dp_16"
         android:fontFamily="sans-serif-light"
+        android:minHeight="@dimen/dp_48"
         android:text="@string/label_policies"
         android:textAlignment="center"
-        android:textColor="@color/color_secondary_text"
+        android:textColor="@color/color_primary_text"
         app:layout_constraintBottom_toBottomOf="@id/guidelineBottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

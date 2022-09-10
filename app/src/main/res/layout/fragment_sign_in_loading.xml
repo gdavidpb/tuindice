@@ -58,7 +58,8 @@
         app:layout_constraintBottom_toBottomOf="@id/guidelineCenterTop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_launcher" />
+        app:srcCompat="@drawable/ic_launcher"
+        tools:ignore="ImageContrastCheck" />
 
     <AdapterViewFlipper
         android:id="@+id/vFlipperLoading"
