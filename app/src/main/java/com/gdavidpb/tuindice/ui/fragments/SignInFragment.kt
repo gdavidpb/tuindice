@@ -43,32 +43,10 @@ class SignInFragment : NavigationFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        tInputPassword.setAction {
-            onSignInClick()
-        }
+        initPoliciesLinks()
+        initLoadingMessagesFlipper()
 
-        val accentColor = requireContext().getCompatColor(R.color.color_accent)
-
-        tViewPolicies.apply {
-            setSpans {
-                listOf(ForegroundColorSpan(accentColor), TypefaceSpan("sans-serif-medium"), UnderlineSpan())
-            }
-
-            setLink(getString(R.string.link_terms_and_conditions)) {
-                navigate(SignInFragmentDirections.navToUrl(
-                        title = getString(R.string.label_terms_and_conditions),
-                        url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS
-                ))
-            }
-
-            setLink(getString(R.string.link_privacy_policy)) {
-                navigate(SignInFragmentDirections.navToUrl(
-                        title = getString(R.string.label_privacy_policy),
-                        url = BuildConfig.URL_APP_PRIVACY_POLICY
-                ))
-            }
-        }.build()
-
+	    tInputPassword.setAction { onSignInClick() }
         iViewLogo.onClickOnce(::onLogoClick)
         btnSignIn.onClickOnce(::onSignInClick)
     }
@@ -105,18 +83,50 @@ class SignInFragment : NavigationFragment() {
         }
     }
 
+    private fun initPoliciesLinks() {
+	    val accentColor = requireContext().getCompatColor(R.color.color_accent)
+
+	    tViewPolicies.apply {
+		    setSpans {
+			    listOf(
+				    ForegroundColorSpan(accentColor),
+				    TypefaceSpan("sans-serif-medium"),
+				    UnderlineSpan()
+			    )
+		    }
+
+		    setLink(getString(R.string.link_terms_and_conditions)) {
+			    navigate(
+				    SignInFragmentDirections.navToUrl(
+					    title = getString(R.string.label_terms_and_conditions),
+					    url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS
+				    )
+			    )
+		    }
+
+		    setLink(getString(R.string.link_privacy_policy)) {
+			    navigate(
+				    SignInFragmentDirections.navToUrl(
+					    title = getString(R.string.label_privacy_policy),
+					    url = BuildConfig.URL_APP_PRIVACY_POLICY
+				    )
+			    )
+		    }
+	    }.build()
+    }
+
+    private fun initLoadingMessagesFlipper() {
+        val items = loadingMessages.shuffled()
+
+        vFlipperLoading.adapter = LoadingAdapter(items)
+    }
+
     private fun showLoading(value: Boolean) {
         if (pBarLogging.isVisible == value) return
 
         val layout = if (value) {
             pBarLogging.isVisible = true
             vFlipperLoading.isVisible = true
-
-            if (vFlipperLoading.adapter == null) {
-                val items = loadingMessages.shuffled()
-
-                vFlipperLoading.adapter = LoadingAdapter(items)
-            }
 
             vFlipperLoading.startFlipping()
 
@@ -135,10 +145,6 @@ class SignInFragment : NavigationFragment() {
         }
     }
 
-    private fun navToSplash() {
-        navigate(SignInFragmentDirections.navToSplash())
-    }
-
     private fun signInObserver(result: Event<Boolean, SignInError>?) {
         when (result) {
             is Event.OnLoading -> {
@@ -148,7 +154,7 @@ class SignInFragment : NavigationFragment() {
                 val hasCache = result.value
 
                 if (hasCache)
-                    navToSplash()
+                    navigate(SignInFragmentDirections.navToSplash())
                 else
                     viewModel.sync()
             }
@@ -171,7 +177,7 @@ class SignInFragment : NavigationFragment() {
                 showLoading(true)
             }
             is Result.OnSuccess -> {
-                navToSplash()
+                navigate(SignInFragmentDirections.navToSplash())
             }
             is Result.OnError -> {
                 showLoading(false)
