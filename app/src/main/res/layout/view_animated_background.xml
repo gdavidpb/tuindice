@@ -6,13 +6,11 @@
     <com.gdavidpb.tuindice.ui.customs.BackgroundImageView
         android:id="@+id/backgroundOne"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY" />
+        android:layout_height="match_parent" />
 
     <com.gdavidpb.tuindice.ui.customs.BackgroundImageView
         android:id="@+id/backgroundTwo"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY" />
+        android:layout_height="match_parent" />
 
 </merge>

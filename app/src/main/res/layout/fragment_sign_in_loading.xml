@@ -45,7 +45,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0.5"
-        app:backgroundResource="@drawable/bk_pattern" />
+        app:background="@drawable/bk_pattern"
+        app:scaleType="fitXY" />
 
     <ImageView
         android:id="@+id/iViewLogo"
