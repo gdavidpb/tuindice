@@ -41,19 +41,11 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.6" />
 
-    <com.gdavidpb.tuindice.ui.customs.BackgroundImageView
-        android:id="@+id/backgroundOne"
+    <com.gdavidpb.tuindice.ui.customs.AnimatedBackgroundView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitXY"
-        android:src="@drawable/bk_pattern" />
-
-    <com.gdavidpb.tuindice.ui.customs.BackgroundImageView
-        android:id="@+id/backgroundTwo"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY"
-        android:src="@drawable/bk_pattern" />
+        android:alpha="0.5"
+        app:backgroundResource="@drawable/bk_pattern" />
 
     <ImageView
         android:id="@+id/iViewLogo"
@@ -78,9 +70,9 @@
         android:layout_marginBottom="@dimen/dp_8"
         android:animateFirstView="true"
         android:flipInterval="2000"
-        android:visibility="gone"
         android:inAnimation="@animator/left_in"
         android:outAnimation="@animator/right_out"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/guidelineCenterBottom"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/guidelineCenterTop"
@@ -100,10 +92,10 @@
         android:id="@+id/tInputUsbId"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
-        app:layout_constraintStart_toStartOf="@id/guidelineStart"
         android:layout_marginTop="@dimen/dp_32"
         app:layout_constraintBottom_toTopOf="@id/tInputPassword"
+        app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+        app:layout_constraintStart_toStartOf="@id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@id/iViewLogo"
         app:layout_constraintVertical_chainStyle="packed" />
 
@@ -112,18 +104,18 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_8"
+        app:layout_constraintBottom_toTopOf="@id/btnSignIn"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
         app:layout_constraintStart_toStartOf="@id/guidelineStart"
         app:layout_constraintTop_toBottomOf="@id/tInputUsbId"
-        app:layout_constraintBottom_toTopOf="@id/btnSignIn"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSignIn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/button_sign_in"
         android:layout_marginTop="@dimen/dp_24"
+        android:text="@string/button_sign_in"
         app:cornerRadius="@dimen/dp_6"
         app:layout_constraintBottom_toTopOf="@id/tViewPolicies"
         app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
@@ -140,8 +132,8 @@
         android:text="@string/label_policies"
         android:textAlignment="center"
         android:textColor="@color/color_secondary_text"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/guidelineBottom"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

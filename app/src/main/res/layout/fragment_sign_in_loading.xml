@@ -41,28 +41,20 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.6" />
 
-    <com.gdavidpb.tuindice.ui.customs.BackgroundImageView
-        android:id="@+id/backgroundOne"
+    <com.gdavidpb.tuindice.ui.customs.AnimatedBackgroundView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitXY"
-        android:src="@drawable/bk_pattern" />
-
-    <com.gdavidpb.tuindice.ui.customs.BackgroundImageView
-        android:id="@+id/backgroundTwo"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY"
-        android:src="@drawable/bk_pattern" />
+        android:alpha="0.5"
+        app:backgroundResource="@drawable/bk_pattern" />
 
     <ImageView
         android:id="@+id/iViewLogo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
         android:clickable="true"
         android:contentDescription="@string/app_name"
         android:focusable="true"
-        android:background="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="@id/guidelineCenterTop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -70,8 +62,8 @@
 
     <AdapterViewFlipper
         android:id="@+id/vFlipperLoading"
-        android:layout_height="0dp"
         android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginTop="@dimen/dp_8"
         android:layout_marginBottom="@dimen/dp_8"
         android:animateFirstView="true"
@@ -90,8 +82,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:indeterminate="true"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/guidelineCenterBottom" />
 
     <com.gdavidpb.tuindice.ui.customs.UsbIdInputLayout

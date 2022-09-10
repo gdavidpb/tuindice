@@ -32,4 +32,8 @@
         <attr name="failedCount" format="integer" />
         <attr name="retiredCount" format="integer" />
     </declare-styleable>
+
+    <declare-styleable name="AnimatedBackgroundView">
+        <attr name="backgroundResource" format="reference" />
+    </declare-styleable>
 </resources>

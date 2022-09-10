@@ -1,13 +1,11 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import android.animation.ValueAnimator
-import android.content.res.Resources
 import android.view.View
 import android.view.ViewPropertyAnimator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.CycleInterpolator
 import android.view.animation.DecelerateInterpolator
-import android.view.animation.LinearInterpolator
 import android.widget.TextView
 import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.isInvisible
@@ -80,19 +78,5 @@ fun TextView.animateGrade(value: Double, decimals: Int) {
             .duration(750)
             .interpolator(DecelerateInterpolator())
             .doOnUpdate<Float> { grade -> text = grade.toDouble().formatGrade(decimals) }
-            .start()
-}
-
-fun Pair<View, View>.animateInfiniteLoop() {
-    val width = Resources.getSystem().displayMetrics.widthPixels
-
-    ValueAnimator.ofInt(0, width)
-            .duration(30000L)
-            .repeatCount(ValueAnimator.INFINITE)
-            .interpolator(LinearInterpolator())
-            .doOnUpdate<Float> { translation ->
-                first.translationX = translation
-                second.translationX = (translation - width)
-            }
             .start()
 }

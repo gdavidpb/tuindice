@@ -43,8 +43,6 @@ class SignInFragment : NavigationFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (backgroundOne to backgroundTwo).animateInfiniteLoop()
-
         tInputPassword.setAction {
             onSignInClick()
         }
