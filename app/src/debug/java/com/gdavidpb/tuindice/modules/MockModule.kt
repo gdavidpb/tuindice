@@ -38,10 +38,10 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
-import org.koin.dsl.bind
-import org.koin.dsl.factory
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import org.koin.dsl.single
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -83,7 +83,7 @@ val mockModule = module {
 
     /* Utils */
 
-    single<Gson>()
+    singleOf(::Gson)
 
     /* Google */
 
@@ -128,7 +128,7 @@ val mockModule = module {
         }
     }
 
-    single<AuthorizationInterceptor>()
+    singleOf(::AuthorizationInterceptor)
 
     factory<ReviewManager> {
         FakeReviewManager(androidContext())
@@ -169,46 +169,46 @@ val mockModule = module {
 
     /* Repositories */
 
-    factory<PreferencesDataSource>() bind SettingsRepository::class
-    factory<LocalStorageDataSource>() bind StorageRepository::class
-    factory<RemoteStorageMockDataSource>() bind RemoteStorageRepository::class
-    factory<AuthMockDataSource>() bind AuthRepository::class
-    factory<FirestoreMockDataSource>() bind DatabaseRepository::class
-    factory<MessagingMockDataSource>() bind MessagingRepository::class
-    factory<ContentResolverDataSource>() bind ContentRepository::class
-    factory<RemoteConfigMockDataSource>() bind ConfigRepository::class
-    factory<DebugReportingDataSource>() bind ReportingRepository::class
-    factory<DebugKoinDataSource>() bind DependenciesRepository::class
-    factory<AndroidNetworkDataSource>() bind NetworkRepository::class
-    factory<GooglePlayServicesDataSource>() bind ServicesRepository::class
-    factory<CloudFunctionsDataSource>() bind ApiRepository::class
+    factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
+    factoryOf(::LocalStorageDataSource) { bind<StorageRepository>() }
+    factoryOf(::RemoteStorageMockDataSource) { bind<RemoteStorageRepository>() }
+    factoryOf(::AuthMockDataSource) { bind<AuthRepository>() }
+    factoryOf(::FirestoreMockDataSource) { bind<DatabaseRepository>() }
+    factoryOf(::MessagingMockDataSource) { bind<MessagingRepository>() }
+    factoryOf(::ContentResolverDataSource) { bind<ContentRepository>() }
+    factoryOf(::RemoteConfigMockDataSource) { bind<ConfigRepository>() }
+    factoryOf(::DebugReportingDataSource) { bind<ReportingRepository>() }
+    factoryOf(::DebugKoinDataSource) { bind<DependenciesRepository>() }
+    factoryOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
+    factoryOf(::GooglePlayServicesDataSource) { bind<ServicesRepository>() }
+    factoryOf(::CloudFunctionsDataSource) { bind<ApiRepository>() }
 
     /* Use cases */
 
-    factory<SignInUseCase>()
-    factory<ReSignInUseCase>()
-    factory<SignOutUseCase>()
-    factory<SyncUseCase>()
-    factory<StartUpUseCase>()
-    factory<GetProfileUseCase>()
-    factory<GetQuartersUseCase>()
-    factory<UpdateQuarterUseCase>()
-    factory<SetLastScreenUseCase>()
-    factory<GetEnrollmentProofUseCase>()
-    factory<GetSubjectUseCase>()
-    factory<GetEvaluationUseCase>()
-    factory<GetSubjectEvaluationsUseCase>()
-    factory<UpdateEvaluationUseCase>()
-    factory<RemoveEvaluationUseCase>()
-    factory<AddEvaluationUseCase>()
-    factory<UpdateProfilePictureUseCase>()
-    factory<CreateProfilePictureFileUseCase>()
-    factory<GetProfilePictureFileUseCase>()
-    factory<GetProfilePictureUseCase>()
-    factory<RemoveProfilePictureUseCase>()
-    factory<RequestReviewUseCase>()
-    factory<RemoveQuarterUseCase>()
-    factory<GetUpdateInfoUseCase>()
+    factoryOf(::SignInUseCase)
+    factoryOf(::ReSignInUseCase)
+    factoryOf(::SignOutUseCase)
+    factoryOf(::SyncUseCase)
+    factoryOf(::StartUpUseCase)
+    factoryOf(::GetProfileUseCase)
+    factoryOf(::GetQuartersUseCase)
+    factoryOf(::UpdateQuarterUseCase)
+    factoryOf(::SetLastScreenUseCase)
+    factoryOf(::GetEnrollmentProofUseCase)
+    factoryOf(::GetSubjectUseCase)
+    factoryOf(::GetEvaluationUseCase)
+    factoryOf(::GetSubjectEvaluationsUseCase)
+    factoryOf(::UpdateEvaluationUseCase)
+    factoryOf(::RemoveEvaluationUseCase)
+    factoryOf(::AddEvaluationUseCase)
+    factoryOf(::UpdateProfilePictureUseCase)
+    factoryOf(::CreateProfilePictureFileUseCase)
+    factoryOf(::GetProfilePictureFileUseCase)
+    factoryOf(::GetProfilePictureUseCase)
+    factoryOf(::RemoveProfilePictureUseCase)
+    factoryOf(::RequestReviewUseCase)
+    factoryOf(::RemoveQuarterUseCase)
+    factoryOf(::GetUpdateInfoUseCase)
 
     /* Utils */
 

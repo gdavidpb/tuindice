@@ -194,7 +194,6 @@ val appModule = module {
 	/* Repositories */
 
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
-
 	factoryOf(::LocalStorageDataSource) { bind<StorageRepository>() }
 	factoryOf(::FirebaseStorageDataSource) { bind<RemoteStorageRepository>() }
 	factoryOf(::FirebaseDataSource) { bind<AuthRepository>() }
