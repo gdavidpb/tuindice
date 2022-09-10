@@ -3,8 +3,9 @@ package com.gdavidpb.tuindice.services
 import android.content.res.Resources
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
-import com.gdavidpb.tuindice.data.source.functions.responses.EnrollmentProofResponse
-import com.gdavidpb.tuindice.data.source.functions.responses.SignInResponse
+import com.gdavidpb.tuindice.data.source.functions.requests.AddQuarterRequest
+import com.gdavidpb.tuindice.data.source.functions.requests.UpdateQuarterRequest
+import com.gdavidpb.tuindice.data.source.functions.responses.*
 import com.gdavidpb.tuindice.utils.extensions.base64
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -30,10 +31,20 @@ class TuIndiceAPIMock(
 			.signIn(basicToken, refreshToken)
 	}
 
-	override suspend fun sync(): Response<Unit> {
-		return delegate
-			.returningResponse(Unit)
-			.sync()
+	override suspend fun getQuarters(): Response<List<QuarterResponse>> {
+		TODO("Not yet implemented")
+	}
+
+	override suspend fun addQuarter(request: AddQuarterRequest): Response<AddQuarterResponse> {
+		TODO("Not yet implemented")
+	}
+
+	override suspend fun updateQuarter(request: UpdateQuarterRequest): Response<UpdateQuarterResponse> {
+		TODO("Not yet implemented")
+	}
+
+	override suspend fun deleteQuarter(quarterId: String): Response<Unit> {
+		TODO("Not yet implemented")
 	}
 
 	override suspend fun enrollmentProof(): Response<EnrollmentProofResponse> {
