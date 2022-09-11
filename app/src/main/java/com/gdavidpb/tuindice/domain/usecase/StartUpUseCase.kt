@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.domain.usecase.errors.StartUpError
 import com.gdavidpb.tuindice.utils.extensions.isConnection
 
 class StartUpUseCase(
-	private val servicesRepository: ServicesRepository,
+	private val servicesRepository: MobileServicesRepository,
 	private val settingsRepository: SettingsRepository,
 	private val authRepository: AuthRepository,
 	private val databaseRepository: DatabaseRepository,

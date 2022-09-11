@@ -16,7 +16,7 @@ class SignInUseCase(
 	private val reportingRepository: ReportingRepository,
 	private val authRepository: AuthRepository,
 	private val networkRepository: NetworkRepository,
-	private val apiRepository: ApiRepository
+	private val serviceRepository: ServicesRepository
 ) : EventUseCase<SignInRequest, Boolean, SignInError>() {
 	override suspend fun executeOnBackground(params: SignInRequest): Boolean {
 		val isActiveAuth = authRepository.isActiveAuth()
@@ -33,7 +33,7 @@ class SignInUseCase(
 			password = params.password
 		)
 
-		val bearerToken = apiRepository.signIn(
+		val bearerToken = serviceRepository.signIn(
 			basicToken = basicToken,
 			refreshToken = false
 		).token

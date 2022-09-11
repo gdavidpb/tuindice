@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.domain.repository.ApiRepository
+import com.gdavidpb.tuindice.domain.repository.ServicesRepository
 import com.gdavidpb.tuindice.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
@@ -15,7 +15,7 @@ import okhttp3.Credentials
 class ReSignInUseCase(
     private val authRepository: AuthRepository,
     private val networkRepository: NetworkRepository,
-    private val apiRepository: ApiRepository
+    private val apiRepository: ServicesRepository
 ) : EventUseCase<String, Boolean, SignInError>() {
     override suspend fun executeOnBackground(params: String): Boolean {
         val activeAuth = authRepository.getActiveAuth()

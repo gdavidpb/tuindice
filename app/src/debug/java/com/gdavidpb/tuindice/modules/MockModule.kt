@@ -180,8 +180,8 @@ val mockModule = module {
     factoryOf(::DebugReportingDataSource) { bind<ReportingRepository>() }
     factoryOf(::DebugKoinDataSource) { bind<DependenciesRepository>() }
     factoryOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
-    factoryOf(::GooglePlayServicesDataSource) { bind<ServicesRepository>() }
-    factoryOf(::CloudFunctionsDataSource) { bind<ApiRepository>() }
+    factoryOf(::GooglePlayServicesDataSource) { bind<MobileServicesRepository>() }
+    factoryOf(::CloudFunctionsDataSource) { bind<ServicesRepository>() }
 
     /* Use cases */
 

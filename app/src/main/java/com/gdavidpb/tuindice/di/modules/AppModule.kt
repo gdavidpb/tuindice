@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataSource
-import com.gdavidpb.tuindice.data.source.firebase.FirebaseDataSource
+import com.gdavidpb.tuindice.data.source.firebase.FirebaseAuthDataSource
 import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataSource
 import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.functions.CloudFunctionsDataSource
@@ -196,7 +196,7 @@ val appModule = module {
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
 	factoryOf(::LocalStorageDataSource) { bind<StorageRepository>() }
 	factoryOf(::FirebaseStorageDataSource) { bind<RemoteStorageRepository>() }
-	factoryOf(::FirebaseDataSource) { bind<AuthRepository>() }
+	factoryOf(::FirebaseAuthDataSource) { bind<AuthRepository>() }
 	factoryOf(::FirestoreDataSource) { bind<DatabaseRepository>() }
 	factoryOf(::FirebaseCloudMessagingDataSource) { bind<MessagingRepository>() }
 	factoryOf(::ContentResolverDataSource) { bind<ContentRepository>() }
@@ -204,8 +204,8 @@ val appModule = module {
 	factoryOf(::CrashlyticsReportingDataSource) { bind<ReportingRepository>() }
 	factoryOf(::ReleaseKoinDataSource) { bind<DependenciesRepository>() }
 	factoryOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
-	factoryOf(::GooglePlayServicesDataSource) { bind<ServicesRepository>() }
-	factoryOf(::CloudFunctionsDataSource) { bind<ApiRepository>() }
+	factoryOf(::GooglePlayServicesDataSource) { bind<MobileServicesRepository>() }
+	factoryOf(::CloudFunctionsDataSource) { bind<ServicesRepository>() }
 
 	/* Use cases */
 

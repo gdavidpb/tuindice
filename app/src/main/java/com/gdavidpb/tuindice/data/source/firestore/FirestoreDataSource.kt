@@ -15,6 +15,7 @@ import com.google.firebase.firestore.*
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.atomic.AtomicReference
 
+@Deprecated("This will be replaced by Room.")
 open class FirestoreDataSource(
         private val firestore: FirebaseFirestore
 ) : DatabaseRepository {

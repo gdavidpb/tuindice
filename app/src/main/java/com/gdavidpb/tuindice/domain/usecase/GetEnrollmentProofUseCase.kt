@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.repository.ApiRepository
+import com.gdavidpb.tuindice.domain.repository.ServicesRepository
 import com.gdavidpb.tuindice.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.domain.repository.StorageRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
@@ -14,7 +14,7 @@ import java.io.File
 
 @Timeout(key = ConfigKeys.TIME_OUT_GET_ENROLLMENT)
 class GetEnrollmentProofUseCase(
-    private val apiRepository: ApiRepository,
+    private val apiRepository: ServicesRepository,
     private val storageRepository: StorageRepository,
     private val networkRepository: NetworkRepository
 ) : EventUseCase<Quarter, File, GetEnrollmentError>() {
