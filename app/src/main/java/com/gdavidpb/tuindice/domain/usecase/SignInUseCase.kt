@@ -1,52 +1,60 @@
 package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.domain.model.SignInRequest
-import com.gdavidpb.tuindice.domain.repository.ApiRepository
-import com.gdavidpb.tuindice.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
-import com.gdavidpb.tuindice.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.mappers.asUsbId
 import okhttp3.Credentials
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class SignInUseCase(
-    private val databaseRepository: DatabaseRepository,
-    private val authRepository: AuthRepository,
-    private val networkRepository: NetworkRepository,
-    private val apiRepository: ApiRepository
+	private val databaseRepository: DatabaseRepository,
+	private val reportingRepository: ReportingRepository,
+	private val authRepository: AuthRepository,
+	private val networkRepository: NetworkRepository,
+	private val apiRepository: ApiRepository
 ) : EventUseCase<SignInRequest, Boolean, SignInError>() {
-    override suspend fun executeOnBackground(params: SignInRequest): Boolean {
-        if (authRepository.isActiveAuth()) authRepository.signOut()
+	override suspend fun executeOnBackground(params: SignInRequest): Boolean {
+		val isActiveAuth = authRepository.isActiveAuth()
 
-        val basicToken = Credentials.basic(
-            username = params.usbId,
-            password = params.password
-        )
+		val usbId = if (isActiveAuth)
+			authRepository.getActiveAuth().email.asUsbId()
+		else
+			params.usbId
 
-        val bearerToken = apiRepository.signIn(
-            basicToken = basicToken,
-            refreshToken = false
-        ).token
+		if (isActiveAuth) authRepository.signOut()
 
-        val authSignIn = authRepository.signIn(token = bearerToken)
+		val basicToken = Credentials.basic(
+			username = usbId,
+			password = params.password
+		)
 
-        databaseRepository.cache(uid = authSignIn.uid)
+		val bearerToken = apiRepository.signIn(
+			basicToken = basicToken,
+			refreshToken = false
+		).token
 
-        return databaseRepository.hasCache(uid = authSignIn.uid)
-    }
+		val authSignIn = authRepository.signIn(token = bearerToken)
 
-    override suspend fun executeOnException(throwable: Throwable): SignInError? {
-        return when {
-            throwable.isForbidden() -> SignInError.AccountDisabled
-            throwable.isUnavailable() -> SignInError.Unavailable
-            throwable.isUnauthorized() -> SignInError.InvalidCredentials
-            throwable.isTimeout() -> SignInError.Timeout
-            throwable.isConnection() -> SignInError.NoConnection(networkRepository.isAvailable())
-            else -> null
-        }
-    }
+		reportingRepository.setIdentifier(identifier = authSignIn.uid)
+
+		databaseRepository.cache(uid = authSignIn.uid)
+
+		return databaseRepository.hasCache(uid = authSignIn.uid)
+	}
+
+	override suspend fun executeOnException(throwable: Throwable): SignInError? {
+		return when {
+			throwable.isForbidden() -> SignInError.AccountDisabled
+			throwable.isUnavailable() -> SignInError.Unavailable
+			throwable.isUnauthorized() -> SignInError.InvalidCredentials
+			throwable.isTimeout() -> SignInError.Timeout
+			throwable.isConnection() -> SignInError.NoConnection(networkRepository.isAvailable())
+			else -> null
+		}
+	}
 }
