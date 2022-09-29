@@ -1,53 +1,19 @@
-apply plugin: "com.android.application"
 apply plugin: "kotlin-android"
 apply plugin: "kotlin-android-extensions"
-apply plugin: "androidx.navigation.safeargs.kotlin"
-apply plugin: "kotlin-kapt"
-apply plugin: "com.google.gms.google-services"
-apply plugin: "com.google.firebase.crashlytics"
 
 android {
-    compileSdkVersion core.targetSdk
+    compileSdkVersion 33
 
     defaultConfig {
-        applicationId "com.gdavidpb.tuindice"
-        vectorDrawables.useSupportLibrary = true
-        minSdkVersion core.minSdk
-        targetSdkVersion core.targetSdk
+        minSdkVersion 21
+        targetSdkVersion 33
         versionCode 35
         versionName "5.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    signingConfigs {
-        release {
-            keyAlias System.getenv("TU_INDICE_KEY_ALIAS")
-            keyPassword System.getenv("TU_INDICE_KEY_PASSWORD")
-            storeFile file("${System.getenv("TU_INDICE_KEY_STORE_PATH")}")
-            storePassword System.getenv("TU_INDICE_KEY_STORE_PASSWORD")
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    packagingOptions {
-        resources {
-            excludes += ["DebugProbesKt.bin"]
-        }
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
-    }
-
     buildTypes {
         debug {
-            minifyEnabled false
-            manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
-
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
             buildConfigField "String", "URL_MOCK", "\"${config.mockAddress}\""
@@ -63,14 +29,6 @@ android {
             buildConfigField "String", "ENDPOINT_TU_INDICE_API", "\"http://localhost:8080/\""
         }
         release {
-            debuggable true
-            minifyEnabled true
-
-            signingConfig signingConfigs.release
-
-            manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
             buildConfigField "String", "URL_MOCK", "\"\""
@@ -86,17 +44,4 @@ android {
             buildConfigField "String", "ENDPOINT_TU_INDICE_API", "\"https://us-central1-tu-indice-usb.cloudfunctions.net/\""
         }
     }
-
-    namespace "com.gdavidpb.tuindice"
 }
-
-dependencies {
-    implementation project(":base")
-    implementation project(":login")
-    implementation project(":about")
-    implementation project(":summary")
-    implementation project(":record")
-    implementation project(":evaluations")
-}
-
-apply plugin: "com.google.gms.google-services"
