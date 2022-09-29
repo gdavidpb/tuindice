@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.ui.fragments
+package com.gdavidpb.tuindice.base.ui.fragments
 
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
-import com.gdavidpb.tuindice.utils.extensions.contentView
+import com.gdavidpb.tuindice.base.utils.extensions.contentView
 import org.koin.android.ext.android.inject
 
 abstract class NavigationFragment : Fragment() {

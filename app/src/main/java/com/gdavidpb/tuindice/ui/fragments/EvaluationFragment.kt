@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.data.model.database.EvaluationUpdate
 import com.gdavidpb.tuindice.domain.model.Evaluation
 import com.gdavidpb.tuindice.domain.model.EvaluationType

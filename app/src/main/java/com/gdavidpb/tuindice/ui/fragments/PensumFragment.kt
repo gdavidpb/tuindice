@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.ui.fragments
 import android.os.Bundle
 import android.view.View
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.presentation.viewmodel.PensumViewModel
 import com.gdavidpb.tuindice.utils.extensions.onClickOnce
 import kotlinx.android.synthetic.main.fragment_pensum.*

@@ -8,6 +8,7 @@ import android.view.View
 import androidx.annotation.StringRes
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.*

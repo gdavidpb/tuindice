@@ -10,6 +10,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Event
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
 import com.gdavidpb.tuindice.domain.usecase.errors.SignInError

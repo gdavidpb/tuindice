@@ -13,6 +13,7 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.domain.model.Account
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Completable
 import com.gdavidpb.tuindice.domain.usecase.coroutines.Event

@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
+import com.gdavidpb.tuindice.base.utils.extensions.contentView
 import com.google.android.material.snackbar.BaseTransientBottomBar.*
 import com.google.android.material.snackbar.Snackbar
 

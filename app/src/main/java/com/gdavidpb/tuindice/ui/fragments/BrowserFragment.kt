@@ -15,6 +15,7 @@ import androidx.core.text.buildSpannedString
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.ui.dialogs.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.utils.extensions.bottomSheetDialog
 import com.gdavidpb.tuindice.utils.extensions.browse
