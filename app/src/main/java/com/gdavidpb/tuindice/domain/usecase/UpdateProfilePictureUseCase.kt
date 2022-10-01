@@ -6,7 +6,7 @@ import androidx.exifinterface.media.ExifInterface
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
-import com.gdavidpb.tuindice.utils.ConfigKeys
+import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.*

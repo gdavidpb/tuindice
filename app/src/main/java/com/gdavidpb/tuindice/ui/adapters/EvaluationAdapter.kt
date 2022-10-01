@@ -4,9 +4,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
-import com.gdavidpb.tuindice.ui.adapters.base.BaseAdapter
+import com.gdavidpb.tuindice.base.ui.adapters.BaseAdapter
 import com.gdavidpb.tuindice.ui.viewholders.EvaluationViewHolder
-import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
+import com.gdavidpb.tuindice.base.ui.viewholders.BaseViewHolder
 
 class EvaluationAdapter(
         private val manager: AdapterManager

@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.datasources
 
-import com.gdavidpb.tuindice.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.gson.Gson
 import java.io.IOException

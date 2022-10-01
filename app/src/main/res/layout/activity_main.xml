@@ -44,7 +44,7 @@
         app:layout_constraintTop_toBottomOf="@id/pBarSync"
         app:defaultNavHost="true"
         app:layout_constraintBottom_toTopOf="@id/bottomNavView"
-        app:navGraph="@navigation/main_navigation" />
+        app:navGraph="@navigation/navigation_main" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavView"

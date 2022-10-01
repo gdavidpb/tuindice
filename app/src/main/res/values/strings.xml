@@ -1,22 +1,5 @@
 <resources>
 
-    <!-- App -->
-
-    <string name="app_name">TuIndice</string>
-
-    <!-- Simple words/phrases -->
-
-    <string name="open">Abrir</string>
-    <string name="remove">Remover</string>
-    <string name="release">Producción</string>
-    <string name="debug">Desarrollo</string>
-    <string name="cancel">Cancelar</string>
-    <string name="exit">Salir</string>
-    <string name="accept">Aceptar</string>
-    <string name="retry">Reintentar</string>
-
-    <string name="app_version">%1$s v%2$s (%3$d)</string>
-
     <!-- MainActivity -->
 
     <string name="nav_summary">Resumen</string>
@@ -44,8 +27,6 @@
 
     <string name="dialog_title_sign_out">Atención</string>
     <string name="dialog_message_sign_out">¿Estás seguro que deseas cerrar sesión?</string>
-
-    <string name="selector_title_report">¿Cómo te podemos ayudar?</string>
 
     <string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
 
@@ -112,132 +93,10 @@
         <b>TuIndice</b> te da la bienvenida a <b>La Simón</b>\n¡Mucho éxito!
     </string>
 
-    <!-- AboutFragment -->
-
-    <string name="about_version">
-        Versión\n
-        %1$s
-    </string>
-
-    <string name="about_license">
-        Creative Commons\nBY-NC 4.0
-    </string>
-
-    <string name="about_terms_and_conditions">
-        Términos y condiciones\n
-        Conoce las condiciones del servicio
-    </string>
-
-    <string name="about_privacy_policy">
-        Política de privacidad\n
-        Conoce como manejamos tus datos
-    </string>
-
-    <string name="about_twitter">
-        \@TuIndice\n
-        ¡Síguenos en Twitter y enterate de todo!
-    </string>
-
-    <string name="about_share">
-        Compartir\n
-        Invita a un amigo a descargar la aplicación
-    </string>
-
-    <string name="about_rate">
-        Puntúa\n
-        ¡Dale las 5 estrellas!
-    </string>
-
-    <string name="about_google_play_intent">market://details?id=%1$s</string>
-    <string name="about_google_play">https://play.google.com/store/apps/details?id=%1$s</string>
-
-    <string name="about_share_message">
-        TuIndice: Una nueva forma de administrar tus notas\n\n
-        Disponible en Google Play\n
-        https://play.google.com/store/apps/details?id=%1$s
-    </string>
-
-    <string name="about_header_developer">Desarrollador</string>
-
-    <string name="about_dev_info">
-        Gerardo Prado\n
-        Santiago, Chile
-    </string>
-
-    <string name="about_dev_report">
-        Reportar un error\n
-        Reportar un error al desarrollador
-    </string>
-
-    <string name="about_dev_contact">
-        Contacto\n
-        Contactar al desarrollador
-    </string>
-
-    <string name="about_source_code">
-        GitHub Repository\n
-        https://github.com/gdavidpb/tuindice
-    </string>
-
-    <string name="about_header_libs">Detrás de TuIndice</string>
-
-    <string name="about_kotlin">
-        Kotlin 1.7.10\n
-        Programming Language.\n
-        © 2012 JetBrains\n
-        https://kotlinlang.org/
-    </string>
-
-    <string name="about_firebase">
-        Firebase 30.2.0\n
-        Quickly develop high-quality apps and grow your business.\n
-        © 2014 Google\nhttps://firebase.com/
-    </string>
-
-    <string name="about_koin">
-        Koin 3.2.0\n
-        A pragmatic lightweight dependency injection framework for Kotlin.\n
-        © 2018 Arnaud Giuliani\n
-        https://insert-koin.io/
-    </string>
-
-    <string name="about_retrofit">
-        Retrofit 2.9.0\n
-        A type-safe HTTP client for Android and Java.\n
-        © 2015 Square\n
-        https://square.github.io/retrofit/
-    </string>
-
-    <string name="about_header_special_thanks">Agradecimientos especiales</string>
-
-    <string name="about_dst">
-        Dirección de Servicios Telemáticos\n
-        Universidad Simón Bolívar\n
-        Unidad administrativa\n
-        https://www.dst.usb.ve/inicio
-    </string>
-
-    <string name="about_freepik">
-        Freepik Company\n
-        FlatIcon\n
-        The largest database of free customizable icons in the world.\n
-        https://www.freepik.com/
-    </string>
-
-    <string name="about_mit_mapping_lab">
-        The Mapping Lab\n
-        Massachusetts Institute of Technology\n
-        Develops technologies for the future of digital education.\n
-        https://mapping.mit.edu/
-    </string>
-
-    <!-- BrowserFragment -->
+    <!-- TODO: BrowserFragment? -->
 
     <string name="label_terms_and_conditions">TuIndice - Términos y condiciones</string>
     <string name="label_privacy_policy">TuIndice - Política de privacidad</string>
-
-    <string name="dialog_title_warning_external">Atención</string>
-    <string name="dialog_message_warning_external">¿Deseas abrir el siguiente enlace?\n\n%s</string>
 
     <!-- EvaluationPlanFragment -->
 

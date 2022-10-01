@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.utils
 
+import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_CURRENT
+import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_MOCK
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
 import com.gdavidpb.tuindice.utils.extensions.computeCredits

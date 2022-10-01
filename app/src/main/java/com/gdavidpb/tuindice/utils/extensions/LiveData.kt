@@ -4,7 +4,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.gdavidpb.tuindice.domain.usecase.coroutines.*
-import com.gdavidpb.tuindice.utils.MAX_MULTIPLE_EVENT
+import com.gdavidpb.tuindice.base.utils.MAX_MULTIPLE_EVENT
 
 class LiveEvent<T, Q> : MultipleLiveEvent<Event<T, Q>>(MAX_MULTIPLE_EVENT)
 

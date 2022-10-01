@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.config
 
-import com.gdavidpb.tuindice.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.utils.extensions.awaitOrNull
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.gson.Gson

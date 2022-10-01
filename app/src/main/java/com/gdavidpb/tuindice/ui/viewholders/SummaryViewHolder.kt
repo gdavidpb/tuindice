@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.ui.viewholders
 import android.view.View
 import com.gdavidpb.tuindice.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.ui.customs.StatusCardView
-import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
+import com.gdavidpb.tuindice.base.ui.viewholders.BaseViewHolder
 
 class SummaryViewHolder(
         itemView: View

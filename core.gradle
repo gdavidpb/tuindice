@@ -14,6 +14,9 @@ android {
 
     buildTypes {
         debug {
+            buildConfigField "String", "VERSION_NAME", "\"${defaultConfig.versionName}\""
+            buildConfigField "Integer", "VERSION_CODE", "${defaultConfig.versionCode}"
+
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
             buildConfigField "String", "URL_MOCK", "\"${config.mockAddress}\""
@@ -21,14 +24,15 @@ android {
             buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
             buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
 
-            buildConfigField "String", "URL_APP_TWITTER", "\"https://twitter.com/TuIndice\""
-            buildConfigField "String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\""
             buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/privacy_policy.html\""
             buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions.html\""
 
             buildConfigField "String", "ENDPOINT_TU_INDICE_API", "\"http://localhost:8080/\""
         }
         release {
+            buildConfigField "String", "VERSION_NAME", "\"${defaultConfig.versionName}\""
+            buildConfigField "Integer", "VERSION_CODE", "${defaultConfig.versionCode}"
+            
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
             buildConfigField "String", "URL_MOCK", "\"\""
@@ -36,8 +40,6 @@ android {
             buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
             buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
 
-            buildConfigField "String", "URL_APP_TWITTER", "\"https://twitter.com/TuIndice\""
-            buildConfigField "String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\""
             buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/privacy_policy.html\""
             buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions.html\""
 

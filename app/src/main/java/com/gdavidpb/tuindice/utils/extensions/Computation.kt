@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.utils.extensions
 
 import com.gdavidpb.tuindice.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.model.Subject
-import com.gdavidpb.tuindice.utils.STATUS_QUARTER_RETIRED
-import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_OK
-import com.gdavidpb.tuindice.utils.STATUS_SUBJECT_RETIRED
+import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
+import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_OK
+import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_RETIRED
 import java.util.*
 import kotlin.math.roundToInt
 

@@ -5,9 +5,9 @@ import android.view.ViewGroup
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.presentation.model.SubjectItem
-import com.gdavidpb.tuindice.ui.adapters.base.BaseAdapter
+import com.gdavidpb.tuindice.base.ui.adapters.BaseAdapter
 import com.gdavidpb.tuindice.ui.viewholders.QuarterViewHolder
-import com.gdavidpb.tuindice.ui.viewholders.base.BaseViewHolder
+import com.gdavidpb.tuindice.base.ui.viewholders.BaseViewHolder
 import kotlinx.android.synthetic.main.item_quarter.view.*
 import kotlin.math.roundToInt
 

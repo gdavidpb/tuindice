@@ -1,6 +1,24 @@
 apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+apply plugin: "kotlin-android-extensions"
+apply plugin: "androidx.navigation.safeargs.kotlin"
 apply from: "../core.gradle"
+
+android {
+    buildTypes {
+        debug {
+            buildConfigField "String", "URL_APP_TWITTER", "\"https://twitter.com/TuIndice\""
+            buildConfigField "String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\""
+        }
+
+        release {
+            buildConfigField "String", "URL_APP_TWITTER", "\"https://twitter.com/TuIndice\""
+            buildConfigField "String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\""
+        }
+    }
+}
 
 dependencies {
     implementation project(":base")
+    implementation project(":browser")
 }

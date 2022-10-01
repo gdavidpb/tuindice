@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
-import com.gdavidpb.tuindice.utils.ConfigKeys
+import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.await
 import com.gdavidpb.tuindice.utils.extensions.isUpdateAvailable
 import com.gdavidpb.tuindice.utils.extensions.isUpdateStalled

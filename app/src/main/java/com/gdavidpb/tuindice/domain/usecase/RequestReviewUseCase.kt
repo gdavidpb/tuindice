@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
-import com.gdavidpb.tuindice.utils.ConfigKeys
+import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.google.android.play.core.ktx.requestReview
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager

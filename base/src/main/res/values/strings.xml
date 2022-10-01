@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- App -->
+
+    <string name="app_name">TuIndice</string>
+
+    <!-- Simple words/phrases -->
+
+    <string name="open">Abrir</string>
+    <string name="remove">Remover</string>
+    <string name="cancel">Cancelar</string>
+    <string name="exit">Salir</string>
+    <string name="accept">Aceptar</string>
+    <string name="retry">Reintentar</string>
+
+    <!-- BrowserFragment -->
+
+    <string name="dialog_title_warning_external">Atención</string>
+    <string name="dialog_message_warning_external">¿Deseas abrir el siguiente enlace?\n\n%s</string>
+
+</resources>

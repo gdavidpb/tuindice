@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.domain.usecase.coroutines
 
 import androidx.lifecycle.LiveData
-import com.gdavidpb.tuindice.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.utils.ReportKeys
+import com.gdavidpb.tuindice.base.utils.ReportKeys
 import com.gdavidpb.tuindice.utils.extensions.getTimeoutKey
 import com.gdavidpb.tuindice.utils.extensions.hasTimeoutKey
 import kotlinx.coroutines.*

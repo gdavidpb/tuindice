@@ -7,6 +7,7 @@ import androidx.core.content.getSystemService
 import androidx.room.Room
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataSource
@@ -27,9 +28,9 @@ import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataSource
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
-import com.gdavidpb.tuindice.utils.ConfigKeys
+import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.extensions.create
-import com.gdavidpb.tuindice.utils.extensions.sharedPreferences
+import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory

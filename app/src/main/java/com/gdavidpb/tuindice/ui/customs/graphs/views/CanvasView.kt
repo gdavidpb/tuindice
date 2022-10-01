@@ -11,184 +11,192 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.utils.extensions.loadAttributes
 import com.gdavidpb.tuindice.ui.customs.graphs.extensions.*
-import com.gdavidpb.tuindice.utils.extensions.loadAttributes
 import com.google.android.material.animation.MatrixEvaluator
 
 abstract class CanvasView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
-    private object Defaults {
-        const val MIN_ZOOM = .3f
-        const val MAX_ZOOM = 3f
-        const val EPSILON_ZOOM = .01f
+	private object Defaults {
+		const val MIN_ZOOM = .3f
+		const val MAX_ZOOM = 3f
+		const val EPSILON_ZOOM = .01f
 
-        const val TIME_ANIMATION = 750
-    }
+		const val TIME_ANIMATION = 750
+	}
 
-    private val minZoom: Float
-    private val maxZoom: Float
-    private val epsilonZoom: Float
+	private val minZoom: Float
+	private val maxZoom: Float
+	private val epsilonZoom: Float
 
-    private val zoomRange: ClosedFloatingPointRange<Float>
+	private val zoomRange: ClosedFloatingPointRange<Float>
 
-    private val zoomInterpolator: TimeInterpolator
-    private val moveInterpolator: TimeInterpolator
-    private val resetInterpolator: TimeInterpolator
+	private val zoomInterpolator: TimeInterpolator
+	private val moveInterpolator: TimeInterpolator
+	private val resetInterpolator: TimeInterpolator
 
-    private val centerX by lazy { width / 2f }
-    private val centerY by lazy { height / 2f }
+	private val centerX by lazy { width / 2f }
+	private val centerY by lazy { height / 2f }
 
-    private val matrixAnimator: ValueAnimator
+	private val matrixAnimator: ValueAnimator
 
-    init {
-        loadAttributes(R.styleable.CanvasView, attrs).apply {
-            minZoom = getFloat(R.styleable.CanvasView_minZoom, Defaults.MIN_ZOOM)
-            maxZoom = getFloat(R.styleable.CanvasView_maxZoom, Defaults.MAX_ZOOM)
+	init {
+		loadAttributes(R.styleable.CanvasView, attrs).apply {
+			minZoom = getFloat(R.styleable.CanvasView_minZoom, Defaults.MIN_ZOOM)
+			maxZoom = getFloat(R.styleable.CanvasView_maxZoom, Defaults.MAX_ZOOM)
 
-            zoomInterpolator = getInterpolator(context,
-                    R.styleable.CanvasView_zoomInterpolator,
-                    android.R.anim.overshoot_interpolator
-            )
+			zoomInterpolator = getInterpolator(
+				context,
+				R.styleable.CanvasView_zoomInterpolator,
+				android.R.anim.overshoot_interpolator
+			)
 
-            moveInterpolator = getInterpolator(context,
-                    R.styleable.CanvasView_moveInterpolator,
-                    android.R.anim.overshoot_interpolator
-            )
+			moveInterpolator = getInterpolator(
+				context,
+				R.styleable.CanvasView_moveInterpolator,
+				android.R.anim.overshoot_interpolator
+			)
 
-            resetInterpolator = getInterpolator(context,
-                    R.styleable.CanvasView_resetInterpolator,
-                    android.R.anim.accelerate_decelerate_interpolator
-            )
-        }.recycle()
+			resetInterpolator = getInterpolator(
+				context,
+				R.styleable.CanvasView_resetInterpolator,
+				android.R.anim.accelerate_decelerate_interpolator
+			)
+		}.recycle()
 
-        epsilonZoom = Defaults.EPSILON_ZOOM
+		epsilonZoom = Defaults.EPSILON_ZOOM
 
-        matrixAnimator = ValueAnimator.ofObject(MatrixEvaluator(), Matrix(), Matrix()).apply {
-            val timeAnimationCanvas = Defaults.TIME_ANIMATION
+		matrixAnimator = ValueAnimator.ofObject(MatrixEvaluator(), Matrix(), Matrix()).apply {
+			val timeAnimationCanvas = Defaults.TIME_ANIMATION
 
-            duration = timeAnimationCanvas.toLong()
+			duration = timeAnimationCanvas.toLong()
 
-            addUpdateListener {
-                val matrix = it.animatedValue as Matrix
+			addUpdateListener {
+				val matrix = it.animatedValue as Matrix
 
-                canvasMatrix.set(matrix)
+				canvasMatrix.set(matrix)
 
-                invalidate()
-            }
-        }
+				invalidate()
+			}
+		}
 
-        zoomRange = minZoom..maxZoom
-    }
+		zoomRange = minZoom..maxZoom
+	}
 
-    protected val canvasMatrix by lazy {
-        Matrix(initialMatrix)
-    }
+	protected val canvasMatrix by lazy {
+		Matrix(initialMatrix)
+	}
 
-    private val initialMatrix by lazy {
-        Matrix().apply {
-            setTranslate(centerX, centerY)
-            postScale(minZoom, minZoom, centerX, centerY)
-        }
-    }
+	private val initialMatrix by lazy {
+		Matrix().apply {
+			setTranslate(centerX, centerY)
+			postScale(minZoom, minZoom, centerX, centerY)
+		}
+	}
 
-    private val moveDetector by lazy {
-        GestureDetector(context, MoveDetector())
-    }
+	private val moveDetector by lazy {
+		GestureDetector(context, MoveDetector())
+	}
 
-    private val scaleDetector by lazy {
-        ScaleGestureDetector(context, ScaleDetector())
-    }
+	private val scaleDetector by lazy {
+		ScaleGestureDetector(context, ScaleDetector())
+	}
 
-    abstract fun onMove(x: Float, y: Float)
-    abstract fun onZoom(factor: Float)
+	abstract fun onMove(x: Float, y: Float)
+	abstract fun onZoom(factor: Float)
 
-    override fun onDraw(canvas: Canvas) {
-        canvas.setMatrix(canvasMatrix)
-    }
+	override fun onDraw(canvas: Canvas) {
+		canvas.setMatrix(canvasMatrix)
+	}
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        val isCustomHandle = moveDetector.onTouchEvent(event) || scaleDetector.onTouchEvent(event)
+	override fun onTouchEvent(event: MotionEvent): Boolean {
+		val isCustomHandle = moveDetector.onTouchEvent(event) || scaleDetector.onTouchEvent(event)
 
-        if (isCustomHandle) invalidate()
+		if (isCustomHandle) invalidate()
 
-        return isCustomHandle || super.onTouchEvent(event)
-    }
+		return isCustomHandle || super.onTouchEvent(event)
+	}
 
-    open fun zoomTo(factor: Float, x: Float, y: Float) {
-        val targetMatrix = Matrix(canvasMatrix).apply {
-            val cx = centerX - x
-            val cy = centerY - y
-            val sx = factor / scaleX
-            val sy = factor / scaleY
+	open fun zoomTo(factor: Float, x: Float, y: Float) {
+		val targetMatrix = Matrix(canvasMatrix).apply {
+			val cx = centerX - x
+			val cy = centerY - y
+			val sx = factor / scaleX
+			val sy = factor / scaleY
 
-            postTranslate(cx, cy)
-            postScale(sx, sy, centerX, centerY)
-        }
+			postTranslate(cx, cy)
+			postScale(sx, sy, centerX, centerY)
+		}
 
-        animateMatrix(targetMatrix = targetMatrix, timeInterpolator = zoomInterpolator)
-    }
+		animateMatrix(targetMatrix = targetMatrix, timeInterpolator = zoomInterpolator)
+	}
 
-    open fun moveTo(x: Float, y: Float) {
-        val targetMatrix = Matrix(canvasMatrix).apply {
-            val cx = centerX - x
-            val cy = centerY - y
+	open fun moveTo(x: Float, y: Float) {
+		val targetMatrix = Matrix(canvasMatrix).apply {
+			val cx = centerX - x
+			val cy = centerY - y
 
-            postTranslate(cx, cy)
-        }
+			postTranslate(cx, cy)
+		}
 
-        animateMatrix(targetMatrix = targetMatrix, timeInterpolator = moveInterpolator)
-    }
+		animateMatrix(targetMatrix = targetMatrix, timeInterpolator = moveInterpolator)
+	}
 
-    open fun reset() {
-        animateMatrix(targetMatrix = initialMatrix, timeInterpolator = resetInterpolator)
-    }
+	open fun reset() {
+		animateMatrix(targetMatrix = initialMatrix, timeInterpolator = resetInterpolator)
+	}
 
-    private fun animateMatrix(targetMatrix: Matrix, timeInterpolator: TimeInterpolator) {
-        if (canvasMatrix == targetMatrix) return
+	private fun animateMatrix(targetMatrix: Matrix, timeInterpolator: TimeInterpolator) {
+		if (canvasMatrix == targetMatrix) return
 
-        with(matrixAnimator) {
-            if (isRunning) cancel()
+		with(matrixAnimator) {
+			if (isRunning) cancel()
 
-            interpolator = timeInterpolator
+			interpolator = timeInterpolator
 
-            val initialMatrix = Matrix(canvasMatrix)
+			val initialMatrix = Matrix(canvasMatrix)
 
-            setObjectValues(initialMatrix, targetMatrix)
+			setObjectValues(initialMatrix, targetMatrix)
 
-            start()
-        }
-    }
+			start()
+		}
+	}
 
-    private inner class MoveDetector : GestureDetector.SimpleOnGestureListener() {
-        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
-            val cantHandle = e1.pointerCount > 1 || e2.pointerCount > 1
+	private inner class MoveDetector : GestureDetector.SimpleOnGestureListener() {
+		override fun onScroll(
+			e1: MotionEvent,
+			e2: MotionEvent,
+			distanceX: Float,
+			distanceY: Float
+		): Boolean {
+			val cantHandle = e1.pointerCount > 1 || e2.pointerCount > 1
 
-            if (cantHandle) return false
+			if (cantHandle) return false
 
-            canvasMatrix.postTranslate(-distanceX, -distanceY)
+			canvasMatrix.postTranslate(-distanceX, -distanceY)
 
-            onMove(x = canvasMatrix.translateX, y = canvasMatrix.translateY)
+			onMove(x = canvasMatrix.translateX, y = canvasMatrix.translateY)
 
-            return true
-        }
-    }
+			return true
+		}
+	}
 
-    private inner class ScaleDetector : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-        override fun onScale(detector: ScaleGestureDetector): Boolean {
-            val factor = detector.scaleFactor
-            val zoomFactor = (factor * canvasMatrix.scaleX)
-            val x = detector.focusX
-            val y = detector.focusY
+	private inner class ScaleDetector : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+		override fun onScale(detector: ScaleGestureDetector): Boolean {
+			val factor = detector.scaleFactor
+			val zoomFactor = (factor * canvasMatrix.scaleX)
+			val x = detector.focusX
+			val y = detector.focusY
 
-            val canZoom = zoomRange.contains(zoomFactor, epsilonZoom)
+			val canZoom = zoomRange.contains(zoomFactor, epsilonZoom)
 
-            if (canZoom) {
-                canvasMatrix.postScale(factor, factor, x, y)
+			if (canZoom) {
+				canvasMatrix.postScale(factor, factor, x, y)
 
-                onZoom(factor = canvasMatrix.scaleX)
-            }
+				onZoom(factor = canvasMatrix.scaleX)
+			}
 
-            return canZoom
-        }
-    }
+			return canZoom
+		}
+	}
 }

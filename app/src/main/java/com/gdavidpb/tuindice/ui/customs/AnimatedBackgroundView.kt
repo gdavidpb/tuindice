@@ -9,6 +9,7 @@ import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.utils.extensions.loadAttributes
 import com.gdavidpb.tuindice.ui.customs.graphs.extensions.getDrawable
 import com.gdavidpb.tuindice.ui.customs.graphs.extensions.getEnum
 import com.gdavidpb.tuindice.utils.extensions.*
@@ -25,7 +26,8 @@ class AnimatedBackgroundView(context: Context, attrs: AttributeSet) :
 
 		loadAttributes(R.styleable.AnimatedBackgroundView, attrs).apply {
 			backgroundImage = getDrawable(context, R.styleable.AnimatedBackgroundView_background, 0)
-			scaleType = getEnum(R.styleable.AnimatedBackgroundView_scaleType, ImageView.ScaleType.FIT_XY)
+			scaleType =
+				getEnum(R.styleable.AnimatedBackgroundView_scaleType, ImageView.ScaleType.FIT_XY)
 		}.recycle()
 
 		val width = Resources.getSystem().displayMetrics.widthPixels

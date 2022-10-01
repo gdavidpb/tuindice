@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.utils.extensions
 
 import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.utils.DEFAULT_LOCALE
-import com.gdavidpb.tuindice.utils.DEFAULT_TIME_ZONE
+import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
+import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
 import com.gdavidpb.tuindice.utils.mappers.capitalize
 import java.text.SimpleDateFormat
 import java.util.*

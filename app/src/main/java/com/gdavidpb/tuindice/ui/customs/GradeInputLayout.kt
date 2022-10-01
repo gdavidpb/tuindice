@@ -4,8 +4,9 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.inputmethod.InputMethodManager
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.utils.MAX_EVALUATION_GRADE
-import com.gdavidpb.tuindice.utils.MIN_EVALUATION_GRADE
+import com.gdavidpb.tuindice.base.utils.MAX_EVALUATION_GRADE
+import com.gdavidpb.tuindice.base.utils.MIN_EVALUATION_GRADE
+import com.gdavidpb.tuindice.base.utils.extensions.hideSoftKeyboard
 import com.gdavidpb.tuindice.utils.extensions.formatGrade
 import com.gdavidpb.tuindice.utils.extensions.hideSoftKeyboard
 import org.koin.core.component.KoinComponent

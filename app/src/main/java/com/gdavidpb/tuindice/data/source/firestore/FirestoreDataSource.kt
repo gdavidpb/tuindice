@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.data.source.firestore
 
+import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_COMPLETED
+import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.data.model.database.EvaluationUpdate
 import com.gdavidpb.tuindice.data.model.database.QuarterUpdate
 import com.gdavidpb.tuindice.data.model.database.SubjectUpdate

@@ -1,6 +1,10 @@
 package com.gdavidpb.tuindice.utils.mappers
 
 import com.gdavidpb.tuindice.BuildConfig
+import com.gdavidpb.tuindice.base.utils.MAX_EVALUATION_NOTES
+import com.gdavidpb.tuindice.base.utils.MAX_SUBJECT_GRADE
+import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_OK
+import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_RETIRED
 import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.computeCredits

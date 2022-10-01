@@ -1,1 +1,1 @@
-include ":app", ":base", ":login", ":about", ":summary", ":record", ":evaluations"
+include ":app", ":base", ":browser", ":login", ":about", ":summary", ":record", ":evaluations"

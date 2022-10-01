@@ -7,12 +7,14 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
 import androidx.core.text.buildSpannedString
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.utils.*
+import com.gdavidpb.tuindice.base.utils.extensions.append
+import com.gdavidpb.tuindice.base.utils.extensions.getCompatColor
 import com.gdavidpb.tuindice.domain.model.*
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.presentation.model.SummaryItem
-import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import java.util.*
 
@@ -169,19 +171,6 @@ fun Subject.spanSubjectCode(context: Context): CharSequence {
                 TypefaceSpan("sans-serif-light"),
                 ForegroundColorSpan(colorSecondary))
 
-    }
-}
-
-fun String.spanAbout(titleColor: Int, subtitleColor: Int): CharSequence {
-    val (title, subtitle) = listOf(
-            substringBefore('\n'),
-            substringAfter('\n')
-    )
-
-    return buildSpannedString {
-        append(title, ForegroundColorSpan(titleColor))
-        append('\n')
-        append(subtitle, ForegroundColorSpan(subtitleColor), TypefaceSpan("sans-serif-light"))
     }
 }
 

@@ -1,11 +1,12 @@
 package com.gdavidpb.tuindice.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.domain.model.exception.IllegalAuthProviderException
 import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.SyncError
-import com.gdavidpb.tuindice.utils.ConfigKeys
-import com.gdavidpb.tuindice.utils.Topics
+import com.gdavidpb.tuindice.base.utils.ConfigKeys
+import com.gdavidpb.tuindice.base.utils.Topics
 import com.gdavidpb.tuindice.utils.annotations.Timeout
 import com.gdavidpb.tuindice.utils.extensions.*
 

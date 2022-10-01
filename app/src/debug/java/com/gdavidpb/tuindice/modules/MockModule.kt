@@ -6,6 +6,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.functions.CloudFunctionsDataSource
@@ -20,9 +21,9 @@ import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
 import com.gdavidpb.tuindice.services.TuIndiceAPIMock
-import com.gdavidpb.tuindice.utils.ConfigKeys
+import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.createMockService
-import com.gdavidpb.tuindice.utils.extensions.sharedPreferences
+import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager

@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.ui.customs
 import android.content.Context
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatSeekBar
-import com.gdavidpb.tuindice.utils.MIN_EVALUATION_GRADE
+import com.gdavidpb.tuindice.base.utils.MIN_EVALUATION_GRADE
 
 class EvaluationGradeSeekBar(context: Context, attrs: AttributeSet)
     : AppCompatSeekBar(context, attrs) {
