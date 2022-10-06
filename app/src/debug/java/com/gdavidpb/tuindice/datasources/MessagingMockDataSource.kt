@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.datasources
 
-import com.gdavidpb.tuindice.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import java.util.*
 
 open class MessagingMockDataSource : MessagingRepository {

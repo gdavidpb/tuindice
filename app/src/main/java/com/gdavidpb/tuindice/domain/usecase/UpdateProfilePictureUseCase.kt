@@ -3,12 +3,17 @@ package com.gdavidpb.tuindice.domain.usecase
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
+import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.StorageRepository
 import com.gdavidpb.tuindice.domain.repository.*
-import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
+import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.ProfilePictureError
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.Paths
-import com.gdavidpb.tuindice.utils.annotations.Timeout
+import com.gdavidpb.tuindice.base.utils.annotations.Timeout
+import com.gdavidpb.tuindice.base.utils.extensions.isConnection
+import com.gdavidpb.tuindice.base.utils.extensions.isTimeout
 import com.gdavidpb.tuindice.utils.extensions.*
 import java.io.File
 import java.io.IOException
@@ -16,11 +21,11 @@ import java.io.IOException
 @Suppress("BlockingMethodInNonBlockingContext")
 @Timeout(key = ConfigKeys.TIME_OUT_PROFILE_PICTURE)
 class UpdateProfilePictureUseCase(
-        private val authRepository: AuthRepository,
-        private val contentRepository: ContentRepository,
-        private val storageRepository: StorageRepository,
-        private val remoteStorageRepository: RemoteStorageRepository,
-        private val networkRepository: NetworkRepository
+    private val authRepository: AuthRepository,
+    private val contentRepository: ContentRepository,
+    private val storageRepository: StorageRepository,
+    private val remoteStorageRepository: RemoteStorageRepository,
+    private val networkRepository: NetworkRepository
 ) : EventUseCase<Uri, String, ProfilePictureError>() {
 
     object Settings {

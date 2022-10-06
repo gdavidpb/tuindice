@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.presentation.model
 
-import com.gdavidpb.tuindice.domain.model.Subject
+import com.gdavidpb.tuindice.base.domain.model.Subject
 
 data class SubjectItem(
         val uid: Long,

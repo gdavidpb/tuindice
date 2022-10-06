@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice
 
-import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.Subject
-import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.base.domain.model.Quarter
+import com.gdavidpb.tuindice.base.domain.model.Subject
+import com.gdavidpb.tuindice.base.utils.extensions.*
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test

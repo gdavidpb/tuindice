@@ -6,10 +6,10 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
-import com.gdavidpb.tuindice.data.model.database.SubjectUpdate
-import com.gdavidpb.tuindice.domain.model.Evaluation
-import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.usecase.coroutines.Result
+import com.gdavidpb.tuindice.base.data.model.database.SubjectUpdate
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.Quarter
+import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateQuarterRequest
 import com.gdavidpb.tuindice.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
@@ -17,10 +17,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.EvaluationPlanViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
 import com.gdavidpb.tuindice.ui.dialogs.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.DECIMALS_GRADE_SUBJECT
-import com.gdavidpb.tuindice.base.utils.extensions.bottomSheetDialog
-import com.gdavidpb.tuindice.base.utils.extensions.onClickOnce
-import com.gdavidpb.tuindice.base.utils.extensions.onScrollStateChanged
-import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
 import com.gdavidpb.tuindice.utils.mappers.toUpdateRequest
 import com.google.android.material.snackbar.Snackbar

@@ -1,28 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/textInputLayout"
-    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:hint="@string/hint_evaluation_grade"
-    app:boxCornerRadiusBottomEnd="@dimen/dp_6"
-    app:boxCornerRadiusBottomStart="@dimen/dp_6"
-    app:boxCornerRadiusTopEnd="@dimen/dp_6"
-    app:boxCornerRadiusTopStart="@dimen/dp_6"
-    app:boxStrokeErrorColor="@color/color_error"
-    app:errorIconDrawable="@drawable/ic_warning"
-    app:errorIconTint="@color/color_error"
-    app:errorTextColor="@color/color_error"
-    app:startIconDrawable="@drawable/ic_donut">
+    android:layout_height="wrap_content">
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/eTextEvaluationGrade"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
-        android:maxEms="1"
-        android:maxLength="6"
-        android:selectAllOnFocus="true" />
+        android:hint="@string/hint_evaluation_grade"
+        app:boxCornerRadiusBottomEnd="@dimen/dp_6"
+        app:boxCornerRadiusBottomStart="@dimen/dp_6"
+        app:boxCornerRadiusTopEnd="@dimen/dp_6"
+        app:boxCornerRadiusTopStart="@dimen/dp_6"
+        app:boxStrokeErrorColor="@color/color_error"
+        app:errorIconDrawable="@drawable/ic_warning"
+        app:errorIconTint="@color/color_error"
+        app:errorTextColor="@color/color_error"
+        app:startIconDrawable="@drawable/ic_donut">
 
-</com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/eTextEvaluationGrade"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:maxEms="1"
+            android:maxLength="6"
+            android:selectAllOnFocus="true" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</merge>

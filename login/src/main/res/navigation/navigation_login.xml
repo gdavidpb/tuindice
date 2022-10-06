@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_login"
+    app:startDestination="@id/fragment_sign_in">
+
+    <include app:graph="@navigation/navigation_browser" />
+
+    <fragment
+        android:id="@+id/fragment_splash"
+        android:name="com.gdavidpb.tuindice.login.ui.fragments.SplashFragment"
+        tools:layout="@layout/fragment_splash">
+        <action
+            android:id="@+id/nav_to_sign_in"
+            app:destination="@id/navigation_login"
+            app:enterAnim="@anim/slide_in_from_bottom"
+            app:exitAnim="@anim/slide_out_to_top"
+            app:popUpTo="@id/fragment_splash"
+            app:popUpToInclusive="true" />
+        <!-- TODO nav
+        <action
+            android:id="@+id/nav_to_summary"
+            app:destination="@id/fragment_summary"
+            app:popUpTo="@id/fragment_splash"
+            app:popUpToInclusive="true" />
+            -->
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_sign_in"
+        android:name="com.gdavidpb.tuindice.login.ui.fragments.SignInFragment"
+        android:label="@string/label_sign_in_fragment"
+        tools:layout="@layout/fragment_sign_in">
+        <action
+            android:id="@+id/nav_to_splash"
+            app:destination="@id/fragment_splash"
+            app:enterAnim="@anim/slide_in_from_top"
+            app:exitAnim="@anim/slide_out_to_bottom"
+            app:popUpTo="@id/fragment_sign_in"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/nav_to_browser"
+            app:destination="@id/navigation_browser"
+            app:enterAnim="@anim/slide_in_from_right"
+            app:exitAnim="@anim/slide_out_to_left"
+            app:popEnterAnim="@anim/slide_in_from_left"
+            app:popExitAnim="@anim/slide_out_to_right">
+            <argument
+                android:name="title"
+                app:argType="string" />
+            <argument
+                android:name="url"
+                app:argType="string" />
+        </action>
+    </fragment>
+
+</navigation>

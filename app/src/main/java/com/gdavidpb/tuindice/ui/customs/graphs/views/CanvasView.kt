@@ -11,6 +11,7 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.utils.extensions.getInterpolator
 import com.gdavidpb.tuindice.base.utils.extensions.loadAttributes
 import com.gdavidpb.tuindice.ui.customs.graphs.extensions.*
 import com.google.android.material.animation.MatrixEvaluator

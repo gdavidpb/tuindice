@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.token
 
-import com.gdavidpb.tuindice.domain.repository.MessagingRepository
-import com.gdavidpb.tuindice.utils.extensions.awaitOrNull
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.base.utils.extensions.awaitOrNull
 import com.google.firebase.messaging.FirebaseMessaging
 
 open class FirebaseCloudMessagingDataSource(

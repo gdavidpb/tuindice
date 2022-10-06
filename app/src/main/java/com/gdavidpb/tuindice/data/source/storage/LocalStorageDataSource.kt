@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.storage
 
 import android.content.Context
-import com.gdavidpb.tuindice.domain.repository.StorageRepository
+import com.gdavidpb.tuindice.base.domain.repository.StorageRepository
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream

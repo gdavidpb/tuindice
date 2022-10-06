@@ -1,14 +1,15 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.repository.ServicesRepository
-import com.gdavidpb.tuindice.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.domain.repository.StorageRepository
-import com.gdavidpb.tuindice.domain.usecase.coroutines.EventUseCase
+import com.gdavidpb.tuindice.base.domain.model.Quarter
+import com.gdavidpb.tuindice.base.domain.repository.ServicesRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.StorageRepository
+import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
 import com.gdavidpb.tuindice.domain.usecase.errors.GetEnrollmentError
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.Paths
-import com.gdavidpb.tuindice.utils.annotations.Timeout
+import com.gdavidpb.tuindice.base.utils.annotations.Timeout
+import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.utils.extensions.*
 import java.io.File
 

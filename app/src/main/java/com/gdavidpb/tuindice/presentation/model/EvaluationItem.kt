@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.presentation.model
 
-import com.gdavidpb.tuindice.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import java.util.*
 
 data class EvaluationItem(

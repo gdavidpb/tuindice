@@ -14,6 +14,7 @@ android {
 
     buildTypes {
         debug {
+            buildConfigField "String", "APPLICATION_ID", "\"com.gdavidpb.tuindice\""
             buildConfigField "String", "VERSION_NAME", "\"${defaultConfig.versionName}\""
             buildConfigField "Integer", "VERSION_CODE", "${defaultConfig.versionCode}"
 
@@ -30,9 +31,10 @@ android {
             buildConfigField "String", "ENDPOINT_TU_INDICE_API", "\"http://localhost:8080/\""
         }
         release {
+            buildConfigField "String", "APPLICATION_ID", "\"com.gdavidpb.tuindice\""
             buildConfigField "String", "VERSION_NAME", "\"${defaultConfig.versionName}\""
             buildConfigField "Integer", "VERSION_CODE", "${defaultConfig.versionCode}"
-            
+
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
             buildConfigField "String", "URL_MOCK", "\"\""

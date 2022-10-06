@@ -2,6 +2,7 @@ buildscript {
     ext {
         core = [:]
 
+        core.appId = "com.gdavidpb.tuindice"
         core.minSdk = 21
         core.targetSdk = 33
 

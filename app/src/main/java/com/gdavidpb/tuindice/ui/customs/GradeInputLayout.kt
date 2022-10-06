@@ -4,11 +4,11 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.inputmethod.InputMethodManager
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.ui.customs.InputLayout
 import com.gdavidpb.tuindice.base.utils.MAX_EVALUATION_GRADE
 import com.gdavidpb.tuindice.base.utils.MIN_EVALUATION_GRADE
 import com.gdavidpb.tuindice.base.utils.extensions.hideSoftKeyboard
-import com.gdavidpb.tuindice.utils.extensions.formatGrade
-import com.gdavidpb.tuindice.utils.extensions.hideSoftKeyboard
+import com.gdavidpb.tuindice.base.utils.extensions.formatGrade
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -26,8 +26,8 @@ class GradeInputLayout(context: Context, attrs: AttributeSet) : InputLayout(cont
 	}
 
 	override fun onViewInflated() {
-		textInputEditText.setOnFocusChangeListener { _, hasFocus ->
-			if (!hasFocus) textInputEditText.hideSoftKeyboard(inputMethodManager)
+		editText?.setOnFocusChangeListener { _, hasFocus ->
+			if (!hasFocus) editText?.hideSoftKeyboard(inputMethodManager)
 		}
 	}
 
@@ -42,10 +42,10 @@ class GradeInputLayout(context: Context, attrs: AttributeSet) : InputLayout(cont
 	}
 
 	fun getGrade(): Double {
-		return "${textInputEditText.text}".toDoubleOrNull() ?: 0.0
+		return "${editText?.text}".toDoubleOrNull() ?: 0.0
 	}
 
 	fun setGrade(grade: Double) {
-		textInputEditText.setText(grade.formatGrade())
+		editText?.setText(grade.formatGrade())
 	}
 }

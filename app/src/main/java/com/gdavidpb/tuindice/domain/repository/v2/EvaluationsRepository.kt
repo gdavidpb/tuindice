@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.repository.v2
 
-import com.gdavidpb.tuindice.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
 
 interface EvaluationsRepository {
 	suspend fun addEvaluation(sid: String, evaluation: Evaluation): Evaluation

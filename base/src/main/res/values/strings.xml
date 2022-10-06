@@ -19,4 +19,24 @@
     <string name="dialog_title_warning_external">Atención</string>
     <string name="dialog_message_warning_external">¿Deseas abrir el siguiente enlace?\n\n%s</string>
 
+    <string name="snack_default_error">¡Ha ocurrido un error!</string>
+    <string name="snack_network_unavailable">Comprueba tu conexión</string>
+    <string name="snack_service_unavailable">Servicio no disponible</string>
+
+    <!-- TODO EvaluationFragment? -->
+
+    <string name="evaluation_other">Otra</string>
+    <string name="evaluation_test">Parcial</string>
+    <string name="evaluation_workshop">Taller</string>
+    <string name="evaluation_laboratory">Laboratorio</string>
+    <string name="evaluation_essay">Ensayo</string>
+    <string name="evaluation_written_work">Trabajo escrito</string>
+    <string name="evaluation_report">Informe</string>
+    <string name="evaluation_project">Proyecto</string>
+    <string name="evaluation_interventions">Intervenciones</string>
+    <string name="evaluation_model">Maqueta</string>
+    <string name="evaluation_attendance">Asistencia</string>
+    <string name="evaluation_quiz">Quiz</string>
+    <string name="evaluation_presentation">Exposición</string>
+
 </resources>

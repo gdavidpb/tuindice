@@ -1,17 +1,17 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.data.model.database.QuarterUpdate
-import com.gdavidpb.tuindice.data.model.database.SubjectUpdate
-import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
-import com.gdavidpb.tuindice.domain.usecase.coroutines.ResultUseCase
+import com.gdavidpb.tuindice.base.data.model.database.QuarterUpdate
+import com.gdavidpb.tuindice.base.data.model.database.SubjectUpdate
+import com.gdavidpb.tuindice.base.domain.model.Quarter
+import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.repository.DatabaseRepository
+import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateQuarterRequest
-import com.gdavidpb.tuindice.utils.ComputationManager
+import com.gdavidpb.tuindice.base.utils.ComputationManager
 
 class UpdateQuarterUseCase(
-        private val authRepository: AuthRepository,
-        private val databaseRepository: DatabaseRepository
+    private val authRepository: AuthRepository,
+    private val databaseRepository: DatabaseRepository
 ) : ResultUseCase<UpdateQuarterRequest, Quarter, Nothing>() {
     override suspend fun executeOnBackground(params: UpdateQuarterRequest): Quarter {
         val activeUId = authRepository.getActiveAuth().uid

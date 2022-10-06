@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import androidx.annotation.ColorRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.utils.extensions.add
 import com.gdavidpb.tuindice.base.utils.extensions.getCompatColor
 import com.gdavidpb.tuindice.base.utils.extensions.onCheckedChange
 import com.gdavidpb.tuindice.base.utils.extensions.onClickOnce

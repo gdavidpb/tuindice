@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.utils.extensions
 import android.app.DatePickerDialog
 import android.content.Context
 import android.widget.DatePicker
+import com.gdavidpb.tuindice.base.utils.extensions.precision
 import java.util.*
 
 data class DatePickerDialogBuilder(

@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.data.source.google
 
 import android.content.Context
-import com.gdavidpb.tuindice.domain.model.ServicesStatus
-import com.gdavidpb.tuindice.domain.repository.MobileServicesRepository
+import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
+import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 

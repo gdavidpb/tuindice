@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.crashlytics
 
-import com.gdavidpb.tuindice.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 open class CrashlyticsReportingDataSource(

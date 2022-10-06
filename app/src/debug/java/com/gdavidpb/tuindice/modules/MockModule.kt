@@ -6,7 +6,9 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.*
+import com.gdavidpb.tuindice.base.domain.usecase.*
+import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.functions.CloudFunctionsDataSource
@@ -24,6 +26,11 @@ import com.gdavidpb.tuindice.services.TuIndiceAPIMock
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.createMockService
 import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
+import com.gdavidpb.tuindice.login.domain.usecase.ReSignInUseCase
+import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
+import com.gdavidpb.tuindice.login.domain.usecase.StartUpUseCase
+import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
+import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
@@ -50,170 +57,170 @@ import java.util.concurrent.TimeUnit
 @KoinReflectAPI
 val mockModule = module {
 
-    /* Application */
+	/* Application */
 
-    single {
-        androidContext().sharedPreferences()
-    }
+	single {
+		androidContext().sharedPreferences()
+	}
 
-    /* Android Services */
+	/* Android Services */
 
-    single {
-        androidContext().getSystemService<ConnectivityManager>()
-    }
+	single {
+		androidContext().getSystemService<ConnectivityManager>()
+	}
 
-    single {
-        androidContext().getSystemService<InputMethodManager>()
-    }
+	single {
+		androidContext().getSystemService<InputMethodManager>()
+	}
 
-    single {
-        androidContext().getSystemService<ActivityManager>()
-    }
+	single {
+		androidContext().getSystemService<ActivityManager>()
+	}
 
-    single {
-        androidContext().packageManager
-    }
+	single {
+		androidContext().packageManager
+	}
 
-    single {
-        androidContext().contentResolver
-    }
+	single {
+		androidContext().contentResolver
+	}
 
-    single {
-        androidContext().resources
-    }
+	single {
+		androidContext().resources
+	}
 
-    /* Utils */
+	/* Utils */
 
-    singleOf(::Gson)
+	singleOf(::Gson)
 
-    /* Google */
+	/* Google */
 
-    single<AppUpdateManager> {
-        FakeAppUpdateManager(androidContext())
-    }
+	single<AppUpdateManager> {
+		FakeAppUpdateManager(androidContext())
+	}
 
-    single {
-        GoogleApiAvailability.getInstance()
-    }
+	single {
+		GoogleApiAvailability.getInstance()
+	}
 
-    /* Firebase */
+	/* Firebase */
 
-    single {
-        FirebaseRemoteConfig.getInstance().apply {
-            setDefaultsAsync(R.xml.default_remote_config)
-        }
-    }
+	single {
+		FirebaseRemoteConfig.getInstance().apply {
+			setDefaultsAsync(R.xml.default_remote_config)
+		}
+	}
 
-    single {
-        val settings = FirebaseFirestoreSettings.Builder()
-            .setHost("${BuildConfig.URL_MOCK}:8080")
-            .setSslEnabled(false)
-            .setPersistenceEnabled(false)
-            .build()
+	single {
+		val settings = FirebaseFirestoreSettings.Builder()
+			.setHost("${BuildConfig.URL_MOCK}:8080")
+			.setSslEnabled(false)
+			.setPersistenceEnabled(false)
+			.build()
 
-        FirebaseFirestore.getInstance().apply {
-            firestoreSettings = settings
-        }
-    }
+		FirebaseFirestore.getInstance().apply {
+			firestoreSettings = settings
+		}
+	}
 
-    single {
-        val logger = HttpLoggingInterceptor.Logger { message ->
-            get<ReportingRepository>().logMessage(message)
-        }
+	single {
+		val logger = HttpLoggingInterceptor.Logger { message ->
+			get<ReportingRepository>().logMessage(message)
+		}
 
-        HttpLoggingInterceptor(logger).apply {
-            level = HttpLoggingInterceptor.Level.BODY
+		HttpLoggingInterceptor(logger).apply {
+			level = HttpLoggingInterceptor.Level.BODY
 
-            redactHeader("Cookie")
-            redactHeader("Authorization")
-        }
-    }
+			redactHeader("Cookie")
+			redactHeader("Authorization")
+		}
+	}
 
-    singleOf(::AuthorizationInterceptor)
+	singleOf(::AuthorizationInterceptor)
 
-    factory<ReviewManager> {
-        FakeReviewManager(androidContext())
-    }
+	factory<ReviewManager> {
+		FakeReviewManager(androidContext())
+	}
 
-    /* TuIndice API */
+	/* TuIndice API */
 
-    single {
-        val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)
+	single {
+		val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)
 
-        OkHttpClient.Builder()
-            .callTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-            .connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-            .readTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-            .writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-            .addInterceptor(get<HttpLoggingInterceptor>())
-            .addInterceptor(get<AuthorizationInterceptor>())
-            .build().let { httpClient ->
-                Retrofit.Builder()
-                    .baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .client(httpClient)
-                    .build()
-                    .createMockService<TuIndiceAPI, TuIndiceAPIMock>()
-            }
-    }
+		OkHttpClient.Builder()
+			.callTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+			.connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+			.readTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+			.writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
+			.addInterceptor(get<HttpLoggingInterceptor>())
+			.addInterceptor(get<AuthorizationInterceptor>())
+			.build().let { httpClient ->
+				Retrofit.Builder()
+					.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
+					.addConverterFactory(GsonConverterFactory.create())
+					.client(httpClient)
+					.build()
+					.createMockService<TuIndiceAPI, TuIndiceAPIMock>()
+			}
+	}
 
-    /* View Models */
+	/* View Models */
 
-    viewModel<MainViewModel>()
-    viewModel<SplashViewModel>()
-    viewModel<SummaryViewModel>()
-    viewModel<RecordViewModel>()
-    viewModel<SignInViewModel>()
-    viewModel<EvaluationPlanViewModel>()
-    viewModel<EvaluationViewModel>()
-    viewModel<PensumViewModel>()
+	viewModel<MainViewModel>()
+	viewModel<SplashViewModel>()
+	viewModel<SummaryViewModel>()
+	viewModel<RecordViewModel>()
+	viewModel<SignInViewModel>()
+	viewModel<EvaluationPlanViewModel>()
+	viewModel<EvaluationViewModel>()
+	viewModel<PensumViewModel>()
 
-    /* Repositories */
+	/* Repositories */
 
-    factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
-    factoryOf(::LocalStorageDataSource) { bind<StorageRepository>() }
-    factoryOf(::RemoteStorageMockDataSource) { bind<RemoteStorageRepository>() }
-    factoryOf(::AuthMockDataSource) { bind<AuthRepository>() }
-    factoryOf(::FirestoreMockDataSource) { bind<DatabaseRepository>() }
-    factoryOf(::MessagingMockDataSource) { bind<MessagingRepository>() }
-    factoryOf(::ContentResolverDataSource) { bind<ContentRepository>() }
-    factoryOf(::RemoteConfigMockDataSource) { bind<ConfigRepository>() }
-    factoryOf(::DebugReportingDataSource) { bind<ReportingRepository>() }
-    factoryOf(::DebugKoinDataSource) { bind<DependenciesRepository>() }
-    factoryOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
-    factoryOf(::GooglePlayServicesDataSource) { bind<MobileServicesRepository>() }
-    factoryOf(::CloudFunctionsDataSource) { bind<ServicesRepository>() }
+	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
+	factoryOf(::LocalStorageDataSource) { bind<StorageRepository>() }
+	factoryOf(::RemoteStorageMockDataSource) { bind<RemoteStorageRepository>() }
+	factoryOf(::AuthMockDataSource) { bind<AuthRepository>() }
+	factoryOf(::FirestoreMockDataSource) { bind<DatabaseRepository>() }
+	factoryOf(::MessagingMockDataSource) { bind<MessagingRepository>() }
+	factoryOf(::ContentResolverDataSource) { bind<ContentRepository>() }
+	factoryOf(::RemoteConfigMockDataSource) { bind<ConfigRepository>() }
+	factoryOf(::DebugReportingDataSource) { bind<ReportingRepository>() }
+	factoryOf(::DebugKoinDataSource) { bind<DependenciesRepository>() }
+	factoryOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
+	factoryOf(::GooglePlayServicesDataSource) { bind<MobileServicesRepository>() }
+	factoryOf(::CloudFunctionsDataSource) { bind<ServicesRepository>() }
 
-    /* Use cases */
+	/* Use cases */
 
-    factoryOf(::SignInUseCase)
-    factoryOf(::ReSignInUseCase)
-    factoryOf(::SignOutUseCase)
-    factoryOf(::SyncUseCase)
-    factoryOf(::StartUpUseCase)
-    factoryOf(::GetProfileUseCase)
-    factoryOf(::GetQuartersUseCase)
-    factoryOf(::UpdateQuarterUseCase)
-    factoryOf(::SetLastScreenUseCase)
-    factoryOf(::GetEnrollmentProofUseCase)
-    factoryOf(::GetSubjectUseCase)
-    factoryOf(::GetEvaluationUseCase)
-    factoryOf(::GetSubjectEvaluationsUseCase)
-    factoryOf(::UpdateEvaluationUseCase)
-    factoryOf(::RemoveEvaluationUseCase)
-    factoryOf(::AddEvaluationUseCase)
-    factoryOf(::UpdateProfilePictureUseCase)
-    factoryOf(::CreateProfilePictureFileUseCase)
-    factoryOf(::GetProfilePictureFileUseCase)
-    factoryOf(::GetProfilePictureUseCase)
-    factoryOf(::RemoveProfilePictureUseCase)
-    factoryOf(::RequestReviewUseCase)
-    factoryOf(::RemoveQuarterUseCase)
-    factoryOf(::GetUpdateInfoUseCase)
+	factoryOf(::SignInUseCase)
+	factoryOf(::ReSignInUseCase)
+	factoryOf(::SignOutUseCase)
+	factoryOf(::SyncUseCase)
+	factoryOf(::StartUpUseCase)
+	factoryOf(::GetProfileUseCase)
+	factoryOf(::GetQuartersUseCase)
+	factoryOf(::UpdateQuarterUseCase)
+	factoryOf(::SetLastScreenUseCase)
+	factoryOf(::GetEnrollmentProofUseCase)
+	factoryOf(::GetSubjectUseCase)
+	factoryOf(::GetEvaluationUseCase)
+	factoryOf(::GetSubjectEvaluationsUseCase)
+	factoryOf(::UpdateEvaluationUseCase)
+	factoryOf(::RemoveEvaluationUseCase)
+	factoryOf(::AddEvaluationUseCase)
+	factoryOf(::UpdateProfilePictureUseCase)
+	factoryOf(::CreateProfilePictureFileUseCase)
+	factoryOf(::GetProfilePictureFileUseCase)
+	factoryOf(::GetProfilePictureUseCase)
+	factoryOf(::RemoveProfilePictureUseCase)
+	factoryOf(::RequestReviewUseCase)
+	factoryOf(::RemoveQuarterUseCase)
+	factoryOf(::GetUpdateInfoUseCase)
 
-    /* Utils */
+	/* Utils */
 
-    single {
-        Picasso.get()
-    }
+	single {
+		Picasso.get()
+	}
 }

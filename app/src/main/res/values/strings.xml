@@ -22,15 +22,10 @@
         ¿Estás seguro que deseas remover tu foto de perfil?
     </string>
 
-    <string name="dialog_title_no_gms_failure">¡Oops, lo sentimos!</string>
-    <string name="dialog_message_no_gms_failure">Parece que tu dispositivo  no dispone de Google Play Services ;(</string>
-
     <string name="dialog_title_sign_out">Atención</string>
     <string name="dialog_message_sign_out">¿Estás seguro que deseas cerrar sesión?</string>
 
     <string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
-
-    <string name="snack_default_error">¡Ha ocurrido un error!</string>
 
     <string name="snack_item_removed">%1$s removido</string>
     <string name="snack_action_undone">Deshacer</string>
@@ -93,11 +88,6 @@
         <b>TuIndice</b> te da la bienvenida a <b>La Simón</b>\n¡Mucho éxito!
     </string>
 
-    <!-- TODO: BrowserFragment? -->
-
-    <string name="label_terms_and_conditions">TuIndice - Términos y condiciones</string>
-    <string name="label_privacy_policy">TuIndice - Política de privacidad</string>
-
     <!-- EvaluationPlanFragment -->
 
     <string name="text_100">/ 100</string>
@@ -123,20 +113,6 @@
 
     <!-- EvaluationFragment -->
 
-    <string name="evaluation_other">Otra</string>
-    <string name="evaluation_test">Parcial</string>
-    <string name="evaluation_workshop">Taller</string>
-    <string name="evaluation_laboratory">Laboratorio</string>
-    <string name="evaluation_essay">Ensayo</string>
-    <string name="evaluation_written_work">Trabajo escrito</string>
-    <string name="evaluation_report">Informe</string>
-    <string name="evaluation_project">Proyecto</string>
-    <string name="evaluation_interventions">Intervenciones</string>
-    <string name="evaluation_model">Maqueta</string>
-    <string name="evaluation_attendance">Asistencia</string>
-    <string name="evaluation_quiz">Quiz</string>
-    <string name="evaluation_presentation">Exposición</string>
-
     <string name="button_evaluation_save">Guardar</string>
 
     <string name="title_add_evaluation">Agregar evaluación</string>
@@ -157,31 +133,6 @@
     <string name="error_evaluation_name_missed">La evaluación debe tener un nombre</string>
     <string name="error_evaluation_grade_invalid_range">El valor de la evaluación debe estar entre 0.25 y 100 puntos</string>
     <string name="error_evaluation_grade_invalid_step">El valor de la evaluación debe ser múltiplo de 0.25</string>
-
-    <!-- SignInFragment -->
-
-    <string name="label_sign_in_fragment">TuIndice</string>
-
-    <string name="hint_usb_id">USBID</string>
-    <string name="hint_password">Contraseña</string>
-
-    <string name="button_sign_in">Iniciar sesión</string>
-    <string name="label_policies">
-        Al usar la aplicación, aceptas los\n
-        Términos y condiciones y Política de privacidad
-    </string>
-
-    <string name="link_terms_and_conditions">Términos y condiciones</string>
-    <string name="link_privacy_policy">Política de privacidad</string>
-
-    <string name="error_empty">Campo vacío</string>
-    <string name="error_usb_id">USBID inválido</string>
-
-    <string name="snack_network_unavailable">Comprueba tu conexión</string>
-    <string name="snack_service_unavailable">Servicio no disponible</string>
-    <string name="snack_timeout">Tiempo de espera agotado</string>
-    <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
-    <string name="snack_account_disabled">Cuenta inhabilitada</string>
 
     <!-- EnrollmentDownloadingBottomSheetDialog -->
 

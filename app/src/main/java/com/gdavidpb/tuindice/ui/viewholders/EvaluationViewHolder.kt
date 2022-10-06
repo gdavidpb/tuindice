@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
 import com.gdavidpb.tuindice.base.ui.viewholders.BaseViewHolder
 import com.gdavidpb.tuindice.base.utils.extensions.*
-import com.gdavidpb.tuindice.utils.extensions.*
 import kotlinx.android.synthetic.main.item_evaluation.view.*
 
 class EvaluationViewHolder(

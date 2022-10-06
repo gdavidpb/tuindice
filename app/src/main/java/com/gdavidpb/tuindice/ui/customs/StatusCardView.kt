@@ -6,7 +6,7 @@ import android.widget.FrameLayout
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.utils.extensions.loadAttributes
-import com.gdavidpb.tuindice.utils.extensions.animatePercent
+import com.gdavidpb.tuindice.base.utils.extensions.animatePercent
 import kotlinx.android.synthetic.main.view_status_card_view.view.*
 
 class StatusCardView(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {

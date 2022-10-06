@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice
 
-import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extensions.*
 import org.junit.Assert.*
 import org.junit.Test
 import java.util.*

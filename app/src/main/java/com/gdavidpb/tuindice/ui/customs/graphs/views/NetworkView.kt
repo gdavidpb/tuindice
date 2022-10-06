@@ -12,7 +12,7 @@ import androidx.annotation.ColorInt
 import androidx.core.graphics.toColorInt
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.utils.extensions.loadAttributes
-import com.gdavidpb.tuindice.ui.customs.graphs.extensions.getDimension
+import com.gdavidpb.tuindice.base.utils.extensions.getDimension
 import com.gdavidpb.tuindice.ui.customs.graphs.extensions.inset
 import com.gdavidpb.tuindice.ui.customs.graphs.extensions.transform
 import com.gdavidpb.tuindice.ui.customs.graphs.models.Node

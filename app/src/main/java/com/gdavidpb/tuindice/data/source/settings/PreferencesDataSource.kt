@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.data.source.settings
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.ScreenKeys
 import com.gdavidpb.tuindice.base.utils.SettingsKeys
 

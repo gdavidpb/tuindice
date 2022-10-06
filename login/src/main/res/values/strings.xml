@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="label_sign_in_fragment">TuIndice</string>
+
+    <string name="button_sign_in">Iniciar sesión</string>
+
+    <string name="error_empty">Campo vacío</string>
+    <string name="error_usb_id">USBID inválido</string>
+
+    <string name="link_terms_and_conditions">Términos y condiciones</string>
+    <string name="link_privacy_policy">Política de privacidad</string>
+
+    <string name="label_terms_and_conditions">TuIndice - Términos y condiciones</string>
+    <string name="label_privacy_policy">TuIndice - Política de privacidad</string>
+
+
+    <string name="hint_usb_id">USBID</string>
+    <string name="hint_password">Contraseña</string>
+
+    <string name="label_policies">
+        Al usar la aplicación, aceptas los\n
+        Términos y condiciones y Política de privacidad
+    </string>
+
+    <string name="snack_timeout">Tiempo de espera agotado</string>
+    <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
+    <string name="snack_account_disabled">Cuenta inhabilitada</string>
+
+    <string name="dialog_title_no_gms_failure">¡Oops, lo sentimos!</string>
+    <string name="dialog_message_no_gms_failure">Parece que tu dispositivo  no dispone de Google Play Services ;(</string>
+
+</resources>

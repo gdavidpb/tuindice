@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
-import com.gdavidpb.tuindice.domain.usecase.coroutines.CompletableUseCase
+import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.repository.DatabaseRepository
+import com.gdavidpb.tuindice.base.domain.usecase.base.CompletableUseCase
 
 class RemoveQuarterUseCase(
-        private val authRepository: AuthRepository,
-        private val databaseRepository: DatabaseRepository
+    private val authRepository: AuthRepository,
+    private val databaseRepository: DatabaseRepository
 ) : CompletableUseCase<String, Nothing>() {
     override suspend fun executeOnBackground(params: String) {
         val activeUId = authRepository.getActiveAuth().uid

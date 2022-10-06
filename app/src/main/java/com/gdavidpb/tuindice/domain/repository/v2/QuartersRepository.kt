@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.repository.v2
 
-import com.gdavidpb.tuindice.domain.model.Quarter
+import com.gdavidpb.tuindice.base.domain.model.Quarter
 
 interface QuartersRepository {
 	suspend fun addQuarter(quarter: Quarter): Quarter

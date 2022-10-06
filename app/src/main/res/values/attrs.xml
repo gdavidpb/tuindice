@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <declare-styleable name="CanvasView">
         <attr name="minZoom" format="float" />
         <attr name="maxZoom" format="float" />
@@ -33,17 +34,4 @@
         <attr name="retiredCount" format="integer" />
     </declare-styleable>
 
-    <declare-styleable name="AnimatedBackgroundView">
-        <attr name="background" format="reference" />
-        <attr name="scaleType" format="enum">
-            <enum name="matrix" value="0" />
-            <enum name="fitXY" value="1" />
-            <enum name="fitStart" value="2" />
-            <enum name="fitCenter" value="3" />
-            <enum name="fitEnd" value="4" />
-            <enum name="center" value="5" />
-            <enum name="centerCrop" value="6" />
-            <enum name="centerInside" value="7" />
-        </attr>
-    </declare-styleable>
 </resources>

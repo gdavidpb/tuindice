@@ -21,7 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 # Use cases rules
--keepnames class * extends com.gdavidpb.tuindice.domain.usecase.coroutines.BaseUseCase { *; }
+-keepnames class * extends com.gdavidpb.tuindice.base.domain.usecase.base.BaseUseCase { *; }
 
 # Google Crypto rules
 -keep class com.google.crypto.** { *; }

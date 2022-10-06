@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.datasources
 
 import android.content.SharedPreferences
-import com.gdavidpb.tuindice.domain.model.Auth
-import com.gdavidpb.tuindice.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.model.Auth
+import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import java.util.*
 
 open class AuthMockDataSource(

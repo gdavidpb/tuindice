@@ -7,9 +7,7 @@ import android.util.AttributeSet
 import android.view.animation.DecelerateInterpolator
 import androidx.core.text.buildSpannedString
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.base.utils.extensions.append
-import com.gdavidpb.tuindice.base.utils.extensions.loadAttributes
-import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.google.android.material.textview.MaterialTextView
 
 class GradeTextView(context: Context, attrs: AttributeSet) : MaterialTextView(context, attrs) {

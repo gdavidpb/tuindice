@@ -2,16 +2,16 @@ package com.gdavidpb.tuindice.datasources
 
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_COMPLETED
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
-import com.gdavidpb.tuindice.data.model.database.EvaluationUpdate
-import com.gdavidpb.tuindice.data.model.database.QuarterUpdate
-import com.gdavidpb.tuindice.data.model.database.SubjectUpdate
-import com.gdavidpb.tuindice.domain.model.Account
-import com.gdavidpb.tuindice.domain.model.Evaluation
-import com.gdavidpb.tuindice.domain.model.Quarter
-import com.gdavidpb.tuindice.domain.model.Subject
-import com.gdavidpb.tuindice.domain.repository.DatabaseRepository
+import com.gdavidpb.tuindice.base.data.model.database.EvaluationUpdate
+import com.gdavidpb.tuindice.base.data.model.database.QuarterUpdate
+import com.gdavidpb.tuindice.base.data.model.database.SubjectUpdate
+import com.gdavidpb.tuindice.base.domain.model.Account
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.Quarter
+import com.gdavidpb.tuindice.base.domain.model.Subject
+import com.gdavidpb.tuindice.base.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.utils.*
-import com.gdavidpb.tuindice.utils.extensions.isUpdated
+import com.gdavidpb.tuindice.base.utils.extensions.isUpdated
 import com.gdavidpb.tuindice.utils.mappers.*
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.tasks.await
