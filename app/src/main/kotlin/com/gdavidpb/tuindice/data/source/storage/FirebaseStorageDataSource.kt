@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.storage
 
 import android.net.Uri
-import com.gdavidpb.tuindice.domain.repository.RemoteStorageRepository
+import com.gdavidpb.tuindice.base.domain.repository.RemoteStorageRepository
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import java.io.InputStream

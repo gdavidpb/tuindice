@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.source.storage
 
 import android.content.ContentResolver
 import android.net.Uri
-import com.gdavidpb.tuindice.domain.repository.ContentRepository
+import com.gdavidpb.tuindice.base.domain.repository.ContentRepository
 import java.io.InputStream
 
 @Suppress("BlockingMethodInNonBlockingContext")

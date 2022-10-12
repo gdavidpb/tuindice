@@ -17,21 +17,4 @@
         <attr name="textColor" format="color" />
     </declare-styleable>
 
-    <declare-styleable name="GradeTextView">
-        <attr name="grade" format="float" />
-        <attr name="maxGrade" format="float" />
-        <attr name="gradeDecimals" format="integer" />
-        <attr name="maxGradeDecimals" format="integer" />
-    </declare-styleable>
-
-    <declare-styleable name="StatusCardView">
-        <attr name="headerText" format="string" />
-        <attr name="approvedText" format="string" />
-        <attr name="failedText" format="string" />
-        <attr name="retiredText" format="string" />
-        <attr name="approvedCount" format="integer" />
-        <attr name="failedCount" format="integer" />
-        <attr name="retiredCount" format="integer" />
-    </declare-styleable>
-
 </resources>

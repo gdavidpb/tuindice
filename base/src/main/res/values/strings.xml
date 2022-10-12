@@ -22,6 +22,7 @@
     <string name="snack_default_error">¡Ha ocurrido un error!</string>
     <string name="snack_network_unavailable">Comprueba tu conexión</string>
     <string name="snack_service_unavailable">Servicio no disponible</string>
+    <string name="snack_timeout">Tiempo de espera agotado</string>
 
     <!-- TODO EvaluationFragment? -->
 

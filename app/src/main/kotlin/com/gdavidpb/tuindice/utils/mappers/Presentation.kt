@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.presentation.model.SubjectItem
-import com.gdavidpb.tuindice.presentation.model.SummaryItem
 import java.util.*
 
 /* Presentation */
@@ -60,30 +59,6 @@ fun Evaluation.toEvaluationItem(context: Context) = EvaluationItem(
 	date = date,
 	isDone = isDone,
 	data = this
-)
-
-fun Account.toSubjectsSummaryItem(context: Context) = SummaryItem(
-	headerText = context.resources.getQuantityString(
-		R.plurals.text_subjects_header,
-		enrolledSubjects,
-		enrolledSubjects
-	),
-	enrolled = enrolledSubjects,
-	approved = approvedSubjects,
-	retired = retiredSubjects,
-	failed = failedSubjects
-)
-
-fun Account.toCreditsSummaryItem(context: Context) = SummaryItem(
-	headerText = context.resources.getQuantityString(
-		R.plurals.text_credits_header,
-		enrolledCredits,
-		enrolledCredits
-	),
-	enrolled = enrolledCredits,
-	approved = approvedCredits,
-	retired = retiredCredits,
-	failed = failedCredits
 )
 
 /* Format */

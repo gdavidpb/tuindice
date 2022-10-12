@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.gdavidpb.tuindice.summary.ui.customs.StatusCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:approvedText="@string/label_subjects_approved"
+    app:failedText="@string/label_subjects_failed"
+    app:retiredText="@string/label_subjects_retired"
+    tools:approvedCount="99"
+    tools:failedCount="13"
+    tools:headerText="23 materias cursadas"
+    tools:retiredCount="12" />

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/dp_6"
+    app:cardCornerRadius="@dimen/dp_6"
+    app:cardPreventCornerOverlap="true"
+    app:cardUseCompatPadding="true">
+
+    <View
+        android:layout_width="@dimen/dp_8"
+        android:layout_height="match_parent"
+        android:background="@color/color_primary"
+        tools:layout_height="128dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_8"
+        android:padding="@dimen/dp_16">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tViewHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="50 materias cursadas" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineApproved"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_6"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0"
+            tools:layout_constraintGuide_percent=".6" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineFailed"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0"
+            tools:layout_constraintGuide_percent=".8" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineRetired"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_6"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0"
+            tools:layout_constraintGuide_percent="1" />
+
+        <View
+            android:id="@+id/vApproved"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_6"
+            android:layout_marginTop="@dimen/dp_12"
+            android:background="@drawable/sh_rect_approved"
+            app:layout_constraintEnd_toEndOf="@id/guidelineApproved"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tViewHeader" />
+
+        <View
+            android:id="@+id/vFailed"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_6"
+            android:layout_marginTop="@dimen/dp_12"
+            android:background="@drawable/sh_rect_failed"
+            app:layout_constraintEnd_toEndOf="@id/guidelineFailed"
+            app:layout_constraintStart_toStartOf="@id/guidelineApproved"
+            app:layout_constraintTop_toBottomOf="@id/tViewHeader" />
+
+        <View
+            android:id="@+id/vRetired"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_6"
+            android:layout_marginTop="@dimen/dp_12"
+            android:background="@drawable/sh_rect_retired"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guidelineFailed"
+            app:layout_constraintTop_toBottomOf="@id/tViewHeader" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tViewApprovedCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_2"
+            app:layout_constraintEnd_toEndOf="@id/vApproved"
+            app:layout_constraintStart_toStartOf="@id/vApproved"
+            app:layout_constraintTop_toBottomOf="@id/vApproved"
+            tools:text="30" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tViewFailedCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_2"
+            app:layout_constraintEnd_toEndOf="@id/vFailed"
+            app:layout_constraintStart_toStartOf="@id/vFailed"
+            app:layout_constraintTop_toBottomOf="@id/vFailed"
+            tools:text="10" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tViewRetiredCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_2"
+            app:layout_constraintEnd_toEndOf="@id/vRetired"
+            app:layout_constraintStart_toStartOf="@id/vRetired"
+            app:layout_constraintTop_toBottomOf="@id/vRetired"
+            tools:text="10" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tViewApprovedLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_8"
+            android:drawablePadding="@dimen/dp_4"
+            app:drawableStartCompat="@drawable/sh_oval_approved"
+            app:layout_constraintEnd_toStartOf="@id/tViewFailedLabel"
+            app:layout_constraintHorizontal_weight="0.33"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tViewApprovedCount"
+            tools:text="Aprobadas" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tViewFailedLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_8"
+            android:drawablePadding="@dimen/dp_4"
+            app:drawableStartCompat="@drawable/sh_oval_failed"
+            app:layout_constraintEnd_toStartOf="@id/tViewRetiredLabel"
+            app:layout_constraintHorizontal_weight="0.33"
+            app:layout_constraintStart_toEndOf="@id/tViewApprovedLabel"
+            app:layout_constraintTop_toBottomOf="@id/tViewFailedCount"
+            tools:text="Reprobadas" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tViewRetiredLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_8"
+            android:drawablePadding="@dimen/dp_4"
+            app:drawableStartCompat="@drawable/sh_oval_retired"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="0.33"
+            app:layout_constraintStart_toEndOf="@id/tViewFailedLabel"
+            app:layout_constraintTop_toBottomOf="@id/tViewRetiredCount"
+            tools:text="Retiradas" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

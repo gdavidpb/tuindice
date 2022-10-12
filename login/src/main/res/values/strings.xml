@@ -23,7 +23,6 @@
         Términos y condiciones y Política de privacidad
     </string>
 
-    <string name="snack_timeout">Tiempo de espera agotado</string>
     <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
     <string name="snack_account_disabled">Cuenta inhabilitada</string>
 

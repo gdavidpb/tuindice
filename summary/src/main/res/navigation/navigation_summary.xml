@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_summary"
+    app:startDestination="@id/fragment_summary">
+
+    <fragment
+        android:id="@+id/fragment_summary"
+        android:name="com.gdavidpb.tuindice.summary.ui.fragments.SummaryFragment"
+        android:label="@string/nav_summary"
+        tools:layout="@layout/fragment_summary">
+        <!-- TODO nav
+        <action
+            android:id="@+id/nav_to_sign_in"
+            app:destination="@id/navigation_login"
+            app:enterAnim="@anim/slide_in_from_top"
+            app:exitAnim="@anim/slide_out_to_bottom"
+            app:popUpTo="@id/fragment_summary"
+            app:popUpToInclusive="true" />
+            -->
+    </fragment>
+
+</navigation>

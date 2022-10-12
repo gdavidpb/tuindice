@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.datasources
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
-import com.gdavidpb.tuindice.domain.repository.RemoteStorageRepository
+import com.gdavidpb.tuindice.base.domain.repository.RemoteStorageRepository
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream

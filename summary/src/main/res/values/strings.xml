@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="nav_summary">Resumen</string>
+
+    <string name="label_subjects_approved">Aprobadas</string>
+    <string name="label_subjects_failed">Reprobadas</string>
+    <string name="label_subjects_retired">Retiradas</string>
+
+    <string name="label_credits_approved">Aprobados</string>
+    <string name="label_credits_failed">Reprobados</string>
+    <string name="label_credits_retired">Retirados</string>
+
+    <string name="dialog_title_remove_profile_picture_failure">Atención</string>
+    <string name="dialog_message_remove_profile_picture_failure">
+        ¿Estás seguro que deseas remover tu foto de perfil?
+    </string>
+
+    <string name="dialog_title_sign_out">Atención</string>
+    <string name="dialog_message_sign_out">¿Estás seguro que deseas cerrar sesión?</string>
+
+    <string name="label_profile_picture_chooser">Foto de perfil</string>
+
+    <string name="snack_profile_picture_updated">Foto de perfil actualizada</string>
+    <string name="snack_profile_picture_removed">Foto de perfil removida</string>
+
+    <string name="text_5">/ 5</string>
+
+    <string name="text_last_update">Última actualización: %1$s</string>
+
+    <plurals name="text_subjects_header">
+        <item quantity="one">%d materia cursada</item>
+        <item quantity="other">%d materias cursadas</item>
+    </plurals>
+
+    <plurals name="text_credits_header">
+        <item quantity="one">%d crédito cursado</item>
+        <item quantity="other">%d créditos cursados</item>
+    </plurals>
+
+    <string name="menu_sign_out">Cerrar sesión</string>
+
+    <string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
+
+</resources>

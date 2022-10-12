@@ -27,7 +27,6 @@ import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataSource
 import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataSource
 import com.gdavidpb.tuindice.data.source.storage.LocalStorageDataSource
 import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataSource
-import com.gdavidpb.tuindice.domain.repository.*
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
@@ -38,6 +37,8 @@ import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel
+import com.gdavidpb.tuindice.summary.domain.usecase.*
+import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
