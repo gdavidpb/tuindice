@@ -107,7 +107,7 @@ class SplashFragment : NavigationFragment() {
 				runCatching {
 					findNavController().navigate(action.screen, null, navOptions)
 				}.onFailure {
-					// TODO nav navigate(SplashFragDmentDirections.navToSummary())
+					navigate(SplashFragmentDirections.navToSummary())
 				}
 
 				mainViewModel.sync()

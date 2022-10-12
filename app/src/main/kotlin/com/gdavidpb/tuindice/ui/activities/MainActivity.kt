@@ -11,8 +11,8 @@ import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import com.gdavidpb.tuindice.NavigationMainDirections
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.NavigationBaseDirections
 import com.gdavidpb.tuindice.base.domain.usecase.base.Completable
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
@@ -174,7 +174,7 @@ class MainActivity : AppCompatActivity() {
 	private fun signOutObserver(result: Completable<Nothing>?) {
 		when (result) {
 			is Completable.OnComplete -> {
-				navController.navigate(NavigationMainDirections.navToSignIn())
+				navController.navigate(NavigationBaseDirections.navToSignIn())
 			}
 			is Completable.OnError -> {
 				activityManager.clearApplicationUserData()
