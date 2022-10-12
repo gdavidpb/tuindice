@@ -92,7 +92,6 @@ android {
 
 dependencies {
     implementation project(":base")
-    implementation project(":browser")
     implementation project(":login")
     implementation project(":about")
     implementation project(":summary")

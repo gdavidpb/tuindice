@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.browser.ui.fragments
+package com.gdavidpb.tuindice.base.ui.fragments
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -14,12 +14,11 @@ import android.webkit.WebViewClient
 import androidx.core.text.buildSpannedString
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
+import com.gdavidpb.tuindice.base.R
 import com.gdavidpb.tuindice.base.ui.dialogs.ConfirmationBottomSheetDialog
-import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extensions.bottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.extensions.browse
 import com.gdavidpb.tuindice.base.utils.extensions.getCompatColor
-import com.gdavidpb.tuindice.browser.R
 import kotlinx.android.synthetic.main.fragment_browser.*
 
 @SuppressLint("SetJavaScriptEnabled")
