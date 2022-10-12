@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.utils
+package com.gdavidpb.tuindice.base.utils
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

@@ -18,8 +18,8 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.domain.usecase.errors.SyncError
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.base.utils.IdempotentLocker
 import com.gdavidpb.tuindice.ui.dialogs.UpdatePasswordBottomSheetDialog
-import com.gdavidpb.tuindice.utils.IdempotentLocker
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.TIME_EXIT_LOCKER
 import com.gdavidpb.tuindice.base.utils.extensions.hideSoftKeyboard
