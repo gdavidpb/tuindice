@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.utils.extensions
+package com.gdavidpb.tuindice.base.utils.extensions
 
 import java.io.InputStream
 import java.io.OutputStream

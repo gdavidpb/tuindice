@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.Paths
 import com.gdavidpb.tuindice.base.utils.annotations.Timeout
 import com.gdavidpb.tuindice.base.utils.extensions.*
-import com.gdavidpb.tuindice.utils.extensions.*
 import java.io.File
 
 @Timeout(key = ConfigKeys.TIME_OUT_GET_ENROLLMENT)

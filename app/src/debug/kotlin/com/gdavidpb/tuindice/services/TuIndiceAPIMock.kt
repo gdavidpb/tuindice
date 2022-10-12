@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
 import com.gdavidpb.tuindice.data.source.functions.requests.AddQuarterRequest
 import com.gdavidpb.tuindice.data.source.functions.requests.UpdateQuarterRequest
 import com.gdavidpb.tuindice.data.source.functions.responses.*
-import com.gdavidpb.tuindice.utils.extensions.base64
+import com.gdavidpb.tuindice.base.utils.extensions.base64
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import retrofit2.Response

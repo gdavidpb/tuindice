@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.utils.extensions
+package com.gdavidpb.tuindice.base.utils.extensions
 
 import android.graphics.Canvas
 import android.graphics.Path

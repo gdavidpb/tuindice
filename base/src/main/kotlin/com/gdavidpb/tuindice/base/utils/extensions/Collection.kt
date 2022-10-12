@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.utils.extensions
+package com.gdavidpb.tuindice.base.utils.extensions
 
 operator fun <E> Collection<E>.component6(): E = elementAt(5)
 operator fun <E> Collection<E>.component7(): E = elementAt(6)

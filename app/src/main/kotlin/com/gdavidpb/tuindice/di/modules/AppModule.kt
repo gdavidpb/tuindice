@@ -30,7 +30,7 @@ import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataSource
 import com.gdavidpb.tuindice.domain.usecase.*
 import com.gdavidpb.tuindice.presentation.viewmodel.*
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
-import com.gdavidpb.tuindice.utils.extensions.create
+import com.gdavidpb.tuindice.base.utils.extensions.create
 import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
 import com.gdavidpb.tuindice.login.domain.usecase.ReSignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase

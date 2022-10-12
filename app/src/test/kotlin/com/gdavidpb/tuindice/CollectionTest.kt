@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice
 
-import com.gdavidpb.tuindice.utils.extensions.component6
-import com.gdavidpb.tuindice.utils.extensions.component7
-import com.gdavidpb.tuindice.utils.extensions.component8
+import com.gdavidpb.tuindice.base.utils.extensions.component6
+import com.gdavidpb.tuindice.base.utils.extensions.component7
+import com.gdavidpb.tuindice.base.utils.extensions.component8
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

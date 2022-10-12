@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.utils.extensions
+package com.gdavidpb.tuindice.base.utils.extensions
 
 import okhttp3.Headers
 import okhttp3.Request

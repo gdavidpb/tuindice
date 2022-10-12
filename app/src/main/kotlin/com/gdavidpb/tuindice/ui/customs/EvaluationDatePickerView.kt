@@ -7,11 +7,7 @@ import android.util.AttributeSet
 import androidx.annotation.ColorRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.base.utils.extensions.add
-import com.gdavidpb.tuindice.base.utils.extensions.getCompatColor
-import com.gdavidpb.tuindice.base.utils.extensions.onCheckedChange
-import com.gdavidpb.tuindice.base.utils.extensions.onClickOnce
-import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.formatEvaluationDate
 import kotlinx.android.synthetic.main.view_evaluation_date_picker.view.*
 import java.util.*

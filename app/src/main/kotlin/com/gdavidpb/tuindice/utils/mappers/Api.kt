@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.data.source.functions.responses.EnrollmentProofResp
 import com.gdavidpb.tuindice.data.source.functions.responses.SignInResponse
 import com.gdavidpb.tuindice.base.domain.model.EnrollmentProof
 import com.gdavidpb.tuindice.base.domain.model.SignIn
-import com.gdavidpb.tuindice.utils.extensions.base64
+import com.gdavidpb.tuindice.base.utils.extensions.base64
 
 fun SignInResponse.toSignIn() = SignIn(
 	token = token
