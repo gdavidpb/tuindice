@@ -7,6 +7,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.util.AttributeSet
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.ui.customs.ViewHook
 import com.gdavidpb.tuindice.base.utils.extensions.getCompatColor
 import com.google.android.material.checkbox.MaterialCheckBox
 import java.util.concurrent.atomic.AtomicBoolean

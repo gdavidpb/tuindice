@@ -8,9 +8,9 @@ import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.usecase.GetSubjectEvaluationsUseCase
 import com.gdavidpb.tuindice.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.domain.usecase.UpdateEvaluationUseCase
-import com.gdavidpb.tuindice.domain.usecase.UpdateQuarterUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuarterUseCase
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
-import com.gdavidpb.tuindice.domain.usecase.request.UpdateQuarterRequest
+import com.gdavidpb.tuindice.record.domain.request.UpdateQuarterRequest
 import com.gdavidpb.tuindice.base.utils.extensions.execute
 
 class EvaluationPlanViewModel(

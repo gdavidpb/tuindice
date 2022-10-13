@@ -1,12 +1,9 @@
 package com.gdavidpb.tuindice.utils.mappers
 
 import com.gdavidpb.tuindice.base.data.model.database.EvaluationUpdate
-import com.gdavidpb.tuindice.base.data.model.database.SubjectUpdate
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.domain.usecase.request.UpdateEvaluationRequest
-import com.gdavidpb.tuindice.domain.usecase.request.UpdateQuarterRequest
 import com.google.firebase.Timestamp
 import java.util.*
 
@@ -31,21 +28,8 @@ fun Evaluation.toUpdateRequest(
         dispatchChanges = dispatchChanges
 )
 
-fun Quarter.toUpdateRequest(
-        sid: String,
-        grade: Int,
-        dispatchChanges: Boolean,
-) = UpdateQuarterRequest(
-        qid = id,
-        sid = sid,
-        update = SubjectUpdate(
-                grade = grade
-        ),
-        dispatchChanges = dispatchChanges
-)
-
 fun Evaluation.applyUpdate(update: EvaluationUpdate) = copy(
-        type = com.gdavidpb.tuindice.base.domain.model.EvaluationType.values()[update.type],
+        type = EvaluationType.values()[update.type],
         grade = update.grade,
         maxGrade = update.maxGrade,
         date = update.date.toDate(),

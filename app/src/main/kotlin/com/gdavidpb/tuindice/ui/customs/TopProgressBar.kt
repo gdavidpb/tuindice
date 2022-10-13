@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.util.AttributeSet
 import android.widget.ProgressBar
+import com.gdavidpb.tuindice.base.ui.customs.ViewHook
 import java.util.concurrent.atomic.AtomicBoolean
 
 class TopProgressBar(context: Context, attrs: AttributeSet)

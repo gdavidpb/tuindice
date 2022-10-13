@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/dp_6"
+    app:cardCornerRadius="@dimen/dp_6"
+    app:cardPreventCornerOverlap="true"
+    app:cardUseCompatPadding="true">
+
+    <View
+        android:id="@+id/viewQuarterColor"
+        android:layout_width="@dimen/dp_8"
+        android:layout_height="match_parent"
+        tools:background="@color/quarter_completed"
+        tools:layout_height="256dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_8"
+        android:paddingHorizontal="@dimen/dp_16"
+        android:paddingVertical="@dimen/dp_8">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tViewQuarterTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/color_primary_text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Sep - Dic 2017" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tViewQuarterGradeDiff"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_8"
+            android:gravity="center"
+            android:textColor="@color/color_secondary_text"
+            android:textSize="@dimen/sp_16"
+            app:layout_constraintEnd_toStartOf="@id/tViewQuarterGradeSum"
+            app:layout_constraintHorizontal_weight="0.33"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tViewQuarterTitle"
+            tools:text="Δx 0.0000" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tViewQuarterGradeSum"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_8"
+            android:gravity="center"
+            android:textColor="@color/color_secondary_text"
+            android:textSize="@dimen/sp_16"
+            app:layout_constraintEnd_toStartOf="@id/tViewQuarterCredits"
+            app:layout_constraintHorizontal_weight="0.33"
+            app:layout_constraintStart_toEndOf="@id/tViewQuarterGradeDiff"
+            app:layout_constraintTop_toBottomOf="@id/tViewQuarterTitle"
+            tools:text="∑x 0.0000" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tViewQuarterCredits"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_8"
+            android:gravity="center"
+            android:textColor="@color/color_secondary_text"
+            android:textSize="@dimen/sp_16"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="0.33"
+            app:layout_constraintStart_toEndOf="@id/tViewQuarterGradeSum"
+            app:layout_constraintTop_toBottomOf="@id/tViewQuarterTitle"
+            tools:text="⦿ 13 UC" />
+
+        <LinearLayout
+            android:id="@+id/lLayoutQuarterContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_8"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tViewQuarterGradeSum" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

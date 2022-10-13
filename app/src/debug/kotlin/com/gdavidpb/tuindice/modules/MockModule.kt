@@ -30,6 +30,11 @@ import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel
+import com.gdavidpb.tuindice.record.domain.usecase.GetEnrollmentProofUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuarterUseCase
+import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.summary.domain.usecase.*
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.google.android.gms.common.GoogleApiAvailability

@@ -10,12 +10,12 @@ import com.gdavidpb.tuindice.base.data.model.database.SubjectUpdate
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
-import com.gdavidpb.tuindice.domain.usecase.request.UpdateQuarterRequest
-import com.gdavidpb.tuindice.presentation.model.BottomMenuItem
+import com.gdavidpb.tuindice.record.domain.request.UpdateQuarterRequest
+import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.presentation.viewmodel.EvaluationPlanViewModel
 import com.gdavidpb.tuindice.ui.adapters.EvaluationAdapter
-import com.gdavidpb.tuindice.ui.dialogs.MenuBottomSheetDialog
+import com.gdavidpb.tuindice.base.ui.dialogs.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.DECIMALS_GRADE_SUBJECT
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.utils.mappers.toEvaluationItem
