@@ -5,6 +5,10 @@ import com.gdavidpb.tuindice.di.modules.appModule
 import com.gdavidpb.tuindice.migrations.MigrationManager
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
+import com.gdavidpb.tuindice.evaluations.di.modules.evaluationsModule
+import com.gdavidpb.tuindice.login.di.modules.loginModule
+import com.gdavidpb.tuindice.record.di.modules.recordModule
+import com.gdavidpb.tuindice.summary.di.modules.summaryModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
 import org.koin.android.ext.koin.androidLogger
@@ -30,7 +34,13 @@ class TuIndiceApp : Application() {
 
 			androidFileProperties()
 
-			modules(appModule)
+			modules(
+				appModule,
+				loginModule,
+				summaryModule,
+				recordModule,
+				evaluationsModule
+			)
 		}
 	}
 }
