@@ -24,8 +24,6 @@
     <string name="snack_profile_picture_updated">Foto de perfil actualizada</string>
     <string name="snack_profile_picture_removed">Foto de perfil removida</string>
 
-    <string name="text_5">/ 5</string>
-
     <string name="text_last_update">Última actualización: %1$s</string>
 
     <plurals name="text_subjects_header">

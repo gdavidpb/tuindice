@@ -24,7 +24,7 @@
     <string name="snack_service_unavailable">Servicio no disponible</string>
     <string name="snack_timeout">Tiempo de espera agotado</string>
 
-    <!-- TODO EvaluationFragment? -->
+    <string name="text_5">/ 5</string>
 
     <string name="evaluation_other">Otra</string>
     <string name="evaluation_test">Parcial</string>

@@ -10,6 +10,8 @@ import com.gdavidpb.tuindice.utils.*
 import com.gdavidpb.tuindice.base.utils.extensions.computeCredits
 import com.gdavidpb.tuindice.base.utils.extensions.formatQuarterName
 import com.gdavidpb.tuindice.base.utils.extensions.round
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot

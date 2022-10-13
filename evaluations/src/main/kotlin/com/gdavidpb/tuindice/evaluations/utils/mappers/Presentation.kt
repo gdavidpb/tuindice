@@ -1,8 +1,9 @@
 package com.gdavidpb.tuindice.evaluations.utils.mappers
 
 import android.content.Context
-import com.gdavidpb.tuindice.base.domain.model.*
 import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import java.util.*
 
