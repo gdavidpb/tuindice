@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.login.domain.usecase.errors
+package com.gdavidpb.tuindice.login.domain.usecase.error
 
 sealed class SignInError {
     object Timeout : SignInError()

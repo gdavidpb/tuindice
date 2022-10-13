@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.exception.ServicesUnavailableExce
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.base.utils.extensions.isConnection
-import com.gdavidpb.tuindice.login.domain.usecase.errors.StartUpError
+import com.gdavidpb.tuindice.login.domain.usecase.error.StartUpError
 
 class StartUpUseCase(
 	private val servicesRepository: MobileServicesRepository,

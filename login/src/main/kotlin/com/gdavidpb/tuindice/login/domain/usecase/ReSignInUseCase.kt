@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.annotations.Timeout
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.base.utils.mappers.asUsbId
-import com.gdavidpb.tuindice.login.domain.usecase.errors.SignInError
+import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import okhttp3.Credentials
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)

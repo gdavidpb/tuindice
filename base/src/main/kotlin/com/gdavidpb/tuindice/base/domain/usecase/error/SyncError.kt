@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.domain.usecase.errors
+package com.gdavidpb.tuindice.base.domain.usecase.error
 
 sealed class SyncError {
     object Timeout : SyncError()

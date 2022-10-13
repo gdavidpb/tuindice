@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
-import com.gdavidpb.tuindice.base.domain.usecase.errors.SyncError
+import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.summary.domain.errors
+package com.gdavidpb.tuindice.summary.domain.error
 
 sealed class ProfilePictureError {
 	object Timeout : ProfilePictureError()

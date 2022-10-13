@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.base.utils.annotations.Timeout
 import com.gdavidpb.tuindice.base.utils.extensions.isConnection
 import com.gdavidpb.tuindice.base.utils.extensions.isObjectNotFound
 import com.gdavidpb.tuindice.base.utils.extensions.isTimeout
-import com.gdavidpb.tuindice.summary.domain.errors.ProfilePictureError
+import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.utils.Paths
 import java.io.File
 

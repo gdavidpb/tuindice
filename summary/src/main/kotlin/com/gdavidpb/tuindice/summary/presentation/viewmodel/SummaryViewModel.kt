@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.base.utils.extensions.execute
 import com.gdavidpb.tuindice.base.domain.usecase.SignOutUseCase
-import com.gdavidpb.tuindice.summary.domain.errors.ProfilePictureError
+import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.domain.usecase.*
 
 class SummaryViewModel(

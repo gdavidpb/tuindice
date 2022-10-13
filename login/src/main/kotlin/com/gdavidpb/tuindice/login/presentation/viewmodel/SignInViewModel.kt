@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.login.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.base.domain.usecase.SyncUseCase
-import com.gdavidpb.tuindice.base.domain.usecase.errors.SyncError
+import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.base.utils.extensions.LiveEvent
 import com.gdavidpb.tuindice.base.utils.extensions.LiveResult
@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.base.utils.extensions.execute
 import com.gdavidpb.tuindice.login.domain.usecase.ReSignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.SignOutUseCase
-import com.gdavidpb.tuindice.login.domain.usecase.errors.SignInError
+import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 
 class SignInViewModel(
 	private val signInUseCase: SignInUseCase,

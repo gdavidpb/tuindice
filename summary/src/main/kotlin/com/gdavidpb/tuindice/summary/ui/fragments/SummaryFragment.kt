@@ -17,7 +17,7 @@ import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.base.domain.usecase.base.Completable
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
-import com.gdavidpb.tuindice.base.domain.usecase.errors.SyncError
+import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialogs.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.Actions
@@ -25,7 +25,7 @@ import com.gdavidpb.tuindice.base.utils.Extras
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.summary.R
-import com.gdavidpb.tuindice.summary.domain.errors.ProfilePictureError
+import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.summary.utils.mappers.toCreditsSummaryItem

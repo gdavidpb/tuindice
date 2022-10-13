@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.base.presentation.viewmodel
 import androidx.annotation.IdRes
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.base.domain.usecase.*
-import com.gdavidpb.tuindice.base.domain.usecase.errors.SyncError
+import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.base.utils.extensions.LiveEvent
 import com.gdavidpb.tuindice.base.utils.extensions.LiveResult

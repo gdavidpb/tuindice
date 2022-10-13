@@ -10,13 +10,13 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
-import com.gdavidpb.tuindice.base.domain.usecase.errors.SyncError
+import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.login.R
-import com.gdavidpb.tuindice.login.domain.usecase.errors.SignInError
+import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.ui.adapters.LoadingAdapter
 import kotlinx.android.synthetic.main.fragment_sign_in.*

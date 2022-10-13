@@ -5,7 +5,7 @@ import androidx.core.net.toUri
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.StorageRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
-import com.gdavidpb.tuindice.summary.domain.errors.ProfilePictureError
+import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.utils.Paths
 import java.io.File
 import java.io.IOException

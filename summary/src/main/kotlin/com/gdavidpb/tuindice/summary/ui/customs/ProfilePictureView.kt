@@ -9,7 +9,7 @@ import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.summary.R
-import com.gdavidpb.tuindice.summary.domain.errors.ProfilePictureError
+import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.RequestCreator

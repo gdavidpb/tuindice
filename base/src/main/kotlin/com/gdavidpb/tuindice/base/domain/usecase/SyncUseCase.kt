@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.base.domain.usecase
 import com.gdavidpb.tuindice.base.domain.model.exception.IllegalAuthProviderException
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
-import com.gdavidpb.tuindice.base.domain.usecase.errors.SyncError
+import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.Topics
 import com.gdavidpb.tuindice.base.utils.annotations.Timeout

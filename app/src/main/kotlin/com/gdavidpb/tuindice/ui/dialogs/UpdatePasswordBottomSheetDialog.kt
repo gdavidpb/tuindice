@@ -13,7 +13,7 @@ import com.gdavidpb.tuindice.base.utils.`do`
 import com.gdavidpb.tuindice.base.utils.`when`
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.base.utils.firstInvalid
-import com.gdavidpb.tuindice.login.domain.usecase.errors.SignInError
+import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
