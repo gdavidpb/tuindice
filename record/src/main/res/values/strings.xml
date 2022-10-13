@@ -28,51 +28,8 @@
     <string name="snack_enrollment_unsupported">Archivo no soportado ;(</string>
     <string name="snack_enrollment_not_found">Comprobante no disponible</string>
 
-    <!-- EvaluationPlanFragment -->
-
-    <string name="text_100">/ 100</string>
-    <string name="content_equal">Igual a</string>
-
-    <string name="evaluation_grade_max">%1$s / %2$s</string>
-
-    <string name="grade_accumulated">Nota acumulada</string>
-    <string name="grade_final">Nota final</string>
-
-    <string name="label_empty_evaluations">
-        <b>Parece que no hay nada por acá\n\n</b>
-        ¡Recuerda que la organización es el secreto del éxito!
-    </string>
-
-    <string name="menu_evaluation_add">Agregar evaluación</string>
-    <string name="menu_evaluation_plan_use_grade">Usar <b>Nota final</b> para la materia</string>
-
-    <string name="menu_evaluation_edit">Modificar evaluación</string>
-    <string name="menu_evaluation_mark_as_done">Marcar como finalizada</string>
-    <string name="menu_evaluation_un_mark_as_done">Desmarcar como finalizada</string>
-    <string name="menu_evaluation_delete">Eliminar evaluación</string>
-
-    <!-- EvaluationFragment -->
-
-    <string name="button_evaluation_save">Guardar</string>
-
-    <string name="title_add_evaluation">Agregar evaluación</string>
-    <string name="title_edit_evaluation">Modificar evaluación</string>
-
-    <string name="label_evaluation_select_date">Selecciona una fecha</string>
-    <string name="label_evaluation_no_date">Evaluación continua</string>
-
     <string name="label_evaluation_plan_header">%1$s ─ %2$s</string>
     <string name="label_evaluation_header">%1$s ─ %2$s</string>
-
-    <string name="hint_evaluation_name">Nombre de la evaluación</string>
-    <string name="hint_evaluation_grade">Valor de la  evaluación</string>
-
-    <string name="toast_evaluation_type_missed">Selecciona el tipo de evaluación</string>
-    <string name="toast_evaluation_date_missed">Selecciona una fecha para la evaluación</string>
-
-    <string name="error_evaluation_name_missed">La evaluación debe tener un nombre</string>
-    <string name="error_evaluation_grade_invalid_range">El valor de la evaluación debe estar entre 0.25 y 100 puntos</string>
-    <string name="error_evaluation_grade_invalid_step">El valor de la evaluación debe ser múltiplo de 0.25</string>
 
     <!-- EnrollmentDownloadingBottomSheetDialog -->
 

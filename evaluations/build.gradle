@@ -3,4 +3,5 @@ apply from: "../core.gradle"
 
 dependencies {
     implementation project(":base")
+    implementation project(":record")
 }

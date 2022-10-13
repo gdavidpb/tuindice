@@ -94,7 +94,7 @@
 
     <fragment
         android:id="@+id/fragment_evaluation_plan"
-        android:name="com.gdavidpb.tuindice.ui.fragments.EvaluationPlanFragment"
+        android:name="com.gdavidpb.tuindice.evaluations.ui.fragments.EvaluationPlanFragment"
         android:label="@string/nav_subject"
         tools:layout="@layout/fragment_evaluation_plan">
         <argument
@@ -121,7 +121,7 @@
 
     <fragment
         android:id="@+id/fragment_evaluation"
-        android:name="com.gdavidpb.tuindice.ui.fragments.EvaluationFragment"
+        android:name="com.gdavidpb.tuindice.evaluations.ui.fragments.EvaluationFragment"
         android:label="{title}"
         tools:layout="@layout/fragment_evaluation">
         <argument

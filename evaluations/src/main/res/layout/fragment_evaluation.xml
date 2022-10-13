@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tViewEvaluationHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_background"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingHorizontal="@dimen/dp_12"
+        android:paddingVertical="@dimen/dp_6"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="CI2125 — COMPUTACION I" />
+
+    <ScrollView
+        android:id="@+id/sViewEvaluation"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/btnEvaluationSave"
+        app:layout_constraintTop_toBottomOf="@id/tViewEvaluationHeader">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/dp_16">
+
+            <com.gdavidpb.tuindice.evaluations.ui.customs.EvaluationNameInputLayout
+                android:id="@+id/tInputEvaluationName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.gdavidpb.tuindice.evaluations.ui.customs.GradeInputLayout
+                android:id="@+id/tInputEvaluationGrade"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tInputEvaluationName" />
+
+            <com.gdavidpb.tuindice.evaluations.ui.customs.EvaluationDatePickerView
+                android:id="@+id/dPickerEvaluationDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_16"
+                app:layout_constraintTop_toBottomOf="@id/tInputEvaluationGrade" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cGroupEvaluation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_24"
+                app:layout_constraintTop_toBottomOf="@id/dPickerEvaluationDate"
+                app:selectionRequired="true"
+                app:singleSelection="true" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnEvaluationSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_16"
+        android:text="@string/button_evaluation_save"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sViewEvaluation" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

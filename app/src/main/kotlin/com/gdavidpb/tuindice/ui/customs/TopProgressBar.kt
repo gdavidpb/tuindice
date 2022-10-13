@@ -9,41 +9,41 @@ import android.widget.ProgressBar
 import com.gdavidpb.tuindice.base.ui.customs.ViewHook
 import java.util.concurrent.atomic.AtomicBoolean
 
-class TopProgressBar(context: Context, attrs: AttributeSet)
-    : ProgressBar(context, attrs), ViewHook {
+class TopProgressBar(context: Context, attrs: AttributeSet) : ProgressBar(context, attrs),
+	ViewHook {
 
-    companion object {
-        private const val backgroundColor = Color.WHITE
+	companion object {
+		private const val backgroundColor = Color.WHITE
 
-        private val onDrawLocker = AtomicBoolean(false)
+		private val onDrawLocker = AtomicBoolean(false)
 
-        private var noTopPadding = 0f
-    }
+		private var noTopPadding = 0f
+	}
 
-    override fun onDraw(canvas: Canvas) {
-        onDrawHook(canvas) { canvasHook -> super.onDraw(canvasHook) }
+	override fun onDraw(canvas: Canvas) {
+		onDrawHook(canvas) { canvasHook -> super.onDraw(canvasHook) }
 
-        canvas.translate(0f, -noTopPadding)
+		canvas.translate(0f, -noTopPadding)
 
-        super.onDraw(canvas)
-    }
+		super.onDraw(canvas)
+	}
 
-    override fun onDrawHook(canvas: Canvas, superOnDraw: (Canvas) -> Unit) {
-        if (!onDrawLocker.compareAndSet(false, true)) return
+	override fun onDrawHook(canvas: Canvas, superOnDraw: (Canvas) -> Unit) {
+		if (!onDrawLocker.compareAndSet(false, true)) return
 
-        val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val canvasHook = Canvas(bitmapHook)
+		val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+		val canvasHook = Canvas(bitmapHook)
 
-        canvasHook.drawColor(backgroundColor)
+		canvasHook.drawColor(backgroundColor)
 
-        superOnDraw(canvasHook)
+		superOnDraw(canvasHook)
 
-        val x = width / 2
+		val x = width / 2
 
-        noTopPadding = (0 until height).firstOrNull { y ->
-            bitmapHook.getPixel(x, y) != backgroundColor
-        }?.toFloat() ?: 0f
+		noTopPadding = (0 until height).firstOrNull { y ->
+			bitmapHook.getPixel(x, y) != backgroundColor
+		}?.toFloat() ?: 0f
 
-        bitmapHook.recycle()
-    }
+		bitmapHook.recycle()
+	}
 }

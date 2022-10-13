@@ -14,9 +14,6 @@
 
     <string name="toast_repeat_to_exit">Repite para salir</string>
 
-    <string name="snack_item_removed">%1$s removido</string>
-    <string name="snack_action_undone">Deshacer</string>
-
     <!-- RecordFragment -->
 
     <string name="quarter_grade_diff">Δx %1$.4f</string>
