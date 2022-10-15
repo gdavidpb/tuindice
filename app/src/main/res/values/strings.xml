@@ -106,8 +106,4 @@
 
     <string name="toast_password_updated">Contraseña actualizada</string>
 
-    <!-- RemoveProfilePictureActivity -->
-
-    <string name="label_remove_profile_picture">Remover foto</string>
-
 </resources>

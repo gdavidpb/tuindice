@@ -40,4 +40,8 @@
 
     <string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
 
+    <!-- RemoveProfilePictureActivity -->
+
+    <string name="label_remove_profile_picture">Remover foto</string>
+
 </resources>

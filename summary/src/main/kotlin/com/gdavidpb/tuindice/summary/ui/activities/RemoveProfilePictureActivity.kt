@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.ui.activities
+package com.gdavidpb.tuindice.summary.ui.activities
 
 import android.app.Activity
 import android.content.Intent
