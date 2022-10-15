@@ -1,6 +1,10 @@
 apply plugin: "com.android.library"
 apply from: "../core.gradle"
 
+android {
+    namespace "com.gdavidpb.tuindice.summary"
+}
+
 dependencies {
     implementation project(":base")
 }

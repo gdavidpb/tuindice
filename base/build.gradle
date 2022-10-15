@@ -4,6 +4,10 @@ apply plugin: "kotlin-android-extensions"
 apply plugin: "androidx.navigation.safeargs.kotlin"
 apply from: "../core.gradle"
 
+android {
+    namespace "com.gdavidpb.tuindice.base"
+}
+
 dependencies {
     /* Testing */
     testApi "junit:junit:4.13.2"

@@ -2,6 +2,8 @@ apply plugin: "com.android.library"
 apply from: "../core.gradle"
 
 android {
+    namespace "com.gdavidpb.tuindice.about"
+
     buildTypes {
         debug {
             buildConfigField "String", "URL_APP_TWITTER", "\"https://twitter.com/TuIndice\""
