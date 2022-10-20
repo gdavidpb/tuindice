@@ -24,6 +24,8 @@ import com.gdavidpb.tuindice.base.utils.TIME_EXIT_LOCKER
 import com.gdavidpb.tuindice.base.utils.extensions.hideSoftKeyboard
 import com.gdavidpb.tuindice.base.utils.extensions.observe
 import com.gdavidpb.tuindice.base.utils.extensions.toast
+import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
+import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.ui.dialogs.UpdatePasswordBottomSheetDialog
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -42,6 +44,8 @@ class MainActivity : AppCompatActivity() {
 	private val updateManager by inject<AppUpdateManager>()
 
 	private val viewModel by viewModel<MainViewModel>()
+
+	private val signInViewModel by viewModel<SignInViewModel>()
 
 	private val activityManager by inject<ActivityManager>()
 
@@ -71,6 +75,12 @@ class MainActivity : AppCompatActivity() {
 		findNavController(R.id.mainNavHostFragment)
 	}
 
+	private val updatePasswordDialog by lazy {
+		UpdatePasswordBottomSheetDialog(
+			manager = UpdatePasswordDialogManager()
+		)
+	}
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		setTheme(R.style.AppTheme)
 
@@ -97,6 +107,10 @@ class MainActivity : AppCompatActivity() {
 			observe(updateInfo, ::updateInfoObserver)
 			observe(signOut, ::signOutObserver)
 		}
+
+		with(signInViewModel) {
+			observe(signIn, ::signInObserver)
+		}
 	}
 
 	override fun onResume() {
@@ -118,7 +132,7 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	private fun showUpdatePasswordDialog() {
-		UpdatePasswordBottomSheetDialog().show(supportFragmentManager, "updatePasswordDialog")
+		updatePasswordDialog.show(supportFragmentManager, "updatePasswordDialog")
 	}
 
 	private fun syncObserver(result: Result<Boolean, SyncError>?) {
@@ -192,6 +206,49 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
+	private fun signInObserver(result: Event<Boolean, SignInError>?) {
+		when (result) {
+			is Event.OnLoading -> {
+				updatePasswordDialog.setLoading(true)
+			}
+			is Event.OnSuccess -> {
+				updatePasswordDialog.setLoading(false)
+
+				viewModel.sync()
+
+				toast(R.string.toast_password_updated)
+
+				updatePasswordDialog.dismiss()
+			}
+			is Event.OnError -> {
+				updatePasswordDialog.setLoading(false)
+
+				signInErrorHandler(error = result.error)
+			}
+			else -> {
+				updatePasswordDialog.setLoading(false)
+
+				updatePasswordDialog.setError(R.string.snack_default_error)
+			}
+		}
+	}
+
+	private fun signInErrorHandler(error: SignInError?) {
+		when (error) {
+			is SignInError.Timeout -> updatePasswordDialog.setError(R.string.snack_timeout)
+			is SignInError.InvalidCredentials -> updatePasswordDialog.setError(R.string.snack_invalid_credentials)
+			is SignInError.Unavailable -> updatePasswordDialog.setError(R.string.snack_service_unavailable)
+			is SignInError.NoConnection -> updatePasswordDialog.setError(
+				if (error.isNetworkAvailable)
+					R.string.snack_service_unavailable
+				else
+					R.string.snack_network_unavailable
+			)
+			is SignInError.AccountDisabled -> viewModel.signOut()
+			else -> updatePasswordDialog.setError(R.string.snack_default_error)
+		}
+	}
+
 	inner class BackPressedHandler : OnBackPressedCallback(true) {
 		override fun handleOnBackPressed() {
 			val isHomeDestination = topDestinations.contains(navController.currentDestination?.id)
@@ -205,6 +262,12 @@ class MainActivity : AppCompatActivity() {
 			} else {
 				onBackPressedDispatcher.onBackPressed()
 			}
+		}
+	}
+
+	inner class UpdatePasswordDialogManager : UpdatePasswordBottomSheetDialog.DialogManager {
+		override fun onConfirmClicked(password: String) {
+			signInViewModel.reSignIn(password = password)
 		}
 	}
 }
