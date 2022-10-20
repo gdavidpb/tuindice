@@ -19,7 +19,6 @@ import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataSource
 import com.gdavidpb.tuindice.data.source.storage.LocalStorageDataSource
 import com.gdavidpb.tuindice.datasources.*
-import com.gdavidpb.tuindice.presentation.viewmodel.*
 import com.gdavidpb.tuindice.services.TuIndiceAPIMock
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.createMockService
@@ -181,7 +180,6 @@ val mockModule = module {
 	viewModel<SignInViewModel>()
 	viewModel<EvaluationPlanViewModel>()
 	viewModel<EvaluationViewModel>()
-	viewModel<PensumViewModel>()
 
 	/* Repositories */
 
