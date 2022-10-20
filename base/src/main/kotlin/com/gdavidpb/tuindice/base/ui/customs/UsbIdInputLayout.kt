@@ -1,11 +1,10 @@
-package com.gdavidpb.tuindice.login.ui.customs
+package com.gdavidpb.tuindice.base.ui.customs
 
 import android.content.Context
 import android.text.method.DigitsKeyListener
 import android.util.AttributeSet
-import com.gdavidpb.tuindice.base.ui.customs.InputLayout
+import com.gdavidpb.tuindice.base.R
 import com.gdavidpb.tuindice.base.utils.extensions.onTextChanged
-import com.gdavidpb.tuindice.login.R
 
 class UsbIdInputLayout(context: Context, attrs: AttributeSet) : InputLayout(context, attrs) {
 

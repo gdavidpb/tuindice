@@ -1,10 +1,9 @@
-package com.gdavidpb.tuindice.login.ui.customs
+package com.gdavidpb.tuindice.base.ui.customs
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.inputmethod.EditorInfo
-import com.gdavidpb.tuindice.base.ui.customs.InputLayout
-import com.gdavidpb.tuindice.login.R
+import com.gdavidpb.tuindice.base.R
 
 class PasswordInputLayout(context: Context, attrs: AttributeSet) : InputLayout(context, attrs) {
 

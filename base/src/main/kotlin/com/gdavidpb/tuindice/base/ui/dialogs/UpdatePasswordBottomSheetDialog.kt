@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.ui.dialogs
+package com.gdavidpb.tuindice.base.ui.dialogs
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import androidx.core.view.isVisible
-import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.R
 import com.gdavidpb.tuindice.base.utils.Validation
 import com.gdavidpb.tuindice.base.utils.`do`
 import com.gdavidpb.tuindice.base.utils.`when`

@@ -93,17 +93,4 @@
 
     <string name="dialog_message_enrollment_downloading">Obteniendo comprobante…</string>
 
-    <!-- UpdatePasswordBottomSheetDialog -->
-
-    <string name="dialog_title_update_password">Tu contraseña ha cambiado</string>
-
-    <string name="dialog_message_update_password">
-        Confirma tu contraseña para seguir disfrutando de <b>TuIndice</b>.
-    </string>
-
-    <string name="dialog_button_update_password_later">Más tarde</string>
-    <string name="dialog_button_update_password_confirm">Confirmar</string>
-
-    <string name="toast_password_updated">Contraseña actualizada</string>
-
 </resources>

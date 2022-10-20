@@ -14,6 +14,12 @@
     <string name="accept">Aceptar</string>
     <string name="retry">Reintentar</string>
 
+    <string name="hint_usb_id">USBID</string>
+    <string name="hint_password">Contraseña</string>
+
+    <string name="error_empty">Campo vacío</string>
+    <string name="error_usb_id">USBID inválido</string>
+
     <!-- BrowserFragment -->
 
     <string name="dialog_title_warning_external">Atención</string>
@@ -39,5 +45,18 @@
     <string name="evaluation_attendance">Asistencia</string>
     <string name="evaluation_quiz">Quiz</string>
     <string name="evaluation_presentation">Exposición</string>
+
+    <!-- UpdatePasswordBottomSheetDialog -->
+
+    <string name="dialog_title_update_password">Tu contraseña ha cambiado</string>
+
+    <string name="dialog_message_update_password">
+        Confirma tu contraseña para seguir disfrutando de <b>TuIndice</b>.
+    </string>
+
+    <string name="dialog_button_update_password_later">Más tarde</string>
+    <string name="dialog_button_update_password_confirm">Confirmar</string>
+
+    <string name="toast_password_updated">Contraseña actualizada</string>
 
 </resources>
