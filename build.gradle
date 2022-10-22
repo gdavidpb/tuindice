@@ -6,18 +6,18 @@ buildscript {
         core.minSdk = 21
         core.targetSdk = 33
 
-        library = [:]
+        versions = [:]
 
-        library.koin_version = "3.2.0"
-        library.jspoon_version = "1.3.2"
-        library.okhttp_version = "5.0.0-alpha.3"
-        library.kotlin_version = "1.7.20"
-        library.retrofit_version = "2.9.0"
-        library.coroutines_version = "1.6.0"
-        library.lifecycle_version = "2.5.1"
-        library.lifecycle_ext_version = "2.2.0"
-        library.navigation_version = "2.5.2"
-        library.room_version = "2.4.3"
+        versions.koin = "3.2.0"
+        versions.jspoon = "1.3.2"
+        versions.okhttp = "5.0.0-alpha.3"
+        versions.kotlin = "1.7.20"
+        versions.retrofit = "2.9.0"
+        versions.coroutines = "1.6.0"
+        versions.lifecycle = "2.5.1"
+        versions.lifecycle_ext = "2.2.0"
+        versions.navigation = "2.5.2"
+        versions.room = "2.4.3"
 
         config = [:]
 
@@ -33,8 +33,8 @@ buildscript {
         classpath "com.google.gms:google-services:4.3.14"
         classpath "com.android.tools.build:gradle:7.3.1"
         classpath "com.google.firebase:firebase-crashlytics-gradle:2.9.2"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${library.kotlin_version}"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:${library.navigation_version}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:${versions.navigation}"
     }
 }
 
