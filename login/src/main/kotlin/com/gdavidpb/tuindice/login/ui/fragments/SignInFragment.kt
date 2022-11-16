@@ -6,7 +6,6 @@ import android.text.style.TypefaceSpan
 import android.text.style.UnderlineSpan
 import android.view.View
 import android.view.animation.OvershootInterpolator
-import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
@@ -20,7 +19,6 @@ import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.ui.adapters.LoadingAdapter
 import kotlinx.android.synthetic.main.fragment_sign_in.*
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SignInFragment : NavigationFragment() {
@@ -28,8 +26,6 @@ class SignInFragment : NavigationFragment() {
 	private val viewModel by viewModel<SignInViewModel>()
 
 	private val loadingMessages by config<List<String>>(ConfigKeys.LOADING_MESSAGES)
-
-	private val inputMethodManager by inject<InputMethodManager>()
 
 	private val validations by lazy {
 		arrayOf<Validation<*>>(
@@ -73,7 +69,7 @@ class SignInFragment : NavigationFragment() {
 				}
 			}
 		}.isNull {
-			hideSoftKeyboard(inputMethodManager)
+			hideSoftKeyboard()
 
 			iViewLogo.performClick()
 

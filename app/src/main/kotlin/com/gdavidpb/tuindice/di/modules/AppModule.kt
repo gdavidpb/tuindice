@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.di.modules
 
 import android.app.ActivityManager
 import android.net.ConnectivityManager
-import android.view.inputmethod.InputMethodManager
 import androidx.core.content.getSystemService
 import androidx.room.Room
 import com.gdavidpb.tuindice.BuildConfig
@@ -67,10 +66,6 @@ val appModule = module {
 
 	single {
 		androidContext().getSystemService<ConnectivityManager>()
-	}
-
-	single {
-		androidContext().getSystemService<InputMethodManager>()
 	}
 
 	single {

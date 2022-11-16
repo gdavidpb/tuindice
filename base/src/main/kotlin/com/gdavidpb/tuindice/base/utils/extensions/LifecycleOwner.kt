@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.base.utils.extensions
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import androidx.fragment.app.Fragment
@@ -7,7 +8,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlin.reflect.full.createInstance
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.core.content.FileProvider
@@ -15,15 +15,11 @@ import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.R
 import java.io.File
 
-fun LifecycleOwner.hideSoftKeyboard(inputMethodManager: InputMethodManager) {
-	val view = when (this) {
-		is Fragment -> requireView().rootView
-		is FragmentActivity -> currentFocus
-		else -> throw NoWhenBranchMatchedException()
-	}
-
-	view?.hideSoftKeyboard(inputMethodManager)
-}
+fun LifecycleOwner.hideSoftKeyboard() = when (this) {
+	is Fragment -> requireView().rootView
+	is Activity -> currentFocus
+	else -> null
+}?.hideSoftKeyboard()
 
 fun LifecycleOwner.openPdf(file: File) {
 	val uri = FileProvider.getUriForFile(context(), BuildConfig.APPLICATION_ID, file)
@@ -69,13 +65,13 @@ fun LifecycleOwner.errorSnackBar(
 
 fun LifecycleOwner.context() = when (this) {
 	is Fragment -> requireContext()
-	is FragmentActivity -> this
+	is Activity -> this
 	else -> throw NoWhenBranchMatchedException()
 }
 
 fun LifecycleOwner.startActivity(intent: Intent) = when (this) {
 	is Fragment -> startActivity(intent)
-	is FragmentActivity -> startActivity(intent)
+	is Activity -> startActivity(intent)
 	else -> throw NoWhenBranchMatchedException()
 }
 

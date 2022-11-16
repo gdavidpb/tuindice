@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import androidx.annotation.StringRes
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.R
@@ -15,7 +14,6 @@ import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.base.utils.firstInvalid
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.dialog_update_password.*
-import org.koin.android.ext.android.inject
 
 class UpdatePasswordBottomSheetDialog(
 	private val manager: DialogManager
@@ -24,8 +22,6 @@ class UpdatePasswordBottomSheetDialog(
 	interface DialogManager {
 		fun onConfirmClicked(password: String)
 	}
-
-	private val inputMethodManager by inject<InputMethodManager>()
 
 	private val validations by lazy {
 		arrayOf<Validation<*>>(
@@ -74,7 +70,7 @@ class UpdatePasswordBottomSheetDialog(
 				}
 			}
 		}.isNull {
-			hideSoftKeyboard(inputMethodManager)
+			hideSoftKeyboard()
 
 			manager.onConfirmClicked(password = tInputPassword.getPassword())
 		}

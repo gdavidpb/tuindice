@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.modules
 
 import android.app.ActivityManager
 import android.net.ConnectivityManager
-import android.view.inputmethod.InputMethodManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
@@ -74,10 +73,6 @@ val mockModule = module {
 
 	single {
 		androidContext().getSystemService<ConnectivityManager>()
-	}
-
-	single {
-		androidContext().getSystemService<InputMethodManager>()
 	}
 
 	single {

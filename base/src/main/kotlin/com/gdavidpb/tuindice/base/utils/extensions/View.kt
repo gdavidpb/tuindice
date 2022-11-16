@@ -13,6 +13,7 @@ import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.StyleableRes
+import androidx.core.content.getSystemService
 import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.base.utils.NO_GETTER
 import com.google.android.material.chip.Chip
@@ -82,9 +83,11 @@ fun RecyclerView.onScrollStateChanged(listener: (newState: Int) -> Unit) {
 	})
 }
 
-fun View.hideSoftKeyboard(inputMethodManager: InputMethodManager) {
+fun View.hideSoftKeyboard() {
 	clearFocus()
-	inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
+	context
+		.getSystemService<InputMethodManager>()
+		?.hideSoftInputFromWindow(windowToken, 0)
 }
 
 fun TextView.drawables(
