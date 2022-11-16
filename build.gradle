@@ -16,7 +16,7 @@ buildscript {
         versions.coroutines = "1.6.0"
         versions.lifecycle = "2.5.1"
         versions.lifecycle_ext = "2.2.0"
-        versions.navigation = "2.5.2"
+        versions.navigation = "2.5.3"
         versions.room = "2.4.3"
 
         config = [:]
