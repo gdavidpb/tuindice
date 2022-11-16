@@ -58,10 +58,10 @@ fun Throwable.isObjectNotFound() = this is StorageException && when (errorCode) 
 }
 
 fun Throwable.isConnection() = when (this) {
+    is ConnectException -> true
     is SocketException -> true
     is InterruptedIOException -> true
     is UnknownHostException -> true
-    is ConnectException -> true
     is SSLHandshakeException -> true
     is HttpException -> true
     is ExecutionException -> true
