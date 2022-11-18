@@ -9,41 +9,41 @@ import java.io.FileNotFoundException
 import java.io.InputStream
 
 @Suppress("BlockingMethodInNonBlockingContext")
-open class RemoteStorageMockDataSource(
-        context: Context
+class RemoteStorageMockDataSource(
+	context: Context
 ) : RemoteStorageRepository {
 
-    private val root = File(context.filesDir, "remote")
+	private val root = File(context.filesDir, "remote")
 
-    override suspend fun removeResource(resource: String) {
-        runCatching {
-            File(root, resource).let {
-                if (it.isDirectory)
-                    it.deleteRecursively()
-                else
-                    it.delete()
-            }
-        }.onFailure { throwable ->
-            if (throwable !is FileNotFoundException) throw throwable
-        }
-    }
+	override suspend fun removeResource(resource: String) {
+		runCatching {
+			File(root, resource).let {
+				if (it.isDirectory)
+					it.deleteRecursively()
+				else
+					it.delete()
+			}
+		}.onFailure { throwable ->
+			if (throwable !is FileNotFoundException) throw throwable
+		}
+	}
 
-    override suspend fun resolveResource(resource: String): Uri {
-        val file = File(root, resource)
+	override suspend fun resolveResource(resource: String): Uri {
+		val file = File(root, resource)
 
-        return if (file.exists()) file.toUri() else "".toUri()
-    }
+		return if (file.exists()) file.toUri() else "".toUri()
+	}
 
-    override suspend fun uploadResource(resource: String, stream: InputStream): Uri {
-        val outputFile = File(root, resource)
+	override suspend fun uploadResource(resource: String, stream: InputStream): Uri {
+		val outputFile = File(root, resource)
 
-        outputFile.parentFile?.mkdirs()
+		outputFile.parentFile?.mkdirs()
 
-        outputFile.outputStream().use { outputStream ->
-            stream.copyTo(outputStream)
-            outputStream.flush()
-        }
+		outputFile.outputStream().use { outputStream ->
+			stream.copyTo(outputStream)
+			outputStream.flush()
+		}
 
-        return outputFile.toUri()
-    }
+		return outputFile.toUri()
+	}
 }

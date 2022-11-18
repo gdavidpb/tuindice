@@ -7,8 +7,8 @@ import com.gdavidpb.tuindice.utils.mappers.toAuth
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
 
-open class FirebaseAuthDataSource(
-        private val auth: FirebaseAuth
+class FirebaseAuthDataSource(
+    private val auth: FirebaseAuth
 ) : AuthRepository {
     override suspend fun isActiveAuth(): Boolean {
         return auth.currentUser != null

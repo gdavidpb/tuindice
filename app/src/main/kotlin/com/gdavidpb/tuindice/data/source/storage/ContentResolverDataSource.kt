@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.base.domain.repository.ContentRepository
 import java.io.InputStream
 
 @Suppress("BlockingMethodInNonBlockingContext")
-open class ContentResolverDataSource(
-        private val contentResolver: ContentResolver
+class ContentResolverDataSource(
+    private val contentResolver: ContentResolver
 ) : ContentRepository {
     override suspend fun openInputStream(url: Uri): InputStream {
         return contentResolver.openInputStream(url) ?: throw RuntimeException("openInputStream")

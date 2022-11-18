@@ -4,8 +4,8 @@ import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.utils.extensions.awaitOrNull
 import com.google.firebase.messaging.FirebaseMessaging
 
-open class FirebaseCloudMessagingDataSource(
-        private val firebaseMessaging: FirebaseMessaging
+class FirebaseCloudMessagingDataSource(
+    private val firebaseMessaging: FirebaseMessaging
 ) : MessagingRepository {
     override suspend fun getToken(): String? {
         return firebaseMessaging.token.awaitOrNull()

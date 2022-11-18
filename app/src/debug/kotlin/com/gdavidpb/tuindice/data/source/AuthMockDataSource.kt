@@ -5,8 +5,8 @@ import com.gdavidpb.tuindice.base.domain.model.Auth
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import java.util.*
 
-open class AuthMockDataSource(
-        private val sharedPreferences: SharedPreferences
+class AuthMockDataSource(
+    private val sharedPreferences: SharedPreferences
 ) : AuthRepository {
 
     private val uid = "HukCYRZdCmWhSzfYS0Tl7f0e9Rt6"

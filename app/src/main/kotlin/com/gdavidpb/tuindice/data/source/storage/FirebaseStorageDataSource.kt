@@ -6,8 +6,8 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import java.io.InputStream
 
-open class FirebaseStorageDataSource(
-        private val storage: FirebaseStorage
+class FirebaseStorageDataSource(
+    private val storage: FirebaseStorage
 ) : RemoteStorageRepository {
     override suspend fun removeResource(resource: String) {
         val reference = storage.getReference(resource)
