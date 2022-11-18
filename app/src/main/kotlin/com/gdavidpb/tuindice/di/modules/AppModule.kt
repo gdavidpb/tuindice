@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataSource
 import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataSource
 import com.gdavidpb.tuindice.data.source.storage.LocalStorageDataSource
 import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataSource
+import com.gdavidpb.tuindice.data.source.android.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.extensions.create
 import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
@@ -181,6 +182,7 @@ val appModule = module {
 
 	/* Repositories */
 
+	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
 	factoryOf(::LocalStorageDataSource) { bind<StorageRepository>() }
 	factoryOf(::FirebaseStorageDataSource) { bind<RemoteStorageRepository>() }

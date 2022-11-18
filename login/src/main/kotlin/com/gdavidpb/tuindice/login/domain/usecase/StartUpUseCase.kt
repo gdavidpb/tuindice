@@ -12,7 +12,8 @@ class StartUpUseCase(
 	private val settingsRepository: SettingsRepository,
 	private val authRepository: AuthRepository,
 	private val databaseRepository: DatabaseRepository,
-	private val networkRepository: NetworkRepository
+	private val networkRepository: NetworkRepository,
+	private val applicationRepository: ApplicationRepository
 ) : ResultUseCase<String, StartUpAction, StartUpError>() {
 	override suspend fun executeOnBackground(params: String): StartUpAction {
 		val servicesStatus = servicesRepository.getServicesStatus()
@@ -40,7 +41,11 @@ class StartUpUseCase(
 		return when {
 			throwable is ServicesUnavailableException -> StartUpError.NoServices(throwable.servicesStatus)
 			throwable.isConnection() -> StartUpError.NoConnection(networkRepository.isAvailable())
-			else -> null
+			else -> {
+				applicationRepository.clearData()
+
+				null
+			}
 		}
 	}
 }

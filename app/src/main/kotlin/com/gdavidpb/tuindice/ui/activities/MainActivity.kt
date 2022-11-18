@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.ui.activities
 
-import android.app.ActivityManager
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -45,8 +44,6 @@ class MainActivity : AppCompatActivity() {
 	private val viewModel by viewModel<MainViewModel>()
 
 	private val signInViewModel by viewModel<SignInViewModel>()
-
-	private val activityManager by inject<ActivityManager>()
 
 	private val backLocker = IdempotentLocker()
 
@@ -186,9 +183,6 @@ class MainActivity : AppCompatActivity() {
 		when (result) {
 			is Completable.OnComplete -> {
 				navController.navigate(NavigationBaseDirections.navToSignIn())
-			}
-			is Completable.OnError -> {
-				activityManager.clearApplicationUserData()
 			}
 			else -> {}
 		}

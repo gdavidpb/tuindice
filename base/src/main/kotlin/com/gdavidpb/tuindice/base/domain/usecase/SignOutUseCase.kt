@@ -11,7 +11,8 @@ class SignOutUseCase(
 	private val databaseRepository: DatabaseRepository,
 	private val settingsRepository: SettingsRepository,
 	private val storageRepository: StorageRepository,
-	private val dependenciesRepository: DependenciesRepository
+	private val dependenciesRepository: DependenciesRepository,
+	private val applicationRepository: ApplicationRepository
 ) : CompletableUseCase<Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit) {
 		messagingRepository.unsubscribeFromTopic(Topics.TOPIC_GENERAL)
@@ -22,5 +23,11 @@ class SignOutUseCase(
 		storageRepository.clear()
 		dependenciesRepository.restart()
 		ComputationManager.clearCache()
+	}
+
+	override suspend fun executeOnException(throwable: Throwable): Nothing? {
+		applicationRepository.clearData()
+
+		return null
 	}
 }

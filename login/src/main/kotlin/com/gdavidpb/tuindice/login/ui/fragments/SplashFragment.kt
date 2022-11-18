@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.login.ui.fragments
 
-import android.app.ActivityManager
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.NavOptions
@@ -28,8 +27,6 @@ class SplashFragment : NavigationFragment() {
 	private val viewModel by viewModel<SplashViewModel>()
 
 	private val mainViewModel by sharedViewModel<MainViewModel>()
-
-	private val activityManager by inject<ActivityManager>()
 
 	private val googleApiAvailability by inject<GoogleApiAvailability>()
 
@@ -76,7 +73,7 @@ class SplashFragment : NavigationFragment() {
 		when (error) {
 			is StartUpError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
 			is StartUpError.NoServices -> handleNoServices(error.servicesStatus)
-			else -> activityManager.clearApplicationUserData()
+			else -> {}
 		}
 	}
 
