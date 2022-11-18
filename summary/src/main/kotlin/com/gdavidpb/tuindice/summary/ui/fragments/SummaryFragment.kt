@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.summary.ui.fragments
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -9,6 +11,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
@@ -30,7 +33,10 @@ import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.summary.utils.mappers.toCreditsSummaryItem
 import com.gdavidpb.tuindice.summary.utils.mappers.toSubjectsSummaryItem
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
 import kotlinx.android.synthetic.main.fragment_summary.*
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -40,7 +46,7 @@ class SummaryFragment : NavigationFragment() {
 
 	private val viewModel by viewModel<SummaryViewModel>()
 
-	private val loadProfilePicture = LiveCompletable<ProfilePictureError>()
+	private val picasso by inject<Picasso>()
 
 	private val summaryAdapter = SummaryAdapter()
 
@@ -73,8 +79,6 @@ class SummaryFragment : NavigationFragment() {
 			observe(signOut, ::signOutObserver)
 			observe(profile, ::profileObserver)
 			observe(profilePicture, ::profilePictureObserver)
-			observe(loadProfilePicture, ::loadProfilePictureObserver)
-			observe(updateProfilePicture, ::updateProfilePictureObserver)
 			observe(removeProfilePicture, ::removeProfilePictureObserver)
 		}
 	}
@@ -246,61 +250,16 @@ class SummaryFragment : NavigationFragment() {
 		}
 	}
 
-	private fun updateProfilePictureObserver(result: Event<String, ProfilePictureError>?) {
+	private fun profilePictureObserver(result: Event<String, ProfilePictureError>?) {
 		when (result) {
 			is Event.OnLoading -> {
 				vProfilePicture.setLoading(true)
 			}
 			is Event.OnSuccess -> {
-				vProfilePicture.loadProfilePicture(
-					url = result.value,
-					invalidate = true,
-					liveData = loadProfilePicture
-				)
-
-				snackBar(R.string.snack_profile_picture_updated)
+				loadProfilePictureFromUrl(url = result.value)
 			}
 			is Event.OnError -> {
 				vProfilePicture.setLoading(false)
-
-				profilePictureErrorHandler(error = result.error)
-			}
-			else -> {}
-		}
-	}
-
-	private fun loadProfilePictureObserver(result: Completable<ProfilePictureError>?) {
-		when (result) {
-			is Completable.OnLoading -> {
-				vProfilePicture.setLoading(true)
-			}
-			is Completable.OnComplete -> {
-				vProfilePicture.setLoading(false)
-			}
-			is Completable.OnError -> {
-				vProfilePicture.setLoading(false)
-
-				profilePictureErrorHandler(error = result.error)
-			}
-			else -> {}
-		}
-	}
-
-	private fun profilePictureObserver(result: Result<String, ProfilePictureError>?) {
-		when (result) {
-			is Result.OnLoading -> {
-				vProfilePicture.setLoading(true)
-			}
-			is Result.OnSuccess -> {
-				vProfilePicture.loadProfilePicture(
-					url = result.value,
-					invalidate = false,
-					liveData = loadProfilePicture
-				)
-			}
-			is Result.OnError -> {
-				vProfilePicture.setLoading(false)
-				vProfilePicture.loadDefaultProfilePicture()
 
 				profilePictureErrorHandler(error = result.error)
 			}
@@ -315,7 +274,7 @@ class SummaryFragment : NavigationFragment() {
 			}
 			is Event.OnSuccess -> {
 				vProfilePicture.setLoading(false)
-				vProfilePicture.loadDefaultProfilePicture()
+				vProfilePicture.setDrawable(null)
 
 				snackBar(R.string.snack_profile_picture_removed)
 			}
@@ -325,6 +284,34 @@ class SummaryFragment : NavigationFragment() {
 				profilePictureErrorHandler(error = result.error)
 			}
 			else -> {}
+		}
+	}
+
+	private fun loadProfilePictureFromUrl(url: String) {
+		with(picasso) {
+			invalidate(url)
+
+			load(url)
+				.noFade()
+				.stableKey(url)
+				.into(object : Target {
+					override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
+						val drawable = bitmap.toDrawable(resources)
+
+						vProfilePicture.setLoading(false)
+						vProfilePicture.setDrawable(drawable)
+
+						snackBar(R.string.snack_profile_picture_updated)
+					}
+
+					override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+						vProfilePicture.setLoading(false)
+						errorSnackBar()
+					}
+
+					override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+					}
+				})
 		}
 	}
 
@@ -341,7 +328,7 @@ class SummaryFragment : NavigationFragment() {
 	private fun profilePictureErrorHandler(error: ProfilePictureError?) {
 		when (error) {
 			is ProfilePictureError.Timeout -> errorSnackBar(R.string.snack_timeout)
-			is ProfilePictureError.NoData -> vProfilePicture.loadDefaultProfilePicture()
+			is ProfilePictureError.NoData -> vProfilePicture.setDrawable(null)
 			is ProfilePictureError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
 			else -> errorSnackBar()
 		}

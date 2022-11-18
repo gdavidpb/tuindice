@@ -23,8 +23,7 @@ class SummaryViewModel(
 	val profile = LiveResult<Account, Nothing>()
 	val getProfilePictureFile = LiveEvent<Uri, Nothing>()
 	val createProfilePictureFile = LiveEvent<Uri, ProfilePictureError>()
-	val profilePicture = LiveResult<String, ProfilePictureError>()
-	val updateProfilePicture = LiveEvent<String, ProfilePictureError>()
+	val profilePicture = LiveEvent<String, ProfilePictureError>()
 	val removeProfilePicture = LiveEvent<Unit, ProfilePictureError>()
 	val signOut = LiveCompletable<Nothing>()
 
@@ -52,7 +51,7 @@ class SummaryViewModel(
 		execute(
 			useCase = updateProfilePictureUseCase,
 			params = url,
-			liveData = updateProfilePicture
+			liveData = profilePicture
 		)
 
 	fun removeProfilePicture() =
