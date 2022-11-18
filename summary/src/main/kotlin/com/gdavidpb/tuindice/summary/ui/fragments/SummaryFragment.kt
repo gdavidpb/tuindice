@@ -104,7 +104,7 @@ class SummaryFragment : NavigationFragment() {
 	private fun navigateToSignIn() {
 		findNavController().popStackToRoot()
 
-		// TODO navigate(SummaryFragmentDirections.navToSignIn())
+		navigate(SummaryFragmentDirections.navToSignIn())
 	}
 
 	private fun showSignOutDialog() {
