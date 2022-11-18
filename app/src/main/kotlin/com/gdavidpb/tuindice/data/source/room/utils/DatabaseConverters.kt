@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.source.room.utils
 
 import androidx.room.TypeConverter
+import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import java.util.*
 
 class DatabaseConverters {
@@ -15,4 +16,10 @@ class DatabaseConverters {
 
 	@TypeConverter
 	fun booleanToInt(boolean: Boolean): Int = boolean.compareTo(false)
+
+	@TypeConverter
+	fun evaluationTypeToInt(type: EvaluationType): Int = type.ordinal
+
+	@TypeConverter
+	fun intToEvaluationType(int: Int): EvaluationType = EvaluationType.values()[int]
 }

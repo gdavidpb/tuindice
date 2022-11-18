@@ -1,33 +1,34 @@
 package com.gdavidpb.tuindice.data.source.room.entities
 
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import androidx.room.*
+import androidx.room.ForeignKey.CASCADE
+import com.gdavidpb.tuindice.data.source.room.utils.AccountTable
 import com.gdavidpb.tuindice.data.source.room.utils.QuarterTable
 import java.util.*
 
 @Entity(
-	tableName = "quarters",
-	/*
-	foreignKeys = [(ForeignKey(
+	tableName = QuarterTable.TABLE_NAME,
+	foreignKeys = [
+		ForeignKey(
 			entity = AccountEntity::class,
-			parentColumns = [COLUMN_ID],
-			childColumns = [COLUMN_AID],
+			parentColumns = [AccountTable.ID],
+			childColumns = [QuarterTable.ACCOUNT_ID],
 			onDelete = CASCADE,
-			onUpdate = CASCADE))],*/
+			onUpdate = CASCADE
+		)
+	],
 	indices = [
-		Index(value = [QuarterTable.START_DATE, QuarterTable.END_DATE], unique = true)//,
-		/*Index(value = [COLUMN_AID])*/
+		Index(value = [QuarterTable.START_DATE, QuarterTable.END_DATE], unique = true)
 	]
 )
 data class QuarterEntity(
-	@PrimaryKey
-	val id: String,
-	val aid: String,
-	val status: Int,
-	val startDate: Date,
-	val endDate: Date,
-	val grade: Double,
-	val gradeSum: Double,
-	val credits: Int
+	@PrimaryKey @ColumnInfo(name = QuarterTable.ID) val id: String,
+	@ColumnInfo(name = QuarterTable.ACCOUNT_ID) val accountId: String,
+	@ColumnInfo(name = QuarterTable.STATUS) val status: Int,
+	@ColumnInfo(name = QuarterTable.MOCK) val mock: Boolean,
+	@ColumnInfo(name = QuarterTable.START_DATE) val startDate: Date,
+	@ColumnInfo(name = QuarterTable.END_DATE) val endDate: Date,
+	@ColumnInfo(name = QuarterTable.GRADE) val grade: Double,
+	@ColumnInfo(name = QuarterTable.GRADE_SUM) val gradeSum: Double,
+	@ColumnInfo(name = QuarterTable.CREDITS) val credits: Int
 )
