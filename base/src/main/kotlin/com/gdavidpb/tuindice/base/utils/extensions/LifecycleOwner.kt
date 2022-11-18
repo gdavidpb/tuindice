@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.base.utils.extensions
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -14,6 +15,9 @@ import androidx.core.content.FileProvider
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.R
 import java.io.File
+
+fun LifecycleOwner.hasCamera() =
+	context().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
 
 fun LifecycleOwner.hideSoftKeyboard() = when (this) {
 	is Fragment -> requireView().rootView

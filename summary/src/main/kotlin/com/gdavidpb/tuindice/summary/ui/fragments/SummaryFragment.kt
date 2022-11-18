@@ -141,7 +141,7 @@ class SummaryFragment : NavigationFragment() {
 		val chooser =
 			Intent.createChooser(galleryIntent, getString(R.string.label_profile_picture_chooser))
 
-		val hasCamera = packageManager.hasCamera()
+		val hasCamera = hasCamera()
 		val hasProfilePicture = vProfilePicture.hasProfilePicture
 
 		val intents = mutableListOf<Intent>().apply {

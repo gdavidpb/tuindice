@@ -81,10 +81,6 @@ val mockModule = module {
 	}
 
 	single {
-		androidContext().packageManager
-	}
-
-	single {
 		androidContext().contentResolver
 	}
 

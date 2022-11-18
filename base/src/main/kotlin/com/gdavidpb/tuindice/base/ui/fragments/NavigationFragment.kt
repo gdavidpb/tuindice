@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.base.ui.fragments
 
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,11 +10,8 @@ import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.base.utils.extensions.contentView
-import org.koin.android.ext.android.inject
 
 abstract class NavigationFragment : Fragment() {
-    protected val packageManager by inject<PackageManager>()
-
     open fun onInitObservers() {}
 
     @LayoutRes
