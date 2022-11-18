@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.modules
+package com.gdavidpb.tuindice.di.modules
 
 import android.app.ActivityManager
 import android.net.ConnectivityManager
@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.services.TuIndiceAPIMock
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.createMockService
 import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
+import com.gdavidpb.tuindice.data.source.*
 import com.gdavidpb.tuindice.evaluations.domain.usecase.*
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationPlanViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel

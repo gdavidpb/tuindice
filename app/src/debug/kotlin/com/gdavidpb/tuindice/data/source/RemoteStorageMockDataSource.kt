@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.datasources
+package com.gdavidpb.tuindice.data.source
 
 import android.content.Context
 import android.net.Uri

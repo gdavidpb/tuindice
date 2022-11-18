@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.datasources
+package com.gdavidpb.tuindice.data.source
 
 import android.content.SharedPreferences
 import com.gdavidpb.tuindice.base.domain.model.Auth

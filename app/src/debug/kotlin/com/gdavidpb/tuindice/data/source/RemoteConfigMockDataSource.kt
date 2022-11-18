@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.datasources
+package com.gdavidpb.tuindice.data.source
 
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig

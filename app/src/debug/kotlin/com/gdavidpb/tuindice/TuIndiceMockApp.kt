@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice
 
 import android.app.Application
 import com.gdavidpb.tuindice.migrations.MigrationManager
-import com.gdavidpb.tuindice.modules.mockModule
+import com.gdavidpb.tuindice.di.modules.mockModule
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
 import com.google.firebase.crashlytics.FirebaseCrashlytics

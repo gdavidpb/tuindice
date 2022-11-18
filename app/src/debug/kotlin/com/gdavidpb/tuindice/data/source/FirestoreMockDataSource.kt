@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.datasources
+package com.gdavidpb.tuindice.data.source
 
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_COMPLETED
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
