@@ -2,10 +2,10 @@ package com.gdavidpb.tuindice.data.source.room.entities
 
 import androidx.room.*
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.data.source.room.utils.AccountTable
-import com.gdavidpb.tuindice.data.source.room.utils.EvaluationTable
-import com.gdavidpb.tuindice.data.source.room.utils.QuarterTable
-import com.gdavidpb.tuindice.data.source.room.utils.SubjectTable
+import com.gdavidpb.tuindice.data.source.room.schema.AccountTable
+import com.gdavidpb.tuindice.data.source.room.schema.EvaluationTable
+import com.gdavidpb.tuindice.data.source.room.schema.QuarterTable
+import com.gdavidpb.tuindice.data.source.room.schema.SubjectTable
 import java.util.*
 
 @Entity(

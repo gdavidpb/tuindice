@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.gdavidpb.tuindice.data.source.room.utils.AccountTable
+import com.gdavidpb.tuindice.data.source.room.schema.AccountTable
 import java.util.*
 
 @Entity(

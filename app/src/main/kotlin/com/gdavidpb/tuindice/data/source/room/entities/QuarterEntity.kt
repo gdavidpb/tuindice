@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.data.source.room.entities
 
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
-import com.gdavidpb.tuindice.data.source.room.utils.AccountTable
-import com.gdavidpb.tuindice.data.source.room.utils.QuarterTable
+import com.gdavidpb.tuindice.data.source.room.schema.AccountTable
+import com.gdavidpb.tuindice.data.source.room.schema.QuarterTable
 import java.util.*
 
 @Entity(

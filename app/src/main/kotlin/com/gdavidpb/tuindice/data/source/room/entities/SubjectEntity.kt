@@ -5,9 +5,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.gdavidpb.tuindice.data.source.room.utils.AccountTable
-import com.gdavidpb.tuindice.data.source.room.utils.QuarterTable
-import com.gdavidpb.tuindice.data.source.room.utils.SubjectTable
+import com.gdavidpb.tuindice.data.source.room.schema.AccountTable
+import com.gdavidpb.tuindice.data.source.room.schema.QuarterTable
+import com.gdavidpb.tuindice.data.source.room.schema.SubjectTable
 
 @Entity(
 	tableName = SubjectTable.TABLE_NAME,

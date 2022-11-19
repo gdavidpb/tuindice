@@ -11,8 +11,8 @@ import com.gdavidpb.tuindice.data.source.room.entities.AccountEntity
 import com.gdavidpb.tuindice.data.source.room.entities.EvaluationEntity
 import com.gdavidpb.tuindice.data.source.room.entities.QuarterEntity
 import com.gdavidpb.tuindice.data.source.room.entities.SubjectEntity
+import com.gdavidpb.tuindice.data.source.room.schema.DatabaseModel
 import com.gdavidpb.tuindice.data.source.room.utils.DatabaseConverters
-import com.gdavidpb.tuindice.data.source.room.utils.DatabaseModel
 
 @Database(
 	entities = [
