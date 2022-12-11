@@ -44,13 +44,14 @@ android {
 
     buildTypes {
         debug {
+            debuggable true
             minifyEnabled false
+
             manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
 
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
             buildConfigField "String", "URL_MOCK", "\"${config.mockAddress}\""
-
             buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
             buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
 
@@ -62,7 +63,7 @@ android {
             buildConfigField "String", "ENDPOINT_TU_INDICE_API", "\"http://localhost:8080/\""
         }
         release {
-            debuggable true
+            debuggable false
             minifyEnabled true
 
             signingConfig signingConfigs.release
@@ -73,7 +74,6 @@ android {
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
             buildConfigField "String", "URL_MOCK", "\"\""
-
             buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
             buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
 
