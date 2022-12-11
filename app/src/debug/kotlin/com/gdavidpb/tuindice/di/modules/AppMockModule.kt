@@ -6,8 +6,6 @@ import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.domain.repository.*
-import com.gdavidpb.tuindice.base.domain.usecase.*
-import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.functions.CloudFunctionsDataSource
@@ -62,7 +60,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 @KoinReflectAPI
-val mockModule = module {
+val appMockModule = module {
 
 	/* Application */
 
@@ -165,7 +163,6 @@ val mockModule = module {
 
 	/* View Models */
 
-	viewModel<MainViewModel>()
 	viewModel<SplashViewModel>()
 	viewModel<SummaryViewModel>()
 	viewModel<RecordViewModel>()
@@ -194,13 +191,10 @@ val mockModule = module {
 
 	factoryOf(::SignInUseCase)
 	factoryOf(::ReSignInUseCase)
-	factoryOf(::SignOutUseCase)
-	factoryOf(::SyncUseCase)
 	factoryOf(::StartUpUseCase)
 	factoryOf(::GetProfileUseCase)
 	factoryOf(::GetQuartersUseCase)
 	factoryOf(::UpdateQuarterUseCase)
-	factoryOf(::SetLastScreenUseCase)
 	factoryOf(::GetEnrollmentProofUseCase)
 	factoryOf(::GetSubjectUseCase)
 	factoryOf(::GetEvaluationUseCase)
@@ -213,9 +207,7 @@ val mockModule = module {
 	factoryOf(::GetProfilePictureFileUseCase)
 	factoryOf(::GetProfilePictureUseCase)
 	factoryOf(::RemoveProfilePictureUseCase)
-	factoryOf(::RequestReviewUseCase)
 	factoryOf(::RemoveQuarterUseCase)
-	factoryOf(::GetUpdateInfoUseCase)
 
 	/* Utils */
 

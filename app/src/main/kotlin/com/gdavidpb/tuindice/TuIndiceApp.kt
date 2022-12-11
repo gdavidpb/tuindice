@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice
 
 import android.app.Application
+import com.gdavidpb.tuindice.base.di.baseModule
 import com.gdavidpb.tuindice.di.modules.appModule
 import com.gdavidpb.tuindice.migrations.MigrationManager
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
@@ -36,6 +37,7 @@ class TuIndiceApp : Application() {
 
 			modules(
 				appModule,
+				baseModule,
 				loginModule,
 				summaryModule,
 				recordModule,

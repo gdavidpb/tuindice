@@ -1,10 +1,15 @@
 package com.gdavidpb.tuindice
 
 import android.app.Application
+import com.gdavidpb.tuindice.base.di.baseModule
 import com.gdavidpb.tuindice.migrations.MigrationManager
-import com.gdavidpb.tuindice.di.modules.mockModule
+import com.gdavidpb.tuindice.di.modules.appMockModule
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
+import com.gdavidpb.tuindice.evaluations.di.modules.evaluationsModule
+import com.gdavidpb.tuindice.login.di.modules.loginModule
+import com.gdavidpb.tuindice.record.di.modules.recordModule
+import com.gdavidpb.tuindice.summary.di.modules.summaryModule
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
@@ -16,24 +21,31 @@ import java.util.*
 
 @KoinReflectAPI
 class TuIndiceMockApp : Application() {
-    override fun onCreate() {
-        super.onCreate()
+	override fun onCreate() {
+		super.onCreate()
 
-        Locale.setDefault(DEFAULT_LOCALE)
-        TimeZone.setDefault(DEFAULT_TIME_ZONE)
+		Locale.setDefault(DEFAULT_LOCALE)
+		TimeZone.setDefault(DEFAULT_TIME_ZONE)
 
-        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
+		FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
 
-        MigrationManager.execute(applicationContext)
+		MigrationManager.execute(applicationContext)
 
-        startKoin {
-            androidLogger(Level.NONE)
+		startKoin {
+			androidLogger(Level.NONE)
 
-            androidContext(this@TuIndiceMockApp)
+			androidContext(this@TuIndiceMockApp)
 
-            androidFileProperties()
+			androidFileProperties()
 
-            modules(mockModule)
-        }
-    }
+			modules(
+				appMockModule,
+				baseModule,
+				loginModule,
+				summaryModule,
+				recordModule,
+				evaluationsModule
+			)
+		}
+	}
 }

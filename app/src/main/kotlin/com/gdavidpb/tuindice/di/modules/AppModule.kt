@@ -7,8 +7,9 @@ import androidx.room.Room
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.domain.repository.*
-import com.gdavidpb.tuindice.base.domain.usecase.*
-import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.base.utils.ConfigKeys
+import com.gdavidpb.tuindice.base.utils.extensions.create
+import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
 import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataSource
@@ -26,9 +27,6 @@ import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataSource
 import com.gdavidpb.tuindice.data.source.storage.LocalStorageDataSource
 import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataSource
 import com.gdavidpb.tuindice.data.source.android.AndroidApplicationDataSource
-import com.gdavidpb.tuindice.base.utils.ConfigKeys
-import com.gdavidpb.tuindice.base.utils.extensions.create
-import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
 import com.gdavidpb.tuindice.data.source.room.schema.DatabaseModel
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -44,7 +42,6 @@ import com.squareup.picasso.Picasso
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -172,10 +169,6 @@ val appModule = module {
 			.build()
 	}
 
-	/* View Models */
-
-	viewModel<MainViewModel>()
-
 	/* Repositories */
 
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
@@ -192,14 +185,6 @@ val appModule = module {
 	factoryOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
 	factoryOf(::GooglePlayServicesDataSource) { bind<MobileServicesRepository>() }
 	factoryOf(::CloudFunctionsDataSource) { bind<ServicesRepository>() }
-
-	/* Use cases */
-
-	factoryOf(::SignOutUseCase)
-	factoryOf(::SyncUseCase)
-	factoryOf(::SetLastScreenUseCase)
-	factoryOf(::RequestReviewUseCase)
-	factoryOf(::GetUpdateInfoUseCase)
 
 	/* Utils */
 
