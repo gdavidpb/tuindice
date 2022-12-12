@@ -8,22 +8,24 @@ import com.gdavidpb.tuindice.base.utils.MIN_EVALUATION_GRADE
 import com.gdavidpb.tuindice.base.utils.extensions.hideSoftKeyboard
 import com.gdavidpb.tuindice.base.utils.extensions.formatGrade
 import com.gdavidpb.tuindice.evaluations.R
-import org.koin.core.component.KoinComponent
+import com.google.android.material.textfield.TextInputLayout
+import kotlinx.android.synthetic.main.view_grade_input.view.textInputLayout as input
 
-class GradeInputLayout(context: Context, attrs: AttributeSet) : InputLayout(context, attrs),
-	KoinComponent {
+class GradeInputLayout(context: Context, attrs: AttributeSet) : InputLayout(context, attrs) {
 
 	private object Defaults {
 		val RANGE_EVALUATION_GRADE = MIN_EVALUATION_GRADE..MAX_EVALUATION_GRADE
 	}
 
-	override fun onInflateView(): Int {
-		return R.layout.view_grade_input
-	}
+	override fun onInflateView(): Int = R.layout.view_grade_input
+
+	override val textInputLayout: TextInputLayout by lazy { input }
 
 	override fun onViewInflated() {
-		editText?.setOnFocusChangeListener { _, hasFocus ->
-			if (!hasFocus) editText?.hideSoftKeyboard()
+		textInputLayout.editText?.apply {
+			setOnFocusChangeListener { _, hasFocus ->
+				if (!hasFocus) hideSoftKeyboard()
+			}
 		}
 	}
 
@@ -38,10 +40,10 @@ class GradeInputLayout(context: Context, attrs: AttributeSet) : InputLayout(cont
 	}
 
 	fun getGrade(): Double {
-		return "${editText?.text}".toDoubleOrNull() ?: 0.0
+		return "${textInputLayout.editText?.text}".toDoubleOrNull() ?: 0.0
 	}
 
 	fun setGrade(grade: Double) {
-		editText?.setText(grade.formatGrade())
+		textInputLayout.editText?.setText(grade.formatGrade())
 	}
 }
