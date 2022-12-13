@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.summary.ui.customs
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.utils.extensions.loadAttributes
 import com.gdavidpb.tuindice.base.utils.extensions.animatePercent
@@ -79,7 +80,7 @@ class StatusCardView(context: Context, attrs: AttributeSet) : FrameLayout(contex
 				textView.text = "$value"
 				textView.isVisible = true
 			} else
-				textView.isVisible = false
+				textView.isInvisible = true
 		}
 	}
 }
