@@ -98,6 +98,9 @@ dependencies {
     implementation project(":evaluations")
 
     testImplementation "junit:junit:4.13.2"
+
+    /* Room */
+    kapt "androidx.room:room-compiler:${versions.room}"
 }
 
 apply plugin: "com.google.gms.google-services"
