@@ -34,6 +34,6 @@ class AuthMockDataSource(
     }
 
     override suspend fun getAuthProvider(): String {
-        return ""
+        return "custom"
     }
 }
