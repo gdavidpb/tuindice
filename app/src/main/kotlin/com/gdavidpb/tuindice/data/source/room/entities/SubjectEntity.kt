@@ -28,7 +28,8 @@ import com.gdavidpb.tuindice.data.source.room.schema.SubjectTable
 		)
 	],
 	indices = [
-		Index(value = [SubjectTable.QUARTER_ID, SubjectTable.CODE], unique = true)
+		Index(value = [SubjectTable.QUARTER_ID, SubjectTable.CODE], unique = true),
+		Index(value = [SubjectTable.ACCOUNT_ID])
 	]
 )
 data class SubjectEntity(

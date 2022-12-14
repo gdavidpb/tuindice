@@ -32,6 +32,11 @@ import java.util.*
 			onDelete = ForeignKey.CASCADE,
 			onUpdate = ForeignKey.CASCADE
 		)
+	],
+	indices = [
+		Index(value = [EvaluationTable.ACCOUNT_ID]),
+		Index(value = [EvaluationTable.QUARTER_ID]),
+		Index(value = [EvaluationTable.SUBJECT_ID])
 	]
 )
 data class EvaluationEntity(

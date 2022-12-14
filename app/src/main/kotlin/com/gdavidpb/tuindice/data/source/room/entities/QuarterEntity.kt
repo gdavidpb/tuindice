@@ -18,7 +18,8 @@ import java.util.*
 		)
 	],
 	indices = [
-		Index(value = [QuarterTable.START_DATE, QuarterTable.END_DATE], unique = true)
+		Index(value = [QuarterTable.START_DATE, QuarterTable.END_DATE], unique = true),
+		Index(value = [QuarterTable.ACCOUNT_ID])
 	]
 )
 data class QuarterEntity(
