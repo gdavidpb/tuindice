@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.base.utils.extensions
 
 import com.gdavidpb.tuindice.base.domain.model.exception.IllegalAuthProviderException
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.storage.StorageException
 import kotlinx.coroutines.TimeoutCancellationException
 import retrofit2.HttpException
@@ -65,6 +64,5 @@ fun Throwable.isConnection() = when (this) {
     is SSLHandshakeException -> true
     is HttpException -> true
     is ExecutionException -> true
-    is FirebaseFirestoreException -> (code == FirebaseFirestoreException.Code.UNAVAILABLE)
     else -> false
 }

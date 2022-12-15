@@ -40,7 +40,6 @@ dependencies {
     api "com.google.firebase:firebase-config"
     api "com.google.firebase:firebase-core"
     api "com.google.firebase:firebase-auth"
-    api "com.google.firebase:firebase-firestore"
     api "com.google.firebase:firebase-messaging"
     api "com.google.firebase:firebase-storage"
     api "com.google.firebase:firebase-crashlytics"

@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.base.data.model.database.EvaluationUpdate
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.domain.request.UpdateEvaluationRequest
-import com.google.firebase.Timestamp
 import java.util.*
 
 fun Evaluation.toUpdateRequest(
@@ -21,7 +20,7 @@ fun Evaluation.toUpdateRequest(
 		type = type.ordinal,
 		grade = grade,
 		maxGrade = maxGrade,
-		date = Timestamp(date),
+		date = date,
 		notes = notes,
 		isDone = isDone
 	),
@@ -32,7 +31,7 @@ fun Evaluation.applyUpdate(update: EvaluationUpdate) = copy(
 	type = EvaluationType.values()[update.type],
 	grade = update.grade,
 	maxGrade = update.maxGrade,
-	date = update.date.toDate(),
+	date = update.date,
 	notes = update.notes,
 	isDone = update.isDone
 )

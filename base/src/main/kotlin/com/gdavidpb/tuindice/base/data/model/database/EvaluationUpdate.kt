@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.base.data.model.database
 
-import com.google.firebase.Timestamp
+import java.util.Date
 
 data class EvaluationUpdate(
 	val notes: String,
 	val grade: Double,
 	val maxGrade: Double,
-	val date: Timestamp,
+	val date: Date,
 	val type: Int,
 	val isDone: Boolean
 )
