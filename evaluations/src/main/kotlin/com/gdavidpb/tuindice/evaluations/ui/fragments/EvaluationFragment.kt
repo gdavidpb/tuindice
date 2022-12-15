@@ -18,7 +18,6 @@ import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.google.android.material.chip.Chip
-import com.google.firebase.Timestamp
 import kotlinx.android.synthetic.main.fragment_evaluation.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -140,7 +139,7 @@ class EvaluationFragment : NavigationFragment() {
 			notes = tInputEvaluationName.getName(),
 			grade = maxGrade,
 			maxGrade = maxGrade,
-			date = Timestamp(dPickerEvaluationDate.selectedDate),
+			date = dPickerEvaluationDate.selectedDate,
 			type = getType().ordinal,
 			isDone = false
 		)

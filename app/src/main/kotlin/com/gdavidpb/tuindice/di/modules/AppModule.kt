@@ -14,7 +14,6 @@ import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseAuthDataSource
-import com.gdavidpb.tuindice.data.source.firestore.FirestoreDataSource
 import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.functions.CloudFunctionsDataSource
 import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
@@ -33,7 +32,6 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.storage.FirebaseStorage
@@ -105,10 +103,6 @@ val appModule = module {
 	}
 
 	single {
-		FirebaseFirestore.getInstance()
-	}
-
-	single {
 		FirebaseStorage.getInstance()
 	}
 
@@ -176,7 +170,6 @@ val appModule = module {
 	factoryOf(::LocalStorageDataSource) { bind<StorageRepository>() }
 	factoryOf(::FirebaseStorageDataSource) { bind<RemoteStorageRepository>() }
 	factoryOf(::FirebaseAuthDataSource) { bind<AuthRepository>() }
-	factoryOf(::FirestoreDataSource) { bind<DatabaseRepository>() }
 	factoryOf(::FirebaseCloudMessagingDataSource) { bind<MessagingRepository>() }
 	factoryOf(::ContentResolverDataSource) { bind<ContentRepository>() }
 	factoryOf(::RemoteConfigDataSource) { bind<ConfigRepository>() }

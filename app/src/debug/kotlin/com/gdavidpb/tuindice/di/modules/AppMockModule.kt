@@ -41,8 +41,6 @@ import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.testing.FakeReviewManager
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.gson.Gson
 import com.squareup.picasso.Picasso
@@ -109,18 +107,6 @@ val appMockModule = module {
 	}
 
 	single {
-		val settings = FirebaseFirestoreSettings.Builder()
-			.setHost("${BuildConfig.URL_MOCK}:8080")
-			.setSslEnabled(false)
-			.setPersistenceEnabled(false)
-			.build()
-
-		FirebaseFirestore.getInstance().apply {
-			firestoreSettings = settings
-		}
-	}
-
-	single {
 		val logger = HttpLoggingInterceptor.Logger { message ->
 			get<ReportingRepository>().logMessage(message)
 		}
@@ -177,7 +163,6 @@ val appMockModule = module {
 	factoryOf(::LocalStorageDataSource) { bind<StorageRepository>() }
 	factoryOf(::RemoteStorageMockDataSource) { bind<RemoteStorageRepository>() }
 	factoryOf(::AuthMockDataSource) { bind<AuthRepository>() }
-	factoryOf(::FirestoreMockDataSource) { bind<DatabaseRepository>() }
 	factoryOf(::MessagingMockDataSource) { bind<MessagingRepository>() }
 	factoryOf(::ContentResolverDataSource) { bind<ContentRepository>() }
 	factoryOf(::RemoteConfigMockDataSource) { bind<ConfigRepository>() }
