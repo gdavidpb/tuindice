@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.data.source.room.RoomDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataSource
 import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataSource
@@ -133,6 +134,14 @@ val appModule = module {
 		ReviewManagerFactory.create(androidContext())
 	}
 
+	/* Room */
+
+	single {
+		Room.databaseBuilder(androidContext(), TuIndiceDatabase::class.java, DatabaseModel.NAME)
+			.fallbackToDestructiveMigration()
+			.build()
+	}
+
 	/* TuIndice API */
 
 	single {
@@ -171,6 +180,7 @@ val appModule = module {
 	factoryOf(::FirebaseStorageDataSource) { bind<RemoteStorageRepository>() }
 	factoryOf(::FirebaseAuthDataSource) { bind<AuthRepository>() }
 	factoryOf(::FirebaseCloudMessagingDataSource) { bind<MessagingRepository>() }
+	factoryOf(::RoomDataSource) { bind<DatabaseRepository>() }
 	factoryOf(::ContentResolverDataSource) { bind<ContentRepository>() }
 	factoryOf(::RemoteConfigDataSource) { bind<ConfigRepository>() }
 	factoryOf(::CrashlyticsReportingDataSource) { bind<ReportingRepository>() }
