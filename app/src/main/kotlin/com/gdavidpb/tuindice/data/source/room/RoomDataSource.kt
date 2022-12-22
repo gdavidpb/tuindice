@@ -10,10 +10,7 @@ import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.base.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.base.utils.extensions.tomorrow
 import com.gdavidpb.tuindice.base.utils.extensions.withTransaction
-import com.gdavidpb.tuindice.data.source.room.mappers.toAccount
-import com.gdavidpb.tuindice.data.source.room.mappers.toAccountEntity
-import com.gdavidpb.tuindice.data.source.room.mappers.toQuarterEntity
-import com.gdavidpb.tuindice.data.source.room.mappers.toSubjectEntity
+import com.gdavidpb.tuindice.data.source.room.mappers.*
 import java.util.*
 
 class RoomDataSource(
@@ -53,7 +50,12 @@ class RoomDataSource(
 	}
 
 	override suspend fun getQuarter(uid: String, qid: String): Quarter {
-		TODO("Not yet implemented")
+		val subjects = room.subjects.getSubjectsFromQuarter(qid)
+			.map { subjectEntity -> subjectEntity.toSubject() }
+
+		val quarterEntity = room.quarters.getQuarter(uid, qid)
+
+		return quarterEntity.toQuarter(subjects)
 	}
 
 	override suspend fun getQuarters(uid: String): List<Quarter> {
