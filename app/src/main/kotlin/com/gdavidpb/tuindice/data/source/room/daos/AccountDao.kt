@@ -8,6 +8,9 @@ import java.util.Date
 
 @Dao
 interface AccountDao : BaseDao<AccountEntity> {
+	@Query("SELECT * FROM ${AccountTable.TABLE_NAME} WHERE ${AccountTable.ID} = :uid")
+	suspend fun getAccount(uid: String): AccountEntity
+
 	@Query("SELECT ${AccountTable.LAST_UPDATE} FROM ${AccountTable.TABLE_NAME} WHERE ${AccountTable.ID} = :uid")
 	suspend fun getLastUpdate(uid: String): Date
 }
