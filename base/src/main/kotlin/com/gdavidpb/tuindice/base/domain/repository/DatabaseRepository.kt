@@ -14,7 +14,7 @@ interface DatabaseRepository {
 	suspend fun addAccount(uid: String, account: Account)
 	suspend fun getAccount(uid: String): Account
 
-	suspend fun addQuarter(uid: String, quarter: Quarter): Quarter
+	suspend fun addQuarter(uid: String, quarter: Quarter)
 	suspend fun getQuarter(uid: String, qid: String): Quarter
 	suspend fun getQuarters(uid: String): List<Quarter>
 	suspend fun updateQuarter(uid: String, qid: String, update: QuarterUpdate): Quarter

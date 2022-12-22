@@ -26,7 +26,6 @@ data class QuarterEntity(
 	@PrimaryKey @ColumnInfo(name = QuarterTable.ID) val id: String,
 	@ColumnInfo(name = QuarterTable.ACCOUNT_ID) val accountId: String,
 	@ColumnInfo(name = QuarterTable.STATUS) val status: Int,
-	@ColumnInfo(name = QuarterTable.MOCK) val mock: Boolean,
 	@ColumnInfo(name = QuarterTable.START_DATE) val startDate: Date,
 	@ColumnInfo(name = QuarterTable.END_DATE) val endDate: Date,
 	@ColumnInfo(name = QuarterTable.GRADE) val grade: Double,
