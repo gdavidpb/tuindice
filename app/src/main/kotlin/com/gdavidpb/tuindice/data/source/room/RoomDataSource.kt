@@ -80,10 +80,6 @@ class RoomDataSource(
 		TODO("Not yet implemented")
 	}
 
-	override suspend fun updateToken(uid: String, token: String) {
-		TODO("Not yet implemented")
-	}
-
 	override suspend fun close() {
 		TODO("Not yet implemented")
 	}
