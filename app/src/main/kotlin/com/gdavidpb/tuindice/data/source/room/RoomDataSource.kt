@@ -27,7 +27,7 @@ class RoomDataSource(
 	override suspend fun addAccount(uid: String, account: Account) {
 		val accountEntity = account.toAccountEntity(uid)
 
-		room.accounts.add(accountEntity)
+		room.accounts.insert(accountEntity)
 	}
 
 	override suspend fun getAccount(uid: String): Account {
