@@ -30,7 +30,5 @@ interface DatabaseRepository {
 	suspend fun updateEvaluation(uid: String, eid: String, update: EvaluationUpdate): Evaluation
 	suspend fun removeEvaluation(uid: String, eid: String)
 
-	suspend fun updateToken(uid: String, token: String)
-
 	suspend fun close()
 }

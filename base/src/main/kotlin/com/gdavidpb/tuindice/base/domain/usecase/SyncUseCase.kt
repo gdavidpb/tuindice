@@ -32,9 +32,9 @@ class SyncUseCase(
 		configRepository.tryFetchAndActivate()
 
 		/* Update messaging service token */
-		val token = messagingRepository.getToken()
+		// TODO val token = messagingRepository.getToken()
 
-		if (token != null) databaseRepository.updateToken(uid = activeAuth.uid, token = token)
+		// TODO if (token != null) * Send token to server *
 
 		/* Subscribe to general topic */
 		if (!settingsRepository.isSubscribedToTopic(Topics.TOPIC_GENERAL)) {
