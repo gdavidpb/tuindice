@@ -6,7 +6,6 @@ object QuarterTable {
 	const val ID = "id"
 	const val ACCOUNT_ID = "a_id"
 	const val STATUS = "status"
-	const val MOCK = "mock"
 	const val GRADE = "grade"
 	const val GRADE_SUM = "grade_sum"
 	const val CREDITS = "credits"
