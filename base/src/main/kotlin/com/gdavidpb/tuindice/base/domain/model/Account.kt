@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.base.domain.model
 import java.util.*
 
 data class Account(
-	val uid: String,
 	val id: String,
 	val usbId: String,
 	val email: String,
@@ -23,6 +22,5 @@ data class Account(
 	val failedSubjects: Int,
 	val failedCredits: Int,
 	val lastUpdate: Date,
-	val approvedRelation: Double,
 	val appVersionCode: Int
 )
