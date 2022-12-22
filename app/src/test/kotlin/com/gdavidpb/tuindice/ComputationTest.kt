@@ -119,22 +119,6 @@ class ComputationTest {
     }
 
     @Test
-    fun isUpdated_Test() {
-        val today = Date()
-        val yesterday = Calendar.getInstance().run {
-            add(Calendar.DATE, -1)
-
-            time
-        }
-
-        val actualTrue = today.isUpdated()
-        val actualFalse = yesterday.isUpdated()
-
-        assertTrue(actualTrue)
-        assertFalse(actualFalse)
-    }
-
-    @Test
     fun computeGradeSum_Test() {
         val quarter1 = createQuarter(
                 startDate = "Enero 2019".parse("MMMM yyyy")!!,
