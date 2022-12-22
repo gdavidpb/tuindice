@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_OK
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_RETIRED
-import java.util.*
 import kotlin.math.roundToInt
 
 fun Double.toSubjectGrade() = when (roundToInt()) {
@@ -25,13 +24,6 @@ fun Collection<Subject>.filterNoEffect(): Collection<Subject> {
 		filterIndexed { index, _ -> index != 1 }
 	else
 		this
-}
-
-fun Date.isUpdated(): Boolean {
-	val now = Date()
-	val outdated = tomorrow()
-
-	return now.before(outdated)
 }
 
 fun Collection<Subject>.computeCredits() = sumOf {

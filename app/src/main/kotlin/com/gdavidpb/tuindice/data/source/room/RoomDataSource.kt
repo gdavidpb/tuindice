@@ -8,12 +8,18 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.base.domain.repository.DatabaseRepository
+import com.gdavidpb.tuindice.base.utils.extensions.tomorrow
+import java.util.*
 
 class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : DatabaseRepository {
 	override suspend fun isUpdated(uid: String): Boolean {
-		TODO("Not yet implemented")
+		val now = Date()
+		val lastUpdate = room.accounts.getLastUpdate(uid)
+		val outdated = lastUpdate.tomorrow()
+
+		return now.before(outdated)
 	}
 
 	override suspend fun addAccount(uid: String, account: Account) {
