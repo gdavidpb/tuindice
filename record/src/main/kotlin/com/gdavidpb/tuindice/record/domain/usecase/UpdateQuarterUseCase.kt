@@ -33,10 +33,16 @@ class UpdateQuarterUseCase(
 				credits = computedQuarter.credits
 			)
 
-			databaseRepository.runBatch {
-				updateSubject(uid = activeUId, sid = params.sid, update = subjectUpdate)
-				updateQuarter(uid = activeUId, qid = params.qid, update = quarterUpdate)
-			}
+			databaseRepository.updateSubject(
+				uid = activeUId,
+				sid = params.sid,
+				update = subjectUpdate
+			)
+			databaseRepository.updateQuarter(
+				uid = activeUId,
+				qid = params.qid,
+				update = quarterUpdate
+			)
 		}
 
 		return computedQuarter

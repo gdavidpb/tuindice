@@ -27,10 +27,7 @@ class StartUpUseCase(
 		return if (isActiveAuth) {
 			val lastScreen = settingsRepository.getLastScreen()
 			val activeAuth = authRepository.getActiveAuth()
-			val hasCache = databaseRepository.hasCache(uid = activeAuth.uid)
 			val activeAccount = databaseRepository.getAccount(uid = activeAuth.uid)
-
-			check(hasCache) { "handleSignedIn no cache" }
 
 			StartUpAction.Main(screen = lastScreen, account = activeAccount)
 		} else

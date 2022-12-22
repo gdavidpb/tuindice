@@ -84,22 +84,6 @@ class RoomDataSource(
 		TODO("Not yet implemented")
 	}
 
-	override suspend fun runBatch(batch: suspend DatabaseRepository.() -> Unit) {
-		TODO("Not yet implemented")
-	}
-
-	override suspend fun hasCache(uid: String): Boolean {
-		TODO("Not yet implemented")
-	}
-
-	override suspend fun cache(uid: String) {
-		TODO("Not yet implemented")
-	}
-
-	override suspend fun clearCache() {
-		TODO("Not yet implemented")
-	}
-
 	override suspend fun close() {
 		TODO("Not yet implemented")
 	}

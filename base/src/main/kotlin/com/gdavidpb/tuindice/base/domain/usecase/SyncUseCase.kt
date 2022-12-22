@@ -47,9 +47,6 @@ class SyncUseCase(
 		/* Call sync API */
 		serviceRepository.sync()
 
-		/* Refresh cache */
-		databaseRepository.cache(uid = activeAuth.uid)
-
 		return true
 	}
 

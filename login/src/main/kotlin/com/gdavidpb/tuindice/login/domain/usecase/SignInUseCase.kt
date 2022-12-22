@@ -12,7 +12,6 @@ import okhttp3.Credentials
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class SignInUseCase(
-	private val databaseRepository: DatabaseRepository,
 	private val reportingRepository: ReportingRepository,
 	private val authRepository: AuthRepository,
 	private val networkRepository: NetworkRepository,
@@ -42,9 +41,7 @@ class SignInUseCase(
 
 		reportingRepository.setIdentifier(identifier = authSignIn.uid)
 
-		databaseRepository.cache(uid = authSignIn.uid)
-
-		return databaseRepository.hasCache(uid = authSignIn.uid)
+		return true
 	}
 
 	override suspend fun executeOnException(throwable: Throwable): SignInError? {

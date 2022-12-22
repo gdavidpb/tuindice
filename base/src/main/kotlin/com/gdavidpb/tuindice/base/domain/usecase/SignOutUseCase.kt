@@ -19,7 +19,6 @@ class SignOutUseCase(
 		authRepository.signOut()
 		settingsRepository.clear()
 		databaseRepository.close()
-		databaseRepository.clearCache()
 		storageRepository.clear()
 		dependenciesRepository.restart()
 		ComputationManager.clearCache()
