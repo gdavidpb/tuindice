@@ -1,8 +1,5 @@
 package com.gdavidpb.tuindice.data.source.room
 
-import com.gdavidpb.tuindice.base.data.model.database.EvaluationUpdate
-import com.gdavidpb.tuindice.base.data.model.database.QuarterUpdate
-import com.gdavidpb.tuindice.base.data.model.database.SubjectUpdate
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.Quarter
@@ -63,10 +60,6 @@ class RoomDataSource(
 		}
 	}
 
-	override suspend fun updateQuarter(uid: String, qid: String, update: QuarterUpdate): Quarter {
-		TODO("Not yet implemented")
-	}
-
 	override suspend fun removeQuarter(uid: String, qid: String) {
 		room.quarters.deleteQuarter(uid, qid)
 	}
@@ -75,10 +68,6 @@ class RoomDataSource(
 		val subjectEntity = room.subjects.getSubject(uid, sid)
 
 		return subjectEntity.toSubject()
-	}
-
-	override suspend fun updateSubject(uid: String, sid: String, update: SubjectUpdate): Subject {
-		TODO("Not yet implemented")
 	}
 
 	override suspend fun addEvaluation(uid: String, evaluation: Evaluation) {
@@ -99,14 +88,6 @@ class RoomDataSource(
 		return evaluationsEntities.map { evaluationEntity ->
 			evaluationEntity.toEvaluation()
 		}
-	}
-
-	override suspend fun updateEvaluation(
-		uid: String,
-		eid: String,
-		update: EvaluationUpdate
-	): Evaluation {
-		TODO("Not yet implemented")
 	}
 
 	override suspend fun removeEvaluation(uid: String, eid: String) {

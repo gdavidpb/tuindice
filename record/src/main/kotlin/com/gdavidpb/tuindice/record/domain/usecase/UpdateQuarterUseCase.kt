@@ -1,19 +1,14 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
-import com.gdavidpb.tuindice.base.data.model.database.QuarterUpdate
-import com.gdavidpb.tuindice.base.data.model.database.SubjectUpdate
 import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
-import com.gdavidpb.tuindice.base.utils.ComputationManager
 import com.gdavidpb.tuindice.record.domain.request.UpdateQuarterRequest
 
 class UpdateQuarterUseCase(
-	private val authRepository: AuthRepository,
-	private val databaseRepository: DatabaseRepository
 ) : ResultUseCase<UpdateQuarterRequest, Quarter, Nothing>() {
 	override suspend fun executeOnBackground(params: UpdateQuarterRequest): Quarter {
+		TODO("Not yet implemented")
+		/*
 		val activeUId = authRepository.getActiveAuth().uid
 
 		val computedQuarter = ComputationManager.computeQuarter(
@@ -46,5 +41,6 @@ class UpdateQuarterUseCase(
 		}
 
 		return computedQuarter
+		*/
 	}
 }
