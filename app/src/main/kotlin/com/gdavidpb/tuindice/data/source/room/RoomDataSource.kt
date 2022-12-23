@@ -88,7 +88,9 @@ class RoomDataSource(
 	}
 
 	override suspend fun getEvaluation(uid: String, eid: String): Evaluation {
-		TODO("Not yet implemented")
+		val evaluationEntity = room.evaluations.getEvaluation(uid, eid)
+
+		return evaluationEntity.toEvaluation()
 	}
 
 	override suspend fun getSubjectEvaluations(uid: String, sid: String): List<Evaluation> {
