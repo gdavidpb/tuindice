@@ -1,8 +1,5 @@
 package com.gdavidpb.tuindice.base.domain.repository
 
-import com.gdavidpb.tuindice.base.data.model.database.EvaluationUpdate
-import com.gdavidpb.tuindice.base.data.model.database.QuarterUpdate
-import com.gdavidpb.tuindice.base.data.model.database.SubjectUpdate
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.Quarter
@@ -17,16 +14,13 @@ interface DatabaseRepository {
 	suspend fun addQuarter(uid: String, quarter: Quarter)
 	suspend fun getQuarter(uid: String, qid: String): Quarter
 	suspend fun getQuarters(uid: String): List<Quarter>
-	suspend fun updateQuarter(uid: String, qid: String, update: QuarterUpdate): Quarter
 	suspend fun removeQuarter(uid: String, qid: String)
 
 	suspend fun getSubject(uid: String, sid: String): Subject
-	suspend fun updateSubject(uid: String, sid: String, update: SubjectUpdate): Subject
 
 	suspend fun addEvaluation(uid: String, evaluation: Evaluation)
 	suspend fun getEvaluation(uid: String, eid: String): Evaluation
 	suspend fun getSubjectEvaluations(uid: String, sid: String): List<Evaluation>
-	suspend fun updateEvaluation(uid: String, eid: String, update: EvaluationUpdate): Evaluation
 	suspend fun removeEvaluation(uid: String, eid: String)
 
 	suspend fun close()
