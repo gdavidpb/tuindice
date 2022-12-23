@@ -13,4 +13,11 @@ interface EvaluationDao : BaseDao<EvaluationEntity> {
 				"AND ${EvaluationTable.ID} = :eid"
 	)
 	suspend fun getEvaluation(uid: String, eid: String): EvaluationEntity
+
+	@Query(
+		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
+				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
+				"AND ${EvaluationTable.SUBJECT_ID} = :sid"
+	)
+	suspend fun getSubjectEvaluations(uid: String, sid: String): List<EvaluationEntity>
 }
