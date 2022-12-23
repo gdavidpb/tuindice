@@ -3,8 +3,10 @@ package com.gdavidpb.tuindice.data.source.room.daos
 import androidx.room.Dao
 import androidx.room.Query
 import com.gdavidpb.tuindice.data.source.room.entities.QuarterEntity
+import com.gdavidpb.tuindice.data.source.room.entities.SubjectEntity
 import com.gdavidpb.tuindice.data.source.room.otm.QuarterWithSubjects
 import com.gdavidpb.tuindice.data.source.room.schema.QuarterTable
+import com.gdavidpb.tuindice.data.source.room.schema.SubjectTable
 
 @Dao
 interface QuarterDao : BaseDao<QuarterEntity> {
@@ -14,4 +16,12 @@ interface QuarterDao : BaseDao<QuarterEntity> {
 				"AND ${QuarterTable.ID} = :qid"
 	)
 	suspend fun getQuarter(uid: String, qid: String): QuarterWithSubjects
+
+	@Query(
+		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
+				"JOIN ${SubjectTable.TABLE_NAME} " +
+				"ON ${QuarterTable.TABLE_NAME}.${QuarterTable.ID} = ${SubjectTable.TABLE_NAME}.${SubjectTable.QUARTER_ID} " +
+				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid"
+	)
+	suspend fun getQuarters(uid: String): Map<QuarterEntity, List<SubjectEntity>>
 }
