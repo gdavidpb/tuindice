@@ -50,10 +50,9 @@ class RoomDataSource(
 	}
 
 	override suspend fun getQuarter(uid: String, qid: String): Quarter {
-		val subjects = room.subjects.getSubjectsFromQuarter(qid)
-			.map { subjectEntity -> subjectEntity.toSubject() }
+		val (quarterEntity, subjectsEntities) = room.quarters.getQuarter(uid, qid)
 
-		val quarterEntity = room.quarters.getQuarter(uid, qid)
+		val subjects = subjectsEntities.map { subjectEntity -> subjectEntity.toSubject() }
 
 		return quarterEntity.toQuarter(subjects)
 	}
