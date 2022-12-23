@@ -77,10 +77,6 @@ class RoomDataSource(
 		return subjectEntity.toSubject()
 	}
 
-	override suspend fun getQuarterSubjects(uid: String, qid: String): List<Subject> {
-		TODO("Not yet implemented")
-	}
-
 	override suspend fun updateSubject(uid: String, sid: String, update: SubjectUpdate): Subject {
 		TODO("Not yet implemented")
 	}

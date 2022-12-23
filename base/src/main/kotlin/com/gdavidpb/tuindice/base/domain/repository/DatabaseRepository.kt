@@ -21,7 +21,6 @@ interface DatabaseRepository {
 	suspend fun removeQuarter(uid: String, qid: String)
 
 	suspend fun getSubject(uid: String, sid: String): Subject
-	suspend fun getQuarterSubjects(uid: String, qid: String): List<Subject>
 	suspend fun updateSubject(uid: String, sid: String, update: SubjectUpdate): Subject
 
 	suspend fun addEvaluation(uid: String, evaluation: Evaluation): Evaluation
