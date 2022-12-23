@@ -72,7 +72,9 @@ class RoomDataSource(
 	}
 
 	override suspend fun getSubject(uid: String, sid: String): Subject {
-		TODO("Not yet implemented")
+		val subjectEntity = room.subjects.getSubject(uid, sid)
+
+		return subjectEntity.toSubject()
 	}
 
 	override suspend fun getQuarterSubjects(uid: String, qid: String): List<Subject> {

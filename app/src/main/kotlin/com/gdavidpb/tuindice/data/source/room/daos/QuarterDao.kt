@@ -12,7 +12,7 @@ import com.gdavidpb.tuindice.data.source.room.schema.SubjectTable
 @Dao
 interface QuarterDao : BaseDao<QuarterEntity> {
 	@Query(
-		"SELECT *  FROM ${QuarterTable.TABLE_NAME} " +
+		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
 				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid " +
 				"AND ${QuarterTable.ID} = :qid"
 	)
