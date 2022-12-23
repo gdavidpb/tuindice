@@ -128,6 +128,9 @@
             android:name="title"
             app:argType="string" />
         <argument
+            android:name="quarterId"
+            app:argType="string" />
+        <argument
             android:name="subjectId"
             app:argType="string" />
         <argument

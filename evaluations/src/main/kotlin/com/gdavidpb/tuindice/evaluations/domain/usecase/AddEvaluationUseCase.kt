@@ -12,6 +12,8 @@ class AddEvaluationUseCase(
 	override suspend fun executeOnBackground(params: Evaluation): Evaluation {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		return databaseRepository.addEvaluation(uid = activeUId, evaluation = params)
+		databaseRepository.addEvaluation(uid = activeUId, evaluation = params)
+
+		return params
 	}
 }

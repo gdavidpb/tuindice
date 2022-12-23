@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewMo
 import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.fragment_evaluation.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.util.*
 
 class EvaluationFragment : NavigationFragment() {
 
@@ -120,11 +121,13 @@ class EvaluationFragment : NavigationFragment() {
 		return Evaluation(
 			id = args.evaluationId ?: "",
 			sid = args.subjectId,
+			qid = args.quarterId,
 			subjectCode = args.subjectCode,
 			notes = tInputEvaluationName.getName(),
 			grade = maxGrade,
 			maxGrade = maxGrade,
 			date = dPickerEvaluationDate.selectedDate,
+			lastModified = Date(),
 			type = getType(),
 			isDone = false
 		)
