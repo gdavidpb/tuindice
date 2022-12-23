@@ -110,7 +110,7 @@ class RoomDataSource(
 	}
 
 	override suspend fun removeEvaluation(uid: String, eid: String) {
-		TODO("Not yet implemented")
+		room.evaluations.deleteEvaluation(uid, eid)
 	}
 
 	override suspend fun close() {
