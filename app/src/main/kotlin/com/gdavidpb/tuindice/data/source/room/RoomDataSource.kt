@@ -110,6 +110,6 @@ class RoomDataSource(
 	}
 
 	override suspend fun close() {
-		TODO("Not yet implemented")
+		room.close()
 	}
 }
