@@ -20,4 +20,11 @@ interface EvaluationDao : BaseDao<EvaluationEntity> {
 				"AND ${EvaluationTable.SUBJECT_ID} = :sid"
 	)
 	suspend fun getSubjectEvaluations(uid: String, sid: String): List<EvaluationEntity>
+
+	@Query(
+		"DELETE FROM ${EvaluationTable.TABLE_NAME} " +
+				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
+				"AND ${EvaluationTable.ID} = :eid"
+	)
+	suspend fun deleteEvaluation(uid: String, eid: String): Int
 }
