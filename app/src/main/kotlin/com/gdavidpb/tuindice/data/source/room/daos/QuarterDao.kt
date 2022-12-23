@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.data.source.room.daos
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import com.gdavidpb.tuindice.data.source.room.entities.QuarterEntity
 import com.gdavidpb.tuindice.data.source.room.entities.SubjectEntity
 import com.gdavidpb.tuindice.data.source.room.otm.QuarterWithSubjects
@@ -15,6 +16,7 @@ interface QuarterDao : BaseDao<QuarterEntity> {
 				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid " +
 				"AND ${QuarterTable.ID} = :qid"
 	)
+	@Transaction
 	suspend fun getQuarter(uid: String, qid: String): QuarterWithSubjects
 
 	@Query(
@@ -24,4 +26,11 @@ interface QuarterDao : BaseDao<QuarterEntity> {
 				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid"
 	)
 	suspend fun getQuarters(uid: String): Map<QuarterEntity, List<SubjectEntity>>
+
+	@Query(
+		"DELETE FROM ${QuarterTable.TABLE_NAME} " +
+				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid " +
+				"AND ${QuarterTable.ID} = :qid"
+	)
+	suspend fun deleteQuarter(uid: String, qid: String): Int
 }

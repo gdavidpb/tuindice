@@ -68,7 +68,7 @@ class RoomDataSource(
 	}
 
 	override suspend fun removeQuarter(uid: String, qid: String) {
-		TODO("Not yet implemented")
+		room.quarters.deleteQuarter(uid, qid)
 	}
 
 	override suspend fun getSubject(uid: String, sid: String): Subject {
