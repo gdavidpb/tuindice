@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.base.utils.extensions.*
 
 @Timeout(key = ConfigKeys.TIME_OUT_SYNC)
 class SyncUseCase(
-	private val serviceRepository: ServicesRepository,
 	private val authRepository: AuthRepository,
 	private val configRepository: ConfigRepository,
 	private val databaseRepository: DatabaseRepository,
@@ -45,7 +44,7 @@ class SyncUseCase(
 		if (isUpdated) return false
 
 		/* Call sync API */
-		serviceRepository.sync()
+		// TODO remove -> serviceRepository.sync()
 
 		return true
 	}
