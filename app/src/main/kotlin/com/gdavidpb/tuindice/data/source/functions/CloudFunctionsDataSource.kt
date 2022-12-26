@@ -4,8 +4,8 @@ import com.gdavidpb.tuindice.base.domain.model.EnrollmentProof
 import com.gdavidpb.tuindice.base.domain.model.SignIn
 import com.gdavidpb.tuindice.base.domain.repository.ServicesRepository
 import com.gdavidpb.tuindice.base.utils.extensions.getOrThrow
-import com.gdavidpb.tuindice.utils.mappers.toEnrollmentProof
-import com.gdavidpb.tuindice.utils.mappers.toSignIn
+import com.gdavidpb.tuindice.data.source.functions.mappers.toEnrollmentProof
+import com.gdavidpb.tuindice.data.source.functions.mappers.toSignIn
 
 class CloudFunctionsDataSource(
 	private val tuIndiceAPI: TuIndiceAPI
