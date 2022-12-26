@@ -16,10 +16,6 @@ class CloudFunctionsDataSource(
 			.toSignIn()
 	}
 
-	override suspend fun sync() {
-		throw NotImplementedError()
-	}
-
 	override suspend fun getEnrollmentProof(): EnrollmentProof {
 		return tuIndiceAPI.enrollmentProof()
 			.getOrThrow()
