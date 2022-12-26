@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class QuarterResponse(
 	@SerializedName("id") val id: String,
+	@SerializedName("name") val name: String,
 	@SerializedName("start_date") val startDate: Long,
 	@SerializedName("end_date") val endDate: Long,
 	@SerializedName("grade") val grade: Double,
