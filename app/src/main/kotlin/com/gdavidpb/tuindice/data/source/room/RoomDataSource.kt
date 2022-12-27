@@ -33,16 +33,19 @@ class RoomDataSource(
 		return accountEntity.toAccount()
 	}
 
-	override suspend fun addQuarter(uid: String, quarter: Quarter) {
-		val subjectsEntities = quarter.subjects
+	override suspend fun addQuarter(uid: String, vararg values: Quarter) {
+		val quartersEntities = values
+			.map { quarter -> quarter.toQuarterEntity(uid) }
+			.toTypedArray()
+
+		val subjectsEntities = values
+			.flatMap { quarter -> quarter.subjects }
 			.map { subject -> subject.toSubjectEntity(uid) }
 			.toTypedArray()
 
-		val quarterEntity = quarter.toQuarterEntity(uid)
-
 		room.withTransaction {
+			quarters.insert(*quartersEntities)
 			subjects.insert(*subjectsEntities)
-			quarters.insert(quarterEntity)
 		}
 	}
 
@@ -70,10 +73,12 @@ class RoomDataSource(
 		return subjectEntity.toSubject()
 	}
 
-	override suspend fun addEvaluation(uid: String, evaluation: Evaluation) {
-		val evaluationEntity = evaluation.toEvaluationEntity(uid)
+	override suspend fun addEvaluation(uid: String, vararg values: Evaluation) {
+		val evaluationEntity = values
+			.map { evaluation -> evaluation.toEvaluationEntity(uid) }
+			.toTypedArray()
 
-		room.evaluations.insert(evaluationEntity)
+		room.evaluations.insert(*evaluationEntity)
 	}
 
 	override suspend fun getEvaluation(uid: String, eid: String): Evaluation {

@@ -27,6 +27,7 @@ import com.gdavidpb.tuindice.data.source.storage.FirebaseStorageDataSource
 import com.gdavidpb.tuindice.data.source.storage.LocalStorageDataSource
 import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataSource
 import com.gdavidpb.tuindice.data.source.android.AndroidApplicationDataSource
+import com.gdavidpb.tuindice.data.source.tuindice.TuIndiceDataSource
 import com.gdavidpb.tuindice.data.source.room.schema.DatabaseModel
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -174,6 +175,7 @@ val appModule = module {
 
 	/* Repositories */
 
+	factoryOf(::TuIndiceDataSource) { bind<TuIndiceRepository>() }
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
 	factoryOf(::LocalStorageDataSource) { bind<StorageRepository>() }
