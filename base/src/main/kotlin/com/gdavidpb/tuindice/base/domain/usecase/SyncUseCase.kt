@@ -22,7 +22,7 @@ class SyncUseCase(
 		val isUpdated = databaseRepository.isUpdated(uid = activeAuth.uid)
 
 		/* Try to fetch remote configs */
-		configRepository.tryFetchAndActivate()
+		configRepository.tryFetch()
 
 		/* Update messaging service token */
 		// TODO val token = messagingRepository.getToken()

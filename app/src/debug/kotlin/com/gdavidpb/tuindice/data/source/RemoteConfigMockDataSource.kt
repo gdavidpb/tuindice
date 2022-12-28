@@ -9,7 +9,7 @@ class RemoteConfigMockDataSource(
 	private val remoteConfig: FirebaseRemoteConfig,
 	private val googleJson: Gson
 ) : ConfigRepository {
-	override suspend fun tryFetchAndActivate() {
+	override suspend fun tryFetch() {
 	}
 
 	override fun getString(key: String): String {
