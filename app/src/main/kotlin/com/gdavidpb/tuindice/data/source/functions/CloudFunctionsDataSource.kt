@@ -8,12 +8,22 @@ import com.gdavidpb.tuindice.base.utils.extensions.getOrThrow
 import com.gdavidpb.tuindice.data.source.functions.mappers.toEnrollmentProof
 import com.gdavidpb.tuindice.data.source.functions.mappers.toQuarter
 import com.gdavidpb.tuindice.data.source.functions.mappers.toSignIn
+import com.gdavidpb.tuindice.login.mapping.encodeCredentialsBasic
 
 class CloudFunctionsDataSource(
 	private val tuIndiceAPI: TuIndiceAPI
 ) : ServicesRepository {
-	override suspend fun signIn(basicToken: String, refreshToken: Boolean): SignIn {
-		return tuIndiceAPI.signIn(basicToken = basicToken, refreshToken = refreshToken)
+	override suspend fun signIn(
+		username: String,
+		password: String,
+		messagingToken: String?,
+		refreshToken: Boolean
+	): SignIn {
+		return tuIndiceAPI.signIn(
+			basicToken = encodeCredentialsBasic(username, password),
+			refreshToken = refreshToken,
+			messagingToken = messagingToken
+		)
 			.getOrThrow()
 			.toSignIn()
 	}

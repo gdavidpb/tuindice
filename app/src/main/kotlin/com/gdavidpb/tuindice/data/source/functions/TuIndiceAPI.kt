@@ -12,7 +12,8 @@ interface TuIndiceAPI {
 	@POST("signIn")
 	suspend fun signIn(
 		@Header("Authorization") basicToken: String,
-		@Header("Re-Authenticate") refreshToken: Boolean
+		@Header("Re-Authenticate") refreshToken: Boolean,
+		@Query("messagingToken") messagingToken: String? = null
 	): Response<SignInResponse>
 
 	/* Quarters */

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.animation.OvershootInterpolator
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.BuildConfig
+import com.gdavidpb.tuindice.base.domain.model.SignInRequest
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
@@ -73,10 +74,12 @@ class SignInFragment : NavigationFragment() {
 
 			iViewLogo.performClick()
 
-			viewModel.signIn(
+			val request = SignInRequest(
 				usbId = tInputUsbId.getUsbId(),
 				password = tInputPassword.getPassword()
 			)
+
+			viewModel.signIn(request)
 		}
 	}
 
@@ -142,18 +145,13 @@ class SignInFragment : NavigationFragment() {
 		}
 	}
 
-	private fun signInObserver(result: Event<Boolean, SignInError>?) {
+	private fun signInObserver(result: Event<Unit, SignInError>?) {
 		when (result) {
 			is Event.OnLoading -> {
 				showLoading(true)
 			}
 			is Event.OnSuccess -> {
-				val hasCache = result.value
-
-				if (hasCache)
-					navigate(SignInFragmentDirections.navToSplash())
-				else
-					viewModel.sync()
+				viewModel.sync()
 			}
 			is Event.OnError -> {
 				showLoading(false)

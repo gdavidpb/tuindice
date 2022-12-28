@@ -7,20 +7,19 @@ import com.gdavidpb.tuindice.data.source.functions.requests.AddQuarterRequest
 import com.gdavidpb.tuindice.data.source.functions.requests.UpdateQuarterRequest
 import com.gdavidpb.tuindice.data.source.functions.responses.*
 import com.gdavidpb.tuindice.base.utils.extensions.encodeToBase64String
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import retrofit2.Response
 import retrofit2.mock.BehaviorDelegate
 import java.util.*
 
 class TuIndiceAPIMock(
-	private val delegate: BehaviorDelegate<TuIndiceAPI>
-) : TuIndiceAPI, KoinComponent {
-	private val resources by inject<Resources>()
+	private val delegate: BehaviorDelegate<TuIndiceAPI>,
+	private val resources: Resources
+) : TuIndiceAPI {
 
 	override suspend fun signIn(
 		basicToken: String,
-		refreshToken: Boolean
+		refreshToken: Boolean,
+		messagingToken: String?
 	): Response<SignInResponse> {
 		val response = SignInResponse(
 			token = UUID.randomUUID().toString()
