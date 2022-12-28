@@ -75,7 +75,6 @@ const val MAX_EVALUATION_GRADE = 100.0
 const val MAX_EVALUATION_NOTES = 32
 const val MAX_QUARTER_GRADE = 5.0
 const val MAX_SUBJECT_GRADE = 5
-const val MAX_MULTIPLE_EVENT = 2
 
 /* Status */
 const val STATUS_QUARTER_CURRENT = 0
