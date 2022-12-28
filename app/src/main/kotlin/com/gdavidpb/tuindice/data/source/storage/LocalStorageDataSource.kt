@@ -1,26 +1,60 @@
 package com.gdavidpb.tuindice.data.source.storage
 
 import android.content.Context
+import com.gdavidpb.tuindice.base.domain.model.EnrollmentProof
+import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.repository.StorageRepository
+import com.gdavidpb.tuindice.base.utils.extensions.decodeFromBase64String
+import com.gdavidpb.tuindice.base.utils.extensions.encodeToBase64String
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.io.OutputStream
 
 class LocalStorageDataSource(
-	val context: Context
+	private val context: Context
 ) : StorageRepository {
 
-	private val root: File = context.filesDir
+	private val root by lazy { context.filesDir }
 
-	private fun ensurePath(path: String) = File(root, path).also { it.parentFile?.mkdirs() }
+	override suspend fun existsEnrollmentProof(quarter: Quarter): Boolean {
+		val outputPath = File(root, quarter.id)
+		val outputPdfFile = File(outputPath, "${quarter.name}.pdf")
+
+		return outputPdfFile.exists()
+	}
+
+	override suspend fun getEnrollmentProof(quarter: Quarter): EnrollmentProof {
+		val pdfFilePath = File(root, quarter.id)
+		val pdfFile = File(pdfFilePath, "${quarter.name}.pdf")
+
+		val base64EncodedString = pdfFile.readBytes().encodeToBase64String()
+
+		return EnrollmentProof(
+			name = quarter.name,
+			content = base64EncodedString
+		)
+	}
+
+	override suspend fun saveEnrollmentProof(quarter: Quarter, enrollmentProof: EnrollmentProof) {
+		val pdfFilePath = File(root, quarter.id)
+		val pdfFile = File(pdfFilePath, "${quarter.name}.pdf")
+
+		pdfFile.apply {
+			mkdirs()
+
+			val base64ByteArray = enrollmentProof.content.decodeFromBase64String()
+
+			writeBytes(base64ByteArray)
+		}
+	}
 
 	override fun get(path: String): File {
 		return File(root, path)
 	}
 
 	override fun create(path: String): File {
-		val outputFile = ensurePath(path)
+		val outputFile = File(path)
 
 		outputFile.createNewFile()
 
@@ -28,7 +62,7 @@ class LocalStorageDataSource(
 	}
 
 	override fun outputStream(path: String): OutputStream {
-		val file = ensurePath(path)
+		val file = File(path)
 
 		return file.outputStream()
 	}
@@ -58,7 +92,7 @@ class LocalStorageDataSource(
 		return file.exists()
 	}
 
-	override fun clear() {
+	override suspend fun clear() {
 		runCatching {
 			root.deleteRecursively()
 			root.mkdir()

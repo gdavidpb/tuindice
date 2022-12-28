@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
 import com.gdavidpb.tuindice.data.source.functions.requests.AddQuarterRequest
 import com.gdavidpb.tuindice.data.source.functions.requests.UpdateQuarterRequest
 import com.gdavidpb.tuindice.data.source.functions.responses.*
-import com.gdavidpb.tuindice.base.utils.extensions.base64
+import com.gdavidpb.tuindice.base.utils.extensions.encodeToBase64String
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import retrofit2.Response
@@ -52,7 +52,7 @@ class TuIndiceAPIMock(
 			name = "Enero - Marzo 2021",
 			content = resources.openRawResource(R.raw.enrollment_mock)
 				.use { it.readBytes() }
-				.base64()
+				.encodeToBase64String()
 		)
 
 		return delegate
