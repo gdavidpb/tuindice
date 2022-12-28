@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.base.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.model.exception.IllegalAuthProviderException
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
@@ -21,11 +20,6 @@ class SyncUseCase(
 	override suspend fun executeOnBackground(params: Unit): Boolean {
 		val activeAuth = authRepository.getActiveAuth()
 		val isUpdated = databaseRepository.isUpdated(uid = activeAuth.uid)
-
-		/* Api migration */
-		check(authRepository.getAuthProvider() == "custom") {
-			throw IllegalAuthProviderException()
-		}
 
 		/* Try to fetch remote configs */
 		configRepository.tryFetchAndActivate()
@@ -55,7 +49,6 @@ class SyncUseCase(
 			throwable.isUnavailable() -> SyncError.Unavailable
 			throwable.isConflict() -> SyncError.OutdatedPassword
 			throwable.isTimeout() -> SyncError.Timeout
-			throwable.isIllegalAuthProvider() -> SyncError.IllegalAuthProvider
 			throwable.isConnection() -> SyncError.NoConnection(networkRepository.isAvailable())
 			else -> null
 		}

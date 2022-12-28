@@ -28,14 +28,6 @@ class FirebaseAuthDataSource(
 			?: error("getActiveToken")
 	}
 
-	override suspend fun getAuthProvider(): String {
-		return auth.currentUser
-			?.getIdToken(false)
-			?.awaitOrNull()
-			?.signInProvider
-			?: ""
-	}
-
 	override suspend fun signIn(token: String): Auth {
 		return auth.signInWithCustomToken(token)
 			.await()
