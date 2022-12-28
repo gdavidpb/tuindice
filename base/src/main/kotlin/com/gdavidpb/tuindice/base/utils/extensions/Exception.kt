@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.base.utils.extensions
 
-import com.gdavidpb.tuindice.base.domain.model.exception.IllegalAuthProviderException
 import com.google.firebase.storage.StorageException
 import kotlinx.coroutines.TimeoutCancellationException
 import retrofit2.HttpException
@@ -35,11 +34,6 @@ fun Throwable.isUnauthorized() = when (this) {
 
 fun Throwable.isNotFound() = when (this) {
     is HttpException -> (code() == HttpURLConnection.HTTP_NOT_FOUND)
-    else -> false
-}
-
-fun Throwable.isIllegalAuthProvider() = when (this) {
-    is IllegalAuthProviderException -> true
     else -> false
 }
 

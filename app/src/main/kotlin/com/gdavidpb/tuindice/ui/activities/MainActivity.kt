@@ -192,7 +192,6 @@ class MainActivity : AppCompatActivity() {
 		when (error) {
 			is SyncError.AccountDisabled -> viewModel.signOut()
 			is SyncError.OutdatedPassword -> showUpdatePasswordDialog()
-			is SyncError.IllegalAuthProvider -> viewModel.signOut()
 			else -> {}
 		}
 	}
