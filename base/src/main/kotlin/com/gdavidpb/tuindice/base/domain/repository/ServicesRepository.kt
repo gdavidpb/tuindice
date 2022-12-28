@@ -7,7 +7,12 @@ import com.gdavidpb.tuindice.base.domain.model.SignIn
 interface ServicesRepository {
 	/* Session */
 
-	suspend fun signIn(basicToken: String, refreshToken: Boolean): SignIn
+	suspend fun signIn(
+		username: String,
+		password: String,
+		messagingToken: String? = null,
+		refreshToken: Boolean
+	): SignIn
 
 	/* Quarters */
 

@@ -6,34 +6,29 @@ import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.annotations.Timeout
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.base.domain.model.SignInRequest
-import com.gdavidpb.tuindice.base.utils.mappers.asUsbId
+import com.gdavidpb.tuindice.base.utils.Topics
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
-import okhttp3.Credentials
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class SignInUseCase(
-	private val reportingRepository: ReportingRepository,
 	private val authRepository: AuthRepository,
-	private val networkRepository: NetworkRepository,
-	private val serviceRepository: ServicesRepository
-) : EventUseCase<SignInRequest, Boolean, SignInError>() {
-	override suspend fun executeOnBackground(params: SignInRequest): Boolean {
+	private val serviceRepository: ServicesRepository,
+	private val settingsRepository: SettingsRepository,
+	private val messagingRepository: MessagingRepository,
+	private val reportingRepository: ReportingRepository,
+	private val networkRepository: NetworkRepository
+) : EventUseCase<SignInRequest, Unit, SignInError>() {
+	override suspend fun executeOnBackground(params: SignInRequest) {
 		val isActiveAuth = authRepository.isActiveAuth()
-
-		val usbId = if (isActiveAuth)
-			authRepository.getActiveAuth().email.asUsbId()
-		else
-			params.usbId
 
 		if (isActiveAuth) authRepository.signOut()
 
-		val basicToken = Credentials.basic(
-			username = usbId,
-			password = params.password
-		)
+		val messagingToken = messagingRepository.getToken()
 
 		val bearerToken = serviceRepository.signIn(
-			basicToken = basicToken,
+			username = params.usbId,
+			password = params.password,
+			messagingToken = messagingToken,
 			refreshToken = false
 		).token
 
@@ -41,7 +36,10 @@ class SignInUseCase(
 
 		reportingRepository.setIdentifier(identifier = authSignIn.uid)
 
-		return true
+		if (!settingsRepository.isSubscribedToTopic(Topics.TOPIC_GENERAL)) {
+			messagingRepository.subscribeToTopic(Topics.TOPIC_GENERAL)
+			settingsRepository.saveSubscriptionTopic(Topics.TOPIC_GENERAL)
+		}
 	}
 
 	override suspend fun executeOnException(throwable: Throwable): SignInError? {

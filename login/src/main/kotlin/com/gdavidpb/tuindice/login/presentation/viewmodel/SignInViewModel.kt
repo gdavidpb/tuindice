@@ -19,15 +19,12 @@ class SignInViewModel(
 	private val signOutUseCase: SignOutUseCase,
 	private val syncUseCase: SyncUseCase
 ) : ViewModel() {
-	val signIn = LiveEvent<Boolean, SignInError>()
+	val signIn = LiveEvent<Unit, SignInError>()
 	val signOut = LiveCompletable<Nothing>()
 	val sync = LiveResult<Boolean, SyncError>()
 
-	fun signIn(usbId: String, password: String) {
-		val credentials = SignInRequest(usbId = usbId, password = password)
-
-		execute(useCase = signInUseCase, params = credentials, liveData = signIn)
-	}
+	fun signIn(request: SignInRequest) =
+		execute(useCase = signInUseCase, params = request, liveData = signIn)
 
 	fun reSignIn(password: String) =
 		execute(useCase = reSignInUseCase, params = password, liveData = signIn)

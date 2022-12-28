@@ -196,7 +196,7 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
-	private fun signInObserver(result: Event<Boolean, SignInError>?) {
+	private fun signInObserver(result: Event<Unit, SignInError>?) {
 		when (result) {
 			is Event.OnLoading -> {
 				updatePasswordDialog.setLoading(true)
