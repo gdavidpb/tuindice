@@ -1,23 +1,45 @@
 package com.gdavidpb.tuindice.data.source.tuindice
 
+import com.gdavidpb.tuindice.base.domain.model.EnrollmentProof
 import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.base.domain.repository.DatabaseRepository
-import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.base.domain.repository.ServicesRepository
-import com.gdavidpb.tuindice.base.domain.repository.TuIndiceRepository
+import com.gdavidpb.tuindice.base.domain.repository.*
 
 class TuIndiceDataSource(
-	private val servicesRepository: ServicesRepository,
-	private val databaseRepository: DatabaseRepository,
-	private val networkRepository: NetworkRepository
+	private val services: ServicesRepository,
+	private val database: DatabaseRepository,
+	private val storage: StorageRepository,
+	private val network: NetworkRepository
 ) : TuIndiceRepository {
+	override suspend fun getEnrollmentProof(quarter: Quarter): EnrollmentProof {
+		val isNetworkAvailable = network.isAvailable()
+		val isCached = storage.existsEnrollmentProof(quarter)
+
+		return fetch(
+			fetchLocalWhen = !isNetworkAvailable || isCached,
+			fetchLocal = { storage.getEnrollmentProof(quarter) },
+			fetchRemote = { services.getEnrollmentProof() },
+			cache = { enrollmentProof -> storage.saveEnrollmentProof(quarter, enrollmentProof) }
+		)
+	}
+
 	override suspend fun getQuarters(uid: String): List<Quarter> {
-		return when {
-			!networkRepository.isAvailable() -> databaseRepository.getQuarters(uid)
-			databaseRepository.isUpdated(uid) -> databaseRepository.getQuarters(uid)
-			else -> servicesRepository.getQuarters().also { servicesQuarters ->
-				databaseRepository.addQuarter(uid, *servicesQuarters.toTypedArray())
-			}
-		}
+		val isNetworkAvailable = network.isAvailable()
+		val isUpdated = !database.isUpdated(uid)
+
+		return fetch(
+			fetchLocalWhen = !isNetworkAvailable || isUpdated,
+			fetchLocal = { database.getQuarters(uid) },
+			fetchRemote = { services.getQuarters() },
+			cache = { quarters -> database.addQuarter(uid, *quarters.toTypedArray()) }
+		)
+	}
+
+	private suspend fun <T> fetch(
+		fetchLocalWhen: Boolean,
+		fetchLocal: suspend () -> T,
+		fetchRemote: suspend () -> T,
+		cache: suspend (T) -> Unit
+	): T {
+		return if (fetchLocalWhen) fetchLocal() else fetchRemote().also { data -> cache(data) }
 	}
 }

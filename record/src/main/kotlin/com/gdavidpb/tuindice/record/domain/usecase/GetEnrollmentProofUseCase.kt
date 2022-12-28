@@ -25,10 +25,11 @@ class GetEnrollmentProofUseCase(
 		if (!enrollmentFile.exists()) {
 			val enrollmentProof = apiRepository.getEnrollmentProof()
 
-			val inputStream = enrollmentProof.inputStream
-			val outputStream = storageRepository.outputStream(enrollmentFilePath)
+			val contentByteArray = enrollmentProof.content.decodeFromBase64String()
 
-			inputStream.copyToAndClose(outputStream)
+			storageRepository.outputStream(enrollmentFilePath).use { outputStream ->
+				outputStream.write(contentByteArray)
+			}
 		}
 
 		return enrollmentFile
