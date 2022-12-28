@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.exception.ServicesUnavailableExce
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.base.utils.extensions.isConnection
+import com.gdavidpb.tuindice.base.utils.extensions.noAwait
 import com.gdavidpb.tuindice.login.domain.usecase.error.StartUpError
 
 class StartUpUseCase(
@@ -13,7 +14,8 @@ class StartUpUseCase(
 	private val authRepository: AuthRepository,
 	private val databaseRepository: DatabaseRepository,
 	private val networkRepository: NetworkRepository,
-	private val applicationRepository: ApplicationRepository
+	private val applicationRepository: ApplicationRepository,
+	private val configRepository: ConfigRepository
 ) : ResultUseCase<String, StartUpAction, StartUpError>() {
 	override suspend fun executeOnBackground(params: String): StartUpAction {
 		val servicesStatus = servicesRepository.getServicesStatus()
@@ -21,6 +23,8 @@ class StartUpUseCase(
 		check(servicesStatus.isAvailable) {
 			throw ServicesUnavailableException(servicesStatus)
 		}
+
+		noAwait { configRepository.tryFetch() }
 
 		val isActiveAuth = authRepository.isActiveAuth()
 
