@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.record.domain.usecase.GetEnrollmentProofUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuarterUseCase
-import java.io.File
 
 class RecordViewModel(
 	private val getQuartersUseCase: GetQuartersUseCase,
@@ -22,7 +21,7 @@ class RecordViewModel(
 ) : ViewModel() {
 	val quarters = LiveResult<List<Quarter>, Nothing>()
 	val quarterUpdate = LiveResult<Quarter, Nothing>()
-	val enrollment = LiveEvent<File, GetEnrollmentError>()
+	val enrollment = LiveEvent<String, GetEnrollmentError>()
 	val quarterRemove = LiveCompletable<Nothing>()
 
 	fun getQuarters() =

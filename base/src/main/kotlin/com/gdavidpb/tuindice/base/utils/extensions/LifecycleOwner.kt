@@ -25,14 +25,16 @@ fun LifecycleOwner.hideSoftKeyboard() = when (this) {
 	else -> null
 }?.hideSoftKeyboard()
 
-fun LifecycleOwner.openPdf(file: File) {
-	val uri = FileProvider.getUriForFile(context(), BuildConfig.APPLICATION_ID, file)
+fun LifecycleOwner.openPdf(file: File, onFailure: (Throwable) -> Unit = {}) {
+	runCatching {
+		val uri = FileProvider.getUriForFile(context(), BuildConfig.APPLICATION_ID, file)
 
-	val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-		flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
-	}
+		val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+			flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+		}
 
-	startActivity(intent)
+		startActivity(intent)
+	}.onFailure(onFailure)
 }
 
 fun LifecycleOwner.toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
