@@ -17,8 +17,6 @@ val summaryModule = module {
 
 	factoryOf(::GetProfileUseCase)
 	factoryOf(::UpdateProfilePictureUseCase)
-	factoryOf(::CreateProfilePictureFileUseCase)
-	factoryOf(::GetProfilePictureFileUseCase)
 	factoryOf(::GetProfilePictureUseCase)
 	factoryOf(::RemoveProfilePictureUseCase)
 }

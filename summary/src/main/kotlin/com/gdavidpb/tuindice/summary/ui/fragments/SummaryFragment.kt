@@ -31,6 +31,7 @@ import com.gdavidpb.tuindice.summary.R
 import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.adapters.SummaryAdapter
+import com.gdavidpb.tuindice.summary.utils.extensions.fileProviderUri
 import com.gdavidpb.tuindice.summary.utils.mappers.toCreditsSummaryItem
 import com.gdavidpb.tuindice.summary.utils.mappers.toSubjectsSummaryItem
 import com.squareup.picasso.Picasso
@@ -39,6 +40,7 @@ import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.io.File
 
 class SummaryFragment : NavigationFragment() {
 
@@ -49,6 +51,11 @@ class SummaryFragment : NavigationFragment() {
 	private val picasso by inject<Picasso>()
 
 	private val summaryAdapter = SummaryAdapter()
+
+	private val profilePictureUri by lazy {
+		File("profile_picture.jpg")
+			.fileProviderUri(requireContext())
+	}
 
 	override fun onCreateView() = R.layout.fragment_summary
 
@@ -73,9 +80,6 @@ class SummaryFragment : NavigationFragment() {
 		}
 
 		with(viewModel) {
-			observe(getProfilePictureFile, ::getProfilePictureFileObserver)
-			observe(createProfilePictureFile, ::createProfilePictureFileObserver)
-
 			observe(signOut, ::signOutObserver)
 			observe(profile, ::profileObserver)
 			observe(profilePicture, ::profilePictureObserver)
@@ -92,13 +96,37 @@ class SummaryFragment : NavigationFragment() {
 
 			when {
 				removeProfilePicture -> showRemoveProfilePictureDialog()
-				requestProfilePicture -> viewModel.getProfilePictureFile(optionalUri = data.data)
+				requestProfilePicture -> handleUpdateProfilePicture(data = data.data)
 			}
 		}
 	}
 
 	private fun onEditProfilePictureClick() {
-		viewModel.createProfilePictureFile()
+		val removeIntent = Intent(Actions.REMOVE_PROFILE_PICTURE)
+
+		val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+			.putExtra(MediaStore.EXTRA_OUTPUT, profilePictureUri)
+
+		val galleryIntent = Intent(
+			Intent.ACTION_PICK,
+			MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+		)
+
+		val chooser =
+			Intent.createChooser(galleryIntent, getString(R.string.label_profile_picture_chooser))
+
+		val hasCamera = hasCamera()
+		val hasProfilePicture = vProfilePicture.hasProfilePicture
+
+		val intents = mutableListOf<Intent>().apply {
+			if (hasCamera) add(cameraIntent)
+			if (hasProfilePicture) add(removeIntent)
+		}.toTypedArray()
+
+		if (intents.isNotEmpty())
+			chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents)
+
+		startActivityForResult(chooser, RequestCodes.PROFILE_PICTURE_REQUEST)
 	}
 
 	private fun navigateToSignIn() {
@@ -127,32 +155,10 @@ class SummaryFragment : NavigationFragment() {
 		}
 	}
 
-	private fun requestProfilePictureInput(outputUri: Uri) {
-		val removeIntent = Intent(Actions.REMOVE_PROFILE_PICTURE)
+	private fun handleUpdateProfilePicture(data: Uri?) {
+		val outputUri = data ?: profilePictureUri
 
-		val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-			.putExtra(MediaStore.EXTRA_OUTPUT, outputUri)
-
-		val galleryIntent = Intent(
-			Intent.ACTION_PICK,
-			MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-		)
-
-		val chooser =
-			Intent.createChooser(galleryIntent, getString(R.string.label_profile_picture_chooser))
-
-		val hasCamera = hasCamera()
-		val hasProfilePicture = vProfilePicture.hasProfilePicture
-
-		val intents = mutableListOf<Intent>().apply {
-			if (hasCamera) add(cameraIntent)
-			if (hasProfilePicture) add(removeIntent)
-		}.toTypedArray()
-
-		if (intents.isNotEmpty())
-			chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents)
-
-		startActivityForResult(chooser, RequestCodes.PROFILE_PICTURE_REQUEST)
+		viewModel.updateProfilePicture(url = outputUri)
 	}
 
 	private fun loadProfile(account: Account) {
@@ -219,32 +225,6 @@ class SummaryFragment : NavigationFragment() {
 				val account = result.value
 
 				loadProfile(account)
-			}
-			else -> {}
-		}
-	}
-
-	private fun getProfilePictureFileObserver(result: Event<Uri, Nothing>?) {
-		when (result) {
-			is Event.OnSuccess -> {
-				val outputUri = result.value
-
-				viewModel.updateProfilePicture(outputUri)
-			}
-			else -> {}
-		}
-	}
-
-	private fun createProfilePictureFileObserver(result: Event<Uri, ProfilePictureError>?) {
-		when (result) {
-			is Event.OnSuccess -> {
-				val outputUri = result.value
-					.fileProviderUri(requireContext())
-
-				requestProfilePictureInput(outputUri)
-			}
-			is Event.OnError -> {
-				profilePictureErrorHandler(error = result.error)
 			}
 			else -> {}
 		}
