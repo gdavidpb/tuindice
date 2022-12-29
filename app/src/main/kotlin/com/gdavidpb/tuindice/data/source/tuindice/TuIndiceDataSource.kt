@@ -15,7 +15,7 @@ class TuIndiceDataSource(
 		val isCached = storage.existsEnrollmentProof(quarter)
 
 		return fetch(
-			fetchLocalWhen = !isNetworkAvailable || isCached,
+			fetchRemoteWhen = isNetworkAvailable && !isCached,
 			fetchLocal = { storage.getEnrollmentProof(quarter) },
 			fetchRemote = { services.getEnrollmentProof() },
 			cache = { enrollmentProof -> storage.saveEnrollmentProof(quarter, enrollmentProof) }
@@ -27,7 +27,7 @@ class TuIndiceDataSource(
 		val isUpdated = !database.isUpdated(uid)
 
 		return fetch(
-			fetchLocalWhen = !isNetworkAvailable || isUpdated,
+			fetchRemoteWhen = isNetworkAvailable && !isUpdated,
 			fetchLocal = { database.getQuarters(uid) },
 			fetchRemote = { services.getQuarters() },
 			cache = { quarters -> database.addQuarter(uid, *quarters.toTypedArray()) }
@@ -35,11 +35,13 @@ class TuIndiceDataSource(
 	}
 
 	private suspend fun <T> fetch(
-		fetchLocalWhen: Boolean,
+		fetchRemoteWhen: Boolean,
 		fetchLocal: suspend () -> T,
 		fetchRemote: suspend () -> T,
 		cache: suspend (T) -> Unit
 	): T {
-		return if (fetchLocalWhen) fetchLocal() else fetchRemote().also { data -> cache(data) }
+		if (fetchRemoteWhen) fetchRemote().also { data -> cache(data) }
+
+		return fetchLocal()
 	}
 }

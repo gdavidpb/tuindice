@@ -17,30 +17,29 @@ class LocalStorageDataSource(
 
 	private val root by lazy { context.filesDir }
 
-	override suspend fun existsEnrollmentProof(quarter: Quarter): Boolean {
-		val outputPath = File(root, quarter.id)
-		val outputPdfFile = File(outputPath, "${quarter.name}.pdf")
-
-		return outputPdfFile.exists()
-	}
+	private val enrollments by lazy { File(root, "enrollments") }
 
 	override suspend fun getEnrollmentProof(quarter: Quarter): EnrollmentProof {
-		val pdfFilePath = File(root, quarter.id)
-		val pdfFile = File(pdfFilePath, "${quarter.name}.pdf")
+		val enrollmentProofFile = File(enrollments, "${quarter.name}.pdf")
 
-		val base64EncodedString = pdfFile.readBytes().encodeToBase64String()
+		val base64EncodedString = enrollmentProofFile.readBytes().encodeToBase64String()
 
 		return EnrollmentProof(
-			name = quarter.name,
+			source = enrollmentProofFile.path,
 			content = base64EncodedString
 		)
 	}
 
-	override suspend fun saveEnrollmentProof(quarter: Quarter, enrollmentProof: EnrollmentProof) {
-		val pdfFilePath = File(root, quarter.id)
-		val pdfFile = File(pdfFilePath, "${quarter.name}.pdf")
+	override suspend fun existsEnrollmentProof(quarter: Quarter): Boolean {
+		val outputPdfFile = File(enrollments, "${quarter.name}.pdf")
 
-		pdfFile.apply {
+		return outputPdfFile.exists()
+	}
+
+	override suspend fun saveEnrollmentProof(quarter: Quarter, enrollmentProof: EnrollmentProof) {
+		val enrollmentProofFile = File(enrollments, "${quarter.name}.pdf")
+
+		enrollmentProofFile.apply {
 			mkdirs()
 
 			val base64ByteArray = enrollmentProof.content.decodeFromBase64String()

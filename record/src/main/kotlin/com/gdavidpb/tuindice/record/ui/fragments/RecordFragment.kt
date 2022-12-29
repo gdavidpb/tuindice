@@ -189,7 +189,7 @@ class RecordFragment : NavigationFragment() {
 		}
 	}
 
-	private fun enrollmentObserver(result: Event<File, GetEnrollmentError>?) {
+	private fun enrollmentObserver(result: Event<String, GetEnrollmentError>?) {
 		when (result) {
 			is Event.OnLoading -> {
 				downloadingDialog.show(childFragmentManager, "downloadingDialog")
@@ -201,13 +201,9 @@ class RecordFragment : NavigationFragment() {
 
 				setMenuVisibility(true)
 
-				val enrollmentFile = result.value
+				val enrollmentFile = File(result.value)
 
-				runCatching {
-					openPdf(file = enrollmentFile)
-				}.onFailure {
-					snackBar(R.string.snack_enrollment_unsupported)
-				}
+				openPdf(file = enrollmentFile) { snackBar(R.string.snack_enrollment_unsupported) }
 			}
 			is Event.OnError -> {
 				downloadingDialog.dismiss()

@@ -7,8 +7,8 @@ import java.io.InputStream
 import java.io.OutputStream
 
 interface StorageRepository {
-	suspend fun existsEnrollmentProof(quarter: Quarter): Boolean
 	suspend fun getEnrollmentProof(quarter: Quarter): EnrollmentProof
+	suspend fun existsEnrollmentProof(quarter: Quarter): Boolean
 	suspend fun saveEnrollmentProof(quarter: Quarter, enrollmentProof: EnrollmentProof)
 
 	@Deprecated("This will replace by an entity operation.")
