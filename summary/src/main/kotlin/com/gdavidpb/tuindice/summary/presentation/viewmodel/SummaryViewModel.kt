@@ -13,36 +13,18 @@ import com.gdavidpb.tuindice.summary.domain.usecase.*
 
 class SummaryViewModel(
 	private val getProfileUseCase: GetProfileUseCase,
-	private val getProfilePictureFileUseCase: GetProfilePictureFileUseCase,
-	private val createProfilePictureFileUseCase: CreateProfilePictureFileUseCase,
 	private val getProfilePictureUseCase: GetProfilePictureUseCase,
 	private val updateProfilePictureUseCase: UpdateProfilePictureUseCase,
 	private val removeProfilePictureUseCase: RemoveProfilePictureUseCase,
 	private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
 	val profile = LiveResult<Account, Nothing>()
-	val getProfilePictureFile = LiveEvent<Uri, Nothing>()
-	val createProfilePictureFile = LiveEvent<Uri, ProfilePictureError>()
 	val profilePicture = LiveEvent<String, ProfilePictureError>()
 	val removeProfilePicture = LiveEvent<Unit, ProfilePictureError>()
 	val signOut = LiveCompletable<Nothing>()
 
 	fun getProfile() =
 		execute(useCase = getProfileUseCase, params = Unit, liveData = profile)
-
-	fun getProfilePictureFile(optionalUri: Uri?) =
-		execute(
-			useCase = getProfilePictureFileUseCase,
-			params = optionalUri,
-			liveData = getProfilePictureFile
-		)
-
-	fun createProfilePictureFile() =
-		execute(
-			useCase = createProfilePictureFileUseCase,
-			params = Unit,
-			liveData = createProfilePictureFile
-		)
 
 	fun getProfilePicture() =
 		execute(useCase = getProfilePictureUseCase, params = Unit, liveData = profilePicture)
