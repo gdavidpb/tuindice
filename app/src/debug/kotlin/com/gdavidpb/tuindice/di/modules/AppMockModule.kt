@@ -22,21 +22,6 @@ import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.utils.createMockService
 import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
 import com.gdavidpb.tuindice.data.source.*
-import com.gdavidpb.tuindice.evaluations.domain.usecase.*
-import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationPlanViewModel
-import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
-import com.gdavidpb.tuindice.login.domain.usecase.ReSignInUseCase
-import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
-import com.gdavidpb.tuindice.login.domain.usecase.StartUpUseCase
-import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
-import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel
-import com.gdavidpb.tuindice.record.domain.usecase.GetEnrollmentProofUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuarterUseCase
-import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
-import com.gdavidpb.tuindice.summary.domain.usecase.*
-import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
@@ -48,7 +33,6 @@ import com.squareup.picasso.Picasso
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -148,15 +132,6 @@ val appMockModule = module {
 			}
 	}
 
-	/* View Models */
-
-	viewModel<SplashViewModel>()
-	viewModel<SummaryViewModel>()
-	viewModel<RecordViewModel>()
-	viewModel<SignInViewModel>()
-	viewModel<EvaluationPlanViewModel>()
-	viewModel<EvaluationViewModel>()
-
 	/* Repositories */
 
 	factoryOf(::TuIndiceDataSource) { bind<TuIndiceRepository>() }
@@ -173,28 +148,6 @@ val appMockModule = module {
 	factoryOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
 	factoryOf(::GooglePlayServicesDataSource) { bind<MobileServicesRepository>() }
 	factoryOf(::CloudFunctionsDataSource) { bind<ServicesRepository>() }
-
-	/* Use cases */
-
-	factoryOf(::SignInUseCase)
-	factoryOf(::ReSignInUseCase)
-	factoryOf(::StartUpUseCase)
-	factoryOf(::GetProfileUseCase)
-	factoryOf(::GetQuartersUseCase)
-	factoryOf(::UpdateQuarterUseCase)
-	factoryOf(::GetEnrollmentProofUseCase)
-	factoryOf(::GetSubjectUseCase)
-	factoryOf(::GetEvaluationUseCase)
-	factoryOf(::GetSubjectEvaluationsUseCase)
-	factoryOf(::UpdateEvaluationUseCase)
-	factoryOf(::RemoveEvaluationUseCase)
-	factoryOf(::AddEvaluationUseCase)
-	factoryOf(::UpdateProfilePictureUseCase)
-	factoryOf(::CreateProfilePictureFileUseCase)
-	factoryOf(::GetProfilePictureFileUseCase)
-	factoryOf(::GetProfilePictureUseCase)
-	factoryOf(::RemoveProfilePictureUseCase)
-	factoryOf(::RemoveQuarterUseCase)
 
 	/* Utils */
 
