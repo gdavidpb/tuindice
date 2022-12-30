@@ -29,9 +29,9 @@ class LocalStorageDataSource(
 	}
 
 	override suspend fun existsEnrollmentProof(quarter: Quarter): Boolean {
-		val outputPdfFile = File(enrollments, "${quarter.name}.pdf")
+		val enrollmentProofFile = File(enrollments, "${quarter.name}.pdf")
 
-		return outputPdfFile.exists()
+		return enrollmentProofFile.exists()
 	}
 
 	override suspend fun saveEnrollmentProof(quarter: Quarter, enrollmentProof: EnrollmentProof) {
