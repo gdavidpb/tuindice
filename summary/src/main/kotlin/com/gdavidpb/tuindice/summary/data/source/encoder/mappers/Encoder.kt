@@ -1,8 +1,9 @@
-package com.gdavidpb.tuindice.summary.utils.extensions
+package com.gdavidpb.tuindice.summary.data.source.encoder.mappers
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import androidx.exifinterface.media.ExifInterface
 import java.io.InputStream
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -15,6 +16,10 @@ fun InputStream.decodeScaledBitmap(scaleFactor: Int): Bitmap {
 	val bitmap = BitmapFactory.decodeStream(this, null, options)
 
 	return bitmap ?: throw RuntimeException("decodeSampledBitmap")
+}
+
+fun InputStream.decodeRotationDegrees(): Float {
+	return ExifInterface(this).rotationDegrees.toFloat()
 }
 
 fun InputStream.decodeScaleFactor(sample: Int): Int {
