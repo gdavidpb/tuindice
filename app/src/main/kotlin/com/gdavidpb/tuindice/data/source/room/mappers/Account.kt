@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.data.source.room.mappers
 
-import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.data.source.room.entities.AccountEntity
 
@@ -46,6 +45,5 @@ fun AccountEntity.toAccount() = Account(
 	retiredCredits = retiredCredits,
 	failedSubjects = failedSubjects,
 	failedCredits = failedCredits,
-	lastUpdate = lastUpdate,
-	appVersionCode = BuildConfig.VERSION_CODE
+	lastUpdate = lastUpdate
 )

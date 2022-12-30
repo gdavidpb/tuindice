@@ -7,23 +7,12 @@ val DEFAULT_LOCALE: Locale = Locale("es", "VE")
 val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone("America/Caracas")
 
 /* Errors */
-const val NO_GETTER = "Property does not have a getter"
-
-/* Actions */
-object Actions {
-    const val REMOVE_PROFILE_PICTURE = "com.gdavidpb.tuindice.intent.action.ACTION_REMOVE_PROFILE_PICTURE"
-}
+const val NO_GETTER = "Property does not have a getter."
 
 /* Request codes */
 object RequestCodes {
-    const val PROFILE_PICTURE_REQUEST = 1000
     const val APP_UPDATE_REQUEST = 1001
     const val PLAY_SERVICES_RESOLUTION_REQUEST = 2404
-}
-
-/* Extras */
-object Extras {
-    const val REMOVE_PROFILE_PICTURE = "REMOVE_PROFILE_PICTURE"
 }
 
 /* Subscription topics */
@@ -57,7 +46,6 @@ object ConfigKeys {
     const val TIME_OUT_SIGN_IN = "time_out_sign_in"
     const val TIME_OUT_SYNC = "time_out_sync"
     const val TIME_OUT_GET_ENROLLMENT = "time_out_get_enrollment"
-    const val TIME_OUT_PROFILE_PICTURE = "time_out_profile_picture"
 }
 
 /* Reporting keys */

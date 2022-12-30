@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.Menu
@@ -15,25 +14,27 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
-import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.domain.model.Account
+import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.domain.usecase.base.Completable
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialogs.ConfirmationBottomSheetDialog
-import com.gdavidpb.tuindice.base.utils.Actions
-import com.gdavidpb.tuindice.base.utils.Extras
-import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.summary.utils.Actions
+import com.gdavidpb.tuindice.summary.utils.Extras
+import com.gdavidpb.tuindice.summary.utils.RequestCodes
 import com.gdavidpb.tuindice.summary.R
 import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
+import com.gdavidpb.tuindice.summary.mapping.formatLastUpdate
+import com.gdavidpb.tuindice.summary.mapping.toCreditsSummaryItem
+import com.gdavidpb.tuindice.summary.mapping.toShortName
+import com.gdavidpb.tuindice.summary.mapping.toSubjectsSummaryItem
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.summary.utils.extensions.fileProviderUri
-import com.gdavidpb.tuindice.summary.utils.mappers.toCreditsSummaryItem
-import com.gdavidpb.tuindice.summary.utils.mappers.toSubjectsSummaryItem
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import kotlinx.android.synthetic.main.fragment_summary.*
@@ -95,8 +96,10 @@ class SummaryFragment : NavigationFragment() {
 			val requestProfilePicture = (requestCode == RequestCodes.PROFILE_PICTURE_REQUEST)
 
 			when {
-				removeProfilePicture -> showRemoveProfilePictureDialog()
-				requestProfilePicture -> handleUpdateProfilePicture(data = data.data)
+				removeProfilePicture ->
+					showRemoveProfilePictureDialog()
+				requestProfilePicture ->
+					viewModel.uploadProfilePicture(path = "${data.data ?: profilePictureUri}")
 			}
 		}
 	}
@@ -153,12 +156,6 @@ class SummaryFragment : NavigationFragment() {
 			positiveButton(R.string.remove) { viewModel.removeProfilePicture() }
 			negativeButton(R.string.cancel)
 		}
-	}
-
-	private fun handleUpdateProfilePicture(data: Uri?) {
-		val outputUri = data ?: profilePictureUri
-
-		viewModel.updateProfilePicture(url = outputUri)
 	}
 
 	private fun loadProfile(account: Account) {
@@ -222,9 +219,7 @@ class SummaryFragment : NavigationFragment() {
 	private fun profileObserver(result: Result<Account, Nothing>?) {
 		when (result) {
 			is Result.OnSuccess -> {
-				val account = result.value
-
-				loadProfile(account)
+				loadProfile(account = result.value)
 			}
 			else -> {}
 		}

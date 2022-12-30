@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
-import com.gdavidpb.tuindice.data.source.storage.ContentResolverDataSource
 import com.gdavidpb.tuindice.data.source.storage.LocalStorageDataSource
 import com.gdavidpb.tuindice.data.source.android.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.tuindice.TuIndiceDataSource
@@ -138,10 +137,8 @@ val appMockModule = module {
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
 	factoryOf(::LocalStorageDataSource) { bind<StorageRepository>() }
-	factoryOf(::RemoteStorageMockDataSource) { bind<RemoteStorageRepository>() }
 	factoryOf(::AuthMockDataSource) { bind<AuthRepository>() }
 	factoryOf(::MessagingMockDataSource) { bind<MessagingRepository>() }
-	factoryOf(::ContentResolverDataSource) { bind<ContentRepository>() }
 	factoryOf(::RemoteConfigMockDataSource) { bind<ConfigRepository>() }
 	factoryOf(::DebugReportingDataSource) { bind<ReportingRepository>() }
 	factoryOf(::DebugKoinDataSource) { bind<DependenciesRepository>() }
