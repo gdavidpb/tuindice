@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.summary.domain.usecase.*
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.data.source.api.APIDataSource
 import com.gdavidpb.tuindice.summary.data.source.encoder.ImageEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.source.storage.InternalStorageDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.SummaryRepository
 import  com.gdavidpb.tuindice.summary.data.SummaryDataRepository
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -38,6 +39,7 @@ val summaryModule = module {
 
 	factoryOf(::APIDataSource)
 	factoryOf(::ImageEncoderDataSource)
+	factoryOf(::InternalStorageDataSource)
 
 	/* Summary API */
 

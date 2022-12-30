@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.summary.data.source.encoder.mappers.rotate
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
-@Suppress("BlockingMethodInNonBlockingContext")
 class ImageEncoderDataSource(
 	private val contentResolver: ContentResolver
 ) : EncoderDataSource {
