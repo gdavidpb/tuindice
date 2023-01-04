@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.login.di.modules
 
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extensions.create
-import com.gdavidpb.tuindice.login.data.api.ApiDataSource
-import com.gdavidpb.tuindice.login.data.api.SignInApi
-import com.gdavidpb.tuindice.login.data.room.RoomDataSource
+import com.gdavidpb.tuindice.login.data.source.api.ApiDataSource
+import com.gdavidpb.tuindice.login.data.source.api.SignInApi
+import com.gdavidpb.tuindice.login.data.source.room.RoomDataSource
 import com.gdavidpb.tuindice.login.domain.repository.LocalRepository
 import com.gdavidpb.tuindice.login.domain.repository.RemoteRepository
 import com.gdavidpb.tuindice.login.domain.usecase.ReSignInUseCase

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.login.data.room
+package com.gdavidpb.tuindice.login.data.source.room
 
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.login.domain.repository.LocalRepository
