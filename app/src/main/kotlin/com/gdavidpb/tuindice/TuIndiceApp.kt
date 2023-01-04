@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
 import com.gdavidpb.tuindice.evaluations.di.modules.evaluationsModule
 import com.gdavidpb.tuindice.login.di.modules.loginModule
+import com.gdavidpb.tuindice.persistence.di.persistenceModule
 import com.gdavidpb.tuindice.record.di.modules.recordModule
 import com.gdavidpb.tuindice.summary.di.modules.summaryModule
 import org.koin.android.ext.koin.androidContext
@@ -38,6 +39,7 @@ class TuIndiceApp : Application() {
 			modules(
 				appModule,
 				baseModule,
+				persistenceModule,
 				loginModule,
 				summaryModule,
 				recordModule,

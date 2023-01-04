@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.domain.repository.*
 
 class TuIndiceDataSource(
 	private val services: ServicesRepository,
-	private val database: DatabaseRepository,
+	private val persistence: PersistenceRepository,
 	private val storage: StorageRepository,
 	private val network: NetworkRepository
 ) : TuIndiceRepository {
@@ -24,13 +24,13 @@ class TuIndiceDataSource(
 
 	override suspend fun getQuarters(uid: String): List<Quarter> {
 		val isNetworkAvailable = network.isAvailable()
-		val isUpdated = !database.isUpdated(uid)
+		val isUpdated = !persistence.isUpdated(uid)
 
 		return fetch(
 			fetchRemoteWhen = isNetworkAvailable && !isUpdated,
-			fetchLocal = { database.getQuarters(uid) },
+			fetchLocal = { persistence.getQuarters(uid) },
 			fetchRemote = { services.getQuarters() },
-			cache = { quarters -> database.addQuarter(uid, *quarters.toTypedArray()) }
+			cache = { quarters -> persistence.addQuarter(uid, *quarters.toTypedArray()) }
 		)
 	}
 

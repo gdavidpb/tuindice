@@ -11,15 +11,13 @@ import com.gdavidpb.tuindice.base.utils.extensions.*
 @Timeout(key = ConfigKeys.TIME_OUT_SYNC)
 class SyncUseCase(
 	private val authRepository: AuthRepository,
-	private val configRepository: ConfigRepository,
-	private val databaseRepository: DatabaseRepository,
-	private val settingsRepository: SettingsRepository,
-	private val messagingRepository: MessagingRepository,
+	private val tuIndiceRepository: TuIndiceRepository,
+	private val persistenceRepository: PersistenceRepository,
 	private val networkRepository: NetworkRepository
 ) : ResultUseCase<Unit, Boolean, SyncError>() {
 	override suspend fun executeOnBackground(params: Unit): Boolean {
 		val activeAuth = authRepository.getActiveAuth()
-		val isUpdated = databaseRepository.isUpdated(uid = activeAuth.uid)
+		val isUpdated = persistenceRepository.isUpdated(uid = activeAuth.uid)
 
 		/* Try to fetch remote configs */
 		configRepository.tryFetch()
