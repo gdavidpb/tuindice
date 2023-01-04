@@ -1,6 +1,6 @@
-package com.gdavidpb.tuindice.login.data.api
+package com.gdavidpb.tuindice.login.data.source.api
 
-import com.gdavidpb.tuindice.login.data.api.responses.SignInResponse
+import com.gdavidpb.tuindice.login.data.source.api.responses.SignInResponse
 import retrofit2.Response
 import retrofit2.http.Header
 import retrofit2.http.POST
