@@ -7,14 +7,6 @@ import com.gdavidpb.tuindice.data.source.functions.responses.*
 import retrofit2.Response
 
 class TuIndiceAPIMock : TuIndiceAPI {
-	override suspend fun signIn(
-		basicToken: String,
-		refreshToken: Boolean,
-		messagingToken: String?
-	): Response<SignInResponse> {
-		TODO("Not yet implemented")
-	}
-
 	override suspend fun getQuarters(): Response<List<QuarterResponse>> {
 		TODO("Not yet implemented")
 	}

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.domain.model
+package com.gdavidpb.tuindice.login.domain.model
 
 data class SignInRequest(
 	val usbId: String,

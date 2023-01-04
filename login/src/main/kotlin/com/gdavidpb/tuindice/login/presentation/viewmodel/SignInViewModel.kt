@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.base.utils.extensions.LiveEvent
 import com.gdavidpb.tuindice.base.utils.extensions.LiveResult
-import com.gdavidpb.tuindice.base.domain.model.SignInRequest
+import com.gdavidpb.tuindice.login.domain.model.SignInRequest
 import com.gdavidpb.tuindice.base.utils.extensions.execute
 import com.gdavidpb.tuindice.login.domain.usecase.ReSignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
