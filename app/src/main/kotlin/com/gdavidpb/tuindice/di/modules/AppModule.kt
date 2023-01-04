@@ -3,13 +3,13 @@ package com.gdavidpb.tuindice.di.modules
 import android.app.ActivityManager
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
-import androidx.room.Room
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.extensions.create
 import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
+import com.gdavidpb.tuindice.data.source.android.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataSource
@@ -19,14 +19,10 @@ import com.gdavidpb.tuindice.data.source.functions.CloudFunctionsDataSource
 import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
-import com.gdavidpb.tuindice.data.source.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.data.source.room.RoomDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.data.source.storage.LocalStorageDataSource
 import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataSource
-import com.gdavidpb.tuindice.data.source.android.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.tuindice.TuIndiceDataSource
-import com.gdavidpb.tuindice.data.source.room.schema.DatabaseModel
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
@@ -128,14 +124,6 @@ val appModule = module {
 		ReviewManagerFactory.create(androidContext())
 	}
 
-	/* Room */
-
-	single {
-		Room.databaseBuilder(androidContext(), TuIndiceDatabase::class.java, DatabaseModel.NAME)
-			.fallbackToDestructiveMigration()
-			.build()
-	}
-
 	/* TuIndice API */
 
 	single {
@@ -160,14 +148,6 @@ val appModule = module {
 			.create<TuIndiceAPI>()
 	}
 
-	/* Database */
-
-	single {
-		Room.databaseBuilder(androidContext(), TuIndiceDatabase::class.java, DatabaseModel.NAME)
-			.fallbackToDestructiveMigration()
-			.build()
-	}
-
 	/* Repositories */
 
 	factoryOf(::TuIndiceDataSource) { bind<TuIndiceRepository>() }
@@ -176,7 +156,6 @@ val appModule = module {
 	factoryOf(::LocalStorageDataSource) { bind<StorageRepository>() }
 	factoryOf(::FirebaseAuthDataSource) { bind<AuthRepository>() }
 	factoryOf(::FirebaseCloudMessagingDataSource) { bind<MessagingRepository>() }
-	factoryOf(::RoomDataSource) { bind<DatabaseRepository>() }
 	factoryOf(::RemoteConfigDataSource) { bind<ConfigRepository>() }
 	factoryOf(::CrashlyticsReportingDataSource) { bind<ReportingRepository>() }
 	factoryOf(::ReleaseKoinDataSource) { bind<DependenciesRepository>() }

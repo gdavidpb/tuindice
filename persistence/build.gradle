@@ -1,0 +1,14 @@
+apply plugin: "com.android.library"
+apply from: "../core.gradle"
+
+android {
+    namespace "com.gdavidpb.tuindice.persistence"
+}
+
+dependencies {
+    /* Room */
+    implementation "androidx.room:room-ktx:${versions.room}"
+    implementation "androidx.room:room-runtime:${versions.room}"
+
+    implementation project(":base")
+}

@@ -12,8 +12,8 @@ dependencies {
     /* Testing */
     testApi "junit:junit:4.13.2"
     androidTestApi "io.insert-koin:koin-test:${versions.koin}"
-    androidTestApi "androidx.test:runner:1.5.1"
-    androidTestApi "androidx.test.espresso:espresso-core:3.5.0"
+    androidTestApi "androidx.test:runner:1.5.2"
+    androidTestApi "androidx.test.espresso:espresso-core:3.5.1"
 
     /* Debug */
     debugApi "com.squareup.retrofit2:retrofit-mock:${versions.retrofit}"
@@ -66,10 +66,6 @@ dependencies {
     api "com.squareup.retrofit2:converter-gson:${versions.retrofit}"
     api "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}"
     api "com.squareup.okhttp3:okhttp:${versions.okhttp}"
-
-    /* Room */
-    api "androidx.room:room-ktx:${versions.room}"
-    api "androidx.room:room-runtime:${versions.room}"
 
     /* Coroutines */
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}"

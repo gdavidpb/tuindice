@@ -91,6 +91,7 @@ android {
 
 dependencies {
     implementation project(":base")
+    implementation project(":persistence")
     implementation project(":login")
     implementation project(":about")
     implementation project(":summary")
