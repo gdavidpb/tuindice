@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.persistence.data.source.room.mappers.*
 import com.gdavidpb.tuindice.persistence.data.source.room.utils.extensions.withTransaction
 import java.util.*
 
+@Deprecated("This will be removed.")
 class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : PersistenceRepository {
