@@ -8,7 +8,7 @@ import android.view.View
 import android.view.animation.OvershootInterpolator
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.domain.model.SignInRequest
+import com.gdavidpb.tuindice.login.domain.model.SignInRequest
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment

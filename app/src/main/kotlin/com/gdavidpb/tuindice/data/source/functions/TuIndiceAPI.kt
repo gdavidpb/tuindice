@@ -7,15 +7,6 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface TuIndiceAPI {
-	/* Session */
-
-	@POST("signIn")
-	suspend fun signIn(
-		@Header("Authorization") basicToken: String,
-		@Header("Re-Authenticate") refreshToken: Boolean,
-		@Query("messagingToken") messagingToken: String? = null
-	): Response<SignInResponse>
-
 	/* Quarters */
 
 	@GET("quarters")

@@ -2,25 +2,25 @@ package com.gdavidpb.tuindice.login.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.base.domain.repository.ServicesRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.annotations.Timeout
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.base.utils.mappers.asUsbId
+import com.gdavidpb.tuindice.login.domain.repository.RemoteRepository
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class ReSignInUseCase(
 	private val authRepository: AuthRepository,
-	private val networkRepository: NetworkRepository,
-	private val servicesRepository: ServicesRepository
+	private val remoteRepository: RemoteRepository,
+	private val networkRepository: NetworkRepository
 ) : EventUseCase<String, Unit, SignInError>() {
 	override suspend fun executeOnBackground(params: String) {
 		val activeAuth = authRepository.getActiveAuth()
 		val usbId = activeAuth.email.asUsbId()
 
-		val bearerToken = servicesRepository.signIn(
+		val bearerToken = remoteRepository.signIn(
 			username = usbId,
 			password = params,
 			refreshToken = true
