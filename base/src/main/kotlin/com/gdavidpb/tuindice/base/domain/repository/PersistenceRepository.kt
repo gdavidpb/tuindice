@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
 
+@Deprecated("This will be removed.")
 interface PersistenceRepository {
 	suspend fun isUpdated(uid: String): Boolean
 

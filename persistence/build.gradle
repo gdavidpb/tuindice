@@ -7,8 +7,8 @@ android {
 
 dependencies {
     /* Room */
-    implementation "androidx.room:room-ktx:${versions.room}"
-    implementation "androidx.room:room-runtime:${versions.room}"
+    api "androidx.room:room-ktx:${versions.room}"
+    api "androidx.room:room-runtime:${versions.room}"
 
     implementation project(":base")
 }
