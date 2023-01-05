@@ -7,15 +7,15 @@ import com.gdavidpb.tuindice.base.utils.extensions.isConnection
 import com.gdavidpb.tuindice.base.utils.extensions.isTimeout
 import com.gdavidpb.tuindice.summary.utils.ConfigKeys
 import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
-import com.gdavidpb.tuindice.summary.domain.repository.SummaryRepository
+import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 
 @Timeout(key = ConfigKeys.TIME_OUT_PROFILE_PICTURE)
 class RemoveProfilePictureUseCase(
 	private val networkRepository: NetworkRepository,
-	private val summaryRepository: SummaryRepository
+	private val accountRepository: AccountRepository
 ) : EventUseCase<Unit, Unit, ProfilePictureError>() {
 	override suspend fun executeOnBackground(params: Unit) {
-		summaryRepository.removeProfilePicture()
+		accountRepository.removeProfilePicture()
 	}
 
 	override suspend fun executeOnException(throwable: Throwable): ProfilePictureError? {

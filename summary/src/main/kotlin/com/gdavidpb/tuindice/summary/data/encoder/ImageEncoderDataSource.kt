@@ -1,20 +1,20 @@
-package com.gdavidpb.tuindice.summary.data.source.encoder
+package com.gdavidpb.tuindice.summary.data.encoder
 
 import android.content.ContentResolver
 import android.graphics.Bitmap
 import androidx.core.net.toUri
 import com.gdavidpb.tuindice.base.utils.extensions.encodeToBase64String
-import com.gdavidpb.tuindice.summary.data.source.EncoderDataSource
-import com.gdavidpb.tuindice.summary.data.source.encoder.mappers.decodeRotationDegrees
-import com.gdavidpb.tuindice.summary.data.source.encoder.mappers.decodeScaleFactor
-import com.gdavidpb.tuindice.summary.data.source.encoder.mappers.decodeScaledBitmap
-import com.gdavidpb.tuindice.summary.data.source.encoder.mappers.rotate
+import com.gdavidpb.tuindice.summary.data.encoder.mappers.decodeRotationDegrees
+import com.gdavidpb.tuindice.summary.data.encoder.mappers.decodeScaleFactor
+import com.gdavidpb.tuindice.summary.data.encoder.mappers.decodeScaledBitmap
+import com.gdavidpb.tuindice.summary.data.encoder.mappers.rotate
+import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
 class ImageEncoderDataSource(
 	private val contentResolver: ContentResolver
-) : EncoderDataSource {
+) : EncoderRepository {
 
 	private object Settings {
 		const val SAMPLE = 1024

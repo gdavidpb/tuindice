@@ -11,22 +11,18 @@ import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.domain.usecase.*
 
 class SummaryViewModel(
-	private val getProfileUseCase: GetProfileUseCase,
-	private val getProfilePictureUseCase: GetProfilePictureUseCase,
+	private val getAccountUseCase: GetAccountUseCase,
 	private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
 	private val removeProfilePictureUseCase: RemoveProfilePictureUseCase,
 	private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
-	val profile = LiveResult<Account, Nothing>()
+	val account = LiveResult<Account, Nothing>()
 	val profilePicture = LiveEvent<String, ProfilePictureError>()
 	val removeProfilePicture = LiveEvent<Unit, ProfilePictureError>()
 	val signOut = LiveCompletable<Nothing>()
 
-	fun getProfile() =
-		execute(useCase = getProfileUseCase, params = Unit, liveData = profile)
-
-	fun getProfilePicture() =
-		execute(useCase = getProfilePictureUseCase, params = Unit, liveData = profilePicture)
+	fun getAccount() =
+		execute(useCase = getAccountUseCase, params = Unit, liveData = account)
 
 	fun uploadProfilePicture(path: String) =
 		execute(
