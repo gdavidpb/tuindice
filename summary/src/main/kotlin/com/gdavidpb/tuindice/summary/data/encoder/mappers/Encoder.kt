@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.summary.data.source.encoder.mappers
+package com.gdavidpb.tuindice.summary.data.encoder.mappers
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

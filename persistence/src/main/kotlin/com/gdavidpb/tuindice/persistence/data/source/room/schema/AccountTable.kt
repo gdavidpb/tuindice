@@ -7,6 +7,7 @@ object AccountTable {
 	const val CARD_ID = "account_c_id"
 	const val USB_ID = "account_usb_id"
 	const val EMAIL = "account_email"
+	const val PICTURE_URL = "account_picture_url"
 	const val FULL_NAME = "account_full_name"
 	const val FIRST_NAMES = "account_first_names"
 	const val LAST_NAMES = "account_last_names"

@@ -15,17 +15,14 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.base.domain.model.Account
-import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.domain.usecase.base.Completable
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialogs.ConfirmationBottomSheetDialog
+import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extensions.*
-import com.gdavidpb.tuindice.summary.utils.Actions
-import com.gdavidpb.tuindice.summary.utils.Extras
-import com.gdavidpb.tuindice.summary.utils.RequestCodes
 import com.gdavidpb.tuindice.summary.R
 import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.mapping.formatLastUpdate
@@ -34,6 +31,9 @@ import com.gdavidpb.tuindice.summary.mapping.toShortName
 import com.gdavidpb.tuindice.summary.mapping.toSubjectsSummaryItem
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.adapters.SummaryAdapter
+import com.gdavidpb.tuindice.summary.utils.Actions
+import com.gdavidpb.tuindice.summary.utils.Extras
+import com.gdavidpb.tuindice.summary.utils.RequestCodes
 import com.gdavidpb.tuindice.summary.utils.extensions.fileProviderUri
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
@@ -70,8 +70,7 @@ class SummaryFragment : NavigationFragment() {
 		requireActivity().addMenuProvider(SummaryMenuProvider(), viewLifecycleOwner)
 
 		with(viewModel) {
-			getProfile()
-			getProfilePicture()
+			getAccount()
 		}
 	}
 
@@ -82,7 +81,7 @@ class SummaryFragment : NavigationFragment() {
 
 		with(viewModel) {
 			observe(signOut, ::signOutObserver)
-			observe(profile, ::profileObserver)
+			observe(account, ::accountObserver)
 			observe(profilePicture, ::profilePictureObserver)
 			observe(removeProfilePicture, ::removeProfilePictureObserver)
 		}
@@ -207,7 +206,7 @@ class SummaryFragment : NavigationFragment() {
 				val pendingUpdate = result.value
 
 				if (pendingUpdate)
-					viewModel.getProfile()
+					viewModel.getAccount()
 			}
 			is Result.OnError -> {
 				syncErrorHandler(error = result.error)
@@ -216,7 +215,7 @@ class SummaryFragment : NavigationFragment() {
 		}
 	}
 
-	private fun profileObserver(result: Result<Account, Nothing>?) {
+	private fun accountObserver(result: Result<Account, Nothing>?) {
 		when (result) {
 			is Result.OnSuccess -> {
 				loadProfile(account = result.value)

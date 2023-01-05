@@ -2,14 +2,19 @@ package com.gdavidpb.tuindice.summary.di.modules
 
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extensions.create
-import com.gdavidpb.tuindice.summary.data.source.api.SummaryAPI
-import com.gdavidpb.tuindice.summary.domain.usecase.*
+import com.gdavidpb.tuindice.summary.data.account.AccountDataRepository
+import com.gdavidpb.tuindice.summary.data.account.source.LocalDataSource
+import com.gdavidpb.tuindice.summary.data.account.source.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.api.ApiDataSource
+import com.gdavidpb.tuindice.summary.data.api.SummaryApi
+import com.gdavidpb.tuindice.summary.data.encoder.ImageEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.room.RoomDataSource
+import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
+import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
+import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
-import com.gdavidpb.tuindice.summary.data.source.api.APIDataSource
-import com.gdavidpb.tuindice.summary.data.source.encoder.ImageEncoderDataSource
-import com.gdavidpb.tuindice.summary.data.source.storage.InternalStorageDataSource
-import com.gdavidpb.tuindice.summary.domain.repository.SummaryRepository
-import  com.gdavidpb.tuindice.summary.data.SummaryDataRepository
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
 import org.koin.core.module.dsl.bind
@@ -26,20 +31,19 @@ val summaryModule = module {
 
 	/* Use cases */
 
-	factoryOf(::GetProfileUseCase)
-	factoryOf(::GetProfilePictureUseCase)
+	factoryOf(::GetAccountUseCase)
 	factoryOf(::UploadProfilePictureUseCase)
 	factoryOf(::RemoveProfilePictureUseCase)
 
 	/* Repositories */
 
-	factoryOf(::SummaryDataRepository) { bind<SummaryRepository>() }
+	factoryOf(::AccountDataRepository) { bind<AccountRepository>() }
+	factoryOf(::ImageEncoderDataSource) { bind<EncoderRepository>() }
 
 	/* Data sources */
 
-	factoryOf(::APIDataSource)
-	factoryOf(::ImageEncoderDataSource)
-	factoryOf(::InternalStorageDataSource)
+	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
+	factoryOf(::ApiDataSource) { bind<RemoteDataSource>() }
 
 	/* Summary API */
 
@@ -49,6 +53,6 @@ val summaryModule = module {
 			.addConverterFactory(GsonConverterFactory.create())
 			.client(get())
 			.build()
-			.create<SummaryAPI>()
+			.create<SummaryApi>()
 	}
 }

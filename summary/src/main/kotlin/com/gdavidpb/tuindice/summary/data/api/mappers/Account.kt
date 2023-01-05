@@ -1,14 +1,19 @@
-package com.gdavidpb.tuindice.summary.data.source.api.mappers
+package com.gdavidpb.tuindice.summary.data.api.mappers
 
-import com.gdavidpb.tuindice.summary.data.source.api.responses.ProfileResponse
-import com.gdavidpb.tuindice.summary.domain.model.Profile
+import com.gdavidpb.tuindice.base.domain.model.Account
+import com.gdavidpb.tuindice.summary.data.api.responses.AccountResponse
 
-fun ProfileResponse.toProfile() = Profile(
+fun AccountResponse.toAccount() = Account(
+	id = id,
+	usbId = usbId,
+	email = email,
+	pictureUrl = pictureUrl,
 	fullName = fullName,
 	firstNames = firstNames,
 	lastNames = lastNames,
-	profilePictureUrl = profilePictureUrl,
 	careerName = careerName,
+	careerCode = careerCode,
+	scholarship = scholarship,
 	grade = grade,
 	enrolledSubjects = enrolledSubjects,
 	enrolledCredits = enrolledCredits,

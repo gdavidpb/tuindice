@@ -20,6 +20,7 @@ data class AccountEntity(
 	@ColumnInfo(name = AccountTable.CARD_ID) val cid: String,
 	@ColumnInfo(name = AccountTable.USB_ID) val usbId: String,
 	@ColumnInfo(name = AccountTable.EMAIL) val email: String,
+	@ColumnInfo(name = AccountTable.PICTURE_URL) val pictureUrl: String,
 	@ColumnInfo(name = AccountTable.FULL_NAME) val fullName: String,
 	@ColumnInfo(name = AccountTable.FIRST_NAMES) val firstNames: String,
 	@ColumnInfo(name = AccountTable.LAST_NAMES) val lastNames: String,

@@ -1,9 +1,9 @@
-package com.gdavidpb.tuindice.summary.data.source.api.responses
+package com.gdavidpb.tuindice.summary.data.api.responses
 
 import com.google.gson.annotations.SerializedName
 import java.util.Date
 
-data class ProfileResponse(
+data class AccountResponse(
 	@SerializedName("id")
 	val id: String,
 	@SerializedName("usb_id")
@@ -16,8 +16,8 @@ data class ProfileResponse(
 	val firstNames: String,
 	@SerializedName("last_names")
 	val lastNames: String,
-	@SerializedName("profile_picture_url")
-	val profilePictureUrl: String,
+	@SerializedName("picture_url")
+	val pictureUrl: String,
 	@SerializedName("career_name")
 	val careerName: String,
 	@SerializedName("career_code")

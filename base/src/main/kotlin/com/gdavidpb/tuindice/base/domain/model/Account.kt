@@ -6,6 +6,7 @@ data class Account(
 	val id: String,
 	val usbId: String,
 	val email: String,
+	val pictureUrl: String,
 	val fullName: String,
 	val firstNames: String,
 	val lastNames: String,
