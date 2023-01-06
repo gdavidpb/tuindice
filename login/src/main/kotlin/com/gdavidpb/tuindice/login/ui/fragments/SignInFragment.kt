@@ -8,12 +8,11 @@ import android.view.View
 import android.view.animation.OvershootInterpolator
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.login.domain.model.SignInRequest
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
+import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
-import com.gdavidpb.tuindice.base.utils.*
-import com.gdavidpb.tuindice.base.domain.usecase.base.Result
+import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
@@ -27,14 +26,6 @@ class SignInFragment : NavigationFragment() {
 	private val viewModel by viewModel<SignInViewModel>()
 
 	private val loadingMessages by config<List<String>>(ConfigKeys.LOADING_MESSAGES)
-
-	private val validations by lazy {
-		arrayOf<Validation<*>>(
-			`when`(tInputUsbId) { isEmpty() } `do` { setError(R.string.error_empty) },
-			`when`(tInputUsbId) { !isValid() } `do` { setError(R.string.error_usb_id) },
-			`when`(tInputPassword) { isEmpty() } `do` { setError(R.string.error_empty) }
-		)
-	}
 
 	override fun onCreateView() = R.layout.fragment_sign_in
 
@@ -61,26 +52,10 @@ class SignInFragment : NavigationFragment() {
 	}
 
 	private fun onSignInClick() {
-		validations.firstInvalid {
-			when (this) {
-				is View -> {
-					requestFocus()
-
-					animateLookAtMe()
-				}
-			}
-		}.isNull {
-			hideSoftKeyboard()
-
-			iViewLogo.performClick()
-
-			val request = SignInRequest(
-				usbId = tInputUsbId.getUsbId(),
-				password = tInputPassword.getPassword()
-			)
-
-			viewModel.signIn(request)
-		}
+		viewModel.signIn(
+			usbId = tInputUsbId.getUsbId(),
+			password = tInputPassword.getPassword()
+		)
 	}
 
 	private fun initPoliciesLinks() {
@@ -149,6 +124,10 @@ class SignInFragment : NavigationFragment() {
 		when (result) {
 			is Event.OnLoading -> {
 				showLoading(true)
+
+				hideSoftKeyboard()
+
+				iViewLogo.performClick()
 			}
 			is Event.OnSuccess -> {
 				viewModel.sync()
@@ -193,6 +172,9 @@ class SignInFragment : NavigationFragment() {
 		when (error) {
 			is SignInError.Timeout -> errorSnackBar(R.string.snack_timeout) { onSignInClick() }
 			is SignInError.InvalidCredentials -> errorSnackBar(R.string.snack_invalid_credentials)
+			is SignInError.EmptyUsbId -> tInputUsbId.setError(R.string.error_empty)
+			is SignInError.InvalidUsbId -> tInputUsbId.setError(R.string.error_usb_id)
+			is SignInError.EmptyPassword -> tInputPassword.setError(R.string.error_empty)
 			is SignInError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { onSignInClick() }
 			is SignInError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
 			is SignInError.AccountDisabled -> errorSnackBar(R.string.snack_account_disabled)
