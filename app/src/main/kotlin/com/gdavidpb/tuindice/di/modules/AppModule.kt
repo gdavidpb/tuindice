@@ -3,11 +3,9 @@ package com.gdavidpb.tuindice.di.modules
 import android.app.ActivityManager
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
-import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
-import com.gdavidpb.tuindice.base.utils.extensions.create
 import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
 import com.gdavidpb.tuindice.data.source.android.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
@@ -15,14 +13,10 @@ import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataSou
 import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseAuthDataSource
 import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
-import com.gdavidpb.tuindice.data.source.functions.CloudFunctionsDataSource
-import com.gdavidpb.tuindice.data.source.functions.TuIndiceAPI
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
-import com.gdavidpb.tuindice.data.source.storage.LocalStorageDataSource
 import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataSource
-import com.gdavidpb.tuindice.data.source.tuindice.TuIndiceDataSource
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
@@ -40,8 +34,6 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 @KoinReflectAPI
@@ -124,7 +116,7 @@ val appModule = module {
 		ReviewManagerFactory.create(androidContext())
 	}
 
-	/* TuIndice API */
+	/* OkHttpClient */
 
 	single {
 		val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)
@@ -139,21 +131,10 @@ val appModule = module {
 			.build()
 	}
 
-	single {
-		Retrofit.Builder()
-			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
-			.addConverterFactory(GsonConverterFactory.create())
-			.client(get())
-			.build()
-			.create<TuIndiceAPI>()
-	}
-
 	/* Repositories */
 
-	factoryOf(::TuIndiceDataSource) { bind<TuIndiceRepository>() }
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
-	factoryOf(::LocalStorageDataSource) { bind<StorageRepository>() }
 	factoryOf(::FirebaseAuthDataSource) { bind<AuthRepository>() }
 	factoryOf(::FirebaseCloudMessagingDataSource) { bind<MessagingRepository>() }
 	factoryOf(::RemoteConfigDataSource) { bind<ConfigRepository>() }
@@ -161,7 +142,6 @@ val appModule = module {
 	factoryOf(::ReleaseKoinDataSource) { bind<DependenciesRepository>() }
 	factoryOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
 	factoryOf(::GooglePlayServicesDataSource) { bind<MobileServicesRepository>() }
-	factoryOf(::CloudFunctionsDataSource) { bind<ServicesRepository>() }
 
 	/* Utils */
 

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.source.functions.responses
+package com.gdavidpb.tuindice.record.data.api.responses
 
 import com.google.gson.annotations.SerializedName
 

@@ -10,7 +10,6 @@ class SignOutUseCase(
 	private val messagingRepository: MessagingRepository,
 	private val persistenceRepository: PersistenceRepository,
 	private val settingsRepository: SettingsRepository,
-	private val storageRepository: StorageRepository,
 	private val dependenciesRepository: DependenciesRepository,
 	private val applicationRepository: ApplicationRepository
 ) : CompletableUseCase<Unit, Nothing>() {
@@ -19,7 +18,7 @@ class SignOutUseCase(
 		authRepository.signOut()
 		settingsRepository.clear()
 		persistenceRepository.close()
-		storageRepository.clear()
+		// TODO storageRepository.clear()
 		dependenciesRepository.restart()
 		ComputationManager.clearCache()
 	}

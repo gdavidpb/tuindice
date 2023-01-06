@@ -13,6 +13,7 @@ class AuthorizationInterceptor(
 	override fun intercept(chain: Interceptor.Chain): Response {
 		val request = chain.request()
 
+		// TODO move getActiveToken to StartUpUseCase (save to settings)
 		val bearerToken = runBlocking {
 			if (authRepository.isActiveAuth())
 				authRepository.getActiveToken()
