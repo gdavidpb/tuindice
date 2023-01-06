@@ -32,7 +32,10 @@ class StartUpUseCase(
 		return if (isActiveAuth) {
 			val lastScreen = settingsRepository.getLastScreen()
 			val activeAuth = authRepository.getActiveAuth()
+			val activeToken = authRepository.getActiveToken()
 			val activeAccount = localRepository.getAccount(uid = activeAuth.uid)
+
+			settingsRepository.setActiveToken(token = activeToken)
 
 			StartUpAction.Main(screen = lastScreen, account = activeAccount)
 		} else
