@@ -5,7 +5,9 @@ import android.content.res.ColorStateList
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
 import com.gdavidpb.tuindice.base.R
+import com.gdavidpb.tuindice.base.utils.extensions.animateLookAtMe
 import com.gdavidpb.tuindice.base.utils.extensions.getCompatColor
 import com.gdavidpb.tuindice.base.utils.extensions.onTextChanged
 import com.google.android.material.textfield.TextInputLayout
@@ -51,10 +53,16 @@ abstract class InputLayout(context: Context, attrs: AttributeSet) : FrameLayout(
 		return textInputLayout.editText?.text.isNullOrBlank()
 	}
 
-	fun setError(resource: Int) {
+	fun setError(@StringRes stringRes: Int, visualAlert: Boolean = true) {
 		with(textInputLayout) {
 			isErrorEnabled = true
-			error = context.getString(resource)
+			error = context.getString(stringRes)
+		}
+
+		if (visualAlert) {
+			requestFocus()
+
+			animateLookAtMe()
 		}
 	}
 }
