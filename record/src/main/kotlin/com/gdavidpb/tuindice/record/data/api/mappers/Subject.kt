@@ -1,7 +1,7 @@
-package com.gdavidpb.tuindice.data.source.functions.mappers
+package com.gdavidpb.tuindice.record.data.api.mappers
 
 import com.gdavidpb.tuindice.base.domain.model.Subject
-import com.gdavidpb.tuindice.data.source.functions.responses.SubjectResponse
+import com.gdavidpb.tuindice.record.data.api.responses.SubjectResponse
 
 fun SubjectResponse.toSubject(qid: String) = Subject(
 	id = id,

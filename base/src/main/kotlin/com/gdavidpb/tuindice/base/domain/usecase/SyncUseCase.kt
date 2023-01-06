@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.base.utils.extensions.*
 @Timeout(key = ConfigKeys.TIME_OUT_SYNC)
 class SyncUseCase(
 	private val authRepository: AuthRepository,
-	private val tuIndiceRepository: TuIndiceRepository,
 	private val persistenceRepository: PersistenceRepository,
 	private val networkRepository: NetworkRepository
 ) : ResultUseCase<Unit, Boolean, SyncError>() {

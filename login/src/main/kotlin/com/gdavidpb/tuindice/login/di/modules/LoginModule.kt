@@ -38,7 +38,7 @@ val loginModule = module {
 	factoryOf(::ApiDataSource) { bind<RemoteRepository>() }
 	factoryOf(::RoomDataSource) { bind<LocalRepository>() }
 
-	/* Api */
+	/* SignIn Api */
 
 	single {
 		Retrofit.Builder()

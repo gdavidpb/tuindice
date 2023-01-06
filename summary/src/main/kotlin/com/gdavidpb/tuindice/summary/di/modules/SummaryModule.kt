@@ -45,7 +45,7 @@ val summaryModule = module {
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
 	factoryOf(::ApiDataSource) { bind<RemoteDataSource>() }
 
-	/* Summary API */
+	/* Summary Api */
 
 	single {
 		Retrofit.Builder()
