@@ -1,25 +1,18 @@
 package com.gdavidpb.tuindice.data.source.functions
 
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.extensions.headerPutIfAbsent
-import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 
 class AuthorizationInterceptor(
-	private val authRepository: AuthRepository
+	private val settingsRepository: SettingsRepository
 ) : Interceptor {
 	override fun intercept(chain: Interceptor.Chain): Response {
 		val request = chain.request()
 
-		// TODO move getActiveToken to StartUpUseCase (save to settings)
-		val bearerToken = runBlocking {
-			if (authRepository.isActiveAuth())
-				authRepository.getActiveToken()
-			else
-				null
-		}
+		val bearerToken = settingsRepository.getActiveToken()
 
 		val authRequest = request
 			.newBuilder()

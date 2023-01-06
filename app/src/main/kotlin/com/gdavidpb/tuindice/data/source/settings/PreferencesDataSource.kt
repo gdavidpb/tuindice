@@ -32,6 +32,16 @@ class PreferencesDataSource(
 		}
 	}
 
+	override fun getActiveToken(): String? {
+		return preferences.getString(SettingsKeys.ACTIVE_TOKEN, null)
+	}
+
+	override fun setActiveToken(token: String) {
+		preferences.edit {
+			putString(SettingsKeys.ACTIVE_TOKEN, token)
+		}
+	}
+
 	override fun isReviewSuggested(value: Int): Boolean {
 		val counter = preferences.getInt(SettingsKeys.SYNCS_COUNTER, 0) + 1
 

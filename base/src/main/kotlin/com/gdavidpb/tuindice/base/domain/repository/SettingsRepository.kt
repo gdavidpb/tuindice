@@ -9,5 +9,8 @@ interface SettingsRepository {
 	fun getLastScreen(): Int
 	fun setLastScreen(screen: Int)
 
+	fun getActiveToken(): String?
+	fun setActiveToken(token: String)
+
 	fun clear()
 }
