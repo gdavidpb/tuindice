@@ -2,15 +2,15 @@ package com.gdavidpb.tuindice
 
 import android.app.Application
 import com.gdavidpb.tuindice.base.di.baseModule
-import com.gdavidpb.tuindice.di.modules.appModule
+import com.gdavidpb.tuindice.di.appModule
 import com.gdavidpb.tuindice.migrations.MigrationManager
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
-import com.gdavidpb.tuindice.evaluations.di.modules.evaluationsModule
-import com.gdavidpb.tuindice.login.di.modules.loginModule
+import com.gdavidpb.tuindice.evaluations.di.evaluationsModule
+import com.gdavidpb.tuindice.login.di.loginModule
 import com.gdavidpb.tuindice.persistence.di.persistenceModule
-import com.gdavidpb.tuindice.record.di.modules.recordModule
-import com.gdavidpb.tuindice.summary.di.modules.summaryModule
+import com.gdavidpb.tuindice.record.di.recordModule
+import com.gdavidpb.tuindice.summary.di.summaryModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
 import org.koin.android.ext.koin.androidLogger

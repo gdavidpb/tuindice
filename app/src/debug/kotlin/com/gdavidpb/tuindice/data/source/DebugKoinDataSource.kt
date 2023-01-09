@@ -3,11 +3,11 @@ package com.gdavidpb.tuindice.data.source
 import com.gdavidpb.tuindice.base.di.baseModule
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.di.modules.appMockModule
-import com.gdavidpb.tuindice.evaluations.di.modules.evaluationsModule
-import com.gdavidpb.tuindice.login.di.modules.loginModule
+import com.gdavidpb.tuindice.evaluations.di.evaluationsModule
+import com.gdavidpb.tuindice.login.di.loginModule
 import com.gdavidpb.tuindice.persistence.di.persistenceModule
-import com.gdavidpb.tuindice.record.di.modules.recordModule
-import com.gdavidpb.tuindice.summary.di.modules.summaryModule
+import com.gdavidpb.tuindice.record.di.recordModule
+import com.gdavidpb.tuindice.summary.di.summaryModule
 import org.koin.core.annotation.KoinReflectAPI
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.di.modules
+package com.gdavidpb.tuindice.evaluations.di
 
 import org.koin.core.annotation.KoinReflectAPI
 import org.koin.dsl.module

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.di.modules
+package com.gdavidpb.tuindice.di
 
 import android.app.ActivityManager
 import android.net.ConnectivityManager
