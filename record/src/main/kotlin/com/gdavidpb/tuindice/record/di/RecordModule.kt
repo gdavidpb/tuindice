@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.di.modules
+package com.gdavidpb.tuindice.record.di
 
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extensions.create

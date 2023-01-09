@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.login.di.modules
+package com.gdavidpb.tuindice.login.di
 
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extensions.create
