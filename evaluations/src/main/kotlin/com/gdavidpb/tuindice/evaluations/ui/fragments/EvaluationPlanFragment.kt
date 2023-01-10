@@ -4,20 +4,18 @@ import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
-import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
-import com.gdavidpb.tuindice.base.data.model.database.SubjectUpdate
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
-import com.gdavidpb.tuindice.record.domain.request.UpdateQuarterRequest
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
-import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationPlanViewModel
-import com.gdavidpb.tuindice.evaluations.ui.adapters.EvaluationAdapter
 import com.gdavidpb.tuindice.base.ui.dialogs.MenuBottomSheetDialog
+import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.DECIMALS_GRADE_SUBJECT
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.evaluations.R
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
+import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationPlanViewModel
+import com.gdavidpb.tuindice.evaluations.ui.adapters.EvaluationAdapter
 import com.gdavidpb.tuindice.evaluations.utils.mappers.toEvaluationItem
 import com.gdavidpb.tuindice.evaluations.utils.mappers.toUpdateRequest
 import com.google.android.material.snackbar.Snackbar
@@ -79,7 +77,6 @@ class EvaluationPlanFragment : NavigationFragment() {
 	override fun onInitObservers() {
 		with(viewModel) {
 			observe(evaluations, ::evaluationsObserver)
-			observe(quarterUpdate, ::quarterObserver)
 			observe(evaluationUpdate, ::evaluationObserver)
 		}
 	}
@@ -196,18 +193,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 	}
 
 	private fun useEvaluationPlanGrade() {
-		val update = SubjectUpdate(
-			grade = evaluationAdapter.computeGradeSum().toSubjectGrade()
-		)
-
-		val request = UpdateQuarterRequest(
-			qid = args.quarterId,
-			sid = args.subjectId,
-			update = update,
-			dispatchChanges = true
-		)
-
-		viewModel.updateQuarter(request)
+		TODO("Not yet implemented")
 	}
 
 	private fun editEvaluation(item: EvaluationItem) {

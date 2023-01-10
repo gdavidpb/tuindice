@@ -10,7 +10,15 @@ import java.util.*
 interface AccountDao : BaseDao<AccountEntity> {
 	@Query(
 		"SELECT EXISTS(" +
-				"SELECT * FROM ${AccountTable.TABLE_NAME} " +
+				"SELECT 1 FROM ${AccountTable.TABLE_NAME} " +
+				"WHERE ${AccountTable.ID} = :uid " +
+				"AND (${AccountTable.LAST_UPDATE} + 86400 * 1000) >= epochtime('now'))"
+	)
+	suspend fun isUpdated(uid: String): Boolean
+
+	@Query(
+		"SELECT EXISTS(" +
+				"SELECT 1 FROM ${AccountTable.TABLE_NAME} " +
 				"WHERE ${AccountTable.ID} = :uid)"
 	)
 	suspend fun accountExists(uid: String): Boolean
@@ -20,10 +28,4 @@ interface AccountDao : BaseDao<AccountEntity> {
 				"WHERE ${AccountTable.ID} = :uid"
 	)
 	suspend fun getAccount(uid: String): AccountEntity
-
-	@Query(
-		"SELECT ${AccountTable.LAST_UPDATE} FROM ${AccountTable.TABLE_NAME} " +
-				"WHERE ${AccountTable.ID} = :uid"
-	)
-	suspend fun getLastUpdate(uid: String): Date
 }

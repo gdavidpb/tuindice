@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.base.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.CompletableUseCase
-import com.gdavidpb.tuindice.base.utils.ComputationManager
 import com.gdavidpb.tuindice.base.utils.Topics
 
 class SignOutUseCase(
@@ -20,7 +19,7 @@ class SignOutUseCase(
 		persistenceRepository.close()
 		// TODO storageRepository.clear()
 		dependenciesRepository.restart()
-		ComputationManager.clearCache()
+		// TODO ComputationManager.clearCache()
 	}
 
 	override suspend fun executeOnException(throwable: Throwable): Nothing? {
