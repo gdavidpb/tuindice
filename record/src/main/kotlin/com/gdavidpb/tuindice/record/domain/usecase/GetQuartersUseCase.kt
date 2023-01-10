@@ -12,7 +12,6 @@ class GetQuartersUseCase(
 	override suspend fun executeOnBackground(params: Unit): List<Quarter> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		// TODO define forceRemote from isUpdated
-		return quarterRepository.getQuarters(uid = activeUId, forceRemote = true)
+		return quarterRepository.getQuarters(uid = activeUId)
 	}
 }

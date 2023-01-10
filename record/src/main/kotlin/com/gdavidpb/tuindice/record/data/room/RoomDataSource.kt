@@ -9,6 +9,10 @@ import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
+	override suspend fun isUpdated(uid: String): Boolean {
+		return room.accounts.isUpdated(uid)
+	}
+
 	override suspend fun getQuarters(uid: String): List<Quarter> {
 		return room.quarters.getQuarters(uid)
 			.map { (quarter, subjects) -> quarter.toQuarter(subjects) }

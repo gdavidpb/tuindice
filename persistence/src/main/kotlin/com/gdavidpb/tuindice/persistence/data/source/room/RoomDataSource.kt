@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.base.domain.repository.PersistenceRepository
-import com.gdavidpb.tuindice.base.utils.extensions.tomorrow
 import com.gdavidpb.tuindice.persistence.data.source.room.mappers.*
 import com.gdavidpb.tuindice.persistence.data.source.room.utils.extensions.withTransaction
 import java.util.*
@@ -15,11 +14,7 @@ class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : PersistenceRepository {
 	override suspend fun isUpdated(uid: String): Boolean {
-		val now = Date()
-		val lastUpdate = room.accounts.getLastUpdate(uid)
-		val outdated = lastUpdate.tomorrow()
-
-		return now.before(outdated)
+		return room.accounts.isUpdated(uid)
 	}
 
 	override suspend fun addAccount(uid: String, account: Account) {

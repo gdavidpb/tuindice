@@ -6,15 +6,15 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.MenuProvider
-import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
-import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialogs.MenuBottomSheetDialog
+import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
+import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.domain.error.GetEnrollmentError
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
@@ -23,7 +23,6 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.record.ui.dialogs.EnrollmentDownloadingBottomSheetDialog
 import com.gdavidpb.tuindice.record.utils.mappers.toQuarterItem
-import com.gdavidpb.tuindice.record.utils.mappers.toUpdateRequest
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -75,7 +74,6 @@ class RecordFragment : NavigationFragment() {
 		with(viewModel) {
 			observe(quarters, ::quartersObserver)
 			observe(enrollment, ::enrollmentObserver)
-			observe(quarterUpdate, ::quarterObserver)
 		}
 	}
 
@@ -119,10 +117,13 @@ class RecordFragment : NavigationFragment() {
 	) {
 		when (itemId) {
 			SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS -> showSubjectEvaluations(
-				quarterItem,
-				subjectItem
+				quarterItem = quarterItem,
+				subjectItem = subjectItem
 			)
-			SubjectMenu.ID_REMOVE_SUBJECT -> removeSubject(quarterItem, subjectItem)
+			SubjectMenu.ID_REMOVE_SUBJECT -> removeSubject(
+				quarterItem = quarterItem,
+				subjectItem = subjectItem
+			)
 		}
 	}
 
@@ -138,13 +139,7 @@ class RecordFragment : NavigationFragment() {
 	}
 
 	private fun removeSubject(quarterItem: QuarterItem, subjectItem: SubjectItem) {
-		val request = quarterItem.data.toUpdateRequest(
-			sid = subjectItem.id,
-			grade = 0,
-			dispatchChanges = true
-		)
-
-		viewModel.updateQuarter(request)
+		TODO("Not yet implemented")
 	}
 
 	private fun openEnrollmentProof() {
@@ -216,19 +211,6 @@ class RecordFragment : NavigationFragment() {
 		}
 	}
 
-	private fun quarterObserver(result: Result<Quarter, Nothing>?) {
-		when (result) {
-			is Result.OnSuccess -> {
-				val context = requireContext()
-				val quarter = result.value
-				val item = quarter.toQuarterItem(context)
-
-				quarterAdapter.updateQuarter(item)
-			}
-			else -> {}
-		}
-	}
-
 	private fun enrollmentErrorHandler(error: GetEnrollmentError?) {
 		when (error) {
 			is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { openEnrollmentProof() }
@@ -252,13 +234,7 @@ class RecordFragment : NavigationFragment() {
 			grade: Int,
 			dispatchChanges: Boolean
 		) {
-			val request = quarterItem.data.toUpdateRequest(
-				sid = subjectItem.id,
-				grade = grade,
-				dispatchChanges = dispatchChanges
-			)
-
-			viewModel.updateQuarter(request)
+			TODO("Not yet implemented")
 		}
 
 		override fun onSubmitQuarters(items: List<QuarterItem>) {
