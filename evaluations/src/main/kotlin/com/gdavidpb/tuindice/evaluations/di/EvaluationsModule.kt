@@ -25,7 +25,7 @@ val evaluationsModule = module {
 	/* Use cases */
 
 	factoryOf(::GetEvaluationUseCase)
-	factoryOf(::GetSubjectEvaluationsUseCase)
+	factoryOf(::GetEvaluationsUseCase)
 	factoryOf(::UpdateEvaluationUseCase)
 	factoryOf(::RemoveEvaluationUseCase)
 	factoryOf(::AddEvaluationUseCase)
