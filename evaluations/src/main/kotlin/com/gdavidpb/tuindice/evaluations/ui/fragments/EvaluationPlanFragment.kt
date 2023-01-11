@@ -5,7 +5,6 @@ import android.view.View
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.ui.dialogs.MenuBottomSheetDialog
@@ -26,9 +25,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 
 	private val viewModel by viewModel<EvaluationPlanViewModel>()
 
-	private val evaluationManager = EvaluationManager()
-
-	private val evaluationAdapter = EvaluationAdapter(manager = evaluationManager)
+	private val evaluationAdapter = EvaluationAdapter(manager = EvaluationManager())
 
 	private val args by navArgs<EvaluationPlanFragmentArgs>()
 
@@ -187,13 +184,14 @@ class EvaluationPlanFragment : NavigationFragment() {
 				title = getString(R.string.title_add_evaluation),
 				quarterId = args.quarterId,
 				subjectId = args.subjectId,
-				subjectCode = args.subjectCode
+				subjectCode = args.subjectCode,
+				subjectName = args.subjectName
 			)
 		)
 	}
 
 	private fun useEvaluationPlanGrade() {
-		TODO("Not yet implemented")
+		TODO("Not yet implemented") // update quarter and navigateUp?
 	}
 
 	private fun editEvaluation(item: EvaluationItem) {
@@ -203,6 +201,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 				quarterId = args.quarterId,
 				subjectId = args.subjectId,
 				subjectCode = args.subjectCode,
+				subjectName = args.subjectName,
 				evaluationId = item.id
 			)
 		)
@@ -248,15 +247,6 @@ class EvaluationPlanFragment : NavigationFragment() {
 				}
 
 				evaluationAdapter.submitEvaluations(items)
-			}
-			else -> {}
-		}
-	}
-
-	private fun quarterObserver(result: Result<Quarter, Nothing>?) {
-		when (result) {
-			is Result.OnSuccess -> {
-				navigateUp()
 			}
 			else -> {}
 		}

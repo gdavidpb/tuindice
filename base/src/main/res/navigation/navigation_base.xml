@@ -137,6 +137,9 @@
             android:name="subjectCode"
             app:argType="string" />
         <argument
+            android:name="subjectName"
+            app:argType="string" />
+        <argument
             android:name="evaluationId"
             android:defaultValue="@null"
             app:argType="string"

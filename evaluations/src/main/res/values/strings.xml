@@ -16,6 +16,9 @@
         ¡Recuerda que la organización es el secreto del éxito!
     </string>
 
+    <string name="label_evaluation_plan_header">%1$s ─ %2$s</string>
+    <string name="label_evaluation_header">%1$s ─ %2$s</string>
+
     <string name="menu_evaluation_add">Agregar evaluación</string>
     <string name="menu_evaluation_plan_use_grade">Usar <b>Nota final</b> para la materia</string>
 

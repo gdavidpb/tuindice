@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.base.utils.Topics
 class SignOutUseCase(
 	private val authRepository: AuthRepository,
 	private val messagingRepository: MessagingRepository,
-	private val persistenceRepository: PersistenceRepository,
 	private val settingsRepository: SettingsRepository,
 	private val dependenciesRepository: DependenciesRepository,
 	private val applicationRepository: ApplicationRepository
@@ -16,7 +15,7 @@ class SignOutUseCase(
 		messagingRepository.unsubscribeFromTopic(Topics.TOPIC_GENERAL)
 		authRepository.signOut()
 		settingsRepository.clear()
-		persistenceRepository.close()
+		// TODO persistenceRepository.close()
 		// TODO storageRepository.clear()
 		dependenciesRepository.restart()
 		// TODO ComputationManager.clearCache()
