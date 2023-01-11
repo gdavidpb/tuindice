@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 
-class GetSubjectEvaluationsUseCase(
+class GetEvaluationsUseCase(
 	private val authRepository: AuthRepository,
 	private val evaluationRepository: EvaluationRepository
 ) : ResultUseCase<String, List<Evaluation>, Nothing>() {

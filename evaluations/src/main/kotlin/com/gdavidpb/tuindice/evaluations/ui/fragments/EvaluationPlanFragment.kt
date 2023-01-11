@@ -67,7 +67,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 		btnEvaluationsOptions.onClickOnce(::showEvaluationsMenuDialog)
 
 		with(viewModel) {
-			getSubjectEvaluations(sid = args.subjectId)
+			getEvaluations(sid = args.subjectId)
 		}
 	}
 

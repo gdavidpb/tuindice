@@ -6,12 +6,12 @@ import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.base.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.base.utils.extensions.execute
 import com.gdavidpb.tuindice.evaluations.domain.request.UpdateEvaluationRequest
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetSubjectEvaluationsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 
 class EvaluationPlanViewModel(
-	private val getSubjectEvaluationsUseCase: GetSubjectEvaluationsUseCase,
+	private val getEvaluationsUseCase: GetEvaluationsUseCase,
 	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
 	private val removeEvaluationUseCase: RemoveEvaluationUseCase
 ) : ViewModel() {
@@ -19,8 +19,8 @@ class EvaluationPlanViewModel(
 	val evaluationUpdate = LiveResult<Evaluation, Nothing>()
 	val evaluationRemove = LiveCompletable<Nothing>()
 
-	fun getSubjectEvaluations(sid: String) =
-		execute(useCase = getSubjectEvaluationsUseCase, params = sid, liveData = evaluations)
+	fun getEvaluations(sid: String) =
+		execute(useCase = getEvaluationsUseCase, params = sid, liveData = evaluations)
 
 	fun updateEvaluation(request: UpdateEvaluationRequest) =
 		execute(useCase = updateEvaluationUseCase, params = request, liveData = evaluationUpdate)
