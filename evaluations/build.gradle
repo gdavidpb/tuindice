@@ -7,5 +7,5 @@ android {
 
 dependencies {
     implementation project(":base")
-    implementation project(":record")
+    implementation project(":persistence")
 }

@@ -3,17 +3,16 @@ package com.gdavidpb.tuindice.evaluations.ui.fragments
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.navArgs
+import com.gdavidpb.tuindice.base.data.model.database.EvaluationUpdate
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.Validation
 import com.gdavidpb.tuindice.base.utils.`do`
 import com.gdavidpb.tuindice.base.utils.`when`
-import com.gdavidpb.tuindice.base.utils.firstInvalid
-import com.gdavidpb.tuindice.base.data.model.database.EvaluationUpdate
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.domain.model.Subject
-import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.firstInvalid
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
@@ -30,6 +29,7 @@ class EvaluationFragment : NavigationFragment() {
 
 	private val isNewEvaluation by lazy { (args.evaluationId == null) }
 
+	@Deprecated("This will be removed.")
 	private val validations by lazy {
 		arrayOf<Validation<*>>(
 			`when`(tInputEvaluationName) { isEmpty() } `do` { setError(R.string.error_evaluation_name_missed) },
@@ -46,12 +46,11 @@ class EvaluationFragment : NavigationFragment() {
 		super.onViewCreated(view, savedInstanceState)
 
 		initChipGroup()
+		initSubject()
 
 		btnEvaluationSave.onClickOnce(::onSaveClick)
 
 		with(viewModel) {
-			getSubject(sid = args.subjectId)
-
 			val evaluationId = args.evaluationId
 
 			if (evaluationId != null) getEvaluation(eid = evaluationId)
@@ -60,10 +59,19 @@ class EvaluationFragment : NavigationFragment() {
 
 	override fun onInitObservers() {
 		with(viewModel) {
-			observe(subject, ::subjectObserver)
 			observe(evaluation, ::evaluationObserver)
 			observe(add, ::addEvaluationObserver)
 		}
+	}
+
+	private fun initSubject() {
+		val subjectHeader = getString(
+			R.string.label_evaluation_plan_header,
+			args.subjectCode,
+			args.subjectName
+		)
+
+		tViewEvaluationHeader.text = subjectHeader
 	}
 
 	private fun initEvaluation(evaluation: Evaluation) {
@@ -148,22 +156,6 @@ class EvaluationFragment : NavigationFragment() {
 		)
 
 		return UpdateEvaluationRequest(eid = evaluationId, update = update, dispatchChanges = true)
-	}
-
-	private fun subjectObserver(result: Result<Subject, Nothing>?) {
-		when (result) {
-			is Result.OnSuccess -> {
-				val subject = result.value
-
-				val subjectHeader = getString(
-					R.string.label_evaluation_plan_header,
-					subject.code, subject.name
-				)
-
-				tViewEvaluationHeader.text = subjectHeader
-			}
-			else -> {}
-		}
 	}
 
 	private fun evaluationObserver(result: Result<Evaluation, Nothing>?) {
