@@ -38,4 +38,15 @@ val evaluationsModule = module {
 
 	factoryOf(::ApiDataSource) { bind<RemoteDataSource>() }
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
+
+	/* SignIn Api */
+
+	single {
+		Retrofit.Builder()
+			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
+			.addConverterFactory(GsonConverterFactory.create())
+			.client(get())
+			.build()
+			.create<EvaluationsApi>()
+	}
 }
