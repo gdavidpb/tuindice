@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.evaluations.di
 
+import com.gdavidpb.tuindice.base.BuildConfig
+import com.gdavidpb.tuindice.base.utils.extensions.create
 import com.gdavidpb.tuindice.evaluations.data.api.ApiDataSource
+import com.gdavidpb.tuindice.evaluations.data.api.EvaluationsApi
 import com.gdavidpb.tuindice.evaluations.data.evaluation.EvaluationDataRepository
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
@@ -14,6 +17,8 @@ import org.koin.core.annotation.KoinReflectAPI
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 @KoinReflectAPI
 val evaluationsModule = module {

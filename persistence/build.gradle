@@ -1,4 +1,5 @@
 apply plugin: "com.android.library"
+apply plugin: "kotlin-kapt"
 apply from: "../core.gradle"
 
 android {
@@ -6,9 +7,11 @@ android {
 }
 
 dependencies {
+    implementation project(":base")
+
     /* Room */
+    kapt "androidx.room:room-compiler:${versions.room}"
+
     api "androidx.room:room-ktx:${versions.room}"
     api "androidx.room:room-runtime:${versions.room}"
-
-    implementation project(":base")
 }
