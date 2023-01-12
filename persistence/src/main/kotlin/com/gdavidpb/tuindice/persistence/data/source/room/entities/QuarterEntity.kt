@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.persistence.data.source.room.entities
 
 import androidx.room.*
-import androidx.room.ForeignKey.CASCADE
 import com.gdavidpb.tuindice.persistence.data.source.room.schema.AccountTable
 import com.gdavidpb.tuindice.persistence.data.source.room.schema.QuarterTable
 import java.util.*
@@ -13,8 +12,8 @@ import java.util.*
 			entity = AccountEntity::class,
 			parentColumns = [AccountTable.ID],
 			childColumns = [QuarterTable.ACCOUNT_ID],
-			onDelete = CASCADE,
-			onUpdate = CASCADE
+			onDelete = ForeignKey.CASCADE,
+			onUpdate = ForeignKey.CASCADE
 		)
 	],
 	indices = [
