@@ -1,0 +1,11 @@
+apply plugin: "com.android.library"
+apply from: "../core.gradle"
+
+android {
+    namespace "com.gdavidpb.tuindice.enrollmentproof"
+}
+
+dependencies {
+    implementation project(":base")
+    implementation project(":persistence")
+}

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.domain.error
+package com.gdavidpb.tuindice.enrollmentproof.domain.error
 
 sealed class GetEnrollmentError {
 	object Timeout : GetEnrollmentError()

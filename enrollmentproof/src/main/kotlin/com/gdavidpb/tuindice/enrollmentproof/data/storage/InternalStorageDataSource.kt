@@ -1,16 +1,16 @@
-package com.gdavidpb.tuindice.record.data.storage
+package com.gdavidpb.tuindice.enrollmentproof.data.storage
 
 import android.content.Context
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.utils.extensions.File
 import com.gdavidpb.tuindice.base.utils.extensions.decodeFromBase64String
 import com.gdavidpb.tuindice.base.utils.extensions.encodeToBase64String
-import com.gdavidpb.tuindice.record.data.enrollmentproof.source.LocalDataSource
-import com.gdavidpb.tuindice.record.domain.model.EnrollmentProof
+import com.gdavidpb.tuindice.enrollmentproof.data.enrollmentproof.source.StorageDataSource
+import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 
 class InternalStorageDataSource(
 	private val context: Context
-) : LocalDataSource {
+) : StorageDataSource {
 	private val enrollmentProofDir = "enrollments"
 
 	override suspend fun getEnrollmentProof(uid: String, quarter: Quarter): EnrollmentProof {

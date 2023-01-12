@@ -33,9 +33,6 @@
     <string name="hint_mock_search">Código o nombre de la materia</string>
     -->
 
-    <string name="snack_enrollment_unsupported">Archivo no soportado ;(</string>
-    <string name="snack_enrollment_not_found">Comprobante no disponible</string>
-
     <string name="cd_add_quarter">Agregar trimestre</string>
 
     <string name="label_empty_record">
@@ -85,9 +82,5 @@
     <string name="error_evaluation_name_missed">La evaluación debe tener un nombre</string>
     <string name="error_evaluation_grade_invalid_range">El valor de la evaluación debe estar entre 0.25 y 100 puntos</string>
     <string name="error_evaluation_grade_invalid_step">El valor de la evaluación debe ser múltiplo de 0.25</string>
-
-    <!-- EnrollmentDownloadingBottomSheetDialog -->
-
-    <string name="dialog_message_enrollment_downloading">Obteniendo comprobante…</string>
 
 </resources>

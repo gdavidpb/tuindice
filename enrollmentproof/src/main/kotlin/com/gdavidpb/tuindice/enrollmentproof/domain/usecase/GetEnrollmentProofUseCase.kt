@@ -1,28 +1,26 @@
-package com.gdavidpb.tuindice.record.domain.usecase
+package com.gdavidpb.tuindice.enrollmentproof.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.annotations.Timeout
 import com.gdavidpb.tuindice.base.utils.extensions.*
-import com.gdavidpb.tuindice.record.domain.error.GetEnrollmentError
-import com.gdavidpb.tuindice.record.domain.repository.EnrollmentProofRepository
+import com.gdavidpb.tuindice.enrollmentproof.domain.error.GetEnrollmentError
+import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 
 @Timeout(key = ConfigKeys.TIME_OUT_GET_ENROLLMENT)
 class GetEnrollmentProofUseCase(
 	private val authRepository: AuthRepository,
 	private val networkRepository: NetworkRepository,
 	private val enrollmentProofRepository: EnrollmentProofRepository
-) : EventUseCase<Quarter, String, GetEnrollmentError>() {
-	override suspend fun executeOnBackground(params: Quarter): String {
+) : EventUseCase<Unit, String, GetEnrollmentError>() {
+	override suspend fun executeOnBackground(params: Unit): String {
 		val activeAuth = authRepository.getActiveAuth()
 
 		val enrollmentProof = enrollmentProofRepository.getEnrollmentProof(
-			uid = activeAuth.uid,
-			quarter = params
-		)
+			uid = activeAuth.uid
+		)!! // TODO route exception to Unavailable
 
 		return enrollmentProof.source
 	}
