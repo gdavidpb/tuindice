@@ -25,14 +25,7 @@
         <b>TuIndice</b> te da la bienvenida a <b>La Simón</b>\n¡Mucho éxito!
     </string>
 
-    <string name="snack_enrollment_unsupported">Archivo no soportado ;(</string>
-    <string name="snack_enrollment_not_found">Comprobante no disponible</string>
-
     <string name="label_evaluation_plan_header">%1$s ─ %2$s</string>
     <string name="label_evaluation_header">%1$s ─ %2$s</string>
-
-    <!-- EnrollmentDownloadingBottomSheetDialog -->
-
-    <string name="dialog_message_enrollment_downloading">Obteniendo comprobante…</string>
 
 </resources>

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.domain.model
+package com.gdavidpb.tuindice.enrollmentproof.domain.model
 
 data class EnrollmentProof(
 	val source: String,

@@ -11,6 +11,13 @@
         app:popUpTo="@id/fragment_sign_in"
         app:popUpToInclusive="true" />
 
+    <dialog
+        android:id="@+id/dialog_enrollment_proof"
+        android:name="com.gdavidpb.tuindice.enrollmentproof.ui.dialogs.EnrollmentDownloadingBottomSheetDialog"
+        tools:layout="@layout/R.layout.dialog_enrollment_downloading" >
+
+    </dialog>
+
     <fragment
         android:id="@+id/fragment_splash"
         android:name="com.gdavidpb.tuindice.login.ui.fragments.SplashFragment"
@@ -69,6 +76,9 @@
         android:name="com.gdavidpb.tuindice.record.ui.fragments.RecordFragment"
         android:label="@string/nav_record"
         tools:layout="@layout/fragment_record">
+        <action
+            android:id="@+id/nav_to_enrollment_proof"
+            app:destination="@id/dialog_enrollment_proof" />
         <action
             android:id="@+id/nav_to_evaluation_plan"
             app:destination="@id/fragment_evaluation_plan"

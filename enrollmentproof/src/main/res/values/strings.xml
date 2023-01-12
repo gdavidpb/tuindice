@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="dialog_message_enrollment_downloading">Obteniendo comprobante…</string>
+
+    <string name="snack_enrollment_unsupported">Archivo no soportado ;(</string>
+    <string name="snack_enrollment_not_found">Comprobante no disponible</string>
+
+</resources>

@@ -7,26 +7,23 @@ import android.view.MenuItem
 import android.view.View
 import androidx.core.view.MenuProvider
 import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialogs.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
-import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extensions.bottomSheetDialog
+import com.gdavidpb.tuindice.base.utils.extensions.observe
 import com.gdavidpb.tuindice.record.R
-import com.gdavidpb.tuindice.record.domain.error.GetEnrollmentError
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.adapters.QuarterAdapter
-import com.gdavidpb.tuindice.record.ui.dialogs.EnrollmentDownloadingBottomSheetDialog
 import com.gdavidpb.tuindice.record.utils.mappers.toQuarterItem
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.io.File
 
 class RecordFragment : NavigationFragment() {
 
@@ -37,10 +34,6 @@ class RecordFragment : NavigationFragment() {
 	private val quarterManager = QuarterManager()
 
 	private val quarterAdapter = QuarterAdapter(manager = quarterManager)
-
-	private val downloadingDialog by lazy {
-		EnrollmentDownloadingBottomSheetDialog()
-	}
 
 	private object Flipper {
 		const val CONTENT = 0
@@ -73,7 +66,6 @@ class RecordFragment : NavigationFragment() {
 
 		with(viewModel) {
 			observe(quarters, ::quartersObserver)
-			observe(enrollment, ::enrollmentObserver)
 		}
 	}
 
@@ -142,15 +134,6 @@ class RecordFragment : NavigationFragment() {
 		TODO("Not yet implemented")
 	}
 
-	private fun openEnrollmentProof() {
-		val currentQuarterItem = quarterAdapter.getCurrentQuarter()
-
-		if (currentQuarterItem != null)
-			viewModel.openEnrollmentProof(quarter = currentQuarterItem.data)
-		else
-			snackBar(R.string.snack_enrollment_not_found)
-	}
-
 	private fun syncObserver(result: Result<Boolean, SyncError>?) {
 		when (result) {
 			is Result.OnSuccess -> {
@@ -184,45 +167,6 @@ class RecordFragment : NavigationFragment() {
 		}
 	}
 
-	private fun enrollmentObserver(result: Event<String, GetEnrollmentError>?) {
-		when (result) {
-			is Event.OnLoading -> {
-				downloadingDialog.show(childFragmentManager, "downloadingDialog")
-
-				setMenuVisibility(false)
-			}
-			is Event.OnSuccess -> {
-				downloadingDialog.dismiss()
-
-				setMenuVisibility(true)
-
-				val enrollmentFile = File(result.value)
-
-				openPdf(file = enrollmentFile) { snackBar(R.string.snack_enrollment_unsupported) }
-			}
-			is Event.OnError -> {
-				downloadingDialog.dismiss()
-
-				setMenuVisibility(true)
-
-				enrollmentErrorHandler(error = result.error)
-			}
-			else -> {}
-		}
-	}
-
-	private fun enrollmentErrorHandler(error: GetEnrollmentError?) {
-		when (error) {
-			is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { openEnrollmentProof() }
-			is GetEnrollmentError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { openEnrollmentProof() }
-			is GetEnrollmentError.NotFound -> snackBar(R.string.snack_enrollment_not_found)
-			is GetEnrollmentError.AccountDisabled -> mainViewModel.signOut()
-			// TODO is GetEnrollmentError.OutdatedPassword -> showUpdatePasswordDialog()
-			is GetEnrollmentError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { openEnrollmentProof() }
-			else -> errorSnackBar { openEnrollmentProof() }
-		}
-	}
-
 	inner class QuarterManager : QuarterAdapter.AdapterManager {
 		override fun onSubjectOptionsClicked(quarterItem: QuarterItem, subjectItem: SubjectItem) {
 			showSubjectMenuDialog(quarterItem = quarterItem, subjectItem = subjectItem)
@@ -249,11 +193,8 @@ class RecordFragment : NavigationFragment() {
 
 		override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
 			return when (menuItem.itemId) {
-				R.id.menu_enrollment -> {
-					val currentQuarterItem = quarterAdapter.getCurrentQuarter()
-
-					if (currentQuarterItem != null)
-						viewModel.openEnrollmentProof(quarter = currentQuarterItem.data)
+				R.id.menu_enrollment -> { // TODO visibility determined by current quarter existence
+					navigate(RecordFragmentDirections.navToEnrollmentProof())
 
 					true
 				}
