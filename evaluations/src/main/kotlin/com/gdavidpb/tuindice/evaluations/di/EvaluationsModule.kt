@@ -11,13 +11,13 @@ import com.gdavidpb.tuindice.evaluations.data.room.RoomDataSource
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.*
 import com.gdavidpb.tuindice.evaluations.domain.validator.AddEvaluationParamsValidator
+import com.gdavidpb.tuindice.evaluations.domain.validator.UpdateEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationPlanViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
-import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -40,6 +40,7 @@ val evaluationsModule = module {
 	/* Validators */
 
 	factoryOf(::AddEvaluationParamsValidator)
+	factoryOf(::UpdateEvaluationParamsValidator)
 
 	/* Repositories */
 

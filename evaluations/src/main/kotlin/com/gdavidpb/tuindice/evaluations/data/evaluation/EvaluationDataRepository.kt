@@ -33,7 +33,11 @@ class EvaluationDataRepository(
 	}
 
 	override suspend fun updateEvaluation(uid: String, eid: String, evaluation: UpdateEvaluation): Evaluation {
-		TODO("Not yet implemented")
+		val updateEvaluation = remoteDataSource.updateEvaluation(evaluation)
+
+		localDataSource.saveEvaluations(uid, updateEvaluation)
+
+		return updateEvaluation
 	}
 
 	override suspend fun removeEvaluation(uid: String, eid: String) {

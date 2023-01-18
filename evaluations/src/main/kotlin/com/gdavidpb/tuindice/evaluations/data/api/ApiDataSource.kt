@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.evaluations.data.api.mapper.toAddEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
 import com.gdavidpb.tuindice.evaluations.domain.model.NewEvaluation
+import com.gdavidpb.tuindice.evaluations.domain.model.UpdateEvaluation
 
 class ApiDataSource(
 	private val evaluationsApi: EvaluationsApi
@@ -26,6 +27,14 @@ class ApiDataSource(
 		val request = evaluation.toAddEvaluationRequest()
 
 		return evaluationsApi.addEvaluation(request)
+			.getOrThrow()
+			.toEvaluation()
+	}
+
+	override suspend fun updateEvaluation(evaluation: UpdateEvaluation): Evaluation {
+		val request = evaluation.toAddEvaluationRequest()
+
+		return evaluationsApi.updateEvaluation(request)
 			.getOrThrow()
 			.toEvaluation()
 	}
