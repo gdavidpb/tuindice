@@ -31,13 +31,13 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/dp_16">
 
-            <com.gdavidpb.tuindice.evaluations.ui.customs.EvaluationNameInputLayout
+            <com.gdavidpb.tuindice.evaluations.ui.custom.EvaluationNameInputLayout
                 android:id="@+id/tInputEvaluationName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <com.gdavidpb.tuindice.evaluations.ui.customs.GradeInputLayout
+            <com.gdavidpb.tuindice.evaluations.ui.custom.GradeInputLayout
                 android:id="@+id/tInputEvaluationGrade"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tInputEvaluationName" />
 
-            <com.gdavidpb.tuindice.evaluations.ui.customs.EvaluationDatePickerView
+            <com.gdavidpb.tuindice.evaluations.ui.custom.EvaluationDatePickerView
                 android:id="@+id/dPickerEvaluationDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

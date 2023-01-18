@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.base.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.base.utils.extensions.execute
-import com.gdavidpb.tuindice.evaluations.domain.request.UpdateEvaluationRequest
+import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
@@ -22,7 +22,7 @@ class EvaluationPlanViewModel(
 	fun getEvaluations(sid: String) =
 		execute(useCase = getEvaluationsUseCase, params = sid, liveData = evaluations)
 
-	fun updateEvaluation(request: UpdateEvaluationRequest) =
+	fun updateEvaluation(request: UpdateEvaluationParams) =
 		execute(useCase = updateEvaluationUseCase, params = request, liveData = evaluationUpdate)
 
 	fun removeEvaluation(id: String) =

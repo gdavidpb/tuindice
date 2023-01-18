@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.base.utils.extensions.execute
-import com.gdavidpb.tuindice.evaluations.domain.request.UpdateEvaluationRequest
+import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
@@ -24,6 +24,6 @@ class EvaluationViewModel(
 	fun addEvaluation(evaluation: Evaluation) =
 		execute(useCase = addEvaluationUseCase, params = evaluation, liveData = add)
 
-	fun updateEvaluation(request: UpdateEvaluationRequest) =
+	fun updateEvaluation(request: UpdateEvaluationParams) =
 		execute(useCase = updateEvaluationUseCase, params = request, liveData = evaluationUpdate)
 }

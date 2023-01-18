@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.evaluations.data.room
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
-import com.gdavidpb.tuindice.evaluations.data.room.mappers.toEvaluation
-import com.gdavidpb.tuindice.evaluations.data.room.mappers.toEvaluationEntity
+import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluation
+import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.source.room.TuIndiceDatabase
 
 class RoomDataSource(

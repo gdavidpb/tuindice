@@ -2,11 +2,11 @@ package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
-import com.gdavidpb.tuindice.evaluations.domain.request.UpdateEvaluationRequest
+import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
 
 class UpdateEvaluationUseCase(
-) : ResultUseCase<UpdateEvaluationRequest, Evaluation, Nothing>() {
-	override suspend fun executeOnBackground(params: UpdateEvaluationRequest): Evaluation {
+) : ResultUseCase<UpdateEvaluationParams, Evaluation, Nothing>() {
+	override suspend fun executeOnBackground(params: UpdateEvaluationParams): Evaluation {
 		TODO("Not yet implemented")
 		/*
 		val activeUId = authRepository.getActiveAuth().uid

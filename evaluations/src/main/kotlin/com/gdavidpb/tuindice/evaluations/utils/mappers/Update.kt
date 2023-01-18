@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.evaluations.utils.mappers
 import com.gdavidpb.tuindice.base.data.model.database.EvaluationUpdate
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.evaluations.domain.request.UpdateEvaluationRequest
+import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
 import java.util.*
 
 fun Evaluation.toUpdateRequest(
@@ -14,7 +14,7 @@ fun Evaluation.toUpdateRequest(
 	notes: String = this.notes,
 	isDone: Boolean = this.isDone,
 	dispatchChanges: Boolean,
-) = UpdateEvaluationRequest(
+) = UpdateEvaluationParams(
 	eid = id,
 	update = EvaluationUpdate(
 		type = type.ordinal,

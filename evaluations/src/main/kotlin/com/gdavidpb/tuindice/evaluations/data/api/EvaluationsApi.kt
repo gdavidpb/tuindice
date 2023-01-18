@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.data.api
 
-import com.gdavidpb.tuindice.evaluations.data.api.bodies.EvaluationBody
-import com.gdavidpb.tuindice.evaluations.data.api.responses.EvaluationResponse
+import com.gdavidpb.tuindice.evaluations.data.api.request.EvaluationBody
+import com.gdavidpb.tuindice.evaluations.data.api.response.EvaluationResponse
 import retrofit2.Response
 import retrofit2.http.*
 

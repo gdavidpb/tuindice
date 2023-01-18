@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.data.room.mappers
+package com.gdavidpb.tuindice.evaluations.data.room.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.persistence.data.source.room.entities.EvaluationEntity

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.ui.customs
+package com.gdavidpb.tuindice.evaluations.ui.custom
 
 import android.content.Context
 import android.content.res.ColorStateList
