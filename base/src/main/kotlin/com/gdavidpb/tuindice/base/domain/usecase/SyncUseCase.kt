@@ -11,10 +11,10 @@ import com.gdavidpb.tuindice.base.utils.extensions.*
 @Timeout(key = ConfigKeys.TIME_OUT_SYNC)
 class SyncUseCase(
 	private val authRepository: AuthRepository,
-	private val persistenceRepository: PersistenceRepository,
 	private val networkRepository: NetworkRepository
 ) : ResultUseCase<Unit, Boolean, SyncError>() {
 	override suspend fun executeOnBackground(params: Unit): Boolean {
+		/*
 		val activeAuth = authRepository.getActiveAuth()
 		val isUpdated = persistenceRepository.isUpdated(uid = activeAuth.uid)
 
@@ -36,7 +36,7 @@ class SyncUseCase(
 
 		/* Call sync API */
 		// TODO remove -> serviceRepository.sync()
-
+		 */
 		return true
 	}
 
