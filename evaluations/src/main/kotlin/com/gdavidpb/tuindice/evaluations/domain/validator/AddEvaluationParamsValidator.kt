@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.evaluations.domain.param.AddEvaluationParams
 
 class AddEvaluationParamsValidator : Validator<AddEvaluationParams> {
 	override fun validate(params: AddEvaluationParams) {
-		require(!params.name.isNullOrEmpty()) {
+		require(!params.name.isNullOrBlank()) {
 			throw EvaluationIllegalArgumentException(EvaluationError.EmptyName)
 		}
 

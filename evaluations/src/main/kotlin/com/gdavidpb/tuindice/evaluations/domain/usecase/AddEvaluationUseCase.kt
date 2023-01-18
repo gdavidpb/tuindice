@@ -27,7 +27,7 @@ class AddEvaluationUseCase(
 	override suspend fun executeOnException(throwable: Throwable): EvaluationError? {
 		return when (throwable) {
 			is EvaluationIllegalArgumentException -> throwable.error
-			else -> null
+			else -> super.executeOnException(throwable)
 		}
 	}
 }
