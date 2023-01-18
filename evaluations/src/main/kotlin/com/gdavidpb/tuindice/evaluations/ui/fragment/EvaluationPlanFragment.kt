@@ -102,7 +102,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 		bottomSheetDialog<MenuBottomSheetDialog> {
 			titleText = title
 
-			onItemSelected(items) { itemId ->
+			setItems(items) { itemId ->
 				onEvaluationsOptionSelected(itemId)
 			}
 		}

@@ -19,7 +19,7 @@ open class MenuBottomSheetDialog : BottomSheetDialogFragment() {
 	private var menuItems: List<BottomMenuItem> = listOf()
 	private var onItemSelected: (Int) -> Unit = {}
 
-	fun onItemSelected(items: List<BottomMenuItem>, onSelected: (Int) -> Unit) {
+	fun setItems(items: List<BottomMenuItem>, onSelected: (Int) -> Unit) {
 		menuItems = items
 		onItemSelected = onSelected
 	}

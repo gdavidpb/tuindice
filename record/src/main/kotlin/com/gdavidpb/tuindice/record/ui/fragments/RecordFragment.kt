@@ -96,7 +96,7 @@ class RecordFragment : NavigationFragment() {
 		bottomSheetDialog<MenuBottomSheetDialog> {
 			titleText = title
 
-			onItemSelected(items) { itemId ->
+			setItems(items) { itemId ->
 				onSubjectOptionSelected(quarterItem, subjectItem, itemId)
 			}
 		}
