@@ -1,9 +1,9 @@
-package com.gdavidpb.tuindice.evaluations.data.api.mappers
+package com.gdavidpb.tuindice.evaluations.data.api.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.evaluations.data.api.bodies.EvaluationBody
-import com.gdavidpb.tuindice.evaluations.data.api.responses.EvaluationResponse
+import com.gdavidpb.tuindice.evaluations.data.api.request.EvaluationBody
+import com.gdavidpb.tuindice.evaluations.data.api.response.EvaluationResponse
 import java.util.*
 
 fun EvaluationResponse.toEvaluation() = Evaluation(

@@ -1,9 +1,9 @@
-package com.gdavidpb.tuindice.evaluations.ui.viewholders
+package com.gdavidpb.tuindice.evaluations.ui.viewholder
 
 import android.view.View
 import androidx.cardview.widget.CardView
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
-import com.gdavidpb.tuindice.evaluations.ui.adapters.EvaluationAdapter
+import com.gdavidpb.tuindice.evaluations.ui.adapter.EvaluationAdapter
 import com.gdavidpb.tuindice.base.ui.viewholders.BaseViewHolder
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.evaluations.R

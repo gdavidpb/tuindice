@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.ui.fragments
+package com.gdavidpb.tuindice.evaluations.ui.fragment
 
 import android.os.Bundle
 import android.view.View
@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationPlanViewModel
-import com.gdavidpb.tuindice.evaluations.ui.adapters.EvaluationAdapter
+import com.gdavidpb.tuindice.evaluations.ui.adapter.EvaluationAdapter
 import com.gdavidpb.tuindice.evaluations.utils.mappers.toEvaluationItem
 import com.gdavidpb.tuindice.evaluations.utils.mappers.toUpdateRequest
 import com.google.android.material.snackbar.Snackbar

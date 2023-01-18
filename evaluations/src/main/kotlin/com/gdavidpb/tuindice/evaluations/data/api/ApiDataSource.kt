@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.evaluations.data.api
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.utils.extensions.getOrThrow
-import com.gdavidpb.tuindice.evaluations.data.api.mappers.toEvaluation
-import com.gdavidpb.tuindice.evaluations.data.api.mappers.toEvaluationBody
+import com.gdavidpb.tuindice.evaluations.data.api.mapper.toEvaluation
+import com.gdavidpb.tuindice.evaluations.data.api.mapper.toEvaluationBody
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
 
 class ApiDataSource(

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.ui.fragments
+package com.gdavidpb.tuindice.evaluations.ui.fragment
 
 import android.os.Bundle
 import android.view.View
@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.base.utils.`when`
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.base.utils.firstInvalid
 import com.gdavidpb.tuindice.evaluations.R
-import com.gdavidpb.tuindice.evaluations.domain.request.UpdateEvaluationRequest
+import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.fragment_evaluation.*
@@ -141,7 +141,7 @@ class EvaluationFragment : NavigationFragment() {
 		)
 	}
 
-	private fun collectUpdateEvaluation(): UpdateEvaluationRequest {
+	private fun collectUpdateEvaluation(): UpdateEvaluationParams {
 		val maxGrade = tInputEvaluationGrade.getGrade()
 
 		val evaluationId = args.evaluationId ?: ""
@@ -155,7 +155,7 @@ class EvaluationFragment : NavigationFragment() {
 			isDone = false
 		)
 
-		return UpdateEvaluationRequest(eid = evaluationId, update = update, dispatchChanges = true)
+		return UpdateEvaluationParams(eid = evaluationId, update = update, dispatchChanges = true)
 	}
 
 	private fun evaluationObserver(result: Result<Evaluation, Nothing>?) {
