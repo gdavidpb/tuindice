@@ -22,6 +22,8 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
 	open suspend fun executeOnResponse(liveData: L, response: T) {}
 	open suspend fun executeOnException(throwable: Throwable): Q? = null
 
+	open suspend fun validateParams(params: P) {}
+
 	protected abstract suspend fun onStart(liveData: L)
 	protected abstract suspend fun onEmpty(liveData: L)
 	protected abstract suspend fun onSuccess(liveData: L, response: T)
@@ -29,6 +31,8 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
 
 	fun execute(params: P, liveData: L, coroutineScope: CoroutineScope) {
 		coroutineScope.launch(foregroundDispatcher) {
+			validateParams(params)
+
 			onStart(liveData)
 
 			runCatching {
