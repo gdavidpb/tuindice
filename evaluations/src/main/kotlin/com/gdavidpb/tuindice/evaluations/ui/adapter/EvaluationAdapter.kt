@@ -24,8 +24,8 @@ class EvaluationAdapter(
 	interface AdapterManager {
 		fun onEvaluationClicked(item: EvaluationItem)
 		fun onEvaluationOptionsClicked(item: EvaluationItem, position: Int)
-		fun onEvaluationGradeChanged(item: EvaluationItem, grade: Double, dispatchChanges: Boolean)
-		fun onEvaluationDoneChanged(item: EvaluationItem, done: Boolean, dispatchChanges: Boolean)
+		fun onEvaluationGradeChanged(item: EvaluationItem, grade: Double)
+		fun onEvaluationDoneChanged(item: EvaluationItem, done: Boolean)
 
 		fun onEvaluationAdded(item: EvaluationItem)
 		fun onEvaluationRemoved(item: EvaluationItem)

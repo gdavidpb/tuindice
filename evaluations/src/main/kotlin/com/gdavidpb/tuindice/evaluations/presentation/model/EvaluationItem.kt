@@ -6,7 +6,7 @@ import java.util.*
 data class EvaluationItem(
 	val uid: Long,
 	val id: String,
-	val notesText: CharSequence,
+	val nameText: CharSequence,
 	val grade: Double,
 	val maxGrade: Double,
 	val dateText: CharSequence,

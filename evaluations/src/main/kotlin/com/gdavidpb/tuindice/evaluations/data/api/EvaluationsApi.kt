@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.api
 
-import com.gdavidpb.tuindice.evaluations.data.api.request.EvaluationBody
+import com.gdavidpb.tuindice.evaluations.data.api.request.AddEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.response.EvaluationResponse
 import retrofit2.Response
 import retrofit2.http.*
@@ -18,7 +18,7 @@ interface EvaluationsApi {
 
 	@POST("evaluations")
 	suspend fun addEvaluation(
-		@Body evaluationBody: EvaluationBody
+		@Body request: AddEvaluationRequest
 	): Response<EvaluationResponse>
 
 	@DELETE("evaluations")

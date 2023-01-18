@@ -87,20 +87,8 @@ fun Date.weeksLeft(): Int {
 fun Calendar.precision(vararg fields: Int): Calendar {
 	return apply {
 		(Calendar.HOUR_OF_DAY..Calendar.MILLISECOND)
-			.subtract(fields.asIterable())
+			.subtract(fields.toSet())
 			.forEach { field -> set(field, 0) }
-	}
-}
-
-fun Date.tomorrow(): Date {
-	return Calendar.getInstance().run {
-		time = this@tomorrow
-
-		precision(Calendar.DATE)
-
-		add(Calendar.DATE, 1)
-
-		time
 	}
 }
 

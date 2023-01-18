@@ -35,7 +35,7 @@ class EvaluationViewHolder(
 						val item = getItem()
 						val grade = sBarEvaluationGrade.grade
 
-						manager.onEvaluationGradeChanged(item, grade, false)
+						manager.onEvaluationGradeChanged(item, grade)
 					}
 				}
 
@@ -43,14 +43,14 @@ class EvaluationViewHolder(
 					val item = getItem()
 					val grade = sBarEvaluationGrade.grade
 
-					manager.onEvaluationGradeChanged(item, grade, true)
+					manager.onEvaluationGradeChanged(item, grade)
 				}
 			}
 
 			cBoxEvaluation.onCheckedChange { isChecked ->
 				val item = getItem()
 
-				manager.onEvaluationDoneChanged(item, isChecked, true)
+				manager.onEvaluationDoneChanged(item, isChecked)
 			}
 		}
 	}
@@ -61,16 +61,16 @@ class EvaluationViewHolder(
 		with(itemView as CardView) {
 			setStates(isDone = item.isDone)
 			setGrades(grade = item.grade, maxGrade = item.maxGrade)
-			setAdditionalData(type = item.typeText, notes = item.notesText, date = item.dateText)
+			setAdditionalData(type = item.typeText, name = item.nameText, date = item.dateText)
 		}
 	}
 
 	private fun CardView.setAdditionalData(
 		type: CharSequence,
-		notes: CharSequence,
+		name: CharSequence,
 		date: CharSequence
 	) {
-		tViewEvaluationName.text = notes
+		tViewEvaluationName.text = name
 		tViewEvaluationType.text = type
 		tViewEvaluationDate.text = date
 	}

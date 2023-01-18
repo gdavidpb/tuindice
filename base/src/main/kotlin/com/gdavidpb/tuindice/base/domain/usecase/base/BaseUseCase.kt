@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.base.domain.usecase.base
 import androidx.lifecycle.LiveData
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.validator.Validator
 import com.gdavidpb.tuindice.base.utils.ReportKeys
 import com.gdavidpb.tuindice.base.utils.extensions.getTimeoutKey
 import com.gdavidpb.tuindice.base.utils.extensions.hasTimeoutKey
@@ -17,12 +18,12 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
 	private val reportingRepository by inject<ReportingRepository>()
 	private val configRepository by inject<ConfigRepository>()
 
+	protected open val paramsValidator: Validator<P>? = null
+
 	abstract suspend fun executeOnBackground(params: P): T?
 
 	open suspend fun executeOnResponse(liveData: L, response: T) {}
 	open suspend fun executeOnException(throwable: Throwable): Q? = null
-
-	open suspend fun validateParams(params: P) {}
 
 	protected abstract suspend fun onStart(liveData: L)
 	protected abstract suspend fun onEmpty(liveData: L)
@@ -31,11 +32,11 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
 
 	fun execute(params: P, liveData: L, coroutineScope: CoroutineScope) {
 		coroutineScope.launch(foregroundDispatcher) {
-			validateParams(params)
-
-			onStart(liveData)
-
 			runCatching {
+				paramsValidator?.validate(params)
+
+				onStart(liveData)
+
 				withContext(backgroundDispatcher) {
 					val response = if (hasTimeoutKey()) {
 						val key = getTimeoutKey()
