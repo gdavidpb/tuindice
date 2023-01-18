@@ -8,7 +8,7 @@ import androidx.annotation.ColorRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.evaluations.R
-import com.gdavidpb.tuindice.evaluations.utils.mappers.formatEvaluationDate
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatEvaluationDate
 import kotlinx.android.synthetic.main.view_evaluation_date_picker.view.*
 import java.util.*
 

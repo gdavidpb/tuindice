@@ -1,9 +1,9 @@
-package com.gdavidpb.tuindice.evaluations.domain.param
+package com.gdavidpb.tuindice.evaluations.domain.model
 
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 
-data class UpdateEvaluationParams(
-	val evaluationId: String,
+data class NewEvaluation(
+	val subjectId: String,
 	val name: String,
 	val grade: Double,
 	val maxGrade: Double,

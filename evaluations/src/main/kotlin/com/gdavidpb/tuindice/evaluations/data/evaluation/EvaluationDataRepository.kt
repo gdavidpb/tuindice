@@ -4,6 +4,8 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
+import com.gdavidpb.tuindice.evaluations.domain.model.NewEvaluation
+import com.gdavidpb.tuindice.evaluations.domain.model.UpdateEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 
 class EvaluationDataRepository(
@@ -22,9 +24,16 @@ class EvaluationDataRepository(
 		return localDataSource.getEvaluation(uid, eid)
 	}
 
-	override suspend fun addEvaluation(uid: String, evaluation: Evaluation) {
-		remoteDataSource.addEvaluation(evaluation)
-		localDataSource.saveEvaluations(uid, evaluation)
+	override suspend fun addEvaluation(uid: String, evaluation: NewEvaluation): Evaluation {
+		val newEvaluation = remoteDataSource.addEvaluation(evaluation)
+
+		localDataSource.saveEvaluations(uid, newEvaluation)
+
+		return newEvaluation
+	}
+
+	override suspend fun updateEvaluation(uid: String, eid: String, evaluation: UpdateEvaluation): Evaluation {
+		TODO("Not yet implemented")
 	}
 
 	override suspend fun removeEvaluation(uid: String, eid: String) {

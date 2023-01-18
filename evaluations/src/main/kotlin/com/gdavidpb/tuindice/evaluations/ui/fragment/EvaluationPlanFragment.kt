@@ -12,11 +12,11 @@ import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.DECIMALS_GRADE_SUBJECT
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.evaluations.R
+import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationPlanViewModel
 import com.gdavidpb.tuindice.evaluations.ui.adapter.EvaluationAdapter
-import com.gdavidpb.tuindice.evaluations.utils.mappers.toEvaluationItem
-import com.gdavidpb.tuindice.evaluations.utils.mappers.toUpdateRequest
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_evaluation_plan.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -74,7 +74,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 	override fun onInitObservers() {
 		with(viewModel) {
 			observe(evaluations, ::evaluationsObserver)
-			observe(evaluationUpdate, ::evaluationObserver)
+			observe(updateEvaluation, ::evaluationObserver)
 		}
 	}
 
@@ -131,7 +131,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 	}
 
 	private fun showEvaluationMenuDialog(item: EvaluationItem, position: Int) {
-		val title = getString(R.string.label_evaluation_header, item.notesText, item.dateText)
+		val title = getString(R.string.label_evaluation_header, item.nameText, item.dateText)
 
 		val items = mutableListOf(
 			BottomMenuItem(
@@ -173,7 +173,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 	private fun onEvaluationOptionsSelected(item: EvaluationItem, position: Int, itemId: Int) {
 		when (itemId) {
 			EvaluationMenu.ID_EDIT_EVALUATION -> editEvaluation(item)
-			EvaluationMenu.ID_MARK_EVALUATION_AS_DONE -> markEvaluation(item, !item.isDone, true)
+			EvaluationMenu.ID_MARK_EVALUATION_AS_DONE -> markEvaluation(item, !item.isDone)
 			EvaluationMenu.ID_DELETE_EVALUATION -> deleteEvaluation(item, position)
 		}
 	}
@@ -190,10 +190,6 @@ class EvaluationPlanFragment : NavigationFragment() {
 		)
 	}
 
-	private fun useEvaluationPlanGrade() {
-		TODO("Not yet implemented") // update quarter and navigateUp?
-	}
-
 	private fun editEvaluation(item: EvaluationItem) {
 		navigate(
 			EvaluationPlanFragmentDirections.navToEvaluation(
@@ -207,13 +203,12 @@ class EvaluationPlanFragment : NavigationFragment() {
 		)
 	}
 
-	private fun markEvaluation(item: EvaluationItem, done: Boolean, dispatchChanges: Boolean) {
-		val request = item.data.toUpdateRequest(
-			isDone = done,
-			dispatchChanges = dispatchChanges
-		)
+	private fun useEvaluationPlanGrade() {
+		TODO("Not yet implemented") // update quarter and navigateUp?
+	}
 
-		viewModel.updateEvaluation(request)
+	private fun markEvaluation(item: EvaluationItem, done: Boolean) {
+		TODO("Not yet implemented") // view model update evaluation
 	}
 
 	private fun deleteEvaluation(item: EvaluationItem, position: Int) {
@@ -252,7 +247,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 		}
 	}
 
-	private fun evaluationObserver(result: Result<Evaluation, Nothing>?) {
+	private fun evaluationObserver(result: Result<Evaluation, EvaluationError>?) {
 		when (result) {
 			is Result.OnSuccess -> {
 				val context = requireContext()
@@ -274,25 +269,12 @@ class EvaluationPlanFragment : NavigationFragment() {
 			showEvaluationMenuDialog(item = item, position = position)
 		}
 
-		override fun onEvaluationGradeChanged(
-			item: EvaluationItem,
-			grade: Double,
-			dispatchChanges: Boolean
-		) {
-			val request = item.data.toUpdateRequest(
-				grade = grade,
-				dispatchChanges = dispatchChanges
-			)
-
-			viewModel.updateEvaluation(request)
+		override fun onEvaluationGradeChanged(item: EvaluationItem, grade: Double) {
+			TODO("Not yet implemented") // view model update evaluation
 		}
 
-		override fun onEvaluationDoneChanged(
-			item: EvaluationItem,
-			done: Boolean,
-			dispatchChanges: Boolean
-		) {
-			markEvaluation(item, done, dispatchChanges)
+		override fun onEvaluationDoneChanged(item: EvaluationItem, done: Boolean) {
+			markEvaluation(item, done)
 		}
 
 		override fun onEvaluationAdded(item: EvaluationItem) {

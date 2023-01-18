@@ -4,12 +4,12 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.persistence.data.source.room.entities.EvaluationEntity
 
 fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
-	id = id,
-	subjectId = sid,
-	quarterId = qid,
+	id = evaluationId,
+	subjectId = subjectId,
+	quarterId = quarterId,
 	accountId = uid,
 	subjectCode = subjectCode,
-	notes = notes,
+	name = name,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
@@ -19,11 +19,11 @@ fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 )
 
 fun EvaluationEntity.toEvaluation() = Evaluation(
-	id = id,
-	sid = subjectId,
-	qid = quarterId,
+	evaluationId = id,
+	subjectId = subjectId,
+	quarterId = quarterId,
 	subjectCode = subjectCode,
-	notes = notes,
+	name = name,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,

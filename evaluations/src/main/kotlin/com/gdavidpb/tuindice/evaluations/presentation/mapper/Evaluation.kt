@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.utils.mappers
+package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import android.content.Context
 import com.gdavidpb.tuindice.base.utils.extensions.*
@@ -10,9 +10,9 @@ import java.util.*
 /* Presentation */
 
 fun Evaluation.toEvaluationItem(context: Context) = EvaluationItem(
-	uid = id.hashCode().toLong(),
-	id = id,
-	notesText = notes.ifEmpty { "─" },
+	uid = evaluationId.hashCode().toLong(),
+	id = evaluationId,
+	nameText = name.ifEmpty { "─" },
 	grade = grade,
 	maxGrade = maxGrade,
 	dateText = date.formatEvaluationDate(),
