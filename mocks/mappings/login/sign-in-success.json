@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "url": "/signIn"
+    "urlPath": "/signIn"
   },
   "response": {
     "status": 200,
