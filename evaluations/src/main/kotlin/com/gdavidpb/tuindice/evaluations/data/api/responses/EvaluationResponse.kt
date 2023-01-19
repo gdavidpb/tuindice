@@ -9,7 +9,7 @@ data class EvaluationResponse(
 	@SerializedName("subject_code") val subjectCode: String,
 	@SerializedName("notes") val notes: String,
 	@SerializedName("grade") val grade: Double,
-	@SerializedName("maxGrade") val maxGrade: Double,
+	@SerializedName("max_grade") val maxGrade: Double,
 	@SerializedName("date") val date: Long,
 	@SerializedName("last_modified") val lastModified: Long,
 	@SerializedName("type") val type: Int,
