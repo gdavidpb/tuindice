@@ -6,14 +6,14 @@ import retrofit2.Response
 import retrofit2.http.*
 
 interface SummaryApi {
-	@GET("account")
+	@GET("accounts")
 	suspend fun getAccount(): Response<AccountResponse>
 
-	@POST("account/picture")
+	@POST("accounts/picture")
 	suspend fun uploadProfilePicture(
 		@Body encodedPicture: String
 	): Response<ProfilePictureResponse>
 
-	@DELETE("account/picture")
+	@DELETE("accounts/picture")
 	suspend fun deleteProfilePicture(): Response<Unit>
 }

@@ -1,0 +1,14 @@
+{
+  "request": {
+    "method": "DELETE",
+    "url": "/quarters"
+  },
+  "response": {
+    "status": 200,
+    "fixedDelayMilliseconds": 4000,
+    "jsonBody": {
+      "uid": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
+      "url": "https://play-lh.googleusercontent.com/unApnxJoqYon387vSKODmye1ehQ3DE2fav56YUhPorCwHLPKwDEJzBBWCMkjYhRA7A=w480-h960"
+    }
+  }
+}
