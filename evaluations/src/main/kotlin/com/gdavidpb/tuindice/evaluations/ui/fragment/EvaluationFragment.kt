@@ -7,14 +7,11 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
-import com.gdavidpb.tuindice.base.utils.extensions.checkedChipIndex
-import com.gdavidpb.tuindice.base.utils.extensions.observe
-import com.gdavidpb.tuindice.base.utils.extensions.onClickOnce
-import com.gdavidpb.tuindice.base.utils.extensions.snackBar
+import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.evaluations.R
+import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError
 import com.gdavidpb.tuindice.evaluations.domain.param.AddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
-import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.fragment_evaluation.*
@@ -115,24 +112,24 @@ class EvaluationFragment : NavigationFragment() {
 			)
 	}
 
-	private fun getEvaluationType(): EvaluationType {
+	private fun getEvaluationType(): EvaluationType? {
 		return cGroupEvaluation
 			.checkedChipIndex
-			.let { index -> EvaluationType.values()[index] }
+			.let { index -> if (index != -1) EvaluationType.values()[index] else null }
 	}
 
 	private fun getEvaluationObserver(result: Result<Evaluation, Nothing>?) {
 		when (result) {
-			is Result.OnLoading -> TODO("show loading")
+			is Result.OnLoading -> { /* TODO */ }
 			is Result.OnSuccess -> initEvaluation(evaluation = result.value)
-			is Result.OnError -> TODO("show error")
+			is Result.OnError -> { /* TODO */ }
 			else -> {}
 		}
 	}
 
 	private fun addOrUpdateEvaluationObserver(result: Result<Evaluation, EvaluationError>?) {
 		when (result) {
-			is Result.OnLoading -> TODO("show loading")
+			is Result.OnLoading -> { /* TODO */ }
 			is Result.OnSuccess -> navigateUp()
 			is Result.OnError -> addOrUpdateEvaluationErrorHandler(error = result.error)
 			else -> {}
@@ -144,9 +141,17 @@ class EvaluationFragment : NavigationFragment() {
 			EvaluationError.EmptyName -> tInputEvaluationName.setError(R.string.error_evaluation_name_missed)
 			EvaluationError.InvalidGradeStep -> tInputEvaluationGrade.setError(R.string.error_evaluation_grade_invalid_step)
 			EvaluationError.OutOfRangeGrade -> tInputEvaluationGrade.setError(R.string.error_evaluation_grade_invalid_range)
-			EvaluationError.DateMissed -> snackBar(R.string.toast_evaluation_date_missed) // TODO shake view
-			EvaluationError.TypeMissed -> snackBar(R.string.toast_evaluation_type_missed) // TODO shake view
-			else -> TODO("show default error")
+			EvaluationError.DateMissed -> {
+				snackBar(R.string.toast_evaluation_date_missed)
+
+				dPickerEvaluationDate.animateShake()
+			}
+			EvaluationError.TypeMissed -> {
+				snackBar(R.string.toast_evaluation_type_missed)
+
+				cGroupEvaluation.animateShake()
+			}
+			else -> errorSnackBar()
 		}
 	}
 }

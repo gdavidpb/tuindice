@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.base.utils.DECIMALS_GRADE_SUBJECT
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError
+import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationPlanViewModel
@@ -74,7 +75,22 @@ class EvaluationPlanFragment : NavigationFragment() {
 	override fun onInitObservers() {
 		with(viewModel) {
 			observe(evaluations, ::evaluationsObserver)
-			observe(updateEvaluation, ::evaluationObserver)
+			observe(updateEvaluation, ::updateEvaluationObserver)
+		}
+	}
+
+	private fun onEvaluationsOptionSelected(itemId: Int) {
+		when (itemId) {
+			EvaluationPlanMenu.ID_ADD_EVALUATION -> addEvaluation()
+			EvaluationPlanMenu.ID_USE_EVALUATION_PLAN_GRADE -> useEvaluationPlanGrade()
+		}
+	}
+
+	private fun onEvaluationOptionsSelected(item: EvaluationItem, position: Int, itemId: Int) {
+		when (itemId) {
+			EvaluationMenu.ID_EDIT_EVALUATION -> editEvaluation(item)
+			EvaluationMenu.ID_MARK_EVALUATION_AS_DONE -> markEvaluation(item, !item.isDone)
+			EvaluationMenu.ID_DELETE_EVALUATION -> deleteEvaluation(item, position)
 		}
 	}
 
@@ -105,28 +121,6 @@ class EvaluationPlanFragment : NavigationFragment() {
 			setItems(items) { itemId ->
 				onEvaluationsOptionSelected(itemId)
 			}
-		}
-	}
-
-	private fun updateGrades(animate: Boolean) {
-		val gradeSum = evaluationAdapter.computeGradeSum()
-
-		if (animate) {
-			tViewTotalGrade.animateGrade(value = gradeSum, decimals = DECIMALS_GRADE_SUBJECT)
-			tViewGrade.animateGrade(value = gradeSum.toSubjectGrade())
-		} else {
-			tViewTotalGrade.text = gradeSum.formatGrade(DECIMALS_GRADE_SUBJECT)
-			tViewGrade.text = gradeSum.toSubjectGrade().formatGrade()
-		}
-
-		fViewEvaluations.displayedChild =
-			if (evaluationAdapter.itemCount > 0) Flipper.CONTENT else Flipper.EMPTY
-	}
-
-	private fun onEvaluationsOptionSelected(itemId: Int) {
-		when (itemId) {
-			EvaluationPlanMenu.ID_ADD_EVALUATION -> addEvaluation()
-			EvaluationPlanMenu.ID_USE_EVALUATION_PLAN_GRADE -> useEvaluationPlanGrade()
 		}
 	}
 
@@ -164,18 +158,25 @@ class EvaluationPlanFragment : NavigationFragment() {
 		bottomSheetDialog<MenuBottomSheetDialog> {
 			titleText = title
 
-			onItemSelected(items) { itemId ->
+			setItems(items) { itemId ->
 				onEvaluationOptionsSelected(item, position, itemId)
 			}
 		}
 	}
 
-	private fun onEvaluationOptionsSelected(item: EvaluationItem, position: Int, itemId: Int) {
-		when (itemId) {
-			EvaluationMenu.ID_EDIT_EVALUATION -> editEvaluation(item)
-			EvaluationMenu.ID_MARK_EVALUATION_AS_DONE -> markEvaluation(item, !item.isDone)
-			EvaluationMenu.ID_DELETE_EVALUATION -> deleteEvaluation(item, position)
+	private fun updateGrades(animate: Boolean) {
+		val gradeSum = evaluationAdapter.computeGradeSum()
+
+		if (animate) {
+			tViewTotalGrade.animateGrade(value = gradeSum, decimals = DECIMALS_GRADE_SUBJECT)
+			tViewGrade.animateGrade(value = gradeSum.toSubjectGrade())
+		} else {
+			tViewTotalGrade.text = gradeSum.formatGrade(DECIMALS_GRADE_SUBJECT)
+			tViewGrade.text = gradeSum.toSubjectGrade().formatGrade()
 		}
+
+		fViewEvaluations.displayedChild =
+			if (evaluationAdapter.itemCount > 0) Flipper.CONTENT else Flipper.EMPTY
 	}
 
 	private fun addEvaluation() {
@@ -204,11 +205,16 @@ class EvaluationPlanFragment : NavigationFragment() {
 	}
 
 	private fun useEvaluationPlanGrade() {
-		TODO("Not yet implemented") // update quarter and navigateUp?
+		// TODO("Not yet implemented") // update quarter and navigateUp?
 	}
 
 	private fun markEvaluation(item: EvaluationItem, done: Boolean) {
-		TODO("Not yet implemented") // view model update evaluation
+		viewModel.updateEvaluation(
+			UpdateEvaluationParams(
+				evaluationId = item.id,
+				isDone = done
+			)
+		)
 	}
 
 	private fun deleteEvaluation(item: EvaluationItem, position: Int) {
@@ -233,6 +239,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 
 	private fun evaluationsObserver(result: Result<List<Evaluation>, Nothing>?) {
 		when (result) {
+			is Result.OnLoading -> { /* TODO */ }
 			is Result.OnSuccess -> {
 				val context = requireContext()
 				val evaluations = result.value
@@ -243,11 +250,12 @@ class EvaluationPlanFragment : NavigationFragment() {
 
 				evaluationAdapter.submitEvaluations(items)
 			}
+			is Result.OnError -> { /* TODO */ }
 			else -> {}
 		}
 	}
 
-	private fun evaluationObserver(result: Result<Evaluation, EvaluationError>?) {
+	private fun updateEvaluationObserver(result: Result<Evaluation, EvaluationError>?) {
 		when (result) {
 			is Result.OnSuccess -> {
 				val context = requireContext()
@@ -256,6 +264,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 
 				evaluationAdapter.updateEvaluation(item)
 			}
+			is Result.OnError -> errorSnackBar()
 			else -> {}
 		}
 	}
@@ -270,7 +279,12 @@ class EvaluationPlanFragment : NavigationFragment() {
 		}
 
 		override fun onEvaluationGradeChanged(item: EvaluationItem, grade: Double) {
-			TODO("Not yet implemented") // view model update evaluation
+			viewModel.updateEvaluation(
+				UpdateEvaluationParams(
+					evaluationId = item.id,
+					grade = grade
+				)
+			)
 		}
 
 		override fun onEvaluationDoneChanged(item: EvaluationItem, done: Boolean) {
