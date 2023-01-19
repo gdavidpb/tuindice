@@ -1,0 +1,11 @@
+{
+  "request": {
+    "method": "DELETE",
+    "url": "/quarters"
+  },
+  "response": {
+    "status": 200,
+    "fixedDelayMilliseconds": 1000,
+    "jsonBody": {}
+  }
+}
