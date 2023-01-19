@@ -1,0 +1,31 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/evaluations",
+    "queryParameters": {
+      "search_term": {
+        "equalTo": "eid"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "08dnKZPiOtrmGoarY58G",
+      "sid": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
+      "qid": "00dgl8xNLNDJjEvXerARJUCAYTjK",
+      "subject_code": "FS1112",
+      "name": "Puntos extra 3",
+      "grade": 0.75,
+      "max_grade": 1.0,
+      "date": 1651118400000,
+      "last_modified": 1651118400000,
+      "type": 12,
+      "is_done": true
+    },
+    "fixedDelayMilliseconds": 2000
+  }
+}
