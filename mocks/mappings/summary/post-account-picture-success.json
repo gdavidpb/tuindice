@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "DELETE",
-    "url": "/quarters"
+    "urlPath": "/quarters"
   },
   "response": {
     "status": 200,
