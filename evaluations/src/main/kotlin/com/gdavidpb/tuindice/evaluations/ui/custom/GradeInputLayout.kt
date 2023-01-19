@@ -31,12 +31,10 @@ class GradeInputLayout(context: Context, attrs: AttributeSet) : InputLayout(cont
 
 	override fun isValid(): Boolean {
 		val grade = getGrade()
+		val isValidStep = (grade % MIN_EVALUATION_GRADE == 0.0)
+		val isValidRange = (grade in Defaults.RANGE_EVALUATION_GRADE)
 
-		return isValidStep(grade) && (grade in Defaults.RANGE_EVALUATION_GRADE)
-	}
-
-	fun isValidStep(grade: Double = getGrade()): Boolean {
-		return (grade % MIN_EVALUATION_GRADE == 0.0)
+		return isValidStep && isValidRange
 	}
 
 	fun getGrade(): Double {
