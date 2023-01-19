@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.di.modules
 import android.app.ActivityManager
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
-import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
@@ -22,7 +21,7 @@ import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.testing.FakeReviewManager
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 import com.squareup.picasso.Picasso
 import okhttp3.OkHttpClient
@@ -79,8 +78,8 @@ val appMockModule = module {
 	/* Firebase */
 
 	single {
-		FirebaseRemoteConfig.getInstance().apply {
-			setDefaultsAsync(R.xml.default_remote_config)
+		FirebaseAuth.getInstance().apply {
+			useEmulator("10.0.2.2", 9099)
 		}
 	}
 
