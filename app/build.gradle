@@ -47,19 +47,6 @@ android {
             minifyEnabled false
 
             manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
-
-            buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
-
-            buildConfigField "String", "URL_MOCK", "\"${config.mockAddress}\""
-            buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
-            buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
-
-            buildConfigField "String", "URL_APP_TWITTER", "\"https://twitter.com/TuIndice\""
-            buildConfigField "String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\""
-            buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/privacy_policy.html\""
-            buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions.html\""
-
-            buildConfigField "String", "ENDPOINT_TU_INDICE_API", "\"http://localhost:8080/\""
         }
         release {
             debuggable false
@@ -69,19 +56,6 @@ android {
 
             manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-
-            buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
-
-            buildConfigField "String", "URL_MOCK", "\"\""
-            buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
-            buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
-
-            buildConfigField "String", "URL_APP_TWITTER", "\"https://twitter.com/TuIndice\""
-            buildConfigField "String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\""
-            buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/privacy_policy.html\""
-            buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions.html\""
-
-            buildConfigField "String", "ENDPOINT_TU_INDICE_API", "\"https://us-central1-tu-indice-usb.cloudfunctions.net/\""
         }
     }
 
