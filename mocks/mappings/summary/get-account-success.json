@@ -5,7 +5,9 @@
   },
   "response": {
     "status": 200,
-    "fixedDelayMilliseconds": 1000,
+    "headers": {
+      "Content-Type": "application/json"
+    },
     "jsonBody": {
       "id": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
       "usb_id": "11-11111",
@@ -27,6 +29,7 @@
       "failed_subjects": 0,
       "failed_credits": 0,
       "last_update": 1674101643920
-    }
+    },
+    "fixedDelayMilliseconds": 1000
   }
 }
