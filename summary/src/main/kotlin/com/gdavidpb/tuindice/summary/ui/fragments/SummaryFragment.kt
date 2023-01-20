@@ -82,7 +82,7 @@ class SummaryFragment : NavigationFragment() {
 		with(viewModel) {
 			observe(signOut, ::signOutObserver)
 			observe(account, ::accountObserver)
-			observe(profilePicture, ::profilePictureObserver)
+			observe(uploadProfilePicture, ::uploadProfilePictureObserver)
 			observe(removeProfilePicture, ::removeProfilePictureObserver)
 		}
 	}
@@ -131,6 +131,73 @@ class SummaryFragment : NavigationFragment() {
 		startActivityForResult(chooser, RequestCodes.PROFILE_PICTURE_REQUEST)
 	}
 
+	private fun loadProfile(account: Account) {
+		val context = requireContext()
+
+		/* Load account */
+
+		val shortName = account.toShortName()
+		val lastUpdate =
+			context.getString(R.string.text_last_update, account.lastUpdate.formatLastUpdate())
+
+		tViewName.text = shortName
+		tViewCareer.text = account.careerName
+
+		tViewLastUpdate.text = lastUpdate
+		tViewLastUpdate.isVisible = true
+
+		if (account.grade > 0.0) {
+			tViewGrade.isVisible = true
+			tViewGrade.animateGrade(value = account.grade.toFloat())
+		} else
+			tViewGrade.isVisible = false
+
+		loadProfilePictureFromUrl(url = account.pictureUrl)
+
+		/* Load summary */
+
+		val subjectsSummary = account.toSubjectsSummaryItem(context)
+		val creditsSummary = account.toCreditsSummaryItem(context)
+
+		val items = listOf(subjectsSummary, creditsSummary)
+
+		summaryAdapter.submitSummary(items)
+	}
+
+	private fun loadProfilePictureFromUrl(url: String?) {
+		if (url == null) {
+			vProfilePicture.setLoading(false)
+			vProfilePicture.setDrawable(null)
+
+			return
+		}
+
+		with(picasso) {
+			invalidate(url)
+
+			load(url)
+				.noFade()
+				.stableKey(url)
+				.into(object : Target {
+					override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
+						val drawable = bitmap.toDrawable(resources)
+
+						vProfilePicture.setLoading(false)
+						vProfilePicture.setDrawable(drawable)
+					}
+
+					override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+						vProfilePicture.setLoading(false)
+						errorSnackBar()
+					}
+
+					override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+						vProfilePicture.setLoading(true)
+					}
+				})
+		}
+	}
+
 	private fun navigateToSignIn() {
 		findNavController().popStackToRoot()
 
@@ -155,37 +222,6 @@ class SummaryFragment : NavigationFragment() {
 			positiveButton(R.string.remove) { viewModel.removeProfilePicture() }
 			negativeButton(R.string.cancel)
 		}
-	}
-
-	private fun loadProfile(account: Account) {
-		val context = requireContext()
-
-		/* Load account */
-
-		val shortName = account.toShortName()
-		val lastUpdate =
-			context.getString(R.string.text_last_update, account.lastUpdate.formatLastUpdate())
-
-		tViewName.text = shortName
-		tViewCareer.text = account.careerName
-
-		tViewLastUpdate.text = lastUpdate
-		tViewLastUpdate.isVisible = true
-
-		if (account.grade > 0.0) {
-			tViewGrade.isVisible = true
-			tViewGrade.animateGrade(value = account.grade.toFloat())
-		} else
-			tViewGrade.isVisible = false
-
-		/* Load summary */
-
-		val subjectsSummary = account.toSubjectsSummaryItem(context)
-		val creditsSummary = account.toCreditsSummaryItem(context)
-
-		val items = listOf(subjectsSummary, creditsSummary)
-
-		summaryAdapter.submitSummary(items)
 	}
 
 	private fun signOutObserver(result: Completable<Nothing>?) {
@@ -224,13 +260,13 @@ class SummaryFragment : NavigationFragment() {
 		}
 	}
 
-	private fun profilePictureObserver(result: Event<String, ProfilePictureError>?) {
+	private fun uploadProfilePictureObserver(result: Event<String, ProfilePictureError>?) {
 		when (result) {
-			is Event.OnLoading -> {
-				vProfilePicture.setLoading(true)
-			}
+			is Event.OnLoading -> vProfilePicture.setLoading(true)
 			is Event.OnSuccess -> {
 				loadProfilePictureFromUrl(url = result.value)
+
+				snackBar(R.string.snack_profile_picture_updated)
 			}
 			is Event.OnError -> {
 				vProfilePicture.setLoading(false)
@@ -243,12 +279,9 @@ class SummaryFragment : NavigationFragment() {
 
 	private fun removeProfilePictureObserver(result: Event<Unit, ProfilePictureError>?) {
 		when (result) {
-			is Event.OnLoading -> {
-				vProfilePicture.setLoading(true)
-			}
+			is Event.OnLoading -> vProfilePicture.setLoading(true)
 			is Event.OnSuccess -> {
-				vProfilePicture.setLoading(false)
-				vProfilePicture.setDrawable(null)
+				loadProfilePictureFromUrl(null)
 
 				snackBar(R.string.snack_profile_picture_removed)
 			}
@@ -256,44 +289,6 @@ class SummaryFragment : NavigationFragment() {
 				vProfilePicture.setLoading(false)
 
 				profilePictureErrorHandler(error = result.error)
-			}
-			else -> {}
-		}
-	}
-
-	private fun loadProfilePictureFromUrl(url: String) {
-		with(picasso) {
-			invalidate(url)
-
-			load(url)
-				.noFade()
-				.stableKey(url)
-				.into(object : Target {
-					override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
-						val drawable = bitmap.toDrawable(resources)
-
-						vProfilePicture.setLoading(false)
-						vProfilePicture.setDrawable(drawable)
-
-						snackBar(R.string.snack_profile_picture_updated)
-					}
-
-					override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-						vProfilePicture.setLoading(false)
-						errorSnackBar()
-					}
-
-					override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-					}
-				})
-		}
-	}
-
-	private fun syncErrorHandler(error: SyncError?) {
-		when (error) {
-			is SyncError.Unavailable -> {
-				tViewLastUpdate.drawables(start = R.drawable.ic_sync_problem)
-				tViewLastUpdate.onClickOnce { snackBar(R.string.snack_no_service) }
 			}
 			else -> {}
 		}

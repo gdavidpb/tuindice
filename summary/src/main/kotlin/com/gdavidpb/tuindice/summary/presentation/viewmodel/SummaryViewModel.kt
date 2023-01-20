@@ -2,13 +2,15 @@ package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.base.domain.model.Account
+import com.gdavidpb.tuindice.base.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.base.utils.extensions.LiveEvent
 import com.gdavidpb.tuindice.base.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.base.utils.extensions.execute
-import com.gdavidpb.tuindice.base.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
-import com.gdavidpb.tuindice.summary.domain.usecase.*
+import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 
 class SummaryViewModel(
 	private val getAccountUseCase: GetAccountUseCase,
@@ -17,7 +19,7 @@ class SummaryViewModel(
 	private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
 	val account = LiveResult<Account, Nothing>()
-	val profilePicture = LiveEvent<String, ProfilePictureError>()
+	val uploadProfilePicture = LiveEvent<String, ProfilePictureError>()
 	val removeProfilePicture = LiveEvent<Unit, ProfilePictureError>()
 	val signOut = LiveCompletable<Nothing>()
 
@@ -28,7 +30,7 @@ class SummaryViewModel(
 		execute(
 			useCase = uploadProfilePictureUseCase,
 			params = path,
-			liveData = profilePicture
+			liveData = uploadProfilePicture
 		)
 
 	fun removeProfilePicture() =
