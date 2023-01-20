@@ -28,4 +28,11 @@ interface AccountDao : BaseDao<AccountEntity> {
 				"WHERE ${AccountTable.ID} = :uid"
 	)
 	suspend fun getAccount(uid: String): AccountEntity
+
+	@Query(
+		"UPDATE ${AccountTable.TABLE_NAME} " +
+				"SET ${AccountTable.PICTURE_URL} = :url " +
+				"WHERE ${AccountTable.ID} = :uid"
+	)
+	suspend fun updateProfilePicture(uid: String, url: String)
 }
