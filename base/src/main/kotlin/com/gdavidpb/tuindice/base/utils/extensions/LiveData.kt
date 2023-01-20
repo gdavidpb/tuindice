@@ -4,14 +4,24 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.gdavidpb.tuindice.base.domain.usecase.base.*
-
-const val MAX_MULTIPLE_EVENT = 2
-
-class LiveEvent<T, Q> : MultipleLiveEvent<Event<T, Q>>(MAX_MULTIPLE_EVENT)
+import java.util.concurrent.atomic.AtomicBoolean
 
 typealias LiveResult<T, Q> = MutableLiveData<Result<T, Q>>
 typealias LiveCompletable<Q> = MutableLiveData<Completable<Q>>
 typealias LiveFlow<T, Q> = MutableLiveData<Flow<T, Q>>
+
+open class LiveEvent<T, Q> : MutableLiveData<Event<T, Q>>() {
+	private val lock = AtomicBoolean(false)
+
+	override fun observe(owner: LifecycleOwner, observer: Observer<in Event<T, Q>>) {
+		super.observe(owner) { t ->
+			if (!lock.getAndSet(t is Event.OnSuccess))
+				observer.onChanged(t)
+		}
+	}
+
+	fun unlock() = lock.set(false)
+}
 
 /* LiveEvent */
 
@@ -25,7 +35,7 @@ fun <T, Q> LiveEvent<T, Q>.postSuccess(value: T) = postValue(Event.OnSuccess(val
 fun <T, Q> LiveEvent<T, Q>.postError(error: Q?) = postValue(Event.OnError(error))
 
 @JvmName("postLoadingEvent")
-fun <T, Q> LiveEvent<T, Q>.postLoading() = reset().also { postValue(Event.OnLoading()) }
+fun <T, Q> LiveEvent<T, Q>.postLoading() = unlock().also { postValue(Event.OnLoading()) }
 
 /* LiveResult */
 
@@ -67,4 +77,4 @@ fun <T, Q> LiveFlow<T, Q>.postComplete() = postValue(Flow.OnComplete())
 fun <T, Q> LiveFlow<T, Q>.postError(error: Q?) = postValue(Flow.OnError(error))
 
 fun <T, L : MutableLiveData<T>> LifecycleOwner.observe(liveData: L, body: (T?) -> Unit) =
-        liveData.observe(this, Observer(body))
+	liveData.observe(this, Observer(body))

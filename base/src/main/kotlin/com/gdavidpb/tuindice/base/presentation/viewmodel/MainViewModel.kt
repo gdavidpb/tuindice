@@ -2,11 +2,12 @@ package com.gdavidpb.tuindice.base.presentation.viewmodel
 
 import androidx.annotation.IdRes
 import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.base.domain.usecase.*
-import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
+import com.gdavidpb.tuindice.base.domain.usecase.GetUpdateInfoUseCase
+import com.gdavidpb.tuindice.base.domain.usecase.RequestReviewUseCase
+import com.gdavidpb.tuindice.base.domain.usecase.SetLastScreenUseCase
+import com.gdavidpb.tuindice.base.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.base.utils.extensions.LiveEvent
-import com.gdavidpb.tuindice.base.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.base.utils.extensions.execute
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
