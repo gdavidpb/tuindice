@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseAuthDataSource
 import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
+import com.gdavidpb.tuindice.data.source.mutex.MutexDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataSource
@@ -144,6 +145,10 @@ val appModule = module {
 	factoryOf(::GooglePlayServicesDataSource) { bind<MobileServicesRepository>() }
 
 	/* Utils */
+
+	singleOf(::Gson)
+
+	singleOf(::MutexDataSource) { bind<ConcurrencyRepository>() }
 
 	single {
 		Picasso.get()

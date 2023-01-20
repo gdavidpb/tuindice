@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.data.source.android.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
+import com.gdavidpb.tuindice.data.source.mutex.MutexDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.google.android.gms.common.GoogleApiAvailability
@@ -138,6 +139,10 @@ val appMockModule = module {
 	factoryOf(::GooglePlayServicesDataSource) { bind<MobileServicesRepository>() }
 
 	/* Utils */
+
+	singleOf(::Gson)
+
+	singleOf(::MutexDataSource) { bind<ConcurrencyRepository>() }
 
 	single {
 		Picasso.get()
