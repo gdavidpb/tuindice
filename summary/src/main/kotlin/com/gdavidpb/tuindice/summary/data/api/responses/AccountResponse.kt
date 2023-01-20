@@ -43,5 +43,5 @@ data class AccountResponse(
 	@SerializedName("failed_credits")
 	val failedCredits: Int,
 	@SerializedName("last_update")
-	val lastUpdate: Date
+	val lastUpdate: Long
 )
