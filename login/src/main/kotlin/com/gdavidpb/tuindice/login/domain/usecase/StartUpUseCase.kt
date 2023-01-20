@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.base.utils.extensions.isConnection
 import com.gdavidpb.tuindice.base.utils.extensions.noAwait
-import com.gdavidpb.tuindice.login.domain.usecase.error.StartUpError
+import com.gdavidpb.tuindice.login.domain.error.StartUpError
 
 class StartUpUseCase(
 	private val authRepository: AuthRepository,

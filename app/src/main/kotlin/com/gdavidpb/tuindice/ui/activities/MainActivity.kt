@@ -22,7 +22,7 @@ import com.gdavidpb.tuindice.base.utils.TIME_EXIT_LOCKER
 import com.gdavidpb.tuindice.base.utils.extensions.hideSoftKeyboard
 import com.gdavidpb.tuindice.base.utils.extensions.observe
 import com.gdavidpb.tuindice.base.utils.extensions.toast
-import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
+import com.gdavidpb.tuindice.login.domain.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.base.ui.dialogs.UpdatePasswordBottomSheetDialog
 import com.google.android.play.core.appupdate.AppUpdateInfo
