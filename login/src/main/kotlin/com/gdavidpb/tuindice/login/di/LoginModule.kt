@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.usecase.ReSignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.StartUpUseCase
+import com.gdavidpb.tuindice.login.domain.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -32,6 +33,10 @@ val loginModule = module {
 	factoryOf(::SignInUseCase)
 	factoryOf(::ReSignInUseCase)
 	factoryOf(::StartUpUseCase)
+
+	/* Validators */
+
+	factoryOf(::SignInParamsValidator)
 
 	/* Repositories */
 

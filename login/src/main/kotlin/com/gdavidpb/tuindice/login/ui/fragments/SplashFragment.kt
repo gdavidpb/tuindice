@@ -15,7 +15,7 @@ import com.gdavidpb.tuindice.base.utils.extensions.bottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.extensions.connectionSnackBar
 import com.gdavidpb.tuindice.base.utils.extensions.observe
 import com.gdavidpb.tuindice.login.R
-import com.gdavidpb.tuindice.login.domain.usecase.error.StartUpError
+import com.gdavidpb.tuindice.login.domain.error.StartUpError
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel
 import com.google.android.gms.common.GoogleApiAvailability
 import org.koin.android.ext.android.inject

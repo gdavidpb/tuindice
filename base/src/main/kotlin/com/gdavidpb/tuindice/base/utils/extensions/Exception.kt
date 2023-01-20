@@ -12,11 +12,6 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeoutException
 import javax.net.ssl.SSLHandshakeException
 
-fun Throwable.isIllegalArgument(message: String) = when (this) {
-	is IllegalArgumentException -> this.message == message
-	else -> false
-}
-
 fun Throwable.isUnavailable() = when (this) {
 	is HttpException -> (code() == HttpURLConnection.HTTP_UNAVAILABLE)
 	else -> false

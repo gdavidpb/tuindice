@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.utils.annotations.Timeout
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.base.utils.mappers.asUsbId
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
-import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
+import com.gdavidpb.tuindice.login.domain.error.SignInError
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class ReSignInUseCase(

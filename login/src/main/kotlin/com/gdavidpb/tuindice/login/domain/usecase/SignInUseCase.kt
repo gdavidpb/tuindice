@@ -6,9 +6,11 @@ import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.Topics
 import com.gdavidpb.tuindice.base.utils.annotations.Timeout
 import com.gdavidpb.tuindice.base.utils.extensions.*
-import com.gdavidpb.tuindice.login.domain.model.SignInRequest
+import com.gdavidpb.tuindice.login.domain.param.SignInParams
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
-import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
+import com.gdavidpb.tuindice.login.domain.error.SignInError
+import com.gdavidpb.tuindice.login.domain.exception.SignInIllegalArgumentException
+import com.gdavidpb.tuindice.login.domain.validator.SignInParamsValidator
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class SignInUseCase(
@@ -17,20 +19,11 @@ class SignInUseCase(
 	private val settingsRepository: SettingsRepository,
 	private val messagingRepository: MessagingRepository,
 	private val reportingRepository: ReportingRepository,
-	private val networkRepository: NetworkRepository
-) : EventUseCase<SignInRequest, Unit, SignInError>() {
+	private val networkRepository: NetworkRepository,
+	override val paramsValidator: SignInParamsValidator
+) : EventUseCase<SignInParams, Unit, SignInError>() {
 
-	private object IllegalArguments {
-		const val EmptyUsbId = "Empty usbId"
-		const val InvalidUsbId = "Invalid usbId"
-		const val EmptyPassword = "Empty password"
-	}
-
-	override suspend fun executeOnBackground(params: SignInRequest) {
-		require(params.usbId.isNotEmpty()) { IllegalArguments.EmptyUsbId }
-		require(params.usbId.isUsbId()) { IllegalArguments.InvalidUsbId }
-		require(params.password.isNotEmpty()) { IllegalArguments.EmptyPassword }
-
+	override suspend fun executeOnBackground(params: SignInParams) {
 		val isActiveAuth = authRepository.isActiveAuth()
 
 		if (isActiveAuth) authRepository.signOut()
@@ -56,9 +49,7 @@ class SignInUseCase(
 
 	override suspend fun executeOnException(throwable: Throwable): SignInError? {
 		return when {
-			throwable.isIllegalArgument(IllegalArguments.EmptyUsbId) -> SignInError.EmptyUsbId
-			throwable.isIllegalArgument(IllegalArguments.InvalidUsbId) -> SignInError.InvalidUsbId
-			throwable.isIllegalArgument(IllegalArguments.EmptyPassword) -> SignInError.EmptyPassword
+			throwable is SignInIllegalArgumentException -> throwable.error
 			throwable.isForbidden() -> SignInError.AccountDisabled
 			throwable.isUnavailable() -> SignInError.Unavailable
 			throwable.isUnauthorized() -> SignInError.InvalidCredentials

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.login.domain.usecase.error
+package com.gdavidpb.tuindice.login.domain.error
 
 import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
 

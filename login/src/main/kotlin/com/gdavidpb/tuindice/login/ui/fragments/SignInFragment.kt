@@ -13,7 +13,7 @@ import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.login.R
-import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
+import com.gdavidpb.tuindice.login.domain.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.ui.adapters.LoadingAdapter
 import kotlinx.android.synthetic.main.fragment_sign_in.*
