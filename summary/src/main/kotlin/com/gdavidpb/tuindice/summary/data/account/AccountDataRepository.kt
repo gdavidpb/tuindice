@@ -24,7 +24,9 @@ class AccountDataRepository(
 	}
 
 	override suspend fun uploadProfilePicture(encodedPicture: String): ProfilePicture {
-		return remoteDataSource.uploadProfilePicture(encodedPicture)
+		return remoteDataSource.uploadProfilePicture(encodedPicture).also { profilePicture ->
+			localDataSource.saveProfilePicture(uid = profilePicture.uid, url = profilePicture.url)
+		}
 	}
 
 	override suspend fun removeProfilePicture() {

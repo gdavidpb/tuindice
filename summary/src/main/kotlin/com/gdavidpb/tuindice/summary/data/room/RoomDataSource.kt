@@ -22,4 +22,8 @@ class RoomDataSource(
 
 		room.accounts.insert(accountEntity)
 	}
+
+	override suspend fun saveProfilePicture(uid: String, url: String) {
+		room.accounts.updateProfilePicture(uid, url)
+	}
 }

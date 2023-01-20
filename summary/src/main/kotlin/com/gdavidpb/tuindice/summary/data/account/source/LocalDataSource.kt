@@ -6,4 +6,6 @@ interface LocalDataSource {
 	suspend fun accountExists(uid: String): Boolean
 	suspend fun getAccount(uid: String): Account
 	suspend fun saveAccount(uid: String, account: Account)
+
+	suspend fun saveProfilePicture(uid: String, url: String)
 }
