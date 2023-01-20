@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.summary.data.api.mappers
 
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.summary.data.api.responses.AccountResponse
+import java.util.*
 
 fun AccountResponse.toAccount() = Account(
 	id = id,
@@ -23,5 +24,5 @@ fun AccountResponse.toAccount() = Account(
 	retiredCredits = retiredCredits,
 	failedSubjects = failedSubjects,
 	failedCredits = failedCredits,
-	lastUpdate = lastUpdate
+	lastUpdate = Date(lastUpdate)
 )
