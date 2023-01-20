@@ -6,12 +6,10 @@ import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.base.utils.extensions.isConnection
 import com.gdavidpb.tuindice.base.utils.extensions.noAwait
-import com.gdavidpb.tuindice.login.domain.repository.LocalRepository
 import com.gdavidpb.tuindice.login.domain.usecase.error.StartUpError
 
 class StartUpUseCase(
 	private val authRepository: AuthRepository,
-	private val localRepository: LocalRepository,
 	private val settingsRepository: SettingsRepository,
 	private val networkRepository: NetworkRepository,
 	private val configRepository: ConfigRepository,
@@ -31,13 +29,11 @@ class StartUpUseCase(
 
 		return if (isActiveAuth) {
 			val lastScreen = settingsRepository.getLastScreen()
-			val activeAuth = authRepository.getActiveAuth()
 			val activeToken = authRepository.getActiveToken()
-			val activeAccount = localRepository.getAccount(uid = activeAuth.uid)
 
 			settingsRepository.setActiveToken(token = activeToken)
 
-			StartUpAction.Main(screen = lastScreen, account = activeAccount)
+			StartUpAction.Main(screen = lastScreen)
 		} else
 			StartUpAction.SignIn
 	}

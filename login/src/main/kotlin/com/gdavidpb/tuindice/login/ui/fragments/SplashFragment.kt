@@ -4,12 +4,12 @@ import android.os.Bundle
 import android.view.View
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
-import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
 import com.gdavidpb.tuindice.base.domain.model.StartUpAction
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialogs.ConfirmationBottomSheetDialog
+import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extensions.bottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.extensions.connectionSnackBar
@@ -59,12 +59,8 @@ class SplashFragment : NavigationFragment() {
 
 	private fun startUpObserver(result: Result<StartUpAction, StartUpError>?) {
 		when (result) {
-			is Result.OnSuccess -> {
-				handleStartUpAction(action = result.value)
-			}
-			is Result.OnError -> {
-				startUpErrorHandler(error = result.error)
-			}
+			is Result.OnSuccess -> handleStartUpAction(action = result.value)
+			is Result.OnError -> startUpErrorHandler(error = result.error)
 			else -> {}
 		}
 	}

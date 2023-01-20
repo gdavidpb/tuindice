@@ -9,8 +9,6 @@ import android.view.animation.OvershootInterpolator
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
-import com.gdavidpb.tuindice.base.domain.usecase.base.Result
-import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.extensions.*
@@ -43,7 +41,6 @@ class SignInFragment : NavigationFragment() {
 	override fun onInitObservers() {
 		with(viewModel) {
 			observe(signIn, ::signInObserver)
-			observe(sync, ::syncObserver)
 		}
 	}
 
@@ -130,35 +127,12 @@ class SignInFragment : NavigationFragment() {
 				iViewLogo.performClick()
 			}
 			is Event.OnSuccess -> {
-				viewModel.sync()
+				navigate(SignInFragmentDirections.navToSplash())
 			}
 			is Event.OnError -> {
 				showLoading(false)
 
 				signInErrorHandler(error = result.error)
-			}
-			else -> {
-				showLoading(false)
-
-				errorSnackBar()
-			}
-		}
-	}
-
-	private fun syncObserver(result: Result<Boolean, SyncError>?) {
-		when (result) {
-			is Result.OnLoading -> {
-				showLoading(true)
-			}
-			is Result.OnSuccess -> {
-				navigate(SignInFragmentDirections.navToSplash())
-			}
-			is Result.OnError -> {
-				showLoading(false)
-
-				viewModel.signOut()
-
-				syncErrorHandler(error = result.error)
 			}
 			else -> {
 				showLoading(false)
@@ -178,14 +152,6 @@ class SignInFragment : NavigationFragment() {
 			is SignInError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { onSignInClick() }
 			is SignInError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
 			is SignInError.AccountDisabled -> errorSnackBar(R.string.snack_account_disabled)
-			else -> errorSnackBar { onSignInClick() }
-		}
-	}
-
-	private fun syncErrorHandler(error: SyncError?) {
-		when (error) {
-			is SyncError.Timeout -> errorSnackBar(R.string.snack_timeout) { onSignInClick() }
-			is SyncError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
 			else -> errorSnackBar { onSignInClick() }
 		}
 	}
