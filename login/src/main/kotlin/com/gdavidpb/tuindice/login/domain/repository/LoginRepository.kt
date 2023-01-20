@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.login.domain.repository
 
 import com.gdavidpb.tuindice.login.domain.model.SignIn
 
-interface RemoteRepository {
+interface LoginRepository {
 	suspend fun signIn(
 		username: String,
 		password: String,

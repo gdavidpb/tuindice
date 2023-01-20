@@ -7,13 +7,13 @@ import com.gdavidpb.tuindice.base.utils.Topics
 import com.gdavidpb.tuindice.base.utils.annotations.Timeout
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.login.domain.model.SignInRequest
-import com.gdavidpb.tuindice.login.domain.repository.RemoteRepository
+import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class SignInUseCase(
 	private val authRepository: AuthRepository,
-	private val remoteRepository: RemoteRepository,
+	private val loginRepository: LoginRepository,
 	private val settingsRepository: SettingsRepository,
 	private val messagingRepository: MessagingRepository,
 	private val reportingRepository: ReportingRepository,
@@ -37,7 +37,7 @@ class SignInUseCase(
 
 		val messagingToken = messagingRepository.getToken()
 
-		val bearerToken = remoteRepository.signIn(
+		val bearerToken = loginRepository.signIn(
 			username = params.usbId,
 			password = params.password,
 			messagingToken = messagingToken,
