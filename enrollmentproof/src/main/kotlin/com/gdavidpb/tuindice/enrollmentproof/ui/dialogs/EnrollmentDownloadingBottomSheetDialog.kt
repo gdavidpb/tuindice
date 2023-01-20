@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.gdavidpb.tuindice.base.NavigationBaseDirections
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.utils.extensions.*
@@ -65,7 +66,7 @@ class EnrollmentDownloadingBottomSheetDialog : BottomSheetDialogFragment() {
 			is GetEnrollmentError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { viewModel.tryFetchEnrollmentProof() }
 			is GetEnrollmentError.NotFound -> snackBar(R.string.snack_enrollment_not_found)
 			is GetEnrollmentError.AccountDisabled -> mainViewModel.signOut()
-			// TODO is GetEnrollmentError.OutdatedPassword -> showUpdatePasswordDialog()
+			is GetEnrollmentError.OutdatedPassword -> navigate(NavigationBaseDirections.navToUpdatePassword())
 			is GetEnrollmentError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { viewModel.tryFetchEnrollmentProof() }
 			else -> errorSnackBar { viewModel.tryFetchEnrollmentProof() }
 		}

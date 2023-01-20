@@ -7,16 +7,23 @@
 
     <action
         android:id="@+id/nav_to_sign_in"
-        app:destination="@+id/fragment_sign_in"
+        app:destination="@id/fragment_sign_in"
         app:popUpTo="@id/fragment_sign_in"
         app:popUpToInclusive="true" />
+
+    <action
+        android:id="@+id/nav_to_update_password"
+        app:destination="@id/dialog_update_password" />
 
     <dialog
         android:id="@+id/dialog_enrollment_proof"
         android:name="com.gdavidpb.tuindice.enrollmentproof.ui.dialogs.EnrollmentDownloadingBottomSheetDialog"
-        tools:layout="@layout/R.layout.dialog_enrollment_downloading" >
+        tools:layout="@layout/R.layout.dialog_enrollment_downloading" />
 
-    </dialog>
+    <dialog
+        android:id="@+id/dialog_update_password"
+        android:name="com.gdavidpb.tuindice.login.ui.dialogs.UpdatePasswordBottomSheetDialog"
+        tools:layout="@layout/dialog_update_password" />
 
     <fragment
         android:id="@+id/fragment_splash"
