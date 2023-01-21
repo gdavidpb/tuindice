@@ -70,8 +70,6 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 			is Event.OnSuccess -> {
 				setLoading(false)
 
-				mainViewModel.sync()
-
 				toast(R.string.toast_password_updated)
 
 				dismiss()

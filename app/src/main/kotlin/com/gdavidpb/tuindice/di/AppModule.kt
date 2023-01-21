@@ -12,10 +12,10 @@ import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseAuthDataSource
-import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.mutex.MutexDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
+import com.gdavidpb.tuindice.data.source.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataSource
 import com.google.android.gms.common.GoogleApiAvailability
@@ -64,10 +64,6 @@ val appModule = module {
 		androidContext().resources
 	}
 
-	/* Utils */
-
-	singleOf(::Gson)
-
 	/* Google */
 
 	single {
@@ -76,6 +72,10 @@ val appModule = module {
 
 	single {
 		GoogleApiAvailability.getInstance()
+	}
+
+	single {
+		ReviewManagerFactory.create(androidContext())
 	}
 
 	/* Firebase */
@@ -98,6 +98,10 @@ val appModule = module {
 		FirebaseCrashlytics.getInstance()
 	}
 
+	/* OkHttpClient */
+
+	singleOf(::AuthorizationInterceptor)
+
 	single {
 		val logger = HttpLoggingInterceptor.Logger { message ->
 			get<ReportingRepository>().logMessage(message)
@@ -110,14 +114,6 @@ val appModule = module {
 			redactHeader("Authorization")
 		}
 	}
-
-	singleOf(::AuthorizationInterceptor)
-
-	factory {
-		ReviewManagerFactory.create(androidContext())
-	}
-
-	/* OkHttpClient */
 
 	single {
 		val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)

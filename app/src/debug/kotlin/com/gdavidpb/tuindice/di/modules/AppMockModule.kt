@@ -13,10 +13,10 @@ import com.gdavidpb.tuindice.data.source.MessagingMockDataSource
 import com.gdavidpb.tuindice.data.source.RemoteConfigMockDataSource
 import com.gdavidpb.tuindice.data.source.android.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataSource
-import com.gdavidpb.tuindice.data.source.functions.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.mutex.MutexDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
+import com.gdavidpb.tuindice.data.source.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -64,10 +64,6 @@ val appMockModule = module {
 		androidContext().resources
 	}
 
-	/* Utils */
-
-	singleOf(::Gson)
-
 	/* Google */
 
 	single<AppUpdateManager> {
@@ -76,6 +72,10 @@ val appMockModule = module {
 
 	single {
 		GoogleApiAvailability.getInstance()
+	}
+
+	single<ReviewManager> {
+		FakeReviewManager(androidContext())
 	}
 
 	/* Firebase */
@@ -92,6 +92,10 @@ val appMockModule = module {
 		}
 	}
 
+	/* OkHttpClient */
+
+	singleOf(::AuthorizationInterceptor)
+
 	single {
 		val logger = HttpLoggingInterceptor.Logger { message ->
 			get<ReportingRepository>().logMessage(message)
@@ -104,14 +108,6 @@ val appMockModule = module {
 			redactHeader("Authorization")
 		}
 	}
-
-	singleOf(::AuthorizationInterceptor)
-
-	factory<ReviewManager> {
-		FakeReviewManager(androidContext())
-	}
-
-	/* OkHttpClient */
 
 	single {
 		val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)

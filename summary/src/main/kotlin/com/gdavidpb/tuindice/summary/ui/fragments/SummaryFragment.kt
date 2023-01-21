@@ -18,8 +18,6 @@ import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.base.domain.usecase.base.Completable
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
-import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
-import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialogs.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extensions.*
@@ -39,13 +37,10 @@ import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 
 class SummaryFragment : NavigationFragment() {
-
-	private val mainViewModel by sharedViewModel<MainViewModel>()
 
 	private val viewModel by viewModel<SummaryViewModel>()
 
@@ -69,16 +64,10 @@ class SummaryFragment : NavigationFragment() {
 
 		requireActivity().addMenuProvider(SummaryMenuProvider(), viewLifecycleOwner)
 
-		with(viewModel) {
-			getAccount()
-		}
+		viewModel.getAccount()
 	}
 
 	override fun onInitObservers() {
-		with(mainViewModel) {
-			observe(sync, ::syncObserver)
-		}
-
 		with(viewModel) {
 			observe(signOut, ::signOutObserver)
 			observe(account, ::accountObserver)
@@ -236,25 +225,13 @@ class SummaryFragment : NavigationFragment() {
 		}
 	}
 
-	private fun syncObserver(result: Result<Boolean, SyncError>?) {
-		when (result) {
-			is Result.OnSuccess -> {
-				val pendingUpdate = result.value
-
-				if (pendingUpdate)
-					viewModel.getAccount()
-			}
-			is Result.OnError -> {
-				syncErrorHandler(error = result.error)
-			}
-			else -> {}
-		}
-	}
-
 	private fun accountObserver(result: Result<Account, Nothing>?) {
 		when (result) {
-			is Result.OnSuccess -> {
-				loadProfile(account = result.value)
+			is Result.OnSuccess -> loadProfile(account = result.value)
+			is Result.OnError -> {
+				// TODO error handler
+				//tViewLastUpdate.drawables(start = R.drawable.ic_sync_problem)
+				//tViewLastUpdate.onClickOnce { snackBar(R.string.snack_no_service) }
 			}
 			else -> {}
 		}

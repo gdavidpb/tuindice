@@ -7,7 +7,6 @@ import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
 import com.gdavidpb.tuindice.base.domain.model.StartUpAction
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
-import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialogs.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.RequestCodes
@@ -19,14 +18,11 @@ import com.gdavidpb.tuindice.login.domain.error.StartUpError
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel
 import com.google.android.gms.common.GoogleApiAvailability
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SplashFragment : NavigationFragment() {
 
 	private val viewModel by viewModel<SplashViewModel>()
-
-	private val mainViewModel by sharedViewModel<MainViewModel>()
 
 	private val googleApiAvailability by inject<GoogleApiAvailability>()
 
@@ -102,8 +98,6 @@ class SplashFragment : NavigationFragment() {
 				}.onFailure {
 					navigate(SplashFragmentDirections.navToSummary())
 				}
-
-				mainViewModel.sync()
 			}
 			is StartUpAction.SignIn -> {
 				navigate(SplashFragmentDirections.navToSignIn())
