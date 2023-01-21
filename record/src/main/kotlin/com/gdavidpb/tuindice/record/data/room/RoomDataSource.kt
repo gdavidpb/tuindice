@@ -4,6 +4,8 @@ import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.persistence.data.source.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.source.room.mappers.toQuarter
 import com.gdavidpb.tuindice.persistence.data.source.room.mappers.toQuarterEntity
+import com.gdavidpb.tuindice.persistence.data.source.room.mappers.toSubjectEntity
+import com.gdavidpb.tuindice.persistence.data.source.room.utils.extensions.withTransaction
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 
 class RoomDataSource(
@@ -23,7 +25,15 @@ class RoomDataSource(
 			.map { quarter -> quarter.toQuarterEntity(uid) }
 			.toTypedArray()
 
-		room.quarters.insert(*quarterEntities)
+		val subjectEntities = quarters
+			.flatMap { quarter -> quarter.subjects }
+			.map { subject -> subject.toSubjectEntity(uid) }
+			.toTypedArray()
+
+		room.withTransaction {
+			this.quarters.insert(*quarterEntities)
+			this.subjects.insert(*subjectEntities)
+		}
 	}
 
 	override suspend fun removeQuarter(uid: String, qid: String) {
