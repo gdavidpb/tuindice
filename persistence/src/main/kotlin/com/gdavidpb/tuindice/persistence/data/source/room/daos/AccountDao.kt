@@ -17,13 +17,6 @@ interface AccountDao : BaseDao<AccountEntity> {
 	suspend fun isUpdated(uid: String): Boolean
 
 	@Query(
-		"SELECT EXISTS(" +
-				"SELECT 1 FROM ${AccountTable.TABLE_NAME} " +
-				"WHERE ${AccountTable.ID} = :uid)"
-	)
-	suspend fun accountExists(uid: String): Boolean
-
-	@Query(
 		"SELECT * FROM ${AccountTable.TABLE_NAME} " +
 				"WHERE ${AccountTable.ID} = :uid"
 	)

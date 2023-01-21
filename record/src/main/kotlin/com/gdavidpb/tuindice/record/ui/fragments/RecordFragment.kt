@@ -8,9 +8,7 @@ import android.view.View
 import androidx.core.view.MenuProvider
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
-import com.gdavidpb.tuindice.base.domain.usecase.error.SyncError
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
-import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialogs.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extensions.bottomSheetDialog
@@ -22,12 +20,9 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.record.utils.mappers.toQuarterItem
 import kotlinx.android.synthetic.main.fragment_record.*
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RecordFragment : NavigationFragment() {
-
-	private val mainViewModel by sharedViewModel<MainViewModel>()
 
 	private val viewModel by viewModel<RecordViewModel>()
 
@@ -60,10 +55,6 @@ class RecordFragment : NavigationFragment() {
 	}
 
 	override fun onInitObservers() {
-		with(mainViewModel) {
-			observe(sync, ::syncObserver)
-		}
-
 		with(viewModel) {
 			observe(quarters, ::quartersObserver)
 		}
@@ -132,18 +123,6 @@ class RecordFragment : NavigationFragment() {
 
 	private fun removeSubject(quarterItem: QuarterItem, subjectItem: SubjectItem) {
 		TODO("Not yet implemented")
-	}
-
-	private fun syncObserver(result: Result<Boolean, SyncError>?) {
-		when (result) {
-			is Result.OnSuccess -> {
-				val pendingUpdate = result.value
-
-				if (pendingUpdate)
-					viewModel.getQuarters()
-			}
-			else -> {}
-		}
 	}
 
 	private fun quartersObserver(result: Result<List<Quarter>, Nothing>?) {

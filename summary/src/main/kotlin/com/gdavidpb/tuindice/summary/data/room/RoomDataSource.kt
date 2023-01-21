@@ -9,8 +9,8 @@ import com.gdavidpb.tuindice.summary.data.account.source.LocalDataSource
 class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
-	override suspend fun accountExists(uid: String): Boolean {
-		return room.accounts.accountExists(uid)
+	override suspend fun isUpdated(uid: String): Boolean {
+		return room.accounts.isUpdated(uid)
 	}
 
 	override suspend fun getAccount(uid: String): Account {

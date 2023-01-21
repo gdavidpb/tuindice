@@ -14,11 +14,13 @@ class AccountDataRepository(
 ) : AccountRepository {
 	override suspend fun getAccount(uid: String): Account {
 		val isNetworkAvailable = networkRepository.isAvailable()
-		val isCached = localDataSource.accountExists(uid)
+		val isUpdated = localDataSource.isUpdated(uid)
 
-		if (isNetworkAvailable && !isCached)
+		if (isNetworkAvailable && !isUpdated)
 			remoteDataSource.getAccount()
-				.also { account -> localDataSource.saveAccount(uid, account) }
+				.also { account ->
+					localDataSource.saveAccount(uid, account)
+				}
 
 		return localDataSource.getAccount(uid)
 	}

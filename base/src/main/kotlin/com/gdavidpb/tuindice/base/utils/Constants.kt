@@ -6,6 +6,11 @@ import java.util.*
 val DEFAULT_LOCALE: Locale = Locale("es", "VE")
 val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone("America/Caracas")
 
+/* Concurrent locks */
+object Locks {
+    const val GET_ACCOUNT_AND_QUARTERS = "getAccountAndQuarters"
+}
+
 /* Errors */
 const val NO_GETTER = "Property does not have a getter."
 
@@ -45,7 +50,6 @@ object ConfigKeys {
     const val SYNCS_TO_SUGGEST_REVIEW = "syncs_to_suggest_review"
     const val TIME_OUT_CONNECTION = "time_out_connection"
     const val TIME_OUT_SIGN_IN = "time_out_sign_in"
-    const val TIME_OUT_SYNC = "time_out_sync"
     const val TIME_OUT_GET_ENROLLMENT = "time_out_get_enrollment"
 }
 
