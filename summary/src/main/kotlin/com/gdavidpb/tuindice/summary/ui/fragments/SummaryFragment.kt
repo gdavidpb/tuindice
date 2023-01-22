@@ -1,11 +1,9 @@
 package com.gdavidpb.tuindice.summary.ui.fragments
 
-import android.app.Activity
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -29,29 +27,27 @@ import com.gdavidpb.tuindice.summary.mapping.toShortName
 import com.gdavidpb.tuindice.summary.mapping.toSubjectsSummaryItem
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.adapters.SummaryAdapter
-import com.gdavidpb.tuindice.summary.utils.Actions
-import com.gdavidpb.tuindice.summary.utils.Extras
-import com.gdavidpb.tuindice.summary.utils.RequestCodes
-import com.gdavidpb.tuindice.summary.utils.extensions.fileProviderUri
+import com.gdavidpb.tuindice.summary.ui.manager.ProfilePictureManager
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.io.File
 
 class SummaryFragment : NavigationFragment() {
 
 	private val viewModel by viewModel<SummaryViewModel>()
 
+	private val profilePictureManager by inject<ProfilePictureManager>()
+
 	private val picasso by inject<Picasso>()
 
 	private val summaryAdapter = SummaryAdapter()
 
-	private val profilePictureUri by lazy {
-		File("profile_picture.jpg")
-			.fileProviderUri(requireContext())
-	}
+	private val activityLauncher = registerForActivityResult(
+		profilePictureManager.provideActivityResultContracts(),
+		profilePictureManager.provideActivityResultCallback()
+	)
 
 	override fun onCreateView() = R.layout.fragment_summary
 
@@ -62,7 +58,10 @@ class SummaryFragment : NavigationFragment() {
 
 		vProfilePicture.onClickOnce(::onEditProfilePictureClick)
 
-		requireActivity().addMenuProvider(SummaryMenuProvider(), viewLifecycleOwner)
+		with(requireActivity()) {
+			profilePictureManager.init(activityLauncher, ProfilePictureManagerListener())
+			addMenuProvider(SummaryMenuProvider(), viewLifecycleOwner)
+		}
 
 		viewModel.getAccount()
 	}
@@ -76,48 +75,11 @@ class SummaryFragment : NavigationFragment() {
 		}
 	}
 
-	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-		data ?: return
-
-		if (resultCode == Activity.RESULT_OK) {
-			val removeProfilePicture = data.hasExtra(Extras.REMOVE_PROFILE_PICTURE)
-			val requestProfilePicture = (requestCode == RequestCodes.PROFILE_PICTURE_REQUEST)
-
-			when {
-				removeProfilePicture ->
-					showRemoveProfilePictureDialog()
-				requestProfilePicture ->
-					viewModel.uploadProfilePicture(path = "${data.data ?: profilePictureUri}")
-			}
-		}
-	}
-
 	private fun onEditProfilePictureClick() {
-		val removeIntent = Intent(Actions.REMOVE_PROFILE_PICTURE)
-
-		val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-			.putExtra(MediaStore.EXTRA_OUTPUT, profilePictureUri)
-
-		val galleryIntent = Intent(
-			Intent.ACTION_PICK,
-			MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+		profilePictureManager.pickPicture(
+			activity = requireActivity(),
+			includeRemove = vProfilePicture.hasProfilePicture
 		)
-
-		val chooser =
-			Intent.createChooser(galleryIntent, getString(R.string.label_profile_picture_chooser))
-
-		val hasCamera = hasCamera()
-		val hasProfilePicture = vProfilePicture.hasProfilePicture
-
-		val intents = mutableListOf<Intent>().apply {
-			if (hasCamera) add(cameraIntent)
-			if (hasProfilePicture) add(removeIntent)
-		}.toTypedArray()
-
-		if (intents.isNotEmpty())
-			chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intents)
-
-		startActivityForResult(chooser, RequestCodes.PROFILE_PICTURE_REQUEST)
 	}
 
 	private fun loadProfile(account: Account) {
@@ -191,26 +153,6 @@ class SummaryFragment : NavigationFragment() {
 		findNavController().popStackToRoot()
 
 		navigate(SummaryFragmentDirections.navToSignIn())
-	}
-
-	private fun showSignOutDialog() {
-		bottomSheetDialog<ConfirmationBottomSheetDialog> {
-			titleResource = R.string.dialog_title_sign_out
-			messageResource = R.string.dialog_message_sign_out
-
-			positiveButton(R.string.menu_sign_out) { viewModel.signOut() }
-			negativeButton(R.string.cancel)
-		}
-	}
-
-	private fun showRemoveProfilePictureDialog() {
-		bottomSheetDialog<ConfirmationBottomSheetDialog> {
-			titleResource = R.string.dialog_title_remove_profile_picture_failure
-			messageResource = R.string.dialog_message_remove_profile_picture_failure
-
-			positiveButton(R.string.remove) { viewModel.removeProfilePicture() }
-			negativeButton(R.string.cancel)
-		}
 	}
 
 	private fun signOutObserver(result: Completable<Nothing>?) {
@@ -288,11 +230,40 @@ class SummaryFragment : NavigationFragment() {
 		override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
 			return when (menuItem.itemId) {
 				R.id.menu_sign_out -> {
-					showSignOutDialog()
+					bottomSheetDialog<ConfirmationBottomSheetDialog> {
+						titleResource = R.string.dialog_title_sign_out
+						messageResource = R.string.dialog_message_sign_out
+
+						positiveButton(R.string.menu_sign_out) { viewModel.signOut() }
+						negativeButton(R.string.cancel)
+					}
+
 					true
 				}
 				else -> false
 			}
+		}
+	}
+
+	inner class ProfilePictureManagerListener : ProfilePictureManager.ProfilePictureListener {
+		override fun onProfilePictureSelected(uri: Uri?) {
+			uri ?: return
+
+			viewModel.uploadProfilePicture(path = "$uri")
+		}
+
+		override fun onProfilePictureRemoved() {
+			bottomSheetDialog<ConfirmationBottomSheetDialog> {
+				titleResource = R.string.dialog_title_remove_profile_picture_failure
+				messageResource = R.string.dialog_message_remove_profile_picture_failure
+
+				positiveButton(R.string.remove) { viewModel.removeProfilePicture() }
+				negativeButton(R.string.cancel)
+			}
+		}
+
+		override fun onProfilePictureError() {
+			errorSnackBar()
 		}
 	}
 }

@@ -10,11 +10,6 @@ object Extras {
 	const val REMOVE_PROFILE_PICTURE = "REMOVE_PROFILE_PICTURE"
 }
 
-/* Request codes */
-object RequestCodes {
-	const val PROFILE_PICTURE_REQUEST = 1000
-}
-
 /* Remote config keys */
 object ConfigKeys {
 	const val TIME_OUT_PROFILE_PICTURE = "time_out_profile_picture"
