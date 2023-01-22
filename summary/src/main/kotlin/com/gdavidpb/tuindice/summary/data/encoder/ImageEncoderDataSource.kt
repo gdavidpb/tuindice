@@ -24,40 +24,40 @@ class ImageEncoderDataSource(
 	override suspend fun encodePicture(path: String): String {
 		val pictureUri = path.toUri()
 
-		val pictureInputStream = contentResolver.openInputStream(pictureUri)
-			?: throw IOException("Unable to load picture.")
+		val inputStream = { contentResolver.openInputStream(pictureUri) }
 
-		val encodedPicture = pictureInputStream.use { inputStream ->
-			val rotationDegrees = inputStream.decodeRotationDegrees()
+		val rotationDegrees = inputStream()
+			?.use { stream -> stream.decodeRotationDegrees() }
+			?: throw IOException("Unable to get picture rotation degrees.")
 
-			inputStream.reset()
+		val scaleFactor = inputStream()
+			?.use { stream -> stream.decodeScaleFactor(Settings.SAMPLE) }
+			?: throw IOException("Unable to scale picture.")
 
-			val scaleFactor = inputStream.decodeScaleFactor(Settings.SAMPLE)
+		val encodedPicture = inputStream()
+			?.use { stream ->
+				stream
+					.decodeScaledBitmap(scaleFactor)
+					.rotate(rotationDegrees)
+			}?.let { bitmap ->
+				ByteArrayOutputStream().use { outputStream ->
+					val compress = bitmap.compress(
+						Bitmap.CompressFormat.JPEG,
+						Settings.QUALITY,
+						outputStream
+					)
 
-			inputStream.reset()
+					if (compress)
+						outputStream.flush()
+					else
+						throw IOException("Unable to compress picture.")
 
-			inputStream
-				.decodeScaledBitmap(scaleFactor)
-				.rotate(rotationDegrees)
-		}.let { bitmap ->
-			ByteArrayOutputStream().use { outputStream ->
-				val compress = bitmap.compress(
-					Bitmap.CompressFormat.JPEG,
-					Settings.QUALITY,
-					outputStream
-				)
+					bitmap.recycle()
 
-				if (compress)
-					outputStream.flush()
-				else
-					throw IOException("Unable to compress picture.")
-
-				bitmap.recycle()
-
-				outputStream.toByteArray().encodeToBase64String()
+					outputStream.toByteArray().encodeToBase64String()
+				}
 			}
-		}
 
-		return encodedPicture
+		return encodedPicture ?: throw IOException("Unable to encode picture.")
 	}
 }
