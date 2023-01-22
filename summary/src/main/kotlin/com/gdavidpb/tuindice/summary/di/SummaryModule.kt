@@ -9,12 +9,13 @@ import com.gdavidpb.tuindice.summary.data.api.ApiDataSource
 import com.gdavidpb.tuindice.summary.data.api.SummaryApi
 import com.gdavidpb.tuindice.summary.data.encoder.ImageEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.room.RoomDataSource
-import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
 import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
+import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
+import com.gdavidpb.tuindice.summary.ui.manager.ProfilePictureManager
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
 import org.koin.core.module.dsl.bind
@@ -55,4 +56,8 @@ val summaryModule = module {
 			.build()
 			.create<SummaryApi>()
 	}
+
+	/* Managers */
+
+	factoryOf(::ProfilePictureManager)
 }
