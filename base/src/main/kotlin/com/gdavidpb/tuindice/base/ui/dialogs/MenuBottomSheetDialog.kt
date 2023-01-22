@@ -16,7 +16,7 @@ open class MenuBottomSheetDialog : BottomSheetDialogFragment() {
 	var titleResource: Int = 0
 	var titleText: CharSequence = ""
 
-	private var menuItems: List<BottomMenuItem> = listOf()
+	private var menuItems = listOf<BottomMenuItem>()
 	private var onItemSelected: (Int) -> Unit = {}
 
 	fun setItems(items: List<BottomMenuItem>, onSelected: (Int) -> Unit) {
@@ -41,7 +41,7 @@ open class MenuBottomSheetDialog : BottomSheetDialogFragment() {
 			else -> error("'titleResource' or 'titleText' is missed")
 		}
 
-		check(menuItems.isNotEmpty()) { "menuItems is empty" }
+		require(menuItems.isNotEmpty()) { "menuItems is empty" }
 
 		rViewMenu.adapter = BottomMenuAdapter(items = menuItems, manager = MenuManager())
 	}
