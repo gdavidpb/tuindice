@@ -8,5 +8,5 @@ data class BottomMenuItem(
 	@DrawableRes
 	val iconResource: Int,
 	@StringRes
-	val textResource: Int,
+	val textResource: Int
 )
