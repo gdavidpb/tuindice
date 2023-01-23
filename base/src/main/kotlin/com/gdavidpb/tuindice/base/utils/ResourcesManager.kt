@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 
+@Deprecated("This will be removed.")
 object ResourcesManager {
     private val colorsCache = hashMapOf<Int, Int>()
 

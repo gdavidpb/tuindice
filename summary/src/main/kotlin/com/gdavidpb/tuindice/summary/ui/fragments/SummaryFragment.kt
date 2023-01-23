@@ -138,7 +138,9 @@ class SummaryFragment : NavigationFragment() {
 					BottomMenuItem(
 						itemId = ProfilePictureMenu.ID_REMOVE_PICTURE,
 						iconResource = R.drawable.ic_delete,
-						textResource = R.string.menu_remove_profile_picture
+						iconColor = R.color.color_error,
+						textResource = R.string.menu_remove_profile_picture,
+						textColor = R.color.color_error
 					)
 				)
 
