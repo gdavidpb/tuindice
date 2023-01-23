@@ -10,7 +10,6 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
-import com.gdavidpb.tuindice.base.utils.extensions.*
 
 fun View.matrixAnimation(): ViewPropertyAnimator = animate().apply { cancel() }
 

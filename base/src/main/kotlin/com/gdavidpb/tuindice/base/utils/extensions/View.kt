@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.base.utils.extensions
 
 import android.content.res.TypedArray
 import android.graphics.Paint
+import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
@@ -91,10 +92,10 @@ fun View.hideSoftKeyboard() {
 }
 
 fun TextView.drawables(
-	start: Int = 0,
-	top: Int = 0,
-	end: Int = 0,
-	bottom: Int = 0
+	start: Drawable? = null,
+	top: Drawable? = null,
+	end: Drawable? = null,
+	bottom: Drawable? = null
 ) = setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom)
 
 fun EditText.onTextChanged(event: (CharSequence, Int, Int, Int) -> Unit) {
