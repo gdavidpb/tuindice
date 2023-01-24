@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "PATCH",
+    "urlPath": "/subjects"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
+      "code": "FS1112",
+      "name": "FISICA II",
+      "credits": 3,
+      "grade": 5,
+      "status": 0
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}
