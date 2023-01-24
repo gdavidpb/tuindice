@@ -98,6 +98,13 @@ fun TextView.drawables(
 	bottom: Drawable? = null
 ) = setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom)
 
+fun TextView.drawables(
+	start: Int = 0,
+	top: Int = 0,
+	end: Int = 0,
+	bottom: Int = 0
+) = setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom)
+
 fun EditText.onTextChanged(event: (CharSequence, Int, Int, Int) -> Unit) {
 	addTextChangedListener(object : TextWatcher {
 		override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
