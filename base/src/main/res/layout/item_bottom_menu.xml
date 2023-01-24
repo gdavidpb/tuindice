@@ -9,6 +9,6 @@
     android:paddingHorizontal="@dimen/dp_16"
     android:paddingVertical="@dimen/dp_12"
     tools:drawableStart="@drawable/ic_more"
-    tools:drawableTint="@color/color_menu_icon"
+    tools:drawableTint="@color/color_secondary_text"
     tools:text="Menú ejemplo"
     tools:textColor="@color/color_primary_text" />

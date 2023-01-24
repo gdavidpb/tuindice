@@ -10,7 +10,7 @@ data class BottomMenuItem(
 	@DrawableRes
 	val iconResource: Int,
 	@ColorRes
-	val iconColor: Int = R.color.color_menu_icon,
+	val iconColor: Int = R.color.color_secondary_text,
 	@StringRes
 	val textResource: Int,
 	@ColorRes
