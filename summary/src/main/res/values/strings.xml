@@ -27,13 +27,13 @@
     <string name="text_last_update">Última actualización: %1$s</string>
 
     <plurals name="text_subjects_header">
-        <item quantity="one">%d materia cursada</item>
-        <item quantity="other">%d materias cursadas</item>
+        <item quantity="one">%d materia inscrita</item>
+        <item quantity="other">%d materias inscritas</item>
     </plurals>
 
     <plurals name="text_credits_header">
-        <item quantity="one">%d crédito cursado</item>
-        <item quantity="other">%d créditos cursados</item>
+        <item quantity="one">%d crédito inscrito</item>
+        <item quantity="other">%d créditos inscritos</item>
     </plurals>
 
     <string name="menu_sign_out">Cerrar sesión</string>

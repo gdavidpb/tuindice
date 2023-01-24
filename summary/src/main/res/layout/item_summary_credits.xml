@@ -9,5 +9,5 @@
     app:retiredText="@string/label_credits_retired"
     tools:approvedCount="18"
     tools:failedCount="2"
-    tools:headerText="124 créditos cursados"
+    tools:headerText="124 créditos inscritos"
     tools:retiredCount="3" />

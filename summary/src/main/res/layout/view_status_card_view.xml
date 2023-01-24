@@ -29,7 +29,7 @@
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="50 materias cursadas" />
+            tools:text="50 materias inscritas" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineApproved"
