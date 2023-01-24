@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.ui.customs
+package com.gdavidpb.tuindice.base.ui.customs
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -6,7 +6,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.util.AttributeSet
 import android.widget.ProgressBar
-import com.gdavidpb.tuindice.base.ui.customs.ViewHook
 import java.util.concurrent.atomic.AtomicBoolean
 
 class TopProgressBar(context: Context, attrs: AttributeSet) : ProgressBar(context, attrs),

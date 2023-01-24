@@ -9,25 +9,27 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
-import com.gdavidpb.tuindice.base.utils.extensions.contentView
 
 abstract class NavigationFragment : Fragment() {
-    open fun onInitObservers() {}
+	open fun onInitObservers() {}
 
-    @LayoutRes
-    abstract fun onCreateView(): Int
+	@LayoutRes
+	abstract fun onCreateView(): Int
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(onCreateView(), container, false)
-    }
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View {
+		return inflater.inflate(onCreateView(), container, false)
+	}
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        activity?.contentView?.background = view.background
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		onInitObservers()
+	}
 
-        onInitObservers()
-    }
+	protected fun navigate(directions: NavDirections, navOptions: NavOptions? = null) =
+		findNavController().navigate(directions, navOptions)
 
-    protected fun navigate(directions: NavDirections, navOptions: NavOptions? = null) = findNavController().navigate(directions, navOptions)
-
-    protected fun navigateUp() = findNavController().navigateUp()
+	protected fun navigateUp() = findNavController().navigateUp()
 }
