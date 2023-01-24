@@ -27,8 +27,6 @@
     <color name="color_failed">#F44336</color>
     <color name="color_retired">#B0BEC5</color>
 
-    <color name="color_menu_icon">#808080</color>
-
     <!-- CanvasView / NetworkView -->
 
     <color name="color_node">#FFC107</color>

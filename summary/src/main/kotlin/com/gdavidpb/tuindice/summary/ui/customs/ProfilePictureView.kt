@@ -19,6 +19,11 @@ class ProfilePictureView(context: Context, attrs: AttributeSet) : FrameLayout(co
 		inflate(context, R.layout.view_profile_picture, this)
 	}
 
+	override fun setOnClickListener(l: OnClickListener?) {
+		iViewProfile.setOnClickListener(l)
+		iViewEditProfile.setOnClickListener(l)
+	}
+
 	fun setDrawable(drawable: Drawable?) {
 		if (drawable != null) {
 			hasProfilePicture = true
