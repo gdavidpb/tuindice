@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.base.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.base.utils.extensions.execute
+import com.gdavidpb.tuindice.record.domain.error.GetQuartersError
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
 
@@ -12,7 +13,7 @@ class RecordViewModel(
 	private val getQuartersUseCase: GetQuartersUseCase,
 	private val removeQuarterUseCase: RemoveQuarterUseCase
 ) : ViewModel() {
-	val quarters = LiveResult<List<Quarter>, Nothing>()
+	val quarters = LiveResult<List<Quarter>, GetQuartersError>()
 	val quarterRemove = LiveCompletable<Nothing>()
 
 	fun getQuarters() =
