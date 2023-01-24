@@ -177,6 +177,8 @@ class SummaryFragment : NavigationFragment() {
 		tViewCareer.text = account.careerName
 
 		tViewLastUpdate.text = lastUpdate
+		tViewLastUpdate.drawables(start = R.drawable.ic_sync)
+
 		tViewLastUpdate.isVisible = true
 
 		if (account.grade > 0.0) {

@@ -12,8 +12,11 @@ import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.ui.dialogs.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extensions.bottomSheetDialog
+import com.gdavidpb.tuindice.base.utils.extensions.connectionSnackBar
+import com.gdavidpb.tuindice.base.utils.extensions.errorSnackBar
 import com.gdavidpb.tuindice.base.utils.extensions.observe
 import com.gdavidpb.tuindice.record.R
+import com.gdavidpb.tuindice.record.domain.error.GetQuartersError
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
@@ -125,8 +128,9 @@ class RecordFragment : NavigationFragment() {
 		TODO("Not yet implemented")
 	}
 
-	private fun quartersObserver(result: Result<List<Quarter>, Nothing>?) {
+	private fun quartersObserver(result: Result<List<Quarter>, GetQuartersError>?) {
 		when (result) {
+			is Result.OnLoading -> {}
 			is Result.OnSuccess -> {
 				val context = requireContext()
 
@@ -142,7 +146,19 @@ class RecordFragment : NavigationFragment() {
 
 				quarterAdapter.submitQuarters(items)
 			}
+			is Result.OnError -> quartersErrorHandler(error = result.error)
 			else -> {}
+		}
+	}
+
+	private fun quartersErrorHandler(error: GetQuartersError?) {
+		when (error) {
+			is GetQuartersError.AccountDisabled -> TODO()
+			is GetQuartersError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { viewModel.getQuarters() }
+			is GetQuartersError.OutdatedPassword -> TODO()
+			is GetQuartersError.Timeout -> errorSnackBar(R.string.snack_timeout) { viewModel.getQuarters() }
+			is GetQuartersError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable)
+			else -> errorSnackBar()
 		}
 	}
 
