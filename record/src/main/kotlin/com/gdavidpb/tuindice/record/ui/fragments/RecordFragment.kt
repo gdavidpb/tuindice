@@ -68,7 +68,7 @@ class RecordFragment : NavigationFragment() {
 		}
 	}
 
-	private fun showSubjectMenuDialog(quarterItem: QuarterItem, subjectItem: SubjectItem) {
+	private fun showSubjectMenuDialog(subjectItem: SubjectItem) {
 		val title = getString(
 			R.string.label_evaluation_plan_header,
 			subjectItem.code,
@@ -96,32 +96,21 @@ class RecordFragment : NavigationFragment() {
 			titleText = title
 
 			setItems(items) { itemId ->
-				onSubjectOptionSelected(quarterItem, subjectItem, itemId)
+				onSubjectOptionSelected(subjectItem, itemId)
 			}
 		}
 	}
 
-	private fun onSubjectOptionSelected(
-		quarterItem: QuarterItem,
-		subjectItem: SubjectItem,
-		itemId: Int
-	) {
+	private fun onSubjectOptionSelected(subjectItem: SubjectItem, itemId: Int) {
 		when (itemId) {
-			SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS -> showSubjectEvaluations(
-				quarterItem = quarterItem,
-				subjectItem = subjectItem
-			)
-			SubjectMenu.ID_REMOVE_SUBJECT -> removeSubject(
-				quarterItem = quarterItem,
-				subjectItem = subjectItem
-			)
+			SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS -> showSubjectEvaluations(subjectItem)
+			SubjectMenu.ID_REMOVE_SUBJECT -> removeSubject(subjectItem)
 		}
 	}
 
-	private fun showSubjectEvaluations(quarterItem: QuarterItem, subjectItem: SubjectItem) {
+	private fun showSubjectEvaluations(subjectItem: SubjectItem) {
 		navigate(
 			RecordFragmentDirections.navToEvaluationPlan(
-				quarterId = quarterItem.id,
 				subjectId = subjectItem.id,
 				subjectCode = subjectItem.data.code,
 				subjectName = subjectItem.data.name
@@ -129,7 +118,7 @@ class RecordFragment : NavigationFragment() {
 		)
 	}
 
-	private fun removeSubject(quarterItem: QuarterItem, subjectItem: SubjectItem) {
+	private fun removeSubject(subjectItem: SubjectItem) {
 		TODO("Not yet implemented")
 	}
 
@@ -177,11 +166,10 @@ class RecordFragment : NavigationFragment() {
 
 	inner class QuarterManager : QuarterAdapter.AdapterManager {
 		override fun onSubjectOptionsClicked(quarterItem: QuarterItem, subjectItem: SubjectItem) {
-			showSubjectMenuDialog(quarterItem = quarterItem, subjectItem = subjectItem)
+			showSubjectMenuDialog(subjectItem)
 		}
 
 		override fun onSubjectGradeChanged(
-			quarterItem: QuarterItem,
 			subjectItem: SubjectItem,
 			grade: Int,
 			dispatchChanges: Boolean
