@@ -86,6 +86,7 @@ class MainActivity : AppCompatActivity() {
 			observe(requestReview, ::requestReviewObserver)
 			observe(updateInfo, ::updateInfoObserver)
 			observe(signOut, ::signOutObserver)
+			observe(outdatedPassword, ::outdatedPasswordObserver)
 		}
 	}
 
@@ -145,6 +146,11 @@ class MainActivity : AppCompatActivity() {
 			}
 			else -> {}
 		}
+	}
+
+	private fun outdatedPasswordObserver(result: Event<Unit, Nothing>?) {
+		if (result != null)
+			navController.navigate(NavigationBaseDirections.navToUpdatePassword())
 	}
 
 	inner class BackPressedHandler : OnBackPressedCallback(true) {

@@ -10,6 +10,7 @@ import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
+import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialogs.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extensions.bottomSheetDialog
@@ -24,9 +25,12 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.record.utils.mappers.toQuarterItem
 import kotlinx.android.synthetic.main.fragment_record.*
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RecordFragment : NavigationFragment() {
+
+	private val mainViewModel by sharedViewModel<MainViewModel>()
 
 	private val viewModel by viewModel<RecordViewModel>()
 
@@ -162,9 +166,9 @@ class RecordFragment : NavigationFragment() {
 
 	private fun quartersErrorHandler(error: GetQuartersError?) {
 		when (error) {
-			is GetQuartersError.AccountDisabled -> TODO()
+			is GetQuartersError.AccountDisabled -> mainViewModel.signOut()
 			is GetQuartersError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { viewModel.getQuarters() }
-			is GetQuartersError.OutdatedPassword -> TODO()
+			is GetQuartersError.OutdatedPassword -> mainViewModel.outdatedPassword()
 			is GetQuartersError.Timeout -> errorSnackBar(R.string.snack_timeout) { viewModel.getQuarters() }
 			is GetQuartersError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable)
 			else -> errorSnackBar()
