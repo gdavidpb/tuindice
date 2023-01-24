@@ -6,6 +6,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.MenuProvider
+import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
@@ -130,8 +131,12 @@ class RecordFragment : NavigationFragment() {
 
 	private fun quartersObserver(result: Result<List<Quarter>, GetQuartersError>?) {
 		when (result) {
-			is Result.OnLoading -> {}
+			is Result.OnLoading -> {
+				pBarRecord.isVisible = true
+			}
 			is Result.OnSuccess -> {
+				pBarRecord.isVisible = false
+
 				val context = requireContext()
 
 				val quarters = result.value
@@ -146,7 +151,11 @@ class RecordFragment : NavigationFragment() {
 
 				quarterAdapter.submitQuarters(items)
 			}
-			is Result.OnError -> quartersErrorHandler(error = result.error)
+			is Result.OnError -> {
+				pBarRecord.isVisible = false
+
+				quartersErrorHandler(error = result.error)
+			}
 			else -> {}
 		}
 	}
@@ -188,7 +197,7 @@ class RecordFragment : NavigationFragment() {
 
 		override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
 			return when (menuItem.itemId) {
-				R.id.menu_enrollment -> { // TODO visibility determined by current quarter existence
+				R.id.menu_enrollment -> {
 					navigate(RecordFragmentDirections.navToEnrollmentProof())
 
 					true
