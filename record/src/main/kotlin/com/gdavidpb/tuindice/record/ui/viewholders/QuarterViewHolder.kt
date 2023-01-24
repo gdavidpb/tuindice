@@ -121,11 +121,11 @@ class QuarterViewHolder(
 			sBarSubjectGrade.onSeekBarChange {
 				onProgressChanged { grade, fromUser ->
 					if (fromUser)
-						manager.onSubjectGradeChanged(quarterItem, subjectItem, grade, false)
+						manager.onSubjectGradeChanged(subjectItem, grade, false)
 				}
 
 				onStopTrackingTouch { grade ->
-					manager.onSubjectGradeChanged(quarterItem, subjectItem, grade, true)
+					manager.onSubjectGradeChanged(subjectItem, grade, true)
 				}
 			}
 		} else {
