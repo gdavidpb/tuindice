@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.record.di
 
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extensions.create
-import com.gdavidpb.tuindice.record.data.api.QuarterApiDataSource
+import com.gdavidpb.tuindice.record.data.api.ApiDataSource
 import com.gdavidpb.tuindice.record.data.api.RecordApi
 import com.gdavidpb.tuindice.record.data.quarter.QuarterDataRepository
 import com.gdavidpb.tuindice.record.data.room.RoomDataSource
@@ -38,7 +38,7 @@ val recordModule = module {
 	/* Data sources */
 
 	factoryOf(::RoomDataSource) { bind<QuarterLocalDataSource>() }
-	factoryOf(::QuarterApiDataSource) { bind<QuarterRemoteDataSource>() }
+	factoryOf(::ApiDataSource) { bind<QuarterRemoteDataSource>() }
 
 	/* Record Api */
 

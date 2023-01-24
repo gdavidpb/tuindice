@@ -1,7 +1,7 @@
-package com.gdavidpb.tuindice.record.data.api.mappers
+package com.gdavidpb.tuindice.record.data.api.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.record.data.api.responses.QuarterResponse
+import com.gdavidpb.tuindice.record.data.api.response.QuarterResponse
 import java.util.*
 
 fun QuarterResponse.toQuarter() = Quarter(
