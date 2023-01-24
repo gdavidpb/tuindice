@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.base.utils.extensions.LiveEvent
 import com.gdavidpb.tuindice.base.utils.extensions.LiveResult
 import com.gdavidpb.tuindice.base.utils.extensions.execute
+import com.gdavidpb.tuindice.summary.domain.error.GetAccountError
 import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
@@ -18,7 +19,7 @@ class SummaryViewModel(
 	private val removeProfilePictureUseCase: RemoveProfilePictureUseCase,
 	private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
-	val account = LiveResult<Account, Nothing>()
+	val account = LiveResult<Account, GetAccountError>()
 	val uploadProfilePicture = LiveEvent<String, ProfilePictureError>()
 	val removeProfilePicture = LiveEvent<Unit, ProfilePictureError>()
 	val signOut = LiveCompletable<Nothing>()

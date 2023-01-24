@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.base.ui.dialogs.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.summary.R
+import com.gdavidpb.tuindice.summary.domain.error.GetAccountError
 import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.mapping.formatLastUpdate
 import com.gdavidpb.tuindice.summary.mapping.toCreditsSummaryItem
@@ -248,14 +249,10 @@ class SummaryFragment : NavigationFragment() {
 		}
 	}
 
-	private fun accountObserver(result: Result<Account, Nothing>?) {
+	private fun accountObserver(result: Result<Account, GetAccountError>?) {
 		when (result) {
 			is Result.OnSuccess -> loadProfile(account = result.value)
-			is Result.OnError -> {
-				// TODO error handler
-				//tViewLastUpdate.drawables(start = R.drawable.ic_sync_problem)
-				//tViewLastUpdate.onClickOnce { snackBar(R.string.snack_no_service) }
-			}
+			is Result.OnError -> accountErrorHandler(error = result.error)
 			else -> {}
 		}
 	}
@@ -294,6 +291,17 @@ class SummaryFragment : NavigationFragment() {
 		}
 	}
 
+	private fun accountErrorHandler(error: GetAccountError?) {
+		when (error) {
+			is GetAccountError.AccountDisabled -> viewModel.signOut()
+			is GetAccountError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { viewModel.getAccount() }
+			is GetAccountError.OutdatedPassword -> navigate(SummaryFragmentDirections.navToUpdatePassword())
+			is GetAccountError.Timeout -> errorSnackBar(R.string.snack_timeout) { viewModel.getAccount() }
+			is GetAccountError.Unavailable -> showCantUpdate()
+			null -> errorSnackBar()
+		}
+	}
+
 	private fun profilePictureErrorHandler(error: ProfilePictureError?) {
 		when (error) {
 			is ProfilePictureError.Timeout -> errorSnackBar(R.string.snack_timeout)
@@ -301,6 +309,11 @@ class SummaryFragment : NavigationFragment() {
 			is ProfilePictureError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
 			else -> errorSnackBar()
 		}
+	}
+
+	private fun showCantUpdate() {
+		tViewLastUpdate.drawables(start = R.drawable.ic_sync_problem)
+		tViewLastUpdate.onClickOnce { snackBar(R.string.snack_no_service) }
 	}
 
 	inner class SummaryMenuProvider : MenuProvider {
