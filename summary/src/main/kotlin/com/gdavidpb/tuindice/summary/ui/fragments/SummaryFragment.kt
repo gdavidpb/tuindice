@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.Completable
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
+import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialogs.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.dialogs.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
@@ -36,10 +37,13 @@ import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 
 class SummaryFragment : NavigationFragment() {
+
+	private val mainViewModel by sharedViewModel<MainViewModel>()
 
 	private val viewModel by viewModel<SummaryViewModel>()
 
@@ -306,9 +310,9 @@ class SummaryFragment : NavigationFragment() {
 
 	private fun accountErrorHandler(error: GetAccountError?) {
 		when (error) {
-			is GetAccountError.AccountDisabled -> viewModel.signOut()
+			is GetAccountError.AccountDisabled -> mainViewModel.signOut()
 			is GetAccountError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { viewModel.getAccount() }
-			is GetAccountError.OutdatedPassword -> navigate(SummaryFragmentDirections.navToUpdatePassword())
+			is GetAccountError.OutdatedPassword -> mainViewModel.outdatedPassword()
 			is GetAccountError.Timeout -> errorSnackBar(R.string.snack_timeout) { viewModel.getAccount() }
 			is GetAccountError.Unavailable -> showCantUpdate()
 			null -> errorSnackBar()

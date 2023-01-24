@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
 import com.gdavidpb.tuindice.base.utils.extensions.LiveEvent
 import com.gdavidpb.tuindice.base.utils.extensions.execute
+import com.gdavidpb.tuindice.base.utils.extensions.postSuccess
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.review.ReviewInfo
@@ -24,6 +25,11 @@ class MainViewModel(
 	val lastScreen = LiveCompletable<Nothing>()
 	val requestReview = LiveEvent<ReviewInfo, Nothing>()
 	val updateInfo = LiveEvent<AppUpdateInfo, Nothing>()
+	val outdatedPassword = LiveEvent<Unit, Nothing>()
+
+	fun outdatedPassword() {
+		outdatedPassword.postSuccess(Unit)
+	}
 
 	fun signOut() =
 		execute(useCase = signOutUseCase, params = Unit, liveData = signOut)
