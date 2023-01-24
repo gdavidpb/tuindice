@@ -68,11 +68,11 @@ class RecordFragment : NavigationFragment() {
 		}
 	}
 
-	private fun showSubjectMenuDialog(subjectItem: SubjectItem) {
+	private fun showSubjectMenuDialog(item: SubjectItem) {
 		val title = getString(
 			R.string.label_evaluation_plan_header,
-			subjectItem.code,
-			subjectItem.data.name
+			item.code,
+			item.data.name
 		)
 
 		val items = mutableListOf(
@@ -82,7 +82,7 @@ class RecordFragment : NavigationFragment() {
 				textResource = R.string.menu_subject_show_evaluations
 			)
 		).apply {
-			if (!subjectItem.isRetired)
+			if (!item.isRetired)
 				add(
 					BottomMenuItem(
 						itemId = SubjectMenu.ID_REMOVE_SUBJECT,
@@ -96,29 +96,29 @@ class RecordFragment : NavigationFragment() {
 			titleText = title
 
 			setItems(items) { itemId ->
-				onSubjectOptionSelected(subjectItem, itemId)
+				onSubjectOptionSelected(itemId, item)
 			}
 		}
 	}
 
-	private fun onSubjectOptionSelected(subjectItem: SubjectItem, itemId: Int) {
+	private fun onSubjectOptionSelected(itemId: Int, item: SubjectItem) {
 		when (itemId) {
-			SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS -> showSubjectEvaluations(subjectItem)
-			SubjectMenu.ID_REMOVE_SUBJECT -> removeSubject(subjectItem)
+			SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS -> showSubjectEvaluations(item)
+			SubjectMenu.ID_REMOVE_SUBJECT -> removeSubject(item)
 		}
 	}
 
-	private fun showSubjectEvaluations(subjectItem: SubjectItem) {
+	private fun showSubjectEvaluations(item: SubjectItem) {
 		navigate(
 			RecordFragmentDirections.navToEvaluationPlan(
-				subjectId = subjectItem.id,
-				subjectCode = subjectItem.data.code,
-				subjectName = subjectItem.data.name
+				subjectId = item.id,
+				subjectCode = item.data.code,
+				subjectName = item.data.name
 			)
 		)
 	}
 
-	private fun removeSubject(subjectItem: SubjectItem) {
+	private fun removeSubject(item: SubjectItem) {
 		TODO("Not yet implemented")
 	}
 
@@ -165,15 +165,11 @@ class RecordFragment : NavigationFragment() {
 	}
 
 	inner class QuarterManager : QuarterAdapter.AdapterManager {
-		override fun onSubjectOptionsClicked(quarterItem: QuarterItem, subjectItem: SubjectItem) {
-			showSubjectMenuDialog(subjectItem)
+		override fun onSubjectOptionsClicked(item: SubjectItem) {
+			showSubjectMenuDialog(item)
 		}
 
-		override fun onSubjectGradeChanged(
-			subjectItem: SubjectItem,
-			grade: Int,
-			dispatchChanges: Boolean
-		) {
+		override fun onSubjectGradeChanged(item: SubjectItem, grade: Int, isSelected: Boolean) {
 			TODO("Not yet implemented")
 		}
 

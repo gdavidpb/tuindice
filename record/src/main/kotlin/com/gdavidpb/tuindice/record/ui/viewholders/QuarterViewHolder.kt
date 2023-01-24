@@ -5,7 +5,6 @@ import android.view.View
 import androidx.annotation.ColorInt
 import androidx.cardview.widget.CardView
 import androidx.core.view.isVisible
-import com.gdavidpb.tuindice.record.ui.adapters.QuarterAdapter
 import com.gdavidpb.tuindice.base.ui.viewholders.BaseViewHolder
 import com.gdavidpb.tuindice.base.utils.extensions.backgroundColor
 import com.gdavidpb.tuindice.base.utils.extensions.onClickOnce
@@ -13,6 +12,7 @@ import com.gdavidpb.tuindice.base.utils.extensions.onSeekBarChange
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
+import com.gdavidpb.tuindice.record.ui.adapters.QuarterAdapter
 import kotlinx.android.synthetic.main.item_quarter.view.*
 import kotlinx.android.synthetic.main.item_subject.view.*
 
@@ -94,10 +94,8 @@ class QuarterViewHolder(
 	}
 
 	private fun View.setEditable(quarterItem: QuarterItem, subjectItem: SubjectItem) {
-		val areOptionsAvailable = quarterItem.isEditable
-
 		with(btnSubjectOptions) {
-			isVisible = areOptionsAvailable
+			isVisible = quarterItem.isEditable
 
 			if (subjectItem.isRetired) {
 				alpha = 0.25f
@@ -107,8 +105,8 @@ class QuarterViewHolder(
 				isEnabled = true
 			}
 
-			if (areOptionsAvailable)
-				onClickOnce { manager.onSubjectOptionsClicked(quarterItem, subjectItem) }
+			if (quarterItem.isEditable)
+				onClickOnce { manager.onSubjectOptionsClicked(subjectItem) }
 			else
 				setOnClickListener(null)
 		}
