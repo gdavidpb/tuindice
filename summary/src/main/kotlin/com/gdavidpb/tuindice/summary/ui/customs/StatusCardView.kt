@@ -56,7 +56,12 @@ class StatusCardView(context: Context, attrs: AttributeSet) : FrameLayout(contex
 	fun notifyChanges(animate: Boolean = true) {
 		val total = (approvedCount + failedCount + retiredCount).toFloat()
 
-		if (total == 0f) return
+		if (total != 0f) {
+			vRetired.alpha = 1f
+		} else {
+			vRetired.alpha = 0.25f
+			return
+		}
 
 		val approvedPercent = approvedCount / total
 		val failedPercent = failedCount / total

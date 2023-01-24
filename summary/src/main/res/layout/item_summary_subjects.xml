@@ -9,5 +9,5 @@
     app:retiredText="@string/label_subjects_retired"
     tools:approvedCount="99"
     tools:failedCount="13"
-    tools:headerText="23 materias cursadas"
+    tools:headerText="23 materias inscritas"
     tools:retiredCount="12" />
