@@ -42,7 +42,7 @@
 
     <string name="title_menu_profile_picture">Mi foto de perfil</string>
 
-    <string name="menu_pick_profile_picture">Elegir foto</string>
+    <string name="menu_pick_profile_picture">Subir foto</string>
     <string name="menu_take_profile_picture">Tomar foto</string>
     <string name="menu_remove_profile_picture">Remover foto</string>
 
