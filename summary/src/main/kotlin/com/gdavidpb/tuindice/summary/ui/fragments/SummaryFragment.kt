@@ -253,8 +253,19 @@ class SummaryFragment : NavigationFragment() {
 
 	private fun accountObserver(result: Result<Account, GetAccountError>?) {
 		when (result) {
-			is Result.OnSuccess -> loadProfile(account = result.value)
-			is Result.OnError -> accountErrorHandler(error = result.error)
+			is Result.OnLoading -> {
+				pBarSummary.isVisible = true
+			}
+			is Result.OnSuccess -> {
+				pBarSummary.isVisible = false
+
+				loadProfile(account = result.value)
+			}
+			is Result.OnError -> {
+				pBarSummary.isVisible = false
+
+				accountErrorHandler(error = result.error)
+			}
 			else -> {}
 		}
 	}
