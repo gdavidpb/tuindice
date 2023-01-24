@@ -87,6 +87,8 @@ class MainActivity : AppCompatActivity() {
 			observe(updateInfo, ::updateInfoObserver)
 			observe(signOut, ::signOutObserver)
 			observe(outdatedPassword, ::outdatedPasswordObserver)
+
+			checkReview(reviewManager)
 		}
 	}
 
