@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.enrollmentproof.data.storage
 
 import android.content.Context
-import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.utils.extensions.File
 import com.gdavidpb.tuindice.base.utils.extensions.decodeFromBase64String
 import com.gdavidpb.tuindice.base.utils.extensions.encodeToBase64String
@@ -13,8 +12,8 @@ class InternalStorageDataSource(
 ) : StorageDataSource {
 	private val enrollmentProofDir = "enrollments"
 
-	override suspend fun getEnrollmentProof(uid: String, quarter: Quarter): EnrollmentProof {
-		val enrollmentProofFile = getEnrollmentFile(uid, quarter)
+	override suspend fun getEnrollmentProof(uid: String, name: String): EnrollmentProof {
+		val enrollmentProofFile = getEnrollmentProofFile(uid, name)
 		val base64EncodedString = enrollmentProofFile.readBytes().encodeToBase64String()
 
 		return EnrollmentProof(
@@ -23,18 +22,18 @@ class InternalStorageDataSource(
 		)
 	}
 
-	override suspend fun enrollmentProofExists(uid: String, quarter: Quarter): Boolean {
-		val enrollmentProofFile = getEnrollmentFile(uid, quarter)
+	override suspend fun enrollmentProofExists(uid: String, name: String): Boolean {
+		val enrollmentProofFile = getEnrollmentProofFile(uid, name)
 
 		return enrollmentProofFile.exists()
 	}
 
 	override suspend fun saveEnrollmentProof(
 		uid: String,
-		quarter: Quarter,
+		name: String,
 		enrollmentProof: EnrollmentProof
 	) {
-		val enrollmentProofFile = getEnrollmentFile(uid, quarter)
+		val enrollmentProofFile = getEnrollmentProofFile(uid, name)
 
 		enrollmentProofFile.apply {
 			mkdirs()
@@ -45,6 +44,6 @@ class InternalStorageDataSource(
 		}
 	}
 
-	private fun getEnrollmentFile(uid: String, quarter: Quarter) =
-		File(context.filesDir, uid, enrollmentProofDir, "${quarter.name}.pdf")
+	private fun getEnrollmentProofFile(uid: String, name: String) =
+		File(context.filesDir, uid, enrollmentProofDir, "$name.pdf")
 }

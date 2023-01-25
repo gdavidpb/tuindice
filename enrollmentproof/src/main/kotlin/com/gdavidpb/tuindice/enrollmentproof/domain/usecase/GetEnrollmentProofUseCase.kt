@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.annotations.Timeout
 import com.gdavidpb.tuindice.base.utils.extensions.*
 import com.gdavidpb.tuindice.enrollmentproof.domain.error.GetEnrollmentError
+import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 
 @Timeout(key = ConfigKeys.TIME_OUT_GET_ENROLLMENT)
@@ -20,13 +21,14 @@ class GetEnrollmentProofUseCase(
 
 		val enrollmentProof = enrollmentProofRepository.getEnrollmentProof(
 			uid = activeAuth.uid
-		)!! // TODO route exception to Unavailable
+		) ?: throw EnrollmentProofNotFoundException()
 
 		return enrollmentProof.source
 	}
 
 	override suspend fun executeOnException(throwable: Throwable): GetEnrollmentError? {
 		return when {
+			throwable is EnrollmentProofNotFoundException -> GetEnrollmentError.NotFound
 			throwable.isForbidden() -> GetEnrollmentError.AccountDisabled
 			throwable.isNotFound() -> GetEnrollmentError.NotFound
 			throwable.isUnavailable() -> GetEnrollmentError.Unavailable
