@@ -27,7 +27,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.gson.Gson
 import com.squareup.picasso.Picasso
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -145,7 +144,6 @@ val appModule = module {
 
 	/* Utils */
 
-	singleOf(::Gson)
 	singleOf(::MutexDataSource) { bind<ConcurrencyRepository>() }
 
 	single {
