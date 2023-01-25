@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.source
+package com.gdavidpb.tuindice.data
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
