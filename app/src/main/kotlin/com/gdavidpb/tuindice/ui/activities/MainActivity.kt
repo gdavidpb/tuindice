@@ -17,9 +17,9 @@ import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.utils.IdempotentLocker
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.TIME_EXIT_LOCKER
-import com.gdavidpb.tuindice.base.utils.extensions.hideSoftKeyboard
-import com.gdavidpb.tuindice.base.utils.extensions.observe
-import com.gdavidpb.tuindice.base.utils.extensions.toast
+import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
+import com.gdavidpb.tuindice.base.utils.extension.observe
+import com.gdavidpb.tuindice.base.utils.extension.toast
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType

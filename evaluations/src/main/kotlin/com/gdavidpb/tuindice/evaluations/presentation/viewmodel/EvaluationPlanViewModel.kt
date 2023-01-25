@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
-import com.gdavidpb.tuindice.base.utils.extensions.LiveResult
-import com.gdavidpb.tuindice.base.utils.extensions.execute
+import com.gdavidpb.tuindice.base.utils.extension.LiveCompletable
+import com.gdavidpb.tuindice.base.utils.extension.LiveResult
+import com.gdavidpb.tuindice.base.utils.extension.execute
 import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError
 import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase

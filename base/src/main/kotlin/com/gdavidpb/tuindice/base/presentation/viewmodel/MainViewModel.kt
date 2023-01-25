@@ -6,10 +6,10 @@ import com.gdavidpb.tuindice.base.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.SetLastScreenUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.SignOutUseCase
-import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
-import com.gdavidpb.tuindice.base.utils.extensions.LiveEvent
-import com.gdavidpb.tuindice.base.utils.extensions.execute
-import com.gdavidpb.tuindice.base.utils.extensions.postSuccess
+import com.gdavidpb.tuindice.base.utils.extension.LiveCompletable
+import com.gdavidpb.tuindice.base.utils.extension.LiveEvent
+import com.gdavidpb.tuindice.base.utils.extension.execute
+import com.gdavidpb.tuindice.base.utils.extension.postSuccess
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.review.ReviewInfo

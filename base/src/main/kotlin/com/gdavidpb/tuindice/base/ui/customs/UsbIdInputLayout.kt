@@ -4,7 +4,7 @@ import android.content.Context
 import android.text.method.DigitsKeyListener
 import android.util.AttributeSet
 import com.gdavidpb.tuindice.base.R
-import com.gdavidpb.tuindice.base.utils.extensions.onTextChanged
+import com.gdavidpb.tuindice.base.utils.extension.onTextChanged
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.view_usb_id_input.view.textInputLayout as input
 

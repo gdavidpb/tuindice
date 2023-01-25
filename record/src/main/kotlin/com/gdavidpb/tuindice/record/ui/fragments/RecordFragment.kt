@@ -13,10 +13,10 @@ import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialogs.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
-import com.gdavidpb.tuindice.base.utils.extensions.bottomSheetDialog
-import com.gdavidpb.tuindice.base.utils.extensions.connectionSnackBar
-import com.gdavidpb.tuindice.base.utils.extensions.errorSnackBar
-import com.gdavidpb.tuindice.base.utils.extensions.observe
+import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
+import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
+import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
+import com.gdavidpb.tuindice.base.utils.extension.observe
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.domain.error.GetQuartersError
 import com.gdavidpb.tuindice.record.domain.param.UpdateSubjectParams

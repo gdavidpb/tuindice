@@ -8,9 +8,9 @@ import androidx.annotation.StringRes
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.base.utils.extensions.observe
-import com.gdavidpb.tuindice.base.utils.extensions.onClickOnce
-import com.gdavidpb.tuindice.base.utils.extensions.toast
+import com.gdavidpb.tuindice.base.utils.extension.observe
+import com.gdavidpb.tuindice.base.utils.extension.onClickOnce
+import com.gdavidpb.tuindice.base.utils.extension.toast
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel

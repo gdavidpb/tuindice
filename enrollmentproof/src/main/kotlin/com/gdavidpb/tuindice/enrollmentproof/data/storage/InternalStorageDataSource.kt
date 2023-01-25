@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.enrollmentproof.data.storage
 
 import android.content.Context
-import com.gdavidpb.tuindice.base.utils.extensions.File
-import com.gdavidpb.tuindice.base.utils.extensions.decodeFromBase64String
-import com.gdavidpb.tuindice.base.utils.extensions.encodeToBase64String
+import com.gdavidpb.tuindice.base.utils.extension.File
+import com.gdavidpb.tuindice.base.utils.extension.decodeFromBase64String
+import com.gdavidpb.tuindice.base.utils.extension.encodeToBase64String
 import com.gdavidpb.tuindice.enrollmentproof.data.enrollmentproof.source.StorageDataSource
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 

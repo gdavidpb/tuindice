@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.about.utils.mappers
 import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
 import androidx.core.text.buildSpannedString
-import com.gdavidpb.tuindice.base.utils.extensions.append
+import com.gdavidpb.tuindice.base.utils.extension.append
 
 fun String.spanAbout(titleColor: Int, subtitleColor: Int): CharSequence {
 	val (title, subtitle) = listOf(

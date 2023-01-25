@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.source.retrofit
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.utils.extensions.headerPutIfAbsent
+import com.gdavidpb.tuindice.base.utils.extension.headerPutIfAbsent
 import okhttp3.Interceptor
 import okhttp3.Response
 

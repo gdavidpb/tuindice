@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.fcm
 
-import com.gdavidpb.tuindice.base.utils.extensions.awaitOrNull
+import com.gdavidpb.tuindice.base.utils.extension.awaitOrNull
 import com.gdavidpb.tuindice.data.source.fcm.source.RemoteDataSource
 import com.google.firebase.messaging.FirebaseMessaging
 

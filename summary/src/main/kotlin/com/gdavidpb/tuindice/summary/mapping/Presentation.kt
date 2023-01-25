@@ -2,10 +2,10 @@ package com.gdavidpb.tuindice.summary.mapping
 
 import android.content.Context
 import com.gdavidpb.tuindice.base.domain.model.Account
-import com.gdavidpb.tuindice.base.utils.extensions.capitalize
-import com.gdavidpb.tuindice.base.utils.extensions.format
-import com.gdavidpb.tuindice.base.utils.extensions.isToday
-import com.gdavidpb.tuindice.base.utils.extensions.isYesterday
+import com.gdavidpb.tuindice.base.utils.extension.capitalize
+import com.gdavidpb.tuindice.base.utils.extension.format
+import com.gdavidpb.tuindice.base.utils.extension.isToday
+import com.gdavidpb.tuindice.base.utils.extension.isYesterday
 import com.gdavidpb.tuindice.summary.R
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
 import java.util.*

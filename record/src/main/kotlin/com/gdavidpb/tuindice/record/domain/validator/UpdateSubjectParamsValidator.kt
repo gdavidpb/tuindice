@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.record.domain.validator
 
 import com.gdavidpb.tuindice.base.domain.validator.Validator
-import com.gdavidpb.tuindice.record.MAX_SUBJECT_GRADE
-import com.gdavidpb.tuindice.record.MIN_SUBJECT_GRADE
+import com.gdavidpb.tuindice.record.utils.MAX_SUBJECT_GRADE
+import com.gdavidpb.tuindice.record.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.domain.error.SubjectError
 import com.gdavidpb.tuindice.record.domain.exception.SubjectIllegalArgumentException
 import com.gdavidpb.tuindice.record.domain.param.UpdateSubjectParams

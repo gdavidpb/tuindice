@@ -5,8 +5,8 @@ import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
-import com.gdavidpb.tuindice.base.utils.extensions.loadAttributes
-import com.gdavidpb.tuindice.base.utils.extensions.animatePercent
+import com.gdavidpb.tuindice.base.utils.extension.loadAttributes
+import com.gdavidpb.tuindice.base.utils.extension.animatePercent
 import com.gdavidpb.tuindice.summary.R
 import kotlinx.android.synthetic.main.view_status_card_view.view.*
 

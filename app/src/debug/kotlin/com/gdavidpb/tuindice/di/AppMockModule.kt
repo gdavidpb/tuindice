@@ -4,8 +4,7 @@ import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.domain.repository.*
-import com.gdavidpb.tuindice.base.utils.ConfigKeys
-import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
+import com.gdavidpb.tuindice.base.utils.extension.sharedPreferences
 import com.gdavidpb.tuindice.data.AuthMockDataSource
 import com.gdavidpb.tuindice.data.DebugKoinDataSource
 import com.gdavidpb.tuindice.data.MessagingMockDataSource
@@ -105,7 +104,7 @@ val appMockModule = module {
 	}
 
 	single {
-		val connectionTimeout = get<ConfigRepository>().getLong(ConfigKeys.TIME_OUT_CONNECTION)
+		val connectionTimeout = get<ConfigRepository>().getConnectionTimeout()
 
 		OkHttpClient.Builder()
 			.callTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
@@ -121,9 +120,9 @@ val appMockModule = module {
 
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
+	factoryOf(::RemoteConfigMockDataSource) { bind<ConfigRepository>() }
 	factoryOf(::AuthMockDataSource) { bind<AuthRepository>() }
 	factoryOf(::MessagingMockDataSource) { bind<MessagingRepository>() }
-	factoryOf(::RemoteConfigMockDataSource) { bind<ConfigRepository>() }
 	factoryOf(::DebugReportingDataSource) { bind<ReportingRepository>() }
 	factoryOf(::DebugKoinDataSource) { bind<DependenciesRepository>() }
 	factoryOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }

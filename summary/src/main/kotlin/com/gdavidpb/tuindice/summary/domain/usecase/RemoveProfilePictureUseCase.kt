@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.summary.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
-import com.gdavidpb.tuindice.base.utils.annotations.Timeout
-import com.gdavidpb.tuindice.base.utils.extensions.isConnection
-import com.gdavidpb.tuindice.base.utils.extensions.isTimeout
+import com.gdavidpb.tuindice.base.utils.annotation.Timeout
+import com.gdavidpb.tuindice.base.utils.extension.isConnection
+import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.summary.utils.ConfigKeys
 import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository

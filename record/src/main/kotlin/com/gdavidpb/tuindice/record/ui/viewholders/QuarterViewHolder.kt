@@ -6,9 +6,9 @@ import androidx.annotation.ColorInt
 import androidx.cardview.widget.CardView
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.ui.viewholders.BaseViewHolder
-import com.gdavidpb.tuindice.base.utils.extensions.backgroundColor
-import com.gdavidpb.tuindice.base.utils.extensions.onClickOnce
-import com.gdavidpb.tuindice.base.utils.extensions.onSeekBarChange
+import com.gdavidpb.tuindice.base.utils.extension.backgroundColor
+import com.gdavidpb.tuindice.base.utils.extension.onClickOnce
+import com.gdavidpb.tuindice.base.utils.extension.onSeekBarChange
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem

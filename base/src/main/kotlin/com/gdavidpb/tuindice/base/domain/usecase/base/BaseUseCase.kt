@@ -5,8 +5,8 @@ import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.validator.Validator
 import com.gdavidpb.tuindice.base.utils.ReportKeys
-import com.gdavidpb.tuindice.base.utils.extensions.getTimeoutKey
-import com.gdavidpb.tuindice.base.utils.extensions.hasTimeoutKey
+import com.gdavidpb.tuindice.base.utils.extension.getTimeoutKey
+import com.gdavidpb.tuindice.base.utils.extension.hasTimeoutKey
 import kotlinx.coroutines.*
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -40,7 +40,7 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
 				withContext(backgroundDispatcher) {
 					val response = if (hasTimeoutKey()) {
 						val key = getTimeoutKey()
-						val timeMillis = configRepository.getLong(key)
+						val timeMillis = configRepository.getTimeout(key)
 
 						withTimeout(timeMillis) { executeOnBackground(params) }
 					} else {

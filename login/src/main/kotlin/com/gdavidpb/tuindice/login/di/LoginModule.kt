@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.login.di
 
 import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.utils.extensions.create
+import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.login.data.api.ApiDataSource
 import com.gdavidpb.tuindice.login.data.api.SignInApi
 import com.gdavidpb.tuindice.login.data.login.LoginDataRepository

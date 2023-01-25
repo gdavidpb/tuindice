@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.enrollmentproof.di
 
 import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.utils.extensions.create
+import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.enrollmentproof.data.api.ApiDataSource
 import com.gdavidpb.tuindice.enrollmentproof.data.api.EnrollmentProofApi
 import com.gdavidpb.tuindice.enrollmentproof.data.enrollmentproof.EnrollmentProofDataRepository

@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.base.domain.usecase.base
 
-import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extension.*
 
 abstract class EventUseCase<P, T, Q> : BaseUseCase<P, T, Q, LiveEvent<T, Q>>() {
     override suspend fun onStart(liveData: LiveEvent<T, Q>) {

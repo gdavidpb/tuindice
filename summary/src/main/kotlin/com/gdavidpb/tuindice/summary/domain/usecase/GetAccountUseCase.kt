@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ConcurrencyRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.base.utils.Locks
-import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.summary.domain.error.GetAccountError
 import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 

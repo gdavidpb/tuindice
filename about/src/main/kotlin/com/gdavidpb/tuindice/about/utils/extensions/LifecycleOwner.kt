@@ -5,8 +5,8 @@ import android.net.Uri
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.LifecycleOwner
-import com.gdavidpb.tuindice.base.utils.extensions.context
-import com.gdavidpb.tuindice.base.utils.extensions.startActivity
+import com.gdavidpb.tuindice.base.utils.extension.context
+import com.gdavidpb.tuindice.base.utils.extension.startActivity
 
 fun LifecycleOwner.share(text: String, subject: String = "") {
 	runCatching {

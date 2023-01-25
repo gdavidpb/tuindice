@@ -6,7 +6,7 @@ import android.text.style.RelativeSizeSpan
 import android.util.AttributeSet
 import android.view.animation.DecelerateInterpolator
 import androidx.core.text.buildSpannedString
-import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.summary.R
 import com.google.android.material.textview.MaterialTextView
 

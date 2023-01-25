@@ -3,9 +3,9 @@ package com.gdavidpb.tuindice.record.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
-import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
-import com.gdavidpb.tuindice.base.utils.extensions.LiveResult
-import com.gdavidpb.tuindice.base.utils.extensions.execute
+import com.gdavidpb.tuindice.base.utils.extension.LiveCompletable
+import com.gdavidpb.tuindice.base.utils.extension.LiveResult
+import com.gdavidpb.tuindice.base.utils.extension.execute
 import com.gdavidpb.tuindice.record.domain.error.GetQuartersError
 import com.gdavidpb.tuindice.record.domain.error.SubjectError
 import com.gdavidpb.tuindice.record.domain.param.UpdateSubjectParams

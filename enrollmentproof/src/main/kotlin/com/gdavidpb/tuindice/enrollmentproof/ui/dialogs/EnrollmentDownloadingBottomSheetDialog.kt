@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import com.gdavidpb.tuindice.base.NavigationBaseDirections
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.enrollmentproof.R
 import com.gdavidpb.tuindice.enrollmentproof.domain.error.GetEnrollmentError
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel

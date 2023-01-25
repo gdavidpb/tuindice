@@ -4,8 +4,8 @@ import com.gdavidpb.tuindice.base.domain.model.StartUpAction
 import com.gdavidpb.tuindice.base.domain.model.exception.ServicesUnavailableException
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
-import com.gdavidpb.tuindice.base.utils.extensions.isConnection
-import com.gdavidpb.tuindice.base.utils.extensions.noAwait
+import com.gdavidpb.tuindice.base.utils.extension.isConnection
+import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.login.domain.error.StartUpError
 
 class StartUpUseCase(

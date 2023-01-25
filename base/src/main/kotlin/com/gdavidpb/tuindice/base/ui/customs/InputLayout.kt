@@ -7,9 +7,9 @@ import android.widget.FrameLayout
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import com.gdavidpb.tuindice.base.R
-import com.gdavidpb.tuindice.base.utils.extensions.animateLookAtMe
-import com.gdavidpb.tuindice.base.utils.extensions.getCompatColor
-import com.gdavidpb.tuindice.base.utils.extensions.onTextChanged
+import com.gdavidpb.tuindice.base.utils.extension.animateLookAtMe
+import com.gdavidpb.tuindice.base.utils.extension.getCompatColor
+import com.gdavidpb.tuindice.base.utils.extension.onTextChanged
 import com.google.android.material.textfield.TextInputLayout
 
 abstract class InputLayout(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {
