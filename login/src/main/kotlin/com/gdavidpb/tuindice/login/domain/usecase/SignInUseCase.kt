@@ -41,6 +41,7 @@ class SignInUseCase(
 
 		reportingRepository.setIdentifier(identifier = authSignIn.uid)
 
+		// TODO migrate to local-remote pattern
 		if (!settingsRepository.isSubscribedToTopic(Topics.TOPIC_GENERAL)) {
 			messagingRepository.subscribeToTopic(Topics.TOPIC_GENERAL)
 			settingsRepository.saveSubscriptionTopic(Topics.TOPIC_GENERAL)

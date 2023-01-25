@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.di
 
-import android.app.ActivityManager
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.R
@@ -50,10 +49,6 @@ val appModule = module {
 
 	single {
 		androidContext().getSystemService<ConnectivityManager>()
-	}
-
-	single {
-		androidContext().getSystemService<ActivityManager>()
 	}
 
 	single {

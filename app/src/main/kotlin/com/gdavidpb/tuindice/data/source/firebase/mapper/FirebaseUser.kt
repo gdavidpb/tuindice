@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.source.firebase.extensions
+package com.gdavidpb.tuindice.data.source.firebase.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Auth
 import com.google.firebase.auth.FirebaseUser
