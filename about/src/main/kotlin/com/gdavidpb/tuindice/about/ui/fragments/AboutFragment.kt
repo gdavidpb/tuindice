@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.about.BuildConfig
 import com.gdavidpb.tuindice.about.R
 import com.gdavidpb.tuindice.about.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.about.utils.extension.*
-import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
+import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extension.browse
 import com.gdavidpb.tuindice.base.utils.extension.config
 import kotlinx.android.synthetic.main.fragment_about.*

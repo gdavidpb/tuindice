@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.evaluations.ui.custom
 
 import android.content.Context
 import android.util.AttributeSet
-import com.gdavidpb.tuindice.base.ui.customs.InputLayout
+import com.gdavidpb.tuindice.base.ui.custom.InputLayout
 import com.gdavidpb.tuindice.evaluations.R
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.view_evaluation_name_input.view.textInputLayout as input

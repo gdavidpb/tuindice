@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/color_background">
 
-    <com.gdavidpb.tuindice.base.ui.customs.TopProgressBar
+    <com.gdavidpb.tuindice.base.ui.custom.TopProgressBar
         android:id="@+id/pBarSummary"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
@@ -15,7 +15,7 @@
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.gdavidpb.tuindice.summary.ui.customs.ProfilePictureView
+    <com.gdavidpb.tuindice.summary.ui.custom.ProfilePictureView
         android:id="@+id/vProfilePicture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,7 +24,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pBarSummary" />
 
-    <com.gdavidpb.tuindice.summary.ui.customs.GradeTextView
+    <com.gdavidpb.tuindice.summary.ui.custom.GradeTextView
         android:id="@+id/tViewGrade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

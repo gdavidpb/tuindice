@@ -24,7 +24,7 @@
         tools:ignore="UnusedAttribute"
         tools:replace="android:name">
         <activity
-            android:name=".ui.activities.MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Splash"

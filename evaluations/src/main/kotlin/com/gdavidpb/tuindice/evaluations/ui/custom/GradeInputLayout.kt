@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.evaluations.ui.custom
 
 import android.content.Context
 import android.util.AttributeSet
-import com.gdavidpb.tuindice.base.ui.customs.InputLayout
+import com.gdavidpb.tuindice.base.ui.custom.InputLayout
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
 import com.gdavidpb.tuindice.evaluations.R
