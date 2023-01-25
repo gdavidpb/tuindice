@@ -44,10 +44,6 @@ object ReportKeys {
 /* Times */
 const val TIME_EXIT_LOCKER = 2000L
 
-/* Values */
-const val MIN_EVALUATION_GRADE = 0.25
-const val MAX_EVALUATION_GRADE = 100.0
-
 /* Status */
 const val STATUS_QUARTER_CURRENT = 0
 const val STATUS_QUARTER_COMPLETED = 1
@@ -57,6 +53,3 @@ const val STATUS_QUARTER_RETIRED = 3
 const val STATUS_SUBJECT_OK = 0
 const val STATUS_SUBJECT_RETIRED = 1
 const val STATUS_SUBJECT_NO_EFFECT = 2
-
-/* Decimals */
-const val DECIMALS_GRADE_SUBJECT = 2
