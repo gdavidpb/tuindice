@@ -14,16 +14,16 @@ class EnrollmentProofDataRepository(
 	private val networkRepository: NetworkRepository
 ) : EnrollmentProofRepository {
 	override suspend fun getEnrollmentProof(uid: String): EnrollmentProof? {
-		val currentQuarter = localDataSource.getCurrentQuarter(uid) ?: return null
+		val currentQuarterName = localDataSource.getCurrentQuarterName(uid) ?: return null
 
 		val isNetworkAvailable = networkRepository.isAvailable()
-		val enrollmentProofExists = storageDataSource.enrollmentProofExists(uid, currentQuarter)
+		val enrollmentProofExists = storageDataSource.enrollmentProofExists(uid, currentQuarterName)
 
 		if (isNetworkAvailable && !enrollmentProofExists)
 			remoteDataSource.getEnrollmentProof().also { enrollmentProof ->
-				storageDataSource.saveEnrollmentProof(uid, currentQuarter, enrollmentProof)
+				storageDataSource.saveEnrollmentProof(uid, currentQuarterName, enrollmentProof)
 			}
 
-		return storageDataSource.getEnrollmentProof(uid, currentQuarter)
+		return storageDataSource.getEnrollmentProof(uid, currentQuarterName)
 	}
 }
