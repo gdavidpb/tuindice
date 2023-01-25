@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.evaluations.domain.validator
 
 import com.gdavidpb.tuindice.base.domain.validator.Validator
-import com.gdavidpb.tuindice.base.utils.MAX_EVALUATION_GRADE
-import com.gdavidpb.tuindice.base.utils.MIN_EVALUATION_GRADE
 import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError
 import com.gdavidpb.tuindice.evaluations.domain.exception.EvaluationIllegalArgumentException
 import com.gdavidpb.tuindice.evaluations.domain.param.AddEvaluationParams
+import com.gdavidpb.tuindice.evaluations.utils.MAX_EVALUATION_GRADE
+import com.gdavidpb.tuindice.evaluations.utils.MIN_EVALUATION_GRADE
 
 class AddEvaluationParamsValidator : Validator<AddEvaluationParams> {
 	override fun validate(params: AddEvaluationParams) {

@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.ui.dialogs.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
-import com.gdavidpb.tuindice.base.utils.DECIMALS_GRADE_SUBJECT
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError
@@ -18,6 +17,8 @@ import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationPlanViewModel
 import com.gdavidpb.tuindice.evaluations.ui.adapter.EvaluationAdapter
+import com.gdavidpb.tuindice.evaluations.utils.DECIMALS_GRADE_SUBJECT
+import com.gdavidpb.tuindice.evaluations.utils.extension.toSubjectGrade
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_evaluation_plan.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -237,7 +238,8 @@ class EvaluationPlanFragment : NavigationFragment() {
 
 	private fun evaluationsObserver(result: Result<List<Evaluation>, Nothing>?) {
 		when (result) {
-			is Result.OnLoading -> { /* TODO */ }
+			is Result.OnLoading -> { /* TODO */
+			}
 			is Result.OnSuccess -> {
 				val context = requireContext()
 				val evaluations = result.value
@@ -248,7 +250,8 @@ class EvaluationPlanFragment : NavigationFragment() {
 
 				evaluationAdapter.submitEvaluations(items)
 			}
-			is Result.OnError -> { /* TODO */ }
+			is Result.OnError -> { /* TODO */
+			}
 			else -> {}
 		}
 	}

@@ -3,19 +3,7 @@ package com.gdavidpb.tuindice.base.utils.extension
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
-import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_OK
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_RETIRED
-import kotlin.math.roundToInt
-
-fun Double.toSubjectGrade() = when (roundToInt()) {
-	in 30 until 50 -> 2
-	in 50 until 70 -> 3
-	in 70 until 85 -> 4
-	in 85..Integer.MAX_VALUE -> 5
-	else -> 1
-}
-
-fun Int.toSubjectStatus() = if (this != 0) STATUS_SUBJECT_OK else STATUS_SUBJECT_RETIRED
 
 fun Collection<Subject>.filterNoEffect(): Collection<Subject> {
 	val containsNoEffect = size > 1 && first().grade >= 3
