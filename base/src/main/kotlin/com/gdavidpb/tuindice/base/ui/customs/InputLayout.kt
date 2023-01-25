@@ -14,8 +14,13 @@ import com.google.android.material.textfield.TextInputLayout
 
 abstract class InputLayout(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {
 
-	private val primaryColor = context.getCompatColor(R.color.color_primary)
-	private val secondaryColor = context.getCompatColor(R.color.color_secondary_text)
+	private val primaryColor by lazy {
+		context.getCompatColor(R.color.color_primary)
+	}
+
+	private val secondaryColor by lazy {
+		context.getCompatColor(R.color.color_secondary_text)
+	}
 
 	private val primaryTint = ColorStateList.valueOf(primaryColor)
 	private val secondaryTint = ColorStateList.valueOf(secondaryColor)

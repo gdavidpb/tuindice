@@ -9,18 +9,17 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.PreferenceManager
-import com.gdavidpb.tuindice.base.utils.ResourcesManager
 
 @ColorInt
 fun Context.getCompatColor(@ColorRes colorRes: Int): Int {
-	return ResourcesManager.getColor(colorRes, this)
+	return ContextCompat.getColor(this, colorRes)
 }
 
 fun Context.getDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes: Int): Drawable? {
 	return ContextCompat.getDrawable(this, drawableRes)
 		?.let { drawable -> DrawableCompat.wrap(drawable).mutate() }
 		?.also { drawable ->
-			drawable.setTint(ContextCompat.getColor(this, colorRes))
+			drawable.setTint(getCompatColor(colorRes))
 		}
 }
 
