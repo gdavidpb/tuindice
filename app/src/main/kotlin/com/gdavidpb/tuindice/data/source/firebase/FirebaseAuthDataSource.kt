@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.data.source.firebase
 import com.gdavidpb.tuindice.base.domain.model.Auth
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.utils.extensions.awaitOrNull
-import com.gdavidpb.tuindice.data.source.firebase.extensions.toAuth
+import com.gdavidpb.tuindice.data.source.firebase.mapper.toAuth
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
 

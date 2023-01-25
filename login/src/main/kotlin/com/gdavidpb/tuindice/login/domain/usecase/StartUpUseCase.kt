@@ -45,7 +45,7 @@ class StartUpUseCase(
 			else -> {
 				applicationRepository.clearData()
 
-				null
+				super.executeOnException(throwable)
 			}
 		}
 	}

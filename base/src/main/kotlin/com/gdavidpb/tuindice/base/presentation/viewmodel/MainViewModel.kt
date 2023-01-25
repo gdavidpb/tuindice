@@ -27,9 +27,8 @@ class MainViewModel(
 	val updateInfo = LiveEvent<AppUpdateInfo, Nothing>()
 	val outdatedPassword = LiveEvent<Unit, Nothing>()
 
-	fun outdatedPassword() {
+	fun outdatedPassword() =
 		outdatedPassword.postSuccess(Unit)
-	}
 
 	fun signOut() =
 		execute(useCase = signOutUseCase, params = Unit, liveData = signOut)
