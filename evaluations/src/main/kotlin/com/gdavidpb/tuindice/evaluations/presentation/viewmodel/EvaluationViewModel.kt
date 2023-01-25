@@ -22,17 +22,17 @@ class EvaluationViewModel(
 	fun getEvaluation(evaluationId: String) =
 		execute(useCase = getEvaluationUseCase, params = evaluationId, liveData = getEvaluation)
 
-	fun addEvaluation(addEvaluationParams: AddEvaluationParams) =
+	fun addEvaluation(params: AddEvaluationParams) =
 		execute(
 			useCase = addEvaluationUseCase,
-			params = addEvaluationParams,
+			params = params,
 			liveData = addOrUpdateEvaluation
 		)
 
-	fun updateEvaluation(updateEvaluationParams: UpdateEvaluationParams) =
+	fun updateEvaluation(params: UpdateEvaluationParams) =
 		execute(
 			useCase = updateEvaluationUseCase,
-			params = updateEvaluationParams,
+			params = params,
 			liveData = addOrUpdateEvaluation
 		)
 }

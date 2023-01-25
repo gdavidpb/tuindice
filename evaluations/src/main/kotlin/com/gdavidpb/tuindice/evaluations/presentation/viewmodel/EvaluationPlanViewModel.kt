@@ -23,10 +23,10 @@ class EvaluationPlanViewModel(
 	fun getEvaluations(sid: String) =
 		execute(useCase = getEvaluationsUseCase, params = sid, liveData = evaluations)
 
-	fun updateEvaluation(updateEvaluationParams: UpdateEvaluationParams) =
+	fun updateEvaluation(params: UpdateEvaluationParams) =
 		execute(
 			useCase = updateEvaluationUseCase,
-			params = updateEvaluationParams,
+			params = params,
 			liveData = updateEvaluation
 		)
 
