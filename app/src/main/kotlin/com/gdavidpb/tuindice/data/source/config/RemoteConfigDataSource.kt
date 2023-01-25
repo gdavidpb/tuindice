@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.config
 
-import com.gdavidpb.tuindice.ConfigKeys
+import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.utils.extension.awaitOrNull
 import com.gdavidpb.tuindice.base.utils.extension.getStringList

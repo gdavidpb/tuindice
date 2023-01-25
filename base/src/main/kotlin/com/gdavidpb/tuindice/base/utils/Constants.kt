@@ -8,7 +8,7 @@ val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone("America/Caracas")
 
 /* Concurrent locks */
 object Locks {
-    const val GET_ACCOUNT_AND_QUARTERS = "getAccountAndQuarters"
+	const val GET_ACCOUNT_AND_QUARTERS = "getAccountAndQuarters"
 }
 
 /* Errors */
@@ -16,34 +16,29 @@ const val NO_GETTER = "Property does not have a getter."
 
 /* Request codes */
 object RequestCodes {
-    const val APP_UPDATE_REQUEST = 1001
-    const val PLAY_SERVICES_RESOLUTION_REQUEST = 2404
-}
-
-/* Subscription topics */
-object Topics {
-    const val TOPIC_GENERAL = "general"
+	const val APP_UPDATE_REQUEST = 1001
+	const val PLAY_SERVICES_RESOLUTION_REQUEST = 2404
 }
 
 /* Main screen keys */
 object ScreenKeys {
-    const val SUMMARY = 0
-    const val RECORD = 1
-    const val ABOUT = 2
+	const val SUMMARY = 0
+	const val RECORD = 1
+	const val ABOUT = 2
 }
 
 /* Preferences keys */
 object SettingsKeys {
-    const val LAST_SCREEN = "lastScreen"
-    const val SYNCS_COUNTER = "syncsCounter"
-    const val SUBSCRIBED_TOPICS = "subscribedTopics"
-    const val ACTIVE_TOKEN = "activeToken"
+	const val LAST_SCREEN = "lastScreen"
+	const val SYNCS_COUNTER = "syncsCounter"
+	const val SUBSCRIBED_TOPICS = "subscribedTopics"
+	const val ACTIVE_TOKEN = "activeToken"
 }
 
 /* Reporting keys */
 object ReportKeys {
-    const val USE_CASE = "USE_CASE"
-    const val HANDLED = "HANDLED"
+	const val USE_CASE = "USE_CASE"
+	const val HANDLED = "HANDLED"
 }
 
 /* Times */

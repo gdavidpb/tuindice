@@ -8,6 +8,13 @@ import com.gdavidpb.tuindice.data.source.fcm.source.LocalDataSource
 class FCMLocalDataSource(
 	private val sharedPreferences: SharedPreferences
 ) : LocalDataSource {
+	override suspend fun getSubscribedTopics(): List<String> {
+		val topics = sharedPreferences
+			.getStringSet(SettingsKeys.SUBSCRIBED_TOPICS, setOf()) ?: setOf()
+
+		return topics.toList()
+	}
+
 	override suspend fun saveSubscriptionTopic(topic: String) {
 		val topics = sharedPreferences
 			.getStringSet(SettingsKeys.SUBSCRIBED_TOPICS, setOf()) ?: setOf()

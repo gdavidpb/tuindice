@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import java.util.*
 
 class MessagingMockDataSource : MessagingRepository {
-
 	private val token = UUID.randomUUID().toString()
 
 	override suspend fun getToken(): String {
@@ -15,5 +14,8 @@ class MessagingMockDataSource : MessagingRepository {
 	}
 
 	override suspend fun unsubscribeFromTopic(topic: String) {
+	}
+
+	override suspend fun unsubscribeFromAllTopics() {
 	}
 }
