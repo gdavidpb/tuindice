@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.utils
+package com.gdavidpb.tuindice.persistence.data.room.converter
 
 import androidx.room.TypeConverter
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType

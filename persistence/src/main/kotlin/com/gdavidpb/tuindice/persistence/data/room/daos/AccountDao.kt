@@ -1,9 +1,9 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.daos
+package com.gdavidpb.tuindice.persistence.data.room.daos
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.gdavidpb.tuindice.persistence.data.source.room.entities.AccountEntity
-import com.gdavidpb.tuindice.persistence.data.source.room.schema.AccountTable
+import com.gdavidpb.tuindice.persistence.data.room.entity.AccountEntity
+import com.gdavidpb.tuindice.persistence.data.room.schema.AccountTable
 import java.util.*
 
 @Dao

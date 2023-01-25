@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.summary.data.room
 
 import com.gdavidpb.tuindice.base.domain.model.Account
-import com.gdavidpb.tuindice.persistence.data.source.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.persistence.data.source.room.mappers.toAccount
-import com.gdavidpb.tuindice.persistence.data.source.room.mappers.toAccountEntity
+import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.summary.data.room.mapper.toAccount
+import com.gdavidpb.tuindice.summary.data.room.mapper.toAccountEntity
 import com.gdavidpb.tuindice.summary.data.account.source.LocalDataSource
 
 class RoomDataSource(

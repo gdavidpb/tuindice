@@ -1,9 +1,9 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.daos
+package com.gdavidpb.tuindice.persistence.data.room.daos
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.gdavidpb.tuindice.persistence.data.source.room.entities.SubjectEntity
-import com.gdavidpb.tuindice.persistence.data.source.room.schema.SubjectTable
+import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
+import com.gdavidpb.tuindice.persistence.data.room.schema.SubjectTable
 
 @Dao
 interface SubjectDao : BaseDao<SubjectEntity> {

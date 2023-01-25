@@ -1,14 +1,14 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.daos
+package com.gdavidpb.tuindice.persistence.data.room.daos
 
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_CURRENT
-import com.gdavidpb.tuindice.persistence.data.source.room.entities.QuarterEntity
-import com.gdavidpb.tuindice.persistence.data.source.room.entities.SubjectEntity
-import com.gdavidpb.tuindice.persistence.data.source.room.otm.QuarterWithSubjects
-import com.gdavidpb.tuindice.persistence.data.source.room.schema.QuarterTable
-import com.gdavidpb.tuindice.persistence.data.source.room.schema.SubjectTable
+import com.gdavidpb.tuindice.persistence.data.room.entity.QuarterEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
+import com.gdavidpb.tuindice.persistence.data.room.otm.QuarterWithSubjects
+import com.gdavidpb.tuindice.persistence.data.room.schema.QuarterTable
+import com.gdavidpb.tuindice.persistence.data.room.schema.SubjectTable
 
 @Dao
 interface QuarterDao : BaseDao<QuarterEntity> {

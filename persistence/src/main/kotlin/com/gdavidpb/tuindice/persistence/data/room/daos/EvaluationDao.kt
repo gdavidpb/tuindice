@@ -1,9 +1,9 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.daos
+package com.gdavidpb.tuindice.persistence.data.room.daos
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.gdavidpb.tuindice.persistence.data.source.room.entities.EvaluationEntity
-import com.gdavidpb.tuindice.persistence.data.source.room.schema.EvaluationTable
+import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
+import com.gdavidpb.tuindice.persistence.data.room.schema.EvaluationTable
 
 @Dao
 interface EvaluationDao : BaseDao<EvaluationEntity> {

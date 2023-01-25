@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.data.android
 import android.content.Context
 import android.content.SharedPreferences
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.persistence.data.source.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.persistence.data.source.room.schema.DatabaseModel
+import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.data.room.schema.DatabaseModel
 
 class AndroidApplicationDataSource(
 	private val context: Context,

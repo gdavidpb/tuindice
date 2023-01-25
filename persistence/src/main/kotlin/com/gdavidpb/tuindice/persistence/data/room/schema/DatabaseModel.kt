@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.schema
+package com.gdavidpb.tuindice.persistence.data.room.schema
 
 import com.gdavidpb.tuindice.base.BuildConfig
 
