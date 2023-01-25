@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice
 
 import android.app.Application
 import com.gdavidpb.tuindice.base.di.baseModule
-import com.gdavidpb.tuindice.migrations.MigrationManager
+import com.gdavidpb.tuindice.migration.MigrationManager
 import com.gdavidpb.tuindice.di.appMockModule
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
