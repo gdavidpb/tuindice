@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
-import com.gdavidpb.tuindice.base.ui.dialogs.MenuBottomSheetDialog
-import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
+import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
+import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError

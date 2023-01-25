@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.evaluations.ui.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
-import com.gdavidpb.tuindice.base.ui.adapters.BaseAdapter
-import com.gdavidpb.tuindice.base.ui.viewholders.BaseViewHolder
+import com.gdavidpb.tuindice.base.ui.adapter.BaseAdapter
+import com.gdavidpb.tuindice.base.ui.viewholder.BaseViewHolder
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.ui.viewholder.EvaluationViewHolder
 

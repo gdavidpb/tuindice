@@ -22,7 +22,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="UnusedAttribute">
         <activity
-            android:name=".ui.activities.MainActivity"
+            android:name=".ui.activity.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Splash"

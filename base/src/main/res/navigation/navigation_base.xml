@@ -17,17 +17,17 @@
 
     <dialog
         android:id="@+id/dialog_enrollment_proof"
-        android:name="com.gdavidpb.tuindice.enrollmentproof.ui.dialogs.EnrollmentDownloadingBottomSheetDialog"
+        android:name="com.gdavidpb.tuindice.enrollmentproof.ui.dialog.EnrollmentDownloadingBottomSheetDialog"
         tools:layout="@layout/R.layout.dialog_enrollment_downloading" />
 
     <dialog
         android:id="@+id/dialog_update_password"
-        android:name="com.gdavidpb.tuindice.login.ui.dialogs.UpdatePasswordBottomSheetDialog"
+        android:name="com.gdavidpb.tuindice.login.ui.dialog.UpdatePasswordBottomSheetDialog"
         tools:layout="@layout/dialog_update_password" />
 
     <fragment
         android:id="@+id/fragment_splash"
-        android:name="com.gdavidpb.tuindice.login.ui.fragments.SplashFragment"
+        android:name="com.gdavidpb.tuindice.login.ui.fragment.SplashFragment"
         tools:layout="@layout/fragment_splash">
         <action
             android:id="@+id/nav_to_sign_in"
@@ -45,7 +45,7 @@
 
     <fragment
         android:id="@+id/fragment_sign_in"
-        android:name="com.gdavidpb.tuindice.login.ui.fragments.SignInFragment"
+        android:name="com.gdavidpb.tuindice.login.ui.fragment.SignInFragment"
         android:label="@string/label_sign_in_fragment"
         tools:layout="@layout/fragment_sign_in">
         <action
@@ -66,7 +66,7 @@
 
     <fragment
         android:id="@+id/fragment_summary"
-        android:name="com.gdavidpb.tuindice.summary.ui.fragments.SummaryFragment"
+        android:name="com.gdavidpb.tuindice.summary.ui.fragment.SummaryFragment"
         android:label="@string/nav_summary"
         tools:layout="@layout/fragment_summary">
         <action
@@ -80,7 +80,7 @@
 
     <fragment
         android:id="@+id/fragment_record"
-        android:name="com.gdavidpb.tuindice.record.ui.fragments.RecordFragment"
+        android:name="com.gdavidpb.tuindice.record.ui.fragment.RecordFragment"
         android:label="@string/nav_record"
         tools:layout="@layout/fragment_record">
         <action
@@ -159,7 +159,7 @@
 
     <fragment
         android:id="@+id/fragment_browser"
-        android:name="com.gdavidpb.tuindice.base.ui.fragments.BrowserFragment"
+        android:name="com.gdavidpb.tuindice.base.ui.fragment.BrowserFragment"
         android:label="{title}"
         tools:layout="@layout/fragment_browser">
         <argument

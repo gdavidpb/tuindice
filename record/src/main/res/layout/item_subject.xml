@@ -61,7 +61,7 @@
         app:layout_constraintTop_toBottomOf="@id/tViewSubjectGrade"
         tools:text="4 UC" />
 
-    <com.gdavidpb.tuindice.record.ui.customs.SubjectGradeSeekBar
+    <com.gdavidpb.tuindice.record.ui.custom.SubjectGradeSeekBar
         android:id="@+id/sBarSubjectGrade"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="0dp"

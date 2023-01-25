@@ -4,7 +4,7 @@ import android.view.View
 import android.widget.TextView
 import com.gdavidpb.tuindice.about.presentation.model.AboutHeaderItem
 import com.gdavidpb.tuindice.about.presentation.model.AboutItemBase
-import com.gdavidpb.tuindice.base.ui.viewholders.BaseViewHolder
+import com.gdavidpb.tuindice.base.ui.viewholder.BaseViewHolder
 
 class AboutHeaderViewHolder(
 	itemView: View
