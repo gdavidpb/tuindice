@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.di.appModule
 import com.gdavidpb.tuindice.migrations.MigrationManager
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
+import com.gdavidpb.tuindice.enrollmentproof.di.enrollmentProofModule
 import com.gdavidpb.tuindice.evaluations.di.evaluationsModule
 import com.gdavidpb.tuindice.login.di.loginModule
 import com.gdavidpb.tuindice.persistence.di.persistenceModule
@@ -43,6 +44,7 @@ class TuIndiceApp : Application() {
 				loginModule,
 				summaryModule,
 				recordModule,
+				enrollmentProofModule,
 				evaluationsModule
 			)
 		}
