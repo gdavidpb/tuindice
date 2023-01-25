@@ -1,14 +1,14 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.mappers
+package com.gdavidpb.tuindice.record.data.room.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
-import com.gdavidpb.tuindice.base.utils.extensions.formatQuarterName
 import com.gdavidpb.tuindice.persistence.data.source.room.entities.QuarterEntity
 import com.gdavidpb.tuindice.persistence.data.source.room.entities.SubjectEntity
 import com.gdavidpb.tuindice.persistence.data.source.room.otm.QuarterWithSubjects
 
 fun Quarter.toQuarterEntity(uid: String) = QuarterEntity(
 	id = id,
+	name = name,
 	accountId = uid,
 	status = status,
 	startDate = startDate,
@@ -20,7 +20,7 @@ fun Quarter.toQuarterEntity(uid: String) = QuarterEntity(
 
 fun QuarterEntity.toQuarter(subjects: List<Subject>) = Quarter(
 	id = id,
-	name = (startDate to endDate).formatQuarterName(),
+	name = name,
 	status = status,
 	startDate = startDate,
 	endDate = endDate,

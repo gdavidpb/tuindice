@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class SubjectResponse(
     @SerializedName("id") val id: String,
+    @SerializedName("qid") val quarterId: String,
     @SerializedName("code") val code: String,
     @SerializedName("name") val name: String,
     @SerializedName("credits") val credits: Int,
