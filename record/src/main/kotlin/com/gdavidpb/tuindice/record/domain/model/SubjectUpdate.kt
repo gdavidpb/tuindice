@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.domain.model
 
-data class UpdateSubject(
+data class SubjectUpdate(
 	val subjectId: String,
-	val grade: Int
+	val grade: Int,
+	val dispatchToRemote: Boolean
 )

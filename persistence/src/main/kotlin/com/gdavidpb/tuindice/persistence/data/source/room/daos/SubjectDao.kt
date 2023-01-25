@@ -13,4 +13,12 @@ interface SubjectDao : BaseDao<SubjectEntity> {
 				"AND ${SubjectTable.ID} = :sid"
 	)
 	suspend fun getSubject(uid: String, sid: String): SubjectEntity
+
+	@Query(
+		"UPDATE ${SubjectTable.TABLE_NAME} " +
+				"SET ${SubjectTable.GRADE} = :grade " +
+				"WHERE ${SubjectTable.ACCOUNT_ID} = :uid " +
+				"AND ${SubjectTable.ID} = :sid"
+	)
+	suspend fun updateSubject(uid: String, sid: String, grade: Int)
 }

@@ -5,9 +5,9 @@ import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.base.utils.extensions.getOrThrow
 import com.gdavidpb.tuindice.record.data.api.mapper.toQuarter
 import com.gdavidpb.tuindice.record.data.api.mapper.toSubject
-import com.gdavidpb.tuindice.record.data.api.mapper.toSubjectEvaluationRequest
+import com.gdavidpb.tuindice.record.data.api.mapper.toUpdateSubjectRequest
 import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
-import com.gdavidpb.tuindice.record.domain.model.UpdateSubject
+import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 
 class ApiDataSource(
 	private val recordApi: RecordApi
@@ -23,8 +23,8 @@ class ApiDataSource(
 			.getOrThrow()
 	}
 
-	override suspend fun updateSubject(subject: UpdateSubject): Subject {
-		val request = subject.toSubjectEvaluationRequest()
+	override suspend fun updateSubject(update: SubjectUpdate): Subject {
+		val request = update.toUpdateSubjectRequest()
 
 		return recordApi.updateSubject(request)
 			.getOrThrow()
