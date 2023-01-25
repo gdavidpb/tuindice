@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.about.utils.extensions
+package com.gdavidpb.tuindice.about.utils.extension
 
 import android.content.Context
 import android.graphics.Rect

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.about.utils.mappers
+package com.gdavidpb.tuindice.about.presentation.mapper
 
 import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
