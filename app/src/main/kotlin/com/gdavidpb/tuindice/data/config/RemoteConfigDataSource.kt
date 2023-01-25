@@ -1,14 +1,12 @@
 package com.gdavidpb.tuindice.data.config
 
-import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.utils.extension.awaitOrNull
 import com.gdavidpb.tuindice.base.utils.extension.getStringList
+import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.gson.Gson
 
 class RemoteConfigDataSource(
-	private val googleJson: Gson,
 	private val remoteConfig: FirebaseRemoteConfig
 ) : ConfigRepository {
 	override suspend fun tryFetch() {
@@ -28,11 +26,11 @@ class RemoteConfigDataSource(
 	}
 
 	override fun getIssuesList(): List<String> {
-		return remoteConfig.getStringList(ConfigKeys.ISSUES_LIST, googleJson)
+		return remoteConfig.getStringList(ConfigKeys.ISSUES_LIST)
 	}
 
 	override fun getLoadingMessages(): List<String> {
-		return remoteConfig.getStringList(ConfigKeys.LOADING_MESSAGES, googleJson)
+		return remoteConfig.getStringList(ConfigKeys.LOADING_MESSAGES)
 	}
 
 	override fun getTimeUpdateStalenessDays(): Int {
