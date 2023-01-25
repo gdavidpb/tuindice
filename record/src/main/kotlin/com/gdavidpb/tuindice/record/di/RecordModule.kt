@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.record.data.room.RoomDataSource
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.UpdateSubjectUseCase
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
@@ -30,6 +31,7 @@ val recordModule = module {
 
 	factoryOf(::GetQuartersUseCase)
 	factoryOf(::RemoveQuarterUseCase)
+	factoryOf(::UpdateSubjectUseCase)
 
 	/* Repositories */
 

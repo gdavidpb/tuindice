@@ -23,7 +23,7 @@ import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.adapters.QuarterAdapter
-import com.gdavidpb.tuindice.record.utils.mappers.toQuarterItem
+import com.gdavidpb.tuindice.record.presentation.mapper.toQuarterItem
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel

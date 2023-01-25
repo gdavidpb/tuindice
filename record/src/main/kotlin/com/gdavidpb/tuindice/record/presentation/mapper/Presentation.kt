@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.utils.mappers
+package com.gdavidpb.tuindice.record.presentation.mapper
 
 import android.content.Context
 import android.text.Spanned
