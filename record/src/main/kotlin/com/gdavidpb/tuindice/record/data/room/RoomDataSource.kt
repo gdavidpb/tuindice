@@ -3,12 +3,12 @@ package com.gdavidpb.tuindice.record.data.room
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.persistence.data.source.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.record.data.room.mapper.toQuarter
-import com.gdavidpb.tuindice.record.data.room.mapper.toQuarterEntity
-import com.gdavidpb.tuindice.record.data.room.mapper.toSubjectEntity
 import com.gdavidpb.tuindice.persistence.data.source.room.utils.extensions.withTransaction
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
+import com.gdavidpb.tuindice.record.data.room.mapper.toQuarter
+import com.gdavidpb.tuindice.record.data.room.mapper.toQuarterEntity
 import com.gdavidpb.tuindice.record.data.room.mapper.toSubject
+import com.gdavidpb.tuindice.record.data.room.mapper.toSubjectEntity
 import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 
 class RoomDataSource(

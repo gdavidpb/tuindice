@@ -46,7 +46,7 @@ class RecordFragment : NavigationFragment() {
 
 	private object SubjectMenu {
 		const val ID_SHOW_SUBJECT_EVALUATIONS = 0
-		const val ID_REMOVE_SUBJECT = 1
+		const val ID_WITHDRAW_SUBJECT = 1
 	}
 
 	override fun onCreateView() = R.layout.fragment_record
@@ -86,9 +86,9 @@ class RecordFragment : NavigationFragment() {
 			if (!item.isRetired)
 				add(
 					BottomMenuItem(
-						itemId = SubjectMenu.ID_REMOVE_SUBJECT,
+						itemId = SubjectMenu.ID_WITHDRAW_SUBJECT,
 						iconResource = R.drawable.ic_not_interested,
-						textResource = R.string.menu_subject_remove
+						textResource = R.string.menu_subject_withdraw
 					)
 				)
 		}
@@ -104,23 +104,17 @@ class RecordFragment : NavigationFragment() {
 
 	private fun onSubjectOptionSelected(itemId: Int, item: SubjectItem) {
 		when (itemId) {
-			SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS -> showSubjectEvaluations(item)
-			SubjectMenu.ID_REMOVE_SUBJECT -> removeSubject(item)
+			SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS ->
+				navigate(
+					RecordFragmentDirections.navToEvaluationPlan(
+						subjectId = item.id,
+						subjectCode = item.data.code,
+						subjectName = item.data.name
+					)
+				)
+			SubjectMenu.ID_WITHDRAW_SUBJECT ->
+				viewModel.withdrawSubject(subjectId = item.id)
 		}
-	}
-
-	private fun showSubjectEvaluations(item: SubjectItem) {
-		navigate(
-			RecordFragmentDirections.navToEvaluationPlan(
-				subjectId = item.id,
-				subjectCode = item.data.code,
-				subjectName = item.data.name
-			)
-		)
-	}
-
-	private fun removeSubject(item: SubjectItem) {
-		TODO("Not yet implemented")
 	}
 
 	private fun quartersObserver(result: Result<List<Quarter>, GetQuartersError>?) {
