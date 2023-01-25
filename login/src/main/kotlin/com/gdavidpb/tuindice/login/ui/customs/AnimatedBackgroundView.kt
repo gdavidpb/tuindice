@@ -8,7 +8,7 @@ import android.util.AttributeSet
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.login.R
 import kotlinx.android.synthetic.main.view_animated_background.view.*
 

@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.di
 
 import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.utils.extensions.create
+import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.evaluations.data.api.ApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.api.EvaluationsApi
 import com.gdavidpb.tuindice.evaluations.data.evaluation.EvaluationDataRepository

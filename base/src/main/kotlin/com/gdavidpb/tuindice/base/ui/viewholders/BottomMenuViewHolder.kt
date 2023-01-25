@@ -3,10 +3,10 @@ package com.gdavidpb.tuindice.base.ui.viewholders
 import android.view.View
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.ui.adapters.BottomMenuAdapter
-import com.gdavidpb.tuindice.base.utils.extensions.drawables
-import com.gdavidpb.tuindice.base.utils.extensions.getCompatColor
-import com.gdavidpb.tuindice.base.utils.extensions.getDrawable
-import com.gdavidpb.tuindice.base.utils.extensions.onClickOnce
+import com.gdavidpb.tuindice.base.utils.extension.drawables
+import com.gdavidpb.tuindice.base.utils.extension.getCompatColor
+import com.gdavidpb.tuindice.base.utils.extension.getDrawable
+import com.gdavidpb.tuindice.base.utils.extension.onClickOnce
 import com.google.android.material.textview.MaterialTextView
 
 class BottomMenuViewHolder(

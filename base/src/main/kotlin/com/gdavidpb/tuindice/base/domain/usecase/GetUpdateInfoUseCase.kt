@@ -2,10 +2,9 @@ package com.gdavidpb.tuindice.base.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
-import com.gdavidpb.tuindice.base.utils.ConfigKeys
-import com.gdavidpb.tuindice.base.utils.extensions.await
-import com.gdavidpb.tuindice.base.utils.extensions.isUpdateAvailable
-import com.gdavidpb.tuindice.base.utils.extensions.isUpdateStalled
+import com.gdavidpb.tuindice.base.utils.extension.await
+import com.gdavidpb.tuindice.base.utils.extension.isUpdateAvailable
+import com.gdavidpb.tuindice.base.utils.extension.isUpdateStalled
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.ktx.isImmediateUpdateAllowed
@@ -18,7 +17,7 @@ class GetUpdateInfoUseCase(
 
 		if (updateInfo.isUpdateStalled) return updateInfo
 
-		val stalenessDays = configRepository.getLong(ConfigKeys.TIME_UPDATE_STALENESS_DAYS)
+		val stalenessDays = configRepository.getTimeUpdateStalenessDays()
 
 		val clientVersionStalenessDays = (updateInfo.clientVersionStalenessDays() ?: -1)
 		val isUpdateAvailable = updateInfo.isUpdateAvailable

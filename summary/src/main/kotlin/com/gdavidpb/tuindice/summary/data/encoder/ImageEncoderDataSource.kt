@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.summary.data.encoder
 import android.content.ContentResolver
 import android.graphics.Bitmap
 import androidx.core.net.toUri
-import com.gdavidpb.tuindice.base.utils.extensions.encodeToBase64String
+import com.gdavidpb.tuindice.base.utils.extension.encodeToBase64String
 import com.gdavidpb.tuindice.summary.data.encoder.mappers.decodeRotationDegrees
 import com.gdavidpb.tuindice.summary.data.encoder.mappers.decodeScaleFactor
 import com.gdavidpb.tuindice.summary.data.encoder.mappers.decodeScaledBitmap

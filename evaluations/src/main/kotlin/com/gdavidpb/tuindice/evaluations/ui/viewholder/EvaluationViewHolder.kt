@@ -5,7 +5,7 @@ import androidx.cardview.widget.CardView
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.ui.adapter.EvaluationAdapter
 import com.gdavidpb.tuindice.base.ui.viewholders.BaseViewHolder
-import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.evaluations.R
 import kotlinx.android.synthetic.main.item_evaluation.view.*
 

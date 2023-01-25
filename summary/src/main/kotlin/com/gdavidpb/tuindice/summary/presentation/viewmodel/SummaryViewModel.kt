@@ -3,10 +3,10 @@ package com.gdavidpb.tuindice.summary.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.base.domain.usecase.SignOutUseCase
-import com.gdavidpb.tuindice.base.utils.extensions.LiveCompletable
-import com.gdavidpb.tuindice.base.utils.extensions.LiveEvent
-import com.gdavidpb.tuindice.base.utils.extensions.LiveResult
-import com.gdavidpb.tuindice.base.utils.extensions.execute
+import com.gdavidpb.tuindice.base.utils.extension.LiveCompletable
+import com.gdavidpb.tuindice.base.utils.extension.LiveEvent
+import com.gdavidpb.tuindice.base.utils.extension.LiveResult
+import com.gdavidpb.tuindice.base.utils.extension.execute
 import com.gdavidpb.tuindice.summary.domain.error.GetAccountError
 import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase

@@ -5,10 +5,10 @@ import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
-import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.Topics
-import com.gdavidpb.tuindice.base.utils.annotations.Timeout
-import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.annotation.Timeout
+import com.gdavidpb.tuindice.base.utils.extension.*
+import com.gdavidpb.tuindice.login.utils.ConfigKeys
 import com.gdavidpb.tuindice.login.domain.error.SignInError
 import com.gdavidpb.tuindice.login.domain.exception.SignInIllegalArgumentException
 import com.gdavidpb.tuindice.login.domain.param.SignInParams

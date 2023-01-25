@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.data.api
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.utils.extensions.getOrThrow
+import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
 import com.gdavidpb.tuindice.evaluations.data.api.mapper.toAddEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource

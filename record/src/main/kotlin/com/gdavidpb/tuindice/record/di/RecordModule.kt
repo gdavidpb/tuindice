@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.di
 
 import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.utils.extensions.create
+import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.record.data.api.ApiDataSource
 import com.gdavidpb.tuindice.record.data.api.RecordApi
 import com.gdavidpb.tuindice.record.data.quarter.QuarterDataRepository

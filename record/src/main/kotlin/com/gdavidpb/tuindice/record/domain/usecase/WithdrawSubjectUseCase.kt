@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.CompletableUseCase
-import com.gdavidpb.tuindice.record.MIN_SUBJECT_GRADE
+import com.gdavidpb.tuindice.record.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 

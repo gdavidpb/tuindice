@@ -9,8 +9,8 @@ import androidx.core.text.buildSpannedString
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.base.utils.*
-import com.gdavidpb.tuindice.base.utils.extensions.append
-import com.gdavidpb.tuindice.base.utils.extensions.getCompatColor
+import com.gdavidpb.tuindice.base.utils.extension.append
+import com.gdavidpb.tuindice.base.utils.extension.getCompatColor
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem

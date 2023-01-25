@@ -3,12 +3,12 @@ package com.gdavidpb.tuindice.login.domain.usecase
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
-import com.gdavidpb.tuindice.base.utils.ConfigKeys
-import com.gdavidpb.tuindice.base.utils.annotations.Timeout
-import com.gdavidpb.tuindice.base.utils.extensions.*
-import com.gdavidpb.tuindice.base.utils.mappers.asUsbId
-import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
+import com.gdavidpb.tuindice.base.utils.annotation.Timeout
+import com.gdavidpb.tuindice.base.utils.extension.*
+import com.gdavidpb.tuindice.base.utils.mapper.asUsbId
+import com.gdavidpb.tuindice.login.utils.ConfigKeys
 import com.gdavidpb.tuindice.login.domain.error.SignInError
+import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class ReSignInUseCase(

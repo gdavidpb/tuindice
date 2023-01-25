@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice
 
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
-import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extension.*
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test

@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.login.domain.validator
 
 import com.gdavidpb.tuindice.base.domain.validator.Validator
-import com.gdavidpb.tuindice.base.utils.extensions.isUsbId
+import com.gdavidpb.tuindice.base.utils.extension.isUsbId
 import com.gdavidpb.tuindice.login.domain.error.SignInError
 import com.gdavidpb.tuindice.login.domain.exception.SignInIllegalArgumentException
 import com.gdavidpb.tuindice.login.domain.param.SignInParams

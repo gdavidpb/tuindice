@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.login.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.base.utils.extensions.LiveEvent
-import com.gdavidpb.tuindice.base.utils.extensions.execute
+import com.gdavidpb.tuindice.base.utils.extension.LiveEvent
+import com.gdavidpb.tuindice.base.utils.extension.execute
 import com.gdavidpb.tuindice.login.domain.param.SignInParams
 import com.gdavidpb.tuindice.login.domain.usecase.ReSignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase

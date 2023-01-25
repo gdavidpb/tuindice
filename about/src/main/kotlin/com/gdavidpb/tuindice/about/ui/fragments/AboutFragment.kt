@@ -10,17 +10,17 @@ import com.gdavidpb.tuindice.about.R
 import com.gdavidpb.tuindice.about.ui.adapters.AboutAdapter
 import com.gdavidpb.tuindice.about.utils.extensions.*
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
-import com.gdavidpb.tuindice.base.utils.ConfigKeys
-import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extension.browse
+import com.gdavidpb.tuindice.base.utils.extension.config
 import kotlinx.android.synthetic.main.fragment_about.*
 
 class AboutFragment : NavigationFragment() {
 
 	private val aboutAdapter = AboutAdapter()
 
-	private val contactEmail by config<String>(ConfigKeys.CONTACT_EMAIL)
-	private val contactSubject by config<String>(ConfigKeys.CONTACT_SUBJECT)
-	private val issuesList by config<List<String>>(ConfigKeys.ISSUES_LIST)
+	private val contactEmail by config { getContactEmail() }
+	private val contactSubject by config { getContactSubject() }
+	private val issuesList by config { getIssuesList() }
 
 	override fun onCreateView() = R.layout.fragment_about
 

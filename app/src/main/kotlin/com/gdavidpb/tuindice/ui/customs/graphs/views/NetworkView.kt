@@ -11,12 +11,12 @@ import android.view.MotionEvent
 import androidx.annotation.ColorInt
 import androidx.core.graphics.toColorInt
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.base.utils.extensions.loadAttributes
-import com.gdavidpb.tuindice.base.utils.extensions.getDimension
+import com.gdavidpb.tuindice.base.utils.extension.loadAttributes
+import com.gdavidpb.tuindice.base.utils.extension.getDimension
 import com.gdavidpb.tuindice.ui.customs.graphs.extensions.inset
 import com.gdavidpb.tuindice.ui.customs.graphs.extensions.transform
 import com.gdavidpb.tuindice.ui.customs.graphs.models.Node
-import com.gdavidpb.tuindice.base.utils.extensions.supportQuickReject
+import com.gdavidpb.tuindice.base.utils.extension.supportQuickReject
 
 open class NetworkView(context: Context, attrs: AttributeSet) : CanvasView(context, attrs) {
 

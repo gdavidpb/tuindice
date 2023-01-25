@@ -8,7 +8,7 @@ import androidx.annotation.StringRes
 import androidx.core.view.isGone
 import androidx.fragment.app.DialogFragment
 import com.gdavidpb.tuindice.base.R
-import com.gdavidpb.tuindice.base.utils.extensions.onClickOnce
+import com.gdavidpb.tuindice.base.utils.extension.onClickOnce
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.dialog_confirmation.*
 

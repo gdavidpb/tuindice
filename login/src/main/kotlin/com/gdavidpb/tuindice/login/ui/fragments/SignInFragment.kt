@@ -10,8 +10,7 @@ import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
-import com.gdavidpb.tuindice.base.utils.ConfigKeys
-import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
@@ -23,7 +22,7 @@ class SignInFragment : NavigationFragment() {
 
 	private val viewModel by viewModel<SignInViewModel>()
 
-	private val loadingMessages by config<List<String>>(ConfigKeys.LOADING_MESSAGES)
+	private val loadingMessages by config { getLoadingMessages() }
 
 	override fun onCreateView() = R.layout.fragment_sign_in
 

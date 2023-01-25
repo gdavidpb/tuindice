@@ -5,8 +5,8 @@ import android.util.AttributeSet
 import com.gdavidpb.tuindice.base.ui.customs.InputLayout
 import com.gdavidpb.tuindice.base.utils.MAX_EVALUATION_GRADE
 import com.gdavidpb.tuindice.base.utils.MIN_EVALUATION_GRADE
-import com.gdavidpb.tuindice.base.utils.extensions.hideSoftKeyboard
-import com.gdavidpb.tuindice.base.utils.extensions.formatGrade
+import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
+import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.R
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.android.synthetic.main.view_grade_input.view.textInputLayout as input

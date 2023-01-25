@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.base.domain.usecase.base
 
-import com.gdavidpb.tuindice.base.utils.extensions.*
+import com.gdavidpb.tuindice.base.utils.extension.*
 import kotlinx.coroutines.flow.Flow
 
 abstract class FlowUseCase<P, T, Q> : BaseUseCase<P, Flow<T>, Q, LiveFlow<T, Q>>() {

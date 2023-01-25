@@ -16,9 +16,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.base.R
 import com.gdavidpb.tuindice.base.ui.dialogs.ConfirmationBottomSheetDialog
-import com.gdavidpb.tuindice.base.utils.extensions.bottomSheetDialog
-import com.gdavidpb.tuindice.base.utils.extensions.browse
-import com.gdavidpb.tuindice.base.utils.extensions.getCompatColor
+import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
+import com.gdavidpb.tuindice.base.utils.extension.browse
+import com.gdavidpb.tuindice.base.utils.extension.getCompatColor
 import kotlinx.android.synthetic.main.fragment_browser.*
 
 @SuppressLint("SetJavaScriptEnabled")

@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.di
 
 import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.utils.extensions.create
+import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.summary.data.account.AccountDataRepository
 import com.gdavidpb.tuindice.summary.data.account.source.LocalDataSource
 import com.gdavidpb.tuindice.summary.data.account.source.RemoteDataSource

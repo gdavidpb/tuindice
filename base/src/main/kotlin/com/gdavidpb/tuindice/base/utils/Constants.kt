@@ -40,19 +40,6 @@ object SettingsKeys {
     const val ACTIVE_TOKEN = "activeToken"
 }
 
-/* Remote config keys */
-object ConfigKeys {
-    const val CONTACT_EMAIL = "contact_email"
-    const val CONTACT_SUBJECT = "contact_subject"
-    const val ISSUES_LIST = "issues_list"
-    const val LOADING_MESSAGES = "loading_messages"
-    const val TIME_UPDATE_STALENESS_DAYS = "time_update_staleness_days"
-    const val SYNCS_TO_SUGGEST_REVIEW = "syncs_to_suggest_review"
-    const val TIME_OUT_CONNECTION = "time_out_connection"
-    const val TIME_OUT_SIGN_IN = "time_out_sign_in"
-    const val TIME_OUT_GET_ENROLLMENT = "time_out_get_enrollment"
-}
-
 /* Reporting keys */
 object ReportKeys {
     const val USE_CASE = "USE_CASE"

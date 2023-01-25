@@ -1,40 +1,47 @@
 package com.gdavidpb.tuindice.data
 
+import com.gdavidpb.tuindice.ConfigKeys
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.utils.extension.getStringList
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.gson.Gson
-import java.io.IOException
 
 class RemoteConfigMockDataSource(
-	private val remoteConfig: FirebaseRemoteConfig,
-	private val googleJson: Gson
+	private val googleJson: Gson,
+	private val remoteConfig: FirebaseRemoteConfig
 ) : ConfigRepository {
 	override suspend fun tryFetch() {
 	}
 
-	override fun getString(key: String): String {
-		return remoteConfig.getString(key)
-	}
-
-	override fun getBoolean(key: String): Boolean {
-		return remoteConfig.getBoolean(key)
-	}
-
-	override fun getDouble(key: String): Double {
-		return remoteConfig.getDouble(key)
-	}
-
-	override fun getLong(key: String): Long {
+	override fun getTimeout(key: String): Long {
 		return remoteConfig.getLong(key)
 	}
 
-	override fun getStringList(key: String): List<String> {
-		val json = remoteConfig.getString(key)
+	override fun getContactEmail(): String {
+		return remoteConfig.getString(ConfigKeys.CONTACT_EMAIL)
+	}
 
-		return runCatching {
-			googleJson.fromJson(json, Array<String>::class.java).toList()
-		}.getOrElse { throwable ->
-			throw IOException("Could not read '$key'. ${throwable.message}", throwable)
-		}
+	override fun getContactSubject(): String {
+		return remoteConfig.getString(ConfigKeys.CONTACT_SUBJECT)
+	}
+
+	override fun getIssuesList(): List<String> {
+		return remoteConfig.getStringList(ConfigKeys.ISSUES_LIST, googleJson)
+	}
+
+	override fun getLoadingMessages(): List<String> {
+		return remoteConfig.getStringList(ConfigKeys.LOADING_MESSAGES, googleJson)
+	}
+
+	override fun getTimeUpdateStalenessDays(): Int {
+		return remoteConfig.getLong(ConfigKeys.TIME_UPDATE_STALENESS_DAYS).toInt()
+	}
+
+	override fun getSyncsToSuggestReview(): Int {
+		return remoteConfig.getLong(ConfigKeys.SYNCS_TO_SUGGEST_REVIEW).toInt()
+	}
+
+	override fun getConnectionTimeout(): Long {
+		return remoteConfig.getLong(ConfigKeys.TIME_OUT_CONNECTION)
 	}
 }

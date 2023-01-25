@@ -10,9 +10,9 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.ui.dialogs.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragments.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.RequestCodes
-import com.gdavidpb.tuindice.base.utils.extensions.bottomSheetDialog
-import com.gdavidpb.tuindice.base.utils.extensions.connectionSnackBar
-import com.gdavidpb.tuindice.base.utils.extensions.observe
+import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
+import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
+import com.gdavidpb.tuindice.base.utils.extension.observe
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.error.StartUpError
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel

@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.about.R
 import com.gdavidpb.tuindice.about.presentation.model.AboutHeaderItem
 import com.gdavidpb.tuindice.about.presentation.model.AboutItem
 import com.gdavidpb.tuindice.about.presentation.model.AboutItemBase
-import com.gdavidpb.tuindice.base.utils.extensions.getCompatColor
+import com.gdavidpb.tuindice.base.utils.extension.getCompatColor
 import com.gdavidpb.tuindice.about.utils.mappers.spanAbout
 
 data class AboutBuilder(
