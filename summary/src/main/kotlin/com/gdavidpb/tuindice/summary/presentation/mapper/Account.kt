@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.summary.mapping
+package com.gdavidpb.tuindice.summary.presentation.mapper
 
 import android.content.Context
 import com.gdavidpb.tuindice.base.domain.model.Account

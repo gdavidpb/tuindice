@@ -26,10 +26,10 @@ import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.summary.R
 import com.gdavidpb.tuindice.summary.domain.error.GetAccountError
 import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
-import com.gdavidpb.tuindice.summary.mapping.formatLastUpdate
-import com.gdavidpb.tuindice.summary.mapping.toCreditsSummaryItem
-import com.gdavidpb.tuindice.summary.mapping.toShortName
-import com.gdavidpb.tuindice.summary.mapping.toSubjectsSummaryItem
+import com.gdavidpb.tuindice.summary.presentation.mapper.formatLastUpdate
+import com.gdavidpb.tuindice.summary.presentation.mapper.toCreditsSummaryItem
+import com.gdavidpb.tuindice.summary.presentation.mapper.toShortName
+import com.gdavidpb.tuindice.summary.presentation.mapper.toSubjectsSummaryItem
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.adapters.SummaryAdapter
 import com.gdavidpb.tuindice.summary.utils.extension.fileProviderUri
