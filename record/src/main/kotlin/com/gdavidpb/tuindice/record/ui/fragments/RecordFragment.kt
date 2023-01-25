@@ -19,11 +19,12 @@ import com.gdavidpb.tuindice.base.utils.extensions.errorSnackBar
 import com.gdavidpb.tuindice.base.utils.extensions.observe
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.domain.error.GetQuartersError
+import com.gdavidpb.tuindice.record.domain.param.UpdateSubjectParams
+import com.gdavidpb.tuindice.record.presentation.mapper.toQuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.adapters.QuarterAdapter
-import com.gdavidpb.tuindice.record.presentation.mapper.toQuarterItem
 import kotlinx.android.synthetic.main.fragment_record.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -170,7 +171,13 @@ class RecordFragment : NavigationFragment() {
 		}
 
 		override fun onSubjectGradeChanged(item: SubjectItem, grade: Int, isSelected: Boolean) {
-			TODO("Not yet implemented")
+			viewModel.updateSubject(
+				UpdateSubjectParams(
+					subjectId = item.id,
+					grade = grade,
+					dispatchToRemote = isSelected
+				)
+			)
 		}
 
 		override fun onSubmitQuarters(items: List<QuarterItem>) {

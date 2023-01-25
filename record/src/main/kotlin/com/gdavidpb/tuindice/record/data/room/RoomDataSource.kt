@@ -8,6 +8,8 @@ import com.gdavidpb.tuindice.record.data.room.mapper.toQuarterEntity
 import com.gdavidpb.tuindice.record.data.room.mapper.toSubjectEntity
 import com.gdavidpb.tuindice.persistence.data.source.room.utils.extensions.withTransaction
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
+import com.gdavidpb.tuindice.record.data.room.mapper.toSubject
+import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 
 class RoomDataSource(
 	private val room: TuIndiceDatabase
@@ -47,5 +49,13 @@ class RoomDataSource(
 			.toTypedArray()
 
 		room.subjects.insert(*subjectEntities)
+	}
+
+	override suspend fun updateSubject(uid: String, update: SubjectUpdate): Subject {
+		room.subjects.updateSubject(uid = uid, sid = update.subjectId, grade = update.grade)
+
+		val subjectEntity = room.subjects.getSubject(uid = uid, sid = update.subjectId)
+
+		return subjectEntity.toSubject()
 	}
 }
