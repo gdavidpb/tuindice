@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.evaluations.domain.mapper
 
-import com.gdavidpb.tuindice.evaluations.domain.model.NewEvaluation
-import com.gdavidpb.tuindice.evaluations.domain.model.UpdateEvaluation
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.param.AddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
 
-fun AddEvaluationParams.toNewEvaluation() = NewEvaluation(
+fun AddEvaluationParams.toEvaluationAdd() = EvaluationAdd(
 	subjectId = subjectId,
 	name = name!!,
 	grade = grade!!,
@@ -15,7 +15,7 @@ fun AddEvaluationParams.toNewEvaluation() = NewEvaluation(
 	isDone = isDone!!
 )
 
-fun UpdateEvaluationParams.toUpdateEvaluation() = UpdateEvaluation(
+fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(
 	evaluationId = evaluationId,
 	name = name,
 	grade = grade,

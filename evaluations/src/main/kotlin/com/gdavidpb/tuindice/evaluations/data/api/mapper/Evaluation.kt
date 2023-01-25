@@ -5,8 +5,8 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.data.api.request.AddEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.response.EvaluationResponse
-import com.gdavidpb.tuindice.evaluations.domain.model.NewEvaluation
-import com.gdavidpb.tuindice.evaluations.domain.model.UpdateEvaluation
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import java.util.*
 
 fun EvaluationResponse.toEvaluation() = Evaluation(
@@ -23,7 +23,7 @@ fun EvaluationResponse.toEvaluation() = Evaluation(
 	isDone = isDone
 )
 
-fun NewEvaluation.toAddEvaluationRequest() = AddEvaluationRequest(
+fun EvaluationAdd.toAddEvaluationRequest() = AddEvaluationRequest(
 	subjectId = subjectId,
 	name = name,
 	grade = grade,
@@ -33,7 +33,7 @@ fun NewEvaluation.toAddEvaluationRequest() = AddEvaluationRequest(
 	isDone = isDone
 )
 
-fun UpdateEvaluation.toAddEvaluationRequest() = UpdateEvaluationRequest(
+fun EvaluationUpdate.toAddEvaluationRequest() = UpdateEvaluationRequest(
 	evaluationId = evaluationId,
 	name = name,
 	grade = grade,
