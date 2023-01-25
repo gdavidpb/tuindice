@@ -22,6 +22,7 @@
         "subjects": [
           {
             "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
+            "qid": "00dgl8xNLNDJjEvXerARJUCAYTjK",
             "code": "FS1112",
             "name": "FISICA II",
             "credits": 3,
@@ -30,6 +31,7 @@
           },
           {
             "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
+            "qid": "00dgl8xNLNDJjEvXerARJUCAYTjK",
             "code": "CSZ621",
             "name": "DEL MEDIOEVO AL BARROCO",
             "credits": 3,
