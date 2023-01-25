@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.di.modules
+package com.gdavidpb.tuindice.di
 
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
@@ -6,10 +6,10 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
-import com.gdavidpb.tuindice.data.source.AuthMockDataSource
-import com.gdavidpb.tuindice.data.source.DebugKoinDataSource
-import com.gdavidpb.tuindice.data.source.MessagingMockDataSource
-import com.gdavidpb.tuindice.data.source.RemoteConfigMockDataSource
+import com.gdavidpb.tuindice.data.AuthMockDataSource
+import com.gdavidpb.tuindice.data.DebugKoinDataSource
+import com.gdavidpb.tuindice.data.MessagingMockDataSource
+import com.gdavidpb.tuindice.data.RemoteConfigMockDataSource
 import com.gdavidpb.tuindice.data.source.android.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.crashlytics.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource

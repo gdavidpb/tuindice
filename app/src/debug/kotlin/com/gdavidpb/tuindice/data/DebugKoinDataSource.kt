@@ -1,8 +1,8 @@
-package com.gdavidpb.tuindice.data.source
+package com.gdavidpb.tuindice.data
 
 import com.gdavidpb.tuindice.base.di.baseModule
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
-import com.gdavidpb.tuindice.di.modules.appMockModule
+import com.gdavidpb.tuindice.di.appMockModule
 import com.gdavidpb.tuindice.enrollmentproof.di.enrollmentProofModule
 import com.gdavidpb.tuindice.evaluations.di.evaluationsModule
 import com.gdavidpb.tuindice.login.di.loginModule

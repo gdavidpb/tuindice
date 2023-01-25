@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.source
+package com.gdavidpb.tuindice.data
 
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import java.util.*
