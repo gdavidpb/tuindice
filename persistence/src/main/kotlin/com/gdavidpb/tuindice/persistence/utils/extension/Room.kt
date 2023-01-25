@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.utils.extensions
+package com.gdavidpb.tuindice.persistence.utils.extension
 
 import androidx.room.RoomDatabase
 import androidx.room.withTransaction

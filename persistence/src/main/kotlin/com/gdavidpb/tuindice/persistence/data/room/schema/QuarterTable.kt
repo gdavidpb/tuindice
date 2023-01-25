@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.schema
+package com.gdavidpb.tuindice.persistence.data.room.schema
 
 object QuarterTable {
 	const val TABLE_NAME = "quarters"

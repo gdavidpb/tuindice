@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluationEntity
-import com.gdavidpb.tuindice.persistence.data.source.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 
 class RoomDataSource(
 	private val room: TuIndiceDatabase

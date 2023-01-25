@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.record.data.room.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
-import com.gdavidpb.tuindice.persistence.data.source.room.entities.QuarterEntity
-import com.gdavidpb.tuindice.persistence.data.source.room.entities.SubjectEntity
-import com.gdavidpb.tuindice.persistence.data.source.room.otm.QuarterWithSubjects
+import com.gdavidpb.tuindice.persistence.data.room.entity.QuarterEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
+import com.gdavidpb.tuindice.persistence.data.room.otm.QuarterWithSubjects
 
 fun Quarter.toQuarterEntity(uid: String) = QuarterEntity(
 	id = id,

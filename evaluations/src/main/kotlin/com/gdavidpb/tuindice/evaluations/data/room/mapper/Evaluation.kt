@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.data.room.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.persistence.data.source.room.entities.EvaluationEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 
 fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	id = evaluationId,

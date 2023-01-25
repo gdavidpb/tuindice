@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.daos
+package com.gdavidpb.tuindice.persistence.data.room.daos
 
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy

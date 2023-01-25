@@ -1,7 +1,7 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.mappers
+package com.gdavidpb.tuindice.summary.data.room.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Account
-import com.gdavidpb.tuindice.persistence.data.source.room.entities.AccountEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.AccountEntity
 
 fun Account.toAccountEntity(uid: String) = AccountEntity(
 	id = uid,

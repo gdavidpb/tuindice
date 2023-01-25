@@ -1,11 +1,11 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.entities
+package com.gdavidpb.tuindice.persistence.data.room.entity
 
 import androidx.room.*
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.persistence.data.source.room.schema.AccountTable
-import com.gdavidpb.tuindice.persistence.data.source.room.schema.EvaluationTable
-import com.gdavidpb.tuindice.persistence.data.source.room.schema.QuarterTable
-import com.gdavidpb.tuindice.persistence.data.source.room.schema.SubjectTable
+import com.gdavidpb.tuindice.persistence.data.room.schema.AccountTable
+import com.gdavidpb.tuindice.persistence.data.room.schema.EvaluationTable
+import com.gdavidpb.tuindice.persistence.data.room.schema.QuarterTable
+import com.gdavidpb.tuindice.persistence.data.room.schema.SubjectTable
 import java.util.*
 
 @Entity(

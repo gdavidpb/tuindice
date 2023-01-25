@@ -1,10 +1,10 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.entities
+package com.gdavidpb.tuindice.persistence.data.room.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.gdavidpb.tuindice.persistence.data.source.room.schema.AccountTable
+import com.gdavidpb.tuindice.persistence.data.room.schema.AccountTable
 import java.util.*
 
 @Entity(
