@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 class InternalStorageDataSource(
 	private val context: Context
 ) : StorageDataSource {
-	private val enrollmentProofDir = "enrollments"
+	private val enrollmentProofDir = "enrollmentProofs"
 
 	override suspend fun getEnrollmentProof(uid: String, name: String): EnrollmentProof {
 		val enrollmentProofFile = getEnrollmentProofFile(uid, name)
@@ -36,7 +36,7 @@ class InternalStorageDataSource(
 		val enrollmentProofFile = getEnrollmentProofFile(uid, name)
 
 		enrollmentProofFile.apply {
-			mkdirs()
+			parentFile?.mkdirs()
 
 			val base64ByteArray = enrollmentProof.content.decodeFromBase64String()
 
