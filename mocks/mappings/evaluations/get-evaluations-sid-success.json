@@ -3,8 +3,8 @@
     "method": "GET",
     "urlPath": "/evaluations",
     "queryParameters": {
-      "search_term": {
-        "equalTo": "sid"
+      "sid": {
+        "matches": "[\\daA-zZ]+"
       }
     }
   },
