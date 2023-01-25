@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError
 import com.gdavidpb.tuindice.evaluations.domain.exception.EvaluationIllegalArgumentException
-import com.gdavidpb.tuindice.evaluations.domain.mapper.toNewEvaluation
+import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.param.AddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.validator.AddEvaluationParamsValidator
@@ -20,7 +20,7 @@ class AddEvaluationUseCase(
 
 		return evaluationRepository.addEvaluation(
 			uid = activeUId,
-			evaluation = params.toNewEvaluation()
+			add = params.toEvaluationAdd()
 		)
 	}
 

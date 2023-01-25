@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.evaluations.domain.model
 
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 
-data class UpdateEvaluation(
+data class EvaluationUpdate(
 	val evaluationId: String,
 	val name: String?,
 	val grade: Double?,

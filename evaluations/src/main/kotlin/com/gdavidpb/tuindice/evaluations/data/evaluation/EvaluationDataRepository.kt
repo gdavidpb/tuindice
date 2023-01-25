@@ -4,8 +4,8 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
-import com.gdavidpb.tuindice.evaluations.domain.model.NewEvaluation
-import com.gdavidpb.tuindice.evaluations.domain.model.UpdateEvaluation
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 
 class EvaluationDataRepository(
@@ -24,20 +24,20 @@ class EvaluationDataRepository(
 		return localDataSource.getEvaluation(uid, eid)
 	}
 
-	override suspend fun addEvaluation(uid: String, evaluation: NewEvaluation): Evaluation {
-		val newEvaluation = remoteDataSource.addEvaluation(evaluation)
+	override suspend fun addEvaluation(uid: String, add: EvaluationAdd): Evaluation {
+		val newEvaluation = remoteDataSource.addEvaluation(add)
 
 		localDataSource.saveEvaluations(uid, newEvaluation)
 
 		return newEvaluation
 	}
 
-	override suspend fun updateEvaluation(uid: String, eid: String, evaluation: UpdateEvaluation): Evaluation {
-		val updateEvaluation = remoteDataSource.updateEvaluation(evaluation)
+	override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate): Evaluation {
+		val evaluation = remoteDataSource.updateEvaluation(update)
 
-		localDataSource.saveEvaluations(uid, updateEvaluation)
+		localDataSource.saveEvaluations(uid, evaluation)
 
-		return updateEvaluation
+		return evaluation
 	}
 
 	override suspend fun removeEvaluation(uid: String, eid: String) {
