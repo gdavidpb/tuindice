@@ -8,10 +8,10 @@ import com.gdavidpb.tuindice.base.utils.ScreenKeys
 import com.gdavidpb.tuindice.base.utils.SettingsKeys
 
 class PreferencesDataSource(
-	private val preferences: SharedPreferences
+	private val sharedPreferences: SharedPreferences
 ) : SettingsRepository {
 	override fun getLastScreen(): Int {
-		return when (preferences.getInt(SettingsKeys.LAST_SCREEN, R.id.fragment_summary)) {
+		return when (sharedPreferences.getInt(SettingsKeys.LAST_SCREEN, R.id.fragment_summary)) {
 			ScreenKeys.SUMMARY -> R.id.fragment_summary
 			ScreenKeys.RECORD -> R.id.fragment_record
 			ScreenKeys.ABOUT -> R.id.fragment_about
@@ -27,47 +27,33 @@ class PreferencesDataSource(
 			else -> ScreenKeys.SUMMARY
 		}
 
-		preferences.edit {
+		sharedPreferences.edit {
 			putInt(SettingsKeys.LAST_SCREEN, screenKey)
 		}
 	}
 
 	override fun getActiveToken(): String? {
-		return preferences.getString(SettingsKeys.ACTIVE_TOKEN, null)
+		return sharedPreferences.getString(SettingsKeys.ACTIVE_TOKEN, null)
 	}
 
 	override fun setActiveToken(token: String) {
-		preferences.edit {
+		sharedPreferences.edit {
 			putString(SettingsKeys.ACTIVE_TOKEN, token)
 		}
 	}
 
 	override fun isReviewSuggested(value: Int): Boolean {
-		val counter = preferences.getInt(SettingsKeys.SYNCS_COUNTER, 0) + 1
+		val counter = sharedPreferences.getInt(SettingsKeys.SYNCS_COUNTER, 0) + 1
 
-		preferences.edit {
+		sharedPreferences.edit {
 			putInt(SettingsKeys.SYNCS_COUNTER, counter)
 		}
 
 		return counter % value == 0
 	}
 
-	override fun saveSubscriptionTopic(topic: String) {
-		val topics = preferences.getStringSet(SettingsKeys.SUBSCRIBED_TOPICS, setOf()) ?: setOf()
-
-		preferences.edit {
-			putStringSet(SettingsKeys.SUBSCRIBED_TOPICS, topics + topic)
-		}
-	}
-
-	override fun isSubscribedToTopic(topic: String): Boolean {
-		val topics = preferences.getStringSet(SettingsKeys.SUBSCRIBED_TOPICS, setOf()) ?: setOf()
-
-		return topics.contains(topic)
-	}
-
 	override fun clear() {
-		preferences.edit {
+		sharedPreferences.edit {
 			clear()
 		}
 	}

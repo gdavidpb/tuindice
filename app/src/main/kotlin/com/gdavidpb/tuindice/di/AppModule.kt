@@ -9,14 +9,18 @@ import com.gdavidpb.tuindice.base.utils.extensions.sharedPreferences
 import com.gdavidpb.tuindice.data.source.android.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.crashlytics.CrashlyticsReportingDataSource
-import com.gdavidpb.tuindice.data.source.dependencies.ReleaseKoinDataSource
+import com.gdavidpb.tuindice.data.source.fcm.FCMDataRepository
+import com.gdavidpb.tuindice.data.source.fcm.FCMLocalDataSource
+import com.gdavidpb.tuindice.data.source.fcm.FCMRemoteDataSource
+import com.gdavidpb.tuindice.data.source.fcm.source.LocalDataSource
+import com.gdavidpb.tuindice.data.source.fcm.source.RemoteDataSource
 import com.gdavidpb.tuindice.data.source.firebase.FirebaseAuthDataSource
 import com.gdavidpb.tuindice.data.source.google.GooglePlayServicesDataSource
+import com.gdavidpb.tuindice.data.source.koin.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.source.mutex.MutexDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
-import com.gdavidpb.tuindice.data.source.token.FirebaseCloudMessagingDataSource
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
@@ -125,10 +129,15 @@ val appModule = module {
 
 	/* Repositories */
 
+	factoryOf(::FCMDataRepository) { bind<MessagingRepository>() }
+
+	/* Data sources */
+
+	factoryOf(::FCMRemoteDataSource) { bind<RemoteDataSource>() }
+	factoryOf(::FCMLocalDataSource) { bind<LocalDataSource>() }
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
 	factoryOf(::FirebaseAuthDataSource) { bind<AuthRepository>() }
-	factoryOf(::FirebaseCloudMessagingDataSource) { bind<MessagingRepository>() }
 	factoryOf(::RemoteConfigDataSource) { bind<ConfigRepository>() }
 	factoryOf(::CrashlyticsReportingDataSource) { bind<ReportingRepository>() }
 	factoryOf(::ReleaseKoinDataSource) { bind<DependenciesRepository>() }
@@ -138,7 +147,6 @@ val appModule = module {
 	/* Utils */
 
 	singleOf(::Gson)
-
 	singleOf(::MutexDataSource) { bind<ConcurrencyRepository>() }
 
 	single {

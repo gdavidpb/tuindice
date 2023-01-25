@@ -1,22 +1,24 @@
 package com.gdavidpb.tuindice.login.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.repository.*
+import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
 import com.gdavidpb.tuindice.base.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.utils.Topics
 import com.gdavidpb.tuindice.base.utils.annotations.Timeout
 import com.gdavidpb.tuindice.base.utils.extensions.*
-import com.gdavidpb.tuindice.login.domain.param.SignInParams
-import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.error.SignInError
 import com.gdavidpb.tuindice.login.domain.exception.SignInIllegalArgumentException
+import com.gdavidpb.tuindice.login.domain.param.SignInParams
+import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.validator.SignInParamsValidator
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class SignInUseCase(
 	private val authRepository: AuthRepository,
 	private val loginRepository: LoginRepository,
-	private val settingsRepository: SettingsRepository,
 	private val messagingRepository: MessagingRepository,
 	private val reportingRepository: ReportingRepository,
 	private val networkRepository: NetworkRepository,
@@ -41,11 +43,7 @@ class SignInUseCase(
 
 		reportingRepository.setIdentifier(identifier = authSignIn.uid)
 
-		// TODO migrate to local-remote pattern
-		if (!settingsRepository.isSubscribedToTopic(Topics.TOPIC_GENERAL)) {
-			messagingRepository.subscribeToTopic(Topics.TOPIC_GENERAL)
-			settingsRepository.saveSubscriptionTopic(Topics.TOPIC_GENERAL)
-		}
+		messagingRepository.subscribeToTopic(topic = Topics.TOPIC_GENERAL)
 	}
 
 	override suspend fun executeOnException(throwable: Throwable): SignInError? {
