@@ -7,9 +7,9 @@ import com.gdavidpb.tuindice.persistence.data.source.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.source.room.schema.DatabaseModel
 
 class AndroidApplicationDataSource(
-	private val sharedPreferences: SharedPreferences,
+	private val context: Context,
 	private val room: TuIndiceDatabase,
-	private val context: Context
+	private val sharedPreferences: SharedPreferences
 ) : ApplicationRepository {
 	override suspend fun clearData() {
 		room.clearAllTables()
