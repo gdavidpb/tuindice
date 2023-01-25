@@ -69,6 +69,7 @@ dependencies {
     implementation project(":about")
     implementation project(":summary")
     implementation project(":record")
+    implementation project(":enrollmentproof")
     implementation project(":evaluations")
 
     testImplementation "junit:junit:4.13.2"
