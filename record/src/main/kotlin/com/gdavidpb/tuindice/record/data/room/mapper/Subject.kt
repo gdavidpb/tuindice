@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.persistence.data.source.room.mappers
+package com.gdavidpb.tuindice.record.data.room.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.persistence.data.source.room.entities.SubjectEntity

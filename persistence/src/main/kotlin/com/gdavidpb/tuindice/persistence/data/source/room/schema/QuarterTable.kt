@@ -4,6 +4,7 @@ object QuarterTable {
 	const val TABLE_NAME = "quarters"
 
 	const val ID = "quarter_id"
+	const val NAME = "quarter_name"
 	const val ACCOUNT_ID = "quarter_account_id"
 	const val STATUS = "quarter_status"
 	const val GRADE = "quarter_grade"

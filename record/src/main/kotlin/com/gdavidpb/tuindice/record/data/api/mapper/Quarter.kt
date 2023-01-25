@@ -14,6 +14,6 @@ fun QuarterResponse.toQuarter() = Quarter(
 	credits = credits,
 	status = status,
 	subjects = subjects.map { subjectResponse ->
-		subjectResponse.toSubject(qid = id)
+		subjectResponse.toSubject()
 	}.toMutableList()
 )
