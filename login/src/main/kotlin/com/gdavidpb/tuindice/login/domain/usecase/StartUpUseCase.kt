@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.login.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.StartUpAction
-import com.gdavidpb.tuindice.base.domain.model.exception.ServicesUnavailableException
+import com.gdavidpb.tuindice.base.domain.exception.ServicesUnavailableException
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.base.utils.extension.isConnection

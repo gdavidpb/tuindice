@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.domain.model.exception
+package com.gdavidpb.tuindice.base.domain.exception
 
 import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
 

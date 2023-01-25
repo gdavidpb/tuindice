@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.ui.adapters.BottomMenuAdapter
 import com.gdavidpb.tuindice.base.utils.extension.drawables
 import com.gdavidpb.tuindice.base.utils.extension.getCompatColor
-import com.gdavidpb.tuindice.base.utils.extension.getDrawable
+import com.gdavidpb.tuindice.base.utils.extension.getCompatDrawable
 import com.gdavidpb.tuindice.base.utils.extension.onClickOnce
 import com.google.android.material.textview.MaterialTextView
 
@@ -30,7 +30,7 @@ class BottomMenuViewHolder(
 			setTextColor(context.getCompatColor(item.textColor))
 
 			drawables(
-				start = context.getDrawable(
+				start = context.getCompatDrawable(
 					drawableRes = item.iconResource,
 					colorRes = item.iconColor
 				)

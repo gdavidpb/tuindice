@@ -15,7 +15,7 @@ fun Context.getCompatColor(@ColorRes colorRes: Int): Int {
 	return ContextCompat.getColor(this, colorRes)
 }
 
-fun Context.getDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes: Int): Drawable? {
+fun Context.getCompatDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes: Int): Drawable? {
 	return ContextCompat.getDrawable(this, drawableRes)
 		?.let { drawable -> DrawableCompat.wrap(drawable).mutate() }
 		?.also { drawable ->
