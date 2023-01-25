@@ -23,4 +23,10 @@ class FCMDataRepository(
 		if (localDataSource.isSubscribedToTopic(topic))
 			remoteDataSource.unsubscribeFromTopic(topic)
 	}
+
+	override suspend fun unsubscribeFromAllTopics() {
+		localDataSource.getSubscribedTopics().forEach { topic ->
+			remoteDataSource.unsubscribeFromTopic(topic)
+		}
+	}
 }

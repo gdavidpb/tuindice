@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data
 
-import com.gdavidpb.tuindice.ConfigKeys
+import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.utils.extension.getStringList
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig

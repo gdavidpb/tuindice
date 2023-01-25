@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice
+package com.gdavidpb.tuindice.utils
 
 object ConfigKeys {
 	const val CONTACT_EMAIL = "contact_email"
