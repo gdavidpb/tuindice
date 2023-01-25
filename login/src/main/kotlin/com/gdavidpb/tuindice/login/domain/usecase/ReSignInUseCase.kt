@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
 import com.gdavidpb.tuindice.base.utils.annotation.Timeout
 import com.gdavidpb.tuindice.base.utils.extension.*
-import com.gdavidpb.tuindice.base.utils.mapper.asUsbId
+import com.gdavidpb.tuindice.login.presentation.mapper.asUsbId
 import com.gdavidpb.tuindice.login.utils.ConfigKeys
 import com.gdavidpb.tuindice.login.domain.error.SignInError
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
