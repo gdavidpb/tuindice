@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError
 import com.gdavidpb.tuindice.evaluations.domain.exception.EvaluationIllegalArgumentException
@@ -13,6 +15,8 @@ import com.gdavidpb.tuindice.evaluations.domain.validator.UpdateEvaluationParams
 class UpdateEvaluationUseCase(
 	private val authRepository: AuthRepository,
 	private val evaluationRepository: EvaluationRepository,
+	override val configRepository: ConfigRepository,
+	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: UpdateEvaluationParamsValidator
 ) : ResultUseCase<UpdateEvaluationParams, Evaluation, EvaluationError>() {
 	override suspend fun executeOnBackground(params: UpdateEvaluationParams): Evaluation {

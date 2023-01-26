@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.summary.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
 import com.gdavidpb.tuindice.base.utils.annotation.Timeout
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
@@ -15,7 +17,9 @@ import com.gdavidpb.tuindice.summary.utils.ConfigKeys
 class UploadProfilePictureUseCase(
 	private val accountRepository: AccountRepository,
 	private val encoderRepository: EncoderRepository,
-	private val networkRepository: NetworkRepository
+	private val networkRepository: NetworkRepository,
+	override val configRepository: ConfigRepository,
+	override val reportingRepository: ReportingRepository
 ) : EventUseCase<String, String, ProfilePictureError>() {
 	override suspend fun executeOnBackground(params: String): String {
 		val encodedPicture = encoderRepository.encodePicture(path = params)

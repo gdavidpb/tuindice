@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.base.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
 import com.gdavidpb.tuindice.base.utils.extension.await
 import com.gdavidpb.tuindice.base.utils.extension.isUpdateAvailable
@@ -10,7 +11,8 @@ import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.ktx.isImmediateUpdateAllowed
 
 class GetUpdateInfoUseCase(
-	private val configRepository: ConfigRepository
+	override val configRepository: ConfigRepository,
+	override val reportingRepository: ReportingRepository
 ) : EventUseCase<AppUpdateManager, AppUpdateInfo, Nothing>() {
 	override suspend fun executeOnBackground(params: AppUpdateManager): AppUpdateInfo? {
 		val updateInfo = params.appUpdateInfo.await() ?: return null

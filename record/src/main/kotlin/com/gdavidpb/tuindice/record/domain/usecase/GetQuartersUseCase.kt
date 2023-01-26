@@ -1,9 +1,7 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.domain.repository.ConcurrencyRepository
-import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.base.utils.Locks
 import com.gdavidpb.tuindice.base.utils.extension.*
@@ -14,7 +12,9 @@ class GetQuartersUseCase(
 	private val authRepository: AuthRepository,
 	private val quarterRepository: QuarterRepository,
 	private val concurrencyRepository: ConcurrencyRepository,
-	private val networkRepository: NetworkRepository
+	private val networkRepository: NetworkRepository,
+	override val configRepository: ConfigRepository,
+	override val reportingRepository: ReportingRepository
 ) : ResultUseCase<Unit, List<Quarter>, GetQuartersError>() {
 	override suspend fun executeOnBackground(params: Unit): List<Quarter> {
 		val activeUId = authRepository.getActiveAuth().uid

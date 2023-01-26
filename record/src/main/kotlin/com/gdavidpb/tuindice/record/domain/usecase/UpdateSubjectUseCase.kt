@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.record.domain.error.SubjectError
 import com.gdavidpb.tuindice.record.domain.exception.SubjectIllegalArgumentException
@@ -13,6 +15,8 @@ import com.gdavidpb.tuindice.record.domain.validator.UpdateSubjectParamsValidato
 class UpdateSubjectUseCase(
 	private val authRepository: AuthRepository,
 	private val quarterRepository: QuarterRepository,
+	override val configRepository: ConfigRepository,
+	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: UpdateSubjectParamsValidator
 ) : ResultUseCase<UpdateSubjectParams, Subject, SubjectError>() {
 	override suspend fun executeOnBackground(params: UpdateSubjectParams): Subject {

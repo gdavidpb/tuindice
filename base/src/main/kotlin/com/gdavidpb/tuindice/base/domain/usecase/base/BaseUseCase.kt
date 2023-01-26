@@ -8,27 +8,24 @@ import com.gdavidpb.tuindice.base.utils.ReportKeys
 import com.gdavidpb.tuindice.base.utils.extension.getTimeoutKey
 import com.gdavidpb.tuindice.base.utils.extension.hasTimeoutKey
 import kotlinx.coroutines.*
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
-abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
+abstract class BaseUseCase<P, T, E, L : LiveData<*>>(
 	protected open val backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO,
-	protected open val foregroundDispatcher: CoroutineDispatcher = Dispatchers.Main
-) : KoinComponent {
-	private val reportingRepository by inject<ReportingRepository>()
-	private val configRepository by inject<ConfigRepository>()
+	protected open val foregroundDispatcher: CoroutineDispatcher = Dispatchers.Main,
+) {
+	protected abstract val configRepository: ConfigRepository
+	protected abstract val reportingRepository: ReportingRepository
 
 	protected open val paramsValidator: Validator<P>? = null
 
 	abstract suspend fun executeOnBackground(params: P): T?
 
-	open suspend fun executeOnResponse(liveData: L, response: T) {}
-	open suspend fun executeOnException(throwable: Throwable): Q? = null
+	open suspend fun executeOnException(throwable: Throwable): E? = null
 
 	protected abstract suspend fun onStart(liveData: L)
 	protected abstract suspend fun onEmpty(liveData: L)
 	protected abstract suspend fun onSuccess(liveData: L, response: T)
-	protected abstract suspend fun onFailure(liveData: L, error: Q?)
+	protected abstract suspend fun onError(liveData: L, error: E?)
 
 	fun execute(params: P, liveData: L, coroutineScope: CoroutineScope) {
 		coroutineScope.launch(foregroundDispatcher) {
@@ -38,7 +35,7 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
 				onStart(liveData)
 
 				withContext(backgroundDispatcher) {
-					val response = if (hasTimeoutKey()) {
+					if (hasTimeoutKey()) {
 						val key = getTimeoutKey()
 						val timeMillis = configRepository.getTimeout(key)
 
@@ -46,25 +43,25 @@ abstract class BaseUseCase<P, T, Q, L : LiveData<*>>(
 					} else {
 						executeOnBackground(params)
 					}
-
-					response?.also { executeOnResponse(liveData, it) }
 				}
 			}.onSuccess { response ->
-				if (response != null) onSuccess(liveData, response)
-				else onEmpty(liveData)
+				if (response != null)
+					onSuccess(liveData, response)
+				else
+					onEmpty(liveData)
 			}.onFailure { throwable ->
 				val error = runCatching { executeOnException(throwable) }.getOrNull()
 
-				reportFailure(throwable = throwable, isHandled = (error != null))
+				logException(throwable, error)
 
-				onFailure(liveData, error)
+				onError(liveData, error)
 			}
 		}
 	}
 
-	private fun reportFailure(throwable: Throwable, isHandled: Boolean) {
-		reportingRepository.setCustomKey(ReportKeys.USE_CASE, "${this@BaseUseCase::class.simpleName}")
-		reportingRepository.setCustomKey(ReportKeys.HANDLED, isHandled)
+	private fun logException(throwable: Throwable, error: E?) {
+		reportingRepository.setCustomKey(ReportKeys.USE_CASE, "${this::class.simpleName}")
+		reportingRepository.setCustomKey(ReportKeys.HANDLED, error != null)
 		reportingRepository.logException(throwable)
 	}
 }

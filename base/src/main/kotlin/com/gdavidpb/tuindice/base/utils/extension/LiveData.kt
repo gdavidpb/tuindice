@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 typealias LiveResult<T, Q> = MutableLiveData<Result<T, Q>>
 typealias LiveCompletable<Q> = MutableLiveData<Completable<Q>>
-typealias LiveFlow<T, Q> = MutableLiveData<Flow<T, Q>>
 
 open class LiveEvent<T, Q> : MutableLiveData<Event<T, Q>>() {
 	private val lock = AtomicBoolean(false)
@@ -61,20 +60,6 @@ fun <Q> LiveCompletable<Q>.postError(error: Q?) = postValue(Completable.OnError(
 
 @JvmName("postLoadingCompletable")
 fun <Q> LiveCompletable<Q>.postLoading() = postValue(Completable.OnLoading())
-
-/* LiveFlow */
-
-@JvmName("postStartFlow")
-fun <T, Q> LiveFlow<T, Q>.postStart() = postValue(Flow.OnStart())
-
-@JvmName("postNextFlow")
-fun <T, Q> LiveFlow<T, Q>.postNext(value: T) = postValue(Flow.OnNext(value))
-
-@JvmName("postCompleteFlow")
-fun <T, Q> LiveFlow<T, Q>.postComplete() = postValue(Flow.OnComplete())
-
-@JvmName("postErrorFlow")
-fun <T, Q> LiveFlow<T, Q>.postError(error: Q?) = postValue(Flow.OnError(error))
 
 fun <T, L : MutableLiveData<T>> LifecycleOwner.observe(liveData: L, body: (T?) -> Unit) =
 	liveData.observe(this, Observer(body))

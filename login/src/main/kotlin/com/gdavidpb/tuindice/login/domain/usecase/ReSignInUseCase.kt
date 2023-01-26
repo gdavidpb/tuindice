@@ -1,20 +1,24 @@
 package com.gdavidpb.tuindice.login.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
 import com.gdavidpb.tuindice.base.utils.annotation.Timeout
 import com.gdavidpb.tuindice.base.utils.extension.*
-import com.gdavidpb.tuindice.login.presentation.mapper.asUsbId
-import com.gdavidpb.tuindice.login.utils.ConfigKeys
 import com.gdavidpb.tuindice.login.domain.error.SignInError
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
+import com.gdavidpb.tuindice.login.presentation.mapper.asUsbId
+import com.gdavidpb.tuindice.login.utils.ConfigKeys
 
 @Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class ReSignInUseCase(
 	private val authRepository: AuthRepository,
 	private val loginRepository: LoginRepository,
-	private val networkRepository: NetworkRepository
+	private val networkRepository: NetworkRepository,
+	override val configRepository: ConfigRepository,
+	override val reportingRepository: ReportingRepository
 ) : EventUseCase<String, Unit, SignInError>() {
 	override suspend fun executeOnBackground(params: String) {
 		val activeAuth = authRepository.getActiveAuth()

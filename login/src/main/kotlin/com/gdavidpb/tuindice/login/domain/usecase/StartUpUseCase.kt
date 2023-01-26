@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.login.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.model.StartUpAction
 import com.gdavidpb.tuindice.base.domain.exception.ServicesUnavailableException
+import com.gdavidpb.tuindice.base.domain.model.StartUpAction
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.ResultUseCase
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
@@ -12,9 +12,10 @@ class StartUpUseCase(
 	private val authRepository: AuthRepository,
 	private val settingsRepository: SettingsRepository,
 	private val networkRepository: NetworkRepository,
-	private val configRepository: ConfigRepository,
 	private val applicationRepository: ApplicationRepository,
-	private val mobileServicesRepository: MobileServicesRepository
+	private val mobileServicesRepository: MobileServicesRepository,
+	override val configRepository: ConfigRepository,
+	override val reportingRepository: ReportingRepository
 ) : ResultUseCase<String, StartUpAction, StartUpError>() {
 	override suspend fun executeOnBackground(params: String): StartUpAction {
 		val servicesStatus = mobileServicesRepository.getServicesStatus()
