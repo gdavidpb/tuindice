@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.summary.ui.fragment
 
-import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.Menu
@@ -9,7 +8,6 @@ import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
@@ -34,7 +32,6 @@ import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.adapter.SummaryAdapter
 import com.gdavidpb.tuindice.summary.utils.extension.fileProviderUri
 import com.squareup.picasso.Picasso
-import com.squareup.picasso.Target
 import kotlinx.android.synthetic.main.fragment_summary.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -50,6 +47,8 @@ class SummaryFragment : NavigationFragment() {
 	private val picasso by inject<Picasso>()
 
 	private val summaryAdapter = SummaryAdapter()
+
+	private val profilePicture = LiveResult<Drawable, Nothing>()
 
 	private val cameraOutputUri by lazy {
 		runCatching {
@@ -96,6 +95,7 @@ class SummaryFragment : NavigationFragment() {
 		with(viewModel) {
 			observe(account, ::accountObserver)
 			observe(signOut, ::signOutObserver)
+			observe(profilePicture, ::profilePictureObserver)
 			observe(uploadProfilePicture, ::uploadProfilePictureObserver)
 			observe(removeProfilePicture, ::removeProfilePictureObserver)
 		}
@@ -202,39 +202,17 @@ class SummaryFragment : NavigationFragment() {
 	}
 
 	private fun loadProfilePictureFromUrl(url: String?) {
-		if (url == null) {
+		if (url != null) {
+			with(picasso) {
+				invalidate(url)
+
+				load(url)
+					.noFade()
+					.stableKey(url)
+					.into(resources, profilePicture)
+			}
+		} else {
 			vProfilePicture.setDrawable(null)
-			return
-		}
-
-		with(picasso) {
-			invalidate(url)
-
-			load(url)
-				.noFade()
-				.stableKey(url)
-				.into(object : Target {
-					override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
-						val drawable = bitmap.toDrawable(resources)
-
-						if (!vProfilePicture.hasProfilePicture)
-							vProfilePicture.setLoading(false)
-
-						vProfilePicture.setDrawable(drawable)
-					}
-
-					override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-						if (!vProfilePicture.hasProfilePicture)
-							vProfilePicture.setLoading(false)
-						
-						errorSnackBar()
-					}
-
-					override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-						if (!vProfilePicture.hasProfilePicture)
-							vProfilePicture.setLoading(true)
-					}
-				})
 		}
 	}
 
@@ -242,18 +220,6 @@ class SummaryFragment : NavigationFragment() {
 		findNavController().popStackToRoot()
 
 		navigate(SummaryFragmentDirections.navToSignIn())
-	}
-
-	private fun signOutObserver(result: Completable<Nothing>?) {
-		when (result) {
-			is Completable.OnComplete -> {
-				navigateToSignIn()
-			}
-			is Completable.OnError -> {
-				requireActivity().recreate()
-			}
-			else -> {}
-		}
 	}
 
 	private fun accountObserver(result: Result<Account, GetAccountError>?) {
@@ -270,6 +236,42 @@ class SummaryFragment : NavigationFragment() {
 				pBarSummary.isVisible = false
 
 				accountErrorHandler(error = result.error)
+			}
+			else -> {}
+		}
+	}
+
+	private fun signOutObserver(result: Completable<Nothing>?) {
+		when (result) {
+			is Completable.OnComplete -> {
+				navigateToSignIn()
+			}
+			is Completable.OnError -> {
+				requireActivity().recreate()
+			}
+			else -> {}
+		}
+	}
+
+	private fun profilePictureObserver(result: Result<Drawable, Nothing>?) {
+		when (result) {
+			is Result.OnLoading -> {
+				if (!vProfilePicture.hasProfilePicture)
+					vProfilePicture.setLoading(true)
+			}
+			is Result.OnError -> {
+				if (!vProfilePicture.hasProfilePicture)
+					vProfilePicture.setLoading(false)
+
+				errorSnackBar()
+			}
+			is Result.OnSuccess -> {
+				val drawable = result.value
+
+				if (!vProfilePicture.hasProfilePicture)
+					vProfilePicture.setLoading(false)
+
+				vProfilePicture.setDrawable(drawable)
 			}
 			else -> {}
 		}
