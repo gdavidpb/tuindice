@@ -12,7 +12,7 @@ interface AccountDao : BaseDao<AccountEntity> {
 		"SELECT EXISTS(" +
 				"SELECT 1 FROM ${AccountTable.TABLE_NAME} " +
 				"WHERE ${AccountTable.ID} = :uid " +
-				"AND datetime(${AccountTable.TABLE_NAME}.${AccountTable.LAST_UPDATE}, '+1 day') >= datetime('now'))"
+				"AND datetime(${AccountTable.LAST_UPDATE} / 1000, 'unixepoch', '+1 day') >= datetime('now'))"
 	)
 	suspend fun isUpdated(uid: String): Boolean
 
