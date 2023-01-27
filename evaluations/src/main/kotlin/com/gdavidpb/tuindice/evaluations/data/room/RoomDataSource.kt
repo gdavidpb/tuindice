@@ -26,9 +26,8 @@ class RoomDataSource(
 	override suspend fun saveEvaluations(uid: String, vararg evaluations: Evaluation) {
 		val evaluationEntities = evaluations
 			.map { evaluation -> evaluation.toEvaluationEntity(uid) }
-			.toTypedArray()
 
-		room.evaluations.insert(*evaluationEntities)
+		room.evaluations.insertEvaluations(evaluationEntities)
 	}
 
 	override suspend fun removeEvaluation(uid: String, eid: String) {

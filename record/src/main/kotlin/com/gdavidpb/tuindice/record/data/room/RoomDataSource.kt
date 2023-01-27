@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.record.data.room
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.persistence.utils.extension.withTransaction
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.room.mapper.toQuarter
 import com.gdavidpb.tuindice.record.data.room.mapper.toQuarterEntity
@@ -19,24 +18,19 @@ class RoomDataSource(
 	}
 
 	override suspend fun getQuarters(uid: String): List<Quarter> {
-		return room.quarters.getQuarters(uid)
+		return room.quarters.getQuartersWithSubjects(uid)
 			.map { (quarter, subjects) -> quarter.toQuarter(subjects) }
 	}
 
 	override suspend fun saveQuarters(uid: String, quarters: List<Quarter>) {
 		val quarterEntities = quarters
 			.map { quarter -> quarter.toQuarterEntity(uid) }
-			.toTypedArray()
 
 		val subjectEntities = quarters
 			.flatMap { quarter -> quarter.subjects }
 			.map { subject -> subject.toSubjectEntity(uid) }
-			.toTypedArray()
 
-		room.withTransaction {
-			this.quarters.insert(*quarterEntities)
-			this.subjects.insert(*subjectEntities)
-		}
+		room.quarters.insertQuartersAndSubjects(quarterEntities, subjectEntities)
 	}
 
 	override suspend fun removeQuarter(uid: String, qid: String) {
@@ -46,9 +40,8 @@ class RoomDataSource(
 	override suspend fun saveSubjects(uid: String, vararg subjects: Subject) {
 		val subjectEntities = subjects
 			.map { subject -> subject.toSubjectEntity(uid) }
-			.toTypedArray()
 
-		room.subjects.insert(*subjectEntities)
+		room.subjects.insertSubjects(subjectEntities)
 	}
 
 	override suspend fun updateSubject(uid: String, update: SubjectUpdate): Subject {

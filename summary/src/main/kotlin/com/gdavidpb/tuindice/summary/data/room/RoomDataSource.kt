@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.summary.data.room
 
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.summary.data.account.source.LocalDataSource
 import com.gdavidpb.tuindice.summary.data.room.mapper.toAccount
 import com.gdavidpb.tuindice.summary.data.room.mapper.toAccountEntity
-import com.gdavidpb.tuindice.summary.data.account.source.LocalDataSource
 
 class RoomDataSource(
 	private val room: TuIndiceDatabase
@@ -20,7 +20,7 @@ class RoomDataSource(
 	override suspend fun saveAccount(uid: String, account: Account) {
 		val accountEntity = account.toAccountEntity()
 
-		room.accounts.insert(accountEntity)
+		room.accounts.insertAccount(accountEntity)
 	}
 
 	override suspend fun saveProfilePicture(uid: String, url: String) {
