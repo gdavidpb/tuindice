@@ -2,11 +2,14 @@ apply plugin: "kotlin-android"
 apply plugin: "kotlin-android-extensions"
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion core.targetSdk
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 33
+        vectorDrawables.useSupportLibrary = true
+        minSdkVersion core.minSdk
+        targetSdkVersion core.targetSdk
+        versionCode 35
+        versionName "5.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
