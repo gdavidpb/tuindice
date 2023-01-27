@@ -121,9 +121,9 @@ class SignInFragment : NavigationFragment() {
 			is Event.OnLoading -> {
 				showLoading(true)
 
-				hideSoftKeyboard()
+				onLogoClick()
 
-				iViewLogo.performClick()
+				hideSoftKeyboard()
 			}
 			is Event.OnSuccess -> {
 				navigate(SignInFragmentDirections.navToSplash())
