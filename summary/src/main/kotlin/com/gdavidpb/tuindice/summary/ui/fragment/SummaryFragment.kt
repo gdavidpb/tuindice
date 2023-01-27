@@ -94,8 +94,8 @@ class SummaryFragment : NavigationFragment() {
 
 	override fun onInitObservers() {
 		with(viewModel) {
-			observe(signOut, ::signOutObserver)
 			observe(account, ::accountObserver)
+			observe(signOut, ::signOutObserver)
 			observe(uploadProfilePicture, ::uploadProfilePictureObserver)
 			observe(removeProfilePicture, ::removeProfilePictureObserver)
 		}
@@ -169,13 +169,10 @@ class SummaryFragment : NavigationFragment() {
 	}
 
 	private fun loadProfile(account: Account) {
-		val context = requireContext()
-
 		/* Load account */
 
 		val shortName = account.toShortName()
-		val lastUpdate =
-			context.getString(R.string.text_last_update, account.lastUpdate.formatLastUpdate())
+		val lastUpdate = getString(R.string.text_last_update, account.lastUpdate.formatLastUpdate())
 
 		tViewName.text = shortName
 		tViewCareer.text = account.careerName
@@ -194,6 +191,7 @@ class SummaryFragment : NavigationFragment() {
 		loadProfilePictureFromUrl(url = account.pictureUrl)
 
 		/* Load summary */
+		val context = requireContext()
 
 		val subjectsSummary = account.toSubjectsSummaryItem(context)
 		val creditsSummary = account.toCreditsSummaryItem(context)
@@ -205,9 +203,7 @@ class SummaryFragment : NavigationFragment() {
 
 	private fun loadProfilePictureFromUrl(url: String?) {
 		if (url == null) {
-			vProfilePicture.setLoading(false)
 			vProfilePicture.setDrawable(null)
-
 			return
 		}
 
@@ -221,17 +217,22 @@ class SummaryFragment : NavigationFragment() {
 					override fun onBitmapLoaded(bitmap: Bitmap, from: Picasso.LoadedFrom) {
 						val drawable = bitmap.toDrawable(resources)
 
-						vProfilePicture.setLoading(false)
+						if (!vProfilePicture.hasProfilePicture)
+							vProfilePicture.setLoading(false)
+
 						vProfilePicture.setDrawable(drawable)
 					}
 
 					override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-						vProfilePicture.setLoading(false)
+						if (!vProfilePicture.hasProfilePicture)
+							vProfilePicture.setLoading(false)
+						
 						errorSnackBar()
 					}
 
 					override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-						vProfilePicture.setLoading(true)
+						if (!vProfilePicture.hasProfilePicture)
+							vProfilePicture.setLoading(true)
 					}
 				})
 		}

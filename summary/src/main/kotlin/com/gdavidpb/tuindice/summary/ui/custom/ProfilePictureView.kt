@@ -6,7 +6,8 @@ import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
-import com.gdavidpb.tuindice.base.utils.extension.*
+import com.gdavidpb.tuindice.base.utils.extension.animateScaleDown
+import com.gdavidpb.tuindice.base.utils.extension.animateScaleUp
 import com.gdavidpb.tuindice.summary.R
 import kotlinx.android.synthetic.main.view_profile_picture.view.*
 
