@@ -6,6 +6,7 @@ import java.util.*
 
 fun AccountResponse.toAccount() = Account(
 	id = id,
+	cid = cid,
 	usbId = usbId,
 	email = email,
 	pictureUrl = pictureUrl,

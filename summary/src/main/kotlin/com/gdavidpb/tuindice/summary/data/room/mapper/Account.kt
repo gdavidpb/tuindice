@@ -3,9 +3,9 @@ package com.gdavidpb.tuindice.summary.data.room.mapper
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.persistence.data.room.entity.AccountEntity
 
-fun Account.toAccountEntity(uid: String) = AccountEntity(
-	id = uid,
-	cid = id,
+fun Account.toAccountEntity() = AccountEntity(
+	id = id,
+	cid = cid,
 	usbId = usbId,
 	email = email,
 	pictureUrl = pictureUrl,
@@ -29,6 +29,7 @@ fun Account.toAccountEntity(uid: String) = AccountEntity(
 
 fun AccountEntity.toAccount() = Account(
 	id = id,
+	cid = cid,
 	usbId = usbId,
 	email = email,
 	pictureUrl = pictureUrl,

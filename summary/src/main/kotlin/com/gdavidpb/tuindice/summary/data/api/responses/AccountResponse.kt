@@ -6,6 +6,8 @@ import java.util.Date
 data class AccountResponse(
 	@SerializedName("id")
 	val id: String,
+	@SerializedName("c_id")
+	val cid: String,
 	@SerializedName("usb_id")
 	val usbId: String,
 	@SerializedName("email")

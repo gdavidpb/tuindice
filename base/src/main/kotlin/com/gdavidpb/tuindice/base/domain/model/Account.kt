@@ -4,6 +4,7 @@ import java.util.*
 
 data class Account(
 	val id: String,
+	val cid: String,
 	val usbId: String,
 	val email: String,
 	val pictureUrl: String,
