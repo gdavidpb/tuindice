@@ -18,7 +18,6 @@
         "grade_sum": 5.0,
         "credits": 8,
         "status": 0,
-        "is_mock": false,
         "subjects": [
           {
             "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",

@@ -11,6 +11,5 @@ data class QuarterResponse(
 	@SerializedName("grade_sum") val gradeSum: Double,
 	@SerializedName("credits") val credits: Int,
 	@SerializedName("status") val status: Int,
-	@SerializedName("is_mock") val isMock: Boolean,
 	@SerializedName("subjects") val subjects: List<SubjectResponse>
 )
