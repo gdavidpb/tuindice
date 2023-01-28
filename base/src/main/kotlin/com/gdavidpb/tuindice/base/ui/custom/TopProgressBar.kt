@@ -30,16 +30,16 @@ class TopProgressBar(context: Context, attrs: AttributeSet) : ProgressBar(contex
 	override fun onDrawHook(canvas: Canvas, superOnDraw: (Canvas) -> Unit) {
 		if (!onDrawLocker.compareAndSet(false, true)) return
 
-		val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+		val bitmapHook = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
 		val canvasHook = Canvas(bitmapHook)
 
 		canvasHook.drawColor(backgroundColor)
 
 		superOnDraw(canvasHook)
 
-		val x = width / 2
+		val x = measuredWidth / 2
 
-		noTopPadding = (0 until height).firstOrNull { y ->
+		noTopPadding = (0 until measuredHeight).firstOrNull { y ->
 			bitmapHook.getPixel(x, y) != backgroundColor
 		}?.toFloat() ?: 0f
 

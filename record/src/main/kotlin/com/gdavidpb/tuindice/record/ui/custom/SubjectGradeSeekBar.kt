@@ -30,12 +30,12 @@ class SubjectGradeSeekBar(context: Context, attrs: AttributeSet) : AppCompatSeek
 		super.onDraw(canvas)
 
 		if (progress < max) {
-			val barSize = (width - (paddingLeft + paddingRight)).toFloat()
+			val barSize = (measuredWidth - (paddingLeft + paddingRight)).toFloat()
 			val radius = ceil(tickSize / 2f)
 			val step = (barSize / max)
 
 			val translateX = paddingLeft.toFloat()
-			val halfHeight = (height / 2f)
+			val halfHeight = (measuredHeight / 2f)
 
 			for (i in progress.inc()..max) canvas.drawCircle(
 				(i * step) + translateX,
@@ -49,7 +49,7 @@ class SubjectGradeSeekBar(context: Context, attrs: AttributeSet) : AppCompatSeek
 	override fun onDrawHook(canvas: Canvas, superOnDraw: (Canvas) -> Unit) {
 		if (!onDrawLocker.compareAndSet(false, true)) return
 
-		val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+		val bitmapHook = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
 		val canvasHook = Canvas(bitmapHook)
 		val progressHook = progress
 		val maxHook = max
@@ -74,16 +74,16 @@ class SubjectGradeSeekBar(context: Context, attrs: AttributeSet) : AppCompatSeek
 	}
 
 	private fun getBarColor(bitmap: Bitmap): Int {
-		val x = (width * 0.75f).toInt()
+		val x = (measuredWidth * 0.75f).toInt()
 
-		return (0 until height).map { y -> bitmap.getPixel(x, y) }.distinct()
+		return (0 until measuredHeight).map { y -> bitmap.getPixel(x, y) }.distinct()
 			.single { it != backgroundColor }
 	}
 
 	private fun getTickSize(bitmap: Bitmap, barColor: Int): Float {
-		val y = height / 2
+		val y = measuredHeight / 2
 
-		return (0 until width).reversed().map { x -> bitmap.getPixel(x, y) }
-			.takeWhile { it != barColor }.filter { it != backgroundColor }.count().inc().toFloat()
+		return (0 until measuredWidth).reversed().map { x -> bitmap.getPixel(x, y) }
+			.takeWhile { it != barColor }.count { it != backgroundColor }.inc().toFloat()
 	}
 }

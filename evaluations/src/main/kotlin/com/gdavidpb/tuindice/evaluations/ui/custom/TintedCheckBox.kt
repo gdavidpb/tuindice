@@ -42,7 +42,7 @@ class TintedCheckBox(context: Context, attrs: AttributeSet) : MaterialCheckBox(c
 	override fun onDrawHook(canvas: Canvas, superOnDraw: (Canvas) -> Unit) {
 		if (!onDrawLocker.compareAndSet(false, true)) return
 
-		val bitmapHook = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+		val bitmapHook = Bitmap.createBitmap(measuredWidth, measuredHeight, Bitmap.Config.ARGB_8888)
 		val canvasHook = Canvas(bitmapHook)
 		val isCheckedHook = isChecked
 
@@ -54,9 +54,9 @@ class TintedCheckBox(context: Context, attrs: AttributeSet) : MaterialCheckBox(c
 
 		isChecked = isCheckedHook
 
-		val x = width / 2
+		val x = measuredWidth / 2
 
-		uncheckedColor = (0 until height)
+		uncheckedColor = (0 until measuredHeight)
 			.map { y -> bitmapHook.getPixel(x, y) }
 			.distinct()
 			.maxByOrNull { target -> target distanceTo backgroundColor }
