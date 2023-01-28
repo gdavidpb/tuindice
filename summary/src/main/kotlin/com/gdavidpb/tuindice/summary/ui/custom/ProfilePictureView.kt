@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.summary.ui.custom
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.widget.FrameLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.utils.extension.animateScaleDown
@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.base.utils.extension.animateScaleUp
 import com.gdavidpb.tuindice.summary.R
 import kotlinx.android.synthetic.main.view_profile_picture.view.*
 
-class ProfilePictureView(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {
+class ProfilePictureView(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
 
 	var hasProfilePicture: Boolean = false
 		private set
