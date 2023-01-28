@@ -17,9 +17,7 @@ import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.utils.IdempotentLocker
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.TIME_EXIT_LOCKER
-import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
-import com.gdavidpb.tuindice.base.utils.extension.observe
-import com.gdavidpb.tuindice.base.utils.extension.toast
+import com.gdavidpb.tuindice.base.utils.extension.*
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
@@ -105,9 +103,14 @@ class MainActivity : AppCompatActivity() {
 		val showBottomNav = bottomDestinations.contains(destination.id)
 
 		appBar.isVisible = showAppBar
-		bottomNavView.isVisible = showBottomNav
 
-		if (showBottomNav) viewModel.setLastScreen(navId = destination.id)
+		if (showBottomNav) {
+			viewModel.setLastScreen(navId = destination.id)
+
+			bottomNavView.animateSlideIn()
+		} else {
+			bottomNavView.animateSlideOut()
+		}
 	}
 
 	private fun requestReviewObserver(result: Event<ReviewInfo, Nothing>?) {
@@ -166,7 +169,7 @@ class MainActivity : AppCompatActivity() {
 
 				if (!locked) finish()
 			} else {
-				onBackPressedDispatcher.onBackPressed()
+				navController.navigateUp()
 			}
 		}
 	}
