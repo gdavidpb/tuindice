@@ -3,13 +3,13 @@ package com.gdavidpb.tuindice.base.utils.extension
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
-import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_RETIRED
+import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_OK
 
-fun Collection<Subject>.filterNoEffect(): Collection<Subject> {
+fun Collection<Subject>.removeNoEffect(): Collection<Subject> {
 	val containsNoEffect = size > 1 && first().grade >= 3
 
 	return if (containsNoEffect)
-		filterIndexed { index, _ -> index != 1 }
+		toMutableList().apply { removeAt(1) }
 	else
 		this
 }
@@ -35,10 +35,10 @@ fun Collection<Quarter>.computeGradeSum(until: Quarter = first()) =
 		/* Get all subjects */
 		.flatMap { it.subjects }
 		/* Filter valid subjects */
-		.filter { it.status != STATUS_SUBJECT_RETIRED }
+		.filter { it.status == STATUS_SUBJECT_OK }
 		/* Group by code */
 		.groupBy { it.code }
 		/* If you've seen this subject more than once and now you approved this */
-		.flatMap { (_, subjects) -> subjects.filterNoEffect() }
+		.flatMap { (_, subjects) -> subjects.removeNoEffect() }
 		/* Compute grade */
 		.computeGrade()

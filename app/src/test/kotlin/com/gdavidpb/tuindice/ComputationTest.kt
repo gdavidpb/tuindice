@@ -60,7 +60,7 @@ class ComputationTest {
 			createSubject(code = "MA1111", grade = 5),
 			createSubject(code = "MA1111", grade = 2),
 			createSubject(code = "MA1111", grade = 1)
-		).filterNoEffect()
+		).removeNoEffect()
 
 		val expectedCase1 = listOf(
 			createSubject(code = "MA1111", grade = 5),
@@ -70,7 +70,7 @@ class ComputationTest {
 		val actualCase2 = listOf(
 			createSubject(code = "MA1111", grade = 5),
 			createSubject(code = "MA1111", grade = 1)
-		).filterNoEffect()
+		).removeNoEffect()
 
 		val expectedCase2 = listOf(
 			createSubject(code = "MA1111", grade = 5)
@@ -78,7 +78,7 @@ class ComputationTest {
 
 		val actualCase3 = listOf(
 			createSubject(code = "MA1111", grade = 5)
-		).filterNoEffect()
+		).removeNoEffect()
 
 		val expectedCase3 = listOf(
 			createSubject(code = "MA1111", grade = 5)
