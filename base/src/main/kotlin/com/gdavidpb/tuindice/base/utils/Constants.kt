@@ -16,8 +16,19 @@ const val NO_GETTER = "Property does not have a getter."
 
 /* Request codes */
 object RequestCodes {
-	const val APP_UPDATE_REQUEST = 1001
-	const val PLAY_SERVICES_RESOLUTION_REQUEST = 2404
+	const val APP_UPDATE = 1001
+	const val PLAY_SERVICES_RESOLUTION = 2404
+}
+
+/* Request keys */
+object RequestKeys {
+	const val USE_PLAN_GRADE = "usePlanGrade"
+}
+
+/* Result keys */
+object ResultKeys {
+	const val SUBJECT_ID = "subjectId"
+	const val GRADE = "grade"
 }
 
 /* Main screen keys */

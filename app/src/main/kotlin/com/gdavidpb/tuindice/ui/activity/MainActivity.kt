@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity() {
 					updateInfo,
 					AppUpdateType.IMMEDIATE,
 					this@MainActivity,
-					RequestCodes.APP_UPDATE_REQUEST
+					RequestCodes.APP_UPDATE
 				)
 			}
 			else -> {}

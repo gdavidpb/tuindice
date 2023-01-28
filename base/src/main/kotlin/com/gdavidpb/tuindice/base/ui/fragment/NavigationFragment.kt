@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
@@ -31,5 +32,10 @@ abstract class NavigationFragment : Fragment() {
 	protected fun navigate(directions: NavDirections, navOptions: NavOptions? = null) =
 		findNavController().navigate(directions, navOptions)
 
-	protected fun navigateUp() = findNavController().navigateUp()
+	protected fun navigateUp(requestKey: String? = null, result: Bundle? = null) {
+		if (requestKey != null && result != null)
+			setFragmentResult(requestKey, result)
+
+		findNavController().navigateUp()
+	}
 }

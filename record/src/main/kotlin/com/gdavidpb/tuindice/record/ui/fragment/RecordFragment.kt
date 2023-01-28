@@ -7,12 +7,15 @@ import android.view.MenuItem
 import android.view.View
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
+import androidx.fragment.app.setFragmentResultListener
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
+import com.gdavidpb.tuindice.base.utils.RequestKeys
+import com.gdavidpb.tuindice.base.utils.ResultKeys
 import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
@@ -60,12 +63,35 @@ class RecordFragment : NavigationFragment() {
 
 		requireActivity().addMenuProvider(RecordMenuProvider(), viewLifecycleOwner)
 
+		setFragmentResultListener(RequestKeys.USE_PLAN_GRADE, ::onFragmentResult)
+
 		viewModel.getQuarters()
 	}
 
 	override fun onInitObservers() {
 		with(viewModel) {
 			observe(quarters, ::quartersObserver)
+		}
+	}
+
+	private fun onFragmentResult(requestKey: String, result: Bundle) {
+		when (requestKey) {
+			RequestKeys.USE_PLAN_GRADE -> useEvaluationPlanGrade(result)
+		}
+	}
+
+	private fun onSubjectOptionSelected(itemId: Int, item: SubjectItem) {
+		when (itemId) {
+			SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS ->
+				navigate(
+					RecordFragmentDirections.navToEvaluationPlan(
+						subjectId = item.id,
+						subjectCode = item.data.code,
+						subjectName = item.data.name
+					)
+				)
+			SubjectMenu.ID_WITHDRAW_SUBJECT ->
+				viewModel.withdrawSubject(subjectId = item.id)
 		}
 	}
 
@@ -102,19 +128,19 @@ class RecordFragment : NavigationFragment() {
 		}
 	}
 
-	private fun onSubjectOptionSelected(itemId: Int, item: SubjectItem) {
-		when (itemId) {
-			SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS ->
-				navigate(
-					RecordFragmentDirections.navToEvaluationPlan(
-						subjectId = item.id,
-						subjectCode = item.data.code,
-						subjectName = item.data.name
-					)
-				)
-			SubjectMenu.ID_WITHDRAW_SUBJECT ->
-				viewModel.withdrawSubject(subjectId = item.id)
-		}
+	private fun useEvaluationPlanGrade(result: Bundle) {
+		val subjectId = result.getString(ResultKeys.SUBJECT_ID, null)
+		val grade = result.getInt(ResultKeys.GRADE, -1)
+
+		if (subjectId == null || grade == -1) return
+
+		viewModel.updateSubject(
+			UpdateSubjectParams(
+				subjectId = subjectId,
+				grade = grade,
+				dispatchToRemote = true
+			)
+		)
 	}
 
 	private fun quartersObserver(result: Result<List<Quarter>, GetQuartersError>?) {

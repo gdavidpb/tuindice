@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.ui.fragment
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
@@ -9,6 +10,8 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.Result
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
+import com.gdavidpb.tuindice.base.utils.RequestKeys
+import com.gdavidpb.tuindice.base.utils.ResultKeys
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError
@@ -204,7 +207,13 @@ class EvaluationPlanFragment : NavigationFragment() {
 	}
 
 	private fun useEvaluationPlanGrade() {
-		// TODO("Not yet implemented") // update quarter and navigateUp?
+		navigateUp(
+			requestKey = RequestKeys.USE_PLAN_GRADE,
+			result = bundleOf(
+				ResultKeys.SUBJECT_ID to args.subjectId,
+				ResultKeys.GRADE to evaluationAdapter.computeGradeSum().toSubjectGrade()
+			)
+		)
 	}
 
 	private fun markEvaluation(item: EvaluationItem, done: Boolean) {

@@ -77,7 +77,7 @@ class SplashFragment : NavigationFragment() {
 			googleApiAvailability.getErrorDialog(
 				activity,
 				servicesStatus.status,
-				RequestCodes.PLAY_SERVICES_RESOLUTION_REQUEST
+				RequestCodes.PLAY_SERVICES_RESOLUTION
 			)?.apply {
 				setOnCancelListener { activity.finish() }
 				setOnDismissListener { activity.finish() }
