@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.summary.data.api
 
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
-import com.gdavidpb.tuindice.summary.data.api.mappers.toAccount
-import com.gdavidpb.tuindice.summary.data.api.mappers.toProfilePicture
+import com.gdavidpb.tuindice.summary.data.api.mapper.toAccount
+import com.gdavidpb.tuindice.summary.data.api.mapper.toProfilePicture
 import com.gdavidpb.tuindice.summary.data.account.source.RemoteDataSource
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 

@@ -1,7 +1,7 @@
-package com.gdavidpb.tuindice.summary.data.api.mappers
+package com.gdavidpb.tuindice.summary.data.api.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Account
-import com.gdavidpb.tuindice.summary.data.api.responses.AccountResponse
+import com.gdavidpb.tuindice.summary.data.api.response.AccountResponse
 import java.util.*
 
 fun AccountResponse.toAccount() = Account(

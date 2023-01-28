@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.data.api
 
-import com.gdavidpb.tuindice.summary.data.api.responses.ProfilePictureResponse
-import com.gdavidpb.tuindice.summary.data.api.responses.AccountResponse
+import com.gdavidpb.tuindice.summary.data.api.response.ProfilePictureResponse
+import com.gdavidpb.tuindice.summary.data.api.response.AccountResponse
 import retrofit2.Response
 import retrofit2.http.*
 

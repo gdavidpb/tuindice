@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.login.data.api
 
 import com.gdavidpb.tuindice.login.domain.model.SignIn
-import com.gdavidpb.tuindice.login.data.api.mappers.toSignIn
+import com.gdavidpb.tuindice.login.data.api.mapper.toSignIn
 import com.gdavidpb.tuindice.login.data.login.source.RemoteDataSource
 import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
 import okhttp3.Credentials
