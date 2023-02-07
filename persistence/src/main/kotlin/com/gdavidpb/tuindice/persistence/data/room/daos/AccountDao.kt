@@ -35,6 +35,16 @@ abstract class AccountDao {
 
 	@Query(
 		"UPDATE ${AccountTable.TABLE_NAME} " +
+				"SET ${AccountTable.LAST_UPDATE} = :lastUpdate " +
+				"WHERE ${AccountTable.ID} = :uid"
+	)
+	abstract suspend fun setUpdate(
+		uid: String,
+		lastUpdate: Long
+	)
+
+	@Query(
+		"UPDATE ${AccountTable.TABLE_NAME} " +
 				"SET ${AccountTable.PICTURE_URL} = :url " +
 				"WHERE ${AccountTable.ID} = :uid"
 	)

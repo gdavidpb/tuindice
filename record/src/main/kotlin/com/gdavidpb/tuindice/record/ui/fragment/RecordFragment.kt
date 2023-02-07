@@ -182,12 +182,12 @@ class RecordFragment : NavigationFragment() {
 			showSubjectMenuDialog(item)
 		}
 
-		override fun onSubjectGradeChanged(item: SubjectItem, grade: Int, isSelected: Boolean) {
+		override fun onSubjectGradeChanged(item: SubjectItem, grade: Int, isFinalSelection: Boolean) {
 			viewModel.updateSubject(
 				UpdateSubjectParams(
 					subjectId = item.id,
 					grade = grade,
-					dispatchToRemote = isSelected
+					dispatchToRemote = isFinalSelection
 				)
 			)
 		}
