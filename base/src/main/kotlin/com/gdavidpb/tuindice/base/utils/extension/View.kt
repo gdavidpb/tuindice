@@ -120,11 +120,11 @@ fun EditText.onTextChanged(event: (CharSequence, Int, Int, Int) -> Unit) {
 fun TextInputLayout.text(value: String? = null) = value?.also { editText?.setText(it) }
 	?: "${editText?.text}"
 
-fun MaterialTextView.strikeThrough() {
+fun TextView.strikeThrough() {
 	paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
 }
 
-fun MaterialTextView.clearStrikeThrough() {
+fun TextView.clearStrikeThrough() {
 	paintFlags = paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
 }
 
