@@ -7,8 +7,7 @@ class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
 	override suspend fun getCurrentQuarterName(uid: String): String? {
-		return room.quarters.getCurrentQuarterWithSubject(uid)
-			?.quarter
+		return room.quarters.getCurrentQuarter(uid)
 			?.name
 	}
 }
