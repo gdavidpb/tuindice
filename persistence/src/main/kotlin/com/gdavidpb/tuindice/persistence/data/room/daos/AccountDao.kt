@@ -9,17 +9,17 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.AccountTable
 import java.util.*
 
 @Dao
-interface AccountDao {
+abstract class AccountDao {
 	@Query(
 		"SELECT * FROM ${AccountTable.TABLE_NAME} " +
 				"WHERE ${AccountTable.ID} = :uid"
 	)
-	suspend fun getAccount(
+	abstract suspend fun getAccount(
 		uid: String
 	): AccountEntity
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
-	suspend fun insertAccount(
+	abstract suspend fun insertAccount(
 		account: AccountEntity
 	)
 
@@ -29,7 +29,7 @@ interface AccountDao {
 				"WHERE ${AccountTable.ID} = :uid " +
 				"AND datetime(${AccountTable.LAST_UPDATE} / 1000, 'unixepoch', '+1 day') >= datetime('now'))"
 	)
-	suspend fun isUpdated(
+	abstract suspend fun isUpdated(
 		uid: String
 	): Boolean
 
@@ -38,7 +38,7 @@ interface AccountDao {
 				"SET ${AccountTable.PICTURE_URL} = :url " +
 				"WHERE ${AccountTable.ID} = :uid"
 	)
-	suspend fun updateProfilePicture(
+	abstract suspend fun updateProfilePicture(
 		uid: String,
 		url: String
 	)

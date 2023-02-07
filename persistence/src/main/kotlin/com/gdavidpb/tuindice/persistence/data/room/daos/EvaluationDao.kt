@@ -8,19 +8,19 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.room.schema.EvaluationTable
 
 @Dao
-interface EvaluationDao {
+abstract class EvaluationDao {
 	@Query(
 		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
 				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
 				"AND ${EvaluationTable.ID} = :eid"
 	)
-	suspend fun getEvaluation(
+	abstract suspend fun getEvaluation(
 		uid: String,
 		eid: String
 	): EvaluationEntity
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
-	suspend fun insertEvaluations(
+	abstract suspend fun insertEvaluations(
 		evaluations: List<EvaluationEntity>
 	)
 
@@ -29,7 +29,7 @@ interface EvaluationDao {
 				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
 				"AND ${EvaluationTable.ID} = :eid"
 	)
-	suspend fun deleteEvaluation(
+	abstract suspend fun deleteEvaluation(
 		uid: String,
 		eid: String
 	): Int
@@ -39,7 +39,7 @@ interface EvaluationDao {
 				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
 				"AND ${EvaluationTable.SUBJECT_ID} = :sid"
 	)
-	suspend fun getSubjectEvaluations(
+	abstract suspend fun getSubjectEvaluations(
 		uid: String,
 		sid: String
 	): List<EvaluationEntity>
