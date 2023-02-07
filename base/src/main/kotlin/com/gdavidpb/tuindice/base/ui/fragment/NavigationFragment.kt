@@ -7,12 +7,19 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.launch
 
 abstract class NavigationFragment : Fragment() {
+	@Deprecated("Replace for onInitCollectors")
 	open fun onInitObservers() {}
+
+	open suspend fun onInitCollectors() {}
 
 	@LayoutRes
 	abstract fun onCreateView(): Int
@@ -27,6 +34,11 @@ abstract class NavigationFragment : Fragment() {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		onInitObservers()
+		viewLifecycleOwner.lifecycleScope.launch {
+			viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+				onInitCollectors()
+			}
+		}
 	}
 
 	protected fun navigate(directions: NavDirections, navOptions: NavOptions? = null) =

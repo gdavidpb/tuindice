@@ -8,8 +8,9 @@ import android.view.View
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResultListener
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.base.domain.usecase.base.Result
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
@@ -19,12 +20,10 @@ import com.gdavidpb.tuindice.base.utils.ResultKeys
 import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
-import com.gdavidpb.tuindice.base.utils.extension.observe
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.domain.error.GetQuartersError
 import com.gdavidpb.tuindice.record.domain.param.UpdateSubjectParams
 import com.gdavidpb.tuindice.record.presentation.mapper.toQuarterItem
-import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.adapter.QuarterAdapter
@@ -64,13 +63,11 @@ class RecordFragment : NavigationFragment() {
 		requireActivity().addMenuProvider(RecordMenuProvider(), viewLifecycleOwner)
 
 		setFragmentResultListener(RequestKeys.USE_PLAN_GRADE, ::onFragmentResult)
-
-		viewModel.getQuarters()
 	}
 
-	override fun onInitObservers() {
+	override suspend fun onInitCollectors() {
 		with(viewModel) {
-			observe(quarters, ::quartersObserver)
+			getQuarters.collect(::quartersCollector)
 		}
 	}
 
@@ -143,29 +140,24 @@ class RecordFragment : NavigationFragment() {
 		)
 	}
 
-	private fun quartersObserver(result: Result<List<Quarter>, GetQuartersError>?) {
+	private fun quartersCollector(result: UseCaseState<List<Quarter>, GetQuartersError>?) {
 		when (result) {
-			is Result.OnLoading -> {
+			is UseCaseState.Loading -> {
 				pBarRecord.isVisible = true
 			}
-			is Result.OnSuccess -> {
+			is UseCaseState.Data -> {
 				pBarRecord.isVisible = false
 
 				val context = requireContext()
 
-				val quarters = result.value
+				val quarterItems = result.value
+					.map { quarter -> quarter.toQuarterItem(context) }
 
-				val items = quarters.map { quarter ->
-					quarter.toQuarterItem(context)
-				}
+				quarterAdapter.submitList(quarterItems)
 
-				val hasCurrentQuarter = items.any { quarter -> quarter.isCurrent }
-
-				setMenuVisibility(hasCurrentQuarter)
-
-				quarterAdapter.submitQuarters(items)
+				fViewRecord.displayedChild = Flipper.CONTENT
 			}
-			is Result.OnError -> {
+			is UseCaseState.Error -> {
 				pBarRecord.isVisible = false
 
 				quartersErrorHandler(error = result.error)
@@ -177,15 +169,15 @@ class RecordFragment : NavigationFragment() {
 	private fun quartersErrorHandler(error: GetQuartersError?) {
 		when (error) {
 			is GetQuartersError.AccountDisabled -> mainViewModel.signOut()
-			is GetQuartersError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { viewModel.getQuarters() }
+			is GetQuartersError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
 			is GetQuartersError.OutdatedPassword -> mainViewModel.outdatedPassword()
-			is GetQuartersError.Timeout -> errorSnackBar(R.string.snack_timeout) { viewModel.getQuarters() }
+			is GetQuartersError.Timeout -> errorSnackBar(R.string.snack_timeout)
 			is GetQuartersError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable)
 			else -> errorSnackBar()
 		}
 	}
 
-	inner class QuarterManager : QuarterAdapter.AdapterManager {
+	inner class QuarterManager : QuarterAdapter.AdapterManager, AdapterDataObserver() {
 		override fun onSubjectOptionsClicked(item: SubjectItem) {
 			showSubjectMenuDialog(item)
 		}
@@ -200,8 +192,10 @@ class RecordFragment : NavigationFragment() {
 			)
 		}
 
-		override fun onSubmitQuarters(items: List<QuarterItem>) {
-			fViewRecord.displayedChild = if (items.isNotEmpty()) Flipper.CONTENT else Flipper.EMPTY
+		// TODO add listener
+		override fun onChanged() {
+			fViewRecord.displayedChild =
+				if (quarterAdapter.isNotEmpty()) Flipper.CONTENT else Flipper.EMPTY
 		}
 	}
 
