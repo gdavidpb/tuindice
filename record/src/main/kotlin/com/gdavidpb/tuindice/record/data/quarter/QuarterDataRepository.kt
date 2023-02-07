@@ -17,12 +17,12 @@ class QuarterDataRepository(
 	override suspend fun getQuarters(uid: String): Flow<List<Quarter>> {
 		return localDataSource.getQuarters(uid)
 			.distinctUntilChanged()
-			.onEach {
+			.onEach { quarters ->
 				val isUpdated = localDataSource.isUpdated(uid)
 
-				if (!isUpdated)
-					remoteDataSource.getQuarters().also { quarters ->
-						localDataSource.saveQuarters(uid, quarters)
+				if (quarters.isEmpty() || !isUpdated)
+					remoteDataSource.getQuarters().also { response ->
+						localDataSource.saveQuarters(uid, response)
 					}
 			}
 	}
