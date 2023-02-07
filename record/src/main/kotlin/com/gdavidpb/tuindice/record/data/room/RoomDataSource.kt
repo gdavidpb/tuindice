@@ -3,12 +3,15 @@ package com.gdavidpb.tuindice.record.data.room
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.utils.extension.withTransaction
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.room.mapper.toQuarter
 import com.gdavidpb.tuindice.record.data.room.mapper.toQuarterEntity
 import com.gdavidpb.tuindice.record.data.room.mapper.toSubject
 import com.gdavidpb.tuindice.record.data.room.mapper.toSubjectEntity
 import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class RoomDataSource(
 	private val room: TuIndiceDatabase
@@ -17,9 +20,9 @@ class RoomDataSource(
 		return room.accounts.isUpdated(uid)
 	}
 
-	override suspend fun getQuarters(uid: String): List<Quarter> {
+	override suspend fun getQuarters(uid: String): Flow<List<Quarter>> {
 		return room.quarters.getQuartersWithSubjects(uid)
-			.map { (quarter, subjects) -> quarter.toQuarter(subjects) }
+			.map { quarters -> quarters.map { quarter -> quarter.toQuarter() } }
 	}
 
 	override suspend fun saveQuarters(uid: String, quarters: List<Quarter>) {
@@ -30,18 +33,21 @@ class RoomDataSource(
 			.flatMap { quarter -> quarter.subjects }
 			.map { subject -> subject.toSubjectEntity(uid) }
 
-		room.quarters.insertQuartersAndSubjects(quarterEntities, subjectEntities)
+		room.withTransaction {
+			this.quarters.upsertEntities(quarterEntities)
+			this.subjects.upsertEntities(subjectEntities)
+		}
 	}
 
 	override suspend fun removeQuarter(uid: String, qid: String) {
 		room.quarters.deleteQuarter(uid, qid)
 	}
 
-	override suspend fun saveSubjects(uid: String, vararg subjects: Subject) {
+	override suspend fun saveSubjects(uid: String, subjects: List<Subject>) {
 		val subjectEntities = subjects
 			.map { subject -> subject.toSubjectEntity(uid) }
 
-		room.subjects.insertSubjects(subjectEntities)
+		room.subjects.upsertEntities(subjectEntities)
 	}
 
 	override suspend fun updateSubject(uid: String, update: SubjectUpdate): Subject {

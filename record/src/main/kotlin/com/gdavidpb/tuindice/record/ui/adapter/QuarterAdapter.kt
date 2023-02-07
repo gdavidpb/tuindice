@@ -22,8 +22,6 @@ class QuarterAdapter(
 	interface AdapterManager {
 		fun onSubjectOptionsClicked(item: SubjectItem)
 		fun onSubjectGradeChanged(item: SubjectItem, grade: Int, isSelected: Boolean)
-
-		fun onSubmitQuarters(items: List<QuarterItem>)
 	}
 
 	private val averageSubjects by lazy {
@@ -34,6 +32,8 @@ class QuarterAdapter(
 	}
 
 	override fun provideComparator() = compareBy(QuarterItem::id)
+
+	override fun getItemId(position: Int) = currentList[position].uid
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder<QuarterItem> {
 		val itemView = LayoutInflater
@@ -50,30 +50,5 @@ class QuarterAdapter(
 		}
 
 		return QuarterViewHolder(itemView, manager)
-	}
-
-	override fun getItemId(position: Int): Long {
-		return currentList[position].uid
-	}
-
-	fun submitQuarters(items: List<QuarterItem>) {
-		submitList(items)
-		manager.onSubmitQuarters(items)
-	}
-
-	fun getQuarter(position: Int): QuarterItem {
-		return getItem(position)
-	}
-
-	fun addQuarter(item: QuarterItem, position: Int) {
-		addItem(item, position)
-	}
-
-	fun removeQuarter(item: QuarterItem) {
-		removeItem(item)
-	}
-
-	fun updateQuarter(item: QuarterItem) {
-		updateItem(item)
 	}
 }
