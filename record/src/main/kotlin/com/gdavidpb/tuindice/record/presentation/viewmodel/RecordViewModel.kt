@@ -1,45 +1,34 @@
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.gdavidpb.tuindice.base.domain.model.Subject
-import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
-import com.gdavidpb.tuindice.base.utils.extension.LiveCompletable
-import com.gdavidpb.tuindice.base.utils.extension.LiveResult
-import com.gdavidpb.tuindice.base.utils.extension.execute
-import com.gdavidpb.tuindice.record.domain.error.SubjectError
+import com.gdavidpb.tuindice.base.utils.extension.stateInEagerly
+import com.gdavidpb.tuindice.base.utils.extension.stateInWhileSubscribed
 import com.gdavidpb.tuindice.record.domain.param.UpdateSubjectParams
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateSubjectUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.WithdrawSubjectUseCase
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 class RecordViewModel(
 	getQuartersUseCase: GetQuartersUseCase,
-	private val removeQuarterUseCase: RemoveQuarterUseCase,
-	private val updateSubjectUseCase: UpdateSubjectUseCase,
-	private val withdrawSubjectUseCase: WithdrawSubjectUseCase
+	removeQuarterUseCase: RemoveQuarterUseCase,
+	updateSubjectUseCase: UpdateSubjectUseCase,
+	withdrawSubjectUseCase: WithdrawSubjectUseCase
 ) : ViewModel() {
-	val removeQuarter = LiveCompletable<Nothing>()
-	val updateSubject = LiveResult<Subject, SubjectError>()
-	val withdrawSubject = LiveCompletable<Nothing>()
+	val removeQuarterId = MutableSharedFlow<String>()
+	val updateSubjectParams = MutableSharedFlow<UpdateSubjectParams>()
+	val withdrawSubjectId = MutableSharedFlow<String>()
 
-	val getQuarters = getQuartersUseCase
-		.execute(Unit)
-		.stateIn(
-			scope = viewModelScope,
-			started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
-			initialValue = UseCaseState.Loading()
-		)
+	val getQuarters =
+		stateInWhileSubscribed(useCase = getQuartersUseCase, params = Unit)
 
-	fun removeQuarter(quarterId: String) =
-		execute(useCase = removeQuarterUseCase, params = quarterId, liveData = removeQuarter)
+	val removeQuarter =
+		stateInEagerly(useCase = removeQuarterUseCase, paramsFlow = removeQuarterId)
 
-	fun updateSubject(params: UpdateSubjectParams) =
-		execute(useCase = updateSubjectUseCase, params = params, liveData = updateSubject)
+	val updateSubject =
+		stateInEagerly(useCase = updateSubjectUseCase, paramsFlow = updateSubjectParams)
 
-	fun withdrawSubject(subjectId: String) =
-		execute(useCase = withdrawSubjectUseCase, params = subjectId, liveData = withdrawSubject)
+	val withdrawSubject =
+		stateInEagerly(useCase = withdrawSubjectUseCase, paramsFlow = withdrawSubjectId)
 }

@@ -21,7 +21,7 @@ class QuarterAdapter(
 
 	interface AdapterManager {
 		fun onSubjectOptionsClicked(item: SubjectItem)
-		fun onSubjectGradeChanged(item: SubjectItem, grade: Int, isFinalSelection: Boolean)
+		fun onSubjectGradeChanged(item: SubjectItem, grade: Int, isSelected: Boolean)
 	}
 
 	private val averageSubjects by lazy {

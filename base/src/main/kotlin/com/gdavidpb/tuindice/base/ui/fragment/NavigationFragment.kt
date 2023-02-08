@@ -13,13 +13,14 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 abstract class NavigationFragment : Fragment() {
 	@Deprecated("Replace for onInitCollectors")
 	open fun onInitObservers() {}
 
-	open suspend fun onInitCollectors() {}
+	open suspend fun onInitCollectors(lifecycleScope: CoroutineScope) {}
 
 	@LayoutRes
 	abstract fun onCreateView(): Int
@@ -36,7 +37,7 @@ abstract class NavigationFragment : Fragment() {
 		onInitObservers()
 		viewLifecycleOwner.lifecycleScope.launch {
 			viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-				onInitCollectors()
+				onInitCollectors(this)
 			}
 		}
 	}
