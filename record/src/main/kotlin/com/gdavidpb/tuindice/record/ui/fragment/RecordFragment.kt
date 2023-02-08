@@ -8,6 +8,7 @@ import android.view.View
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
@@ -28,6 +29,8 @@ import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.adapter.QuarterAdapter
 import kotlinx.android.synthetic.main.fragment_record.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -65,9 +68,11 @@ class RecordFragment : NavigationFragment() {
 		setFragmentResultListener(RequestKeys.USE_PLAN_GRADE, ::onFragmentResult)
 	}
 
-	override suspend fun onInitCollectors() {
+	override suspend fun onInitCollectors(lifecycleScope: CoroutineScope) {
 		with(viewModel) {
-			getQuarters.collect(::quartersCollector)
+			lifecycleScope.launch {
+				getQuarters.collect(::getQuartersCollector)
+			}
 		}
 	}
 
@@ -88,7 +93,7 @@ class RecordFragment : NavigationFragment() {
 					)
 				)
 			SubjectMenu.ID_WITHDRAW_SUBJECT ->
-				viewModel.withdrawSubject(subjectId = item.id)
+				withdrawSubject(subjectId = item.id)
 		}
 	}
 
@@ -131,7 +136,7 @@ class RecordFragment : NavigationFragment() {
 
 		if (subjectId == null || grade == -1) return
 
-		viewModel.updateSubject(
+		updateSubject(
 			UpdateSubjectParams(
 				subjectId = subjectId,
 				grade = grade,
@@ -140,7 +145,7 @@ class RecordFragment : NavigationFragment() {
 		)
 	}
 
-	private fun quartersCollector(result: UseCaseState<List<Quarter>, GetQuartersError>?) {
+	private fun getQuartersCollector(result: UseCaseState<List<Quarter>, GetQuartersError>?) {
 		when (result) {
 			is UseCaseState.Loading -> {
 				pBarRecord.isVisible = true
@@ -160,13 +165,13 @@ class RecordFragment : NavigationFragment() {
 			is UseCaseState.Error -> {
 				pBarRecord.isVisible = false
 
-				quartersErrorHandler(error = result.error)
+				getQuartersErrorHandler(error = result.error)
 			}
 			else -> {}
 		}
 	}
 
-	private fun quartersErrorHandler(error: GetQuartersError?) {
+	private fun getQuartersErrorHandler(error: GetQuartersError?) {
 		when (error) {
 			is GetQuartersError.AccountDisabled -> mainViewModel.signOut()
 			is GetQuartersError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
@@ -177,17 +182,29 @@ class RecordFragment : NavigationFragment() {
 		}
 	}
 
+	private fun updateSubject(params: UpdateSubjectParams) {
+		viewLifecycleOwner.lifecycleScope.launch {
+			viewModel.updateSubjectParams.emit(params)
+		}
+	}
+
+	private fun withdrawSubject(subjectId: String) {
+		viewLifecycleOwner.lifecycleScope.launch {
+			viewModel.withdrawSubjectId.emit(subjectId)
+		}
+	}
+
 	inner class QuarterManager : QuarterAdapter.AdapterManager, AdapterDataObserver() {
 		override fun onSubjectOptionsClicked(item: SubjectItem) {
 			showSubjectMenuDialog(item)
 		}
 
-		override fun onSubjectGradeChanged(item: SubjectItem, grade: Int, isFinalSelection: Boolean) {
-			viewModel.updateSubject(
+		override fun onSubjectGradeChanged(item: SubjectItem, grade: Int, isSelected: Boolean) {
+			updateSubject(
 				UpdateSubjectParams(
 					subjectId = item.id,
 					grade = grade,
-					dispatchToRemote = isFinalSelection
+					dispatchToRemote = isSelected
 				)
 			)
 		}
