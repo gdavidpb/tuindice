@@ -1,12 +1,23 @@
 package com.gdavidpb.tuindice.base.domain.usecase.baseV2
 
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.validator.Validator
+import com.gdavidpb.tuindice.base.utils.ReportKeys
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 
 abstract class FlowUseCase<P, T, E>(
 	protected open val backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO
-) : BaseUseCase<P, Flow<T>, E>() {
+) {
+	protected abstract val reportingRepository: ReportingRepository
+
+	protected open val paramsValidator: Validator<P>? = null
+
+	abstract suspend fun executeOnBackground(params: P): Flow<T>
+
+	protected open suspend fun executeOnException(throwable: Throwable): E? = null
+
 	fun execute(params: P): Flow<UseCaseState<T, E>> {
 		return flow {
 			emitAll(executeOnBackground(params))
@@ -26,5 +37,13 @@ abstract class FlowUseCase<P, T, E>(
 
 				emit(UseCaseState.Error(error))
 			}
+	}
+
+	private fun logException(throwable: Throwable, error: E?) {
+		with(reportingRepository) {
+			setCustomKey(ReportKeys.USE_CASE, "${this::class.simpleName}")
+			setCustomKey(ReportKeys.HANDLED, error != null)
+			logException(throwable)
+		}
 	}
 }
