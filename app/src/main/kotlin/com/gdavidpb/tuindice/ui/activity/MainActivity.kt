@@ -4,15 +4,17 @@ import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.NavigationBaseDirections
-import com.gdavidpb.tuindice.base.domain.usecase.base.Completable
 import com.gdavidpb.tuindice.base.domain.usecase.base.Event
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.utils.IdempotentLocker
 import com.gdavidpb.tuindice.base.utils.RequestCodes
@@ -25,6 +27,7 @@ import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -83,10 +86,15 @@ class MainActivity : AppCompatActivity() {
 		with(viewModel) {
 			observe(requestReview, ::requestReviewObserver)
 			observe(updateInfo, ::updateInfoObserver)
-			observe(signOut, ::signOutObserver)
 			observe(outdatedPassword, ::outdatedPasswordObserver)
 
 			checkReview(reviewManager)
+		}
+
+		lifecycleScope.launch {
+			repeatOnLifecycle(Lifecycle.State.STARTED) {
+				lifecycleScope.collect(viewModel.signOut, ::signOutCollector)
+			}
 		}
 	}
 
@@ -144,10 +152,16 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
-	private fun signOutObserver(result: Completable<Nothing>?) {
+	private fun signOutCollector(result: UseCaseState<Unit, Nothing>?) {
 		when (result) {
-			is Completable.OnComplete -> {
-				navController.navigate(NavigationBaseDirections.navToSignIn())
+			is UseCaseState.Data -> {
+				with(navController) {
+					popStackToRoot()
+					navigate(NavigationBaseDirections.navToSignIn())
+				}
+			}
+			is UseCaseState.Error -> {
+				recreate()
 			}
 			else -> {}
 		}

@@ -9,9 +9,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
-import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.base.domain.model.Account
-import com.gdavidpb.tuindice.base.domain.usecase.base.Completable
 import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
@@ -87,12 +85,6 @@ class SummaryFragment : NavigationFragment() {
 			lifecycleScope.collect(getAccount, ::getAccountCollector)
 			lifecycleScope.collect(removeProfilePicture, ::removeProfilePictureCollector)
 			lifecycleScope.collect(uploadProfilePicture, ::uploadProfilePictureCollector)
-		}
-	}
-
-	override fun onInitObservers() {
-		with(viewModel) {
-			observe(signOut, ::signOutObserver)
 		}
 	}
 
@@ -195,12 +187,6 @@ class SummaryFragment : NavigationFragment() {
 		summaryAdapter.submitSummary(items)
 	}
 
-	private fun navigateToSignIn() {
-		findNavController().popStackToRoot()
-
-		navigate(SummaryFragmentDirections.navToSignIn())
-	}
-
 	private fun getAccountCollector(result: UseCaseState<Account, GetAccountError>?) {
 		when (result) {
 			is UseCaseState.Loading -> {
@@ -257,21 +243,9 @@ class SummaryFragment : NavigationFragment() {
 		}
 	}
 
-	private fun signOutObserver(result: Completable<Nothing>?) {
-		when (result) {
-			is Completable.OnComplete -> {
-				navigateToSignIn()
-			}
-			is Completable.OnError -> {
-				requireActivity().recreate()
-			}
-			else -> {}
-		}
-	}
-
 	private fun accountErrorHandler(error: GetAccountError?) {
 		when (error) {
-			is GetAccountError.AccountDisabled -> mainViewModel.signOut()
+			is GetAccountError.AccountDisabled -> signOut()
 			is GetAccountError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
 			is GetAccountError.OutdatedPassword -> mainViewModel.outdatedPassword()
 			is GetAccountError.Timeout -> errorSnackBar(R.string.snack_timeout)
@@ -305,6 +279,12 @@ class SummaryFragment : NavigationFragment() {
 		}
 	}
 
+	private fun signOut() {
+		mainViewModel.requestOn(viewLifecycleOwner) {
+			signOutAction.emit(Unit)
+		}
+	}
+
 	inner class SummaryMenuProvider : MenuProvider {
 		override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
 			menuInflater.inflate(R.menu.menu_summary, menu)
@@ -317,7 +297,7 @@ class SummaryFragment : NavigationFragment() {
 						titleResource = R.string.dialog_title_sign_out
 						messageResource = R.string.dialog_message_sign_out
 
-						positiveButton(R.string.menu_sign_out) { viewModel.signOut() }
+						positiveButton(R.string.menu_sign_out) { signOut() }
 						negativeButton(R.string.cancel)
 					}
 
