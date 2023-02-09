@@ -167,7 +167,7 @@ class RecordFragment : NavigationFragment() {
 
 	private fun getQuartersErrorHandler(error: GetQuartersError?) {
 		when (error) {
-			is GetQuartersError.AccountDisabled -> mainViewModel.signOut()
+			is GetQuartersError.AccountDisabled -> signOut()
 			is GetQuartersError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
 			is GetQuartersError.OutdatedPassword -> mainViewModel.outdatedPassword()
 			is GetQuartersError.Timeout -> errorSnackBar(R.string.snack_timeout)
@@ -185,6 +185,12 @@ class RecordFragment : NavigationFragment() {
 	private fun withdrawSubject(subjectId: String) {
 		viewModel.requestOn(viewLifecycleOwner) {
 			withdrawSubjectId.emit(subjectId)
+		}
+	}
+
+	private fun signOut() {
+		mainViewModel.requestOn(viewLifecycleOwner) {
+			signOutAction.emit(Unit)
 		}
 	}
 

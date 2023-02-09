@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.utils.extension.observe
 import com.gdavidpb.tuindice.base.utils.extension.onClickOnce
+import com.gdavidpb.tuindice.base.utils.extension.requestOn
 import com.gdavidpb.tuindice.base.utils.extension.toast
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.error.SignInError
@@ -98,8 +99,14 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 				else
 					R.string.snack_network_unavailable
 			)
-			is SignInError.AccountDisabled -> mainViewModel.signOut()
+			is SignInError.AccountDisabled -> signOut()
 			else -> setError(R.string.snack_default_error)
+		}
+	}
+
+	private fun signOut() {
+		mainViewModel.requestOn(viewLifecycleOwner) {
+			signOutAction.emit(Unit)
 		}
 	}
 }

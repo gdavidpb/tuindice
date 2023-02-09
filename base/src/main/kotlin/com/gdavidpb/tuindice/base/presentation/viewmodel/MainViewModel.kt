@@ -6,32 +6,30 @@ import com.gdavidpb.tuindice.base.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.SetLastScreenUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.SignOutUseCase
-import com.gdavidpb.tuindice.base.utils.extension.LiveCompletable
-import com.gdavidpb.tuindice.base.utils.extension.LiveEvent
-import com.gdavidpb.tuindice.base.utils.extension.execute
-import com.gdavidpb.tuindice.base.utils.extension.postSuccess
+import com.gdavidpb.tuindice.base.utils.extension.*
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 class MainViewModel(
-	private val signOutUseCase: SignOutUseCase,
+	signOutUseCase: SignOutUseCase,
 	private val setLastScreenUseCase: SetLastScreenUseCase,
 	private val requestReviewUseCase: RequestReviewUseCase,
 	private val getUpdateInfoUseCase: GetUpdateInfoUseCase
 ) : ViewModel() {
-	val signOut = LiveCompletable<Nothing>()
 	val lastScreen = LiveCompletable<Nothing>()
 	val requestReview = LiveEvent<ReviewInfo, Nothing>()
 	val updateInfo = LiveEvent<AppUpdateInfo, Nothing>()
 	val outdatedPassword = LiveEvent<Unit, Nothing>()
+	val signOutAction = MutableSharedFlow<Unit>()
 
 	fun outdatedPassword() =
 		outdatedPassword.postSuccess(Unit)
 
-	fun signOut() =
-		execute(useCase = signOutUseCase, params = Unit, liveData = signOut)
+	val signOut =
+		stateInEagerly(useCase = signOutUseCase, paramsFlow = signOutAction)
 
 	fun setLastScreen(@IdRes navId: Int) =
 		execute(useCase = setLastScreenUseCase, params = navId, liveData = lastScreen)

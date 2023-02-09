@@ -65,10 +65,16 @@ class EnrollmentDownloadingBottomSheetDialog : BottomSheetDialogFragment() {
 			is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { viewModel.tryFetchEnrollmentProof() }
 			is GetEnrollmentError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { viewModel.tryFetchEnrollmentProof() }
 			is GetEnrollmentError.NotFound -> snackBar(R.string.snack_enrollment_not_found)
-			is GetEnrollmentError.AccountDisabled -> mainViewModel.signOut()
+			is GetEnrollmentError.AccountDisabled -> signOut()
 			is GetEnrollmentError.OutdatedPassword -> navigate(NavigationBaseDirections.navToUpdatePassword())
 			is GetEnrollmentError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { viewModel.tryFetchEnrollmentProof() }
 			else -> errorSnackBar { viewModel.tryFetchEnrollmentProof() }
+		}
+	}
+
+	private fun signOut() {
+		mainViewModel.requestOn(viewLifecycleOwner) {
+			signOutAction.emit(Unit)
 		}
 	}
 }
