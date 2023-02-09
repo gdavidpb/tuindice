@@ -27,7 +27,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.squareup.picasso.Picasso
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -145,8 +144,4 @@ val appModule = module {
 	/* Utils */
 
 	singleOf(::MutexDataSource) { bind<ConcurrencyRepository>() }
-
-	single {
-		Picasso.get()
-	}
 }

@@ -1,18 +1,27 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.gdavidpb.tuindice.base.domain.usecase.base.BaseUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.baseV2.FlowUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 fun <P, T, Q, L, U : BaseUseCase<P, T, Q, L>> ViewModel.execute(
 	useCase: U,
 	params: P,
 	liveData: L
 ) = useCase.execute(params, liveData, viewModelScope)
+
+fun <T : ViewModel> T.requestOn(lifecycleOwner: LifecycleOwner, block: suspend T.() -> Unit) {
+	lifecycleOwner.lifecycleScope.launch {
+		block(this@requestOn)
+	}
+}
 
 fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInWhileSubscribed(
 	useCase: U,
