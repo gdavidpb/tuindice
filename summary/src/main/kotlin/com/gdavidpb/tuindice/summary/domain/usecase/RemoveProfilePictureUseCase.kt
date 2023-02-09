@@ -1,25 +1,28 @@
 package com.gdavidpb.tuindice.summary.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
-import com.gdavidpb.tuindice.base.utils.annotation.Timeout
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
-import com.gdavidpb.tuindice.summary.utils.ConfigKeys
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
-@Timeout(key = ConfigKeys.TIME_OUT_PROFILE_PICTURE)
 class RemoveProfilePictureUseCase(
+	private val authRepository: AuthRepository,
 	private val networkRepository: NetworkRepository,
 	private val accountRepository: AccountRepository,
-	override val configRepository: ConfigRepository,
 	override val reportingRepository: ReportingRepository
-) : EventUseCase<Unit, Unit, ProfilePictureError>() {
-	override suspend fun executeOnBackground(params: Unit) {
-		accountRepository.removeProfilePicture()
+) : FlowUseCase<Unit, Unit, ProfilePictureError>() {
+	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
+		val activeUId = authRepository.getActiveAuth().uid
+
+		accountRepository.removeProfilePicture(uid = activeUId)
+
+		return flowOf(Unit)
 	}
 
 	override suspend fun executeOnException(throwable: Throwable): ProfilePictureError? {

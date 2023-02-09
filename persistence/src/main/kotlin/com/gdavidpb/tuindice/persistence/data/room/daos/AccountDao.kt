@@ -6,17 +6,19 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.gdavidpb.tuindice.persistence.data.room.entity.AccountEntity
 import com.gdavidpb.tuindice.persistence.data.room.schema.AccountTable
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 @Dao
 abstract class AccountDao {
 	@Query(
 		"SELECT * FROM ${AccountTable.TABLE_NAME} " +
-				"WHERE ${AccountTable.ID} = :uid"
+				"WHERE ${AccountTable.ID} = :uid " +
+				"LIMIT 1"
 	)
-	abstract suspend fun getAccount(
+	abstract fun getAccount(
 		uid: String
-	): AccountEntity
+	): Flow<AccountEntity?>
 
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	abstract suspend fun insertAccount(

@@ -1,11 +1,13 @@
 package com.gdavidpb.tuindice.summary.ui.custom
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.lifecycle.LifecycleOwner
+import coil.load
+import coil.transform.CircleCropTransformation
 import com.gdavidpb.tuindice.base.utils.extension.animateScaleDown
 import com.gdavidpb.tuindice.base.utils.extension.animateScaleUp
 import com.gdavidpb.tuindice.summary.R
@@ -25,13 +27,27 @@ class ProfilePictureView(context: Context, attrs: AttributeSet) : ConstraintLayo
 		iViewEditProfile.setOnClickListener(l)
 	}
 
-	fun setDrawable(drawable: Drawable?) {
-		if (drawable != null) {
+	fun loadImage(url: String, lifecycleOwner: LifecycleOwner) {
+		if (url.isNotEmpty()) {
 			hasProfilePicture = true
-			iViewProfile.setImageDrawable(drawable)
+
+			iViewProfile.load(url) {
+				lifecycle(lifecycleOwner)
+				error(R.mipmap.ic_launcher_round)
+				placeholder(R.mipmap.ic_launcher_round)
+				transformations(CircleCropTransformation())
+
+				listener(
+					onStart = { setLoading(true) },
+					onCancel = { setLoading(false) },
+					onError = { _, _ -> setLoading(false) },
+					onSuccess = { _, _ -> setLoading(false) }
+				)
+			}
 		} else {
 			hasProfilePicture = false
-			iViewProfile.setImageResource(R.mipmap.ic_launcher_round)
+
+			iViewProfile.setImageDrawable(null)
 		}
 	}
 

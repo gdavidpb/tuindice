@@ -8,7 +8,6 @@ import android.view.View
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
@@ -18,9 +17,7 @@ import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.RequestKeys
 import com.gdavidpb.tuindice.base.utils.ResultKeys
-import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
-import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
-import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
+import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.domain.error.GetQuartersError
 import com.gdavidpb.tuindice.record.domain.param.UpdateSubjectParams
@@ -30,7 +27,6 @@ import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.adapter.QuarterAdapter
 import kotlinx.android.synthetic.main.fragment_record.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -70,9 +66,7 @@ class RecordFragment : NavigationFragment() {
 
 	override suspend fun onInitCollectors(lifecycleScope: CoroutineScope) {
 		with(viewModel) {
-			lifecycleScope.launch {
-				getQuarters.collect(::getQuartersCollector)
-			}
+			lifecycleScope.collect(getQuarters, ::getQuartersCollector)
 		}
 	}
 
@@ -183,14 +177,14 @@ class RecordFragment : NavigationFragment() {
 	}
 
 	private fun updateSubject(params: UpdateSubjectParams) {
-		viewLifecycleOwner.lifecycleScope.launch {
-			viewModel.updateSubjectParams.emit(params)
+		viewModel.requestOn(viewLifecycleOwner) {
+			updateSubjectParams.emit(params)
 		}
 	}
 
 	private fun withdrawSubject(subjectId: String) {
-		viewLifecycleOwner.lifecycleScope.launch {
-			viewModel.withdrawSubjectId.emit(subjectId)
+		viewModel.requestOn(viewLifecycleOwner) {
+			withdrawSubjectId.emit(subjectId)
 		}
 	}
 

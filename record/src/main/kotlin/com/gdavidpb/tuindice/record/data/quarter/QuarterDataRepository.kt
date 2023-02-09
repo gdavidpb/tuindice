@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.transform
 
 class QuarterDataRepository(
 	private val localDataSource: LocalDataSource,
@@ -17,13 +17,15 @@ class QuarterDataRepository(
 	override suspend fun getQuarters(uid: String): Flow<List<Quarter>> {
 		return localDataSource.getQuarters(uid)
 			.distinctUntilChanged()
-			.onEach { quarters ->
+			.transform { quarters ->
 				val isUpdated = localDataSource.isUpdated(uid)
 
-				if (quarters.isEmpty() || !isUpdated)
-					remoteDataSource.getQuarters().also { response ->
+				if (quarters.isNotEmpty() && isUpdated)
+					emit(quarters)
+				else
+					emit(remoteDataSource.getQuarters().also { response ->
 						localDataSource.saveQuarters(uid, response)
-					}
+					}.quarters)
 			}
 	}
 

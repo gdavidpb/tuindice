@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.summary.ui.fragment
 
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -13,8 +12,7 @@ import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.base.domain.usecase.base.Completable
-import com.gdavidpb.tuindice.base.domain.usecase.base.Event
-import com.gdavidpb.tuindice.base.domain.usecase.base.Result
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationBottomSheetDialog
@@ -31,9 +29,8 @@ import com.gdavidpb.tuindice.summary.presentation.mapper.toSubjectsSummaryItem
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.adapter.SummaryAdapter
 import com.gdavidpb.tuindice.summary.utils.extension.fileProviderUri
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_summary.*
-import org.koin.android.ext.android.inject
+import kotlinx.coroutines.CoroutineScope
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
@@ -44,11 +41,7 @@ class SummaryFragment : NavigationFragment() {
 
 	private val viewModel by viewModel<SummaryViewModel>()
 
-	private val picasso by inject<Picasso>()
-
 	private val summaryAdapter = SummaryAdapter()
-
-	private val profilePicture = LiveResult<Drawable, Nothing>()
 
 	private val cameraOutputUri by lazy {
 		runCatching {
@@ -63,12 +56,12 @@ class SummaryFragment : NavigationFragment() {
 
 	private val registerTakePicture =
 		registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
-			if (result) viewModel.uploadProfilePicture(path = "$cameraOutputUri")
+			if (result) uploadProfilePicture(path = "$cameraOutputUri")
 		}
 
 	private val registerPickVisualMedia =
 		registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { result ->
-			if (result != null) viewModel.uploadProfilePicture(path = "$result")
+			if (result != null) uploadProfilePicture(path = "$result")
 		}
 
 	private object ProfilePictureMenu {
@@ -87,17 +80,19 @@ class SummaryFragment : NavigationFragment() {
 		vProfilePicture.onClickOnce(::onEditProfilePictureClick)
 
 		requireActivity().addMenuProvider(SummaryMenuProvider(), viewLifecycleOwner)
+	}
 
-		viewModel.getAccount()
+	override suspend fun onInitCollectors(lifecycleScope: CoroutineScope) {
+		with(viewModel) {
+			lifecycleScope.collect(getAccount, ::getAccountCollector)
+			lifecycleScope.collect(removeProfilePicture, ::removeProfilePictureCollector)
+			lifecycleScope.collect(uploadProfilePicture, ::uploadProfilePictureCollector)
+		}
 	}
 
 	override fun onInitObservers() {
 		with(viewModel) {
-			observe(account, ::accountObserver)
 			observe(signOut, ::signOutObserver)
-			observe(profilePicture, ::profilePictureObserver)
-			observe(uploadProfilePicture, ::uploadProfilePictureObserver)
-			observe(removeProfilePicture, ::removeProfilePictureObserver)
 		}
 	}
 
@@ -108,7 +103,7 @@ class SummaryFragment : NavigationFragment() {
 					titleResource = R.string.dialog_title_remove_profile_picture_failure
 					messageResource = R.string.dialog_message_remove_profile_picture_failure
 
-					positiveButton(R.string.remove) { viewModel.removeProfilePicture() }
+					positiveButton(R.string.remove) { removeProfilePicture() }
 					negativeButton(R.string.cancel)
 				}
 			}
@@ -169,8 +164,6 @@ class SummaryFragment : NavigationFragment() {
 	}
 
 	private fun loadProfile(account: Account) {
-		/* Load account */
-
 		val shortName = account.toShortName()
 		val lastUpdate = getString(R.string.text_last_update, account.lastUpdate.formatLastUpdate())
 
@@ -188,9 +181,10 @@ class SummaryFragment : NavigationFragment() {
 		} else
 			tViewGrade.isVisible = false
 
-		loadProfilePictureFromUrl(url = account.pictureUrl)
+		vProfilePicture.loadImage(url = account.pictureUrl, lifecycleOwner = this)
+	}
 
-		/* Load summary */
+	private fun loadSummary(account: Account) {
 		val context = requireContext()
 
 		val subjectsSummary = account.toSubjectsSummaryItem(context)
@@ -201,41 +195,63 @@ class SummaryFragment : NavigationFragment() {
 		summaryAdapter.submitSummary(items)
 	}
 
-	private fun loadProfilePictureFromUrl(url: String?) {
-		if (url != null) {
-			with(picasso) {
-				invalidate(url)
-
-				load(url)
-					.noFade()
-					.stableKey(url)
-					.into(resources, profilePicture)
-			}
-		} else {
-			vProfilePicture.setDrawable(null)
-		}
-	}
-
 	private fun navigateToSignIn() {
 		findNavController().popStackToRoot()
 
 		navigate(SummaryFragmentDirections.navToSignIn())
 	}
 
-	private fun accountObserver(result: Result<Account, GetAccountError>?) {
+	private fun getAccountCollector(result: UseCaseState<Account, GetAccountError>?) {
 		when (result) {
-			is Result.OnLoading -> {
+			is UseCaseState.Loading -> {
 				pBarSummary.isVisible = true
 			}
-			is Result.OnSuccess -> {
+			is UseCaseState.Data -> {
 				pBarSummary.isVisible = false
 
-				loadProfile(account = result.value)
+				val account = result.value
+
+				loadProfile(account)
+				loadSummary(account)
 			}
-			is Result.OnError -> {
+			is UseCaseState.Error -> {
 				pBarSummary.isVisible = false
 
 				accountErrorHandler(error = result.error)
+			}
+			else -> {}
+		}
+	}
+
+	private fun removeProfilePictureCollector(result: UseCaseState<Unit, ProfilePictureError>?) {
+		when (result) {
+			is UseCaseState.Loading -> {
+				vProfilePicture.setLoading(true)
+			}
+			is UseCaseState.Data -> {
+				snackBar(R.string.snack_profile_picture_removed)
+			}
+			is UseCaseState.Error -> {
+				vProfilePicture.setLoading(false)
+
+				profilePictureErrorHandler(error = result.error)
+			}
+			else -> {}
+		}
+	}
+
+	private fun uploadProfilePictureCollector(result: UseCaseState<String, ProfilePictureError>?) {
+		when (result) {
+			is UseCaseState.Loading -> {
+				vProfilePicture.setLoading(true)
+			}
+			is UseCaseState.Data -> {
+				snackBar(R.string.snack_profile_picture_updated)
+			}
+			is UseCaseState.Error -> {
+				vProfilePicture.setLoading(false)
+
+				profilePictureErrorHandler(error = result.error)
 			}
 			else -> {}
 		}
@@ -253,70 +269,12 @@ class SummaryFragment : NavigationFragment() {
 		}
 	}
 
-	private fun profilePictureObserver(result: Result<Drawable, Nothing>?) {
-		when (result) {
-			is Result.OnLoading -> {
-				if (!vProfilePicture.hasProfilePicture)
-					vProfilePicture.setLoading(true)
-			}
-			is Result.OnError -> {
-				if (!vProfilePicture.hasProfilePicture)
-					vProfilePicture.setLoading(false)
-
-				errorSnackBar()
-			}
-			is Result.OnSuccess -> {
-				val drawable = result.value
-
-				if (!vProfilePicture.hasProfilePicture)
-					vProfilePicture.setLoading(false)
-
-				vProfilePicture.setDrawable(drawable)
-			}
-			else -> {}
-		}
-	}
-
-	private fun uploadProfilePictureObserver(result: Event<String, ProfilePictureError>?) {
-		when (result) {
-			is Event.OnLoading -> vProfilePicture.setLoading(true)
-			is Event.OnSuccess -> {
-				loadProfilePictureFromUrl(url = result.value)
-
-				snackBar(R.string.snack_profile_picture_updated)
-			}
-			is Event.OnError -> {
-				vProfilePicture.setLoading(false)
-
-				profilePictureErrorHandler(error = result.error)
-			}
-			else -> {}
-		}
-	}
-
-	private fun removeProfilePictureObserver(result: Event<Unit, ProfilePictureError>?) {
-		when (result) {
-			is Event.OnLoading -> vProfilePicture.setLoading(true)
-			is Event.OnSuccess -> {
-				loadProfilePictureFromUrl(null)
-
-				snackBar(R.string.snack_profile_picture_removed)
-			}
-			is Event.OnError -> {
-				vProfilePicture.setLoading(false)
-
-				profilePictureErrorHandler(error = result.error)
-			}
-			else -> {}
-		}
-	}
-
 	private fun accountErrorHandler(error: GetAccountError?) {
 		when (error) {
 			is GetAccountError.AccountDisabled -> mainViewModel.signOut()
-			is GetAccountError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { viewModel.getAccount() }
+			is GetAccountError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
 			is GetAccountError.OutdatedPassword -> mainViewModel.outdatedPassword()
-			is GetAccountError.Timeout -> errorSnackBar(R.string.snack_timeout) { viewModel.getAccount() }
+			is GetAccountError.Timeout -> errorSnackBar(R.string.snack_timeout)
 			is GetAccountError.Unavailable -> showCantUpdate()
 			null -> errorSnackBar()
 		}
@@ -325,7 +283,6 @@ class SummaryFragment : NavigationFragment() {
 	private fun profilePictureErrorHandler(error: ProfilePictureError?) {
 		when (error) {
 			is ProfilePictureError.Timeout -> errorSnackBar(R.string.snack_timeout)
-			is ProfilePictureError.NoData -> vProfilePicture.setDrawable(null)
 			is ProfilePictureError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
 			else -> errorSnackBar()
 		}
@@ -334,6 +291,18 @@ class SummaryFragment : NavigationFragment() {
 	private fun showCantUpdate() {
 		tViewLastUpdate.drawables(start = R.drawable.ic_sync_problem)
 		tViewLastUpdate.onClickOnce { snackBar(R.string.snack_no_service) }
+	}
+
+	private fun uploadProfilePicture(path: String) {
+		viewModel.requestOn(viewLifecycleOwner) {
+			uploadProfilePicturePath.emit(path)
+		}
+	}
+
+	private fun removeProfilePicture() {
+		viewModel.requestOn(viewLifecycleOwner) {
+			removeProfilePictureAction.emit(Unit)
+		}
 	}
 
 	inner class SummaryMenuProvider : MenuProvider {
