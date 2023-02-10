@@ -73,8 +73,8 @@ class EnrollmentDownloadingBottomSheetDialog : BottomSheetDialogFragment() {
 	}
 
 	private fun signOut() {
-		mainViewModel.requestOn(viewLifecycleOwner) {
-			signOutAction.emit(Unit)
+		requestOn(mainViewModel) {
+			signOutParams.emit(Unit)
 		}
 	}
 }

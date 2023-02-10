@@ -1,17 +1,15 @@
 package com.gdavidpb.tuindice.login.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.base.domain.model.StartUpAction
-import com.gdavidpb.tuindice.base.utils.extension.LiveResult
-import com.gdavidpb.tuindice.base.utils.extension.execute
+import com.gdavidpb.tuindice.base.utils.extension.stateInEagerly
 import com.gdavidpb.tuindice.login.domain.usecase.StartUpUseCase
-import com.gdavidpb.tuindice.login.domain.error.StartUpError
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 class SplashViewModel(
-	private val startUpUseCase: StartUpUseCase
+	startUpUseCase: StartUpUseCase
 ) : ViewModel() {
-	val startUpAction = LiveResult<StartUpAction, StartUpError>()
+	val startUpAction = MutableSharedFlow<String>()
 
-	fun fetchStartUpAction(dataString: String) =
-		execute(useCase = startUpUseCase, params = dataString, liveData = startUpAction)
+	val fetchStartUpAction =
+		stateInEagerly(useCase = startUpUseCase, paramsFlow = startUpAction)
 }

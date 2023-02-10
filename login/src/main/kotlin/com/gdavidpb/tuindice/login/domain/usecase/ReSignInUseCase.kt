@@ -1,26 +1,23 @@
 package com.gdavidpb.tuindice.login.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
-import com.gdavidpb.tuindice.base.utils.annotation.Timeout
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.login.domain.error.SignInError
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.presentation.mapper.asUsbId
-import com.gdavidpb.tuindice.login.utils.ConfigKeys
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
-@Timeout(key = ConfigKeys.TIME_OUT_SIGN_IN)
 class ReSignInUseCase(
 	private val authRepository: AuthRepository,
 	private val loginRepository: LoginRepository,
 	private val networkRepository: NetworkRepository,
-	override val configRepository: ConfigRepository,
 	override val reportingRepository: ReportingRepository
-) : EventUseCase<String, Unit, SignInError>() {
-	override suspend fun executeOnBackground(params: String) {
+) : FlowUseCase<String, Unit, SignInError>() {
+	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val activeAuth = authRepository.getActiveAuth()
 		val usbId = activeAuth.email.asUsbId()
 
@@ -33,6 +30,8 @@ class ReSignInUseCase(
 		authRepository.signOut()
 
 		authRepository.signIn(token = bearerToken)
+
+		return flowOf(Unit)
 	}
 
 	override suspend fun executeOnException(throwable: Throwable): SignInError? {

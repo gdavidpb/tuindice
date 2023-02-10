@@ -53,10 +53,6 @@
         <value>90000</value>
     </entry>
     <entry>
-        <key>time_out_sign_in</key>
-        <value>90000</value>
-    </entry>
-    <entry>
         <key>time_out_get_enrollment</key>
         <value>90000</value>
     </entry>

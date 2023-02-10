@@ -23,13 +23,13 @@ class MainViewModel(
 	val requestReview = LiveEvent<ReviewInfo, Nothing>()
 	val updateInfo = LiveEvent<AppUpdateInfo, Nothing>()
 	val outdatedPassword = LiveEvent<Unit, Nothing>()
-	val signOutAction = MutableSharedFlow<Unit>()
+	val signOutParams = MutableSharedFlow<Unit>()
 
 	fun outdatedPassword() =
 		outdatedPassword.postSuccess(Unit)
 
 	val signOut =
-		stateInEagerly(useCase = signOutUseCase, paramsFlow = signOutAction)
+		stateInEagerly(useCase = signOutUseCase, paramsFlow = signOutParams)
 
 	fun setLastScreen(@IdRes navId: Int) =
 		execute(useCase = setLastScreenUseCase, params = navId, liveData = lastScreen)

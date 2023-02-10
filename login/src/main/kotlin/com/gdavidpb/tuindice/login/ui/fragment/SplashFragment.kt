@@ -6,13 +6,11 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
 import com.gdavidpb.tuindice.base.domain.model.StartUpAction
-import com.gdavidpb.tuindice.base.domain.usecase.base.Result
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.RequestCodes
-import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
-import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
-import com.gdavidpb.tuindice.base.utils.extension.observe
+import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.error.StartUpError
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel
@@ -33,13 +31,13 @@ class SplashFragment : NavigationFragment() {
 
 		val intent = requireActivity().intent
 
-		viewModel.fetchStartUpAction(dataString = intent.dataString ?: "")
-	}
-
-	override fun onInitObservers() {
-		with(viewModel) {
-			observe(startUpAction, ::startUpObserver)
+		launchRepeatOnLifecycle {
+			with(viewModel) {
+				collect(fetchStartUpAction, ::startUpCollector)
+			}
 		}
+
+		fetchStartUpAction(dataString = intent.dataString ?: "")
 	}
 
 	private fun showNoServicesDialog() {
@@ -53,10 +51,10 @@ class SplashFragment : NavigationFragment() {
 		}
 	}
 
-	private fun startUpObserver(result: Result<StartUpAction, StartUpError>?) {
+	private fun startUpCollector(result: UseCaseState<StartUpAction, StartUpError>?) {
 		when (result) {
-			is Result.OnSuccess -> handleStartUpAction(action = result.value)
-			is Result.OnError -> startUpErrorHandler(error = result.error)
+			is UseCaseState.Data -> handleStartUpAction(action = result.value)
+			is UseCaseState.Error -> startUpErrorHandler(error = result.error)
 			else -> {}
 		}
 	}
@@ -102,6 +100,12 @@ class SplashFragment : NavigationFragment() {
 			is StartUpAction.SignIn -> {
 				navigate(SplashFragmentDirections.navToSignIn())
 			}
+		}
+	}
+
+	private fun fetchStartUpAction(dataString: String) {
+		requestOn(viewModel) {
+			startUpAction.emit(dataString)
 		}
 	}
 }
