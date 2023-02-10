@@ -26,7 +26,6 @@ import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.adapter.QuarterAdapter
 import kotlinx.android.synthetic.main.fragment_record.*
-import kotlinx.coroutines.CoroutineScope
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -62,11 +61,11 @@ class RecordFragment : NavigationFragment() {
 		requireActivity().addMenuProvider(RecordMenuProvider(), viewLifecycleOwner)
 
 		setFragmentResultListener(RequestKeys.USE_PLAN_GRADE, ::onFragmentResult)
-	}
 
-	override suspend fun onInitCollectors(lifecycleScope: CoroutineScope) {
-		with(viewModel) {
-			lifecycleScope.collect(getQuarters, ::getQuartersCollector)
+		launchRepeatOnLifecycle {
+			with(viewModel) {
+				collect(getQuarters, ::getQuartersCollector)
+			}
 		}
 	}
 
@@ -177,20 +176,20 @@ class RecordFragment : NavigationFragment() {
 	}
 
 	private fun updateSubject(params: UpdateSubjectParams) {
-		viewModel.requestOn(viewLifecycleOwner) {
+		requestOn(viewModel) {
 			updateSubjectParams.emit(params)
 		}
 	}
 
 	private fun withdrawSubject(subjectId: String) {
-		viewModel.requestOn(viewLifecycleOwner) {
-			withdrawSubjectId.emit(subjectId)
+		requestOn(viewModel) {
+			withdrawSubjectParams.emit(subjectId)
 		}
 	}
 
 	private fun signOut() {
-		mainViewModel.requestOn(viewLifecycleOwner) {
-			signOutAction.emit(Unit)
+		requestOn(mainViewModel) {
+			signOutParams.emit(Unit)
 		}
 	}
 

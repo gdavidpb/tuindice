@@ -16,19 +16,19 @@ class RecordViewModel(
 	updateSubjectUseCase: UpdateSubjectUseCase,
 	withdrawSubjectUseCase: WithdrawSubjectUseCase
 ) : ViewModel() {
-	val removeQuarterId = MutableSharedFlow<String>()
+	val removeQuarterParams = MutableSharedFlow<String>()
 	val updateSubjectParams = MutableSharedFlow<UpdateSubjectParams>()
-	val withdrawSubjectId = MutableSharedFlow<String>()
+	val withdrawSubjectParams = MutableSharedFlow<String>()
 
 	val getQuarters =
 		stateInWhileSubscribed(useCase = getQuartersUseCase, params = Unit)
 
 	val removeQuarter =
-		stateInEagerly(useCase = removeQuarterUseCase, paramsFlow = removeQuarterId)
+		stateInEagerly(useCase = removeQuarterUseCase, paramsFlow = removeQuarterParams)
 
 	val updateSubject =
 		stateInEagerly(useCase = updateSubjectUseCase, paramsFlow = updateSubjectParams)
 
 	val withdrawSubject =
-		stateInEagerly(useCase = withdrawSubjectUseCase, paramsFlow = withdrawSubjectId)
+		stateInEagerly(useCase = withdrawSubjectUseCase, paramsFlow = withdrawSubjectParams)
 }

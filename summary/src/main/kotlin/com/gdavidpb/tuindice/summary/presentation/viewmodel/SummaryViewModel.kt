@@ -13,15 +13,15 @@ class SummaryViewModel(
 	uploadProfilePictureUseCase: UploadProfilePictureUseCase,
 	removeProfilePictureUseCase: RemoveProfilePictureUseCase
 ) : ViewModel() {
-	val uploadProfilePicturePath = MutableSharedFlow<String>()
-	val removeProfilePictureAction = MutableSharedFlow<Unit>()
+	val uploadProfilePictureParams = MutableSharedFlow<String>()
+	val removeProfilePictureParams = MutableSharedFlow<Unit>()
 
 	val getAccount =
 		stateInWhileSubscribed(useCase = getAccountUseCase, params = Unit)
 
 	val uploadProfilePicture =
-		stateInEagerly(useCase = uploadProfilePictureUseCase, paramsFlow = uploadProfilePicturePath)
+		stateInEagerly(useCase = uploadProfilePictureUseCase, paramsFlow = uploadProfilePictureParams)
 
 	val removeProfilePicture =
-		stateInEagerly(useCase = removeProfilePictureUseCase, paramsFlow = removeProfilePictureAction)
+		stateInEagerly(useCase = removeProfilePictureUseCase, paramsFlow = removeProfilePictureParams)
 }

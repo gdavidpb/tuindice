@@ -6,12 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.core.view.isVisible
-import com.gdavidpb.tuindice.base.domain.usecase.base.Event
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.base.utils.extension.observe
-import com.gdavidpb.tuindice.base.utils.extension.onClickOnce
-import com.gdavidpb.tuindice.base.utils.extension.requestOn
-import com.gdavidpb.tuindice.base.utils.extension.toast
+import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
@@ -40,8 +37,10 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 		btnConfirm.onClickOnce(::onConfirmClick)
 		btnCancel.onClickOnce(::dismiss)
 
-		with(viewModel) {
-			observe(signIn, ::signInObserver)
+		launchRepeatOnLifecycle {
+			with(viewModel) {
+				collect(signIn, ::signInCollector)
+			}
 		}
 	}
 
@@ -60,31 +59,27 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 	}
 
 	private fun onConfirmClick() {
-		viewModel.reSignIn(password = tInputPassword.getPassword())
+		reSignIn(password = tInputPassword.getPassword())
 	}
 
-	private fun signInObserver(result: Event<Unit, SignInError>?) {
+	private fun signInCollector(result: UseCaseState<Unit, SignInError>?) {
 		when (result) {
-			is Event.OnLoading -> {
+			is UseCaseState.Loading -> {
 				setLoading(true)
 			}
-			is Event.OnSuccess -> {
+			is UseCaseState.Data -> {
 				setLoading(false)
 
 				toast(R.string.toast_password_updated)
 
 				dismiss()
 			}
-			is Event.OnError -> {
+			is UseCaseState.Error -> {
 				setLoading(false)
 
 				signInErrorHandler(error = result.error)
 			}
-			else -> {
-				setLoading(false)
-
-				setError(R.string.snack_default_error)
-			}
+			else -> {}
 		}
 	}
 
@@ -105,8 +100,14 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 	}
 
 	private fun signOut() {
-		mainViewModel.requestOn(viewLifecycleOwner) {
-			signOutAction.emit(Unit)
+		requestOn(mainViewModel) {
+			signOutParams.emit(Unit)
+		}
+	}
+
+	private fun reSignIn(password: String) {
+		requestOn(viewModel) {
+			reSignInParams.emit(password)
 		}
 	}
 }

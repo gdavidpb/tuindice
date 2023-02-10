@@ -8,11 +8,12 @@ import android.view.View
 import android.view.animation.OvershootInterpolator
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.domain.usecase.base.Event
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.error.SignInError
+import com.gdavidpb.tuindice.login.domain.param.SignInParams
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.ui.adapter.LoadingAdapter
 import kotlinx.android.synthetic.main.fragment_sign_in.*
@@ -35,11 +36,11 @@ class SignInFragment : NavigationFragment() {
 		tInputPassword.setAction { onSignInClick() }
 		iViewLogo.onClickOnce(::onLogoClick)
 		btnSignIn.onClickOnce(::onSignInClick)
-	}
 
-	override fun onInitObservers() {
-		with(viewModel) {
-			observe(signIn, ::signInObserver)
+		launchRepeatOnLifecycle {
+			with(viewModel) {
+				collect(signIn, ::signInCollector)
+			}
 		}
 	}
 
@@ -48,7 +49,7 @@ class SignInFragment : NavigationFragment() {
 	}
 
 	private fun onSignInClick() {
-		viewModel.signIn(
+		signIn(
 			usbId = tInputUsbId.getUsbId(),
 			password = tInputPassword.getPassword()
 		)
@@ -116,28 +117,32 @@ class SignInFragment : NavigationFragment() {
 		}
 	}
 
-	private fun signInObserver(result: Event<Unit, SignInError>?) {
+	private fun signIn(usbId: String, password: String) {
+		requestOn(viewModel) {
+			signInParams.emit(
+				SignInParams(usbId, password)
+			)
+		}
+	}
+
+	private fun signInCollector(result: UseCaseState<Unit, SignInError>?) {
 		when (result) {
-			is Event.OnLoading -> {
+			is UseCaseState.Loading -> {
 				showLoading(true)
 
 				onLogoClick()
 
 				hideSoftKeyboard()
 			}
-			is Event.OnSuccess -> {
+			is UseCaseState.Data -> {
 				navigate(SignInFragmentDirections.navToSplash())
 			}
-			is Event.OnError -> {
+			is UseCaseState.Error -> {
 				showLoading(false)
 
 				signInErrorHandler(error = result.error)
 			}
-			else -> {
-				showLoading(false)
-
-				errorSnackBar()
-			}
+			else -> {}
 		}
 	}
 

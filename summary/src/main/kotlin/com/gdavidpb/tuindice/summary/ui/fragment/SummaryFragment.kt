@@ -28,7 +28,6 @@ import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.adapter.SummaryAdapter
 import com.gdavidpb.tuindice.summary.utils.extension.fileProviderUri
 import kotlinx.android.synthetic.main.fragment_summary.*
-import kotlinx.coroutines.CoroutineScope
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
@@ -78,13 +77,13 @@ class SummaryFragment : NavigationFragment() {
 		vProfilePicture.onClickOnce(::onEditProfilePictureClick)
 
 		requireActivity().addMenuProvider(SummaryMenuProvider(), viewLifecycleOwner)
-	}
 
-	override suspend fun onInitCollectors(lifecycleScope: CoroutineScope) {
-		with(viewModel) {
-			lifecycleScope.collect(getAccount, ::getAccountCollector)
-			lifecycleScope.collect(removeProfilePicture, ::removeProfilePictureCollector)
-			lifecycleScope.collect(uploadProfilePicture, ::uploadProfilePictureCollector)
+		launchRepeatOnLifecycle {
+			with(viewModel) {
+				collect(getAccount, ::getAccountCollector)
+				collect(removeProfilePicture, ::removeProfilePictureCollector)
+				collect(uploadProfilePicture, ::uploadProfilePictureCollector)
+			}
 		}
 	}
 
@@ -268,20 +267,20 @@ class SummaryFragment : NavigationFragment() {
 	}
 
 	private fun uploadProfilePicture(path: String) {
-		viewModel.requestOn(viewLifecycleOwner) {
-			uploadProfilePicturePath.emit(path)
+		requestOn(viewModel) {
+			uploadProfilePictureParams.emit(path)
 		}
 	}
 
 	private fun removeProfilePicture() {
-		viewModel.requestOn(viewLifecycleOwner) {
-			removeProfilePictureAction.emit(Unit)
+		requestOn(viewModel) {
+			removeProfilePictureParams.emit(Unit)
 		}
 	}
 
 	private fun signOut() {
-		mainViewModel.requestOn(viewLifecycleOwner) {
-			signOutAction.emit(Unit)
+		requestOn(mainViewModel) {
+			signOutParams.emit(Unit)
 		}
 	}
 
