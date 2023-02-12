@@ -1,33 +1,30 @@
 package com.gdavidpb.tuindice.enrollmentproof.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
-import com.gdavidpb.tuindice.base.utils.annotation.Timeout
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.enrollmentproof.domain.error.GetEnrollmentError
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
-import com.gdavidpb.tuindice.enrollmentproof.utils.ConfigKeys
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
-@Timeout(key = ConfigKeys.TIME_OUT_GET_ENROLLMENT)
 class GetEnrollmentProofUseCase(
 	private val authRepository: AuthRepository,
 	private val networkRepository: NetworkRepository,
 	private val enrollmentProofRepository: EnrollmentProofRepository,
-	override val configRepository: ConfigRepository,
 	override val reportingRepository: ReportingRepository
-) : EventUseCase<Unit, String, GetEnrollmentError>() {
-	override suspend fun executeOnBackground(params: Unit): String {
+) : FlowUseCase<Unit, String, GetEnrollmentError>() {
+	override suspend fun executeOnBackground(params: Unit): Flow<String> {
 		val activeAuth = authRepository.getActiveAuth()
 
 		val enrollmentProof = enrollmentProofRepository.getEnrollmentProof(
 			uid = activeAuth.uid
 		) ?: throw EnrollmentProofNotFoundException()
 
-		return enrollmentProof.source
+		return flowOf(enrollmentProof.source)
 	}
 
 	override suspend fun executeOnException(throwable: Throwable): GetEnrollmentError? {

@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.gdavidpb.tuindice.base.NavigationBaseDirections
-import com.gdavidpb.tuindice.base.domain.usecase.base.Event
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.enrollmentproof.R
@@ -35,23 +35,26 @@ class EnrollmentDownloadingBottomSheetDialog : BottomSheetDialogFragment() {
 
 		isCancelable = false
 
-		with(viewModel) {
-			observe(enrollment, ::enrollmentObserver)
+		launchRepeatOnLifecycle {
+			with(viewModel) {
+				collect(enrollmentProof, ::enrollmentProofCollector)
 
-			tryFetchEnrollmentProof()
+			}
 		}
+
+		tryFetchEnrollmentProof()
 	}
 
-	private fun enrollmentObserver(result: Event<String, GetEnrollmentError>?) {
+	private fun enrollmentProofCollector(result: UseCaseState<String, GetEnrollmentError>?) {
 		when (result) {
-			is Event.OnSuccess -> {
+			is UseCaseState.Data -> {
 				val enrollmentFile = File(result.value)
 
 				openPdf(file = enrollmentFile) { snackBar(R.string.snack_enrollment_unsupported) }
 
 				dismiss()
 			}
-			is Event.OnError -> {
+			is UseCaseState.Error -> {
 				enrollmentErrorHandler(error = result.error)
 
 				dismiss()
@@ -62,13 +65,19 @@ class EnrollmentDownloadingBottomSheetDialog : BottomSheetDialogFragment() {
 
 	private fun enrollmentErrorHandler(error: GetEnrollmentError?) {
 		when (error) {
-			is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { viewModel.tryFetchEnrollmentProof() }
-			is GetEnrollmentError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { viewModel.tryFetchEnrollmentProof() }
+			is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { tryFetchEnrollmentProof() }
+			is GetEnrollmentError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { tryFetchEnrollmentProof() }
 			is GetEnrollmentError.NotFound -> snackBar(R.string.snack_enrollment_not_found)
 			is GetEnrollmentError.AccountDisabled -> signOut()
 			is GetEnrollmentError.OutdatedPassword -> navigate(NavigationBaseDirections.navToUpdatePassword())
-			is GetEnrollmentError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { viewModel.tryFetchEnrollmentProof() }
-			else -> errorSnackBar { viewModel.tryFetchEnrollmentProof() }
+			is GetEnrollmentError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { tryFetchEnrollmentProof() }
+			else -> errorSnackBar { tryFetchEnrollmentProof() }
+		}
+	}
+
+	private fun tryFetchEnrollmentProof() {
+		requestOn(viewModel) {
+			enrollmentProofParams.emit(Unit)
 		}
 	}
 

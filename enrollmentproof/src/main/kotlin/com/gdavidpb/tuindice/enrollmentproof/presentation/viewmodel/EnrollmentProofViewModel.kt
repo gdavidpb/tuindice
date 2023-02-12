@@ -1,16 +1,15 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.base.utils.extension.LiveEvent
-import com.gdavidpb.tuindice.base.utils.extension.execute
-import com.gdavidpb.tuindice.enrollmentproof.domain.error.GetEnrollmentError
+import com.gdavidpb.tuindice.base.utils.extension.stateInEagerly
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.GetEnrollmentProofUseCase
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 class EnrollmentProofViewModel(
-	private val getEnrollmentProofUseCase: GetEnrollmentProofUseCase
+	getEnrollmentProofUseCase: GetEnrollmentProofUseCase
 ) : ViewModel() {
-	val enrollment = LiveEvent<String, GetEnrollmentError>()
+	val enrollmentProofParams = MutableSharedFlow<Unit>()
 
-	fun tryFetchEnrollmentProof() =
-		execute(useCase = getEnrollmentProofUseCase, params = Unit, liveData = enrollment)
+	val enrollmentProof =
+		stateInEagerly(useCase = getEnrollmentProofUseCase, paramsFlow = enrollmentProofParams)
 }
