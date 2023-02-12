@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.login.domain.usecase
 import com.gdavidpb.tuindice.base.domain.exception.ServicesUnavailableException
 import com.gdavidpb.tuindice.base.domain.model.StartUpAction
 import com.gdavidpb.tuindice.base.domain.repository.*
-import com.gdavidpb.tuindice.base.domain.usecase.baseV2.FlowUseCase
+import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.login.domain.error.StartUpError

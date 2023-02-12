@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.domain.usecase.baseV2
+package com.gdavidpb.tuindice.base.domain.usecase.base
 
 sealed class UseCaseState<T, E> {
 	class Undefined<T, E> : UseCaseState<T, E>()

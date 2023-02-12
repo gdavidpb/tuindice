@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.base.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.*
-import com.gdavidpb.tuindice.base.domain.usecase.baseV2.FlowUseCase
+import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 

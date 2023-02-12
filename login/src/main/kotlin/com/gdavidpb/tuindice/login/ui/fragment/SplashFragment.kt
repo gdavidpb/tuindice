@@ -6,7 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
 import com.gdavidpb.tuindice.base.domain.model.StartUpAction
-import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
+import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.RequestCodes

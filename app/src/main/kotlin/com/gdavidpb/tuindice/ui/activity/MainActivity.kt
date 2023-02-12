@@ -12,7 +12,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.NavigationBaseDirections
-import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
+import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.utils.IdempotentLocker
 import com.gdavidpb.tuindice.base.utils.RequestCodes

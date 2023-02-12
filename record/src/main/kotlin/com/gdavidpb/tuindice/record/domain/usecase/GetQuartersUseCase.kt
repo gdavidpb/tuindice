@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.usecase.baseV2.FlowUseCase
+import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.record.domain.error.GetQuartersError
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
