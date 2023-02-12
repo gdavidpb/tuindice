@@ -3,22 +3,25 @@ package com.gdavidpb.tuindice.base.domain.usecase
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.FlowUseCase
 import com.google.android.play.core.ktx.requestReview
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 
 class RequestReviewUseCase(
 	private val settingsRepository: SettingsRepository,
-	override val configRepository: ConfigRepository,
+	private val configRepository: ConfigRepository,
 	override val reportingRepository: ReportingRepository
-) : EventUseCase<ReviewManager, ReviewInfo, Nothing>() {
-	override suspend fun executeOnBackground(params: ReviewManager): ReviewInfo? {
+) : FlowUseCase<ReviewManager, ReviewInfo, Nothing>() {
+	override suspend fun executeOnBackground(params: ReviewManager): Flow<ReviewInfo> {
 		val syncsCount = configRepository.getSyncsToSuggestReview()
 
 		return if (settingsRepository.isReviewSuggested(value = syncsCount))
-			params.requestReview()
+			flowOf(params.requestReview())
 		else
-			null
+			emptyFlow()
 	}
 }

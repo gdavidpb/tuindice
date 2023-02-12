@@ -246,7 +246,7 @@ class SummaryFragment : NavigationFragment() {
 		when (error) {
 			is GetAccountError.AccountDisabled -> signOut()
 			is GetAccountError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
-			is GetAccountError.OutdatedPassword -> mainViewModel.outdatedPassword()
+			is GetAccountError.OutdatedPassword -> outdatedPassword()
 			is GetAccountError.Timeout -> errorSnackBar(R.string.snack_timeout)
 			is GetAccountError.Unavailable -> showCantUpdate()
 			null -> errorSnackBar()
@@ -281,6 +281,12 @@ class SummaryFragment : NavigationFragment() {
 	private fun signOut() {
 		requestOn(mainViewModel) {
 			signOutParams.emit(Unit)
+		}
+	}
+
+	private fun outdatedPassword() {
+		requestOn(mainViewModel) {
+			outdatedPassword.emit(Unit)
 		}
 	}
 

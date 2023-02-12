@@ -168,7 +168,7 @@ class RecordFragment : NavigationFragment() {
 		when (error) {
 			is GetQuartersError.AccountDisabled -> signOut()
 			is GetQuartersError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
-			is GetQuartersError.OutdatedPassword -> mainViewModel.outdatedPassword()
+			is GetQuartersError.OutdatedPassword -> outdatedPassword()
 			is GetQuartersError.Timeout -> errorSnackBar(R.string.snack_timeout)
 			is GetQuartersError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable)
 			else -> errorSnackBar()
@@ -190,6 +190,12 @@ class RecordFragment : NavigationFragment() {
 	private fun signOut() {
 		requestOn(mainViewModel) {
 			signOutParams.emit(Unit)
+		}
+	}
+
+	private fun outdatedPassword() {
+		requestOn(mainViewModel) {
+			outdatedPassword.emit(Unit)
 		}
 	}
 

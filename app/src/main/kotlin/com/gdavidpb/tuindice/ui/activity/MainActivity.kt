@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.ui.activity
 
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
+import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -11,7 +12,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.NavigationBaseDirections
-import com.gdavidpb.tuindice.base.domain.usecase.base.Event
 import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.utils.IdempotentLocker
@@ -80,25 +80,22 @@ class MainActivity : AppCompatActivity() {
 
 		onBackPressedDispatcher.addCallback(this, BackPressedHandler())
 
-		with(viewModel) {
-			observe(requestReview, ::requestReviewObserver)
-			observe(updateInfo, ::updateInfoObserver)
-			observe(outdatedPassword, ::outdatedPasswordObserver)
-
-			checkReview(reviewManager)
-		}
-
 		launchRepeatOnLifecycle {
 			with(viewModel) {
 				collect(signOut, ::signOutCollector)
+				collect(checkUpdate, ::checkUpdateCollector)
+				collect(checkReview, ::checkReviewCollector)
+				collect(outdatedPassword, ::outdatedPasswordCollector)
 			}
 		}
+
+		checkReview(reviewManager)
 	}
 
 	override fun onResume() {
 		super.onResume()
 
-		viewModel.checkUpdate(updateManager)
+		checkUpdate(updateManager)
 	}
 
 	private fun onDestinationChanged(destination: NavDestination) {
@@ -110,7 +107,7 @@ class MainActivity : AppCompatActivity() {
 		appBar.isVisible = showAppBar
 
 		if (showBottomNav) {
-			viewModel.setLastScreen(navId = destination.id)
+			setLastScreen(navId = destination.id)
 
 			bottomNavView.animateSlideIn()
 		} else {
@@ -118,24 +115,9 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
-	private fun requestReviewObserver(result: Event<ReviewInfo, Nothing>?) {
+	private fun checkUpdateCollector(result: UseCaseState<AppUpdateInfo, Nothing>?) {
 		when (result) {
-			is Event.OnSuccess -> {
-				val reviewInfo = result.value
-
-				lifecycleScope.launchWhenResumed {
-					reviewManager.launchReview(
-						this@MainActivity, reviewInfo
-					)
-				}
-			}
-			else -> {}
-		}
-	}
-
-	private fun updateInfoObserver(result: Event<AppUpdateInfo, Nothing>?) {
-		when (result) {
-			is Event.OnSuccess -> {
+			is UseCaseState.Data -> {
 				val updateInfo = result.value
 
 				updateManager.startUpdateFlowForResult(
@@ -144,6 +126,21 @@ class MainActivity : AppCompatActivity() {
 					this@MainActivity,
 					RequestCodes.APP_UPDATE
 				)
+			}
+			else -> {}
+		}
+	}
+
+	private fun checkReviewCollector(result: UseCaseState<ReviewInfo, Nothing>?) {
+		when (result) {
+			is UseCaseState.Data -> {
+				val reviewInfo = result.value
+
+				lifecycleScope.launchWhenResumed {
+					reviewManager.launchReview(
+						this@MainActivity, reviewInfo
+					)
+				}
 			}
 			else -> {}
 		}
@@ -164,9 +161,27 @@ class MainActivity : AppCompatActivity() {
 		}
 	}
 
-	private fun outdatedPasswordObserver(result: Event<Unit, Nothing>?) {
+	private fun outdatedPasswordCollector(result: Unit?) {
 		if (result != null)
 			navController.navigate(NavigationBaseDirections.navToUpdatePassword())
+	}
+
+	private fun checkReview(reviewManager: ReviewManager) {
+		requestOn(viewModel) {
+			checkReviewParams.emit(reviewManager)
+		}
+	}
+
+	private fun setLastScreen(@IdRes navId: Int) {
+		requestOn(viewModel) {
+			setLastScreenParams.emit(navId)
+		}
+	}
+
+	private fun checkUpdate(updateManager: AppUpdateManager) {
+		requestOn(viewModel) {
+			checkUpdateParams.emit(updateManager)
+		}
 	}
 
 	inner class BackPressedHandler : OnBackPressedCallback(true) {
