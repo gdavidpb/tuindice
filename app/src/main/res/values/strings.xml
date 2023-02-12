@@ -24,15 +24,6 @@
     <string name="subject_grade">%1$d / 5</string>
     <string name="subject_credits">%1$d UC</string>
 
-    <string name="menu_subject_show_evaluations">Ver plan de evaluación</string>
-    <string name="menu_subject_withdraw">Retirar materia</string>
-
-    <!--
-    <string name="dialog_mock_title">Proyección</string>
-
-    <string name="hint_mock_search">Código o nombre de la materia</string>
-    -->
-
     <string name="cd_add_quarter">Agregar trimestre</string>
 
     <string name="label_empty_record">
