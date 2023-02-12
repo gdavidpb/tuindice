@@ -2,22 +2,25 @@ package com.gdavidpb.tuindice.base.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.usecase.base.EventUseCase
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.extension.await
 import com.gdavidpb.tuindice.base.utils.extension.isUpdateAvailable
 import com.gdavidpb.tuindice.base.utils.extension.isUpdateStalled
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.ktx.isImmediateUpdateAllowed
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 
 class GetUpdateInfoUseCase(
-	override val configRepository: ConfigRepository,
+	private val configRepository: ConfigRepository,
 	override val reportingRepository: ReportingRepository
-) : EventUseCase<AppUpdateManager, AppUpdateInfo, Nothing>() {
-	override suspend fun executeOnBackground(params: AppUpdateManager): AppUpdateInfo? {
-		val updateInfo = params.appUpdateInfo.await() ?: return null
+) : FlowUseCase<AppUpdateManager, AppUpdateInfo, Nothing>() {
+	override suspend fun executeOnBackground(params: AppUpdateManager): Flow<AppUpdateInfo> {
+		val updateInfo = params.appUpdateInfo.await() ?: return emptyFlow()
 
-		if (updateInfo.isUpdateStalled) return updateInfo
+		if (updateInfo.isUpdateStalled) return flowOf(updateInfo)
 
 		val stalenessDays = configRepository.getTimeUpdateStalenessDays()
 
@@ -27,8 +30,8 @@ class GetUpdateInfoUseCase(
 		val isStalenessDaysPassed = clientVersionStalenessDays >= stalenessDays
 
 		return if (isUpdateAvailable && isImmediateUpdateAllowed && isStalenessDaysPassed)
-			updateInfo
+			flowOf(updateInfo)
 		else
-			null
+			emptyFlow()
 	}
 }
