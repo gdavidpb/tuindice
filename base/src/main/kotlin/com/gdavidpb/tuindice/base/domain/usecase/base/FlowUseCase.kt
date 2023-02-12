@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.domain.usecase.baseV2
+package com.gdavidpb.tuindice.base.domain.usecase.base
 
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.validator.Validator

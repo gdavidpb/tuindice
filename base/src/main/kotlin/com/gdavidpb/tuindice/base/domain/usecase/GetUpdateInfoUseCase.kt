@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.base.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.usecase.baseV2.FlowUseCase
+import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.extension.await
 import com.gdavidpb.tuindice.base.utils.extension.isUpdateAvailable
 import com.gdavidpb.tuindice.base.utils.extension.isUpdateStalled
