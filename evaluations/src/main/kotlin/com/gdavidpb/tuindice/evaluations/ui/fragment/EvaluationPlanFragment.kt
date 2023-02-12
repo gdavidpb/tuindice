@@ -6,7 +6,7 @@ import androidx.core.os.bundleOf
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.domain.usecase.base.Result
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
@@ -71,30 +71,79 @@ class EvaluationPlanFragment : NavigationFragment() {
 
 		btnEvaluationsOptions.onClickOnce(::showEvaluationsMenuDialog)
 
-		with(viewModel) {
-			getEvaluations(sid = args.subjectId)
+		launchRepeatOnLifecycle {
+			with(viewModel) {
+				collect(getEvaluations, ::getEvaluationsCollector)
+				collect(updateEvaluation, ::updateEvaluationCollector)
+			}
 		}
-	}
 
-	override fun onInitObservers() {
-		with(viewModel) {
-			observe(evaluations, ::evaluationsObserver)
-			observe(updateEvaluation, ::updateEvaluationObserver)
-		}
+		getEvaluations(subjectId = args.subjectId)
 	}
 
 	private fun onEvaluationsOptionSelected(itemId: Int) {
 		when (itemId) {
-			EvaluationPlanMenu.ID_ADD_EVALUATION -> addEvaluation()
-			EvaluationPlanMenu.ID_USE_EVALUATION_PLAN_GRADE -> useEvaluationPlanGrade()
+			EvaluationPlanMenu.ID_ADD_EVALUATION -> {
+				navigate(
+					EvaluationPlanFragmentDirections.navToEvaluation(
+						title = getString(R.string.title_add_evaluation),
+						subjectId = args.subjectId,
+						subjectCode = args.subjectCode,
+						subjectName = args.subjectName
+					)
+				)
+			}
+			EvaluationPlanMenu.ID_USE_EVALUATION_PLAN_GRADE -> {
+				navigateUp(
+					requestKey = RequestKeys.USE_PLAN_GRADE,
+					result = bundleOf(
+						ResultKeys.SUBJECT_ID to args.subjectId,
+						ResultKeys.GRADE to evaluationAdapter.computeGradeSum().toSubjectGrade()
+					)
+				)
+			}
 		}
 	}
 
 	private fun onEvaluationOptionsSelected(item: EvaluationItem, position: Int, itemId: Int) {
 		when (itemId) {
-			EvaluationMenu.ID_EDIT_EVALUATION -> editEvaluation(item)
-			EvaluationMenu.ID_MARK_EVALUATION_AS_DONE -> markEvaluation(item, !item.isDone)
-			EvaluationMenu.ID_DELETE_EVALUATION -> deleteEvaluation(item, position)
+			EvaluationMenu.ID_EDIT_EVALUATION -> {
+				navigate(
+					EvaluationPlanFragmentDirections.navToEvaluation(
+						title = getString(R.string.title_edit_evaluation),
+						subjectId = args.subjectId,
+						subjectCode = args.subjectCode,
+						subjectName = args.subjectName,
+						evaluationId = item.id
+					)
+				)
+			}
+			EvaluationMenu.ID_MARK_EVALUATION_AS_DONE -> {
+				updateEvaluation(
+					UpdateEvaluationParams(
+						evaluationId = item.id,
+						isDone = !item.isDone
+					)
+				)
+			}
+			EvaluationMenu.ID_DELETE_EVALUATION -> {
+				evaluationAdapter.removeEvaluation(item)
+
+				snackBar {
+					message = getString(R.string.snack_item_removed, item.typeText)
+
+					action(R.string.snack_action_undone) {
+						rViewEvaluations.scrollToPosition(0)
+
+						evaluationAdapter.addEvaluation(item = item, position = position)
+					}
+
+					onDismissed { event ->
+						if (event != Snackbar.Callback.DISMISS_EVENT_ACTION)
+							removeEvaluation(evaluationId = item.id)
+					}
+				}
+			}
 		}
 	}
 
@@ -168,6 +217,24 @@ class EvaluationPlanFragment : NavigationFragment() {
 		}
 	}
 
+	private fun getEvaluations(subjectId: String) {
+		requestOn(viewModel) {
+			getEvaluationsParams.emit(subjectId)
+		}
+	}
+
+	private fun updateEvaluation(params: UpdateEvaluationParams) {
+		requestOn(viewModel) {
+			updateEvaluationParams.emit(params)
+		}
+	}
+
+	private fun removeEvaluation(evaluationId: String) {
+		requestOn(viewModel) {
+			removeEvaluationParams.emit(evaluationId)
+		}
+	}
+
 	private fun updateGrades(animate: Boolean) {
 		val gradeSum = evaluationAdapter.computeGradeSum()
 
@@ -183,73 +250,10 @@ class EvaluationPlanFragment : NavigationFragment() {
 			if (evaluationAdapter.itemCount > 0) Flipper.CONTENT else Flipper.EMPTY
 	}
 
-	private fun addEvaluation() {
-		navigate(
-			EvaluationPlanFragmentDirections.navToEvaluation(
-				title = getString(R.string.title_add_evaluation),
-				subjectId = args.subjectId,
-				subjectCode = args.subjectCode,
-				subjectName = args.subjectName
-			)
-		)
-	}
-
-	private fun editEvaluation(item: EvaluationItem) {
-		navigate(
-			EvaluationPlanFragmentDirections.navToEvaluation(
-				title = getString(R.string.title_edit_evaluation),
-				subjectId = args.subjectId,
-				subjectCode = args.subjectCode,
-				subjectName = args.subjectName,
-				evaluationId = item.id
-			)
-		)
-	}
-
-	private fun useEvaluationPlanGrade() {
-		navigateUp(
-			requestKey = RequestKeys.USE_PLAN_GRADE,
-			result = bundleOf(
-				ResultKeys.SUBJECT_ID to args.subjectId,
-				ResultKeys.GRADE to evaluationAdapter.computeGradeSum().toSubjectGrade()
-			)
-		)
-	}
-
-	private fun markEvaluation(item: EvaluationItem, done: Boolean) {
-		viewModel.updateEvaluation(
-			UpdateEvaluationParams(
-				evaluationId = item.id,
-				isDone = done
-			)
-		)
-	}
-
-	private fun deleteEvaluation(item: EvaluationItem, position: Int) {
-		evaluationAdapter.removeEvaluation(item)
-
-		snackBar {
-			message = getString(R.string.snack_item_removed, item.typeText)
-
-			action(R.string.snack_action_undone) {
-				rViewEvaluations.scrollToPosition(0)
-
-				evaluationAdapter.addEvaluation(item = item, position = position)
-			}
-
-			onDismissed { event ->
-				if (event != Snackbar.Callback.DISMISS_EVENT_ACTION) {
-					viewModel.removeEvaluation(id = item.id)
-				}
-			}
-		}
-	}
-
-	private fun evaluationsObserver(result: Result<List<Evaluation>, Nothing>?) {
+	// TODO implement loading/error
+	private fun getEvaluationsCollector(result: UseCaseState<List<Evaluation>, Nothing>?) {
 		when (result) {
-			is Result.OnLoading -> { /* TODO */
-			}
-			is Result.OnSuccess -> {
+			is UseCaseState.Data -> {
 				val context = requireContext()
 				val evaluations = result.value
 
@@ -259,29 +263,38 @@ class EvaluationPlanFragment : NavigationFragment() {
 
 				evaluationAdapter.submitEvaluations(items)
 			}
-			is Result.OnError -> { /* TODO */
-			}
 			else -> {}
 		}
 	}
 
-	private fun updateEvaluationObserver(result: Result<Evaluation, EvaluationError>?) {
+	// TODO implement loading/error
+	private fun updateEvaluationCollector(result: UseCaseState<Evaluation, EvaluationError>?) {
 		when (result) {
-			is Result.OnSuccess -> {
+			is UseCaseState.Data -> {
 				val context = requireContext()
 				val evaluation = result.value
 				val item = evaluation.toEvaluationItem(context)
 
 				evaluationAdapter.updateEvaluation(item)
 			}
-			is Result.OnError -> errorSnackBar()
+			is UseCaseState.Error -> {
+				errorSnackBar()
+			}
 			else -> {}
 		}
 	}
 
 	inner class EvaluationManager : EvaluationAdapter.AdapterManager {
 		override fun onEvaluationClicked(item: EvaluationItem) {
-			editEvaluation(item)
+			navigate(
+				EvaluationPlanFragmentDirections.navToEvaluation(
+					title = getString(R.string.title_edit_evaluation),
+					subjectId = args.subjectId,
+					subjectCode = args.subjectCode,
+					subjectName = args.subjectName,
+					evaluationId = item.id
+				)
+			)
 		}
 
 		override fun onEvaluationOptionsClicked(item: EvaluationItem, position: Int) {
@@ -289,7 +302,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 		}
 
 		override fun onEvaluationGradeChanged(item: EvaluationItem, grade: Double) {
-			viewModel.updateEvaluation(
+			updateEvaluation(
 				UpdateEvaluationParams(
 					evaluationId = item.id,
 					grade = grade
@@ -298,7 +311,12 @@ class EvaluationPlanFragment : NavigationFragment() {
 		}
 
 		override fun onEvaluationDoneChanged(item: EvaluationItem, done: Boolean) {
-			markEvaluation(item, done)
+			updateEvaluation(
+				UpdateEvaluationParams(
+					evaluationId = item.id,
+					isDone = done
+				)
+			)
 		}
 
 		override fun onEvaluationAdded(item: EvaluationItem) {

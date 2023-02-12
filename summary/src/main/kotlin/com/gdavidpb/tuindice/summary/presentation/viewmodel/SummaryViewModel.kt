@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.base.utils.extension.stateInEagerly
-import com.gdavidpb.tuindice.base.utils.extension.stateInWhileSubscribed
+import com.gdavidpb.tuindice.base.utils.extension.stateInAction
+import com.gdavidpb.tuindice.base.utils.extension.stateInFlow
 import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
@@ -17,11 +17,11 @@ class SummaryViewModel(
 	val removeProfilePictureParams = MutableSharedFlow<Unit>()
 
 	val getAccount =
-		stateInWhileSubscribed(useCase = getAccountUseCase, params = Unit)
+		stateInFlow(useCase = getAccountUseCase, params = Unit)
 
 	val uploadProfilePicture =
-		stateInEagerly(useCase = uploadProfilePictureUseCase, paramsFlow = uploadProfilePictureParams)
+		stateInAction(useCase = uploadProfilePictureUseCase, paramsFlow = uploadProfilePictureParams)
 
 	val removeProfilePicture =
-		stateInEagerly(useCase = removeProfilePictureUseCase, paramsFlow = removeProfilePictureParams)
+		stateInAction(useCase = removeProfilePictureUseCase, paramsFlow = removeProfilePictureParams)
 }

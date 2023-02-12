@@ -5,10 +5,11 @@ import com.gdavidpb.tuindice.base.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.SetLastScreenUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.SignOutUseCase
-import com.gdavidpb.tuindice.base.utils.extension.stateInEagerly
+import com.gdavidpb.tuindice.base.utils.extension.stateInAction
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.review.ReviewManager
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class MainViewModel(
 	signOutUseCase: SignOutUseCase,
@@ -20,17 +21,18 @@ class MainViewModel(
 	val checkUpdateParams = MutableSharedFlow<AppUpdateManager>()
 	val checkReviewParams = MutableSharedFlow<ReviewManager>()
 	val setLastScreenParams = MutableSharedFlow<Int>()
-	val outdatedPassword = MutableSharedFlow<Unit>()
+
+	val outdatedPassword = MutableStateFlow<Unit?>(null)
 
 	val signOut =
-		stateInEagerly(useCase = signOutUseCase, paramsFlow = signOutParams)
+		stateInAction(useCase = signOutUseCase, paramsFlow = signOutParams)
 
 	val setLastScreen =
-		stateInEagerly(useCase = setLastScreenUseCase, paramsFlow = setLastScreenParams)
+		stateInAction(useCase = setLastScreenUseCase, paramsFlow = setLastScreenParams)
 
 	val checkReview =
-		stateInEagerly(useCase = requestReviewUseCase, paramsFlow = checkReviewParams)
+		stateInAction(useCase = requestReviewUseCase, paramsFlow = checkReviewParams)
 
 	val checkUpdate =
-		stateInEagerly(useCase = getUpdateInfoUseCase, paramsFlow = checkUpdateParams)
+		stateInAction(useCase = getUpdateInfoUseCase, paramsFlow = checkUpdateParams)
 }
