@@ -14,7 +14,7 @@ fun <P, T, Q, L, U : BaseUseCase<P, T, Q, L>> ViewModel.execute(
 	liveData: L
 ) = useCase.execute(params, liveData, viewModelScope)
 
-fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInWhileSubscribed(
+fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInFlow(
 	useCase: U,
 	params: P
 ) = useCase
@@ -26,7 +26,21 @@ fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInWhileSubscribed(
 	)
 
 @OptIn(ExperimentalCoroutinesApi::class)
-fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInEagerly(
+fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInFlow(
+	useCase: U,
+	paramsFlow: MutableSharedFlow<P>
+) = paramsFlow
+	.transformLatest { params ->
+		emitAll(useCase.execute(params))
+	}
+	.stateIn(
+		scope = viewModelScope,
+		started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+		initialValue = UseCaseState.Loading()
+	)
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInAction(
 	useCase: U,
 	paramsFlow: MutableSharedFlow<P>
 ) = paramsFlow

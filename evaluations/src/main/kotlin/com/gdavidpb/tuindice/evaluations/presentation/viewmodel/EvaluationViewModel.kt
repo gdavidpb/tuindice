@@ -1,38 +1,30 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.utils.extension.LiveResult
-import com.gdavidpb.tuindice.base.utils.extension.execute
+import com.gdavidpb.tuindice.base.utils.extension.stateInAction
+import com.gdavidpb.tuindice.base.utils.extension.stateInFlow
 import com.gdavidpb.tuindice.evaluations.domain.param.AddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 class EvaluationViewModel(
-	private val getEvaluationUseCase: GetEvaluationUseCase,
-	private val addEvaluationUseCase: AddEvaluationUseCase,
-	private val updateEvaluationUseCase: UpdateEvaluationUseCase
+	getEvaluationUseCase: GetEvaluationUseCase,
+	addEvaluationUseCase: AddEvaluationUseCase,
+	updateEvaluationUseCase: UpdateEvaluationUseCase
 ) : ViewModel() {
-	val getEvaluation = LiveResult<Evaluation, Nothing>()
-	val addOrUpdateEvaluation = LiveResult<Evaluation, EvaluationError>()
+	val getEvaluationParams = MutableSharedFlow<String>()
+	val addEvaluationParams = MutableSharedFlow<AddEvaluationParams>()
+	val updateEvaluationParams = MutableSharedFlow<UpdateEvaluationParams>()
 
-	fun getEvaluation(evaluationId: String) =
-		execute(useCase = getEvaluationUseCase, params = evaluationId, liveData = getEvaluation)
+	val getEvaluation =
+		stateInFlow(useCase = getEvaluationUseCase, paramsFlow = getEvaluationParams)
 
-	fun addEvaluation(params: AddEvaluationParams) =
-		execute(
-			useCase = addEvaluationUseCase,
-			params = params,
-			liveData = addOrUpdateEvaluation
-		)
+	val addEvaluation =
+		stateInAction(useCase = addEvaluationUseCase, paramsFlow = addEvaluationParams)
 
-	fun updateEvaluation(params: UpdateEvaluationParams) =
-		execute(
-			useCase = updateEvaluationUseCase,
-			params = params,
-			liveData = addOrUpdateEvaluation
-		)
+	val updateEvaluation =
+		stateInAction(useCase = updateEvaluationUseCase, paramsFlow = updateEvaluationParams)
 }

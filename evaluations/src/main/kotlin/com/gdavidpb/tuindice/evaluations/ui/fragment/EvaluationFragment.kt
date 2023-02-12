@@ -5,7 +5,7 @@ import android.view.View
 import androidx.navigation.fragment.navArgs
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.domain.usecase.base.Result
+import com.gdavidpb.tuindice.base.domain.usecase.baseV2.UseCaseState
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.evaluations.R
@@ -23,8 +23,6 @@ class EvaluationFragment : NavigationFragment() {
 
 	private val args by navArgs<EvaluationFragmentArgs>()
 
-	private val isNewEvaluation by lazy { (args.evaluationId == null) }
-
 	override fun onCreateView() = R.layout.fragment_evaluation
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -35,18 +33,17 @@ class EvaluationFragment : NavigationFragment() {
 
 		btnEvaluationSave.onClickOnce(::onSaveClick)
 
-		with(viewModel) {
-			val evaluationId = args.evaluationId
-
-			if (evaluationId != null) getEvaluation(evaluationId = evaluationId)
+		launchRepeatOnLifecycle {
+			with(viewModel) {
+				collect(getEvaluation, ::getEvaluationCollector)
+				collect(addEvaluation, ::addEvaluationCollector)
+				collect(updateEvaluation, ::updateEvaluationCollector)
+			}
 		}
-	}
 
-	override fun onInitObservers() {
-		with(viewModel) {
-			observe(getEvaluation, ::getEvaluationObserver)
-			observe(addOrUpdateEvaluation, ::addOrUpdateEvaluationObserver)
-		}
+		val evaluationId = args.evaluationId
+
+		if (evaluationId != null) getEvaluation(evaluationId = evaluationId)
 	}
 
 	private fun initSubject() {
@@ -86,8 +83,8 @@ class EvaluationFragment : NavigationFragment() {
 	private fun onSaveClick() {
 		val maxGrade = tInputEvaluationGrade.getGrade()
 
-		if (isNewEvaluation)
-			viewModel.addEvaluation(
+		if (args.evaluationId == null)
+			addEvaluation(
 				AddEvaluationParams(
 					subjectId = args.subjectId,
 					name = tInputEvaluationName.getName(),
@@ -99,7 +96,7 @@ class EvaluationFragment : NavigationFragment() {
 				)
 			)
 		else
-			viewModel.updateEvaluation(
+			updateEvaluation(
 				UpdateEvaluationParams(
 					evaluationId = args.evaluationId ?: "",
 					name = tInputEvaluationName.getName(),
@@ -118,20 +115,56 @@ class EvaluationFragment : NavigationFragment() {
 			.let { index -> if (index != -1) EvaluationType.values()[index] else null }
 	}
 
-	private fun getEvaluationObserver(result: Result<Evaluation, Nothing>?) {
+	private fun getEvaluation(evaluationId: String) {
+		requestOn(viewModel) {
+			getEvaluationParams.emit(evaluationId)
+		}
+	}
+
+	private fun addEvaluation(params: AddEvaluationParams) {
+		requestOn(viewModel) {
+			addEvaluationParams.emit(params)
+		}
+	}
+
+	private fun updateEvaluation(params: UpdateEvaluationParams) {
+		requestOn(viewModel) {
+			updateEvaluationParams.emit(params)
+		}
+	}
+
+	// TODO Implement error/loading
+	private fun getEvaluationCollector(result: UseCaseState<Evaluation, Nothing>?) {
 		when (result) {
-			is Result.OnLoading -> { /* TODO */ }
-			is Result.OnSuccess -> initEvaluation(evaluation = result.value)
-			is Result.OnError -> { /* TODO */ }
+			is UseCaseState.Data -> {
+				initEvaluation(evaluation = result.value)
+			}
 			else -> {}
 		}
 	}
 
-	private fun addOrUpdateEvaluationObserver(result: Result<Evaluation, EvaluationError>?) {
+	// TODO Implement loading
+	private fun addEvaluationCollector(result: UseCaseState<Evaluation, EvaluationError>?) {
 		when (result) {
-			is Result.OnLoading -> { /* TODO */ }
-			is Result.OnSuccess -> navigateUp()
-			is Result.OnError -> addOrUpdateEvaluationErrorHandler(error = result.error)
+			is UseCaseState.Data -> {
+				navigateUp()
+			}
+			is UseCaseState.Error -> {
+				addOrUpdateEvaluationErrorHandler(error = result.error)
+			}
+			else -> {}
+		}
+	}
+
+	// TODO Implement loading
+	private fun updateEvaluationCollector(result: UseCaseState<Evaluation, EvaluationError>?) {
+		when (result) {
+			is UseCaseState.Data -> {
+				navigateUp()
+			}
+			is UseCaseState.Error -> {
+				addOrUpdateEvaluationErrorHandler(error = result.error)
+			}
 			else -> {}
 		}
 	}

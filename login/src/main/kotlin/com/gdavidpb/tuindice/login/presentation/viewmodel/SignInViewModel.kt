@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.login.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.base.utils.extension.stateInEagerly
+import com.gdavidpb.tuindice.base.utils.extension.stateInAction
 import com.gdavidpb.tuindice.login.domain.param.SignInParams
 import com.gdavidpb.tuindice.login.domain.usecase.ReSignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
@@ -15,8 +15,8 @@ class SignInViewModel(
 	val reSignInParams = MutableSharedFlow<String>()
 
 	val signIn =
-		stateInEagerly(useCase = signInUseCase, paramsFlow = signInParams)
+		stateInAction(useCase = signInUseCase, paramsFlow = signInParams)
 
 	val reSignIn =
-		stateInEagerly(useCase = reSignInUseCase, paramsFlow = reSignInParams)
+		stateInAction(useCase = reSignInUseCase, paramsFlow = reSignInParams)
 }

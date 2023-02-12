@@ -105,7 +105,7 @@ class SplashFragment : NavigationFragment() {
 
 	private fun fetchStartUpAction(dataString: String) {
 		requestOn(viewModel) {
-			startUpAction.emit(dataString)
+			fetchStartUpActionParams.emit(dataString)
 		}
 	}
 }
