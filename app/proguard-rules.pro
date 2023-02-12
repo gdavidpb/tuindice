@@ -21,7 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 # Use cases rules
--keepnames class * extends com.gdavidpb.tuindice.base.domain.usecase.base.BaseUseCase { *; }
+-keepnames class * extends com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase { *; }
 
 # Google Crypto rules
 -keep class com.google.crypto.** { *; }
@@ -38,11 +38,6 @@
 
 -keep class com.google.firebase.crashlytics.** { *; }
 -dontwarn com.google.firebase.crashlytics.**
-
-# Firebase rules
--keep class com.gdavidpb.tuindice.data.model.** { *; }
--keep class com.gdavidpb.tuindice.domain.model.** { *; }
--keep class com.gdavidpb.tuindice.presentation.model.** { *; }
 
 # Retrofit does reflection on generic parameters. InnerClasses is required to use Signature and
 # EnclosingMethod is required to use InnerClasses.
