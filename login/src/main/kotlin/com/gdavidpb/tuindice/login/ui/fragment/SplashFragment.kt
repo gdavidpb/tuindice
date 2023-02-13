@@ -37,7 +37,7 @@ class SplashFragment : NavigationFragment() {
 			}
 		}
 
-		fetchStartUpAction(dataString = intent.dataString ?: "")
+		viewModel.fetchStartUpAction(dataString = intent.dataString ?: "")
 	}
 
 	private fun showNoServicesDialog() {
@@ -100,12 +100,6 @@ class SplashFragment : NavigationFragment() {
 			is StartUpAction.SignIn -> {
 				navigate(SplashFragmentDirections.navToSignIn())
 			}
-		}
-	}
-
-	private fun fetchStartUpAction(dataString: String) {
-		requestOn(viewModel) {
-			fetchStartUpActionParams.emit(dataString)
 		}
 	}
 }

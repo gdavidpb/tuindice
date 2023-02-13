@@ -43,7 +43,7 @@ class EvaluationFragment : NavigationFragment() {
 
 		val evaluationId = args.evaluationId
 
-		if (evaluationId != null) getEvaluation(evaluationId = evaluationId)
+		if (evaluationId != null) viewModel.getEvaluation(evaluationId = evaluationId)
 	}
 
 	private fun initSubject() {
@@ -84,7 +84,7 @@ class EvaluationFragment : NavigationFragment() {
 		val maxGrade = tInputEvaluationGrade.getGrade()
 
 		if (args.evaluationId == null)
-			addEvaluation(
+			viewModel.addEvaluation(
 				AddEvaluationParams(
 					subjectId = args.subjectId,
 					name = tInputEvaluationName.getName(),
@@ -96,7 +96,7 @@ class EvaluationFragment : NavigationFragment() {
 				)
 			)
 		else
-			updateEvaluation(
+			viewModel.updateEvaluation(
 				UpdateEvaluationParams(
 					evaluationId = args.evaluationId ?: "",
 					name = tInputEvaluationName.getName(),
@@ -113,24 +113,6 @@ class EvaluationFragment : NavigationFragment() {
 		return cGroupEvaluation
 			.checkedChipIndex
 			.let { index -> if (index != -1) EvaluationType.values()[index] else null }
-	}
-
-	private fun getEvaluation(evaluationId: String) {
-		requestOn(viewModel) {
-			getEvaluationParams.emit(evaluationId)
-		}
-	}
-
-	private fun addEvaluation(params: AddEvaluationParams) {
-		requestOn(viewModel) {
-			addEvaluationParams.emit(params)
-		}
-	}
-
-	private fun updateEvaluation(params: UpdateEvaluationParams) {
-		requestOn(viewModel) {
-			updateEvaluationParams.emit(params)
-		}
 	}
 
 	// TODO Implement error/loading

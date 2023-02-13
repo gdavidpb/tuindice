@@ -42,7 +42,7 @@ class EnrollmentDownloadingBottomSheetDialog : BottomSheetDialogFragment() {
 			}
 		}
 
-		tryFetchEnrollmentProof()
+		viewModel.tryFetchEnrollmentProof()
 	}
 
 	private fun enrollmentProofCollector(result: UseCaseState<String, GetEnrollmentError>?) {
@@ -65,25 +65,13 @@ class EnrollmentDownloadingBottomSheetDialog : BottomSheetDialogFragment() {
 
 	private fun enrollmentErrorHandler(error: GetEnrollmentError?) {
 		when (error) {
-			is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { tryFetchEnrollmentProof() }
-			is GetEnrollmentError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { tryFetchEnrollmentProof() }
+			is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { viewModel.tryFetchEnrollmentProof() }
+			is GetEnrollmentError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { viewModel.tryFetchEnrollmentProof() }
 			is GetEnrollmentError.NotFound -> snackBar(R.string.snack_enrollment_not_found)
-			is GetEnrollmentError.AccountDisabled -> signOut()
+			is GetEnrollmentError.AccountDisabled -> mainViewModel.signOut()
 			is GetEnrollmentError.OutdatedPassword -> navigate(NavigationBaseDirections.navToUpdatePassword())
-			is GetEnrollmentError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { tryFetchEnrollmentProof() }
-			else -> errorSnackBar { tryFetchEnrollmentProof() }
-		}
-	}
-
-	private fun tryFetchEnrollmentProof() {
-		requestOn(viewModel) {
-			enrollmentProofParams.emit(Unit)
-		}
-	}
-
-	private fun signOut() {
-		requestOn(mainViewModel) {
-			signOutParams.emit(Unit)
+			is GetEnrollmentError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { viewModel.tryFetchEnrollmentProof() }
+			else -> errorSnackBar { viewModel.tryFetchEnrollmentProof() }
 		}
 	}
 }

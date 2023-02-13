@@ -3,10 +3,11 @@ package com.gdavidpb.tuindice.base.utils.extension
 import android.app.Activity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
+import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 fun <T> emptyStateFlow() = MutableStateFlow<T?>(null)
@@ -33,14 +34,45 @@ fun LifecycleOwner.launchRepeatOnLifecycle(
 	}
 }
 
-fun <T : ViewModel> LifecycleOwner.requestOn(viewModel: T, block: suspend T.() -> Unit) {
-	val lifecycleOwner = when (this) {
-		is Fragment -> viewLifecycleOwner
-		is Activity -> this
-		else -> throw NoWhenBranchMatchedException()
-	}
-
-	lifecycleOwner.lifecycleScope.launch {
-		block(viewModel)
-	}
+fun <T> ViewModel.emit(flow: MutableStateFlow<T>, value: T) {
+	viewModelScope.launch { flow.emit(value) }
 }
+
+fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInFlow(
+	useCase: U,
+	params: P
+) = useCase
+	.execute(params)
+	.stateIn(
+		scope = viewModelScope,
+		started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+		initialValue = UseCaseState.Loading()
+	)
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInFlow(
+	useCase: U,
+	paramsFlow: MutableStateFlow<P?>
+) = paramsFlow
+	.transformLatest { params ->
+		if (params != null) emitAll(useCase.execute(params))
+	}
+	.stateIn(
+		scope = viewModelScope,
+		started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000),
+		initialValue = UseCaseState.Loading()
+	)
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInAction(
+	useCase: U,
+	paramsFlow: MutableStateFlow<P?>
+) = paramsFlow
+	.transformLatest { params ->
+		if (params != null) emitAll(useCase.execute(params))
+	}
+	.stateIn(
+		scope = viewModelScope,
+		started = SharingStarted.Eagerly,
+		initialValue = UseCaseState.Undefined()
+	)

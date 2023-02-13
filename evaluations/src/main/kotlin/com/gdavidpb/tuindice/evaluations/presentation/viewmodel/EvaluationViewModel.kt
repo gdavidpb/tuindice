@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.gdavidpb.tuindice.base.utils.extension.emit
 import com.gdavidpb.tuindice.base.utils.extension.emptyStateFlow
 import com.gdavidpb.tuindice.base.utils.extension.stateInAction
 import com.gdavidpb.tuindice.base.utils.extension.stateInFlow
@@ -15,9 +16,18 @@ class EvaluationViewModel(
 	addEvaluationUseCase: AddEvaluationUseCase,
 	updateEvaluationUseCase: UpdateEvaluationUseCase
 ) : ViewModel() {
-	val getEvaluationParams = emptyStateFlow<String>()
-	val addEvaluationParams = emptyStateFlow<AddEvaluationParams>()
-	val updateEvaluationParams = emptyStateFlow<UpdateEvaluationParams>()
+	private val getEvaluationParams = emptyStateFlow<String>()
+	private val addEvaluationParams = emptyStateFlow<AddEvaluationParams>()
+	private val updateEvaluationParams = emptyStateFlow<UpdateEvaluationParams>()
+
+	fun getEvaluation(evaluationId: String) =
+		emit(getEvaluationParams, evaluationId)
+
+	fun addEvaluation(params: AddEvaluationParams) =
+		emit(addEvaluationParams, params)
+
+	fun updateEvaluation(params: UpdateEvaluationParams) =
+		emit(updateEvaluationParams, params)
 
 	val getEvaluation =
 		stateInFlow(useCase = getEvaluationUseCase, paramsFlow = getEvaluationParams)

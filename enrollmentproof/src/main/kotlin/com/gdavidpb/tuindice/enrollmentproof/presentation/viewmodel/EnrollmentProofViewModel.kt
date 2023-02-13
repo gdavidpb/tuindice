@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.gdavidpb.tuindice.base.utils.extension.emit
 import com.gdavidpb.tuindice.base.utils.extension.emptyStateFlow
 import com.gdavidpb.tuindice.base.utils.extension.stateInAction
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.GetEnrollmentProofUseCase
@@ -8,7 +9,10 @@ import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.GetEnrollmentProofUs
 class EnrollmentProofViewModel(
 	getEnrollmentProofUseCase: GetEnrollmentProofUseCase
 ) : ViewModel() {
-	val enrollmentProofParams = emptyStateFlow<Unit>()
+	private val enrollmentProofParams = emptyStateFlow<Unit>()
+
+	fun tryFetchEnrollmentProof() =
+		emit(enrollmentProofParams, Unit)
 
 	val enrollmentProof =
 		stateInAction(useCase = getEnrollmentProofUseCase, paramsFlow = enrollmentProofParams)

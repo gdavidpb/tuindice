@@ -53,12 +53,12 @@ class SummaryFragment : NavigationFragment() {
 
 	private val registerTakePicture =
 		registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
-			if (result) uploadProfilePicture(path = "$cameraOutputUri")
+			if (result) viewModel.uploadProfilePicture(path = "$cameraOutputUri")
 		}
 
 	private val registerPickVisualMedia =
 		registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { result ->
-			if (result != null) uploadProfilePicture(path = "$result")
+			if (result != null) viewModel.uploadProfilePicture(path = "$result")
 		}
 
 	private object ProfilePictureMenu {
@@ -94,7 +94,7 @@ class SummaryFragment : NavigationFragment() {
 					titleResource = R.string.dialog_title_remove_profile_picture_failure
 					messageResource = R.string.dialog_message_remove_profile_picture_failure
 
-					positiveButton(R.string.remove) { removeProfilePicture() }
+					positiveButton(R.string.remove) { viewModel.removeProfilePicture() }
 					negativeButton(R.string.cancel)
 				}
 			}
@@ -244,9 +244,9 @@ class SummaryFragment : NavigationFragment() {
 
 	private fun accountErrorHandler(error: GetAccountError?) {
 		when (error) {
-			is GetAccountError.AccountDisabled -> signOut()
+			is GetAccountError.AccountDisabled -> mainViewModel.signOut()
 			is GetAccountError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
-			is GetAccountError.OutdatedPassword -> outdatedPassword()
+			is GetAccountError.OutdatedPassword -> mainViewModel.outdatedPassword()
 			is GetAccountError.Timeout -> errorSnackBar(R.string.snack_timeout)
 			is GetAccountError.Unavailable -> showCantUpdate()
 			null -> errorSnackBar()
@@ -266,30 +266,6 @@ class SummaryFragment : NavigationFragment() {
 		tViewLastUpdate.onClickOnce { snackBar(R.string.snack_no_service) }
 	}
 
-	private fun uploadProfilePicture(path: String) {
-		requestOn(viewModel) {
-			uploadProfilePictureParams.emit(path)
-		}
-	}
-
-	private fun removeProfilePicture() {
-		requestOn(viewModel) {
-			removeProfilePictureParams.emit(Unit)
-		}
-	}
-
-	private fun signOut() {
-		requestOn(mainViewModel) {
-			signOutParams.emit(Unit)
-		}
-	}
-
-	private fun outdatedPassword() {
-		requestOn(mainViewModel) {
-			outdatedPassword.emit(Unit)
-		}
-	}
-
 	inner class SummaryMenuProvider : MenuProvider {
 		override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
 			menuInflater.inflate(R.menu.menu_summary, menu)
@@ -302,7 +278,7 @@ class SummaryFragment : NavigationFragment() {
 						titleResource = R.string.dialog_title_sign_out
 						messageResource = R.string.dialog_message_sign_out
 
-						positiveButton(R.string.menu_sign_out) { signOut() }
+						positiveButton(R.string.menu_sign_out) { mainViewModel.signOut() }
 						negativeButton(R.string.cancel)
 					}
 
