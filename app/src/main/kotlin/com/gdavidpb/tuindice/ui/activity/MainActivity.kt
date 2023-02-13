@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.ui.activity
 
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
-import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
@@ -89,13 +88,13 @@ class MainActivity : AppCompatActivity() {
 			}
 		}
 
-		checkReview(reviewManager)
+		viewModel.checkReview(reviewManager)
 	}
 
 	override fun onResume() {
 		super.onResume()
 
-		checkUpdate(updateManager)
+		viewModel.checkUpdate(updateManager)
 	}
 
 	private fun onDestinationChanged(destination: NavDestination) {
@@ -107,7 +106,7 @@ class MainActivity : AppCompatActivity() {
 		appBar.isVisible = showAppBar
 
 		if (showBottomNav) {
-			setLastScreen(navId = destination.id)
+			viewModel.setLastScreen(screen = destination.id)
 
 			bottomNavView.animateSlideIn()
 		} else {
@@ -164,24 +163,6 @@ class MainActivity : AppCompatActivity() {
 	private fun outdatedPasswordCollector(result: Unit?) {
 		if (result != null)
 			navController.navigate(NavigationBaseDirections.navToUpdatePassword())
-	}
-
-	private fun checkReview(reviewManager: ReviewManager) {
-		requestOn(viewModel) {
-			checkReviewParams.emit(reviewManager)
-		}
-	}
-
-	private fun setLastScreen(@IdRes navId: Int) {
-		requestOn(viewModel) {
-			setLastScreenParams.emit(navId)
-		}
-	}
-
-	private fun checkUpdate(updateManager: AppUpdateManager) {
-		requestOn(viewModel) {
-			checkUpdateParams.emit(updateManager)
-		}
 	}
 
 	inner class BackPressedHandler : OnBackPressedCallback(true) {

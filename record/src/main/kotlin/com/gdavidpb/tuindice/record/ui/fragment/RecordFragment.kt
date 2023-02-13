@@ -86,7 +86,7 @@ class RecordFragment : NavigationFragment() {
 					)
 				)
 			SubjectMenu.ID_WITHDRAW_SUBJECT ->
-				withdrawSubject(subjectId = item.id)
+				viewModel.withdrawSubject(subjectId = item.id)
 		}
 	}
 
@@ -129,7 +129,7 @@ class RecordFragment : NavigationFragment() {
 
 		if (subjectId == null || grade == -1) return
 
-		updateSubject(
+		viewModel.updateSubject(
 			UpdateSubjectParams(
 				subjectId = subjectId,
 				grade = grade,
@@ -166,36 +166,12 @@ class RecordFragment : NavigationFragment() {
 
 	private fun getQuartersErrorHandler(error: GetQuartersError?) {
 		when (error) {
-			is GetQuartersError.AccountDisabled -> signOut()
+			is GetQuartersError.AccountDisabled -> mainViewModel.signOut()
 			is GetQuartersError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
-			is GetQuartersError.OutdatedPassword -> outdatedPassword()
+			is GetQuartersError.OutdatedPassword -> mainViewModel.outdatedPassword()
 			is GetQuartersError.Timeout -> errorSnackBar(R.string.snack_timeout)
 			is GetQuartersError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable)
 			else -> errorSnackBar()
-		}
-	}
-
-	private fun updateSubject(params: UpdateSubjectParams) {
-		requestOn(viewModel) {
-			updateSubjectParams.emit(params)
-		}
-	}
-
-	private fun withdrawSubject(subjectId: String) {
-		requestOn(viewModel) {
-			withdrawSubjectParams.emit(subjectId)
-		}
-	}
-
-	private fun signOut() {
-		requestOn(mainViewModel) {
-			signOutParams.emit(Unit)
-		}
-	}
-
-	private fun outdatedPassword() {
-		requestOn(mainViewModel) {
-			outdatedPassword.emit(Unit)
 		}
 	}
 
@@ -205,7 +181,7 @@ class RecordFragment : NavigationFragment() {
 		}
 
 		override fun onSubjectGradeChanged(item: SubjectItem, grade: Int, isSelected: Boolean) {
-			updateSubject(
+			viewModel.updateSubject(
 				UpdateSubjectParams(
 					subjectId = item.id,
 					grade = grade,

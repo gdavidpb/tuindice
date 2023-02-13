@@ -78,7 +78,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 			}
 		}
 
-		getEvaluations(subjectId = args.subjectId)
+		viewModel.getEvaluations(subjectId = args.subjectId)
 	}
 
 	private fun onEvaluationsOptionSelected(itemId: Int) {
@@ -119,7 +119,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 				)
 			}
 			EvaluationMenu.ID_MARK_EVALUATION_AS_DONE -> {
-				updateEvaluation(
+				viewModel.updateEvaluation(
 					UpdateEvaluationParams(
 						evaluationId = item.id,
 						isDone = !item.isDone
@@ -140,7 +140,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 
 					onDismissed { event ->
 						if (event != Snackbar.Callback.DISMISS_EVENT_ACTION)
-							removeEvaluation(evaluationId = item.id)
+							viewModel.removeEvaluation(evaluationId = item.id)
 					}
 				}
 			}
@@ -217,24 +217,6 @@ class EvaluationPlanFragment : NavigationFragment() {
 		}
 	}
 
-	private fun getEvaluations(subjectId: String) {
-		requestOn(viewModel) {
-			getEvaluationsParams.emit(subjectId)
-		}
-	}
-
-	private fun updateEvaluation(params: UpdateEvaluationParams) {
-		requestOn(viewModel) {
-			updateEvaluationParams.emit(params)
-		}
-	}
-
-	private fun removeEvaluation(evaluationId: String) {
-		requestOn(viewModel) {
-			removeEvaluationParams.emit(evaluationId)
-		}
-	}
-
 	private fun updateGrades(animate: Boolean) {
 		val gradeSum = evaluationAdapter.computeGradeSum()
 
@@ -302,7 +284,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 		}
 
 		override fun onEvaluationGradeChanged(item: EvaluationItem, grade: Double) {
-			updateEvaluation(
+			viewModel.updateEvaluation(
 				UpdateEvaluationParams(
 					evaluationId = item.id,
 					grade = grade
@@ -311,7 +293,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 		}
 
 		override fun onEvaluationDoneChanged(item: EvaluationItem, done: Boolean) {
-			updateEvaluation(
+			viewModel.updateEvaluation(
 				UpdateEvaluationParams(
 					evaluationId = item.id,
 					isDone = done

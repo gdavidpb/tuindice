@@ -59,7 +59,7 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 	}
 
 	private fun onConfirmClick() {
-		reSignIn(password = tInputPassword.getPassword())
+		viewModel.reSignIn(password = tInputPassword.getPassword())
 	}
 
 	private fun signInCollector(result: UseCaseState<Unit, SignInError>?) {
@@ -94,20 +94,8 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 				else
 					R.string.snack_network_unavailable
 			)
-			is SignInError.AccountDisabled -> signOut()
+			is SignInError.AccountDisabled -> mainViewModel.signOut()
 			else -> setError(R.string.snack_default_error)
-		}
-	}
-
-	private fun signOut() {
-		requestOn(mainViewModel) {
-			signOutParams.emit(Unit)
-		}
-	}
-
-	private fun reSignIn(password: String) {
-		requestOn(viewModel) {
-			reSignInParams.emit(password)
 		}
 	}
 }

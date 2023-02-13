@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.gdavidpb.tuindice.base.utils.extension.emit
 import com.gdavidpb.tuindice.base.utils.extension.emptyStateFlow
 import com.gdavidpb.tuindice.base.utils.extension.stateInAction
 import com.gdavidpb.tuindice.base.utils.extension.stateInFlow
@@ -16,9 +17,15 @@ class RecordViewModel(
 	updateSubjectUseCase: UpdateSubjectUseCase,
 	withdrawSubjectUseCase: WithdrawSubjectUseCase
 ) : ViewModel() {
-	val removeQuarterParams = emptyStateFlow<String>()
-	val updateSubjectParams = emptyStateFlow<UpdateSubjectParams>()
-	val withdrawSubjectParams = emptyStateFlow<String>()
+	private val removeQuarterParams = emptyStateFlow<String>()
+	private val updateSubjectParams = emptyStateFlow<UpdateSubjectParams>()
+	private val withdrawSubjectParams = emptyStateFlow<String>()
+
+	fun updateSubject(params: UpdateSubjectParams) =
+		emit(updateSubjectParams, params)
+
+	fun withdrawSubject(subjectId: String) =
+		emit(withdrawSubjectParams, subjectId)
 
 	val getQuarters =
 		stateInFlow(useCase = getQuartersUseCase, params = Unit)

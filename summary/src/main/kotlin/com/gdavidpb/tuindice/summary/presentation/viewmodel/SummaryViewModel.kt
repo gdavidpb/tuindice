@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.gdavidpb.tuindice.base.utils.extension.emit
 import com.gdavidpb.tuindice.base.utils.extension.emptyStateFlow
 import com.gdavidpb.tuindice.base.utils.extension.stateInAction
 import com.gdavidpb.tuindice.base.utils.extension.stateInFlow
@@ -13,8 +14,14 @@ class SummaryViewModel(
 	uploadProfilePictureUseCase: UploadProfilePictureUseCase,
 	removeProfilePictureUseCase: RemoveProfilePictureUseCase
 ) : ViewModel() {
-	val uploadProfilePictureParams = emptyStateFlow<String>()
-	val removeProfilePictureParams = emptyStateFlow<Unit>()
+	private val uploadProfilePictureParams = emptyStateFlow<String>()
+	private val removeProfilePictureParams = emptyStateFlow<Unit>()
+
+	fun uploadProfilePicture(path: String) =
+		emit(uploadProfilePictureParams, path)
+
+	fun removeProfilePicture() =
+		emit(removeProfilePictureParams, Unit)
 
 	val getAccount =
 		stateInFlow(useCase = getAccountUseCase, params = Unit)

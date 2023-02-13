@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.SetLastScreenUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.SignOutUseCase
+import com.gdavidpb.tuindice.base.utils.extension.emit
 import com.gdavidpb.tuindice.base.utils.extension.emptyStateFlow
 import com.gdavidpb.tuindice.base.utils.extension.stateInAction
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -16,22 +17,38 @@ class MainViewModel(
 	requestReviewUseCase: RequestReviewUseCase,
 	getUpdateInfoUseCase: GetUpdateInfoUseCase
 ) : ViewModel() {
-	val signOutParams = emptyStateFlow<Unit>()
-	val checkUpdateParams = emptyStateFlow<AppUpdateManager>()
-	val checkReviewParams = emptyStateFlow<ReviewManager>()
-	val setLastScreenParams = emptyStateFlow<Int>()
+	private val checkUpdateParams = emptyStateFlow<AppUpdateManager>()
+	private val checkReviewParams = emptyStateFlow<ReviewManager>()
+	private val setLastScreenParams = emptyStateFlow<Int>()
+	private val signOutParams = emptyStateFlow<Unit>()
 
-	val outdatedPassword = emptyStateFlow<Unit>()
+	fun checkUpdate(appUpdateManager: AppUpdateManager) =
+		emit(checkUpdateParams, appUpdateManager)
 
-	val signOut =
-		stateInAction(useCase = signOutUseCase, paramsFlow = signOutParams)
+	fun checkReview(reviewManager: ReviewManager) =
+		emit(checkReviewParams, reviewManager)
 
-	val setLastScreen =
-		stateInAction(useCase = setLastScreenUseCase, paramsFlow = setLastScreenParams)
+	fun setLastScreen(screen: Int) =
+		emit(setLastScreenParams, screen)
+
+	fun signOut() =
+		emit(signOutParams, Unit)
+
+	fun outdatedPassword() =
+		emit(outdatedPassword, Unit)
+
+	val outdatedPassword =
+		emptyStateFlow<Unit>()
+
+	val checkUpdate =
+		stateInAction(useCase = getUpdateInfoUseCase, paramsFlow = checkUpdateParams)
 
 	val checkReview =
 		stateInAction(useCase = requestReviewUseCase, paramsFlow = checkReviewParams)
 
-	val checkUpdate =
-		stateInAction(useCase = getUpdateInfoUseCase, paramsFlow = checkUpdateParams)
+	val setLastScreen =
+		stateInAction(useCase = setLastScreenUseCase, paramsFlow = setLastScreenParams)
+
+	val signOut =
+		stateInAction(useCase = signOutUseCase, paramsFlow = signOutParams)
 }

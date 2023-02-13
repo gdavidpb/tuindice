@@ -49,9 +49,11 @@ class SignInFragment : NavigationFragment() {
 	}
 
 	private fun onSignInClick() {
-		signIn(
-			usbId = tInputUsbId.getUsbId(),
-			password = tInputPassword.getPassword()
+		viewModel.signIn(
+			SignInParams(
+				usbId = tInputUsbId.getUsbId(),
+				password = tInputPassword.getPassword()
+			)
 		)
 	}
 
@@ -114,14 +116,6 @@ class SignInFragment : NavigationFragment() {
 		cLayoutSignIn.beginTransition(targetLayout = layout) {
 			interpolator = OvershootInterpolator()
 			duration = 1000
-		}
-	}
-
-	private fun signIn(usbId: String, password: String) {
-		requestOn(viewModel) {
-			signInParams.emit(
-				SignInParams(usbId, password)
-			)
 		}
 	}
 
