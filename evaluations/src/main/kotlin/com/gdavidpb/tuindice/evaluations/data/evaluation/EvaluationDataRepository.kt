@@ -34,26 +34,22 @@ class EvaluationDataRepository(
 				if (evaluations.isNotEmpty())
 					emit(evaluations)
 				else
-					remoteDataSource.getEvaluations(sid).also { response ->
+					emit(remoteDataSource.getEvaluations(sid).also { response ->
 						localDataSource.saveEvaluations(uid, response)
-					}
+					})
 			}
 	}
 
 	override suspend fun addEvaluation(uid: String, add: EvaluationAdd): Evaluation {
-		val newEvaluation = remoteDataSource.addEvaluation(add)
-
-		localDataSource.saveEvaluations(uid, listOf(newEvaluation))
-
-		return newEvaluation
+		return remoteDataSource.addEvaluation(add).also { evaluation ->
+			localDataSource.saveEvaluations(uid, listOf(evaluation))
+		}
 	}
 
 	override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate): Evaluation {
-		val evaluation = remoteDataSource.updateEvaluation(update)
-
-		localDataSource.saveEvaluations(uid, listOf(evaluation))
-
-		return evaluation
+		return remoteDataSource.updateEvaluation(update).also { evaluation ->
+			localDataSource.saveEvaluations(uid, listOf(evaluation))
+		}
 	}
 
 	override suspend fun removeEvaluation(uid: String, eid: String) {
