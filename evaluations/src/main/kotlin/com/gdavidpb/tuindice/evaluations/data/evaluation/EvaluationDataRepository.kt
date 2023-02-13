@@ -21,9 +21,9 @@ class EvaluationDataRepository(
 				if (evaluation != null)
 					emit(evaluation)
 				else
-					remoteDataSource.getEvaluation(eid).also { response ->
+					emit(remoteDataSource.getEvaluation(eid).also { response ->
 						localDataSource.saveEvaluations(uid, listOf(response))
-					}
+					})
 			}
 	}
 
