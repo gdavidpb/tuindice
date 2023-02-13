@@ -21,10 +21,10 @@ fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInFlow(
 @OptIn(ExperimentalCoroutinesApi::class)
 fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInFlow(
 	useCase: U,
-	paramsFlow: MutableSharedFlow<P>
+	paramsFlow: MutableStateFlow<P?>
 ) = paramsFlow
 	.transformLatest { params ->
-		emitAll(useCase.execute(params))
+		if (params != null) emitAll(useCase.execute(params))
 	}
 	.stateIn(
 		scope = viewModelScope,
@@ -35,13 +35,10 @@ fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInFlow(
 @OptIn(ExperimentalCoroutinesApi::class)
 fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInAction(
 	useCase: U,
-	paramsFlow: MutableSharedFlow<P>
+	paramsFlow: MutableStateFlow<P?>
 ) = paramsFlow
 	.transformLatest { params ->
-		emitAll(useCase.execute(params))
-	}
-	.onCompletion {
-		paramsFlow.resetReplayCache()
+		if (params != null) emitAll(useCase.execute(params))
 	}
 	.stateIn(
 		scope = viewModelScope,
