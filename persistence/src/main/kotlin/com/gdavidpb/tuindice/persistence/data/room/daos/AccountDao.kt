@@ -25,17 +25,6 @@ abstract class AccountDao {
 		account: AccountEntity
 	)
 
-	@Deprecated("This will be replace by a general implementation.")
-	@Query(
-		"SELECT EXISTS(" +
-				"SELECT 1 FROM ${AccountTable.TABLE_NAME} " +
-				"WHERE ${AccountTable.ID} = :uid " +
-				"AND datetime(${AccountTable.LAST_UPDATE} / 1000, 'unixepoch', '+1 day') >= datetime('now'))"
-	)
-	abstract suspend fun isUpdated(
-		uid: String
-	): Boolean
-
 	@Query(
 		"UPDATE ${AccountTable.TABLE_NAME} " +
 				"SET ${AccountTable.PICTURE_URL} = :url " +
