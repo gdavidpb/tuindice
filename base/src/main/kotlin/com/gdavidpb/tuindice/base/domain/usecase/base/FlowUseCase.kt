@@ -42,7 +42,7 @@ abstract class FlowUseCase<P, T, E>(
 	private fun logException(throwable: Throwable, error: E?) {
 		with(reportingRepository) {
 			setCustomKey(ReportKeys.USE_CASE, "${this::class.simpleName}")
-			setCustomKey(ReportKeys.HANDLED, error != null)
+			setCustomKey(ReportKeys.IS_HANDLED, error != null)
 			logException(throwable)
 		}
 	}
