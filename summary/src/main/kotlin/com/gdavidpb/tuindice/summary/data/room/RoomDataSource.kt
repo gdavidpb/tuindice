@@ -38,7 +38,7 @@ class RoomDataSource(
 	override suspend fun saveAccount(uid: String, account: Account) {
 		val accountEntity = account.toAccountEntity()
 
-		room.accounts.insertAccount(accountEntity)
+		room.accounts.upsertEntities(listOf(accountEntity))
 	}
 
 	override suspend fun saveProfilePicture(uid: String, url: String) {
