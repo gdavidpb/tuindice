@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.record.data.room.mapper.toQuarter
 import com.gdavidpb.tuindice.record.data.room.mapper.toQuarterEntity
 import com.gdavidpb.tuindice.record.data.room.mapper.toSubject
 import com.gdavidpb.tuindice.record.data.room.mapper.toSubjectEntity
-import com.gdavidpb.tuindice.record.domain.model.Quarters
 import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -26,16 +25,15 @@ class RoomDataSource(
 			.map { quarters -> quarters.map { quarter -> quarter.toQuarter() } }
 	}
 
-	override suspend fun saveQuarters(uid: String, quarters: Quarters) {
-		val quarterEntities = quarters.quarters
+	override suspend fun saveQuarters(uid: String, quarters: List<Quarter>) {
+		val quarterEntities = quarters
 			.map { quarter -> quarter.toQuarterEntity(uid) }
 
-		val subjectEntities = quarters.quarters
+		val subjectEntities = quarters
 			.flatMap { quarter -> quarter.subjects }
 			.map { subject -> subject.toSubjectEntity(uid) }
 
 		room.withTransaction {
-			room.accounts.setUpdate(uid, quarters.lastUpdate)
 			room.quarters.upsertEntities(quarterEntities)
 			room.subjects.upsertEntities(subjectEntities)
 		}

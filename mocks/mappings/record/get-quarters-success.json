@@ -8,41 +8,38 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "jsonBody": {
-      "quarters": [
-        {
-          "id": "00dgl8xNLNDJjEvXerARJUCAYTjK",
-          "name": "Enero - Marzo 2023",
-          "start_date": 1672542000000,
-          "end_date": 1677639600000,
-          "grade": 5.0,
-          "grade_sum": 5.0,
-          "credits": 8,
-          "status": 0,
-          "subjects": [
-            {
-              "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
-              "qid": "00dgl8xNLNDJjEvXerARJUCAYTjK",
-              "code": "FS1112",
-              "name": "FISICA II",
-              "credits": 3,
-              "grade": 5,
-              "status": 0
-            },
-            {
-              "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
-              "qid": "00dgl8xNLNDJjEvXerARJUCAYTjK",
-              "code": "CSZ621",
-              "name": "DEL MEDIOEVO AL BARROCO",
-              "credits": 3,
-              "grade": 5,
-              "status": 0
-            }
-          ]
-        }
-      ],
-      "last_update": 1674101643920
-    },
+    "jsonBody": [
+      {
+        "id": "00dgl8xNLNDJjEvXerARJUCAYTjK",
+        "name": "Enero - Marzo 2023",
+        "start_date": 1672542000000,
+        "end_date": 1677639600000,
+        "grade": 5.0,
+        "grade_sum": 5.0,
+        "credits": 8,
+        "status": 0,
+        "subjects": [
+          {
+            "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
+            "qid": "00dgl8xNLNDJjEvXerARJUCAYTjK",
+            "code": "FS1112",
+            "name": "FISICA II",
+            "credits": 3,
+            "grade": 5,
+            "status": 0
+          },
+          {
+            "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
+            "qid": "00dgl8xNLNDJjEvXerARJUCAYTjK",
+            "code": "CSZ621",
+            "name": "DEL MEDIOEVO AL BARROCO",
+            "credits": 3,
+            "grade": 5,
+            "status": 0
+          }
+        ]
+      }
+    ],
     "fixedDelayMilliseconds": 3000
   }
 }

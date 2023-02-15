@@ -25,6 +25,7 @@ abstract class AccountDao {
 		account: AccountEntity
 	)
 
+	@Deprecated("This will be replace by a general implementation.")
 	@Query(
 		"SELECT EXISTS(" +
 				"SELECT 1 FROM ${AccountTable.TABLE_NAME} " +
@@ -34,16 +35,6 @@ abstract class AccountDao {
 	abstract suspend fun isUpdated(
 		uid: String
 	): Boolean
-
-	@Query(
-		"UPDATE ${AccountTable.TABLE_NAME} " +
-				"SET ${AccountTable.LAST_UPDATE} = :lastUpdate " +
-				"WHERE ${AccountTable.ID} = :uid"
-	)
-	abstract suspend fun setUpdate(
-		uid: String,
-		lastUpdate: Long
-	)
 
 	@Query(
 		"UPDATE ${AccountTable.TABLE_NAME} " +
