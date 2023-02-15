@@ -17,13 +17,14 @@ class AccountDataRepository(
 		return localDataSource.getAccount(uid)
 			.distinctUntilChanged()
 			.transform { account ->
-				val isUpdated = localDataSource.isUpdated(uid)
+				val isOnCooldown = localDataSource.isGetAccountOnCooldown()
 
-				if (account != null && isUpdated)
+				if (account != null && !isOnCooldown)
 					emit(account)
 				else
 					emit(remoteDataSource.getAccount().also { response ->
 						localDataSource.saveAccount(uid, response)
+						localDataSource.setGetAccountCooldown()
 					})
 			}
 	}

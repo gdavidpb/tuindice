@@ -18,13 +18,14 @@ class QuarterDataRepository(
 		return localDataSource.getQuarters(uid)
 			.distinctUntilChanged()
 			.transform { quarters ->
-				val isUpdated = localDataSource.isUpdated(uid)
+				val isOnCooldown = localDataSource.isGetQuartersOnCooldown()
 
-				if (quarters.isNotEmpty() && isUpdated)
+				if (quarters.isNotEmpty() && !isOnCooldown)
 					emit(quarters)
 				else
 					emit(remoteDataSource.getQuarters().also { response ->
 						localDataSource.saveQuarters(uid, response)
+						localDataSource.setGetQuartersCooldown()
 					})
 			}
 	}

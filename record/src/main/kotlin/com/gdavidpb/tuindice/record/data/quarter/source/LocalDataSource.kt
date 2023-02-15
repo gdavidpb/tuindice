@@ -6,7 +6,8 @@ import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {
-	suspend fun isUpdated(uid: String): Boolean
+	suspend fun isGetQuartersOnCooldown(): Boolean
+	suspend fun setGetQuartersCooldown()
 
 	suspend fun getQuarters(uid: String): Flow<List<Quarter>>
 	suspend fun saveQuarters(uid: String, quarters: List<Quarter>)
