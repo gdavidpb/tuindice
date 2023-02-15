@@ -5,13 +5,13 @@ import androidx.core.content.edit
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.ScreenKeys
-import com.gdavidpb.tuindice.base.utils.SettingsKeys
+import com.gdavidpb.tuindice.base.utils.PreferencesKeys
 
 class PreferencesDataSource(
 	private val sharedPreferences: SharedPreferences
 ) : SettingsRepository {
 	override fun getLastScreen(): Int {
-		return when (sharedPreferences.getInt(SettingsKeys.LAST_SCREEN, R.id.fragment_summary)) {
+		return when (sharedPreferences.getInt(PreferencesKeys.LAST_SCREEN, R.id.fragment_summary)) {
 			ScreenKeys.SUMMARY -> R.id.fragment_summary
 			ScreenKeys.RECORD -> R.id.fragment_record
 			ScreenKeys.ABOUT -> R.id.fragment_about
@@ -28,25 +28,25 @@ class PreferencesDataSource(
 		}
 
 		sharedPreferences.edit {
-			putInt(SettingsKeys.LAST_SCREEN, screenKey)
+			putInt(PreferencesKeys.LAST_SCREEN, screenKey)
 		}
 	}
 
 	override fun getActiveToken(): String? {
-		return sharedPreferences.getString(SettingsKeys.ACTIVE_TOKEN, null)
+		return sharedPreferences.getString(PreferencesKeys.ACTIVE_TOKEN, null)
 	}
 
 	override fun setActiveToken(token: String) {
 		sharedPreferences.edit {
-			putString(SettingsKeys.ACTIVE_TOKEN, token)
+			putString(PreferencesKeys.ACTIVE_TOKEN, token)
 		}
 	}
 
 	override fun isReviewSuggested(value: Int): Boolean {
-		val counter = sharedPreferences.getInt(SettingsKeys.SYNCS_COUNTER, 0) + 1
+		val counter = sharedPreferences.getInt(PreferencesKeys.SYNCS_COUNTER, 0) + 1
 
 		sharedPreferences.edit {
-			putInt(SettingsKeys.SYNCS_COUNTER, counter)
+			putInt(PreferencesKeys.SYNCS_COUNTER, counter)
 		}
 
 		return counter % value == 0

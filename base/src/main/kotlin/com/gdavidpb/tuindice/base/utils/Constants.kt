@@ -34,7 +34,7 @@ object ScreenKeys {
 }
 
 /* Preferences keys */
-object SettingsKeys {
+object PreferencesKeys {
 	const val LAST_SCREEN = "lastScreen"
 	const val SYNCS_COUNTER = "syncsCounter"
 	const val SUBSCRIBED_TOPICS = "subscribedTopics"

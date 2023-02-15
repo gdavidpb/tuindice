@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.gdavidpb.tuindice.base.domain.model.Auth
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.utils.SettingsKeys
+import com.gdavidpb.tuindice.base.utils.PreferencesKeys
 import java.util.*
 
 class AuthMockDataSource(
@@ -17,7 +17,7 @@ class AuthMockDataSource(
 	private val token = UUID.randomUUID().toString()
 
 	override suspend fun isActiveAuth(): Boolean {
-		return sharedPreferences.contains(SettingsKeys.ACTIVE_TOKEN)
+		return sharedPreferences.contains(PreferencesKeys.ACTIVE_TOKEN)
 	}
 
 	override suspend fun getActiveAuth(): Auth {
@@ -26,7 +26,7 @@ class AuthMockDataSource(
 
 	override suspend fun signIn(token: String): Auth {
 		sharedPreferences.edit {
-			putString(SettingsKeys.ACTIVE_TOKEN, token)
+			putString(PreferencesKeys.ACTIVE_TOKEN, token)
 		}
 
 		return Auth(uid = uid, email = email)
@@ -34,7 +34,7 @@ class AuthMockDataSource(
 
 	override suspend fun signOut() {
 		sharedPreferences.edit {
-			remove(SettingsKeys.ACTIVE_TOKEN)
+			remove(PreferencesKeys.ACTIVE_TOKEN)
 		}
 	}
 
