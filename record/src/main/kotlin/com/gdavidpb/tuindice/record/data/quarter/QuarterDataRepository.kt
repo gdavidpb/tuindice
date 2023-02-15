@@ -25,7 +25,7 @@ class QuarterDataRepository(
 				else
 					emit(remoteDataSource.getQuarters().also { response ->
 						localDataSource.saveQuarters(uid, response)
-					}.quarters)
+					})
 			}
 	}
 
