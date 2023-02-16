@@ -22,9 +22,9 @@ dependencies {
     /* AndroidX */
     api "androidx.fragment:fragment-ktx:1.5.5"
     api "androidx.legacy:legacy-support-v4:1.0.0"
-    api "androidx.appcompat:appcompat:1.6.0"
+    api "androidx.appcompat:appcompat:1.6.1"
     api "androidx.cardview:cardview:1.0.0"
-    api "androidx.browser:browser:1.4.0"
+    api "androidx.browser:browser:1.5.0"
     api "androidx.recyclerview:recyclerview:1.2.1"
     api "androidx.vectordrawable:vectordrawable-animated:1.1.0"
     api "androidx.constraintlayout:constraintlayout:2.1.4"
