@@ -56,7 +56,9 @@ class RecordFragment : NavigationFragment() {
 
 		setMenuVisibility(false)
 
-		rViewRecord.adapter = quarterAdapter
+		rViewRecord.adapter = quarterAdapter.apply {
+			registerAdapterDataObserver(quarterManager)
+		}
 
 		requireActivity().addMenuProvider(RecordMenuProvider(), viewLifecycleOwner)
 
@@ -190,7 +192,6 @@ class RecordFragment : NavigationFragment() {
 			)
 		}
 
-		// TODO add listener
 		override fun onChanged() {
 			fViewRecord.displayedChild =
 				if (quarterAdapter.isNotEmpty()) Flipper.CONTENT else Flipper.EMPTY
