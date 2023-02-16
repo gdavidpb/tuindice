@@ -10,5 +10,5 @@ interface QuarterRepository {
 
 	suspend fun removeQuarter(uid: String, qid: String)
 
-	suspend fun updateSubject(uid: String, update: SubjectUpdate): Subject
+	suspend fun updateSubject(uid: String, update: SubjectUpdate)
 }

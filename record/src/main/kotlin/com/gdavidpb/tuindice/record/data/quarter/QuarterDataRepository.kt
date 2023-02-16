@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.data.quarter
 
 import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.base.domain.model.Subject
+import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
 import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
@@ -31,16 +31,21 @@ class QuarterDataRepository(
 	}
 
 	override suspend fun removeQuarter(uid: String, qid: String) {
-		remoteDataSource.removeQuarter(qid)
 		localDataSource.removeQuarter(uid, qid)
+
+		noAwait {
+			remoteDataSource.removeQuarter(qid)
+		}
 	}
 
-	override suspend fun updateSubject(uid: String, update: SubjectUpdate): Subject {
-		return if (update.dispatchToRemote)
-			remoteDataSource.updateSubject(update).also { subject ->
-				localDataSource.saveSubjects(uid, listOf(subject))
+	override suspend fun updateSubject(uid: String, update: SubjectUpdate) {
+		localDataSource.updateSubject(uid, update)
+
+		if (update.dispatchToRemote)
+			noAwait {
+				remoteDataSource.updateSubject(update).also { subject ->
+					localDataSource.saveSubjects(uid, listOf(subject))
+				}
 			}
-		else
-			localDataSource.updateSubject(uid, update)
 	}
 }
