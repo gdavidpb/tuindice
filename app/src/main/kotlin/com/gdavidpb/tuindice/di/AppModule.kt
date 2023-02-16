@@ -16,7 +16,6 @@ import com.gdavidpb.tuindice.data.fcm.source.RemoteDataSource
 import com.gdavidpb.tuindice.data.firebase.FirebaseAuthDataSource
 import com.gdavidpb.tuindice.data.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.koin.ReleaseKoinDataSource
-import com.gdavidpb.tuindice.data.mutex.MutexDataSource
 import com.gdavidpb.tuindice.data.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
@@ -140,8 +139,4 @@ val appModule = module {
 	factoryOf(::ReleaseKoinDataSource) { bind<DependenciesRepository>() }
 	factoryOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
 	factoryOf(::GooglePlayServicesDataSource) { bind<MobileServicesRepository>() }
-
-	/* Utils */
-
-	singleOf(::MutexDataSource) { bind<ConcurrencyRepository>() }
 }
