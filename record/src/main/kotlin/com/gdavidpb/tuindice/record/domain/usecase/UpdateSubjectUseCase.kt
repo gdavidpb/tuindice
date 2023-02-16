@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -18,16 +17,16 @@ class UpdateSubjectUseCase(
 	private val quarterRepository: QuarterRepository,
 	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: UpdateSubjectParamsValidator
-) : FlowUseCase<UpdateSubjectParams, Subject, SubjectError>() {
-	override suspend fun executeOnBackground(params: UpdateSubjectParams): Flow<Subject> {
+) : FlowUseCase<UpdateSubjectParams, Unit, SubjectError>() {
+	override suspend fun executeOnBackground(params: UpdateSubjectParams): Flow<Unit> {
 		val activeUid = authRepository.getActiveAuth().uid
 
-		val subject = quarterRepository.updateSubject(
+		quarterRepository.updateSubject(
 			uid = activeUid,
 			update = params.toSubjectUpdate()
 		)
 
-		return flowOf(subject)
+		return flowOf(Unit)
 	}
 
 	override suspend fun executeOnException(throwable: Throwable): SubjectError? {
