@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.persistence.data.room.base
 
 import androidx.room.withTransaction
+import androidx.work.WorkManager
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.entity.TransactionEntity
@@ -9,7 +10,8 @@ import com.gdavidpb.tuindice.persistence.data.room.model.TransactionStatus
 import com.gdavidpb.tuindice.persistence.data.room.model.TransactionType
 
 abstract class TrackDataSource(
-	protected open val room: TuIndiceDatabase
+	protected open val room: TuIndiceDatabase,
+	private val workManager: WorkManager
 ) {
 	suspend fun trackTransaction(
 		reference: String,
