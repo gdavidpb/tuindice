@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.di
 
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
+import androidx.work.WorkManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.extension.sharedPreferences
@@ -56,6 +57,10 @@ val appMockModule = module {
 	}
 
 	/* Google */
+
+	single {
+		WorkManager.getInstance(androidContext())
+	}
 
 	single<AppUpdateManager> {
 		FakeAppUpdateManager(androidContext())
