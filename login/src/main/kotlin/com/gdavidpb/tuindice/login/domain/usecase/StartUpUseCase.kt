@@ -26,7 +26,7 @@ class StartUpUseCase(
 			throw ServicesUnavailableException(servicesStatus)
 		}
 
-		noAwait { configRepository.tryFetch() }
+		noAwait { runCatching { configRepository.tryFetch() } }
 
 		val isActiveAuth = authRepository.isActiveAuth()
 
