@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.persistence.data.room.base
 
-import androidx.room.withTransaction
 import androidx.work.WorkManager
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
@@ -20,29 +19,27 @@ abstract class TrackDataSource(
 		block: suspend () -> Unit
 	) {
 		noAwait {
-			room.withTransaction {
-				val transactionEntity = TransactionEntity(
-					reference = reference,
-					type = type,
-					action = action,
-					status = TransactionStatus.IN_PROGRESS
+			val transactionEntity = TransactionEntity(
+				reference = reference,
+				type = type,
+				action = action,
+				status = TransactionStatus.IN_PROGRESS
+			)
+
+			room.transactions.createTransaction(transactionEntity)
+
+			runCatching {
+				block()
+			}.onSuccess {
+				room.transactions.updateTransactionStatus(
+					transactionId = transactionEntity.id,
+					status = TransactionStatus.COMPLETED
 				)
-
-				room.transactions.createTransaction(transactionEntity)
-
-				runCatching {
-					block()
-				}.onSuccess {
-					room.transactions.updateTransactionStatus(
-						transactionId = transactionEntity.id,
-						status = TransactionStatus.COMPLETED
-					)
-				}.onFailure {
-					room.transactions.updateTransactionStatus(
-						transactionId = transactionEntity.id,
-						status = TransactionStatus.PENDING
-					)
-				}
+			}.onFailure {
+				room.transactions.updateTransactionStatus(
+					transactionId = transactionEntity.id,
+					status = TransactionStatus.PENDING
+				)
 			}
 		}
 	}
