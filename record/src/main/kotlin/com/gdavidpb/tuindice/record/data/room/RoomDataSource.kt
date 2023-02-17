@@ -18,9 +18,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class RoomDataSource(
-	private val room: TuIndiceDatabase,
+	override val room: TuIndiceDatabase,
 	private val sharedPreferences: SharedPreferences
-) : LocalDataSource {
+) : LocalDataSource(room) {
 	override suspend fun isGetQuartersOnCooldown(): Boolean {
 		val cooldownTime = sharedPreferences.getLong(PreferencesKeys.COOLDOWN_GET_QUARTERS, 0L)
 
