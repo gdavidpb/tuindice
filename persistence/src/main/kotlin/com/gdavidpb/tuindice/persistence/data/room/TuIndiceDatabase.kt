@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.DatabaseModel
 		QuarterEntity::class,
 		SubjectEntity::class,
 		EvaluationEntity::class,
-		SyncEntity::class
+		TransactionEntity::class
 	],
 	version = DatabaseModel.VERSION,
 	exportSchema = false
@@ -25,5 +25,5 @@ abstract class TuIndiceDatabase : RoomDatabase() {
 	abstract val quarters: QuarterDao
 	abstract val subjects: SubjectDao
 	abstract val evaluations: EvaluationDao
-	abstract val syncs: SyncDao
+	abstract val transactions: TransactionDao
 }
