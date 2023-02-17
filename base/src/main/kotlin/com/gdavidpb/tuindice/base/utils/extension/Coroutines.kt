@@ -16,4 +16,4 @@ suspend fun <T> CoreTask<T>.await(): T? = suspendCoroutine { continuation ->
 }
 
 suspend fun noAwait(block: suspend () -> Unit) =
-	CoroutineScope(coroutineContext).launch { runCatching { block() } }
+	CoroutineScope(coroutineContext).launch { block() }
