@@ -2,8 +2,9 @@ package com.gdavidpb.tuindice.persistence.data.room.converter
 
 import androidx.room.TypeConverter
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.persistence.data.room.model.SyncEntityAction
-import com.gdavidpb.tuindice.persistence.data.room.model.SyncEntityType
+import com.gdavidpb.tuindice.persistence.data.room.model.TransactionAction
+import com.gdavidpb.tuindice.persistence.data.room.model.TransactionStatus
+import com.gdavidpb.tuindice.persistence.data.room.model.TransactionType
 import java.util.*
 
 class DatabaseConverters {
@@ -26,14 +27,20 @@ class DatabaseConverters {
 	fun intToEvaluationType(value: Int): EvaluationType = EvaluationType.values()[value]
 
 	@TypeConverter
-	fun syncEntityActionToInt(value: SyncEntityAction): Int = value.ordinal
+	fun transactionActionToInt(value: TransactionAction): Int = value.ordinal
 
 	@TypeConverter
-	fun intToSyncEntityAction(value: Int): SyncEntityAction = SyncEntityAction.values()[value]
+	fun intToTransactionAction(value: Int): TransactionAction = TransactionAction.values()[value]
 
 	@TypeConverter
-	fun syncEntityTypeToInt(value: SyncEntityType): Int = value.ordinal
+	fun transactionTypeToInt(value: TransactionType): Int = value.ordinal
 
 	@TypeConverter
-	fun intToSyncEntityType(value: Int): SyncEntityType = SyncEntityType.values()[value]
+	fun intToTransactionType(value: Int): TransactionType = TransactionType.values()[value]
+
+	@TypeConverter
+	fun transactionStatusToInt(value: TransactionStatus): Int = value.ordinal
+
+	@TypeConverter
+	fun intToTransactionStatus(value: Int): TransactionStatus = TransactionStatus.values()[value]
 }
