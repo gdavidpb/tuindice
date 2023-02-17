@@ -1,7 +1,8 @@
 package com.gdavidpb.tuindice.record.data.quarter
 
 import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.base.utils.extension.noAwait
+import com.gdavidpb.tuindice.persistence.data.room.model.TransactionAction
+import com.gdavidpb.tuindice.persistence.data.room.model.TransactionType
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
 import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
@@ -31,21 +32,33 @@ class QuarterDataRepository(
 	}
 
 	override suspend fun removeQuarter(uid: String, qid: String) {
-		localDataSource.removeQuarter(uid, qid)
+		with(localDataSource) {
+			removeQuarter(uid, qid)
 
-		noAwait {
-			remoteDataSource.removeQuarter(qid)
+			trackTransaction(
+				reference = qid,
+				type = TransactionType.QUARTER,
+				action = TransactionAction.DELETE
+			) {
+				remoteDataSource.removeQuarter(qid)
+			}
 		}
 	}
 
 	override suspend fun updateSubject(uid: String, update: SubjectUpdate) {
-		localDataSource.updateSubject(uid, update)
+		with(localDataSource) {
+			updateSubject(uid, update)
 
-		if (update.dispatchToRemote)
-			noAwait {
-				remoteDataSource.updateSubject(update).also { subject ->
-					localDataSource.saveSubjects(uid, listOf(subject))
+			if (update.dispatchToRemote)
+				trackTransaction(
+					reference = update.subjectId,
+					type = TransactionType.SUBJECT,
+					action = TransactionAction.UPDATE
+				) {
+					remoteDataSource.updateSubject(update).also { subject ->
+						saveSubjects(uid, listOf(subject))
+					}
 				}
-			}
+		}
 	}
 }
