@@ -1,0 +1,27 @@
+{
+  "request": {
+    "method": "PATCH",
+    "urlPath": "/subjects",
+    "bodyPatterns": [
+      {
+        "equalToJson": "{ 'subject_id': '008yiNvW7HNGLIcxEiWqQtfD1OfM', 'grade': 1 }"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
+      "qid": "00dgl8xNLNDJjEvXerARJUCAYTjK",
+      "code": "FS1112",
+      "name": "FISICA II",
+      "credits": 3,
+      "grade": 1,
+      "status": 0
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}
