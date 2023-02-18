@@ -20,7 +20,6 @@ import com.gdavidpb.tuindice.base.utils.NO_GETTER
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
-import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.*
 import kotlin.DeprecationLevel.ERROR
 
