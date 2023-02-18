@@ -1,0 +1,27 @@
+{
+  "request": {
+    "method": "PATCH",
+    "urlPath": "/subjects",
+    "bodyPatterns": [
+      {
+        "equalToJson": "{ 'subject_id': '00U3tK0t7sdStu4GjWrJvDVLUofn', 'grade': 0 }"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
+      "qid": "00dgl8xNLNDJjEvXerARJUCAYTjK",
+      "code": "CSZ621",
+      "name": "DEL MEDIOEVO AL BARROCO",
+      "credits": 3,
+      "grade": 0,
+      "status": 1
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}

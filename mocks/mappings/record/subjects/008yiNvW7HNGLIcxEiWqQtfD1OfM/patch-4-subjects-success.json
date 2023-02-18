@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "PATCH",
-    "urlPath": "/subjects"
+    "urlPath": "/subjects",
+    "bodyPatterns": [
+      {
+        "equalToJson": "{ 'subject_id': '008yiNvW7HNGLIcxEiWqQtfD1OfM', 'grade': 4 }"
+      }
+    ]
   },
   "response": {
     "status": 200,
@@ -14,7 +19,7 @@
       "code": "FS1112",
       "name": "FISICA II",
       "credits": 3,
-      "grade": 5,
+      "grade": 4,
       "status": 0
     },
     "fixedDelayMilliseconds": 1000
