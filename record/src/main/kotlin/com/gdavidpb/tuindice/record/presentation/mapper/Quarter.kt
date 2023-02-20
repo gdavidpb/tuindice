@@ -23,18 +23,21 @@ fun Quarter.toQuarterItem(context: Context): QuarterItem {
 		id = id,
 		color = quarterColor,
 		isMock = (status == STATUS_QUARTER_MOCK),
-		isEditable = (status == STATUS_QUARTER_CURRENT) || (status == STATUS_QUARTER_MOCK),
+		isEditable = isEditable(),
 		TitleText = name,
 		isCurrent = (status == STATUS_QUARTER_CURRENT),
 		gradeDiffText = grade.formatGradeDiff(quarterColor, context),
 		gradeSumText = gradeSum.formatGradeSum(quarterColor, context),
 		creditsText = credits.formatCredits(quarterColor, context),
-		subjectsItems = subjects.map { it.toSubjectItem(context) },
+		subjectsItems = subjects.map { it.toSubjectItem(this, context) },
 		data = this
 	)
 }
 
-fun Int.toQuarterColor() = when (this) {
+fun Quarter.isEditable() =
+	(status == STATUS_QUARTER_CURRENT) || (status == STATUS_QUARTER_MOCK)
+
+private fun Int.toQuarterColor() = when (this) {
 	STATUS_QUARTER_CURRENT -> R.color.quarter_current
 	STATUS_QUARTER_COMPLETED -> R.color.quarter_completed
 	STATUS_QUARTER_MOCK -> R.color.quarter_mock
@@ -42,7 +45,7 @@ fun Int.toQuarterColor() = when (this) {
 	else -> throw IllegalArgumentException("toQuarterColor: '$this'")
 }
 
-fun String.spanGrade(color: Int): Spanned {
+private fun String.spanGrade(color: Int): Spanned {
 	val (iconString, valueString, extraString) = split(' ')
 		.toMutableList()
 		.apply { if (size == 2) add("") }
@@ -63,11 +66,11 @@ fun String.spanGrade(color: Int): Spanned {
 	}
 }
 
-fun Double.formatGradeDiff(color: Int, context: Context) =
+private fun Double.formatGradeDiff(color: Int, context: Context) =
 	context.getString(R.string.quarter_grade_diff, this).spanGrade(color)
 
-fun Double.formatGradeSum(color: Int, context: Context) =
+private fun Double.formatGradeSum(color: Int, context: Context) =
 	context.getString(R.string.quarter_grade_sum, this).spanGrade(color)
 
-fun Int.formatCredits(color: Int, context: Context) =
+private fun Int.formatCredits(color: Int, context: Context) =
 	context.getString(R.string.quarter_credits, this).spanGrade(color)
