@@ -4,7 +4,7 @@
     "urlPath": "/subjects",
     "bodyPatterns": [
       {
-        "equalToJson": "{ 'subject_id': '00U3tK0t7sdStu4GjWrJvDVLUofn', 'grade': 4 }"
+        "equalToJson": "{ 'subject_id': '00U3tK0t7sdStu4GjWrJvDVLUofn', 'grade': 2 }"
       }
     ]
   },
@@ -13,13 +13,13 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "jsonBody": {
+    "jsonBody":        {
       "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
-      "qid": "00dgl8xNLNDJjEvXerARJUCAYTjK",
+      "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
       "code": "CSZ621",
       "name": "DEL MEDIOEVO AL BARROCO",
       "credits": 3,
-      "grade": 4,
+      "grade": 2,
       "status": 0
     },
     "fixedDelayMilliseconds": 1000
