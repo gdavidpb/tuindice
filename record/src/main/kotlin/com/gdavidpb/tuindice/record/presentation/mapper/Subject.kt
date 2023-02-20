@@ -4,6 +4,7 @@ import android.content.Context
 import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
 import androidx.core.text.buildSpannedString
+import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_NO_EFFECT
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_RETIRED
@@ -11,21 +12,26 @@ import com.gdavidpb.tuindice.base.utils.extension.append
 import com.gdavidpb.tuindice.base.utils.extension.getCompatColor
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
+import com.gdavidpb.tuindice.record.utils.MIN_SUBJECT_GRADE
 
-fun Subject.toSubjectItem(context: Context) = SubjectItem(
+fun Subject.toSubjectItem(quarter: Quarter, context: Context) = SubjectItem(
 	uid = id.hashCode().toLong(),
 	id = id,
 	code = code,
-	isRetired = (status == STATUS_SUBJECT_RETIRED),
+	isRetired = isRetired(quarter),
 	nameText = name,
-	codeText = spanSubjectCode(context),
+	codeText = spanSubjectCode(quarter, context),
 	gradeText = grade.formatGrade(context),
 	creditsText = credits.formatCredits(context),
 	data = this
 )
 
-fun Subject.spanSubjectCode(context: Context): CharSequence {
-	val statusText = status.formatSubjectStatusDescription()
+private fun Subject.isRetired(quarter: Quarter) =
+	(quarter.isEditable() && grade == MIN_SUBJECT_GRADE) ||
+			(!quarter.isEditable() && status == STATUS_SUBJECT_RETIRED)
+
+private fun Subject.spanSubjectCode(quarter: Quarter, context: Context): CharSequence {
+	val statusText = formatSubjectStatusDescription(quarter)
 
 	return if (statusText.isEmpty())
 		code
@@ -44,17 +50,17 @@ fun Subject.spanSubjectCode(context: Context): CharSequence {
 	}
 }
 
-fun Int.formatSubjectStatusDescription() = when (this) {
-	STATUS_SUBJECT_RETIRED -> "Retirada"
-	STATUS_SUBJECT_NO_EFFECT -> "Sin efecto"
+private fun Subject.formatSubjectStatusDescription(quarter: Quarter) = when {
+	isRetired(quarter) -> "Retirada"
+	status == STATUS_SUBJECT_NO_EFFECT -> "Sin efecto"
 	else -> ""
 }
 
-fun Int.formatGrade(context: Context) =
-	if (this != 0)
+private fun Int.formatGrade(context: Context) =
+	if (this != MIN_SUBJECT_GRADE)
 		context.getString(R.string.subject_grade, this)
 	else
 		"—"
 
-fun Int.formatCredits(context: Context) =
+private fun Int.formatCredits(context: Context) =
 	context.getString(R.string.subject_credits, this)
