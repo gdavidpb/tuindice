@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.persistence.data.room.base
+package com.gdavidpb.tuindice.persistence.data.room.tracker
 
 import androidx.work.WorkManager
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
@@ -8,15 +8,15 @@ import com.gdavidpb.tuindice.persistence.data.room.model.TransactionAction
 import com.gdavidpb.tuindice.persistence.data.room.model.TransactionStatus
 import com.gdavidpb.tuindice.persistence.data.room.model.TransactionType
 
-abstract class TrackDataSource(
-	protected open val room: TuIndiceDatabase,
+class RoomWorkManagerDataSource(
+	private val room: TuIndiceDatabase,
 	private val workManager: WorkManager
-) {
-	suspend fun trackTransaction(
+) : TransactionDataSource {
+	override suspend fun trackTransaction(
 		reference: String,
 		type: TransactionType,
 		action: TransactionAction,
-		block: suspend () -> Unit
+		transaction: suspend () -> Unit
 	) {
 		noAwait {
 			val transactionEntity = TransactionEntity(
@@ -29,7 +29,7 @@ abstract class TrackDataSource(
 			room.transactions.createTransaction(transactionEntity)
 
 			runCatching {
-				block()
+				transaction()
 			}.onSuccess {
 				room.transactions.updateTransactionStatus(
 					transactionId = transactionEntity.id,
@@ -40,6 +40,8 @@ abstract class TrackDataSource(
 					transactionId = transactionEntity.id,
 					status = TransactionStatus.PENDING
 				)
+
+				// TODO enqueue work manager task
 			}
 		}
 	}
