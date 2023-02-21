@@ -21,7 +21,7 @@ abstract class TransactionDao {
 
 	@Upsert
 	abstract suspend fun createTransaction(
-		transactionEntity: TransactionEntity
+		entity: TransactionEntity
 	)
 
 	@Query(

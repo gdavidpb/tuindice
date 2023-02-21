@@ -4,15 +4,17 @@ import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.record.data.api.ApiDataSource
 import com.gdavidpb.tuindice.record.data.api.RecordApi
+import com.gdavidpb.tuindice.record.data.preferences.PreferencesDataSource
 import com.gdavidpb.tuindice.record.data.quarter.QuarterDataRepository
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
+import com.gdavidpb.tuindice.record.data.quarter.source.SettingsDataSource
 import com.gdavidpb.tuindice.record.data.room.RoomDataSource
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.WithdrawSubjectUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateSubjectUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.WithdrawSubjectUseCase
 import com.gdavidpb.tuindice.record.domain.validator.UpdateSubjectParamsValidator
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -48,6 +50,7 @@ val recordModule = module {
 
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
 	factoryOf(::ApiDataSource) { bind<RemoteDataSource>() }
+	factoryOf(::PreferencesDataSource) { bind<SettingsDataSource>() }
 
 	/* Record Api */
 
