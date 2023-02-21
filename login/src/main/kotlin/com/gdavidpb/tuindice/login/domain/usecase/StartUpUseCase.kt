@@ -17,6 +17,7 @@ class StartUpUseCase(
 	private val applicationRepository: ApplicationRepository,
 	private val mobileServicesRepository: MobileServicesRepository,
 	private val configRepository: ConfigRepository,
+	private val databaseRepository: DatabaseRepository,
 	override val reportingRepository: ReportingRepository
 ) : FlowUseCase<String, StartUpAction, StartUpError>() {
 	override suspend fun executeOnBackground(params: String): Flow<StartUpAction> {
@@ -26,7 +27,10 @@ class StartUpUseCase(
 			throw ServicesUnavailableException(servicesStatus)
 		}
 
-		noAwait { runCatching { configRepository.tryFetch() } }
+		noAwait {
+			runCatching { databaseRepository.prune() }
+			runCatching { configRepository.tryFetch() }
+		}
 
 		val isActiveAuth = authRepository.isActiveAuth()
 
