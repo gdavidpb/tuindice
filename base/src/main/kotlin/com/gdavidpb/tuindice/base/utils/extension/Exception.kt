@@ -4,13 +4,12 @@ import kotlinx.coroutines.TimeoutCancellationException
 import retrofit2.HttpException
 import java.io.IOException
 import java.io.InterruptedIOException
-import java.net.ConnectException
 import java.net.HttpURLConnection
 import java.net.SocketException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeoutException
-import javax.net.ssl.SSLHandshakeException
+import javax.net.ssl.SSLException
 
 fun Throwable.isUnavailable() = when (this) {
 	is HttpException -> (code() == HttpURLConnection.HTTP_UNAVAILABLE)
@@ -49,12 +48,12 @@ fun Throwable.isIO() = when (this) {
 }
 
 fun Throwable.isConnection() = when (this) {
-	is ConnectException -> true
 	is SocketException -> true
 	is InterruptedIOException -> true
 	is UnknownHostException -> true
-	is SSLHandshakeException -> true
-	is HttpException -> true
+	is SSLException -> true
 	is ExecutionException -> true
+	is TimeoutException -> true
+	is TimeoutCancellationException -> true
 	else -> false
 }

@@ -44,7 +44,7 @@ class TrackerDataRepository(
 		reference: String,
 		type: TransactionType,
 		action: TransactionAction,
-		block: suspend () -> Unit
+		remote: suspend () -> Unit
 	) {
 		noAwait {
 			val transaction = Transaction(
@@ -58,15 +58,13 @@ class TrackerDataRepository(
 			localDataSource.createTransaction(transaction)
 
 			runCatching {
-				block()
+				remote()
 			}.onSuccess {
 				localDataSource.updateTransactionStatus(
 					transactionId = transaction.id,
 					status = TransactionStatus.COMPLETED
 				)
 			}.onFailure {
-				// TODO pending only for communication failures
-
 				localDataSource.updateTransactionStatus(
 					transactionId = transaction.id,
 					status = TransactionStatus.PENDING
