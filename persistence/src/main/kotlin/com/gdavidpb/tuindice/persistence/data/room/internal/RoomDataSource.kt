@@ -1,17 +1,17 @@
-package com.gdavidpb.tuindice.persistence.data.transaction
+package com.gdavidpb.tuindice.persistence.data.room.internal
 
 import androidx.room.withTransaction
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.persistence.data.tracker.source.TransactionDataSource
-import com.gdavidpb.tuindice.persistence.data.transaction.mapper.toTransaction
-import com.gdavidpb.tuindice.persistence.data.transaction.mapper.toTransactionEntity
+import com.gdavidpb.tuindice.persistence.data.room.internal.mapper.toTransaction
+import com.gdavidpb.tuindice.persistence.data.room.internal.mapper.toTransactionEntity
+import com.gdavidpb.tuindice.persistence.data.tracker.source.LocalDataSource
 import com.gdavidpb.tuindice.persistence.domain.model.Transaction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
 
-class RoomDataSource(
+internal class RoomDataSource(
 	private val room: TuIndiceDatabase
-) : TransactionDataSource {
+) : LocalDataSource {
 	override suspend fun getPendingTransactions(): List<Transaction> {
 		return room.transactions.getTransactions(status = TransactionStatus.PENDING)
 			.map { transactionEntity -> transactionEntity.toTransaction() }
@@ -29,6 +29,10 @@ class RoomDataSource(
 
 	override suspend fun updateTransactionStatus(transactionId: String, status: TransactionStatus) {
 		room.transactions.updateTransactionStatus(transactionId = transactionId, status = status)
+	}
+
+	override suspend fun updateTransactionsStatus(from: TransactionStatus, to: TransactionStatus) {
+		room.transactions.updateTransactionsStatus(from = from, to = to)
 	}
 
 	private suspend fun internalCreateTransaction(transaction: Transaction) {

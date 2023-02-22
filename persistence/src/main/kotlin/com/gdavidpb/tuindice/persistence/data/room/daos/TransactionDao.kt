@@ -43,6 +43,16 @@ abstract class TransactionDao {
 	)
 
 	@Query(
+		"UPDATE ${TransactionTable.TABLE_NAME} " +
+				"SET ${TransactionTable.STATUS} = :to " +
+				"WHERE ${TransactionTable.STATUS} = :from"
+	)
+	abstract suspend fun updateTransactionsStatus(
+		from: TransactionStatus,
+		to: TransactionStatus
+	)
+
+	@Query(
 		"DELETE FROM ${TransactionTable.TABLE_NAME} " +
 				"WHERE ${TransactionTable.STATUS} = :status"
 	)

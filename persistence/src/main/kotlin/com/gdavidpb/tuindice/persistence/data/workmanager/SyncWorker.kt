@@ -12,9 +12,7 @@ class SyncWorker(
 ) : CoroutineWorker(context, workerParameters) {
 	override suspend fun doWork(): Result {
 		return runCatching {
-			val pendingTransactions = trackerRepository.getPendingTransactions()
-
-			// TODO call sync api
+			trackerRepository.syncPendingTransactions()
 		}.fold(
 			onSuccess = { Result.success() },
 			onFailure = { Result.retry() }

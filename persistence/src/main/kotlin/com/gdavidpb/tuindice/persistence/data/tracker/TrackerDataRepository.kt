@@ -1,8 +1,9 @@
 package com.gdavidpb.tuindice.persistence.data.tracker
 
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
+import com.gdavidpb.tuindice.persistence.data.tracker.source.LocalDataSource
+import com.gdavidpb.tuindice.persistence.data.tracker.source.RemoteDataSource
 import com.gdavidpb.tuindice.persistence.data.tracker.source.SchedulerDataSource
-import com.gdavidpb.tuindice.persistence.data.tracker.source.TransactionDataSource
 import com.gdavidpb.tuindice.persistence.domain.model.Transaction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
@@ -10,11 +11,33 @@ import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
 import com.gdavidpb.tuindice.persistence.domain.repository.TrackerRepository
 
 class TrackerDataRepository(
-	private val schedulerDataSource: SchedulerDataSource,
-	private val transactionDataSource: TransactionDataSource
+	private val localDataSource: LocalDataSource,
+	private val remoteDataSource: RemoteDataSource,
+	private val schedulerDataSource: SchedulerDataSource
 ) : TrackerRepository {
-	override suspend fun getPendingTransactions(): List<Transaction> {
-		return transactionDataSource.getPendingTransactions()
+	override suspend fun syncPendingTransactions() {
+		runCatching {
+			val pendingTransactions = localDataSource.getPendingTransactions()
+
+			localDataSource.updateTransactionsStatus(
+				from = TransactionStatus.PENDING,
+				to = TransactionStatus.IN_PROGRESS
+			)
+
+			remoteDataSource.sync(transactions = pendingTransactions)
+		}.onSuccess {
+			localDataSource.updateTransactionsStatus(
+				from = TransactionStatus.IN_PROGRESS,
+				to = TransactionStatus.COMPLETED
+			)
+		}.onFailure { throwable ->
+			localDataSource.updateTransactionsStatus(
+				from = TransactionStatus.IN_PROGRESS,
+				to = TransactionStatus.PENDING
+			)
+
+			throw throwable
+		}
 	}
 
 	override suspend fun trackTransaction(
@@ -32,17 +55,19 @@ class TrackerDataRepository(
 				timestamp = System.currentTimeMillis()
 			)
 
-			transactionDataSource.createTransaction(transaction)
+			localDataSource.createTransaction(transaction)
 
 			runCatching {
 				block()
 			}.onSuccess {
-				transactionDataSource.updateTransactionStatus(
+				localDataSource.updateTransactionStatus(
 					transactionId = transaction.id,
 					status = TransactionStatus.COMPLETED
 				)
 			}.onFailure {
-				transactionDataSource.updateTransactionStatus(
+				// TODO pending only for communication failures
+
+				localDataSource.updateTransactionStatus(
 					transactionId = transaction.id,
 					status = TransactionStatus.PENDING
 				)
