@@ -1,0 +1,14 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/sync"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": [],
+    "fixedDelayMilliseconds": 1000
+  }
+}
