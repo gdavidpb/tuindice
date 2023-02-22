@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.record.data.quarter
 
 import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.persistence.data.room.tracker.TransactionDataSource
-import com.gdavidpb.tuindice.persistence.data.room.model.TransactionAction
-import com.gdavidpb.tuindice.persistence.data.room.model.TransactionType
+import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
+import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
+import com.gdavidpb.tuindice.persistence.domain.repository.TrackerRepository
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.SettingsDataSource
@@ -17,7 +17,7 @@ class QuarterDataRepository(
 	private val localDataSource: LocalDataSource,
 	private val remoteDataSource: RemoteDataSource,
 	private val settingsDataSource: SettingsDataSource,
-	private val transactionDataSource: TransactionDataSource
+	private val trackerRepository: TrackerRepository
 ) : QuarterRepository {
 	override suspend fun getQuarters(uid: String): Flow<List<Quarter>> {
 		return localDataSource.getQuarters(uid)
@@ -39,7 +39,7 @@ class QuarterDataRepository(
 		with(localDataSource) {
 			removeQuarter(uid, qid)
 
-			transactionDataSource.trackTransaction(
+			trackerRepository.trackTransaction(
 				reference = qid,
 				type = TransactionType.QUARTER,
 				action = TransactionAction.DELETE
@@ -54,7 +54,7 @@ class QuarterDataRepository(
 			updateSubject(uid, update)
 
 			if (update.dispatchToRemote)
-				transactionDataSource.trackTransaction(
+				trackerRepository.trackTransaction(
 					reference = update.subjectId,
 					type = TransactionType.SUBJECT,
 					action = TransactionAction.UPDATE

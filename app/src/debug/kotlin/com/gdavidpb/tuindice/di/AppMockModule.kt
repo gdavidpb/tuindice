@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.data.crashlytics.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
+import com.gdavidpb.tuindice.data.room.RoomDataRepository
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -120,11 +121,15 @@ val appMockModule = module {
 
 	/* Repositories */
 
+	factoryOf(::RoomDataRepository) { bind<DatabaseRepository>() }
+
+	/* Data sources */
+
+	factoryOf(::MessagingMockDataSource) { bind<MessagingRepository>() }
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
 	factoryOf(::RemoteConfigMockDataSource) { bind<ConfigRepository>() }
 	factoryOf(::AuthMockDataSource) { bind<AuthRepository>() }
-	factoryOf(::MessagingMockDataSource) { bind<MessagingRepository>() }
 	factoryOf(::DebugReportingDataSource) { bind<ReportingRepository>() }
 	factoryOf(::DebugKoinDataSource) { bind<DependenciesRepository>() }
 	factoryOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
