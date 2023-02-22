@@ -4,8 +4,8 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 import com.gdavidpb.tuindice.persistence.data.room.entity.TransactionEntity
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
 import com.gdavidpb.tuindice.persistence.data.room.schema.TransactionTable
+import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
 import java.util.*
 
 @Dao
@@ -22,6 +22,14 @@ abstract class TransactionDao {
 	@Upsert
 	abstract suspend fun createTransaction(
 		entity: TransactionEntity
+	)
+
+	@Query(
+		"DELETE FROM ${TransactionTable.TABLE_NAME} " +
+				"WHERE ${TransactionTable.REFERENCE} = :reference"
+	)
+	abstract suspend fun deleteTransactionsByReference(
+		reference: String
 	)
 
 	@Query(
