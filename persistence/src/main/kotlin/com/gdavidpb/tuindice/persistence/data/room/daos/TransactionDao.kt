@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 import com.gdavidpb.tuindice.persistence.data.room.entity.TransactionEntity
-import com.gdavidpb.tuindice.persistence.data.room.model.TransactionStatus
+import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
 import com.gdavidpb.tuindice.persistence.data.room.schema.TransactionTable
 import java.util.*
 
@@ -15,7 +15,7 @@ abstract class TransactionDao {
 				"WHERE ${TransactionTable.STATUS} = :status " +
 				"ORDER BY ${TransactionTable.TIMESTAMP} ASC"
 	)
-	abstract suspend fun getQueue(
+	abstract suspend fun getTransactions(
 		status: TransactionStatus
 	): List<TransactionEntity>
 
