@@ -10,6 +10,6 @@ interface TrackerRepository {
 		reference: String,
 		type: TransactionType,
 		action: TransactionAction,
-		block: suspend () -> Unit
+		remote: suspend () -> Unit
 	)
 }
