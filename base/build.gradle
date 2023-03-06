@@ -56,8 +56,8 @@ dependencies {
     api "androidx.navigation:navigation-ui-ktx:${versions.navigation}"
 
     /* Architecture */
-    api "androidx.arch.core:core-runtime:2.1.0"
-    api "androidx.arch.core:core-common:2.1.0"
+    api "androidx.arch.core:core-runtime:2.2.0"
+    api "androidx.arch.core:core-common:2.2.0"
 
     /* Lifecycle */
     api "androidx.lifecycle:lifecycle-extensions:${versions.lifecycle_ext}"
