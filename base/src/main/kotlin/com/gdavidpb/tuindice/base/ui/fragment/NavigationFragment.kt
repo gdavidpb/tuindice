@@ -12,9 +12,6 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 
 abstract class NavigationFragment : Fragment() {
-	@Deprecated("This will be removed.")
-	open fun onInitObservers() {}
-
 	@LayoutRes
 	abstract fun onCreateView(): Int
 
@@ -24,10 +21,6 @@ abstract class NavigationFragment : Fragment() {
 		savedInstanceState: Bundle?
 	): View {
 		return inflater.inflate(onCreateView(), container, false)
-	}
-
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		onInitObservers()
 	}
 
 	protected fun navigate(directions: NavDirections, navOptions: NavOptions? = null) =
