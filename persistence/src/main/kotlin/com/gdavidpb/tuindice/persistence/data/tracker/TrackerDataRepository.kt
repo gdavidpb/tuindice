@@ -4,10 +4,7 @@ import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.persistence.data.tracker.source.LocalDataSource
 import com.gdavidpb.tuindice.persistence.data.tracker.source.RemoteDataSource
 import com.gdavidpb.tuindice.persistence.data.tracker.source.SchedulerDataSource
-import com.gdavidpb.tuindice.persistence.domain.model.Transaction
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
+import com.gdavidpb.tuindice.persistence.domain.model.*
 import com.gdavidpb.tuindice.persistence.domain.repository.TrackerRepository
 
 class TrackerDataRepository(
@@ -24,6 +21,7 @@ class TrackerDataRepository(
 				to = TransactionStatus.IN_PROGRESS
 			)
 
+			// TODO process server response
 			remoteDataSource.sync(transactions = pendingTransactions)
 		}.onSuccess {
 			localDataSource.updateTransactionsStatus(
@@ -44,6 +42,7 @@ class TrackerDataRepository(
 		reference: String,
 		type: TransactionType,
 		action: TransactionAction,
+		data: TransactionData?,
 		remote: suspend () -> Unit
 	) {
 		noAwait {
@@ -52,7 +51,8 @@ class TrackerDataRepository(
 				type = type,
 				action = action,
 				status = TransactionStatus.IN_PROGRESS,
-				timestamp = System.currentTimeMillis()
+				timestamp = System.currentTimeMillis(),
+				data = data
 			)
 
 			localDataSource.createTransaction(transaction)
