@@ -2,8 +2,9 @@ package com.gdavidpb.tuindice.persistence.data.room.internal.mapper
 
 import com.gdavidpb.tuindice.persistence.data.room.entity.TransactionEntity
 import com.gdavidpb.tuindice.persistence.domain.model.Transaction
+import com.gdavidpb.tuindice.persistence.domain.model.TransactionData
 
-internal fun Transaction.toTransactionEntity() = TransactionEntity(
+internal fun Transaction<TransactionData>.toTransactionEntity() = TransactionEntity(
 	reference = reference,
 	type = type,
 	action = action,
@@ -12,7 +13,7 @@ internal fun Transaction.toTransactionEntity() = TransactionEntity(
 	id = id
 )
 
-internal fun TransactionEntity.toTransaction() = Transaction(
+internal fun TransactionEntity.toTransaction() = Transaction<TransactionData>(
 	reference = reference,
 	type = type,
 	action = action,

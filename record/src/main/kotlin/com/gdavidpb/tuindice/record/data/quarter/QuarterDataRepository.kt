@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.data.quarter
 
 import com.gdavidpb.tuindice.base.domain.model.Quarter
+import com.gdavidpb.tuindice.persistence.data.api.model.data.SubjectData
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
 import com.gdavidpb.tuindice.persistence.domain.repository.TrackerRepository
@@ -53,16 +54,23 @@ class QuarterDataRepository(
 		with(localDataSource) {
 			updateSubject(uid, update)
 
-			if (update.dispatchToRemote)
+			if (update.dispatchToRemote) {
+				val subjectData = SubjectData(
+					id = update.subjectId,
+					grade = update.grade
+				)
+
 				trackerRepository.trackTransaction(
 					reference = update.subjectId,
 					type = TransactionType.SUBJECT,
-					action = TransactionAction.UPDATE
+					action = TransactionAction.UPDATE,
+					data = subjectData
 				) {
 					remoteDataSource.updateSubject(update).also { subject ->
 						saveSubjects(uid, listOf(subject))
 					}
 				}
+			}
 		}
 	}
 }
