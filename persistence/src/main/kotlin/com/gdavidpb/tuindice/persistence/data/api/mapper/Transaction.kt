@@ -3,8 +3,6 @@ package com.gdavidpb.tuindice.persistence.data.api.mapper
 import com.gdavidpb.tuindice.persistence.data.api.model.TransactionRequestAction
 import com.gdavidpb.tuindice.persistence.data.api.model.TransactionRequestType
 import com.gdavidpb.tuindice.persistence.data.api.request.TransactionRequest
-import com.gdavidpb.tuindice.persistence.data.api.response.ResolutionResponse
-import com.gdavidpb.tuindice.persistence.domain.model.Resolution
 import com.gdavidpb.tuindice.persistence.domain.model.Transaction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
@@ -15,10 +13,6 @@ fun Transaction.toTransactionRequest() = TransactionRequest(
 	action = action.toTransactionRequestAction(),
 	timestamp = timestamp,
 	data = data
-)
-
-fun ResolutionResponse.toResolution() = Resolution(
-	reference = reference
 )
 
 private fun TransactionType.toTransactionRequestType() = when (this) {

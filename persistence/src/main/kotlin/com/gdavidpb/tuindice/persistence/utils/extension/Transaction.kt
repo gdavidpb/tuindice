@@ -12,7 +12,6 @@ fun createInProgressTransaction(
 	if (type == TransactionType.SUBJECT) require(data is SubjectData)
 
 	return Transaction(
-		id = "$action:$reference",
 		reference = reference,
 		type = type,
 		action = action,

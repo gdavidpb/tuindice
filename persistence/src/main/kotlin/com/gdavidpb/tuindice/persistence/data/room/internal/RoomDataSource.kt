@@ -22,8 +22,8 @@ internal class RoomDataSource(
 			.map { transactionEntity -> transactionEntity.toTransaction() }
 	}
 
-	override suspend fun createTransaction(transaction: Transaction) {
-		if (transaction.action != TransactionAction.DELETE)
+	override suspend fun createTransaction(transaction: Transaction): String {
+		return if (transaction.action != TransactionAction.DELETE)
 			internalCreateTransaction(transaction)
 		else
 			room.withTransaction {
@@ -40,10 +40,12 @@ internal class RoomDataSource(
 		room.transactions.updateTransactionsStatus(from = from, to = to)
 	}
 
-	private suspend fun internalCreateTransaction(transaction: Transaction) {
+	private suspend fun internalCreateTransaction(transaction: Transaction): String {
 		val transactionEntity = transaction.toTransactionEntity()
 
 		room.transactions.createTransaction(entity = transactionEntity)
+
+		return transactionEntity.id
 	}
 
 	private suspend fun internalDiscardTransactions(transaction: Transaction) {

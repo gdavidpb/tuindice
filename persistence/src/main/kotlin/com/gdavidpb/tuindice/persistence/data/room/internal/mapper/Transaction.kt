@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.TransactionEntity
 import com.gdavidpb.tuindice.persistence.domain.model.Transaction
 
 internal fun Transaction.toTransactionEntity() = TransactionEntity(
-	id = id,
+	id = "$action:$reference",
 	reference = reference,
 	type = type,
 	action = action,
@@ -13,7 +13,6 @@ internal fun Transaction.toTransactionEntity() = TransactionEntity(
 )
 
 internal fun TransactionEntity.toTransaction() = Transaction(
-	id = id,
 	reference = reference,
 	type = type,
 	action = action,
