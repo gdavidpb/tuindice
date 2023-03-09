@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.persistence.data.api.model.data.SubjectData
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
 import com.gdavidpb.tuindice.persistence.domain.repository.TrackerRepository
+import com.gdavidpb.tuindice.persistence.utils.extension.createInProgressTransaction
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.SettingsDataSource
@@ -40,11 +41,13 @@ class QuarterDataRepository(
 		with(localDataSource) {
 			removeQuarter(uid, qid)
 
-			trackerRepository.trackTransaction(
+			val transaction = createInProgressTransaction(
 				reference = qid,
 				type = TransactionType.QUARTER,
 				action = TransactionAction.DELETE
-			) {
+			)
+
+			trackerRepository.trackTransaction(transaction) {
 				remoteDataSource.removeQuarter(qid)
 			}
 		}
@@ -55,17 +58,17 @@ class QuarterDataRepository(
 			updateSubject(uid, update)
 
 			if (update.dispatchToRemote) {
-				val subjectData = SubjectData(
-					id = update.subjectId,
-					grade = update.grade
-				)
-
-				trackerRepository.trackTransaction(
+				val transaction = createInProgressTransaction(
 					reference = update.subjectId,
 					type = TransactionType.SUBJECT,
 					action = TransactionAction.UPDATE,
-					data = subjectData
-				) {
+					data = SubjectData(
+						id = update.subjectId,
+						grade = update.grade
+					)
+				)
+
+				trackerRepository.trackTransaction(transaction) {
 					remoteDataSource.updateSubject(update).also { subject ->
 						saveSubjects(uid, listOf(subject))
 					}

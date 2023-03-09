@@ -38,27 +38,12 @@ class TrackerDataRepository(
 		}
 	}
 
-	override suspend fun trackTransaction(
-		reference: String,
-		type: TransactionType,
-		action: TransactionAction,
-		data: TransactionData?,
-		remote: suspend () -> Unit
-	) {
+	override suspend fun trackTransaction(transaction: Transaction, block: suspend () -> Unit) {
 		noAwait {
-			val transaction = Transaction(
-				reference = reference,
-				type = type,
-				action = action,
-				status = TransactionStatus.IN_PROGRESS,
-				timestamp = System.currentTimeMillis(),
-				data = data
-			)
-
 			localDataSource.createTransaction(transaction)
 
 			runCatching {
-				remote()
+				block()
 			}.onSuccess {
 				localDataSource.updateTransactionStatus(
 					transactionId = transaction.id,

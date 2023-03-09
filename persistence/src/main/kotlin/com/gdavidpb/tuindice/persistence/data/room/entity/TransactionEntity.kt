@@ -12,10 +12,10 @@ import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
 	tableName = TransactionTable.TABLE_NAME
 )
 data class TransactionEntity(
+	@PrimaryKey @ColumnInfo(name = TransactionTable.ID) val id: String,
 	@ColumnInfo(name = TransactionTable.REFERENCE) val reference: String,
 	@ColumnInfo(name = TransactionTable.TYPE) val type: TransactionType,
 	@ColumnInfo(name = TransactionTable.ACTION) val action: TransactionAction,
 	@ColumnInfo(name = TransactionTable.STATUS) val status: TransactionStatus,
-	@ColumnInfo(name = TransactionTable.TIMESTAMP) val timestamp: Long,
-	@PrimaryKey @ColumnInfo(name = TransactionTable.ID) val id: String = "$action:$reference"
+	@ColumnInfo(name = TransactionTable.TIMESTAMP) val timestamp: Long
 )

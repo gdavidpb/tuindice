@@ -7,18 +7,17 @@ import com.gdavidpb.tuindice.persistence.data.room.internal.mapper.toTransaction
 import com.gdavidpb.tuindice.persistence.data.tracker.source.LocalDataSource
 import com.gdavidpb.tuindice.persistence.domain.model.Transaction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionData
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
 
 internal class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
-	override suspend fun getPendingTransactions(): List<Transaction<TransactionData>> {
+	override suspend fun getPendingTransactions(): List<Transaction> {
 		return room.transactions.getTransactions(status = TransactionStatus.PENDING)
 			.map { transactionEntity -> transactionEntity.toTransaction() }
 	}
 
-	override suspend fun createTransaction(transaction: Transaction<TransactionData>) {
+	override suspend fun createTransaction(transaction: Transaction) {
 		if (transaction.action != TransactionAction.DELETE)
 			internalCreateTransaction(transaction)
 		else
@@ -36,13 +35,13 @@ internal class RoomDataSource(
 		room.transactions.updateTransactionsStatus(from = from, to = to)
 	}
 
-	private suspend fun internalCreateTransaction(transaction: Transaction<TransactionData>) {
+	private suspend fun internalCreateTransaction(transaction: Transaction) {
 		val transactionEntity = transaction.toTransactionEntity()
 
 		room.transactions.createTransaction(entity = transactionEntity)
 	}
 
-	private suspend fun internalDiscardTransactions(transaction: Transaction<TransactionData>) {
+	private suspend fun internalDiscardTransactions(transaction: Transaction) {
 		room.transactions.deleteTransactionsByReference(reference = transaction.reference)
 	}
 }
