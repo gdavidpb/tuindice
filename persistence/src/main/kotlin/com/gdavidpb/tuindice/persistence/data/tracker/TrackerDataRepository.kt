@@ -4,7 +4,8 @@ import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.persistence.data.tracker.source.LocalDataSource
 import com.gdavidpb.tuindice.persistence.data.tracker.source.RemoteDataSource
 import com.gdavidpb.tuindice.persistence.data.tracker.source.SchedulerDataSource
-import com.gdavidpb.tuindice.persistence.domain.model.*
+import com.gdavidpb.tuindice.persistence.domain.model.Transaction
+import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
 import com.gdavidpb.tuindice.persistence.domain.repository.TrackerRepository
 
 class TrackerDataRepository(
@@ -41,18 +42,18 @@ class TrackerDataRepository(
 
 	override suspend fun trackTransaction(transaction: Transaction, block: suspend () -> Unit) {
 		noAwait {
-			localDataSource.createTransaction(transaction)
+			val transactionId = localDataSource.createTransaction(transaction)
 
 			runCatching {
 				block()
 			}.onSuccess {
 				localDataSource.updateTransactionStatus(
-					transactionId = transaction.id,
+					transactionId = transactionId,
 					status = TransactionStatus.COMPLETED
 				)
 			}.onFailure {
 				localDataSource.updateTransactionStatus(
-					transactionId = transaction.id,
+					transactionId = transactionId,
 					status = TransactionStatus.PENDING
 				)
 
