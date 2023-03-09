@@ -21,8 +21,9 @@ class TrackerDataRepository(
 				to = TransactionStatus.IN_PROGRESS
 			)
 
-			// TODO process server response
-			remoteDataSource.sync(transactions = pendingTransactions)
+			val resolutions = remoteDataSource.sync(transactions = pendingTransactions)
+
+			localDataSource.applyResolutions(resolutions)
 		}.onSuccess {
 			localDataSource.updateTransactionsStatus(
 				from = TransactionStatus.IN_PROGRESS,
