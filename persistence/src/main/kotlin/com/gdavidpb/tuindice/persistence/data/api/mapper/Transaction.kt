@@ -1,31 +1,34 @@
 package com.gdavidpb.tuindice.persistence.data.api.mapper
 
-import com.gdavidpb.tuindice.persistence.data.api.model.SyncAction
-import com.gdavidpb.tuindice.persistence.data.api.model.SyncType
-import com.gdavidpb.tuindice.persistence.data.api.request.SyncTransactionRequest
-import com.gdavidpb.tuindice.persistence.data.api.response.SyncResolutionResponse
-import com.gdavidpb.tuindice.persistence.domain.model.*
+import com.gdavidpb.tuindice.persistence.data.api.model.TransactionRequestAction
+import com.gdavidpb.tuindice.persistence.data.api.model.TransactionRequestType
+import com.gdavidpb.tuindice.persistence.data.api.request.TransactionRequest
+import com.gdavidpb.tuindice.persistence.data.api.response.ResolutionResponse
+import com.gdavidpb.tuindice.persistence.domain.model.Resolution
+import com.gdavidpb.tuindice.persistence.domain.model.Transaction
+import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
+import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
 
-fun Transaction<TransactionData>.toSyncTransactionRequest() = SyncTransactionRequest(
+fun Transaction.toTransactionRequest() = TransactionRequest(
 	reference = reference,
-	type = type.toSyncType(),
-	action = action.toSyncAction(),
+	type = type.toTransactionRequestType(),
+	action = action.toTransactionRequestAction(),
 	timestamp = timestamp,
 	data = data
 )
 
-fun SyncResolutionResponse<*>.toTransactionResult() = TransactionResult(
+fun ResolutionResponse.toResolution() = Resolution(
 	reference = reference
 )
 
-private fun TransactionType.toSyncType() = when (this) {
-	TransactionType.QUARTER -> SyncType.QUARTER
-	TransactionType.SUBJECT -> SyncType.SUBJECT
-	TransactionType.EVALUATION -> SyncType.EVALUATION
+private fun TransactionType.toTransactionRequestType() = when (this) {
+	TransactionType.QUARTER -> TransactionRequestType.QUARTER
+	TransactionType.SUBJECT -> TransactionRequestType.SUBJECT
+	TransactionType.EVALUATION -> TransactionRequestType.EVALUATION
 }
 
-private fun TransactionAction.toSyncAction() = when (this) {
-	TransactionAction.ADD -> SyncAction.ADD
-	TransactionAction.UPDATE -> SyncAction.UPDATE
-	TransactionAction.DELETE -> SyncAction.DELETE
+private fun TransactionAction.toTransactionRequestAction() = when (this) {
+	TransactionAction.ADD -> TransactionRequestAction.ADD
+	TransactionAction.UPDATE -> TransactionRequestAction.UPDATE
+	TransactionAction.DELETE -> TransactionRequestAction.DELETE
 }

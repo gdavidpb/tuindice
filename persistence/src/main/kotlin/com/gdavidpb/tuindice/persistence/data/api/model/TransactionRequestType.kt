@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.persistence.data.api.model
 
 import com.google.gson.annotations.SerializedName
 
-enum class SyncType {
+enum class TransactionRequestType {
 	@SerializedName("quarter")
 	QUARTER,
 	@SerializedName("subject")
