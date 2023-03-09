@@ -9,12 +9,19 @@ import com.gdavidpb.tuindice.persistence.domain.model.Resolution
 import com.gdavidpb.tuindice.persistence.domain.model.Transaction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
+import com.gdavidpb.tuindice.persistence.utils.extension.isSubject
 
 internal class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
 	override suspend fun applyResolutions(resolutions: List<Resolution>) {
-		TODO("Not yet implemented")
+		room.withTransaction {
+			resolutions.forEach { resolution ->
+				when {
+					resolution.isSubject() -> handleSubjectResolution(resolution)
+				}
+			}
+		}
 	}
 
 	override suspend fun getPendingTransactions(): List<Transaction> {
@@ -50,5 +57,13 @@ internal class RoomDataSource(
 
 	private suspend fun internalDiscardTransactions(transaction: Transaction) {
 		room.transactions.deleteTransactionsByReference(reference = transaction.reference)
+	}
+
+	private fun handleSubjectResolution(resolution: Resolution) {
+		when (resolution.action) {
+			TransactionAction.ADD -> TODO()
+			TransactionAction.UPDATE -> TODO()
+			TransactionAction.DELETE -> TODO()
+		}
 	}
 }
