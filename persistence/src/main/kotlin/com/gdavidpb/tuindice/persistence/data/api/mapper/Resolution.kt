@@ -8,7 +8,9 @@ import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
 
 fun ResolutionResponse.toResolution() = Resolution(
-	reference = reference,
+	uid = uid,
+	localReference = localReference,
+	remoteReference = remoteReference,
 	type = type.toTransactionType(),
 	action = action.toTransactionAction(),
 	data = data
