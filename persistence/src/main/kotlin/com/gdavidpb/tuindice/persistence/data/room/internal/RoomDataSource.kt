@@ -5,11 +5,12 @@ import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.internal.mapper.toTransaction
 import com.gdavidpb.tuindice.persistence.data.room.internal.mapper.toTransactionEntity
 import com.gdavidpb.tuindice.persistence.data.tracker.source.LocalDataSource
+import com.gdavidpb.tuindice.persistence.domain.mapper.isSubject
+import com.gdavidpb.tuindice.persistence.domain.mapper.toSubjectEntity
 import com.gdavidpb.tuindice.persistence.domain.model.Resolution
 import com.gdavidpb.tuindice.persistence.domain.model.Transaction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
 import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
-import com.gdavidpb.tuindice.persistence.utils.extension.isSubject
 
 internal class RoomDataSource(
 	private val room: TuIndiceDatabase
@@ -59,11 +60,25 @@ internal class RoomDataSource(
 		room.transactions.deleteTransactionsByReference(reference = transaction.reference)
 	}
 
-	private fun handleSubjectResolution(resolution: Resolution) {
+	private suspend fun handleSubjectResolution(resolution: Resolution) {
+		val subjectEntity = resolution.toSubjectEntity()
+
+		if (resolution.localReference != resolution.remoteReference)
+			room.subjects.updateId(
+				fromId = resolution.localReference,
+				toId = resolution.remoteReference
+			)
+
 		when (resolution.action) {
-			TransactionAction.ADD -> TODO()
-			TransactionAction.UPDATE -> TODO()
-			TransactionAction.DELETE -> TODO()
+			TransactionAction.ADD, TransactionAction.UPDATE ->
+				room.subjects.upsertEntities(
+					entities = listOf(subjectEntity)
+				)
+			TransactionAction.DELETE ->
+				room.subjects.deleteSubject(
+					uid = subjectEntity.accountId,
+					sid = subjectEntity.id
+				)
 		}
 	}
 }

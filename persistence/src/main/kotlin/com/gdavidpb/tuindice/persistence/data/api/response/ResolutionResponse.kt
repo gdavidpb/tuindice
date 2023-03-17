@@ -6,7 +6,9 @@ import com.gdavidpb.tuindice.persistence.domain.model.TransactionData
 import com.google.gson.annotations.SerializedName
 
 data class ResolutionResponse(
-	@SerializedName("reference") val reference: String,
+	@SerializedName("uid") val uid: String,
+	@SerializedName("local_reference") val localReference: String,
+	@SerializedName("remote_reference") val remoteReference: String,
 	@SerializedName("type") val type: TransactionRequestType,
 	@SerializedName("action") val action: TransactionRequestAction,
 	@SerializedName("data") val data: TransactionData? = null
