@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.record.domain.repository
 
 import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.base.domain.model.Subject
 import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import kotlinx.coroutines.flow.Flow
 
