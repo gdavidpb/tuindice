@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.persistence.data.api.request
 
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionData
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionData
 import com.google.gson.annotations.SerializedName
 
 data class SubjectDataRequest(

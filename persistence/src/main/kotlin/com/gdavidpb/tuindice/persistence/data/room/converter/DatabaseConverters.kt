@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.persistence.data.room.converter
 
 import androidx.room.TypeConverter
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionStatus
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
 import java.util.*
 
 class DatabaseConverters {

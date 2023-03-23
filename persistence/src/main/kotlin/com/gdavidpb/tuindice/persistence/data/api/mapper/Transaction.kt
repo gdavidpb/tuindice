@@ -3,9 +3,9 @@ package com.gdavidpb.tuindice.persistence.data.api.mapper
 import com.gdavidpb.tuindice.persistence.data.api.model.TransactionRequestAction
 import com.gdavidpb.tuindice.persistence.data.api.model.TransactionRequestType
 import com.gdavidpb.tuindice.persistence.data.api.request.TransactionRequest
-import com.gdavidpb.tuindice.persistence.domain.model.Transaction
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
+import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
 
 fun Transaction.toTransactionRequest() = TransactionRequest(
 	reference = reference,

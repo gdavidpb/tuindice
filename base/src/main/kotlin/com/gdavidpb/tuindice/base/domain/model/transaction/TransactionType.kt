@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.persistence.domain.model
+package com.gdavidpb.tuindice.base.domain.model.transaction
 
 enum class TransactionType {
 	QUARTER, SUBJECT, EVALUATION

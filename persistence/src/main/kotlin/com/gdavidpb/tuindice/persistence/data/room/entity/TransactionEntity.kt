@@ -4,9 +4,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.gdavidpb.tuindice.persistence.data.room.schema.TransactionTable
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionStatus
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
 
 @Entity(
 	tableName = TransactionTable.TABLE_NAME

@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.room
 
 import com.gdavidpb.tuindice.base.domain.repository.DatabaseRepository
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionStatus
 
 class RoomDataRepository(
 	private val room: TuIndiceDatabase

@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.persistence.data.room.internal.mapper
 
 import com.gdavidpb.tuindice.persistence.data.room.entity.TransactionEntity
-import com.gdavidpb.tuindice.persistence.domain.model.Transaction
+import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 
 internal fun Transaction.toTransactionEntity() = TransactionEntity(
 	id = "$action:$reference",
