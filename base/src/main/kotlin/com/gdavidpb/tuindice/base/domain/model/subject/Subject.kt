@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.domain.model
+package com.gdavidpb.tuindice.base.domain.model.subject
 
 data class Subject(
 	val id: String,

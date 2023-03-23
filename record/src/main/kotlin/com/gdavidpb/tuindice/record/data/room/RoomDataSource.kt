@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.record.data.room
 
 import androidx.room.withTransaction
 import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.base.domain.model.Subject
+import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.room.mapper.toQuarter

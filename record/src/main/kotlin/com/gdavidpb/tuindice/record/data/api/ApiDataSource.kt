@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.data.api
 
 import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.base.domain.model.Subject
+import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
 import com.gdavidpb.tuindice.record.data.api.mapper.toQuarter
 import com.gdavidpb.tuindice.record.data.api.mapper.toSubject
