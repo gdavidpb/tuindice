@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.data.quarter.source
 
 import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.base.domain.model.Subject
+import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 
 interface RemoteDataSource {
