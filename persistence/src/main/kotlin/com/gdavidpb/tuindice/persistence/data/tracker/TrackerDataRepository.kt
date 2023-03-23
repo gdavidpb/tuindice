@@ -4,8 +4,8 @@ import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.persistence.data.tracker.source.LocalDataSource
 import com.gdavidpb.tuindice.persistence.data.tracker.source.RemoteDataSource
 import com.gdavidpb.tuindice.persistence.data.tracker.source.SchedulerDataSource
-import com.gdavidpb.tuindice.persistence.domain.model.Transaction
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
+import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionStatus
 import com.gdavidpb.tuindice.persistence.domain.repository.TrackerRepository
 
 class TrackerDataRepository(

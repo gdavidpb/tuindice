@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.record.data.quarter
 
 import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.persistence.data.api.request.SubjectDataRequest
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
 import com.gdavidpb.tuindice.persistence.domain.repository.TrackerRepository
 import com.gdavidpb.tuindice.persistence.utils.extension.createInProgressTransaction
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource

@@ -8,9 +8,9 @@ import com.gdavidpb.tuindice.persistence.data.tracker.source.LocalDataSource
 import com.gdavidpb.tuindice.persistence.domain.mapper.isSubject
 import com.gdavidpb.tuindice.persistence.domain.mapper.toSubjectEntity
 import com.gdavidpb.tuindice.persistence.domain.model.Resolution
-import com.gdavidpb.tuindice.persistence.domain.model.Transaction
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
+import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionStatus
 
 internal class RoomDataSource(
 	private val room: TuIndiceDatabase

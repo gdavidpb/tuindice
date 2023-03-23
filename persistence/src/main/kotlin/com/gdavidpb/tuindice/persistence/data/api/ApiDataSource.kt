@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.persistence.data.api.mapper.toTransactionRequest
 import com.gdavidpb.tuindice.persistence.data.api.mapper.toResolution
 import com.gdavidpb.tuindice.persistence.data.tracker.source.RemoteDataSource
 import com.gdavidpb.tuindice.persistence.domain.model.Resolution
-import com.gdavidpb.tuindice.persistence.domain.model.Transaction
+import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 
 class ApiDataSource(
 	private val syncApi: SyncApi

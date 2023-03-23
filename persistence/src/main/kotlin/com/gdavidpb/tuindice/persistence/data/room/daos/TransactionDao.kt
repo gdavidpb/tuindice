@@ -5,7 +5,7 @@ import androidx.room.Query
 import androidx.room.Upsert
 import com.gdavidpb.tuindice.persistence.data.room.entity.TransactionEntity
 import com.gdavidpb.tuindice.persistence.data.room.schema.TransactionTable
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionStatus
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionStatus
 import java.util.*
 
 @Dao

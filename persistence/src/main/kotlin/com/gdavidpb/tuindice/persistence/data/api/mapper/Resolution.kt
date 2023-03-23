@@ -4,8 +4,8 @@ import com.gdavidpb.tuindice.persistence.data.api.model.TransactionRequestAction
 import com.gdavidpb.tuindice.persistence.data.api.model.TransactionRequestType
 import com.gdavidpb.tuindice.persistence.data.api.response.ResolutionResponse
 import com.gdavidpb.tuindice.persistence.domain.model.Resolution
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionAction
-import com.gdavidpb.tuindice.persistence.domain.model.TransactionType
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
 
 fun ResolutionResponse.toResolution() = Resolution(
 	uid = uid,

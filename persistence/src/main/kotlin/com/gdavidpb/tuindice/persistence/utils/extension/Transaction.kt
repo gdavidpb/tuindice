@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.persistence.utils.extension
 
+import com.gdavidpb.tuindice.base.domain.model.transaction.*
 import com.gdavidpb.tuindice.persistence.data.api.response.SubjectDataResponse
-import com.gdavidpb.tuindice.persistence.domain.model.*
 
 fun createInProgressTransaction(
 	reference: String,
