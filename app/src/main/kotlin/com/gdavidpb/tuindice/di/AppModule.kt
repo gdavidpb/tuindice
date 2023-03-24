@@ -19,7 +19,6 @@ import com.gdavidpb.tuindice.data.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.koin.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
-import com.gdavidpb.tuindice.data.room.RoomDataRepository
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -131,7 +130,6 @@ val appModule = module {
 
 	/* Repositories */
 
-	factoryOf(::RoomDataRepository) { bind<DatabaseRepository>() }
 	factoryOf(::FCMDataRepository) { bind<MessagingRepository>() }
 
 	/* Data sources */

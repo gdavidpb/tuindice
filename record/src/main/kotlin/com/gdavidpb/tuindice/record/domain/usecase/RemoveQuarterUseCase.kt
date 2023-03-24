@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.model.quarter.QuarterRemoveTransaction
+import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -15,7 +17,16 @@ class RemoveQuarterUseCase(
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		quarterRepository.removeQuarter(uid = activeUId, qid = params)
+		val operation = QuarterRemoveTransaction(
+			quarterId = params
+		)
+
+		val transaction = Transaction.Builder<QuarterRemoveTransaction>()
+			.withReference(params)
+			.withOperation(operation)
+			.build()
+
+		quarterRepository.removeQuarter(uid = activeUId, transaction = transaction)
 
 		return flowOf(Unit)
 	}

@@ -1,8 +1,8 @@
-package com.gdavidpb.tuindice.persistence.data.api.model
+package com.gdavidpb.tuindice.persistence.data.api.model.resolution
 
 import com.google.gson.annotations.SerializedName
 
-enum class TransactionRequestAction {
+enum class ResolutionResponseAction {
 	@SerializedName("add")
 	ADD,
 	@SerializedName("update")

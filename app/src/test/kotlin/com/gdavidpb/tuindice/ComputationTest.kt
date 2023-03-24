@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice
 
-import com.gdavidpb.tuindice.base.domain.model.Quarter
+import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.evaluations.utils.extension.toSubjectGrade

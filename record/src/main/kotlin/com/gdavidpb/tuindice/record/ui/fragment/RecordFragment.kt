@@ -9,7 +9,7 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResultListener
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
-import com.gdavidpb.tuindice.base.domain.model.Quarter
+import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel

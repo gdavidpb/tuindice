@@ -1,15 +1,13 @@
 package com.gdavidpb.tuindice.record.data.quarter
 
-import com.gdavidpb.tuindice.base.domain.model.Quarter
-import com.gdavidpb.tuindice.persistence.data.api.request.SubjectDataRequest
-import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
-import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
+import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
+import com.gdavidpb.tuindice.base.domain.model.quarter.QuarterRemoveTransaction
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectUpdateTransaction
+import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.persistence.domain.repository.TrackerRepository
-import com.gdavidpb.tuindice.persistence.utils.extension.createInProgressTransaction
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.SettingsDataSource
-import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -37,42 +35,22 @@ class QuarterDataRepository(
 			}
 	}
 
-	override suspend fun removeQuarter(uid: String, qid: String) {
-		with(localDataSource) {
-			removeQuarter(uid, qid)
+	override suspend fun removeQuarter(uid: String, transaction: Transaction<QuarterRemoveTransaction>) {
+		localDataSource.removeQuarter(uid, transaction)
 
-			val transaction = createInProgressTransaction(
-				reference = qid,
-				type = TransactionType.QUARTER,
-				action = TransactionAction.DELETE
-			)
-
-			trackerRepository.trackTransaction(transaction) {
-				remoteDataSource.removeQuarter(qid)
-			}
+		trackerRepository.trackTransaction(transaction) {
+			remoteDataSource.removeQuarter(transaction)
 		}
 	}
 
-	override suspend fun updateSubject(uid: String, update: SubjectUpdate) {
-		with(localDataSource) {
-			updateSubject(uid, update)
+	override suspend fun updateSubject(uid: String, transaction: Transaction<SubjectUpdateTransaction>) {
+		localDataSource.updateSubject(uid, transaction)
 
-			if (update.dispatchToRemote) {
-				val transaction = createInProgressTransaction(
-					reference = update.subjectId,
-					type = TransactionType.SUBJECT,
-					action = TransactionAction.UPDATE,
-					data = SubjectDataRequest(
-						id = update.subjectId,
-						grade = update.grade
-					)
-				)
+		if (transaction.dispatchToRemote) {
+			trackerRepository.trackTransaction(transaction) {
+				val subject = remoteDataSource.updateSubject(transaction)
 
-				trackerRepository.trackTransaction(transaction) {
-					remoteDataSource.updateSubject(update).also { subject ->
-						saveSubjects(uid, listOf(subject))
-					}
-				}
+				localDataSource.saveSubjects(uid, listOf(subject))
 			}
 		}
 	}

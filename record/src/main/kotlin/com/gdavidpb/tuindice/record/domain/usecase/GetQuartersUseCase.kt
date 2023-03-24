@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.model.Quarter
+import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository

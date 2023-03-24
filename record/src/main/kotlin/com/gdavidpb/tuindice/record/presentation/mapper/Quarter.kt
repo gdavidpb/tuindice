@@ -5,7 +5,7 @@ import android.text.Spanned
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import androidx.core.text.buildSpannedString
-import com.gdavidpb.tuindice.base.domain.model.Quarter
+import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_COMPLETED
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_MOCK

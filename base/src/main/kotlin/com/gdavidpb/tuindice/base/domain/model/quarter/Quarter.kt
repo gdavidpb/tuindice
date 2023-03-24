@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.domain.model
+package com.gdavidpb.tuindice.base.domain.model.quarter
 
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import java.util.*

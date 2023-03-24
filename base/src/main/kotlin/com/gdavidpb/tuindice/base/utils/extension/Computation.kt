@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
-import com.gdavidpb.tuindice.base.domain.model.Quarter
+import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_OK

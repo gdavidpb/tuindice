@@ -1,21 +1,19 @@
 package com.gdavidpb.tuindice.persistence.data.room.internal.mapper
 
-import com.gdavidpb.tuindice.persistence.data.room.entity.TransactionEntity
 import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionOperation
+import com.gdavidpb.tuindice.persistence.data.room.entity.TransactionEntity
 
-internal fun Transaction.toTransactionEntity() = TransactionEntity(
+fun Transaction<*>.toTransactionEntity() = TransactionEntity(
 	id = "$action:$reference",
 	reference = reference,
 	type = type,
 	action = action,
-	status = status,
 	timestamp = timestamp
 )
 
-internal fun TransactionEntity.toTransaction() = Transaction(
-	reference = reference,
-	type = type,
-	action = action,
-	status = status,
-	timestamp = timestamp
-)
+fun TransactionEntity.toTransaction() = Transaction.Builder<TransactionOperation>()
+	.withReference(reference)
+	.withTimestamp(timestamp)
+	.withOperation(TODO())
+	.build()
