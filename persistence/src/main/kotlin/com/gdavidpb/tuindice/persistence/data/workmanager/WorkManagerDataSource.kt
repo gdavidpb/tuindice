@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 class WorkManagerDataSource(
 	private val workManager: WorkManager
 ) : SchedulerDataSource {
-	override suspend fun enqueueSync() {
+	override suspend fun scheduleSync() {
 		val constraints = Constraints.Builder()
 			.setRequiredNetworkType(NetworkType.CONNECTED)
 			.build()

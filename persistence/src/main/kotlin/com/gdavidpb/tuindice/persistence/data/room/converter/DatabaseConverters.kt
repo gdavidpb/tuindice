@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.persistence.data.room.converter
 import androidx.room.TypeConverter
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
-import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionStatus
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
 import java.util.*
 
@@ -37,10 +36,4 @@ class DatabaseConverters {
 
 	@TypeConverter
 	fun intToTransactionType(value: Int): TransactionType = TransactionType.values()[value]
-
-	@TypeConverter
-	fun transactionStatusToInt(value: TransactionStatus): Int = value.ordinal
-
-	@TypeConverter
-	fun intToTransactionStatus(value: Int): TransactionStatus = TransactionStatus.values()[value]
 }

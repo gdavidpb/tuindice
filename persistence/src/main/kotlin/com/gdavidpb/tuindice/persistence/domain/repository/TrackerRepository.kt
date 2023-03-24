@@ -6,7 +6,7 @@ interface TrackerRepository {
 	suspend fun syncPendingTransactions()
 
 	suspend fun trackTransaction(
-		transaction: Transaction,
+		transaction: Transaction<*>,
 		block: suspend () -> Unit
 	)
 }

@@ -1,17 +1,16 @@
 package com.gdavidpb.tuindice.persistence.domain.mapper
 
-import com.gdavidpb.tuindice.persistence.data.api.response.SubjectDataResponse
+import com.gdavidpb.tuindice.base.domain.model.resolution.Resolution
+import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionType
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectUpdateResolution
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
-import com.gdavidpb.tuindice.persistence.domain.model.Resolution
-import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
 
-fun Resolution.isSubject() = when {
-	data is SubjectDataResponse -> true
-	type == TransactionType.SUBJECT -> true
+fun Resolution.isSubject() = when (type) {
+	ResolutionType.SUBJECT -> true
 	else -> false
 }
 
-fun Resolution.toSubjectEntity() = (data as SubjectDataResponse).run {
+fun Resolution.toSubjectEntity() = (operation as SubjectUpdateResolution).run {
 	SubjectEntity(
 		id = id,
 		quarterId = quarterId,

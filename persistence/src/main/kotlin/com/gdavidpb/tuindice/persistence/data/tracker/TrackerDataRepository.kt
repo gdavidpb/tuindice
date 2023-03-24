@@ -1,11 +1,10 @@
 package com.gdavidpb.tuindice.persistence.data.tracker
 
+import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.persistence.data.tracker.source.LocalDataSource
 import com.gdavidpb.tuindice.persistence.data.tracker.source.RemoteDataSource
 import com.gdavidpb.tuindice.persistence.data.tracker.source.SchedulerDataSource
-import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
-import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionStatus
 import com.gdavidpb.tuindice.persistence.domain.repository.TrackerRepository
 
 class TrackerDataRepository(
@@ -14,50 +13,21 @@ class TrackerDataRepository(
 	private val schedulerDataSource: SchedulerDataSource
 ) : TrackerRepository {
 	override suspend fun syncPendingTransactions() {
-		runCatching {
-			val pendingTransactions = localDataSource.getPendingTransactions()
+		val transactions = localDataSource.getTransactionsQueue()
 
-			localDataSource.updateTransactionsStatus(
-				from = TransactionStatus.PENDING,
-				to = TransactionStatus.IN_PROGRESS
-			)
+		val resolutions = remoteDataSource.sync(transactions)
 
-			val resolutions = remoteDataSource.sync(transactions = pendingTransactions)
-
-			localDataSource.applyResolutions(resolutions)
-		}.onSuccess {
-			localDataSource.updateTransactionsStatus(
-				from = TransactionStatus.IN_PROGRESS,
-				to = TransactionStatus.COMPLETED
-			)
-		}.onFailure { throwable ->
-			localDataSource.updateTransactionsStatus(
-				from = TransactionStatus.IN_PROGRESS,
-				to = TransactionStatus.PENDING
-			)
-
-			throw throwable
-		}
+		localDataSource.applyResolutions(resolutions)
 	}
 
-	override suspend fun trackTransaction(transaction: Transaction, block: suspend () -> Unit) {
+	override suspend fun trackTransaction(transaction: Transaction<*>, block: suspend () -> Unit) {
 		noAwait {
-			val transactionId = localDataSource.createTransaction(transaction)
-
 			runCatching {
 				block()
-			}.onSuccess {
-				localDataSource.updateTransactionStatus(
-					transactionId = transactionId,
-					status = TransactionStatus.COMPLETED
-				)
 			}.onFailure {
-				localDataSource.updateTransactionStatus(
-					transactionId = transactionId,
-					status = TransactionStatus.PENDING
-				)
+				localDataSource.enqueueTransaction(transaction)
 
-				schedulerDataSource.enqueueSync()
+				schedulerDataSource.scheduleSync()
 			}
 		}
 	}

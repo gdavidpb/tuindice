@@ -17,7 +17,6 @@ class StartUpUseCase(
 	private val applicationRepository: ApplicationRepository,
 	private val mobileServicesRepository: MobileServicesRepository,
 	private val configRepository: ConfigRepository,
-	private val databaseRepository: DatabaseRepository,
 	override val reportingRepository: ReportingRepository
 ) : FlowUseCase<String, StartUpAction, StartUpError>() {
 	override suspend fun executeOnBackground(params: String): Flow<StartUpAction> {
@@ -28,7 +27,6 @@ class StartUpUseCase(
 		}
 
 		noAwait {
-			runCatching { databaseRepository.prune() }
 			runCatching { configRepository.tryFetch() }
 		}
 

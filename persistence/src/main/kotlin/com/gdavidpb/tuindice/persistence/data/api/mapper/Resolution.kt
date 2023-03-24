@@ -1,29 +1,37 @@
 package com.gdavidpb.tuindice.persistence.data.api.mapper
 
-import com.gdavidpb.tuindice.persistence.data.api.model.TransactionRequestAction
-import com.gdavidpb.tuindice.persistence.data.api.model.TransactionRequestType
+import com.gdavidpb.tuindice.base.domain.model.resolution.Resolution
+import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionAction
+import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionType
+import com.gdavidpb.tuindice.persistence.data.api.model.resolution.ResolutionResponseAction
+import com.gdavidpb.tuindice.persistence.data.api.model.resolution.ResolutionResponseType
+import com.gdavidpb.tuindice.persistence.data.api.response.ResolutionOperationResponse
 import com.gdavidpb.tuindice.persistence.data.api.response.ResolutionResponse
-import com.gdavidpb.tuindice.persistence.domain.model.Resolution
-import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
-import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
+import com.gdavidpb.tuindice.persistence.data.api.response.subject.SubjectUpdateResponse
 
 fun ResolutionResponse.toResolution() = Resolution(
 	uid = uid,
 	localReference = localReference,
 	remoteReference = remoteReference,
-	type = type.toTransactionType(),
-	action = action.toTransactionAction(),
-	data = data
+	type = type.toResolutionType(),
+	action = action.toResolutionAction(),
+	operation = operation.toResolutionOperation()
 )
 
-private fun TransactionRequestType.toTransactionType() = when (this) {
-	TransactionRequestType.QUARTER -> TransactionType.QUARTER
-	TransactionRequestType.SUBJECT -> TransactionType.SUBJECT
-	TransactionRequestType.EVALUATION -> TransactionType.EVALUATION
+private fun ResolutionResponseType.toResolutionType() = when (this) {
+	ResolutionResponseType.QUARTER -> ResolutionType.QUARTER
+	ResolutionResponseType.SUBJECT -> ResolutionType.SUBJECT
+	ResolutionResponseType.EVALUATION -> ResolutionType.EVALUATION
 }
 
-private fun TransactionRequestAction.toTransactionAction() = when (this) {
-	TransactionRequestAction.ADD -> TransactionAction.ADD
-	TransactionRequestAction.UPDATE -> TransactionAction.UPDATE
-	TransactionRequestAction.DELETE -> TransactionAction.DELETE
+private fun ResolutionResponseAction.toResolutionAction() = when (this) {
+	ResolutionResponseAction.ADD -> ResolutionAction.ADD
+	ResolutionResponseAction.UPDATE -> ResolutionAction.UPDATE
+	ResolutionResponseAction.DELETE -> ResolutionAction.DELETE
 }
+
+private fun ResolutionOperationResponse.toResolutionOperation() =
+	when (this) {
+		is SubjectUpdateResponse -> toSubjectUpdateResolution()
+		else -> throw NoWhenBranchMatchedException()
+	}

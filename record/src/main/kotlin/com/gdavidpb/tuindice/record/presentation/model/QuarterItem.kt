@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.model
 
 import androidx.annotation.ColorInt
-import com.gdavidpb.tuindice.base.domain.model.Quarter
+import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 
 data class QuarterItem(
 	val uid: Long,

@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.enrollmentproof.data.enrollmentproof.source
 
-import com.gdavidpb.tuindice.base.domain.model.Quarter
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 
 interface StorageDataSource {
