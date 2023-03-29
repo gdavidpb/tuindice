@@ -20,7 +20,7 @@ class UpdateSubjectUseCase(
 	override val paramsValidator: UpdateSubjectParamsValidator
 ) : FlowUseCase<UpdateSubjectParams, Unit, SubjectError>() {
 	override suspend fun executeOnBackground(params: UpdateSubjectParams): Flow<Unit> {
-		val activeUid = authRepository.getActiveAuth().uid
+		val activeUId = authRepository.getActiveAuth().uid
 
 		val operation = SubjectUpdateTransaction(
 			subjectId = params.subjectId,
@@ -28,13 +28,14 @@ class UpdateSubjectUseCase(
 		)
 
 		val transaction = Transaction.Builder<SubjectUpdateTransaction>()
+			.withUid(activeUId)
 			.withReference(params.subjectId)
 			.withDispatchToRemote(params.dispatchToRemote)
 			.withOperation(operation)
 			.build()
 
 		quarterRepository.updateSubject(
-			uid = activeUid,
+			uid = activeUId,
 			transaction = transaction
 		)
 

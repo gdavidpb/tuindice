@@ -24,6 +24,7 @@ class WithdrawSubjectUseCase(
 		)
 
 		val transaction = Transaction.Builder<SubjectUpdateTransaction>()
+			.withUid(activeUId)
 			.withReference(params)
 			.withOperation(operation)
 			.build()
