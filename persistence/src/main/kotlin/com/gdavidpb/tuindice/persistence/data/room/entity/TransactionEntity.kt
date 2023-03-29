@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.TransactionTable
 )
 data class TransactionEntity(
 	@PrimaryKey @ColumnInfo(name = TransactionTable.ID) val id: String,
+	@ColumnInfo(name = TransactionTable.ACCOUNT_ID) val accountId: String,
 	@ColumnInfo(name = TransactionTable.REFERENCE) val reference: String,
 	@ColumnInfo(name = TransactionTable.TYPE) val type: TransactionType,
 	@ColumnInfo(name = TransactionTable.ACTION) val action: TransactionAction,

@@ -22,6 +22,7 @@ class RemoveQuarterUseCase(
 		)
 
 		val transaction = Transaction.Builder<QuarterRemoveTransaction>()
+			.withUid(activeUId)
 			.withReference(params)
 			.withOperation(operation)
 			.build()

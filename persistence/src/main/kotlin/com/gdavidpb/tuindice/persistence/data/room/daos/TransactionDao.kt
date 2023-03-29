@@ -11,9 +11,12 @@ import java.util.*
 abstract class TransactionDao {
 	@Query(
 		"SELECT * FROM ${TransactionTable.TABLE_NAME} " +
+				"WHERE ${TransactionTable.ACCOUNT_ID} = :uid " +
 				"ORDER BY ${TransactionTable.TIMESTAMP} ASC"
 	)
-	abstract suspend fun getTransactions(): List<TransactionEntity>
+	abstract suspend fun getTransactions(
+		uid: String
+	): List<TransactionEntity>
 
 	@Upsert
 	abstract suspend fun upsertTransaction(

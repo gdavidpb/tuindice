@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.TransactionEntity
 
 fun Transaction<*>.toTransactionEntity() = TransactionEntity(
 	id = "$action:$reference",
+	accountId = uid,
 	reference = reference,
 	type = type,
 	action = action,

@@ -4,6 +4,7 @@ object TransactionTable {
 	const val TABLE_NAME = "transactions"
 
 	const val ID = "transaction_id"
+	const val ACCOUNT_ID = "transaction_account_id"
 	const val REFERENCE = "transaction_ref"
 	const val TYPE = "transaction_type"
 	const val ACTION = "transaction_action"

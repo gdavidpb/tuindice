@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.quarter.QuarterRemoveTransaction
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectUpdateTransaction
 
 class Transaction<T : TransactionOperation> private constructor(
+	val uid: String,
 	val reference: String,
 	val type: TransactionType,
 	val action: TransactionAction,
@@ -12,28 +13,34 @@ class Transaction<T : TransactionOperation> private constructor(
 	val operation: T
 ) {
 	class Builder<T : TransactionOperation> {
+		private var uid: String? = null
 		private var reference: String? = null
 		private var timestamp: Long = System.currentTimeMillis()
 		private var dispatchToRemote: Boolean = true
 		private var operation: T? = null
 
+		fun withUid(value: String) = apply {
+			uid = value
+		}
+
 		fun withReference(value: String) = apply {
-			this.reference = value
+			reference = value
 		}
 
 		fun withTimestamp(value: Long) = apply {
-			this.timestamp = value
+			timestamp = value
 		}
 
 		fun withDispatchToRemote(value: Boolean) = apply {
-			this.dispatchToRemote = value
+			dispatchToRemote = value
 		}
 
 		fun withOperation(value: T) = apply {
-			this.operation = value
+			operation = value
 		}
 
 		fun build() = Transaction(
+			uid = uid ?: error("'uid' is missed"),
 			reference = reference ?: error("'reference' is missed"),
 			type = operation?.resolveType() ?: error("'type' is missed"),
 			action = operation?.resolveAction() ?: error("'action' is missed"),

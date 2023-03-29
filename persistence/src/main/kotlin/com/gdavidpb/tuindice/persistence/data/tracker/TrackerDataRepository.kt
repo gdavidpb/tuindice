@@ -12,8 +12,8 @@ class TrackerDataRepository(
 	private val remoteDataSource: RemoteDataSource,
 	private val schedulerDataSource: SchedulerDataSource
 ) : TrackerRepository {
-	override suspend fun syncPendingTransactions() {
-		val transactions = localDataSource.getTransactionsQueue()
+	override suspend fun syncPendingTransactions(uid: String) {
+		val transactions = localDataSource.getTransactionsQueue(uid)
 
 		val resolutions = remoteDataSource.sync(transactions)
 
