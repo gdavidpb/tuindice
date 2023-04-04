@@ -19,7 +19,9 @@ class QuarterDataRepository(
 	private val settingsDataSource: SettingsDataSource,
 	private val trackerRepository: TrackerRepository
 ) : QuarterRepository {
-	override suspend fun getQuarters(uid: String): Flow<List<Quarter>> {
+	override suspend fun getQuarters(
+		uid: String
+	): Flow<List<Quarter>> {
 		return localDataSource.getQuarters(uid)
 			.distinctUntilChanged()
 			.transform { quarters ->
@@ -35,7 +37,10 @@ class QuarterDataRepository(
 			}
 	}
 
-	override suspend fun removeQuarter(uid: String, transaction: Transaction<QuarterRemoveTransaction>) {
+	override suspend fun removeQuarter(
+		uid: String,
+		transaction: Transaction<QuarterRemoveTransaction>
+	) {
 		localDataSource.removeQuarter(uid, transaction)
 
 		trackerRepository.trackTransaction(transaction) {
@@ -43,7 +48,10 @@ class QuarterDataRepository(
 		}
 	}
 
-	override suspend fun updateSubject(uid: String, transaction: Transaction<SubjectUpdateTransaction>) {
+	override suspend fun updateSubject(
+		uid: String,
+		transaction: Transaction<SubjectUpdateTransaction>
+	) {
 		localDataSource.updateSubject(uid, transaction)
 
 		if (transaction.dispatchToRemote) {
