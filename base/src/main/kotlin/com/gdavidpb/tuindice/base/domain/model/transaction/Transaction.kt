@@ -8,7 +8,7 @@ class Transaction<T : TransactionData> private constructor(
 	val reference: String,
 	val type: TransactionType,
 	val action: TransactionAction,
-	val timestamp: Long,
+	val timestamp: Long, // TODO declare it as ordinal (in order to avoid wrong local time)
 	val dispatchToRemote: Boolean,
 	val data: T
 ) {
