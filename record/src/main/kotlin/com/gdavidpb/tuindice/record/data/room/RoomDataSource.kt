@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.room.mapper.toQuarter
 import com.gdavidpb.tuindice.record.data.room.mapper.toQuarterEntity
-import com.gdavidpb.tuindice.record.data.room.mapper.toSubject
 import com.gdavidpb.tuindice.record.data.room.mapper.toSubjectEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -18,12 +17,17 @@ import kotlinx.coroutines.flow.map
 class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
-	override suspend fun getQuarters(uid: String): Flow<List<Quarter>> {
+	override suspend fun getQuarters(
+		uid: String
+	): Flow<List<Quarter>> {
 		return room.quarters.getQuartersWithSubjects(uid)
 			.map { quarters -> quarters.map { quarter -> quarter.toQuarter() } }
 	}
 
-	override suspend fun saveQuarters(uid: String, quarters: List<Quarter>) {
+	override suspend fun saveQuarters(
+		uid: String,
+		quarters: List<Quarter>
+	) {
 		val quarterEntities = quarters
 			.map { quarter -> quarter.toQuarterEntity(uid) }
 
@@ -37,7 +41,10 @@ class RoomDataSource(
 		}
 	}
 
-	override suspend fun removeQuarter(uid: String, transaction: Transaction<QuarterRemoveTransaction>) {
+	override suspend fun removeQuarter(
+		uid: String,
+		transaction: Transaction<QuarterRemoveTransaction>
+	) {
 		room.quarters.deleteQuarter(uid = uid, qid = transaction.data.quarterId)
 	}
 
@@ -48,18 +55,14 @@ class RoomDataSource(
 		room.subjects.upsertEntities(subjectEntities)
 	}
 
-	override suspend fun updateSubject(uid: String, transaction: Transaction<SubjectUpdateTransaction>): Subject {
+	override suspend fun updateSubject(
+		uid: String,
+		transaction: Transaction<SubjectUpdateTransaction>
+	) {
 		room.subjects.updateSubject(
 			uid = uid,
 			sid = transaction.data.subjectId,
 			grade = transaction.data.grade
 		)
-
-		val subjectEntity = room.subjects.getSubject(
-			uid = uid,
-			sid = transaction.data.subjectId
-		)
-
-		return subjectEntity.toSubject()
 	}
 }
