@@ -14,7 +14,7 @@ class PasswordInputLayout(context: Context, attrs: AttributeSet) : InputLayout(c
 	override val textInputLayout: TextInputLayout by lazy { input }
 
 	override fun isValid(): Boolean {
-		return textInputLayout.editText?.text.isNullOrBlank()
+		return !textInputLayout.editText?.text.isNullOrBlank()
 	}
 
 	fun getPassword(): String {
