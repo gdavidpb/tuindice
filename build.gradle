@@ -17,7 +17,7 @@ buildscript {
         versions.lifecycle_ext = "2.2.0"
         versions.navigation = "2.5.3"
         versions.room = "2.5.0"
-        versions.work = "2.8.0"
+        versions.work = "2.8.1"
     }
 
     repositories {
