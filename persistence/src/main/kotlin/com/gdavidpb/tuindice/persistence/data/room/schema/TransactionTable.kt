@@ -9,4 +9,5 @@ object TransactionTable {
 	const val TYPE = "transaction_type"
 	const val ACTION = "transaction_action"
 	const val TIMESTAMP = "transaction_timestamp"
+	const val DATA = "transaction_data"
 }

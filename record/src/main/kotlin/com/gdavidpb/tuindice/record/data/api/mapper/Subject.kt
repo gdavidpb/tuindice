@@ -17,6 +17,6 @@ fun SubjectResponse.toSubject() = Subject(
 )
 
 fun Transaction<SubjectUpdateTransaction>.toUpdateSubjectRequest() = UpdateSubjectRequest(
-	subjectId = operation.subjectId,
-	grade = operation.grade
+	subjectId = data.subjectId,
+	grade = data.grade
 )
