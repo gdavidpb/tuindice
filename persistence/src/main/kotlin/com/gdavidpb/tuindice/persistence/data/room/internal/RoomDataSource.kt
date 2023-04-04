@@ -32,6 +32,7 @@ internal class RoomDataSource(
 		}
 	}
 
+	// TODO additional queue logic (UPDATE, ADD and DELETE interactions)
 	override suspend fun enqueueTransaction(transaction: Transaction<*>): String {
 		return if (transaction.action != TransactionAction.DELETE)
 			internalCreateTransaction(transaction)
@@ -54,6 +55,7 @@ internal class RoomDataSource(
 		room.transactions.deleteTransactionsByReference(reference = transaction.reference)
 	}
 
+	// TODO will there be a better way to do this?
 	private suspend fun handleSubjectResolution(resolution: Resolution) {
 		val subjectEntity = resolution.toSubjectEntity()
 

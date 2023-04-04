@@ -16,6 +16,7 @@ abstract class FlowUseCase<P, T, E>(
 
 	abstract suspend fun executeOnBackground(params: P): Flow<T>
 
+	// TODO replace with composition (like Validator)
 	protected open suspend fun executeOnException(throwable: Throwable): E? = null
 
 	fun execute(params: P): Flow<UseCaseState<T, E>> {
