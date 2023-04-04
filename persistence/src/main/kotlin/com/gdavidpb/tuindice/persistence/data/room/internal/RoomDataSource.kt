@@ -11,10 +11,17 @@ import com.gdavidpb.tuindice.persistence.data.room.internal.mapper.toTransaction
 import com.gdavidpb.tuindice.persistence.data.tracker.source.LocalDataSource
 import com.gdavidpb.tuindice.persistence.domain.mapper.isSubject
 import com.gdavidpb.tuindice.persistence.domain.mapper.toSubjectEntity
+import com.google.gson.Gson
 
 internal class RoomDataSource(
+	private val gson: Gson,
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
+	override suspend fun getTransactionsQueue(uid: String): List<Transaction<*>> {
+		return room.transactions.getTransactions(uid)
+			.map { transactionEntity -> transactionEntity.toTransaction(gson) }
+	}
+
 	override suspend fun applyResolutions(resolutions: List<Resolution>) {
 		room.withTransaction {
 			resolutions.forEach { resolution ->
@@ -23,11 +30,6 @@ internal class RoomDataSource(
 				}
 			}
 		}
-	}
-
-	override suspend fun getTransactionsQueue(): List<Transaction<*>> {
-		return room.transactions.getTransactions()
-			.map { transactionEntity -> transactionEntity.toTransaction() }
 	}
 
 	override suspend fun enqueueTransaction(transaction: Transaction<*>): String {
@@ -41,7 +43,7 @@ internal class RoomDataSource(
 	}
 
 	private suspend fun internalCreateTransaction(transaction: Transaction<*>): String {
-		val transactionEntity = transaction.toTransactionEntity()
+		val transactionEntity = transaction.toTransactionEntity(gson)
 
 		room.transactions.upsertTransaction(entity = transactionEntity)
 

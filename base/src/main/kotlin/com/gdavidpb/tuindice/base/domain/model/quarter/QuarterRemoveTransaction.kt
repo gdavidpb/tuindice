@@ -1,7 +1,8 @@
 package com.gdavidpb.tuindice.base.domain.model.quarter
 
-import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionOperation
+import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionData
+import com.google.gson.annotations.SerializedName
 
 data class QuarterRemoveTransaction(
-	val quarterId: String
-) : TransactionOperation
+	@SerializedName("quarter_id") val quarterId: String
+) : TransactionData

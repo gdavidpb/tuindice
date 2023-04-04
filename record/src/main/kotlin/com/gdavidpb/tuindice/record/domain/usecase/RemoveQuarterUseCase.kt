@@ -17,14 +17,14 @@ class RemoveQuarterUseCase(
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		val operation = QuarterRemoveTransaction(
+		val data = QuarterRemoveTransaction(
 			quarterId = params
 		)
 
 		val transaction = Transaction.Builder<QuarterRemoveTransaction>()
 			.withUid(activeUId)
 			.withReference(params)
-			.withOperation(operation)
+			.withData(data)
 			.build()
 
 		quarterRepository.removeQuarter(uid = activeUId, transaction = transaction)

@@ -21,7 +21,7 @@ class ApiDataSource(
 	}
 
 	override suspend fun removeQuarter(transaction: Transaction<QuarterRemoveTransaction>) {
-		recordApi.deleteQuarter(quarterId = transaction.operation.quarterId)
+		recordApi.deleteQuarter(quarterId = transaction.data.quarterId)
 			.getOrThrow()
 	}
 

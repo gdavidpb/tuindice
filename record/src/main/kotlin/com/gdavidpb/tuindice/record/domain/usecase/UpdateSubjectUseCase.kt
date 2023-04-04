@@ -22,7 +22,7 @@ class UpdateSubjectUseCase(
 	override suspend fun executeOnBackground(params: UpdateSubjectParams): Flow<Unit> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		val operation = SubjectUpdateTransaction(
+		val data = SubjectUpdateTransaction(
 			subjectId = params.subjectId,
 			grade = params.grade
 		)
@@ -31,7 +31,7 @@ class UpdateSubjectUseCase(
 			.withUid(activeUId)
 			.withReference(params.subjectId)
 			.withDispatchToRemote(params.dispatchToRemote)
-			.withOperation(operation)
+			.withData(data)
 			.build()
 
 		quarterRepository.updateSubject(

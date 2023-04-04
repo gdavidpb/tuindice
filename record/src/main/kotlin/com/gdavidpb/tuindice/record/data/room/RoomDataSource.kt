@@ -38,7 +38,7 @@ class RoomDataSource(
 	}
 
 	override suspend fun removeQuarter(uid: String, transaction: Transaction<QuarterRemoveTransaction>) {
-		room.quarters.deleteQuarter(uid = uid, qid = transaction.operation.quarterId)
+		room.quarters.deleteQuarter(uid = uid, qid = transaction.data.quarterId)
 	}
 
 	override suspend fun saveSubjects(uid: String, subjects: List<Subject>) {
@@ -51,13 +51,13 @@ class RoomDataSource(
 	override suspend fun updateSubject(uid: String, transaction: Transaction<SubjectUpdateTransaction>): Subject {
 		room.subjects.updateSubject(
 			uid = uid,
-			sid = transaction.operation.subjectId,
-			grade = transaction.operation.grade
+			sid = transaction.data.subjectId,
+			grade = transaction.data.grade
 		)
 
 		val subjectEntity = room.subjects.getSubject(
 			uid = uid,
-			sid = transaction.operation.subjectId
+			sid = transaction.data.subjectId
 		)
 
 		return subjectEntity.toSubject()

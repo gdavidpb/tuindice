@@ -18,7 +18,7 @@ class WithdrawSubjectUseCase(
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		val operation = SubjectUpdateTransaction(
+		val data = SubjectUpdateTransaction(
 			subjectId = params,
 			grade = MIN_SUBJECT_GRADE
 		)
@@ -26,7 +26,7 @@ class WithdrawSubjectUseCase(
 		val transaction = Transaction.Builder<SubjectUpdateTransaction>()
 			.withUid(activeUId)
 			.withReference(params)
-			.withOperation(operation)
+			.withData(data)
 			.build()
 
 		quarterRepository.updateSubject(uid = activeUId, transaction = transaction)
