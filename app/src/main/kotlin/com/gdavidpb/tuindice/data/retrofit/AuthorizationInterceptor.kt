@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.data.retrofit
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.utils.extension.headerPutIfAbsent
 import okhttp3.Interceptor
 import okhttp3.Response
 
@@ -18,12 +17,11 @@ class AuthorizationInterceptor(
 			.newBuilder()
 			.header("App-Version", "${BuildConfig.VERSION_CODE}")
 			.apply {
-				if (bearerToken != null)
-					headerPutIfAbsent(
-						headers = request.headers,
-						name = "Authorization",
-						value = "Bearer $bearerToken"
-					)
+				val isBearerTokenAvailable = (bearerToken != null)
+				val isAuthorizationHeaderPresent = (request.headers["Authorization"] != null)
+
+				if (isBearerTokenAvailable && !isAuthorizationHeaderPresent)
+					header("Authorization", "Bearer $bearerToken")
 			}
 			.build()
 
