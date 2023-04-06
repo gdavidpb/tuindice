@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.persistence.data.api
 
+import com.gdavidpb.tuindice.base.domain.model.resolution.Resolution
 import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
 import com.gdavidpb.tuindice.persistence.data.api.mapper.toResolution
 import com.gdavidpb.tuindice.persistence.data.api.mapper.toTransactionRequest
 import com.gdavidpb.tuindice.persistence.data.tracker.source.RemoteDataSource
-import com.gdavidpb.tuindice.base.domain.model.resolution.Resolution
 
 class ApiDataSource(
 	private val syncApi: SyncApi

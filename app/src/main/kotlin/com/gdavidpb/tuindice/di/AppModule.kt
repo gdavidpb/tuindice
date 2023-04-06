@@ -27,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -39,6 +40,10 @@ import java.util.concurrent.TimeUnit
 
 @KoinReflectAPI
 val appModule = module {
+
+	/* Utils */
+
+	singleOf(::Gson)
 
 	/* Application */
 
