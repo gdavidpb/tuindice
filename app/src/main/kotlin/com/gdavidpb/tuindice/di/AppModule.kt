@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.data.koin.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
+import com.gdavidpb.tuindice.transactions.data.retrofit.OfflineInterceptor
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
@@ -106,6 +107,7 @@ val appModule = module {
 	/* OkHttpClient */
 
 	singleOf(::AuthorizationInterceptor)
+	singleOf(::OfflineInterceptor)
 
 	single {
 		val logger = HttpLoggingInterceptor.Logger { message ->
@@ -130,6 +132,7 @@ val appModule = module {
 			.writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
 			.addInterceptor(get<HttpLoggingInterceptor>())
 			.addInterceptor(get<AuthorizationInterceptor>())
+			.addInterceptor(get<OfflineInterceptor>())
 			.build()
 	}
 

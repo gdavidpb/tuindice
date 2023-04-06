@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.data.crashlytics.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
+import com.gdavidpb.tuindice.transactions.data.retrofit.OfflineInterceptor
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -95,6 +96,7 @@ val appMockModule = module {
 	/* OkHttpClient */
 
 	singleOf(::AuthorizationInterceptor)
+	singleOf(::OfflineInterceptor)
 
 	single {
 		val logger = HttpLoggingInterceptor.Logger { message ->
@@ -119,6 +121,7 @@ val appMockModule = module {
 			.writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
 			.addInterceptor(get<HttpLoggingInterceptor>())
 			.addInterceptor(get<AuthorizationInterceptor>())
+			.addInterceptor(get<com.gdavidpb.tuindice.transactions.data.retrofit.OfflineInterceptor>())
 			.build()
 	}
 
