@@ -5,8 +5,8 @@ import com.gdavidpb.tuindice.base.domain.model.subject.SubjectUpdateTransaction
 import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionData
 import com.gdavidpb.tuindice.persistence.data.room.entity.TransactionEntity
-import com.gdavidpb.tuindice.transactions.utils.fromJson
-import com.gdavidpb.tuindice.transactions.utils.toJson
+import com.gdavidpb.tuindice.transactions.utils.extension.fromJson
+import com.gdavidpb.tuindice.transactions.utils.extension.toJson
 import com.google.gson.Gson
 
 fun Transaction<*>.toTransactionEntity(gson: Gson) = TransactionEntity(
