@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.quarter.QuarterRemoveTransaction
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectUpdateTransaction
 import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
-import com.gdavidpb.tuindice.persistence.domain.repository.TrackerRepository
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.SettingsDataSource
@@ -16,8 +15,7 @@ import kotlinx.coroutines.flow.transform
 class QuarterDataRepository(
 	private val localDataSource: LocalDataSource,
 	private val remoteDataSource: RemoteDataSource,
-	private val settingsDataSource: SettingsDataSource,
-	private val trackerRepository: TrackerRepository
+	private val settingsDataSource: SettingsDataSource
 ) : QuarterRepository {
 	override suspend fun getQuarters(
 		uid: String
@@ -43,9 +41,7 @@ class QuarterDataRepository(
 	) {
 		localDataSource.removeQuarter(uid, transaction)
 
-		trackerRepository.trackTransaction(transaction) {
-			remoteDataSource.removeQuarter(transaction)
-		}
+		remoteDataSource.removeQuarter(transaction)
 	}
 
 	override suspend fun updateSubject(
@@ -55,11 +51,9 @@ class QuarterDataRepository(
 		localDataSource.updateSubject(uid, transaction)
 
 		if (transaction.dispatchToRemote) {
-			trackerRepository.trackTransaction(transaction) {
-				val subject = remoteDataSource.updateSubject(transaction)
+			val subject = remoteDataSource.updateSubject(transaction)
 
-				localDataSource.saveSubjects(uid, listOf(subject))
-			}
+			localDataSource.saveSubjects(uid, listOf(subject))
 		}
 	}
 }
