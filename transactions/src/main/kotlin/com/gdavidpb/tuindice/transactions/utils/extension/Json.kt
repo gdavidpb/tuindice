@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.transactions.utils
+package com.gdavidpb.tuindice.transactions.utils.extension
 
 import com.google.gson.Gson
 
