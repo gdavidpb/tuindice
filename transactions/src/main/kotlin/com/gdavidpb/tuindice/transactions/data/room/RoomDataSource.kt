@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.transactions.data.room.mapper.toTransaction
 import com.gdavidpb.tuindice.transactions.data.room.mapper.toTransactionEntity
-import com.gdavidpb.tuindice.transactions.data.transactions.source.LocalDataSource
+import com.gdavidpb.tuindice.transactions.data.offline.source.LocalDataSource
 import com.gdavidpb.tuindice.transactions.domain.mapper.isSubject
 import com.gdavidpb.tuindice.transactions.domain.mapper.toSubjectEntity
 import com.google.gson.Gson

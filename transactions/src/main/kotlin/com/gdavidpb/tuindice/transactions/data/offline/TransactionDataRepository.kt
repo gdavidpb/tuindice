@@ -1,8 +1,8 @@
-package com.gdavidpb.tuindice.transactions.data.transactions
+package com.gdavidpb.tuindice.transactions.data.offline
 
 import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
-import com.gdavidpb.tuindice.transactions.data.transactions.source.LocalDataSource
-import com.gdavidpb.tuindice.transactions.data.transactions.source.SchedulerDataSource
+import com.gdavidpb.tuindice.transactions.data.offline.source.LocalDataSource
+import com.gdavidpb.tuindice.transactions.data.offline.source.SchedulerDataSource
 import com.gdavidpb.tuindice.transactions.domain.repository.TransactionRepository
 
 internal class TransactionDataRepository(
@@ -13,9 +13,5 @@ internal class TransactionDataRepository(
 		localDataSource.enqueueTransaction(transaction)
 
 		schedulerDataSource.scheduleSync()
-	}
-
-	override suspend fun getTransactionsQueue(uid: String): List<Transaction<*>> {
-		return localDataSource.getTransactionsQueue(uid)
 	}
 }
