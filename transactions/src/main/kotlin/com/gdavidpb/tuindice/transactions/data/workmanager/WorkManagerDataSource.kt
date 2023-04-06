@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.transactions.data.workmanager
 
 import androidx.work.*
-import com.gdavidpb.tuindice.transactions.data.transactions.source.SchedulerDataSource
+import com.gdavidpb.tuindice.transactions.data.offline.source.SchedulerDataSource
 import java.util.concurrent.TimeUnit
 
 class WorkManagerDataSource(
