@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.StartUpAction
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
-import com.gdavidpb.tuindice.base.utils.extension.noAwait
+import com.gdavidpb.tuindice.base.utils.extension.suspendNoAwait
 import com.gdavidpb.tuindice.login.domain.error.StartUpError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -26,7 +26,7 @@ class StartUpUseCase(
 			throw ServicesUnavailableException(servicesStatus)
 		}
 
-		noAwait {
+		suspendNoAwait {
 			runCatching { configRepository.tryFetch() }
 		}
 
