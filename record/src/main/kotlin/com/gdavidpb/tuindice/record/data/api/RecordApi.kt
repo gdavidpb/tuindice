@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.data.api
 
+import com.gdavidpb.tuindice.record.data.api.request.RemoveQuarterRequest
 import com.gdavidpb.tuindice.record.data.api.request.UpdateSubjectRequest
 import com.gdavidpb.tuindice.record.data.api.response.QuarterResponse
 import com.gdavidpb.tuindice.record.data.api.response.SubjectResponse
@@ -14,7 +15,7 @@ interface RecordApi {
 	@EnqueueOnFailure
 	@DELETE("quarters")
 	suspend fun deleteQuarter(
-		@Query("qid") quarterId: String
+		@Body request: RemoveQuarterRequest
 	): Response<Unit>
 
 	@EnqueueOnFailure

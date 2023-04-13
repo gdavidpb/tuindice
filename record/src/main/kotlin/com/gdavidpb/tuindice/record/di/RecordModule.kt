@@ -4,6 +4,8 @@ import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.record.data.api.ApiDataSource
 import com.gdavidpb.tuindice.record.data.api.RecordApi
+import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
+import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
 import com.gdavidpb.tuindice.record.data.preferences.PreferencesDataSource
 import com.gdavidpb.tuindice.record.data.quarter.QuarterDataRepository
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
@@ -62,4 +64,9 @@ val recordModule = module {
 			.build()
 			.create<RecordApi>()
 	}
+
+	/* Parsers */
+
+	factoryOf(::SubjectUpdateParser)
+	factoryOf(::QuarterRemoveParser)
 }

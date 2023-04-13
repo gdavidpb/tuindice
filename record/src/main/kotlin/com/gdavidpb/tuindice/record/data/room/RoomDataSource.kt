@@ -2,15 +2,14 @@ package com.gdavidpb.tuindice.record.data.room
 
 import androidx.room.withTransaction
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
-import com.gdavidpb.tuindice.base.domain.model.quarter.QuarterRemoveTransaction
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectUpdateTransaction
-import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.room.mapper.toQuarter
 import com.gdavidpb.tuindice.record.data.room.mapper.toQuarterEntity
 import com.gdavidpb.tuindice.record.data.room.mapper.toSubjectEntity
+import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
+import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -41,11 +40,8 @@ class RoomDataSource(
 		}
 	}
 
-	override suspend fun removeQuarter(
-		uid: String,
-		transaction: Transaction<QuarterRemoveTransaction>
-	) {
-		room.quarters.deleteQuarter(uid = uid, qid = transaction.data.quarterId)
+	override suspend fun removeQuarter(uid: String, remove: QuarterRemove) {
+		room.quarters.deleteQuarter(uid = uid, qid = remove.quarterId)
 	}
 
 	override suspend fun saveSubjects(uid: String, subjects: List<Subject>) {
@@ -55,14 +51,11 @@ class RoomDataSource(
 		room.subjects.upsertEntities(subjectEntities)
 	}
 
-	override suspend fun updateSubject(
-		uid: String,
-		transaction: Transaction<SubjectUpdateTransaction>
-	) {
+	override suspend fun updateSubject(uid: String, update: SubjectUpdate) {
 		room.subjects.updateSubject(
 			uid = uid,
-			sid = transaction.data.subjectId,
-			grade = transaction.data.grade
+			sid = update.subjectId,
+			grade = update.grade
 		)
 	}
 }

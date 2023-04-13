@@ -1,10 +1,9 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectUpdateTransaction
-import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.utils.MIN_SUBJECT_GRADE
 import kotlinx.coroutines.flow.Flow
@@ -18,18 +17,13 @@ class WithdrawSubjectUseCase(
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		val data = SubjectUpdateTransaction(
+		val update = SubjectUpdate(
 			subjectId = params,
-			grade = MIN_SUBJECT_GRADE
+			grade = MIN_SUBJECT_GRADE,
+			dispatchToRemote = true
 		)
 
-		val transaction = Transaction.Builder<SubjectUpdateTransaction>()
-			.withUid(activeUId)
-			.withReference(params)
-			.withData(data)
-			.build()
-
-		quarterRepository.updateSubject(uid = activeUId, transaction = transaction)
+		quarterRepository.updateSubject(uid = activeUId, update = update)
 
 		return flowOf(Unit)
 	}

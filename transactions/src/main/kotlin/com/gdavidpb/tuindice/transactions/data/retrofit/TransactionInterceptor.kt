@@ -1,11 +1,15 @@
 package com.gdavidpb.tuindice.transactions.data.retrofit
 
+import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.transactions.domain.repository.TransactionRepository
 import com.gdavidpb.tuindice.transactions.utils.extension.isEnqueueOnFailure
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class OfflineInterceptor(
+class TransactionInterceptor(
+	private val transactionParser: TransactionParser,
+	private val authRepository: AuthRepository,
 	private val transactionRepository: TransactionRepository
 ) : Interceptor {
 	override fun intercept(chain: Interceptor.Chain): Response {
@@ -16,7 +20,15 @@ class OfflineInterceptor(
 			runCatching {
 				chain.proceed(request)
 			}.getOrElse { throwable ->
-				// TODO transactionRepository.enqueueTransaction(null)
+				noAwait {
+					val activeUId = authRepository.getActiveAuth().uid
+					val transaction = transactionParser.fromRequest(request)
+
+					transactionRepository.enqueueTransaction(
+						uid = activeUId,
+						transaction = transaction
+					)
+				}
 
 				throw throwable
 			}

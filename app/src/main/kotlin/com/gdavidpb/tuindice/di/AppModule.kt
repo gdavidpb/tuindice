@@ -20,7 +20,10 @@ import com.gdavidpb.tuindice.data.koin.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
-import com.gdavidpb.tuindice.transactions.data.retrofit.OfflineInterceptor
+import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
+import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
+import com.gdavidpb.tuindice.transactions.data.retrofit.TransactionInterceptor
+import com.gdavidpb.tuindice.transactions.data.retrofit.TransactionParser
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
@@ -28,7 +31,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -41,11 +43,6 @@ import java.util.concurrent.TimeUnit
 
 @KoinReflectAPI
 val appModule = module {
-
-	/* Utils */
-
-	singleOf(::Gson)
-
 	/* Application */
 
 	single {
@@ -107,7 +104,7 @@ val appModule = module {
 	/* OkHttpClient */
 
 	singleOf(::AuthorizationInterceptor)
-	singleOf(::OfflineInterceptor)
+	singleOf(::TransactionInterceptor)
 
 	single {
 		val logger = HttpLoggingInterceptor.Logger { message ->
@@ -132,8 +129,17 @@ val appModule = module {
 			.writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
 			.addInterceptor(get<HttpLoggingInterceptor>())
 			.addInterceptor(get<AuthorizationInterceptor>())
-			.addInterceptor(get<OfflineInterceptor>())
+			.addInterceptor(get<TransactionInterceptor>())
 			.build()
+	}
+
+	single {
+		TransactionParser(
+			listOf(
+				get<SubjectUpdateParser>(),
+				get<QuarterRemoveParser>()
+			)
+		)
 	}
 
 	/* Repositories */

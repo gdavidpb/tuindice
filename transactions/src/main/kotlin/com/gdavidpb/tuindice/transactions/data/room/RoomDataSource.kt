@@ -11,18 +11,16 @@ import com.gdavidpb.tuindice.transactions.data.room.mapper.toTransactionEntity
 import com.gdavidpb.tuindice.transactions.data.offline.source.LocalDataSource
 import com.gdavidpb.tuindice.transactions.domain.mapper.isSubject
 import com.gdavidpb.tuindice.transactions.domain.mapper.toSubjectEntity
-import com.google.gson.Gson
 
 class RoomDataSource(
-	private val gson: Gson,
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
-	override suspend fun getTransactionsQueue(uid: String): List<Transaction<*>> {
+	override suspend fun getTransactionsQueue(uid: String): List<Transaction> {
 		return room.transactions.getTransactions(uid)
-			.map { transactionEntity -> transactionEntity.toTransaction(gson) }
+			.map { transactionEntity -> transactionEntity.toTransaction() }
 	}
 
-	override suspend fun applyResolutions(resolutions: List<Resolution>) {
+	override suspend fun applyResolutions(uid: String, resolutions: List<Resolution>) {
 		room.withTransaction {
 			resolutions.forEach { resolution ->
 				when {
@@ -33,25 +31,26 @@ class RoomDataSource(
 	}
 
 	// TODO additional queue logic (UPDATE, ADD and DELETE interactions)
-	override suspend fun enqueueTransaction(transaction: Transaction<*>): String {
+	override suspend fun enqueueTransaction(uid: String, transaction: Transaction): String {
 		return if (transaction.action != TransactionAction.DELETE)
-			internalCreateTransaction(transaction)
+			internalCreateTransaction(uid, transaction)
 		else
 			room.withTransaction {
 				internalDiscardTransactions(transaction)
-				internalCreateTransaction(transaction)
+				internalCreateTransaction(uid, transaction)
 			}
 	}
 
-	private suspend fun internalCreateTransaction(transaction: Transaction<*>): String {
-		val transactionEntity = transaction.toTransactionEntity(gson)
+	private suspend fun internalCreateTransaction(uid: String, transaction: Transaction): String {
+		val transactionEntity = transaction.toTransactionEntity(uid)
 
 		room.transactions.upsertTransaction(entity = transactionEntity)
 
 		return transactionEntity.id
 	}
 
-	private suspend fun internalDiscardTransactions(transaction: Transaction<*>) {
+	// TODO include uid to this operation
+	private suspend fun internalDiscardTransactions(transaction: Transaction) {
 		room.transactions.deleteTransactionsByReference(reference = transaction.reference)
 	}
 

@@ -1,10 +1,9 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.model.quarter.QuarterRemoveTransaction
-import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -17,17 +16,11 @@ class RemoveQuarterUseCase(
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		val data = QuarterRemoveTransaction(
+		val remove = QuarterRemove(
 			quarterId = params
 		)
 
-		val transaction = Transaction.Builder<QuarterRemoveTransaction>()
-			.withUid(activeUId)
-			.withReference(params)
-			.withData(data)
-			.build()
-
-		quarterRepository.removeQuarter(uid = activeUId, transaction = transaction)
+		quarterRepository.removeQuarter(uid = activeUId, remove = remove)
 
 		return flowOf(Unit)
 	}
