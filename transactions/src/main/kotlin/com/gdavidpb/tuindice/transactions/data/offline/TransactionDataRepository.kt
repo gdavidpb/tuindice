@@ -9,8 +9,8 @@ internal class TransactionDataRepository(
 	private val localDataSource: LocalDataSource,
 	private val schedulerDataSource: SchedulerDataSource
 ) : TransactionRepository {
-	override suspend fun enqueueTransaction(transaction: Transaction<*>) {
-		localDataSource.enqueueTransaction(transaction)
+	override suspend fun enqueueTransaction(uid: String, transaction: Transaction) {
+		localDataSource.enqueueTransaction(uid, transaction)
 
 		schedulerDataSource.scheduleSync()
 	}

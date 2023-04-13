@@ -1,12 +1,11 @@
 package com.gdavidpb.tuindice.record.data.quarter
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
-import com.gdavidpb.tuindice.base.domain.model.quarter.QuarterRemoveTransaction
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectUpdateTransaction
-import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.SettingsDataSource
+import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
+import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -35,23 +34,17 @@ class QuarterDataRepository(
 			}
 	}
 
-	override suspend fun removeQuarter(
-		uid: String,
-		transaction: Transaction<QuarterRemoveTransaction>
-	) {
-		localDataSource.removeQuarter(uid, transaction)
+	override suspend fun removeQuarter(uid: String, remove: QuarterRemove) {
+		localDataSource.removeQuarter(uid, remove)
 
-		remoteDataSource.removeQuarter(transaction)
+		remoteDataSource.removeQuarter(remove)
 	}
 
-	override suspend fun updateSubject(
-		uid: String,
-		transaction: Transaction<SubjectUpdateTransaction>
-	) {
-		localDataSource.updateSubject(uid, transaction)
+	override suspend fun updateSubject(uid: String, update: SubjectUpdate) {
+		localDataSource.updateSubject(uid, update)
 
-		if (transaction.dispatchToRemote) {
-			val subject = remoteDataSource.updateSubject(transaction)
+		if (update.dispatchToRemote) {
+			val subject = remoteDataSource.updateSubject(update)
 
 			localDataSource.saveSubjects(uid, listOf(subject))
 		}

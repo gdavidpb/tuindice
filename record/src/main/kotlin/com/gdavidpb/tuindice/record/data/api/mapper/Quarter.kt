@@ -1,8 +1,14 @@
 package com.gdavidpb.tuindice.record.data.api.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
+import com.gdavidpb.tuindice.record.data.api.request.RemoveQuarterRequest
 import com.gdavidpb.tuindice.record.data.api.response.QuarterResponse
+import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import java.util.*
+
+fun QuarterRemove.toRemoveQuarterRequest() = RemoveQuarterRequest(
+	quarterId = quarterId
+)
 
 fun QuarterResponse.toQuarter() = Quarter(
 	id = id,

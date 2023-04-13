@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.transactions.data.offline.source.RemoteDataSource
 class ApiDataSource(
 	private val syncApi: SyncApi
 ) : RemoteDataSource {
-	override suspend fun sync(transactions: List<Transaction<*>>): List<Resolution> {
+	override suspend fun sync(transactions: List<Transaction>): List<Resolution> {
 		val request = transactions.map { transaction -> transaction.toTransactionRequest() }
 
 		return syncApi.sync(request)

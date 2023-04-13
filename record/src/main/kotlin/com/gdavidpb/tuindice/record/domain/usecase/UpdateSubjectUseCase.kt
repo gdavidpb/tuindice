@@ -1,12 +1,11 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectUpdateTransaction
-import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.error.SubjectError
 import com.gdavidpb.tuindice.record.domain.exception.SubjectIllegalArgumentException
+import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import com.gdavidpb.tuindice.record.domain.param.UpdateSubjectParams
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.validator.UpdateSubjectParamsValidator
@@ -22,21 +21,15 @@ class UpdateSubjectUseCase(
 	override suspend fun executeOnBackground(params: UpdateSubjectParams): Flow<Unit> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		val data = SubjectUpdateTransaction(
+		val update = SubjectUpdate(
 			subjectId = params.subjectId,
-			grade = params.grade
+			grade = params.grade,
+			dispatchToRemote = params.dispatchToRemote
 		)
-
-		val transaction = Transaction.Builder<SubjectUpdateTransaction>()
-			.withUid(activeUId)
-			.withReference(params.subjectId)
-			.withDispatchToRemote(params.dispatchToRemote)
-			.withData(data)
-			.build()
 
 		quarterRepository.updateSubject(
 			uid = activeUId,
-			transaction = transaction
+			update = update
 		)
 
 		return flowOf(Unit)

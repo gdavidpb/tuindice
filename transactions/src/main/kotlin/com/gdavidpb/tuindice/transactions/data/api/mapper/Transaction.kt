@@ -2,13 +2,12 @@ package com.gdavidpb.tuindice.transactions.data.api.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
-import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionData
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
 import com.gdavidpb.tuindice.transactions.data.api.model.transaction.TransactionRequestAction
 import com.gdavidpb.tuindice.transactions.data.api.model.transaction.TransactionRequestType
 import com.gdavidpb.tuindice.transactions.data.api.request.TransactionRequest
 
-fun <T : TransactionData> Transaction<T>.toTransactionRequest() =
+fun Transaction.toTransactionRequest() =
 	TransactionRequest(
 		reference = reference,
 		type = type.toTransactionRequestType(),

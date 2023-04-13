@@ -15,8 +15,11 @@ import com.gdavidpb.tuindice.data.crashlytics.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
-import com.gdavidpb.tuindice.transactions.data.retrofit.OfflineInterceptor
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
+import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
+import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
+import com.gdavidpb.tuindice.transactions.data.retrofit.TransactionInterceptor
+import com.gdavidpb.tuindice.transactions.data.retrofit.TransactionParser
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
@@ -24,7 +27,6 @@ import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.testing.FakeReviewManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -37,10 +39,6 @@ import java.util.concurrent.TimeUnit
 
 @KoinReflectAPI
 val appMockModule = module {
-
-	/* Utils */
-	singleOf(::Gson)
-
 	/* Application */
 
 	single {
@@ -96,7 +94,7 @@ val appMockModule = module {
 	/* OkHttpClient */
 
 	singleOf(::AuthorizationInterceptor)
-	singleOf(::OfflineInterceptor)
+	singleOf(::TransactionInterceptor)
 
 	single {
 		val logger = HttpLoggingInterceptor.Logger { message ->
@@ -121,8 +119,17 @@ val appMockModule = module {
 			.writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
 			.addInterceptor(get<HttpLoggingInterceptor>())
 			.addInterceptor(get<AuthorizationInterceptor>())
-			.addInterceptor(get<com.gdavidpb.tuindice.transactions.data.retrofit.OfflineInterceptor>())
+			.addInterceptor(get<TransactionInterceptor>())
 			.build()
+	}
+
+	single {
+		TransactionParser(
+			listOf(
+				get<SubjectUpdateParser>(),
+				get<QuarterRemoveParser>()
+			)
+		)
 	}
 
 	/* Data sources */
