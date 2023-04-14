@@ -23,11 +23,11 @@ class QuarterRemoveParser : RequestParser {
 		requireNotNull(body)
 		requireNotNull(json)
 
-		return Transaction.Builder()
-			.withReference(body.quarterId)
-			.withType(TransactionType.QUARTER)
-			.withAction(TransactionAction.DELETE)
-			.withData(json)
-			.build()
+		return Transaction(
+			reference = body.quarterId,
+			type = TransactionType.QUARTER,
+			action = TransactionAction.DELETE,
+			data = json
+		)
 	}
 }

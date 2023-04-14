@@ -23,11 +23,11 @@ class SubjectUpdateParser : RequestParser {
 		requireNotNull(body)
 		requireNotNull(json)
 
-		return Transaction.Builder()
-			.withReference(body.subjectId)
-			.withType(TransactionType.SUBJECT)
-			.withAction(TransactionAction.UPDATE)
-			.withData(json)
-			.build()
+		return Transaction(
+			reference = body.subjectId,
+			type = TransactionType.SUBJECT,
+			action = TransactionAction.UPDATE,
+			data = json
+		)
 	}
 }

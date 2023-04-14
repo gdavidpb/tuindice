@@ -42,7 +42,8 @@ class RoomDataSource(
 	}
 
 	private suspend fun internalCreateTransaction(uid: String, transaction: Transaction): String {
-		val transactionEntity = transaction.toTransactionEntity(uid)
+		val transactionOrdinal = room.counters.getAndIncrement(uid)
+		val transactionEntity = transaction.toTransactionEntity(uid, transactionOrdinal)
 
 		room.transactions.upsertTransaction(entity = transactionEntity)
 
