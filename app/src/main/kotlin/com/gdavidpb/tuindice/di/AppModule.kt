@@ -33,6 +33,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -134,6 +135,10 @@ val appModule = module {
 			.addInterceptor(get<TransactionInterceptor>())
 			.build()
 	}
+
+	/* Utils */
+
+	singleOf(::Gson)
 
 	single {
 		TransactionParser(

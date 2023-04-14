@@ -7,13 +7,12 @@ import com.gdavidpb.tuindice.transactions.data.api.model.transaction.Transaction
 import com.gdavidpb.tuindice.transactions.data.api.model.transaction.TransactionRequestType
 import com.gdavidpb.tuindice.transactions.data.api.request.TransactionRequest
 
-fun Transaction.toTransactionRequest() =
-	TransactionRequest(
-		reference = reference,
-		type = type.toTransactionRequestType(),
-		action = action.toTransactionRequestAction(),
-		data = data
-	)
+fun Transaction.toTransactionRequest() = TransactionRequest(
+	reference = reference,
+	type = type.toTransactionRequestType(),
+	action = action.toTransactionRequestAction(),
+	data = data
+)
 
 private fun TransactionType.toTransactionRequestType() = when (this) {
 	TransactionType.QUARTER -> TransactionRequestType.QUARTER
