@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -18,16 +17,18 @@ class AddEvaluationUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: AddEvaluationParamsValidator
-) : FlowUseCase<AddEvaluationParams, Evaluation, EvaluationError>() {
-	override suspend fun executeOnBackground(params: AddEvaluationParams): Flow<Evaluation> {
+) : FlowUseCase<AddEvaluationParams, Unit, EvaluationError>() {
+	override suspend fun executeOnBackground(params: AddEvaluationParams): Flow<Unit> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		val evaluation = evaluationRepository.addEvaluation(
+		val add = params.toEvaluationAdd()
+
+		evaluationRepository.addEvaluation(
 			uid = activeUId,
-			add = params.toEvaluationAdd()
+			add = add
 		)
 
-		return flowOf(evaluation)
+		return flowOf(Unit)
 	}
 
 	override suspend fun executeOnException(throwable: Throwable): EvaluationError? {

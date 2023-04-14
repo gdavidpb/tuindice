@@ -24,6 +24,7 @@ fun EvaluationResponse.toEvaluation() = Evaluation(
 )
 
 fun EvaluationAdd.toAddEvaluationRequest() = AddEvaluationRequest(
+	reference = reference,
 	subjectId = subjectId,
 	name = name,
 	grade = grade,

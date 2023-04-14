@@ -115,6 +115,9 @@
         android:label="@string/nav_subject"
         tools:layout="@layout/fragment_evaluation_plan">
         <argument
+            android:name="quarterId"
+            app:argType="string" />
+        <argument
             android:name="subjectId"
             app:argType="string" />
         <argument
@@ -140,6 +143,9 @@
         tools:layout="@layout/fragment_evaluation">
         <argument
             android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="quarterId"
             app:argType="string" />
         <argument
             android:name="subjectId"

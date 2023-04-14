@@ -86,7 +86,9 @@ class EvaluationFragment : NavigationFragment() {
 		if (args.evaluationId == null)
 			viewModel.addEvaluation(
 				AddEvaluationParams(
+					quarterId = "",
 					subjectId = args.subjectId,
+					subjectCode = args.subjectCode,
 					name = tInputEvaluationName.getName(),
 					grade = maxGrade,
 					maxGrade = maxGrade,
@@ -126,7 +128,7 @@ class EvaluationFragment : NavigationFragment() {
 	}
 
 	// TODO Implement loading
-	private fun addEvaluationCollector(result: UseCaseState<Evaluation, EvaluationError>?) {
+	private fun addEvaluationCollector(result: UseCaseState<Unit, EvaluationError>?) {
 		when (result) {
 			is UseCaseState.Data -> {
 				navigateUp()

@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.evaluations.data.room.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
+import java.util.Date
 
 fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	id = evaluationId,
@@ -14,6 +16,21 @@ fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	maxGrade = maxGrade,
 	date = date,
 	lastModified = lastModified,
+	type = type,
+	isDone = isDone
+)
+
+fun EvaluationAdd.toEvaluationEntity(uid: String) = EvaluationEntity(
+	id = reference,
+	subjectId = subjectId,
+	quarterId = quarterId,
+	accountId = uid,
+	subjectCode = subjectCode,
+	name = name,
+	grade = grade,
+	maxGrade = maxGrade,
+	date = Date(date),
+	lastModified = Date(date),
 	type = type,
 	isDone = isDone
 )
