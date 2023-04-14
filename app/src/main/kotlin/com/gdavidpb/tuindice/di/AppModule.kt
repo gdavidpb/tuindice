@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.data.koin.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
+import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationAddParser
 import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
 import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
 import com.gdavidpb.tuindice.record.data.room.resolution.QuarterResolutionHandler
@@ -145,7 +146,8 @@ val appModule = module {
 		TransactionParser(
 			parsers = listOf(
 				get<SubjectUpdateParser>(),
-				get<QuarterRemoveParser>()
+				get<QuarterRemoveParser>(),
+				get<EvaluationAddParser>()
 			)
 		)
 	}
