@@ -18,16 +18,6 @@ abstract class SubjectDao : UpsertDao<SubjectEntity>() {
 
 	@Query(
 		"UPDATE ${SubjectTable.TABLE_NAME} " +
-				"SET ${SubjectTable.ID} = :toId " +
-				"WHERE ${SubjectTable.ID} = :fromId"
-	)
-	abstract suspend fun updateId(
-		fromId: String,
-		toId: String
-	)
-
-	@Query(
-		"UPDATE ${SubjectTable.TABLE_NAME} " +
 				"SET ${SubjectTable.GRADE} = :grade " +
 				"WHERE ${SubjectTable.ACCOUNT_ID} = :uid " +
 				"AND ${SubjectTable.ID} = :sid"
@@ -47,4 +37,14 @@ abstract class SubjectDao : UpsertDao<SubjectEntity>() {
 		uid: String,
 		sid: String
 	): Int
+
+	@Query(
+		"UPDATE ${SubjectTable.TABLE_NAME} " +
+				"SET ${SubjectTable.ID} = :toId " +
+				"WHERE ${SubjectTable.ID} = :fromId"
+	)
+	abstract suspend fun updateId(
+		fromId: String,
+		toId: String
+	)
 }
