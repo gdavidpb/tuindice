@@ -25,7 +25,7 @@ class RoomDataSource(
 			internalCreateTransaction(uid, transaction)
 		else
 			room.withTransaction {
-				internalDiscardTransactions(transaction)
+				internalDiscardTransactions(uid, transaction)
 				internalCreateTransaction(uid, transaction)
 			}
 	}
@@ -43,8 +43,10 @@ class RoomDataSource(
 		return transactionEntity.id
 	}
 
-	// TODO include uid to this operation
-	private suspend fun internalDiscardTransactions(transaction: Transaction) {
-		room.transactions.deleteTransactionsByReference(reference = transaction.reference)
+	private suspend fun internalDiscardTransactions(uid: String, transaction: Transaction) {
+		room.transactions.deleteTransactionsByReference(
+			uid = uid,
+			reference = transaction.reference
+		)
 	}
 }
