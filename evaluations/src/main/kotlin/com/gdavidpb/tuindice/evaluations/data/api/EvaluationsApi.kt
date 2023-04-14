@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.data.api
 import com.gdavidpb.tuindice.evaluations.data.api.request.AddEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.response.EvaluationResponse
+import com.gdavidpb.tuindice.transactions.domain.annotation.EnqueueOnFailure
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -17,6 +18,7 @@ interface EvaluationsApi {
 		@Query("sid") subjectId: String
 	): Response<List<EvaluationResponse>>
 
+	@EnqueueOnFailure
 	@POST("evaluations")
 	suspend fun addEvaluation(
 		@Body request: AddEvaluationRequest

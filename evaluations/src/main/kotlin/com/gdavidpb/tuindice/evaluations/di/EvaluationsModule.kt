@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.evaluations.data.api.ApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.api.EvaluationsApi
+import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationAddParser
 import com.gdavidpb.tuindice.evaluations.data.evaluation.EvaluationDataRepository
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
@@ -61,4 +62,8 @@ val evaluationsModule = module {
 			.build()
 			.create<EvaluationsApi>()
 	}
+
+	/* Parsers */
+
+	factoryOf(::EvaluationAddParser)
 }
