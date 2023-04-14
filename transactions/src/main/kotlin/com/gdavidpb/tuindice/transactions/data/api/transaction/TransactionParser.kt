@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.transactions.data.retrofit
+package com.gdavidpb.tuindice.transactions.data.api.transaction
 
 import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import okhttp3.Request
@@ -14,4 +14,3 @@ class TransactionParser(
 		return parser.parse(request)
 	}
 }
-
