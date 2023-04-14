@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.transactions.data.retrofit
+package com.gdavidpb.tuindice.transactions.data.api.transaction
 
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
@@ -8,9 +8,9 @@ import okhttp3.Interceptor
 import okhttp3.Response
 
 class TransactionInterceptor(
-	private val transactionParser: TransactionParser,
 	private val authRepository: AuthRepository,
-	private val transactionRepository: TransactionRepository
+	private val transactionRepository: TransactionRepository,
+	private val transactionParser: TransactionParser
 ) : Interceptor {
 	override fun intercept(chain: Interceptor.Chain): Response {
 		val request = chain.request()

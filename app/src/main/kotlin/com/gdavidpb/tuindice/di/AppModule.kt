@@ -22,8 +22,10 @@ import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
 import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
-import com.gdavidpb.tuindice.transactions.data.retrofit.TransactionInterceptor
-import com.gdavidpb.tuindice.transactions.data.retrofit.TransactionParser
+import com.gdavidpb.tuindice.record.data.room.resolution.SubjectResolutionHandler
+import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionInterceptor
+import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionParser
+import com.gdavidpb.tuindice.transactions.data.room.resolution.ResolutionApplier
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
