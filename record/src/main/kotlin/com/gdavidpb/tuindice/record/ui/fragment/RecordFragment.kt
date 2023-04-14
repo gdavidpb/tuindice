@@ -82,11 +82,13 @@ class RecordFragment : NavigationFragment() {
 			SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS ->
 				navigate(
 					RecordFragmentDirections.navToEvaluationPlan(
+						quarterId = item.data.qid,
 						subjectId = item.id,
 						subjectCode = item.data.code,
 						subjectName = item.data.name
 					)
 				)
+
 			SubjectMenu.ID_WITHDRAW_SUBJECT ->
 				viewModel.withdrawSubject(subjectId = item.id)
 		}
@@ -145,6 +147,7 @@ class RecordFragment : NavigationFragment() {
 			is UseCaseState.Loading -> {
 				pBarRecord.isVisible = true
 			}
+
 			is UseCaseState.Data -> {
 				pBarRecord.isVisible = false
 
@@ -157,11 +160,13 @@ class RecordFragment : NavigationFragment() {
 
 				fViewRecord.displayedChild = Flipper.CONTENT
 			}
+
 			is UseCaseState.Error -> {
 				pBarRecord.isVisible = false
 
 				getQuartersErrorHandler(error = result.error)
 			}
+
 			else -> {}
 		}
 	}
@@ -210,6 +215,7 @@ class RecordFragment : NavigationFragment() {
 
 					true
 				}
+
 				else -> false
 			}
 		}

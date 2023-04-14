@@ -40,10 +40,12 @@ class EvaluationDataRepository(
 			}
 	}
 
-	override suspend fun addEvaluation(uid: String, add: EvaluationAdd): Evaluation {
-		return remoteDataSource.addEvaluation(add).also { evaluation ->
-			localDataSource.saveEvaluations(uid, listOf(evaluation))
-		}
+	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
+		localDataSource.addEvaluation(uid, add)
+
+		val evaluation = remoteDataSource.addEvaluation(add)
+
+		localDataSource.saveEvaluations(uid, listOf(evaluation))
 	}
 
 	override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate): Evaluation {

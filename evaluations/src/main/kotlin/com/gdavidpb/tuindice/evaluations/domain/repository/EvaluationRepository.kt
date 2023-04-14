@@ -9,7 +9,7 @@ interface EvaluationRepository {
 	suspend fun getEvaluation(uid: String, eid: String): Flow<Evaluation>
 	suspend fun getEvaluations(uid: String, sid: String): Flow<List<Evaluation>>
 
-	suspend fun addEvaluation(uid: String, add: EvaluationAdd): Evaluation
+	suspend fun addEvaluation(uid: String, add: EvaluationAdd)
 	suspend fun updateEvaluation(uid: String, update: EvaluationUpdate): Evaluation
 	suspend fun removeEvaluation(uid: String, eid: String)
 }

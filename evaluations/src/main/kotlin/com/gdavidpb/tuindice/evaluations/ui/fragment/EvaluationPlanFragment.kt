@@ -87,6 +87,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 				navigate(
 					EvaluationPlanFragmentDirections.navToEvaluation(
 						title = getString(R.string.title_add_evaluation),
+						quarterId = args.quarterId,
 						subjectId = args.subjectId,
 						subjectCode = args.subjectCode,
 						subjectName = args.subjectName
@@ -111,6 +112,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 				navigate(
 					EvaluationPlanFragmentDirections.navToEvaluation(
 						title = getString(R.string.title_edit_evaluation),
+						quarterId = args.quarterId,
 						subjectId = args.subjectId,
 						subjectCode = args.subjectCode,
 						subjectName = args.subjectName,
@@ -271,6 +273,7 @@ class EvaluationPlanFragment : NavigationFragment() {
 			navigate(
 				EvaluationPlanFragmentDirections.navToEvaluation(
 					title = getString(R.string.title_edit_evaluation),
+					quarterId = args.quarterId,
 					subjectId = args.subjectId,
 					subjectCode = args.subjectCode,
 					subjectName = args.subjectName,

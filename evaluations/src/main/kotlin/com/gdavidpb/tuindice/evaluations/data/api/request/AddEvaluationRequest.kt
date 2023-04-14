@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.data.api.request
 import com.google.gson.annotations.SerializedName
 
 data class AddEvaluationRequest(
+	@SerializedName("reference") val reference: String,
 	@SerializedName("subject_id") val subjectId: String,
 	@SerializedName("name") val name: String,
 	@SerializedName("grade") val grade: Double,

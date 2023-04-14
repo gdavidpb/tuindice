@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluationEntity
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -19,6 +20,12 @@ class RoomDataSource(
 	override suspend fun getEvaluations(uid: String, sid: String): Flow<List<Evaluation>> {
 		return room.evaluations.getSubjectEvaluations(uid, sid)
 			.map { evaluations -> evaluations.map { evaluation -> evaluation.toEvaluation() } }
+	}
+
+	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
+		val evaluationEntity = add.toEvaluationEntity(uid)
+
+		room.evaluations.upsertEntities(listOf(evaluationEntity))
 	}
 
 	override suspend fun saveEvaluations(uid: String, evaluations: List<Evaluation>) {
