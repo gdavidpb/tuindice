@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.SettingsDataSource
 import com.gdavidpb.tuindice.record.data.room.RoomDataSource
+import com.gdavidpb.tuindice.record.data.room.resolution.QuarterResolutionHandler
 import com.gdavidpb.tuindice.record.data.room.resolution.SubjectResolutionHandler
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
@@ -74,4 +75,5 @@ val recordModule = module {
 	/* Handlers */
 
 	factoryOf(::SubjectResolutionHandler)
+	factoryOf(::QuarterResolutionHandler)
 }

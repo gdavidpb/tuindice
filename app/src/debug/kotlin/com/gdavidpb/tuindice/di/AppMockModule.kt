@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
 import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
+import com.gdavidpb.tuindice.record.data.room.resolution.QuarterResolutionHandler
 import com.gdavidpb.tuindice.record.data.room.resolution.SubjectResolutionHandler
 import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionInterceptor
 import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionParser
@@ -143,7 +144,8 @@ val appMockModule = module {
 		ResolutionApplier(
 			room = get(),
 			resolutionHandlers = listOf(
-				get<SubjectResolutionHandler>()
+				get<SubjectResolutionHandler>(),
+				get<QuarterResolutionHandler>()
 			)
 		)
 	}

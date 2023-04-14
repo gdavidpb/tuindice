@@ -47,4 +47,14 @@ abstract class QuarterDao : UpsertDao<QuarterEntity>() {
 		uid: String,
 		qid: String
 	): Int
+
+	@Query(
+		"UPDATE ${QuarterTable.TABLE_NAME} " +
+				"SET ${QuarterTable.ID} = :toId " +
+				"WHERE ${QuarterTable.ID} = :fromId"
+	)
+	abstract suspend fun updateId(
+		fromId: String,
+		toId: String
+	)
 }
