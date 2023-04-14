@@ -135,9 +135,18 @@ val appModule = module {
 
 	single {
 		TransactionParser(
-			listOf(
+			parsers = listOf(
 				get<SubjectUpdateParser>(),
 				get<QuarterRemoveParser>()
+			)
+		)
+	}
+
+	single {
+		ResolutionApplier(
+			room = get(),
+			resolutionHandlers = listOf(
+				get<SubjectResolutionHandler>()
 			)
 		)
 	}
