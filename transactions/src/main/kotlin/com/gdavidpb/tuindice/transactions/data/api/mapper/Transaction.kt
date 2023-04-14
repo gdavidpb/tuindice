@@ -12,7 +12,6 @@ fun Transaction.toTransactionRequest() =
 		reference = reference,
 		type = type.toTransactionRequestType(),
 		action = action.toTransactionRequestAction(),
-		timestamp = timestamp,
 		data = data
 	)
 

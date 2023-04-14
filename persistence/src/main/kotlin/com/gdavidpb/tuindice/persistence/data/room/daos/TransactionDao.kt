@@ -12,7 +12,7 @@ abstract class TransactionDao {
 	@Query(
 		"SELECT * FROM ${TransactionTable.TABLE_NAME} " +
 				"WHERE ${TransactionTable.ACCOUNT_ID} = :uid " +
-				"ORDER BY ${TransactionTable.TIMESTAMP} ASC"
+				"ORDER BY ${TransactionTable.ORDINAL} ASC"
 	)
 	abstract suspend fun getTransactions(
 		uid: String

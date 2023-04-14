@@ -16,6 +16,6 @@ data class TransactionEntity(
 	@ColumnInfo(name = TransactionTable.REFERENCE) val reference: String,
 	@ColumnInfo(name = TransactionTable.TYPE) val type: TransactionType,
 	@ColumnInfo(name = TransactionTable.ACTION) val action: TransactionAction,
-	@ColumnInfo(name = TransactionTable.TIMESTAMP) val timestamp: Long,
+	@ColumnInfo(name = TransactionTable.ORDINAL) val ordinal: Long,
 	@ColumnInfo(name = TransactionTable.DATA) val data: String,
 )
