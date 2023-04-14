@@ -25,9 +25,11 @@ abstract class TransactionDao {
 
 	@Query(
 		"DELETE FROM ${TransactionTable.TABLE_NAME} " +
-				"WHERE ${TransactionTable.REFERENCE} = :reference"
+				"WHERE ${TransactionTable.ACCOUNT_ID} = :uid " +
+				"AND ${TransactionTable.REFERENCE} = :reference"
 	)
 	abstract suspend fun deleteTransactionsByReference(
+		uid: String,
 		reference: String
 	)
 }
