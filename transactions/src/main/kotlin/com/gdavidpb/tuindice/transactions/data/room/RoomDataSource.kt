@@ -19,7 +19,6 @@ class RoomDataSource(
 			.map { transactionEntity -> transactionEntity.toTransaction() }
 	}
 
-	// TODO additional queue logic (UPDATE, ADD and DELETE interactions)
 	override suspend fun enqueueTransaction(uid: String, transaction: Transaction): String {
 		return if (transaction.action != TransactionAction.DELETE)
 			internalCreateTransaction(uid, transaction)
