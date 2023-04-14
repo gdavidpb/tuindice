@@ -5,9 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionAction
 import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionType
 import com.gdavidpb.tuindice.transactions.data.api.model.resolution.ResolutionResponseAction
 import com.gdavidpb.tuindice.transactions.data.api.model.resolution.ResolutionResponseType
-import com.gdavidpb.tuindice.transactions.data.api.response.ResolutionOperationResponse
 import com.gdavidpb.tuindice.transactions.data.api.response.ResolutionResponse
-import com.gdavidpb.tuindice.transactions.data.api.response.subject.SubjectUpdateResponse
 
 fun ResolutionResponse.toResolution() = Resolution(
 	uid = uid,
@@ -15,7 +13,7 @@ fun ResolutionResponse.toResolution() = Resolution(
 	remoteReference = remoteReference,
 	type = type.toResolutionType(),
 	action = action.toResolutionAction(),
-	operation = operation.toResolutionOperation()
+	data = data
 )
 
 private fun ResolutionResponseType.toResolutionType() = when (this) {
@@ -29,9 +27,3 @@ private fun ResolutionResponseAction.toResolutionAction() = when (this) {
 	ResolutionResponseAction.UPDATE -> ResolutionAction.UPDATE
 	ResolutionResponseAction.DELETE -> ResolutionAction.DELETE
 }
-
-private fun ResolutionOperationResponse.toResolutionOperation() =
-	when (this) {
-		is SubjectUpdateResponse -> toSubjectUpdateResolution()
-		else -> throw NoWhenBranchMatchedException()
-	}

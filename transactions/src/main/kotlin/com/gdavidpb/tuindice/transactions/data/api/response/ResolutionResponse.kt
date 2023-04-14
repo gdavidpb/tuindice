@@ -10,5 +10,5 @@ data class ResolutionResponse(
 	@SerializedName("remote_reference") val remoteReference: String,
 	@SerializedName("type") val type: ResolutionResponseType,
 	@SerializedName("action") val action: ResolutionResponseAction,
-	@SerializedName("operation") val operation: ResolutionOperationResponse
+	@SerializedName("data") val data: String
 )

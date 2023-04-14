@@ -6,5 +6,5 @@ data class Resolution(
 	val remoteReference: String,
 	val type: ResolutionType,
 	val action: ResolutionAction,
-	val operation: ResolutionOperation
+	val data: String
 )
