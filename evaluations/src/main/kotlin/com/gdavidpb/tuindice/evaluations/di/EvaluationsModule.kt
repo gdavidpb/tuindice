@@ -5,13 +5,18 @@ import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.evaluations.data.api.ApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.api.EvaluationsApi
 import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationAddParser
+import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationRemoveParser
 import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationUpdateParser
 import com.gdavidpb.tuindice.evaluations.data.evaluation.EvaluationDataRepository
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
 import com.gdavidpb.tuindice.evaluations.data.room.RoomDataSource
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
-import com.gdavidpb.tuindice.evaluations.domain.usecase.*
+import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.domain.validator.UpdateEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationPlanViewModel
@@ -68,4 +73,5 @@ val evaluationsModule = module {
 
 	factoryOf(::EvaluationAddParser)
 	factoryOf(::EvaluationUpdateParser)
+	factoryOf(::EvaluationRemoveParser)
 }
