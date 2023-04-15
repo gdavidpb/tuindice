@@ -32,6 +32,6 @@ interface EvaluationsApi {
 
 	@DELETE("evaluations")
 	suspend fun deleteEvaluation(
-		@Query("eid") evaluationId: String
+		@Body request: RemoveEvaluationRequest
 	): Response<Unit>
 }

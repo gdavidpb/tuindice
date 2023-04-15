@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import kotlinx.coroutines.flow.Flow
@@ -54,8 +55,8 @@ class EvaluationDataRepository(
 		}
 	}
 
-	override suspend fun removeEvaluation(uid: String, eid: String) {
-		remoteDataSource.removeEvaluation(eid)
-		localDataSource.removeEvaluation(uid, eid)
+	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
+		remoteDataSource.removeEvaluation(remove)
+		localDataSource.removeEvaluation(uid, remove)
 	}
 }

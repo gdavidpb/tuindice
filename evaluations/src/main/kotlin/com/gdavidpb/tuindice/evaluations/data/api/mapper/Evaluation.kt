@@ -3,11 +3,13 @@ package com.gdavidpb.tuindice.evaluations.data.api.mapper
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.data.api.request.AddEvaluationRequest
+import com.gdavidpb.tuindice.evaluations.data.api.request.RemoveEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.response.EvaluationResponse
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
-import java.util.*
+import java.util.Date
 
 fun EvaluationResponse.toEvaluation() = Evaluation(
 	evaluationId = id,
@@ -42,4 +44,8 @@ fun EvaluationUpdate.toAddEvaluationRequest() = UpdateEvaluationRequest(
 	date = date,
 	type = type?.ordinal,
 	isDone = isDone
+)
+
+fun EvaluationRemove.toRemoveEvaluationRequest() = RemoveEvaluationRequest(
+	evaluationId = evaluationId
 )

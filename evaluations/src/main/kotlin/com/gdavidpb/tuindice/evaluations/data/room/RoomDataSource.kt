@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -35,7 +36,7 @@ class RoomDataSource(
 		room.evaluations.upsertEntities(evaluationEntities)
 	}
 
-	override suspend fun removeEvaluation(uid: String, eid: String) {
-		room.evaluations.deleteEvaluation(uid, eid)
+	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
+		room.evaluations.deleteEvaluation(uid = uid, eid = remove.evaluationId)
 	}
 }
