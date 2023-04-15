@@ -24,6 +24,7 @@ interface EvaluationsApi {
 		@Body request: AddEvaluationRequest
 	): Response<EvaluationResponse>
 
+	@EnqueueOnFailure
 	@PATCH("evaluations")
 	suspend fun updateEvaluation(
 		@Body request: UpdateEvaluationRequest
