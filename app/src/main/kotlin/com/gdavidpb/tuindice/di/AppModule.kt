@@ -4,7 +4,15 @@ import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
 import androidx.work.WorkManager
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.base.domain.repository.*
+import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
+import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.extension.sharedPreferences
 import com.gdavidpb.tuindice.data.android.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.config.RemoteConfigDataSource
@@ -21,6 +29,7 @@ import com.gdavidpb.tuindice.data.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationAddParser
+import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationRemoveParser
 import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationUpdateParser
 import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
 import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
@@ -150,6 +159,7 @@ val appModule = module {
 				get<QuarterRemoveParser>(),
 				get<EvaluationAddParser>(),
 				get<EvaluationUpdateParser>(),
+				get<EvaluationRemoveParser>()
 			)
 		)
 	}
