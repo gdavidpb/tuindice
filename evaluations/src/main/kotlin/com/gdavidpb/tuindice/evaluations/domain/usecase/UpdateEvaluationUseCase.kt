@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
@@ -16,7 +15,6 @@ import kotlinx.coroutines.flow.flowOf
 class UpdateEvaluationUseCase(
 	private val authRepository: AuthRepository,
 	private val evaluationRepository: EvaluationRepository,
-	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: UpdateEvaluationParamsValidator,
 	override val exceptionHandler: UpdateEvaluationExceptionHandler
 ) : FlowUseCase<UpdateEvaluationParams, Evaluation, EvaluationError>() {

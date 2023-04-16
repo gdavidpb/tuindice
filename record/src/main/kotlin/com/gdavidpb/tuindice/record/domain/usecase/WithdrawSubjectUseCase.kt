@@ -11,8 +11,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class WithdrawSubjectUseCase(
 	private val authRepository: AuthRepository,
-	private val quarterRepository: QuarterRepository,
-	override val reportingRepository: ReportingRepository
+	private val quarterRepository: QuarterRepository
 ) : FlowUseCase<String, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val activeUId = authRepository.getActiveAuth().uid

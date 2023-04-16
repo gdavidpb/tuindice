@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.login.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
@@ -13,7 +12,6 @@ import kotlinx.coroutines.flow.flowOf
 class ReSignInUseCase(
 	private val authRepository: AuthRepository,
 	private val loginRepository: LoginRepository,
-	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: ReSignInExceptionHandler
 ) : FlowUseCase<String, Unit, SignInError>() {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {

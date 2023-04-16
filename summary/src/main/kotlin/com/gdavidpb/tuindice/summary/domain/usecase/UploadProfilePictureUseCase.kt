@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.summary.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
@@ -14,8 +13,7 @@ class UploadProfilePictureUseCase(
 	private val authRepository: AuthRepository,
 	private val accountRepository: AccountRepository,
 	private val encoderRepository: EncoderRepository,
-	override val exceptionHandler: UploadProfilePictureExceptionHandler,
-	override val reportingRepository: ReportingRepository
+	override val exceptionHandler: UploadProfilePictureExceptionHandler
 ) : FlowUseCase<String, String, ProfilePictureError>() {
 	override suspend fun executeOnBackground(params: String): Flow<String> {
 		val activeUId = authRepository.getActiveAuth().uid

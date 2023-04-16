@@ -13,8 +13,7 @@ import kotlinx.coroutines.flow.flowOf
 class GetEnrollmentProofUseCase(
 	private val authRepository: AuthRepository,
 	private val enrollmentProofRepository: EnrollmentProofRepository,
-	override val exceptionHandler: GetEnrollmentProofExceptionHandler,
-	override val reportingRepository: ReportingRepository
+	override val exceptionHandler: GetEnrollmentProofExceptionHandler
 ) : FlowUseCase<Unit, String, GetEnrollmentError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<String> {
 		val activeAuth = authRepository.getActiveAuth()

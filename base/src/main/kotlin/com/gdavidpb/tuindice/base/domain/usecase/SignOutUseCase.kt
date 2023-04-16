@@ -9,8 +9,7 @@ class SignOutUseCase(
 	private val authRepository: AuthRepository,
 	private val messagingRepository: MessagingRepository,
 	private val dependenciesRepository: DependenciesRepository,
-	private val applicationRepository: ApplicationRepository,
-	override val reportingRepository: ReportingRepository
+	private val applicationRepository: ApplicationRepository
 ) : FlowUseCase<Unit, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		messagingRepository.unsubscribeFromAllTopics()

@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.mapper.toSubjectUpdate
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.flowOf
 class UpdateSubjectUseCase(
 	private val authRepository: AuthRepository,
 	private val quarterRepository: QuarterRepository,
-	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: UpdateSubjectParamsValidator,
 	override val exceptionHandler: UpdateSubjectExceptionHandler
 ) : FlowUseCase<UpdateSubjectParams, Unit, SubjectError>() {

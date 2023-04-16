@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.base.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.extension.await
 import com.gdavidpb.tuindice.base.utils.extension.isUpdateAvailable
@@ -14,8 +13,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 
 class GetUpdateInfoUseCase(
-	private val configRepository: ConfigRepository,
-	override val reportingRepository: ReportingRepository
+	private val configRepository: ConfigRepository
 ) : FlowUseCase<AppUpdateManager, AppUpdateInfo, Nothing>() {
 	override suspend fun executeOnBackground(params: AppUpdateManager): Flow<AppUpdateInfo> {
 		val updateInfo = params.appUpdateInfo.await() ?: return emptyFlow()

@@ -16,8 +16,8 @@ class SignInUseCase(
 	private val authRepository: AuthRepository,
 	private val loginRepository: LoginRepository,
 	private val messagingRepository: MessagingRepository,
-	override val paramsValidator: SignInParamsValidator,
-	override val reportingRepository: ReportingRepository
+	private val reportingRepository: ReportingRepository,
+	override val paramsValidator: SignInParamsValidator
 ) : FlowUseCase<SignInParams, Unit, SignInError>() {
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
 		val isActiveAuth = authRepository.isActiveAuth()

@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.base.domain.model.StartUpAction
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.extension.suspendNoAwait
@@ -19,7 +18,6 @@ class StartUpUseCase(
 	private val settingsRepository: SettingsRepository,
 	private val mobileServicesRepository: MobileServicesRepository,
 	private val configRepository: ConfigRepository,
-	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: StartUpExceptionHandler
 ) : FlowUseCase<String, StartUpAction, StartUpError>() {
 	override suspend fun executeOnBackground(params: String): Flow<StartUpAction> {

@@ -13,8 +13,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class RequestReviewUseCase(
 	private val settingsRepository: SettingsRepository,
-	private val configRepository: ConfigRepository,
-	override val reportingRepository: ReportingRepository
+	private val configRepository: ConfigRepository
 ) : FlowUseCase<ReviewManager, ReviewInfo, Nothing>() {
 	override suspend fun executeOnBackground(params: ReviewManager): Flow<ReviewInfo> {
 		val syncsCount = configRepository.getSyncsToSuggestReview()
