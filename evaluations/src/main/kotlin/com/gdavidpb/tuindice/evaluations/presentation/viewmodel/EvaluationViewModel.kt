@@ -5,8 +5,8 @@ import com.gdavidpb.tuindice.base.utils.extension.emit
 import com.gdavidpb.tuindice.base.utils.extension.emptyStateFlow
 import com.gdavidpb.tuindice.base.utils.extension.stateInAction
 import com.gdavidpb.tuindice.base.utils.extension.stateInFlow
-import com.gdavidpb.tuindice.evaluations.domain.param.AddEvaluationParams
-import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase

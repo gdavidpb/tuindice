@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.enrollmentproof.R
-import com.gdavidpb.tuindice.enrollmentproof.domain.error.GetEnrollmentError
+import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.GetEnrollmentError
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel

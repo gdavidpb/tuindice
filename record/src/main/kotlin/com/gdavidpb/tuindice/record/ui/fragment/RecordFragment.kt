@@ -19,8 +19,8 @@ import com.gdavidpb.tuindice.base.utils.RequestKeys
 import com.gdavidpb.tuindice.base.utils.ResultKeys
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.record.R
-import com.gdavidpb.tuindice.record.domain.error.GetQuartersError
-import com.gdavidpb.tuindice.record.domain.param.UpdateSubjectParams
+import com.gdavidpb.tuindice.record.domain.usecase.error.GetQuartersError
+import com.gdavidpb.tuindice.record.domain.usecase.param.UpdateSubjectParams
 import com.gdavidpb.tuindice.record.presentation.mapper.toQuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel

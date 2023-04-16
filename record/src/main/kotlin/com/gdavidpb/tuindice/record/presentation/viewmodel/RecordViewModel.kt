@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.utils.extension.emit
 import com.gdavidpb.tuindice.base.utils.extension.emptyStateFlow
 import com.gdavidpb.tuindice.base.utils.extension.stateInAction
 import com.gdavidpb.tuindice.base.utils.extension.stateInFlow
-import com.gdavidpb.tuindice.record.domain.param.UpdateSubjectParams
+import com.gdavidpb.tuindice.record.domain.usecase.param.UpdateSubjectParams
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateSubjectUseCase

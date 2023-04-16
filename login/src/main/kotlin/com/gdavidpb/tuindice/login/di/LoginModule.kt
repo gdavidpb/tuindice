@@ -10,7 +10,10 @@ import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.usecase.ReSignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.StartUpUseCase
-import com.gdavidpb.tuindice.login.domain.validator.SignInParamsValidator
+import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.ReSignInExceptionHandler
+import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
+import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.StartUpExceptionHandler
+import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -56,4 +59,10 @@ val loginModule = module {
 			.build()
 			.create<SignInApi>()
 	}
+
+	/* Exception handlers */
+
+	factoryOf(::ReSignInExceptionHandler)
+	factoryOf(::SignInExceptionHandler)
+	factoryOf(::StartUpExceptionHandler)
 }

@@ -9,9 +9,9 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.evaluations.R
-import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError
-import com.gdavidpb.tuindice.evaluations.domain.param.AddEvaluationParams
-import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
+import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationError
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.fragment_evaluation.*

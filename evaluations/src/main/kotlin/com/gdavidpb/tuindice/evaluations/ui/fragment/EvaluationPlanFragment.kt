@@ -14,8 +14,8 @@ import com.gdavidpb.tuindice.base.utils.RequestKeys
 import com.gdavidpb.tuindice.base.utils.ResultKeys
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.evaluations.R
-import com.gdavidpb.tuindice.evaluations.domain.error.EvaluationError
-import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
+import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationError
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationPlanViewModel

@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.evaluations.domain.mapper
 import com.gdavidpb.tuindice.base.utils.extension.generateReference
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
-import com.gdavidpb.tuindice.evaluations.domain.param.AddEvaluationParams
-import com.gdavidpb.tuindice.evaluations.domain.param.UpdateEvaluationParams
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
 
 fun AddEvaluationParams.toEvaluationAdd() = EvaluationAdd(
 	reference = generateReference(),

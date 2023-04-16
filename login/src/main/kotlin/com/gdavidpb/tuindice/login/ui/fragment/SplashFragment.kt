@@ -12,7 +12,7 @@ import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.login.R
-import com.gdavidpb.tuindice.login.domain.error.StartUpError
+import com.gdavidpb.tuindice.login.domain.usecase.error.StartUpError
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel
 import com.google.android.gms.common.GoogleApiAvailability
 import org.koin.android.ext.android.inject

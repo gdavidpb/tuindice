@@ -19,7 +19,9 @@ import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateSubjectUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.WithdrawSubjectUseCase
-import com.gdavidpb.tuindice.record.domain.validator.UpdateSubjectParamsValidator
+import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.GetQuartersExceptionHandler
+import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateSubjectExceptionHandler
+import com.gdavidpb.tuindice.record.domain.usecase.validator.UpdateSubjectParamsValidator
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
@@ -67,13 +69,18 @@ val recordModule = module {
 			.create<RecordApi>()
 	}
 
-	/* Parsers */
+	/* Request parsers */
 
 	factoryOf(::SubjectUpdateParser)
 	factoryOf(::QuarterRemoveParser)
 
-	/* Handlers */
+	/* Resolution handlers */
 
 	factoryOf(::SubjectResolutionHandler)
 	factoryOf(::QuarterResolutionHandler)
+
+	/* Exception handlers */
+
+	factoryOf(::GetQuartersExceptionHandler)
+	factoryOf(::UpdateSubjectExceptionHandler)
 }

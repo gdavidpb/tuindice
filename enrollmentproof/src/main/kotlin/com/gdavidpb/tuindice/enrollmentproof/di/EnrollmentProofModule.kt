@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.enrollmentproof.data.room.RoomDataSource
 import com.gdavidpb.tuindice.enrollmentproof.data.storage.InternalStorageDataSource
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.GetEnrollmentProofUseCase
+import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.GetEnrollmentProofExceptionHandler
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
@@ -51,4 +52,8 @@ val enrollmentProofModule = module {
 			.build()
 			.create<EnrollmentProofApi>()
 	}
+
+	/* Exception handlers */
+
+	factoryOf(::GetEnrollmentProofExceptionHandler)
 }

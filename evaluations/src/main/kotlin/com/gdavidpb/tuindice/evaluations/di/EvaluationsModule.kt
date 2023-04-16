@@ -18,8 +18,10 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.validator.AddEvaluationParamsValidator
-import com.gdavidpb.tuindice.evaluations.domain.validator.UpdateEvaluationParamsValidator
+import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
+import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
+import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
+import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationPlanViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -70,13 +72,18 @@ val evaluationsModule = module {
 			.create<EvaluationsApi>()
 	}
 
-	/* Parsers */
+	/* Request parsers */
 
 	factoryOf(::EvaluationAddParser)
 	factoryOf(::EvaluationUpdateParser)
 	factoryOf(::EvaluationRemoveParser)
 
-	/* Handlers */
+	/* Resolution handlers */
 
 	factoryOf(::EvaluationResolutionHandler)
+
+	/* Exception handlers */
+
+	factoryOf(::AddEvaluationExceptionHandler)
+	factoryOf(::UpdateEvaluationExceptionHandler)
 }

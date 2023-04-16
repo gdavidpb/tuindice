@@ -18,8 +18,8 @@ import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.summary.R
-import com.gdavidpb.tuindice.summary.domain.error.GetAccountError
-import com.gdavidpb.tuindice.summary.domain.error.ProfilePictureError
+import com.gdavidpb.tuindice.summary.domain.usecase.error.GetAccountError
+import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.presentation.mapper.formatLastUpdate
 import com.gdavidpb.tuindice.summary.presentation.mapper.toCreditsSummaryItem
 import com.gdavidpb.tuindice.summary.presentation.mapper.toShortName
