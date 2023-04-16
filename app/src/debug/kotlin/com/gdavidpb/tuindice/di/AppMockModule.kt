@@ -4,7 +4,15 @@ import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
 import androidx.work.WorkManager
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.base.domain.repository.*
+import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
+import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.extension.sharedPreferences
 import com.gdavidpb.tuindice.data.AuthMockDataSource
 import com.gdavidpb.tuindice.data.DebugKoinDataSource
@@ -16,6 +24,7 @@ import com.gdavidpb.tuindice.data.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
+import com.gdavidpb.tuindice.evaluations.data.resolution.EvaluationResolutionHandler
 import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
 import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
 import com.gdavidpb.tuindice.record.data.room.resolution.QuarterResolutionHandler
@@ -145,7 +154,8 @@ val appMockModule = module {
 			room = get(),
 			resolutionHandlers = listOf(
 				get<SubjectResolutionHandler>(),
-				get<QuarterResolutionHandler>()
+				get<QuarterResolutionHandler>(),
+				get<EvaluationResolutionHandler>()
 			)
 		)
 	}

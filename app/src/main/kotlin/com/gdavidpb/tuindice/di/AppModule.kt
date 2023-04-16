@@ -31,6 +31,7 @@ import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationAddParser
 import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationRemoveParser
 import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationUpdateParser
+import com.gdavidpb.tuindice.evaluations.data.resolution.EvaluationResolutionHandler
 import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
 import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
 import com.gdavidpb.tuindice.record.data.room.resolution.QuarterResolutionHandler
@@ -169,7 +170,8 @@ val appModule = module {
 			room = get(),
 			resolutionHandlers = listOf(
 				get<SubjectResolutionHandler>(),
-				get<QuarterResolutionHandler>()
+				get<QuarterResolutionHandler>(),
+				get<EvaluationResolutionHandler>()
 			)
 		)
 	}
