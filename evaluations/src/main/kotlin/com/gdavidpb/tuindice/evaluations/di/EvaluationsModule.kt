@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationUpdateParser
 import com.gdavidpb.tuindice.evaluations.data.evaluation.EvaluationDataRepository
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
+import com.gdavidpb.tuindice.evaluations.data.resolution.EvaluationResolutionHandler
 import com.gdavidpb.tuindice.evaluations.data.room.RoomDataSource
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
@@ -74,4 +75,8 @@ val evaluationsModule = module {
 	factoryOf(::EvaluationAddParser)
 	factoryOf(::EvaluationUpdateParser)
 	factoryOf(::EvaluationRemoveParser)
+
+	/* Handlers */
+
+	factoryOf(::EvaluationResolutionHandler)
 }
