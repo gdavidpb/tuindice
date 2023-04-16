@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.login.domain.param.SignInParams
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
+import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.login.utils.SubscriptionTopics
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +18,8 @@ class SignInUseCase(
 	private val loginRepository: LoginRepository,
 	private val messagingRepository: MessagingRepository,
 	private val reportingRepository: ReportingRepository,
-	override val paramsValidator: SignInParamsValidator
+	override val paramsValidator: SignInParamsValidator,
+	override val exceptionHandler: SignInExceptionHandler
 ) : FlowUseCase<SignInParams, Unit, SignInError>() {
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
 		val isActiveAuth = authRepository.isActiveAuth()
