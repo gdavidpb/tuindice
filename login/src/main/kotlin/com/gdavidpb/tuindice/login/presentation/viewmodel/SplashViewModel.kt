@@ -1,19 +1,24 @@
 package com.gdavidpb.tuindice.login.presentation.viewmodel
 
-import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.base.utils.extension.emit
-import com.gdavidpb.tuindice.base.utils.extension.emptyStateFlow
-import com.gdavidpb.tuindice.base.utils.extension.stateInAction
+import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
+import com.gdavidpb.tuindice.base.utils.extension.stateInWith
 import com.gdavidpb.tuindice.login.domain.usecase.StartUpUseCase
+import com.gdavidpb.tuindice.login.presentation.contract.Splash
+import com.gdavidpb.tuindice.login.presentation.processor.SplashStartUpProcessor
 
 class SplashViewModel(
-	startUpUseCase: StartUpUseCase
-) : ViewModel() {
-	private val fetchStartUpActionParams = emptyStateFlow<String>()
+	private val startUpUseCase: StartUpUseCase
+) : BaseViewModel<Splash.State, Splash.Action, Splash.Event>(initialViewState = Splash.State.Starting) {
 
-	fun fetchStartUpAction(dataString: String) =
-		emit(fetchStartUpActionParams, dataString)
+	fun startUpAction(data: String) = emitAction(Splash.Action.StartUp(data))
 
-	val fetchStartUpAction =
-		stateInAction(useCase = startUpUseCase, paramsFlow = fetchStartUpActionParams)
+	override suspend fun handleAction(action: Splash.Action) {
+		when (action) {
+			is Splash.Action.StartUp -> stateInWith(
+				useCase = startUpUseCase,
+				params = action.data,
+				processor = SplashStartUpProcessor { event -> sendEvent(event) }
+			)
+		}
+	}
 }

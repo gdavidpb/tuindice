@@ -2,17 +2,18 @@ package com.gdavidpb.tuindice.login.ui.fragment
 
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.IdRes
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
-import com.gdavidpb.tuindice.base.domain.model.StartUpAction
-import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.RequestCodes
-import com.gdavidpb.tuindice.base.utils.extension.*
+import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
+import com.gdavidpb.tuindice.base.utils.extension.collect
+import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
 import com.gdavidpb.tuindice.login.R
-import com.gdavidpb.tuindice.login.domain.usecase.error.StartUpError
+import com.gdavidpb.tuindice.login.presentation.contract.Splash
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel
 import com.google.android.gms.common.GoogleApiAvailability
 import org.koin.android.ext.android.inject
@@ -29,77 +30,73 @@ class SplashFragment : NavigationFragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
-		val intent = requireActivity().intent
-
 		launchRepeatOnLifecycle {
 			with(viewModel) {
-				collect(fetchStartUpAction, ::startUpCollector)
+				collect(viewState, ::stateCollector)
+				collect(viewEvent, ::effectCollector)
 			}
 		}
 
-		viewModel.fetchStartUpAction(dataString = intent.dataString ?: "")
+		val intent = requireActivity().intent
+
+		viewModel.startUpAction(data = intent.dataString ?: "")
 	}
 
-	private fun showNoServicesDialog() {
-		bottomSheetDialog<ConfirmationBottomSheetDialog> {
-			titleResource = R.string.dialog_title_no_gms_failure
-			messageResource = R.string.dialog_message_no_gms_failure
-
-			positiveButton(R.string.exit) { requireActivity().finish() }
-		}.apply {
-			isCancelable = false
+	private fun stateCollector(state: Splash.State) {
+		when (state) {
+			Splash.State.Starting -> {}
+			Splash.State.Started -> {}
+			Splash.State.Failed -> {}
 		}
 	}
 
-	private fun startUpCollector(result: UseCaseState<StartUpAction, StartUpError>?) {
-		when (result) {
-			is UseCaseState.Data -> handleStartUpAction(action = result.value)
-			is UseCaseState.Error -> startUpErrorHandler(error = result.error)
-			else -> {}
+	private fun effectCollector(event: Splash.Event) {
+		when (event) {
+			is Splash.Event.NavigateTo -> navigateToEvent(navId = event.navId)
+			is Splash.Event.NavigateToSignIn -> navigateToSignInEvent()
+			is Splash.Event.ShowNoServicesDialog -> showNoServicesEvent(status = event.status)
 		}
 	}
 
-	private fun startUpErrorHandler(error: StartUpError?) {
-		when (error) {
-			is StartUpError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
-			is StartUpError.NoServices -> handleNoServices(error.servicesStatus)
-			else -> {}
+	private fun navigateToEvent(@IdRes navId: Int) {
+		val navOptions = NavOptions.Builder()
+			.setPopUpTo(navId, true)
+			.build()
+
+		runCatching {
+			findNavController().navigate(navId, null, navOptions)
+		}.onFailure {
+			navigate(SplashFragmentDirections.navToSummary())
 		}
 	}
 
-	private fun handleNoServices(servicesStatus: ServicesStatus) {
+	private fun navigateToSignInEvent() {
+		navigate(SplashFragmentDirections.navToSignIn())
+	}
+
+	private fun showNoServicesEvent(status: ServicesStatus) {
 		val activity = requireActivity()
-		val status = servicesStatus.status
+		val dialog = {
+			bottomSheetDialog<ConfirmationBottomSheetDialog> {
+				titleResource = R.string.dialog_title_no_gms_failure
+				messageResource = R.string.dialog_message_no_gms_failure
 
-		if (googleApiAvailability.isUserResolvableError(status))
+				positiveButton(R.string.exit) { requireActivity().finish() }
+			}.apply {
+				isCancelable = false
+			}
+		}
+
+		if (googleApiAvailability.isUserResolvableError(status.status))
 			googleApiAvailability.getErrorDialog(
 				activity,
-				servicesStatus.status,
+				status.status,
 				RequestCodes.PLAY_SERVICES_RESOLUTION
 			)?.apply {
 				setOnCancelListener { activity.finish() }
 				setOnDismissListener { activity.finish() }
-			}?.show() ?: showNoServicesDialog()
+			}?.show() ?: dialog()
 		else
-			showNoServicesDialog()
-	}
-
-	private fun handleStartUpAction(action: StartUpAction) {
-		when (action) {
-			is StartUpAction.Main -> {
-				val navOptions = NavOptions.Builder()
-					.setPopUpTo(action.screen, true)
-					.build()
-
-				runCatching {
-					findNavController().navigate(action.screen, null, navOptions)
-				}.onFailure {
-					navigate(SplashFragmentDirections.navToSummary())
-				}
-			}
-			is StartUpAction.SignIn -> {
-				navigate(SplashFragmentDirections.navToSignIn())
-			}
-		}
+			dialog()
 	}
 }
