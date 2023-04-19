@@ -74,5 +74,5 @@ fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInAction(
 	.stateIn(
 		scope = viewModelScope,
 		started = SharingStarted.Eagerly,
-		initialValue = UseCaseState.Undefined()
+		initialValue = UseCaseState.Idle()
 	)
