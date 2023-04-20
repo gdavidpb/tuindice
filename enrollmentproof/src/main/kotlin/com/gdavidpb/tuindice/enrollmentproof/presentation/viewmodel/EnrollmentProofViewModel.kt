@@ -1,19 +1,25 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel
 
-import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.base.utils.extension.emit
-import com.gdavidpb.tuindice.base.utils.extension.emptyStateFlow
-import com.gdavidpb.tuindice.base.utils.extension.stateInAction
+import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
+import com.gdavidpb.tuindice.base.utils.extension.execute
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.GetEnrollmentProofUseCase
+import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
+import com.gdavidpb.tuindice.enrollmentproof.presentation.processor.EnrollmentProcessor
 
 class EnrollmentProofViewModel(
-	getEnrollmentProofUseCase: GetEnrollmentProofUseCase
-) : ViewModel() {
-	private val enrollmentProofParams = emptyStateFlow<Unit>()
+	private val getEnrollmentProofUseCase: GetEnrollmentProofUseCase
+) : BaseViewModel<Enrollment.State, Enrollment.Action, Enrollment.Event>(initialViewState = Enrollment.State.Fetching) {
+	fun fetchEnrollmentProofAction() =
+		emitAction(Enrollment.Action.FetchEnrollmentProof)
 
-	fun tryFetchEnrollmentProof() =
-		emit(enrollmentProofParams, Unit)
-
-	val enrollmentProof =
-		stateInAction(useCase = getEnrollmentProofUseCase, paramsFlow = enrollmentProofParams)
+	override suspend fun handleAction(action: Enrollment.Action) {
+		when (action) {
+			Enrollment.Action.FetchEnrollmentProof ->
+				execute(
+					useCase = getEnrollmentProofUseCase,
+					params = Unit,
+					processor = EnrollmentProcessor { event -> sendEvent(event) }
+				)
+		}
+	}
 }
