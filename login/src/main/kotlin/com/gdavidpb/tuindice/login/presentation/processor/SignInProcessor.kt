@@ -12,68 +12,46 @@ class SignInProcessor(
 
 	private val loadingMessages by config { getLoadingMessages() }
 
-	override suspend fun processDataState(state: UseCaseState.Data<Unit, SignInError>): SignIn.State {
-		return SignIn.State.LoggedIn
-	}
-
 	override suspend fun processLoadingState(state: UseCaseState.Loading<Unit, SignInError>): SignIn.State {
 		eventChannel(SignIn.Event.ShakeLogo)
 		eventChannel(SignIn.Event.HideSoftKeyboard)
 
-		return SignIn.State.SigningIn(messages = loadingMessages)
+		return SignIn.State.LoggingIn(messages = loadingMessages)
+	}
+
+	override suspend fun processDataState(state: UseCaseState.Data<Unit, SignInError>): SignIn.State {
+		return SignIn.State.LoggedIn
 	}
 
 	override suspend fun processErrorState(state: UseCaseState.Error<Unit, SignInError>): SignIn.State {
-		return when (val error = state.error) {
-			is SignInError.EmptyPassword -> {
-				eventChannel(SignIn.Event.ShowPasswordFieldEmptyError)
+		when (val error = state.error) {
+			is SignInError.EmptyPassword ->
+				eventChannel(SignIn.Event.ShowPasswordEmptyError)
 
-				SignIn.State.Idle
-			}
+			is SignInError.EmptyUsbId ->
+				eventChannel(SignIn.Event.ShowUsbIdEmptyError)
 
-			is SignInError.EmptyUsbId -> {
-				eventChannel(SignIn.Event.ShowUsbIdFieldEmptyError)
+			is SignInError.InvalidUsbId ->
+				eventChannel(SignIn.Event.ShowUsbIdInvalidError)
 
-				SignIn.State.Idle
-			}
-
-			is SignInError.InvalidUsbId -> {
-				eventChannel(SignIn.Event.ShowUsbIdFieldInvalidError)
-
-				SignIn.State.Idle
-			}
-
-			is SignInError.InvalidCredentials -> {
+			is SignInError.InvalidCredentials ->
 				eventChannel(SignIn.Event.ShowInvalidCredentialsSnackBar)
 
-				SignIn.State.Idle
-			}
-
-			is SignInError.AccountDisabled -> {
+			is SignInError.AccountDisabled ->
 				eventChannel(SignIn.Event.ShowAccountDisabledSnackBar)
 
-				SignIn.State.Idle
-			}
-
-			is SignInError.NoConnection -> {
+			is SignInError.NoConnection ->
 				eventChannel(SignIn.Event.ShowNoConnectionSnackBar(isNetworkAvailable = error.isNetworkAvailable))
 
-				SignIn.State.Idle
-			}
-
-			is SignInError.Timeout -> {
+			is SignInError.Timeout ->
 				eventChannel(SignIn.Event.ShowTimeoutSnackBar)
 
-				SignIn.State.Idle
-			}
-
-			is SignInError.Unavailable -> {
+			is SignInError.Unavailable ->
 				eventChannel(SignIn.Event.ShowUnavailableSnackBar)
 
-				SignIn.State.Idle
-			}
-
-			else -> SignIn.State.Idle
+			else -> {}
 		}
+
+		return SignIn.State.Idle
 	}
 }

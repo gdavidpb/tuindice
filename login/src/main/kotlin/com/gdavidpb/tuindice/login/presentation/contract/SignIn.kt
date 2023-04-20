@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.login.presentation.contract
 object SignIn {
 	sealed class State {
 		object Idle : State()
-		class SigningIn(val messages: List<String>) : State()
+		class LoggingIn(val messages: List<String>) : State()
 		object LoggedIn : State()
 	}
 
@@ -20,9 +20,9 @@ object SignIn {
 		object NavigateToPrivacyPolicy : Event()
 		object HideSoftKeyboard : Event()
 		object ShakeLogo : Event()
-		object ShowUsbIdFieldEmptyError : Event()
-		object ShowUsbIdFieldInvalidError : Event()
-		object ShowPasswordFieldEmptyError : Event()
+		object ShowUsbIdEmptyError : Event()
+		object ShowUsbIdInvalidError : Event()
+		object ShowPasswordEmptyError : Event()
 		object ShowTimeoutSnackBar : Event()
 		class ShowNoConnectionSnackBar(val isNetworkAvailable: Boolean) : Event()
 		object ShowUnavailableSnackBar : Event()
