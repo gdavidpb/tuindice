@@ -1,14 +1,19 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
+import android.webkit.MimeTypeMap
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.preference.PreferenceManager
+import com.gdavidpb.tuindice.base.BuildConfig
+import java.io.File
 
 @ColorInt
 fun Context.getCompatColor(@ColorRes colorRes: Int): Int {
@@ -25,4 +30,16 @@ fun Context.getCompatDrawable(@DrawableRes drawableRes: Int, @ColorRes colorRes:
 
 fun Context.sharedPreferences(): SharedPreferences {
 	return PreferenceManager.getDefaultSharedPreferences(this)
+}
+
+fun Context.canOpenFile(file: File): Boolean {
+	return runCatching {
+		val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)
+		val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID, file)
+		val intent = Intent(Intent.ACTION_VIEW).apply {
+			setDataAndType(uri, mimeType)
+		}
+
+		intent.resolveActivity(packageManager) != null
+	}.getOrDefault(false)
 }
