@@ -22,7 +22,7 @@ class UpdatePasswordProcessor(
 	override suspend fun processErrorState(state: UseCaseState.Error<Unit, SignInError>): UpdatePassword.State {
 		when (val error = state.error) {
 			is SignInError.AccountDisabled ->
-				eventChannel(UpdatePassword.Event.ShowAccountDisabledError)
+				eventChannel(UpdatePassword.Event.NavigateToAccountDisabled)
 
 			is SignInError.EmptyPassword ->
 				eventChannel(UpdatePassword.Event.ShowPasswordUpdatedToast)

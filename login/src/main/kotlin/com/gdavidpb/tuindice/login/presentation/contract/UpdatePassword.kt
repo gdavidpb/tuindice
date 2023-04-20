@@ -15,12 +15,12 @@ object UpdatePassword {
 	sealed class Event {
 		object CloseDialog : Event()
 		object HideSoftKeyboard : Event()
+		object NavigateToAccountDisabled : Event()
 		object ShowPasswordUpdatedToast : Event()
 		object ShowPasswordEmptyError : Event()
 		object ShowTimeoutError : Event()
 		class ShowNoConnectionError(val isNetworkAvailable: Boolean) : Event()
 		object ShowUnavailableError : Event()
-		object ShowAccountDisabledError : Event()
 		object ShowInvalidCredentialsError : Event()
 		object ShowDefaultErrorError : Event()
 	}
