@@ -5,11 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.gdavidpb.tuindice.base.NavigationBaseDirections
-import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.base.utils.extension.*
+import com.gdavidpb.tuindice.base.utils.extension.collect
+import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
+import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
+import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.navigate
+import com.gdavidpb.tuindice.base.utils.extension.openPdf
+import com.gdavidpb.tuindice.base.utils.extension.snackBar
 import com.gdavidpb.tuindice.enrollmentproof.R
-import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.GetEnrollmentError
+import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -37,41 +42,47 @@ class EnrollmentDownloadingBottomSheetDialog : BottomSheetDialogFragment() {
 
 		launchRepeatOnLifecycle {
 			with(viewModel) {
-				collect(enrollmentProof, ::enrollmentProofCollector)
-
+				collect(viewState, ::stateCollector)
+				collect(viewEvent, ::eventCollector)
 			}
 		}
 
-		viewModel.tryFetchEnrollmentProof()
+		viewModel.fetchEnrollmentProofAction()
 	}
 
-	private fun enrollmentProofCollector(result: UseCaseState<String, GetEnrollmentError>?) {
-		when (result) {
-			is UseCaseState.Data -> {
-				val enrollmentFile = File(result.value)
-
-				openPdf(file = enrollmentFile) { snackBar(R.string.snack_enrollment_unsupported) }
-
-				dismiss()
-			}
-			is UseCaseState.Error -> {
-				enrollmentErrorHandler(error = result.error)
-
-				dismiss()
-			}
-			else -> {}
+	private fun stateCollector(state: Enrollment.State) {
+		when (state) {
+			Enrollment.State.Fetching -> {}
+			Enrollment.State.Fetched -> {}
+			Enrollment.State.Failed -> {}
 		}
 	}
 
-	private fun enrollmentErrorHandler(error: GetEnrollmentError?) {
-		when (error) {
-			is GetEnrollmentError.Timeout -> errorSnackBar(R.string.snack_timeout) { viewModel.tryFetchEnrollmentProof() }
-			is GetEnrollmentError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { viewModel.tryFetchEnrollmentProof() }
-			is GetEnrollmentError.NotFound -> snackBar(R.string.snack_enrollment_not_found)
-			is GetEnrollmentError.AccountDisabled -> mainViewModel.signOut()
-			is GetEnrollmentError.OutdatedPassword -> navigate(NavigationBaseDirections.navToUpdatePassword())
-			is GetEnrollmentError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { viewModel.tryFetchEnrollmentProof() }
-			else -> errorSnackBar { viewModel.tryFetchEnrollmentProof() }
+	private fun eventCollector(event: Enrollment.Event) {
+		when (event) {
+			is Enrollment.Event.CloseDialog -> dismiss()
+			is Enrollment.Event.OpenEnrollmentProof -> openEnrollmentProof(path = event.path)
+			is Enrollment.Event.NavigateToAccountDisabled -> navigateToAccountDisabled()
+			is Enrollment.Event.NavigateToOutdatedPassword -> navigateToOutdatedPassword()
+			is Enrollment.Event.ShowTimeoutSnackBar -> errorSnackBar(R.string.snack_timeout) { viewModel.fetchEnrollmentProofAction() }
+			is Enrollment.Event.ShowNotFoundSnackBar -> snackBar(R.string.snack_enrollment_not_found)
+			is Enrollment.Event.ShowUnavailableSnackBar -> errorSnackBar(R.string.snack_service_unavailable) { viewModel.fetchEnrollmentProofAction() }
+			is Enrollment.Event.ShowNoConnectionSnackBar -> connectionSnackBar(event.isNetworkAvailable) { viewModel.fetchEnrollmentProofAction() }
+			is Enrollment.Event.ShowDefaultErrorError -> errorSnackBar { viewModel.fetchEnrollmentProofAction() }
 		}
+	}
+
+	private fun openEnrollmentProof(path: String) {
+		val isOpenSuccess = openPdf(file = File(path))
+
+		if (!isOpenSuccess) snackBar(R.string.snack_enrollment_unsupported)
+	}
+
+	private fun navigateToAccountDisabled() {
+		mainViewModel.signOut()
+	}
+
+	private fun navigateToOutdatedPassword() {
+		navigate(NavigationBaseDirections.navToUpdatePassword())
 	}
 }

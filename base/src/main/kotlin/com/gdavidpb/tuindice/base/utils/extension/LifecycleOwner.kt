@@ -25,8 +25,9 @@ fun LifecycleOwner.hideSoftKeyboard() = when (this) {
 	else -> null
 }?.hideSoftKeyboard()
 
-fun LifecycleOwner.openPdf(file: File, onFailure: (Throwable) -> Unit = {}) {
-	runCatching {
+@Deprecated("This will be replaced by native PDF viewer.")
+fun LifecycleOwner.openPdf(file: File): Boolean {
+	return runCatching {
 		val uri = FileProvider.getUriForFile(context(), BuildConfig.APPLICATION_ID, file)
 
 		val intent = Intent(Intent.ACTION_VIEW, uri).apply {
@@ -34,7 +35,7 @@ fun LifecycleOwner.openPdf(file: File, onFailure: (Throwable) -> Unit = {}) {
 		}
 
 		startActivity(intent)
-	}.onFailure(onFailure)
+	}.isSuccess
 }
 
 fun LifecycleOwner.toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
