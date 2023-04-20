@@ -1,29 +1,45 @@
 package com.gdavidpb.tuindice.login.presentation.viewmodel
 
-import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.base.utils.extension.emit
-import com.gdavidpb.tuindice.base.utils.extension.emptyStateFlow
-import com.gdavidpb.tuindice.base.utils.extension.stateInAction
+import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
+import com.gdavidpb.tuindice.base.utils.extension.execute
 import com.gdavidpb.tuindice.login.domain.param.SignInParams
-import com.gdavidpb.tuindice.login.domain.usecase.ReSignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
+import com.gdavidpb.tuindice.login.presentation.contract.SignIn
+import com.gdavidpb.tuindice.login.presentation.processor.SignInProcessor
 
 class SignInViewModel(
-	signInUseCase: SignInUseCase,
-	reSignInUseCase: ReSignInUseCase
-) : ViewModel() {
-	private val signInParams = emptyStateFlow<SignInParams>()
-	private val reSignInParams = emptyStateFlow<String>()
+	private val signInUseCase: SignInUseCase
+) : BaseViewModel<SignIn.State, SignIn.Action, SignIn.Event>(initialViewState = SignIn.State.Idle) {
 
-	fun signIn(params: SignInParams) =
-		emit(signInParams, params)
+	fun signInAction(params: SignInParams) =
+		emitAction(SignIn.Action.ClickSignIn(usbId = params.usbId, password = params.password))
 
-	fun reSignIn(password: String) =
-		emit(reSignInParams, password)
+	fun tapLogoAction() =
+		emitAction(SignIn.Action.ClickLogo)
 
-	val signIn =
-		stateInAction(useCase = signInUseCase, paramsFlow = signInParams)
+	fun openTermsAndConditions() =
+		emitAction(SignIn.Action.OpenTermsAndConditions)
 
-	val reSignIn =
-		stateInAction(useCase = reSignInUseCase, paramsFlow = reSignInParams)
+	fun openPrivacyPolicy() =
+		emitAction(SignIn.Action.OpenPrivacyPolicy)
+
+	override suspend fun handleAction(action: SignIn.Action) {
+		when (action) {
+			is SignIn.Action.ClickSignIn ->
+				execute(
+					useCase = signInUseCase,
+					params = SignInParams(usbId = action.usbId, password = action.password),
+					processor = SignInProcessor { event -> sendEvent(event) }
+				)
+
+			is SignIn.Action.ClickLogo ->
+				sendEvent(SignIn.Event.ShakeLogo)
+
+			is SignIn.Action.OpenTermsAndConditions ->
+				sendEvent(SignIn.Event.NavigateToTermsAndConditions)
+
+			is SignIn.Action.OpenPrivacyPolicy ->
+				sendEvent(SignIn.Event.NavigateToPrivacyPolicy)
+		}
+	}
 }
