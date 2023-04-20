@@ -9,6 +9,10 @@ import com.gdavidpb.tuindice.login.presentation.contract.Splash
 class SplashStartUpProcessor(
 	override val eventChannel: (Splash.Event) -> Unit
 ) : BaseProcessor<StartUpAction, StartUpError, Splash.State, Splash.Event>(eventChannel) {
+	override suspend fun processLoadingState(state: UseCaseState.Loading<StartUpAction, StartUpError>): Splash.State {
+		return Splash.State.Starting
+	}
+
 	override suspend fun processDataState(state: UseCaseState.Data<StartUpAction, StartUpError>): Splash.State {
 		when (val data = state.value) {
 			is StartUpAction.Main ->
@@ -21,16 +25,12 @@ class SplashStartUpProcessor(
 		return Splash.State.Started
 	}
 
-	override suspend fun processLoadingState(state: UseCaseState.Loading<StartUpAction, StartUpError>): Splash.State {
-		return Splash.State.Starting
-	}
-
 	override suspend fun processErrorState(state: UseCaseState.Error<StartUpAction, StartUpError>): Splash.State {
 		when (val error = state.error) {
 			is StartUpError.NoServices ->
 				eventChannel(Splash.Event.ShowNoServicesDialog(status = error.status))
 
-			null -> {}
+			else -> {}
 		}
 
 		return Splash.State.Failed
