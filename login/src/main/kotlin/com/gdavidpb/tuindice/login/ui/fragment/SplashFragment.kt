@@ -33,7 +33,7 @@ class SplashFragment : NavigationFragment() {
 		launchRepeatOnLifecycle {
 			with(viewModel) {
 				collect(viewState, ::stateCollector)
-				collect(viewEvent, ::effectCollector)
+				collect(viewEvent, ::eventCollector)
 			}
 		}
 
@@ -44,13 +44,13 @@ class SplashFragment : NavigationFragment() {
 
 	private fun stateCollector(state: Splash.State) {
 		when (state) {
-			Splash.State.Starting -> {}
-			Splash.State.Started -> {}
-			Splash.State.Failed -> {}
+			is Splash.State.Starting -> {}
+			is Splash.State.Started -> {}
+			is Splash.State.Failed -> {}
 		}
 	}
 
-	private fun effectCollector(event: Splash.Event) {
+	private fun eventCollector(event: Splash.Event) {
 		when (event) {
 			is Splash.Event.NavigateTo -> navigateToEvent(navId = event.navId)
 			is Splash.Event.NavigateToSignIn -> navigateToSignInEvent()
