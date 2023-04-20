@@ -19,6 +19,7 @@ class GetEnrollmentProofExceptionHandler(
 	override fun parseException(throwable: Throwable): GetEnrollmentError? {
 		return when {
 			throwable is EnrollmentProofNotFoundException -> GetEnrollmentError.NotFound
+			throwable is UnsupportedOperationException -> GetEnrollmentError.UnsupportedFile
 			throwable.isForbidden() -> GetEnrollmentError.AccountDisabled
 			throwable.isNotFound() -> GetEnrollmentError.NotFound
 			throwable.isUnavailable() -> GetEnrollmentError.Unavailable

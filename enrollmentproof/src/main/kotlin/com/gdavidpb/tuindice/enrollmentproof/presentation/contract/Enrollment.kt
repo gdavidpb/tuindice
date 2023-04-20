@@ -18,6 +18,7 @@ object Enrollment {
 		object NavigateToOutdatedPassword : Event()
 		object ShowTimeoutSnackBar : Event()
 		object ShowNotFoundSnackBar : Event()
+		object ShowUnsupportedFileSnackBar : Event()
 		object ShowUnavailableSnackBar : Event()
 		object ShowDefaultErrorError : Event()
 		class ShowNoConnectionSnackBar(val isNetworkAvailable: Boolean) : Event()

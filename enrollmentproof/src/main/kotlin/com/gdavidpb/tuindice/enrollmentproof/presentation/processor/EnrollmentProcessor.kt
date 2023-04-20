@@ -30,6 +30,9 @@ class EnrollmentProcessor(
 			is GetEnrollmentError.NotFound ->
 				eventChannel(Enrollment.Event.ShowNotFoundSnackBar)
 
+			is GetEnrollmentError.UnsupportedFile ->
+				eventChannel(Enrollment.Event.ShowUnsupportedFileSnackBar)
+
 			is GetEnrollmentError.OutdatedPassword ->
 				eventChannel(Enrollment.Event.NavigateToOutdatedPassword)
 

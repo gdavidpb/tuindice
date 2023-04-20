@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.enrollmentproof.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class GetEnrollmentProofUseCase(
 	private val authRepository: AuthRepository,
+	private val applicationRepository: ApplicationRepository,
 	private val enrollmentProofRepository: EnrollmentProofRepository,
 	override val exceptionHandler: GetEnrollmentProofExceptionHandler
 ) : FlowUseCase<Unit, String, GetEnrollmentError>() {
@@ -21,6 +22,11 @@ class GetEnrollmentProofUseCase(
 		val enrollmentProof = enrollmentProofRepository.getEnrollmentProof(
 			uid = activeAuth.uid
 		) ?: throw EnrollmentProofNotFoundException()
+
+		val canOpenEnrollmentProof =
+			applicationRepository.canOpenFile(path = enrollmentProof.source)
+
+		check(canOpenEnrollmentProof) { throw UnsupportedOperationException() }
 
 		return flowOf(enrollmentProof.source)
 	}

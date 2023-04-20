@@ -25,8 +25,7 @@ fun LifecycleOwner.hideSoftKeyboard() = when (this) {
 	else -> null
 }?.hideSoftKeyboard()
 
-@Deprecated("This will be replaced by native PDF viewer.")
-fun LifecycleOwner.openPdf(file: File): Boolean {
+fun LifecycleOwner.openFile(file: File): Boolean {
 	return runCatching {
 		val uri = FileProvider.getUriForFile(context(), BuildConfig.APPLICATION_ID, file)
 
