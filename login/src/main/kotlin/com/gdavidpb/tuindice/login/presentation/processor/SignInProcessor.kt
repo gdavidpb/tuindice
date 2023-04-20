@@ -2,21 +2,25 @@ package com.gdavidpb.tuindice.login.presentation.processor
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.processor.BaseProcessor
+import com.gdavidpb.tuindice.base.utils.extension.config
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 
 class SignInProcessor(
 	override val eventChannel: (SignIn.Event) -> Unit
 ) : BaseProcessor<Unit, SignInError, SignIn.State, SignIn.Event>(eventChannel) {
+
+	private val loadingMessages by config { getLoadingMessages() }
+
 	override suspend fun processDataState(state: UseCaseState.Data<Unit, SignInError>): SignIn.State {
-		return SignIn.State.Loading
+		return SignIn.State.LoggedIn
 	}
 
 	override suspend fun processLoadingState(state: UseCaseState.Loading<Unit, SignInError>): SignIn.State {
 		eventChannel(SignIn.Event.ShakeLogo)
 		eventChannel(SignIn.Event.HideSoftKeyboard)
 
-		return SignIn.State.Loading
+		return SignIn.State.SigningIn(messages = loadingMessages)
 	}
 
 	override suspend fun processErrorState(state: UseCaseState.Error<Unit, SignInError>): SignIn.State {

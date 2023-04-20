@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extension.animateShake
 import com.gdavidpb.tuindice.base.utils.extension.beginTransition
 import com.gdavidpb.tuindice.base.utils.extension.collect
-import com.gdavidpb.tuindice.base.utils.extension.config
 import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
@@ -19,7 +18,6 @@ import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.param.SignInParams
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
-import com.gdavidpb.tuindice.login.ui.adapter.LoadingAdapter
 import kotlinx.android.synthetic.main.fragment_sign_in.btnSignIn
 import kotlinx.android.synthetic.main.fragment_sign_in.cLayoutSignIn
 import kotlinx.android.synthetic.main.fragment_sign_in.iViewLogo
@@ -34,14 +32,10 @@ class SignInFragment : NavigationFragment() {
 
 	private val viewModel by viewModel<SignInViewModel>()
 
-	private val loadingMessages by config { getLoadingMessages() }
-
 	override fun onCreateView() = R.layout.fragment_sign_in
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
-
-		initLoadingMessagesFlipper()
 
 		tViewPolicies.onTermsAndConditionsClick { onTermsAndConditionsClick() }
 		tViewPolicies.onPrivacyPolicyClick { onPrivacyPolicyClick() }
@@ -59,8 +53,9 @@ class SignInFragment : NavigationFragment() {
 
 	private fun stateCollector(state: SignIn.State) {
 		when (state) {
-			is SignIn.State.Idle -> showLoading(false)
-			is SignIn.State.Loading -> showLoading(true)
+			is SignIn.State.Idle -> showLoading(value = false)
+			is SignIn.State.SigningIn -> showLoading(value = true, messages = state.messages)
+			is SignIn.State.LoggedIn -> {}
 		}
 	}
 
@@ -126,8 +121,10 @@ class SignInFragment : NavigationFragment() {
 		)
 	}
 
-	private fun showLoading(value: Boolean) {
+	private fun showLoading(value: Boolean, messages: List<String> = emptyList()) {
 		if (pBarLogging.isVisible == value) return
+
+		vFlipperLoading.setMessages(messages)
 
 		val layout = if (value) {
 			pBarLogging.isVisible = true
@@ -147,12 +144,5 @@ class SignInFragment : NavigationFragment() {
 			interpolator = OvershootInterpolator()
 			duration = 1000
 		}
-	}
-
-	// TODO create component
-	private fun initLoadingMessagesFlipper() {
-		val items = loadingMessages.shuffled()
-
-		vFlipperLoading.adapter = LoadingAdapter(items)
 	}
 }
