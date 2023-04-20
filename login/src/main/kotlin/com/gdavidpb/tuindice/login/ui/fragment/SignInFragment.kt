@@ -8,15 +8,30 @@ import android.view.View
 import android.view.animation.OvershootInterpolator
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
-import com.gdavidpb.tuindice.base.utils.extension.*
+import com.gdavidpb.tuindice.base.utils.extension.animateShake
+import com.gdavidpb.tuindice.base.utils.extension.beginTransition
+import com.gdavidpb.tuindice.base.utils.extension.collect
+import com.gdavidpb.tuindice.base.utils.extension.config
+import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
+import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
+import com.gdavidpb.tuindice.base.utils.extension.getCompatColor
+import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
+import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.onClickOnce
 import com.gdavidpb.tuindice.login.R
-import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import com.gdavidpb.tuindice.login.domain.param.SignInParams
+import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.ui.adapter.LoadingAdapter
-import kotlinx.android.synthetic.main.fragment_sign_in.*
+import kotlinx.android.synthetic.main.fragment_sign_in.btnSignIn
+import kotlinx.android.synthetic.main.fragment_sign_in.cLayoutSignIn
+import kotlinx.android.synthetic.main.fragment_sign_in.iViewLogo
+import kotlinx.android.synthetic.main.fragment_sign_in.pBarLogging
+import kotlinx.android.synthetic.main.fragment_sign_in.tInputPassword
+import kotlinx.android.synthetic.main.fragment_sign_in.tInputUsbId
+import kotlinx.android.synthetic.main.fragment_sign_in.tViewPolicies
+import kotlinx.android.synthetic.main.fragment_sign_in.vFlipperLoading
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SignInFragment : NavigationFragment() {
@@ -34,65 +49,76 @@ class SignInFragment : NavigationFragment() {
 		initLoadingMessagesFlipper()
 
 		tInputPassword.setAction { onSignInClick() }
-		iViewLogo.onClickOnce(::onLogoClick)
 		btnSignIn.onClickOnce(::onSignInClick)
+		iViewLogo.onClickOnce(::onLogoClick)
 
 		launchRepeatOnLifecycle {
 			with(viewModel) {
-				collect(signIn, ::signInCollector)
+				collect(viewState, ::stateCollector)
+				collect(viewEvent, ::eventCollector)
 			}
 		}
 	}
 
-	private fun onLogoClick() {
-		iViewLogo.animateShake()
+	private fun stateCollector(state: SignIn.State) {
+		when (state) {
+			is SignIn.State.Idle -> showLoading(false)
+			is SignIn.State.Loading -> showLoading(true)
+		}
+	}
+
+	private fun eventCollector(event: SignIn.Event) {
+		when (event) {
+			is SignIn.Event.NavigateToSplash -> navigateToSplash()
+			is SignIn.Event.NavigateToPrivacyPolicy -> navigateToPrivacyPolicy()
+			is SignIn.Event.NavigateToTermsAndConditions -> navigateToTermsAndConditions()
+			is SignIn.Event.HideSoftKeyboard -> hideSoftKeyboard()
+			is SignIn.Event.ShakeLogo -> iViewLogo.animateShake()
+			is SignIn.Event.ShowPasswordFieldEmptyError -> tInputPassword.setError(R.string.error_empty)
+			is SignIn.Event.ShowUsbIdFieldEmptyError -> tInputUsbId.setError(R.string.error_empty)
+			is SignIn.Event.ShowUsbIdFieldInvalidError -> tInputUsbId.setError(R.string.error_usb_id)
+			is SignIn.Event.ShowTimeoutSnackBar -> errorSnackBar(R.string.snack_service_unavailable) { onSignInClick() }
+			is SignIn.Event.ShowNoConnectionSnackBar -> connectionSnackBar(event.isNetworkAvailable) { onSignInClick() }
+			is SignIn.Event.ShowUnavailableSnackBar -> errorSnackBar(R.string.snack_timeout) { onSignInClick() }
+			is SignIn.Event.ShowAccountDisabledSnackBar -> errorSnackBar(R.string.snack_account_disabled)
+			is SignIn.Event.ShowInvalidCredentialsSnackBar -> errorSnackBar(R.string.snack_invalid_credentials)
+			is SignIn.Event.ShowDefaultErrorSnackBar -> errorSnackBar { onSignInClick() }
+		}
 	}
 
 	private fun onSignInClick() {
-		viewModel.signIn(
-			SignInParams(
-				usbId = tInputUsbId.getUsbId(),
-				password = tInputPassword.getPassword()
+		val params = SignInParams(
+			usbId = tInputUsbId.getUsbId(),
+			password = tInputPassword.getPassword()
+		)
+
+		viewModel.signInAction(params)
+	}
+
+	private fun onLogoClick() {
+		viewModel.tapLogoAction()
+	}
+
+	private fun navigateToSplash() {
+		navigate(SignInFragmentDirections.navToSplash())
+	}
+
+	private fun navigateToTermsAndConditions() {
+		navigate(
+			SignInFragmentDirections.navToBrowser(
+				title = getString(R.string.label_terms_and_conditions),
+				url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS
 			)
 		)
 	}
 
-	private fun initPoliciesLinks() {
-		val accentColor = requireContext().getCompatColor(R.color.color_accent)
-
-		tViewPolicies.apply {
-			setSpans {
-				listOf(
-					ForegroundColorSpan(accentColor),
-					TypefaceSpan("sans-serif-medium"),
-					UnderlineSpan()
-				)
-			}
-
-			setLink(getString(R.string.link_terms_and_conditions)) {
-				navigate(
-					SignInFragmentDirections.navToBrowser(
-						title = getString(R.string.label_terms_and_conditions),
-						url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS
-					)
-				)
-			}
-
-			setLink(getString(R.string.link_privacy_policy)) {
-				navigate(
-					SignInFragmentDirections.navToBrowser(
-						title = getString(R.string.label_privacy_policy),
-						url = BuildConfig.URL_APP_PRIVACY_POLICY
-					)
-				)
-			}
-		}.build()
-	}
-
-	private fun initLoadingMessagesFlipper() {
-		val items = loadingMessages.shuffled()
-
-		vFlipperLoading.adapter = LoadingAdapter(items)
+	private fun navigateToPrivacyPolicy() {
+		navigate(
+			SignInFragmentDirections.navToBrowser(
+				title = getString(R.string.label_privacy_policy),
+				url = BuildConfig.URL_APP_PRIVACY_POLICY
+			)
+		)
 	}
 
 	private fun showLoading(value: Boolean) {
@@ -101,7 +127,6 @@ class SignInFragment : NavigationFragment() {
 		val layout = if (value) {
 			pBarLogging.isVisible = true
 			vFlipperLoading.isVisible = true
-
 			vFlipperLoading.startFlipping()
 
 			R.layout.fragment_sign_in_loading
@@ -119,38 +144,33 @@ class SignInFragment : NavigationFragment() {
 		}
 	}
 
-	private fun signInCollector(result: UseCaseState<Unit, SignInError>?) {
-		when (result) {
-			is UseCaseState.Loading -> {
-				showLoading(true)
+	// TODO create component
+	private fun initLoadingMessagesFlipper() {
+		val items = loadingMessages.shuffled()
 
-				onLogoClick()
-
-				hideSoftKeyboard()
-			}
-			is UseCaseState.Data -> {
-				navigate(SignInFragmentDirections.navToSplash())
-			}
-			is UseCaseState.Error -> {
-				showLoading(false)
-
-				signInErrorHandler(error = result.error)
-			}
-			else -> {}
-		}
+		vFlipperLoading.adapter = LoadingAdapter(items)
 	}
 
-	private fun signInErrorHandler(error: SignInError?) {
-		when (error) {
-			is SignInError.Timeout -> errorSnackBar(R.string.snack_timeout) { onSignInClick() }
-			is SignInError.InvalidCredentials -> errorSnackBar(R.string.snack_invalid_credentials)
-			is SignInError.EmptyUsbId -> tInputUsbId.setError(R.string.error_empty)
-			is SignInError.InvalidUsbId -> tInputUsbId.setError(R.string.error_usb_id)
-			is SignInError.EmptyPassword -> tInputPassword.setError(R.string.error_empty)
-			is SignInError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable) { onSignInClick() }
-			is SignInError.NoConnection -> connectionSnackBar(error.isNetworkAvailable) { onSignInClick() }
-			is SignInError.AccountDisabled -> errorSnackBar(R.string.snack_account_disabled)
-			else -> errorSnackBar { onSignInClick() }
-		}
+	// TODO create component
+	private fun initPoliciesLinks() {
+		val accentColor = requireContext().getCompatColor(R.color.color_accent)
+
+		tViewPolicies.apply {
+			setSpans {
+				listOf(
+					ForegroundColorSpan(accentColor),
+					TypefaceSpan("sans-serif-medium"),
+					UnderlineSpan()
+				)
+			}
+
+			setLink(getString(R.string.link_terms_and_conditions)) {
+				viewModel.openTermsAndConditions()
+			}
+
+			setLink(getString(R.string.link_privacy_policy)) {
+				viewModel.openPrivacyPolicy()
+			}
+		}.build()
 	}
 }
