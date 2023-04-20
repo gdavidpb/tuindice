@@ -61,15 +61,19 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 		when (event) {
 			is UpdatePassword.Event.CloseDialog -> dismiss()
 			is UpdatePassword.Event.HideSoftKeyboard -> hideSoftKeyboard()
+			is UpdatePassword.Event.NavigateToAccountDisabled -> navigateToAccountDisabled()
 			is UpdatePassword.Event.ShowPasswordUpdatedToast -> toast(R.string.toast_password_updated)
 			is UpdatePassword.Event.ShowPasswordEmptyError -> tInputPassword.setError(R.string.error_empty)
-			is UpdatePassword.Event.ShowAccountDisabledError -> mainViewModel.signOut()
 			is UpdatePassword.Event.ShowDefaultErrorError -> tInputPassword.setError(R.string.snack_default_error)
 			is UpdatePassword.Event.ShowInvalidCredentialsError -> tInputPassword.setError(R.string.snack_invalid_credentials)
 			is UpdatePassword.Event.ShowNoConnectionError -> tInputPassword.setError(if (event.isNetworkAvailable) R.string.snack_service_unavailable else R.string.snack_network_unavailable)
 			is UpdatePassword.Event.ShowTimeoutError -> tInputPassword.setError(R.string.snack_timeout)
 			is UpdatePassword.Event.ShowUnavailableError -> tInputPassword.setError(R.string.snack_service_unavailable)
 		}
+	}
+
+	private fun navigateToAccountDisabled() {
+		mainViewModel.signOut()
 	}
 
 	private fun onConfirmClick() {
