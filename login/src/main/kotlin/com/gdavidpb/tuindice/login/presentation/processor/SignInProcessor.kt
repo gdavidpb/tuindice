@@ -16,10 +16,12 @@ class SignInProcessor(
 		eventChannel(SignIn.Event.ShakeLogo)
 		eventChannel(SignIn.Event.HideSoftKeyboard)
 
-		return SignIn.State.LoggingIn(messages = loadingMessages)
+		return SignIn.State.LoggingIn(messages = loadingMessages.shuffled())
 	}
 
 	override suspend fun processDataState(state: UseCaseState.Data<Unit, SignInError>): SignIn.State {
+		eventChannel(SignIn.Event.NavigateToSplash)
+
 		return SignIn.State.LoggedIn
 	}
 
@@ -49,7 +51,8 @@ class SignInProcessor(
 			is SignInError.Unavailable ->
 				eventChannel(SignIn.Event.ShowUnavailableSnackBar)
 
-			else -> {}
+			else ->
+				eventChannel(SignIn.Event.ShowDefaultErrorSnackBar)
 		}
 
 		return SignIn.State.Idle
