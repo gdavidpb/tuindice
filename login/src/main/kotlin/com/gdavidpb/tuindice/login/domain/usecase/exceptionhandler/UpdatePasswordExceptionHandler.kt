@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 
-class ReSignInExceptionHandler(
+class UpdatePasswordExceptionHandler(
 	private val networkRepository: NetworkRepository,
 	override val reportingRepository: ReportingRepository
 ) : ExceptionHandler<SignInError>() {

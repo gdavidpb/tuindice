@@ -4,23 +4,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.StringRes
 import androidx.core.view.isVisible
-import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.base.utils.extension.*
+import com.gdavidpb.tuindice.base.utils.extension.collect
+import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
+import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.toast
 import com.gdavidpb.tuindice.login.R
-import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
-import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
+import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
+import com.gdavidpb.tuindice.login.presentation.viewmodel.UpdatePasswordViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.android.synthetic.main.dialog_update_password.*
+import kotlinx.android.synthetic.main.dialog_update_password.btnCancel
+import kotlinx.android.synthetic.main.dialog_update_password.btnConfirm
+import kotlinx.android.synthetic.main.dialog_update_password.pBarUpdate
+import kotlinx.android.synthetic.main.dialog_update_password.tInputPassword
+import kotlinx.android.synthetic.main.fragment_sign_in.pBarLogging
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 
 	private val mainViewModel by viewModel<MainViewModel>()
-
-	private val viewModel by viewModel<SignInViewModel>()
+	private val viewModel by viewModel<UpdatePasswordViewModel>()
 
 	override fun onCreateView(
 		inflater: LayoutInflater,
@@ -33,18 +37,52 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		isCancelable = false
 
-		tInputPassword.setAction(::onConfirmClick)
-		btnConfirm.onClickOnce(::onConfirmClick)
-		btnCancel.onClickOnce(::dismiss)
+		tInputPassword.setAction { onConfirmClick() }
+		btnConfirm.setOnClickListener { onConfirmClick() }
+		btnCancel.setOnClickListener { onCancelClick() }
 
 		launchRepeatOnLifecycle {
 			with(viewModel) {
-				collect(signIn, ::signInCollector)
+				collect(viewState, ::stateCollector)
+				collect(viewEvent, ::eventCollector)
 			}
 		}
 	}
 
-	private fun setLoading(value: Boolean) {
+	private fun stateCollector(state: UpdatePassword.State) {
+		when (state) {
+			is UpdatePassword.State.Idle -> showLoading(false)
+			is UpdatePassword.State.LoggingIn -> showLoading(true)
+			is UpdatePassword.State.LoggedIn -> dismiss()
+		}
+	}
+
+	private fun eventCollector(event: UpdatePassword.Event) {
+		when (event) {
+			is UpdatePassword.Event.CloseDialog -> dismiss()
+			is UpdatePassword.Event.HideSoftKeyboard -> hideSoftKeyboard()
+			is UpdatePassword.Event.ShowPasswordUpdatedToast -> toast(R.string.toast_password_updated)
+			is UpdatePassword.Event.ShowPasswordEmptyError -> tInputPassword.setError(R.string.error_empty)
+			is UpdatePassword.Event.ShowAccountDisabledError -> mainViewModel.signOut()
+			is UpdatePassword.Event.ShowDefaultErrorError -> tInputPassword.setError(R.string.snack_default_error)
+			is UpdatePassword.Event.ShowInvalidCredentialsError -> tInputPassword.setError(R.string.snack_invalid_credentials)
+			is UpdatePassword.Event.ShowNoConnectionError -> tInputPassword.setError(if (event.isNetworkAvailable) R.string.snack_service_unavailable else R.string.snack_network_unavailable)
+			is UpdatePassword.Event.ShowTimeoutError -> tInputPassword.setError(R.string.snack_timeout)
+			is UpdatePassword.Event.ShowUnavailableError -> tInputPassword.setError(R.string.snack_service_unavailable)
+		}
+	}
+
+	private fun onConfirmClick() {
+		viewModel.signInAction(password = tInputPassword.getPassword())
+	}
+
+	private fun onCancelClick() {
+		viewModel.cancelAction()
+	}
+
+	private fun showLoading(value: Boolean) {
+		if (pBarLogging.isVisible == value) return
+
 		pBarUpdate.isVisible = value
 		tInputPassword.isEnabled = !value
 		btnConfirm.isEnabled = !value
@@ -52,50 +90,5 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 			null
 		else
 			getString(R.string.dialog_button_update_password_confirm)
-	}
-
-	private fun setError(@StringRes resource: Int) {
-		tInputPassword.setError(resource)
-	}
-
-	private fun onConfirmClick() {
-		viewModel.reSignIn(password = tInputPassword.getPassword())
-	}
-
-	private fun signInCollector(result: UseCaseState<Unit, SignInError>?) {
-		when (result) {
-			is UseCaseState.Loading -> {
-				setLoading(true)
-			}
-			is UseCaseState.Data -> {
-				setLoading(false)
-
-				toast(R.string.toast_password_updated)
-
-				dismiss()
-			}
-			is UseCaseState.Error -> {
-				setLoading(false)
-
-				signInErrorHandler(error = result.error)
-			}
-			else -> {}
-		}
-	}
-
-	private fun signInErrorHandler(error: SignInError?) {
-		when (error) {
-			is SignInError.Timeout -> setError(R.string.snack_timeout)
-			is SignInError.InvalidCredentials -> setError(R.string.snack_invalid_credentials)
-			is SignInError.Unavailable -> setError(R.string.snack_service_unavailable)
-			is SignInError.NoConnection -> setError(
-				if (error.isNetworkAvailable)
-					R.string.snack_service_unavailable
-				else
-					R.string.snack_network_unavailable
-			)
-			is SignInError.AccountDisabled -> mainViewModel.signOut()
-			else -> setError(R.string.snack_default_error)
-		}
 	}
 }
