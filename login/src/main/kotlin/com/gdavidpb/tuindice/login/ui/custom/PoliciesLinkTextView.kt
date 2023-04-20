@@ -12,11 +12,11 @@ class PoliciesLinkTextView(context: Context, attrs: AttributeSet) : LinkTextView
 	private var termsAndConditionsClickListener: (() -> Unit)? = null
 	private var privacyPolicyClickListener: (() -> Unit)? = null
 
-	fun onTermsAndConditionsClick(listener: () -> Unit) {
+	fun setOnTermsAndConditionsClickListener(listener: () -> Unit) {
 		termsAndConditionsClickListener = listener
 	}
 
-	fun onPrivacyPolicyClick(listener: () -> Unit) {
+	fun setOnPrivacyPolicyClickListener(listener: () -> Unit) {
 		privacyPolicyClickListener = listener
 	}
 

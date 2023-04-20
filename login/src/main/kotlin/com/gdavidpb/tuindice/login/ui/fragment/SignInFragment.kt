@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
-import com.gdavidpb.tuindice.base.utils.extension.onClickOnce
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.param.SignInParams
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
@@ -37,11 +36,11 @@ class SignInFragment : NavigationFragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
-		tViewPolicies.onTermsAndConditionsClick { onTermsAndConditionsClick() }
-		tViewPolicies.onPrivacyPolicyClick { onPrivacyPolicyClick() }
 		tInputPassword.setAction { onSignInClick() }
-		btnSignIn.onClickOnce { onSignInClick() }
-		iViewLogo.onClickOnce { onLogoClick() }
+		btnSignIn.setOnClickListener { onSignInClick() }
+		iViewLogo.setOnClickListener { onLogoClick() }
+		tViewPolicies.setOnTermsAndConditionsClickListener { onTermsAndConditionsClick() }
+		tViewPolicies.setOnPrivacyPolicyClickListener { onPrivacyPolicyClick() }
 
 		launchRepeatOnLifecycle {
 			with(viewModel) {
