@@ -10,15 +10,17 @@ class SplashViewModel(
 	private val startUpUseCase: StartUpUseCase
 ) : BaseViewModel<Splash.State, Splash.Action, Splash.Event>(initialViewState = Splash.State.Starting) {
 
-	fun startUpAction(data: String) = emitAction(Splash.Action.StartUp(data))
+	fun startUpAction(data: String) =
+		emitAction(Splash.Action.StartUp(data = data))
 
 	override suspend fun handleAction(action: Splash.Action) {
 		when (action) {
-			is Splash.Action.StartUp -> execute(
-				useCase = startUpUseCase,
-				params = action.data,
-				processor = SplashStartUpProcessor { event -> sendEvent(event) }
-			)
+			is Splash.Action.StartUp ->
+				execute(
+					useCase = startUpUseCase,
+					params = action.data,
+					processor = SplashStartUpProcessor { event -> sendEvent(event) }
+				)
 		}
 	}
 }
