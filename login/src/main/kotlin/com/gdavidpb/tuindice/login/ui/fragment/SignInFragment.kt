@@ -1,9 +1,6 @@
 package com.gdavidpb.tuindice.login.ui.fragment
 
 import android.os.Bundle
-import android.text.style.ForegroundColorSpan
-import android.text.style.TypefaceSpan
-import android.text.style.UnderlineSpan
 import android.view.View
 import android.view.animation.OvershootInterpolator
 import androidx.core.view.isVisible
@@ -15,7 +12,6 @@ import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.utils.extension.config
 import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
-import com.gdavidpb.tuindice.base.utils.extension.getCompatColor
 import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.onClickOnce
@@ -45,12 +41,13 @@ class SignInFragment : NavigationFragment() {
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
 
-		initPoliciesLinks()
 		initLoadingMessagesFlipper()
 
+		tViewPolicies.onTermsAndConditionsClick { onTermsAndConditionsClick() }
+		tViewPolicies.onPrivacyPolicyClick { onPrivacyPolicyClick() }
 		tInputPassword.setAction { onSignInClick() }
-		btnSignIn.onClickOnce(::onSignInClick)
-		iViewLogo.onClickOnce(::onLogoClick)
+		btnSignIn.onClickOnce { onSignInClick() }
+		iViewLogo.onClickOnce { onLogoClick() }
 
 		launchRepeatOnLifecycle {
 			with(viewModel) {
@@ -97,6 +94,14 @@ class SignInFragment : NavigationFragment() {
 
 	private fun onLogoClick() {
 		viewModel.tapLogoAction()
+	}
+
+	private fun onTermsAndConditionsClick() {
+		viewModel.openTermsAndConditions()
+	}
+
+	private fun onPrivacyPolicyClick() {
+		viewModel.openPrivacyPolicy()
 	}
 
 	private fun navigateToSplash() {
@@ -149,28 +154,5 @@ class SignInFragment : NavigationFragment() {
 		val items = loadingMessages.shuffled()
 
 		vFlipperLoading.adapter = LoadingAdapter(items)
-	}
-
-	// TODO create component
-	private fun initPoliciesLinks() {
-		val accentColor = requireContext().getCompatColor(R.color.color_accent)
-
-		tViewPolicies.apply {
-			setSpans {
-				listOf(
-					ForegroundColorSpan(accentColor),
-					TypefaceSpan("sans-serif-medium"),
-					UnderlineSpan()
-				)
-			}
-
-			setLink(getString(R.string.link_terms_and_conditions)) {
-				viewModel.openTermsAndConditions()
-			}
-
-			setLink(getString(R.string.link_privacy_policy)) {
-				viewModel.openPrivacyPolicy()
-			}
-		}.build()
 	}
 }
