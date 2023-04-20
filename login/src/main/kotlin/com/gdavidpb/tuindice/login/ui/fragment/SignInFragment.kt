@@ -53,7 +53,7 @@ class SignInFragment : NavigationFragment() {
 	private fun stateCollector(state: SignIn.State) {
 		when (state) {
 			is SignIn.State.Idle -> showLoading(value = false)
-			is SignIn.State.SigningIn -> showLoading(value = true, messages = state.messages)
+			is SignIn.State.LoggingIn -> showLoading(value = true, messages = state.messages)
 			is SignIn.State.LoggedIn -> {}
 		}
 	}
@@ -65,9 +65,9 @@ class SignInFragment : NavigationFragment() {
 			is SignIn.Event.NavigateToTermsAndConditions -> navigateToTermsAndConditions()
 			is SignIn.Event.HideSoftKeyboard -> hideSoftKeyboard()
 			is SignIn.Event.ShakeLogo -> iViewLogo.animateShake()
-			is SignIn.Event.ShowPasswordFieldEmptyError -> tInputPassword.setError(R.string.error_empty)
-			is SignIn.Event.ShowUsbIdFieldEmptyError -> tInputUsbId.setError(R.string.error_empty)
-			is SignIn.Event.ShowUsbIdFieldInvalidError -> tInputUsbId.setError(R.string.error_usb_id)
+			is SignIn.Event.ShowPasswordEmptyError -> tInputPassword.setError(R.string.error_empty)
+			is SignIn.Event.ShowUsbIdEmptyError -> tInputUsbId.setError(R.string.error_empty)
+			is SignIn.Event.ShowUsbIdInvalidError -> tInputUsbId.setError(R.string.error_usb_id)
 			is SignIn.Event.ShowTimeoutSnackBar -> errorSnackBar(R.string.snack_service_unavailable) { onSignInClick() }
 			is SignIn.Event.ShowNoConnectionSnackBar -> connectionSnackBar(event.isNetworkAvailable) { onSignInClick() }
 			is SignIn.Event.ShowUnavailableSnackBar -> errorSnackBar(R.string.snack_timeout) { onSignInClick() }
