@@ -3,7 +3,8 @@ package com.gdavidpb.tuindice.login.presentation.contract
 object SignIn {
 	sealed class State {
 		object Idle : State()
-		object Loading : State()
+		class SigningIn(val messages: List<String>) : State()
+		object LoggedIn : State()
 	}
 
 	sealed class Action {
