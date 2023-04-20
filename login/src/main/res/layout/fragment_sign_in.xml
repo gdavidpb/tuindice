@@ -127,7 +127,7 @@
         app:layout_constraintVertical_chainStyle="packed"
         tools:ignore="TextContrastCheck" />
 
-    <com.gdavidpb.tuindice.login.ui.custom.LinkTextView
+    <com.gdavidpb.tuindice.login.ui.custom.PoliciesLinkTextView
         android:id="@+id/tViewPolicies"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

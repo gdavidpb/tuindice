@@ -10,7 +10,7 @@ import android.view.View
 import androidx.core.text.toSpannable
 import com.google.android.material.textview.MaterialTextView
 
-class LinkTextView(context: Context, attrs: AttributeSet)
+open class LinkTextView(context: Context, attrs: AttributeSet)
     : MaterialTextView(context, attrs) {
 
     private val links = hashMapOf<String, ClickableSpan>()
