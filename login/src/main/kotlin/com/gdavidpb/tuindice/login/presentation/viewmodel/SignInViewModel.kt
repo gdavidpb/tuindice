@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.login.presentation.viewmodel
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.login.domain.param.SignInParams
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
-import com.gdavidpb.tuindice.login.presentation.processor.SignInReducer
+import com.gdavidpb.tuindice.login.presentation.reducer.SignInReducer
 
 class SignInViewModel(
 	private val signInReducer: SignInReducer

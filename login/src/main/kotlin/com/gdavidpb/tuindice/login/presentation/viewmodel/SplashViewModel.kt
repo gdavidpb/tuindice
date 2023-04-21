@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.login.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.login.presentation.contract.Splash
-import com.gdavidpb.tuindice.login.presentation.processor.StartUpReducer
+import com.gdavidpb.tuindice.login.presentation.reducer.StartUpReducer
 
 class SplashViewModel(
 	private val startUpReducer: StartUpReducer

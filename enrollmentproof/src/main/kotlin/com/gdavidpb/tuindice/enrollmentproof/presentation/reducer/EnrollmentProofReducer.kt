@@ -1,7 +1,7 @@
-package com.gdavidpb.tuindice.enrollmentproof.presentation.processor
+package com.gdavidpb.tuindice.enrollmentproof.presentation.reducer
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
-import com.gdavidpb.tuindice.base.presentation.processor.BaseReducer
+import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofError
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment

@@ -13,7 +13,7 @@ import com.gdavidpb.tuindice.enrollmentproof.data.storage.InternalStorageDataSou
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
-import com.gdavidpb.tuindice.enrollmentproof.presentation.processor.EnrollmentProofReducer
+import com.gdavidpb.tuindice.enrollmentproof.presentation.reducer.EnrollmentProofReducer
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI

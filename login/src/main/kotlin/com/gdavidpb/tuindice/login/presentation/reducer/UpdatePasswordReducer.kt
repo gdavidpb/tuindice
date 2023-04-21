@@ -1,7 +1,7 @@
-package com.gdavidpb.tuindice.login.presentation.processor
+package com.gdavidpb.tuindice.login.presentation.reducer
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
-import com.gdavidpb.tuindice.base.presentation.processor.BaseReducer
+import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
 import com.gdavidpb.tuindice.login.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
