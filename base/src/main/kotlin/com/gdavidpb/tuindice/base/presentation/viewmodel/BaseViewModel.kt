@@ -33,22 +33,22 @@ abstract class BaseViewModel<ViewState, ViewAction, ViewEvent>(
 			viewAction
 				.sample(500L)
 				.collect { action ->
-					handleAction(action)
+					reducer(action)
 				}
 		}
 	}
 
-	protected abstract suspend fun handleAction(action: ViewAction)
+	protected abstract suspend fun reducer(action: ViewAction)
 
-	fun setState(state: ViewState) {
+	protected fun setState(state: ViewState) {
 		stateFlow.value = state
 	}
 
-	fun emitAction(action: ViewAction) {
+	protected fun emitAction(action: ViewAction) {
 		viewModelScope.launch { actionFlow.emit(action) }
 	}
 
-	fun sendEvent(event: ViewEvent) {
+	protected fun sendEvent(event: ViewEvent) {
 		viewModelScope.launch { eventChannel.send(event) }
 	}
 }

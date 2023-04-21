@@ -1,14 +1,12 @@
 package com.gdavidpb.tuindice.login.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.base.utils.extension.execute
 import com.gdavidpb.tuindice.login.domain.param.SignInParams
-import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
-import com.gdavidpb.tuindice.login.presentation.processor.SignInProcessor
+import com.gdavidpb.tuindice.login.presentation.processor.SignInReducer
 
 class SignInViewModel(
-	private val signInUseCase: SignInUseCase
+	private val signInReducer: SignInReducer
 ) : BaseViewModel<SignIn.State, SignIn.Action, SignIn.Event>(initialViewState = SignIn.State.Idle) {
 
 	fun signInAction(params: SignInParams) =
@@ -23,13 +21,13 @@ class SignInViewModel(
 	fun openPrivacyPolicy() =
 		emitAction(SignIn.Action.OpenPrivacyPolicy)
 
-	override suspend fun handleAction(action: SignIn.Action) {
+	override suspend fun reducer(action: SignIn.Action) {
 		when (action) {
 			is SignIn.Action.ClickSignIn ->
-				execute(
-					useCase = signInUseCase,
-					params = SignInParams(usbId = action.usbId, password = action.password),
-					processor = SignInProcessor { event -> sendEvent(event) }
+				signInReducer.reduce(
+					action = action,
+					stateProducer = ::setState,
+					eventProducer = ::sendEvent
 				)
 
 			is SignIn.Action.ClickLogo ->
