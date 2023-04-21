@@ -17,8 +17,8 @@
 
     <dialog
         android:id="@+id/dialog_enrollment_proof"
-        android:name="com.gdavidpb.tuindice.enrollmentproof.ui.dialog.EnrollmentDownloadingBottomSheetDialog"
-        tools:layout="@layout/R.layout.dialog_enrollment_downloading" />
+        android:name="com.gdavidpb.tuindice.enrollmentproof.ui.dialog.EnrollmentProofFetchBottomSheetDialog"
+        tools:layout="@layout/R.layout.dialog_enrollment_proof_fetch" />
 
     <dialog
         android:id="@+id/dialog_update_password"

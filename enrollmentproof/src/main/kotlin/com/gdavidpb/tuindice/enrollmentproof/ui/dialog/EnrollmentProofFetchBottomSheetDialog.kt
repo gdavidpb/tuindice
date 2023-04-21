@@ -21,7 +21,7 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 
-class EnrollmentDownloadingBottomSheetDialog : BottomSheetDialogFragment() {
+class EnrollmentProofFetchBottomSheetDialog : BottomSheetDialogFragment() {
 
 	private val mainViewModel by sharedViewModel<MainViewModel>()
 
@@ -32,7 +32,7 @@ class EnrollmentDownloadingBottomSheetDialog : BottomSheetDialogFragment() {
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View? {
-		return inflater.inflate(R.layout.dialog_enrollment_downloading, container, false)
+		return inflater.inflate(R.layout.dialog_enrollment_proof_fetch, container, false)
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

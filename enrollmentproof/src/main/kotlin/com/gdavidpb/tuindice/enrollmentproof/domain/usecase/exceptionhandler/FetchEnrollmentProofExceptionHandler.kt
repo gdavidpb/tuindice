@@ -10,22 +10,22 @@ import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
-import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.GetEnrollmentError
+import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofError
 
-class GetEnrollmentProofExceptionHandler(
+class FetchEnrollmentProofExceptionHandler(
 	private val networkRepository: NetworkRepository,
 	override val reportingRepository: ReportingRepository
-) : ExceptionHandler<GetEnrollmentError>() {
-	override fun parseException(throwable: Throwable): GetEnrollmentError? {
+) : ExceptionHandler<FetchEnrollmentProofError>() {
+	override fun parseException(throwable: Throwable): FetchEnrollmentProofError? {
 		return when {
-			throwable is EnrollmentProofNotFoundException -> GetEnrollmentError.NotFound
-			throwable is UnsupportedOperationException -> GetEnrollmentError.UnsupportedFile
-			throwable.isForbidden() -> GetEnrollmentError.AccountDisabled
-			throwable.isNotFound() -> GetEnrollmentError.NotFound
-			throwable.isUnavailable() -> GetEnrollmentError.Unavailable
-			throwable.isConflict() -> GetEnrollmentError.OutdatedPassword
-			throwable.isTimeout() -> GetEnrollmentError.Timeout
-			throwable.isConnection() -> GetEnrollmentError.NoConnection(networkRepository.isAvailable())
+			throwable is EnrollmentProofNotFoundException -> FetchEnrollmentProofError.NotFound
+			throwable is UnsupportedOperationException -> FetchEnrollmentProofError.UnsupportedFile
+			throwable.isForbidden() -> FetchEnrollmentProofError.AccountDisabled
+			throwable.isNotFound() -> FetchEnrollmentProofError.NotFound
+			throwable.isUnavailable() -> FetchEnrollmentProofError.Unavailable
+			throwable.isConflict() -> FetchEnrollmentProofError.OutdatedPassword
+			throwable.isTimeout() -> FetchEnrollmentProofError.Timeout
+			throwable.isConnection() -> FetchEnrollmentProofError.NoConnection(networkRepository.isAvailable())
 			else -> null
 		}
 	}
