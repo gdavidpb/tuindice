@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.login.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
-import com.gdavidpb.tuindice.login.presentation.processor.UpdatePasswordReducer
+import com.gdavidpb.tuindice.login.presentation.reducer.UpdatePasswordReducer
 
 class UpdatePasswordViewModel(
 	private val updatePasswordReducer: UpdatePasswordReducer

@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
-import com.gdavidpb.tuindice.enrollmentproof.presentation.processor.EnrollmentProofReducer
+import com.gdavidpb.tuindice.enrollmentproof.presentation.reducer.EnrollmentProofReducer
 
 class EnrollmentProofViewModel(
 	private val enrollmentProofReducer: EnrollmentProofReducer

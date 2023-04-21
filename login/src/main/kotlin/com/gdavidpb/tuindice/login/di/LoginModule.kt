@@ -15,9 +15,9 @@ import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.StartUpExcept
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.login.domain.usecase.validator.UpdatePasswordParamsValidator
-import com.gdavidpb.tuindice.login.presentation.processor.SignInReducer
-import com.gdavidpb.tuindice.login.presentation.processor.StartUpReducer
-import com.gdavidpb.tuindice.login.presentation.processor.UpdatePasswordReducer
+import com.gdavidpb.tuindice.login.presentation.reducer.SignInReducer
+import com.gdavidpb.tuindice.login.presentation.reducer.StartUpReducer
+import com.gdavidpb.tuindice.login.presentation.reducer.UpdatePasswordReducer
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.UpdatePasswordViewModel

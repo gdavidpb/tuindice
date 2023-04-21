@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.presentation.processor
+package com.gdavidpb.tuindice.base.presentation.reducer
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
