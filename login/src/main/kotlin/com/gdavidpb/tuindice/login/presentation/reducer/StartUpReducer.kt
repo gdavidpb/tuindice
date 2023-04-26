@@ -16,17 +16,19 @@ class StartUpReducer(
 	}
 
 	override suspend fun reduceLoadingState(
-		state: UseCaseState.Loading<StartUpAction, StartUpError>,
+		currentState: Splash.State,
+		useCaseState: UseCaseState.Loading<StartUpAction, StartUpError>,
 		eventProducer: (Splash.Event) -> Unit
 	): Splash.State {
 		return Splash.State.Starting
 	}
 
 	override suspend fun reduceDataState(
-		state: UseCaseState.Data<StartUpAction, StartUpError>,
+		currentState: Splash.State,
+		useCaseState: UseCaseState.Data<StartUpAction, StartUpError>,
 		eventProducer: (Splash.Event) -> Unit
 	): Splash.State {
-		when (val data = state.value) {
+		when (val data = useCaseState.value) {
 			is StartUpAction.Main ->
 				eventProducer(Splash.Event.NavigateTo(navId = data.screen))
 
@@ -38,10 +40,11 @@ class StartUpReducer(
 	}
 
 	override suspend fun reduceErrorState(
-		state: UseCaseState.Error<StartUpAction, StartUpError>,
+		currentState: Splash.State,
+		useCaseState: UseCaseState.Error<StartUpAction, StartUpError>,
 		eventProducer: (Splash.Event) -> Unit
 	): Splash.State {
-		when (val error = state.error) {
+		when (val error = useCaseState.error) {
 			is StartUpError.NoServices ->
 				eventProducer(Splash.Event.ShowNoServicesDialog(status = error.status))
 

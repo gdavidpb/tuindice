@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.base.utils.extension
 
 import kotlinx.coroutines.TimeoutCancellationException
 import retrofit2.HttpException
-import java.io.IOException
 import java.io.InterruptedIOException
 import java.net.HttpURLConnection
 import java.net.SocketException
@@ -39,11 +38,6 @@ fun Throwable.isNotFound() = when (this) {
 fun Throwable.isTimeout() = when (this) {
 	is TimeoutException -> true
 	is TimeoutCancellationException -> true
-	else -> false
-}
-
-fun Throwable.isIO() = when (this) {
-	is IOException -> true
 	else -> false
 }
 

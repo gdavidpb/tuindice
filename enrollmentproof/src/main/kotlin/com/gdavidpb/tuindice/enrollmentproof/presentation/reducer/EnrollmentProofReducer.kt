@@ -13,27 +13,30 @@ class EnrollmentProofReducer(
 	override fun actionToParams(action: Enrollment.Action.FetchEnrollmentProof) {}
 
 	override suspend fun reduceLoadingState(
-		state: UseCaseState.Loading<String, FetchEnrollmentProofError>,
+		currentState: Enrollment.State,
+		useCaseState: UseCaseState.Loading<String, FetchEnrollmentProofError>,
 		eventProducer: (Enrollment.Event) -> Unit
 	): Enrollment.State {
 		return Enrollment.State.Fetching
 	}
 
 	override suspend fun reduceDataState(
-		state: UseCaseState.Data<String, FetchEnrollmentProofError>,
+		currentState: Enrollment.State,
+		useCaseState: UseCaseState.Data<String, FetchEnrollmentProofError>,
 		eventProducer: (Enrollment.Event) -> Unit
 	): Enrollment.State {
-		eventProducer(Enrollment.Event.OpenEnrollmentProof(path = state.value))
+		eventProducer(Enrollment.Event.OpenEnrollmentProof(path = useCaseState.value))
 		eventProducer(Enrollment.Event.CloseDialog)
 
 		return Enrollment.State.Fetched
 	}
 
 	override suspend fun reduceErrorState(
-		state: UseCaseState.Error<String, FetchEnrollmentProofError>,
+		currentState: Enrollment.State,
+		useCaseState: UseCaseState.Error<String, FetchEnrollmentProofError>,
 		eventProducer: (Enrollment.Event) -> Unit
 	): Enrollment.State {
-		when (val error = state.error) {
+		when (val error = useCaseState.error) {
 			is FetchEnrollmentProofError.AccountDisabled ->
 				eventProducer(Enrollment.Event.NavigateToAccountDisabled)
 

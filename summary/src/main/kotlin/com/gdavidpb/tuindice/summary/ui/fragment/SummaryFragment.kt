@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.ui.fragment
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -9,56 +10,59 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
-import com.gdavidpb.tuindice.base.domain.model.Account
-import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.base.NavigationBaseDirections
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
-import com.gdavidpb.tuindice.base.utils.extension.*
+import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
+import com.gdavidpb.tuindice.base.utils.extension.collect
+import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
+import com.gdavidpb.tuindice.base.utils.extension.drawables
+import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
+import com.gdavidpb.tuindice.base.utils.extension.hasCamera
+import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.snackBar
 import com.gdavidpb.tuindice.summary.R
-import com.gdavidpb.tuindice.summary.domain.usecase.error.GetAccountError
-import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureError
-import com.gdavidpb.tuindice.summary.presentation.mapper.formatLastUpdate
-import com.gdavidpb.tuindice.summary.presentation.mapper.toCreditsSummaryItem
-import com.gdavidpb.tuindice.summary.presentation.mapper.toShortName
-import com.gdavidpb.tuindice.summary.presentation.mapper.toSubjectsSummaryItem
+import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryViewState
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.adapter.SummaryAdapter
-import com.gdavidpb.tuindice.summary.utils.extension.fileProviderUri
-import kotlinx.android.synthetic.main.fragment_summary.*
+import kotlinx.android.synthetic.main.fragment_summary.fViewSummary
+import kotlinx.android.synthetic.main.fragment_summary.pBarSummary
+import kotlinx.android.synthetic.main.fragment_summary.rViewSummary
+import kotlinx.android.synthetic.main.fragment_summary.tViewCareer
+import kotlinx.android.synthetic.main.fragment_summary.tViewGrade
+import kotlinx.android.synthetic.main.fragment_summary.tViewLastUpdate
+import kotlinx.android.synthetic.main.fragment_summary.tViewName
+import kotlinx.android.synthetic.main.fragment_summary.vProfilePicture
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.io.File
 
 class SummaryFragment : NavigationFragment() {
 
 	private val mainViewModel by sharedViewModel<MainViewModel>()
-
 	private val viewModel by viewModel<SummaryViewModel>()
 
 	private val summaryAdapter = SummaryAdapter()
 
-	private val cameraOutputUri by lazy {
-		runCatching {
-			File(requireContext().filesDir, "profile_picture.jpg")
-				.apply {
-					if (exists()) delete()
-					createNewFile()
-				}
-				.fileProviderUri(requireContext())
-		}.getOrNull()
+	private object Flipper {
+		const val CONTENT = 0
+		const val LOADING = 1
 	}
+
+	private val pickVisualMediaRequest =
+		PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
 
 	private val registerTakePicture =
 		registerForActivityResult(ActivityResultContracts.TakePicture()) { result ->
-			if (result) viewModel.uploadProfilePicture(path = "$cameraOutputUri")
+			if (result) viewModel.uploadTakenProfilePictureAction()
 		}
 
 	private val registerPickVisualMedia =
 		registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { result ->
-			if (result != null) viewModel.uploadProfilePicture(path = "$result")
+			if (result != null) viewModel.uploadProfilePictureAction(path = "$result")
 		}
 
 	private object ProfilePictureMenu {
@@ -74,46 +78,87 @@ class SummaryFragment : NavigationFragment() {
 
 		rViewSummary.adapter = summaryAdapter
 
-		vProfilePicture.onClickOnce(::onEditProfilePictureClick)
+		vProfilePicture.setOnClickListener { onEditProfilePictureClick() }
 
 		requireActivity().addMenuProvider(SummaryMenuProvider(), viewLifecycleOwner)
 
 		launchRepeatOnLifecycle {
 			with(viewModel) {
-				collect(getAccount, ::getAccountCollector)
-				collect(removeProfilePicture, ::removeProfilePictureCollector)
-				collect(uploadProfilePicture, ::uploadProfilePictureCollector)
+				collect(viewState, ::stateCollector)
+				collect(viewEvent, ::eventCollector)
 			}
+		}
+
+		viewModel.loadSummaryAction()
+	}
+
+	private fun stateCollector(state: Summary.State) {
+		when (state) {
+			is Summary.State.Loading -> fViewSummary.displayedChild = Flipper.LOADING
+			is Summary.State.Loaded -> loadSummaryState(value = state.value)
+			is Summary.State.Failed -> {}
 		}
 	}
 
-	private fun onProfilePictureOptionSelected(itemId: Int) {
-		when (itemId) {
-			ProfilePictureMenu.ID_REMOVE_PICTURE -> {
-				bottomSheetDialog<ConfirmationBottomSheetDialog> {
-					titleResource = R.string.dialog_title_remove_profile_picture_failure
-					messageResource = R.string.dialog_message_remove_profile_picture_failure
-
-					positiveButton(R.string.remove) { viewModel.removeProfilePicture() }
-					negativeButton(R.string.cancel)
-				}
-			}
-			ProfilePictureMenu.ID_PICK_PICTURE -> {
-				val input =
-					PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-
-				registerPickVisualMedia.launch(input)
-			}
-			ProfilePictureMenu.ID_TAKE_PICTURE -> {
-				val input = cameraOutputUri
-
-				if (input != null)
-					registerTakePicture.launch(input)
-				else
-					errorSnackBar()
-			}
+	private fun eventCollector(event: Summary.Event) {
+		when (event) {
+			is Summary.Event.NavigateToAccountDisabled -> navigateToAccountDisabled()
+			is Summary.Event.NavigateToOutdatedPassword -> navigateToOutdatedPassword()
+			is Summary.Event.OpenCamera -> registerTakePicture.launch(Uri.parse(event.output))
+			is Summary.Event.OpenPicker -> registerPickVisualMedia.launch(pickVisualMediaRequest)
+			is Summary.Event.ShowProfilePictureUpdatedSnackBar -> snackBar(R.string.snack_profile_picture_updated)
+			is Summary.Event.ShowProfilePictureRemovedSnackBar -> snackBar(R.string.snack_profile_picture_removed)
+			is Summary.Event.ShowTryLaterSnackBar -> snackBar(R.string.snack_no_service)
+			is Summary.Event.ShowTimeoutSnackBar -> errorSnackBar(R.string.snack_timeout)
+			is Summary.Event.ShowNoConnectionSnackBar -> connectionSnackBar(event.isNetworkAvailable)
+			is Summary.Event.ShowDefaultErrorSnackBar -> errorSnackBar()
 		}
 	}
+
+	private fun loadSummaryState(value: SummaryViewState) {
+		tViewName.text = value.name
+		tViewLastUpdate.text = value.lastUpdate
+		tViewCareer.text = value.careerName
+
+		if (value.isUpdated) {
+			tViewLastUpdate.drawables(start = R.drawable.ic_sync)
+			tViewLastUpdate.setOnClickListener(null)
+		} else {
+			tViewLastUpdate.drawables(start = R.drawable.ic_sync_problem)
+			tViewLastUpdate.setOnClickListener { onLastUpdateClick() }
+		}
+
+		tViewGrade.isVisible = value.isGradeVisible
+
+		if (value.isGradeVisible) tViewGrade.animateGrade(value = value.grade)
+
+		vProfilePicture.loadImage(
+			url = value.profilePictureUrl,
+			lifecycleOwner = viewLifecycleOwner
+		)
+
+		summaryAdapter.submitSummary(items = value.items)
+
+		vProfilePicture.showLoading(value = value.isProfilePictureLoading)
+
+		pBarSummary.isVisible = value.isUpdating
+
+		fViewSummary.displayedChild = if (value.isLoading) Flipper.LOADING else Flipper.CONTENT
+	}
+
+	private fun navigateToAccountDisabled() {
+		mainViewModel.signOut()
+	}
+
+	private fun navigateToOutdatedPassword() {
+		navigate(NavigationBaseDirections.navToUpdatePassword())
+	}
+
+	private fun onLastUpdateClick() {
+		viewModel.showTryLaterAction()
+	}
+
+	////////////
 
 	private fun onEditProfilePictureClick() {
 		val items = mutableListOf(
@@ -154,116 +199,26 @@ class SummaryFragment : NavigationFragment() {
 		}
 	}
 
-	private fun loadProfile(account: Account) {
-		val shortName = account.toShortName()
-		val lastUpdate = getString(R.string.text_last_update, account.lastUpdate.formatLastUpdate())
+	private fun onProfilePictureOptionSelected(itemId: Int) {
+		when (itemId) {
+			ProfilePictureMenu.ID_REMOVE_PICTURE -> {
+				bottomSheetDialog<ConfirmationBottomSheetDialog> {
+					titleResource = R.string.dialog_title_remove_profile_picture_failure
+					messageResource = R.string.dialog_message_remove_profile_picture_failure
 
-		tViewName.text = shortName
-		tViewCareer.text = account.careerName
-
-		tViewLastUpdate.text = lastUpdate
-		tViewLastUpdate.drawables(start = R.drawable.ic_sync)
-
-		tViewLastUpdate.isVisible = true
-
-		if (account.grade > 0.0) {
-			tViewGrade.isVisible = true
-			tViewGrade.animateGrade(value = account.grade.toFloat())
-		} else
-			tViewGrade.isVisible = false
-
-		vProfilePicture.loadImage(url = account.pictureUrl, lifecycleOwner = this)
-	}
-
-	private fun loadSummary(account: Account) {
-		val context = requireContext()
-
-		val subjectsSummary = account.toSubjectsSummaryItem(context)
-		val creditsSummary = account.toCreditsSummaryItem(context)
-
-		val items = listOf(subjectsSummary, creditsSummary)
-
-		summaryAdapter.submitSummary(items)
-	}
-
-	private fun getAccountCollector(result: UseCaseState<Account, GetAccountError>?) {
-		when (result) {
-			is UseCaseState.Loading -> {
-				pBarSummary.isVisible = true
+					positiveButton(R.string.remove) { viewModel.removeProfilePictureAction() }
+					negativeButton(R.string.cancel)
+				}
 			}
-			is UseCaseState.Data -> {
-				pBarSummary.isVisible = false
 
-				val account = result.value
-
-				loadProfile(account)
-				loadSummary(account)
+			ProfilePictureMenu.ID_PICK_PICTURE -> {
+				viewModel.pickProfilePictureAction()
 			}
-			is UseCaseState.Error -> {
-				pBarSummary.isVisible = false
 
-				accountErrorHandler(error = result.error)
+			ProfilePictureMenu.ID_TAKE_PICTURE -> {
+				viewModel.takeProfilePictureAction()
 			}
-			else -> {}
 		}
-	}
-
-	private fun removeProfilePictureCollector(result: UseCaseState<Unit, ProfilePictureError>?) {
-		when (result) {
-			is UseCaseState.Loading -> {
-				vProfilePicture.setLoading(true)
-			}
-			is UseCaseState.Data -> {
-				snackBar(R.string.snack_profile_picture_removed)
-			}
-			is UseCaseState.Error -> {
-				vProfilePicture.setLoading(false)
-
-				profilePictureErrorHandler(error = result.error)
-			}
-			else -> {}
-		}
-	}
-
-	private fun uploadProfilePictureCollector(result: UseCaseState<String, ProfilePictureError>?) {
-		when (result) {
-			is UseCaseState.Loading -> {
-				vProfilePicture.setLoading(true)
-			}
-			is UseCaseState.Data -> {
-				snackBar(R.string.snack_profile_picture_updated)
-			}
-			is UseCaseState.Error -> {
-				vProfilePicture.setLoading(false)
-
-				profilePictureErrorHandler(error = result.error)
-			}
-			else -> {}
-		}
-	}
-
-	private fun accountErrorHandler(error: GetAccountError?) {
-		when (error) {
-			is GetAccountError.AccountDisabled -> mainViewModel.signOut()
-			is GetAccountError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
-			is GetAccountError.OutdatedPassword -> mainViewModel.outdatedPassword()
-			is GetAccountError.Timeout -> errorSnackBar(R.string.snack_timeout)
-			is GetAccountError.Unavailable -> showCantUpdate()
-			null -> errorSnackBar()
-		}
-	}
-
-	private fun profilePictureErrorHandler(error: ProfilePictureError?) {
-		when (error) {
-			is ProfilePictureError.Timeout -> errorSnackBar(R.string.snack_timeout)
-			is ProfilePictureError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
-			else -> errorSnackBar()
-		}
-	}
-
-	private fun showCantUpdate() {
-		tViewLastUpdate.drawables(start = R.drawable.ic_sync_problem)
-		tViewLastUpdate.onClickOnce { snackBar(R.string.snack_no_service) }
 	}
 
 	inner class SummaryMenuProvider : MenuProvider {
@@ -284,6 +239,7 @@ class SummaryFragment : NavigationFragment() {
 
 					true
 				}
+
 				else -> false
 			}
 		}

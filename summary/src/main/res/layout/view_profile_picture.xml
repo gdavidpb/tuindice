@@ -10,14 +10,12 @@
         android:id="@+id/iViewProfile"
         android:layout_width="@dimen/size_profile"
         android:layout_height="@dimen/size_profile"
-        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/CircularShapeableImageView"
         tools:ignore="ContentDescription"
-        tools:srcCompat="@mipmap/ic_launcher_round"
-        tools:visibility="visible" />
+        tools:srcCompat="@mipmap/ic_launcher_round" />
 
     <ImageView
         android:id="@+id/iViewEditProfile"
@@ -26,11 +24,9 @@
         android:background="@drawable/sh_oval_approved"
         android:padding="@dimen/dp_6"
         android:src="@drawable/ic_edit"
-        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@id/iViewProfile"
         app:layout_constraintEnd_toEndOf="@id/iViewProfile"
-        tools:ignore="ContentDescription"
-        tools:visibility="visible" />
+        tools:ignore="ContentDescription" />
 
     <ProgressBar
         android:id="@+id/pBarProfile"

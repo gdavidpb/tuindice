@@ -19,7 +19,8 @@ class SignInReducer(
 	}
 
 	override suspend fun reduceLoadingState(
-		state: UseCaseState.Loading<Unit, SignInError>,
+		currentState: SignIn.State,
+		useCaseState: UseCaseState.Loading<Unit, SignInError>,
 		eventProducer: (SignIn.Event) -> Unit
 	): SignIn.State {
 		eventProducer(SignIn.Event.ShakeLogo)
@@ -29,7 +30,8 @@ class SignInReducer(
 	}
 
 	override suspend fun reduceDataState(
-		state: UseCaseState.Data<Unit, SignInError>,
+		currentState: SignIn.State,
+		useCaseState: UseCaseState.Data<Unit, SignInError>,
 		eventProducer: (SignIn.Event) -> Unit
 	): SignIn.State {
 		eventProducer(SignIn.Event.NavigateToSplash)
@@ -38,10 +40,11 @@ class SignInReducer(
 	}
 
 	override suspend fun reduceErrorState(
-		state: UseCaseState.Error<Unit, SignInError>,
+		currentState: SignIn.State,
+		useCaseState: UseCaseState.Error<Unit, SignInError>,
 		eventProducer: (SignIn.Event) -> Unit
 	): SignIn.State {
-		when (val error = state.error) {
+		when (val error = useCaseState.error) {
 			is SignInError.EmptyPassword ->
 				eventProducer(SignIn.Event.ShowPasswordEmptyError)
 

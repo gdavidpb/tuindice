@@ -14,7 +14,8 @@ class UpdatePasswordReducer(
 	}
 
 	override suspend fun reduceLoadingState(
-		state: UseCaseState.Loading<Unit, SignInError>,
+		currentState: UpdatePassword.State,
+		useCaseState: UseCaseState.Loading<Unit, SignInError>,
 		eventProducer: (UpdatePassword.Event) -> Unit
 	): UpdatePassword.State {
 		eventProducer(UpdatePassword.Event.HideSoftKeyboard)
@@ -23,17 +24,19 @@ class UpdatePasswordReducer(
 	}
 
 	override suspend fun reduceDataState(
-		state: UseCaseState.Data<Unit, SignInError>,
+		currentState: UpdatePassword.State,
+		useCaseState: UseCaseState.Data<Unit, SignInError>,
 		eventProducer: (UpdatePassword.Event) -> Unit
 	): UpdatePassword.State {
 		return UpdatePassword.State.LoggedIn
 	}
 
 	override suspend fun reduceErrorState(
-		state: UseCaseState.Error<Unit, SignInError>,
+		currentState: UpdatePassword.State,
+		useCaseState: UseCaseState.Error<Unit, SignInError>,
 		eventProducer: (UpdatePassword.Event) -> Unit
 	): UpdatePassword.State {
-		when (val error = state.error) {
+		when (val error = useCaseState.error) {
 			is SignInError.AccountDisabled ->
 				eventProducer(UpdatePassword.Event.NavigateToAccountDisabled)
 

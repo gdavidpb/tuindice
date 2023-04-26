@@ -1,34 +1,86 @@
 package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
-import androidx.lifecycle.ViewModel
-import com.gdavidpb.tuindice.base.utils.extension.emit
-import com.gdavidpb.tuindice.base.utils.extension.emptyStateFlow
-import com.gdavidpb.tuindice.base.utils.extension.stateInAction
-import com.gdavidpb.tuindice.base.utils.extension.stateInFlow
-import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
+import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
+import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.reducer.RemoveProfilePictureReducer
+import com.gdavidpb.tuindice.summary.presentation.reducer.SummaryReducer
+import com.gdavidpb.tuindice.summary.presentation.reducer.TakeProfilePictureReducer
+import com.gdavidpb.tuindice.summary.presentation.reducer.UploadProfilePictureReducer
 
 class SummaryViewModel(
-	getAccountUseCase: GetAccountUseCase,
-	uploadProfilePictureUseCase: UploadProfilePictureUseCase,
-	removeProfilePictureUseCase: RemoveProfilePictureUseCase
-) : ViewModel() {
-	private val uploadProfilePictureParams = emptyStateFlow<String>()
-	private val removeProfilePictureParams = emptyStateFlow<Unit>()
+	private val summaryReducer: SummaryReducer,
+	private val takeProfilePictureReducer: TakeProfilePictureReducer,
+	private val uploadProfilePictureReducer: UploadProfilePictureReducer,
+	private val removeProfilePictureReducer: RemoveProfilePictureReducer
+) : BaseViewModel<Summary.State, Summary.Action, Summary.Event>(initialViewState = Summary.State.Loading) {
 
-	fun uploadProfilePicture(path: String) =
-		emit(uploadProfilePictureParams, path)
+	private var cameraOutput: String = ""
 
-	fun removeProfilePicture() =
-		emit(removeProfilePictureParams, Unit)
+	fun loadSummaryAction() =
+		emitAction(Summary.Action.LoadSummary)
 
-	val getAccount =
-		stateInFlow(useCase = getAccountUseCase, params = Unit)
+	fun takeProfilePictureAction() =
+		emitAction(Summary.Action.TakeProfilePicture)
 
-	val uploadProfilePicture =
-		stateInAction(useCase = uploadProfilePictureUseCase, paramsFlow = uploadProfilePictureParams)
+	fun pickProfilePictureAction() =
+		emitAction(Summary.Action.PickProfilePicture)
 
-	val removeProfilePicture =
-		stateInAction(useCase = removeProfilePictureUseCase, paramsFlow = removeProfilePictureParams)
+	fun uploadProfilePictureAction(path: String) =
+		emitAction(Summary.Action.UploadProfilePicture(path))
+
+	fun uploadTakenProfilePictureAction() =
+		emitAction(Summary.Action.UploadProfilePicture(path = cameraOutput))
+			.also { cameraOutput = "" }
+
+	fun removeProfilePictureAction() =
+		emitAction(Summary.Action.RemoveProfilePicture)
+
+	fun showTryLaterAction() =
+		emitAction(Summary.Action.ShowTryLater)
+
+	override suspend fun reducer(currentState: Summary.State, action: Summary.Action) {
+		when (action) {
+			is Summary.Action.LoadSummary ->
+				summaryReducer.reduce(
+					action = action,
+					currentState = currentState,
+					stateProducer = ::setState,
+					eventProducer = ::sendEvent
+				)
+
+			is Summary.Action.TakeProfilePicture ->
+				takeProfilePictureReducer.reduce(
+					action = action,
+					currentState = currentState,
+					stateProducer = ::setState,
+					eventProducer = { event ->
+						if (event is Summary.Event.OpenCamera) cameraOutput = event.output
+
+						sendEvent(event)
+					}
+				)
+
+			is Summary.Action.PickProfilePicture ->
+				sendEvent(Summary.Event.OpenPicker)
+
+			is Summary.Action.UploadProfilePicture ->
+				uploadProfilePictureReducer.reduce(
+					action = action,
+					currentState = currentState,
+					stateProducer = ::setState,
+					eventProducer = ::sendEvent
+				)
+
+			is Summary.Action.RemoveProfilePicture ->
+				removeProfilePictureReducer.reduce(
+					action = action,
+					currentState = currentState,
+					stateProducer = ::setState,
+					eventProducer = ::sendEvent
+				)
+
+			is Summary.Action.ShowTryLater ->
+				sendEvent(Summary.Event.ShowTryLaterSnackBar)
+		}
+	}
 }

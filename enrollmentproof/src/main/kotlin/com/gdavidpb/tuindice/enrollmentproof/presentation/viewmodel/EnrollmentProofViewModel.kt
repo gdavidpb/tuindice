@@ -12,11 +12,12 @@ class EnrollmentProofViewModel(
 	fun fetchEnrollmentProofAction() =
 		emitAction(Enrollment.Action.FetchEnrollmentProof)
 
-	override suspend fun reducer(action: Enrollment.Action) {
+	override suspend fun reducer(currentState: Enrollment.State, action: Enrollment.Action) {
 		when (action) {
 			is Enrollment.Action.FetchEnrollmentProof ->
 				enrollmentProofReducer.reduce(
 					action = action,
+					currentState = currentState,
 					stateProducer = ::setState,
 					eventProducer = ::sendEvent
 				)

@@ -3,9 +3,9 @@ package com.gdavidpb.tuindice.summary.domain.usecase
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.error.GetAccountError
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetAccountExceptionHandler
-import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 import kotlinx.coroutines.flow.Flow
 
 class GetAccountUseCase(

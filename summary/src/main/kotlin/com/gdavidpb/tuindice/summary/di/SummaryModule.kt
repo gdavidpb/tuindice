@@ -13,10 +13,16 @@ import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.TakeProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetAccountExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
+import com.gdavidpb.tuindice.summary.presentation.reducer.RemoveProfilePictureReducer
+import com.gdavidpb.tuindice.summary.presentation.reducer.SummaryReducer
+import com.gdavidpb.tuindice.summary.presentation.reducer.TakeProfilePictureReducer
+import com.gdavidpb.tuindice.summary.presentation.reducer.UploadProfilePictureReducer
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
@@ -32,11 +38,23 @@ val summaryModule = module {
 
 	viewModel<SummaryViewModel>()
 
+	/* Reducers */
+
+	factoryOf(::SummaryReducer)
+	factoryOf(::TakeProfilePictureReducer)
+	factoryOf(::UploadProfilePictureReducer)
+	factoryOf(::RemoveProfilePictureReducer)
+
 	/* Use cases */
 
 	factoryOf(::GetAccountUseCase)
+	factoryOf(::TakeProfilePictureUseCase)
 	factoryOf(::UploadProfilePictureUseCase)
 	factoryOf(::RemoveProfilePictureUseCase)
+
+	/* Validators */
+
+	factoryOf(::UploadProfilePictureParamsValidator)
 
 	/* Repositories */
 

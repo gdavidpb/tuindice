@@ -13,11 +13,12 @@ class SplashViewModel(
 	fun startUpAction(data: String) =
 		emitAction(Splash.Action.StartUp(data = data))
 
-	override suspend fun reducer(action: Splash.Action) {
+	override suspend fun reducer(currentState: Splash.State, action: Splash.Action) {
 		when (action) {
 			is Splash.Action.StartUp ->
 				startUpReducer.reduce(
 					action = action,
+					currentState = currentState,
 					stateProducer = ::setState,
 					eventProducer = ::sendEvent
 				)
