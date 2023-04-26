@@ -24,9 +24,10 @@ class QuarterDataRepository(
 			.transform { quarters ->
 				val isOnCooldown = settingsDataSource.isGetQuartersOnCooldown()
 
-				if (quarters.isNotEmpty() && !isOnCooldown)
+				if (quarters.isNotEmpty())
 					emit(quarters)
-				else
+
+				if (!isOnCooldown)
 					emit(remoteDataSource.getQuarters().also { response ->
 						localDataSource.saveQuarters(uid, response)
 						settingsDataSource.setGetQuartersCooldown()

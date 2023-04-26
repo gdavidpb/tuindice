@@ -19,9 +19,10 @@ class AccountDataRepository(
 			.transform { account ->
 				val isOnCooldown = localDataSource.isGetAccountOnCooldown()
 
-				if (account != null && !isOnCooldown)
+				if (account != null)
 					emit(account)
-				else
+
+				if (!isOnCooldown)
 					emit(remoteDataSource.getAccount().also { response ->
 						localDataSource.saveAccount(uid, response)
 						localDataSource.setGetAccountCooldown()
