@@ -27,11 +27,13 @@ class QuarterDataRepository(
 				if (quarters.isNotEmpty())
 					emit(quarters)
 
-				if (!isOnCooldown)
+				if (!isOnCooldown) {
+					settingsDataSource.setGetQuartersOnCooldown()
+
 					emit(remoteDataSource.getQuarters().also { response ->
 						localDataSource.saveQuarters(uid, response)
-						settingsDataSource.setGetQuartersCooldown()
 					})
+				}
 			}
 	}
 

@@ -5,9 +5,11 @@ import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.summary.data.account.AccountDataRepository
 import com.gdavidpb.tuindice.summary.data.account.source.LocalDataSource
 import com.gdavidpb.tuindice.summary.data.account.source.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.account.source.SettingsDataSource
 import com.gdavidpb.tuindice.summary.data.api.ApiDataSource
 import com.gdavidpb.tuindice.summary.data.api.SummaryApi
 import com.gdavidpb.tuindice.summary.data.encoder.ImageEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.preferences.PreferencesDataSource
 import com.gdavidpb.tuindice.summary.data.room.RoomDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
@@ -65,6 +67,7 @@ val summaryModule = module {
 
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
 	factoryOf(::ApiDataSource) { bind<RemoteDataSource>() }
+	factoryOf(::PreferencesDataSource) { bind<SettingsDataSource>() }
 
 	/* Summary Api */
 
