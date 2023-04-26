@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.base.presentation.reducer
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.mapNotNull
 
 abstract class BaseReducer<P, T, E, ViewState, ViewAction, ViewEvent> {
@@ -9,37 +10,72 @@ abstract class BaseReducer<P, T, E, ViewState, ViewAction, ViewEvent> {
 
 	protected abstract fun actionToParams(action: ViewAction): P
 
-	protected abstract suspend fun reduceLoadingState(
-		state: UseCaseState.Loading<T, E>,
+	protected open suspend fun reduceLoadingState(
+		currentState: ViewState,
+		useCaseState: UseCaseState.Loading<T, E>,
 		eventProducer: (ViewEvent) -> Unit
-	): ViewState
+	): ViewState? = null
 
-	protected abstract suspend fun reduceDataState(
-		state: UseCaseState.Data<T, E>,
+	protected open suspend fun reduceDataState(
+		currentState: ViewState,
+		useCaseState: UseCaseState.Data<T, E>,
 		eventProducer: (ViewEvent) -> Unit
-	): ViewState
+	): ViewState? = null
 
-	protected abstract suspend fun reduceErrorState(
-		state: UseCaseState.Error<T, E>,
+	protected open suspend fun reduceErrorState(
+		currentState: ViewState,
+		useCaseState: UseCaseState.Error<T, E>,
 		eventProducer: (ViewEvent) -> Unit
-	): ViewState
+	): ViewState? = null
 
 	open suspend fun reduce(
 		action: ViewAction,
+		currentState: ViewState,
 		stateProducer: (ViewState) -> Unit,
 		eventProducer: (ViewEvent) -> Unit
 	) {
-		useCase.execute(params = actionToParams(action))
-			.mapNotNull { state ->
-				when (state) {
-					is UseCaseState.Loading -> reduceLoadingState(state, eventProducer)
-					is UseCaseState.Data -> reduceDataState(state, eventProducer)
-					is UseCaseState.Error -> reduceErrorState(state, eventProducer)
+		val params = runCatching { actionToParams(action) }.getOrNull()
+
+		if (params == null) {
+			reportUnrecoverableException(NullPointerException()); return
+		}
+
+		useCase.execute(params)
+			.mapNotNull { useCaseState ->
+				when (useCaseState) {
+					is UseCaseState.Loading ->
+						reduceLoadingState(
+							currentState,
+							useCaseState,
+							eventProducer
+						)
+
+					is UseCaseState.Data ->
+						reduceDataState(
+							currentState,
+							useCaseState,
+							eventProducer
+						)
+
+					is UseCaseState.Error ->
+						reduceErrorState(
+							currentState,
+							useCaseState,
+							eventProducer
+						)
+
 					else -> null
 				}
+			}
+			.catch { throwable ->
+				reportUnrecoverableException(throwable)
 			}
 			.collect { state ->
 				stateProducer(state)
 			}
+	}
+
+	private fun reportUnrecoverableException(throwable: Throwable) {
+		TODO("report and send unrecoverable error message")
 	}
 }
