@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.login.presentation.reducer
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
 import com.gdavidpb.tuindice.base.utils.extension.config
-import com.gdavidpb.tuindice.login.domain.param.SignInParams
+import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
