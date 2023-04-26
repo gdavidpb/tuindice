@@ -1,15 +1,36 @@
 package com.gdavidpb.tuindice.summary.presentation.mapper
 
-import android.content.Context
 import com.gdavidpb.tuindice.base.domain.model.Account
+import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.base.utils.extension.capitalize
 import com.gdavidpb.tuindice.base.utils.extension.format
 import com.gdavidpb.tuindice.base.utils.extension.isToday
 import com.gdavidpb.tuindice.base.utils.extension.isYesterday
 import com.gdavidpb.tuindice.summary.R
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
-import java.util.*
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryViewState
+import java.util.Date
 import java.util.concurrent.TimeUnit
+
+fun Account.toSummaryViewState(resourceResolver: ResourceResolver) = SummaryViewState(
+	name = toShortName(),
+	lastUpdate = resourceResolver.getString(
+		R.string.text_last_update,
+		lastUpdate.formatLastUpdate()
+	),
+	careerName = careerName,
+	grade = grade.toFloat(),
+	profilePictureUrl = pictureUrl,
+	items = listOf(
+		toSubjectsSummaryItem(resourceResolver),
+		toCreditsSummaryItem(resourceResolver)
+	),
+	isGradeVisible = (grade > 0.0),
+	isProfilePictureLoading = false,
+	isLoading = false,
+	isUpdated = true,
+	isUpdating = false
+)
 
 fun Account.toShortName(): String {
 	val firstName = firstNames.substringBefore(' ')
@@ -32,8 +53,8 @@ fun Date.formatLastUpdate(): String {
 	}?.capitalize() ?: "-"
 }
 
-fun Account.toSubjectsSummaryItem(context: Context) = SummaryItem(
-	headerText = context.resources.getQuantityString(
+fun Account.toSubjectsSummaryItem(resourceResolver: ResourceResolver) = SummaryItem(
+	headerText = resourceResolver.getQuantityString(
 		R.plurals.text_subjects_header,
 		enrolledSubjects,
 		enrolledSubjects
@@ -44,8 +65,8 @@ fun Account.toSubjectsSummaryItem(context: Context) = SummaryItem(
 	failed = failedSubjects
 )
 
-fun Account.toCreditsSummaryItem(context: Context) = SummaryItem(
-	headerText = context.resources.getQuantityString(
+fun Account.toCreditsSummaryItem(resourceResolver: ResourceResolver) = SummaryItem(
+	headerText = resourceResolver.getQuantityString(
 		R.plurals.text_credits_header,
 		enrolledCredits,
 		enrolledCredits

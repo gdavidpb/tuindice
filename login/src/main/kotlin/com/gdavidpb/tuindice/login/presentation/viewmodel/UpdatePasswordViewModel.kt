@@ -15,11 +15,15 @@ class UpdatePasswordViewModel(
 	fun cancelAction() =
 		emitAction(UpdatePassword.Action.CloseDialog)
 
-	override suspend fun reducer(action: UpdatePassword.Action) {
+	override suspend fun reducer(
+		currentState: UpdatePassword.State,
+		action: UpdatePassword.Action
+	) {
 		when (action) {
 			is UpdatePassword.Action.ClickSignIn ->
 				updatePasswordReducer.reduce(
 					action = action,
+					currentState = currentState,
 					stateProducer = ::setState,
 					eventProducer = ::sendEvent
 				)

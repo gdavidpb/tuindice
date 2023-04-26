@@ -20,7 +20,7 @@ object Enrollment {
 		object ShowNotFoundSnackBar : Event()
 		object ShowUnsupportedFileSnackBar : Event()
 		object ShowUnavailableSnackBar : Event()
-		object ShowDefaultErrorError : Event()
 		class ShowNoConnectionSnackBar(val isNetworkAvailable: Boolean) : Event()
+		object ShowDefaultErrorError : Event()
 	}
 }
