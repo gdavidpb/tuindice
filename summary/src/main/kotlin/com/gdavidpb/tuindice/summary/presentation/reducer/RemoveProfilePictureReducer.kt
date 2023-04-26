@@ -9,7 +9,16 @@ import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 class RemoveProfilePictureReducer(
 	override val useCase: RemoveProfilePictureUseCase
 ) : BaseReducer<Unit, Unit, ProfilePictureError, Summary.State, Summary.Action.RemoveProfilePicture, Summary.Event>() {
+
 	override fun actionToParams(action: Summary.Action.RemoveProfilePicture) {}
+
+	override fun reduceUnrecoverableState(
+		currentState: Summary.State,
+		throwable: Throwable,
+		eventProducer: (Summary.Event) -> Unit
+	): Summary.State {
+		return Summary.State.Failed
+	}
 
 	override suspend fun reduceLoadingState(
 		currentState: Summary.State,

@@ -13,7 +13,16 @@ class SummaryReducer(
 	override val useCase: GetAccountUseCase,
 	private val resourceResolver: ResourceResolver
 ) : BaseReducer<Unit, Account, GetAccountError, Summary.State, Summary.Action.LoadSummary, Summary.Event>() {
+
 	override fun actionToParams(action: Summary.Action.LoadSummary) {}
+
+	override fun reduceUnrecoverableState(
+		currentState: Summary.State,
+		throwable: Throwable,
+		eventProducer: (Summary.Event) -> Unit
+	): Summary.State {
+		return Summary.State.Failed
+	}
 
 	override suspend fun reduceLoadingState(
 		currentState: Summary.State,

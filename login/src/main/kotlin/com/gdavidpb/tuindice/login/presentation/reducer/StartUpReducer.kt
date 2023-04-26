@@ -15,6 +15,14 @@ class StartUpReducer(
 		return action.data
 	}
 
+	override fun reduceUnrecoverableState(
+		currentState: Splash.State,
+		throwable: Throwable,
+		eventProducer: (Splash.Event) -> Unit
+	): Splash.State {
+		return Splash.State.Failed
+	}
+
 	override suspend fun reduceLoadingState(
 		currentState: Splash.State,
 		useCaseState: UseCaseState.Loading<StartUpAction, StartUpError>,
