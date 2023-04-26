@@ -50,6 +50,13 @@ class SummaryFragment : NavigationFragment() {
 	private object Flipper {
 		const val CONTENT = 0
 		const val LOADING = 1
+		// TODO const val FAILED = 2
+	}
+
+	private object ProfilePictureMenu {
+		const val ID_PICK_PICTURE = 0
+		const val ID_TAKE_PICTURE = 1
+		const val ID_REMOVE_PICTURE = 2
 	}
 
 	private val pickVisualMediaRequest =
@@ -64,12 +71,6 @@ class SummaryFragment : NavigationFragment() {
 		registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { result ->
 			if (result != null) viewModel.uploadProfilePictureAction(path = "$result")
 		}
-
-	private object ProfilePictureMenu {
-		const val ID_PICK_PICTURE = 0
-		const val ID_TAKE_PICTURE = 1
-		const val ID_REMOVE_PICTURE = 2
-	}
 
 	override fun onCreateView() = R.layout.fragment_summary
 
@@ -96,7 +97,7 @@ class SummaryFragment : NavigationFragment() {
 		when (state) {
 			is Summary.State.Loading -> fViewSummary.displayedChild = Flipper.LOADING
 			is Summary.State.Loaded -> loadSummaryState(value = state.value)
-			is Summary.State.Failed -> {}
+			is Summary.State.Failed -> { /* TODO */ }
 		}
 	}
 
@@ -157,8 +158,6 @@ class SummaryFragment : NavigationFragment() {
 	private fun onLastUpdateClick() {
 		viewModel.showTryLaterAction()
 	}
-
-	////////////
 
 	private fun onEditProfilePictureClick() {
 		val items = mutableListOf(
