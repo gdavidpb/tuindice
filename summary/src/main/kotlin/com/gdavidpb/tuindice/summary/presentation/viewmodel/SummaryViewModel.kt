@@ -38,12 +38,12 @@ class SummaryViewModel(
 	fun showTryLaterAction() =
 		emitAction(Summary.Action.ShowTryLater)
 
-	override suspend fun reducer(currentState: Summary.State, action: Summary.Action) {
+	override suspend fun reducer(action: Summary.Action) {
 		when (action) {
 			is Summary.Action.LoadSummary ->
 				summaryReducer.reduce(
 					action = action,
-					currentState = currentState,
+					currentState = { currentState },
 					stateProducer = ::setState,
 					eventProducer = ::sendEvent
 				)
@@ -51,7 +51,7 @@ class SummaryViewModel(
 			is Summary.Action.TakeProfilePicture ->
 				takeProfilePictureReducer.reduce(
 					action = action,
-					currentState = currentState,
+					currentState = { currentState },
 					stateProducer = ::setState,
 					eventProducer = { event ->
 						if (event is Summary.Event.OpenCamera) cameraOutput = event.output
@@ -66,7 +66,7 @@ class SummaryViewModel(
 			is Summary.Action.UploadProfilePicture ->
 				uploadProfilePictureReducer.reduce(
 					action = action,
-					currentState = currentState,
+					currentState = { currentState },
 					stateProducer = ::setState,
 					eventProducer = ::sendEvent
 				)
@@ -74,7 +74,7 @@ class SummaryViewModel(
 			is Summary.Action.RemoveProfilePicture ->
 				removeProfilePictureReducer.reduce(
 					action = action,
-					currentState = currentState,
+					currentState = { currentState },
 					stateProducer = ::setState,
 					eventProducer = ::sendEvent
 				)

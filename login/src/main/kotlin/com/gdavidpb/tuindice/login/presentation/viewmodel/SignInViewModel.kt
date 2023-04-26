@@ -21,12 +21,12 @@ class SignInViewModel(
 	fun openPrivacyPolicy() =
 		emitAction(SignIn.Action.OpenPrivacyPolicy)
 
-	override suspend fun reducer(currentState: SignIn.State, action: SignIn.Action) {
+	override suspend fun reducer( action: SignIn.Action) {
 		when (action) {
 			is SignIn.Action.ClickSignIn ->
 				signInReducer.reduce(
 					action = action,
-					currentState = currentState,
+					currentState = { currentState },
 					stateProducer = ::setState,
 					eventProducer = ::sendEvent
 				)
