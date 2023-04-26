@@ -12,10 +12,10 @@ class PreferencesDataSource(
 	override suspend fun isGetQuartersOnCooldown(): Boolean {
 		val cooldownTime = sharedPreferences.getLong(PreferencesKeys.COOLDOWN_GET_QUARTERS, 0L)
 
-		return cooldownTime <= System.currentTimeMillis()
+		return cooldownTime >= System.currentTimeMillis()
 	}
 
-	override suspend fun setGetQuartersCooldown() {
+	override suspend fun setGetQuartersOnCooldown() {
 		val cooldownTime = System.currentTimeMillis() + CooldownTimes.COOLDOWN_GET_QUARTERS
 
 		sharedPreferences.edit {

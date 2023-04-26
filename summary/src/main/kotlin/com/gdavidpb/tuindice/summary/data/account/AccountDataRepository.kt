@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.summary.data.account
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.summary.data.account.source.LocalDataSource
 import com.gdavidpb.tuindice.summary.data.account.source.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.account.source.SettingsDataSource
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 import kotlinx.coroutines.flow.Flow
@@ -11,22 +12,25 @@ import kotlinx.coroutines.flow.transform
 
 class AccountDataRepository(
 	private val localDataSource: LocalDataSource,
-	private val remoteDataSource: RemoteDataSource
+	private val remoteDataSource: RemoteDataSource,
+	private val settingsDataSource: SettingsDataSource
 ) : AccountRepository {
 	override suspend fun getAccount(uid: String): Flow<Account> {
 		return localDataSource.getAccount(uid)
 			.distinctUntilChanged()
 			.transform { account ->
-				val isOnCooldown = localDataSource.isGetAccountOnCooldown()
+				val isOnCooldown = settingsDataSource.isGetAccountOnCooldown()
 
 				if (account != null)
 					emit(account)
 
-				if (!isOnCooldown)
+				if (!isOnCooldown) {
+					settingsDataSource.setGetAccountOnCooldown()
+
 					emit(remoteDataSource.getAccount().also { response ->
 						localDataSource.saveAccount(uid, response)
-						localDataSource.setGetAccountCooldown()
 					})
+				}
 			}
 	}
 
