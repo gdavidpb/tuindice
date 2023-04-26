@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.login.domain.param
+package com.gdavidpb.tuindice.login.domain.usecase.param
 
 data class SignInParams(
 	val usbId: String,

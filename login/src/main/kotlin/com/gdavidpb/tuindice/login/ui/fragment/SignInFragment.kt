@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
 import com.gdavidpb.tuindice.login.R
-import com.gdavidpb.tuindice.login.domain.param.SignInParams
+import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import kotlinx.android.synthetic.main.fragment_sign_in.btnSignIn
