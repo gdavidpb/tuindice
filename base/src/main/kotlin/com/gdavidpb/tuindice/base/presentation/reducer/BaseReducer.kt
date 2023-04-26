@@ -30,7 +30,7 @@ abstract class BaseReducer<P, T, E, ViewState, ViewAction, ViewEvent> {
 
 	open suspend fun reduce(
 		action: ViewAction,
-		currentState: ViewState,
+		currentState: () -> ViewState,
 		stateProducer: (ViewState) -> Unit,
 		eventProducer: (ViewEvent) -> Unit
 	) {
@@ -45,21 +45,21 @@ abstract class BaseReducer<P, T, E, ViewState, ViewAction, ViewEvent> {
 				when (useCaseState) {
 					is UseCaseState.Loading ->
 						reduceLoadingState(
-							currentState,
+							currentState(),
 							useCaseState,
 							eventProducer
 						)
 
 					is UseCaseState.Data ->
 						reduceDataState(
-							currentState,
+							currentState(),
 							useCaseState,
 							eventProducer
 						)
 
 					is UseCaseState.Error ->
 						reduceErrorState(
-							currentState,
+							currentState(),
 							useCaseState,
 							eventProducer
 						)
@@ -76,6 +76,6 @@ abstract class BaseReducer<P, T, E, ViewState, ViewAction, ViewEvent> {
 	}
 
 	private fun reportUnrecoverableException(throwable: Throwable) {
-		TODO("report and send unrecoverable error message")
+		throwable.printStackTrace()
 	}
 }

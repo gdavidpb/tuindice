@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.base.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,12 +33,12 @@ abstract class BaseViewModel<ViewState, ViewAction, ViewEvent>(
 			viewAction
 				.sample(500L)
 				.collect { action ->
-					launch { reducer(currentState, action) }
+					launch { reducer(action) }
 				}
 		}
 	}
 
-	protected abstract suspend fun reducer(currentState: ViewState, action: ViewAction)
+	protected abstract suspend fun reducer(action: ViewAction)
 
 	protected fun setState(state: ViewState) {
 		stateFlow.value = state
