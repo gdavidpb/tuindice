@@ -37,7 +37,7 @@ abstract class BaseReducer<P, T, E, ViewState, ViewAction, ViewEvent> {
 
 	open suspend fun reduce(
 		action: ViewAction,
-		currentState: () -> ViewState,
+		stateProvider: () -> ViewState,
 		stateProducer: (ViewState) -> Unit,
 		eventProducer: (ViewEvent) -> Unit
 	) {
@@ -48,21 +48,21 @@ abstract class BaseReducer<P, T, E, ViewState, ViewAction, ViewEvent> {
 				when (useCaseState) {
 					is UseCaseState.Loading ->
 						reduceLoadingState(
-							currentState = currentState(),
+							currentState = stateProvider(),
 							useCaseState = useCaseState,
 							eventProducer = eventProducer
 						)
 
 					is UseCaseState.Data ->
 						reduceDataState(
-							currentState = currentState(),
+							currentState = stateProvider(),
 							useCaseState = useCaseState,
 							eventProducer = eventProducer
 						)
 
 					is UseCaseState.Error ->
 						reduceErrorState(
-							currentState = currentState(),
+							currentState = stateProvider(),
 							useCaseState = useCaseState,
 							eventProducer = eventProducer
 						)
@@ -71,7 +71,7 @@ abstract class BaseReducer<P, T, E, ViewState, ViewAction, ViewEvent> {
 				}
 			}
 			.catch { throwable ->
-				val previousState = currentState()
+				val previousState = stateProvider()
 				val newState = tryGetOrNull {
 					reduceUnrecoverableState(
 						currentState = previousState,

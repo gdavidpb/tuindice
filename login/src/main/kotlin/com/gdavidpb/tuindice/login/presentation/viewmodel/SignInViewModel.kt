@@ -26,7 +26,7 @@ class SignInViewModel(
 			is SignIn.Action.ClickSignIn ->
 				signInReducer.reduce(
 					action = action,
-					currentState = { currentState },
+					stateProvider = ::getCurrentState,
 					stateProducer = ::setState,
 					eventProducer = ::sendEvent
 				)

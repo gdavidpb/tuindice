@@ -18,7 +18,7 @@ class SplashViewModel(
 			is Splash.Action.StartUp ->
 				startUpReducer.reduce(
 					action = action,
-					currentState = { currentState },
+					stateProvider = ::getCurrentState,
 					stateProducer = ::setState,
 					eventProducer = ::sendEvent
 				)

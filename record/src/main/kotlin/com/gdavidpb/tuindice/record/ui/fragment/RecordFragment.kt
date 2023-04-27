@@ -8,31 +8,35 @@ import android.view.View
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.setFragmentResultListener
-import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
-import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
-import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.base.NavigationBaseDirections
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.RequestKeys
 import com.gdavidpb.tuindice.base.utils.ResultKeys
-import com.gdavidpb.tuindice.base.utils.extension.*
+import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
+import com.gdavidpb.tuindice.base.utils.extension.collect
+import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
+import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
+import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
 import com.gdavidpb.tuindice.record.R
-import com.gdavidpb.tuindice.record.domain.usecase.error.GetQuartersError
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpdateSubjectParams
-import com.gdavidpb.tuindice.record.presentation.mapper.toQuarterItem
+import com.gdavidpb.tuindice.record.domain.usecase.param.WithdrawSubjectParams
+import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.model.RecordViewState
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.adapter.QuarterAdapter
-import kotlinx.android.synthetic.main.fragment_record.*
+import kotlinx.android.synthetic.main.fragment_record.fViewRecord
+import kotlinx.android.synthetic.main.fragment_record.pBarRecord
+import kotlinx.android.synthetic.main.fragment_record.rViewRecord
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RecordFragment : NavigationFragment() {
 
 	private val mainViewModel by sharedViewModel<MainViewModel>()
-
 	private val viewModel by viewModel<RecordViewModel>()
 
 	private val quarterManager = QuarterManager()
@@ -42,6 +46,8 @@ class RecordFragment : NavigationFragment() {
 	private object Flipper {
 		const val CONTENT = 0
 		const val EMPTY = 1
+		const val LOADING = 2
+		// TODO const val FAILED = 3
 	}
 
 	private object SubjectMenu {
@@ -56,9 +62,7 @@ class RecordFragment : NavigationFragment() {
 
 		setMenuVisibility(false)
 
-		rViewRecord.adapter = quarterAdapter.apply {
-			registerAdapterDataObserver(quarterManager)
-		}
+		rViewRecord.adapter = quarterAdapter
 
 		requireActivity().addMenuProvider(RecordMenuProvider(), viewLifecycleOwner)
 
@@ -66,32 +70,79 @@ class RecordFragment : NavigationFragment() {
 
 		launchRepeatOnLifecycle {
 			with(viewModel) {
-				collect(getQuarters, ::getQuartersCollector)
+				collect(viewState, ::stateCollector)
+				collect(viewEvent, ::eventCollector)
 			}
 		}
+
+		viewModel.loadQuartersAction()
 	}
 
-	private fun onFragmentResult(requestKey: String, result: Bundle) {
-		when (requestKey) {
-			RequestKeys.USE_PLAN_GRADE -> useEvaluationPlanGrade(result)
+	private fun stateCollector(state: Record.State) {
+		when (state) {
+			is Record.State.Loading -> fViewRecord.displayedChild = Flipper.LOADING
+			is Record.State.Loaded -> loadRecordState(value = state.value)
+			is Record.State.Failed -> TODO()
 		}
 	}
 
-	private fun onSubjectOptionSelected(itemId: Int, item: SubjectItem) {
-		when (itemId) {
-			SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS ->
-				navigate(
-					RecordFragmentDirections.navToEvaluationPlan(
-						quarterId = item.data.qid,
-						subjectId = item.id,
-						subjectCode = item.data.code,
-						subjectName = item.data.name
-					)
-				)
-
-			SubjectMenu.ID_WITHDRAW_SUBJECT ->
-				viewModel.withdrawSubject(subjectId = item.id)
+	private fun eventCollector(event: Record.Event) {
+		when (event) {
+			is Record.Event.NavigateToAccountDisabled -> navigateToAccountDisabled()
+			is Record.Event.NavigateToOutdatedPassword -> navigateToOutdatedPassword()
+			is Record.Event.NavigateToEnrollmentProof -> navigateToEnrollmentProof()
+			is Record.Event.NavigateToEvaluationPlan -> navigateToEvaluationPlan(event.item)
+			is Record.Event.ShowTimeoutSnackBar -> errorSnackBar(R.string.snack_timeout)
+			is Record.Event.ShowNoConnectionSnackBar -> connectionSnackBar(event.isNetworkAvailable)
+			is Record.Event.ShowUnavailableSnackBar -> errorSnackBar(R.string.snack_service_unavailable)
+			is Record.Event.ShowDefaultErrorSnackBar -> errorSnackBar()
 		}
+	}
+
+	private fun loadRecordState(value: RecordViewState) {
+		pBarRecord.isVisible = false
+
+		quarterAdapter.submitList(list = value.quarters)
+
+		fViewRecord.displayedChild = if (value.isEmpty) Flipper.EMPTY else Flipper.CONTENT
+	}
+
+	private fun navigateToEvaluationPlan(item: SubjectItem) {
+		navigate(
+			RecordFragmentDirections.navToEvaluationPlan(
+				quarterId = item.data.qid,
+				subjectId = item.id,
+				subjectCode = item.data.code,
+				subjectName = item.data.name
+			)
+		)
+	}
+
+	private fun navigateToAccountDisabled() {
+		mainViewModel.signOut()
+	}
+
+	private fun navigateToOutdatedPassword() {
+		navigate(NavigationBaseDirections.navToUpdatePassword())
+	}
+
+	private fun navigateToEnrollmentProof() {
+		navigate(RecordFragmentDirections.navToEnrollmentProof())
+	}
+
+	private fun useEvaluationPlanGrade(result: Bundle) {
+		val subjectId = result.getString(ResultKeys.SUBJECT_ID, null)
+		val grade = result.getInt(ResultKeys.GRADE, -1)
+
+		if (subjectId == null || grade == -1) return
+
+		viewModel.updateSubjectAction(
+			UpdateSubjectParams(
+				subjectId = subjectId,
+				grade = grade,
+				dispatchToRemote = true
+			)
+		)
 	}
 
 	private fun showSubjectMenuDialog(item: SubjectItem) {
@@ -127,79 +178,39 @@ class RecordFragment : NavigationFragment() {
 		}
 	}
 
-	private fun useEvaluationPlanGrade(result: Bundle) {
-		val subjectId = result.getString(ResultKeys.SUBJECT_ID, null)
-		val grade = result.getInt(ResultKeys.GRADE, -1)
-
-		if (subjectId == null || grade == -1) return
-
-		viewModel.updateSubject(
-			UpdateSubjectParams(
-				subjectId = subjectId,
-				grade = grade,
-				dispatchToRemote = true
-			)
-		)
-	}
-
-	private fun getQuartersCollector(result: UseCaseState<List<Quarter>, GetQuartersError>?) {
-		when (result) {
-			is UseCaseState.Loading -> {
-				pBarRecord.isVisible = true
-			}
-
-			is UseCaseState.Data -> {
-				pBarRecord.isVisible = false
-
-				val context = requireContext()
-
-				val quarterItems = result.value
-					.map { quarter -> quarter.toQuarterItem(context) }
-
-				quarterAdapter.submitList(quarterItems)
-
-				fViewRecord.displayedChild = Flipper.CONTENT
-			}
-
-			is UseCaseState.Error -> {
-				pBarRecord.isVisible = false
-
-				getQuartersErrorHandler(error = result.error)
-			}
-
-			else -> {}
+	private fun onFragmentResult(requestKey: String, result: Bundle) {
+		when (requestKey) {
+			RequestKeys.USE_PLAN_GRADE -> useEvaluationPlanGrade(result)
 		}
 	}
 
-	private fun getQuartersErrorHandler(error: GetQuartersError?) {
-		when (error) {
-			is GetQuartersError.AccountDisabled -> mainViewModel.signOut()
-			is GetQuartersError.NoConnection -> connectionSnackBar(error.isNetworkAvailable)
-			is GetQuartersError.OutdatedPassword -> mainViewModel.outdatedPassword()
-			is GetQuartersError.Timeout -> errorSnackBar(R.string.snack_timeout)
-			is GetQuartersError.Unavailable -> errorSnackBar(R.string.snack_service_unavailable)
-			else -> errorSnackBar()
+	private fun onSubjectOptionSelected(itemId: Int, item: SubjectItem) {
+		when (itemId) {
+			SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS ->
+				viewModel.openEvaluationPlanAction(item)
+
+			SubjectMenu.ID_WITHDRAW_SUBJECT ->
+				viewModel.withdrawSubjectAction(
+					WithdrawSubjectParams(
+						subjectId = item.id
+					)
+				)
 		}
 	}
 
-	inner class QuarterManager : QuarterAdapter.AdapterManager, AdapterDataObserver() {
+	inner class QuarterManager : QuarterAdapter.AdapterManager {
 		override fun onSubjectOptionsClicked(item: SubjectItem) {
 			showSubjectMenuDialog(item)
 		}
 
 		override fun onSubjectGradeChanged(item: SubjectItem, grade: Int, isSelected: Boolean) {
-			viewModel.updateSubject(
+			viewModel.updateSubjectAction(
 				UpdateSubjectParams(
 					subjectId = item.id,
 					grade = grade,
 					dispatchToRemote = isSelected
 				)
 			)
-		}
-
-		override fun onChanged() {
-			fViewRecord.displayedChild =
-				if (quarterAdapter.isNotEmpty()) Flipper.CONTENT else Flipper.EMPTY
 		}
 	}
 
@@ -211,7 +222,7 @@ class RecordFragment : NavigationFragment() {
 		override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
 			return when (menuItem.itemId) {
 				R.id.menu_enrollment -> {
-					navigate(RecordFragmentDirections.navToEnrollmentProof())
+					viewModel.openEnrollmentProofAction()
 
 					true
 				}

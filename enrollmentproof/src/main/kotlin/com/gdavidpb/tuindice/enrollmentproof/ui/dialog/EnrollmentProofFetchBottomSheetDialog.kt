@@ -24,7 +24,6 @@ import java.io.File
 class EnrollmentProofFetchBottomSheetDialog : BottomSheetDialogFragment() {
 
 	private val mainViewModel by sharedViewModel<MainViewModel>()
-
 	private val viewModel by viewModel<EnrollmentProofViewModel>()
 
 	override fun onCreateView(
