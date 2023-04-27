@@ -10,6 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+@Deprecated("This will be removed.", ReplaceWith("Nothing"))
 fun <T> emptyStateFlow() = MutableStateFlow<T?>(null)
 
 fun <T> CoroutineScope.collect(
@@ -34,10 +35,12 @@ fun LifecycleOwner.launchRepeatOnLifecycle(
 	}
 }
 
+@Deprecated("This will be removed.", ReplaceWith("Nothing"))
 fun <T> ViewModel.emit(flow: MutableStateFlow<T>, value: T) {
 	viewModelScope.launch { flow.emit(value) }
 }
 
+@Deprecated("This will be removed.", ReplaceWith("Nothing"))
 fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInFlow(
 	useCase: U,
 	params: P
@@ -49,6 +52,7 @@ fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInFlow(
 		initialValue = UseCaseState.Loading()
 	)
 
+@Deprecated("This will be removed.", ReplaceWith("Nothing"))
 @OptIn(ExperimentalCoroutinesApi::class)
 fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInFlow(
 	useCase: U,
@@ -63,6 +67,7 @@ fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInFlow(
 		initialValue = UseCaseState.Loading()
 	)
 
+@Deprecated("This will be removed.", ReplaceWith("Nothing"))
 @OptIn(ExperimentalCoroutinesApi::class)
 fun <P, T, E, U : FlowUseCase<P, T, E>> ViewModel.stateInAction(
 	useCase: U,
