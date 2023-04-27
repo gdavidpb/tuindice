@@ -2,23 +2,17 @@ package com.gdavidpb.tuindice.base.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.launch
 
-@OptIn(FlowPreview::class)
 abstract class BaseViewModel<ViewState, ViewAction, ViewEvent>(
 	val initialViewState: ViewState
 ) : ViewModel() {
-	val currentState: ViewState
-		get() = viewState.value
-
 	private val stateFlow = MutableStateFlow(initialViewState)
 	val viewState = stateFlow.asStateFlow()
 
@@ -31,7 +25,6 @@ abstract class BaseViewModel<ViewState, ViewAction, ViewEvent>(
 	init {
 		viewModelScope.launch {
 			viewAction
-				.sample(500L)
 				.collect { action ->
 					launch { reducer(action) }
 				}
@@ -39,6 +32,10 @@ abstract class BaseViewModel<ViewState, ViewAction, ViewEvent>(
 	}
 
 	protected abstract suspend fun reducer(action: ViewAction)
+
+	protected fun getCurrentState(): ViewState {
+		return viewState.value
+	}
 
 	protected fun setState(state: ViewState) {
 		stateFlow.value = state

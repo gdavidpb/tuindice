@@ -20,7 +20,7 @@ class UpdatePasswordViewModel(
 			is UpdatePassword.Action.ClickSignIn ->
 				updatePasswordReducer.reduce(
 					action = action,
-					currentState = { currentState },
+					stateProvider = ::getCurrentState,
 					stateProducer = ::setState,
 					eventProducer = ::sendEvent
 				)

@@ -96,8 +96,8 @@ class SummaryFragment : NavigationFragment() {
 	private fun stateCollector(state: Summary.State) {
 		when (state) {
 			is Summary.State.Loading -> fViewSummary.displayedChild = Flipper.LOADING
-			is Summary.State.Loaded -> loadSummaryState(value = state.value)
-			is Summary.State.Failed -> { /* TODO */ }
+			is Summary.State.Loaded -> loadSummaryViewState(value = state.value)
+			is Summary.State.Failed -> TODO()
 		}
 	}
 
@@ -116,7 +116,7 @@ class SummaryFragment : NavigationFragment() {
 		}
 	}
 
-	private fun loadSummaryState(value: SummaryViewState) {
+	private fun loadSummaryViewState(value: SummaryViewState) {
 		tViewName.text = value.name
 		tViewLastUpdate.text = value.lastUpdate
 		tViewCareer.text = value.careerName

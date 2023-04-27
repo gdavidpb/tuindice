@@ -17,7 +17,7 @@ class EnrollmentProofViewModel(
 			is Enrollment.Action.FetchEnrollmentProof ->
 				enrollmentProofReducer.reduce(
 					action = action,
-					currentState = { currentState },
+					stateProvider = ::getCurrentState,
 					stateProducer = ::setState,
 					eventProducer = ::sendEvent
 				)
