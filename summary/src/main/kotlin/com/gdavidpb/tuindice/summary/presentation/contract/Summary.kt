@@ -1,15 +1,18 @@
 package com.gdavidpb.tuindice.summary.presentation.contract
 
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewAction
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewEvent
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewState
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryViewState
 
 object Summary {
-	sealed class State {
+	sealed class State : ViewState {
 		object Loading : State()
 		class Loaded(val value: SummaryViewState) : State()
 		object Failed : State()
 	}
 
-	sealed class Action {
+	sealed class Action : ViewAction {
 		object LoadSummary : Action()
 		object TakeProfilePicture : Action()
 		object PickProfilePicture : Action()
@@ -18,7 +21,7 @@ object Summary {
 		object ShowTryLater : Action()
 	}
 
-	sealed class Event {
+	sealed class Event : ViewEvent {
 		object NavigateToAccountDisabled : Event()
 		object NavigateToOutdatedPassword : Event()
 		class OpenCamera(val output: String) : Event()

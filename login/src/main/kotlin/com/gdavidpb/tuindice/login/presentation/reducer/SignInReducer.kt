@@ -2,77 +2,75 @@ package com.gdavidpb.tuindice.login.presentation.reducer
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewOutput
 import com.gdavidpb.tuindice.base.utils.extension.config
-import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
-import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
-class SignInReducer(
-	override val useCase: SignInUseCase
-) : BaseReducer<SignInParams, Unit, SignInError, SignIn.State, SignIn.Action.ClickSignIn, SignIn.Event>() {
+class SignInReducer : BaseReducer<SignIn.State, SignIn.Event, Unit, SignInError>() {
 
 	private val loadingMessages by config { getLoadingMessages() }
 
-	override fun actionToParams(action: SignIn.Action.ClickSignIn): SignInParams {
-		return SignInParams(usbId = action.usbId, password = action.password)
-	}
-
 	override suspend fun reduceLoadingState(
 		currentState: SignIn.State,
-		useCaseState: UseCaseState.Loading<Unit, SignInError>,
-		eventProducer: (SignIn.Event) -> Unit
-	): SignIn.State {
-		eventProducer(SignIn.Event.ShakeLogo)
-		eventProducer(SignIn.Event.HideSoftKeyboard)
+		useCaseState: UseCaseState.Loading<Unit, SignInError>
+	): Flow<ViewOutput> {
+		return flow {
+			emit(SignIn.Event.ShakeLogo)
+			emit(SignIn.Event.HideSoftKeyboard)
 
-		return SignIn.State.LoggingIn(messages = loadingMessages.shuffled())
+			emit(SignIn.State.LoggingIn(messages = loadingMessages.shuffled()))
+		}
 	}
 
 	override suspend fun reduceDataState(
 		currentState: SignIn.State,
-		useCaseState: UseCaseState.Data<Unit, SignInError>,
-		eventProducer: (SignIn.Event) -> Unit
-	): SignIn.State {
-		eventProducer(SignIn.Event.NavigateToSplash)
+		useCaseState: UseCaseState.Data<Unit, SignInError>
+	): Flow<ViewOutput> {
+		return flow {
+			emit(SignIn.Event.NavigateToSplash)
 
-		return SignIn.State.LoggedIn
+			emit(SignIn.State.LoggedIn)
+		}
 	}
 
 	override suspend fun reduceErrorState(
 		currentState: SignIn.State,
-		useCaseState: UseCaseState.Error<Unit, SignInError>,
-		eventProducer: (SignIn.Event) -> Unit
-	): SignIn.State {
-		when (val error = useCaseState.error) {
-			is SignInError.EmptyPassword ->
-				eventProducer(SignIn.Event.ShowPasswordEmptyError)
+		useCaseState: UseCaseState.Error<Unit, SignInError>
+	): Flow<ViewOutput> {
+		return flow {
+			when (val error = useCaseState.error) {
+				is SignInError.EmptyPassword ->
+					emit(SignIn.Event.ShowPasswordEmptyError)
 
-			is SignInError.EmptyUsbId ->
-				eventProducer(SignIn.Event.ShowUsbIdEmptyError)
+				is SignInError.EmptyUsbId ->
+					emit(SignIn.Event.ShowUsbIdEmptyError)
 
-			is SignInError.InvalidUsbId ->
-				eventProducer(SignIn.Event.ShowUsbIdInvalidError)
+				is SignInError.InvalidUsbId ->
+					emit(SignIn.Event.ShowUsbIdInvalidError)
 
-			is SignInError.InvalidCredentials ->
-				eventProducer(SignIn.Event.ShowInvalidCredentialsSnackBar)
+				is SignInError.InvalidCredentials ->
+					emit(SignIn.Event.ShowInvalidCredentialsSnackBar)
 
-			is SignInError.AccountDisabled ->
-				eventProducer(SignIn.Event.ShowAccountDisabledSnackBar)
+				is SignInError.AccountDisabled ->
+					emit(SignIn.Event.ShowAccountDisabledSnackBar)
 
-			is SignInError.NoConnection ->
-				eventProducer(SignIn.Event.ShowNoConnectionSnackBar(isNetworkAvailable = error.isNetworkAvailable))
+				is SignInError.NoConnection ->
+					emit(SignIn.Event.ShowNoConnectionSnackBar(isNetworkAvailable = error.isNetworkAvailable))
 
-			is SignInError.Timeout ->
-				eventProducer(SignIn.Event.ShowTimeoutSnackBar)
+				is SignInError.Timeout ->
+					emit(SignIn.Event.ShowTimeoutSnackBar)
 
-			is SignInError.Unavailable ->
-				eventProducer(SignIn.Event.ShowUnavailableSnackBar)
+				is SignInError.Unavailable ->
+					emit(SignIn.Event.ShowUnavailableSnackBar)
 
-			else ->
-				eventProducer(SignIn.Event.ShowDefaultErrorSnackBar)
+				else ->
+					emit(SignIn.Event.ShowDefaultErrorSnackBar)
+			}
+
+			emit(SignIn.State.Idle)
 		}
-
-		return SignIn.State.Idle
 	}
 }

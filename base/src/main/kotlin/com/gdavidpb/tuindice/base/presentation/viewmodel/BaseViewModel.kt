@@ -2,6 +2,9 @@ package com.gdavidpb.tuindice.base.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewAction
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewEvent
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,16 +13,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-abstract class BaseViewModel<ViewState, ViewAction, ViewEvent>(
-	val initialViewState: ViewState
+abstract class BaseViewModel<State : ViewState, Action : ViewAction, Event : ViewEvent>(
+	val initialViewState: State
 ) : ViewModel() {
 	private val stateFlow = MutableStateFlow(initialViewState)
 	val viewState = stateFlow.asStateFlow()
 
-	private val actionFlow = MutableSharedFlow<ViewAction>()
+	private val actionFlow = MutableSharedFlow<Action>()
 	private val viewAction = actionFlow.asSharedFlow()
 
-	private val eventChannel = Channel<ViewEvent>()
+	private val eventChannel = Channel<Event>()
 	val viewEvent = eventChannel.receiveAsFlow()
 
 	init {
@@ -31,21 +34,21 @@ abstract class BaseViewModel<ViewState, ViewAction, ViewEvent>(
 		}
 	}
 
-	protected abstract suspend fun reducer(action: ViewAction)
+	protected abstract suspend fun reducer(action: Action)
 
-	protected fun getCurrentState(): ViewState {
-		return viewState.value
-	}
-
-	protected fun setState(state: ViewState) {
-		stateFlow.value = state
-	}
-
-	protected fun emitAction(action: ViewAction) {
+	protected fun emitAction(action: Action) {
 		viewModelScope.launch { actionFlow.emit(action) }
 	}
 
-	protected fun sendEvent(event: ViewEvent) {
+	fun getCurrentState(): State {
+		return viewState.value
+	}
+
+	fun setState(state: State) {
+		stateFlow.value = state
+	}
+
+	fun sendEvent(event: Event) {
 		viewModelScope.launch { eventChannel.send(event) }
 	}
 }
