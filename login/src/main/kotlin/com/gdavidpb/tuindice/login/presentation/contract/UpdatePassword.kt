@@ -1,18 +1,22 @@
 package com.gdavidpb.tuindice.login.presentation.contract
 
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewAction
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewEvent
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewState
+
 object UpdatePassword {
-	sealed class State {
+	sealed class State : ViewState {
 		object Idle : State()
 		object LoggingIn : State()
 		object LoggedIn : State()
 	}
 
-	sealed class Action {
+	sealed class Action : ViewAction {
 		object CloseDialog : Action()
 		class ClickSignIn(val password: String) : Action()
 	}
 
-	sealed class Event {
+	sealed class Event : ViewEvent {
 		object CloseDialog : Event()
 		object HideSoftKeyboard : Event()
 		object NavigateToAccountDisabled : Event()

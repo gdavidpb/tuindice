@@ -2,68 +2,68 @@ package com.gdavidpb.tuindice.enrollmentproof.presentation.reducer
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
-import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewOutput
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofError
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 
-class EnrollmentProofReducer(
-	override val useCase: FetchEnrollmentProofUseCase
-) : BaseReducer<Unit, String, FetchEnrollmentProofError, Enrollment.State, Enrollment.Action.FetchEnrollmentProof, Enrollment.Event>() {
-
-	override fun actionToParams(action: Enrollment.Action.FetchEnrollmentProof) {}
+class EnrollmentProofReducer :
+	BaseReducer<Enrollment.State, Enrollment.Event, String, FetchEnrollmentProofError>() {
 
 	override suspend fun reduceLoadingState(
 		currentState: Enrollment.State,
-		useCaseState: UseCaseState.Loading<String, FetchEnrollmentProofError>,
-		eventProducer: (Enrollment.Event) -> Unit
-	): Enrollment.State {
-		return Enrollment.State.Fetching
+		useCaseState: UseCaseState.Loading<String, FetchEnrollmentProofError>
+	): Flow<ViewOutput> {
+		return flowOf(Enrollment.State.Fetching)
 	}
 
 	override suspend fun reduceDataState(
 		currentState: Enrollment.State,
-		useCaseState: UseCaseState.Data<String, FetchEnrollmentProofError>,
-		eventProducer: (Enrollment.Event) -> Unit
-	): Enrollment.State {
-		eventProducer(Enrollment.Event.OpenEnrollmentProof(path = useCaseState.value))
-		eventProducer(Enrollment.Event.CloseDialog)
+		useCaseState: UseCaseState.Data<String, FetchEnrollmentProofError>
+	): Flow<ViewOutput> {
+		return flow {
+			emit(Enrollment.Event.OpenEnrollmentProof(path = useCaseState.value))
+			emit(Enrollment.Event.CloseDialog)
 
-		return Enrollment.State.Fetched
+			emit(Enrollment.State.Fetched)
+		}
 	}
 
 	override suspend fun reduceErrorState(
 		currentState: Enrollment.State,
-		useCaseState: UseCaseState.Error<String, FetchEnrollmentProofError>,
-		eventProducer: (Enrollment.Event) -> Unit
-	): Enrollment.State {
-		when (val error = useCaseState.error) {
-			is FetchEnrollmentProofError.AccountDisabled ->
-				eventProducer(Enrollment.Event.NavigateToAccountDisabled)
+		useCaseState: UseCaseState.Error<String, FetchEnrollmentProofError>
+	): Flow<ViewOutput> {
+		return flow {
+			when (val error = useCaseState.error) {
+				is FetchEnrollmentProofError.AccountDisabled ->
+					emit(Enrollment.Event.NavigateToAccountDisabled)
 
-			is FetchEnrollmentProofError.NoConnection ->
-				eventProducer(Enrollment.Event.ShowNoConnectionSnackBar(isNetworkAvailable = error.isNetworkAvailable))
+				is FetchEnrollmentProofError.NoConnection ->
+					emit(Enrollment.Event.ShowNoConnectionSnackBar(isNetworkAvailable = error.isNetworkAvailable))
 
-			is FetchEnrollmentProofError.NotFound ->
-				eventProducer(Enrollment.Event.ShowNotFoundSnackBar)
+				is FetchEnrollmentProofError.NotFound ->
+					emit(Enrollment.Event.ShowNotFoundSnackBar)
 
-			is FetchEnrollmentProofError.UnsupportedFile ->
-				eventProducer(Enrollment.Event.ShowUnsupportedFileSnackBar)
+				is FetchEnrollmentProofError.UnsupportedFile ->
+					emit(Enrollment.Event.ShowUnsupportedFileSnackBar)
 
-			is FetchEnrollmentProofError.OutdatedPassword ->
-				eventProducer(Enrollment.Event.NavigateToOutdatedPassword)
+				is FetchEnrollmentProofError.OutdatedPassword ->
+					emit(Enrollment.Event.NavigateToOutdatedPassword)
 
-			is FetchEnrollmentProofError.Timeout ->
-				eventProducer(Enrollment.Event.ShowTimeoutSnackBar)
+				is FetchEnrollmentProofError.Timeout ->
+					emit(Enrollment.Event.ShowTimeoutSnackBar)
 
-			is FetchEnrollmentProofError.Unavailable ->
-				eventProducer(Enrollment.Event.ShowUnavailableSnackBar)
+				is FetchEnrollmentProofError.Unavailable ->
+					emit(Enrollment.Event.ShowUnavailableSnackBar)
 
-			else ->
-				eventProducer(Enrollment.Event.ShowDefaultErrorError)
+				else ->
+					emit(Enrollment.Event.ShowDefaultErrorError)
+			}
+
+			emit(Enrollment.Event.CloseDialog)
+			emit(Enrollment.State.Failed)
 		}
-
-		eventProducer(Enrollment.Event.CloseDialog)
-
-		return Enrollment.State.Failed
 	}
 }

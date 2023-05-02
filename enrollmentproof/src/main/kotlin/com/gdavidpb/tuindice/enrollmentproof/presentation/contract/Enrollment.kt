@@ -1,17 +1,21 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.contract
 
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewAction
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewEvent
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewState
+
 object Enrollment {
-	sealed class State {
+	sealed class State : ViewState {
 		object Fetching : State()
 		object Fetched : State()
 		object Failed : State()
 	}
 
-	sealed class Action {
+	sealed class Action : ViewAction {
 		object FetchEnrollmentProof : Action()
 	}
 
-	sealed class Event {
+	sealed class Event : ViewEvent {
 		object CloseDialog : Event()
 		class OpenEnrollmentProof(val path: String) : Event()
 		object NavigateToAccountDisabled : Event()

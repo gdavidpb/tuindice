@@ -105,8 +105,8 @@ class SummaryFragment : NavigationFragment() {
 		when (event) {
 			is Summary.Event.NavigateToAccountDisabled -> navigateToAccountDisabled()
 			is Summary.Event.NavigateToOutdatedPassword -> navigateToOutdatedPassword()
-			is Summary.Event.OpenCamera -> registerTakePicture.launch(Uri.parse(event.output))
-			is Summary.Event.OpenPicker -> registerPickVisualMedia.launch(pickVisualMediaRequest)
+			is Summary.Event.OpenCamera -> takeProfilePicture(event.output)
+			is Summary.Event.OpenPicker -> pickProfilePicture()
 			is Summary.Event.ShowProfilePictureUpdatedSnackBar -> snackBar(R.string.snack_profile_picture_updated)
 			is Summary.Event.ShowProfilePictureRemovedSnackBar -> snackBar(R.string.snack_profile_picture_removed)
 			is Summary.Event.ShowTryLaterSnackBar -> snackBar(R.string.snack_no_service)
@@ -153,6 +153,16 @@ class SummaryFragment : NavigationFragment() {
 
 	private fun navigateToOutdatedPassword() {
 		navigate(NavigationBaseDirections.navToUpdatePassword())
+	}
+
+	private fun pickProfilePicture() {
+		registerPickVisualMedia.launch(pickVisualMediaRequest)
+	}
+
+	private fun takeProfilePicture(output: String) {
+		registerTakePicture.launch(Uri.parse(output))
+
+		viewModel.setCameraOutput(output)
 	}
 
 	private fun onLastUpdateClick() {

@@ -1,6 +1,11 @@
 package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.presentation.reducer.collect
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
+import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.TakeProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.reducer.RemoveProfilePictureReducer
 import com.gdavidpb.tuindice.summary.presentation.reducer.SummaryReducer
@@ -8,6 +13,10 @@ import com.gdavidpb.tuindice.summary.presentation.reducer.TakeProfilePictureRedu
 import com.gdavidpb.tuindice.summary.presentation.reducer.UploadProfilePictureReducer
 
 class SummaryViewModel(
+	private val getAccountUseCase: GetAccountUseCase,
+	private val takeProfilePictureUseCase: TakeProfilePictureUseCase,
+	private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
+	private val removeProfilePictureUseCase: RemoveProfilePictureUseCase,
 	private val summaryReducer: SummaryReducer,
 	private val takeProfilePictureReducer: TakeProfilePictureReducer,
 	private val uploadProfilePictureReducer: UploadProfilePictureReducer,
@@ -32,6 +41,10 @@ class SummaryViewModel(
 		emitAction(Summary.Action.UploadProfilePicture(path = cameraOutput))
 			.also { cameraOutput = "" }
 
+	fun setCameraOutput(output: String) {
+		cameraOutput = output
+	}
+
 	fun removeProfilePictureAction() =
 		emitAction(Summary.Action.RemoveProfilePicture)
 
@@ -41,43 +54,27 @@ class SummaryViewModel(
 	override suspend fun reducer(action: Summary.Action) {
 		when (action) {
 			is Summary.Action.LoadSummary ->
-				summaryReducer.reduce(
-					action = action,
-					stateProvider = ::getCurrentState,
-					stateProducer = ::setState,
-					eventProducer = ::sendEvent
-				)
+				getAccountUseCase
+					.execute(params = Unit)
+					.collect(viewModel = this, reducer = summaryReducer)
 
 			is Summary.Action.TakeProfilePicture ->
-				takeProfilePictureReducer.reduce(
-					action = action,
-					stateProvider = ::getCurrentState,
-					stateProducer = ::setState,
-					eventProducer = { event ->
-						if (event is Summary.Event.OpenCamera) cameraOutput = event.output
-
-						sendEvent(event)
-					}
-				)
+				takeProfilePictureUseCase
+					.execute(params = Unit)
+					.collect(viewModel = this, reducer = takeProfilePictureReducer)
 
 			is Summary.Action.PickProfilePicture ->
 				sendEvent(Summary.Event.OpenPicker)
 
 			is Summary.Action.UploadProfilePicture ->
-				uploadProfilePictureReducer.reduce(
-					action = action,
-					stateProvider = ::getCurrentState,
-					stateProducer = ::setState,
-					eventProducer = ::sendEvent
-				)
+				uploadProfilePictureUseCase
+					.execute(params = action.path)
+					.collect(viewModel = this, reducer = uploadProfilePictureReducer)
 
 			is Summary.Action.RemoveProfilePicture ->
-				removeProfilePictureReducer.reduce(
-					action = action,
-					stateProvider = ::getCurrentState,
-					stateProducer = ::setState,
-					eventProducer = ::sendEvent
-				)
+				removeProfilePictureUseCase
+					.execute(params = Unit)
+					.collect(viewModel = this, reducer = removeProfilePictureReducer)
 
 			is Summary.Action.ShowTryLater ->
 				sendEvent(Summary.Event.ShowTryLaterSnackBar)

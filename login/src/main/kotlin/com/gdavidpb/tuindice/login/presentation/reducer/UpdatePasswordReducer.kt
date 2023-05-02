@@ -2,62 +2,62 @@ package com.gdavidpb.tuindice.login.presentation.reducer
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
-import com.gdavidpb.tuindice.login.domain.usecase.UpdatePasswordUseCase
+import com.gdavidpb.tuindice.base.presentation.reducer.ViewOutput
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 
-class UpdatePasswordReducer(
-	override val useCase: UpdatePasswordUseCase
-) : BaseReducer<String, Unit, SignInError, UpdatePassword.State, UpdatePassword.Action.ClickSignIn, UpdatePassword.Event>() {
-	override fun actionToParams(action: UpdatePassword.Action.ClickSignIn): String {
-		return action.password
-	}
+class UpdatePasswordReducer :
+	BaseReducer<UpdatePassword.State, UpdatePassword.Event, Unit, SignInError>() {
 
 	override suspend fun reduceLoadingState(
 		currentState: UpdatePassword.State,
-		useCaseState: UseCaseState.Loading<Unit, SignInError>,
-		eventProducer: (UpdatePassword.Event) -> Unit
-	): UpdatePassword.State {
-		eventProducer(UpdatePassword.Event.HideSoftKeyboard)
+		useCaseState: UseCaseState.Loading<Unit, SignInError>
+	): Flow<ViewOutput> {
+		return flow {
+			emit(UpdatePassword.Event.HideSoftKeyboard)
 
-		return UpdatePassword.State.LoggingIn
+			emit(UpdatePassword.State.LoggingIn)
+		}
 	}
 
 	override suspend fun reduceDataState(
 		currentState: UpdatePassword.State,
-		useCaseState: UseCaseState.Data<Unit, SignInError>,
-		eventProducer: (UpdatePassword.Event) -> Unit
-	): UpdatePassword.State {
-		return UpdatePassword.State.LoggedIn
+		useCaseState: UseCaseState.Data<Unit, SignInError>
+	): Flow<ViewOutput> {
+		return flowOf(UpdatePassword.State.LoggedIn)
 	}
 
 	override suspend fun reduceErrorState(
 		currentState: UpdatePassword.State,
-		useCaseState: UseCaseState.Error<Unit, SignInError>,
-		eventProducer: (UpdatePassword.Event) -> Unit
-	): UpdatePassword.State {
-		when (val error = useCaseState.error) {
-			is SignInError.AccountDisabled ->
-				eventProducer(UpdatePassword.Event.NavigateToAccountDisabled)
+		useCaseState: UseCaseState.Error<Unit, SignInError>
+	): Flow<ViewOutput> {
+		return flow {
+			when (val error = useCaseState.error) {
+				is SignInError.AccountDisabled ->
+					emit(UpdatePassword.Event.NavigateToAccountDisabled)
 
-			is SignInError.EmptyPassword ->
-				eventProducer(UpdatePassword.Event.ShowPasswordUpdatedToast)
+				is SignInError.EmptyPassword ->
+					emit(UpdatePassword.Event.ShowPasswordUpdatedToast)
 
-			is SignInError.InvalidCredentials ->
-				eventProducer(UpdatePassword.Event.ShowInvalidCredentialsError)
+				is SignInError.InvalidCredentials ->
+					emit(UpdatePassword.Event.ShowInvalidCredentialsError)
 
-			is SignInError.NoConnection ->
-				eventProducer(UpdatePassword.Event.ShowNoConnectionError(isNetworkAvailable = error.isNetworkAvailable))
+				is SignInError.NoConnection ->
+					emit(UpdatePassword.Event.ShowNoConnectionError(isNetworkAvailable = error.isNetworkAvailable))
 
-			is SignInError.Timeout ->
-				eventProducer(UpdatePassword.Event.ShowTimeoutError)
+				is SignInError.Timeout ->
+					emit(UpdatePassword.Event.ShowTimeoutError)
 
-			is SignInError.Unavailable ->
-				eventProducer(UpdatePassword.Event.ShowUnavailableError)
+				is SignInError.Unavailable ->
+					emit(UpdatePassword.Event.ShowUnavailableError)
 
-			else -> {}
+				else -> {}
+			}
+
+			emit(UpdatePassword.State.Idle)
 		}
-
-		return UpdatePassword.State.Idle
 	}
 }

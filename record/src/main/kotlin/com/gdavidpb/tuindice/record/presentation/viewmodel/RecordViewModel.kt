@@ -1,6 +1,11 @@
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.presentation.reducer.collect
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
+import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.UpdateSubjectUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.WithdrawSubjectUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.param.RemoveQuarterParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpdateSubjectParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.WithdrawSubjectParams
@@ -12,6 +17,10 @@ import com.gdavidpb.tuindice.record.presentation.reducer.UpdateSubjectReducer
 import com.gdavidpb.tuindice.record.presentation.reducer.WithdrawSubjectReducer
 
 class RecordViewModel(
+	private val getQuartersUseCase: GetQuartersUseCase,
+	private val removeQuarterUseCase: RemoveQuarterUseCase,
+	private val updateSubjectUseCase: UpdateSubjectUseCase,
+	private val withdrawSubjectUseCase: WithdrawSubjectUseCase,
 	private val recordReducer: RecordReducer,
 	private val removeQuarterReducer: RemoveQuarterReducer,
 	private val updateSubjectReducer: UpdateSubjectReducer,
@@ -39,36 +48,24 @@ class RecordViewModel(
 	override suspend fun reducer(action: Record.Action) {
 		when (action) {
 			is Record.Action.LoadQuarters ->
-				recordReducer.reduce(
-					action = action,
-					stateProvider = ::getCurrentState,
-					stateProducer = ::setState,
-					eventProducer = ::sendEvent
-				)
+				getQuartersUseCase
+					.execute(params = Unit)
+					.collect(viewModel = this, reducer = recordReducer)
 
 			is Record.Action.RemoveQuarter ->
-				removeQuarterReducer.reduce(
-					action = action,
-					stateProvider = ::getCurrentState,
-					stateProducer = ::setState,
-					eventProducer = ::sendEvent
-				)
+				removeQuarterUseCase
+					.execute(params = action.params)
+					.collect(viewModel = this, reducer = removeQuarterReducer)
 
 			is Record.Action.UpdateSubject ->
-				updateSubjectReducer.reduce(
-					action = action,
-					stateProvider = ::getCurrentState,
-					stateProducer = ::setState,
-					eventProducer = ::sendEvent
-				)
+				updateSubjectUseCase
+					.execute(params = action.params)
+					.collect(viewModel = this, reducer = updateSubjectReducer)
 
 			is Record.Action.WithdrawSubject ->
-				withdrawSubjectReducer.reduce(
-					action = action,
-					stateProvider = ::getCurrentState,
-					stateProducer = ::setState,
-					eventProducer = ::sendEvent
-				)
+				withdrawSubjectUseCase
+					.execute(params = action.params)
+					.collect(viewModel = this, reducer = withdrawSubjectReducer)
 
 			is Record.Action.OpenEvaluationPlan ->
 				sendEvent(Record.Event.NavigateToEvaluationPlan(action.item))
