@@ -4,6 +4,15 @@ apply plugin: "kotlin-android-extensions"
 android {
     compileSdkVersion core.targetSdk
 
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
         minSdkVersion core.minSdk

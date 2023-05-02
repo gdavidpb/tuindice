@@ -20,7 +20,7 @@ dependencies {
     debugApi "com.squareup.retrofit2:retrofit-mock:${versions.retrofit}"
 
     /* AndroidX */
-    api "androidx.fragment:fragment-ktx:1.5.6"
+    api "androidx.fragment:fragment-ktx:1.5.7"
     api "androidx.legacy:legacy-support-v4:1.0.0"
     api "androidx.appcompat:appcompat:1.6.1"
     api "androidx.cardview:cardview:1.0.0"
