@@ -7,14 +7,11 @@ import android.view.MenuItem
 import android.view.View
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
-import androidx.fragment.app.setFragmentResultListener
 import com.gdavidpb.tuindice.base.NavigationBaseDirections
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
-import com.gdavidpb.tuindice.base.utils.RequestKeys
-import com.gdavidpb.tuindice.base.utils.ResultKeys
 import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
@@ -66,8 +63,6 @@ class RecordFragment : NavigationFragment() {
 
 		requireActivity().addMenuProvider(RecordMenuProvider(), viewLifecycleOwner)
 
-		setFragmentResultListener(RequestKeys.USE_PLAN_GRADE, ::onFragmentResult)
-
 		launchRepeatOnLifecycle {
 			with(viewModel) {
 				collect(viewState, ::stateCollector)
@@ -91,7 +86,6 @@ class RecordFragment : NavigationFragment() {
 			is Record.Event.NavigateToAccountDisabled -> navigateToAccountDisabled()
 			is Record.Event.NavigateToOutdatedPassword -> navigateToOutdatedPassword()
 			is Record.Event.NavigateToEnrollmentProof -> navigateToEnrollmentProof()
-			is Record.Event.NavigateToEvaluationPlan -> navigateToEvaluationPlan(event.item)
 			is Record.Event.ShowTimeoutSnackBar -> errorSnackBar(R.string.snack_timeout)
 			is Record.Event.ShowNoConnectionSnackBar -> connectionSnackBar(event.isNetworkAvailable)
 			is Record.Event.ShowUnavailableSnackBar -> errorSnackBar(R.string.snack_service_unavailable)
@@ -107,17 +101,6 @@ class RecordFragment : NavigationFragment() {
 		fViewRecord.displayedChild = if (value.isEmpty) Flipper.EMPTY else Flipper.CONTENT
 	}
 
-	private fun navigateToEvaluationPlan(item: SubjectItem) {
-		navigate(
-			RecordFragmentDirections.navToEvaluationPlan(
-				quarterId = item.data.qid,
-				subjectId = item.id,
-				subjectCode = item.data.code,
-				subjectName = item.data.name
-			)
-		)
-	}
-
 	private fun navigateToAccountDisabled() {
 		mainViewModel.signOut()
 	}
@@ -130,24 +113,9 @@ class RecordFragment : NavigationFragment() {
 		navigate(RecordFragmentDirections.navToEnrollmentProof())
 	}
 
-	private fun useEvaluationPlanGrade(result: Bundle) {
-		val subjectId = result.getString(ResultKeys.SUBJECT_ID, null)
-		val grade = result.getInt(ResultKeys.GRADE, -1)
-
-		if (subjectId == null || grade == -1) return
-
-		viewModel.updateSubjectAction(
-			UpdateSubjectParams(
-				subjectId = subjectId,
-				grade = grade,
-				dispatchToRemote = true
-			)
-		)
-	}
-
 	private fun showSubjectMenuDialog(item: SubjectItem) {
 		val title = getString(
-			R.string.label_evaluation_plan_header,
+			R.string.label_evaluation_header,
 			item.code,
 			item.data.name
 		)
@@ -178,16 +146,10 @@ class RecordFragment : NavigationFragment() {
 		}
 	}
 
-	private fun onFragmentResult(requestKey: String, result: Bundle) {
-		when (requestKey) {
-			RequestKeys.USE_PLAN_GRADE -> useEvaluationPlanGrade(result)
-		}
-	}
-
 	private fun onSubjectOptionSelected(itemId: Int, item: SubjectItem) {
 		when (itemId) {
 			SubjectMenu.ID_SHOW_SUBJECT_EVALUATIONS ->
-				viewModel.openEvaluationPlanAction(item)
+				TODO()
 
 			SubjectMenu.ID_WITHDRAW_SUBJECT ->
 				viewModel.withdrawSubjectAction(

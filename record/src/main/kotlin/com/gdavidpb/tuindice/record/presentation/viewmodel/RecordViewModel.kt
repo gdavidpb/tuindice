@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.record.domain.usecase.param.RemoveQuarterParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpdateSubjectParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.WithdrawSubjectParams
 import com.gdavidpb.tuindice.record.presentation.contract.Record
-import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.presentation.reducer.RecordReducer
 import com.gdavidpb.tuindice.record.presentation.reducer.RemoveQuarterReducer
 import com.gdavidpb.tuindice.record.presentation.reducer.UpdateSubjectReducer
@@ -39,9 +38,6 @@ class RecordViewModel(
 	fun withdrawSubjectAction(params: WithdrawSubjectParams) =
 		emitAction(Record.Action.WithdrawSubject(params))
 
-	fun openEvaluationPlanAction(item: SubjectItem) =
-		emitAction(Record.Action.OpenEvaluationPlan(item))
-
 	fun openEnrollmentProofAction() =
 		emitAction(Record.Action.OpenEnrollmentProof)
 
@@ -66,9 +62,6 @@ class RecordViewModel(
 				withdrawSubjectUseCase
 					.execute(params = action.params)
 					.collect(viewModel = this, reducer = withdrawSubjectReducer)
-
-			is Record.Action.OpenEvaluationPlan ->
-				sendEvent(Record.Event.NavigateToEvaluationPlan(action.item))
 
 			is Record.Action.OpenEnrollmentProof ->
 				sendEvent(Record.Event.NavigateToEnrollmentProof)

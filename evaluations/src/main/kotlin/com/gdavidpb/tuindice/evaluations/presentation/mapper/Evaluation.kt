@@ -19,7 +19,7 @@ import java.util.Date
 
 fun Evaluation.toEvaluationViewState(resourceResolver: ResourceResolver) = EvaluationViewState(
 	subjectHeader = resourceResolver.getString(
-		R.string.label_evaluation_plan_header,
+		R.string.label_evaluation_header,
 		subjectCode,
 		subjectName
 	),

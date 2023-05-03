@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.record.domain.usecase.param.RemoveQuarterParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpdateSubjectParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.WithdrawSubjectParams
 import com.gdavidpb.tuindice.record.presentation.model.RecordViewState
-import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 
 object Record {
 	sealed class State : ViewState {
@@ -21,7 +20,6 @@ object Record {
 		class UpdateSubject(val params: UpdateSubjectParams) : Action()
 		class WithdrawSubject(val params: WithdrawSubjectParams) : Action()
 		class RemoveQuarter(val params: RemoveQuarterParams) : Action()
-		class OpenEvaluationPlan(val item: SubjectItem) : Action()
 		object OpenEnrollmentProof : Action()
 	}
 
@@ -29,7 +27,6 @@ object Record {
 		object NavigateToAccountDisabled : Event()
 		object NavigateToOutdatedPassword : Event()
 		object NavigateToEnrollmentProof : Event()
-		class NavigateToEvaluationPlan(val item: SubjectItem) : Event()
 		object ShowTimeoutSnackBar : Event()
 		class ShowNoConnectionSnackBar(val isNetworkAvailable: Boolean) : Event()
 		object ShowUnavailableSnackBar : Event()
