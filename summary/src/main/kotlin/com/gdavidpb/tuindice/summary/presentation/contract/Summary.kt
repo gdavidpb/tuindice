@@ -19,11 +19,13 @@ object Summary {
 		class UploadProfilePicture(val path: String) : Action()
 		object RemoveProfilePicture : Action()
 		object ShowTryLater : Action()
+		object SignOut : Action()
 	}
 
 	sealed class Event : ViewEvent {
 		object NavigateToAccountDisabled : Event()
 		object NavigateToOutdatedPassword : Event()
+		object NavigateToSignIn : Event()
 		class OpenCamera(val output: String) : Event()
 		object OpenPicker : Event()
 		object ShowProfilePictureUpdatedSnackBar : Event()
