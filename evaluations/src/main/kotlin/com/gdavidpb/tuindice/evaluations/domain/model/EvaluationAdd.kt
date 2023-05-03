@@ -6,7 +6,6 @@ data class EvaluationAdd(
 	val reference: String,
 	val quarterId: String,
 	val subjectId: String,
-	val subjectCode: String,
 	val name: String,
 	val grade: Double,
 	val maxGrade: Double,

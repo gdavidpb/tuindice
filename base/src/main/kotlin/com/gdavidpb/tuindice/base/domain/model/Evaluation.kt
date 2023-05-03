@@ -7,6 +7,7 @@ data class Evaluation(
 	val subjectId: String,
 	val quarterId: String,
 	val subjectCode: String,
+	val subjectName: String,
 	val name: String,
 	val grade: Double,
 	val maxGrade: Double,
