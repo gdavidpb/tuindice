@@ -12,7 +12,6 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.NavigationBaseDirections
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
-import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
@@ -37,12 +36,10 @@ import kotlinx.android.synthetic.main.fragment_summary.tViewGrade
 import kotlinx.android.synthetic.main.fragment_summary.tViewLastUpdate
 import kotlinx.android.synthetic.main.fragment_summary.tViewName
 import kotlinx.android.synthetic.main.fragment_summary.vProfilePicture
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SummaryFragment : NavigationFragment() {
 
-	private val mainViewModel by sharedViewModel<MainViewModel>()
 	private val viewModel by viewModel<SummaryViewModel>()
 
 	private val summaryAdapter = SummaryAdapter()
@@ -105,6 +102,7 @@ class SummaryFragment : NavigationFragment() {
 		when (event) {
 			is Summary.Event.NavigateToAccountDisabled -> navigateToAccountDisabled()
 			is Summary.Event.NavigateToOutdatedPassword -> navigateToOutdatedPassword()
+			is Summary.Event.NavigateToSignIn -> navigateToSignIn()
 			is Summary.Event.OpenCamera -> takeProfilePicture(event.output)
 			is Summary.Event.OpenPicker -> pickProfilePicture()
 			is Summary.Event.ShowProfilePictureUpdatedSnackBar -> snackBar(R.string.snack_profile_picture_updated)
@@ -148,11 +146,15 @@ class SummaryFragment : NavigationFragment() {
 	}
 
 	private fun navigateToAccountDisabled() {
-		mainViewModel.signOut()
+		navigate(NavigationBaseDirections.navToAccountDisabled())
 	}
 
 	private fun navigateToOutdatedPassword() {
 		navigate(NavigationBaseDirections.navToUpdatePassword())
+	}
+
+	private fun navigateToSignIn() {
+		navigate(NavigationBaseDirections.navToSignIn())
 	}
 
 	private fun pickProfilePicture() {
@@ -242,7 +244,7 @@ class SummaryFragment : NavigationFragment() {
 						titleResource = R.string.dialog_title_sign_out
 						messageResource = R.string.dialog_message_sign_out
 
-						positiveButton(R.string.menu_sign_out) { mainViewModel.signOut() }
+						positiveButton(R.string.menu_sign_out) { viewModel.signOutAction() }
 						negativeButton(R.string.cancel)
 					}
 
