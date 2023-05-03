@@ -133,6 +133,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/dp_16"
         android:fontFamily="sans-serif-light"
+        android:gravity="center"
         android:minHeight="@dimen/dp_48"
         android:text="@string/label_policies"
         android:textAlignment="center"
