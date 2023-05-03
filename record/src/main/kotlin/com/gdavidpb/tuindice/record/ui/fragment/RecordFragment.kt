@@ -9,7 +9,6 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.NavigationBaseDirections
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
-import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
@@ -28,12 +27,10 @@ import com.gdavidpb.tuindice.record.ui.adapter.QuarterAdapter
 import kotlinx.android.synthetic.main.fragment_record.fViewRecord
 import kotlinx.android.synthetic.main.fragment_record.pBarRecord
 import kotlinx.android.synthetic.main.fragment_record.rViewRecord
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RecordFragment : NavigationFragment() {
 
-	private val mainViewModel by sharedViewModel<MainViewModel>()
 	private val viewModel by viewModel<RecordViewModel>()
 
 	private val quarterManager = QuarterManager()
@@ -77,7 +74,7 @@ class RecordFragment : NavigationFragment() {
 		when (state) {
 			is Record.State.Loading -> fViewRecord.displayedChild = Flipper.LOADING
 			is Record.State.Loaded -> loadRecordState(value = state.value)
-			is Record.State.Failed -> TODO()
+			is Record.State.Failed -> { /* TODO() */ }
 		}
 	}
 
@@ -102,7 +99,7 @@ class RecordFragment : NavigationFragment() {
 	}
 
 	private fun navigateToAccountDisabled() {
-		mainViewModel.signOut()
+		navigate(NavigationBaseDirections.navToAccountDisabled())
 	}
 
 	private fun navigateToOutdatedPassword() {

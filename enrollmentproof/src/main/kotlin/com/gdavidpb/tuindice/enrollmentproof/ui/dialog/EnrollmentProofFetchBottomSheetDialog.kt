@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.gdavidpb.tuindice.base.NavigationBaseDirections
-import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
@@ -17,13 +16,11 @@ import com.gdavidpb.tuindice.enrollmentproof.R
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 
 class EnrollmentProofFetchBottomSheetDialog : BottomSheetDialogFragment() {
 
-	private val mainViewModel by sharedViewModel<MainViewModel>()
 	private val viewModel by viewModel<EnrollmentProofViewModel>()
 
 	override fun onCreateView(
@@ -73,7 +70,7 @@ class EnrollmentProofFetchBottomSheetDialog : BottomSheetDialogFragment() {
 	}
 
 	private fun navigateToAccountDisabled() {
-		mainViewModel.signOut()
+		navigate(NavigationBaseDirections.navToAccountDisabled())
 	}
 
 	private fun navigateToOutdatedPassword() {
