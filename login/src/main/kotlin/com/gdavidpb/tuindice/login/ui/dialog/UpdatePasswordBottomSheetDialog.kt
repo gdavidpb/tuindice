@@ -5,10 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.base.NavigationBaseDirections
 import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.navigate
 import com.gdavidpb.tuindice.base.utils.extension.toast
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
@@ -23,7 +24,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 
-	private val mainViewModel by viewModel<MainViewModel>()
 	private val viewModel by viewModel<UpdatePasswordViewModel>()
 
 	override fun onCreateView(
@@ -73,7 +73,7 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 	}
 
 	private fun navigateToAccountDisabled() {
-		mainViewModel.signOut()
+		navigate(NavigationBaseDirections.navToAccountDisabled())
 	}
 
 	private fun onConfirmClick() {
