@@ -10,7 +10,6 @@ fun AddEvaluationParams.toEvaluationAdd() = EvaluationAdd(
 	reference = generateReference(),
 	quarterId = quarterId,
 	subjectId = subjectId,
-	subjectCode = subjectCode,
 	name = name!!,
 	grade = grade!!,
 	maxGrade = maxGrade!!,

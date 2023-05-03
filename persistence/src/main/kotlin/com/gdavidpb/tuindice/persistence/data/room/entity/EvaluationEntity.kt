@@ -45,6 +45,7 @@ data class EvaluationEntity(
 	@ColumnInfo(name = EvaluationTable.QUARTER_ID) val quarterId: String,
 	@ColumnInfo(name = EvaluationTable.ACCOUNT_ID) val accountId: String,
 	@ColumnInfo(name = EvaluationTable.SUBJECT_CODE) val subjectCode: String,
+	@ColumnInfo(name = EvaluationTable.SUBJECT_NAME) val subjectName: String,
 	@ColumnInfo(name = EvaluationTable.NAME) val name: String,
 	@ColumnInfo(name = EvaluationTable.GRADE) val grade: Double,
 	@ColumnInfo(name = EvaluationTable.MAX_GRADE) val maxGrade: Double,

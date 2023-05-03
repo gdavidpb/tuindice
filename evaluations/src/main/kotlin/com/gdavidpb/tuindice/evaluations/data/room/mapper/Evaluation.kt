@@ -11,6 +11,7 @@ fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	quarterId = quarterId,
 	accountId = uid,
 	subjectCode = subjectCode,
+	subjectName = subjectName,
 	name = name,
 	grade = grade,
 	maxGrade = maxGrade,
@@ -20,12 +21,17 @@ fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	isDone = isDone
 )
 
-fun EvaluationAdd.toEvaluationEntity(uid: String) = EvaluationEntity(
+fun EvaluationAdd.toEvaluationEntity(
+	uid: String,
+	subjectCode: String,
+	subjectName: String
+) = EvaluationEntity(
 	id = reference,
 	subjectId = subjectId,
 	quarterId = quarterId,
 	accountId = uid,
 	subjectCode = subjectCode,
+	subjectName = subjectName,
 	name = name,
 	grade = grade,
 	maxGrade = maxGrade,
@@ -40,6 +46,7 @@ fun EvaluationEntity.toEvaluation() = Evaluation(
 	subjectId = subjectId,
 	quarterId = quarterId,
 	subjectCode = subjectCode,
+	subjectName = subjectName,
 	name = name,
 	grade = grade,
 	maxGrade = maxGrade,

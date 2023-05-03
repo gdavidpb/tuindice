@@ -22,7 +22,9 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEval
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluationParamsValidator
-import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationPlanViewModel
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationReducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.UpdateEvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
@@ -36,8 +38,13 @@ import retrofit2.converter.gson.GsonConverterFactory
 val evaluationsModule = module {
 	/* View Models */
 
-	viewModel<EvaluationPlanViewModel>()
 	viewModel<EvaluationViewModel>()
+
+	/* Reducers */
+
+	factoryOf(::EvaluationReducer)
+	factoryOf(::AddEvaluationReducer)
+	factoryOf(::UpdateEvaluationReducer)
 
 	/* Use cases */
 

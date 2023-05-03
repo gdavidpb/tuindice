@@ -7,6 +7,7 @@ data class EvaluationResponse(
 	@SerializedName("sid") val sid: String,
 	@SerializedName("qid") val qid: String,
 	@SerializedName("subject_code") val subjectCode: String,
+	@SerializedName("subject_name") val subjectName: String,
 	@SerializedName("name") val name: String,
 	@SerializedName("grade") val grade: Double,
 	@SerializedName("max_grade") val maxGrade: Double,
