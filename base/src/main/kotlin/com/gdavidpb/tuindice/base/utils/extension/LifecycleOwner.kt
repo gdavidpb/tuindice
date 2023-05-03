@@ -9,10 +9,15 @@ import androidx.annotation.StringRes
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.reflect.full.createInstance
 
@@ -97,5 +102,22 @@ inline fun <reified T : BottomSheetDialogFragment> LifecycleOwner.bottomSheetDia
 		builder()
 
 		show(fragmentManager, tag)
+	}
+}
+
+fun LifecycleOwner.launchRepeatOnLifecycle(
+	state: Lifecycle.State = Lifecycle.State.STARTED,
+	block: suspend CoroutineScope.() -> Unit
+) {
+	val (lifecycleScope, lifecycle) = when (this) {
+		is Fragment -> viewLifecycleOwner.lifecycleScope to viewLifecycleOwner.lifecycle
+		is Activity -> lifecycleScope to lifecycle
+		else -> throw NoWhenBranchMatchedException()
+	}
+
+	lifecycleScope.launch {
+		lifecycle.repeatOnLifecycle(state) {
+			block()
+		}
 	}
 }

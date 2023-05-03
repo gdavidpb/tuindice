@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.base.presentation.reducer
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
+import com.gdavidpb.tuindice.base.utils.extension.ViewOutput
+import com.gdavidpb.tuindice.base.utils.extension.ViewState
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat

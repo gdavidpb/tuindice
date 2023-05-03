@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
-import com.gdavidpb.tuindice.base.presentation.reducer.collect
+import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
