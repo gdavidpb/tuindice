@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.login.presentation.contract
 
 import androidx.annotation.IdRes
 import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
-import com.gdavidpb.tuindice.base.presentation.reducer.ViewAction
-import com.gdavidpb.tuindice.base.presentation.reducer.ViewEvent
-import com.gdavidpb.tuindice.base.presentation.reducer.ViewState
+import com.gdavidpb.tuindice.base.utils.extension.ViewAction
+import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
+import com.gdavidpb.tuindice.base.utils.extension.ViewState
 
 object Splash {
 	sealed class State : ViewState {

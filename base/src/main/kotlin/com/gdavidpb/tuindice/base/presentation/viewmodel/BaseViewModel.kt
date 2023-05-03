@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.base.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gdavidpb.tuindice.base.presentation.reducer.ViewAction
-import com.gdavidpb.tuindice.base.presentation.reducer.ViewEvent
-import com.gdavidpb.tuindice.base.presentation.reducer.ViewState
+import com.gdavidpb.tuindice.base.utils.extension.ViewAction
+import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
+import com.gdavidpb.tuindice.base.utils.extension.ViewState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
-import com.gdavidpb.tuindice.base.presentation.reducer.collect
+import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase

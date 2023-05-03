@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.record.presentation.reducer
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
-import com.gdavidpb.tuindice.base.presentation.reducer.ViewOutput
+import com.gdavidpb.tuindice.base.utils.extension.ViewOutput
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

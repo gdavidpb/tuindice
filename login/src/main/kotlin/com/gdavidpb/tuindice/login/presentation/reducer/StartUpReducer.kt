@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.login.presentation.reducer
 import com.gdavidpb.tuindice.base.domain.model.StartUpAction
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
-import com.gdavidpb.tuindice.base.presentation.reducer.ViewOutput
+import com.gdavidpb.tuindice.base.utils.extension.ViewOutput
 import com.gdavidpb.tuindice.login.domain.usecase.error.StartUpError
 import com.gdavidpb.tuindice.login.presentation.contract.Splash
 import kotlinx.coroutines.flow.Flow

@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.summary.presentation.contract
 
-import com.gdavidpb.tuindice.base.presentation.reducer.ViewAction
-import com.gdavidpb.tuindice.base.presentation.reducer.ViewEvent
-import com.gdavidpb.tuindice.base.presentation.reducer.ViewState
+import com.gdavidpb.tuindice.base.utils.extension.ViewAction
+import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
+import com.gdavidpb.tuindice.base.utils.extension.ViewState
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryViewState
 
 object Summary {
