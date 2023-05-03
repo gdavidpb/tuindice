@@ -15,17 +15,6 @@ object RequestCodes {
 	const val PLAY_SERVICES_RESOLUTION = 2404
 }
 
-/* Request keys */
-object RequestKeys {
-	const val USE_PLAN_GRADE = "usePlanGrade"
-}
-
-/* Result keys */
-object ResultKeys {
-	const val SUBJECT_ID = "subjectId"
-	const val GRADE = "grade"
-}
-
 /* Main screen keys */
 object ScreenKeys {
 	const val SUMMARY = 0

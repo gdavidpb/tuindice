@@ -9,7 +9,6 @@
     <string name="nav_achievements">Logros</string>
     <string name="nav_podium">Podio</string>
     -->
-    <string name="nav_subject">Plan de evaluación</string>
     <string name="nav_about">Acerca de</string>
 
     <string name="toast_repeat_to_exit">Repite para salir</string>
@@ -23,8 +22,6 @@
     <string name="subject_title">%1$s (%2$s)</string>
     <string name="subject_grade">%1$d / 5</string>
     <string name="subject_credits">%1$d UC</string>
-
-    <string name="cd_add_quarter">Agregar trimestre</string>
 
     <string name="label_empty_record">
         <b>¡Parece que alguien es nuevo por acá!\n\n</b>
