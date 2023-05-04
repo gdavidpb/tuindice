@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.TakeProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetAccountExceptionHandler
@@ -51,6 +52,7 @@ val summaryModule = module {
 
 	/* Use cases */
 
+	factoryOf(::SignOutUseCase)
 	factoryOf(::GetAccountUseCase)
 	factoryOf(::TakeProfilePictureUseCase)
 	factoryOf(::UploadProfilePictureUseCase)

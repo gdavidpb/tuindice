@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.data
 
-import com.gdavidpb.tuindice.base.di.baseModule
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.di.appMockModule
 import com.gdavidpb.tuindice.enrollmentproof.di.enrollmentProofModule
@@ -19,7 +18,6 @@ class DebugKoinDataSource : DependenciesRepository {
 	override fun restart() {
 		unloadKoinModules(
 			listOf(
-				baseModule,
 				appMockModule,
 				persistenceModule,
 				loginModule,
@@ -32,7 +30,6 @@ class DebugKoinDataSource : DependenciesRepository {
 		)
 		loadKoinModules(
 			listOf(
-				baseModule,
 				appMockModule,
 				persistenceModule,
 				loginModule,
