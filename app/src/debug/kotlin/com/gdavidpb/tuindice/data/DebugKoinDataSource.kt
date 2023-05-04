@@ -19,8 +19,8 @@ class DebugKoinDataSource : DependenciesRepository {
 	override fun restart() {
 		unloadKoinModules(
 			listOf(
-				appMockModule,
 				baseModule,
+				appMockModule,
 				persistenceModule,
 				loginModule,
 				summaryModule,
@@ -32,8 +32,8 @@ class DebugKoinDataSource : DependenciesRepository {
 		)
 		loadKoinModules(
 			listOf(
-				appMockModule,
 				baseModule,
+				appMockModule,
 				persistenceModule,
 				loginModule,
 				summaryModule,

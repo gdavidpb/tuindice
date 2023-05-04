@@ -39,8 +39,8 @@ class TuIndiceApp : Application() {
 			androidFileProperties()
 
 			modules(
-				appModule,
 				baseModule,
+				appModule,
 				persistenceModule,
 				loginModule,
 				summaryModule,

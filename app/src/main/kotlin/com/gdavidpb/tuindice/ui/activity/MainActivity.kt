@@ -10,20 +10,25 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.base.NavigationBaseDirections
-import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
-import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.utils.IdempotentLocker
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.TIME_EXIT_LOCKER
-import com.gdavidpb.tuindice.base.utils.extension.*
-import com.google.android.play.core.appupdate.AppUpdateInfo
+import com.gdavidpb.tuindice.base.utils.extension.animateSlideIn
+import com.gdavidpb.tuindice.base.utils.extension.animateSlideOut
+import com.gdavidpb.tuindice.base.utils.extension.collect
+import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
+import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.toast
+import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.appBar
+import kotlinx.android.synthetic.main.activity_main.bottomNavView
+import kotlinx.android.synthetic.main.activity_main.toolbar
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -81,20 +86,41 @@ class MainActivity : AppCompatActivity() {
 
 		launchRepeatOnLifecycle {
 			with(viewModel) {
-				collect(signOut, ::signOutCollector)
-				collect(checkUpdate, ::checkUpdateCollector)
-				collect(checkReview, ::checkReviewCollector)
-				collect(outdatedPassword, ::outdatedPasswordCollector)
+				collect(viewEvent, ::eventCollector)
 			}
 		}
 
-		viewModel.checkReview(reviewManager)
+		viewModel.requestReviewAction(reviewManager)
+	}
+
+	private fun eventCollector(event: Main.Event) {
+		when (event) {
+			is Main.Event.ShowReviewDialog ->
+				showReviewDialog(reviewInfo = event.reviewInfo)
+
+			is Main.Event.StartUpdateFlow ->
+				updateManager.startUpdateFlowForResult(
+					event.updateInfo,
+					AppUpdateType.IMMEDIATE,
+					this@MainActivity,
+					RequestCodes.APP_UPDATE
+				)
+		}
 	}
 
 	override fun onResume() {
 		super.onResume()
 
-		viewModel.checkUpdate(updateManager)
+		viewModel.checkUpdateAction(updateManager)
+	}
+
+	private fun showReviewDialog(reviewInfo: ReviewInfo) {
+		lifecycleScope.launchWhenResumed {
+			reviewManager.launchReview(
+				activity = this@MainActivity,
+				reviewInfo = reviewInfo
+			)
+		}
 	}
 
 	private fun onDestinationChanged(destination: NavDestination) {
@@ -106,63 +132,12 @@ class MainActivity : AppCompatActivity() {
 		appBar.isVisible = showAppBar
 
 		if (showBottomNav) {
-			viewModel.setLastScreen(screen = destination.id)
+			viewModel.setLastScreenAction(screen = destination.id)
 
 			bottomNavView.animateSlideIn()
 		} else {
 			bottomNavView.animateSlideOut()
 		}
-	}
-
-	private fun checkUpdateCollector(result: UseCaseState<AppUpdateInfo, Nothing>?) {
-		when (result) {
-			is UseCaseState.Data -> {
-				val updateInfo = result.value
-
-				updateManager.startUpdateFlowForResult(
-					updateInfo,
-					AppUpdateType.IMMEDIATE,
-					this@MainActivity,
-					RequestCodes.APP_UPDATE
-				)
-			}
-			else -> {}
-		}
-	}
-
-	private fun checkReviewCollector(result: UseCaseState<ReviewInfo, Nothing>?) {
-		when (result) {
-			is UseCaseState.Data -> {
-				val reviewInfo = result.value
-
-				lifecycleScope.launchWhenResumed {
-					reviewManager.launchReview(
-						this@MainActivity, reviewInfo
-					)
-				}
-			}
-			else -> {}
-		}
-	}
-
-	private fun signOutCollector(result: UseCaseState<Unit, Nothing>?) {
-		when (result) {
-			is UseCaseState.Data -> {
-				with(navController) {
-					popStackToRoot()
-					navigate(NavigationBaseDirections.navToSignIn())
-				}
-			}
-			is UseCaseState.Error -> {
-				recreate()
-			}
-			else -> {}
-		}
-	}
-
-	private fun outdatedPasswordCollector(result: Unit?) {
-		if (result != null)
-			navController.navigate(NavigationBaseDirections.navToUpdatePassword())
 	}
 
 	inner class BackPressedHandler : OnBackPressedCallback(true) {
