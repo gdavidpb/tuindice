@@ -1,7 +1,6 @@
-package com.gdavidpb.tuindice.base.domain.usecase
+package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.google.android.play.core.ktx.requestReview

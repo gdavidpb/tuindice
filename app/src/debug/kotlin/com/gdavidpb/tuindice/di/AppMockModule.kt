@@ -25,7 +25,13 @@ import com.gdavidpb.tuindice.data.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
+import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
+import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
+import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
 import com.gdavidpb.tuindice.evaluations.data.resolution.EvaluationResolutionHandler
+import com.gdavidpb.tuindice.presentation.reducer.GetUpdateInfoReducer
+import com.gdavidpb.tuindice.presentation.reducer.RequestReviewReducer
+import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
 import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
 import com.gdavidpb.tuindice.record.data.room.resolution.QuarterResolutionHandler
@@ -44,6 +50,7 @@ import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -58,6 +65,21 @@ val appMockModule = module {
 	single {
 		androidContext().sharedPreferences()
 	}
+
+	/* View Models */
+
+	viewModel<MainViewModel>()
+
+	/* Reducers */
+
+	factoryOf(::RequestReviewReducer)
+	factoryOf(::GetUpdateInfoReducer)
+
+	/* Use cases */
+
+	factoryOf(::RequestReviewUseCase)
+	factoryOf(::SetLastScreenUseCase)
+	factoryOf(::GetUpdateInfoUseCase)
 
 	/* Android Services */
 

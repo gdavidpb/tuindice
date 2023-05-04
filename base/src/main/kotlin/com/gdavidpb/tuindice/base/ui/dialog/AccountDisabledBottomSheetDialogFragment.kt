@@ -6,16 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import com.gdavidpb.tuindice.base.NavigationBaseDirections
 import com.gdavidpb.tuindice.base.R
-import com.gdavidpb.tuindice.base.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.base.utils.extension.navigate
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.android.synthetic.main.dialog_bottom_account_disabled.btnClose
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 // TODO create AccountDisabledViewModel
 class AccountDisabledBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
-	private val mainViewModel by sharedViewModel<MainViewModel>()
+	//private val mainViewModel by sharedViewModel<MainViewModel>()
 
 	override fun onCreateView(
 		inflater: LayoutInflater,
@@ -30,7 +28,7 @@ class AccountDisabledBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
 		btnClose.setOnClickListener { onCloseClick() }
 
-		mainViewModel.signOutAction()
+		//mainViewModel.signOutAction()
 	}
 
 	private fun onCloseClick() {

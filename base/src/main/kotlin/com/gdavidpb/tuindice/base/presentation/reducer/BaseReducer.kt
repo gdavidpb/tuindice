@@ -31,7 +31,7 @@ abstract class BaseReducer<State : ViewState, Event : ViewEvent, T, E> {
 		useCaseState: UseCaseState.Error<T, E>
 	): Flow<ViewOutput> = flowOf()
 
-	open suspend fun reduce(
+	suspend fun reduce(
 		useCaseFlow: Flow<UseCaseState<T, E>>,
 		stateProvider: () -> State
 	): Flow<ViewOutput> {

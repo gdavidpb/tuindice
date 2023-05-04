@@ -6,6 +6,7 @@ import androidx.navigation.NavDirections
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 
+// TODO check
 fun NavController.popStackToRoot() {
 	while (previousBackStackEntry != null) popBackStack()
 }
