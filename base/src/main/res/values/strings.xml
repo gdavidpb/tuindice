@@ -59,13 +59,4 @@
 
     <string name="toast_password_updated">Contraseña actualizada</string>
 
-    <!-- AccountDisabledDialog -->
-
-    <string name="dialog_title_disclaimer_account_disabled">Cuenta inhabilitada</string>
-
-    <string name="dialog_message_disclaimer_account_disabled">
-        Tu cuenta ha sido inhabilitada por violar los términos y condiciones de la aplicación,
-        si crees que se trata de un error puedes contactarnos a info@tuindice.app.
-    </string>
-
 </resources>

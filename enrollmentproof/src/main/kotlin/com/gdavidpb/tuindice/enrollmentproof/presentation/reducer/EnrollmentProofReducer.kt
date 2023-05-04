@@ -37,9 +37,6 @@ class EnrollmentProofReducer :
 	): Flow<ViewOutput> {
 		return flow {
 			when (val error = useCaseState.error) {
-				is FetchEnrollmentProofError.AccountDisabled ->
-					emit(Enrollment.Event.NavigateToAccountDisabled)
-
 				is FetchEnrollmentProofError.NoConnection ->
 					emit(Enrollment.Event.ShowNoConnectionSnackBar(isNetworkAvailable = error.isNetworkAvailable))
 

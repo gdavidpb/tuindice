@@ -36,9 +36,6 @@ class UpdatePasswordReducer :
 	): Flow<ViewOutput> {
 		return flow {
 			when (val error = useCaseState.error) {
-				is SignInError.AccountDisabled ->
-					emit(UpdatePassword.Event.NavigateToAccountDisabled)
-
 				is SignInError.EmptyPassword ->
 					emit(UpdatePassword.Event.ShowPasswordUpdatedToast)
 

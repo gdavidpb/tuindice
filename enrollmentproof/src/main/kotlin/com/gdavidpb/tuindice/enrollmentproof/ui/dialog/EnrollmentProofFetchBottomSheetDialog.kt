@@ -58,7 +58,6 @@ class EnrollmentProofFetchBottomSheetDialog : BottomSheetDialogFragment() {
 		when (event) {
 			is Enrollment.Event.CloseDialog -> dismiss()
 			is Enrollment.Event.OpenEnrollmentProof -> openFile(file = File(event.path))
-			is Enrollment.Event.NavigateToAccountDisabled -> navigateToAccountDisabled()
 			is Enrollment.Event.NavigateToOutdatedPassword -> navigateToOutdatedPassword()
 			is Enrollment.Event.ShowUnsupportedFileSnackBar -> snackBar(R.string.snack_enrollment_unsupported)
 			is Enrollment.Event.ShowTimeoutSnackBar -> errorSnackBar(R.string.snack_timeout) { viewModel.fetchEnrollmentProofAction() }
@@ -67,10 +66,6 @@ class EnrollmentProofFetchBottomSheetDialog : BottomSheetDialogFragment() {
 			is Enrollment.Event.ShowNoConnectionSnackBar -> connectionSnackBar(event.isNetworkAvailable) { viewModel.fetchEnrollmentProofAction() }
 			is Enrollment.Event.ShowDefaultErrorError -> errorSnackBar { viewModel.fetchEnrollmentProofAction() }
 		}
-	}
-
-	private fun navigateToAccountDisabled() {
-		navigate(NavigationBaseDirections.navToAccountDisabled())
 	}
 
 	private fun navigateToOutdatedPassword() {
