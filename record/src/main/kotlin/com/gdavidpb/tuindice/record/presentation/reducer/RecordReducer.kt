@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.record.presentation.reducer
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
-import com.gdavidpb.tuindice.base.utils.extension.ViewOutput
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
+import com.gdavidpb.tuindice.base.utils.extension.ViewOutput
 import com.gdavidpb.tuindice.record.domain.usecase.error.GetQuartersError
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.toRecordViewState
@@ -45,9 +45,6 @@ class RecordReducer(
 	): Flow<ViewOutput> {
 		return flow {
 			when (val error = useCaseState.error) {
-				is GetQuartersError.AccountDisabled ->
-					emit(Record.Event.NavigateToAccountDisabled)
-
 				is GetQuartersError.NoConnection ->
 					emit(Record.Event.ShowNoConnectionSnackBar(error.isNetworkAvailable))
 

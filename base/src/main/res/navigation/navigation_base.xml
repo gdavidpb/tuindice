@@ -15,10 +15,6 @@
         android:id="@+id/nav_to_update_password"
         app:destination="@id/dialog_update_password" />
 
-    <action
-        android:id="@+id/nav_to_account_disabled"
-        app:destination="@id/dialog_account_disabled" />
-
     <dialog
         android:id="@+id/dialog_enrollment_proof"
         android:name="com.gdavidpb.tuindice.enrollmentproof.ui.dialog.EnrollmentProofFetchBottomSheetDialog"
@@ -28,11 +24,6 @@
         android:id="@+id/dialog_update_password"
         android:name="com.gdavidpb.tuindice.login.ui.dialog.UpdatePasswordBottomSheetDialog"
         tools:layout="@layout/dialog_update_password" />
-
-    <dialog
-        android:id="@+id/dialog_account_disabled"
-        android:name="com.gdavidpb.tuindice.base.ui.dialog.AccountDisabledBottomSheetDialogFragment"
-        tools:layout="@layout/dialog_bottom_account_disabled" />
 
     <fragment
         android:id="@+id/fragment_splash"

@@ -100,7 +100,6 @@ class SummaryFragment : NavigationFragment() {
 
 	private fun eventCollector(event: Summary.Event) {
 		when (event) {
-			is Summary.Event.NavigateToAccountDisabled -> navigateToAccountDisabled()
 			is Summary.Event.NavigateToOutdatedPassword -> navigateToOutdatedPassword()
 			is Summary.Event.NavigateToSignIn -> navigateToSignIn()
 			is Summary.Event.OpenCamera -> takeProfilePicture(event.output)
@@ -143,10 +142,6 @@ class SummaryFragment : NavigationFragment() {
 		pBarSummary.isVisible = value.isUpdating
 
 		fViewSummary.displayedChild = if (value.isLoading) Flipper.LOADING else Flipper.CONTENT
-	}
-
-	private fun navigateToAccountDisabled() {
-		navigate(NavigationBaseDirections.navToAccountDisabled())
 	}
 
 	private fun navigateToOutdatedPassword() {

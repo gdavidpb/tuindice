@@ -19,7 +19,6 @@ object UpdatePassword {
 	sealed class Event : ViewEvent {
 		object CloseDialog : Event()
 		object HideSoftKeyboard : Event()
-		object NavigateToAccountDisabled : Event()
 		object ShowPasswordUpdatedToast : Event()
 		object ShowPasswordEmptyError : Event()
 		object ShowTimeoutError : Event()

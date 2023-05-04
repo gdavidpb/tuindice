@@ -23,7 +23,6 @@ object Summary {
 	}
 
 	sealed class Event : ViewEvent {
-		object NavigateToAccountDisabled : Event()
 		object NavigateToOutdatedPassword : Event()
 		object NavigateToSignIn : Event()
 		class OpenCamera(val output: String) : Event()

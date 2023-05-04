@@ -5,11 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import com.gdavidpb.tuindice.base.NavigationBaseDirections
 import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
-import com.gdavidpb.tuindice.base.utils.extension.navigate
 import com.gdavidpb.tuindice.base.utils.extension.toast
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
@@ -61,7 +59,6 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 		when (event) {
 			is UpdatePassword.Event.CloseDialog -> dismiss()
 			is UpdatePassword.Event.HideSoftKeyboard -> hideSoftKeyboard()
-			is UpdatePassword.Event.NavigateToAccountDisabled -> navigateToAccountDisabled()
 			is UpdatePassword.Event.ShowPasswordUpdatedToast -> toast(R.string.toast_password_updated)
 			is UpdatePassword.Event.ShowPasswordEmptyError -> tInputPassword.setError(R.string.error_empty)
 			is UpdatePassword.Event.ShowDefaultErrorError -> tInputPassword.setError(R.string.snack_default_error)
@@ -70,10 +67,6 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 			is UpdatePassword.Event.ShowTimeoutError -> tInputPassword.setError(R.string.snack_timeout)
 			is UpdatePassword.Event.ShowUnavailableError -> tInputPassword.setError(R.string.snack_service_unavailable)
 		}
-	}
-
-	private fun navigateToAccountDisabled() {
-		navigate(NavigationBaseDirections.navToAccountDisabled())
 	}
 
 	private fun onConfirmClick() {

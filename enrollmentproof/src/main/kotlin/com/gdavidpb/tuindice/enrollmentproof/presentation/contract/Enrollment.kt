@@ -18,7 +18,6 @@ object Enrollment {
 	sealed class Event : ViewEvent {
 		object CloseDialog : Event()
 		class OpenEnrollmentProof(val path: String) : Event()
-		object NavigateToAccountDisabled : Event()
 		object NavigateToOutdatedPassword : Event()
 		object ShowTimeoutSnackBar : Event()
 		object ShowNotFoundSnackBar : Event()

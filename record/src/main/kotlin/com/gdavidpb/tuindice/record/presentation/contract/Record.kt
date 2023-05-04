@@ -24,7 +24,6 @@ object Record {
 	}
 
 	sealed class Event : ViewEvent {
-		object NavigateToAccountDisabled : Event()
 		object NavigateToOutdatedPassword : Event()
 		object NavigateToEnrollmentProof : Event()
 		object ShowTimeoutSnackBar : Event()

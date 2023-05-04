@@ -45,9 +45,6 @@ class SummaryReducer(
 	): Flow<ViewOutput> {
 		return flow {
 			when (val error = useCaseState.error) {
-				is GetAccountError.AccountDisabled ->
-					emit(Summary.Event.NavigateToAccountDisabled)
-
 				is GetAccountError.NoConnection ->
 					emit(Summary.Event.ShowNoConnectionSnackBar(isNetworkAvailable = error.isNetworkAvailable))
 

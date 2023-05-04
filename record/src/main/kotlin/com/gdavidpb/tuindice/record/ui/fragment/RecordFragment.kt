@@ -74,13 +74,13 @@ class RecordFragment : NavigationFragment() {
 		when (state) {
 			is Record.State.Loading -> fViewRecord.displayedChild = Flipper.LOADING
 			is Record.State.Loaded -> loadRecordState(value = state.value)
-			is Record.State.Failed -> { /* TODO() */ }
+			is Record.State.Failed -> { /* TODO() */
+			}
 		}
 	}
 
 	private fun eventCollector(event: Record.Event) {
 		when (event) {
-			is Record.Event.NavigateToAccountDisabled -> navigateToAccountDisabled()
 			is Record.Event.NavigateToOutdatedPassword -> navigateToOutdatedPassword()
 			is Record.Event.NavigateToEnrollmentProof -> navigateToEnrollmentProof()
 			is Record.Event.ShowTimeoutSnackBar -> errorSnackBar(R.string.snack_timeout)
@@ -96,10 +96,6 @@ class RecordFragment : NavigationFragment() {
 		quarterAdapter.submitList(list = value.quarters)
 
 		fViewRecord.displayedChild = if (value.isEmpty) Flipper.EMPTY else Flipper.CONTENT
-	}
-
-	private fun navigateToAccountDisabled() {
-		navigate(NavigationBaseDirections.navToAccountDisabled())
 	}
 
 	private fun navigateToOutdatedPassword() {
