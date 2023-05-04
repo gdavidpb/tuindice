@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.data.koin
 
-import com.gdavidpb.tuindice.base.di.baseModule
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.di.appModule
 import com.gdavidpb.tuindice.enrollmentproof.di.enrollmentProofModule
@@ -20,7 +19,6 @@ class ReleaseKoinDataSource : DependenciesRepository {
 		unloadKoinModules(
 			listOf(
 				appModule,
-				baseModule,
 				persistenceModule,
 				loginModule,
 				summaryModule,
@@ -33,7 +31,6 @@ class ReleaseKoinDataSource : DependenciesRepository {
 		loadKoinModules(
 			listOf(
 				appModule,
-				baseModule,
 				persistenceModule,
 				loginModule,
 				summaryModule,
