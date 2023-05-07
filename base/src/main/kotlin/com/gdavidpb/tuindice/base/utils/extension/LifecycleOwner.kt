@@ -54,23 +54,23 @@ fun LifecycleOwner.browse(url: String) {
 	}
 }
 
-fun LifecycleOwner.connectionSnackBar(isNetworkAvailable: Boolean, retry: (() -> Unit)? = null) {
+fun LifecycleOwner.connectionSnackBar(isNetworkAvailable: Boolean, onRetryClick: (() -> Unit)? = null) {
 	val message = if (isNetworkAvailable)
 		R.string.snack_service_unavailable
 	else
 		R.string.snack_network_unavailable
 
-	errorSnackBar(message, retry)
+	errorSnackBar(message, onRetryClick)
 }
 
 fun LifecycleOwner.errorSnackBar(
 	@StringRes message: Int = R.string.snack_default_error,
-	retry: (() -> Unit)? = null
+	onRetryClick: (() -> Unit)? = null
 ) {
 	snackBar {
 		messageResource = message
 
-		if (retry != null) action(R.string.retry) { retry() }
+		if (onRetryClick != null) action(R.string.retry) { onRetryClick() }
 	}
 }
 
