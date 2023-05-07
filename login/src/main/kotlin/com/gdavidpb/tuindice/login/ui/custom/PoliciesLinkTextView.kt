@@ -9,15 +9,15 @@ import com.gdavidpb.tuindice.base.utils.extension.getCompatColor
 import com.gdavidpb.tuindice.login.R
 
 class PoliciesLinkTextView(context: Context, attrs: AttributeSet) : LinkTextView(context, attrs) {
-	private var termsAndConditionsClickListener: (() -> Unit)? = null
-	private var privacyPolicyClickListener: (() -> Unit)? = null
+	private var onTermsAndConditionsClick: () -> Unit = {}
+	private var onPrivacyPolicyClick: () -> Unit = {}
 
 	fun setOnTermsAndConditionsClickListener(listener: () -> Unit) {
-		termsAndConditionsClickListener = listener
+		onTermsAndConditionsClick = listener
 	}
 
 	fun setOnPrivacyPolicyClickListener(listener: () -> Unit) {
-		privacyPolicyClickListener = listener
+		onPrivacyPolicyClick = listener
 	}
 
 	init {
@@ -32,11 +32,11 @@ class PoliciesLinkTextView(context: Context, attrs: AttributeSet) : LinkTextView
 		}
 
 		setLink(context.getString(R.string.link_terms_and_conditions)) {
-			termsAndConditionsClickListener?.invoke()
+			onTermsAndConditionsClick()
 		}
 
 		setLink(context.getString(R.string.link_privacy_policy)) {
-			privacyPolicyClickListener?.invoke()
+			onPrivacyPolicyClick()
 		}
 
 		build()

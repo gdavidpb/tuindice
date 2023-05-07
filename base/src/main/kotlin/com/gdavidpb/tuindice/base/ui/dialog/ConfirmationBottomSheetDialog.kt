@@ -23,20 +23,20 @@ class ConfirmationBottomSheetDialog : BottomSheetDialogFragment() {
 
 	@StringRes
 	private var positiveResource: Int = 0
-	private var positiveOnClick: DialogFragment.() -> Unit = {}
+	private var onPositiveClick: DialogFragment.() -> Unit = {}
 
 	@StringRes
 	private var negativeResource: Int = 0
-	private var negativeOnClick: DialogFragment.() -> Unit = {}
+	private var onNegativeClick: DialogFragment.() -> Unit = {}
 
 	fun positiveButton(@StringRes resId: Int, onClick: DialogFragment.() -> Unit = {}) {
 		positiveResource = resId
-		positiveOnClick = onClick
+		onPositiveClick = onClick
 	}
 
 	fun negativeButton(@StringRes resId: Int, onClick: DialogFragment.() -> Unit = {}) {
 		negativeResource = resId
-		negativeOnClick = onClick
+		onNegativeClick = onClick
 	}
 
 	override fun onCreateView(
@@ -72,7 +72,7 @@ class ConfirmationBottomSheetDialog : BottomSheetDialogFragment() {
 		else
 			btnNegative.isGone = true
 
-		btnPositive.onClickOnce { positiveOnClick(); dismiss() }
-		btnNegative.onClickOnce { negativeOnClick(); dismiss() }
+		btnPositive.onClickOnce { onPositiveClick(); dismiss() }
+		btnNegative.onClickOnce { onNegativeClick(); dismiss() }
 	}
 }
