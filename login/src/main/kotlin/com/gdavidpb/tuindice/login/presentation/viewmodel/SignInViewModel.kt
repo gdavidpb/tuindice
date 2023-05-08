@@ -19,10 +19,10 @@ class SignInViewModel(
 	fun tapLogoAction() =
 		emitAction(SignIn.Action.ClickLogo)
 
-	fun openTermsAndConditions() =
+	fun openTermsAndConditionsAction() =
 		emitAction(SignIn.Action.OpenTermsAndConditions)
 
-	fun openPrivacyPolicy() =
+	fun openPrivacyPolicyAction() =
 		emitAction(SignIn.Action.OpenPrivacyPolicy)
 
 	override suspend fun reducer(action: SignIn.Action) {

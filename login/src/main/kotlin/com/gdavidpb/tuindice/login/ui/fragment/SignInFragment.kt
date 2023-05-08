@@ -91,11 +91,11 @@ class SignInFragment : NavigationFragment() {
 	}
 
 	private fun onTermsAndConditionsClick() {
-		viewModel.openTermsAndConditions()
+		viewModel.openTermsAndConditionsAction()
 	}
 
 	private fun onPrivacyPolicyClick() {
-		viewModel.openPrivacyPolicy()
+		viewModel.openPrivacyPolicyAction()
 	}
 
 	private fun navigateToSplash() {
