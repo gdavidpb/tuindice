@@ -1,46 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/aViewError"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
+        android:layout_width="256dp"
+        android:layout_height="256dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
-        app:lottie_rawRes="@raw/an_connection"
-        app:lottie_renderMode="hardware"
-        tools:lottie_progress="0.7" />
+        app:lottie_rawRes="@raw/an_error"
+        app:lottie_renderMode="hardware" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tViewErrorTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-condensed-medium"
+        android:gravity="center"
         android:text="@string/view_error_title"
-        android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@color/color_primary_text"
+        app:layout_constraintBottom_toBottomOf="@id/aViewError"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tViewErrorMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_8"
+        android:gravity="center"
+        android:text="@string/view_error_message"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/color_secondary_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/aViewError" />
+        app:layout_constraintTop_toBottomOf="@id/tViewErrorTitle" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRetry"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
+        style="@style/Widget.MaterialComponents.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_32"
         android:text="@string/view_error_retry"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tViewErrorTitle" />
+        app:layout_constraintTop_toBottomOf="@id/tViewErrorMessage" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

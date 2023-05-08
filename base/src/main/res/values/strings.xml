@@ -22,7 +22,8 @@
 
     <!-- ErrorView -->
 
-    <string name="view_error_title">Algo no ha salido bien ;(</string>
+    <string name="view_error_title">Ha ocurrido un error</string>
+    <string name="view_error_message">Algo no ha salido bien ;(\nPuedes intentarlo de nuevo</string>
     <string name="view_error_retry">Reintentar</string>
 
     <!-- BrowserFragment -->
