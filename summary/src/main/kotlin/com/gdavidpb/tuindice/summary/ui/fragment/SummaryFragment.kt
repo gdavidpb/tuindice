@@ -77,7 +77,7 @@ class SummaryFragment : NavigationFragment() {
 
 		rViewSummary.adapter = summaryAdapter
 
-		eViewSummary.setOnRetryClick { viewModel.loadSummaryAction() }
+		eViewSummary.setOnRetryClick { initialLoad() }
 		vProfilePicture.setOnClickListener { onEditProfilePictureClick() }
 
 		requireActivity().addMenuProvider(SummaryMenuProvider(), viewLifecycleOwner)
@@ -89,7 +89,7 @@ class SummaryFragment : NavigationFragment() {
 			}
 		}
 
-		viewModel.loadSummaryAction()
+		initialLoad()
 	}
 
 	private fun stateCollector(state: Summary.State) {
@@ -113,6 +113,10 @@ class SummaryFragment : NavigationFragment() {
 			is Summary.Event.ShowNoConnectionSnackBar -> connectionSnackBar(event.isNetworkAvailable)
 			is Summary.Event.ShowDefaultErrorSnackBar -> errorSnackBar()
 		}
+	}
+
+	private fun initialLoad() {
+		viewModel.loadSummaryAction()
 	}
 
 	private fun loadSummaryViewState(value: SummaryViewState) {
