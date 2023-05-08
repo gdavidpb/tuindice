@@ -20,6 +20,11 @@
     <string name="error_empty">Campo vacío</string>
     <string name="error_usb_id">USBID inválido</string>
 
+    <!-- ErrorView -->
+
+    <string name="view_error_title">Algo no ha salido bien ;(</string>
+    <string name="view_error_retry">Reintentar</string>
+
     <!-- BrowserFragment -->
 
     <string name="dialog_title_warning_external">Atención</string>
