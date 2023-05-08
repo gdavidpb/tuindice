@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.evaluations.ui.fragment
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.fragment.navArgs
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extension.animateShake
 import com.gdavidpb.tuindice.base.utils.extension.checkedChipIndex
@@ -18,7 +17,6 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationPa
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationViewState
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
-import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.fragment_evaluation.btnEvaluationSave
 import kotlinx.android.synthetic.main.fragment_evaluation.cGroupEvaluation
 import kotlinx.android.synthetic.main.fragment_evaluation.dPickerEvaluationDate
@@ -45,8 +43,6 @@ class EvaluationFragment : NavigationFragment() {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
-
-		initChipGroup()
 
 		eViewEvaluation.setOnRetryClick { initialLoad() }
 		btnEvaluationSave.setOnClickListener { onSaveClick() }
@@ -123,7 +119,7 @@ class EvaluationFragment : NavigationFragment() {
 					grade = maxGrade,
 					maxGrade = maxGrade,
 					date = dPickerEvaluationDate.selectedDate.time,
-					type = getEvaluationType(),
+					type = cGroupEvaluation.getEvaluationType(),
 					isDone = false
 				)
 			)
@@ -135,27 +131,9 @@ class EvaluationFragment : NavigationFragment() {
 					grade = maxGrade,
 					maxGrade = maxGrade,
 					date = dPickerEvaluationDate.selectedDate.time,
-					type = getEvaluationType(),
+					type = cGroupEvaluation.getEvaluationType(),
 					isDone = false
 				)
 			)
-	}
-
-	@Deprecated("Create component")
-	private fun initChipGroup() {
-		EvaluationType.values().forEach { evaluationType ->
-			View.inflate(context, R.layout.view_evaluation_chip, null).also { chip ->
-				chip as Chip
-
-				chip.text = getString(evaluationType.stringRes)
-			}.also(cGroupEvaluation::addView)
-		}
-	}
-
-	@Deprecated("Create component")
-	private fun getEvaluationType(): EvaluationType? {
-		return cGroupEvaluation
-			.checkedChipIndex
-			.let { index -> if (index != -1) EvaluationType.values()[index] else null }
 	}
 }

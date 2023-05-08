@@ -61,7 +61,7 @@
                         android:layout_marginTop="@dimen/dp_16"
                         app:layout_constraintTop_toBottomOf="@id/tInputEvaluationGrade" />
 
-                    <com.google.android.material.chip.ChipGroup
+                    <com.gdavidpb.tuindice.evaluations.ui.custom.EvaluationTypeChipGroup
                         android:id="@+id/cGroupEvaluation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
