@@ -22,6 +22,7 @@ import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.fragment_evaluation.btnEvaluationSave
 import kotlinx.android.synthetic.main.fragment_evaluation.cGroupEvaluation
 import kotlinx.android.synthetic.main.fragment_evaluation.dPickerEvaluationDate
+import kotlinx.android.synthetic.main.fragment_evaluation.eViewEvaluation
 import kotlinx.android.synthetic.main.fragment_evaluation.fViewEvaluation
 import kotlinx.android.synthetic.main.fragment_evaluation.tInputEvaluationGrade
 import kotlinx.android.synthetic.main.fragment_evaluation.tInputEvaluationName
@@ -39,7 +40,7 @@ class EvaluationFragment : NavigationFragment() {
 	private object Flipper {
 		const val CONTENT = 0
 		const val LOADING = 1
-		// TODO const val FAILED = 2
+		const val FAILED = 2
 	}
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -47,6 +48,7 @@ class EvaluationFragment : NavigationFragment() {
 
 		initChipGroup()
 
+		eViewEvaluation.setOnRetryClick { initialLoad() }
 		btnEvaluationSave.setOnClickListener { onSaveClick() }
 
 		launchRepeatOnLifecycle {
@@ -56,21 +58,14 @@ class EvaluationFragment : NavigationFragment() {
 			}
 		}
 
-		val evaluationId = args.evaluationId
-
-		if (evaluationId != null)
-			viewModel.loadEvaluationAction(
-				GetEvaluationParams(evaluationId = evaluationId)
-			)
-		else
-			TODO()
+		initialLoad()
 	}
 
 	private fun stateCollector(state: Evaluations.State) {
 		when (state) {
 			is Evaluations.State.Loading -> fViewEvaluation.displayedChild = Flipper.LOADING
 			is Evaluations.State.Loaded -> loadEvaluationViewState(value = state.value)
-			is Evaluations.State.Failed -> TODO()
+			is Evaluations.State.Failed -> fViewEvaluation.displayedChild = Flipper.FAILED
 		}
 	}
 
@@ -92,6 +87,17 @@ class EvaluationFragment : NavigationFragment() {
 
 			is Evaluations.Event.ShowDefaultErrorSnackBar -> errorSnackBar()
 		}
+	}
+
+	private fun initialLoad() {
+		val evaluationId = args.evaluationId
+
+		if (evaluationId != null)
+			viewModel.loadEvaluationAction(
+				GetEvaluationParams(
+					evaluationId = evaluationId
+				)
+			)
 	}
 
 	private fun loadEvaluationViewState(value: EvaluationViewState) {

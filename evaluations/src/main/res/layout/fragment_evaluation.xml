@@ -91,6 +91,12 @@
             android:layout_gravity="center"
             android:indeterminate="true" />
 
+        <com.gdavidpb.tuindice.base.ui.custom.ErrorView
+            android:id="@+id/eViewEvaluation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
     </ViewFlipper>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
