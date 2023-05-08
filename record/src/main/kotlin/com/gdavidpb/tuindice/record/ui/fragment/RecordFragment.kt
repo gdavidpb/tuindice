@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.record.presentation.model.RecordViewState
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.adapter.QuarterAdapter
+import kotlinx.android.synthetic.main.fragment_record.eViewRecord
 import kotlinx.android.synthetic.main.fragment_record.fViewRecord
 import kotlinx.android.synthetic.main.fragment_record.pBarRecord
 import kotlinx.android.synthetic.main.fragment_record.rViewRecord
@@ -41,7 +42,7 @@ class RecordFragment : NavigationFragment() {
 		const val CONTENT = 0
 		const val EMPTY = 1
 		const val LOADING = 2
-		// TODO const val FAILED = 3
+		const val FAILED = 3
 	}
 
 	private object SubjectMenu {
@@ -58,6 +59,7 @@ class RecordFragment : NavigationFragment() {
 
 		rViewRecord.adapter = quarterAdapter
 
+		eViewRecord.setOnRetryClick { initialLoad() }
 		requireActivity().addMenuProvider(RecordMenuProvider(), viewLifecycleOwner)
 
 		launchRepeatOnLifecycle {
@@ -67,15 +69,14 @@ class RecordFragment : NavigationFragment() {
 			}
 		}
 
-		viewModel.loadQuartersAction()
+		initialLoad()
 	}
 
 	private fun stateCollector(state: Record.State) {
 		when (state) {
 			is Record.State.Loading -> fViewRecord.displayedChild = Flipper.LOADING
 			is Record.State.Loaded -> loadRecordState(value = state.value)
-			is Record.State.Failed -> { /* TODO() */
-			}
+			is Record.State.Failed -> fViewRecord.displayedChild = Flipper.FAILED
 		}
 	}
 
@@ -88,6 +89,10 @@ class RecordFragment : NavigationFragment() {
 			is Record.Event.ShowUnavailableSnackBar -> errorSnackBar(R.string.snack_service_unavailable)
 			is Record.Event.ShowDefaultErrorSnackBar -> errorSnackBar()
 		}
+	}
+
+	private fun initialLoad() {
+		viewModel.loadQuartersAction()
 	}
 
 	private fun loadRecordState(value: RecordViewState) {
