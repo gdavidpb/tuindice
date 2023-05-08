@@ -7,24 +7,25 @@
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/aViewEnrollmentDownloading"
-        android:layout_width="128dp"
+        android:layout_width="256dp"
         android:layout_height="128dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
-        app:lottie_rawRes="@raw/an_enrollment" />
+        app:lottie_rawRes="@raw/an_enrollment"
+        app:lottie_renderMode="hardware" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tViewEnrollmentDownloadingMessage"
+        android:id="@+id/tViewEnrollmentDownloadingTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-medium"
+        android:fontFamily="sans-serif-condensed-medium"
         android:text="@string/dialog_message_enrollment_downloading"
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textColor="@color/color_primary_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/aViewEnrollmentDownloading" />
