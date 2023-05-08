@@ -28,6 +28,7 @@ import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryViewState
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.adapter.SummaryAdapter
+import kotlinx.android.synthetic.main.fragment_summary.eViewSummary
 import kotlinx.android.synthetic.main.fragment_summary.fViewSummary
 import kotlinx.android.synthetic.main.fragment_summary.pBarSummary
 import kotlinx.android.synthetic.main.fragment_summary.rViewSummary
@@ -47,7 +48,7 @@ class SummaryFragment : NavigationFragment() {
 	private object Flipper {
 		const val CONTENT = 0
 		const val LOADING = 1
-		// TODO const val FAILED = 2
+		const val FAILED = 2
 	}
 
 	private object ProfilePictureMenu {
@@ -76,6 +77,7 @@ class SummaryFragment : NavigationFragment() {
 
 		rViewSummary.adapter = summaryAdapter
 
+		eViewSummary.setOnRetryClick { viewModel.loadSummaryAction() }
 		vProfilePicture.setOnClickListener { onEditProfilePictureClick() }
 
 		requireActivity().addMenuProvider(SummaryMenuProvider(), viewLifecycleOwner)
@@ -94,7 +96,7 @@ class SummaryFragment : NavigationFragment() {
 		when (state) {
 			is Summary.State.Loading -> fViewSummary.displayedChild = Flipper.LOADING
 			is Summary.State.Loaded -> loadSummaryViewState(value = state.value)
-			is Summary.State.Failed -> TODO()
+			is Summary.State.Failed -> fViewSummary.displayedChild = Flipper.FAILED
 		}
 	}
 
