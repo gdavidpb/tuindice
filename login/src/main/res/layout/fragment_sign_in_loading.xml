@@ -63,7 +63,7 @@
         app:srcCompat="@drawable/ic_launcher"
         tools:ignore="ImageContrastCheck" />
 
-    <AdapterViewFlipper
+    <com.gdavidpb.tuindice.login.ui.custom.LoadingMessageViewFlipper
         android:id="@+id/vFlipperLoading"
         android:layout_width="0dp"
         android:layout_height="0dp"
