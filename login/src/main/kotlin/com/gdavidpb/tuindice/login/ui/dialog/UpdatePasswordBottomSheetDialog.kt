@@ -82,7 +82,7 @@ class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
 	}
 
 	private fun showLoading(value: Boolean) {
-		if (pBarLogging.isVisible == value) return
+		if (pBarUpdate.isVisible == value) return
 
 		pBarUpdate.isVisible = value
 		tInputPassword.isEnabled = !value
