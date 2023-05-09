@@ -7,7 +7,8 @@
     </string>
 
     <string name="about_license">
-        Creative Commons\nBY-NC 4.0
+        Creative Commons\n
+        BY-NC 4.0
     </string>
 
     <string name="about_terms_and_conditions">
@@ -69,7 +70,7 @@
     <string name="about_header_libs">Detrás de TuIndice</string>
 
     <string name="about_kotlin">
-        Kotlin 1.7.21\n
+        Kotlin 1.8.20\n
         Programming Language.\n
         © 2012 JetBrains\n
         https://kotlinlang.org/
@@ -78,7 +79,8 @@
     <string name="about_firebase">
         Firebase 30.2.0\n
         Quickly develop high-quality apps and grow your business.\n
-        © 2014 Google\nhttps://firebase.com/
+        © 2014 Google\n
+        https://firebase.com/
     </string>
 
     <string name="about_koin">
