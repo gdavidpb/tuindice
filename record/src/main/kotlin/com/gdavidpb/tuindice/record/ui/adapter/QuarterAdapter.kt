@@ -2,13 +2,14 @@ package com.gdavidpb.tuindice.record.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import com.gdavidpb.tuindice.base.ui.adapter.BaseAdapter
 import com.gdavidpb.tuindice.base.ui.viewholder.BaseViewHolder
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.ui.viewholder.QuarterViewHolder
-import kotlinx.android.synthetic.main.item_quarter.view.*
 import kotlin.math.roundToInt
 
 class QuarterAdapter(
@@ -41,12 +42,12 @@ class QuarterAdapter(
 			.inflate(R.layout.item_quarter, parent, false)
 
 		/* Default inflation */
-		with(itemView) {
-			repeat(averageSubjects) {
-				LayoutInflater
-					.from(lLayoutQuarterContainer.context)
-					.inflate(R.layout.item_subject, lLayoutQuarterContainer)
-			}
+		val lLayoutQuarterContainer by itemView.view<LinearLayout>(R.id.lLayoutQuarterContainer)
+
+		repeat(averageSubjects) {
+			LayoutInflater
+				.from(lLayoutQuarterContainer.context)
+				.inflate(R.layout.item_subject, lLayoutQuarterContainer)
 		}
 
 		return QuarterViewHolder(itemView, manager)

@@ -2,15 +2,30 @@ package com.gdavidpb.tuindice.summary.ui.custom
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import android.widget.FrameLayout
+import androidx.constraintlayout.widget.Guideline
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.utils.extension.animatePercent
 import com.gdavidpb.tuindice.base.utils.extension.loadAttributes
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.summary.R
-import kotlinx.android.synthetic.main.view_status_card_view.view.*
+import com.google.android.material.textview.MaterialTextView
 
 class StatusCardView(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {
+
+	private val tViewHeader by view<MaterialTextView>(R.id.tViewHeader)
+	private val guidelineApproved by view<Guideline>(R.id.guidelineApproved)
+	private val guidelineFailed by view<Guideline>(R.id.guidelineFailed)
+	private val guidelineRetired by view<Guideline>(R.id.guidelineRetired)
+	private val vRetired by view<View>(R.id.vRetired)
+	private val tViewApprovedLabel by view<MaterialTextView>(R.id.tViewApprovedLabel)
+	private val tViewFailedLabel by view<MaterialTextView>(R.id.tViewFailedLabel)
+	private val tViewRetiredLabel by view<MaterialTextView>(R.id.tViewRetiredLabel)
+	private val tViewApprovedCount by view<MaterialTextView>(R.id.tViewApprovedCount)
+	private val tViewFailedCount by view<MaterialTextView>(R.id.tViewFailedCount)
+	private val tViewRetiredCount by view<MaterialTextView>(R.id.tViewRetiredCount)
 
 	private object Defaults {
 		const val TEXT = ""

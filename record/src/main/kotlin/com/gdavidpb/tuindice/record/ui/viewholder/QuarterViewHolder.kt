@@ -2,24 +2,28 @@ package com.gdavidpb.tuindice.record.ui.viewholder
 
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.LinearLayout
 import androidx.annotation.ColorInt
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.cardview.widget.CardView
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.ui.viewholder.BaseViewHolder
 import com.gdavidpb.tuindice.base.utils.extension.backgroundColor
 import com.gdavidpb.tuindice.base.utils.extension.onClickOnce
 import com.gdavidpb.tuindice.base.utils.extension.onSeekBarChange
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.ui.adapter.QuarterAdapter
-import kotlinx.android.synthetic.main.item_quarter.view.*
-import kotlinx.android.synthetic.main.item_subject.view.*
+import com.gdavidpb.tuindice.record.ui.custom.SubjectGradeSeekBar
+import com.google.android.material.textview.MaterialTextView
 
 class QuarterViewHolder(
 	itemView: View,
 	private val manager: QuarterAdapter.AdapterManager
 ) : BaseViewHolder<QuarterItem>(itemView) {
+
 	override fun bindView(item: QuarterItem) {
 		super.bindView(item)
 
@@ -39,6 +43,8 @@ class QuarterViewHolder(
 	}
 
 	private fun CardView.setStates(@ColorInt color: Int) {
+		val viewQuarterColor by view<View>(R.id.viewQuarterColor)
+
 		viewQuarterColor.backgroundColor = color
 	}
 
@@ -48,6 +54,11 @@ class QuarterViewHolder(
 		gradeSum: CharSequence,
 		credits: CharSequence
 	) {
+		val tViewQuarterTitle by view<MaterialTextView>(R.id.tViewQuarterTitle)
+		val tViewQuarterGradeDiff by view<MaterialTextView>(R.id.tViewQuarterGradeDiff)
+		val tViewQuarterGradeSum by view<MaterialTextView>(R.id.tViewQuarterGradeSum)
+		val tViewQuarterCredits by view<MaterialTextView>(R.id.tViewQuarterCredits)
+
 		tViewQuarterTitle.text = title
 		tViewQuarterGradeDiff.text = grade
 		tViewQuarterGradeSum.text = gradeSum
@@ -55,6 +66,7 @@ class QuarterViewHolder(
 	}
 
 	private fun CardView.adjustViews(count: Int) {
+		val lLayoutQuarterContainer by view<LinearLayout>(R.id.lLayoutQuarterContainer)
 		val container = lLayoutQuarterContainer
 
 		/* Add views */
@@ -72,6 +84,7 @@ class QuarterViewHolder(
 	}
 
 	private fun CardView.bindViewSubjects(quarterItem: QuarterItem) {
+		val lLayoutQuarterContainer by view<LinearLayout>(R.id.lLayoutQuarterContainer)
 		val container = lLayoutQuarterContainer
 
 		quarterItem.subjectsItems.forEachIndexed { index, subjectItem ->
@@ -84,6 +97,12 @@ class QuarterViewHolder(
 	}
 
 	private fun View.setSubjectData(subjectItem: SubjectItem) {
+		val tViewSubjectName by view<MaterialTextView>(R.id.tViewSubjectName)
+		val tViewSubjectCode by view<MaterialTextView>(R.id.tViewSubjectCode)
+		val tViewSubjectGrade by view<MaterialTextView>(R.id.tViewSubjectGrade)
+		val tViewSubjectCredits by view<MaterialTextView>(R.id.tViewSubjectCredits)
+		val sBarSubjectGrade by view<SubjectGradeSeekBar>(R.id.sBarSubjectGrade)
+
 		tViewSubjectName.text = subjectItem.nameText
 
 		tViewSubjectCode.text = subjectItem.codeText
@@ -94,6 +113,8 @@ class QuarterViewHolder(
 	}
 
 	private fun View.setEditable(quarterItem: QuarterItem, subjectItem: SubjectItem) {
+		val btnSubjectOptions by view<AppCompatImageButton>(R.id.btnSubjectOptions)
+
 		with(btnSubjectOptions) {
 			isVisible = quarterItem.isEditable
 
@@ -113,6 +134,8 @@ class QuarterViewHolder(
 	}
 
 	private fun View.setGradeBar(quarterItem: QuarterItem, subjectItem: SubjectItem) {
+		val sBarSubjectGrade by view<SubjectGradeSeekBar>(R.id.sBarSubjectGrade)
+
 		if (quarterItem.isEditable) {
 			sBarSubjectGrade.isVisible = true
 

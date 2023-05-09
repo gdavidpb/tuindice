@@ -4,9 +4,12 @@ import android.content.Context
 import android.util.AttributeSet
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.gdavidpb.tuindice.base.R
-import kotlinx.android.synthetic.main.view_error.view.btnRetry
+import com.gdavidpb.tuindice.base.utils.extension.view
+import com.google.android.material.button.MaterialButton
 
 class ErrorView(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
+
+	private val btnRetry by view<MaterialButton>(R.id.btnRetry)
 
 	private var onRetryClick: () -> Unit = {}
 

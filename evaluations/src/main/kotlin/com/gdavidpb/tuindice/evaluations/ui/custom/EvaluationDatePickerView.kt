@@ -5,15 +5,19 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.util.AttributeSet
 import androidx.annotation.ColorRes
+import androidx.appcompat.widget.AppCompatTextView
+import androidx.appcompat.widget.SwitchCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatEvaluationDate
-import kotlinx.android.synthetic.main.view_evaluation_date_picker.view.*
 import java.util.*
 
 class EvaluationDatePickerView(context: Context, attrs: AttributeSet) :
 	ConstraintLayout(context, attrs) {
+
+	private val tViewEvaluationDate by view<AppCompatTextView>(R.id.tViewEvaluationDate)
+	private val sEvaluationDate by view<SwitchCompat>(R.id.sEvaluationDate)
 
 	init {
 		inflate(context, R.layout.view_evaluation_date_picker, this)
@@ -73,11 +77,13 @@ class EvaluationDatePickerView(context: Context, attrs: AttributeSet) :
 
 				context.getString(R.string.label_evaluation_no_date)
 			}
+
 			selectedDate.time != 0L -> {
 				setIconColor(R.color.color_primary)
 
 				selectedDate.formatEvaluationDate()
 			}
+
 			else -> {
 				setIconColor(R.color.color_secondary_text)
 

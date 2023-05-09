@@ -2,7 +2,10 @@ package com.gdavidpb.tuindice.evaluations.ui.fragment
 
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
+import android.widget.ViewFlipper
 import androidx.navigation.fragment.navArgs
+import com.gdavidpb.tuindice.base.ui.custom.ErrorView
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extension.animateShake
 import com.gdavidpb.tuindice.base.utils.extension.checkedChipIndex
@@ -10,24 +13,29 @@ import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.snackBar
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.evaluations.R
-import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.GetEvaluationParams
-import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationViewState
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
-import kotlinx.android.synthetic.main.fragment_evaluation.btnEvaluationSave
-import kotlinx.android.synthetic.main.fragment_evaluation.cGroupEvaluation
-import kotlinx.android.synthetic.main.fragment_evaluation.dPickerEvaluationDate
-import kotlinx.android.synthetic.main.fragment_evaluation.eViewEvaluation
-import kotlinx.android.synthetic.main.fragment_evaluation.fViewEvaluation
-import kotlinx.android.synthetic.main.fragment_evaluation.tInputEvaluationGrade
-import kotlinx.android.synthetic.main.fragment_evaluation.tInputEvaluationName
-import kotlinx.android.synthetic.main.fragment_evaluation.tViewEvaluationHeader
+import com.gdavidpb.tuindice.evaluations.ui.custom.EvaluationDatePickerView
+import com.gdavidpb.tuindice.evaluations.ui.custom.EvaluationNameInputLayout
+import com.gdavidpb.tuindice.evaluations.ui.custom.EvaluationTypeChipGroup
+import com.gdavidpb.tuindice.evaluations.ui.custom.GradeInputLayout
+import com.google.android.material.button.MaterialButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class EvaluationFragment : NavigationFragment() {
+
+	private val tViewEvaluationHeader by view<TextView>(R.id.tViewEvaluationHeader)
+	private val tInputEvaluationName by view<EvaluationNameInputLayout>(R.id.tInputEvaluationName)
+	private val tInputEvaluationGrade by view<GradeInputLayout>(R.id.tInputEvaluationGrade)
+	private val dPickerEvaluationDate by view<EvaluationDatePickerView>(R.id.dPickerEvaluationDate)
+	private val cGroupEvaluation by view<EvaluationTypeChipGroup>(R.id.cGroupEvaluation)
+	private val btnEvaluationSave by view<MaterialButton>(R.id.btnEvaluationSave)
+	private val eViewEvaluation by view<ErrorView>(R.id.eViewEvaluation)
+	private val fViewEvaluation by view<ViewFlipper>(R.id.fViewEvaluation)
 
 	private val viewModel by viewModel<EvaluationViewModel>()
 
@@ -109,31 +117,5 @@ class EvaluationFragment : NavigationFragment() {
 
 	private fun onSaveClick() {
 		val maxGrade = tInputEvaluationGrade.getGrade()
-
-		if (args.evaluationId == null)
-			viewModel.addEvaluationAction(
-				AddEvaluationParams(
-					quarterId = "",
-					subjectId = args.subjectId,
-					name = tInputEvaluationName.getName(),
-					grade = maxGrade,
-					maxGrade = maxGrade,
-					date = dPickerEvaluationDate.selectedDate.time,
-					type = cGroupEvaluation.getEvaluationType(),
-					isDone = false
-				)
-			)
-		else
-			viewModel.updateEvaluationAction(
-				UpdateEvaluationParams(
-					evaluationId = args.evaluationId ?: "",
-					name = tInputEvaluationName.getName(),
-					grade = maxGrade,
-					maxGrade = maxGrade,
-					date = dPickerEvaluationDate.selectedDate.time,
-					type = cGroupEvaluation.getEvaluationType(),
-					isDone = false
-				)
-			)
 	}
 }

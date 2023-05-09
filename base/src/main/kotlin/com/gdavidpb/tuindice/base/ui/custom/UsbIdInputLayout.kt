@@ -5,14 +5,14 @@ import android.text.method.DigitsKeyListener
 import android.util.AttributeSet
 import com.gdavidpb.tuindice.base.R
 import com.gdavidpb.tuindice.base.utils.extension.onTextChanged
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.android.synthetic.main.view_usb_id_input.view.textInputLayout as input
 
 class UsbIdInputLayout(context: Context, attrs: AttributeSet) : InputLayout(context, attrs) {
 
 	override fun onInflateView(): Int = R.layout.view_usb_id_input
 
-	override val textInputLayout: TextInputLayout by lazy { input }
+	override val textInputLayout: TextInputLayout by view(R.id.textInputLayout)
 
 	override fun onViewInflated() {
 		textInputLayout.editText?.apply {

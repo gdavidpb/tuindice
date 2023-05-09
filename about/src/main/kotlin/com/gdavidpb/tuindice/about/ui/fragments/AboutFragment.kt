@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
+import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.about.BuildConfig
 import com.gdavidpb.tuindice.about.R
 import com.gdavidpb.tuindice.about.ui.adapters.AboutAdapter
@@ -12,9 +13,11 @@ import com.gdavidpb.tuindice.about.utils.extension.*
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extension.browse
 import com.gdavidpb.tuindice.base.utils.extension.config
-import kotlinx.android.synthetic.main.fragment_about.*
+import com.gdavidpb.tuindice.base.utils.extension.view
 
 class AboutFragment : NavigationFragment() {
+
+	private val rViewAbout by view<RecyclerView>(R.id.rViewAbout)
 
 	private val aboutAdapter = AboutAdapter()
 

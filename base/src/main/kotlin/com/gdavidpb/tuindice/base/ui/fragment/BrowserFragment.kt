@@ -13,17 +13,19 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.text.buildSpannedString
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.navArgs
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.gdavidpb.tuindice.base.R
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.extension.browse
 import com.gdavidpb.tuindice.base.utils.extension.getCompatColor
-import kotlinx.android.synthetic.main.fragment_browser.*
+import com.gdavidpb.tuindice.base.utils.extension.view
 
 @SuppressLint("SetJavaScriptEnabled")
 class BrowserFragment : NavigationFragment() {
-	private val args by navArgs<BrowserFragmentArgs>()
+
+	private val sWebView by view<SwipeRefreshLayout>(R.id.sWebView)
+	private val webView by view<WebView>(R.id.webView)
 
 	override fun onCreateView() = R.layout.fragment_browser
 
@@ -54,8 +56,6 @@ class BrowserFragment : NavigationFragment() {
 					return true
 				}
 			}
-
-			loadUrl(args.url)
 		}
 	}
 
