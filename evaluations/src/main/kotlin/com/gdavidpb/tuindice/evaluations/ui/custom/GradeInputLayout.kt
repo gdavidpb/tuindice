@@ -5,17 +5,17 @@ import android.util.AttributeSet
 import com.gdavidpb.tuindice.base.ui.custom.InputLayout
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.utils.MAX_EVALUATION_GRADE
 import com.gdavidpb.tuindice.evaluations.utils.MIN_EVALUATION_GRADE
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.android.synthetic.main.view_grade_input.view.textInputLayout as input
 
 class GradeInputLayout(context: Context, attrs: AttributeSet) : InputLayout(context, attrs) {
 
 	override fun onInflateView(): Int = R.layout.view_grade_input
 
-	override val textInputLayout: TextInputLayout by lazy { input }
+	override val textInputLayout: TextInputLayout by view(R.id.textInputLayout)
 
 	override fun onViewInflated() {
 		textInputLayout.editText?.apply {

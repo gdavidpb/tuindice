@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.summary.ui.custom
 
 import android.content.Context
 import android.util.AttributeSet
+import android.widget.ImageView
+import android.widget.ProgressBar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -10,12 +12,15 @@ import coil.load
 import coil.transform.CircleCropTransformation
 import com.gdavidpb.tuindice.base.utils.extension.animateScaleDown
 import com.gdavidpb.tuindice.base.utils.extension.animateScaleUp
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.summary.R
-import kotlinx.android.synthetic.main.view_profile_picture.view.iViewEditProfile
-import kotlinx.android.synthetic.main.view_profile_picture.view.iViewProfile
-import kotlinx.android.synthetic.main.view_profile_picture.view.pBarProfile
+import com.google.android.material.imageview.ShapeableImageView
 
 class ProfilePictureView(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
+
+	private val iViewProfile by view<ShapeableImageView>(R.id.iViewProfile)
+	private val iViewEditProfile by view<ImageView>(R.id.iViewEditProfile)
+	private val pBarProfile by view<ProgressBar>(R.id.pBarProfile)
 
 	var hasProfilePicture: Boolean = false
 		private set

@@ -19,20 +19,25 @@ import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.toast
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
-import kotlinx.android.synthetic.main.activity_main.appBar
-import kotlinx.android.synthetic.main.activity_main.bottomNavView
-import kotlinx.android.synthetic.main.activity_main.toolbar
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
+
+	private val appBar by view<AppBarLayout>(R.id.appBar)
+	private val bottomNavView by view<BottomNavigationView>(R.id.bottomNavView)
+	private val toolbar by view<MaterialToolbar>(R.id.toolbar)
 
 	private val reviewManager by inject<ReviewManager>()
 

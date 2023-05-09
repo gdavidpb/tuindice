@@ -9,10 +9,18 @@ import androidx.core.view.isGone
 import androidx.fragment.app.DialogFragment
 import com.gdavidpb.tuindice.base.R
 import com.gdavidpb.tuindice.base.utils.extension.onClickOnce
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.android.synthetic.main.dialog_confirmation.*
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textview.MaterialTextView
 
 class ConfirmationBottomSheetDialog : BottomSheetDialogFragment() {
+
+	private val tViewQuestionTitle by view<MaterialTextView>(R.id.tViewQuestionTitle)
+	private val tViewQuestionMessage by view<MaterialTextView>(R.id.tViewQuestionMessage)
+	private val btnNegative by view<MaterialButton>(R.id.btnNegative)
+	private val btnPositive by view<MaterialButton>(R.id.btnPositive)
+
 	@StringRes
 	var titleResource: Int = 0
 	var titleText: CharSequence = ""

@@ -1,13 +1,16 @@
 package com.gdavidpb.tuindice.evaluations.ui.viewholder
 
 import android.view.View
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.cardview.widget.CardView
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.ui.adapter.EvaluationAdapter
 import com.gdavidpb.tuindice.base.ui.viewholder.BaseViewHolder
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.evaluations.R
-import kotlinx.android.synthetic.main.item_evaluation.view.*
+import com.gdavidpb.tuindice.evaluations.ui.custom.EvaluationGradeSeekBar
+import com.gdavidpb.tuindice.evaluations.ui.custom.TintedCheckBox
+import com.google.android.material.textview.MaterialTextView
 
 class EvaluationViewHolder(
 	itemView: View,
@@ -16,6 +19,10 @@ class EvaluationViewHolder(
 
 	init {
 		with(itemView) {
+			val cBoxEvaluation by view<TintedCheckBox>(R.id.cBoxEvaluation)
+			val sBarEvaluationGrade by view<EvaluationGradeSeekBar>(R.id.sBarEvaluationGrade)
+			val btnEvaluationOptions by view<AppCompatImageButton>(R.id.btnEvaluationOptions)
+
 			onClickOnce {
 				val item = getItem()
 
@@ -70,12 +77,19 @@ class EvaluationViewHolder(
 		name: CharSequence,
 		date: CharSequence
 	) {
+		val tViewEvaluationName by view<MaterialTextView>(R.id.tViewEvaluationName)
+		val tViewEvaluationType by view<MaterialTextView>(R.id.tViewEvaluationType)
+		val tViewEvaluationDate by view<MaterialTextView>(R.id.tViewEvaluationDate)
+
 		tViewEvaluationName.text = name
 		tViewEvaluationType.text = type
 		tViewEvaluationDate.text = date
 	}
 
 	private fun CardView.setGrades(grade: Double, maxGrade: Double) {
+		val tViewEvaluationGrade by view<MaterialTextView>(R.id.tViewEvaluationGrade)
+		val sBarEvaluationGrade by view<EvaluationGradeSeekBar>(R.id.sBarEvaluationGrade)
+
 		val gradeText = context.getString(
 			R.string.evaluation_grade_max,
 			grade.formatGrade(2),
@@ -92,6 +106,12 @@ class EvaluationViewHolder(
 			isDone -> R.color.color_retired
 			else -> R.color.color_approved
 		}.let { resource -> context.getCompatColor(resource) }
+
+		val viewEvaluationColor by view<View>(R.id.viewEvaluationColor)
+		val cBoxEvaluation by view<TintedCheckBox>(R.id.cBoxEvaluation)
+		val sBarEvaluationGrade by view<EvaluationGradeSeekBar>(R.id.sBarEvaluationGrade)
+		val tViewEvaluationType by view<MaterialTextView>(R.id.tViewEvaluationType)
+		val tViewEvaluationDate by view<MaterialTextView>(R.id.tViewEvaluationDate)
 
 		viewEvaluationColor.backgroundColor = cardColor
 		cBoxEvaluation.setChecked(checked = isDone, notify = false)

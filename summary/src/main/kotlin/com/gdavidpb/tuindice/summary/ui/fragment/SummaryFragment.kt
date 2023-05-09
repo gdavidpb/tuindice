@@ -6,12 +6,16 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.ViewFlipper
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.NavigationBaseDirections
+import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
+import com.gdavidpb.tuindice.base.ui.custom.ErrorView
+import com.gdavidpb.tuindice.base.ui.custom.TopProgressBar
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
@@ -23,23 +27,28 @@ import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.hasCamera
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.snackBar
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.summary.R
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryViewState
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.adapter.SummaryAdapter
-import kotlinx.android.synthetic.main.fragment_summary.eViewSummary
-import kotlinx.android.synthetic.main.fragment_summary.fViewSummary
-import kotlinx.android.synthetic.main.fragment_summary.pBarSummary
-import kotlinx.android.synthetic.main.fragment_summary.rViewSummary
-import kotlinx.android.synthetic.main.fragment_summary.tViewCareer
-import kotlinx.android.synthetic.main.fragment_summary.tViewGrade
-import kotlinx.android.synthetic.main.fragment_summary.tViewLastUpdate
-import kotlinx.android.synthetic.main.fragment_summary.tViewName
-import kotlinx.android.synthetic.main.fragment_summary.vProfilePicture
+import com.gdavidpb.tuindice.summary.ui.custom.GradeTextView
+import com.gdavidpb.tuindice.summary.ui.custom.ProfilePictureView
+import com.google.android.material.textview.MaterialTextView
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SummaryFragment : NavigationFragment() {
+
+	private val pBarSummary by view<TopProgressBar>(R.id.pBarSummary)
+	private val fViewSummary by view<ViewFlipper>(R.id.fViewSummary)
+	private val vProfilePicture by view<ProfilePictureView>(R.id.vProfilePicture)
+	private val tViewGrade by view<GradeTextView>(R.id.tViewGrade)
+	private val tViewName by view<MaterialTextView>(R.id.tViewName)
+	private val tViewCareer by view<MaterialTextView>(R.id.tViewCareer)
+	private val tViewLastUpdate by view<MaterialTextView>(R.id.tViewLastUpdate)
+	private val rViewSummary by view<RecyclerView>(R.id.rViewSummary)
+	private val eViewSummary by view<ErrorView>(R.id.eViewSummary)
 
 	private val viewModel by viewModel<SummaryViewModel>()
 

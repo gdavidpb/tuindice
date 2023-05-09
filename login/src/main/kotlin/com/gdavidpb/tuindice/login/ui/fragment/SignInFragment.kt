@@ -3,8 +3,13 @@ package com.gdavidpb.tuindice.login.ui.fragment
 import android.os.Bundle
 import android.view.View
 import android.view.animation.OvershootInterpolator
+import android.widget.ImageView
+import android.widget.ProgressBar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import com.gdavidpb.tuindice.base.BuildConfig
+import com.gdavidpb.tuindice.base.ui.custom.PasswordInputLayout
+import com.gdavidpb.tuindice.base.ui.custom.UsbIdInputLayout
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extension.animateShake
 import com.gdavidpb.tuindice.base.utils.extension.beginTransition
@@ -13,21 +18,26 @@ import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
-import kotlinx.android.synthetic.main.fragment_sign_in.btnSignIn
-import kotlinx.android.synthetic.main.fragment_sign_in.cLayoutSignIn
-import kotlinx.android.synthetic.main.fragment_sign_in.iViewLogo
-import kotlinx.android.synthetic.main.fragment_sign_in.pBarLogging
-import kotlinx.android.synthetic.main.fragment_sign_in.tInputPassword
-import kotlinx.android.synthetic.main.fragment_sign_in.tInputUsbId
-import kotlinx.android.synthetic.main.fragment_sign_in.tViewPolicies
-import kotlinx.android.synthetic.main.fragment_sign_in.vFlipperLoading
+import com.gdavidpb.tuindice.login.ui.custom.LoadingMessageViewFlipper
+import com.gdavidpb.tuindice.login.ui.custom.PoliciesLinkTextView
+import com.google.android.material.button.MaterialButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SignInFragment : NavigationFragment() {
+
+	private val btnSignIn by view<MaterialButton>(R.id.btnSignIn)
+	private val cLayoutSignIn by view<ConstraintLayout>(R.id.cLayoutSignIn)
+	private val iViewLogo by view<ImageView>(R.id.iViewLogo)
+	private val pBarLogging by view<ProgressBar>(R.id.pBarLogging)
+	private val tInputUsbId by view<UsbIdInputLayout>(R.id.tInputUsbId)
+	private val tInputPassword by view<PasswordInputLayout>(R.id.tInputPassword)
+	private val tViewPolicies by view<PoliciesLinkTextView>(R.id.tViewPolicies)
+	private val vFlipperLoading by view<LoadingMessageViewFlipper>(R.id.vFlipperLoading)
 
 	private val viewModel by viewModel<SignInViewModel>()
 

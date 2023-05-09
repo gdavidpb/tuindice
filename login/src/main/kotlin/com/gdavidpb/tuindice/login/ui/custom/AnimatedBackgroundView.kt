@@ -8,12 +8,21 @@ import android.util.AttributeSet
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.gdavidpb.tuindice.base.utils.extension.*
+import com.gdavidpb.tuindice.base.utils.extension.doOnUpdate
+import com.gdavidpb.tuindice.base.utils.extension.duration
+import com.gdavidpb.tuindice.base.utils.extension.getDrawable
+import com.gdavidpb.tuindice.base.utils.extension.getEnum
+import com.gdavidpb.tuindice.base.utils.extension.interpolator
+import com.gdavidpb.tuindice.base.utils.extension.loadAttributes
+import com.gdavidpb.tuindice.base.utils.extension.repeatCount
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.login.R
-import kotlinx.android.synthetic.main.view_animated_background.view.*
 
 class AnimatedBackgroundView(context: Context, attrs: AttributeSet) :
 	ConstraintLayout(context, attrs) {
+
+	private val backgroundOne by view<BackgroundImageView>(R.id.backgroundOne)
+	private val backgroundTwo by view<BackgroundImageView>(R.id.backgroundTwo)
 
 	private val backgroundImage: Drawable?
 	private val scaleType: ImageView.ScaleType

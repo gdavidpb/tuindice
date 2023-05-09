@@ -5,13 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
+import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.base.R
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
 import com.gdavidpb.tuindice.base.ui.adapter.BottomMenuAdapter
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.android.synthetic.main.dialog_bottom_menu.*
+import com.google.android.material.textview.MaterialTextView
 
 open class MenuBottomSheetDialog : BottomSheetDialogFragment() {
+
+	private val tViewMenuTitle by view<MaterialTextView>(R.id.tViewMenuTitle)
+	private val rViewMenu by view<RecyclerView>(R.id.rViewMenu)
+
 	@StringRes
 	var titleResource: Int = 0
 	var titleText: CharSequence = ""

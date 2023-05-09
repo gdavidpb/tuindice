@@ -4,23 +4,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import androidx.core.view.isVisible
+import com.gdavidpb.tuindice.base.ui.custom.PasswordInputLayout
 import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.toast
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.login.presentation.viewmodel.UpdatePasswordViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.android.synthetic.main.dialog_update_password.btnCancel
-import kotlinx.android.synthetic.main.dialog_update_password.btnConfirm
-import kotlinx.android.synthetic.main.dialog_update_password.pBarUpdate
-import kotlinx.android.synthetic.main.dialog_update_password.tInputPassword
-import kotlinx.android.synthetic.main.fragment_sign_in.pBarLogging
+import com.google.android.material.button.MaterialButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class UpdatePasswordBottomSheetDialog : BottomSheetDialogFragment() {
+
+	private val tInputPassword by view<PasswordInputLayout>(R.id.tInputPassword)
+	private val btnCancel by view<MaterialButton>(R.id.btnCancel)
+	private val btnConfirm by view<MaterialButton>(R.id.btnConfirm)
+	private val pBarUpdate by view<ProgressBar>(R.id.pBarUpdate)
 
 	private val viewModel by viewModel<UpdatePasswordViewModel>()
 

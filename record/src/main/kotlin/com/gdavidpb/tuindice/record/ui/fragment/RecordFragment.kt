@@ -5,10 +5,14 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.ViewFlipper
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.base.NavigationBaseDirections
 import com.gdavidpb.tuindice.base.presentation.model.BottomMenuItem
+import com.gdavidpb.tuindice.base.ui.custom.ErrorView
+import com.gdavidpb.tuindice.base.ui.custom.TopProgressBar
 import com.gdavidpb.tuindice.base.ui.dialog.MenuBottomSheetDialog
 import com.gdavidpb.tuindice.base.ui.fragment.NavigationFragment
 import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
@@ -16,6 +20,7 @@ import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.utils.extension.connectionSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.errorSnackBar
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpdateSubjectParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.WithdrawSubjectParams
@@ -24,13 +29,14 @@ import com.gdavidpb.tuindice.record.presentation.model.RecordViewState
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.adapter.QuarterAdapter
-import kotlinx.android.synthetic.main.fragment_record.eViewRecord
-import kotlinx.android.synthetic.main.fragment_record.fViewRecord
-import kotlinx.android.synthetic.main.fragment_record.pBarRecord
-import kotlinx.android.synthetic.main.fragment_record.rViewRecord
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RecordFragment : NavigationFragment() {
+
+	private val pBarRecord by view<TopProgressBar>(R.id.pBarRecord)
+	private val fViewRecord by view<ViewFlipper>(R.id.fViewRecord)
+	private val rViewRecord by view<RecyclerView>(R.id.rViewRecord)
+	private val eViewRecord by view<ErrorView>(R.id.eViewRecord)
 
 	private val viewModel by viewModel<RecordViewModel>()
 
