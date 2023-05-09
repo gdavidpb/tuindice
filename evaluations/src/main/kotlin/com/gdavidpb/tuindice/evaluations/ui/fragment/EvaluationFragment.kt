@@ -15,7 +15,9 @@ import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.snackBar
 import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.evaluations.R
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.GetEvaluationParams
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationViewState
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
@@ -117,5 +119,31 @@ class EvaluationFragment : NavigationFragment() {
 
 	private fun onSaveClick() {
 		val maxGrade = tInputEvaluationGrade.getGrade()
+
+		if (args.evaluationId == null)
+			viewModel.addEvaluationAction(
+				AddEvaluationParams(
+					quarterId = "",
+					subjectId = args.subjectId,
+					name = tInputEvaluationName.getName(),
+					grade = maxGrade,
+					maxGrade = maxGrade,
+					date = dPickerEvaluationDate.selectedDate.time,
+					type = cGroupEvaluation.getEvaluationType(),
+					isDone = false
+				)
+			)
+		else
+			viewModel.updateEvaluationAction(
+				UpdateEvaluationParams(
+					evaluationId = args.evaluationId ?: "",
+					name = tInputEvaluationName.getName(),
+					grade = maxGrade,
+					maxGrade = maxGrade,
+					date = dPickerEvaluationDate.selectedDate.time,
+					type = cGroupEvaluation.getEvaluationType(),
+					isDone = false
+				)
+			)
 	}
 }
