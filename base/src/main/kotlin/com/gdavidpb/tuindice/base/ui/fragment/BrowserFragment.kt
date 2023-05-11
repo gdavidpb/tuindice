@@ -17,7 +17,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.gdavidpb.tuindice.base.R
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
-import com.gdavidpb.tuindice.base.utils.extension.browse
 import com.gdavidpb.tuindice.base.utils.extension.getCompatColor
 import com.gdavidpb.tuindice.base.utils.extension.view
 
@@ -95,7 +94,7 @@ class BrowserFragment : NavigationFragment() {
 			titleResource = R.string.dialog_title_warning_external
 			messageText = spannedMessage
 
-			positiveButton(R.string.open) { browse(url = externalUrl) }
+			// TODO positiveButton(R.string.open) { browse(url = externalUrl) }
 			negativeButton(R.string.cancel)
 		}
 	}

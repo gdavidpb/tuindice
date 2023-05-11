@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice
 
 import android.app.Application
+import com.gdavidpb.tuindice.about.di.aboutModule
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
 import com.gdavidpb.tuindice.di.appModule
@@ -43,6 +44,7 @@ class TuIndiceApp : Application() {
 				loginModule,
 				summaryModule,
 				recordModule,
+				aboutModule,
 				enrollmentProofModule,
 				evaluationsModule,
 				transactionsModule

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice
 
 import android.app.Application
+import com.gdavidpb.tuindice.about.di.aboutModule
 import com.gdavidpb.tuindice.migration.MigrationManager
 import com.gdavidpb.tuindice.di.appMockModule
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
@@ -46,6 +47,7 @@ class TuIndiceMockApp : Application() {
 				loginModule,
 				summaryModule,
 				recordModule,
+				aboutModule,
 				enrollmentProofModule,
 				evaluationsModule,
 				transactionsModule

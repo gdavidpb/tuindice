@@ -14,7 +14,7 @@ class PreferencesDataSource(
 		return when (sharedPreferences.getInt(PreferencesKeys.LAST_SCREEN, R.id.fragment_summary)) {
 			ScreenKeys.SUMMARY -> R.id.fragment_summary
 			ScreenKeys.RECORD -> R.id.fragment_record
-			ScreenKeys.ABOUT -> R.id.fragment_about
+			// TODO ScreenKeys.ABOUT -> R.id.fragment_about
 			else -> R.id.fragment_summary
 		}
 	}
@@ -23,7 +23,7 @@ class PreferencesDataSource(
 		val screenKey = when (screen) {
 			R.id.fragment_summary -> ScreenKeys.SUMMARY
 			R.id.fragment_record -> ScreenKeys.RECORD
-			R.id.fragment_about -> ScreenKeys.ABOUT
+			// TODO R.id.fragment_about -> ScreenKeys.ABOUT
 			else -> ScreenKeys.SUMMARY
 		}
 

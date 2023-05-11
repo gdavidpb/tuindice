@@ -29,7 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.about.ui.screen.AboutScreen
+import com.gdavidpb.tuindice.about.presentation.route.AboutRoute
 import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 import com.gdavidpb.tuindice.summary.ui.screen.SummaryScreen
 
@@ -139,7 +139,7 @@ fun TuIndiceApp(screens: List<Screen>) {
 		) {
 			composable(Screen.Summary.route) { SummaryScreen() }
 			composable(Screen.Record.route) { RecordScreen() }
-			composable(Screen.About.route) { AboutScreen() }
+			composable(Screen.About.route) { AboutRoute() }
 		}
 	}
 }

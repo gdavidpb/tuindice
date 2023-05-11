@@ -1,37 +1,76 @@
 package com.gdavidpb.tuindice.about.utils.extension
 
 import android.content.Context
-import android.graphics.Rect
-import android.graphics.drawable.Drawable
-import androidx.annotation.DrawableRes
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.graphics.drawable.DrawableCompat
+import android.content.Intent
+import android.net.Uri
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import com.gdavidpb.tuindice.about.R
-import com.gdavidpb.tuindice.base.BuildConfig
 
-fun Context.versionName(): String {
-	val environmentRes = if (BuildConfig.DEBUG) R.string.debug else R.string.release
+fun Context.playStore() {
+	val uri = Uri.parse(getString(R.string.about_google_play_intent, packageName))
+	val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+		addFlags(
+			Intent.FLAG_ACTIVITY_NO_HISTORY or
+					Intent.FLAG_ACTIVITY_MULTIPLE_TASK or
+					Intent.FLAG_ACTIVITY_NEW_DOCUMENT
+		)
+	}
 
-	return getString(
-		R.string.app_version,
-		getString(environmentRes),
-		BuildConfig.VERSION_NAME,
-		BuildConfig.VERSION_CODE
-	)
+	runCatching {
+		startActivity(intent)
+	}.onFailure {
+		browse(url = getString(R.string.about_google_play, packageName))
+	}
 }
 
-fun Context.getCompatDrawable(
-	@DrawableRes resId: Int,
-	width: Int = -1,
-	height: Int = -1
-): Drawable {
-	val drawable = AppCompatResources.getDrawable(this, resId) ?: error("resId: $resId")
+fun Context.browse(url: String) {
+	runCatching {
+		val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
 
-	return if (width == -1 && height == -1) {
-		drawable
-	} else {
-		DrawableCompat.wrap(drawable).apply {
-			bounds = Rect(0, 0, width, height)
+		startActivity(intent)
+	}
+}
+
+fun Context.email(email: String, subject: String = "", text: String = "") {
+	runCatching {
+		val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")).apply {
+			putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
+
+			if (subject.isNotEmpty()) putExtra(Intent.EXTRA_SUBJECT, subject)
+			if (text.isNotEmpty()) putExtra(Intent.EXTRA_TEXT, text)
 		}
+
+		startActivity(intent)
+	}
+}
+
+fun Context.share(subject: String = "", text: String) {
+	runCatching {
+		val intent = Intent(Intent.ACTION_SEND).apply {
+			type = "text/plain"
+			putExtra(Intent.EXTRA_SUBJECT, subject)
+			putExtra(Intent.EXTRA_TEXT, text)
+		}.let {
+			Intent.createChooser(it, null)
+		}
+
+		startActivity(intent)
+	}
+}
+
+fun Context.selector(
+	@StringRes textResource: Int,
+	items: Array<String>,
+	onClick: (String) -> Unit
+): AlertDialog = AlertDialog.Builder(this).apply {
+	setTitle(textResource)
+
+	setItems(items) { _, which -> onClick(items[which]) }
+}.show()
+
+fun Context.showReportSelector(contactEmail: String, issuesList: List<String>) {
+	selector(R.string.selector_title_report, issuesList.toTypedArray()) { selected ->
+		email(email = contactEmail, subject = selected)
 	}
 }
