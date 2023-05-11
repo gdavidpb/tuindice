@@ -34,6 +34,7 @@ dependencies {
 
     /* Koin */
     api "io.insert-koin:koin-android:${versions.koin}"
+    api "io.insert-koin:koin-androidx-compose:${versions.koin}"
 
     /* Firebase */
     api platform("com.google.firebase:firebase-bom:30.2.0")
