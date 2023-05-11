@@ -1,30 +1,17 @@
 package com.gdavidpb.tuindice.ui.activity
 
 import android.os.Bundle
-import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavDestination
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI
-import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.base.utils.IdempotentLocker
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.lifecycle.Lifecycle
 import com.gdavidpb.tuindice.base.utils.RequestCodes
-import com.gdavidpb.tuindice.base.utils.TIME_EXIT_LOCKER
-import com.gdavidpb.tuindice.base.utils.extension.animateSlideIn
-import com.gdavidpb.tuindice.base.utils.extension.animateSlideOut
 import com.gdavidpb.tuindice.base.utils.extension.collect
-import com.gdavidpb.tuindice.base.utils.extension.hideSoftKeyboard
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
-import com.gdavidpb.tuindice.base.utils.extension.toast
-import com.gdavidpb.tuindice.base.utils.extension.view
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.gdavidpb.tuindice.ui.screen.Screen
+import com.gdavidpb.tuindice.ui.screen.TuIndiceApp
+import com.gdavidpb.tuindice.ui.theme.TuIndiceTheme
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.ktx.launchReview
@@ -33,11 +20,7 @@ import com.google.android.play.core.review.ReviewManager
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity() {
-
-	private val appBar by view<AppBarLayout>(R.id.appBar)
-	private val bottomNavView by view<BottomNavigationView>(R.id.bottomNavView)
-	private val toolbar by view<MaterialToolbar>(R.id.toolbar)
+class MainActivity : ComponentActivity() {
 
 	private val reviewManager by inject<ReviewManager>()
 
@@ -45,49 +28,20 @@ class MainActivity : AppCompatActivity() {
 
 	private val viewModel by viewModel<MainViewModel>()
 
-	private val backLocker = IdempotentLocker()
-
-	private val topDestinations = setOf(
-		R.id.fragment_summary,
-		R.id.fragment_record,
-		R.id.fragment_about,
-		R.id.fragment_splash,
-		R.id.fragment_sign_in
-	)
-
-	private val bottomDestinations = setOf(
-		R.id.fragment_summary,
-		R.id.fragment_record,
-		R.id.fragment_about
-	)
-
-	private val appBarConfiguration by lazy {
-		AppBarConfiguration(topDestinations)
-	}
-
-	private val navController by lazy {
-		findNavController(R.id.mainNavHostFragment)
-	}
-
 	override fun onCreate(savedInstanceState: Bundle?) {
-		setTheme(R.style.AppTheme)
-
 		super.onCreate(savedInstanceState)
 
-		setContentView(R.layout.activity_main)
-
-		setSupportActionBar(toolbar)
-
-		NavigationUI.setupWithNavController(bottomNavView, navController)
-		NavigationUI.setupWithNavController(toolbar, navController, appBarConfiguration)
-
-		bottomNavView.setOnItemReselectedListener { }
-
-		navController.addOnDestinationChangedListener { _, destination, _ ->
-			onDestinationChanged(destination)
+		setContent {
+			TuIndiceTheme {
+				TuIndiceApp(
+					screens = listOf(
+						Screen.Summary,
+						Screen.Record,
+						Screen.About
+					)
+				)
+			}
 		}
-
-		onBackPressedDispatcher.addCallback(this, BackPressedHandler())
 
 		launchRepeatOnLifecycle {
 			with(viewModel) {
@@ -120,44 +74,11 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	private fun showReviewDialog(reviewInfo: ReviewInfo) {
-		lifecycleScope.launchWhenResumed {
+		launchRepeatOnLifecycle(state = Lifecycle.State.RESUMED) {
 			reviewManager.launchReview(
 				activity = this@MainActivity,
 				reviewInfo = reviewInfo
 			)
-		}
-	}
-
-	private fun onDestinationChanged(destination: NavDestination) {
-		hideSoftKeyboard()
-
-		val showAppBar = (destination.id != R.id.fragment_splash)
-		val showBottomNav = bottomDestinations.contains(destination.id)
-
-		appBar.isVisible = showAppBar
-
-		if (showBottomNav) {
-			viewModel.setLastScreenAction(screen = destination.id)
-
-			bottomNavView.animateSlideIn()
-		} else {
-			bottomNavView.animateSlideOut()
-		}
-	}
-
-	inner class BackPressedHandler : OnBackPressedCallback(true) {
-		override fun handleOnBackPressed() {
-			val isHomeDestination = topDestinations.contains(navController.currentDestination?.id)
-
-			if (isHomeDestination) {
-				toast(R.string.toast_repeat_to_exit)
-
-				val locked = backLocker.lock(UnlockIn = TIME_EXIT_LOCKER)
-
-				if (!locked) finish()
-			} else {
-				navController.navigateUp()
-			}
 		}
 	}
 }
