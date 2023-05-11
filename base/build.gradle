@@ -58,6 +58,7 @@ dependencies {
     api "androidx.compose.ui:ui-tooling"
 
     api "androidx.activity:activity-compose:1.7.1"
+    api "androidx.lifecycle:lifecycle-runtime-compose:2.6.1"
     api "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1"
 
     /* Navigation */

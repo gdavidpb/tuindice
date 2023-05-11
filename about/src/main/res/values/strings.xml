@@ -64,37 +64,39 @@
 
     <string name="about_source_code">
         GitHub Repository\n
-        https://github.com/gdavidpb/tuindice
+        TuIndice
     </string>
 
     <string name="about_header_libs">Detrás de TuIndice</string>
 
     <string name="about_kotlin">
         Kotlin 1.8.20\n
-        Programming Language.\n
-        © 2012 JetBrains\n
-        https://kotlinlang.org/
+        Concise. Cross‑platform. Fun.\n
+        © 2012 JetBrains
+    </string>
+
+    <string name="about_compose">
+        JetPack Compose 2023.05.00\n
+        Build better apps faster with Jetpack Compose.\n
+        © 2019 JetBrains &amp; Google
     </string>
 
     <string name="about_firebase">
         Firebase 30.2.0\n
         Quickly develop high-quality apps and grow your business.\n
-        © 2014 Google\n
-        https://firebase.com/
+        © 2014 Google
     </string>
 
     <string name="about_koin">
         Koin 3.2.0\n
         A pragmatic lightweight dependency injection framework for Kotlin.\n
-        © 2018 Arnaud Giuliani\n
-        https://insert-koin.io/
+        © 2018 Arnaud Giuliani
     </string>
 
     <string name="about_retrofit">
         Retrofit 2.9.0\n
         A type-safe HTTP client for Android and Java.\n
-        © 2015 Square\n
-        https://square.github.io/retrofit/
+        © 2015 Square
     </string>
 
     <string name="about_header_special_thanks">Agradecimientos especiales</string>
@@ -102,22 +104,7 @@
     <string name="about_dst">
         Dirección de Servicios Telemáticos\n
         Universidad Simón Bolívar\n
-        Unidad administrativa\n
-        https://www.dst.usb.ve/inicio
-    </string>
-
-    <string name="about_freepik">
-        Freepik Company\n
-        FlatIcon\n
-        The largest database of free customizable icons in the world.\n
-        https://www.freepik.com/
-    </string>
-
-    <string name="about_mit_mapping_lab">
-        The Mapping Lab\n
-        Massachusetts Institute of Technology\n
-        Develops technologies for the future of digital education.\n
-        https://mapping.mit.edu/
+        Unidad administrativa
     </string>
 
     <string name="selector_title_report">¿Cómo te podemos ayudar?</string>

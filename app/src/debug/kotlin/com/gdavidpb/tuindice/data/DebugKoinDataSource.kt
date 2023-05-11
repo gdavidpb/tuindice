@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.data
 
+import com.gdavidpb.tuindice.about.di.aboutModule
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.di.appMockModule
 import com.gdavidpb.tuindice.enrollmentproof.di.enrollmentProofModule
@@ -23,6 +24,7 @@ class DebugKoinDataSource : DependenciesRepository {
 				loginModule,
 				summaryModule,
 				recordModule,
+				aboutModule,
 				enrollmentProofModule,
 				evaluationsModule,
 				transactionsModule
@@ -35,6 +37,7 @@ class DebugKoinDataSource : DependenciesRepository {
 				loginModule,
 				summaryModule,
 				recordModule,
+				aboutModule,
 				enrollmentProofModule,
 				evaluationsModule,
 				transactionsModule
