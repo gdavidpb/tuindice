@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import com.gdavidpb.tuindice.about.BuildConfig
 import com.gdavidpb.tuindice.about.R
 import com.gdavidpb.tuindice.about.ui.view.AboutHeaderView
 import com.gdavidpb.tuindice.about.ui.view.AboutView
@@ -28,7 +27,15 @@ import com.gdavidpb.tuindice.about.ui.view.getVersionName
 
 @Composable
 fun AboutScreen(
-	onUrlClick: (url: String) -> Unit,
+	onCreativeCommonsClick: () -> Unit,
+	onTwitterClick: () -> Unit,
+	onGithubClick: () -> Unit,
+	onKotlinClick: () -> Unit,
+	onComposeClick: () -> Unit,
+	onFirebaseClick: () -> Unit,
+	onKoinClick: () -> Unit,
+	onRetrofitClick: () -> Unit,
+	onDstClick: () -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit,
 	onShareAppClick: () -> Unit,
@@ -53,7 +60,7 @@ fun AboutScreen(
 				icon = ImageVector.vectorResource(id = R.drawable.ic_cc),
 				text = stringResource(id = R.string.about_license),
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
-			) { onUrlClick(BuildConfig.URL_CREATIVE_COMMONS) }
+			) { onCreativeCommonsClick() }
 
 			AboutView(
 				icon = Icons.Outlined.Subject,
@@ -71,7 +78,7 @@ fun AboutScreen(
 				icon = ImageVector.vectorResource(id = R.drawable.ic_twitter),
 				text = stringResource(id = R.string.about_twitter),
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
-			) { onUrlClick(BuildConfig.URL_TWITTER) }
+			) { onTwitterClick() }
 
 			AboutView(
 				icon = Icons.Outlined.Share,
@@ -99,7 +106,7 @@ fun AboutScreen(
 				icon = ImageVector.vectorResource(id = R.drawable.ic_github),
 				text = stringResource(id = R.string.about_source_code),
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
-			) { onUrlClick(BuildConfig.URL_GITHUB) }
+			) { onGithubClick() }
 
 			AboutView(
 				icon = Icons.Outlined.Email,
@@ -121,32 +128,32 @@ fun AboutScreen(
 				icon = ImageVector.vectorResource(id = R.drawable.ic_kotlin),
 				text = stringResource(id = R.string.about_kotlin),
 				size = dimensionResource(id = R.dimen.dp_48)
-			) { onUrlClick(BuildConfig.URL_KOTLIN) }
+			) { onKotlinClick() }
 
 			AboutView(
 				icon = ImageVector.vectorResource(id = R.drawable.ic_compose),
 				text = stringResource(id = R.string.about_compose),
 				size = dimensionResource(id = R.dimen.dp_48)
-			) { onUrlClick(BuildConfig.URL_COMPOSE) }
+			) { onComposeClick() }
 
 			AboutView(
 				icon = ImageVector.vectorResource(id = R.drawable.ic_firebase),
 				text = stringResource(id = R.string.about_firebase),
 				size = dimensionResource(id = R.dimen.dp_48)
-			) { onUrlClick(BuildConfig.URL_FIREBASE) }
+			) { onFirebaseClick() }
 
 			AboutView(
 				icon = ImageVector.vectorResource(id = R.drawable.ic_koin),
 				text = stringResource(id = R.string.about_koin),
 				size = dimensionResource(id = R.dimen.dp_48)
-			) { onUrlClick(BuildConfig.URL_KOIN) }
+			) { onKoinClick() }
 
 			AboutView(
 				icon = ImageVector.vectorResource(id = R.drawable.ic_square),
 				text = stringResource(id = R.string.about_retrofit),
 				size = dimensionResource(id = R.dimen.dp_48),
 				tint = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onBackground else null
-			) { onUrlClick(BuildConfig.URL_RETROFIT) }
+			) { onRetrofitClick() }
 		}
 
 		AboutHeaderView(
@@ -157,7 +164,7 @@ fun AboutScreen(
 				text = stringResource(id = R.string.about_dst),
 				size = dimensionResource(id = R.dimen.dp_48),
 				tint = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onBackground else null
-			) { onUrlClick(BuildConfig.URL_DST) }
+			) { onDstClick() }
 		}
 	}
 }

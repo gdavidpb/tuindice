@@ -20,12 +20,11 @@ object About {
 	}
 
 	sealed class Event : ViewEvent {
-		object NavigateToTermsAndConditions : Event()
-		object NavigateToPrivacyPolicy : Event()
+		class NavigateToBrowser(val title: String, val url: String) : Event()
 		class StartShare(val subject: String, val text: String) : Event()
 		object StartPlayStore : Event()
 		object StartEmail : Event()
+		class StartBrowser(val url: String) : Event()
 		object ShowReportBugDialog : Event()
-		class Browse(val url: String) : Event()
 	}
 }

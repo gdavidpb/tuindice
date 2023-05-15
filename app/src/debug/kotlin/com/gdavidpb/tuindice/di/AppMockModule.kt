@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.base.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.base.utils.extension.sharedPreferences
 import com.gdavidpb.tuindice.data.AuthMockDataSource
@@ -69,6 +70,7 @@ val appMockModule = module {
 	/* View Models */
 
 	viewModel<MainViewModel>()
+	viewModel<BrowserViewModel>()
 
 	/* Reducers */
 
