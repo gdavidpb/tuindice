@@ -20,17 +20,6 @@
     <string name="error_empty">Campo vacío</string>
     <string name="error_usb_id">USBID inválido</string>
 
-    <!-- ErrorView -->
-
-    <string name="view_error_title">Ha ocurrido un error</string>
-    <string name="view_error_message">Algo no ha salido bien ;(\nPuedes intentarlo de nuevo</string>
-    <string name="view_error_retry">Reintentar</string>
-
-    <!-- BrowserFragment -->
-
-    <string name="dialog_title_warning_external">Atención</string>
-    <string name="dialog_message_warning_external">¿Deseas abrir el siguiente enlace?\n\n%s</string>
-
     <string name="snack_default_error">¡Ha ocurrido un error!</string>
     <string name="snack_network_unavailable">Comprueba tu conexión</string>
     <string name="snack_service_unavailable">Servicio no disponible</string>
@@ -64,5 +53,16 @@
     <string name="dialog_button_update_password_confirm">Confirmar</string>
 
     <string name="toast_password_updated">Contraseña actualizada</string>
+
+    <!-- BrowserScreen -->
+
+    <string name="dialog_title_warning_external">Atención</string>
+    <string name="dialog_message_warning_external">¿Deseas abrir el siguiente enlace?</string>
+
+    <!-- ErrorView -->
+
+    <string name="view_error_title">Ha ocurrido un error</string>
+    <string name="view_error_message">Algo no ha salido bien ;(\nPuedes intentarlo de nuevo</string>
+    <string name="view_error_retry">Reintentar</string>
 
 </resources>

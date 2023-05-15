@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.ui.screen.Screen
+import com.gdavidpb.tuindice.ui.navigation.Destination
 import com.gdavidpb.tuindice.ui.screen.TuIndiceApp
 import com.gdavidpb.tuindice.ui.theme.TuIndiceTheme
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -34,10 +34,11 @@ class MainActivity : ComponentActivity() {
 		setContent {
 			TuIndiceTheme {
 				TuIndiceApp(
-					screens = listOf(
-						Screen.Summary,
-						Screen.Record,
-						Screen.About
+					destinations = listOf(
+						Destination.Summary,
+						Destination.Record,
+						Destination.About,
+						Destination.Browser
 					)
 				)
 			}

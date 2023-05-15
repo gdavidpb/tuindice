@@ -3,9 +3,8 @@ package com.gdavidpb.tuindice.about.utils.extension
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import com.gdavidpb.tuindice.about.R
+import com.gdavidpb.tuindice.base.utils.extension.browse
 
 fun Context.playStore() {
 	val uri = Uri.parse(getString(R.string.about_google_play_intent, packageName))
@@ -21,14 +20,6 @@ fun Context.playStore() {
 		startActivity(intent)
 	}.onFailure {
 		browse(url = getString(R.string.about_google_play, packageName))
-	}
-}
-
-fun Context.browse(url: String) {
-	runCatching {
-		val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-
-		startActivity(intent)
 	}
 }
 
@@ -56,21 +47,5 @@ fun Context.share(subject: String = "", text: String) {
 		}
 
 		startActivity(intent)
-	}
-}
-
-fun Context.selector(
-	@StringRes textResource: Int,
-	items: Array<String>,
-	onClick: (String) -> Unit
-): AlertDialog = AlertDialog.Builder(this).apply {
-	setTitle(textResource)
-
-	setItems(items) { _, which -> onClick(items[which]) }
-}.show()
-
-fun Context.showReportSelector(contactEmail: String, issuesList: List<String>) {
-	selector(R.string.selector_title_report, issuesList.toTypedArray()) { selected ->
-		email(email = contactEmail, subject = selected)
 	}
 }

@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.base.utils.extension
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.core.content.FileProvider
@@ -44,14 +43,6 @@ fun LifecycleOwner.openFile(file: File): Boolean {
 
 fun LifecycleOwner.toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
 	Toast.makeText(context(), resId, duration).show()
-}
-
-fun LifecycleOwner.browse(url: String) {
-	runCatching {
-		val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-
-		startActivity(intent)
-	}
 }
 
 fun LifecycleOwner.connectionSnackBar(isNetworkAvailable: Boolean, onRetryClick: (() -> Unit)? = null) {

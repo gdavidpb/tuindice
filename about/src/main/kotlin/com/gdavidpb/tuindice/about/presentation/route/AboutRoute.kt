@@ -2,15 +2,15 @@ package com.gdavidpb.tuindice.about.presentation.route
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.gdavidpb.tuindice.about.BuildConfig
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.about.ui.screen.AboutScreen
-import com.gdavidpb.tuindice.about.utils.extension.browse
 import com.gdavidpb.tuindice.about.utils.extension.email
 import com.gdavidpb.tuindice.about.utils.extension.playStore
 import com.gdavidpb.tuindice.about.utils.extension.share
-import com.gdavidpb.tuindice.about.utils.extension.showReportSelector
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.browse
 import com.gdavidpb.tuindice.base.utils.extension.config
 import org.koin.androidx.compose.koinViewModel
 
@@ -19,27 +19,23 @@ private val contactSubject by config { getContactSubject() }
 private val issuesList by config { getIssuesList() }
 
 @Composable
-fun AboutRoute(viewModel: AboutViewModel = koinViewModel()) {
+fun AboutRoute(
+	onNavigateToBrowser: (title: String, url: String) -> Unit,
+	onNavigateToReportBug: () -> Unit,
+	viewModel: AboutViewModel = koinViewModel()
+) {
 	val context = LocalContext.current
 
 	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
 		when (event) {
-			is About.Event.Browse ->
-				context.browse(
-					url = event.url
-				)
+			is About.Event.NavigateToBrowser ->
+				onNavigateToBrowser(event.title, event.url)
 
-			is About.Event.NavigateToPrivacyPolicy ->
-				TODO()
-
-			is About.Event.NavigateToTermsAndConditions ->
-				TODO()
+			is About.Event.StartBrowser ->
+				context.browse(event.url)
 
 			is About.Event.ShowReportBugDialog ->
-				context.showReportSelector(
-					contactEmail = contactEmail,
-					issuesList = issuesList
-				)
+				onNavigateToReportBug()
 
 			is About.Event.StartEmail ->
 				context.email(
@@ -59,7 +55,15 @@ fun AboutRoute(viewModel: AboutViewModel = koinViewModel()) {
 	}
 
 	AboutScreen(
-		onUrlClick = viewModel::openUrlAction,
+		onCreativeCommonsClick = { viewModel.openUrlAction(BuildConfig.URL_CREATIVE_COMMONS) },
+		onTwitterClick = { viewModel.openUrlAction(BuildConfig.URL_TWITTER) },
+		onGithubClick = { viewModel.openUrlAction(BuildConfig.URL_GITHUB) },
+		onKotlinClick = { viewModel.openUrlAction(BuildConfig.URL_KOTLIN) },
+		onComposeClick = { viewModel.openUrlAction(BuildConfig.URL_COMPOSE) },
+		onFirebaseClick = { viewModel.openUrlAction(BuildConfig.URL_FIREBASE) },
+		onKoinClick = { viewModel.openUrlAction(BuildConfig.URL_KOIN) },
+		onRetrofitClick = { viewModel.openUrlAction(BuildConfig.URL_RETROFIT) },
+		onDstClick = { viewModel.openUrlAction(BuildConfig.URL_DST) },
 		onTermsAndConditionsClick = viewModel::openTermsAndConditionsAction,
 		onPrivacyPolicyClick = viewModel::openPrivacyPolicyAction,
 		onShareAppClick = viewModel::shareAppAction,

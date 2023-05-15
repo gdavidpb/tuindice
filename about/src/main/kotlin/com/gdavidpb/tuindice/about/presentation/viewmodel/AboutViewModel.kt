@@ -35,10 +35,20 @@ class AboutViewModel(
 	override suspend fun reducer(action: About.Action) {
 		when (action) {
 			is About.Action.OpenTermsAndConditions ->
-				sendEvent(About.Event.NavigateToTermsAndConditions)
+				sendEvent(
+					About.Event.NavigateToBrowser(
+						title = resourceResolver.getString(R.string.label_terms_and_conditions),
+						url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS
+					)
+				)
 
 			is About.Action.OpenPrivacyPolicy ->
-				sendEvent(About.Event.NavigateToPrivacyPolicy)
+				sendEvent(
+					About.Event.NavigateToBrowser(
+						title = resourceResolver.getString(R.string.label_privacy_policy),
+						url = BuildConfig.URL_APP_PRIVACY_POLICY
+					)
+				)
 
 			is About.Action.ShareApp ->
 				sendEvent(
@@ -61,7 +71,7 @@ class AboutViewModel(
 				sendEvent(About.Event.StartEmail)
 
 			is About.Action.OpenUrl ->
-				sendEvent(About.Event.Browse(url = action.url))
+				sendEvent(About.Event.StartBrowser(url = action.url))
 		}
 	}
 }

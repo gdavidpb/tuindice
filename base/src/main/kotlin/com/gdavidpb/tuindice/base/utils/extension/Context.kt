@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -42,4 +43,12 @@ fun Context.canOpenFile(file: File): Boolean {
 
 		intent.resolveActivity(packageManager) != null
 	}.getOrDefault(false)
+}
+
+fun Context.browse(url: String) {
+	runCatching {
+		val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+
+		startActivity(intent)
+	}
 }
