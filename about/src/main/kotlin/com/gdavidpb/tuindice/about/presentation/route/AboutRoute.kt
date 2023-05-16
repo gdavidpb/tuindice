@@ -16,12 +16,10 @@ import org.koin.androidx.compose.koinViewModel
 
 private val contactEmail by config { getContactEmail() }
 private val contactSubject by config { getContactSubject() }
-private val issuesList by config { getIssuesList() }
 
 @Composable
 fun AboutRoute(
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
-	onNavigateToReportBug: () -> Unit,
 	viewModel: AboutViewModel = koinViewModel()
 ) {
 	val context = LocalContext.current
@@ -35,7 +33,10 @@ fun AboutRoute(
 				context.browse(event.url)
 
 			is About.Event.ShowReportBugDialog ->
-				onNavigateToReportBug()
+				context.email(
+					email = contactEmail,
+					subject = contactSubject
+				)
 
 			is About.Event.StartEmail ->
 				context.email(

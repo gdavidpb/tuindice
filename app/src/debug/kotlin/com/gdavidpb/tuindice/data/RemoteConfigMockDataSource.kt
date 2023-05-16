@@ -23,10 +23,6 @@ class RemoteConfigMockDataSource(
 		return remoteConfig.getString(ConfigKeys.CONTACT_SUBJECT)
 	}
 
-	override fun getIssuesList(): List<String> {
-		return remoteConfig.getStringList(ConfigKeys.ISSUES_LIST)
-	}
-
 	override fun getLoadingMessages(): List<String> {
 		return remoteConfig.getStringList(ConfigKeys.LOADING_MESSAGES)
 	}

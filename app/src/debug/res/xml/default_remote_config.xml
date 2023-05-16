@@ -37,18 +37,6 @@
         </value>
     </entry>
     <entry>
-        <key>issues_list</key>
-        <value>
-            [
-            "Mi índice es incorrecto",
-            "No puedo descargar mi comprobante",
-            "Hay un error en mi expediente",
-            "No puedo crear/editar/eliminar una evaluación",
-            "Otro…"
-            ]
-        </value>
-    </entry>
-    <entry>
         <key>time_out_connection</key>
         <value>90000</value>
     </entry>
