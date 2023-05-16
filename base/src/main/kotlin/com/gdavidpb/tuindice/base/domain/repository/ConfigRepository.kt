@@ -6,7 +6,6 @@ interface ConfigRepository {
 	fun getTimeout(key: String): Long
 	fun getContactEmail(): String
 	fun getContactSubject(): String
-	fun getIssuesList(): List<String>
 	fun getLoadingMessages(): List<String>
 	fun getTimeUpdateStalenessDays(): Int
 	fun getSyncsToSuggestReview(): Int

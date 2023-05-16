@@ -142,8 +142,7 @@ fun TuIndiceApp(destinations: List<Destination>) {
 				AboutRoute(
 					onNavigateToBrowser = { title, url ->
 						navController.navigate("browser/$title/${url.encodeUrl()}")
-					},
-					onNavigateToReportBug = { /* TODO */ }
+					}
 				)
 			}
 
