@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.flowOf
 
 class SetLastScreenUseCase(
 	private val settingsRepository: SettingsRepository
-) : FlowUseCase<Int, Unit, Nothing>() {
-	override suspend fun executeOnBackground(params: Int): Flow<Unit> {
-		settingsRepository.setLastScreen(screen = params)
+) : FlowUseCase<String, Unit, Nothing>() {
+	override suspend fun executeOnBackground(params: String): Flow<Unit> {
+		settingsRepository.setLastScreen(route = params)
 
 		return flowOf(Unit)
 	}
