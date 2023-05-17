@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.ui.route
+package com.gdavidpb.tuindice.base.presentation.route
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
