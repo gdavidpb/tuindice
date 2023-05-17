@@ -17,7 +17,6 @@ object Browser {
 	}
 
 	sealed class Action : ViewAction {
-		class OpenUrl(val title: String, val url: String) : Action()
 		class ClickExternalResource(val url: String) : Action()
 		object CloseExternalResourceDialog : Action()
 	}
