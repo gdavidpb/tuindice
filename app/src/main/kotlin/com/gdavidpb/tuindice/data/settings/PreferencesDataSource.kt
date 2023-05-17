@@ -2,33 +2,22 @@ package com.gdavidpb.tuindice.data.settings
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.utils.ScreenKeys
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 
 class PreferencesDataSource(
 	private val sharedPreferences: SharedPreferences
 ) : SettingsRepository {
-	override fun getLastScreen(): Int {
-		return when (sharedPreferences.getInt(PreferencesKeys.LAST_SCREEN, R.id.fragment_summary)) {
-			ScreenKeys.SUMMARY -> R.id.fragment_summary
-			ScreenKeys.RECORD -> R.id.fragment_record
-			// TODO ScreenKeys.ABOUT -> R.id.fragment_about
-			else -> R.id.fragment_summary
-		}
+	override fun getLastScreen(): String {
+		return sharedPreferences
+			.getString(PreferencesKeys.LAST_SCREEN, null)
+			?: Destination.Summary.route
 	}
 
-	override fun setLastScreen(screen: Int) {
-		val screenKey = when (screen) {
-			R.id.fragment_summary -> ScreenKeys.SUMMARY
-			R.id.fragment_record -> ScreenKeys.RECORD
-			// TODO R.id.fragment_about -> ScreenKeys.ABOUT
-			else -> ScreenKeys.SUMMARY
-		}
-
+	override fun setLastScreen(route: String) {
 		sharedPreferences.edit {
-			putInt(PreferencesKeys.LAST_SCREEN, screenKey)
+			putString(PreferencesKeys.LAST_SCREEN, route)
 		}
 	}
 
