@@ -1,11 +1,11 @@
-package com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler
+package com.gdavidpb.tuindice.domain.usecase.exceptionhandler
 
 import com.gdavidpb.tuindice.base.domain.exception.ServicesUnavailableException
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
-import com.gdavidpb.tuindice.login.domain.usecase.error.StartUpError
+import com.gdavidpb.tuindice.domain.usecase.error.StartUpError
 
 class StartUpExceptionHandler(
 	private val applicationRepository: ApplicationRepository,

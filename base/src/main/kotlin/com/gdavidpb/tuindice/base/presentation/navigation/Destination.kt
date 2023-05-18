@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.ui.navigation
+package com.gdavidpb.tuindice.base.presentation.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
@@ -11,15 +11,33 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 sealed class Destination(
 	val route: String,
 	val title: String,
-	val topDestination: Boolean,
-	val navigationBarConfig: NavigationBarConfig? = null
+	val isTopDestination: Boolean,
+	val isBottomDestination: Boolean,
+	val bottomBarConfig: BottomBarConfig? = null
 ) {
+	object SignIn :
+		Destination(
+			route = "sign_in",
+			title = "TuIndice",
+			isTopDestination = true,
+			isBottomDestination = false
+		)
+
+	object Browser :
+		Destination(
+			route = "browser",
+			title = "{title}",
+			isTopDestination = false,
+			isBottomDestination = false
+		)
+
 	object Summary :
 		Destination(
 			route = "summary",
 			title = "Resumen",
-			topDestination = true,
-			navigationBarConfig = NavigationBarConfig(
+			isTopDestination = true,
+			isBottomDestination = true,
+			bottomBarConfig = BottomBarConfig(
 				unselectedIcon = Icons.Outlined.BookmarkBorder,
 				selectedIcon = Icons.Filled.Bookmark
 			)
@@ -29,8 +47,9 @@ sealed class Destination(
 		Destination(
 			route = "record",
 			title = "Informe Académico",
-			topDestination = true,
-			navigationBarConfig = NavigationBarConfig(
+			isTopDestination = true,
+			isBottomDestination = true,
+			bottomBarConfig = BottomBarConfig(
 				unselectedIcon = Icons.Outlined.Book,
 				selectedIcon = Icons.Filled.Book
 			)
@@ -40,17 +59,11 @@ sealed class Destination(
 		Destination(
 			route = "about",
 			title = "Acerca de",
-			topDestination = true,
-			navigationBarConfig = NavigationBarConfig(
+			isTopDestination = true,
+			isBottomDestination = true,
+			bottomBarConfig = BottomBarConfig(
 				unselectedIcon = Icons.Outlined.FavoriteBorder,
 				selectedIcon = Icons.Filled.Favorite
 			)
-		)
-
-	object Browser :
-		Destination(
-			route = "browser",
-			title = "{title}",
-			topDestination = false
 		)
 }

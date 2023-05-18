@@ -8,18 +8,14 @@ import com.gdavidpb.tuindice.login.data.login.LoginDataRepository
 import com.gdavidpb.tuindice.login.data.login.source.RemoteDataSource
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
-import com.gdavidpb.tuindice.login.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
-import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.login.domain.usecase.validator.UpdatePasswordParamsValidator
 import com.gdavidpb.tuindice.login.presentation.reducer.SignInReducer
-import com.gdavidpb.tuindice.login.presentation.reducer.StartUpReducer
 import com.gdavidpb.tuindice.login.presentation.reducer.UpdatePasswordReducer
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
-import com.gdavidpb.tuindice.login.presentation.viewmodel.SplashViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.UpdatePasswordViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
@@ -33,13 +29,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 val loginModule = module {
 	/* View Models */
 
-	viewModel<SplashViewModel>()
 	viewModel<SignInViewModel>()
 	viewModel<UpdatePasswordViewModel>()
 
 	/* Reducers */
 
-	factoryOf(::StartUpReducer)
 	factoryOf(::SignInReducer)
 	factoryOf(::UpdatePasswordReducer)
 
@@ -47,7 +41,6 @@ val loginModule = module {
 
 	factoryOf(::SignInUseCase)
 	factoryOf(::UpdatePasswordUseCase)
-	factoryOf(::StartUpUseCase)
 
 	/* Validators */
 
@@ -77,5 +70,4 @@ val loginModule = module {
 
 	factoryOf(::UpdatePasswordExceptionHandler)
 	factoryOf(::SignInExceptionHandler)
-	factoryOf(::StartUpExceptionHandler)
 }

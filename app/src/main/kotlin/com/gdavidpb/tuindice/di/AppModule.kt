@@ -33,12 +33,15 @@ import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
+import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
+import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationAddParser
 import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationRemoveParser
 import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationUpdateParser
 import com.gdavidpb.tuindice.evaluations.data.resolution.EvaluationResolutionHandler
 import com.gdavidpb.tuindice.presentation.reducer.GetUpdateInfoReducer
 import com.gdavidpb.tuindice.presentation.reducer.RequestReviewReducer
+import com.gdavidpb.tuindice.presentation.reducer.StartUpReducer
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
 import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
@@ -81,14 +84,20 @@ val appModule = module {
 
 	/* Reducers */
 
+	factoryOf(::StartUpReducer)
 	factoryOf(::RequestReviewReducer)
 	factoryOf(::GetUpdateInfoReducer)
 
 	/* Use cases */
 
+	factoryOf(::StartUpUseCase)
 	factoryOf(::RequestReviewUseCase)
 	factoryOf(::SetLastScreenUseCase)
 	factoryOf(::GetUpdateInfoUseCase)
+
+	/* Exception handlers */
+
+	factoryOf(::StartUpExceptionHandler)
 
 	/* Android Services */
 
