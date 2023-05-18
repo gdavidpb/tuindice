@@ -4,11 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.Lifecycle
-import androidx.navigation.NavOptions
 import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
+import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.presentation.contract.Main
@@ -43,6 +43,14 @@ class MainActivity : ComponentActivity() {
 				)
 			}
 		}
+
+		launchRepeatOnLifecycle {
+			with(viewModel) {
+				collect(viewEvent, ::eventCollector)
+			}
+		}
+
+		viewModel.requestReviewAction(reviewManager)
 	}
 
 	private fun eventCollector(event: Main.Event) {
@@ -62,24 +70,6 @@ class MainActivity : ComponentActivity() {
 		super.onResume()
 
 		viewModel.checkUpdateAction(updateManager)
-	}
-
-	private fun navigateTo(route: String) {
-		// TODO viewModel.requestReviewAction(reviewManager)
-
-		val navOptions = NavOptions.Builder()
-			.setPopUpTo(route, true)
-			.build()
-
-		runCatching {
-			// TODO findNavController().navigate(route, null, navOptions)
-		}.onFailure {
-			// TODO navigate(SplashFragmentDirections.navToSummary())
-		}
-	}
-
-	private fun navigateToSignIn() {
-		// TODO navigate(SplashFragmentDirections.navToSignIn())
 	}
 
 	private fun showNoServicesDialog(status: ServicesStatus) {
