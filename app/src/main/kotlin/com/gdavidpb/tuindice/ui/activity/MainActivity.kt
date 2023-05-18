@@ -4,14 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavOptions
+import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
+import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.RequestCodes
-import com.gdavidpb.tuindice.base.utils.extension.collect
+import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
+import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.route.TuIndiceApp
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.ui.navigation.Destination
-import com.gdavidpb.tuindice.ui.screen.TuIndiceApp
 import com.gdavidpb.tuindice.ui.theme.TuIndiceTheme
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.ktx.launchReview
@@ -22,11 +27,11 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
 
-	private val reviewManager by inject<ReviewManager>()
-
-	private val updateManager by inject<AppUpdateManager>()
-
 	private val viewModel by viewModel<MainViewModel>()
+
+	private val reviewManager by inject<ReviewManager>()
+	private val updateManager by inject<AppUpdateManager>()
+	private val googleApiAvailability by inject<GoogleApiAvailability>()
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -34,37 +39,22 @@ class MainActivity : ComponentActivity() {
 		setContent {
 			TuIndiceTheme {
 				TuIndiceApp(
-					destinations = listOf(
-						Destination.Summary,
-						Destination.Record,
-						Destination.About,
-						Destination.Browser
-					)
+					startData = intent.dataString
 				)
 			}
 		}
-
-		launchRepeatOnLifecycle {
-			with(viewModel) {
-				collect(viewEvent, ::eventCollector)
-			}
-		}
-
-		viewModel.requestReviewAction(reviewManager)
 	}
 
 	private fun eventCollector(event: Main.Event) {
 		when (event) {
+			is Main.Event.ShowNoServicesDialog ->
+				showNoServicesDialog(status = event.status)
+
 			is Main.Event.ShowReviewDialog ->
 				showReviewDialog(reviewInfo = event.reviewInfo)
 
 			is Main.Event.StartUpdateFlow ->
-				updateManager.startUpdateFlowForResult(
-					event.updateInfo,
-					AppUpdateType.IMMEDIATE,
-					this@MainActivity,
-					RequestCodes.APP_UPDATE
-				)
+				startUpdateFlow(updateInfo = event.updateInfo)
 		}
 	}
 
@@ -74,6 +64,49 @@ class MainActivity : ComponentActivity() {
 		viewModel.checkUpdateAction(updateManager)
 	}
 
+	private fun navigateTo(route: String) {
+		// TODO viewModel.requestReviewAction(reviewManager)
+
+		val navOptions = NavOptions.Builder()
+			.setPopUpTo(route, true)
+			.build()
+
+		runCatching {
+			// TODO findNavController().navigate(route, null, navOptions)
+		}.onFailure {
+			// TODO navigate(SplashFragmentDirections.navToSummary())
+		}
+	}
+
+	private fun navigateToSignIn() {
+		// TODO navigate(SplashFragmentDirections.navToSignIn())
+	}
+
+	private fun showNoServicesDialog(status: ServicesStatus) {
+		val dialog = {
+			bottomSheetDialog<ConfirmationBottomSheetDialog> {
+				titleResource = R.string.dialog_title_no_gms_failure
+				messageResource = R.string.dialog_message_no_gms_failure
+
+				positiveButton(R.string.exit) { requireActivity().finish() }
+			}.apply {
+				isCancelable = false
+			}
+		}
+
+		if (googleApiAvailability.isUserResolvableError(status.status))
+			googleApiAvailability.getErrorDialog(
+				this,
+				status.status,
+				RequestCodes.PLAY_SERVICES_RESOLUTION
+			)?.apply {
+				setOnCancelListener { finish() }
+				setOnDismissListener { finish() }
+			}?.show() ?: dialog()
+		else
+			dialog()
+	}
+
 	private fun showReviewDialog(reviewInfo: ReviewInfo) {
 		launchRepeatOnLifecycle(state = Lifecycle.State.RESUMED) {
 			reviewManager.launchReview(
@@ -81,5 +114,14 @@ class MainActivity : ComponentActivity() {
 				reviewInfo = reviewInfo
 			)
 		}
+	}
+
+	private fun startUpdateFlow(updateInfo: AppUpdateInfo) {
+		updateManager.startUpdateFlowForResult(
+			updateInfo,
+			AppUpdateType.IMMEDIATE,
+			this,
+			RequestCodes.APP_UPDATE
+		)
 	}
 }
