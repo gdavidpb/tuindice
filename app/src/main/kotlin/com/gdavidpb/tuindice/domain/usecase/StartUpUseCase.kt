@@ -55,6 +55,7 @@ class StartUpUseCase(
 		}
 
 		val startUpData = StartUpData(
+			title = startDestination.title,
 			startDestination = startDestination,
 			currentDestination = startDestination,
 			destinations = destinations

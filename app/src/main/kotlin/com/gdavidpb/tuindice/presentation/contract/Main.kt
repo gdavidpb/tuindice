@@ -15,6 +15,7 @@ object Main {
 		object Starting : State()
 
 		data class Started(
+			val title: String,
 			val startDestination: Destination,
 			val currentDestination: Destination,
 			val destinations: HashMap<String, Destination>

@@ -17,7 +17,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.presentation.navigation.recordScreen
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryScreen
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
-import com.gdavidpb.tuindice.utils.extension.mapToDestination
+import com.gdavidpb.tuindice.utils.extension.mapDestination
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -40,12 +40,17 @@ fun TuIndiceApp(
 			LaunchedEffect(navController) {
 				navController
 					.currentBackStackEntryFlow
-					.mapToDestination(state.destinations)
-					.collect { destination ->
+					.mapDestination(state.destinations)
+					.collect { (title, destination) ->
 						if (destination.isBottomDestination)
 							viewModel.setLastScreenAction(route = destination.route)
 
-						viewModel.setState(state.copy(currentDestination = destination))
+						viewModel.setState(
+							state.copy(
+								title = title,
+								currentDestination = destination
+							)
+						)
 					}
 			}
 
