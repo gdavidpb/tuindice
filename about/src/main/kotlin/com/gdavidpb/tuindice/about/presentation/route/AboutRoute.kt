@@ -26,7 +26,10 @@ fun AboutRoute(
 
 	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
 		when (event) {
-			is About.Event.NavigateToBrowser ->
+			is About.Event.NavigateToPrivacyPolicy ->
+				onNavigateToBrowser(event.title, event.url)
+
+			is About.Event.NavigateToTermsAndConditions ->
 				onNavigateToBrowser(event.title, event.url)
 
 			is About.Event.StartBrowser ->
