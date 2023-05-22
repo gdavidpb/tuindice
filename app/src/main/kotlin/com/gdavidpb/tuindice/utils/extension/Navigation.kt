@@ -5,14 +5,12 @@ import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 
-fun Flow<NavBackStackEntry>.mapBottomRoutes(destinations: List<Destination>) = mapNotNull { entry ->
-	val targetRoute = entry
-		.destination
-		.route
-		?.substringBefore("/")
+fun Flow<NavBackStackEntry>.mapToDestination(destinations: HashMap<String, Destination>) =
+	mapNotNull { entry ->
+		val targetRoute = entry
+			.destination
+			.route
+			?.substringBefore("/")
 
-	destinations.find { destination ->
-		destination.route == targetRoute &&
-				destination.isBottomDestination
-	}?.route
-}
+		destinations[targetRoute]
+	}

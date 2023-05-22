@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.presentation.contract
 
 import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.extension.ViewAction
 import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
 import com.gdavidpb.tuindice.base.utils.extension.ViewState
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.review.ReviewInfo
@@ -14,10 +14,10 @@ object Main {
 	sealed class State : ViewState {
 		object Starting : State()
 
-		class Started(
+		data class Started(
 			val startDestination: Destination,
 			val currentDestination: Destination,
-			val destinations: List<Destination>
+			val destinations: HashMap<String, Destination>
 		) : State()
 
 		object Failed : State()

@@ -5,5 +5,5 @@ import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 data class StartUpData(
 	val startDestination: Destination,
 	val currentDestination: Destination,
-	val destinations: List<Destination>
+	val destinations: HashMap<String, Destination>
 )
