@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.gdavidpb.tuindice.R
@@ -42,36 +43,41 @@ fun TuIndiceScreen(
 			)
 		},
 		bottomBar = {
-			if (state.currentDestination.isBottomDestination)
+			if (state.currentDestination.isBottomDestination) {
+				val bottomDestinations = remember(state.destinations) {
+					state.destinations.values.filter { destination -> destination.isBottomDestination }
+				}
+
 				NavigationBar(
 					modifier = Modifier.height(dimensionResource(id = R.dimen.dp_48))
 				) {
-					state.destinations.forEach { destination ->
+					bottomDestinations.forEach { destination ->
 						val navigationBarConfig = destination.bottomBarConfig
 
-						if (navigationBarConfig != null) {
-							val isNavigationBarItemSelected =
-								(destination.route == state.currentDestination.route)
+						requireNotNull(navigationBarConfig)
 
-							val navigationBarItemIcon =
-								if (isNavigationBarItemSelected)
-									navigationBarConfig.selectedIcon
-								else
-									navigationBarConfig.unselectedIcon
+						val isNavigationBarItemSelected =
+							(destination.route == state.currentDestination.route)
 
-							NavigationBarItem(
-								icon = {
-									Icon(
-										imageVector = navigationBarItemIcon,
-										contentDescription = destination.title
-									)
-								},
-								selected = isNavigationBarItemSelected,
-								onClick = { onNavigateTo(destination.route) }
-							)
-						}
+						val navigationBarItemIcon =
+							if (isNavigationBarItemSelected)
+								navigationBarConfig.selectedIcon
+							else
+								navigationBarConfig.unselectedIcon
+
+						NavigationBarItem(
+							icon = {
+								Icon(
+									imageVector = navigationBarItemIcon,
+									contentDescription = destination.title
+								)
+							},
+							selected = isNavigationBarItemSelected,
+							onClick = { onNavigateTo(destination.route) }
+						)
 					}
 				}
+			}
 		}
 	) { innerPadding ->
 		navHost(innerPadding)

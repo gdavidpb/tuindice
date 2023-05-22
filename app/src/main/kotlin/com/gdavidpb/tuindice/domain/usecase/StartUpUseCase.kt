@@ -6,11 +6,11 @@ import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.extension.suspendNoAwait
 import com.gdavidpb.tuindice.domain.model.StartUpData
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpError
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -35,11 +35,12 @@ class StartUpUseCase(
 		val isActiveAuth = authRepository.isActiveAuth()
 
 		// TODO get from repository
-		val destinations = listOf(
-			Destination.Summary,
-			Destination.Record,
-			Destination.About,
-			Destination.Browser
+		val destinations = hashMapOf(
+			Destination.SignIn.route to Destination.SignIn,
+			Destination.Summary.route to Destination.Summary,
+			Destination.Record.route to Destination.Record,
+			Destination.About.route to Destination.About,
+			Destination.Browser.route to Destination.Browser
 		)
 
 		val startDestination = if (isActiveAuth) {
@@ -48,9 +49,7 @@ class StartUpUseCase(
 
 			settingsRepository.setActiveToken(token = activeToken)
 
-			destinations.first { destination ->
-				destination.route == lastScreen
-			}
+			destinations[lastScreen] ?: Destination.Summary
 		} else {
 			Destination.SignIn
 		}

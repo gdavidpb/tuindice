@@ -17,7 +17,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.presentation.navigation.recordScreen
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryScreen
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
-import com.gdavidpb.tuindice.utils.extension.mapBottomRoutes
+import com.gdavidpb.tuindice.utils.extension.mapToDestination
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -33,40 +33,50 @@ fun TuIndiceApp(
 		viewModel.startUpAction(data = startData)
 	}
 
-	val state = viewState
+	when (val state = viewState) {
+		Main.State.Starting -> {}
+		Main.State.Failed -> {}
+		is Main.State.Started -> {
+			LaunchedEffect(navController) {
+				navController
+					.currentBackStackEntryFlow
+					.mapToDestination(state.destinations)
+					.collect { destination ->
+						if (destination.isBottomDestination)
+							viewModel.setLastScreenAction(route = destination.route)
 
-	if (state is Main.State.Started) {
-		LaunchedEffect(navController) {
-			navController.currentBackStackEntryFlow
-				.mapBottomRoutes(state.destinations)
-				.collect { topRoute ->
-					viewModel.setLastScreenAction(route = topRoute)
-				}
-		}
-
-		TuIndiceScreen(
-			state = state,
-			onNavigateTo = navController::navigate,
-			onNavigateBack = navController::popBackStack
-		) { innerPadding ->
-			NavHost(
-				navController = navController,
-				startDestination = state.startDestination.route,
-				modifier = Modifier.padding(innerPadding)
-			) {
-				signInScreen()
-
-				summaryScreen()
-
-				recordScreen()
-
-				aboutScreen(
-					navigateToBrowser = { args ->
-						navController.navigateToBrowser(args)
+						viewModel.setState(state.copy(currentDestination = destination))
 					}
-				)
+			}
 
-				browserScreen()
+			TuIndiceScreen(
+				state = state,
+				onNavigateTo = navController::navigate,
+				onNavigateBack = navController::popBackStack
+			) { innerPadding ->
+				NavHost(
+					navController = navController,
+					startDestination = state.startDestination.route,
+					modifier = Modifier.padding(innerPadding)
+				) {
+					signInScreen(
+						navigateToBrowser = { args ->
+							navController.navigateToBrowser(args)
+						}
+					)
+
+					summaryScreen()
+
+					recordScreen()
+
+					aboutScreen(
+						navigateToBrowser = { args ->
+							navController.navigateToBrowser(args)
+						}
+					)
+
+					browserScreen()
+				}
 			}
 		}
 	}
