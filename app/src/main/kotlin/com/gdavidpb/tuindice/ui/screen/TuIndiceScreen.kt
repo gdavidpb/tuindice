@@ -30,7 +30,7 @@ fun TuIndiceScreen(
 	Scaffold(
 		topBar = {
 			TopAppBar(
-				title = { Text(text = state.currentDestination.title) },
+				title = { Text(text = state.title) },
 				navigationIcon = {
 					if (!state.currentDestination.isTopDestination)
 						IconButton(onClick = onNavigateBack) {
@@ -69,7 +69,7 @@ fun TuIndiceScreen(
 							icon = {
 								Icon(
 									imageVector = navigationBarItemIcon,
-									contentDescription = destination.title
+									contentDescription = null
 								)
 							},
 							selected = isNavigationBarItemSelected,

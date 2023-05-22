@@ -36,6 +36,7 @@ class StartUpReducer :
 
 			emit(
 				Main.State.Started(
+					title = data.title,
 					startDestination = data.startDestination,
 					currentDestination = data.currentDestination,
 					destinations = data.destinations
