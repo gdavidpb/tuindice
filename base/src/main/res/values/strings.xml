@@ -18,7 +18,6 @@
     <string name="hint_password">Contraseña</string>
 
     <string name="error_empty">Campo vacío</string>
-    <string name="error_usb_id">USBID inválido</string>
 
     <string name="snack_default_error">¡Ha ocurrido un error!</string>
     <string name="snack_network_unavailable">Comprueba tu conexión</string>

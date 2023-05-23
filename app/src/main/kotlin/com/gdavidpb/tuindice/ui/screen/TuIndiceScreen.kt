@@ -10,14 +10,19 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.presentation.contract.Main
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,9 +30,16 @@ fun TuIndiceScreen(
 	state: Main.State.Started,
 	onNavigateTo: (route: String) -> Unit,
 	onNavigateBack: () -> Unit,
-	navHost: @Composable (PaddingValues) -> Unit
+	navHost: @Composable (
+		PaddingValues,
+		showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit
+	) -> Unit
 ) {
+	val coroutineScope = rememberCoroutineScope()
+	val snackbarHostState = remember { SnackbarHostState() }
+
 	Scaffold(
+		snackbarHost = { SnackbarHost(snackbarHostState) },
 		topBar = {
 			TopAppBar(
 				title = { Text(text = state.title) },
@@ -80,6 +92,18 @@ fun TuIndiceScreen(
 			}
 		}
 	) { innerPadding ->
-		navHost(innerPadding)
+		navHost(innerPadding) { message, actionLabel, action ->
+			coroutineScope.launch {
+				snackbarHostState.currentSnackbarData?.dismiss()
+
+				val snackBarResult = snackbarHostState.showSnackbar(
+					message = message,
+					actionLabel = actionLabel
+				)
+
+				if (snackBarResult == SnackbarResult.ActionPerformed)
+					action?.invoke()
+			}
+		}
 	}
 }

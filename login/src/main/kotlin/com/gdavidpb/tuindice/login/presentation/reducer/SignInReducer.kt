@@ -2,14 +2,20 @@ package com.gdavidpb.tuindice.login.presentation.reducer
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
+import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.base.utils.extension.ViewOutput
 import com.gdavidpb.tuindice.base.utils.extension.config
+import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
+import com.gdavidpb.tuindice.login.presentation.route.ACTION_ID_RETRY
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 
-class SignInReducer : BaseReducer<SignIn.State, SignIn.Event, Unit, SignInError>() {
+class SignInReducer(
+	private val resourceResolver: ResourceResolver
+) : BaseReducer<SignIn.State, SignIn.Event, Unit, SignInError>() {
 
 	private val loadingMessages by config { getLoadingMessages() }
 
@@ -17,12 +23,16 @@ class SignInReducer : BaseReducer<SignIn.State, SignIn.Event, Unit, SignInError>
 		currentState: SignIn.State,
 		useCaseState: UseCaseState.Loading<Unit, SignInError>
 	): Flow<ViewOutput> {
-		return flow {
-			emit(SignIn.Event.ShakeLogo)
-			emit(SignIn.Event.HideSoftKeyboard)
-
-			emit(SignIn.State.LoggingIn(messages = loadingMessages.shuffled()))
-		}
+		return if (currentState is SignIn.State.Idle)
+			flowOf(
+				SignIn.State.LoggingIn(
+					usbId = currentState.usbId,
+					password = currentState.password,
+					messages = loadingMessages.shuffled()
+				)
+			)
+		else
+			super.reduceLoadingState(currentState, useCaseState)
 	}
 
 	override suspend fun reduceDataState(
@@ -30,7 +40,7 @@ class SignInReducer : BaseReducer<SignIn.State, SignIn.Event, Unit, SignInError>
 		useCaseState: UseCaseState.Data<Unit, SignInError>
 	): Flow<ViewOutput> {
 		return flow {
-			emit(SignIn.Event.NavigateToSplash)
+			emit(SignIn.Event.NavigateToSummary)
 
 			emit(SignIn.State.LoggedIn)
 		}
@@ -40,37 +50,71 @@ class SignInReducer : BaseReducer<SignIn.State, SignIn.Event, Unit, SignInError>
 		currentState: SignIn.State,
 		useCaseState: UseCaseState.Error<Unit, SignInError>
 	): Flow<ViewOutput> {
-		return flow {
-			when (val error = useCaseState.error) {
-				is SignInError.EmptyPassword ->
-					emit(SignIn.Event.ShowPasswordEmptyError)
+		return if (currentState is SignIn.State.LoggingIn)
+			flow {
+				when (val error = useCaseState.error) {
+					is SignInError.InvalidCredentials ->
+						emit(
+							SignIn.Event.ShowSnackBar(
+								message = resourceResolver.getString(R.string.snack_invalid_credentials)
+							)
+						)
 
-				is SignInError.EmptyUsbId ->
-					emit(SignIn.Event.ShowUsbIdEmptyError)
+					is SignInError.AccountDisabled ->
+						emit(
+							SignIn.Event.ShowSnackBar(
+								message = resourceResolver.getString(R.string.snack_account_disabled)
+							)
+						)
 
-				is SignInError.InvalidUsbId ->
-					emit(SignIn.Event.ShowUsbIdInvalidError)
+					is SignInError.NoConnection ->
+						emit(
+							SignIn.Event.ShowSnackBar(
+								message = if (error.isNetworkAvailable)
+									resourceResolver.getString(R.string.snack_service_unavailable)
+								else
+									resourceResolver.getString(R.string.snack_network_unavailable),
+								actionLabel = resourceResolver.getString(R.string.retry),
+								actionId = ACTION_ID_RETRY
+							)
+						)
 
-				is SignInError.InvalidCredentials ->
-					emit(SignIn.Event.ShowInvalidCredentialsSnackBar)
+					is SignInError.Timeout ->
+						emit(
+							SignIn.Event.ShowSnackBar(
+								message = resourceResolver.getString(R.string.snack_timeout),
+								actionLabel = resourceResolver.getString(R.string.retry),
+								actionId = ACTION_ID_RETRY
+							)
+						)
 
-				is SignInError.AccountDisabled ->
-					emit(SignIn.Event.ShowAccountDisabledSnackBar)
+					is SignInError.Unavailable ->
+						emit(
+							SignIn.Event.ShowSnackBar(
+								message = resourceResolver.getString(R.string.snack_service_unavailable),
+								actionLabel = resourceResolver.getString(R.string.retry),
+								actionId = ACTION_ID_RETRY
+							)
+						)
 
-				is SignInError.NoConnection ->
-					emit(SignIn.Event.ShowNoConnectionSnackBar(isNetworkAvailable = error.isNetworkAvailable))
+					else ->
+						emit(
+							SignIn.Event.ShowSnackBar(
+								message = resourceResolver.getString(R.string.snack_default_error),
+								actionLabel = resourceResolver.getString(R.string.retry),
+								actionId = ACTION_ID_RETRY
+							)
+						)
+				}
 
-				is SignInError.Timeout ->
-					emit(SignIn.Event.ShowTimeoutSnackBar)
-
-				is SignInError.Unavailable ->
-					emit(SignIn.Event.ShowUnavailableSnackBar)
-
-				else ->
-					emit(SignIn.Event.ShowDefaultErrorSnackBar)
+				emit(
+					SignIn.State.Idle(
+						usbId = currentState.usbId,
+						password = currentState.password
+					)
+				)
 			}
-
-			emit(SignIn.State.Idle)
-		}
+		else
+			super.reduceErrorState(currentState, useCaseState)
 	}
 }

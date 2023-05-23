@@ -5,9 +5,6 @@
 
     <string name="button_sign_in">Iniciar sesión</string>
 
-    <string name="link_terms_and_conditions">Términos y condiciones</string>
-    <string name="link_privacy_policy">Política de privacidad</string>
-
     <string name="label_terms_and_conditions">TuIndice - Términos y condiciones</string>
     <string name="label_privacy_policy">TuIndice - Política de privacidad</string>
 
@@ -15,6 +12,9 @@
         Al usar la aplicación, aceptas los\n
         Términos y condiciones y Política de privacidad
     </string>
+
+    <string name="link_terms_and_conditions">Términos y condiciones</string>
+    <string name="link_privacy_policy">Política de privacidad</string>
 
     <string name="snack_invalid_credentials">USBID o contraseña inválida</string>
     <string name="snack_account_disabled">Cuenta inhabilitada</string>

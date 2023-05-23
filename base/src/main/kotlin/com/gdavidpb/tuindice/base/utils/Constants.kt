@@ -15,13 +15,6 @@ object RequestCodes {
 	const val PLAY_SERVICES_RESOLUTION = 2404
 }
 
-/* Main screen keys */
-object ScreenKeys {
-	const val SUMMARY = 0
-	const val RECORD = 1
-	const val ABOUT = 2
-}
-
 /* Preferences keys */
 object PreferencesKeys {
 	const val LAST_SCREEN = "lastScreen"
@@ -35,9 +28,6 @@ object ReportKeys {
 	const val USE_CASE = "useCase"
 	const val IS_HANDLED = "isHandled"
 }
-
-/* Times */
-const val TIME_EXIT_LOCKER = 2000L
 
 /* Status */
 const val STATUS_QUARTER_CURRENT = 0
