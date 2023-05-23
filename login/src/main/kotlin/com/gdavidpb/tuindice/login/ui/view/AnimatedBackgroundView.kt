@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.login.ui.view
 import android.graphics.BitmapFactory
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -57,8 +56,10 @@ fun AnimatedBackgroundView(
 		initialValue = 0f,
 		targetValue = backgroundWidth,
 		animationSpec = infiniteRepeatable(
-			animation = tween(durationMillis = 30000, easing = LinearEasing),
-			repeatMode = RepeatMode.Restart
+			animation = tween(
+				durationMillis = 30000,
+				easing = LinearEasing
+			)
 		)
 	)
 

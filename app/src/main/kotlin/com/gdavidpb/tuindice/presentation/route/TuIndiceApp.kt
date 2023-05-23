@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.presentation.navigation.recordScreen
+import com.gdavidpb.tuindice.summary.presentation.navigation.navigateToSummary
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryScreen
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
 import com.gdavidpb.tuindice.utils.extension.mapDestination
@@ -58,16 +59,20 @@ fun TuIndiceApp(
 				state = state,
 				onNavigateTo = navController::navigate,
 				onNavigateBack = navController::popBackStack
-			) { innerPadding ->
+			) { innerPadding, showSnackBar ->
 				NavHost(
 					navController = navController,
 					startDestination = state.startDestination.route,
 					modifier = Modifier.padding(innerPadding)
 				) {
 					signInScreen(
+						navigateToSummary = {
+							navController.navigateToSummary()
+						},
 						navigateToBrowser = { args ->
 							navController.navigateToBrowser(args)
-						}
+						},
+						showSnackBar = showSnackBar
 					)
 
 					summaryScreen()
