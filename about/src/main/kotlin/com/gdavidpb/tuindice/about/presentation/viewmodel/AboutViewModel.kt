@@ -36,7 +36,7 @@ class AboutViewModel(
 		when (action) {
 			is About.Action.OpenTermsAndConditions ->
 				sendEvent(
-					About.Event.NavigateToTermsAndConditions(
+					About.Event.NavigateToBrowser(
 						title = resourceResolver.getString(R.string.label_terms_and_conditions),
 						url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS
 					)
@@ -44,7 +44,7 @@ class AboutViewModel(
 
 			is About.Action.OpenPrivacyPolicy ->
 				sendEvent(
-					About.Event.NavigateToPrivacyPolicy(
+					About.Event.NavigateToBrowser(
 						title = resourceResolver.getString(R.string.label_privacy_policy),
 						url = BuildConfig.URL_APP_PRIVACY_POLICY
 					)
