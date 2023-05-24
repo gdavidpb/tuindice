@@ -28,7 +28,7 @@ class SignInReducer(
 				SignIn.State.LoggingIn(
 					usbId = currentState.usbId,
 					password = currentState.password,
-					messages = loadingMessages.shuffled()
+					messages = loadingMessages
 				)
 			)
 		else
@@ -39,11 +39,7 @@ class SignInReducer(
 		currentState: SignIn.State,
 		useCaseState: UseCaseState.Data<Unit, SignInError>
 	): Flow<ViewOutput> {
-		return flow {
-			emit(SignIn.Event.NavigateToSummary)
-
-			emit(SignIn.State.LoggedIn)
-		}
+		return flowOf(SignIn.Event.NavigateToSummary)
 	}
 
 	override suspend fun reduceErrorState(
