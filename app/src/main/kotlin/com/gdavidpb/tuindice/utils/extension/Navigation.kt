@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.mapNotNull
 
 private val titleArgsRegex = "\\{\\w+\\}".toRegex()
 
-fun Flow<NavBackStackEntry>.mapDestination(destinations: HashMap<String, Destination>) =
+fun Flow<NavBackStackEntry>.mapDestination(destinations: Map<String, Destination>) =
 	mapNotNull { entry ->
 		val targetRoute = entry
 			.destination

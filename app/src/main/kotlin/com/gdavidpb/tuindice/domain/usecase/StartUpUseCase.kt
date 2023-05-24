@@ -35,7 +35,7 @@ class StartUpUseCase(
 		val isActiveAuth = authRepository.isActiveAuth()
 
 		// TODO get from repository
-		val destinations = hashMapOf(
+		val destinations = mapOf(
 			Destination.SignIn.route to Destination.SignIn,
 			Destination.Summary.route to Destination.Summary,
 			Destination.Record.route to Destination.Record,

@@ -6,5 +6,5 @@ data class StartUpData(
 	val title: String,
 	val startDestination: Destination,
 	val currentDestination: Destination,
-	val destinations: HashMap<String, Destination>
+	val destinations: Map<String, Destination>
 )
