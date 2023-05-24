@@ -16,8 +16,6 @@ object SignIn {
 			val password: String,
 			val messages: List<String>
 		) : State()
-
-		object LoggedIn : State()
 	}
 
 	sealed class Action : ViewAction {
