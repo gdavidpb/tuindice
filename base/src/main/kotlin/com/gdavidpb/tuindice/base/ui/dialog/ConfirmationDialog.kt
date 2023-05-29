@@ -25,11 +25,11 @@ import kotlinx.coroutines.launch
 fun ConfirmationDialog(
 	sheetState: SheetState,
 	titleText: String,
-	positiveText: String,
-	negativeText: String,
-	onPositiveClick: () -> Unit,
-	onNegativeClick: () -> Unit,
-	onDismissRequest: () -> Unit,
+	positiveText: String? = null,
+	negativeText: String? = null,
+	onPositiveClick: () -> Unit = {},
+	onNegativeClick: () -> Unit = {},
+	onDismissRequest: () -> Unit = {},
 	content: @Composable () -> Unit = {}
 ) {
 	val coroutineScope = rememberCoroutineScope()
@@ -58,32 +58,34 @@ fun ConfirmationDialog(
 					.padding(vertical = dimensionResource(id = R.dimen.dp_24)),
 				horizontalArrangement = Arrangement.End
 			) {
-				OutlinedButton(
-					onClick = {
-						coroutineScope.launch {
-							sheetState.hide()
-						}.invokeOnCompletion {
-							onDismissRequest()
-							onNegativeClick()
-						}
-					},
-					border = null
-				) {
-					Text(text = negativeText)
-				}
+				if (negativeText != null)
+					OutlinedButton(
+						onClick = {
+							coroutineScope.launch {
+								sheetState.hide()
+							}.invokeOnCompletion {
+								onDismissRequest()
+								onNegativeClick()
+							}
+						},
+						border = null
+					) {
+						Text(text = negativeText)
+					}
 
-				Button(
-					onClick = {
-						coroutineScope.launch {
-							sheetState.hide()
-						}.invokeOnCompletion {
-							onDismissRequest()
-							onPositiveClick()
-						}
-					},
-				) {
-					Text(text = positiveText)
-				}
+				if (positiveText != null)
+					Button(
+						onClick = {
+							coroutineScope.launch {
+								sheetState.hide()
+							}.invokeOnCompletion {
+								onDismissRequest()
+								onPositiveClick()
+							}
+						},
+					) {
+						Text(text = positiveText)
+					}
 			}
 		}
 	}
