@@ -33,6 +33,7 @@ import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
+import com.gdavidpb.tuindice.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationAddParser
@@ -41,6 +42,7 @@ import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationUpdateParser
 import com.gdavidpb.tuindice.evaluations.data.resolution.EvaluationResolutionHandler
 import com.gdavidpb.tuindice.presentation.reducer.GetUpdateInfoReducer
 import com.gdavidpb.tuindice.presentation.reducer.RequestReviewReducer
+import com.gdavidpb.tuindice.presentation.reducer.SignOutReducer
 import com.gdavidpb.tuindice.presentation.reducer.StartUpReducer
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
@@ -87,6 +89,7 @@ val appModule = module {
 	factoryOf(::StartUpReducer)
 	factoryOf(::RequestReviewReducer)
 	factoryOf(::GetUpdateInfoReducer)
+	factoryOf(::SignOutReducer)
 
 	/* Use cases */
 
@@ -94,6 +97,7 @@ val appModule = module {
 	factoryOf(::RequestReviewUseCase)
 	factoryOf(::SetLastScreenUseCase)
 	factoryOf(::GetUpdateInfoUseCase)
+	factoryOf(::SignOutUseCase)
 
 	/* Exception handlers */
 

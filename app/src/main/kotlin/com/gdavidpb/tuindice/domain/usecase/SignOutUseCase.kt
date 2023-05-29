@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.summary.domain.usecase
+package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase

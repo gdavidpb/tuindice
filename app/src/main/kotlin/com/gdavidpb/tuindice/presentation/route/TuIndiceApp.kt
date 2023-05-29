@@ -1,9 +1,13 @@
 package com.gdavidpb.tuindice.presentation.route
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
@@ -11,16 +15,22 @@ import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.about.presentation.navigation.aboutScreen
 import com.gdavidpb.tuindice.base.presentation.navigation.browserScreen
 import com.gdavidpb.tuindice.base.presentation.navigation.navigateToBrowser
+import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.mapDestination
+import com.gdavidpb.tuindice.base.utils.extension.navigateToSingleTop
+import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignIn
 import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.model.MainDialog
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.presentation.navigation.recordScreen
 import com.gdavidpb.tuindice.summary.presentation.navigation.navigateToSummary
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryScreen
+import com.gdavidpb.tuindice.ui.dialog.SignOutConfirmationDialog
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
-import com.gdavidpb.tuindice.utils.extension.mapDestination
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TuIndiceApp(
 	startData: String?,
@@ -29,15 +39,42 @@ fun TuIndiceApp(
 	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
 
 	val navController = rememberNavController()
+	val sheetState = rememberModalBottomSheetState()
+	val dialogState = remember { mutableStateOf<MainDialog?>(null) }
+
+	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
+		when (event) {
+			is Main.Event.NavigateToSignIn -> {
+				navController.navigateToSignIn()
+			}
+
+			is Main.Event.ShowSignOutConfirmationDialog -> {
+				dialogState.value = MainDialog.SignOutConfirmation
+			}
+
+			else -> {}
+		}
+	}
 
 	LaunchedEffect(Unit) {
 		viewModel.startUpAction(data = startData)
 	}
 
+	when (dialogState.value) {
+		is MainDialog.SignOutConfirmation ->
+			SignOutConfirmationDialog(
+				sheetState = sheetState,
+				onConfirmSignOutClick = viewModel::confirmSignOutAction,
+				onDismissRequest = { dialogState.value = null }
+			)
+
+		null -> {}
+	}
+
 	when (val state = viewState) {
-		Main.State.Starting -> {}
-		Main.State.Failed -> {}
-		is Main.State.Started -> {
+		is Main.State.Starting -> {}
+		is Main.State.Failed -> {}
+		is Main.State.Content -> {
 			LaunchedEffect(navController) {
 				navController
 					.currentBackStackEntryFlow
@@ -49,7 +86,8 @@ fun TuIndiceApp(
 						viewModel.setState(
 							state.copy(
 								title = title,
-								currentDestination = destination
+								currentDestination = destination,
+								topBarActionConfig = destination.topBarActionConfig
 							)
 						)
 					}
@@ -57,8 +95,9 @@ fun TuIndiceApp(
 
 			TuIndiceScreen(
 				state = state,
-				onNavigateTo = navController::navigate,
-				onNavigateBack = navController::popBackStack
+				onNavigateTo = navController::navigateToSingleTop,
+				onNavigateBack = navController::popBackStack,
+				onSignOutClick = viewModel::signOutAction
 			) { innerPadding, showSnackBar ->
 				NavHost(
 					navController = navController,
@@ -75,7 +114,9 @@ fun TuIndiceApp(
 						showSnackBar = showSnackBar
 					)
 
-					summaryScreen()
+					summaryScreen(
+						showSnackBar = showSnackBar
+					)
 
 					recordScreen()
 

@@ -5,10 +5,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.gdavidpb.tuindice.base.presentation.navigation.BrowserArgs
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.base.utils.extension.navigateToSingleTop
 import com.gdavidpb.tuindice.login.presentation.route.SignInRoute
 
 fun NavController.navigateToSignIn() {
-	navigate(Destination.SignIn.route)
+	navigateToSingleTop(Destination.SignIn.route)
 }
 
 fun NavGraphBuilder.signInScreen(

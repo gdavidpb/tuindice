@@ -36,7 +36,7 @@
         <item quantity="other">%d créditos inscritos</item>
     </plurals>
 
-    <string name="menu_sign_out">Cerrar sesión</string>
+    <string name="dialog_button_sign_out">Cerrar sesión</string>
 
     <string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
 

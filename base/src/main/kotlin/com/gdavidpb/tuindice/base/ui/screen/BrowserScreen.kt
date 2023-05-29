@@ -10,16 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.gdavidpb.tuindice.base.presentation.contract.Browser
-import com.gdavidpb.tuindice.base.ui.dialog.ExternalResourceDialog
 import com.gdavidpb.tuindice.base.ui.view.getWebView
-import com.gdavidpb.tuindice.base.utils.extension.browse
 
 @Composable
 fun BrowserScreen(
 	state: Browser.State,
 	onPageStarted: () -> Unit,
 	onPageFinished: () -> Unit,
-	onDismissRequest: () -> Unit,
 	onExternalResourceClick: (url: String) -> Unit
 ) {
 	val context = LocalContext.current
@@ -41,14 +38,6 @@ fun BrowserScreen(
 				if (state.isLoading)
 					LinearProgressIndicator(
 						modifier = Modifier.fillMaxWidth()
-					)
-
-				if (state.isShowExternalResourceDialog)
-					ExternalResourceDialog(
-						url = state.externalResourceUrl,
-						onConfirmClick = { context.browse(state.externalResourceUrl) },
-						onCancelClick = onDismissRequest,
-						onDismissRequest = onDismissRequest
 					)
 
 				AndroidView(

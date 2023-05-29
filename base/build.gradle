@@ -86,8 +86,10 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:${versions.coroutines}"
 
     /* Lottie */
-    api "com.airbnb.android:lottie:3.7.1"
+    api "com.airbnb.android:lottie:6.0.0"
+    api "com.airbnb.android:lottie-compose:6.0.0"
 
     /* Coil */
-    api "io.coil-kt:coil:2.2.2"
+    api "io.coil-kt:coil:2.4.0"
+    api "io.coil-kt:coil-compose:2.4.0"
 }

@@ -15,7 +15,6 @@ import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.TakeProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetAccountExceptionHandler
@@ -23,7 +22,6 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfi
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
 import com.gdavidpb.tuindice.summary.presentation.reducer.RemoveProfilePictureReducer
-import com.gdavidpb.tuindice.summary.presentation.reducer.SignOutReducer
 import com.gdavidpb.tuindice.summary.presentation.reducer.SummaryReducer
 import com.gdavidpb.tuindice.summary.presentation.reducer.TakeProfilePictureReducer
 import com.gdavidpb.tuindice.summary.presentation.reducer.UploadProfilePictureReducer
@@ -48,11 +46,9 @@ val summaryModule = module {
 	factoryOf(::TakeProfilePictureReducer)
 	factoryOf(::UploadProfilePictureReducer)
 	factoryOf(::RemoveProfilePictureReducer)
-	factoryOf(::SignOutReducer)
 
 	/* Use cases */
 
-	factoryOf(::SignOutUseCase)
 	factoryOf(::GetAccountUseCase)
 	factoryOf(::TakeProfilePictureUseCase)
 	factoryOf(::UploadProfilePictureUseCase)

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.presentation.contract
 
 import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
+import com.gdavidpb.tuindice.base.presentation.model.TopBarActionConfig
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.extension.ViewAction
 import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
@@ -14,11 +15,12 @@ object Main {
 	sealed class State : ViewState {
 		object Starting : State()
 
-		data class Started(
+		data class Content(
 			val title: String,
 			val startDestination: Destination,
 			val currentDestination: Destination,
-			val destinations: Map<String, Destination>
+			val destinations: Map<String, Destination>,
+			val topBarActionConfig: TopBarActionConfig? = null
 		) : State()
 
 		object Failed : State()
@@ -29,9 +31,13 @@ object Main {
 		class RequestReview(val reviewManager: ReviewManager) : Action()
 		class RequestUpdate(val appUpdateManager: AppUpdateManager) : Action()
 		class SetLastScreen(val route: String) : Action()
+		object ClickSignOut : Action()
+		object ConfirmSignOut : Action()
 	}
 
 	sealed class Event : ViewEvent {
+		object NavigateToSignIn : Event()
+		object ShowSignOutConfirmationDialog : Event()
 		class ShowNoServicesDialog(val status: ServicesStatus) : Event()
 		class ShowReviewDialog(val reviewInfo: ReviewInfo) : Event()
 		class StartUpdateFlow(val updateInfo: AppUpdateInfo) : Event()

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.presentation.navigation
+package com.gdavidpb.tuindice.base.presentation.model
 
 import androidx.compose.ui.graphics.vector.ImageVector
 
