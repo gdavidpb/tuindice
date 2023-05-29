@@ -32,6 +32,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.presentation.navigation.recordScreen
 import com.gdavidpb.tuindice.summary.presentation.navigation.navigateToSummary
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryScreen
+import com.gdavidpb.tuindice.ui.dialog.GooglePlayServicesDialog
 import com.gdavidpb.tuindice.ui.dialog.SignOutConfirmationDialog
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -68,6 +69,7 @@ fun TuIndiceApp(
 			}
 
 			is Main.Event.ShowNoServicesDialog -> {
+				dialogState.value = MainDialog.GooglePlayServicesUnavailable
 			}
 
 			is Main.Event.ShowReviewDialog -> {
@@ -100,12 +102,25 @@ fun TuIndiceApp(
 	}
 
 	when (dialogState.value) {
-		is MainDialog.SignOutConfirmation ->
+		is MainDialog.SignOutConfirmation -> {
 			SignOutConfirmationDialog(
 				sheetState = sheetState,
 				onConfirmSignOutClick = viewModel::confirmSignOutAction,
 				onDismissRequest = { dialogState.value = null }
 			)
+		}
+
+		is MainDialog.GooglePlayServicesUnavailable -> {
+			val nonDismissSheetState = rememberModalBottomSheetState(
+				confirmValueChange = { false }
+			)
+
+			GooglePlayServicesDialog(
+				sheetState = nonDismissSheetState,
+				onConfirmExitClick = { context.findActivity().finish() },
+				onDismissRequest = { dialogState.value = null }
+			)
+		}
 
 		null -> {}
 	}
