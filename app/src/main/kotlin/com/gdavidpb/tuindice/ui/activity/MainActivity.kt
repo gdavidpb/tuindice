@@ -12,14 +12,10 @@ import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.route.TuIndiceApp
 import com.gdavidpb.tuindice.ui.theme.TuIndiceTheme
 import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.play.core.appupdate.AppUpdateInfo
-import com.google.android.play.core.appupdate.AppUpdateManager
-import com.google.android.play.core.install.model.AppUpdateType
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
 
-	private val updateManager by inject<AppUpdateManager>()
 	private val googleApiAvailability by inject<GoogleApiAvailability>()
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,16 +35,8 @@ class MainActivity : ComponentActivity() {
 			is Main.Event.ShowNoServicesDialog ->
 				showNoServicesDialog(status = event.status)
 
-			is Main.Event.StartUpdateFlow ->
-				startUpdateFlow(updateInfo = event.updateInfo)
-
 			else -> {}
 		}
-	}
-
-	override fun onResume() {
-		super.onResume()
-		//viewModel.checkUpdateAction(updateManager)
 	}
 
 	private fun showNoServicesDialog(status: ServicesStatus) {
@@ -74,14 +62,5 @@ class MainActivity : ComponentActivity() {
 			}?.show() ?: dialog()
 		else
 			dialog()
-	}
-
-	private fun startUpdateFlow(updateInfo: AppUpdateInfo) {
-		updateManager.startUpdateFlowForResult(
-			updateInfo,
-			AppUpdateType.IMMEDIATE,
-			this,
-			RequestCodes.APP_UPDATE
-		)
 	}
 }

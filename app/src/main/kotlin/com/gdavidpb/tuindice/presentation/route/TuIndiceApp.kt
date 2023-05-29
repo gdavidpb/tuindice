@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.about.presentation.navigation.aboutScreen
 import com.gdavidpb.tuindice.base.presentation.navigation.browserScreen
 import com.gdavidpb.tuindice.base.presentation.navigation.navigateToBrowser
+import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
 import com.gdavidpb.tuindice.base.utils.extension.mapDestination
@@ -33,6 +34,8 @@ import com.gdavidpb.tuindice.summary.presentation.navigation.navigateToSummary
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryScreen
 import com.gdavidpb.tuindice.ui.dialog.SignOutConfirmationDialog
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.review.ReviewManager
 import org.koin.androidx.compose.get
@@ -43,6 +46,7 @@ import org.koin.androidx.compose.koinViewModel
 fun TuIndiceApp(
 	startData: String?,
 	reviewManager: ReviewManager = get(),
+	appUpdateManager: AppUpdateManager = get(),
 	viewModel: MainViewModel = koinViewModel()
 ) {
 	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
@@ -76,6 +80,12 @@ fun TuIndiceApp(
 			}
 
 			is Main.Event.StartUpdateFlow -> {
+				appUpdateManager.startUpdateFlowForResult(
+					event.updateInfo,
+					AppUpdateType.IMMEDIATE,
+					context.findActivity(),
+					RequestCodes.APP_UPDATE
+				)
 			}
 		}
 	}
@@ -83,6 +93,10 @@ fun TuIndiceApp(
 	LaunchedEffect(Unit) {
 		viewModel.startUpAction(data = startData)
 		viewModel.requestReviewAction(reviewManager = reviewManager)
+
+		lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+			viewModel.checkUpdateAction(appUpdateManager = appUpdateManager)
+		}
 	}
 
 	when (dialogState.value) {
