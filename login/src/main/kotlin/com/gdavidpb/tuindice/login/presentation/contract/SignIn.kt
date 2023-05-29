@@ -34,8 +34,7 @@ object SignIn {
 
 		class ShowSnackBar(
 			val message: String,
-			val actionLabel: String? = null,
-			val actionId: Int? = null
+			val actionLabel: String? = null
 		) : Event()
 	}
 }

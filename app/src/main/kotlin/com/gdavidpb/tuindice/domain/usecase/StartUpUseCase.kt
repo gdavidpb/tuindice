@@ -58,7 +58,8 @@ class StartUpUseCase(
 			title = startDestination.title,
 			startDestination = startDestination,
 			currentDestination = startDestination,
-			destinations = destinations
+			destinations = destinations,
+			topBarActionConfig = startDestination.topBarActionConfig
 		)
 
 		return flowOf(startUpData)

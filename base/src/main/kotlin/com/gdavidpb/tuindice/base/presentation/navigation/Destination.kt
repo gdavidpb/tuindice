@@ -7,13 +7,16 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import com.gdavidpb.tuindice.base.presentation.model.BottomBarConfig
+import com.gdavidpb.tuindice.base.presentation.model.TopBarActionConfig
 
 sealed class Destination(
 	val route: String,
 	val title: String,
 	val isTopDestination: Boolean,
 	val isBottomDestination: Boolean,
-	val bottomBarConfig: BottomBarConfig? = null
+	val bottomBarConfig: BottomBarConfig? = null,
+	val topBarActionConfig: TopBarActionConfig? = null
 ) {
 	object SignIn :
 		Destination(
@@ -40,7 +43,8 @@ sealed class Destination(
 			bottomBarConfig = BottomBarConfig(
 				unselectedIcon = Icons.Outlined.BookmarkBorder,
 				selectedIcon = Icons.Filled.Bookmark
-			)
+			),
+			topBarActionConfig = TopBarActionConfig.Summary
 		)
 
 	object Record :

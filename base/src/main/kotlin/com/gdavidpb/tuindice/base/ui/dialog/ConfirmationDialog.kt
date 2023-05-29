@@ -10,8 +10,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -23,28 +23,19 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConfirmationDialog(
+	sheetState: SheetState,
 	titleText: String,
 	positiveText: String,
 	negativeText: String,
 	onPositiveClick: () -> Unit,
 	onNegativeClick: () -> Unit,
 	onDismissRequest: () -> Unit,
-	content: @Composable () -> Unit
+	content: @Composable () -> Unit = {}
 ) {
 	val coroutineScope = rememberCoroutineScope()
-	val modalBottomSheetState = rememberModalBottomSheetState()
-
-	val animateToDismiss: (() -> Unit) -> Unit = { onCompletion ->
-		coroutineScope
-			.launch { modalBottomSheetState.hide() }
-			.invokeOnCompletion {
-				onCompletion()
-				onDismissRequest()
-			}
-	}
 
 	ModalBottomSheet(
-		sheetState = modalBottomSheetState,
+		sheetState = sheetState,
 		onDismissRequest = onDismissRequest
 	) {
 		Column(
@@ -53,10 +44,12 @@ fun ConfirmationDialog(
 				.padding(horizontal = dimensionResource(id = R.dimen.dp_16))
 		) {
 			Text(
+				modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.dp_16)),
 				text = titleText,
-				style = MaterialTheme.typography.bodyLarge,
+				style = MaterialTheme.typography.titleLarge,
 				fontWeight = FontWeight.Medium
 			)
+
 			content()
 
 			Row(
@@ -67,7 +60,12 @@ fun ConfirmationDialog(
 			) {
 				OutlinedButton(
 					onClick = {
-						animateToDismiss(onNegativeClick)
+						coroutineScope.launch {
+							sheetState.hide()
+						}.invokeOnCompletion {
+							onDismissRequest()
+							onNegativeClick()
+						}
 					},
 					border = null
 				) {
@@ -76,7 +74,12 @@ fun ConfirmationDialog(
 
 				Button(
 					onClick = {
-						animateToDismiss(onPositiveClick)
+						coroutineScope.launch {
+							sheetState.hide()
+						}.invokeOnCompletion {
+							onDismissRequest()
+							onPositiveClick()
+						}
 					},
 				) {
 					Text(text = positiveText)

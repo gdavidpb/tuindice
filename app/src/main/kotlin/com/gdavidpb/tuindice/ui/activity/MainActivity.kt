@@ -8,12 +8,10 @@ import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationBottomSheetDialog
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extension.bottomSheetDialog
-import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.utils.extension.launchRepeatOnLifecycle
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.route.TuIndiceApp
-import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.theme.TuIndiceTheme
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateInfo
@@ -23,11 +21,8 @@ import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
-
-	private val viewModel by viewModel<MainViewModel>()
 
 	private val reviewManager by inject<ReviewManager>()
 	private val updateManager by inject<AppUpdateManager>()
@@ -44,13 +39,7 @@ class MainActivity : ComponentActivity() {
 			}
 		}
 
-		launchRepeatOnLifecycle {
-			with(viewModel) {
-				collect(viewEvent, ::eventCollector)
-			}
-		}
-
-		viewModel.requestReviewAction(reviewManager)
+		//viewModel.requestReviewAction(reviewManager)
 	}
 
 	private fun eventCollector(event: Main.Event) {
@@ -63,13 +52,14 @@ class MainActivity : ComponentActivity() {
 
 			is Main.Event.StartUpdateFlow ->
 				startUpdateFlow(updateInfo = event.updateInfo)
+
+			else -> {}
 		}
 	}
 
 	override fun onResume() {
 		super.onResume()
-
-		viewModel.checkUpdateAction(updateManager)
+		//viewModel.checkUpdateAction(updateManager)
 	}
 
 	private fun showNoServicesDialog(status: ServicesStatus) {

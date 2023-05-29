@@ -31,18 +31,17 @@ class StartUpReducer :
 		currentState: Main.State,
 		useCaseState: UseCaseState.Data<StartUpData, StartUpError>
 	): Flow<ViewOutput> {
-		return flow {
-			val data = useCaseState.value
-
-			emit(
-				Main.State.Started(
-					title = data.title,
-					startDestination = data.startDestination,
-					currentDestination = data.currentDestination,
-					destinations = data.destinations
+		return flowOf(
+			with(useCaseState.value) {
+				Main.State.Content(
+					title = title,
+					startDestination = startDestination,
+					currentDestination = currentDestination,
+					destinations = destinations,
+					topBarActionConfig = topBarActionConfig
 				)
-			)
-		}
+			}
+		)
 	}
 
 	override suspend fun reduceErrorState(

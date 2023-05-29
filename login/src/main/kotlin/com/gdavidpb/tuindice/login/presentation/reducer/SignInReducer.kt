@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.base.utils.extension.config
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
-import com.gdavidpb.tuindice.login.presentation.route.ACTION_ID_RETRY
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -70,8 +69,7 @@ class SignInReducer(
 									resourceResolver.getString(R.string.snack_service_unavailable)
 								else
 									resourceResolver.getString(R.string.snack_network_unavailable),
-								actionLabel = resourceResolver.getString(R.string.retry),
-								actionId = ACTION_ID_RETRY
+								actionLabel = resourceResolver.getString(R.string.retry)
 							)
 						)
 
@@ -79,8 +77,7 @@ class SignInReducer(
 						emit(
 							SignIn.Event.ShowSnackBar(
 								message = resourceResolver.getString(R.string.snack_timeout),
-								actionLabel = resourceResolver.getString(R.string.retry),
-								actionId = ACTION_ID_RETRY
+								actionLabel = resourceResolver.getString(R.string.retry)
 							)
 						)
 
@@ -88,8 +85,7 @@ class SignInReducer(
 						emit(
 							SignIn.Event.ShowSnackBar(
 								message = resourceResolver.getString(R.string.snack_service_unavailable),
-								actionLabel = resourceResolver.getString(R.string.retry),
-								actionId = ACTION_ID_RETRY
+								actionLabel = resourceResolver.getString(R.string.retry)
 							)
 						)
 
@@ -97,8 +93,7 @@ class SignInReducer(
 						emit(
 							SignIn.Event.ShowSnackBar(
 								message = resourceResolver.getString(R.string.snack_default_error),
-								actionLabel = resourceResolver.getString(R.string.retry),
-								actionId = ACTION_ID_RETRY
+								actionLabel = resourceResolver.getString(R.string.retry)
 							)
 						)
 				}

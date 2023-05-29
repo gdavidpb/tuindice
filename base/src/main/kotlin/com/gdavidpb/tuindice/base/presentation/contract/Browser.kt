@@ -10,16 +10,15 @@ object Browser {
 		data class Content(
 			val title: String,
 			val url: String,
-			val isLoading: Boolean,
-			val externalResourceUrl: String = "",
-			val isShowExternalResourceDialog: Boolean = false
+			val isLoading: Boolean
 		) : State()
 	}
 
 	sealed class Action : ViewAction {
 		class ClickExternalResource(val url: String) : Action()
-		object CloseExternalResourceDialog : Action()
 	}
 
-	sealed class Event : ViewEvent
+	sealed class Event : ViewEvent {
+		class ShowExternalResourceDialog(val url: String) : Event()
+	}
 }

@@ -9,8 +9,6 @@ import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.ui.screen.SignInScreen
 import org.koin.androidx.compose.koinViewModel
 
-internal const val ACTION_ID_RETRY = 1
-
 @Composable
 fun SignInRoute(
 	onNavigateToSummary: () -> Unit,
@@ -32,10 +30,7 @@ fun SignInRoute(
 				showSnackBar(
 					event.message,
 					event.actionLabel,
-					when (event.actionId) {
-						ACTION_ID_RETRY -> viewModel::signInAction
-						else -> null
-					}
+					viewModel::signInAction
 				)
 		}
 	}

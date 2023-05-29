@@ -8,9 +8,6 @@ class BrowserViewModel :
 	fun clickExternalResourceAction(url: String) =
 		emitAction(Browser.Action.ClickExternalResource(url))
 
-	fun closeExternalResourceDialogAction() =
-		emitAction(Browser.Action.CloseExternalResourceDialog)
-
 	fun showLoading() =
 		setLoading(true)
 
@@ -29,31 +26,8 @@ class BrowserViewModel :
 
 	override suspend fun reducer(action: Browser.Action) {
 		when (action) {
-			is Browser.Action.ClickExternalResource -> {
-				val currentState = getCurrentState()
-
-				if (currentState is Browser.State.Content) {
-					val newState = currentState.copy(
-						externalResourceUrl = action.url,
-						isShowExternalResourceDialog = true
-					)
-
-					setState(newState)
-				}
-			}
-
-			is Browser.Action.CloseExternalResourceDialog -> {
-				val currentState = getCurrentState()
-
-				if (currentState is Browser.State.Content) {
-					val newState = currentState.copy(
-						externalResourceUrl = "",
-						isShowExternalResourceDialog = false
-					)
-
-					setState(newState)
-				}
-			}
+			is Browser.Action.ClickExternalResource ->
+				sendEvent(Browser.Event.ShowExternalResourceDialog(url = action.url))
 		}
 	}
 }

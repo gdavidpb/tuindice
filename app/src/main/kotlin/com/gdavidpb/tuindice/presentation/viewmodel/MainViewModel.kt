@@ -5,10 +5,12 @@ import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
+import com.gdavidpb.tuindice.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.reducer.GetUpdateInfoReducer
 import com.gdavidpb.tuindice.presentation.reducer.RequestReviewReducer
+import com.gdavidpb.tuindice.presentation.reducer.SignOutReducer
 import com.gdavidpb.tuindice.presentation.reducer.StartUpReducer
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.review.ReviewManager
@@ -19,9 +21,11 @@ class MainViewModel(
 	private val requestReviewUseCase: RequestReviewUseCase,
 	private val setLastScreenUseCase: SetLastScreenUseCase,
 	private val getUpdateInfoUseCase: GetUpdateInfoUseCase,
+	private val signOutUseCase: SignOutUseCase,
 	private val startUpReducer: StartUpReducer,
 	private val requestReviewReducer: RequestReviewReducer,
-	private val getUpdateInfoReducer: GetUpdateInfoReducer
+	private val getUpdateInfoReducer: GetUpdateInfoReducer,
+	private val signOutReducer: SignOutReducer
 ) : BaseViewModel<Main.State, Main.Action, Main.Event>(initialViewState = Main.State.Starting) {
 
 	fun startUpAction(data: String?) =
@@ -35,6 +39,12 @@ class MainViewModel(
 
 	fun checkUpdateAction(appUpdateManager: AppUpdateManager) =
 		emitAction(Main.Action.RequestUpdate(appUpdateManager))
+
+	fun signOutAction() =
+		emitAction(Main.Action.ClickSignOut)
+
+	fun confirmSignOutAction() =
+		emitAction(Main.Action.ConfirmSignOut)
 
 	override suspend fun reducer(action: Main.Action) {
 		when (action) {
@@ -57,6 +67,14 @@ class MainViewModel(
 				getUpdateInfoUseCase
 					.execute(params = action.appUpdateManager)
 					.collect(viewModel = this, reducer = getUpdateInfoReducer)
+
+			is Main.Action.ConfirmSignOut ->
+				signOutUseCase
+					.execute(params = Unit)
+					.collect(viewModel = this, reducer = signOutReducer)
+
+			is Main.Action.ClickSignOut ->
+				sendEvent(Main.Event.ShowSignOutConfirmationDialog)
 		}
 	}
 }

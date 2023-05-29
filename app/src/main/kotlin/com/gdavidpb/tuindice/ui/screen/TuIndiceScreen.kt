@@ -21,15 +21,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionView
 import com.gdavidpb.tuindice.presentation.contract.Main
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TuIndiceScreen(
-	state: Main.State.Started,
+	state: Main.State.Content,
 	onNavigateTo: (route: String) -> Unit,
 	onNavigateBack: () -> Unit,
+	onSignOutClick: () -> Unit,
 	navHost: @Composable (
 		PaddingValues,
 		showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit
@@ -43,6 +45,13 @@ fun TuIndiceScreen(
 		topBar = {
 			TopAppBar(
 				title = { Text(text = state.title) },
+				actions = {
+					if (state.topBarActionConfig != null)
+						TopAppBarActionView(
+							topBarActionConfig = state.topBarActionConfig,
+							onSignOutClick = onSignOutClick
+						)
+				},
 				navigationIcon = {
 					if (!state.currentDestination.isTopDestination)
 						IconButton(onClick = onNavigateBack) {
@@ -64,18 +73,18 @@ fun TuIndiceScreen(
 					modifier = Modifier.height(dimensionResource(id = R.dimen.dp_48))
 				) {
 					bottomDestinations.forEach { destination ->
-						val navigationBarConfig = destination.bottomBarConfig
+						val bottomBarConfig = destination.bottomBarConfig
 
-						requireNotNull(navigationBarConfig)
+						requireNotNull(bottomBarConfig)
 
 						val isNavigationBarItemSelected =
 							(destination.route == state.currentDestination.route)
 
 						val navigationBarItemIcon =
 							if (isNavigationBarItemSelected)
-								navigationBarConfig.selectedIcon
+								bottomBarConfig.selectedIcon
 							else
-								navigationBarConfig.unselectedIcon
+								bottomBarConfig.unselectedIcon
 
 						NavigationBarItem(
 							icon = {

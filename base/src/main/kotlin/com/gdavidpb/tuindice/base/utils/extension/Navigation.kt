@@ -1,6 +1,7 @@
-package com.gdavidpb.tuindice.utils.extension
+package com.gdavidpb.tuindice.base.utils.extension
 
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
@@ -27,10 +28,24 @@ fun Flow<NavBackStackEntry>.mapDestination(destinations: Map<String, Destination
 			null
 	}
 
-private fun buildTitleWithArgs(entry: NavBackStackEntry, destination: Destination): String {
-	return destination.title.replace(titleArgsRegex) { match ->
+fun NavController.navigateToSingleTop(route: String) {
+	navigate(
+		route = route
+	) {
+		launchSingleTop = true
+
+		val currentRoute = currentDestination?.route
+
+		if (currentRoute != null)
+			popUpTo(currentRoute) {
+				inclusive = true
+			}
+	}
+}
+
+private fun buildTitleWithArgs(entry: NavBackStackEntry, destination: Destination) =
+	destination.title.replace(titleArgsRegex) { match ->
 		val key = match.value.trim('{', '}')
 
 		entry.arguments?.getString(key, null) ?: error("There is no value for '$key' arg.")
 	}
-}

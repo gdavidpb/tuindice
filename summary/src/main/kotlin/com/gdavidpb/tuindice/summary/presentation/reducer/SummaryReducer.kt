@@ -3,11 +3,13 @@ package com.gdavidpb.tuindice.summary.presentation.reducer
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
-import com.gdavidpb.tuindice.base.utils.extension.ViewOutput
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
+import com.gdavidpb.tuindice.base.utils.extension.ViewOutput
+import com.gdavidpb.tuindice.summary.R
 import com.gdavidpb.tuindice.summary.domain.usecase.error.GetAccountError
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.presentation.mapper.toSummaryViewState
+import com.gdavidpb.tuindice.summary.presentation.mapper.formatLastUpdate
+import com.gdavidpb.tuindice.summary.presentation.mapper.toShortName
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -34,9 +36,33 @@ class SummaryReducer(
 		currentState: Summary.State,
 		useCaseState: UseCaseState.Data<Account, GetAccountError>
 	): Flow<ViewOutput> {
-		val summaryViewState = useCaseState.value.toSummaryViewState(resourceResolver)
-
-		return flowOf(Summary.State.Loaded(value = summaryViewState))
+		return flowOf(
+			with(useCaseState.value) {
+				Summary.State.Content(
+					name = toShortName(),
+					lastUpdate = resourceResolver.getString(
+						R.string.text_last_update,
+						lastUpdate.formatLastUpdate()
+					),
+					careerName = careerName,
+					grade = grade.toFloat(),
+					enrolledSubjects = enrolledSubjects,
+					enrolledCredits = enrolledCredits,
+					approvedSubjects = approvedSubjects,
+					approvedCredits = approvedCredits,
+					retiredSubjects = retiredSubjects,
+					retiredCredits = retiredCredits,
+					failedSubjects = failedSubjects,
+					failedCredits = failedCredits,
+					profilePictureUrl = pictureUrl,
+					isGradeVisible = (grade > 0.0),
+					isProfilePictureLoading = false,
+					isLoading = false,
+					isUpdated = true,
+					isUpdating = false
+				)
+			}
+		)
 	}
 
 	override suspend fun reduceErrorState(
@@ -46,30 +72,59 @@ class SummaryReducer(
 		return flow {
 			when (val error = useCaseState.error) {
 				is GetAccountError.NoConnection ->
-					emit(Summary.Event.ShowNoConnectionSnackBar(isNetworkAvailable = error.isNetworkAvailable))
+					emit(
+						Summary.Event.ShowSnackBar(
+							message = if (error.isNetworkAvailable)
+								resourceResolver.getString(R.string.snack_service_unavailable)
+							else
+								resourceResolver.getString(R.string.snack_network_unavailable)
+						)
+					)
 
-				is GetAccountError.OutdatedPassword ->
-					emit(Summary.Event.NavigateToOutdatedPassword)
+				is GetAccountError.OutdatedPassword -> {
+					if (currentState is Summary.State.Content) {
+						val newState = currentState.copy(
+							isUpdating = false
+							// TODO dialog = SummaryDialog.OutdatedPassword
+						)
+
+						emit(newState)
+
+						return@flow
+					}
+				}
 
 				is GetAccountError.Timeout ->
-					emit(Summary.Event.ShowTimeoutSnackBar)
+					emit(
+						Summary.Event.ShowSnackBar(
+							message = resourceResolver.getString(R.string.snack_timeout)
+						)
+					)
 
 				is GetAccountError.Unavailable -> {
-					emit(Summary.Event.ShowTryLaterSnackBar)
+					emit(
+						Summary.Event.ShowSnackBar(
+							message = resourceResolver.getString(R.string.snack_no_service)
+						)
+					)
 
-					if (currentState is Summary.State.Loaded) {
-						val newState = currentState.value.copy(
+					if (currentState is Summary.State.Content) {
+						val newState = currentState.copy(
 							isUpdated = false
 						)
 
-						emit(Summary.State.Loaded(newState))
+						emit(newState)
 
 						return@flow
 					}
 				}
 
 				else ->
-					emit(Summary.Event.ShowDefaultErrorSnackBar)
+					emit(
+						Summary.Event.ShowSnackBar(
+							message = resourceResolver.getString(R.string.snack_default_error)
+						)
+					)
 			}
 
 			emit(Summary.State.Failed)

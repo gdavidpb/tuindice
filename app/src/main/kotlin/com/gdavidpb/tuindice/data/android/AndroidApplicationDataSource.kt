@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.utils.extension.canOpenFile
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.persistence.data.room.schema.DatabaseModel
 import com.gdavidpb.tuindice.summary.utils.extension.fileProviderUri
 import java.io.File
 
@@ -31,9 +30,7 @@ class AndroidApplicationDataSource(
 
 	override suspend fun clearData() {
 		room.clearAllTables()
-		room.close()
 
-		context.deleteDatabase(DatabaseModel.NAME)
 		sharedPreferences.edit().clear().apply()
 
 		with(context) {
