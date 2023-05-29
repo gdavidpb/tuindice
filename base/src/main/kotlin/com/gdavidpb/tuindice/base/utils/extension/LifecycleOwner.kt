@@ -45,7 +45,10 @@ fun LifecycleOwner.toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHO
 	Toast.makeText(context(), resId, duration).show()
 }
 
-fun LifecycleOwner.connectionSnackBar(isNetworkAvailable: Boolean, onRetryClick: (() -> Unit)? = null) {
+fun LifecycleOwner.connectionSnackBar(
+	isNetworkAvailable: Boolean,
+	onRetryClick: (() -> Unit)? = null
+) {
 	val message = if (isNetworkAvailable)
 		R.string.snack_service_unavailable
 	else
@@ -100,12 +103,6 @@ fun LifecycleOwner.launchRepeatOnLifecycle(
 	state: Lifecycle.State = Lifecycle.State.STARTED,
 	block: suspend CoroutineScope.() -> Unit
 ) {
-	val (lifecycleScope, lifecycle) = when (this) {
-		is Fragment -> viewLifecycleOwner.lifecycleScope to viewLifecycleOwner.lifecycle
-		is Activity -> lifecycleScope to lifecycle
-		else -> throw NoWhenBranchMatchedException()
-	}
-
 	lifecycleScope.launch {
 		lifecycle.repeatOnLifecycle(state) {
 			block()
