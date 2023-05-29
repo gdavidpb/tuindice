@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
@@ -51,4 +53,13 @@ fun Context.browse(url: String) {
 
 		startActivity(intent)
 	}
+}
+
+fun Context.findActivity(): Activity {
+	var context = this
+	while (context is ContextWrapper) {
+		if (context is Activity) return context
+		context = context.baseContext
+	}
+	error("No activity")
 }
