@@ -34,6 +34,15 @@ fun ConfirmationDialog(
 ) {
 	val coroutineScope = rememberCoroutineScope()
 
+	val dismiss = fun(onComplete: () -> Unit) {
+		coroutineScope.launch {
+			sheetState.hide()
+		}.invokeOnCompletion {
+			onDismissRequest()
+			onComplete()
+		}
+	}
+
 	ModalBottomSheet(
 		sheetState = sheetState,
 		onDismissRequest = onDismissRequest
@@ -52,41 +61,28 @@ fun ConfirmationDialog(
 
 			content()
 
-			Row(
-				modifier = Modifier
-					.fillMaxWidth()
-					.padding(vertical = dimensionResource(id = R.dimen.dp_24)),
-				horizontalArrangement = Arrangement.End
-			) {
-				if (negativeText != null)
-					OutlinedButton(
-						onClick = {
-							coroutineScope.launch {
-								sheetState.hide()
-							}.invokeOnCompletion {
-								onDismissRequest()
-								onNegativeClick()
-							}
-						},
-						border = null
-					) {
-						Text(text = negativeText)
-					}
+			if (positiveText != null || negativeText != null)
+				Row(
+					modifier = Modifier
+						.fillMaxWidth()
+						.padding(vertical = dimensionResource(id = R.dimen.dp_24)),
+					horizontalArrangement = Arrangement.End
+				) {
+					if (negativeText != null)
+						OutlinedButton(
+							onClick = { dismiss(onNegativeClick) },
+							border = null
+						) {
+							Text(text = negativeText)
+						}
 
-				if (positiveText != null)
-					Button(
-						onClick = {
-							coroutineScope.launch {
-								sheetState.hide()
-							}.invokeOnCompletion {
-								onDismissRequest()
-								onPositiveClick()
-							}
-						},
-					) {
-						Text(text = positiveText)
-					}
-			}
+					if (positiveText != null)
+						Button(
+							onClick = { dismiss(onPositiveClick) },
+						) {
+							Text(text = positiveText)
+						}
+				}
 		}
 	}
 }

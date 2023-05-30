@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -48,6 +49,7 @@ fun ProfilePictureView(
 ) {
 	Box(
 		modifier = modifier
+			.clickable { if (!state.isLoading) onClick() }
 	) {
 		AsyncImage(
 			modifier = Modifier

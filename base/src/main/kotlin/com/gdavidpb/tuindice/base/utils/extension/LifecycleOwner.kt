@@ -20,9 +20,6 @@ import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.reflect.full.createInstance
 
-fun LifecycleOwner.hasCamera() =
-	context().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
-
 fun LifecycleOwner.hideSoftKeyboard() = when (this) {
 	is Fragment -> requireView().rootView
 	is Activity -> currentFocus
