@@ -48,6 +48,15 @@ class SummaryViewModel(
 	fun removeProfilePictureAction() =
 		emitAction(Summary.Action.RemoveProfilePicture)
 
+	fun confirmRemoveProfilePictureAction() =
+		emitAction(Summary.Action.ConfirmRemoveProfilePicture)
+
+	fun openProfilePictureSettingsAction() =
+		emitAction(Summary.Action.OpenProfilePictureSettings)
+
+	fun closeDialogAction() =
+		emitAction(Summary.Action.CloseDialog)
+
 	override suspend fun reducer(action: Summary.Action) {
 		when (action) {
 			is Summary.Action.LoadSummary ->
@@ -69,9 +78,25 @@ class SummaryViewModel(
 					.collect(viewModel = this, reducer = uploadProfilePictureReducer)
 
 			is Summary.Action.RemoveProfilePicture ->
+				sendEvent(Summary.Event.ShowRemoveProfilePictureConfirmationDialog)
+
+			is Summary.Action.ConfirmRemoveProfilePicture ->
 				removeProfilePictureUseCase
 					.execute(params = Unit)
 					.collect(viewModel = this, reducer = removeProfilePictureReducer)
+
+			is Summary.Action.CloseDialog ->
+				sendEvent(Summary.Event.CloseDialog)
+
+			is Summary.Action.OpenProfilePictureSettings -> {
+				val currentState = getCurrentState()
+
+				sendEvent(
+					Summary.Event.ShowProfilePictureSettingsDialog(
+						showRemove = currentState is Summary.State.Content && currentState.profilePictureUrl.isNotEmpty()
+					)
+				)
+			}
 		}
 	}
 }

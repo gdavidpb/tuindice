@@ -60,35 +60,33 @@ fun TuIndiceApp(
 
 	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
 		when (event) {
-			is Main.Event.NavigateToSignIn -> {
+			is Main.Event.NavigateToSignIn ->
 				navController.navigateToSignIn()
-			}
 
-			is Main.Event.ShowSignOutConfirmationDialog -> {
-				dialogState.value = MainDialog.SignOutConfirmation
-			}
-
-			is Main.Event.ShowNoServicesDialog -> {
-				dialogState.value = MainDialog.GooglePlayServicesUnavailable
-			}
-
-			is Main.Event.ShowReviewDialog -> {
-				lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
-					reviewManager.launchReview(
-						activity = context.findActivity(),
-						reviewInfo = event.reviewInfo
-					)
-				}
-			}
-
-			is Main.Event.StartUpdateFlow -> {
+			is Main.Event.StartUpdateFlow ->
 				appUpdateManager.startUpdateFlowForResult(
 					event.updateInfo,
 					AppUpdateType.IMMEDIATE,
 					context.findActivity(),
 					RequestCodes.APP_UPDATE
 				)
-			}
+
+			is Main.Event.ShowSignOutConfirmationDialog ->
+				dialogState.value = MainDialog.SignOutConfirmation
+
+			is Main.Event.ShowNoServicesDialog ->
+				dialogState.value = MainDialog.GooglePlayServicesUnavailable
+
+			is Main.Event.ShowReviewDialog ->
+				lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+					reviewManager.launchReview(
+						activity = context.findActivity(),
+						reviewInfo = event.reviewInfo
+					)
+				}
+
+			is Main.Event.CloseDialog ->
+				dialogState.value = null
 		}
 	}
 
@@ -102,13 +100,12 @@ fun TuIndiceApp(
 	}
 
 	when (dialogState.value) {
-		is MainDialog.SignOutConfirmation -> {
+		is MainDialog.SignOutConfirmation ->
 			SignOutConfirmationDialog(
 				sheetState = sheetState,
 				onConfirmClick = viewModel::confirmSignOutAction,
-				onDismissRequest = { dialogState.value = null }
+				onDismissRequest = viewModel::closeDialogAction
 			)
-		}
 
 		is MainDialog.GooglePlayServicesUnavailable -> {
 			val nonDismissSheetState = rememberModalBottomSheetState(
@@ -118,7 +115,7 @@ fun TuIndiceApp(
 			GooglePlayServicesDialog(
 				sheetState = nonDismissSheetState,
 				onConfirmExitClick = { context.findActivity().finish() },
-				onDismissRequest = { dialogState.value = null }
+				onDismissRequest = viewModel::closeDialogAction
 			)
 		}
 

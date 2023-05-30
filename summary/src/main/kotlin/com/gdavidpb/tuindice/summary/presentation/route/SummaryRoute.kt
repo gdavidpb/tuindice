@@ -45,10 +45,6 @@ fun SummaryRoute(
 		onResult = { result -> if (result) viewModel.uploadTakenProfilePictureAction() }
 	)
 
-	fun dialog(dialog: SummaryDialog?) {
-		dialogState.value = dialog
-	}
-
 	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
 		when (event) {
 			is Summary.Event.OpenCamera -> {
@@ -57,15 +53,25 @@ fun SummaryRoute(
 				viewModel.setCameraOutput(event.output)
 			}
 
-			is Summary.Event.OpenPicker -> {
+			is Summary.Event.OpenPicker ->
 				pickVisualMediaRequest.launch(
 					PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
 				)
-			}
 
-			is Summary.Event.ShowSnackBar -> {
+			is Summary.Event.ShowSnackBar ->
 				showSnackBar(event.message, null, null)
-			}
+
+			is Summary.Event.ShowProfilePictureSettingsDialog ->
+				dialogState.value = SummaryDialog.ProfilePictureSettings(
+					showTake = context.hasCamera(),
+					showRemove = event.showRemove
+				)
+
+			Summary.Event.ShowRemoveProfilePictureConfirmationDialog ->
+				dialogState.value = SummaryDialog.RemoveProfilePictureConfirmation
+
+			is Summary.Event.CloseDialog ->
+				dialogState.value = null
 		}
 	}
 
@@ -84,15 +90,15 @@ fun SummaryRoute(
 				showRemove = state.showRemove,
 				onPickPictureClick = viewModel::pickProfilePictureAction,
 				onTakePictureClick = viewModel::takeProfilePictureAction,
-				onRemovePictureClick = { dialog(SummaryDialog.RemoveProfilePictureConfirmation) },
-				onDismissRequest = { dialog(null) }
+				onRemovePictureClick = viewModel::removeProfilePictureAction,
+				onDismissRequest = viewModel::closeDialogAction
 			)
 
 		is SummaryDialog.RemoveProfilePictureConfirmation ->
 			RemoveProfilePictureConfirmationDialog(
 				sheetState = sheetState,
-				onConfirmClick = viewModel::removeProfilePictureAction,
-				onDismissRequest = { dialog(null) }
+				onConfirmClick = viewModel::confirmRemoveProfilePictureAction,
+				onDismissRequest = viewModel::closeDialogAction
 			)
 
 		null -> {}
@@ -101,16 +107,6 @@ fun SummaryRoute(
 	SummaryScreen(
 		state = viewState,
 		onRetryClick = viewModel::loadSummaryAction,
-		onEditProfilePictureClick = {
-			dialog(
-				SummaryDialog.ProfilePictureSettings(
-					showTake = context.hasCamera(),
-					showRemove = (viewState as? Summary.State.Content)
-						?.profilePictureUrl
-						.isNullOrEmpty()
-						.not()
-				)
-			)
-		}
+		onEditProfilePictureClick = viewModel::openProfilePictureSettingsAction
 	)
 }
