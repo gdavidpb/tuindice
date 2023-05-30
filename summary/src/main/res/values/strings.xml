@@ -11,8 +11,8 @@
     <string name="label_credits_failed">Reprobados</string>
     <string name="label_credits_retired">Retirados</string>
 
-    <string name="dialog_title_remove_profile_picture_failure">Atención</string>
-    <string name="dialog_message_remove_profile_picture_failure">
+    <string name="dialog_title_remove_profile_picture">Atención</string>
+    <string name="dialog_message_remove_profile_picture">
         ¿Estás seguro que deseas remover tu foto de perfil?
     </string>
 

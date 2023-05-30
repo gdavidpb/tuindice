@@ -105,7 +105,7 @@ fun TuIndiceApp(
 		is MainDialog.SignOutConfirmation -> {
 			SignOutConfirmationDialog(
 				sheetState = sheetState,
-				onConfirmSignOutClick = viewModel::confirmSignOutAction,
+				onConfirmClick = viewModel::confirmSignOutAction,
 				onDismissRequest = { dialogState.value = null }
 			)
 		}

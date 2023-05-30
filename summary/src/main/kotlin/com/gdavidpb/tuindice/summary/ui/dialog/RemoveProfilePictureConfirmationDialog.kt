@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.ui.dialog
+package com.gdavidpb.tuindice.summary.ui.dialog
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
@@ -10,20 +10,20 @@ import com.gdavidpb.tuindice.summary.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignOutConfirmationDialog(
+fun RemoveProfilePictureConfirmationDialog(
 	sheetState: SheetState,
 	onConfirmClick: () -> Unit,
 	onDismissRequest: () -> Unit
 ) {
 	ConfirmationDialog(
 		sheetState = sheetState,
-		titleText = stringResource(id = R.string.dialog_title_sign_out),
-		positiveText = stringResource(id = R.string.dialog_button_sign_out),
+		titleText = stringResource(id = R.string.dialog_title_remove_profile_picture),
+		positiveText = stringResource(id = R.string.remove),
 		negativeText = stringResource(id = R.string.cancel),
 		onPositiveClick = onConfirmClick,
 		onNegativeClick = onDismissRequest,
 		onDismissRequest = onDismissRequest
 	) {
-		Text(text = stringResource(id = R.string.dialog_message_sign_out))
+		Text(text = stringResource(id = R.string.dialog_message_remove_profile_picture))
 	}
 }

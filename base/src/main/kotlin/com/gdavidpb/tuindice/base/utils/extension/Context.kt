@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.webkit.MimeTypeMap
@@ -54,6 +55,10 @@ fun Context.browse(url: String) {
 		startActivity(intent)
 	}
 }
+
+fun Context.hasCamera() =
+	packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
+
 
 fun Context.findActivity(): Activity {
 	var context = this
