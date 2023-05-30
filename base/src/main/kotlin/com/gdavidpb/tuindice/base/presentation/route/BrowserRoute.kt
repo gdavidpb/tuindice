@@ -33,8 +33,14 @@ fun BrowserRoute(
 
 	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
 		when (event) {
+			is Browser.Event.OpenExternalResourceDialog ->
+				context.browse(event.url)
+
 			is Browser.Event.ShowExternalResourceDialog ->
 				dialogState.value = BrowserDialog.ExternalResourceDialog(url = event.url)
+
+			is Browser.Event.CloseDialog ->
+				dialogState.value = null
 		}
 	}
 
@@ -53,8 +59,8 @@ fun BrowserRoute(
 			ExternalResourceDialog(
 				sheetState = sheetState,
 				url = state.url,
-				onConfirmClick = { context.browse(state.url) },
-				onDismissRequest = { dialogState.value = null }
+				onConfirmClick = { viewModel.confirmOpenExternalResourceAction(url = state.url) },
+				onDismissRequest = viewModel::closeDialogAction
 			)
 
 		null -> {}
@@ -64,6 +70,6 @@ fun BrowserRoute(
 		state = viewState,
 		onPageStarted = viewModel::showLoading,
 		onPageFinished = viewModel::hideLoading,
-		onExternalResourceClick = viewModel::clickExternalResourceAction
+		onExternalResourceClick = viewModel::openExternalResourceAction
 	)
 }

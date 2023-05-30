@@ -31,8 +31,9 @@ object Main {
 		class RequestReview(val reviewManager: ReviewManager) : Action()
 		class RequestUpdate(val appUpdateManager: AppUpdateManager) : Action()
 		class SetLastScreen(val route: String) : Action()
-		object ClickSignOut : Action()
+		object SignOut : Action()
 		object ConfirmSignOut : Action()
+		object CloseDialog : Action()
 	}
 
 	sealed class Event : ViewEvent {
@@ -41,5 +42,6 @@ object Main {
 		class ShowNoServicesDialog(val status: ServicesStatus) : Event()
 		class ShowReviewDialog(val reviewInfo: ReviewInfo) : Event()
 		class StartUpdateFlow(val updateInfo: AppUpdateInfo) : Event()
+		object CloseDialog : Event()
 	}
 }

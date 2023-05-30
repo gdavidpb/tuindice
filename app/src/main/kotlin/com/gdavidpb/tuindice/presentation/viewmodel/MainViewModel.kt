@@ -41,10 +41,13 @@ class MainViewModel(
 		emitAction(Main.Action.RequestUpdate(appUpdateManager))
 
 	fun signOutAction() =
-		emitAction(Main.Action.ClickSignOut)
+		emitAction(Main.Action.SignOut)
 
 	fun confirmSignOutAction() =
 		emitAction(Main.Action.ConfirmSignOut)
+
+	fun closeDialogAction() =
+		emitAction(Main.Action.CloseDialog)
 
 	override suspend fun reducer(action: Main.Action) {
 		when (action) {
@@ -73,8 +76,11 @@ class MainViewModel(
 					.execute(params = Unit)
 					.collect(viewModel = this, reducer = signOutReducer)
 
-			is Main.Action.ClickSignOut ->
+			is Main.Action.SignOut ->
 				sendEvent(Main.Event.ShowSignOutConfirmationDialog)
+
+			is Main.Action.CloseDialog ->
+				sendEvent(Main.Event.CloseDialog)
 		}
 	}
 }

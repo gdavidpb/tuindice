@@ -5,8 +5,14 @@ import com.gdavidpb.tuindice.base.presentation.contract.Browser
 class BrowserViewModel :
 	BaseViewModel<Browser.State, Browser.Action, Browser.Event>(initialViewState = Browser.State.Idle) {
 
-	fun clickExternalResourceAction(url: String) =
-		emitAction(Browser.Action.ClickExternalResource(url))
+	fun openExternalResourceAction(url: String) =
+		emitAction(Browser.Action.OpenExternalResource(url))
+
+	fun confirmOpenExternalResourceAction(url: String) =
+		emitAction(Browser.Action.ConfirmOpenExternalResource(url))
+
+	fun closeDialogAction() =
+		emitAction(Browser.Action.CloseDialog)
 
 	fun showLoading() =
 		setLoading(true)
@@ -26,8 +32,14 @@ class BrowserViewModel :
 
 	override suspend fun reducer(action: Browser.Action) {
 		when (action) {
-			is Browser.Action.ClickExternalResource ->
+			is Browser.Action.OpenExternalResource ->
 				sendEvent(Browser.Event.ShowExternalResourceDialog(url = action.url))
+
+			is Browser.Action.ConfirmOpenExternalResource ->
+				sendEvent(Browser.Event.OpenExternalResourceDialog(url = action.url))
+
+			is Browser.Action.CloseDialog ->
+				sendEvent(Browser.Event.CloseDialog)
 		}
 	}
 }

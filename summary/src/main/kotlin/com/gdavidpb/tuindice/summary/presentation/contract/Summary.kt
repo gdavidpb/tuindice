@@ -37,12 +37,18 @@ object Summary {
 		object TakeProfilePicture : Action()
 		object PickProfilePicture : Action()
 		class UploadProfilePicture(val path: String) : Action()
+		object OpenProfilePictureSettings : Action()
 		object RemoveProfilePicture : Action()
+		object ConfirmRemoveProfilePicture : Action()
+		object CloseDialog : Action()
 	}
 
 	sealed class Event : ViewEvent {
 		class OpenCamera(val output: String) : Event()
 		object OpenPicker : Event()
 		class ShowSnackBar(val message: String) : Event()
+		class ShowProfilePictureSettingsDialog(val showRemove: Boolean) : Event()
+		object ShowRemoveProfilePictureConfirmationDialog : Event()
+		object CloseDialog : Event()
 	}
 }
