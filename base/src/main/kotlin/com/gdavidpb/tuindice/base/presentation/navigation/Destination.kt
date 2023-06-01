@@ -19,6 +19,12 @@ sealed class Destination(
 	val bottomBarConfig: BottomBarConfig? = null,
 	val topBarActionConfig: TopBarActionConfig? = null
 ) {
+	object EnrollmentProofFetch :
+		Destination(
+			route = "enrollment_proof_fetch",
+			isDialogDestination = true
+		)
+
 	object UpdatePassword :
 		Destination(
 			route = "update_password",

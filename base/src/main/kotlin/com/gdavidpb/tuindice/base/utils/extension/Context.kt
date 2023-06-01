@@ -36,6 +36,18 @@ fun Context.sharedPreferences(): SharedPreferences {
 	return PreferenceManager.getDefaultSharedPreferences(this)
 }
 
+fun Context.openFile(file: File): Boolean {
+	return runCatching {
+		val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID, file)
+
+		val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+			flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+		}
+
+		startActivity(intent)
+	}.isSuccess
+}
+
 fun Context.canOpenFile(file: File): Boolean {
 	return runCatching {
 		val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)

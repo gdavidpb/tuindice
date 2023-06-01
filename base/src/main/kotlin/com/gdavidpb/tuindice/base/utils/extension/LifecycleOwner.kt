@@ -2,45 +2,18 @@ package com.gdavidpb.tuindice.base.utils.extension
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.io.File
 import kotlin.reflect.full.createInstance
-
-fun LifecycleOwner.hideSoftKeyboard() = when (this) {
-	is Fragment -> requireView().rootView
-	is Activity -> currentFocus
-	else -> null
-}?.hideSoftKeyboard()
-
-fun LifecycleOwner.openFile(file: File): Boolean {
-	return runCatching {
-		val uri = FileProvider.getUriForFile(context(), BuildConfig.APPLICATION_ID, file)
-
-		val intent = Intent(Intent.ACTION_VIEW, uri).apply {
-			flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
-		}
-
-		startActivity(intent)
-	}.isSuccess
-}
-
-fun LifecycleOwner.toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
-	Toast.makeText(context(), resId, duration).show()
-}
 
 fun LifecycleOwner.connectionSnackBar(
 	isNetworkAvailable: Boolean,
