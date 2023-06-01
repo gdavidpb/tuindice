@@ -1,49 +1,48 @@
 package com.gdavidpb.tuindice.login.ui.view
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import com.gdavidpb.tuindice.login.R
 
 @Composable
 fun PasswordTextField(
+	modifier: Modifier = Modifier,
 	password: String,
 	error: String? = null,
 	onValueChange: (password: String) -> Unit,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
-	val textField = remember { mutableStateOf(TextFieldValue(password)) }
+	val passwordField = remember { mutableStateOf(TextFieldValue(password)) }
 	val supportingText = remember { mutableStateOf(error) }
+	val passwordVisible = remember { mutableStateOf(false) }
 
 	OutlinedTextField(
-		modifier = Modifier
-			.fillMaxWidth()
-			.padding(
-				horizontal = dimensionResource(id = R.dimen.dp_32)
-			),
-		value = textField.value,
+		modifier = modifier,
+		value = passwordField.value,
 		onValueChange = { newValue ->
 			supportingText.value = null
 
-			textField.value = newValue
+			passwordField.value = newValue
 
-			onValueChange(textField.value.text)
+			onValueChange(passwordField.value.text)
 		},
 		isError = supportingText.value != null,
 		supportingText = {
@@ -52,7 +51,15 @@ fun PasswordTextField(
 			if (text != null) Text(text)
 		},
 		label = { Text(text = stringResource(R.string.hint_password)) },
-		visualTransformation = PasswordVisualTransformation(),
+		visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
+		trailingIcon = {
+			IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+				Icon(
+					imageVector = if (passwordVisible.value) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+					contentDescription = null
+				)
+			}
+		},
 		leadingIcon = {
 			Icon(
 				imageVector = Icons.Outlined.Lock,

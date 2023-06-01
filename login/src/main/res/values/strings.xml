@@ -13,6 +13,9 @@
         Términos y condiciones y Política de privacidad
     </string>
 
+    <string name="hint_usb_id">USBID</string>
+    <string name="hint_password">Contraseña</string>
+
     <string name="link_terms_and_conditions">Términos y condiciones</string>
     <string name="link_privacy_policy">Política de privacidad</string>
 
@@ -21,5 +24,24 @@
 
     <string name="dialog_title_no_gms_failure">¡Oops, lo sentimos!</string>
     <string name="dialog_message_no_gms_failure">Parece que tu dispositivo  no dispone de Google Play Services ;(</string>
+
+    <!-- UpdatePasswordDialog -->
+
+    <string name="dialog_title_update_password">Tu contraseña ha cambiado</string>
+
+    <string name="dialog_title_updating_password">
+        Estamos actualizando tu contraseña…
+    </string>
+
+    <string name="dialog_message_update_password">
+        Confirma tu contraseña para seguir disfrutando de TuIndice.
+    </string>
+
+    <string name="dialog_button_update_password_later">Más tarde</string>
+    <string name="dialog_button_update_password_confirm">Confirmar</string>
+
+    <string name="error_invalid_password">Contraseña inválida</string>
+
+    <string name="snack_password_updated">Contraseña actualizada</string>
 
 </resources>

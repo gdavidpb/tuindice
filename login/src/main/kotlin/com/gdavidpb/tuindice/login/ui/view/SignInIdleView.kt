@@ -37,7 +37,7 @@ fun SignInIdleView(
 
 	val terms = stringResource(id = R.string.link_terms_and_conditions)
 	val privacy = stringResource(id = R.string.link_privacy_policy)
-	val isSignInEnabled = state.usbId.isUsbId() && state.password.isNotBlank()
+	val isSignInEnabled = state.usbId.isUsbId() && state.password.isNotEmpty()
 
 	val links = mapOf(
 		terms to onTermsAndConditionsClick,
@@ -59,12 +59,22 @@ fun SignInIdleView(
 		)
 
 		UsbIdTextField(
-			modifier = Modifier,
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(
+					vertical = dimensionResource(id = R.dimen.dp_8),
+					horizontal = dimensionResource(id = R.dimen.dp_32)
+				),
 			usbId = state.usbId,
 			onValueChange = onUsbIdChanged
 		)
 
 		PasswordTextField(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(
+					horizontal = dimensionResource(id = R.dimen.dp_32)
+				),
 			password = state.password,
 			onValueChange = onPasswordChanged,
 			keyboardActions = KeyboardActions(onDone = {

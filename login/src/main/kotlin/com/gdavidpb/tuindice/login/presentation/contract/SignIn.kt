@@ -19,8 +19,13 @@ object SignIn {
 	}
 
 	sealed class Action : ViewAction {
-		class ClickSignIn(val usbId: String, val password: String) : Action()
+		class ClickSignIn(
+			val usbId: String,
+			val password: String
+		) : Action()
+
 		object OpenTermsAndConditions : Action()
+
 		object OpenPrivacyPolicy : Action()
 	}
 

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.dialog
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +25,9 @@ fun RemoveProfilePictureConfirmationDialog(
 		onNegativeClick = onDismissRequest,
 		onDismissRequest = onDismissRequest
 	) {
-		Text(text = stringResource(id = R.string.dialog_message_remove_profile_picture))
+		Text(
+			text = stringResource(id = R.string.dialog_message_remove_profile_picture),
+			style = MaterialTheme.typography.bodyLarge
+		)
 	}
 }
