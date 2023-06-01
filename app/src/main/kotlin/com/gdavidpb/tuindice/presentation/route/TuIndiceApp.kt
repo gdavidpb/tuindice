@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
 import com.gdavidpb.tuindice.base.utils.extension.mapScreenDestination
 import com.gdavidpb.tuindice.base.utils.extension.navigateToSingleTop
+import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchDialog
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignIn
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToUpdatePassword
 import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
@@ -157,6 +158,16 @@ fun TuIndiceApp(
 					startDestination = state.startDestination.route,
 					modifier = Modifier.padding(innerPadding)
 				) {
+					enrollmentProofFetchDialog(
+						navigateToUpdatePassword = {
+							navController.navigateToUpdatePassword()
+						},
+						onDismissRequest = {
+							navController.popBackStack()
+						},
+						showSnackBar = showSnackBar
+					)
+
 					updatePasswordDialog(
 						onDismissRequest = {
 							navController.popBackStack()
