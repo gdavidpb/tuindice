@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.evaluations.utils.MIN_EVALUATION_GRADE
 
 class UpdateEvaluationParamsValidator : ParamsValidator<UpdateEvaluationParams> {
 	override fun validate(params: UpdateEvaluationParams) {
-		require(params.name == null || params.name.isNotBlank()) {
+		require(params.name == null || params.name.isNotEmpty()) {
 			throw EvaluationIllegalArgumentException(EvaluationError.EmptyName)
 		}
 

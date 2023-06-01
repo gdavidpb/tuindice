@@ -12,12 +12,19 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarActionConfig
 
 sealed class Destination(
 	val route: String,
-	val title: String,
-	val isTopDestination: Boolean,
-	val isBottomDestination: Boolean,
+	val title: String = "",
+	val isTopDestination: Boolean = false,
+	val isBottomDestination: Boolean = false,
+	val isDialogDestination: Boolean = false,
 	val bottomBarConfig: BottomBarConfig? = null,
 	val topBarActionConfig: TopBarActionConfig? = null
 ) {
+	object UpdatePassword :
+		Destination(
+			route = "update_password",
+			isDialogDestination = true
+		)
+
 	object SignIn :
 		Destination(
 			route = "sign_in",

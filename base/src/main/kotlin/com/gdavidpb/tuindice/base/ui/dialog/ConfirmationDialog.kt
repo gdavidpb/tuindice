@@ -25,6 +25,9 @@ import kotlinx.coroutines.launch
 fun ConfirmationDialog(
 	sheetState: SheetState,
 	titleText: String,
+	dismissOnPositive: Boolean = true,
+	positiveEnabled: Boolean = true,
+	negativeEnabled: Boolean = true,
 	positiveText: String? = null,
 	negativeText: String? = null,
 	onPositiveClick: () -> Unit = {},
@@ -50,10 +53,11 @@ fun ConfirmationDialog(
 		Column(
 			modifier = Modifier
 				.fillMaxWidth()
-				.padding(horizontal = dimensionResource(id = R.dimen.dp_16))
+				.padding(horizontal = dimensionResource(id = R.dimen.dp_24))
 		) {
 			Text(
-				modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.dp_16)),
+				modifier = Modifier
+					.padding(bottom = dimensionResource(id = R.dimen.dp_16)),
 				text = titleText,
 				style = MaterialTheme.typography.titleLarge,
 				fontWeight = FontWeight.Medium
@@ -71,14 +75,21 @@ fun ConfirmationDialog(
 					if (negativeText != null)
 						OutlinedButton(
 							onClick = { dismiss(onNegativeClick) },
-							border = null
+							border = null,
+							enabled = negativeEnabled
 						) {
 							Text(text = negativeText)
 						}
 
 					if (positiveText != null)
 						Button(
-							onClick = { dismiss(onPositiveClick) },
+							onClick = {
+								if (dismissOnPositive)
+									dismiss(onPositiveClick)
+								else
+									onPositiveClick()
+							},
+							enabled = positiveEnabled
 						) {
 							Text(text = positiveText)
 						}

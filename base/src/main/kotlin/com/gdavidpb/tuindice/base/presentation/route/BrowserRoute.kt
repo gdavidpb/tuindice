@@ -59,7 +59,7 @@ fun BrowserRoute(
 			ExternalResourceDialog(
 				sheetState = sheetState,
 				url = state.url,
-				onConfirmClick = { viewModel.confirmOpenExternalResourceAction(url = state.url) },
+				onConfirmClick = viewModel::confirmOpenExternalResourceAction,
 				onDismissRequest = viewModel::closeDialogAction
 			)
 

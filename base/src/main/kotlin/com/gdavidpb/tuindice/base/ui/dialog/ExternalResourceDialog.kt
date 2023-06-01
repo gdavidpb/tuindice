@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.base.ui.view.getAnnotatedUrl
 fun ExternalResourceDialog(
 	sheetState: SheetState,
 	url: String,
-	onConfirmClick: () -> Unit,
+	onConfirmClick: (url: String) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
 	ConfirmationDialog(
@@ -22,13 +22,13 @@ fun ExternalResourceDialog(
 		titleText = stringResource(id = R.string.dialog_title_warning_external),
 		positiveText = stringResource(id = R.string.accept),
 		negativeText = stringResource(id = R.string.cancel),
-		onPositiveClick = onConfirmClick,
+		onPositiveClick = { onConfirmClick(url) },
 		onNegativeClick = onDismissRequest,
 		onDismissRequest = onDismissRequest
 	) {
 		Text(
 			text = stringResource(id = R.string.dialog_message_warning_external),
-			style = MaterialTheme.typography.bodyMedium
+			style = MaterialTheme.typography.bodyLarge
 		)
 		Text(
 			text = getAnnotatedUrl(url = url),

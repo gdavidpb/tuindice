@@ -26,6 +26,7 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SummaryRoute(
+	onNavigateToUpdatePassword: () -> Unit,
 	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit,
 	viewModel: SummaryViewModel = koinViewModel()
 ) {
@@ -81,7 +82,7 @@ fun SummaryRoute(
 
 	when (val state = dialogState.value) {
 		is SummaryDialog.OutdatedPassword ->
-			TODO()
+			onNavigateToUpdatePassword()
 
 		is SummaryDialog.ProfilePictureSettings ->
 			ProfilePictureSettingsDialog(

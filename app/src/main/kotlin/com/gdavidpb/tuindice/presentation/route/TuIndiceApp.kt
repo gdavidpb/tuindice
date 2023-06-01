@@ -22,10 +22,12 @@ import com.gdavidpb.tuindice.base.presentation.navigation.navigateToBrowser
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
-import com.gdavidpb.tuindice.base.utils.extension.mapDestination
+import com.gdavidpb.tuindice.base.utils.extension.mapScreenDestination
 import com.gdavidpb.tuindice.base.utils.extension.navigateToSingleTop
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignIn
+import com.gdavidpb.tuindice.login.presentation.navigation.navigateToUpdatePassword
 import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
+import com.gdavidpb.tuindice.login.presentation.navigation.updatePasswordDialog
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.MainDialog
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
@@ -129,7 +131,7 @@ fun TuIndiceApp(
 			LaunchedEffect(navController) {
 				navController
 					.currentBackStackEntryFlow
-					.mapDestination(state.destinations)
+					.mapScreenDestination(state.destinations)
 					.collect { (title, destination) ->
 						if (destination.isBottomDestination)
 							viewModel.setLastScreenAction(route = destination.route)
@@ -155,6 +157,13 @@ fun TuIndiceApp(
 					startDestination = state.startDestination.route,
 					modifier = Modifier.padding(innerPadding)
 				) {
+					updatePasswordDialog(
+						onDismissRequest = {
+							navController.popBackStack()
+						},
+						showSnackBar = showSnackBar
+					)
+
 					signInScreen(
 						navigateToSummary = {
 							navController.navigateToSummary()
@@ -166,6 +175,9 @@ fun TuIndiceApp(
 					)
 
 					summaryScreen(
+						navigateToUpdatePassword = {
+							navController.navigateToUpdatePassword()
+						},
 						showSnackBar = showSnackBar
 					)
 

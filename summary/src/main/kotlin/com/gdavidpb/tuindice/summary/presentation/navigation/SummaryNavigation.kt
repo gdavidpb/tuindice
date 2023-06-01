@@ -12,10 +12,12 @@ fun NavController.navigateToSummary() {
 }
 
 fun NavGraphBuilder.summaryScreen(
+	navigateToUpdatePassword: () -> Unit,
 	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit
 ) {
 	composable(Destination.Summary.route) {
 		SummaryRoute(
+			onNavigateToUpdatePassword = navigateToUpdatePassword,
 			showSnackBar = showSnackBar
 		)
 	}

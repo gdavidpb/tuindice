@@ -24,7 +24,10 @@ fun SignInRoute(
 				onNavigateToSummary()
 
 			is SignIn.Event.NavigateToBrowser ->
-				onNavigateToBrowser(event.title, event.url)
+				onNavigateToBrowser(
+					event.title,
+					event.url
+				)
 
 			is SignIn.Event.ShowSnackBar ->
 				showSnackBar(

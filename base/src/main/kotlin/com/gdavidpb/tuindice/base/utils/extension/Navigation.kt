@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.mapNotNull
 
 private val titleArgsRegex = "\\{\\w+\\}".toRegex()
 
-fun Flow<NavBackStackEntry>.mapDestination(destinations: Map<String, Destination>) =
+fun Flow<NavBackStackEntry>.mapScreenDestination(destinations: Map<String, Destination>) =
 	mapNotNull { entry ->
 		val targetRoute = entry
 			.destination
@@ -17,7 +17,7 @@ fun Flow<NavBackStackEntry>.mapDestination(destinations: Map<String, Destination
 
 		val destination = destinations[targetRoute]
 
-		if (destination != null) {
+		if (destination != null && !destination.isDialogDestination) {
 			val title = if (entry.arguments?.isEmpty == true)
 				destination.title
 			else
