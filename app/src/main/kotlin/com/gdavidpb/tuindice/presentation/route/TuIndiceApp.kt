@@ -6,8 +6,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -17,6 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.about.presentation.navigation.aboutScreen
+import com.gdavidpb.tuindice.base.presentation.model.rememberDialogState
 import com.gdavidpb.tuindice.base.presentation.navigation.browserScreen
 import com.gdavidpb.tuindice.base.presentation.navigation.navigateToBrowser
 import com.gdavidpb.tuindice.base.utils.RequestCodes
@@ -59,7 +58,7 @@ fun TuIndiceApp(
 	val lifecycleOwner = LocalLifecycleOwner.current
 	val navController = rememberNavController()
 	val sheetState = rememberModalBottomSheetState()
-	val dialogState = remember { mutableStateOf<MainDialog?>(null) }
+	val dialogState = rememberDialogState<MainDialog>()
 
 	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
 		when (event) {

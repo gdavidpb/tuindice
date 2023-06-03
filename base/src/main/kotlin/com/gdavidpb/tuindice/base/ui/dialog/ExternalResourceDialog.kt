@@ -20,7 +20,7 @@ fun ExternalResourceDialog(
 	ConfirmationDialog(
 		sheetState = sheetState,
 		titleText = stringResource(id = R.string.dialog_title_warning_external),
-		positiveText = stringResource(id = R.string.accept),
+		positiveText = stringResource(id = R.string.open),
 		negativeText = stringResource(id = R.string.cancel),
 		onPositiveClick = { onConfirmClick(url) },
 		onNegativeClick = onDismissRequest,

@@ -15,12 +15,15 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.StyleableRes
 import androidx.core.content.getSystemService
-import androidx.recyclerview.widget.RecyclerView
 import com.gdavidpb.tuindice.base.utils.NO_GETTER
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.DeprecationLevel.ERROR
 
 data class SeekBarChangeListenerBuilder(
@@ -75,14 +78,6 @@ fun SeekBar.onSeekBarChange(builder: SeekBarChangeListenerBuilder.() -> Unit) {
 	})
 }
 
-fun RecyclerView.onScrollStateChanged(listener: (newState: Int) -> Unit) {
-	addOnScrollListener(object : RecyclerView.OnScrollListener() {
-		override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-			listener(newState)
-		}
-	})
-}
-
 fun View.hideSoftKeyboard() {
 	clearFocus()
 	context
@@ -95,13 +90,6 @@ fun TextView.drawables(
 	top: Drawable? = null,
 	end: Drawable? = null,
 	bottom: Drawable? = null
-) = setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom)
-
-fun TextView.drawables(
-	start: Int = 0,
-	top: Int = 0,
-	end: Int = 0,
-	bottom: Int = 0
 ) = setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom)
 
 fun EditText.onTextChanged(event: (CharSequence, Int, Int, Int) -> Unit) {

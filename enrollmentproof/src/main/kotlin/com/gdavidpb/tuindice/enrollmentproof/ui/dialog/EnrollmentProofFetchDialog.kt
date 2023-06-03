@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -22,12 +21,6 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.gdavidpb.tuindice.enrollmentproof.R
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
-
-@Preview
-@Composable
-fun Test() {
-	EnrollmentProofFetchDialog(Enrollment.State.Fetching, {})
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

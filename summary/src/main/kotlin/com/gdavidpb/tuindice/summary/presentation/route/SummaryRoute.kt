@@ -9,10 +9,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.base.presentation.model.rememberDialogState
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.hasCamera
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
@@ -34,7 +33,7 @@ fun SummaryRoute(
 
 	val context = LocalContext.current
 	val sheetState = rememberModalBottomSheetState()
-	val dialogState = remember { mutableStateOf<SummaryDialog?>(null) }
+	val dialogState = rememberDialogState<SummaryDialog>()
 
 	val pickVisualMediaRequest = rememberLauncherForActivityResult(
 		contract = ActivityResultContracts.PickVisualMedia(),
