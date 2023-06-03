@@ -21,8 +21,8 @@ object Browser {
 	}
 
 	sealed class Event : ViewEvent {
+		class OpenExternalResource(val url: String) : Event()
 		class ShowExternalResourceDialog(val url: String) : Event()
-		class OpenExternalResourceDialog(val url: String) : Event()
 		object CloseDialog : Event()
 	}
 }

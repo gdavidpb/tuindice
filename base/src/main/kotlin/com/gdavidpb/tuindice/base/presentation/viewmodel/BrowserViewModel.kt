@@ -5,6 +5,9 @@ import com.gdavidpb.tuindice.base.presentation.contract.Browser
 class BrowserViewModel :
 	BaseViewModel<Browser.State, Browser.Action, Browser.Event>(initialViewState = Browser.State.Idle) {
 
+	fun navigateTo(title: String, url: String) =
+		setState(Browser.State.Content(title = title, url = url, isLoading = true))
+
 	fun openExternalResourceAction(url: String) =
 		emitAction(Browser.Action.OpenExternalResource(url))
 
@@ -36,7 +39,7 @@ class BrowserViewModel :
 				sendEvent(Browser.Event.ShowExternalResourceDialog(url = action.url))
 
 			is Browser.Action.ConfirmOpenExternalResource ->
-				sendEvent(Browser.Event.OpenExternalResourceDialog(url = action.url))
+				sendEvent(Browser.Event.OpenExternalResource(url = action.url))
 
 			is Browser.Action.CloseDialog ->
 				sendEvent(Browser.Event.CloseDialog)

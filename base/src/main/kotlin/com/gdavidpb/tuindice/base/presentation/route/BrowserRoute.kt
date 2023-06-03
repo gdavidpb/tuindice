@@ -5,12 +5,11 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.contract.Browser
 import com.gdavidpb.tuindice.base.presentation.model.BrowserDialog
+import com.gdavidpb.tuindice.base.presentation.model.rememberDialogState
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.base.ui.dialog.ExternalResourceDialog
 import com.gdavidpb.tuindice.base.ui.screen.BrowserScreen
@@ -29,11 +28,11 @@ fun BrowserRoute(
 
 	val context = LocalContext.current
 	val sheetState = rememberModalBottomSheetState()
-	val dialogState = remember { mutableStateOf<BrowserDialog?>(null) }
+	val dialogState = rememberDialogState<BrowserDialog>()
 
 	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
 		when (event) {
-			is Browser.Event.OpenExternalResourceDialog ->
+			is Browser.Event.OpenExternalResource ->
 				context.browse(event.url)
 
 			is Browser.Event.ShowExternalResourceDialog ->
@@ -45,13 +44,7 @@ fun BrowserRoute(
 	}
 
 	LaunchedEffect(Unit) {
-		viewModel.setState(
-			Browser.State.Content(
-				title = title,
-				url = url,
-				isLoading = true
-			)
-		)
+		viewModel.navigateTo(title = title, url = url)
 	}
 
 	when (val state = dialogState.value) {

@@ -6,9 +6,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 
 @Composable
 inline fun <reified T> CollectEffectWithLifecycle(
@@ -18,8 +16,8 @@ inline fun <reified T> CollectEffectWithLifecycle(
 	noinline action: suspend (T) -> Unit
 ) {
 	LaunchedEffect(Unit) {
-		lifecycleOwner.lifecycleScope.launch {
-			flow.flowWithLifecycle(lifecycleOwner.lifecycle, minActiveState).collect(action)
-		}
+		flow
+			.flowWithLifecycle(lifecycleOwner.lifecycle, minActiveState)
+			.collect(action)
 	}
 }
