@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.base.utils.extension.findActivity
 import com.gdavidpb.tuindice.base.utils.extension.mapScreenDestination
 import com.gdavidpb.tuindice.base.utils.extension.navigateToSingleTop
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchDialog
+import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.navigateToEnrollmentProofFetch
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignIn
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToUpdatePassword
 import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
@@ -150,7 +151,8 @@ fun TuIndiceApp(
 				state = state,
 				onNavigateTo = navController::navigateToSingleTop,
 				onNavigateBack = navController::popBackStack,
-				onSignOutClick = viewModel::signOutAction
+				onSignOutClick = viewModel::signOutAction,
+				onFetchEnrollmentProofClick = navController::navigateToEnrollmentProofFetch
 			) { innerPadding, showSnackBar ->
 				NavHost(
 					navController = navController,

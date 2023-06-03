@@ -32,6 +32,7 @@ fun TuIndiceScreen(
 	onNavigateTo: (route: String) -> Unit,
 	onNavigateBack: () -> Unit,
 	onSignOutClick: () -> Unit,
+	onFetchEnrollmentProofClick: () -> Unit,
 	navHost: @Composable (
 		PaddingValues,
 		showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit
@@ -49,7 +50,8 @@ fun TuIndiceScreen(
 					if (state.topBarActionConfig != null)
 						TopAppBarActionView(
 							topBarActionConfig = state.topBarActionConfig,
-							onSignOutClick = onSignOutClick
+							onSignOutClick = onSignOutClick,
+							onFetchEnrollmentProofClick = onFetchEnrollmentProofClick
 						)
 				},
 				navigationIcon = {

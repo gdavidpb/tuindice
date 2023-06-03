@@ -69,7 +69,8 @@ sealed class Destination(
 			bottomBarConfig = BottomBarConfig(
 				unselectedIcon = Icons.Outlined.Book,
 				selectedIcon = Icons.Filled.Book
-			)
+			),
+			topBarActionConfig = TopBarActionConfig.Record
 		)
 
 	object About :
