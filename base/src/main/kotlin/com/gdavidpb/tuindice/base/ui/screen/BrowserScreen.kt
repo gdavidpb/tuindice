@@ -19,6 +19,8 @@ fun BrowserScreen(
 	onPageFinished: () -> Unit,
 	onExternalResourceClick: (url: String) -> Unit
 ) {
+	if (state !is Browser.State.Content) return
+
 	val context = LocalContext.current
 
 	val webView = remember {
@@ -32,20 +34,15 @@ fun BrowserScreen(
 	Column(
 		modifier = Modifier.fillMaxSize()
 	) {
-		when (state) {
-			is Browser.State.Idle -> {}
-			is Browser.State.Content -> {
-				if (state.isLoading)
-					LinearProgressIndicator(
-						modifier = Modifier.fillMaxWidth()
-					)
+		if (state.isLoading)
+			LinearProgressIndicator(
+				modifier = Modifier.fillMaxWidth()
+			)
 
-				AndroidView(
-					factory = { webView },
-					update = { webView -> if (webView.url != state.url) webView.loadUrl(state.url) },
-					modifier = Modifier.fillMaxSize()
-				)
-			}
-		}
+		AndroidView(
+			factory = { webView },
+			update = { webView -> if (webView.url != state.url) webView.loadUrl(state.url) },
+			modifier = Modifier.fillMaxSize()
+		)
 	}
 }
