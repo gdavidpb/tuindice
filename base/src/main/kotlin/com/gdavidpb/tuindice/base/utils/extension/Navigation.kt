@@ -29,6 +29,8 @@ fun Flow<NavBackStackEntry>.mapScreenDestination(destinations: Map<String, Desti
 	}
 
 fun NavController.navigateToSingleTop(route: String) {
+	if (currentDestination?.route == route) return
+
 	navigate(
 		route = route
 	) {

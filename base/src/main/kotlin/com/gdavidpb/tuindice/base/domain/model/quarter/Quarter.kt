@@ -12,5 +12,7 @@ data class Quarter(
 	val gradeSum: Double,
 	val credits: Int,
 	val status: Int,
-	val subjects: MutableList<Subject>
+	val isEditable: Boolean,
+	val isRetired: Boolean,
+	val subjects: List<Subject>
 )

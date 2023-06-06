@@ -5,16 +5,19 @@
     <string name="quarter_grade_sum">∑x %1$.4f</string>
     <string name="quarter_credits">⦿ %1$d UC</string>
 
-    <string name="subject_title">%1$s (%2$s)</string>
+    <string name="subject_status">(%1$s)</string>
     <string name="subject_grade">%1$d / 5</string>
     <string name="subject_credits">%1$d UC</string>
+
+    <string name="subject_retired">Retirada</string>
+    <string name="subject_no_effect">Sin efecto</string>
 
     <string name="menu_subject_show_evaluations">Ver evaluaciones</string>
     <string name="menu_subject_withdraw">Retirar materia</string>
 
     <string name="label_empty_record">
-        <b>¡Parece que alguien es nuevo por acá!\n\n</b>
-        <b>TuIndice</b> te da la bienvenida a <b>La Simón</b>\n¡Mucho éxito!
+        ¡Parece que alguien es nuevo por acá!\n\n
+        TuIndice te da la bienvenida a La Simón\n¡Mucho éxito!
     </string>
 
     <string name="label_evaluation_header">%1$s ─ %2$s</string>

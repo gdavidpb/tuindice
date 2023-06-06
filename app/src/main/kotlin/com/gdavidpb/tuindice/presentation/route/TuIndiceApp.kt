@@ -193,7 +193,12 @@ fun TuIndiceApp(
 						showSnackBar = showSnackBar
 					)
 
-					recordScreen()
+					recordScreen(
+						navigateToUpdatePassword = {
+							navController.navigateToUpdatePassword()
+						},
+						showSnackBar = showSnackBar
+					)
 
 					aboutScreen(
 						navigateToBrowser = { args ->

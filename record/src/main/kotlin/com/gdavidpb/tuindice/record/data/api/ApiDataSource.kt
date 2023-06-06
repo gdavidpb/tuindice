@@ -32,6 +32,6 @@ class ApiDataSource(
 
 		return recordApi.updateSubject(request)
 			.getOrThrow()
-			.toSubject()
+			.toSubject(isEditable = true)
 	}
 }
