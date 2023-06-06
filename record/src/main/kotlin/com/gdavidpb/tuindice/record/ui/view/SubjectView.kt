@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.record.ui.view
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -8,11 +7,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -26,7 +22,6 @@ import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.utils.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.utils.Ranges
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun SubjectView(
@@ -39,10 +34,6 @@ fun SubjectView(
 	isEditable: Boolean,
 	onGradeChange: (newGrade: Int, isSelected: Boolean) -> Unit
 ) {
-	val alphaAnimation = remember {
-		Animatable(initialValue = if (isRetired) 0.25f else 1f)
-	}
-
 	val gradeString =
 		if (grade != MIN_SUBJECT_GRADE)
 			stringResource(id = R.string.subject_grade, grade)
@@ -54,14 +45,6 @@ fun SubjectView(
 		else -> null
 	}?.let { status ->
 		stringResource(id = R.string.subject_status, status)
-	}
-
-	LaunchedEffect(Unit) {
-		snapshotFlow { isRetired }
-			.distinctUntilChanged()
-			.collect { value ->
-				alphaAnimation.animateTo(targetValue = if (value) 0.25f else 1f)
-			}
 	}
 
 	val codeString = remember(isRetired, isNoEffect) {
@@ -90,7 +73,6 @@ fun SubjectView(
 				vertical = dimensionResource(id = R.dimen.dp_8),
 				horizontal = dimensionResource(id = R.dimen.dp_16)
 			)
-			.alpha(alphaAnimation.value)
 	) {
 		val (
 			textCode,
