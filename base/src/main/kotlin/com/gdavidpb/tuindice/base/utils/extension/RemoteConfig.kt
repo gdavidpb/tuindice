@@ -1,10 +1,8 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
-import android.content.ComponentCallbacks
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import org.json.JSONArray
-import org.koin.android.ext.android.get
 import org.koin.core.context.GlobalContext.get
 import java.io.IOException
 
@@ -14,9 +12,6 @@ inline fun <reified T : Any> config(crossinline block: ConfigRepository.() -> T)
 
 		block(configRepository)
 	}
-
-inline fun <reified T : Any> ComponentCallbacks.config(crossinline block: ConfigRepository.() -> T) =
-	lazy { block(get()) }
 
 fun FirebaseRemoteConfig.getStringList(key: String): List<String> {
 	val json = getString(key)

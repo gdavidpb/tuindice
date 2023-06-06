@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.config
 
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.extension.awaitOrNull
 import com.gdavidpb.tuindice.base.utils.extension.getStringList
 import com.gdavidpb.tuindice.utils.ConfigKeys
@@ -39,5 +40,18 @@ class RemoteConfigDataSource(
 
 	override fun getConnectionTimeout(): Long {
 		return remoteConfig.getLong(ConfigKeys.TIME_OUT_CONNECTION)
+	}
+
+	override fun getDestinations(): Map<String, Destination> {
+		return mapOf(
+			Destination.SignIn.route to Destination.SignIn,
+			Destination.Summary.route to Destination.Summary,
+			Destination.Record.route to Destination.Record,
+			Destination.Evaluations.route to Destination.Evaluations,
+			Destination.About.route to Destination.About,
+			Destination.Browser.route to Destination.Browser,
+			Destination.EnrollmentProofFetch.route to Destination.EnrollmentProofFetch,
+			Destination.UpdatePassword.route to Destination.UpdatePassword
+		)
 	}
 }

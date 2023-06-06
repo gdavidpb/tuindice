@@ -34,16 +34,7 @@ class StartUpUseCase(
 
 		val isActiveAuth = authRepository.isActiveAuth()
 
-		val destinations = mapOf(
-			Destination.SignIn.route to Destination.SignIn,
-			Destination.Summary.route to Destination.Summary,
-			Destination.Record.route to Destination.Record,
-			Destination.Evaluations.route to Destination.Evaluations,
-			Destination.About.route to Destination.About,
-			Destination.Browser.route to Destination.Browser,
-			Destination.EnrollmentProofFetch.route to Destination.EnrollmentProofFetch,
-			Destination.UpdatePassword.route to Destination.UpdatePassword
-		)
+		val destinations = configRepository.getDestinations()
 
 		val startDestination = if (isActiveAuth) {
 			val lastScreen = settingsRepository.getLastScreen()
