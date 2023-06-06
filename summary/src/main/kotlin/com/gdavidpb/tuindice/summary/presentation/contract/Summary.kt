@@ -46,6 +46,7 @@ object Summary {
 	sealed class Event : ViewEvent {
 		class OpenCamera(val output: String) : Event()
 		object OpenPicker : Event()
+		object NavigateToOutdatedPassword : Event()
 		class ShowSnackBar(val message: String) : Event()
 		class ShowProfilePictureSettingsDialog(val showRemove: Boolean) : Event()
 		object ShowRemoveProfilePictureConfirmationDialog : Event()

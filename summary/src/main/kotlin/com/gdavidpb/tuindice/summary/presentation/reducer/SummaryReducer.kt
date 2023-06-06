@@ -85,10 +85,13 @@ class SummaryReducer(
 					if (currentState is Summary.State.Content) {
 						val newState = currentState.copy(
 							isUpdating = false
-							// TODO dialog = SummaryDialog.OutdatedPassword
 						)
 
 						emit(newState)
+
+						emit(
+							Summary.Event.NavigateToOutdatedPassword
+						)
 
 						return@flow
 					}
