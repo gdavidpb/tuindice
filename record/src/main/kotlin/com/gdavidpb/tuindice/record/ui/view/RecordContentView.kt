@@ -29,7 +29,7 @@ fun RecordContentView(
 			}
 
 			items(quarter.subjects) { subject ->
-				val subjectState = subjectStates[subject.id]?.intValue
+				val subjectState = subjectStates[subject.id]?.value
 
 				with(subject) {
 					SubjectView(
@@ -41,7 +41,7 @@ fun RecordContentView(
 						isNoEffect = isNoEffect,
 						isEditable = isEditable,
 						onGradeChange = { newGrade, isSelected ->
-							subjectStates[subject.id]?.intValue = newGrade
+							subjectStates[subject.id]?.value = newGrade
 
 							if (isSelected)
 								onSubjectGradeChange(subject.id, newGrade, true)
