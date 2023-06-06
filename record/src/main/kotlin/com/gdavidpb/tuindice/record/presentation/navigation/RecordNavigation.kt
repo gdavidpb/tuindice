@@ -10,8 +10,14 @@ fun NavController.navigateToRecord() {
 	navigate(Destination.Record.route)
 }
 
-fun NavGraphBuilder.recordScreen() {
+fun NavGraphBuilder.recordScreen(
+	navigateToUpdatePassword: () -> Unit,
+	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit
+) {
 	composable(Destination.Record.route) {
-		RecordRoute()
+		RecordRoute(
+			onNavigateToUpdatePassword = navigateToUpdatePassword,
+			showSnackBar = showSnackBar
+		)
 	}
 }

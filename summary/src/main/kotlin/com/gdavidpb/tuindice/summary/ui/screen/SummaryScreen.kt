@@ -4,7 +4,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.ui.view.SummaryFailedView
-import com.gdavidpb.tuindice.summary.ui.view.SummaryLoadedView
+import com.gdavidpb.tuindice.summary.ui.view.SummaryContentView
 import com.gdavidpb.tuindice.summary.ui.view.SummaryLoadingView
 
 @Composable
@@ -24,7 +24,7 @@ fun SummaryScreen(
 				)
 
 			is Summary.State.Content ->
-				SummaryLoadedView(
+				SummaryContentView(
 					state = targetState,
 					onEditProfilePictureClick = onEditProfilePictureClick
 				)

@@ -5,9 +5,9 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.base.utils.extension.ViewOutput
+import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.domain.usecase.error.GetQuartersError
 import com.gdavidpb.tuindice.record.presentation.contract.Record
-import com.gdavidpb.tuindice.record.presentation.mapper.toRecordViewState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -34,9 +34,18 @@ class RecordReducer(
 		currentState: Record.State,
 		useCaseState: UseCaseState.Data<List<Quarter>, GetQuartersError>
 	): Flow<ViewOutput> {
-		val recordViewState = useCaseState.value.toRecordViewState(resourceResolver)
+		val quarters = useCaseState.value
 
-		return flowOf(Record.State.Loaded(value = recordViewState))
+		return flow {
+			if (quarters.isNotEmpty())
+				emit(
+					Record.State.Content(quarters)
+				)
+			else
+				emit(
+					Record.State.Empty
+				)
+		}
 	}
 
 	override suspend fun reduceErrorState(
@@ -46,19 +55,40 @@ class RecordReducer(
 		return flow {
 			when (val error = useCaseState.error) {
 				is GetQuartersError.NoConnection ->
-					emit(Record.Event.ShowNoConnectionSnackBar(error.isNetworkAvailable))
+					emit(
+						Record.Event.ShowSnackBar(
+							message = if (error.isNetworkAvailable)
+								resourceResolver.getString(R.string.snack_service_unavailable)
+							else
+								resourceResolver.getString(R.string.snack_network_unavailable)
+						)
+					)
 
 				is GetQuartersError.OutdatedPassword ->
-					emit(Record.Event.NavigateToOutdatedPassword)
+					emit(
+						Record.Event.NavigateToOutdatedPassword
+					)
 
 				is GetQuartersError.Timeout ->
-					emit(Record.Event.ShowTimeoutSnackBar)
+					emit(
+						Record.Event.ShowSnackBar(
+							message = resourceResolver.getString(R.string.snack_timeout)
+						)
+					)
 
 				is GetQuartersError.Unavailable ->
-					emit(Record.Event.ShowUnavailableSnackBar)
+					emit(
+						Record.Event.ShowSnackBar(
+							message = resourceResolver.getString(R.string.snack_service_unavailable)
+						)
+					)
 
 				else ->
-					emit(Record.Event.ShowDefaultErrorSnackBar)
+					emit(
+						Record.Event.ShowSnackBar(
+							message = resourceResolver.getString(R.string.snack_default_error)
+						)
+					)
 			}
 
 			emit(Record.State.Failed)

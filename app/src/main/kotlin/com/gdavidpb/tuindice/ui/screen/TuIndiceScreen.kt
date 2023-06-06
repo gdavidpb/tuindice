@@ -7,8 +7,10 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -72,7 +74,8 @@ fun TuIndiceScreen(
 				}
 
 				NavigationBar(
-					modifier = Modifier.height(dimensionResource(id = R.dimen.dp_48))
+					modifier = Modifier.height(dimensionResource(id = R.dimen.dp_48)),
+					containerColor = MaterialTheme.colorScheme.onSecondary
 				) {
 					bottomDestinations.forEach { destination ->
 						val bottomBarConfig = destination.bottomBarConfig
@@ -95,6 +98,9 @@ fun TuIndiceScreen(
 									contentDescription = null
 								)
 							},
+							colors = NavigationBarItemDefaults.colors(
+								indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+							),
 							selected = isNavigationBarItemSelected,
 							onClick = { onNavigateTo(destination.route) }
 						)

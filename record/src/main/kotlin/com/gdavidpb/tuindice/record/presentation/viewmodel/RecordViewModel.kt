@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
-import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
+import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateSubjectUseCase
@@ -38,9 +38,6 @@ class RecordViewModel(
 	fun withdrawSubjectAction(params: WithdrawSubjectParams) =
 		emitAction(Record.Action.WithdrawSubject(params))
 
-	fun openEnrollmentProofAction() =
-		emitAction(Record.Action.OpenEnrollmentProof)
-
 	override suspend fun reducer(action: Record.Action) {
 		when (action) {
 			is Record.Action.LoadQuarters ->
@@ -62,9 +59,6 @@ class RecordViewModel(
 				withdrawSubjectUseCase
 					.execute(params = action.params)
 					.collect(viewModel = this, reducer = withdrawSubjectReducer)
-
-			is Record.Action.OpenEnrollmentProof ->
-				sendEvent(Record.Event.NavigateToEnrollmentProof)
 		}
 	}
 }

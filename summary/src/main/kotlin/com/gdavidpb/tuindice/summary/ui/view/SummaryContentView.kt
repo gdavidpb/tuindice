@@ -30,7 +30,7 @@ import com.gdavidpb.tuindice.summary.R
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 
 @Composable
-fun SummaryLoadedView(
+fun SummaryContentView(
 	state: Summary.State.Content,
 	onEditProfilePictureClick: () -> Unit
 ) {
