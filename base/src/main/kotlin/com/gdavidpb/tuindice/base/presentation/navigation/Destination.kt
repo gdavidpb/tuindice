@@ -3,9 +3,11 @@ package com.gdavidpb.tuindice.base.presentation.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import com.gdavidpb.tuindice.base.presentation.model.BottomBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.TopBarActionConfig
@@ -71,6 +73,18 @@ sealed class Destination(
 				selectedIcon = Icons.Filled.Book
 			),
 			topBarActionConfig = TopBarActionConfig.Record
+		)
+
+	object Evaluations :
+		Destination(
+			route = "evaluations",
+			title = "Evaluaciones",
+			isTopDestination = true,
+			isBottomDestination = true,
+			bottomBarConfig = BottomBarConfig(
+				unselectedIcon = Icons.Outlined.DateRange,
+				selectedIcon = Icons.Filled.DateRange
+			)
 		)
 
 	object About :
