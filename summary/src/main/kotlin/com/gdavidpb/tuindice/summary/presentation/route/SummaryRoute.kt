@@ -58,6 +58,9 @@ fun SummaryRoute(
 					PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
 				)
 
+			is Summary.Event.NavigateToOutdatedPassword ->
+				onNavigateToUpdatePassword()
+
 			is Summary.Event.ShowSnackBar ->
 				showSnackBar(event.message, null, null)
 
