@@ -17,7 +17,7 @@ dependencies {
     debugApi "com.squareup.retrofit2:retrofit-mock:${versions.retrofit}"
 
     /* AndroidX */
-    api "androidx.fragment:fragment-ktx:1.5.7"
+    api "androidx.fragment:fragment-ktx:1.6.0"
     api "androidx.legacy:legacy-support-v4:1.0.0"
     api "androidx.appcompat:appcompat:1.6.1"
     api "androidx.cardview:cardview:1.0.0"
@@ -52,10 +52,10 @@ dependencies {
     /* Compose */
     api platform("androidx.compose:compose-bom:2023.05.01")
 
-    api "androidx.compose.ui:ui-tooling:1.5.0-alpha04"
-    api "androidx.compose.ui:ui-tooling-preview:1.5.0-alpha04"
-    api "androidx.compose.material3:material3:1.2.0-alpha01"
-    api "androidx.compose.material:material-icons-extended:1.5.0-alpha04"
+    api "androidx.compose.ui:ui-tooling:1.5.0-beta02"
+    api "androidx.compose.ui:ui-tooling-preview:1.5.0-beta02"
+    api "androidx.compose.material3:material3:1.2.0-alpha02"
+    api "androidx.compose.material:material-icons-extended:1.5.0-beta02"
     api "androidx.constraintlayout:constraintlayout-compose:1.0.1"
 
     api "androidx.activity:activity-compose:1.7.2"

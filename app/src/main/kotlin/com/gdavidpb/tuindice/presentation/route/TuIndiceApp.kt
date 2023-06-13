@@ -202,9 +202,6 @@ fun TuIndiceApp(
 					)
 
 					evaluationsScreen(
-						navigateToUpdatePassword = {
-							navController.navigateToUpdatePassword()
-						},
 						showSnackBar = showSnackBar
 					)
 

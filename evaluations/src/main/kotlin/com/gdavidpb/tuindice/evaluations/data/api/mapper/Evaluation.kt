@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.evaluations.data.api.response.EvaluationResponse
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
+import com.gdavidpb.tuindice.evaluations.utils.extension.isOverdue
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import java.util.Date
 
@@ -24,7 +25,8 @@ fun EvaluationResponse.toEvaluation() = Evaluation(
 	date = Date(date),
 	lastModified = Date(lastModified),
 	type = EvaluationType.values()[type],
-	isDone = isDone
+	isCompleted = isCompleted,
+	isOverdue = Date(date).isOverdue()
 )
 
 fun EvaluationResponse.toEvaluationEntity(uid: String) = EvaluationEntity(
@@ -39,7 +41,7 @@ fun EvaluationResponse.toEvaluationEntity(uid: String) = EvaluationEntity(
 	maxGrade = maxGrade,
 	date = Date(date),
 	lastModified = Date(lastModified),
-	isDone = isDone,
+	isCompleted = isCompleted,
 	type = EvaluationType.values()[type]
 )
 
@@ -51,7 +53,7 @@ fun EvaluationAdd.toAddEvaluationRequest() = AddEvaluationRequest(
 	maxGrade = maxGrade,
 	date = date,
 	type = type.ordinal,
-	isDone = isDone
+	isCompleted = isCompleted
 )
 
 fun EvaluationUpdate.toAddEvaluationRequest() = UpdateEvaluationRequest(
@@ -61,7 +63,7 @@ fun EvaluationUpdate.toAddEvaluationRequest() = UpdateEvaluationRequest(
 	maxGrade = maxGrade,
 	date = date,
 	type = type?.ordinal,
-	isDone = isDone
+	isCompleted = isCompleted
 )
 
 fun EvaluationRemove.toRemoveEvaluationRequest() = RemoveEvaluationRequest(

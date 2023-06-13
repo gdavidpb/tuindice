@@ -11,12 +11,10 @@ fun NavController.navigateToEvaluations() {
 }
 
 fun NavGraphBuilder.evaluationsScreen(
-	navigateToUpdatePassword: () -> Unit,
 	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit
 ) {
 	composable(Destination.Evaluations.route) {
 		EvaluationsRoute(
-			onNavigateToUpdatePassword = navigateToUpdatePassword,
 			showSnackBar = showSnackBar
 		)
 	}

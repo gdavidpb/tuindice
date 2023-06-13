@@ -28,14 +28,14 @@ class EvaluationDataRepository(
 			}
 	}
 
-	override suspend fun getEvaluations(uid: String, sid: String): Flow<List<Evaluation>> {
-		return localDataSource.getEvaluations(uid, sid)
+	override suspend fun getEvaluations(uid: String): Flow<List<Evaluation>> {
+		return localDataSource.getEvaluations(uid)
 			.distinctUntilChanged()
 			.transform { evaluations ->
 				if (evaluations.isNotEmpty())
 					emit(evaluations)
 				else
-					emit(remoteDataSource.getEvaluations(sid).also { response ->
+					emit(remoteDataSource.getEvaluations().also { response ->
 						localDataSource.saveEvaluations(uid, response)
 					})
 			}

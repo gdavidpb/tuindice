@@ -14,5 +14,5 @@ data class EvaluationResponse(
 	@SerializedName("date") val date: Long,
 	@SerializedName("last_modified") val lastModified: Long,
 	@SerializedName("type") val type: Int,
-	@SerializedName("is_done") val isDone: Boolean
+	@SerializedName("is_completed") val isCompleted: Boolean
 )

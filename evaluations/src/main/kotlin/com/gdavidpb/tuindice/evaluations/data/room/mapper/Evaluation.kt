@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.data.room.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.evaluations.utils.extension.isOverdue
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import java.util.Date
 
@@ -18,7 +19,7 @@ fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	date = date,
 	lastModified = lastModified,
 	type = type,
-	isDone = isDone
+	isCompleted = isCompleted
 )
 
 fun EvaluationAdd.toEvaluationEntity(
@@ -38,7 +39,7 @@ fun EvaluationAdd.toEvaluationEntity(
 	date = Date(date),
 	lastModified = Date(date),
 	type = type,
-	isDone = isDone
+	isCompleted = isCompleted
 )
 
 fun EvaluationEntity.toEvaluation() = Evaluation(
@@ -53,5 +54,6 @@ fun EvaluationEntity.toEvaluation() = Evaluation(
 	date = date,
 	lastModified = lastModified,
 	type = type,
-	isDone = isDone
+	isCompleted = isCompleted,
+	isOverdue = date.isOverdue()
 )

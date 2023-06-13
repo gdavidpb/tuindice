@@ -22,6 +22,7 @@ class EvaluationViewModel(
 	private val updateEvaluationReducer: UpdateEvaluationReducer
 ) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Event>(initialViewState = Evaluations.State.Loading) {
 
+	/*
 	fun loadEvaluationAction(params: GetEvaluationParams) =
 		emitAction(Evaluations.Action.LoadEvaluation(params))
 
@@ -30,8 +31,10 @@ class EvaluationViewModel(
 
 	fun updateEvaluationAction(params: UpdateEvaluationParams) =
 		emitAction(Evaluations.Action.UpdateEvaluation(params))
+	 */
 
 	override suspend fun reducer(action: Evaluations.Action) {
+		/*
 		when (action) {
 			is Evaluations.Action.LoadEvaluation ->
 				getEvaluationUseCase
@@ -48,5 +51,6 @@ class EvaluationViewModel(
 					.execute(params = action.params)
 					.collect(viewModel = this, reducer = updateEvaluationReducer)
 		}
+		 */
 	}
 }

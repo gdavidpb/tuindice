@@ -11,5 +11,5 @@ data class EvaluationAdd(
 	val maxGrade: Double,
 	val date: Long,
 	val type: EvaluationType,
-	val isDone: Boolean
+	val isCompleted: Boolean
 )

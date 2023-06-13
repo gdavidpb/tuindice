@@ -14,6 +14,6 @@ object EvaluationTable {
 	const val MAX_GRADE = "evaluation_max_grade"
 	const val TYPE = "evaluation_type"
 	const val DATE = "evaluation_date"
-	const val IS_DONE = "evaluation_is_done"
+	const val IS_COMPLETED = "evaluation_is_completed"
 	const val LAST_MODIFIED = "evaluation_last_modified"
 }

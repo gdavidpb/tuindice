@@ -13,16 +13,16 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 class ApiDataSource(
 	private val evaluationsApi: EvaluationsApi
 ) : RemoteDataSource {
+	override suspend fun getEvaluations(): List<Evaluation> {
+		return evaluationsApi.getEvaluations()
+			.getOrThrow()
+			.map { evaluationResponse -> evaluationResponse.toEvaluation() }
+	}
+
 	override suspend fun getEvaluation(eid: String): Evaluation {
 		return evaluationsApi.getEvaluation(eid)
 			.getOrThrow()
 			.toEvaluation()
-	}
-
-	override suspend fun getEvaluations(sid: String): List<Evaluation> {
-		return evaluationsApi.getEvaluations(sid)
-			.getOrThrow()
-			.map { evaluationResponse -> evaluationResponse.toEvaluation() }
 	}
 
 	override suspend fun addEvaluation(add: EvaluationAdd): Evaluation {

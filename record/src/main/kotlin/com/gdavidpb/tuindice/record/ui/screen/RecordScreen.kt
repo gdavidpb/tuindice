@@ -1,11 +1,7 @@
 package com.gdavidpb.tuindice.record.ui.screen
 
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.ui.view.RecordContentView
 import com.gdavidpb.tuindice.record.ui.view.RecordEmptyView
@@ -18,14 +14,9 @@ fun RecordScreen(
 	onRetryClick: () -> Unit,
 	onSubjectGradeChange: (subjectId: String, newGrade: Int, isSelected: Boolean) -> Unit
 ) {
-	val previousState = remember { mutableStateOf(state) }
-
-	Crossfade(
-		targetState = state,
-		animationSpec = if (previousState.value::class != state::class) tween() else snap()
+	SealedCrossfade(
+		targetState = state
 	) { targetState ->
-		previousState.value = targetState
-
 		when (targetState) {
 			is Record.State.Loading ->
 				RecordLoadingView()

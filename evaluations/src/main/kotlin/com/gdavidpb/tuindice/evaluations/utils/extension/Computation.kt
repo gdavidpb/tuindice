@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.utils.extension
 
+import java.util.Date
 import kotlin.math.roundToInt
 
 fun Double.toSubjectGrade() = when (roundToInt()) {
@@ -9,3 +10,5 @@ fun Double.toSubjectGrade() = when (roundToInt()) {
 	in 85..Integer.MAX_VALUE -> 5
 	else -> 1
 }
+
+fun Date.isOverdue() = time != 0L && Date().after(this)

@@ -25,7 +25,7 @@
       "date": 1651118400000,
       "last_modified": 1651118400000,
       "type": 12,
-      "is_done": true
+      "is_completed": true
     },
     "fixedDelayMilliseconds": 2000
   }

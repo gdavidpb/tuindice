@@ -9,5 +9,5 @@ data class UpdateEvaluationParams(
 	val maxGrade: Double? = null,
 	val date: Long? = null,
 	val type: EvaluationType? = null,
-	val isDone: Boolean? = null
+	val isCompleted: Boolean? = null
 )

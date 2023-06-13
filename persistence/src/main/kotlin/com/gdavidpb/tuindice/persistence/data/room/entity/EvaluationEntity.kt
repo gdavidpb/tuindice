@@ -51,6 +51,6 @@ data class EvaluationEntity(
 	@ColumnInfo(name = EvaluationTable.MAX_GRADE) val maxGrade: Double,
 	@ColumnInfo(name = EvaluationTable.DATE) val date: Date,
 	@ColumnInfo(name = EvaluationTable.LAST_MODIFIED) val lastModified: Date,
-	@ColumnInfo(name = EvaluationTable.IS_DONE) val isDone: Boolean,
+	@ColumnInfo(name = EvaluationTable.IS_COMPLETED) val isCompleted: Boolean,
 	@ColumnInfo(name = EvaluationTable.TYPE) val type: EvaluationType
 )
