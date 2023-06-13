@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="label_sign_in_fragment">TuIndice</string>
-
     <string name="button_sign_in">Iniciar sesión</string>
 
     <string name="label_terms_and_conditions">TuIndice - Términos y condiciones</string>

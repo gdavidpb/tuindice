@@ -28,6 +28,8 @@ fun EnrollmentProofFetchDialog(
 	state: Enrollment.State,
 	onDismissRequest: () -> Unit
 ) {
+	if (state != Enrollment.State.Fetching) return
+
 	val lottieComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.an_enrollment))
 
 	val nonDismissSheetState = rememberModalBottomSheetState(

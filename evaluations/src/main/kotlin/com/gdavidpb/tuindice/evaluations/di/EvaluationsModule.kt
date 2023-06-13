@@ -26,7 +26,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReduc
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.UpdateEvaluationReducer
-import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
@@ -41,7 +40,6 @@ val evaluationsModule = module {
 	/* View Models */
 
 	viewModel<EvaluationsViewModel>()
-	viewModel<EvaluationViewModel>()
 
 	/* Reducers */
 

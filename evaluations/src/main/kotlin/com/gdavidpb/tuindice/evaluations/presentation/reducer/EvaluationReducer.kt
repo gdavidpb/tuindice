@@ -3,15 +3,12 @@ package com.gdavidpb.tuindice.evaluations.presentation.reducer
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
-import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.base.utils.extension.ViewOutput
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
-class EvaluationReducer(
-	private val resourceResolver: ResourceResolver
-) : BaseReducer<Evaluations.State, Evaluations.Event, Evaluation, Nothing>() {
+class EvaluationReducer : BaseReducer<Evaluations.State, Evaluations.Event, Evaluation, Nothing>() {
 
 	override fun reduceUnrecoverableState(
 		currentState: Evaluations.State,

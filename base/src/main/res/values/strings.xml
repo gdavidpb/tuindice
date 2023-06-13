@@ -12,10 +12,7 @@
     <string name="remove">Remover</string>
     <string name="cancel">Cancelar</string>
     <string name="exit">Salir</string>
-    <string name="accept">Aceptar</string>
     <string name="retry">Reintentar</string>
-
-    <string name="error_empty">Campo vacío</string>
 
     <string name="snack_default_error">¡Ha ocurrido un error!</string>
     <string name="snack_network_unavailable">Comprueba tu conexión</string>
