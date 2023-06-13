@@ -106,7 +106,10 @@ fun SummaryContentView(
 
 		LazyColumn {
 			items(items = summaryItems) { item ->
-				StatusCardView(item)
+				StatusCardItemView(
+					header = item.header,
+					entries = item.entries
+				)
 			}
 		}
 	}

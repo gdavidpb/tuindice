@@ -11,24 +11,17 @@ import kotlinx.coroutines.flow.flowOf
 class AddEvaluationReducer :
 	BaseReducer<Evaluations.State, Evaluations.Event, Unit, EvaluationError>() {
 
-	override fun reduceUnrecoverableState(
-		currentState: Evaluations.State,
-		throwable: Throwable
-	): Flow<ViewOutput> {
-		return flowOf(Evaluations.Event.ShowDefaultErrorSnackBar)
-	}
-
 	override suspend fun reduceDataState(
 		currentState: Evaluations.State,
 		useCaseState: UseCaseState.Data<Unit, EvaluationError>
 	): Flow<ViewOutput> {
-		return flowOf(Evaluations.Event.NavigateUp)
+		return super.reduceDataState(currentState, useCaseState)
 	}
 
 	override suspend fun reduceErrorState(
 		currentState: Evaluations.State,
 		useCaseState: UseCaseState.Error<Unit, EvaluationError>
 	): Flow<ViewOutput> {
-		return flowOf(Evaluations.Event.ShowDefaultErrorSnackBar)
+		return super.reduceErrorState(currentState, useCaseState)
 	}
 }

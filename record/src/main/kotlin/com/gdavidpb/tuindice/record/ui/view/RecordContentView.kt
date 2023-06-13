@@ -1,9 +1,11 @@
 package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.utils.MIN_SUBJECT_GRADE
 
@@ -15,11 +17,14 @@ fun RecordContentView(
 ) {
 	val subjectStates = rememberSubjectsStates(quarters = state.quarters)
 
-	LazyColumn {
+	LazyColumn(
+		modifier = Modifier
+			.fillMaxSize()
+	) {
 		state.quarters.forEach { quarter ->
 			stickyHeader {
 				with(quarter) {
-					QuarterView(
+					QuarterHeaderView(
 						name = name,
 						grade = grade,
 						gradeSum = gradeSum,
@@ -32,7 +37,7 @@ fun RecordContentView(
 				val subjectState = subjectStates[subject.id]?.value
 
 				with(subject) {
-					SubjectView(
+					SubjectItemView(
 						code = code,
 						name = name,
 						credits = credits,

@@ -24,7 +24,7 @@ import com.gdavidpb.tuindice.record.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.utils.Ranges
 
 @Composable
-fun SubjectView(
+fun SubjectItemView(
 	code: String,
 	name: String,
 	credits: Int,
@@ -123,8 +123,8 @@ fun SubjectView(
 					end = dimensionResource(id = R.dimen.dp_16),
 					bottom = dimensionResource(id = R.dimen.dp_4)
 				),
-			fontWeight = FontWeight.Light,
 			maxLines = 1,
+			fontWeight = FontWeight.Light,
 			overflow = TextOverflow.Ellipsis
 		)
 

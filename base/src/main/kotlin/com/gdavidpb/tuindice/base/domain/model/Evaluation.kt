@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.base.domain.model
 
-import java.util.*
+import java.util.Date
 
 data class Evaluation(
 	val evaluationId: String,
@@ -14,5 +14,8 @@ data class Evaluation(
 	val date: Date,
 	val lastModified: Date,
 	val type: EvaluationType,
-	val isDone: Boolean
+	val isOverdue: Boolean,
+	val isCompleted: Boolean,
+	val isContinuous: Boolean = (date.time == 0L),
+	val isAttentionRequired: Boolean = (isOverdue && !isContinuous && !isCompleted)
 )

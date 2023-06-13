@@ -10,5 +10,5 @@ data class AddEvaluationRequest(
 	@SerializedName("max_grade") val maxGrade: Double,
 	@SerializedName("date") val date: Long,
 	@SerializedName("type") val type: Int,
-	@SerializedName("is_done") val isDone: Boolean
+	@SerializedName("is_completed") val isCompleted: Boolean
 )

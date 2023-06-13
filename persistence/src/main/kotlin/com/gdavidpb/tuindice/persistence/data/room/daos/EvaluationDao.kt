@@ -11,6 +11,15 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 	@Query(
 		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
 				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
+				"ORDER BY ${EvaluationTable.DATE} ASC"
+	)
+	abstract fun getEvaluations(
+		uid: String
+	): Flow<List<EvaluationEntity>>
+
+	@Query(
+		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
+				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
 				"AND ${EvaluationTable.ID} = :eid"
 	)
 	abstract fun getEvaluation(
@@ -21,7 +30,8 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 	@Query(
 		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
 				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
-				"AND ${EvaluationTable.SUBJECT_ID} = :sid"
+				"AND ${EvaluationTable.SUBJECT_ID} = :sid " +
+				"ORDER BY ${EvaluationTable.DATE} ASC"
 	)
 	abstract fun getSubjectEvaluations(
 		uid: String,

@@ -24,8 +24,10 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationP
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationReducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.UpdateEvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
+import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.annotation.KoinReflectAPI
 import org.koin.core.module.dsl.bind
@@ -38,10 +40,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 val evaluationsModule = module {
 	/* View Models */
 
+	viewModel<EvaluationsViewModel>()
 	viewModel<EvaluationViewModel>()
 
 	/* Reducers */
 
+	factoryOf(::EvaluationsReducer)
 	factoryOf(::EvaluationReducer)
 	factoryOf(::AddEvaluationReducer)
 	factoryOf(::UpdateEvaluationReducer)

@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.base.utils.extension
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 
 fun Double.formatGrade() = if (this % 1 == 0.0) toInt().formatGrade() else formatGrade(2)
 
@@ -22,10 +22,12 @@ fun Pair<Date, Date>.formatQuarterName(): String {
 }
 
 fun String.capitalize() =
-	if (isNotEmpty() && this[0].isLowerCase())
-		"${substring(0, 1).uppercase(DEFAULT_LOCALE)}${substring(1)}"
-	else
-		this
+	replaceFirstChar { c ->
+		if (c.isLowerCase())
+			c.titlecase(DEFAULT_LOCALE)
+		else
+			"$c"
+	}
 
 private val dateFormatCache = hashMapOf<String, SimpleDateFormat>()
 

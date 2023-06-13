@@ -15,7 +15,7 @@ fun AddEvaluationParams.toEvaluationAdd() = EvaluationAdd(
 	maxGrade = maxGrade!!,
 	date = date!!,
 	type = type!!,
-	isDone = isDone!!
+	isCompleted = isCompleted!!
 )
 
 fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(
@@ -25,5 +25,5 @@ fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(
 	maxGrade = maxGrade,
 	date = date,
 	type = type,
-	isDone = isDone
+	isCompleted = isCompleted
 )

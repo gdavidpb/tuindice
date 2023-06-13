@@ -13,28 +13,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import com.gdavidpb.tuindice.record.R
 
 @Composable
-fun QuarterView(
+fun QuarterHeaderView(
 	name: String,
 	grade: Double,
 	gradeSum: Double,
 	credits: Int
 ) {
-	Column {
+	Column(
+		modifier = Modifier
+			.background(MaterialTheme.colorScheme.background)
+	) {
 		Text(
 			modifier = Modifier
 				.fillMaxWidth()
-				.background(MaterialTheme.colorScheme.onSecondary)
-				.padding(
-					vertical = dimensionResource(id = R.dimen.dp_8)
-				),
+				.padding(dimensionResource(id = R.dimen.dp_8)),
 			text = name,
-			textAlign = TextAlign.Center,
 			style = MaterialTheme.typography.titleLarge,
-			fontWeight = FontWeight.Medium
+			fontWeight = FontWeight.Black
 		)
 
 		Row(
@@ -47,15 +45,18 @@ fun QuarterView(
 		) {
 			Text(
 				text = stringResource(id = R.string.quarter_grade_diff, grade)
-					.annotatedQuarterValue()
+					.annotatedQuarterValue(),
+				style = MaterialTheme.typography.titleMedium
 			)
 			Text(
 				text = stringResource(id = R.string.quarter_grade_sum, gradeSum)
-					.annotatedQuarterValue()
+					.annotatedQuarterValue(),
+				style = MaterialTheme.typography.titleMedium
 			)
 			Text(
 				text = stringResource(id = R.string.quarter_credits, credits)
-					.annotatedQuarterValue(-0.1f)
+					.annotatedQuarterValue(-0.1f),
+				style = MaterialTheme.typography.titleMedium
 			)
 		}
 	}

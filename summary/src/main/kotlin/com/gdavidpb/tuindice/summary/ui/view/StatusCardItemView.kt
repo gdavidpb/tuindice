@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,13 +21,16 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import com.gdavidpb.tuindice.summary.R
-import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryEntry
 
 @Composable
-fun StatusCardView(item: SummaryItem) {
+fun StatusCardItemView(
+	header: String,
+	entries: List<SummaryEntry>
+) {
 	val lineWidth = with(LocalDensity.current) { dimensionResource(id = R.dimen.dp_8).toPx() }
 
-	Card(
+	ElevatedCard(
 		modifier = Modifier
 			.fillMaxWidth()
 			.height(dimensionResource(id = R.dimen.dp_128))
@@ -42,7 +45,7 @@ fun StatusCardView(item: SummaryItem) {
 					vertical = dimensionResource(id = R.dimen.dp_8),
 					horizontal = dimensionResource(id = R.dimen.dp_16)
 				),
-			text = item.header
+			text = header
 		)
 
 		Row(
@@ -53,7 +56,7 @@ fun StatusCardView(item: SummaryItem) {
 				)
 				.fillMaxWidth()
 		) {
-			item.entries.forEach { (_, value, color) ->
+			entries.forEach { (_, value, color) ->
 				if (value > 0)
 					DistributionView(
 						label = "$value",
@@ -72,7 +75,7 @@ fun StatusCardView(item: SummaryItem) {
 				.fillMaxWidth(),
 			horizontalArrangement = Arrangement.SpaceAround
 		) {
-			item.entries.forEach { (label, _, color) ->
+			entries.forEach { (label, _, color) ->
 				Text(
 					modifier = Modifier
 						.drawWithContent {

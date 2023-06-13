@@ -15,9 +15,7 @@ interface EvaluationsApi {
 	): Response<EvaluationResponse>
 
 	@GET("evaluations")
-	suspend fun getEvaluations(
-		@Query("sid") subjectId: String
-	): Response<List<EvaluationResponse>>
+	suspend fun getEvaluations(): Response<List<EvaluationResponse>>
 
 	@EnqueueOnFailure
 	@POST("evaluations")

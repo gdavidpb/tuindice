@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- EvaluationFragment -->
+    <!-- EvaluationsScreen -->
 
-    <string name="evaluation_grade_max">%1$s / %2$s</string>
+    <string name="label_empty_evaluations">
+        <b>Parece que no hay nada por acá\n\n</b>
+        ¡Recuerda que la organización es el secreto del éxito!
+    </string>
+
+    <string name="evaluation_grade">%1$.2f / %2$.2f</string>
+    <string name="evaluation_title">%1$s ─ %2$s</string>
+    <string name="evaluation_not_completed">No has cargado la nota</string>
 
     <string name="button_evaluation_save">Guardar</string>
 

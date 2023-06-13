@@ -22,20 +22,13 @@ fun String.annotatedQuarterValue(baselineShift: Float = 0.0f) = buildAnnotatedSt
 		SpanStyle(
 			color = MaterialTheme.colorScheme.primary,
 			fontWeight = FontWeight.Medium,
-			fontSize = MaterialTheme.typography.titleLarge.fontSize,
 			baselineShift = BaselineShift(baselineShift)
 		)
 	) {
 		append(before)
 	}
 
-	withStyle(
-		SpanStyle(
-			fontSize = MaterialTheme.typography.titleMedium.fontSize
-		)
-	) {
-		append(" $after")
-	}
+	append(" $after")
 }
 
 @Composable
