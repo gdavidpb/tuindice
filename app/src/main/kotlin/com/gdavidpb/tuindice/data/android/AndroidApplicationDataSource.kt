@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.data.android
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.utils.extension.canOpenFile
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
@@ -31,7 +32,9 @@ class AndroidApplicationDataSource(
 	override suspend fun clearData() {
 		room.clearAllTables()
 
-		sharedPreferences.edit().clear().apply()
+		sharedPreferences.edit(commit = true) {
+			clear()
+		}
 
 		with(context) {
 			listOf(
