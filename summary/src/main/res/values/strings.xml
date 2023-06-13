@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="nav_summary">Resumen</string>
-
     <string name="label_subjects_approved">Aprobadas</string>
     <string name="label_subjects_failed">Reprobadas</string>
     <string name="label_subjects_retired">Retiradas</string>
@@ -18,8 +15,6 @@
 
     <string name="dialog_title_sign_out">Atención</string>
     <string name="dialog_message_sign_out">¿Estás seguro que deseas cerrar sesión?</string>
-
-    <string name="label_profile_picture_chooser">Foto de perfil</string>
 
     <string name="snack_profile_picture_updated">Foto de perfil actualizada</string>
     <string name="snack_profile_picture_removed">Foto de perfil removida</string>

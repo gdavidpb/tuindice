@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.base.utils.extension.ViewOutput
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
 class AddEvaluationReducer :
 	BaseReducer<Evaluations.State, Evaluations.Event, Unit, EvaluationError>() {

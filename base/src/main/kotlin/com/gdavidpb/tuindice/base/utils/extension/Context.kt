@@ -8,18 +8,10 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.webkit.MimeTypeMap
-import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.preference.PreferenceManager
 import com.gdavidpb.tuindice.base.BuildConfig
 import java.io.File
-
-@ColorInt
-fun Context.getCompatColor(@ColorRes colorRes: Int): Int {
-	return ContextCompat.getColor(this, colorRes)
-}
 
 fun Context.sharedPreferences(): SharedPreferences {
 	return PreferenceManager.getDefaultSharedPreferences(this)

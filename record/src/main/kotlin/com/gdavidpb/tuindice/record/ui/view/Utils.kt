@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.record.ui.view
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -37,7 +37,7 @@ fun rememberSubjectsStates(quarters: List<Quarter>) = remember {
 		.filter { quarter -> quarter.isEditable }
 		.flatMap { quarter -> quarter.subjects }
 		.associate { subject ->
-			subject.id to mutableStateOf(subject.grade)
+			subject.id to mutableIntStateOf(subject.grade)
 		}
 		.let(::HashMap)
 }

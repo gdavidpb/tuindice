@@ -132,7 +132,7 @@ open class NetworkView(context: Context, attrs: AttributeSet) : CanvasView(conte
 	}
 
 	fun addNodes(vararg values: Node) {
-		nodes.putAll(values.associate { it to false })
+		nodes.putAll(values.associateWith { false })
 		invalidate()
 	}
 
