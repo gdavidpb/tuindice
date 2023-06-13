@@ -21,18 +21,20 @@ class QuarterDataRepository(
 	): Flow<List<Quarter>> {
 		return localDataSource.getQuarters(uid)
 			.distinctUntilChanged()
-			.transform { quarters ->
+			.transform { localQuarters ->
 				val isOnCooldown = settingsDataSource.isGetQuartersOnCooldown()
 
-				if (quarters.isNotEmpty())
-					emit(quarters)
+				if (localQuarters.isNotEmpty())
+					emit(localQuarters)
 
 				if (!isOnCooldown) {
+					val remoteQuarters = remoteDataSource.getQuarters()
+
+					localDataSource.saveQuarters(uid, remoteQuarters)
+
 					settingsDataSource.setGetQuartersOnCooldown()
 
-					emit(remoteDataSource.getQuarters().also { response ->
-						localDataSource.saveQuarters(uid, response)
-					})
+					emit(remoteQuarters)
 				}
 			}
 	}
