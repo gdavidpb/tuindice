@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.data.evaluation
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
+import com.gdavidpb.tuindice.evaluations.data.evaluation.source.SettingsDataSource
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
@@ -13,7 +14,8 @@ import kotlinx.coroutines.flow.transform
 
 class EvaluationDataRepository(
 	private val localDataSource: LocalDataSource,
-	private val remoteDataSource: RemoteDataSource
+	private val remoteDataSource: RemoteDataSource,
+	private val settingsDataSource: SettingsDataSource
 ) : EvaluationRepository {
 	override suspend fun getEvaluation(uid: String, eid: String): Flow<Evaluation> {
 		return localDataSource.getEvaluation(uid, eid)
@@ -31,13 +33,21 @@ class EvaluationDataRepository(
 	override suspend fun getEvaluations(uid: String): Flow<List<Evaluation>> {
 		return localDataSource.getEvaluations(uid)
 			.distinctUntilChanged()
-			.transform { evaluations ->
-				if (evaluations.isNotEmpty())
-					emit(evaluations)
-				else
-					emit(remoteDataSource.getEvaluations().also { response ->
-						localDataSource.saveEvaluations(uid, response)
-					})
+			.transform { localEvaluations ->
+				val isOnCooldown = settingsDataSource.isGetEvaluationsOnCooldown()
+
+				if (localEvaluations.isNotEmpty())
+					emit(localEvaluations)
+
+				if (!isOnCooldown) {
+					val remoteEvaluations = remoteDataSource.getEvaluations()
+
+					localDataSource.saveEvaluations(uid, remoteEvaluations)
+
+					settingsDataSource.setGetEvaluationsOnCooldown()
+
+					emit(remoteEvaluations)
+				}
 			}
 	}
 

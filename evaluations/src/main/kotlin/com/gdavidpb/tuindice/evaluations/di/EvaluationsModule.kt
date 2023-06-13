@@ -10,6 +10,8 @@ import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationUpdateParser
 import com.gdavidpb.tuindice.evaluations.data.evaluation.EvaluationDataRepository
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
+import com.gdavidpb.tuindice.evaluations.data.evaluation.source.SettingsDataSource
+import com.gdavidpb.tuindice.evaluations.data.preferences.PreferencesDataSource
 import com.gdavidpb.tuindice.evaluations.data.resolution.EvaluationResolutionHandler
 import com.gdavidpb.tuindice.evaluations.data.room.RoomDataSource
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
@@ -69,6 +71,7 @@ val evaluationsModule = module {
 
 	factoryOf(::ApiDataSource) { bind<RemoteDataSource>() }
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
+	factoryOf(::PreferencesDataSource) { bind<SettingsDataSource>() }
 
 	/* SignIn Api */
 

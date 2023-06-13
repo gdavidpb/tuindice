@@ -18,18 +18,20 @@ class AccountDataRepository(
 	override suspend fun getAccount(uid: String): Flow<Account> {
 		return localDataSource.getAccount(uid)
 			.distinctUntilChanged()
-			.transform { account ->
+			.transform { localAccount ->
 				val isOnCooldown = settingsDataSource.isGetAccountOnCooldown()
 
-				if (account != null)
-					emit(account)
+				if (localAccount != null)
+					emit(localAccount)
 
 				if (!isOnCooldown) {
+					val remoteAccount = remoteDataSource.getAccount()
+
+					localDataSource.saveAccount(uid, remoteAccount)
+
 					settingsDataSource.setGetAccountOnCooldown()
 
-					emit(remoteDataSource.getAccount().also { response ->
-						localDataSource.saveAccount(uid, response)
-					})
+					emit(remoteAccount)
 				}
 			}
 	}
