@@ -1,9 +1,10 @@
 package com.gdavidpb.tuindice.login.ui.screen
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
@@ -11,6 +12,7 @@ import com.gdavidpb.tuindice.login.ui.view.AnimatedBackgroundView
 import com.gdavidpb.tuindice.login.ui.view.SignInIdleView
 import com.gdavidpb.tuindice.login.ui.view.SignInLoggingInView
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SignInScreen(
 	state: SignIn.State,
@@ -29,7 +31,7 @@ fun SignInScreen(
 				val enter = slideInHorizontally { x -> x }
 				val exit = slideOutHorizontally { x -> -x }
 
-				enter.togetherWith(exit)
+				enter with exit
 			},
 		) { isLoggingIn ->
 			if (isLoggingIn)

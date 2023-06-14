@@ -1,9 +1,10 @@
 package com.gdavidpb.tuindice.login.ui.dialog
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.with
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -14,7 +15,7 @@ import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.login.ui.view.UpdatePasswordIdleView
 import com.gdavidpb.tuindice.login.ui.view.UpdatePasswordLoggingInView
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun UpdatePasswordDialog(
 	state: UpdatePassword.State,
@@ -50,7 +51,7 @@ fun UpdatePasswordDialog(
 				val enter = slideInHorizontally { x -> x }
 				val exit = slideOutHorizontally { x -> -x }
 
-				enter.togetherWith(exit)
+				enter with exit
 			},
 		) { isLoggingIn ->
 			if (isLoggingIn)
