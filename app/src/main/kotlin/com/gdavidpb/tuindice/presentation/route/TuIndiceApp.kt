@@ -142,7 +142,7 @@ fun TuIndiceApp(
 							state.copy(
 								title = title,
 								currentDestination = destination,
-								topBarActionConfig = destination.topBarActionConfig
+								topBarConfig = destination.topBarConfig
 							)
 						)
 					}

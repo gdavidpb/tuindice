@@ -49,9 +49,9 @@ fun TuIndiceScreen(
 			TopAppBar(
 				title = { Text(text = state.title) },
 				actions = {
-					if (state.topBarActionConfig != null)
+					if (state.topBarConfig != null)
 						TopAppBarActionView(
-							topBarActionConfig = state.topBarActionConfig,
+							topBarConfig = state.topBarConfig,
 							onSignOutClick = onSignOutClick,
 							onFetchEnrollmentProofClick = onFetchEnrollmentProofClick
 						)
