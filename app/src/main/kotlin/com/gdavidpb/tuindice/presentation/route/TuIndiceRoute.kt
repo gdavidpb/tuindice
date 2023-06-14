@@ -118,6 +118,12 @@ fun TuIndiceRoute(
 
 				is TopBarAction.FetchEnrollmentProofAction ->
 					navController.navigateToEnrollmentProofFetch()
+
+				is TopBarAction.FilterEvaluationsAction -> {
+				}
+
+				is TopBarAction.SortEvaluations -> {
+				}
 			}
 		},
 		onNavigateTo = navController::navigateToSingleTop,
