@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.base.presentation.navigation
 
 import com.gdavidpb.tuindice.base.presentation.model.BottomBarConfig
-import com.gdavidpb.tuindice.base.presentation.model.TopBarActionConfig
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 
 sealed class Destination(
 	val route: String,
@@ -9,8 +9,8 @@ sealed class Destination(
 	val isTopDestination: Boolean = false,
 	val isBottomDestination: Boolean = false,
 	val isDialogDestination: Boolean = false,
-	val bottomBarConfig: BottomBarConfig? = null,
-	val topBarActionConfig: TopBarActionConfig? = null
+	val topBarConfig: TopBarConfig? = null,
+	val bottomBarConfig: BottomBarConfig? = null
 ) {
 	object EnrollmentProofFetch :
 		Destination(
@@ -46,8 +46,8 @@ sealed class Destination(
 			title = "Resumen",
 			isTopDestination = true,
 			isBottomDestination = true,
-			bottomBarConfig = BottomBarConfig.Summary,
-			topBarActionConfig = TopBarActionConfig.Summary
+			topBarConfig = TopBarConfig.Summary,
+			bottomBarConfig = BottomBarConfig.Summary
 		)
 
 	object Record :
@@ -56,8 +56,8 @@ sealed class Destination(
 			title = "Informe Académico",
 			isTopDestination = true,
 			isBottomDestination = true,
-			bottomBarConfig = BottomBarConfig.Record,
-			topBarActionConfig = TopBarActionConfig.Record
+			topBarConfig = TopBarConfig.Record,
+			bottomBarConfig = BottomBarConfig.Record
 		)
 
 	object Evaluations :

@@ -1,32 +1,29 @@
 package com.gdavidpb.tuindice.base.ui.view
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FindInPage
-import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import com.gdavidpb.tuindice.base.presentation.model.TopBarActionConfig
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 
 @Composable
 fun TopAppBarActionView(
-	topBarActionConfig: TopBarActionConfig,
+	topBarConfig: TopBarConfig,
 	onSignOutClick: () -> Unit,
 	onFetchEnrollmentProofClick: () -> Unit
 ) {
-	when (topBarActionConfig) {
-		TopBarActionConfig.Summary ->
+	when (topBarConfig) {
+		TopBarConfig.Summary ->
 			IconButton(onClick = onSignOutClick) {
 				Icon(
-					imageVector = Icons.Outlined.Logout,
+					imageVector = topBarConfig.icon,
 					contentDescription = null
 				)
 			}
 
-		TopBarActionConfig.Record ->
+		TopBarConfig.Record ->
 			IconButton(onClick = onFetchEnrollmentProofClick) {
 				Icon(
-					imageVector = Icons.Outlined.FindInPage,
+					imageVector = topBarConfig.icon,
 					contentDescription = null
 				)
 			}

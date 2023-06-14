@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.presentation.contract
 
 import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
-import com.gdavidpb.tuindice.base.presentation.model.TopBarActionConfig
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.extension.ViewAction
 import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
@@ -20,7 +20,7 @@ object Main {
 			val startDestination: Destination,
 			val currentDestination: Destination,
 			val destinations: Map<String, Destination>,
-			val topBarActionConfig: TopBarActionConfig? = null
+			val topBarConfig: TopBarConfig? = null
 		) : State()
 
 		object Failed : State()

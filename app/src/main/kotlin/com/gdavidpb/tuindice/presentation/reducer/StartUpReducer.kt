@@ -38,7 +38,7 @@ class StartUpReducer :
 					startDestination = startDestination,
 					currentDestination = currentDestination,
 					destinations = destinations,
-					topBarActionConfig = topBarActionConfig
+					topBarConfig = topBarConfig
 				)
 			}
 		)
