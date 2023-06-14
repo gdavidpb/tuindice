@@ -1,14 +1,5 @@
 package com.gdavidpb.tuindice.base.presentation.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.Book
-import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import com.gdavidpb.tuindice.base.presentation.model.BottomBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.TopBarActionConfig
 
@@ -55,10 +46,7 @@ sealed class Destination(
 			title = "Resumen",
 			isTopDestination = true,
 			isBottomDestination = true,
-			bottomBarConfig = BottomBarConfig(
-				unselectedIcon = Icons.Outlined.BookmarkBorder,
-				selectedIcon = Icons.Filled.Bookmark
-			),
+			bottomBarConfig = BottomBarConfig.Summary,
 			topBarActionConfig = TopBarActionConfig.Summary
 		)
 
@@ -68,10 +56,7 @@ sealed class Destination(
 			title = "Informe Académico",
 			isTopDestination = true,
 			isBottomDestination = true,
-			bottomBarConfig = BottomBarConfig(
-				unselectedIcon = Icons.Outlined.Book,
-				selectedIcon = Icons.Filled.Book
-			),
+			bottomBarConfig = BottomBarConfig.Record,
 			topBarActionConfig = TopBarActionConfig.Record
 		)
 
@@ -81,10 +66,7 @@ sealed class Destination(
 			title = "Evaluaciones",
 			isTopDestination = true,
 			isBottomDestination = true,
-			bottomBarConfig = BottomBarConfig(
-				unselectedIcon = Icons.Outlined.DateRange,
-				selectedIcon = Icons.Filled.DateRange
-			)
+			bottomBarConfig = BottomBarConfig.Evaluations
 		)
 
 	object About :
@@ -93,9 +75,6 @@ sealed class Destination(
 			title = "Acerca de",
 			isTopDestination = true,
 			isBottomDestination = true,
-			bottomBarConfig = BottomBarConfig(
-				unselectedIcon = Icons.Outlined.FavoriteBorder,
-				selectedIcon = Icons.Filled.Favorite
-			)
+			bottomBarConfig = BottomBarConfig.About
 		)
 }
