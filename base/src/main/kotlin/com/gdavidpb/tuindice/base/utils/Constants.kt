@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.base.utils
 
-import java.util.*
+import java.util.Locale
+import java.util.TimeZone
 
 /* Default locale */
 val DEFAULT_LOCALE: Locale = Locale("es", "VE")

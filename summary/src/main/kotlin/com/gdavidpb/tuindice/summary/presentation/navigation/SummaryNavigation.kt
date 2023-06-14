@@ -8,15 +8,17 @@ import com.gdavidpb.tuindice.base.utils.extension.navigateToSingleTop
 import com.gdavidpb.tuindice.summary.presentation.route.SummaryRoute
 
 fun NavController.navigateToSummary() {
-	navigateToSingleTop(Destination.Summary.route)
+	navigateToSingleTop(Destination.Summary)
 }
 
 fun NavGraphBuilder.summaryScreen(
+	navigateToSignIn: () -> Unit,
 	navigateToUpdatePassword: () -> Unit,
 	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit
 ) {
 	composable(Destination.Summary.route) {
 		SummaryRoute(
+			onNavigateToSignIn = navigateToSignIn,
 			onNavigateToUpdatePassword = navigateToUpdatePassword,
 			showSnackBar = showSnackBar
 		)
