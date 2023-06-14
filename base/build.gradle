@@ -17,14 +17,7 @@ dependencies {
     debugApi "com.squareup.retrofit2:retrofit-mock:${versions.retrofit}"
 
     /* AndroidX */
-    api "androidx.fragment:fragment-ktx:1.6.0"
-    api "androidx.legacy:legacy-support-v4:1.0.0"
-    api "androidx.appcompat:appcompat:1.6.1"
-    api "androidx.cardview:cardview:1.0.0"
     api "androidx.browser:browser:1.5.0"
-    api "androidx.recyclerview:recyclerview:1.3.0"
-    api "androidx.vectordrawable:vectordrawable-animated:1.1.0"
-    api "androidx.constraintlayout:constraintlayout:2.1.4"
     api "androidx.preference:preference-ktx:1.2.0"
     api "androidx.work:work-runtime-ktx:${versions.work}"
     api "androidx.exifinterface:exifinterface:1.3.6"
@@ -45,7 +38,6 @@ dependencies {
     api "com.google.firebase:firebase-crashlytics"
 
     /* Google */
-    api "com.google.android.material:material:1.9.0"
     api "com.google.android.play:core:1.10.3"
     api "com.google.android.play:core-ktx:1.8.1"
 
@@ -64,7 +56,6 @@ dependencies {
 
     /* Navigation */
     api "androidx.navigation:navigation-compose:${versions.navigation}"
-    api "androidx.navigation:navigation-fragment-ktx:${versions.navigation}"
     api "androidx.navigation:navigation-ui-ktx:${versions.navigation}"
 
     /* Architecture */
@@ -87,7 +78,6 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:${versions.coroutines}"
 
     /* Lottie */
-    api "com.airbnb.android:lottie:6.0.0"
     api "com.airbnb.android:lottie-compose:6.0.0"
 
     /* Coil */
