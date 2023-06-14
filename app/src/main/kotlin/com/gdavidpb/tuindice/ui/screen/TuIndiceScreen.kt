@@ -14,7 +14,6 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,6 +29,7 @@ import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.navigation.browserScreen
 import com.gdavidpb.tuindice.base.presentation.navigation.navigateToBrowser
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
+import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.mapScreenDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchDialog
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsScreen
@@ -79,13 +79,16 @@ fun TuIndiceScreen(
 		snackbarHost = { SnackbarHost(snackbarHostState) },
 		topBar = {
 			TopAppBar(
-				title = { Text(text = state.title) },
+				title = {
+					TopAppBarAnimatedTitleView(
+						title = state.title
+					)
+				},
 				actions = {
-					if (state.topBarConfig != null)
-						TopAppBarActionsView(
-							topBarConfig = state.topBarConfig,
-							onAction = onAction
-						)
+					TopAppBarActionsView(
+						topBarConfig = state.topBarConfig,
+						onAction = onAction
+					)
 				},
 				navigationIcon = {
 					if (!state.currentDestination.isTopDestination)
