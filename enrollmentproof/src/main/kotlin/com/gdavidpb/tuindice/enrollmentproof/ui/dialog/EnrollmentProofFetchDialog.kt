@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.enrollmentproof.ui.dialog
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -52,7 +51,6 @@ fun EnrollmentProofFetchDialog(
 
 		Text(
 			modifier = Modifier
-				.fillMaxWidth()
 				.align(Alignment.CenterHorizontally)
 				.padding(bottom = dimensionResource(id = R.dimen.dp_24)),
 			text = stringResource(id = R.string.dialog_message_enrollment_downloading),
