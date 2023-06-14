@@ -34,6 +34,8 @@ object Summary {
 
 	sealed class Action : ViewAction {
 		object LoadSummary : Action()
+		object SignOut : Action()
+		object ConfirmSignOut : Action()
 		object TakeProfilePicture : Action()
 		object PickProfilePicture : Action()
 		class UploadProfilePicture(val path: String) : Action()
@@ -44,10 +46,12 @@ object Summary {
 	}
 
 	sealed class Event : ViewEvent {
+		object NavigateToSignIn : Event()
 		class OpenCamera(val output: String) : Event()
 		object OpenPicker : Event()
 		object NavigateToOutdatedPassword : Event()
 		class ShowSnackBar(val message: String) : Event()
+		object ShowSignOutConfirmationDialog : Event()
 		class ShowProfilePictureSettingsDialog(val showRemove: Boolean) : Event()
 		object ShowRemoveProfilePictureConfirmationDialog : Event()
 		object CloseDialog : Event()

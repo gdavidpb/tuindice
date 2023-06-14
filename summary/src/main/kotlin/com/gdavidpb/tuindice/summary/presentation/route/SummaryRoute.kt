@@ -19,12 +19,14 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryDialog
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.dialog.ProfilePictureSettingsDialog
 import com.gdavidpb.tuindice.summary.ui.dialog.RemoveProfilePictureConfirmationDialog
+import com.gdavidpb.tuindice.summary.ui.dialog.SignOutConfirmationDialog
 import com.gdavidpb.tuindice.summary.ui.screen.SummaryScreen
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SummaryRoute(
+	onNavigateToSignIn: () -> Unit,
 	onNavigateToUpdatePassword: () -> Unit,
 	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit,
 	viewModel: SummaryViewModel = koinViewModel()
@@ -70,8 +72,14 @@ fun SummaryRoute(
 					showRemove = event.showRemove
 				)
 
-			Summary.Event.ShowRemoveProfilePictureConfirmationDialog ->
+			is Summary.Event.ShowRemoveProfilePictureConfirmationDialog ->
 				dialogState.value = SummaryDialog.RemoveProfilePictureConfirmation
+
+			is Summary.Event.NavigateToSignIn ->
+				onNavigateToSignIn()
+
+			is Summary.Event.ShowSignOutConfirmationDialog ->
+				dialogState.value = SummaryDialog.SignOutConfirmation
 
 			is Summary.Event.CloseDialog ->
 				dialogState.value = null
@@ -101,6 +109,13 @@ fun SummaryRoute(
 			RemoveProfilePictureConfirmationDialog(
 				sheetState = sheetState,
 				onConfirmClick = viewModel::confirmRemoveProfilePictureAction,
+				onDismissRequest = viewModel::closeDialogAction
+			)
+
+		is SummaryDialog.SignOutConfirmation ->
+			SignOutConfirmationDialog(
+				sheetState = sheetState,
+				onConfirmClick = viewModel::confirmSignOutAction,
 				onDismissRequest = viewModel::closeDialogAction
 			)
 

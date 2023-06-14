@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.ui.screen
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -14,34 +14,66 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionView
+import com.gdavidpb.tuindice.about.presentation.navigation.aboutScreen
+import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.base.presentation.navigation.browserScreen
+import com.gdavidpb.tuindice.base.presentation.navigation.navigateToBrowser
+import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
+import com.gdavidpb.tuindice.base.utils.extension.mapScreenDestination
+import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchDialog
+import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsScreen
+import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignIn
+import com.gdavidpb.tuindice.login.presentation.navigation.navigateToUpdatePassword
+import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
+import com.gdavidpb.tuindice.login.presentation.navigation.updatePasswordDialog
 import com.gdavidpb.tuindice.presentation.contract.Main
-import kotlinx.coroutines.launch
+import com.gdavidpb.tuindice.record.presentation.navigation.recordScreen
+import com.gdavidpb.tuindice.summary.presentation.navigation.navigateToSummary
+import com.gdavidpb.tuindice.summary.presentation.navigation.summaryScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TuIndiceScreen(
-	state: Main.State.Content,
-	onNavigateTo: (route: String) -> Unit,
+	state: Main.State,
+	updateState: (Main.State) -> Unit,
+	navController: NavHostController,
+	snackbarHostState: SnackbarHostState,
+	onAction: (action: TopBarAction) -> Unit,
+	onNavigateTo: (destination: Destination) -> Unit,
 	onNavigateBack: () -> Unit,
-	onSignOutClick: () -> Unit,
-	onFetchEnrollmentProofClick: () -> Unit,
-	navHost: @Composable (
-		PaddingValues,
-		showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit
-	) -> Unit
+	onSetLastScreen: (route: String) -> Unit,
+	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit
 ) {
-	val coroutineScope = rememberCoroutineScope()
-	val snackbarHostState = remember { SnackbarHostState() }
+	if (state !is Main.State.Content) return
+
+	LaunchedEffect(navController) {
+		navController
+			.currentBackStackEntryFlow
+			.mapScreenDestination(state.destinations)
+			.collect { (title, destination) ->
+				if (destination.isBottomDestination)
+					onSetLastScreen(destination.route)
+
+				updateState(
+					state.copy(
+						title = title,
+						currentDestination = destination,
+						topBarConfig = destination.topBarConfig
+					)
+				)
+			}
+	}
 
 	Scaffold(
 		snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -50,10 +82,9 @@ fun TuIndiceScreen(
 				title = { Text(text = state.title) },
 				actions = {
 					if (state.topBarConfig != null)
-						TopAppBarActionView(
+						TopAppBarActionsView(
 							topBarConfig = state.topBarConfig,
-							onSignOutClick = onSignOutClick,
-							onFetchEnrollmentProofClick = onFetchEnrollmentProofClick
+							onAction = onAction
 						)
 				},
 				navigationIcon = {
@@ -102,25 +133,73 @@ fun TuIndiceScreen(
 								indicatorColor = MaterialTheme.colorScheme.secondaryContainer
 							),
 							selected = isNavigationBarItemSelected,
-							onClick = { onNavigateTo(destination.route) }
+							onClick = { onNavigateTo(destination) }
 						)
 					}
 				}
 			}
 		}
 	) { innerPadding ->
-		navHost(innerPadding) { message, actionLabel, action ->
-			coroutineScope.launch {
-				snackbarHostState.currentSnackbarData?.dismiss()
+		NavHost(
+			navController = navController,
+			startDestination = state.startDestination.route,
+			modifier = Modifier.padding(innerPadding)
+		) {
+			enrollmentProofFetchDialog(
+				navigateToUpdatePassword = {
+					navController.navigateToUpdatePassword()
+				},
+				onDismissRequest = {
+					navController.popBackStack()
+				},
+				showSnackBar = showSnackBar
+			)
 
-				val snackBarResult = snackbarHostState.showSnackbar(
-					message = message,
-					actionLabel = actionLabel
-				)
+			updatePasswordDialog(
+				onDismissRequest = {
+					navController.popBackStack()
+				},
+				showSnackBar = showSnackBar
+			)
 
-				if (snackBarResult == SnackbarResult.ActionPerformed)
-					action?.invoke()
-			}
+			signInScreen(
+				navigateToSummary = {
+					navController.navigateToSummary()
+				},
+				navigateToBrowser = { args ->
+					navController.navigateToBrowser(args)
+				},
+				showSnackBar = showSnackBar
+			)
+
+			summaryScreen(
+				navigateToSignIn = {
+					navController.navigateToSignIn()
+				},
+				navigateToUpdatePassword = {
+					navController.navigateToUpdatePassword()
+				},
+				showSnackBar = showSnackBar
+			)
+
+			recordScreen(
+				navigateToUpdatePassword = {
+					navController.navigateToUpdatePassword()
+				},
+				showSnackBar = showSnackBar
+			)
+
+			evaluationsScreen(
+				showSnackBar = showSnackBar
+			)
+
+			aboutScreen(
+				navigateToBrowser = { args ->
+					navController.navigateToBrowser(args)
+				}
+			)
+
+			browserScreen()
 		}
 	}
 }

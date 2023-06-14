@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.ui.dialog
+package com.gdavidpb.tuindice.summary.ui.dialog
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme

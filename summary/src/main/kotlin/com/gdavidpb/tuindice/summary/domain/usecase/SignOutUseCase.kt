@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.domain.usecase
+package com.gdavidpb.tuindice.summary.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository

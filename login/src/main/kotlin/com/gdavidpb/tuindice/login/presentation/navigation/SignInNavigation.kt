@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.base.utils.extension.navigateToSingleTop
 import com.gdavidpb.tuindice.login.presentation.route.SignInRoute
 
 fun NavController.navigateToSignIn() {
-	navigateToSingleTop(Destination.SignIn.route)
+	navigateToSingleTop(Destination.SignIn)
 }
 
 fun NavGraphBuilder.signInScreen(
