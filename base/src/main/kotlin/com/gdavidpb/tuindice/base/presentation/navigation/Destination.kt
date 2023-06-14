@@ -66,6 +66,7 @@ sealed class Destination(
 			title = "Evaluaciones",
 			isTopDestination = true,
 			isBottomDestination = true,
+			topBarConfig = TopBarConfig.Evaluations,
 			bottomBarConfig = BottomBarConfig.Evaluations
 		)
 
