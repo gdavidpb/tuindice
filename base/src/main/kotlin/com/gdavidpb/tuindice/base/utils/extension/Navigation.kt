@@ -35,11 +35,13 @@ fun NavController.navigateToSingleTop(route: String) {
 		route = route
 	) {
 		launchSingleTop = true
+		restoreState = true
 
 		val currentRoute = currentDestination?.route
 
 		if (currentRoute != null)
 			popUpTo(currentRoute) {
+				saveState = true
 				inclusive = true
 			}
 	}
