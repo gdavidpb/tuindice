@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.utils.extension.ViewAction
 import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
 import com.gdavidpb.tuindice.base.utils.extension.ViewState
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 
 object Evaluations {
 	sealed class State : ViewState {
@@ -20,7 +21,15 @@ object Evaluations {
 
 	sealed class Action : ViewAction {
 		object LoadEvaluation : Action()
+		object OpenEvaluationsFilters : Action()
+		object CloseDialog : Action()
 	}
 
-	sealed class Event : ViewEvent
+	sealed class Event : ViewEvent {
+		class ShowFilterEvaluationsDialog(
+			val filters: List<EvaluationFilter>
+		) : Event()
+
+		object CloseDialog : Event()
+	}
 }
