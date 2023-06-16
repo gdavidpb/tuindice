@@ -3,7 +3,9 @@ package com.gdavidpb.tuindice.base.ui.dialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,7 +26,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ConfirmationDialog(
 	sheetState: SheetState,
-	titleText: String,
+	titleText: String? = null,
 	dismissOnPositive: Boolean = true,
 	positiveEnabled: Boolean = true,
 	negativeEnabled: Boolean = true,
@@ -55,12 +57,16 @@ fun ConfirmationDialog(
 				.fillMaxWidth()
 				.padding(horizontal = dimensionResource(id = R.dimen.dp_24))
 		) {
-			Text(
+			if (titleText != null)
+				Text(
+					text = titleText,
+					style = MaterialTheme.typography.titleLarge,
+					fontWeight = FontWeight.Black
+				)
+
+			Spacer(
 				modifier = Modifier
-					.padding(bottom = dimensionResource(id = R.dimen.dp_16)),
-				text = titleText,
-				style = MaterialTheme.typography.titleLarge,
-				fontWeight = FontWeight.Medium
+					.height(dimensionResource(id = R.dimen.dp_16))
 			)
 
 			content()

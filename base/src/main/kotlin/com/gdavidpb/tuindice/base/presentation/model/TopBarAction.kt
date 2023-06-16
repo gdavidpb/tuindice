@@ -4,7 +4,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.outlined.FindInPage
 import androidx.compose.material.icons.outlined.Logout
-import androidx.compose.material.icons.outlined.Sort
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class TopBarAction(
@@ -24,10 +23,5 @@ sealed class TopBarAction(
 	object FilterEvaluationsAction : TopBarAction(
 		action = "filter_evaluations",
 		icon = Icons.Outlined.FilterAlt
-	)
-
-	object SortEvaluations : TopBarAction(
-		action = "sort_evaluations",
-		icon = Icons.Outlined.Sort
 	)
 }

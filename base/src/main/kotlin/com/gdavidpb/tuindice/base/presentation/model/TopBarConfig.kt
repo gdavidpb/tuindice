@@ -17,8 +17,7 @@ sealed class TopBarConfig(
 
 	object Evaluations : TopBarConfig(
 		actions = listOf(
-			TopBarAction.FilterEvaluationsAction,
-			TopBarAction.SortEvaluations
+			TopBarAction.FilterEvaluationsAction
 		)
 	)
 }
