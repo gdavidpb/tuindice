@@ -21,6 +21,7 @@ object Evaluations {
 
 	sealed class Action : ViewAction {
 		object LoadEvaluation : Action()
+		object AddEvaluation : Action()
 		object OpenEvaluationsFilters : Action()
 		object CloseDialog : Action()
 	}

@@ -59,6 +59,7 @@ fun EvaluationsRoute(
 
 	EvaluationsScreen(
 		state = viewState,
-		onRetryClick = viewModel::loadEvaluationsAction
+		onRetryClick = viewModel::loadEvaluationsAction,
+		onAddEvaluationClick = viewModel::addEvaluationAction,
 	)
 }
