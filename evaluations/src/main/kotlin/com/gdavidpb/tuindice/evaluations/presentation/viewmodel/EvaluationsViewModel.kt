@@ -18,6 +18,9 @@ class EvaluationsViewModel(
 	fun loadEvaluationsAction() =
 		emitAction(Evaluations.Action.LoadEvaluation)
 
+	fun addEvaluationAction() =
+		emitAction(Evaluations.Action.AddEvaluation)
+
 	fun openEvaluationsFilters() =
 		emitAction(Evaluations.Action.OpenEvaluationsFilters)
 
@@ -30,6 +33,9 @@ class EvaluationsViewModel(
 				getEvaluationsUseCase
 					.execute(params = Unit)
 					.collect(viewModel = this, reducer = evaluationsReducer)
+
+			is Evaluations.Action.AddEvaluation ->
+				TODO()
 
 			is Evaluations.Action.OpenEvaluationsFilters -> {
 				val currentState = getCurrentState()
