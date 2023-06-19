@@ -26,6 +26,8 @@ object Evaluations {
 	}
 
 	sealed class Event : ViewEvent {
+		class ShowSnackBar(val message: String) : Event()
+
 		class ShowFilterEvaluationsDialog(
 			val filters: List<EvaluationFilter>
 		) : Event()
