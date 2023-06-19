@@ -28,6 +28,9 @@ fun EvaluationsRoute(
 
 	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
 		when (event) {
+			is Evaluations.Event.ShowSnackBar ->
+				showSnackBar(event.message, null, null)
+
 			is Evaluations.Event.ShowFilterEvaluationsDialog ->
 				dialogState.value = EvaluationsDialog.Filter(filters = event.filters)
 
