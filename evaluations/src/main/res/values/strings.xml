@@ -4,8 +4,8 @@
     <!-- EvaluationsScreen -->
 
     <string name="label_empty_evaluations">
-        <b>Parece que no hay nada por acá\n\n</b>
-        ¡Recuerda que la organización es el secreto del éxito!
+        ¡Parece que no hay nada por acá!\n
+        Recuerda que la organización es el secreto del éxito
     </string>
 
     <string name="evaluation_grade">%1$.2f / %2$.2f</string>

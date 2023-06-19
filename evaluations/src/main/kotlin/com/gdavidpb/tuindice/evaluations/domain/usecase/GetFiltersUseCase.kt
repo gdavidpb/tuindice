@@ -17,6 +17,8 @@ class GetFiltersUseCase(
 	private val resourceResolver: ResourceResolver
 ) : FlowUseCase<Map<String, List<Evaluation>>, List<EvaluationFilter>, Nothing>() {
 	override suspend fun executeOnBackground(params: Map<String, List<Evaluation>>): Flow<List<EvaluationFilter>> {
+		if (params.isEmpty()) return flowOf(emptyList())
+
 		val stateName = resourceResolver.getString(R.string.label_category_state)
 		val subjectName = resourceResolver.getString(R.string.label_category_subject)
 		val dateName = resourceResolver.getString(R.string.label_category_date)

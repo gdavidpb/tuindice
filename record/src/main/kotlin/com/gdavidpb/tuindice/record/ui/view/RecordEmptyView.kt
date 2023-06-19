@@ -66,7 +66,7 @@ fun RecordEmptyView() {
 
 		Text(
 			modifier = Modifier
-				.padding(top = dimensionResource(id = R.dimen.dp_24)),
+				.padding(dimensionResource(id = R.dimen.dp_24)),
 			text = annotatedString,
 			textAlign = TextAlign.Center,
 			fontSize = MaterialTheme.typography.titleMedium.fontSize
