@@ -17,9 +17,10 @@ class FiltersReducer
 		val filters = useCaseState.value
 
 		return flow {
-			emit(
-				Evaluations.Event.ShowFilterEvaluationsDialog(filters)
-			)
+			if (filters.isNotEmpty())
+				emit(
+					Evaluations.Event.ShowFilterEvaluationsDialog(filters)
+				)
 		}
 	}
 }
