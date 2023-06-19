@@ -1,24 +1,21 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.base.utils.extension.capitalize
+import com.gdavidpb.tuindice.base.utils.extension.daysDistance
 import com.gdavidpb.tuindice.base.utils.extension.format
-import com.gdavidpb.tuindice.base.utils.extension.isNextWeek
-import com.gdavidpb.tuindice.base.utils.extension.isThisWeek
-import com.gdavidpb.tuindice.base.utils.extension.isToday
-import com.gdavidpb.tuindice.base.utils.extension.isTomorrow
-import com.gdavidpb.tuindice.base.utils.extension.isYesterday
-import com.gdavidpb.tuindice.base.utils.extension.weeksLeft
+import com.gdavidpb.tuindice.base.utils.extension.weeksDistance
 import java.util.Date
 
 fun Date.dateGroup(): String {
-	val weeksLeft = weeksLeft()
+	val daysDistance = daysDistance()
+	val weeksDistance = weeksDistance()
 
 	return when {
 		time == 0L -> "Evaluación continua"
-		isToday() -> "Hoy"
-		isTomorrow() -> "Mañana"
-		isYesterday() -> "Ayer"
-		isThisWeek() -> {
+		daysDistance == 0 -> "Hoy"
+		daysDistance == 1 -> "Mañana"
+		daysDistance == -1 -> "Ayer"
+		weeksDistance == 0 -> {
 			val now = Date()
 
 			if (before(now))
@@ -27,8 +24,8 @@ fun Date.dateGroup(): String {
 				"Este ${format("EEEE '—' dd 'de' MMMM")}"
 		}
 
-		isNextWeek() -> "El próximo ${format("EEEE '—' ddd 'de' MMMM")}"
-		weeksLeft in 2..12 -> "En $weeksLeft semanas"
+		weeksDistance == 1 -> "El próximo ${format("EEEE '—' dd 'de' MMMM")}"
+		weeksDistance in 2..12 -> "En $weeksDistance semanas"
 		else -> format("EEEE '—' dd/MM/yy")?.capitalize()!!
 	}
 }
