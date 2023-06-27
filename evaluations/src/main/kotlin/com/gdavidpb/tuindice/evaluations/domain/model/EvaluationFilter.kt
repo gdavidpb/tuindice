@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.evaluations.domain.model
 
-import androidx.compose.ui.graphics.vector.ImageVector
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.dateGroup
 
-data class EvaluationFilter(
-	val name: String,
-	val icon: ImageVector,
-	val entries: List<EvaluationFilterEntry>
-)
+interface EvaluationFilter {
+	fun getLabel(): String
+	fun filter(evaluations: List<Evaluation>): List<Evaluation>
+}

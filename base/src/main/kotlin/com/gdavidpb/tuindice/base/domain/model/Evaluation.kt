@@ -17,5 +17,5 @@ data class Evaluation(
 	val isOverdue: Boolean,
 	val isCompleted: Boolean,
 	val isContinuous: Boolean = (date.time == 0L),
-	val isAttentionRequired: Boolean = (isOverdue && !isContinuous && !isCompleted)
+	val isNotGraded: Boolean = (isOverdue && !isCompleted)
 )
