@@ -11,7 +11,7 @@ object Evaluations {
 		object Loading : State()
 
 		data class Content(
-			val evaluations: Map<String, List<Evaluation>>
+			val evaluations: List<Evaluation>
 		) : State()
 
 		object Empty : State()

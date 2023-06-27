@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class EvaluationsReducer(
 	private val resourceResolver: ResourceResolver
-) : BaseReducer<Evaluations.State, Evaluations.Event, Map<String, List<Evaluation>>, EvaluationsError>() {
+) : BaseReducer<Evaluations.State, Evaluations.Event, List<Evaluation>, EvaluationsError>() {
 
 	override fun reduceUnrecoverableState(
 		currentState: Evaluations.State,
@@ -25,14 +25,14 @@ class EvaluationsReducer(
 
 	override suspend fun reduceLoadingState(
 		currentState: Evaluations.State,
-		useCaseState: UseCaseState.Loading<Map<String, List<Evaluation>>, EvaluationsError>
+		useCaseState: UseCaseState.Loading<List<Evaluation>, EvaluationsError>
 	): Flow<ViewOutput> {
 		return flowOf(Evaluations.State.Loading)
 	}
 
 	override suspend fun reduceDataState(
 		currentState: Evaluations.State,
-		useCaseState: UseCaseState.Data<Map<String, List<Evaluation>>, EvaluationsError>
+		useCaseState: UseCaseState.Data<List<Evaluation>, EvaluationsError>
 	): Flow<ViewOutput> {
 		val evaluations = useCaseState.value
 
@@ -50,7 +50,7 @@ class EvaluationsReducer(
 
 	override suspend fun reduceErrorState(
 		currentState: Evaluations.State,
-		useCaseState: UseCaseState.Error<Map<String, List<Evaluation>>, EvaluationsError>
+		useCaseState: UseCaseState.Error<List<Evaluation>, EvaluationsError>
 	): Flow<ViewOutput> {
 		return flow {
 			when (val error = useCaseState.error) {

@@ -35,7 +35,7 @@ fun EvaluationItemView(
 	grade: Double,
 	maxGrade: Double,
 	isContinuous: Boolean,
-	isAttentionRequired: Boolean,
+	isNotGraded: Boolean,
 	isCompleted: Boolean,
 	isCompletedChange: (isCompleted: Boolean) -> Unit
 ) {
@@ -74,7 +74,7 @@ fun EvaluationItemView(
 				fontWeight = FontWeight.Bold
 			)
 
-			if (isAttentionRequired)
+			if (isNotGraded)
 				Box(
 					modifier = Modifier
 						.constrainAs(dotNotification) {
@@ -120,7 +120,7 @@ fun EvaluationItemView(
 						Icons.Outlined.CalendarToday,
 					tint = when {
 						isCompleted -> MaterialTheme.colorScheme.primary
-						isAttentionRequired -> MaterialTheme.colorScheme.error
+						isNotGraded -> MaterialTheme.colorScheme.error
 						else -> MaterialTheme.colorScheme.outline
 					},
 					contentDescription = null
@@ -130,7 +130,7 @@ fun EvaluationItemView(
 					modifier = Modifier
 						.padding(start = dimensionResource(id = R.dimen.dp_12)),
 					text = date,
-					color = if (!isAttentionRequired)
+					color = if (!isNotGraded)
 						Color.Unspecified
 					else
 						MaterialTheme.colorScheme.error,
@@ -139,7 +139,7 @@ fun EvaluationItemView(
 				)
 			}
 
-			if (isCompleted || isContinuous || isAttentionRequired)
+			if (isCompleted || isContinuous || isNotGraded)
 				Row(
 					modifier = Modifier
 						.constrainAs(textGrade) {
@@ -157,7 +157,7 @@ fun EvaluationItemView(
 						imageVector = Icons.Outlined.BookmarkBorder,
 						tint = when {
 							isCompleted -> MaterialTheme.colorScheme.primary
-							isAttentionRequired -> MaterialTheme.colorScheme.error
+							isNotGraded -> MaterialTheme.colorScheme.error
 							else -> MaterialTheme.colorScheme.outline
 						},
 						contentDescription = null
@@ -166,11 +166,11 @@ fun EvaluationItemView(
 					Text(
 						modifier = Modifier
 							.padding(start = dimensionResource(id = R.dimen.dp_12)),
-						text = if (!isAttentionRequired)
+						text = if (!isNotGraded)
 							stringResource(id = R.string.evaluation_grade, grade, maxGrade)
 						else
 							stringResource(id = R.string.evaluation_not_completed),
-						color = if (!isAttentionRequired)
+						color = if (!isNotGraded)
 							Color.Unspecified
 						else
 							MaterialTheme.colorScheme.error,

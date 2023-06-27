@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import com.gdavidpb.tuindice.evaluations.R
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 
 @OptIn(
 	ExperimentalLayoutApi::class,
@@ -33,8 +34,8 @@ import com.gdavidpb.tuindice.evaluations.R
 fun FilterView(
 	name: String,
 	icon: ImageVector,
-	entries: Map<String, MutableState<Boolean>>,
-	onEntrySelectChange: (key: String, isSelected: Boolean) -> Unit
+	entries: Map<EvaluationFilter, MutableState<Boolean>>,
+	onEntrySelect: (filter: EvaluationFilter, isSelected: Boolean) -> Unit
 ) {
 	Row(
 		modifier = Modifier
@@ -69,11 +70,11 @@ fun FilterView(
 			),
 		verticalAlignment = Alignment.CenterVertically
 	) {
-		entries.forEach { (key, isSelected) ->
+		entries.forEach { (filter, isSelected) ->
 			FilterChip(
 				selected = isSelected.value,
 				onClick = {
-					onEntrySelectChange(key, !isSelected.value)
+					onEntrySelect(filter, !isSelected.value)
 				},
 				leadingIcon = {
 					AnimatedContent(targetState = isSelected.value) { targetState ->
@@ -86,7 +87,7 @@ fun FilterView(
 				},
 				label = {
 					Text(
-						text = key,
+						text = filter.getLabel(),
 						maxLines = 1
 					)
 				}

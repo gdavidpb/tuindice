@@ -11,12 +11,14 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.dateGroup
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.dateLabel
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -25,6 +27,12 @@ fun EvaluationsContentView(
 	state: Evaluations.State.Content,
 	onAddEvaluationClick: () -> Unit
 ) {
+	val evaluationsByDate = remember {
+		state.evaluations.groupBy { evaluation ->
+			evaluation.date.dateGroup()
+		}
+	}
+
 	Box(
 		modifier = Modifier
 			.fillMaxSize()
@@ -33,7 +41,7 @@ fun EvaluationsContentView(
 			modifier = Modifier
 				.fillMaxSize()
 		) {
-			state.evaluations.forEach { (group, evaluations) ->
+			evaluationsByDate.forEach { (group, evaluations) ->
 				stickyHeader {
 					EvaluationHeaderView(label = group)
 				}
@@ -47,7 +55,7 @@ fun EvaluationsContentView(
 						grade = evaluation.grade,
 						maxGrade = evaluation.maxGrade,
 						isContinuous = evaluation.isContinuous,
-						isAttentionRequired = evaluation.isAttentionRequired,
+						isNotGraded = evaluation.isNotGraded,
 						isCompleted = evaluation.isCompleted,
 						isCompletedChange = { isCompleted -> }
 					)

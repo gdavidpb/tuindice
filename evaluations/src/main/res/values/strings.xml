@@ -43,6 +43,6 @@
 
     <string name="label_state_pending">Pendientes</string>
     <string name="label_state_completed">Completadas</string>
-    <string name="label_state_no_grade">Sin nota</string>
+    <string name="label_state_not_grade">Sin nota</string>
 
 </resources>

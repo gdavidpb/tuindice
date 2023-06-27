@@ -9,6 +9,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.rememberDialogState
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.rememberEvaluationFilters
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsDialog
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.evaluations.ui.dialog.FilterDialog
@@ -44,15 +45,18 @@ fun EvaluationsRoute(
 	}
 
 	when (val state = dialogState.value) {
-		is EvaluationsDialog.Filter ->
+		is EvaluationsDialog.Filter -> {
+			val filters = state.filters.rememberEvaluationFilters()
+
 			FilterDialog(
 				sheetState = sheetState,
-				filters = state.filters,
-				onApplyClick = {
+				items = filters,
+				onFilterClick = {
 					// TODO
 				},
 				onDismissRequest = viewModel::closeDialogAction
 			)
+		}
 
 		null -> {}
 	}
