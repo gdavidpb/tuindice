@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
+import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsError
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +13,7 @@ import kotlinx.coroutines.flow.transform
 class GetEvaluationsUseCase(
 	private val authRepository: AuthRepository,
 	private val evaluationRepository: EvaluationRepository
-) : FlowUseCase<List<EvaluationFilter>, List<Evaluation>, EvaluationsError>() {
+) : FlowUseCase<List<EvaluationFilter>, GetEvaluations, EvaluationsError>() {
 
 	private val evaluationComparator = compareBy(
 		Evaluation::isCompleted,
@@ -20,7 +21,7 @@ class GetEvaluationsUseCase(
 		Evaluation::date
 	)
 
-	override suspend fun executeOnBackground(params: List<EvaluationFilter>): Flow<List<Evaluation>> {
+	override suspend fun executeOnBackground(params: List<EvaluationFilter>): Flow<GetEvaluations> {
 		val activeUId = authRepository.getActiveAuth().uid
 
 		return evaluationRepository.getEvaluations(uid = activeUId)
@@ -39,7 +40,12 @@ class GetEvaluationsUseCase(
 							}
 						}
 
-				emit(filteredEvaluations)
+				emit(
+					GetEvaluations(
+						originalEvaluations = sortedEvaluations,
+						filteredEvaluations = filteredEvaluations
+					)
+				)
 			}
 	}
 }

@@ -27,7 +27,7 @@ fun EvaluationsContentView(
 	onAddEvaluationClick: () -> Unit
 ) {
 	val evaluationsByDate =
-		state.evaluations.groupBy { evaluation ->
+		state.filteredEvaluations.groupBy { evaluation ->
 			evaluation.date.dateGroup()
 		}
 
