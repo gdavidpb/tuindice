@@ -11,7 +11,6 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -27,11 +26,10 @@ fun EvaluationsContentView(
 	state: Evaluations.State.Content,
 	onAddEvaluationClick: () -> Unit
 ) {
-	val evaluationsByDate = remember {
+	val evaluationsByDate =
 		state.evaluations.groupBy { evaluation ->
 			evaluation.date.dateGroup()
 		}
-	}
 
 	Box(
 		modifier = Modifier
@@ -57,7 +55,7 @@ fun EvaluationsContentView(
 						isContinuous = evaluation.isContinuous,
 						isNotGraded = evaluation.isNotGraded,
 						isCompleted = evaluation.isCompleted,
-						isCompletedChange = { isCompleted -> }
+						isCompletedChange = { isCompleted -> TODO() }
 					)
 				}
 			}

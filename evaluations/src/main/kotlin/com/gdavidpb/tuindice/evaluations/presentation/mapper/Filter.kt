@@ -6,6 +6,7 @@ import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.School
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateFilter
@@ -15,31 +16,39 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterSectionItem
 
 @Composable
-fun Collection<EvaluationFilter>.rememberEvaluationFilters() =
-	groupBy { filter -> filter::class }
-		.map { (clazz, filters) ->
-			when (clazz) {
-				EvaluationStateFilter::class ->
-					EvaluationFilterSectionItem(
-						name = stringResource(id = R.string.label_category_state),
-						icon = Icons.Outlined.Category,
-						entries = filters.associateWith { mutableStateOf(false) }
-					)
+fun Collection<EvaluationFilter>.rememberEvaluationFilters(): List<EvaluationFilterSectionItem> {
+	val state = stringResource(id = R.string.label_category_state)
+	val subject = stringResource(id = R.string.label_category_subject)
+	val date = stringResource(id = R.string.label_category_date)
 
-				EvaluationSubjectFilter::class ->
-					EvaluationFilterSectionItem(
-						name = stringResource(id = R.string.label_category_subject),
-						icon = Icons.Outlined.School,
-						entries = filters.associateWith { mutableStateOf(false) }
-					)
+	return remember {
+		groupBy { filter -> filter::class }
+			.map { (clazz, filters) ->
+				when (clazz) {
+					EvaluationStateFilter::class ->
+						EvaluationFilterSectionItem(
+							name = state,
+							icon = Icons.Outlined.Category,
+							entries = filters.associateWith { mutableStateOf(false) }
+						)
 
-				EvaluationDateFilter::class ->
-					EvaluationFilterSectionItem(
-						name = stringResource(id = R.string.label_category_date),
-						icon = Icons.Outlined.CalendarMonth,
-						entries = filters.associateWith { mutableStateOf(false) }
-					)
+					EvaluationSubjectFilter::class ->
+						EvaluationFilterSectionItem(
+							name = subject,
+							icon = Icons.Outlined.School,
+							entries = filters.associateWith { mutableStateOf(false) }
+						)
 
-				else -> throw NoWhenBranchMatchedException()
+					EvaluationDateFilter::class ->
+						EvaluationFilterSectionItem(
+							name = date,
+							icon = Icons.Outlined.CalendarMonth,
+							entries = filters.associateWith { mutableStateOf(false) }
+						)
+
+					else -> throw NoWhenBranchMatchedException()
+				}
 			}
-		}
+	}
+}
+

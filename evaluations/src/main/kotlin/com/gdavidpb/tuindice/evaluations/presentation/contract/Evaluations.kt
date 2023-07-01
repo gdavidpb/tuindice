@@ -20,14 +20,21 @@ object Evaluations {
 	}
 
 	sealed class Action : ViewAction {
-		object LoadEvaluation : Action()
+		class LoadEvaluation(
+			val filters: List<EvaluationFilter>
+		) : Action()
+
 		object AddEvaluation : Action()
+
 		object OpenEvaluationsFilters : Action()
+
 		object CloseDialog : Action()
 	}
 
 	sealed class Event : ViewEvent {
-		class ShowSnackBar(val message: String) : Event()
+		class ShowSnackBar(
+			val message: String
+		) : Event()
 
 		class ShowFilterEvaluationsDialog(
 			val filters: List<EvaluationFilter>

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.base.utils.extension.collect
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetFiltersUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
@@ -15,8 +16,8 @@ class EvaluationsViewModel(
 	private val filtersReducer: FiltersReducer
 ) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Event>(initialViewState = Evaluations.State.Loading) {
 
-	fun loadEvaluationsAction() =
-		emitAction(Evaluations.Action.LoadEvaluation)
+	fun loadEvaluationsAction(filters: List<EvaluationFilter> = listOf()) =
+		emitAction(Evaluations.Action.LoadEvaluation(filters))
 
 	fun addEvaluationAction() =
 		emitAction(Evaluations.Action.AddEvaluation)
@@ -31,7 +32,7 @@ class EvaluationsViewModel(
 		when (action) {
 			is Evaluations.Action.LoadEvaluation ->
 				getEvaluationsUseCase
-					.execute(params = Unit)
+					.execute(params = action.filters)
 					.collect(viewModel = this, reducer = evaluationsReducer)
 
 			is Evaluations.Action.AddEvaluation ->

@@ -10,9 +10,7 @@ class EvaluationStateFilter(
 		return label
 	}
 
-	override fun filter(evaluations: List<Evaluation>): List<Evaluation> {
-		return evaluations.filter { evaluation ->
-			selector(evaluation)
-		}
+	override fun filter(evaluation: Evaluation): Boolean {
+		return selector(evaluation)
 	}
 }
