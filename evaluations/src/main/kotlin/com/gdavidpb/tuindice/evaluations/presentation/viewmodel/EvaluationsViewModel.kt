@@ -43,7 +43,7 @@ class EvaluationsViewModel(
 
 				if (currentState is Evaluations.State.Content) {
 					getFiltersUseCase
-						.execute(params = currentState.evaluations)
+						.execute(params = currentState.originalEvaluations)
 						.collect(viewModel = this, reducer = filtersReducer)
 				}
 			}

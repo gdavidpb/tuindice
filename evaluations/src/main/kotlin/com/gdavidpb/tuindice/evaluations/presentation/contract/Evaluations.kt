@@ -11,7 +11,8 @@ object Evaluations {
 		object Loading : State()
 
 		data class Content(
-			val evaluations: List<Evaluation>
+			val originalEvaluations: List<Evaluation>,
+			val filteredEvaluations: List<Evaluation>
 		) : State()
 
 		object Empty : State()
