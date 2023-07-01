@@ -13,6 +13,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
 import com.gdavidpb.tuindice.evaluations.R
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterSectionItem
 import com.gdavidpb.tuindice.evaluations.ui.view.FilterView
 
@@ -21,7 +22,7 @@ import com.gdavidpb.tuindice.evaluations.ui.view.FilterView
 fun FilterDialog(
 	sheetState: SheetState,
 	items: List<EvaluationFilterSectionItem>,
-	onFilterClick: () -> Unit,
+	onFilterApplied: (activeFilters: List<EvaluationFilter>) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
 	ConfirmationDialog(
@@ -29,7 +30,19 @@ fun FilterDialog(
 		titleText = stringResource(id = R.string.title_filter_evaluations),
 		positiveText = stringResource(id = R.string.button_filter_evaluations),
 		negativeText = stringResource(id = R.string.cancel),
-		onPositiveClick = onFilterClick,
+		onPositiveClick = {
+			val activeFilters = items
+				.flatMap { item ->
+					item
+						.entries
+						.entries
+						.mapNotNull { (filter, state) ->
+							if (state.value) filter else null
+						}
+				}
+
+			onFilterApplied(activeFilters)
+		},
 		onNegativeClick = onDismissRequest,
 		onDismissRequest = onDismissRequest
 	) {

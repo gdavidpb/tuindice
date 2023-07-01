@@ -33,7 +33,9 @@ fun EvaluationsRoute(
 				showSnackBar(event.message, null, null)
 
 			is Evaluations.Event.ShowFilterEvaluationsDialog ->
-				dialogState.value = EvaluationsDialog.Filter(filters = event.filters)
+				dialogState.value = EvaluationsDialog.Filter(
+					filters = event.filters
+				)
 
 			is Evaluations.Event.CloseDialog ->
 				dialogState.value = null
@@ -51,9 +53,7 @@ fun EvaluationsRoute(
 			FilterDialog(
 				sheetState = sheetState,
 				items = filters,
-				onFilterClick = {
-					// TODO
-				},
+				onFilterApplied = viewModel::loadEvaluationsAction,
 				onDismissRequest = viewModel::closeDialogAction
 			)
 		}

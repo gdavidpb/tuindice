@@ -9,9 +9,7 @@ class EvaluationSubjectFilter(
 		return subjectCode
 	}
 
-	override fun filter(evaluations: List<Evaluation>): List<Evaluation> {
-		return evaluations.filter { evaluation ->
-			subjectCode == evaluation.subjectName
-		}
+	override fun filter(evaluation: Evaluation): Boolean {
+		return subjectCode == evaluation.subjectCode
 	}
 }

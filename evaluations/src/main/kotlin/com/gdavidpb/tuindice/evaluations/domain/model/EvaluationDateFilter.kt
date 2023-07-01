@@ -10,9 +10,7 @@ class EvaluationDateFilter(
 		return date
 	}
 
-	override fun filter(evaluations: List<Evaluation>): List<Evaluation> {
-		return evaluations.filter { evaluation ->
-			date == evaluation.date.dateGroup()
-		}
+	override fun filter(evaluation: Evaluation): Boolean {
+		return date == evaluation.date.dateGroup()
 	}
 }

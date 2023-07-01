@@ -8,8 +8,8 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class FiltersReducer
-	: BaseReducer<Evaluations.State, Evaluations.Event, List<EvaluationFilter>, Nothing>() {
+class FiltersReducer :
+	BaseReducer<Evaluations.State, Evaluations.Event, List<EvaluationFilter>, Nothing>() {
 	override suspend fun reduceDataState(
 		currentState: Evaluations.State,
 		useCaseState: UseCaseState.Data<List<EvaluationFilter>, Nothing>
