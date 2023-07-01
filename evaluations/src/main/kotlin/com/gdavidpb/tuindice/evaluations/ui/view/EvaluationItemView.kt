@@ -28,6 +28,7 @@ import com.gdavidpb.tuindice.evaluations.R
 
 @Composable
 fun EvaluationItemView(
+	modifier: Modifier = Modifier,
 	name: String,
 	subjectCode: String,
 	date: String,
@@ -40,7 +41,7 @@ fun EvaluationItemView(
 	isCompletedChange: (isCompleted: Boolean) -> Unit
 ) {
 	ElevatedCard(
-		modifier = Modifier
+		modifier = modifier
 			.fillMaxWidth()
 			.padding(
 				horizontal = dimensionResource(id = R.dimen.dp_16),

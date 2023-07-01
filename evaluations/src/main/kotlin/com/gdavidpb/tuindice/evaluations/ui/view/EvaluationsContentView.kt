@@ -46,6 +46,8 @@ fun EvaluationsContentView(
 
 				items(evaluations) { evaluation ->
 					EvaluationItemView(
+						modifier = Modifier
+							.animateItemPlacement(),
 						name = evaluation.name,
 						subjectCode = evaluation.subjectCode,
 						date = evaluation.date.dateLabel(),
