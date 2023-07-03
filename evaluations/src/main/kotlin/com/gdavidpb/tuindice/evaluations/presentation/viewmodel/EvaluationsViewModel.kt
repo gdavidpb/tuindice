@@ -35,15 +35,25 @@ class EvaluationsViewModel(
 				TODO()
 
 			is Evaluations.Action.OpenEvaluationsFilters -> {
-				val currentState = getCurrentState()
-
-				if (currentState is Evaluations.State.Content) {
-					sendEvent(
-						Evaluations.Event.ShowFilterEvaluationsDialog(
-							availableFilters = currentState.availableFilters,
-							activeFilters = currentState.activeFilters
+				when (val currentState = getCurrentState()) {
+					is Evaluations.State.Content -> {
+						sendEvent(
+							Evaluations.Event.ShowFilterEvaluationsDialog(
+								availableFilters = currentState.availableFilters,
+								activeFilters = currentState.activeFilters
+							)
 						)
-					)
+					}
+
+					is Evaluations.State.EmptyMatch ->
+						sendEvent(
+							Evaluations.Event.ShowFilterEvaluationsDialog(
+								availableFilters = currentState.availableFilters,
+								activeFilters = currentState.activeFilters
+							)
+						)
+
+					else -> {}
 				}
 			}
 

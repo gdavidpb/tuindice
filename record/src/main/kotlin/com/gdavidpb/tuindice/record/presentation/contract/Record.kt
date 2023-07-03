@@ -12,7 +12,7 @@ object Record {
 	sealed class State : ViewState {
 		object Loading : State()
 
-		class Content(
+		data class Content(
 			val quarters: List<Quarter>
 		) : State()
 
