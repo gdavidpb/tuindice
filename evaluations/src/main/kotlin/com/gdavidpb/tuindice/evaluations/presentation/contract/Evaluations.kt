@@ -12,7 +12,9 @@ object Evaluations {
 
 		data class Content(
 			val originalEvaluations: List<Evaluation>,
-			val filteredEvaluations: List<Evaluation>
+			val filteredEvaluations: List<Evaluation>,
+			val availableFilters: List<EvaluationFilter>,
+			val activeFilters: List<EvaluationFilter>
 		) : State()
 
 		object Empty : State()
@@ -38,7 +40,8 @@ object Evaluations {
 		) : Event()
 
 		class ShowFilterEvaluationsDialog(
-			val filters: List<EvaluationFilter>
+			val availableFilters: List<EvaluationFilter>,
+			val activeFilters: List<EvaluationFilter>
 		) : Event()
 
 		object CloseDialog : Event()

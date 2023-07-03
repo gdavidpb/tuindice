@@ -4,16 +4,12 @@ import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetFiltersUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.FiltersReducer
 
 class EvaluationsViewModel(
 	private val getEvaluationsUseCase: GetEvaluationsUseCase,
-	private val getFiltersUseCase: GetFiltersUseCase,
-	private val evaluationsReducer: EvaluationsReducer,
-	private val filtersReducer: FiltersReducer
+	private val evaluationsReducer: EvaluationsReducer
 ) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Event>(initialViewState = Evaluations.State.Loading) {
 
 	fun loadEvaluationsAction(filters: List<EvaluationFilter> = listOf()) =
@@ -42,9 +38,12 @@ class EvaluationsViewModel(
 				val currentState = getCurrentState()
 
 				if (currentState is Evaluations.State.Content) {
-					getFiltersUseCase
-						.execute(params = currentState.originalEvaluations)
-						.collect(viewModel = this, reducer = filtersReducer)
+					sendEvent(
+						Evaluations.Event.ShowFilterEvaluationsDialog(
+							availableFilters = currentState.availableFilters,
+							activeFilters = currentState.activeFilters
+						)
+					)
 				}
 			}
 
