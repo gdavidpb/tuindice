@@ -37,19 +37,27 @@ class EvaluationsReducer(
 		val evaluations = useCaseState.value
 
 		return flow {
-			if (evaluations.filteredEvaluations.isNotEmpty())
-				emit(
-					Evaluations.State.Content(
-						originalEvaluations = evaluations.originalEvaluations,
-						filteredEvaluations = evaluations.filteredEvaluations,
-						availableFilters = evaluations.availableFilters,
-						activeFilters = evaluations.activeFilters
+			when {
+				evaluations.filteredEvaluations.isNotEmpty() ->
+					emit(
+						Evaluations.State.Content(
+							originalEvaluations = evaluations.originalEvaluations,
+							filteredEvaluations = evaluations.filteredEvaluations,
+							availableFilters = evaluations.availableFilters,
+							activeFilters = evaluations.activeFilters
+						)
 					)
-				)
-			else
-				emit(
-					Evaluations.State.Empty
-				)
+
+				evaluations.activeFilters.isNotEmpty() ->
+					emit(
+						Evaluations.State.EmptyMatch
+					)
+
+				else ->
+					emit(
+						Evaluations.State.Empty
+					)
+			}
 		}
 	}
 
