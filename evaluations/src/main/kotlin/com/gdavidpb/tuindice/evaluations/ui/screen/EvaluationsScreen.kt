@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
+import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyMatchView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsFailedView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsLoadingView
@@ -12,6 +13,7 @@ import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsLoadingView
 fun EvaluationsScreen(
 	state: Evaluations.State,
 	onAddEvaluationClick: () -> Unit,
+	onClearFiltersClick: () -> Unit,
 	onRetryClick: () -> Unit
 ) {
 	SealedCrossfade(
@@ -33,7 +35,14 @@ fun EvaluationsScreen(
 				)
 
 			is Evaluations.State.Empty ->
-				EvaluationsEmptyView()
+				EvaluationsEmptyView(
+					onAddEvaluationClick = onAddEvaluationClick
+				)
+
+			is Evaluations.State.EmptyMatch ->
+				EvaluationsEmptyMatchView(
+					onClearFiltersClick = onClearFiltersClick
+				)
 		}
 	}
 }

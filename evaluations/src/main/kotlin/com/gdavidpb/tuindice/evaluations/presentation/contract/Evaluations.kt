@@ -19,6 +19,8 @@ object Evaluations {
 
 		object Empty : State()
 
+		object EmptyMatch : State()
+
 		object Failed : State()
 	}
 

@@ -3,10 +3,14 @@
 
     <!-- EvaluationsScreen -->
 
-    <string name="label_empty_evaluations">
-        ¡Parece que no hay nada por acá!\n
-        Recuerda que la organización es el secreto del éxito
-    </string>
+    <string name="title_empty_evaluations">¡Aún no hay nada por acá!</string>
+    <string name="message_empty_evaluations">Recuerda que la organización es el secreto del éxito.</string>
+
+    <string name="title_empty_match_evaluations">No hay resultados</string>
+    <string name="message_empty_match_evaluations">No se encontraron evaluaciones para la búsqueda indicada.</string>
+
+    <string name="button_filters_clear">Limpiar filtros</string>
+    <string name="button_add_evaluation">Agregar evaluación</string>
 
     <string name="evaluation_grade">%1$.2f / %2$.2f</string>
     <string name="evaluation_title">%1$s ─ %2$s</string>
