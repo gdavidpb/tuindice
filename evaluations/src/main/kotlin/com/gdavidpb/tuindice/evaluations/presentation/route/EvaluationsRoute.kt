@@ -34,7 +34,8 @@ fun EvaluationsRoute(
 
 			is Evaluations.Event.ShowFilterEvaluationsDialog ->
 				dialogState.value = EvaluationsDialog.Filter(
-					filters = event.filters
+					availableFilters = event.availableFilters,
+					activeFilters = event.activeFilters
 				)
 
 			is Evaluations.Event.CloseDialog ->
@@ -48,7 +49,10 @@ fun EvaluationsRoute(
 
 	when (val state = dialogState.value) {
 		is EvaluationsDialog.Filter -> {
-			val filters = state.filters.rememberEvaluationFilters()
+			val filters = rememberEvaluationFilters(
+				availableFilters = state.availableFilters,
+				activeFilters = state.activeFilters
+			)
 
 			FilterDialog(
 				sheetState = sheetState,

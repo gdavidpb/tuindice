@@ -17,7 +17,6 @@ import com.gdavidpb.tuindice.evaluations.data.room.RoomDataSource
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetFiltersUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
@@ -28,7 +27,6 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluati
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.FiltersReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.UpdateEvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -51,7 +49,6 @@ val evaluationsModule = module {
 	factoryOf(::EvaluationReducer)
 	factoryOf(::AddEvaluationReducer)
 	factoryOf(::UpdateEvaluationReducer)
-	factoryOf(::FiltersReducer)
 
 	/* Use cases */
 
@@ -60,7 +57,6 @@ val evaluationsModule = module {
 	factoryOf(::UpdateEvaluationUseCase)
 	factoryOf(::RemoveEvaluationUseCase)
 	factoryOf(::AddEvaluationUseCase)
-	factoryOf(::GetFiltersUseCase)
 
 	/* Validators */
 

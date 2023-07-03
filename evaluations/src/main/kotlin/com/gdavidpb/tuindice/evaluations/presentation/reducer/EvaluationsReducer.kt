@@ -41,7 +41,9 @@ class EvaluationsReducer(
 				emit(
 					Evaluations.State.Content(
 						originalEvaluations = evaluations.originalEvaluations,
-						filteredEvaluations = evaluations.filteredEvaluations
+						filteredEvaluations = evaluations.filteredEvaluations,
+						availableFilters = evaluations.availableFilters,
+						activeFilters = evaluations.activeFilters
 					)
 				)
 			else

@@ -16,34 +16,43 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterSectionItem
 
 @Composable
-fun Collection<EvaluationFilter>.rememberEvaluationFilters(): List<EvaluationFilterSectionItem> {
+fun rememberEvaluationFilters(
+	availableFilters: List<EvaluationFilter>,
+	activeFilters: List<EvaluationFilter>
+): List<EvaluationFilterSectionItem> {
 	val state = stringResource(id = R.string.label_category_state)
 	val subject = stringResource(id = R.string.label_category_subject)
 	val date = stringResource(id = R.string.label_category_date)
 
 	return remember {
-		groupBy { filter -> filter::class }
+		availableFilters.groupBy { filter -> filter::class }
 			.map { (clazz, filters) ->
 				when (clazz) {
 					EvaluationStateFilter::class ->
 						EvaluationFilterSectionItem(
 							name = state,
 							icon = Icons.Outlined.Category,
-							entries = filters.associateWith { mutableStateOf(false) }
+							entries = filters.associateWith { filter ->
+								mutableStateOf(activeFilters.contains(filter))
+							}
 						)
 
 					EvaluationSubjectFilter::class ->
 						EvaluationFilterSectionItem(
 							name = subject,
 							icon = Icons.Outlined.School,
-							entries = filters.associateWith { mutableStateOf(false) }
+							entries = filters.associateWith { filter ->
+								mutableStateOf(activeFilters.contains(filter))
+							}
 						)
 
 					EvaluationDateFilter::class ->
 						EvaluationFilterSectionItem(
 							name = date,
 							icon = Icons.Outlined.CalendarMonth,
-							entries = filters.associateWith { mutableStateOf(false) }
+							entries = filters.associateWith { filter ->
+								mutableStateOf(activeFilters.contains(filter))
+							}
 						)
 
 					else -> throw NoWhenBranchMatchedException()

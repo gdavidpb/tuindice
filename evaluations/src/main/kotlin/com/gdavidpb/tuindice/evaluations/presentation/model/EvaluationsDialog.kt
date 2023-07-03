@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 
 sealed class EvaluationsDialog : Dialog {
 	class Filter(
-		val filters: List<EvaluationFilter>
+		val availableFilters: List<EvaluationFilter>,
+		val activeFilters: List<EvaluationFilter>
 	) : EvaluationsDialog()
 }
