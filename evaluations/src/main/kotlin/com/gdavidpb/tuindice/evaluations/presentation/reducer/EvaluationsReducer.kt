@@ -50,7 +50,10 @@ class EvaluationsReducer(
 
 				evaluations.activeFilters.isNotEmpty() ->
 					emit(
-						Evaluations.State.EmptyMatch
+						Evaluations.State.EmptyMatch(
+							availableFilters = evaluations.availableFilters,
+							activeFilters = evaluations.activeFilters
+						)
 					)
 
 				else ->

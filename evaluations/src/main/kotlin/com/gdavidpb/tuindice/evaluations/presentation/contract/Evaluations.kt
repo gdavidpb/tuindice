@@ -19,7 +19,10 @@ object Evaluations {
 
 		object Empty : State()
 
-		object EmptyMatch : State()
+		data class EmptyMatch(
+			val availableFilters: List<EvaluationFilter>,
+			val activeFilters: List<EvaluationFilter>
+		) : State()
 
 		object Failed : State()
 	}
