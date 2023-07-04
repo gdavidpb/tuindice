@@ -34,12 +34,25 @@ object Evaluations {
 
 		object AddEvaluation : Action()
 
+		class EditEvaluation(
+			val evaluationId: String
+		) : Action()
+
 		object OpenEvaluationsFilters : Action()
 
 		object CloseDialog : Action()
 	}
 
 	sealed class Event : ViewEvent {
+		class NavigateToAddEvaluation(
+			val title: String
+		) : Event()
+
+		class NavigateToEvaluation(
+			val title: String,
+			val evaluationId: String
+		) : Event()
+
 		class ShowSnackBar(
 			val message: String
 		) : Event()

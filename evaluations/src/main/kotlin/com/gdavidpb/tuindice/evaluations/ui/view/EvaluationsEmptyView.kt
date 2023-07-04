@@ -12,7 +12,7 @@ fun EvaluationsEmptyView(
 	EmptyView(
 		title = stringResource(id = R.string.title_empty_evaluations),
 		message = stringResource(id = R.string.message_empty_evaluations),
-		action = stringResource(id = R.string.button_add_evaluation),
+		actionLabel = stringResource(id = R.string.button_add_evaluation),
 		onActionClick = onAddEvaluationClick
 	)
 }

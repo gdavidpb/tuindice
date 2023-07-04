@@ -70,6 +70,14 @@ sealed class Destination(
 			bottomBarConfig = BottomBarConfig.Evaluations
 		)
 
+	object Evaluation :
+		Destination(
+			route = "evaluation",
+			title = "{title}",
+			isTopDestination = false,
+			isBottomDestination = false
+		)
+
 	object About :
 		Destination(
 			route = "about",

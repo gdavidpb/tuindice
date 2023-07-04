@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -24,7 +25,8 @@ import com.gdavidpb.tuindice.evaluations.presentation.mapper.dateLabel
 @Composable
 fun EvaluationsContentView(
 	state: Evaluations.State.Content,
-	onAddEvaluationClick: () -> Unit
+	onAddEvaluationClick: () -> Unit,
+	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
 	val evaluationsByDate =
 		state.filteredEvaluations.groupBy { evaluation ->
@@ -47,6 +49,9 @@ fun EvaluationsContentView(
 				items(evaluations) { evaluation ->
 					EvaluationItemView(
 						modifier = Modifier
+							.clickable {
+								onEvaluationClick(evaluation.evaluationId)
+							}
 							.animateItemPlacement(),
 						name = evaluation.name,
 						subjectCode = evaluation.subjectCode,

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -63,5 +64,9 @@ private fun buildTitleWithArgs(entry: NavBackStackEntry, destination: Destinatio
 	destination.title.replace(titleArgsRegex) { match ->
 		val key = match.value.trim('{', '}')
 
-		entry.arguments?.getString(key, null) ?: error("There is no value for '$key' arg.")
+		entry
+			.arguments
+			?.getString(key, null)
+			.let(Uri::decode)
+			?: error("There is no value for '$key' arg.")
 	}

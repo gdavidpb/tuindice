@@ -25,7 +25,7 @@ import com.gdavidpb.tuindice.base.R
 fun EmptyView(
 	title: String,
 	message: String,
-	action: String? = null,
+	actionLabel: String? = null,
 	onActionClick: () -> Unit = {}
 ) {
 	val lottieComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.an_empty))
@@ -58,10 +58,10 @@ fun EmptyView(
 			style = MaterialTheme.typography.bodyMedium
 		)
 
-		if (action != null)
+		if (actionLabel != null)
 			Button(onClick = onActionClick) {
 				Text(
-					text = action
+					text = actionLabel
 				)
 			}
 	}
