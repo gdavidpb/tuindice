@@ -32,7 +32,10 @@ import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.mapScreenDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchDialog
+import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationScreen
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsScreen
+import com.gdavidpb.tuindice.evaluations.presentation.navigation.navigateToAddEvaluation
+import com.gdavidpb.tuindice.evaluations.presentation.navigation.navigateToEvaluation
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignIn
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToUpdatePassword
 import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
@@ -193,6 +196,16 @@ fun TuIndiceScreen(
 			)
 
 			evaluationsScreen(
+				navigateToAddEvaluation = { args ->
+					navController.navigateToAddEvaluation(args)
+				},
+				navigateToEvaluation = { args ->
+					navController.navigateToEvaluation(args)
+				},
+				showSnackBar = showSnackBar
+			)
+
+			evaluationScreen(
 				showSnackBar = showSnackBar
 			)
 

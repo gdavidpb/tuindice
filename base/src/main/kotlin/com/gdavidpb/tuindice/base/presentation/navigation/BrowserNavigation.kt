@@ -14,7 +14,7 @@ data class BrowserArgs(
 )
 
 fun NavController.navigateToBrowser(args: BrowserArgs) {
-	val title = args.title
+	val title = Uri.encode(args.title)
 	val url = Uri.encode(args.url)
 
 	navigate("${Destination.Browser.route}/$title/$url")

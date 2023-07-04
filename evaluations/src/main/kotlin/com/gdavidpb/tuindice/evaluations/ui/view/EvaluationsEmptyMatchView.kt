@@ -12,7 +12,7 @@ fun EvaluationsEmptyMatchView(
 	EmptyView(
 		title = stringResource(id = R.string.title_empty_match_evaluations),
 		message = stringResource(id = R.string.message_empty_match_evaluations),
-		action = stringResource(id = R.string.button_filters_clear),
+		actionLabel = stringResource(id = R.string.button_filters_clear),
 		onActionClick = onClearFiltersClick
 	)
 }

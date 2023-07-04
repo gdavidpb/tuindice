@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsLoadingView
 fun EvaluationsScreen(
 	state: Evaluations.State,
 	onAddEvaluationClick: () -> Unit,
+	onEvaluationClick: (evaluationId: String) -> Unit,
 	onClearFiltersClick: () -> Unit,
 	onRetryClick: () -> Unit
 ) {
@@ -26,7 +27,8 @@ fun EvaluationsScreen(
 			is Evaluations.State.Content ->
 				EvaluationsContentView(
 					state = targetState,
-					onAddEvaluationClick = onAddEvaluationClick
+					onAddEvaluationClick = onAddEvaluationClick,
+					onEvaluationClick = onEvaluationClick
 				)
 
 			is Evaluations.State.Failed ->
