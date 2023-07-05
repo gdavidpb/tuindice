@@ -24,6 +24,7 @@
     <string name="label_evaluation_select_date">Selecciona una fecha</string>
     <string name="label_evaluation_no_date">Evaluación continua</string>
 
+    <string name="hint_evaluation_subject">Materia de la evaluación</string>
     <string name="hint_evaluation_name">Nombre de la evaluación</string>
     <string name="hint_evaluation_grade">Valor de la  evaluación</string>
 
