@@ -22,6 +22,15 @@ abstract class QuarterDao : UpsertDao<QuarterEntity>() {
 
 	@Query(
 		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
+				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid " +
+				"AND ${QuarterTable.STATUS} = $STATUS_QUARTER_CURRENT"
+	)
+	abstract fun getCurrentQuarterWithSubjects(
+		uid: String
+	): Flow<QuarterWithSubjects?>
+
+	@Query(
+		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
 				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid"
 	)
 	@Transaction

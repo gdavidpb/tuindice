@@ -18,9 +18,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.gdavidpb.tuindice.persistence.utils.MAX_SUBJECT_GRADE
+import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.R
-import com.gdavidpb.tuindice.record.utils.MAX_SUBJECT_GRADE
-import com.gdavidpb.tuindice.record.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.utils.Ranges
 
 @Composable
