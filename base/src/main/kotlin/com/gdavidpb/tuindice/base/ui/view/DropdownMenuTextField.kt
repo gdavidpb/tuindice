@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 
 interface DropdownMenuItem {
 	val text: String
@@ -56,7 +57,8 @@ fun <T : DropdownMenuItem> DropdownMenuTextField(
 				)
 			},
 			leadingIcon = leadingIcon,
-			colors = ExposedDropdownMenuDefaults.textFieldColors()
+			colors = ExposedDropdownMenuDefaults.textFieldColors(),
+			singleLine = true
 		)
 		ExposedDropdownMenu(
 			expanded = expanded.value,
@@ -66,7 +68,13 @@ fun <T : DropdownMenuItem> DropdownMenuTextField(
 		) {
 			items.forEach { item ->
 				DropdownMenuItem(
-					text = { Text(text = item.text) },
+					text = {
+						Text(
+							text = item.text,
+							maxLines = 1,
+							overflow = TextOverflow.Ellipsis
+						)
+					},
 					onClick = {
 						onItemSelected(item)
 						selectedItemText.value = item.text

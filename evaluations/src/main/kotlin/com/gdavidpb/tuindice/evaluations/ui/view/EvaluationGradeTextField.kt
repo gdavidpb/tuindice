@@ -35,7 +35,7 @@ fun EvaluationGradeTextField(
 		onValueChange = { newValue ->
 			val newGrade = newValue.text.toDoubleOrNull()
 			val isValid = newGrade != null && newGrade in MIN_EVALUATION_GRADE..maxGrade
-			val isEmpty = newValue.text.isEmpty()
+			val isEmpty = newGrade != null && newGrade.isNaN() || newValue.text.isEmpty()
 
 			if (isValid || isEmpty) {
 				supportingText.value = null
