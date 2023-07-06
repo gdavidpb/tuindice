@@ -29,7 +29,9 @@ fun EvaluationContentView(
 
 	Column(
 		modifier = Modifier
-			.padding(dimensionResource(id = R.dimen.dp_24))
+			.padding(
+				horizontal = dimensionResource(id = R.dimen.dp_24)
+			)
 			.fillMaxSize()
 	) {
 		EvaluationSubjectTextField(
