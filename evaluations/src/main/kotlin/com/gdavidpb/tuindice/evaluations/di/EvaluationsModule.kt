@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.evaluations.data.resolution.EvaluationResolutionHan
 import com.gdavidpb.tuindice.evaluations.data.room.RoomDataSource
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
@@ -25,6 +26,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateE
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.UpdateEvaluationReducer
@@ -51,6 +53,7 @@ val evaluationsModule = module {
 	factoryOf(::EvaluationReducer)
 	factoryOf(::AddEvaluationReducer)
 	factoryOf(::UpdateEvaluationReducer)
+	factoryOf(::AvailableSubjectsReducer)
 
 	/* Use cases */
 
@@ -59,6 +62,7 @@ val evaluationsModule = module {
 	factoryOf(::UpdateEvaluationUseCase)
 	factoryOf(::RemoveEvaluationUseCase)
 	factoryOf(::AddEvaluationUseCase)
+	factoryOf(::GetAvailableSubjectsUseCase)
 
 	/* Validators */
 

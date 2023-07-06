@@ -17,7 +17,9 @@ fun EvaluationRoute(
 	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit,
 	viewModel: EvaluationViewModel = koinViewModel()
 ) {
-	fun loadEvaluation(evaluationId: String) {
+	fun init() {
+		viewModel.loadAvailableSubjectsAction()
+
 		if (evaluationId.isNotEmpty())
 			viewModel.loadEvaluationAction(
 				GetEvaluationParams(
@@ -40,13 +42,13 @@ fun EvaluationRoute(
 	}
 
 	LaunchedEffect(Unit) {
-		loadEvaluation(evaluationId)
+		init()
 	}
 
 	EvaluationScreen(
 		state = viewState,
 		onRetryClick = {
-			loadEvaluation(evaluationId)
+			init()
 		}
 	)
 }

@@ -14,14 +14,16 @@ object Evaluation {
 			val availableSubjects: List<Subject>,
 			val subject: Subject? = null,
 			val name: String = "",
-			val grade: Double = 0.0,
-			val maxGrade: Double = 0.0
+			val grade: Double = Double.NaN,
+			val maxGrade: Double = Double.NaN
 		) : State()
 
 		object Failed : State()
 	}
 
 	sealed class Action : ViewAction {
+		object LoadAvailableSubjects : Action()
+
 		class LoadEvaluation(val params: GetEvaluationParams) : Action()
 	}
 
