@@ -54,7 +54,7 @@ fun EvaluationsContentView(
 							}
 							.animateItemPlacement(),
 						name = evaluation.name,
-						subjectCode = evaluation.subjectCode,
+						subjectCode = evaluation.subject.code,
 						date = evaluation.date.dateLabel(),
 						type = stringResource(id = evaluation.type.stringRes),
 						grade = evaluation.grade,

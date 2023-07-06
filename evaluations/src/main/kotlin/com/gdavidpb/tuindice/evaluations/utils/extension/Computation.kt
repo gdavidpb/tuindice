@@ -35,7 +35,7 @@ fun List<Evaluation>.computeAvailableFilters(resourceResolver: ResourceResolver)
 	)
 
 	val subjectsFilters =
-		map { evaluation -> evaluation.subjectCode }
+		map { evaluation -> evaluation.subject.code }
 			.distinct()
 			.map { subject -> EvaluationSubjectFilter(subject) }
 

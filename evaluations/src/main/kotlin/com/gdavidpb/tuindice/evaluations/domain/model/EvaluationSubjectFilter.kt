@@ -10,7 +10,7 @@ class EvaluationSubjectFilter(
 	}
 
 	override fun filter(evaluation: Evaluation): Boolean {
-		return subjectCode == evaluation.subjectCode
+		return subjectCode == evaluation.subject.code
 	}
 
 	override fun equals(other: Any?): Boolean {

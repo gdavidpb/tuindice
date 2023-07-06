@@ -13,7 +13,7 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "jsonBody":       {
+    "jsonBody": {
       "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
       "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
       "code": "FS1112",

@@ -9,4 +9,6 @@ dependencies {
     implementation project(":base")
     implementation project(":persistence")
     implementation project(":transactions")
+
+    implementation project(":record")
 }

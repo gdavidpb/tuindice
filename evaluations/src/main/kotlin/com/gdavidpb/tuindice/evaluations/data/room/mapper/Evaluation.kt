@@ -4,6 +4,8 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.utils.extension.isOverdue
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
+import com.gdavidpb.tuindice.persistence.data.room.mapper.toSubject
+import com.gdavidpb.tuindice.persistence.data.room.otm.EvaluationWithSubject
 import java.util.Date
 
 fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
@@ -11,8 +13,6 @@ fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	subjectId = subjectId,
 	quarterId = quarterId,
 	accountId = uid,
-	subjectCode = subjectCode,
-	subjectName = subjectName,
 	name = name,
 	grade = grade,
 	maxGrade = maxGrade,
@@ -22,17 +22,11 @@ fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	isCompleted = isCompleted
 )
 
-fun EvaluationAdd.toEvaluationEntity(
-	uid: String,
-	subjectCode: String,
-	subjectName: String
-) = EvaluationEntity(
+fun EvaluationAdd.toEvaluationEntity(uid: String) = EvaluationEntity(
 	id = reference,
 	subjectId = subjectId,
 	quarterId = quarterId,
 	accountId = uid,
-	subjectCode = subjectCode,
-	subjectName = subjectName,
 	name = name,
 	grade = grade,
 	maxGrade = maxGrade,
@@ -42,18 +36,17 @@ fun EvaluationAdd.toEvaluationEntity(
 	isCompleted = isCompleted
 )
 
-fun EvaluationEntity.toEvaluation() = Evaluation(
-	evaluationId = id,
-	subjectId = subjectId,
-	quarterId = quarterId,
-	subjectCode = subjectCode,
-	subjectName = subjectName,
-	name = name,
-	grade = grade,
-	maxGrade = maxGrade,
-	date = date,
-	lastModified = lastModified,
-	type = type,
-	isCompleted = isCompleted,
-	isOverdue = date.isOverdue()
+fun EvaluationWithSubject.toEvaluation() = Evaluation(
+	evaluationId = evaluation.id,
+	subjectId = evaluation.subjectId,
+	quarterId = evaluation.quarterId,
+	name = evaluation.name,
+	grade = evaluation.grade,
+	maxGrade = evaluation.maxGrade,
+	date = evaluation.date,
+	lastModified = evaluation.lastModified,
+	type = evaluation.type,
+	subject = subject.toSubject(isEditable = true),
+	isCompleted = evaluation.isCompleted,
+	isOverdue = evaluation.date.isOverdue()
 )

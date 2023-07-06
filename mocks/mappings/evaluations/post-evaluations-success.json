@@ -12,14 +12,21 @@
       "id": "08dnKZPiOtrmGoarY58G",
       "sid": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
       "qid": "00dgl8xNLNDJjEvXerARJUCAYTjK",
-      "subject_code": "FS1112",
-      "subject_name": "Fisica II",
       "name": "Puntos extra 3",
       "grade": 0.75,
       "max_grade": 1.0,
       "date": 1651118400000,
       "last_modified": 1651118400000,
       "type": 12,
+      "subject": {
+        "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
+        "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
+        "code": "FS1112",
+        "name": "FISICA II",
+        "credits": 3,
+        "grade": 0,
+        "status": 1
+      },
       "is_completed": true
     },
     "fixedDelayMilliseconds": 1500

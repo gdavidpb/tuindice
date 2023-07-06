@@ -45,7 +45,7 @@ class EvaluationReducer :
 				emit(
 					Evaluation.State.Content(
 						availableSubjects = listOf(),
-						subject = null,
+						subject = evaluation.subject,
 						name = evaluation.name,
 						grade = evaluation.grade,
 						maxGrade = evaluation.maxGrade

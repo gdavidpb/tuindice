@@ -16,23 +16,17 @@ class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
 	override suspend fun getEvaluations(uid: String): Flow<List<Evaluation>> {
-		return room.evaluations.getEvaluations(uid)
+		return room.evaluations.getEvaluationsWithSubject(uid)
 			.map { evaluations -> evaluations.map { evaluation -> evaluation.toEvaluation() } }
 	}
 
 	override suspend fun getEvaluation(uid: String, eid: String): Flow<Evaluation?> {
-		return room.evaluations.getEvaluation(uid, eid)
+		return room.evaluations.getEvaluationWithSubject(uid, eid)
 			.map { evaluation -> evaluation?.toEvaluation() }
 	}
 
 	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
-		val subjectEntity = room.subjects.getSubject(uid, add.subjectId)
-
-		val evaluationEntity = add.toEvaluationEntity(
-			uid = uid,
-			subjectCode = subjectEntity.code,
-			subjectName = subjectEntity.name
-		)
+		val evaluationEntity = add.toEvaluationEntity(uid = uid)
 
 		room.evaluations.upsertEntities(listOf(evaluationEntity))
 	}
