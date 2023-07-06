@@ -11,20 +11,20 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.utils.extension.isOverdue
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
+import com.gdavidpb.tuindice.record.data.api.mapper.toSubject
 import java.util.Date
 
 fun EvaluationResponse.toEvaluation() = Evaluation(
 	evaluationId = id,
 	subjectId = sid,
 	quarterId = qid,
-	subjectCode = subjectCode,
-	subjectName = subjectName,
 	name = name,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = Date(date),
 	lastModified = Date(lastModified),
 	type = EvaluationType.values()[type],
+	subject = subject.toSubject(isEditable = true),
 	isCompleted = isCompleted,
 	isOverdue = Date(date).isOverdue()
 )
@@ -34,8 +34,6 @@ fun EvaluationResponse.toEvaluationEntity(uid: String) = EvaluationEntity(
 	subjectId = sid,
 	quarterId = qid,
 	accountId = uid,
-	subjectCode = subjectCode,
-	subjectName = subjectName,
 	name = name,
 	grade = grade,
 	maxGrade = maxGrade,
