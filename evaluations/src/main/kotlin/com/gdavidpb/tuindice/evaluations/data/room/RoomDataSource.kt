@@ -1,12 +1,14 @@
 package com.gdavidpb.tuindice.evaluations.data.room
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.data.room.mapper.toQuarter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -44,5 +46,10 @@ class RoomDataSource(
 
 	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
 		room.evaluations.deleteEvaluation(uid = uid, eid = remove.evaluationId)
+	}
+
+	override suspend fun getAvailableSubjects(uid: String): Flow<List<Subject>> {
+		return room.quarters.getCurrentQuarterWithSubjects(uid)
+			.map { quarter -> quarter?.toQuarter()?.subjects ?: listOf() }
 	}
 }

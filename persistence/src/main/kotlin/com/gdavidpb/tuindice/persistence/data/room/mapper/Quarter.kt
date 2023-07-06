@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.data.room.mapper
+package com.gdavidpb.tuindice.persistence.data.room.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject

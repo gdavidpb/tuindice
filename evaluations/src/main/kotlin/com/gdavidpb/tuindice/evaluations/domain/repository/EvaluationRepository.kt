@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.domain.repository
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
@@ -13,4 +14,6 @@ interface EvaluationRepository {
 	suspend fun addEvaluation(uid: String, add: EvaluationAdd)
 	suspend fun updateEvaluation(uid: String, update: EvaluationUpdate): Evaluation
 	suspend fun removeEvaluation(uid: String, remove: EvaluationRemove)
+
+	suspend fun getAvailableSubjects(uid: String): Flow<List<Subject>>
 }
