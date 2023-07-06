@@ -16,8 +16,7 @@ import com.gdavidpb.tuindice.evaluations.data.resolution.EvaluationResolutionHan
 import com.gdavidpb.tuindice.evaluations.data.room.RoomDataSource
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableSubjectsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
@@ -26,8 +25,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateE
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationReducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationAndAvailableSubjectsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.UpdateEvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
@@ -50,19 +48,17 @@ val evaluationsModule = module {
 	/* Reducers */
 
 	factoryOf(::EvaluationsReducer)
-	factoryOf(::EvaluationReducer)
+	factoryOf(::EvaluationAndAvailableSubjectsReducer)
 	factoryOf(::AddEvaluationReducer)
 	factoryOf(::UpdateEvaluationReducer)
-	factoryOf(::AvailableSubjectsReducer)
 
 	/* Use cases */
 
-	factoryOf(::GetEvaluationUseCase)
+	factoryOf(::GetEvaluationAndAvailableSubjectsUseCase)
 	factoryOf(::GetEvaluationsUseCase)
 	factoryOf(::UpdateEvaluationUseCase)
 	factoryOf(::RemoveEvaluationUseCase)
 	factoryOf(::AddEvaluationUseCase)
-	factoryOf(::GetAvailableSubjectsUseCase)
 
 	/* Validators */
 
