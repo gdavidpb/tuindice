@@ -16,11 +16,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.R
+import com.gdavidpb.tuindice.evaluations.utils.MIN_EVALUATION_GRADE
 
 @Composable
 fun EvaluationGradeTextField(
 	modifier: Modifier = Modifier,
 	grade: Double,
+	maxGrade: Double,
 	onGradeChanged: (grade: Double) -> Unit,
 	error: String? = null
 ) {
@@ -31,11 +33,22 @@ fun EvaluationGradeTextField(
 		modifier = modifier,
 		value = textField.value,
 		onValueChange = { newValue ->
-			supportingText.value = null
+			val newGrade = newValue.text.toDoubleOrNull()
+			val isValid = newGrade != null && newGrade in MIN_EVALUATION_GRADE..maxGrade
+			val isEmpty = newValue.text.isEmpty()
 
-			textField.value = newValue
+			if (isValid || isEmpty) {
+				supportingText.value = null
 
-			onGradeChanged(textField.value.text.toDoubleOrNull() ?: 0.0)
+				textField.value = newValue
+
+				onGradeChanged(newGrade ?: 0.0)
+			}
+		},
+		suffix = {
+			Text(
+				text = stringResource(R.string.evaluation_max_grade, maxGrade)
+			)
 		},
 		isError = supportingText.value != null,
 		supportingText = {
@@ -43,7 +56,11 @@ fun EvaluationGradeTextField(
 
 			if (text != null) Text(text)
 		},
-		label = { Text(text = stringResource(R.string.hint_evaluation_grade)) },
+		label = {
+			Text(
+				text = stringResource(R.string.hint_evaluation_grade)
+			)
+		},
 		leadingIcon = {
 			Icon(
 				imageVector = Icons.Outlined.DonutLarge,
