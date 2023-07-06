@@ -53,6 +53,7 @@ fun EvaluationContentView(
 			modifier = Modifier
 				.fillMaxWidth(),
 			grade = state.grade,
+			maxGrade = state.maxGrade,
 			onGradeChanged = { grade ->
 			}
 		)
