@@ -18,8 +18,6 @@ fun EvaluationRoute(
 	viewModel: EvaluationViewModel = koinViewModel()
 ) {
 	fun init() {
-		viewModel.loadAvailableSubjectsAction()
-
 		if (evaluationId.isNotEmpty())
 			viewModel.loadEvaluationAction(
 				GetEvaluationParams(

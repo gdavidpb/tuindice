@@ -1,0 +1,31 @@
+package com.gdavidpb.tuindice.evaluations.domain.usecase
+
+import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAndAvailableSubjects
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.GetEvaluationParams
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+
+class GetEvaluationAndAvailableSubjectsUseCase(
+	private val authRepository: AuthRepository,
+	private val evaluationRepository: EvaluationRepository
+) : FlowUseCase<GetEvaluationParams, EvaluationAndAvailableSubjects, Nothing>() {
+	override suspend fun executeOnBackground(params: GetEvaluationParams): Flow<EvaluationAndAvailableSubjects> {
+		val activeUId = authRepository.getActiveAuth().uid
+
+		val evaluation = evaluationRepository
+			.getEvaluation(uid = activeUId, eid = params.evaluationId)
+
+		val availableSubjects = evaluationRepository
+			.getAvailableSubjects(uid = activeUId)
+
+		return evaluation.combine(availableSubjects) { getEvaluation, getAvailableSubjects ->
+			EvaluationAndAvailableSubjects(
+				evaluation = getEvaluation,
+				availableSubjects = getAvailableSubjects
+			)
+		}
+	}
+}

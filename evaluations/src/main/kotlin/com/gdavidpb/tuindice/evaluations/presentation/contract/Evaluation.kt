@@ -22,8 +22,6 @@ object Evaluation {
 	}
 
 	sealed class Action : ViewAction {
-		object LoadAvailableSubjects : Action()
-
 		class LoadEvaluation(val params: GetEvaluationParams) : Action()
 	}
 
