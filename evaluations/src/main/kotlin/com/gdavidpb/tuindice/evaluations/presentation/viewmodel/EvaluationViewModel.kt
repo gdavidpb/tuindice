@@ -12,14 +12,18 @@ class EvaluationViewModel(
 	private val evaluationAndAvailableSubjectsReducer: EvaluationAndAvailableSubjectsReducer
 ) : BaseViewModel<Evaluation.State, Evaluation.Action, Evaluation.Event>(initialViewState = Evaluation.State.Loading) {
 
-	fun loadEvaluationAction(params: GetEvaluationParams) =
-		emitAction(Evaluation.Action.LoadEvaluation(params))
+	fun loadEvaluationAction(evaluationId: String) =
+		emitAction(Evaluation.Action.LoadEvaluation(evaluationId))
 
 	override suspend fun reducer(action: Evaluation.Action) {
 		when (action) {
 			is Evaluation.Action.LoadEvaluation ->
 				getEvaluationAndAvailableSubjectsUseCase
-					.execute(params = action.params)
+					.execute(
+						params = GetEvaluationParams(
+							evaluationId = action.evaluationId
+						)
+					)
 					.collect(viewModel = this, reducer = evaluationAndAvailableSubjectsReducer)
 		}
 	}

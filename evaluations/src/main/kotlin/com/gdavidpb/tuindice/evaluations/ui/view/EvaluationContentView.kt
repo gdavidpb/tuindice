@@ -46,7 +46,7 @@ fun EvaluationContentView(
 		EvaluationNameTextField(
 			modifier = Modifier
 				.fillMaxWidth(),
-			name = state.name,
+			name = state.name ?: "",
 			onNameChanged = { name ->
 			}
 		)
@@ -54,8 +54,8 @@ fun EvaluationContentView(
 		EvaluationGradeTextField(
 			modifier = Modifier
 				.fillMaxWidth(),
-			grade = state.grade,
-			maxGrade = state.maxGrade,
+			grade = state.grade ?: 0.0,
+			maxGrade = state.maxGrade ?: 0.0,
 			onGradeChanged = { grade ->
 			}
 		)

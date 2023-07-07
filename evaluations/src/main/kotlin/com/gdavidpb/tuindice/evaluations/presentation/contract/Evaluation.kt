@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.extension.ViewAction
 import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
 import com.gdavidpb.tuindice.base.utils.extension.ViewState
-import com.gdavidpb.tuindice.evaluations.domain.usecase.param.GetEvaluationParams
 
 object Evaluation {
 	sealed class State : ViewState {
@@ -13,19 +12,23 @@ object Evaluation {
 		data class Content(
 			val availableSubjects: List<Subject>,
 			val subject: Subject? = null,
-			val name: String = "",
-			val grade: Double = Double.NaN,
-			val maxGrade: Double = Double.NaN
+			val name: String? = null,
+			val grade: Double? = null,
+			val maxGrade: Double? = null
 		) : State()
 
 		object Failed : State()
 	}
 
 	sealed class Action : ViewAction {
-		class LoadEvaluation(val params: GetEvaluationParams) : Action()
+		class LoadEvaluation(
+			val evaluationId: String
+		) : Action()
 	}
 
 	sealed class Event : ViewEvent {
-		class ShowSnackBar(val message: String) : Event()
+		class ShowSnackBar(
+			val message: String
+		) : Event()
 	}
 }
