@@ -28,7 +28,9 @@ object Evaluations {
 	}
 
 	sealed class Action : ViewAction {
-		class LoadEvaluation(
+		object LoadEvaluations : Action()
+
+		class FilterEvaluations(
 			val filters: List<EvaluationFilter>
 		) : Action()
 
