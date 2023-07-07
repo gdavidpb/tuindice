@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_NO_EFFECT
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_RETIRED
 import com.gdavidpb.tuindice.base.utils.extension.*
 import com.gdavidpb.tuindice.evaluations.utils.extension.toSubjectGrade
-import com.gdavidpb.tuindice.record.utils.MIN_SUBJECT_GRADE
+import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
