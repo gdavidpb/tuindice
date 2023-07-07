@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.GetEvaluationParams
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 
 class GetEvaluationAndAvailableSubjectsUseCase(
 	private val authRepository: AuthRepository,
@@ -15,8 +16,11 @@ class GetEvaluationAndAvailableSubjectsUseCase(
 	override suspend fun executeOnBackground(params: GetEvaluationParams): Flow<EvaluationAndAvailableSubjects> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		val evaluation = evaluationRepository
-			.getEvaluation(uid = activeUId, eid = params.evaluationId)
+		val evaluation = if (params.evaluationId.isNotEmpty())
+			evaluationRepository
+				.getEvaluation(uid = activeUId, eid = params.evaluationId)
+		else
+			flowOf(null)
 
 		val availableSubjects = evaluationRepository
 			.getAvailableSubjects(uid = activeUId)

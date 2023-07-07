@@ -33,10 +33,10 @@ class EvaluationAndAvailableSubjectsReducer :
 			with(useCaseState.value) {
 				Evaluation.State.Content(
 					availableSubjects = availableSubjects,
-					subject = evaluation.subject,
-					name = evaluation.name,
-					grade = evaluation.grade,
-					maxGrade = evaluation.maxGrade
+					subject = evaluation?.subject,
+					name = evaluation?.name,
+					grade = evaluation?.grade,
+					maxGrade = evaluation?.maxGrade
 				)
 			}
 		)
