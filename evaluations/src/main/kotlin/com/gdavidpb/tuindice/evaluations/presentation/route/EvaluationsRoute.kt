@@ -70,7 +70,7 @@ fun EvaluationsRoute(
 			FilterDialog(
 				sheetState = sheetState,
 				items = filters,
-				onFilterApplied = viewModel::loadEvaluationsAction,
+				onFilterApplied = viewModel::filterEvaluationsAction,
 				onDismissRequest = viewModel::closeDialogAction
 			)
 		}

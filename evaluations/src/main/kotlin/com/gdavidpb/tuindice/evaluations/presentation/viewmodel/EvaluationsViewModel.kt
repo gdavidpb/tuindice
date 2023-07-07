@@ -15,8 +15,11 @@ class EvaluationsViewModel(
 	private val resourceResolver: ResourceResolver
 ) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Event>(initialViewState = Evaluations.State.Loading) {
 
-	fun loadEvaluationsAction(filters: List<EvaluationFilter> = listOf()) =
-		emitAction(Evaluations.Action.LoadEvaluation(filters))
+	fun loadEvaluationsAction() =
+		emitAction(Evaluations.Action.LoadEvaluations)
+
+	fun filterEvaluationsAction(filters: List<EvaluationFilter>) =
+		emitAction(Evaluations.Action.FilterEvaluations(filters))
 
 	fun addEvaluationAction() =
 		emitAction(Evaluations.Action.AddEvaluation)
@@ -28,14 +31,28 @@ class EvaluationsViewModel(
 		emitAction(Evaluations.Action.OpenEvaluationsFilters)
 
 	fun clearFiltersAction() =
-		emitAction(Evaluations.Action.LoadEvaluation(listOf()))
+		emitAction(Evaluations.Action.LoadEvaluations)
 
 	fun closeDialogAction() =
 		emitAction(Evaluations.Action.CloseDialog)
 
 	override suspend fun reducer(action: Evaluations.Action) {
 		when (action) {
-			is Evaluations.Action.LoadEvaluation ->
+			is Evaluations.Action.LoadEvaluations -> {
+				val currentState = getCurrentState()
+
+				val filters =
+					if (currentState is Evaluations.State.Content && currentState.activeFilters.isNotEmpty())
+						currentState.activeFilters
+					else
+						listOf()
+
+				getEvaluationsUseCase
+					.execute(params = filters)
+					.collect(viewModel = this, reducer = evaluationsReducer)
+			}
+
+			is Evaluations.Action.FilterEvaluations ->
 				getEvaluationsUseCase
 					.execute(params = action.filters)
 					.collect(viewModel = this, reducer = evaluationsReducer)
