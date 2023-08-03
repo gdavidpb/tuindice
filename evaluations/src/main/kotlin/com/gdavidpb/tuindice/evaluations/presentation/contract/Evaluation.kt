@@ -13,6 +13,7 @@ object Evaluation {
 			val availableSubjects: List<Subject>,
 			val subject: Subject? = null,
 			val name: String? = null,
+			val date: Long? = null,
 			val grade: Double? = null,
 			val maxGrade: Double? = null
 		) : State()

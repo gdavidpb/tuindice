@@ -35,6 +35,7 @@ class EvaluationAndAvailableSubjectsReducer :
 					availableSubjects = availableSubjects,
 					subject = evaluation?.subject,
 					name = evaluation?.name,
+					date = evaluation?.date?.time,
 					grade = evaluation?.grade,
 					maxGrade = evaluation?.maxGrade
 				)
