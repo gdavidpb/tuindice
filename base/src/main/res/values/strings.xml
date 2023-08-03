@@ -8,6 +8,7 @@
 
     <!-- Simple words/phrases -->
 
+    <string name="accept">Aceptar</string>
     <string name="open">Abrir</string>
     <string name="remove">Remover</string>
     <string name="cancel">Cancelar</string>

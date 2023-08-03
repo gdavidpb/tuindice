@@ -22,12 +22,15 @@
     <string name="title_add_evaluation">Agregar evaluación</string>
     <string name="title_edit_evaluation">Modificar evaluación</string>
 
-    <string name="label_evaluation_select_date">Selecciona una fecha</string>
     <string name="label_evaluation_no_date">Evaluación continua</string>
 
-    <string name="hint_evaluation_subject">Materia</string>
-    <string name="hint_evaluation_name">Nombre</string>
-    <string name="hint_evaluation_grade">Nota</string>
+    <string name="label_evaluation_name">Dale un nombre o descripción</string>
+    <string name="label_evaluation_subject">Elige una materia</string>
+    <string name="label_evaluation_date">Selecciona una fecha</string>
+    <string name="label_evaluation_grade">Agrega una nota</string>
+
+    <string name="hint_evaluation_name">Ej. Parcial I</string>
+    <string name="hint_evaluation_grade">Ej. 35</string>
 
     <string name="toast_evaluation_type_missed">Selecciona el tipo de evaluación</string>
     <string name="toast_evaluation_date_missed">Selecciona una fecha para la evaluación</string>

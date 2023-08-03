@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.dateGroup
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsToNow
 import java.util.Date
 import kotlin.math.roundToInt
 
@@ -40,7 +40,7 @@ fun List<Evaluation>.computeAvailableFilters(resourceResolver: ResourceResolver)
 			.map { subject -> EvaluationSubjectFilter(subject) }
 
 	val datesFilters =
-		map { evaluation -> evaluation.date.dateGroup() }
+		map { evaluation -> evaluation.date.formatAsToNow() }
 			.distinct()
 			.map { date -> EvaluationDateFilter(date) }
 

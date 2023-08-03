@@ -20,7 +20,6 @@ interface DropdownMenuItem {
 @Composable
 fun <T : DropdownMenuItem> DropdownMenuTextField(
 	modifier: Modifier = Modifier,
-	label: String,
 	items: List<T>,
 	selectedItem: T? = items.firstOrNull(),
 	onItemSelected: (item: T) -> Unit,
@@ -50,7 +49,6 @@ fun <T : DropdownMenuItem> DropdownMenuTextField(
 
 				if (text != null) Text(text)
 			},
-			label = { Text(text = label) },
 			trailingIcon = {
 				ExposedDropdownMenuDefaults.TrailingIcon(
 					expanded = expanded.value

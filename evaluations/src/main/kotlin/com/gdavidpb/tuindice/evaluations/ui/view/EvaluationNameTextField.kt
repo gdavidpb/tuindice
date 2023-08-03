@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Label
@@ -20,11 +19,11 @@ import com.gdavidpb.tuindice.evaluations.R
 @Composable
 fun EvaluationNameTextField(
 	modifier: Modifier = Modifier,
-	name: String,
+	name: String?,
 	onNameChanged: (name: String) -> Unit,
 	error: String? = null
 ) {
-	val textField = remember { mutableStateOf(TextFieldValue(name)) }
+	val textField = remember { mutableStateOf(TextFieldValue(name.orEmpty())) }
 	val supportingText = remember { mutableStateOf(error) }
 
 	OutlinedTextField(
@@ -43,7 +42,11 @@ fun EvaluationNameTextField(
 
 			if (text != null) Text(text)
 		},
-		label = { Text(text = stringResource(R.string.hint_evaluation_name)) },
+		placeholder = {
+			Text(
+				text = stringResource(R.string.hint_evaluation_name)
+			)
+		},
 		leadingIcon = {
 			Icon(
 				imageVector = Icons.Outlined.Label,

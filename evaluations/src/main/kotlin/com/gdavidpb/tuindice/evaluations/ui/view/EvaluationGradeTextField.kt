@@ -56,7 +56,7 @@ fun EvaluationGradeTextField(
 
 			if (text != null) Text(text)
 		},
-		label = {
+		placeholder = {
 			Text(
 				text = stringResource(R.string.hint_evaluation_grade)
 			)
