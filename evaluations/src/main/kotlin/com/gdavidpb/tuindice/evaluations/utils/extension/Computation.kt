@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.utils.extension
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
+import com.gdavidpb.tuindice.base.utils.extension.daysDistance
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
@@ -19,7 +20,7 @@ fun Double.toSubjectGrade() = when (roundToInt()) {
 	else -> 1
 }
 
-fun Date.isOverdue() = time != 0L && Date().after(this)
+fun Date.isOverdue() = time != 0L && daysDistance() < 0
 
 fun List<Evaluation>.computeAvailableFilters(resourceResolver: ResourceResolver): List<EvaluationFilter> {
 	val statesFilters = listOf(

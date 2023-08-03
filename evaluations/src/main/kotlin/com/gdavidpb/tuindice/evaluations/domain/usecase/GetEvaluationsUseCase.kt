@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsError
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeAvailableFilters
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.transform
+import kotlin.math.sign
 
 class GetEvaluationsUseCase(
 	private val authRepository: AuthRepository,
@@ -18,11 +19,14 @@ class GetEvaluationsUseCase(
 	private val resourceResolver: ResourceResolver
 ) : FlowUseCase<List<EvaluationFilter>, GetEvaluations, EvaluationsError>() {
 
-	private val evaluationComparator = compareBy(
-		Evaluation::isCompleted,
-		Evaluation::isNotGraded,
-		Evaluation::date
-	)
+	private val evaluationComparator =
+		Comparator<Evaluation> { a, b ->
+			val currentTime = System.currentTimeMillis()
+
+			(a.date.time - currentTime).sign + (b.date.time - currentTime).sign
+		}
+			.then(compareBy(Evaluation::isCompleted))
+			.then(compareBy(Evaluation::isNotGraded))
 
 	override suspend fun executeOnBackground(params: List<EvaluationFilter>): Flow<GetEvaluations> {
 		val activeUId = authRepository.getActiveAuth().uid

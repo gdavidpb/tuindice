@@ -16,7 +16,7 @@
         "name": "Parcial 1",
         "grade": 22.5,
         "max_grade": 35.0,
-        "date": 1686207732000,
+        "date": 1690915928000,
         "last_modified": 1651118400000,
         "type": 0,
         "subject": {
@@ -28,7 +28,7 @@
           "grade": 0,
           "status": 1
         },
-        "is_completed": true
+        "is_completed": false
       },
       {
         "id": "msgkQ6C7eir2uiB2tCcSA",
@@ -100,9 +100,30 @@
         "name": "Parcial III",
         "grade": 0.0,
         "max_grade": 0.0,
-        "date": 1688099866000,
+        "date": 1691175128000,
         "last_modified": 1686380532000,
         "type": 0,
+        "subject": {
+          "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
+          "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
+          "code": "CSZ621",
+          "name": "DEL MEDIOEVO AL BARROCO",
+          "credits": 3,
+          "grade": 5,
+          "status": 0
+        },
+        "is_completed": false
+      },
+      {
+        "id": "7sdStu4GjWrJvkj8hmMDV",
+        "sid": "00U3tK0t7sdStu4GjWrJvDVLUofn",
+        "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
+        "name": "Ensayo",
+        "grade": 0.0,
+        "max_grade": 0.0,
+        "date": 1691779928000,
+        "last_modified": 1686380532000,
+        "type": 1,
         "subject": {
           "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
           "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
