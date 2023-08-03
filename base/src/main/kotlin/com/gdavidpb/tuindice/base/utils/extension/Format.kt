@@ -2,8 +2,10 @@ package com.gdavidpb.tuindice.base.utils.extension
 
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
+import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.concurrent.ConcurrentHashMap
 
 fun Double.formatGrade() = if (this % 1 == 0.0) toInt().formatGrade() else formatGrade(2)
 
@@ -29,13 +31,15 @@ fun String.capitalize() =
 			"$c"
 	}
 
-private val dateFormatCache = hashMapOf<String, SimpleDateFormat>()
+private val dateFormatCache = ConcurrentHashMap<String, DateFormat>()
 
 fun Date.format(format: String) = dateFormatCache.getOrPut(format) {
 	SimpleDateFormat(format, DEFAULT_LOCALE).apply {
 		timeZone = DEFAULT_TIME_ZONE
 	}
-}.runCatching { format(this@format) }.getOrNull()
+}.runCatching {
+	format(Date(this@format.time - DEFAULT_TIME_ZONE.rawOffset))
+}.getOrNull()
 
 fun String.parse(format: String) = dateFormatCache.getOrPut(format) {
 	SimpleDateFormat(format, DEFAULT_LOCALE).apply {

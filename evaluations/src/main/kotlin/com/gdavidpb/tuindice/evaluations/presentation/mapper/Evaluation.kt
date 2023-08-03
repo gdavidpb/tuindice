@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.utils.extension.format
 import com.gdavidpb.tuindice.base.utils.extension.weeksDistance
 import java.util.Date
 
-fun Date.dateGroup(): String {
+fun Date.formatAsToNow(): String {
 	val daysDistance = daysDistance()
 	val weeksDistance = weeksDistance()
 
@@ -30,7 +30,7 @@ fun Date.dateGroup(): String {
 	}
 }
 
-fun Date.dateLabel(): String {
+fun Date.formatAsDayOfWeekAndDate(): String {
 	return if (time == 0L)
 		"Evaluación continua"
 	else

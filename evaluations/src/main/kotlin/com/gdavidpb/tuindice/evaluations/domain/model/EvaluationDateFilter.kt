@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.domain.model
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.dateGroup
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsToNow
 
 class EvaluationDateFilter(
 	private val date: String
@@ -11,7 +11,7 @@ class EvaluationDateFilter(
 	}
 
 	override fun filter(evaluation: Evaluation): Boolean {
-		return date == evaluation.date.dateGroup()
+		return date == evaluation.date.formatAsToNow()
 	}
 
 	override fun equals(other: Any?): Boolean {

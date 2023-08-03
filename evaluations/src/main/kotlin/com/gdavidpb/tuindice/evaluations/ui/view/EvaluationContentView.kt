@@ -38,8 +38,30 @@ fun EvaluationContentView(
 			)
 			.fillMaxSize()
 	) {
+		Text(
+			text = stringResource(id = R.string.label_evaluation_name).uppercase(),
+			style = MaterialTheme.typography.labelMedium,
+			color = MaterialTheme.colorScheme.outline
+		)
+
+		EvaluationNameTextField(
+			modifier = Modifier
+				.padding(vertical = dimensionResource(id = R.dimen.dp_6))
+				.fillMaxWidth(),
+			name = state.name,
+			onNameChanged = { name ->
+			}
+		)
+
+		Text(
+			text = stringResource(id = R.string.label_evaluation_subject).uppercase(),
+			style = MaterialTheme.typography.labelMedium,
+			color = MaterialTheme.colorScheme.outline
+		)
+
 		EvaluationSubjectTextField(
 			modifier = Modifier
+				.padding(vertical = dimensionResource(id = R.dimen.dp_6))
 				.fillMaxWidth(),
 			subjects = subjectItems,
 			selectedSubject = selectedSubject,
@@ -47,16 +69,29 @@ fun EvaluationContentView(
 			}
 		)
 
-		EvaluationNameTextField(
+		Text(
+			text = stringResource(id = R.string.label_evaluation_date).uppercase(),
+			style = MaterialTheme.typography.labelMedium,
+			color = MaterialTheme.colorScheme.outline
+		)
+
+		EvaluationDatePicker(
 			modifier = Modifier
+				.padding(vertical = dimensionResource(id = R.dimen.dp_6))
 				.fillMaxWidth(),
-			name = state.name ?: "",
-			onNameChanged = { name ->
-			}
+			selectedDate = Date(state.date ?: 0L),
+			onDateChanged = {}
+		)
+
+		Text(
+			text = stringResource(id = R.string.label_evaluation_grade).uppercase(),
+			style = MaterialTheme.typography.labelMedium,
+			color = MaterialTheme.colorScheme.outline
 		)
 
 		EvaluationGradeTextField(
 			modifier = Modifier
+				.padding(vertical = dimensionResource(id = R.dimen.dp_6))
 				.fillMaxWidth(),
 			grade = state.grade ?: 0.0,
 			maxGrade = state.maxGrade ?: 0.0,

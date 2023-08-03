@@ -18,8 +18,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.dateGroup
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.dateLabel
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsToNow
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsDayOfWeekAndDate
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -30,7 +30,7 @@ fun EvaluationsContentView(
 ) {
 	val evaluationsByDate =
 		state.filteredEvaluations.groupBy { evaluation ->
-			evaluation.date.dateGroup()
+			evaluation.date.formatAsToNow()
 		}
 
 	Box(
@@ -55,7 +55,7 @@ fun EvaluationsContentView(
 							.animateItemPlacement(),
 						name = evaluation.name,
 						subjectCode = evaluation.subject.code,
-						date = evaluation.date.dateLabel(),
+						date = evaluation.date.formatAsDayOfWeekAndDate(),
 						type = stringResource(id = evaluation.type.stringRes),
 						grade = evaluation.grade,
 						maxGrade = evaluation.maxGrade,
