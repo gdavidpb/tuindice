@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsDayOfWeekAndDate
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsToNow
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.iconRes
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.stringRes
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -58,12 +59,13 @@ fun EvaluationsContentView(
 						subjectCode = evaluation.subject.code,
 						date = evaluation.date.formatAsDayOfWeekAndDate(),
 						type = stringResource(id = evaluation.type.stringRes()),
+						icon = evaluation.type.iconRes(),
 						grade = evaluation.grade,
 						maxGrade = evaluation.maxGrade,
 						isContinuous = evaluation.isContinuous,
 						isNotGraded = evaluation.isNotGraded,
 						isCompleted = evaluation.isCompleted,
-						isCompletedChange = { isCompleted -> TODO() }
+						isCompletedChanged = { isCompleted -> TODO() }
 					)
 				}
 			}

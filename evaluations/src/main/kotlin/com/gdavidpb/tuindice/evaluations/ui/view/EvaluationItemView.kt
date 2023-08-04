@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,13 +34,16 @@ fun EvaluationItemView(
 	subjectCode: String,
 	date: String,
 	type: String,
+	icon: ImageVector,
 	grade: Double,
 	maxGrade: Double,
 	isContinuous: Boolean,
 	isNotGraded: Boolean,
 	isCompleted: Boolean,
-	isCompletedChange: (isCompleted: Boolean) -> Unit
+	isCompletedChanged: (isCompleted: Boolean) -> Unit
 ) {
+	val isDone = (isCompleted || isContinuous || isNotGraded)
+
 	ElevatedCard(
 		modifier = modifier
 			.fillMaxWidth()
@@ -89,7 +93,7 @@ fun EvaluationItemView(
 						)
 				)
 
-			Text(
+			Row(
 				modifier = Modifier
 					.constrainAs(textSubjectCode) {
 						start.linkTo(textName.start)
@@ -97,9 +101,23 @@ fun EvaluationItemView(
 
 						width = Dimension.fillToConstraints
 					},
-				text = stringResource(id = R.string.evaluation_title, type, subjectCode),
-				style = MaterialTheme.typography.bodyMedium
-			)
+				verticalAlignment = Alignment.CenterVertically
+			) {
+				Icon(
+					modifier = Modifier
+						.size(dimensionResource(id = R.dimen.dp_16)),
+					imageVector = icon,
+					tint = MaterialTheme.colorScheme.outline,
+					contentDescription = null
+				)
+
+				Text(
+					modifier = Modifier
+						.padding(start = dimensionResource(id = R.dimen.dp_12)),
+					text = stringResource(id = R.string.evaluation_title, type, subjectCode),
+					style = MaterialTheme.typography.bodyMedium
+				)
+			}
 
 			Row(
 				modifier = Modifier
@@ -109,7 +127,11 @@ fun EvaluationItemView(
 
 						width = Dimension.fillToConstraints
 					}
-					.padding(top = dimensionResource(id = R.dimen.dp_8)),
+					.padding(
+						top = dimensionResource(
+							id = if (isDone) R.dimen.dp_16 else R.dimen.dp_6
+						)
+					),
 				verticalAlignment = Alignment.CenterVertically
 			) {
 				Icon(
@@ -140,7 +162,7 @@ fun EvaluationItemView(
 				)
 			}
 
-			if (isCompleted || isContinuous || isNotGraded)
+			if (isDone)
 				Row(
 					modifier = Modifier
 						.constrainAs(textGrade) {
