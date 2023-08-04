@@ -20,19 +20,6 @@ import java.util.Date
 fun EvaluationContentView(
 	state: Evaluation.State.Content
 ) {
-	val subjectItems = state
-		.availableSubjects
-		.map { subject ->
-			SubjectDropdownMenuItem(
-				subjectId = subject.id,
-				text = "${subject.code} — ${subject.name}"
-			)
-		}
-
-	val selectedSubject = subjectItems.find { subject ->
-		subject.subjectId == state.subject?.id
-	}
-
 	Column(
 		modifier = Modifier
 			.padding(
@@ -68,8 +55,8 @@ fun EvaluationContentView(
 			modifier = Modifier
 				.padding(vertical = dimensionResource(id = R.dimen.dp_6))
 				.fillMaxWidth(),
-			subjects = subjectItems,
-			selectedSubject = selectedSubject,
+			subjects = state.availableSubjects,
+			selectedSubject = state.subject,
 			onSubjectChanged = { subject ->
 			}
 		)

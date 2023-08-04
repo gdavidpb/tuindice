@@ -5,6 +5,7 @@ import androidx.compose.material.icons.outlined.School
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.ui.view.DropdownMenuItem
 import com.gdavidpb.tuindice.base.ui.view.DropdownMenuTextField
 
@@ -16,15 +17,27 @@ data class SubjectDropdownMenuItem(
 @Composable
 fun EvaluationSubjectTextField(
 	modifier: Modifier = Modifier,
-	subjects: List<SubjectDropdownMenuItem>,
-	selectedSubject: SubjectDropdownMenuItem? = subjects.firstOrNull(),
+	subjects: List<Subject>,
+	selectedSubject: Subject? = subjects.firstOrNull(),
 	onSubjectChanged: (subjectId: String) -> Unit,
 	error: String? = null
 ) {
+	val subjectItems = subjects
+		.map { subject ->
+			SubjectDropdownMenuItem(
+				subjectId = subject.id,
+				text = "${subject.code} — ${subject.name}"
+			)
+		}
+
+	val selectedSubjectItem = subjectItems.find { subject ->
+		subject.subjectId == selectedSubject?.id
+	}
+
 	DropdownMenuTextField(
 		modifier = modifier,
-		items = subjects,
-		selectedItem = selectedSubject,
+		items = subjectItems,
+		selectedItem = selectedSubjectItem,
 		onItemSelected = { item -> onSubjectChanged(item.subjectId) },
 		error = error,
 		leadingIcon = {
