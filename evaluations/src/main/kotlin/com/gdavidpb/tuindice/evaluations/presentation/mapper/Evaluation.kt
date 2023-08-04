@@ -1,6 +1,20 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import androidx.annotation.StringRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountTree
+import androidx.compose.material.icons.outlined.Apartment
+import androidx.compose.material.icons.outlined.AreaChart
+import androidx.compose.material.icons.outlined.BackHand
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.CoPresent
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.FileCopy
+import androidx.compose.material.icons.outlined.HistoryEdu
+import androidx.compose.material.icons.outlined.ModeComment
+import androidx.compose.material.icons.outlined.Quiz
+import androidx.compose.material.icons.outlined.Science
+import androidx.compose.material.icons.outlined.Tag
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.utils.extension.capitalize
 import com.gdavidpb.tuindice.base.utils.extension.daysDistance
@@ -55,4 +69,20 @@ fun EvaluationType.stringRes() = when (this) {
 	EvaluationType.WORKSHOP -> R.string.evaluation_workshop
 	EvaluationType.WRITTEN_WORK -> R.string.evaluation_written_work
 	EvaluationType.OTHER -> R.string.evaluation_other
+}
+
+fun EvaluationType.iconRes() = when (this) {
+	EvaluationType.TEST -> Icons.Outlined.FileCopy
+	EvaluationType.ESSAY -> Icons.Outlined.HistoryEdu
+	EvaluationType.ATTENDANCE -> Icons.Outlined.BackHand
+	EvaluationType.INTERVENTIONS -> Icons.Outlined.ModeComment
+	EvaluationType.LABORATORY -> Icons.Outlined.Science
+	EvaluationType.MODEL -> Icons.Outlined.Apartment
+	EvaluationType.PRESENTATION -> Icons.Outlined.CoPresent
+	EvaluationType.PROJECT -> Icons.Outlined.AccountTree
+	EvaluationType.QUIZ -> Icons.Outlined.Quiz
+	EvaluationType.REPORT -> Icons.Outlined.AreaChart
+	EvaluationType.WORKSHOP -> Icons.Outlined.Build
+	EvaluationType.WRITTEN_WORK -> Icons.Outlined.Edit
+	EvaluationType.OTHER -> Icons.Outlined.Tag
 }
