@@ -67,7 +67,7 @@ class EvaluationsViewModel(
 			is Evaluations.Action.EditEvaluation ->
 				sendEvent(
 					Evaluations.Event.NavigateToEvaluation(
-						title = resourceResolver.getString(R.string.title_edit_evaluation),
+						title = resourceResolver.getString(R.string.title_update_evaluation),
 						evaluationId = action.evaluationId
 					)
 				)

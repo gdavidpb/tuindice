@@ -25,6 +25,7 @@ fun <T : DropdownMenuItem> DropdownMenuTextField(
 	selectedItem: T? = items.firstOrNull(),
 	onItemSelected: (item: T) -> Unit,
 	error: String? = null,
+	placeholder: @Composable (() -> Unit)? = null,
 	leadingIcon: @Composable (() -> Unit)? = null
 ) {
 	val expanded = remember { mutableStateOf(false) }
@@ -55,6 +56,7 @@ fun <T : DropdownMenuItem> DropdownMenuTextField(
 					expanded = expanded.value
 				)
 			},
+			placeholder = placeholder,
 			leadingIcon = leadingIcon,
 			colors = ExposedDropdownMenuDefaults.textFieldColors(
 				focusedContainerColor = MaterialTheme.colorScheme.background,

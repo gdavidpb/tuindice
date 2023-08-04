@@ -3,14 +3,17 @@ package com.gdavidpb.tuindice.evaluations.ui.view
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.School
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.ui.view.DropdownMenuItem
 import com.gdavidpb.tuindice.base.ui.view.DropdownMenuTextField
+import com.gdavidpb.tuindice.evaluations.R
 
 data class SubjectDropdownMenuItem(
-	val subjectId: String,
+	val subject: Subject,
 	override val text: String
 ) : DropdownMenuItem
 
@@ -19,32 +22,37 @@ fun EvaluationSubjectTextField(
 	modifier: Modifier = Modifier,
 	subjects: List<Subject>,
 	selectedSubject: Subject? = subjects.firstOrNull(),
-	onSubjectChanged: (subjectId: String) -> Unit,
+	onSubjectChanged: (subject: Subject) -> Unit,
 	error: String? = null
 ) {
 	val subjectItems = subjects
 		.map { subject ->
 			SubjectDropdownMenuItem(
-				subjectId = subject.id,
+				subject = subject,
 				text = "${subject.code} — ${subject.name}"
 			)
 		}
 
 	val selectedSubjectItem = subjectItems.find { subject ->
-		subject.subjectId == selectedSubject?.id
+		subject.subject.id == selectedSubject?.id
 	}
 
 	DropdownMenuTextField(
 		modifier = modifier,
 		items = subjectItems,
 		selectedItem = selectedSubjectItem,
-		onItemSelected = { item -> onSubjectChanged(item.subjectId) },
-		error = error,
+		onItemSelected = { item -> onSubjectChanged(item.subject) },
+		placeholder = {
+			Text(
+				text = stringResource(id = R.string.hint_evaluation_subject)
+			)
+		},
 		leadingIcon = {
 			Icon(
 				imageVector = Icons.Outlined.School,
 				contentDescription = null
 			)
-		}
+		},
+		error = error
 	)
 }

@@ -17,7 +17,8 @@ object Evaluation {
 			val date: Long? = null,
 			val grade: Double? = null,
 			val maxGrade: Double? = null,
-			val type: EvaluationType? = null
+			val type: EvaluationType? = null,
+			val exists: Boolean
 		) : State()
 
 		object Failed : State()
