@@ -9,6 +9,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -20,6 +22,10 @@ import java.util.Date
 fun EvaluationContentView(
 	state: Evaluation.State.Content
 ) {
+	val evaluation = remember {
+		mutableStateOf(state)
+	}
+
 	Column(
 		modifier = Modifier
 			.padding(
@@ -40,8 +46,10 @@ fun EvaluationContentView(
 			modifier = Modifier
 				.padding(vertical = dimensionResource(id = R.dimen.dp_6))
 				.fillMaxWidth(),
-			name = state.name,
+			name = evaluation.value.name,
 			onNameChanged = { name ->
+				evaluation.value = evaluation.value
+					.copy(name = name)
 			}
 		)
 
@@ -53,11 +61,13 @@ fun EvaluationContentView(
 
 		EvaluationSubjectTextField(
 			modifier = Modifier
-				.padding(vertical = dimensionResource(id = R.dimen.dp_6))
+				.padding(top = dimensionResource(id = R.dimen.dp_6))
 				.fillMaxWidth(),
-			subjects = state.availableSubjects,
-			selectedSubject = state.subject,
+			subjects = evaluation.value.availableSubjects,
+			selectedSubject = evaluation.value.subject,
 			onSubjectChanged = { subject ->
+				evaluation.value = evaluation.value
+					.copy(subject = subject)
 			}
 		)
 
@@ -69,10 +79,12 @@ fun EvaluationContentView(
 
 		EvaluationDatePicker(
 			modifier = Modifier
-				.padding(vertical = dimensionResource(id = R.dimen.dp_6))
+				.padding(vertical = dimensionResource(id = R.dimen.dp_12))
 				.fillMaxWidth(),
-			selectedDate = Date(state.date ?: 0L),
+			selectedDate = evaluation.value.date?.let(::Date),
 			onDateChanged = { date ->
+				evaluation.value = evaluation.value
+					.copy(date = date.time)
 			}
 		)
 
@@ -86,9 +98,11 @@ fun EvaluationContentView(
 			modifier = Modifier
 				.padding(vertical = dimensionResource(id = R.dimen.dp_6))
 				.fillMaxWidth(),
-			grade = state.grade ?: 0.0,
-			maxGrade = state.maxGrade ?: 0.0,
+			grade = evaluation.value.grade,
+			maxGrade = evaluation.value.maxGrade,
 			onGradeChanged = { grade ->
+				evaluation.value = evaluation.value
+					.copy(grade = grade)
 			}
 		)
 
@@ -99,8 +113,10 @@ fun EvaluationContentView(
 		)
 
 		EvaluationTypePicker(
-			selectedType = state.type,
+			selectedType = evaluation.value.type,
 			onTypeChanged = { type ->
+				evaluation.value = evaluation.value
+					.copy(type = type)
 			}
 		)
 	}

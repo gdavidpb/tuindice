@@ -7,54 +7,46 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.R
+import com.gdavidpb.tuindice.evaluations.utils.MAX_EVALUATION_GRADE
 import com.gdavidpb.tuindice.evaluations.utils.MIN_EVALUATION_GRADE
 
 @Composable
 fun EvaluationGradeTextField(
 	modifier: Modifier = Modifier,
-	grade: Double,
-	maxGrade: Double,
-	onGradeChanged: (grade: Double) -> Unit,
+	grade: Double?,
+	maxGrade: Double?,
+	onGradeChanged: (grade: Double?) -> Unit,
 	error: String? = null
 ) {
-	val textField = remember { mutableStateOf(TextFieldValue(grade.formatGrade())) }
-	val supportingText = remember { mutableStateOf(error) }
-
 	OutlinedTextField(
 		modifier = modifier,
-		value = textField.value,
+		value = grade?.formatGrade().orEmpty(),
 		onValueChange = { newValue ->
-			val newGrade = newValue.text.toDoubleOrNull()
-			val isValid = newGrade != null && newGrade in MIN_EVALUATION_GRADE..maxGrade
-			val isEmpty = newGrade != null && newGrade.isNaN() || newValue.text.isEmpty()
+			val newGrade = newValue.toDoubleOrNull()
 
-			if (isValid || isEmpty) {
-				supportingText.value = null
+			val isValid = newGrade != null &&
+					newGrade in MIN_EVALUATION_GRADE..(maxGrade ?: MAX_EVALUATION_GRADE)
 
-				textField.value = newValue
+			val isEmpty = (newGrade != null && newGrade.isNaN())
+					|| newValue.isEmpty()
 
-				onGradeChanged(newGrade ?: 0.0)
-			}
+			if (isValid || isEmpty)
+				onGradeChanged(newGrade)
 		},
 		suffix = {
 			Text(
-				text = stringResource(R.string.evaluation_max_grade, maxGrade)
+				text = stringResource(R.string.evaluation_max_grade, maxGrade ?: 0.0)
 			)
 		},
-		isError = supportingText.value != null,
+		isError = error != null,
 		supportingText = {
-			val text = supportingText.value
-
-			if (text != null) Text(text)
+			if (error != null) Text(text = error)
 		},
 		placeholder = {
 			Text(

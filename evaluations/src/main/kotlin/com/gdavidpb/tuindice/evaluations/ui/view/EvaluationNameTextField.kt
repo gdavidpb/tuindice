@@ -7,14 +7,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import com.gdavidpb.tuindice.evaluations.R
+
+private const val MAX_TEXT_LENGTH_NAME = 32
 
 @Composable
 fun EvaluationNameTextField(
@@ -23,24 +22,15 @@ fun EvaluationNameTextField(
 	onNameChanged: (name: String) -> Unit,
 	error: String? = null
 ) {
-	val textField = remember { mutableStateOf(TextFieldValue(name.orEmpty())) }
-	val supportingText = remember { mutableStateOf(error) }
-
 	OutlinedTextField(
 		modifier = modifier,
-		value = textField.value,
+		value = name.orEmpty(),
 		onValueChange = { newValue ->
-			supportingText.value = null
-
-			textField.value = newValue
-
-			onNameChanged(textField.value.text)
+			if (newValue.length <= MAX_TEXT_LENGTH_NAME) onNameChanged(newValue)
 		},
-		isError = supportingText.value != null,
+		isError = error != null,
 		supportingText = {
-			val text = supportingText.value
-
-			if (text != null) Text(text)
+			if (error != null) Text(text = error)
 		},
 		placeholder = {
 			Text(
