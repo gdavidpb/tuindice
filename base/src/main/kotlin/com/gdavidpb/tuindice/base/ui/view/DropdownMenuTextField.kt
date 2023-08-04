@@ -4,6 +4,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,7 +56,10 @@ fun <T : DropdownMenuItem> DropdownMenuTextField(
 				)
 			},
 			leadingIcon = leadingIcon,
-			colors = ExposedDropdownMenuDefaults.textFieldColors(),
+			colors = ExposedDropdownMenuDefaults.textFieldColors(
+				focusedContainerColor = MaterialTheme.colorScheme.background,
+				unfocusedContainerColor = MaterialTheme.colorScheme.background
+			),
 			singleLine = true
 		)
 		ExposedDropdownMenu(

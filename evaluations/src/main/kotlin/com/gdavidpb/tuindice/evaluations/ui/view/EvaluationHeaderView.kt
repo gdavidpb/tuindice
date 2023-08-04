@@ -24,7 +24,10 @@ fun EvaluationHeaderView(
 		Text(
 			modifier = Modifier
 				.fillMaxWidth()
-				.padding(dimensionResource(id = R.dimen.dp_8)),
+				.padding(
+					vertical = dimensionResource(id = R.dimen.dp_8),
+					horizontal = dimensionResource(id = R.dimen.dp_12)
+				),
 			text = label,
 			style = MaterialTheme.typography.titleLarge,
 			fontWeight = FontWeight.Black,

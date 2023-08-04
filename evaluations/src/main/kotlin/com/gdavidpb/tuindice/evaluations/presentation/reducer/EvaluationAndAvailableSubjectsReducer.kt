@@ -37,7 +37,8 @@ class EvaluationAndAvailableSubjectsReducer :
 					name = evaluation?.name,
 					date = evaluation?.date?.time,
 					grade = evaluation?.grade,
-					maxGrade = evaluation?.maxGrade
+					maxGrade = evaluation?.maxGrade,
+					type = evaluation?.type
 				)
 			}
 		)

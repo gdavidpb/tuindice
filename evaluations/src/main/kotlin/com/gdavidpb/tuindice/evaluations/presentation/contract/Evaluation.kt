@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.contract
 
+import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.extension.ViewAction
 import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
@@ -15,7 +16,8 @@ object Evaluation {
 			val name: String? = null,
 			val date: Long? = null,
 			val grade: Double? = null,
-			val maxGrade: Double? = null
+			val maxGrade: Double? = null,
+			val type: EvaluationType? = null
 		) : State()
 
 		object Failed : State()

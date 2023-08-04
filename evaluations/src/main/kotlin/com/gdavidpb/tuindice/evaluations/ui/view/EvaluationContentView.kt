@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +37,9 @@ fun EvaluationContentView(
 		modifier = Modifier
 			.padding(
 				horizontal = dimensionResource(id = R.dimen.dp_24)
+			)
+			.verticalScroll(
+				state = rememberScrollState()
 			)
 			.fillMaxSize()
 	) {
@@ -80,7 +85,8 @@ fun EvaluationContentView(
 				.padding(vertical = dimensionResource(id = R.dimen.dp_6))
 				.fillMaxWidth(),
 			selectedDate = Date(state.date ?: 0L),
-			onDateChanged = {}
+			onDateChanged = { date ->
+			}
 		)
 
 		Text(
@@ -96,6 +102,18 @@ fun EvaluationContentView(
 			grade = state.grade ?: 0.0,
 			maxGrade = state.maxGrade ?: 0.0,
 			onGradeChanged = { grade ->
+			}
+		)
+
+		Text(
+			text = stringResource(id = R.string.label_evaluation_type).uppercase(),
+			style = MaterialTheme.typography.labelMedium,
+			color = MaterialTheme.colorScheme.outline
+		)
+
+		EvaluationTypePicker(
+			selectedType = state.type,
+			onTypeChanged = { type ->
 			}
 		)
 	}
