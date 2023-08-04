@@ -18,14 +18,14 @@ fun EvaluationSubjectTextField(
 	modifier: Modifier = Modifier,
 	subjects: List<SubjectDropdownMenuItem>,
 	selectedSubject: SubjectDropdownMenuItem? = subjects.firstOrNull(),
-	onSubjectChanged: (subject: SubjectDropdownMenuItem) -> Unit,
+	onSubjectChanged: (subjectId: String) -> Unit,
 	error: String? = null
 ) {
 	DropdownMenuTextField(
 		modifier = modifier,
 		items = subjects,
 		selectedItem = selectedSubject,
-		onItemSelected = onSubjectChanged,
+		onItemSelected = { item -> onSubjectChanged(item.subjectId) },
 		error = error,
 		leadingIcon = {
 			Icon(

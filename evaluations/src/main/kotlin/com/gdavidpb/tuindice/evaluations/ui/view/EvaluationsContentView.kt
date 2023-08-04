@@ -18,8 +18,9 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsToNow
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsDayOfWeekAndDate
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsToNow
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.stringRes
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -56,7 +57,7 @@ fun EvaluationsContentView(
 						name = evaluation.name,
 						subjectCode = evaluation.subject.code,
 						date = evaluation.date.formatAsDayOfWeekAndDate(),
-						type = stringResource(id = evaluation.type.stringRes),
+						type = stringResource(id = evaluation.type.stringRes()),
 						grade = evaluation.grade,
 						maxGrade = evaluation.maxGrade,
 						isContinuous = evaluation.isContinuous,

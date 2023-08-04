@@ -26,14 +26,15 @@
 
     <string name="label_evaluation_name">Dale un nombre o descripción</string>
     <string name="label_evaluation_subject">Elige una materia</string>
-    <string name="label_evaluation_date">Selecciona una fecha</string>
+    <string name="label_evaluation_date">Elige una fecha</string>
     <string name="label_evaluation_grade">Agrega una nota</string>
+    <string name="label_evaluation_type">Elige un tipo</string>
 
     <string name="hint_evaluation_name">Ej. Parcial I</string>
     <string name="hint_evaluation_grade">Ej. 35</string>
 
-    <string name="toast_evaluation_type_missed">Selecciona el tipo de evaluación</string>
-    <string name="toast_evaluation_date_missed">Selecciona una fecha para la evaluación</string>
+    <string name="toast_evaluation_type_missed">Elige el tipo de evaluación</string>
+    <string name="toast_evaluation_date_missed">Elige una fecha para la evaluación</string>
 
     <string name="error_evaluation_name_missed">La evaluación debe tener un nombre</string>
     <string name="error_evaluation_grade_invalid_range">El valor de la evaluación debe estar entre 0.25 y 100 puntos</string>
