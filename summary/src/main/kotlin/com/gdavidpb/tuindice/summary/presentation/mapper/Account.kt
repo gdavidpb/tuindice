@@ -18,8 +18,8 @@ fun Date.formatLastUpdate(): String {
 
 	return when {
 		time == 0L -> "Nunca"
-		daysDistance == 0 -> format("'Hoy,' hh:mm aa")
-		daysDistance == -1 -> format("'Ayer,' hh:mm aa")
+		daysDistance == 0L -> format("'Hoy,' hh:mm aa")
+		daysDistance == -1L -> format("'Ayer,' hh:mm aa")
 		daysDistance < 7 -> format("EEEE',' hh:mm aa")
 		else -> format("dd 'de' MMMM yyyy")
 	}?.capitalize() ?: "-"

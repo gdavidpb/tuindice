@@ -1,28 +1,24 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
-import java.util.Calendar
+import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
+import org.threeten.bp.Instant
+import org.threeten.bp.LocalDate
+import org.threeten.bp.ZoneId
+import org.threeten.bp.temporal.ChronoUnit
 import java.util.Date
-import java.util.concurrent.TimeUnit
-import kotlin.math.ceil
 
-private val millisecondsPerDay = TimeUnit.DAYS.toMillis(1)
-private val millisecondsPerWeek = TimeUnit.DAYS.toMillis(7)
+private val zoneId = ZoneId.of(DEFAULT_TIME_ZONE.id, ZoneId.SHORT_IDS)
 
-fun Date.daysDistance(): Int {
-	val distance = (time - System.currentTimeMillis()).toDouble()
+fun Date.daysDistance(): Long {
+	val now = LocalDate.now(zoneId)
+	val target = Instant.ofEpochMilli(time).atZone(zoneId).toLocalDate()
 
-	return ceil(distance / millisecondsPerDay).toInt()
+	return ChronoUnit.DAYS.between(now, target)
 }
 
-fun Date.weeksDistance(): Int {
-	val now = Calendar.getInstance()
+fun Date.weeksDistance(): Long {
+	val now = LocalDate.now(zoneId)
+	val target = Instant.ofEpochMilli(time).atZone(zoneId).toLocalDate()
 
-	val target = Calendar.getInstance().apply {
-		time = this@weeksDistance
-		set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-	}
-
-	val distance = (target.timeInMillis - now.timeInMillis).toDouble()
-
-	return ceil(distance / millisecondsPerWeek).toInt()
+	return ChronoUnit.WEEKS.between(now, target)
 }
