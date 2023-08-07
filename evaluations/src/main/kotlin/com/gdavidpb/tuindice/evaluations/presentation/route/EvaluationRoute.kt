@@ -37,6 +37,9 @@ fun EvaluationRoute(
 		state = viewState,
 		onRetryClick = {
 			viewModel.loadEvaluationAction(evaluationId)
+		},
+		onDoneClick = {
+			viewModel.saveEvaluationAction()
 		}
 	)
 }
