@@ -10,7 +10,8 @@ import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationLoadingView
 @Composable
 fun EvaluationScreen(
 	state: Evaluation.State,
-	onRetryClick: () -> Unit
+	onRetryClick: () -> Unit,
+	onDoneClick: () -> Unit
 ) {
 	SealedCrossfade(
 		targetState = state
@@ -21,7 +22,8 @@ fun EvaluationScreen(
 
 			is Evaluation.State.Content ->
 				EvaluationContentView(
-					state = targetState
+					state = targetState,
+					onDoneClick = onDoneClick
 				)
 
 			is Evaluation.State.Failed ->
