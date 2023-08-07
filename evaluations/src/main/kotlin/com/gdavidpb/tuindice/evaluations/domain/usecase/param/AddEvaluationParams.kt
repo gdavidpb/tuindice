@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.evaluations.domain.usecase.param
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 
 data class AddEvaluationParams(
-	val quarterId: String,
-	val subjectId: String,
+	val quarterId: String?,
+	val subjectId: String?,
 	val name: String?,
 	val grade: Double?,
 	val maxGrade: Double?,

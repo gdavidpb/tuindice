@@ -1,26 +1,26 @@
 package com.gdavidpb.tuindice.evaluations.presentation.reducer
 
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.reducer.BaseReducer
 import com.gdavidpb.tuindice.base.utils.extension.ViewOutput
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationError
-import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import kotlinx.coroutines.flow.Flow
+import com.gdavidpb.tuindice.base.domain.model.Evaluation as EvaluationModel
 
 class UpdateEvaluationReducer :
-	BaseReducer<Evaluations.State, Evaluations.Event, Evaluation, EvaluationError>() {
+	BaseReducer<Evaluation.State, Evaluation.Event, EvaluationModel, EvaluationError>() {
 
 	override suspend fun reduceDataState(
-		currentState: Evaluations.State,
-		useCaseState: UseCaseState.Data<Evaluation, EvaluationError>
+		currentState: Evaluation.State,
+		useCaseState: UseCaseState.Data<EvaluationModel, EvaluationError>
 	): Flow<ViewOutput> {
 		return super.reduceDataState(currentState, useCaseState)
 	}
 
 	override suspend fun reduceErrorState(
-		currentState: Evaluations.State,
-		useCaseState: UseCaseState.Error<Evaluation, EvaluationError>
+		currentState: Evaluation.State,
+		useCaseState: UseCaseState.Error<EvaluationModel, EvaluationError>
 	): Flow<ViewOutput> {
 		return super.reduceErrorState(currentState, useCaseState)
 	}
