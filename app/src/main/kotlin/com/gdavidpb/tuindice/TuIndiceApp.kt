@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.persistence.di.persistenceModule
 import com.gdavidpb.tuindice.record.di.recordModule
 import com.gdavidpb.tuindice.summary.di.summaryModule
 import com.gdavidpb.tuindice.transactions.di.transactionsModule
+import com.jakewharton.threetenabp.AndroidThreeTen
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
 import org.koin.android.ext.koin.androidLogger
@@ -25,6 +26,8 @@ import java.util.*
 class TuIndiceApp : Application() {
 	override fun onCreate() {
 		super.onCreate()
+
+		AndroidThreeTen.init(this)
 
 		Locale.setDefault(DEFAULT_LOCALE)
 		TimeZone.setDefault(DEFAULT_TIME_ZONE)
