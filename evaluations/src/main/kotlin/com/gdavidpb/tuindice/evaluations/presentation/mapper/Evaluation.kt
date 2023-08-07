@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.HistoryEdu
 import androidx.compose.material.icons.outlined.ModeComment
+import androidx.compose.material.icons.outlined.QuestionMark
 import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material.icons.outlined.Science
 import androidx.compose.material.icons.outlined.Tag
@@ -21,7 +22,32 @@ import com.gdavidpb.tuindice.base.utils.extension.daysDistance
 import com.gdavidpb.tuindice.base.utils.extension.format
 import com.gdavidpb.tuindice.base.utils.extension.weeksDistance
 import com.gdavidpb.tuindice.evaluations.R
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
+import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import java.util.Date
+
+fun (Evaluation.Action.ClickSaveEvaluation).toUpdateEvaluationParams() = UpdateEvaluationParams(
+	evaluationId = evaluationId,
+	subjectId = subject?.id,
+	name = name,
+	grade = grade,
+	maxGrade = maxGrade,
+	date = date,
+	type = type,
+	isCompleted = isCompleted
+)
+
+fun (Evaluation.Action.ClickSaveEvaluation).toAddEvaluationParams() = AddEvaluationParams(
+	quarterId = subject?.qid,
+	subjectId = subject?.id,
+	name = name,
+	grade = grade,
+	maxGrade = maxGrade,
+	date = date,
+	type = type,
+	isCompleted = isCompleted
+)
 
 fun Date.formatAsToNow(): String {
 	val daysDistance = daysDistance()
@@ -29,10 +55,10 @@ fun Date.formatAsToNow(): String {
 
 	return when {
 		time == 0L -> "Evaluación continua"
-		daysDistance == 0 -> "Hoy"
-		daysDistance == 1 -> "Mañana"
-		daysDistance == -1 -> "Ayer"
-		weeksDistance == 0 -> {
+		daysDistance == 0L -> "Hoy"
+		daysDistance == 1L -> "Mañana"
+		daysDistance == -1L -> "Ayer"
+		weeksDistance == 0L -> {
 			val now = Date()
 
 			if (before(now))
@@ -41,7 +67,7 @@ fun Date.formatAsToNow(): String {
 				"Este ${format("EEEE '—' dd 'de' MMMM")}"
 		}
 
-		weeksDistance == 1 -> "El próximo ${format("EEEE '—' dd 'de' MMMM")}"
+		weeksDistance == 1L -> "El próximo ${format("EEEE '—' dd 'de' MMMM")}"
 		weeksDistance in 2..12 -> "En $weeksDistance semanas"
 		else -> format("EEEE '—' dd/MM/yy")?.capitalize()!!
 	}

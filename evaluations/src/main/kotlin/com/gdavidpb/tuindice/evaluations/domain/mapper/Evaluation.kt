@@ -8,8 +8,8 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationPa
 
 fun AddEvaluationParams.toEvaluationAdd() = EvaluationAdd(
 	reference = generateReference(),
-	quarterId = quarterId,
-	subjectId = subjectId,
+	quarterId = quarterId!!,
+	subjectId = subjectId!!,
 	name = name!!,
 	grade = grade!!,
 	maxGrade = maxGrade!!,
@@ -19,7 +19,7 @@ fun AddEvaluationParams.toEvaluationAdd() = EvaluationAdd(
 )
 
 fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(
-	evaluationId = evaluationId,
+	evaluationId = evaluationId!!,
 	name = name,
 	grade = grade,
 	maxGrade = maxGrade,

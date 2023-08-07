@@ -3,7 +3,8 @@ package com.gdavidpb.tuindice.evaluations.domain.usecase.param
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 
 data class UpdateEvaluationParams(
-	val evaluationId: String,
+	val evaluationId: String?,
+	val subjectId: String?,
 	val name: String? = null,
 	val grade: Double? = null,
 	val maxGrade: Double? = null,

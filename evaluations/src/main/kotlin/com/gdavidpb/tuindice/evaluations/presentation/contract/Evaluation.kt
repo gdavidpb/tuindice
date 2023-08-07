@@ -11,6 +11,7 @@ object Evaluation {
 		object Loading : State()
 
 		data class Content(
+			val evaluationId: String? = null,
 			val availableSubjects: List<Subject>,
 			val subject: Subject? = null,
 			val name: String? = null,
@@ -18,7 +19,8 @@ object Evaluation {
 			val grade: Double? = null,
 			val maxGrade: Double? = null,
 			val type: EvaluationType? = null,
-			val exists: Boolean
+			val exists: Boolean,
+			val isCompleted: Boolean
 		) : State()
 
 		object Failed : State()
@@ -27,6 +29,18 @@ object Evaluation {
 	sealed class Action : ViewAction {
 		class LoadEvaluation(
 			val evaluationId: String
+		) : Action()
+
+		class ClickSaveEvaluation(
+			val evaluationId: String?,
+			val subject: Subject?,
+			val name: String?,
+			val date: Long?,
+			val grade: Double?,
+			val maxGrade: Double?,
+			val type: EvaluationType?,
+			val exists: Boolean,
+			val isCompleted: Boolean
 		) : Action()
 	}
 

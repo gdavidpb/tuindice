@@ -32,6 +32,7 @@ class EvaluationAndAvailableSubjectsReducer :
 		return flowOf(
 			with(useCaseState.value) {
 				Evaluation.State.Content(
+					evaluationId = evaluation?.evaluationId,
 					availableSubjects = availableSubjects,
 					subject = evaluation?.subject,
 					name = evaluation?.name,
@@ -39,7 +40,8 @@ class EvaluationAndAvailableSubjectsReducer :
 					grade = evaluation?.grade,
 					maxGrade = evaluation?.maxGrade,
 					type = evaluation?.type,
-					exists = evaluation != null
+					exists = evaluation != null,
+					isCompleted = evaluation?.isCompleted ?: false
 				)
 			}
 		)
