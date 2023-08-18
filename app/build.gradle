@@ -7,15 +7,22 @@ apply plugin: "com.google.gms.google-services"
 apply plugin: "com.google.firebase.crashlytics"
 
 android {
-    compileSdkVersion 30
+    namespace "com.gdavidpb.tuindice"
+
+    compileSdk 34
+
     defaultConfig {
         applicationId "com.gdavidpb.tuindice"
         vectorDrawables.useSupportLibrary = true
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 34
         versionCode 35
         versionName "5.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     signingConfigs {
@@ -33,8 +40,11 @@ android {
     }
 
     packagingOptions {
-        exclude "DebugProbesKt.bin"
+        resources {
+            excludes += ['DebugProbesKt.bin']
+        }
     }
+
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
@@ -43,13 +53,11 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
-            manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
 
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
             buildConfigField "String", "URL_MOCK", "\"${config.mockAddress}\""
 
-            buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
             buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
 
             buildConfigField "String", "URL_APP_TWITTER", "\"https://twitter.com/TuIndice\""
@@ -65,14 +73,12 @@ android {
 
             signingConfig signingConfigs.release
 
-            manifestPlaceholders = [hostName: "tuindiceusb.page.link"]
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
 
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
             buildConfigField "String", "URL_MOCK", "\"\""
 
-            buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
             buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
 
             buildConfigField "String", "URL_APP_TWITTER", "\"https://twitter.com/TuIndice\""
