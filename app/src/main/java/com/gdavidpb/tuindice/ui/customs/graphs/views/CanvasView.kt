@@ -160,8 +160,8 @@ abstract class CanvasView(context: Context, attrs: AttributeSet) : View(context,
     }
 
     private inner class MoveDetector : GestureDetector.SimpleOnGestureListener() {
-        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
-            val cantHandle = e1.pointerCount > 1 || e2.pointerCount > 1
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+            val cantHandle = e1 != null && (e1.pointerCount > 1 || e2.pointerCount > 1)
 
             if (cantHandle) return false
 
