@@ -21,14 +21,19 @@ import com.gdavidpb.tuindice.ui.dialogs.UpdatePasswordBottomSheetDialog
 import com.gdavidpb.tuindice.utils.IdempotentLocker
 import com.gdavidpb.tuindice.utils.RequestCodes
 import com.gdavidpb.tuindice.utils.TIME_EXIT_LOCKER
-import com.gdavidpb.tuindice.utils.extensions.*
+import com.gdavidpb.tuindice.utils.extensions.hideSoftKeyboard
+import com.gdavidpb.tuindice.utils.extensions.observe
+import com.gdavidpb.tuindice.utils.extensions.toast
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.appBar
+import kotlinx.android.synthetic.main.activity_main.bottomNavView
+import kotlinx.android.synthetic.main.activity_main.pBarSync
+import kotlinx.android.synthetic.main.activity_main.toolbar
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -46,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
     private val backLocker = IdempotentLocker()
 
-    private val topDestinations = listOf(
+    private val topDestinations = setOf(
             R.id.fragment_summary,
             R.id.fragment_record,
             R.id.fragment_about,
@@ -54,16 +59,14 @@ class MainActivity : AppCompatActivity() {
             R.id.fragment_sign_in
     )
 
-    private val bottomDestinations = listOf(
+    private val bottomDestinations = setOf(
             R.id.fragment_summary,
             R.id.fragment_record,
             R.id.fragment_about
     )
 
     private val appBarConfiguration by lazy {
-        AppBarConfiguration(navController.graph).apply {
-            topLevelDestinations.addAll(topDestinations)
-        }
+        AppBarConfiguration(topDestinations)
     }
 
     private val navController by lazy {
