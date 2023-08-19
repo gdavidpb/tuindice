@@ -47,7 +47,7 @@
         <activity
             android:name=".ui.activities.RemoveProfilePictureActivity"
             android:label="@string/label_remove_profile_picture"
-            android:theme="@android:style/Theme.NoDisplay">
+            android:theme="@style/AppTheme.NoDisplay">
             <intent-filter>
                 <action android:name="com.gdavidpb.tuindice.intent.action.ACTION_REMOVE_PROFILE_PICTURE" />
                 <category android:name="android.intent.category.DEFAULT" />
