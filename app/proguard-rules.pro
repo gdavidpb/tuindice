@@ -133,3 +133,23 @@
 -dontwarn org.openjsse.javax.net.ssl.SSLParameters
 -dontwarn org.openjsse.javax.net.ssl.SSLSocket
 -dontwarn org.openjsse.net.ssl.OpenJSSE
+
+# GSON
+-dontnote com.google.gson.**
+
+# GSON TypeAdapters are only referenced in annotations so ProGuard doesn't find their method usage
+-keepclassmembers,allowobfuscation,includedescriptorclasses class * extends com.google.gson.TypeAdapter {
+    public <methods>;
+}
+
+# GSON TypeAdapterFactory is an interface, we need to keep the entire class, not just its members
+-keep,allowobfuscation,includedescriptorclasses class * implements com.google.gson.TypeAdapterFactory
+
+# GSON JsonDeserializer and JsonSerializer are interfaces, we need to keep the entire class, not just its members
+-keep,allowobfuscation,includedescriptorclasses class * implements com.google.gson.JsonDeserializer
+-keep,allowobfuscation,includedescriptorclasses class * implements com.google.gson.JsonSerializer
+
+# Ensure that all fields annotated with SerializedName will be kept
+-keepclassmembers,allowobfuscation class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
