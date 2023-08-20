@@ -95,15 +95,13 @@ class SummaryFragment : NavigationFragment() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        data ?: return
-
         if (resultCode == Activity.RESULT_OK) {
-            val removeProfilePicture = data.hasExtra(Extras.REMOVE_PROFILE_PICTURE)
+            val removeProfilePicture = data?.hasExtra(Extras.REMOVE_PROFILE_PICTURE) ?: false
             val requestProfilePicture = (requestCode == RequestCodes.PROFILE_PICTURE_REQUEST)
 
             when {
                 removeProfilePicture -> showRemoveProfilePictureDialog()
-                requestProfilePicture -> viewModel.getProfilePictureFile(optionalUri = data.data)
+                requestProfilePicture -> viewModel.getProfilePictureFile(optionalUri = data?.data)
             }
         }
     }
