@@ -1,12 +1,11 @@
 package com.gdavidpb.tuindice.login.ui.view
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,7 +23,6 @@ import com.gdavidpb.tuindice.login.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun RandomFlipperText(items: List<String>) {
 	val randomTextFlow = remember {
@@ -46,8 +44,8 @@ fun RandomFlipperText(items: List<String>) {
 			val enter = slideInHorizontally { x -> x } + fadeIn()
 			val exit = slideOutHorizontally { x -> -x } + fadeOut()
 
-			enter with exit
-		}
+			enter togetherWith exit
+		}, label = "RandomFlipperTextAnimatedContent"
 	) { text ->
 		Box(
 			modifier = Modifier

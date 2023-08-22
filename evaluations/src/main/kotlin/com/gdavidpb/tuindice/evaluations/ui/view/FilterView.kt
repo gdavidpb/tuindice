@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -27,8 +26,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 
 @OptIn(
 	ExperimentalLayoutApi::class,
-	ExperimentalMaterial3Api::class,
-	ExperimentalAnimationApi::class
+	ExperimentalMaterial3Api::class
 )
 @Composable
 fun FilterView(
@@ -67,8 +65,7 @@ fun FilterView(
 		horizontalArrangement = Arrangement
 			.spacedBy(
 				space = dimensionResource(id = R.dimen.dp_8)
-			),
-		verticalAlignment = Alignment.CenterVertically
+			)
 	) {
 		entries.forEach { (filter, isSelected) ->
 			FilterChip(
@@ -77,7 +74,10 @@ fun FilterView(
 					onEntrySelect(filter, !isSelected.value)
 				},
 				leadingIcon = {
-					AnimatedContent(targetState = isSelected.value) { targetState ->
+					AnimatedContent(
+						targetState = isSelected.value,
+						label = "FilterChipAnimatedContent"
+					) { targetState ->
 						if (targetState)
 							Icon(
 								imageVector = Icons.Outlined.Check,

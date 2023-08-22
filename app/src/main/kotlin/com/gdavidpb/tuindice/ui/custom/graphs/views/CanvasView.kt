@@ -13,7 +13,11 @@ import android.view.View
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.utils.extension.getInterpolator
 import com.gdavidpb.tuindice.base.utils.extension.loadAttributes
-import com.gdavidpb.tuindice.ui.custom.graphs.extensions.*
+import com.gdavidpb.tuindice.ui.custom.graphs.extensions.contains
+import com.gdavidpb.tuindice.ui.custom.graphs.extensions.scaleX
+import com.gdavidpb.tuindice.ui.custom.graphs.extensions.scaleY
+import com.gdavidpb.tuindice.ui.custom.graphs.extensions.translateX
+import com.gdavidpb.tuindice.ui.custom.graphs.extensions.translateY
 import com.google.android.material.animation.MatrixEvaluator
 
 abstract class CanvasView(context: Context, attrs: AttributeSet) : View(context, attrs) {
@@ -165,12 +169,12 @@ abstract class CanvasView(context: Context, attrs: AttributeSet) : View(context,
 
 	private inner class MoveDetector : GestureDetector.SimpleOnGestureListener() {
 		override fun onScroll(
-			e1: MotionEvent,
+			e1: MotionEvent?,
 			e2: MotionEvent,
 			distanceX: Float,
 			distanceY: Float
 		): Boolean {
-			val cantHandle = e1.pointerCount > 1 || e2.pointerCount > 1
+			val cantHandle = (e1 != null && e1.pointerCount > 1) || e2.pointerCount > 1
 
 			if (cantHandle) return false
 
