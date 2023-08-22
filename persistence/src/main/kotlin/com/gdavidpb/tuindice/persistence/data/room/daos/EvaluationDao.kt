@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.persistence.data.room.daos
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.room.otm.EvaluationWithSubject
 import com.gdavidpb.tuindice.persistence.data.room.schema.EvaluationTable
@@ -14,6 +15,7 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
 				"ORDER BY ${EvaluationTable.DATE} ASC"
 	)
+	@Transaction
 	abstract fun getEvaluationsWithSubject(
 		uid: String
 	): Flow<List<EvaluationWithSubject>>
@@ -23,6 +25,7 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
 				"AND ${EvaluationTable.ID} = :eid"
 	)
+	@Transaction
 	abstract fun getEvaluationWithSubject(
 		uid: String,
 		eid: String

@@ -15,19 +15,17 @@ import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProof
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
 import com.gdavidpb.tuindice.enrollmentproof.presentation.reducer.EnrollmentProofReducer
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
-import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.core.annotation.KoinReflectAPI
+import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-@KoinReflectAPI
 val enrollmentProofModule = module {
 	/* View Models */
 
-	viewModel<EnrollmentProofViewModel>()
+	viewModelOf(::EnrollmentProofViewModel)
 
 	/* Reducers */
 

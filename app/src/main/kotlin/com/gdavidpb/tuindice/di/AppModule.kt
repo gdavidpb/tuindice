@@ -63,15 +63,13 @@ import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.core.annotation.KoinReflectAPI
+import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import java.util.concurrent.TimeUnit
 
-@KoinReflectAPI
 val appModule = module {
 	/* Application */
 
@@ -81,8 +79,8 @@ val appModule = module {
 
 	/* View Models */
 
-	viewModel<MainViewModel>()
-	viewModel<BrowserViewModel>()
+	viewModelOf(::MainViewModel)
+	viewModelOf(::BrowserViewModel)
 
 	/* Reducers */
 

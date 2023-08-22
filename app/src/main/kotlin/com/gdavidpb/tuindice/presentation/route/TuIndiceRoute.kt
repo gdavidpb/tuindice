@@ -35,15 +35,15 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.review.ReviewManager
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.get
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TuIndiceRoute(
 	startData: String?,
-	reviewManager: ReviewManager = get(),
-	appUpdateManager: AppUpdateManager = get(),
+	reviewManager: ReviewManager = koinInject(),
+	appUpdateManager: AppUpdateManager = koinInject(),
 	viewModel: MainViewModel = koinViewModel()
 ) {
 	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
