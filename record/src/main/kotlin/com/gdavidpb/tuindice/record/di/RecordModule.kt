@@ -27,19 +27,17 @@ import com.gdavidpb.tuindice.record.presentation.reducer.RemoveQuarterReducer
 import com.gdavidpb.tuindice.record.presentation.reducer.UpdateSubjectReducer
 import com.gdavidpb.tuindice.record.presentation.reducer.WithdrawSubjectReducer
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
-import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.core.annotation.KoinReflectAPI
+import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-@KoinReflectAPI
 val recordModule = module {
 	/* View Models */
 
-	viewModel<RecordViewModel>()
+	viewModelOf(::RecordViewModel)
 
 	/* Reducers */
 	factoryOf(::RecordReducer)

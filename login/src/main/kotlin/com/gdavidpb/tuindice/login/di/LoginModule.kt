@@ -17,20 +17,18 @@ import com.gdavidpb.tuindice.login.presentation.reducer.SignInReducer
 import com.gdavidpb.tuindice.login.presentation.reducer.UpdatePasswordReducer
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.UpdatePasswordViewModel
-import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.core.annotation.KoinReflectAPI
+import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-@KoinReflectAPI
 val loginModule = module {
 	/* View Models */
 
-	viewModel<SignInViewModel>()
-	viewModel<UpdatePasswordViewModel>()
+	viewModelOf(::SignInViewModel)
+	viewModelOf(::UpdatePasswordViewModel)
 
 	/* Reducers */
 

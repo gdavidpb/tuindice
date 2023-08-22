@@ -17,12 +17,11 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
 import org.koin.android.ext.koin.androidLogger
-import org.koin.core.annotation.KoinReflectAPI
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
-import java.util.*
+import java.util.Locale
+import java.util.TimeZone
 
-@KoinReflectAPI
 class TuIndiceApp : Application() {
 	override fun onCreate() {
 		super.onCreate()
