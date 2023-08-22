@@ -1,5 +1,4 @@
 apply plugin: "kotlin-android"
-apply plugin: "androidx.navigation.safeargs.kotlin"
 
 android {
     compileSdkVersion core.targetSdk
@@ -18,7 +17,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.6"
+        kotlinCompilerExtensionVersion = "1.5.0"
     }
 
     defaultConfig {
@@ -37,13 +36,11 @@ android {
 
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
-            buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
-            buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
+            buildConfigField "String", "ENDPOINT_TU_INDICE_API", "\"http://10.0.2.2:8080/\""
 
+            buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
             buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/privacy_policy.html\""
             buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions.html\""
-
-            buildConfigField "String", "ENDPOINT_TU_INDICE_API", "\"http://10.0.2.2:8080/\""
         }
         release {
             buildConfigField "String", "APPLICATION_ID", "\"com.gdavidpb.tuindice\""
@@ -52,13 +49,11 @@ android {
 
             buildConfigField "String", "MASTER_KEY_ALIAS", "\"tuindice_key\""
 
-            buildConfigField "String", "URL_HOST", "\"tuindiceusb.page.link\""
-            buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
+            buildConfigField "String", "ENDPOINT_TU_INDICE_API", "\"https://us-central1-tu-indice-usb.cloudfunctions.net/\""
 
+            buildConfigField "String", "URL_APP", "\"tu-indice-usb.firebaseapp.com\""
             buildConfigField "String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/privacy_policy.html\""
             buildConfigField "String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions.html\""
-
-            buildConfigField "String", "ENDPOINT_TU_INDICE_API", "\"https://us-central1-tu-indice-usb.cloudfunctions.net/\""
         }
     }
 }

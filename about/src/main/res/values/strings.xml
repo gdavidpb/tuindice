@@ -70,7 +70,7 @@
     <string name="about_header_libs">Detrás de TuIndice</string>
 
     <string name="about_kotlin">
-        Kotlin 1.8.20\n
+        Kotlin 1.9.0\n
         Concise. Cross‑platform. Fun.\n
         © 2012 JetBrains
     </string>
@@ -88,7 +88,7 @@
     </string>
 
     <string name="about_koin">
-        Koin 3.2.0\n
+        Koin 3.4.3\n
         A pragmatic lightweight dependency injection framework for Kotlin.\n
         © 2018 Arnaud Giuliani
     </string>
