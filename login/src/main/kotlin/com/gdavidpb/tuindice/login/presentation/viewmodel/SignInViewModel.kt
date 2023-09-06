@@ -19,11 +19,13 @@ class SignInViewModel(
 	fun signInAction() {
 		val currentState = getCurrentState()
 
-		if (currentState is SignIn.State.Idle) {
-			val (usbId, password) = currentState
-
-			emitAction(SignIn.Action.ClickSignIn(usbId, password))
-		}
+		if (currentState is SignIn.State.Idle)
+			emitAction(
+				SignIn.Action.ClickSignIn(
+					usbId = currentState.usbId,
+					password = currentState.password
+				)
+			)
 	}
 
 	fun openTermsAndConditionsAction() =
