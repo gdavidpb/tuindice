@@ -11,8 +11,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class RemoveQuarterReducer(
 	private val resourceResolver: ResourceResolver
-) :
-	BaseReducer<Record.State, Record.Event, Unit, Nothing>() {
+) : BaseReducer<Record.State, Record.Event, Unit, Nothing>() {
 
 	override fun reduceUnrecoverableState(
 		currentState: Record.State,
