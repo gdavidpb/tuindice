@@ -8,8 +8,7 @@ import com.gdavidpb.tuindice.base.utils.ResourceResolver
 
 class AboutViewModel(
 	private val resourceResolver: ResourceResolver
-) :
-	BaseViewModel<About.State, About.Action, About.Event>(initialViewState = About.State.Idle) {
+) : BaseViewModel<About.State, About.Action, About.Event>(initialViewState = About.State.Idle) {
 
 	fun openTermsAndConditionsAction() =
 		emitAction(About.Action.OpenTermsAndConditions)
