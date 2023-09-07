@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -34,10 +35,11 @@ fun EvaluationsContentView(
 	onAddEvaluationClick: () -> Unit,
 	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
-	val evaluationsByDate =
+	val evaluationsByDate = remember {
 		state.filteredEvaluations.groupBy { evaluation ->
 			evaluation.date.formatAsToNow()
 		}
+	}
 
 	val lazyColumState = rememberLazyListState()
 
