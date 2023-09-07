@@ -50,9 +50,12 @@ fun AnimatedBackgroundView(
 		)
 	}
 
-	val infiniteTransition = rememberInfiniteTransition()
+	val infiniteTransition = rememberInfiniteTransition(
+		label = "AnimatedBackgroundView"
+	)
 
 	val animatedX by infiniteTransition.animateFloat(
+		label = "animatedX",
 		initialValue = 0f,
 		targetValue = backgroundWidth,
 		animationSpec = infiniteRepeatable(
@@ -60,7 +63,7 @@ fun AnimatedBackgroundView(
 				durationMillis = 30000,
 				easing = LinearEasing
 			)
-		)
+		),
 	)
 
 	Box(

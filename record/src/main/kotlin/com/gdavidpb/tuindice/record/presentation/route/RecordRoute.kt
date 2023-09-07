@@ -40,7 +40,7 @@ fun RecordRoute(
 	RecordScreen(
 		state = viewState,
 		onRetryClick = viewModel::loadQuartersAction,
-		onSubjectGradeChange = { subjectId, newGrade, isSelected ->
+		onSubjectGradeChanged = { subjectId, newGrade, isSelected ->
 			viewModel.updateSubjectAction(
 				UpdateSubjectParams(
 					subjectId = subjectId,

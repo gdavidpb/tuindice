@@ -1,9 +1,7 @@
 package com.gdavidpb.tuindice.record.ui.view
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +30,7 @@ fun SubjectItemView(
 	isRetired: Boolean,
 	isNoEffect: Boolean,
 	isEditable: Boolean,
-	onGradeChange: (newGrade: Int, isSelected: Boolean) -> Unit
+	onGradeChanged: (newGrade: Int, isSelected: Boolean) -> Unit
 ) {
 	val gradeString =
 		if (grade != MIN_SUBJECT_GRADE)
@@ -66,9 +64,6 @@ fun SubjectItemView(
 	ConstraintLayout(
 		modifier = Modifier
 			.fillMaxWidth()
-			.background(
-				color = MaterialTheme.colorScheme.background
-			)
 			.padding(
 				vertical = dimensionResource(id = R.dimen.dp_8),
 				horizontal = dimensionResource(id = R.dimen.dp_16)
@@ -91,10 +86,7 @@ fun SubjectItemView(
 					top.linkTo(parent.top)
 
 					width = Dimension.fillToConstraints
-				}
-				.padding(
-					end = dimensionResource(id = R.dimen.dp_16)
-				),
+				},
 			maxLines = 1,
 			overflow = TextOverflow.Ellipsis
 		)
@@ -120,8 +112,7 @@ fun SubjectItemView(
 					width = Dimension.fillToConstraints
 				}
 				.padding(
-					end = dimensionResource(id = R.dimen.dp_16),
-					bottom = dimensionResource(id = R.dimen.dp_4)
+					end = dimensionResource(id = R.dimen.dp_16)
 				),
 			maxLines = 1,
 			fontWeight = FontWeight.Light,
@@ -144,10 +135,10 @@ fun SubjectItemView(
 				steps = MAX_SUBJECT_GRADE - 1,
 				valueRange = Ranges.subjectGrade,
 				onValueChange = { grade ->
-					onGradeChange(grade.toInt(), false)
+					onGradeChanged(grade.toInt(), false)
 				},
 				onValueChangeFinished = {
-					onGradeChange(grade, true)
+					onGradeChanged(grade, true)
 				},
 				modifier = Modifier
 					.constrainAs(sliderGrade) {
