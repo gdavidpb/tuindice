@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.extension.ViewAction
 import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
 import com.gdavidpb.tuindice.base.utils.extension.ViewState
+import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationError
 
 object Evaluation {
 	sealed class State : ViewState {
@@ -20,7 +21,8 @@ object Evaluation {
 			val maxGrade: Double? = null,
 			val type: EvaluationType? = null,
 			val exists: Boolean,
-			val isCompleted: Boolean
+			val isCompleted: Boolean,
+			val error: EvaluationError? = null
 		) : State()
 
 		object Failed : State()

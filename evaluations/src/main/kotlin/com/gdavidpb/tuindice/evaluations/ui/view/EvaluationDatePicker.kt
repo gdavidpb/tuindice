@@ -32,8 +32,8 @@ import java.util.Date
 @Composable
 fun EvaluationDatePicker(
 	modifier: Modifier = Modifier,
-	selectedDate: Date?,
-	onDateChanged: (date: Date) -> Unit
+	selectedDate: Long?,
+	onDateChanged: (date: Long) -> Unit
 ) {
 	val isPickerDialogOpen = remember {
 		mutableStateOf(false)
@@ -44,7 +44,7 @@ fun EvaluationDatePicker(
 	}
 
 	val datePickerState = rememberDatePickerState(
-		initialSelectedDateMillis = selectedDate?.time ?: System.currentTimeMillis()
+		initialSelectedDateMillis = selectedDate ?: System.currentTimeMillis()
 	)
 
 	val interactionSource = remember { MutableInteractionSource() }
@@ -70,7 +70,6 @@ fun EvaluationDatePicker(
 						isPickerDialogOpen.value = false
 
 						val date = datePickerState.selectedDateMillis
-							?.let(::Date)
 
 						if (date != null) onDateChanged(date)
 					},

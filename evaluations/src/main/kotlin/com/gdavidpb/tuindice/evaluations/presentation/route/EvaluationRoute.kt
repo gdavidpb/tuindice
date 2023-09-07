@@ -35,11 +35,14 @@ fun EvaluationRoute(
 
 	EvaluationScreen(
 		state = viewState,
+		onNameChanged = viewModel::setName,
+		onSubjectChanged = viewModel::setSubject,
+		onDateChanged = viewModel::setDate,
+		onGradeChanged = viewModel::setGrade,
+		onTypeChanged = viewModel::setType,
+		onDoneClick = viewModel::saveEvaluationAction,
 		onRetryClick = {
 			viewModel.loadEvaluationAction(evaluationId)
-		},
-		onDoneClick = {
-			viewModel.saveEvaluationAction()
 		}
 	)
 }
