@@ -17,25 +17,26 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.R
+import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
-import java.util.Date
 
 @Composable
 fun EvaluationContentView(
 	state: Evaluation.State.Content,
+	onNameChanged: (name: String) -> Unit,
+	onSubjectChanged: (subject: Subject) -> Unit,
+	onDateChanged: (date: Long) -> Unit,
+	onGradeChanged: (grade: Double?) -> Unit,
+	onTypeChanged: (type: EvaluationType?) -> Unit,
 	onDoneClick: () -> Unit
 ) {
-	val evaluation = remember {
-		mutableStateOf(state)
-	}
-
 	val scrollState = rememberScrollState()
 
 	Box(
@@ -60,13 +61,20 @@ fun EvaluationContentView(
 
 			EvaluationNameTextField(
 				modifier = Modifier
-					.padding(vertical = dimensionResource(id = R.dimen.dp_6))
+					.padding(
+						top = dimensionResource(id = R.dimen.dp_6),
+						bottom = if (state.error is EvaluationError.EmptyName)
+							dimensionResource(id = R.dimen.dp_12)
+						else
+							dimensionResource(id = R.dimen.dp_6)
+					)
 					.fillMaxWidth(),
-				name = evaluation.value.name,
-				onNameChanged = { name ->
-					evaluation.value = evaluation.value
-						.copy(name = name)
-				}
+				name = state.name,
+				onNameChanged = onNameChanged,
+				error = if (state.error is EvaluationError.EmptyName)
+					stringResource(id = R.string.error_evaluation_name_empty)
+				else
+					null
 			)
 
 			Text(
@@ -77,14 +85,21 @@ fun EvaluationContentView(
 
 			EvaluationSubjectTextField(
 				modifier = Modifier
-					.padding(top = dimensionResource(id = R.dimen.dp_6))
+					.padding(
+						top = dimensionResource(id = R.dimen.dp_6),
+						bottom = if (state.error is EvaluationError.SubjectMissed)
+							dimensionResource(id = R.dimen.dp_12)
+						else
+							dimensionResource(id = R.dimen.dp_6)
+					)
 					.fillMaxWidth(),
-				subjects = evaluation.value.availableSubjects,
-				selectedSubject = evaluation.value.subject,
-				onSubjectChanged = { subject ->
-					evaluation.value = evaluation.value
-						.copy(subject = subject)
-				}
+				subjects = state.availableSubjects,
+				selectedSubject = state.subject,
+				onSubjectChanged = onSubjectChanged,
+				error = if (state.error is EvaluationError.SubjectMissed)
+					stringResource(id = R.string.error_evaluation_subject_missed)
+				else
+					null
 			)
 
 			Text(
@@ -97,11 +112,8 @@ fun EvaluationContentView(
 				modifier = Modifier
 					.padding(vertical = dimensionResource(id = R.dimen.dp_12))
 					.fillMaxWidth(),
-				selectedDate = evaluation.value.date?.let(::Date),
-				onDateChanged = { date ->
-					evaluation.value = evaluation.value
-						.copy(date = date.time)
-				}
+				selectedDate = state.date,
+				onDateChanged = onDateChanged
 			)
 
 			Text(
@@ -114,12 +126,13 @@ fun EvaluationContentView(
 				modifier = Modifier
 					.padding(vertical = dimensionResource(id = R.dimen.dp_6))
 					.fillMaxWidth(),
-				grade = evaluation.value.grade,
-				maxGrade = evaluation.value.maxGrade,
-				onGradeChanged = { grade ->
-					evaluation.value = evaluation.value
-						.copy(grade = grade)
-				}
+				grade = state.grade,
+				maxGrade = state.maxGrade,
+				onGradeChanged = onGradeChanged,
+				error = if (state.error is EvaluationError.GradeMissed)
+					stringResource(id = R.string.error_evaluation_grade_missed)
+				else
+					null
 			)
 
 			Text(
@@ -129,11 +142,8 @@ fun EvaluationContentView(
 			)
 
 			EvaluationTypePicker(
-				selectedType = evaluation.value.type,
-				onTypeChanged = { type ->
-					evaluation.value = evaluation.value
-						.copy(type = type)
-				}
+				selectedType = state.type,
+				onTypeChanged = onTypeChanged
 			)
 		}
 

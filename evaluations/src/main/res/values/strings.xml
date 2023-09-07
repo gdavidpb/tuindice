@@ -35,8 +35,11 @@
 
     <string name="error_evaluation_name_empty">Debes darle un nombre o descripción</string>
     <string name="error_evaluation_subject_missed">Debes seleccionar una materia</string>
-    <string name="error_evaluation_grade_invalid_range">El valor de la evaluación debe estar entre 0.25 y 100 puntos</string>
-    <string name="error_evaluation_grade_invalid_step">El valor de la evaluación debe ser múltiplo de 0.25</string>
+    <string name="error_evaluation_max_grade_missed">Debes asignar una nota máxima</string>
+    <string name="error_evaluation_grade_missed">Debes asignar una nota</string>
+    <string name="error_evaluation_grade_invalid_range">El valor debe estar entre 0.25 y 100</string>
+    <string name="error_evaluation_grade_invalid_step">El valor debe ser múltiplo de 0.25</string>
+    <string name="error_evaluation_type_missed">Debes elegir un tipo</string>
 
     <!-- FilterEvaluationsDialog -->
 

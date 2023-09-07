@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import com.gdavidpb.tuindice.base.utils.extension.capitalize
 import com.gdavidpb.tuindice.evaluations.R
 
 private const val MAX_TEXT_LENGTH_NAME = 32
@@ -26,7 +27,8 @@ fun EvaluationNameTextField(
 		modifier = modifier,
 		value = name.orEmpty(),
 		onValueChange = { newValue ->
-			if (newValue.length <= MAX_TEXT_LENGTH_NAME) onNameChanged(newValue)
+			if (newValue.length <= MAX_TEXT_LENGTH_NAME)
+				onNameChanged(newValue.capitalize())
 		},
 		isError = error != null,
 		supportingText = {

@@ -30,7 +30,6 @@ fun <T : DropdownMenuItem> DropdownMenuTextField(
 ) {
 	val expanded = remember { mutableStateOf(false) }
 	val selectedItemText = remember { mutableStateOf(selectedItem?.text.orEmpty()) }
-	val supportingText = remember { mutableStateOf(error) }
 
 	ExposedDropdownMenuBox(
 		modifier = modifier,
@@ -45,11 +44,9 @@ fun <T : DropdownMenuItem> DropdownMenuTextField(
 			readOnly = true,
 			value = selectedItemText.value,
 			onValueChange = { },
-			isError = supportingText.value != null,
+			isError = error != null,
 			supportingText = {
-				val text = supportingText.value
-
-				if (text != null) Text(text)
+				if (error != null) Text(error)
 			},
 			trailingIcon = {
 				ExposedDropdownMenuDefaults.TrailingIcon(
