@@ -10,7 +10,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
-import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
+import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 
 @Composable
 @ReadOnlyComposable
@@ -32,12 +32,8 @@ fun String.annotatedQuarterValue(baselineShift: Float = 0.0f) = buildAnnotatedSt
 }
 
 @Composable
-fun rememberSubjectsStates(quarters: List<Quarter>) = remember {
-	quarters
-		.filter { quarter -> quarter.isEditable }
-		.flatMap { quarter -> quarter.subjects }
-		.associate { subject ->
-			subject.id to mutableIntStateOf(subject.grade)
-		}
+fun rememberSubjectsStates(subjects: List<Subject>) = remember {
+	subjects
+		.associate { subject -> subject.id to mutableIntStateOf(subject.grade) }
 		.let(::HashMap)
 }

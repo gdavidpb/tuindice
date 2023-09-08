@@ -25,9 +25,10 @@ fun QuarterItemView(
 	gradeSum: Double,
 	credits: Int,
 	subjects: List<Subject>,
-	getSubjectGrade: (subject: Subject) -> Int,
 	onSubjectGradeChanged: (subject: Subject, newGrade: Int, isSelected: Boolean) -> Unit
 ) {
+	val subjectsStates = rememberSubjectsStates(subjects = subjects)
+
 	ElevatedCard(
 		modifier = modifier
 			.fillMaxWidth()
@@ -79,11 +80,13 @@ fun QuarterItemView(
 					code = subject.code,
 					name = subject.name,
 					credits = subject.credits,
-					grade = getSubjectGrade(subject),
+					grade = subjectsStates[subject.id]?.intValue ?: subject.grade,
 					isRetired = subject.grade == MIN_SUBJECT_GRADE || subject.isRetired,
 					isNoEffect = subject.isNoEffect,
 					isEditable = subject.isEditable,
 					onGradeChanged = { newGrade, isSelected ->
+						subjectsStates[subject.id]?.intValue = newGrade
+
 						onSubjectGradeChanged(subject, newGrade, isSelected)
 					}
 				)

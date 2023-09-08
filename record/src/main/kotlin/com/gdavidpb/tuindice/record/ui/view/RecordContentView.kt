@@ -12,8 +12,6 @@ fun RecordContentView(
 	state: Record.State.Content,
 	onSubjectGradeChanged: (subjectId: String, newGrade: Int, isSelected: Boolean) -> Unit
 ) {
-	val subjectStates = rememberSubjectsStates(quarters = state.quarters)
-
 	LazyColumn(
 		modifier = Modifier
 			.fillMaxSize()
@@ -26,12 +24,7 @@ fun RecordContentView(
 					gradeSum = gradeSum,
 					credits = credits,
 					subjects = quarter.subjects,
-					getSubjectGrade = { subject ->
-						subjectStates[subject.id]?.intValue ?: subject.grade
-					},
 					onSubjectGradeChanged = { subject, grade, isSelected ->
-						subjectStates[subject.id]?.intValue = grade
-
 						if (isSelected)
 							onSubjectGradeChanged(subject.id, grade, true)
 					}
