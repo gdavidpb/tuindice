@@ -25,7 +25,7 @@ fun QuarterItemView(
 	gradeSum: Double,
 	credits: Int,
 	subjects: List<Subject>,
-	onSubjectGradeChanged: (subject: Subject, newGrade: Int, isSelected: Boolean) -> Unit
+	onSubjectGradeChange: (subject: Subject, newGrade: Int, isSelected: Boolean) -> Unit
 ) {
 	val subjectsStates = rememberSubjectsStates(subjects = subjects)
 
@@ -84,10 +84,10 @@ fun QuarterItemView(
 					isRetired = subject.grade == MIN_SUBJECT_GRADE || subject.isRetired,
 					isNoEffect = subject.isNoEffect,
 					isEditable = subject.isEditable,
-					onGradeChanged = { newGrade, isSelected ->
+					onGradeChange = { newGrade, isSelected ->
 						subjectsStates[subject.id]?.intValue = newGrade
 
-						onSubjectGradeChanged(subject, newGrade, isSelected)
+						onSubjectGradeChange(subject, newGrade, isSelected)
 					}
 				)
 			}

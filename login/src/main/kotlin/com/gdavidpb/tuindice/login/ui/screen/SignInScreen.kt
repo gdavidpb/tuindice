@@ -14,8 +14,8 @@ import com.gdavidpb.tuindice.login.ui.view.SignInLoggingInView
 @Composable
 fun SignInScreen(
 	state: SignIn.State,
-	onUsbIdChanged: (usbId: String) -> Unit,
-	onPasswordChanged: (password: String) -> Unit,
+	onUsbIdChange: (usbId: String) -> Unit,
+	onPasswordChange: (password: String) -> Unit,
 	onSignInClick: () -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit
@@ -40,8 +40,8 @@ fun SignInScreen(
 			else
 				SignInIdleView(
 					state = state,
-					onUsbIdChanged = onUsbIdChanged,
-					onPasswordChanged = onPasswordChanged,
+					onUsbIdChange = onUsbIdChange,
+					onPasswordChange = onPasswordChange,
 					onSignInClick = onSignInClick,
 					onTermsAndConditionsClick = onTermsAndConditionsClick,
 					onPrivacyPolicyClick = onPrivacyPolicyClick

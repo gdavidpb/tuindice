@@ -22,7 +22,7 @@ fun EvaluationSubjectTextField(
 	modifier: Modifier = Modifier,
 	subjects: List<Subject>,
 	selectedSubject: Subject? = subjects.firstOrNull(),
-	onSubjectChanged: (subject: Subject) -> Unit,
+	onSubjectChange: (subject: Subject) -> Unit,
 	error: String? = null
 ) {
 	val subjectItems = subjects
@@ -41,7 +41,7 @@ fun EvaluationSubjectTextField(
 		modifier = modifier,
 		items = subjectItems,
 		selectedItem = selectedSubjectItem,
-		onItemSelected = { item -> onSubjectChanged(item.subject) },
+		onItemSelected = { item -> onSubjectChange(item.subject) },
 		placeholder = {
 			Text(
 				text = stringResource(id = R.string.hint_evaluation_subject)

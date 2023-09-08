@@ -12,11 +12,11 @@ import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationLoadingView
 @Composable
 fun EvaluationScreen(
 	state: Evaluation.State,
-	onNameChanged: (name: String) -> Unit,
-	onSubjectChanged: (subject: Subject) -> Unit,
-	onDateChanged: (date: Long) -> Unit,
-	onGradeChanged: (grade: Double?) -> Unit,
-	onTypeChanged: (type: EvaluationType?) -> Unit,
+	onNameChange: (name: String) -> Unit,
+	onSubjectChange: (subject: Subject) -> Unit,
+	onDateChange: (date: Long) -> Unit,
+	onGradeChange: (grade: Double?) -> Unit,
+	onTypeChange: (type: EvaluationType?) -> Unit,
 	onDoneClick: () -> Unit,
 	onRetryClick: () -> Unit
 ) {
@@ -30,11 +30,11 @@ fun EvaluationScreen(
 			is Evaluation.State.Content ->
 				EvaluationContentView(
 					state = targetState,
-					onNameChanged = onNameChanged,
-					onSubjectChanged = onSubjectChanged,
-					onDateChanged = onDateChanged,
-					onGradeChanged = onGradeChanged,
-					onTypeChanged = onTypeChanged,
+					onNameChange = onNameChange,
+					onSubjectChange = onSubjectChange,
+					onDateChange = onDateChange,
+					onGradeChange = onGradeChange,
+					onTypeChange = onTypeChange,
 					onDoneClick = onDoneClick
 				)
 

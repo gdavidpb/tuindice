@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.record.presentation.contract.Record
 @Composable
 fun RecordContentView(
 	state: Record.State.Content,
-	onSubjectGradeChanged: (subjectId: String, newGrade: Int, isSelected: Boolean) -> Unit
+	onSubjectGradeChange: (subjectId: String, newGrade: Int, isSelected: Boolean) -> Unit
 ) {
 	LazyColumn(
 		modifier = Modifier
@@ -24,9 +24,9 @@ fun RecordContentView(
 					gradeSum = gradeSum,
 					credits = credits,
 					subjects = quarter.subjects,
-					onSubjectGradeChanged = { subject, grade, isSelected ->
+					onSubjectGradeChange = { subject, grade, isSelected ->
 						if (isSelected)
-							onSubjectGradeChanged(subject.id, grade, true)
+							onSubjectGradeChange(subject.id, grade, true)
 					}
 				)
 			}

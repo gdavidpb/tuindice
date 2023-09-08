@@ -12,7 +12,7 @@ import com.gdavidpb.tuindice.record.ui.view.RecordLoadingView
 fun RecordScreen(
 	state: Record.State,
 	onRetryClick: () -> Unit,
-	onSubjectGradeChanged: (subjectId: String, newGrade: Int, isSelected: Boolean) -> Unit
+	onSubjectGradeChange: (subjectId: String, newGrade: Int, isSelected: Boolean) -> Unit
 ) {
 	SealedCrossfade(
 		targetState = state
@@ -24,7 +24,7 @@ fun RecordScreen(
 			is Record.State.Content ->
 				RecordContentView(
 					state = targetState,
-					onSubjectGradeChanged = onSubjectGradeChanged
+					onSubjectGradeChange = onSubjectGradeChange
 				)
 
 			is Record.State.Failed ->

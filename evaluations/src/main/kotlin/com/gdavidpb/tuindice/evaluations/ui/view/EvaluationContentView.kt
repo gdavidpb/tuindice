@@ -30,11 +30,11 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 @Composable
 fun EvaluationContentView(
 	state: Evaluation.State.Content,
-	onNameChanged: (name: String) -> Unit,
-	onSubjectChanged: (subject: Subject) -> Unit,
-	onDateChanged: (date: Long) -> Unit,
-	onGradeChanged: (grade: Double?) -> Unit,
-	onTypeChanged: (type: EvaluationType?) -> Unit,
+	onNameChange: (name: String) -> Unit,
+	onSubjectChange: (subject: Subject) -> Unit,
+	onDateChange: (date: Long) -> Unit,
+	onGradeChange: (grade: Double?) -> Unit,
+	onTypeChange: (type: EvaluationType?) -> Unit,
 	onDoneClick: () -> Unit
 ) {
 	val scrollState = rememberScrollState()
@@ -70,7 +70,7 @@ fun EvaluationContentView(
 					)
 					.fillMaxWidth(),
 				name = state.name,
-				onNameChanged = onNameChanged,
+				onNameChange = onNameChange,
 				error = if (state.error is EvaluationError.EmptyName)
 					stringResource(id = R.string.error_evaluation_name_empty)
 				else
@@ -95,7 +95,7 @@ fun EvaluationContentView(
 					.fillMaxWidth(),
 				subjects = state.availableSubjects,
 				selectedSubject = state.subject,
-				onSubjectChanged = onSubjectChanged,
+				onSubjectChange = onSubjectChange,
 				error = if (state.error is EvaluationError.SubjectMissed)
 					stringResource(id = R.string.error_evaluation_subject_missed)
 				else
@@ -113,7 +113,7 @@ fun EvaluationContentView(
 					.padding(vertical = dimensionResource(id = R.dimen.dp_12))
 					.fillMaxWidth(),
 				selectedDate = state.date,
-				onDateChanged = onDateChanged
+				onDateChange = onDateChange
 			)
 
 			Text(
@@ -128,7 +128,7 @@ fun EvaluationContentView(
 					.fillMaxWidth(),
 				grade = state.grade,
 				maxGrade = state.maxGrade,
-				onGradeChanged = onGradeChanged,
+				onGradeChange = onGradeChange,
 				error = if (state.error is EvaluationError.GradeMissed)
 					stringResource(id = R.string.error_evaluation_grade_missed)
 				else
@@ -143,7 +143,7 @@ fun EvaluationContentView(
 
 			EvaluationTypePicker(
 				selectedType = state.type,
-				onTypeChanged = onTypeChanged
+				onTypeChange = onTypeChange
 			)
 		}
 

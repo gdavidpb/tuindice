@@ -25,7 +25,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.mapper.stringRes
 @Composable
 fun EvaluationTypePicker(
 	selectedType: EvaluationType? = null,
-	onTypeChanged: (EvaluationType) -> Unit
+	onTypeChange: (EvaluationType) -> Unit
 ) {
 	val selectedTypeState = remember { mutableStateOf(selectedType) }
 
@@ -44,7 +44,7 @@ fun EvaluationTypePicker(
 					selected = (type == selectedTypeState.value),
 					onClick = {
 						selectedTypeState.value = type
-						onTypeChanged(type)
+						onTypeChange(type)
 					},
 					leadingIcon = {
 						Icon(

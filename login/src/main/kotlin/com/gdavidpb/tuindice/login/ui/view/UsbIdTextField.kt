@@ -21,9 +21,9 @@ import com.gdavidpb.tuindice.login.R
 @Composable
 fun UsbIdTextField(
 	modifier: Modifier = Modifier,
-	usbId: String,
 	error: String? = null,
-	onValueChange: (usbId: String) -> Unit,
+	onUsbIdChange: (usbId: String) -> Unit,
+	usbId: String,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
 	val textField = remember { mutableStateOf(TextFieldValue(usbId)) }
@@ -55,7 +55,7 @@ fun UsbIdTextField(
 
 				supportingText.value = null
 
-				onValueChange(textField.value.text)
+				onUsbIdChange(textField.value.text)
 			}
 		},
 		isError = supportingText.value != null,
