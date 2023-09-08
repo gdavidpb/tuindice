@@ -33,7 +33,7 @@ import java.util.Date
 fun EvaluationDatePicker(
 	modifier: Modifier = Modifier,
 	selectedDate: Long?,
-	onDateChanged: (date: Long) -> Unit
+	onDateChange: (date: Long) -> Unit
 ) {
 	val isPickerDialogOpen = remember {
 		mutableStateOf(false)
@@ -71,7 +71,7 @@ fun EvaluationDatePicker(
 
 						val date = datePickerState.selectedDateMillis
 
-						if (date != null) onDateChanged(date)
+						if (date != null) onDateChange(date)
 					},
 					enabled = isConfirmEnabled.value
 				) {

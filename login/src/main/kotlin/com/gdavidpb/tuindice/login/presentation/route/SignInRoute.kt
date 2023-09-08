@@ -40,13 +40,13 @@ fun SignInRoute(
 
 	SignInScreen(
 		state = viewState,
-		onUsbIdChanged = { usbId ->
+		onUsbIdChange = { usbId ->
 			val currentState = viewModel.getCurrentState()
 
 			if (currentState is SignIn.State.Idle)
 				viewModel.setState(currentState.copy(usbId = usbId))
 		},
-		onPasswordChanged = { password ->
+		onPasswordChange = { password ->
 			val currentState = viewModel.getCurrentState()
 
 			if (currentState is SignIn.State.Idle)

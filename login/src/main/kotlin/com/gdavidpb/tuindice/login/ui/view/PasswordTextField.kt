@@ -26,8 +26,8 @@ import com.gdavidpb.tuindice.login.R
 fun PasswordTextField(
 	modifier: Modifier = Modifier,
 	password: String,
+	onPasswordChange: (password: String) -> Unit,
 	error: String? = null,
-	onValueChange: (password: String) -> Unit,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
 	val passwordField = remember { mutableStateOf(TextFieldValue(password)) }
@@ -42,7 +42,7 @@ fun PasswordTextField(
 
 			passwordField.value = newValue
 
-			onValueChange(passwordField.value.text)
+			onPasswordChange(passwordField.value.text)
 		},
 		isError = supportingText.value != null,
 		supportingText = {

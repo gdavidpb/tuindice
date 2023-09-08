@@ -30,7 +30,7 @@ fun SubjectItemView(
 	isRetired: Boolean,
 	isNoEffect: Boolean,
 	isEditable: Boolean,
-	onGradeChanged: (newGrade: Int, isSelected: Boolean) -> Unit
+	onGradeChange: (newGrade: Int, isSelected: Boolean) -> Unit
 ) {
 	val gradeString =
 		if (grade != MIN_SUBJECT_GRADE)
@@ -135,10 +135,10 @@ fun SubjectItemView(
 				steps = MAX_SUBJECT_GRADE - 1,
 				valueRange = Ranges.subjectGrade,
 				onValueChange = { grade ->
-					onGradeChanged(grade.toInt(), false)
+					onGradeChange(grade.toInt(), false)
 				},
 				onValueChangeFinished = {
-					onGradeChanged(grade, true)
+					onGradeChange(grade, true)
 				},
 				modifier = Modifier
 					.constrainAs(sliderGrade) {

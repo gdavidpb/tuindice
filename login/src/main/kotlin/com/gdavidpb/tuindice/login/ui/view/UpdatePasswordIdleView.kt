@@ -20,7 +20,7 @@ import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 @Composable
 fun UpdatePasswordIdleView(
 	state: UpdatePassword.State,
-	onPasswordChanged: (password: String) -> Unit,
+	onPasswordChange: (password: String) -> Unit,
 	onConfirmClick: () -> Unit,
 ) {
 	if (state !is UpdatePassword.State.Idle) return
@@ -56,7 +56,7 @@ fun UpdatePasswordIdleView(
 				.fillMaxWidth()
 				.padding(top = dimensionResource(id = R.dimen.dp_16)),
 			password = state.password,
-			onValueChange = onPasswordChanged,
+			onPasswordChange = onPasswordChange,
 			error = state.error,
 			keyboardActions = KeyboardActions(onDone = {
 				if (state.password.isNotEmpty()) onConfirmClick()

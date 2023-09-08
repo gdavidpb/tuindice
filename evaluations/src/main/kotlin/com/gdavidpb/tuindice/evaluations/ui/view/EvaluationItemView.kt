@@ -40,7 +40,7 @@ fun EvaluationItemView(
 	isContinuous: Boolean,
 	isNotGraded: Boolean,
 	isCompleted: Boolean,
-	isCompletedChanged: (isCompleted: Boolean) -> Unit
+	isCompletedChange: (isCompleted: Boolean) -> Unit
 ) {
 	val isDone = (isCompleted || isContinuous || isNotGraded)
 

@@ -74,7 +74,7 @@ fun EvaluationsContentView(
 						isContinuous = evaluation.isContinuous,
 						isNotGraded = evaluation.isNotGraded,
 						isCompleted = evaluation.isCompleted,
-						isCompletedChanged = { isCompleted -> TODO() }
+						isCompletedChange = { isCompleted -> TODO() }
 					)
 				}
 			}

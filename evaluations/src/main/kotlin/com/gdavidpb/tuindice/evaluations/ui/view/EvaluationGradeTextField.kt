@@ -21,7 +21,7 @@ fun EvaluationGradeTextField(
 	modifier: Modifier = Modifier,
 	grade: Double?,
 	maxGrade: Double?,
-	onGradeChanged: (grade: Double?) -> Unit,
+	onGradeChange: (grade: Double?) -> Unit,
 	error: String? = null
 ) {
 	OutlinedTextField(
@@ -37,7 +37,7 @@ fun EvaluationGradeTextField(
 					|| newValue.isEmpty()
 
 			if (isValid || isEmpty)
-				onGradeChanged(newGrade)
+				onGradeChange(newGrade)
 		},
 		suffix = {
 			Text(

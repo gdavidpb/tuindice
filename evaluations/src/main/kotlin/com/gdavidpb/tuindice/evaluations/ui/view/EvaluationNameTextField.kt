@@ -20,7 +20,7 @@ private const val MAX_TEXT_LENGTH_NAME = 32
 fun EvaluationNameTextField(
 	modifier: Modifier = Modifier,
 	name: String?,
-	onNameChanged: (name: String) -> Unit,
+	onNameChange: (name: String) -> Unit,
 	error: String? = null
 ) {
 	OutlinedTextField(
@@ -28,7 +28,7 @@ fun EvaluationNameTextField(
 		value = name.orEmpty(),
 		onValueChange = { newValue ->
 			if (newValue.length <= MAX_TEXT_LENGTH_NAME)
-				onNameChanged(newValue.capitalize())
+				onNameChange(newValue.capitalize())
 		},
 		isError = error != null,
 		supportingText = {

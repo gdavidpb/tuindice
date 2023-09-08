@@ -29,7 +29,7 @@ fun UpdatePasswordRoute(
 
 	UpdatePasswordDialog(
 		state = viewState,
-		onPasswordChanged = { password ->
+		onPasswordChange = { password ->
 			val currentState = viewModel.getCurrentState()
 
 			if (currentState is UpdatePassword.State.Idle)

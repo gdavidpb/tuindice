@@ -27,8 +27,8 @@ import com.gdavidpb.tuindice.login.utils.extension.isUsbId
 @Composable
 fun SignInIdleView(
 	state: SignIn.State,
-	onUsbIdChanged: (usbId: String) -> Unit,
-	onPasswordChanged: (password: String) -> Unit,
+	onUsbIdChange: (usbId: String) -> Unit,
+	onPasswordChange: (password: String) -> Unit,
 	onSignInClick: () -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit
@@ -66,7 +66,7 @@ fun SignInIdleView(
 					horizontal = dimensionResource(id = R.dimen.dp_32)
 				),
 			usbId = state.usbId,
-			onValueChange = onUsbIdChanged
+			onUsbIdChange = onUsbIdChange
 		)
 
 		PasswordTextField(
@@ -76,7 +76,7 @@ fun SignInIdleView(
 					horizontal = dimensionResource(id = R.dimen.dp_32)
 				),
 			password = state.password,
-			onValueChange = onPasswordChanged,
+			onPasswordChange = onPasswordChange,
 			keyboardActions = KeyboardActions(onDone = {
 				if (isSignInEnabled) onSignInClick()
 			})

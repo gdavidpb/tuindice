@@ -18,7 +18,7 @@ import com.gdavidpb.tuindice.login.ui.view.UpdatePasswordLoggingInView
 @Composable
 fun UpdatePasswordDialog(
 	state: UpdatePassword.State,
-	onPasswordChanged: (password: String) -> Unit,
+	onPasswordChange: (password: String) -> Unit,
 	onConfirmClick: () -> Unit,
 	onDismissRequest: () -> Unit
 ) {
@@ -59,7 +59,7 @@ fun UpdatePasswordDialog(
 			else
 				UpdatePasswordIdleView(
 					state = state,
-					onPasswordChanged = onPasswordChanged,
+					onPasswordChange = onPasswordChange,
 					onConfirmClick = onConfirmClick
 				)
 		}
