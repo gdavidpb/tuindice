@@ -1,13 +1,10 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,7 +19,6 @@ import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 
 @OptIn(
-	ExperimentalLayoutApi::class,
 	ExperimentalMaterial3Api::class
 )
 @Composable
@@ -31,15 +27,15 @@ fun FilterView(
 	entries: Map<EvaluationFilter, MutableState<Boolean>>,
 	onEntrySelect: (filter: EvaluationFilter, isSelected: Boolean) -> Unit
 ) {
-	FlowRow(
+	LazyRow(
 		modifier = modifier
 			.fillMaxWidth(),
 		horizontalArrangement = Arrangement
 			.spacedBy(
-				space = dimensionResource(id = R.dimen.dp_8)
+				space = dimensionResource(id = R.dimen.dp_6)
 			)
 	) {
-		entries.forEach { (filter, isSelected) ->
+		items(entries.toList()) { (filter, isSelected) ->
 			FilterChip(
 				selected = isSelected.value,
 				onClick = {

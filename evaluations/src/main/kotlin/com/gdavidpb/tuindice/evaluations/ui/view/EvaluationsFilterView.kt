@@ -1,30 +1,25 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterSectionItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterSection
 
 @Composable
 fun EvaluationFilterView(
-	filters: List<EvaluationFilterSectionItem>,
+	filters: List<EvaluationFilterSection>,
 	onFilterApplied: (activeFilters: List<EvaluationFilter>) -> Unit
 ) {
 	LazyColumn {
 		items(filters) { item ->
-			val scrollState = rememberScrollState()
-
 			FilterView(
 				modifier = Modifier
-					.padding(horizontal = dimensionResource(id = R.dimen.dp_12))
-					.horizontalScroll(scrollState),
+					.padding(horizontal = dimensionResource(id = R.dimen.dp_12)),
 				entries = item.entries,
 				onEntrySelect = { filter, isSelected ->
 					item.entries[filter]?.value = isSelected
