@@ -7,33 +7,33 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterSectionItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterSection
 
 @Composable
 fun rememberEvaluationFilters(
 	availableFilters: List<EvaluationFilter>,
 	activeFilters: List<EvaluationFilter>
-): List<EvaluationFilterSectionItem> {
+): List<EvaluationFilterSection> {
 	return remember {
 		availableFilters.groupBy { filter -> filter::class }
 			.map { (clazz, filters) ->
 				when (clazz) {
 					EvaluationStateFilter::class ->
-						EvaluationFilterSectionItem(
+						EvaluationFilterSection(
 							entries = filters.associateWith { filter ->
 								mutableStateOf(activeFilters.contains(filter))
 							}
 						)
 
 					EvaluationSubjectFilter::class ->
-						EvaluationFilterSectionItem(
+						EvaluationFilterSection(
 							entries = filters.associateWith { filter ->
 								mutableStateOf(activeFilters.contains(filter))
 							}
 						)
 
 					EvaluationDateFilter::class ->
-						EvaluationFilterSectionItem(
+						EvaluationFilterSection(
 							entries = filters.associateWith { filter ->
 								mutableStateOf(activeFilters.contains(filter))
 							}
