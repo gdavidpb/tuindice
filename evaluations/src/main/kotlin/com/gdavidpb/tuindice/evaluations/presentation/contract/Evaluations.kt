@@ -39,10 +39,6 @@ object Evaluations {
 		class EditEvaluation(
 			val evaluationId: String
 		) : Action()
-
-		object OpenEvaluationsFilters : Action()
-
-		object CloseDialog : Action()
 	}
 
 	sealed class Event : ViewEvent {
@@ -58,12 +54,5 @@ object Evaluations {
 		class ShowSnackBar(
 			val message: String
 		) : Event()
-
-		class ShowFilterEvaluationsDialog(
-			val availableFilters: List<EvaluationFilter>,
-			val activeFilters: List<EvaluationFilter>
-		) : Event()
-
-		object CloseDialog : Event()
 	}
 }

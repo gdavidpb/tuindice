@@ -156,6 +156,7 @@ fun EvaluationContentView(
 			exit = fadeOut()
 		) {
 			FloatingActionButton(
+				containerColor = MaterialTheme.colorScheme.primary,
 				onClick = onDoneClick
 			) {
 				Icon(

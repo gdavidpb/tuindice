@@ -5,7 +5,5 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 
 data class EvaluationFilterSectionItem(
-	val name: String,
-	val icon: ImageVector,
 	val entries: Map<EvaluationFilter, MutableState<Boolean>>
 )

@@ -27,14 +27,8 @@ class EvaluationsViewModel(
 	fun editEvaluationAction(evaluationId: String) =
 		emitAction(Evaluations.Action.EditEvaluation(evaluationId))
 
-	fun openEvaluationsFilters() =
-		emitAction(Evaluations.Action.OpenEvaluationsFilters)
-
 	fun clearFiltersAction() =
-		emitAction(Evaluations.Action.LoadEvaluations)
-
-	fun closeDialogAction() =
-		emitAction(Evaluations.Action.CloseDialog)
+		emitAction(Evaluations.Action.FilterEvaluations(emptyList()))
 
 	override suspend fun reducer(action: Evaluations.Action) {
 		when (action) {
@@ -71,32 +65,6 @@ class EvaluationsViewModel(
 						evaluationId = action.evaluationId
 					)
 				)
-
-			is Evaluations.Action.OpenEvaluationsFilters -> {
-				when (val currentState = getCurrentState()) {
-					is Evaluations.State.Content -> {
-						sendEvent(
-							Evaluations.Event.ShowFilterEvaluationsDialog(
-								availableFilters = currentState.availableFilters,
-								activeFilters = currentState.activeFilters
-							)
-						)
-					}
-
-					is Evaluations.State.EmptyMatch ->
-						sendEvent(
-							Evaluations.Event.ShowFilterEvaluationsDialog(
-								availableFilters = currentState.availableFilters,
-								activeFilters = currentState.activeFilters
-							)
-						)
-
-					else -> {}
-				}
-			}
-
-			is Evaluations.Action.CloseDialog ->
-				sendEvent(Evaluations.Event.CloseDialog)
 		}
 	}
 }

@@ -14,10 +14,4 @@ sealed class TopBarConfig(
 			TopBarAction.FetchEnrollmentProofAction
 		)
 	)
-
-	object Evaluations : TopBarConfig(
-		actions = listOf(
-			TopBarAction.FilterEvaluationsAction
-		)
-	)
 }
