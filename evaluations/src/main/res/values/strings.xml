@@ -41,15 +41,6 @@
     <string name="error_evaluation_grade_invalid_step">El valor debe ser múltiplo de 0.25</string>
     <string name="error_evaluation_type_missed">Debes elegir un tipo</string>
 
-    <!-- FilterEvaluationsDialog -->
-
-    <string name="title_filter_evaluations">Filtrar evaluaciones por…</string>
-    <string name="button_filter_evaluations">Filtrar</string>
-
-    <string name="label_category_state">Estado</string>
-    <string name="label_category_subject">Materia</string>
-    <string name="label_category_date">Fecha</string>
-
     <string name="label_state_pending">Pendientes</string>
     <string name="label_state_completed">Completadas</string>
     <string name="label_state_not_grade">Sin nota</string>

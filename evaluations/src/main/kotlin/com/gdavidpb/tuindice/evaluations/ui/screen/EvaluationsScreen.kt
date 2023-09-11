@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.ui.screen
 
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyMatchView
@@ -14,6 +15,7 @@ fun EvaluationsScreen(
 	state: Evaluations.State,
 	onAddEvaluationClick: () -> Unit,
 	onEvaluationClick: (evaluationId: String) -> Unit,
+	onFilterApplied: (activeFilters: List<EvaluationFilter>) -> Unit,
 	onClearFiltersClick: () -> Unit,
 	onRetryClick: () -> Unit
 ) {
@@ -28,6 +30,8 @@ fun EvaluationsScreen(
 				EvaluationsContentView(
 					state = targetState,
 					onAddEvaluationClick = onAddEvaluationClick,
+					onClearFiltersClick = onClearFiltersClick,
+					onFilterApplied = onFilterApplied,
 					onEvaluationClick = onEvaluationClick
 				)
 

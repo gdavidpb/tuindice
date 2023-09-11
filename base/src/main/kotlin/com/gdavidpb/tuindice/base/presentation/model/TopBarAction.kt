@@ -19,9 +19,4 @@ sealed class TopBarAction(
 		action = "enrollment_proof",
 		icon = Icons.Outlined.FindInPage
 	)
-
-	object FilterEvaluationsAction : TopBarAction(
-		action = "filter_evaluations",
-		icon = Icons.Outlined.FilterAlt
-	)
 }

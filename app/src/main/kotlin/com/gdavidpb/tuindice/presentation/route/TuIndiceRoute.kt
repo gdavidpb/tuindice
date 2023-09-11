@@ -23,7 +23,6 @@ import com.gdavidpb.tuindice.base.utils.extension.findActivity
 import com.gdavidpb.tuindice.base.utils.extension.getViewModel
 import com.gdavidpb.tuindice.base.utils.extension.navigateToSingleTop
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.navigateToEnrollmentProofFetch
-import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.MainDialog
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
@@ -119,10 +118,6 @@ fun TuIndiceRoute(
 
 				is TopBarAction.FetchEnrollmentProofAction ->
 					navController.navigateToEnrollmentProofFetch()
-
-				is TopBarAction.FilterEvaluationsAction ->
-					navController.getViewModel<EvaluationsViewModel>()
-						?.openEvaluationsFilters()
 			}
 		},
 		onNavigateTo = navController::navigateToSingleTop,
