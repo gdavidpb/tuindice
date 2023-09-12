@@ -20,13 +20,12 @@ import com.gdavidpb.tuindice.base.presentation.model.rememberDialogState
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
-import com.gdavidpb.tuindice.base.utils.extension.getViewModel
-import com.gdavidpb.tuindice.base.utils.extension.navigateToSingleTop
+import com.gdavidpb.tuindice.base.utils.extension.navigatePopUpTo
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.navigateToEnrollmentProofFetch
+import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignOut
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.MainDialog
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.dialog.GooglePlayServicesDialog
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -118,14 +117,13 @@ fun TuIndiceRoute(
 		onAction = { action ->
 			when (action) {
 				is TopBarAction.SignOutAction ->
-					navController.getViewModel<SummaryViewModel>()
-						?.signOutAction()
+					navController.navigateToSignOut()
 
 				is TopBarAction.FetchEnrollmentProofAction ->
 					navController.navigateToEnrollmentProofFetch()
 			}
 		},
-		onNavigateTo = navController::navigateToSingleTop,
+		onNavigateTo = navController::navigatePopUpTo,
 		onNavigateBack = navController::popBackStack,
 		onSetLastScreen = viewModel::setLastScreenAction
 	) { message, actionLabel, action ->

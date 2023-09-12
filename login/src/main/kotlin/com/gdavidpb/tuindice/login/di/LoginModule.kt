@@ -8,14 +8,17 @@ import com.gdavidpb.tuindice.login.data.login.LoginDataRepository
 import com.gdavidpb.tuindice.login.data.login.source.RemoteDataSource
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
+import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.login.domain.usecase.validator.UpdatePasswordParamsValidator
 import com.gdavidpb.tuindice.login.presentation.reducer.SignInReducer
+import com.gdavidpb.tuindice.login.presentation.reducer.SignOutReducer
 import com.gdavidpb.tuindice.login.presentation.reducer.UpdatePasswordReducer
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
+import com.gdavidpb.tuindice.login.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.UpdatePasswordViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
@@ -28,16 +31,19 @@ val loginModule = module {
 	/* View Models */
 
 	viewModelOf(::SignInViewModel)
+	viewModelOf(::SignOutViewModel)
 	viewModelOf(::UpdatePasswordViewModel)
 
 	/* Reducers */
 
 	factoryOf(::SignInReducer)
+	factoryOf(::SignOutReducer)
 	factoryOf(::UpdatePasswordReducer)
 
 	/* Use cases */
 
 	factoryOf(::SignInUseCase)
+	factoryOf(::SignOutUseCase)
 	factoryOf(::UpdatePasswordUseCase)
 
 	/* Validators */

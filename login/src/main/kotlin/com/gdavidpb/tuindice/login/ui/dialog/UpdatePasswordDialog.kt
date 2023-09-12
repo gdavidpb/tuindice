@@ -32,11 +32,11 @@ fun UpdatePasswordDialog(
 
 	ConfirmationDialog(
 		sheetState = nonDismissSheetState,
+		dismissOnPositive = false,
 		titleText = if (isLoading)
 			stringResource(id = R.string.dialog_title_updating_password)
 		else
 			stringResource(id = R.string.dialog_title_update_password),
-		dismissOnPositive = false,
 		positiveEnabled = isConfirmEnabled,
 		negativeEnabled = isLaterEnabled,
 		positiveText = stringResource(id = R.string.dialog_button_update_password_confirm),

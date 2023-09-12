@@ -40,8 +40,6 @@ import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
 import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
 import com.gdavidpb.tuindice.record.data.room.resolution.QuarterResolutionHandler
 import com.gdavidpb.tuindice.record.data.room.resolution.SubjectResolutionHandler
-import com.gdavidpb.tuindice.summary.domain.usecase.SignOutUseCase
-import com.gdavidpb.tuindice.summary.presentation.reducer.SignOutReducer
 import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionInterceptor
 import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionParser
 import com.gdavidpb.tuindice.transactions.data.room.resolution.ResolutionApplier
@@ -80,7 +78,6 @@ val appMockModule = module {
 	factoryOf(::StartUpReducer)
 	factoryOf(::RequestReviewReducer)
 	factoryOf(::GetUpdateInfoReducer)
-	factoryOf(::SignOutReducer)
 
 	/* Use cases */
 
@@ -88,7 +85,6 @@ val appMockModule = module {
 	factoryOf(::RequestReviewUseCase)
 	factoryOf(::SetLastScreenUseCase)
 	factoryOf(::GetUpdateInfoUseCase)
-	factoryOf(::SignOutUseCase)
 
 	/* Exception handlers */
 

@@ -32,6 +32,12 @@ sealed class Destination(
 			isBottomDestination = false
 		)
 
+	object SignOut :
+		Destination(
+			route = "sign_out",
+			isDialogDestination = true
+		)
+
 	object Browser :
 		Destination(
 			route = "browser",

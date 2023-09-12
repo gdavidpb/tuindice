@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
 import android.net.Uri
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
@@ -30,35 +29,13 @@ fun Flow<NavBackStackEntry>.mapScreenDestination(destinations: Map<String, Desti
 			null
 	}
 
-fun NavController.navigateToSingleTop(destination: Destination) {
-	if (currentDestination?.route == destination.route) return
+fun NavController.navigatePopUpTo(destination: Destination) {
+	while (popBackStack());
 
-	navigate(
-		route = destination.route
-	) {
+	navigate(route = destination.route) {
 		launchSingleTop = true
-		restoreState = true
-
-		val currentRoute = currentDestination?.route
-
-		if (currentRoute != null)
-			popUpTo(currentRoute) {
-				saveState = true
-				inclusive = true
-			}
 	}
 }
-
-inline fun <reified T : ViewModel> NavController.getViewModel() =
-	currentBackStackEntry
-		?.viewModelStore
-		.let { viewModelStore ->
-			viewModelStore
-				?.keys()
-				?.find { key -> key.endsWith("${T::class.qualifiedName}") }
-				?.let(viewModelStore::get)
-					as? T
-		}
 
 private fun buildTitleWithArgs(entry: NavBackStackEntry, destination: Destination) =
 	destination.title.replace(titleArgsRegex) { match ->

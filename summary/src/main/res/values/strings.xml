@@ -13,9 +13,6 @@
         ¿Estás seguro que deseas remover tu foto de perfil?
     </string>
 
-    <string name="dialog_title_sign_out">Atención</string>
-    <string name="dialog_message_sign_out">¿Estás seguro que deseas cerrar sesión?</string>
-
     <string name="snack_profile_picture_updated">Foto de perfil actualizada</string>
     <string name="snack_profile_picture_removed">Foto de perfil removida</string>
 
@@ -30,8 +27,6 @@
         <item quantity="one">%d crédito inscrito</item>
         <item quantity="other">%d créditos inscritos</item>
     </plurals>
-
-    <string name="dialog_button_sign_out">Cerrar sesión</string>
 
     <string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
 

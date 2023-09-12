@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.reducer.GetUpdateInfoReducer
 import com.gdavidpb.tuindice.presentation.reducer.RequestReviewReducer
-import com.gdavidpb.tuindice.summary.presentation.reducer.SignOutReducer
 import com.gdavidpb.tuindice.presentation.reducer.StartUpReducer
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.review.ReviewManager

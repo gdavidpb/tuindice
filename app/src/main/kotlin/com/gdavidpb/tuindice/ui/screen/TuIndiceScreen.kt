@@ -39,6 +39,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.navigation.navigateToEvalu
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignIn
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToUpdatePassword
 import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
+import com.gdavidpb.tuindice.login.presentation.navigation.signOutDialog
 import com.gdavidpb.tuindice.login.presentation.navigation.updatePasswordDialog
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.record.presentation.navigation.recordScreen
@@ -173,6 +174,15 @@ fun TuIndiceScreen(
 					showSnackBar = showSnackBar
 				)
 
+				signOutDialog(
+					navigateToSignIn = {
+						navController.navigateToSignIn()
+					},
+					onDismissRequest = {
+						navController.popBackStack()
+					}
+				)
+
 				signInScreen(
 					navigateToSummary = {
 						navController.navigateToSummary()
@@ -184,9 +194,6 @@ fun TuIndiceScreen(
 				)
 
 				summaryScreen(
-					navigateToSignIn = {
-						navController.navigateToSignIn()
-					},
 					navigateToUpdatePassword = {
 						navController.navigateToUpdatePassword()
 					},
