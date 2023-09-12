@@ -9,7 +9,6 @@
     <string name="title_empty_match_evaluations">No hay resultados</string>
     <string name="message_empty_match_evaluations">No se encontraron evaluaciones para la búsqueda indicada.</string>
 
-    <string name="button_filters_clear">Limpiar filtros</string>
     <string name="button_add_evaluation">Agregar evaluación</string>
 
     <string name="evaluation_max_grade"> / %1$.2f</string>

@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
-import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyMatchView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsFailedView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsLoadingView
@@ -43,11 +42,6 @@ fun EvaluationsScreen(
 			is Evaluations.State.Empty ->
 				EvaluationsEmptyView(
 					onAddEvaluationClick = onAddEvaluationClick
-				)
-
-			is Evaluations.State.EmptyMatch ->
-				EvaluationsEmptyMatchView(
-					onClearFiltersClick = onClearFiltersClick
 				)
 		}
 	}
