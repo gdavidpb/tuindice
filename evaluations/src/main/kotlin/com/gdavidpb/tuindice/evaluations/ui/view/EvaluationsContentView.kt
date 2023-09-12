@@ -28,7 +28,7 @@ fun EvaluationsContentView(
 	state: Evaluations.State.Content,
 	onAddEvaluationClick: () -> Unit,
 	onClearFiltersClick: () -> Unit,
-	onFilterApplied: (activeFilters: List<EvaluationFilter>) -> Unit,
+	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
 	onEvaluationClick: (evaluationId: String) -> Unit
 ) {
 	val lazyColumState = rememberLazyListState()
@@ -44,7 +44,7 @@ fun EvaluationsContentView(
 			EvaluationFilterView(
 				availableFilters = state.availableFilters,
 				activeFilters = state.activeFilters,
-				onFilterApplied = onFilterApplied
+				onFilterCheckedChange = onFilterCheckedChange
 			)
 
 			EvaluationsView(

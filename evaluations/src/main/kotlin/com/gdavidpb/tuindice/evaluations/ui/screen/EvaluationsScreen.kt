@@ -15,7 +15,7 @@ fun EvaluationsScreen(
 	state: Evaluations.State,
 	onAddEvaluationClick: () -> Unit,
 	onEvaluationClick: (evaluationId: String) -> Unit,
-	onFilterApplied: (activeFilters: List<EvaluationFilter>) -> Unit,
+	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
 	onClearFiltersClick: () -> Unit,
 	onRetryClick: () -> Unit
 ) {
@@ -31,7 +31,7 @@ fun EvaluationsScreen(
 					state = targetState,
 					onAddEvaluationClick = onAddEvaluationClick,
 					onClearFiltersClick = onClearFiltersClick,
-					onFilterApplied = onFilterApplied,
+					onFilterCheckedChange = onFilterCheckedChange,
 					onEvaluationClick = onEvaluationClick
 				)
 

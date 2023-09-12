@@ -10,7 +10,7 @@ class EvaluationDateFilter(
 		return date
 	}
 
-	override fun filter(evaluation: Evaluation): Boolean {
+	override fun match(evaluation: Evaluation): Boolean {
 		return date == evaluation.date.formatAsToNow()
 	}
 

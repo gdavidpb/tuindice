@@ -44,7 +44,7 @@ class GetEvaluationsUseCase(
 						.entries
 						.fold(initial = sortedEvaluations) { acc, entry ->
 							acc.filter { evaluation ->
-								entry.value.any { filter -> filter.filter(evaluation) }
+								entry.value.any { filter -> filter.match(evaluation) }
 							}
 						}
 
