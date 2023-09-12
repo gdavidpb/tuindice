@@ -2,9 +2,7 @@ package com.gdavidpb.tuindice.enrollmentproof.presentation.route
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.openFile
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
@@ -20,8 +18,6 @@ fun EnrollmentProofFetchRoute(
 	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit,
 	viewModel: EnrollmentProofViewModel = koinViewModel()
 ) {
-	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
-
 	val context = LocalContext.current
 
 	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
@@ -49,7 +45,6 @@ fun EnrollmentProofFetchRoute(
 	}
 
 	EnrollmentProofFetchDialog(
-		state = viewState,
 		onDismissRequest = onDismissRequest
 	)
 }
