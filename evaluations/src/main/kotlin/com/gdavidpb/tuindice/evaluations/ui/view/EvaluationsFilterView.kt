@@ -8,13 +8,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterSection
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.computeEvaluationFilters
 
 @Composable
 fun EvaluationFilterView(
-	filters: List<EvaluationFilterSection>,
+	availableFilters: List<EvaluationFilter>,
+	activeFilters: List<EvaluationFilter>,
 	onFilterApplied: (activeFilters: List<EvaluationFilter>) -> Unit
 ) {
+	val filters = computeEvaluationFilters(
+		availableFilters = availableFilters,
+		activeFilters = activeFilters
+	)
+
 	LazyColumn {
 		items(filters) { item ->
 			FilterView(
@@ -24,7 +30,7 @@ fun EvaluationFilterView(
 				onEntrySelect = { filter, isSelected ->
 					item.entries[filter]?.value = isSelected
 
-					val activeFilters = filters
+					val currentActiveFilters = filters
 						.flatMap { item ->
 							item
 								.entries
@@ -34,7 +40,7 @@ fun EvaluationFilterView(
 								}
 						}
 
-					onFilterApplied(activeFilters)
+					onFilterApplied(currentActiveFilters)
 				}
 			)
 		}

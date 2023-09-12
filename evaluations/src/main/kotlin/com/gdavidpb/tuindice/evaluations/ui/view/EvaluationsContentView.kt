@@ -22,7 +22,6 @@ import androidx.compose.ui.res.dimensionResource
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.rememberEvaluationFilters
 
 @Composable
 fun EvaluationsContentView(
@@ -38,17 +37,13 @@ fun EvaluationsContentView(
 		modifier = Modifier
 			.fillMaxSize()
 	) {
-		val filters = rememberEvaluationFilters(
-			availableFilters = state.availableFilters,
-			activeFilters = state.activeFilters
-		)
-
 		Column(
 			modifier = Modifier
 				.fillMaxSize()
 		) {
 			EvaluationFilterView(
-				filters = filters,
+				availableFilters = state.availableFilters,
+				activeFilters = state.activeFilters,
 				onFilterApplied = onFilterApplied
 			)
 
