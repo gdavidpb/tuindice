@@ -41,10 +41,10 @@ class GetEvaluationsUseCase(
 				else
 					params
 						.groupBy { filter -> filter::class }
-						.entries
-						.fold(initial = sortedEvaluations) { acc, entry ->
+						.values
+						.fold(initial = sortedEvaluations) { acc, filters ->
 							acc.filter { evaluation ->
-								entry.value.any { filter -> filter.match(evaluation) }
+								filters.any { filter -> filter.match(evaluation) }
 							}
 						}
 
