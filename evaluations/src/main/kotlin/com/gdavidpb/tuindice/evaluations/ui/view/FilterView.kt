@@ -12,7 +12,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import com.gdavidpb.tuindice.evaluations.R
@@ -24,8 +23,8 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 @Composable
 fun FilterView(
 	modifier: Modifier = Modifier,
-	entries: Map<EvaluationFilter, MutableState<Boolean>>,
-	onEntrySelect: (filter: EvaluationFilter, isSelected: Boolean) -> Unit
+	entries: Map<EvaluationFilter, Boolean>,
+	onCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit
 ) {
 	LazyRow(
 		modifier = modifier
@@ -35,15 +34,15 @@ fun FilterView(
 				space = dimensionResource(id = R.dimen.dp_6)
 			)
 	) {
-		items(entries.toList()) { (filter, isSelected) ->
+		items(entries.toList()) { (filter, isChecked) ->
 			FilterChip(
-				selected = isSelected.value,
+				selected = isChecked,
 				onClick = {
-					onEntrySelect(filter, !isSelected.value)
+					onCheckedChange(filter, !isChecked)
 				},
 				leadingIcon = {
 					AnimatedContent(
-						targetState = isSelected.value,
+						targetState = isChecked,
 						label = "FilterChipAnimatedContent"
 					) { targetState ->
 						if (targetState)

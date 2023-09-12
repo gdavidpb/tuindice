@@ -10,7 +10,7 @@ class EvaluationStateFilter(
 		return label
 	}
 
-	override fun filter(evaluation: Evaluation): Boolean {
+	override fun match(evaluation: Evaluation): Boolean {
 		return selector(evaluation)
 	}
 

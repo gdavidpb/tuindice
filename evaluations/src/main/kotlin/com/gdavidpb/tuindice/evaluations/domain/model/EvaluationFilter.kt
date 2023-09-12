@@ -4,5 +4,5 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 
 interface EvaluationFilter {
 	fun getLabel(): String
-	fun filter(evaluation: Evaluation): Boolean
+	fun match(evaluation: Evaluation): Boolean
 }

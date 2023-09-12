@@ -30,8 +30,12 @@ object Evaluations {
 	sealed class Action : ViewAction {
 		object LoadEvaluations : Action()
 
-		class FilterEvaluations(
-			val filters: List<EvaluationFilter>
+		class CheckEvaluationFilter(
+			val filter: EvaluationFilter
+		) : Action()
+
+		class UncheckEvaluationFilter(
+			val filter: EvaluationFilter
 		) : Action()
 
 		object AddEvaluation : Action()
