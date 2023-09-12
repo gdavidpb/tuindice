@@ -47,11 +47,14 @@ fun EvaluationsContentView(
 				onFilterCheckedChange = onFilterCheckedChange
 			)
 
-			EvaluationsView(
-				evaluations = state.filteredEvaluations,
-				lazyListState = lazyColumState,
-				onEvaluationClick = onEvaluationClick
-			)
+			if (state.filteredEvaluations.isNotEmpty())
+				EvaluationsView(
+					evaluations = state.filteredEvaluations,
+					lazyListState = lazyColumState,
+					onEvaluationClick = onEvaluationClick
+				)
+			else
+				EvaluationsEmptyMatchView()
 		}
 
 		AnimatedVisibility(
