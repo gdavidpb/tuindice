@@ -29,6 +29,8 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.dialog.GooglePlayServicesDialog
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.ktx.launchReview
@@ -37,7 +39,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialNavigationApi::class)
 @Composable
 fun TuIndiceRoute(
 	startData: String?,
@@ -49,7 +51,9 @@ fun TuIndiceRoute(
 
 	val context = LocalContext.current
 	val lifecycleOwner = LocalLifecycleOwner.current
-	val navController = rememberNavController()
+
+	val bottomSheetNavigator = rememberBottomSheetNavigator()
+	val navController = rememberNavController(bottomSheetNavigator)
 	val coroutineScope = rememberCoroutineScope()
 	val snackbarHostState = remember { SnackbarHostState() }
 	val dialogState = rememberDialogState<MainDialog>()
@@ -109,6 +113,7 @@ fun TuIndiceRoute(
 		state = viewState,
 		updateState = viewModel::setState,
 		navController = navController,
+		bottomSheetNavigator = bottomSheetNavigator,
 		snackbarHostState = snackbarHostState,
 		onAction = { action ->
 			when (action) {

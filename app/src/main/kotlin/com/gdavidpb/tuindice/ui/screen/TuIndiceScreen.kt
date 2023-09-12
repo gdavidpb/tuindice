@@ -44,13 +44,17 @@ import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.record.presentation.navigation.recordScreen
 import com.gdavidpb.tuindice.summary.presentation.navigation.navigateToSummary
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryScreen
+import com.google.accompanist.navigation.material.BottomSheetNavigator
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialNavigationApi::class)
 @Composable
 fun TuIndiceScreen(
 	state: Main.State,
 	updateState: (Main.State) -> Unit,
 	navController: NavHostController,
+	bottomSheetNavigator: BottomSheetNavigator,
 	snackbarHostState: SnackbarHostState,
 	onAction: (action: TopBarAction) -> Unit,
 	onNavigateTo: (destination: Destination) -> Unit,
@@ -146,76 +150,78 @@ fun TuIndiceScreen(
 			}
 		}
 	) { innerPadding ->
-		NavHost(
-			navController = navController,
-			startDestination = state.startDestination.route,
-			modifier = Modifier.padding(innerPadding)
-		) {
-			enrollmentProofFetchDialog(
-				navigateToUpdatePassword = {
-					navController.navigateToUpdatePassword()
-				},
-				onDismissRequest = {
-					navController.popBackStack()
-				},
-				showSnackBar = showSnackBar
-			)
+		ModalBottomSheetLayout(bottomSheetNavigator) {
+			NavHost(
+				navController = navController,
+				startDestination = state.startDestination.route,
+				modifier = Modifier.padding(innerPadding)
+			) {
+				enrollmentProofFetchDialog(
+					navigateToUpdatePassword = {
+						navController.navigateToUpdatePassword()
+					},
+					onDismissRequest = {
+						navController.popBackStack()
+					},
+					showSnackBar = showSnackBar
+				)
 
-			updatePasswordDialog(
-				onDismissRequest = {
-					navController.popBackStack()
-				},
-				showSnackBar = showSnackBar
-			)
+				updatePasswordDialog(
+					onDismissRequest = {
+						navController.popBackStack()
+					},
+					showSnackBar = showSnackBar
+				)
 
-			signInScreen(
-				navigateToSummary = {
-					navController.navigateToSummary()
-				},
-				navigateToBrowser = { args ->
-					navController.navigateToBrowser(args)
-				},
-				showSnackBar = showSnackBar
-			)
+				signInScreen(
+					navigateToSummary = {
+						navController.navigateToSummary()
+					},
+					navigateToBrowser = { args ->
+						navController.navigateToBrowser(args)
+					},
+					showSnackBar = showSnackBar
+				)
 
-			summaryScreen(
-				navigateToSignIn = {
-					navController.navigateToSignIn()
-				},
-				navigateToUpdatePassword = {
-					navController.navigateToUpdatePassword()
-				},
-				showSnackBar = showSnackBar
-			)
+				summaryScreen(
+					navigateToSignIn = {
+						navController.navigateToSignIn()
+					},
+					navigateToUpdatePassword = {
+						navController.navigateToUpdatePassword()
+					},
+					showSnackBar = showSnackBar
+				)
 
-			recordScreen(
-				navigateToUpdatePassword = {
-					navController.navigateToUpdatePassword()
-				},
-				showSnackBar = showSnackBar
-			)
+				recordScreen(
+					navigateToUpdatePassword = {
+						navController.navigateToUpdatePassword()
+					},
+					showSnackBar = showSnackBar
+				)
 
-			evaluationsScreen(
-				navigateToAddEvaluation = { args ->
-					navController.navigateToAddEvaluation(args)
-				},
-				navigateToEvaluation = { args ->
-					navController.navigateToEvaluation(args)
-				},
-				showSnackBar = showSnackBar
-			)
+				evaluationsScreen(
+					navigateToAddEvaluation = { args ->
+						navController.navigateToAddEvaluation(args)
+					},
+					navigateToEvaluation = { args ->
+						navController.navigateToEvaluation(args)
+					},
+					showSnackBar = showSnackBar
+				)
 
-			evaluationScreen(
-				showSnackBar = showSnackBar
-			)
+				evaluationScreen(
+					showSnackBar = showSnackBar
+				)
 
-			aboutScreen(
-				navigateToBrowser = { args ->
-					navController.navigateToBrowser(args)
-				}
-			)
+				aboutScreen(
+					navigateToBrowser = { args ->
+						navController.navigateToBrowser(args)
+					}
+				)
 
-			browserScreen()
+				browserScreen()
+			}
 		}
 	}
 }
