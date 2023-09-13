@@ -2,10 +2,10 @@ package com.gdavidpb.tuindice.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val md_theme_light_primary = Color(0xFF785900)
+val md_theme_light_primary = Color(0xFFFABD00)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
 val md_theme_light_primaryContainer = Color(0xFFFFDF9E)
-val md_theme_light_onPrimaryContainer = Color(0xFF261A00)
+val md_theme_light_onPrimaryContainer = Color(0xFF5B4300)
 val md_theme_light_secondary = Color(0xFF6B5D3F)
 val md_theme_light_onSecondary = Color(0xFFFFFFFF)
 val md_theme_light_secondaryContainer = Color(0xFFF5E0BB)
