@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.retrofit
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.login.utils.extension.isPublicApi
+import com.gdavidpb.tuindice.base.utils.extension.isPublicApi
 import okhttp3.Interceptor
 import okhttp3.Response
 
