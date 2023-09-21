@@ -46,7 +46,7 @@ dependencies {
 
     api "androidx.compose.ui:ui-tooling:1.5.1"
     api "androidx.compose.ui:ui-tooling-preview:1.5.1"
-    api "androidx.compose.material3:material3:1.1.1"
+    api "androidx.compose.material3:material3:1.1.2"
     api "androidx.compose.material:material-icons-extended:1.5.1"
     api "androidx.constraintlayout:constraintlayout-compose:1.0.1"
 
