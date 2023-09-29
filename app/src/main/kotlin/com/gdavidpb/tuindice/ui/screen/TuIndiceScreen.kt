@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.ui.screen
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,7 +32,6 @@ import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.mapScreenDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchDialog
-import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationScreen
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsScreen
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.navigateToAddEvaluation
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.navigateToEvaluation
@@ -102,7 +101,7 @@ fun TuIndiceScreen(
 					if (!state.currentDestination.isTopDestination)
 						IconButton(onClick = onNavigateBack) {
 							Icon(
-								imageVector = Icons.Filled.ArrowBack,
+								imageVector = Icons.AutoMirrored.Filled.ArrowBack,
 								contentDescription = null
 							)
 						}
@@ -208,16 +207,12 @@ fun TuIndiceScreen(
 				)
 
 				evaluationsScreen(
-					navigateToAddEvaluation = { args ->
-						navController.navigateToAddEvaluation(args)
+					navigateToAddEvaluation = {
+						navController.navigateToAddEvaluation()
 					},
 					navigateToEvaluation = { args ->
 						navController.navigateToEvaluation(args)
 					},
-					showSnackBar = showSnackBar
-				)
-
-				evaluationScreen(
 					showSnackBar = showSnackBar
 				)
 

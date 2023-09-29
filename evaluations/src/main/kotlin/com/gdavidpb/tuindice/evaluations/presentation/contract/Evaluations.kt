@@ -41,12 +41,9 @@ object Evaluations {
 	}
 
 	sealed class Event : ViewEvent {
-		class NavigateToAddEvaluation(
-			val title: String
-		) : Event()
+		object NavigateToAddEvaluation : Event()
 
 		class NavigateToEvaluation(
-			val title: String,
 			val evaluationId: String
 		) : Event()
 

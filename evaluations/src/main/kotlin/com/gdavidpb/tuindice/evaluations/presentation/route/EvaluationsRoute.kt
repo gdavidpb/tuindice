@@ -12,8 +12,8 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun EvaluationsRoute(
-	onNavigateToAddEvaluation: (title: String) -> Unit,
-	onNavigateToEvaluation: (title: String, evaluationId: String) -> Unit,
+	onNavigateToAddEvaluation: () -> Unit,
+	onNavigateToEvaluation: (evaluationId: String) -> Unit,
 	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit,
 	viewModel: EvaluationsViewModel = koinViewModel()
 ) {
@@ -22,13 +22,10 @@ fun EvaluationsRoute(
 	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
 		when (event) {
 			is Evaluations.Event.NavigateToAddEvaluation ->
-				onNavigateToAddEvaluation(
-					event.title
-				)
+				onNavigateToAddEvaluation()
 
 			is Evaluations.Event.NavigateToEvaluation ->
 				onNavigateToEvaluation(
-					event.title,
 					event.evaluationId
 				)
 

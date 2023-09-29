@@ -24,11 +24,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEval
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluationParamsValidator
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationAndAvailableSubjectsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.UpdateEvaluationReducer
-import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
@@ -41,14 +37,10 @@ val evaluationsModule = module {
 	/* View Models */
 
 	viewModelOf(::EvaluationsViewModel)
-	viewModelOf(::EvaluationViewModel)
 
 	/* Reducers */
 
 	factoryOf(::EvaluationsReducer)
-	factoryOf(::EvaluationAndAvailableSubjectsReducer)
-	factoryOf(::AddEvaluationReducer)
-	factoryOf(::UpdateEvaluationReducer)
 
 	/* Use cases */
 
