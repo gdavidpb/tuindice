@@ -32,11 +32,7 @@ fun EnrollmentProofFetchRoute(
 				context.openFile(file = File(event.path))
 
 			is Enrollment.Event.ShowSnackBar ->
-				showSnackBar(
-					event.message,
-					null,
-					null
-				)
+				showSnackBar(event.message, null, null)
 		}
 	}
 
