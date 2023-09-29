@@ -12,7 +12,6 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.HistoryEdu
 import androidx.compose.material.icons.outlined.ModeComment
-import androidx.compose.material.icons.outlined.QuestionMark
 import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material.icons.outlined.Science
 import androidx.compose.material.icons.outlined.Tag
@@ -22,32 +21,7 @@ import com.gdavidpb.tuindice.base.utils.extension.daysDistance
 import com.gdavidpb.tuindice.base.utils.extension.format
 import com.gdavidpb.tuindice.base.utils.extension.weeksDistance
 import com.gdavidpb.tuindice.evaluations.R
-import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams
-import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
-import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import java.util.Date
-
-fun (Evaluation.Action.ClickSaveEvaluation).toUpdateEvaluationParams() = UpdateEvaluationParams(
-	evaluationId = evaluationId,
-	subjectId = subject?.id,
-	name = name,
-	grade = grade,
-	maxGrade = maxGrade,
-	date = date,
-	type = type,
-	isCompleted = isCompleted
-)
-
-fun (Evaluation.Action.ClickSaveEvaluation).toAddEvaluationParams() = AddEvaluationParams(
-	quarterId = subject?.qid,
-	subjectId = subject?.id,
-	name = name,
-	grade = grade,
-	maxGrade = maxGrade,
-	date = date,
-	type = type,
-	isCompleted = isCompleted
-)
 
 fun Date.formatAsToNow(): String {
 	val daysDistance = daysDistance()
