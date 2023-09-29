@@ -75,6 +75,30 @@ sealed class Destination(
 			bottomBarConfig = BottomBarConfig.Evaluations
 		)
 
+	object AddEvaluation :
+		Destination(
+			route = "add_evaluation",
+			title = "Agregar evaluación",
+			isTopDestination = false,
+			isBottomDestination = false
+		) {
+		object Step1 :
+			Destination(
+				route = "add_evaluation_step_1",
+				title = "Agregar evaluación",
+				isTopDestination = false,
+				isBottomDestination = false
+			)
+
+		object Step2 :
+			Destination(
+				route = "add_evaluation_step_2",
+				title = "Agregar evaluación",
+				isTopDestination = false,
+				isBottomDestination = false
+			)
+	}
+
 	object About :
 		Destination(
 			route = "about",
