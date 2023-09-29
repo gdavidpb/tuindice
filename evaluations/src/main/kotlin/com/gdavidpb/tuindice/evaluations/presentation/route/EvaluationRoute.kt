@@ -21,11 +21,7 @@ fun EvaluationRoute(
 	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
 		when (event) {
 			is Evaluation.Event.ShowSnackBar ->
-				showSnackBar(
-					event.message,
-					null,
-					null
-				)
+				showSnackBar(event.message, null, null)
 		}
 	}
 

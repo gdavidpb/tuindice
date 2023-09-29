@@ -25,11 +25,7 @@ fun RecordRoute(
 				onNavigateToUpdatePassword()
 
 			is Record.Event.ShowSnackBar ->
-				showSnackBar(
-					event.message,
-					null,
-					null
-				)
+				showSnackBar(event.message, null, null)
 		}
 	}
 
