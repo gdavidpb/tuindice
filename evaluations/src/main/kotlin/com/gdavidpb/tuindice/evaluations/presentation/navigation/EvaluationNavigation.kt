@@ -5,13 +5,14 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.evaluations.presentation.route.AddEvaluationRoute
 
 data class EvaluationArgs(
 	val evaluationId: String
 )
 
-fun NavController.navigateToAddEvaluation() {
-	navigate(Destination.AddEvaluation.route)
+fun NavController.navigateToAddEvaluation(subRoute: Destination.AddEvaluation) {
+	navigate(subRoute.route)
 }
 
 fun NavController.navigateToEvaluation(args: EvaluationArgs) {
@@ -26,11 +27,17 @@ fun NavGraphBuilder.addEvaluationScreen(
 		startDestination = Destination.AddEvaluation.Step1.route
 	) {
 		composable(Destination.AddEvaluation.Step1.route) {
-			TODO()
+			AddEvaluationRoute(
+				subRoute = Destination.AddEvaluation.Step1,
+				showSnackBar = showSnackBar
+			)
 		}
 
 		composable(Destination.AddEvaluation.Step2.route) {
-			TODO()
+			AddEvaluationRoute(
+				subRoute = Destination.AddEvaluation.Step2,
+				showSnackBar = showSnackBar
+			)
 		}
 	}
 }
