@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.evaluations.data.resolution.EvaluationResolutionHan
 import com.gdavidpb.tuindice.evaluations.data.room.RoomDataSource
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableSubjectsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
@@ -24,7 +25,9 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEval
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluationParamsValidator
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
+import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.AddEvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
@@ -37,10 +40,12 @@ val evaluationsModule = module {
 	/* View Models */
 
 	viewModelOf(::EvaluationsViewModel)
+	viewModelOf(::AddEvaluationViewModel)
 
 	/* Reducers */
 
 	factoryOf(::EvaluationsReducer)
+	factoryOf(::AvailableSubjectsReducer)
 
 	/* Use cases */
 
@@ -49,6 +54,7 @@ val evaluationsModule = module {
 	factoryOf(::UpdateEvaluationUseCase)
 	factoryOf(::RemoveEvaluationUseCase)
 	factoryOf(::AddEvaluationUseCase)
+	factoryOf(::GetAvailableSubjectsUseCase)
 
 	/* Validators */
 

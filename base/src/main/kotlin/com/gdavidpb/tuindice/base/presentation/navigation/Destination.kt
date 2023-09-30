@@ -75,28 +75,20 @@ sealed class Destination(
 			bottomBarConfig = BottomBarConfig.Evaluations
 		)
 
-	object AddEvaluation :
-		Destination(
-			route = "add_evaluation",
-			title = "Agregar evaluación",
-			isTopDestination = false,
-			isBottomDestination = false
-		) {
-		object Step1 :
-			Destination(
-				route = "add_evaluation_step_1",
-				title = "Agregar evaluación",
-				isTopDestination = false,
-				isBottomDestination = false
-			)
+	sealed class AddEvaluation(
+		subRoute: String
+	) : Destination(
+		route = "${route}_${subRoute}",
+		title = "Agregar evaluación",
+		isTopDestination = false,
+		isBottomDestination = false
+	) {
+		companion object {
+			val route = "add_evaluation"
+		}
 
-		object Step2 :
-			Destination(
-				route = "add_evaluation_step_2",
-				title = "Agregar evaluación",
-				isTopDestination = false,
-				isBottomDestination = false
-			)
+		object Step1 : AddEvaluation(subRoute = "step_1")
+		object Step2 : AddEvaluation(subRoute = "step_2")
 	}
 
 	object About :
