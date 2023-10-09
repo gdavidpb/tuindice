@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.evaluations.presentation.route.AddEvaluationRoute
+import org.koin.compose.getKoin
 
 data class EvaluationArgs(
 	val evaluationId: String
@@ -20,6 +21,7 @@ fun NavController.navigateToEvaluation(args: EvaluationArgs) {
 }
 
 fun NavGraphBuilder.addEvaluationScreen(
+	navigateTo: (subRoute: Destination.AddEvaluation) -> Unit,
 	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit
 ) {
 	navigation(
@@ -29,14 +31,26 @@ fun NavGraphBuilder.addEvaluationScreen(
 		composable(Destination.AddEvaluation.Step1.route) {
 			AddEvaluationRoute(
 				subRoute = Destination.AddEvaluation.Step1,
-				showSnackBar = showSnackBar
+				onNavigateTo = { subRoute ->
+					navigateTo(subRoute)
+				},
+				showSnackBar = showSnackBar,
+				viewModel = getKoin()
+					.getOrCreateScope<Destination.AddEvaluation>("AddEvaluation")
+					.get()
 			)
 		}
 
 		composable(Destination.AddEvaluation.Step2.route) {
 			AddEvaluationRoute(
 				subRoute = Destination.AddEvaluation.Step2,
-				showSnackBar = showSnackBar
+				onNavigateTo = { subRoute ->
+					navigateTo(subRoute)
+				},
+				showSnackBar = showSnackBar,
+				viewModel = getKoin()
+					.getOrCreateScope<Destination.AddEvaluation>("AddEvaluation")
+					.get()
 			)
 		}
 	}

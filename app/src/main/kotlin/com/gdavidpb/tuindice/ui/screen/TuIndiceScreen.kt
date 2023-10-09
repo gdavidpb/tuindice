@@ -49,7 +49,10 @@ import com.google.accompanist.navigation.material.BottomSheetNavigator
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialNavigationApi::class)
+@OptIn(
+	ExperimentalMaterial3Api::class,
+	ExperimentalMaterialNavigationApi::class
+)
 @Composable
 fun TuIndiceScreen(
 	state: Main.State,
@@ -220,6 +223,11 @@ fun TuIndiceScreen(
 				)
 
 				addEvaluationScreen(
+					navigateTo = { subRoute ->
+						navController.navigateToAddEvaluation(
+							subRoute = subRoute
+						)
+					},
 					showSnackBar = showSnackBar
 				)
 
