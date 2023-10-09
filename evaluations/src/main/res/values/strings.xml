@@ -16,17 +16,11 @@
     <string name="evaluation_title">%1$s ─ %2$s</string>
     <string name="evaluation_not_completed">No has cargado la nota</string>
 
-    <string name="button_evaluation_save">Guardar</string>
+    <string name="label_add_evaluation_subject">¿De qué materia es la evaluación?</string>
+    <string name="label_add_evaluation_type">¿Qué tipo de evaluación es?</string>
+    <string name="label_add_evaluation_date">¿En qué fecha es?</string>
 
-    <string name="title_add_evaluation">Agregar evaluación</string>
-    <string name="title_update_evaluation">Modificar evaluación</string>
-
-    <string name="label_evaluation_name">Dale un nombre o descripción</string>
-    <string name="label_evaluation_subject">Selecciona una materia</string>
-    <string name="label_evaluation_date">Selecciona una fecha</string>
-    <string name="label_evaluation_grade">Agrega una nota</string>
-    <string name="label_evaluation_type">Elige un tipo</string>
-
+    <string name="label_evaluation_date">Elige una fecha</string>
     <string name="label_evaluation_no_date">Evaluación continua</string>
     <string name="hint_evaluation_name">Ej. Parcial I</string>
     <string name="hint_evaluation_grade">Ej. 35</string>

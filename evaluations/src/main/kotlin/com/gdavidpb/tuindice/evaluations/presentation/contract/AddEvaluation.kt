@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.contract
 
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.extension.ViewAction
 import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
 import com.gdavidpb.tuindice.base.utils.extension.ViewState
@@ -45,14 +46,8 @@ object AddEvaluation {
 	}
 
 	sealed class Event : ViewEvent {
-		class NavigateToStep1(
-			val subject: Subject,
-			val type: EvaluationType
-		) : Event()
-
-		class NavigateToStep2(
-			val subject: Subject,
-			val type: EvaluationType
+		class NavigateTo(
+			val subRoute: Destination.AddEvaluation
 		) : Event()
 
 		class ShowSnackBar(

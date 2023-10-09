@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.di
 
 import com.gdavidpb.tuindice.base.BuildConfig
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.evaluations.data.api.ApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.api.EvaluationsApi
@@ -21,10 +22,12 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailabl
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.ValidateAddEvaluationStep1UseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluationParamsValidator
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationStep1Reducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.AddEvaluationViewModel
@@ -32,6 +35,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewM
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.scopedOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -40,12 +44,16 @@ val evaluationsModule = module {
 	/* View Models */
 
 	viewModelOf(::EvaluationsViewModel)
-	viewModelOf(::AddEvaluationViewModel)
+
+	scope<Destination.AddEvaluation> {
+		scopedOf(::AddEvaluationViewModel)
+	}
 
 	/* Reducers */
 
 	factoryOf(::EvaluationsReducer)
 	factoryOf(::AvailableSubjectsReducer)
+	factoryOf(::AddEvaluationStep1Reducer)
 
 	/* Use cases */
 
@@ -55,6 +63,7 @@ val evaluationsModule = module {
 	factoryOf(::RemoveEvaluationUseCase)
 	factoryOf(::AddEvaluationUseCase)
 	factoryOf(::GetAvailableSubjectsUseCase)
+	factoryOf(::ValidateAddEvaluationStep1UseCase)
 
 	/* Validators */
 

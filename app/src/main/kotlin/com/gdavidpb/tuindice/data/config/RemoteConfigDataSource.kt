@@ -48,7 +48,6 @@ class RemoteConfigDataSource(
 			Destination.Summary.route to Destination.Summary,
 			Destination.Record.route to Destination.Record,
 			Destination.Evaluations.route to Destination.Evaluations,
-			Destination.AddEvaluation.route to Destination.AddEvaluation.Step1,
 			Destination.AddEvaluation.Step1.route to Destination.AddEvaluation.Step1,
 			Destination.AddEvaluation.Step2.route to Destination.AddEvaluation.Step2,
 			Destination.About.route to Destination.About,
