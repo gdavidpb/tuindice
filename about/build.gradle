@@ -6,7 +6,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "URL_TWITTER", "\"https://twitter.com/TuIndice/\""
+            buildConfigField "String", "URL_X", "\"https://x.com/TuIndice/\""
             buildConfigField "String", "URL_GITHUB", "\"https://github.com/gdavidpb/tuindice/\""
             buildConfigField "String", "URL_KOTLIN", "\"https://kotlinlang.org/\""
             buildConfigField "String", "URL_COMPOSE", "\"https://developer.android.com/jetpack/compose/\""
@@ -18,7 +18,7 @@ android {
         }
 
         release {
-            buildConfigField "String", "URL_TWITTER", "\"https://twitter.com/TuIndice/\""
+            buildConfigField "String", "URL_X", "\"https://x.com/TuIndice/\""
             buildConfigField "String", "URL_GITHUB", "\"https://github.com/gdavidpb/tuindice/\""
             buildConfigField "String", "URL_KOTLIN", "\"https://kotlinlang.org/\""
             buildConfigField "String", "URL_COMPOSE", "\"https://developer.android.com/jetpack/compose/\""

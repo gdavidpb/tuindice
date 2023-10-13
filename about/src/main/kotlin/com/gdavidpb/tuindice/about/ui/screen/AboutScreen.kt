@@ -28,7 +28,7 @@ import com.gdavidpb.tuindice.about.ui.view.getVersionName
 @Composable
 fun AboutScreen(
 	onCreativeCommonsClick: () -> Unit,
-	onTwitterClick: () -> Unit,
+	onXClick: () -> Unit,
 	onGithubClick: () -> Unit,
 	onKotlinClick: () -> Unit,
 	onComposeClick: () -> Unit,
@@ -75,10 +75,10 @@ fun AboutScreen(
 			) { onPrivacyPolicyClick() }
 
 			AboutView(
-				icon = ImageVector.vectorResource(id = R.drawable.ic_twitter),
-				text = stringResource(id = R.string.about_twitter),
+				icon = ImageVector.vectorResource(id = R.drawable.ic_x),
+				text = stringResource(id = R.string.about_x),
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
-			) { onTwitterClick() }
+			) { onXClick() }
 
 			AboutView(
 				icon = Icons.Outlined.Share,

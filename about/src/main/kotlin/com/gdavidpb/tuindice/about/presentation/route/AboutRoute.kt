@@ -57,7 +57,7 @@ fun AboutRoute(
 
 	AboutScreen(
 		onCreativeCommonsClick = { viewModel.openUrlAction(BuildConfig.URL_CREATIVE_COMMONS) },
-		onTwitterClick = { viewModel.openUrlAction(BuildConfig.URL_TWITTER) },
+		onXClick = { viewModel.openUrlAction(BuildConfig.URL_X) },
 		onGithubClick = { viewModel.openUrlAction(BuildConfig.URL_GITHUB) },
 		onKotlinClick = { viewModel.openUrlAction(BuildConfig.URL_KOTLIN) },
 		onComposeClick = { viewModel.openUrlAction(BuildConfig.URL_COMPOSE) },
