@@ -61,6 +61,7 @@ fun TuIndiceScreen(
 	bottomSheetNavigator: BottomSheetNavigator,
 	snackbarHostState: SnackbarHostState,
 	onAction: (action: TopBarAction) -> Unit,
+	onNavigateToHome: () -> Unit,
 	onNavigateTo: (destination: Destination) -> Unit,
 	onNavigateBack: () -> Unit,
 	onSetLastScreen: (route: String) -> Unit,
@@ -75,6 +76,9 @@ fun TuIndiceScreen(
 			.collect { (title, destination) ->
 				if (destination.isBottomDestination)
 					onSetLastScreen(destination.route)
+
+				if (destination.isTopDestination)
+					onNavigateToHome()
 
 				updateState(
 					state.copy(
