@@ -8,15 +8,15 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseC
 import com.gdavidpb.tuindice.evaluations.domain.usecase.ValidateAddEvaluationStep1UseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toValidateAddEvaluationStep1Params
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationStep1Reducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsReducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.LoadAddEvaluationStep1Reducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.DoneAddEvaluationStep1Reducer
 
 class AddEvaluationViewModel(
 	private val getAvailableSubjectsUseCase: GetAvailableSubjectsUseCase,
-	private val availableSubjectsReducer: AvailableSubjectsReducer,
+	private val loadAddEvaluationStep1Reducer: LoadAddEvaluationStep1Reducer,
 	private val validateAddEvaluationStep1UseCase: ValidateAddEvaluationStep1UseCase,
-	private val addEvaluationStep1Reducer: AddEvaluationStep1Reducer
-) : BaseViewModel<AddEvaluation.State, AddEvaluation.Action, AddEvaluation.Event>(initialViewState = AddEvaluation.State.Loading) {
+	private val doneAddEvaluationStep1Reducer: DoneAddEvaluationStep1Reducer
+) : BaseViewModel<AddEvaluation.State, AddEvaluation.Action, AddEvaluation.Event>(initialViewState = AddEvaluation.State.Step1()) {
 
 	fun setSubject(subject: Subject) {
 		val currentState = getCurrentState()
@@ -54,8 +54,8 @@ class AddEvaluationViewModel(
 		)
 	}
 
-	fun loadAvailableSubjectsAction() =
-		emitAction(AddEvaluation.Action.LoadAvailableSubjects)
+	fun loadStep1Action() =
+		emitAction(AddEvaluation.Action.LoadStep1)
 
 	fun goNextStepAction() {
 		when (val currentState = getCurrentState()) {
@@ -84,19 +84,23 @@ class AddEvaluationViewModel(
 
 	override suspend fun reducer(action: AddEvaluation.Action) {
 		when (action) {
-			is AddEvaluation.Action.LoadAvailableSubjects ->
+			is AddEvaluation.Action.LoadStep1 ->
 				getAvailableSubjectsUseCase
 					.execute(
 						params = Unit
 					)
-					.collect(viewModel = this, reducer = availableSubjectsReducer)
+					.collect(viewModel = this, reducer = loadAddEvaluationStep1Reducer)
 
 			is AddEvaluation.Action.ClickStep1Done ->
 				validateAddEvaluationStep1UseCase
 					.execute(
 						params = action.toValidateAddEvaluationStep1Params()
 					)
-					.collect(viewModel = this, reducer = addEvaluationStep1Reducer)
+					.collect(viewModel = this, reducer = doneAddEvaluationStep1Reducer)
+
+			is AddEvaluation.Action.LoadStep2 -> {
+				// TODO
+			}
 
 			is AddEvaluation.Action.ClickStep2Done -> {
 				// TODO

@@ -46,7 +46,6 @@ fun EvaluationResponse.toEvaluationEntity(uid: String) = EvaluationEntity(
 fun EvaluationAdd.toAddEvaluationRequest() = AddEvaluationRequest(
 	reference = reference,
 	subjectId = subjectId,
-	name = name,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
@@ -56,7 +55,6 @@ fun EvaluationAdd.toAddEvaluationRequest() = AddEvaluationRequest(
 
 fun EvaluationUpdate.toAddEvaluationRequest() = UpdateEvaluationRequest(
 	evaluationId = evaluationId,
-	name = name,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,

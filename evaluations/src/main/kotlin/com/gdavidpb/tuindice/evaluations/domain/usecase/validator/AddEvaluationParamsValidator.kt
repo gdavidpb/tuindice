@@ -10,10 +10,6 @@ import kotlin.math.min
 
 class AddEvaluationParamsValidator : ParamsValidator<AddEvaluationParams> {
 	override fun validate(params: AddEvaluationParams) {
-		require(!params.name.isNullOrBlank()) {
-			throw EvaluationIllegalArgumentException(EvaluationError.EmptyName)
-		}
-
 		require(!params.subjectId.isNullOrBlank()) {
 			throw EvaluationIllegalArgumentException(EvaluationError.SubjectMissed)
 		}

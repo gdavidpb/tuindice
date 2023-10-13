@@ -9,32 +9,39 @@ import com.gdavidpb.tuindice.base.utils.extension.ViewState
 
 object AddEvaluation {
 	sealed class State : ViewState {
-		object Loading : State()
-
-		data class Step1(
-			val availableSubjects: List<Subject>,
-			val subject: Subject? = null,
-			val type: EvaluationType? = null
+		class Loading(
+			val state: AddEvaluationStepState
 		) : State()
 
+		data class Step1(
+			val availableSubjects: List<Subject> = emptyList(),
+			val subject: Subject? = null,
+			val type: EvaluationType? = null
+		) : State(), AddEvaluationStepState
+
 		data class Step2(
+			val availableSubjects: List<Subject>,
 			val subject: Subject,
 			val type: EvaluationType,
 			val date: Long? = null,
 			val grade: Double? = null,
 			val maxGrade: Double? = null
-		) : State()
+		) : State(), AddEvaluationStepState
 
-		object Failed : State()
+		class Failed(
+			val state: AddEvaluationStepState
+		) : State()
 	}
 
 	sealed class Action : ViewAction {
-		object LoadAvailableSubjects : Action()
+		object LoadStep1 : Action()
 
 		data class ClickStep1Done(
 			val subject: Subject?,
 			val type: EvaluationType?
 		) : Action()
+
+		object LoadStep2 : Action()
 
 		data class ClickStep2Done(
 			val subject: Subject,

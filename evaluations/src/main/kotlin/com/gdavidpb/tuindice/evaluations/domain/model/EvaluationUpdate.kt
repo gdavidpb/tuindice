@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 
 data class EvaluationUpdate(
 	val evaluationId: String,
-	val name: String?,
 	val grade: Double?,
 	val maxGrade: Double?,
 	val date: Long?,
