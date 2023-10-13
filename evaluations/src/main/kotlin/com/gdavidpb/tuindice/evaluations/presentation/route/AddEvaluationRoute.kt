@@ -33,7 +33,7 @@ fun AddEvaluationRoute(
 	LaunchedEffect(Unit) {
 		when (subRoute) {
 			Destination.AddEvaluation.Step1 ->
-				viewModel.loadAvailableSubjectsAction()
+				viewModel.loadStep1Action()
 
 			Destination.AddEvaluation.Step2 -> {
 				// TODO
@@ -47,6 +47,6 @@ fun AddEvaluationRoute(
 		onTypeChange = viewModel::setType,
 		onDateChange = viewModel::setDate,
 		onNextStepClick = viewModel::goNextStepAction,
-		onRetryClick = viewModel::loadAvailableSubjectsAction
+		onRetryClick = viewModel::loadStep1Action
 	)
 }

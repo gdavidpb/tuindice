@@ -24,12 +24,13 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.ValidateAddEvaluationStep1UseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
+import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationStep1ExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluationParamsValidator
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationStep1Reducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsReducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.DoneAddEvaluationStep1Reducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.LoadAddEvaluationStep1Reducer
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.AddEvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -52,8 +53,8 @@ val evaluationsModule = module {
 	/* Reducers */
 
 	factoryOf(::EvaluationsReducer)
-	factoryOf(::AvailableSubjectsReducer)
-	factoryOf(::AddEvaluationStep1Reducer)
+	factoryOf(::LoadAddEvaluationStep1Reducer)
+	factoryOf(::DoneAddEvaluationStep1Reducer)
 
 	/* Use cases */
 
@@ -105,4 +106,5 @@ val evaluationsModule = module {
 
 	factoryOf(::AddEvaluationExceptionHandler)
 	factoryOf(::UpdateEvaluationExceptionHandler)
+	factoryOf(::AddEvaluationStep1ExceptionHandler)
 }
