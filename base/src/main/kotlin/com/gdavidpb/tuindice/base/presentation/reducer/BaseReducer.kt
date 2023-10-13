@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.utils.extension.ViewOutput
 import com.gdavidpb.tuindice.base.utils.extension.ViewState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf
 
@@ -56,6 +57,11 @@ abstract class BaseReducer<State : ViewState, Event : ViewEvent, T, E> {
 							useCaseState = useCaseState
 						)
 				}
+			}.catch { throwable ->
+				reduceUnrecoverableState(
+					currentState = stateProvider(),
+					throwable = throwable
+				)
 			}
 	}
 }
