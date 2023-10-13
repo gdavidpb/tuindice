@@ -9,14 +9,13 @@ import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.AddEvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.ui.screen.AddEvaluationScreen
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AddEvaluationRoute(
 	subRoute: Destination.AddEvaluation,
 	onNavigateTo: (subRoute: Destination.AddEvaluation) -> Unit,
 	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit,
-	viewModel: AddEvaluationViewModel = koinViewModel()
+	viewModel: AddEvaluationViewModel
 ) {
 	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
 

@@ -36,7 +36,9 @@ fun NavGraphBuilder.addEvaluationScreen(
 				},
 				showSnackBar = showSnackBar,
 				viewModel = getKoin()
-					.getOrCreateScope<Destination.AddEvaluation>("AddEvaluation")
+					.getOrCreateScope<Destination.AddEvaluation>(
+						scopeId = Destination.AddEvaluation.route
+					)
 					.get()
 			)
 		}
@@ -49,7 +51,9 @@ fun NavGraphBuilder.addEvaluationScreen(
 				},
 				showSnackBar = showSnackBar,
 				viewModel = getKoin()
-					.getOrCreateScope<Destination.AddEvaluation>("AddEvaluation")
+					.getOrCreateScope<Destination.AddEvaluation>(
+						scopeId = Destination.AddEvaluation.route
+					)
 					.get()
 			)
 		}
