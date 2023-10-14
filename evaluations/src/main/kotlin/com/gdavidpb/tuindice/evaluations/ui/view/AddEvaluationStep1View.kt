@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.ui.view
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.R
@@ -34,11 +36,17 @@ fun AddEvaluationStep1View(
 	) {
 		Column(
 			modifier = modifier
-				.padding(dimensionResource(id = R.dimen.dp_16))
+				.padding(horizontal = dimensionResource(id = R.dimen.dp_16))
 		) {
 			Text(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(
+						bottom = dimensionResource(id = R.dimen.dp_8)
+					),
 				text = stringResource(id = R.string.label_add_evaluation_subject),
-				style = MaterialTheme.typography.headlineLarge
+				style = MaterialTheme.typography.headlineMedium,
+				fontWeight = FontWeight.Black
 			)
 
 			EvaluationSubjectPicker(
@@ -49,9 +57,13 @@ fun AddEvaluationStep1View(
 
 			Text(
 				modifier = Modifier
-					.padding(top = dimensionResource(id = R.dimen.dp_16)),
+					.fillMaxWidth()
+					.padding(
+						vertical = dimensionResource(id = R.dimen.dp_8)
+					),
 				text = stringResource(id = R.string.label_add_evaluation_type),
-				style = MaterialTheme.typography.headlineLarge
+				style = MaterialTheme.typography.headlineMedium,
+				fontWeight = FontWeight.Black
 			)
 
 			EvaluationTypePicker(

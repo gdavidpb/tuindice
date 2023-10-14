@@ -1,49 +1,108 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.R
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsShortDayOfWeekAndDate
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EvaluationDatePicker(
 	modifier: Modifier = Modifier,
 	selectedDate: Long?,
-	onDateChange: (date: Long) -> Unit
+	onDateChange: (date: Long?) -> Unit
 ) {
-	val isDateSet = remember {
-		mutableStateOf(true)
+	val datePickerState = rememberDatePickerState(
+		initialSelectedDateMillis = selectedDate
+	)
+
+	val isPickerDialogOpen = remember {
+		mutableStateOf(false)
+	}
+
+	val isDateSelected = remember {
+		derivedStateOf {
+			datePickerState.selectedDateMillis != null
+		}
+	}
+
+	if (isPickerDialogOpen.value) {
+		DatePickerDialog(
+			onDismissRequest = {
+				isPickerDialogOpen.value = false
+			},
+			confirmButton = {
+				TextButton(
+					onClick = {
+						isPickerDialogOpen.value = false
+
+						val date = datePickerState.selectedDateMillis
+
+						if (date != null) onDateChange(date)
+					},
+					enabled = isDateSelected.value
+				) {
+					Text(
+						text = stringResource(id = R.string.accept)
+					)
+				}
+			},
+			dismissButton = {
+				TextButton(
+					onClick = {
+						isPickerDialogOpen.value = false
+
+						onDateChange(null)
+					}
+				) {
+					Text(
+						text = stringResource(id = R.string.cancel)
+					)
+				}
+			}
+		) {
+			DatePicker(
+				state = datePickerState,
+				showModeToggle = false
+			)
+		}
 	}
 
 	Row(
 		modifier = modifier
-			.fillMaxWidth()
 	) {
 		OutlinedButton(
 			modifier = Modifier
 				.offset(x = (.5f).dp)
 				.weight(.5f),
-			colors = if (isDateSet.value)
+			colors = if (isDateSelected.value)
 				ButtonDefaults.filledTonalButtonColors()
 			else
 				ButtonDefaults.outlinedButtonColors(),
 			onClick = {
-				isDateSet.value = true
+				isPickerDialogOpen.value = true
 			},
 			shape = RoundedCornerShape(
 				topStartPercent = 50,
@@ -54,19 +113,19 @@ fun EvaluationDatePicker(
 		) {
 			Icon(
 				modifier = Modifier
-					.padding(end = 8.dp),
+					.padding(end = dimensionResource(id = R.dimen.dp_12)),
 				imageVector = Icons.Outlined.CalendarToday,
-				tint = MaterialTheme.colorScheme.onPrimaryContainer,
+				tint = MaterialTheme.colorScheme.onSurface,
 				contentDescription = ""
 			)
 
 			Text(
-				text = if (isDateSet.value)
-					"Mié ─ 31/08/23"
+				text = if (isDateSelected.value)
+					datePickerState.selectedDateMillis.formatAsShortDayOfWeekAndDate()
 				else
 					stringResource(id = R.string.label_evaluation_date),
 				maxLines = 1,
-				color = MaterialTheme.colorScheme.onPrimaryContainer
+				color = MaterialTheme.colorScheme.onSurface
 			)
 		}
 
@@ -74,12 +133,12 @@ fun EvaluationDatePicker(
 			modifier = Modifier
 				.offset(x = (-.5f).dp)
 				.weight(.5f),
-			colors = if (!isDateSet.value)
+			colors = if (!isDateSelected.value)
 				ButtonDefaults.filledTonalButtonColors()
 			else
 				ButtonDefaults.outlinedButtonColors(),
 			onClick = {
-				isDateSet.value = false
+				datePickerState.setSelection(null)
 			},
 			shape = RoundedCornerShape(
 				topStartPercent = 0,
@@ -91,7 +150,7 @@ fun EvaluationDatePicker(
 			Text(
 				text = stringResource(id = R.string.label_evaluation_no_date),
 				maxLines = 1,
-				color = MaterialTheme.colorScheme.onPrimaryContainer
+				color = MaterialTheme.colorScheme.onSurface
 			)
 		}
 	}
