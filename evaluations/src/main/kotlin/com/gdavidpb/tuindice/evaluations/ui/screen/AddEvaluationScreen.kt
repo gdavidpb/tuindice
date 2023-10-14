@@ -15,7 +15,8 @@ fun AddEvaluationScreen(
 	state: AddEvaluation.State,
 	onSubjectChange: (subject: Subject) -> Unit,
 	onTypeChange: (type: EvaluationType) -> Unit,
-	onDateChange: (date: Long) -> Unit,
+	onDateChange: (date: Long?) -> Unit,
+	onMaxGradeChange: (grade: Double?) -> Unit,
 	onNextStepClick: () -> Unit,
 	onRetryClick: () -> Unit
 ) {
@@ -38,6 +39,7 @@ fun AddEvaluationScreen(
 				AddEvaluationStep2View(
 					state = targetState,
 					onDateChange = onDateChange,
+					onMaxGradeChange = onMaxGradeChange,
 					onNextStepClick = onNextStepClick
 				)
 

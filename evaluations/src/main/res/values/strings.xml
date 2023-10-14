@@ -11,7 +11,6 @@
 
     <string name="button_add_evaluation">Agregar evaluación</string>
 
-    <string name="evaluation_max_grade"> / %1$.2f</string>
     <string name="evaluation_grade">%1$.2f / %2$.2f</string>
     <string name="evaluation_title">%1$s ─ %2$s</string>
     <string name="evaluation_not_completed">No has cargado la nota</string>
@@ -19,6 +18,7 @@
     <string name="label_add_evaluation_subject">¿De qué materia es la evaluación?</string>
     <string name="label_add_evaluation_type">¿Qué tipo de evaluación es?</string>
     <string name="label_add_evaluation_date">¿En qué fecha es?</string>
+    <string name="label_add_evaluation_max_grade">¿Cuánto vale?</string>
 
     <string name="label_evaluation_date">Elige una fecha</string>
     <string name="label_evaluation_no_date">Evaluación continua</string>

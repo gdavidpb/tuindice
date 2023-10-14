@@ -8,8 +8,8 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseC
 import com.gdavidpb.tuindice.evaluations.domain.usecase.ValidateAddEvaluationStep1UseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toValidateAddEvaluationStep1Params
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.LoadAddEvaluationStep1Reducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.DoneAddEvaluationStep1Reducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.LoadAddEvaluationStep1Reducer
 
 class AddEvaluationViewModel(
 	private val getAvailableSubjectsUseCase: GetAvailableSubjectsUseCase,
@@ -42,7 +42,7 @@ class AddEvaluationViewModel(
 		)
 	}
 
-	fun setDate(date: Long) {
+	fun setDate(date: Long?) {
 		val currentState = getCurrentState()
 
 		if (currentState !is AddEvaluation.State.Step2) return
@@ -50,6 +50,18 @@ class AddEvaluationViewModel(
 		setState(
 			currentState.copy(
 				date = date
+			)
+		)
+	}
+
+	fun setMaxGrade(grade: Double?) {
+		val currentState = getCurrentState()
+
+		if (currentState !is AddEvaluation.State.Step2) return
+
+		setState(
+			currentState.copy(
+				maxGrade = grade
 			)
 		)
 	}

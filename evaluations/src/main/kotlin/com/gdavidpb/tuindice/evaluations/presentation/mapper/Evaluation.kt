@@ -54,6 +54,10 @@ fun Date.formatAsDayOfWeekAndDate(): String {
 		format("EEEE '—' dd/MM/yy")?.capitalize()!!
 }
 
+fun Long?.formatAsShortDayOfWeekAndDate(): String {
+	return Date(this!!).format("EEE '—' dd/MM/yy")?.capitalize()!!
+}
+
 @StringRes
 fun EvaluationType.stringRes() = when (this) {
 	EvaluationType.TEST -> R.string.evaluation_test

@@ -45,6 +45,7 @@ fun AddEvaluationRoute(
 		onSubjectChange = viewModel::setSubject,
 		onTypeChange = viewModel::setType,
 		onDateChange = viewModel::setDate,
+		onMaxGradeChange = viewModel::setMaxGrade,
 		onNextStepClick = viewModel::goNextStepAction,
 		onRetryClick = viewModel::loadStep1Action
 	)
