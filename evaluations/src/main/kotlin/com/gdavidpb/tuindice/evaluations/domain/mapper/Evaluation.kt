@@ -6,16 +6,13 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
 
-fun AddEvaluationParams.toEvaluationAdd(name: String) = EvaluationAdd(
+fun AddEvaluationParams.toEvaluationAdd() = EvaluationAdd(
 	reference = generateReference(),
 	quarterId = quarterId!!,
 	subjectId = subjectId!!,
-	name = name,
-	grade = grade!!,
 	maxGrade = maxGrade!!,
 	date = date!!,
-	type = type!!,
-	isCompleted = isCompleted!!
+	type = type!!
 )
 
 fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(

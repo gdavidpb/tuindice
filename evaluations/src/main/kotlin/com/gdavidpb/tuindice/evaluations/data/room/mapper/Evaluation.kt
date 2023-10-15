@@ -22,7 +22,12 @@ fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	isCompleted = isCompleted
 )
 
-fun EvaluationAdd.toEvaluationEntity(uid: String) = EvaluationEntity(
+fun EvaluationAdd.toEvaluationEntity(
+	uid: String,
+	name: String,
+	grade: Double,
+	isCompleted: Boolean
+) = EvaluationEntity(
 	id = reference,
 	subjectId = subjectId,
 	quarterId = quarterId,
