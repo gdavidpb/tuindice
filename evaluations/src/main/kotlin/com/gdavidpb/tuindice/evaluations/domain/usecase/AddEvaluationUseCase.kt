@@ -20,9 +20,7 @@ class AddEvaluationUseCase(
 	override suspend fun executeOnBackground(params: AddEvaluationParams): Flow<Unit> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		val name = "${params.type}" // TODO compute name
-
-		val add = params.toEvaluationAdd(name)
+		val add = params.toEvaluationAdd()
 
 		evaluationRepository.addEvaluation(
 			uid = activeUId,

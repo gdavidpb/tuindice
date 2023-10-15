@@ -5,11 +5,9 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
 
 fun (AddEvaluation.Action.ClickDone).toAddEvaluationParams() =
 	AddEvaluationParams(
-		quarterId = "", // TODO
+		quarterId = subject?.qid,
 		subjectId = subject?.id,
-		grade = 0.0, // TODO
 		maxGrade = maxGrade,
 		date = date,
-		type = type,
-		isCompleted = true
+		type = type
 	)

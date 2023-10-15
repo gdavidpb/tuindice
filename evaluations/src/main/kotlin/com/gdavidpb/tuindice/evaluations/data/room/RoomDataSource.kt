@@ -26,7 +26,12 @@ class RoomDataSource(
 	}
 
 	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
-		val evaluationEntity = add.toEvaluationEntity(uid = uid)
+		val evaluationEntity = add.toEvaluationEntity(
+			uid = uid,
+			name = "", // TODO
+			grade = 0.0, // TODO
+			isCompleted = false // TODO
+		)
 
 		room.evaluations.upsertEntities(listOf(evaluationEntity))
 	}

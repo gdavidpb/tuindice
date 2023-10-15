@@ -46,11 +46,9 @@ fun EvaluationResponse.toEvaluationEntity(uid: String) = EvaluationEntity(
 fun EvaluationAdd.toAddEvaluationRequest() = AddEvaluationRequest(
 	reference = reference,
 	subjectId = subjectId,
-	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
-	type = type.ordinal,
-	isCompleted = isCompleted
+	type = type.ordinal
 )
 
 fun EvaluationUpdate.toAddEvaluationRequest() = UpdateEvaluationRequest(
