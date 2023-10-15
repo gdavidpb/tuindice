@@ -4,24 +4,24 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.base.utils.extension.collect
+import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.ValidateAddEvaluationStep1UseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.toValidateAddEvaluationStep1Params
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.DoneAddEvaluationStep1Reducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.LoadAddEvaluationStep1Reducer
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toAddEvaluationParams
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsReducer
 
 class AddEvaluationViewModel(
 	private val getAvailableSubjectsUseCase: GetAvailableSubjectsUseCase,
-	private val loadAddEvaluationStep1Reducer: LoadAddEvaluationStep1Reducer,
-	private val validateAddEvaluationStep1UseCase: ValidateAddEvaluationStep1UseCase,
-	private val doneAddEvaluationStep1Reducer: DoneAddEvaluationStep1Reducer
-) : BaseViewModel<AddEvaluation.State, AddEvaluation.Action, AddEvaluation.Event>(initialViewState = AddEvaluation.State.Step1()) {
+	private val availableSubjectsReducer: AvailableSubjectsReducer,
+	private val addEvaluationUseCase: AddEvaluationUseCase,
+	private val addEvaluationReducer: AddEvaluationReducer
+) : BaseViewModel<AddEvaluation.State, AddEvaluation.Action, AddEvaluation.Event>(initialViewState = AddEvaluation.State.Loading) {
 
 	fun setSubject(subject: Subject) {
 		val currentState = getCurrentState()
 
-		if (currentState !is AddEvaluation.State.Step1) return
+		if (currentState !is AddEvaluation.State.Content) return
 
 		setState(
 			currentState.copy(
@@ -33,7 +33,7 @@ class AddEvaluationViewModel(
 	fun setType(type: EvaluationType) {
 		val currentState = getCurrentState()
 
-		if (currentState !is AddEvaluation.State.Step1) return
+		if (currentState !is AddEvaluation.State.Content) return
 
 		setState(
 			currentState.copy(
@@ -45,7 +45,7 @@ class AddEvaluationViewModel(
 	fun setDate(date: Long?) {
 		val currentState = getCurrentState()
 
-		if (currentState !is AddEvaluation.State.Step2) return
+		if (currentState !is AddEvaluation.State.Content) return
 
 		setState(
 			currentState.copy(
@@ -57,7 +57,7 @@ class AddEvaluationViewModel(
 	fun setMaxGrade(grade: Double?) {
 		val currentState = getCurrentState()
 
-		if (currentState !is AddEvaluation.State.Step2) return
+		if (currentState !is AddEvaluation.State.Content) return
 
 		setState(
 			currentState.copy(
@@ -66,57 +66,39 @@ class AddEvaluationViewModel(
 		)
 	}
 
-	fun loadStep1Action() =
-		emitAction(AddEvaluation.Action.LoadStep1)
+	fun loadAvailableSubjectsAction() =
+		emitAction(AddEvaluation.Action.LoadAvailableSubjects)
 
-	fun goNextStepAction() {
-		when (val currentState = getCurrentState()) {
-			is AddEvaluation.State.Step1 ->
-				emitAction(
-					AddEvaluation.Action.ClickStep1Done(
-						subject = currentState.subject,
-						type = currentState.type
-					)
-				)
+	fun clickDoneAction() {
+		val currentState = getCurrentState()
 
-			is AddEvaluation.State.Step2 ->
-				emitAction(
-					AddEvaluation.Action.ClickStep2Done(
-						subject = currentState.subject,
-						type = currentState.type,
-						date = null, // TODO
-						grade = null,
-						maxGrade = null
-					)
-				)
+		if (currentState !is AddEvaluation.State.Content) return
 
-			else -> {}
-		}
+		emitAction(
+			AddEvaluation.Action.ClickDone(
+				subject = currentState.subject,
+				type = currentState.type,
+				date = currentState.date,
+				maxGrade = currentState.maxGrade
+			)
+		)
 	}
 
 	override suspend fun reducer(action: AddEvaluation.Action) {
 		when (action) {
-			is AddEvaluation.Action.LoadStep1 ->
+			is AddEvaluation.Action.LoadAvailableSubjects ->
 				getAvailableSubjectsUseCase
 					.execute(
 						params = Unit
 					)
-					.collect(viewModel = this, reducer = loadAddEvaluationStep1Reducer)
+					.collect(viewModel = this, reducer = availableSubjectsReducer)
 
-			is AddEvaluation.Action.ClickStep1Done ->
-				validateAddEvaluationStep1UseCase
+			is AddEvaluation.Action.ClickDone ->
+				addEvaluationUseCase
 					.execute(
-						params = action.toValidateAddEvaluationStep1Params()
+						params = action.toAddEvaluationParams()
 					)
-					.collect(viewModel = this, reducer = doneAddEvaluationStep1Reducer)
-
-			is AddEvaluation.Action.LoadStep2 -> {
-				// TODO
-			}
-
-			is AddEvaluation.Action.ClickStep2Done -> {
-				// TODO
-			}
+					.collect(viewModel = this, reducer = addEvaluationReducer)
 		}
 	}
 }

@@ -60,7 +60,7 @@ fun EvaluationDatePicker(
 
 						val date = datePickerState.selectedDateMillis
 
-						if (date != null) onDateChange(date)
+						onDateChange(date)
 					},
 					enabled = isDateSelected.value
 				) {
@@ -73,8 +73,6 @@ fun EvaluationDatePicker(
 				TextButton(
 					onClick = {
 						isPickerDialogOpen.value = false
-
-						onDateChange(null)
 					}
 				) {
 					Text(
@@ -139,6 +137,7 @@ fun EvaluationDatePicker(
 				ButtonDefaults.outlinedButtonColors(),
 			onClick = {
 				datePickerState.setSelection(null)
+				onDateChange(null)
 			},
 			shape = RoundedCornerShape(
 				topStartPercent = 0,

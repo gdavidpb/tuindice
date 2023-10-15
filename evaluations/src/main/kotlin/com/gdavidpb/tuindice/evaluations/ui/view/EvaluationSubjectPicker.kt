@@ -51,7 +51,6 @@ fun EvaluationSubjectPicker(
 					label = {
 						Text(
 							text = subject.code,
-							style = MaterialTheme.typography.bodyLarge,
 							maxLines = 1
 						)
 					}

@@ -15,16 +15,14 @@
     <string name="evaluation_title">%1$s ─ %2$s</string>
     <string name="evaluation_not_completed">No has cargado la nota</string>
 
-    <string name="label_add_evaluation_subject">¿De qué materia es la evaluación?</string>
-    <string name="label_add_evaluation_type">¿Qué tipo de evaluación es?</string>
-    <string name="label_add_evaluation_date">¿En qué fecha es?</string>
-    <string name="label_add_evaluation_max_grade">¿Cuánto vale?</string>
+    <string name="label_add_evaluation_subject">Materia</string>
+    <string name="label_add_evaluation_type">Tipo</string>
+    <string name="label_add_evaluation_date">Fecha</string>
+    <string name="label_add_evaluation_max_grade">Nota máxima</string>
 
     <string name="label_evaluation_date">Elige una fecha</string>
     <string name="label_evaluation_no_date">Evaluación continua</string>
-    <string name="hint_evaluation_name">Ej. Parcial I</string>
     <string name="hint_evaluation_grade">Ej. 35</string>
-    <string name="hint_evaluation_subject">CÓDIGO ─ MATERIA</string>
 
     <string name="error_evaluation_subject_missed">Debes seleccionar una materia</string>
     <string name="error_evaluation_type_missed">Debes seleccionar un tipo</string>

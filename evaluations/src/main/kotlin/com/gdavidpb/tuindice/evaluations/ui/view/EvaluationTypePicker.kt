@@ -56,7 +56,6 @@ fun EvaluationTypePicker(
 					label = {
 						Text(
 							text = stringResource(id = type.stringRes()),
-							style = MaterialTheme.typography.bodyLarge,
 							maxLines = 1
 						)
 					}
