@@ -216,9 +216,7 @@ fun TuIndiceScreen(
 
 				evaluationsScreen(
 					navigateToAddEvaluation = {
-						navController.navigateToAddEvaluation(
-							subRoute = Destination.AddEvaluation.Step1
-						)
+						navController.navigateToAddEvaluation()
 					},
 					navigateToEvaluation = { args ->
 						navController.navigateToEvaluation(args)
@@ -227,11 +225,6 @@ fun TuIndiceScreen(
 				)
 
 				addEvaluationScreen(
-					navigateTo = { subRoute ->
-						navController.navigateToAddEvaluation(
-							subRoute = subRoute
-						)
-					},
 					showSnackBar = showSnackBar
 				)
 

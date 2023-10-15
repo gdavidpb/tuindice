@@ -2,15 +2,15 @@ package com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler
 
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
-import com.gdavidpb.tuindice.evaluations.domain.exception.EvaluationIllegalArgumentException
-import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationError
+import com.gdavidpb.tuindice.evaluations.domain.exception.AddEvaluationIllegalArgumentException
+import com.gdavidpb.tuindice.evaluations.domain.usecase.error.AddEvaluationError
 
 class UpdateEvaluationExceptionHandler(
 	override val reportingRepository: ReportingRepository
-) : ExceptionHandler<EvaluationError>() {
-	override fun parseException(throwable: Throwable): EvaluationError? {
+) : ExceptionHandler<AddEvaluationError>() {
+	override fun parseException(throwable: Throwable): AddEvaluationError? {
 		return when (throwable) {
-			is EvaluationIllegalArgumentException -> throwable.error
+			is AddEvaluationIllegalArgumentException -> throwable.error
 			else -> null
 		}
 	}

@@ -1,27 +1,15 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
-import com.gdavidpb.tuindice.evaluations.domain.usecase.param.ValidateAddEvaluationStep1Params
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
 
-fun (AddEvaluation.Action.ClickStep1Done).toValidateAddEvaluationStep1Params() =
-	ValidateAddEvaluationStep1Params(
-		subject = subject,
-		type = type
+fun (AddEvaluation.Action.ClickDone).toAddEvaluationParams() =
+	AddEvaluationParams(
+		quarterId = "", // TODO
+		subjectId = subject?.id,
+		grade = 0.0, // TODO
+		maxGrade = maxGrade,
+		date = date,
+		type = type,
+		isCompleted = true
 	)
-
-fun (AddEvaluation.State.Step1).toStep2() =
-	AddEvaluation.State.Step2(
-		availableSubjects = availableSubjects,
-		subject = subject!!,
-		type = type!!
-	)
-
-fun (AddEvaluation.State.Step2).toStep1() =
-	AddEvaluation.State.Step1(
-		availableSubjects = availableSubjects,
-		subject = subject,
-		type = type
-	)
-
-fun (AddEvaluation.State).toStep1() =
-	(this as? AddEvaluation.State.Loading)?.state as? AddEvaluation.State.Step1

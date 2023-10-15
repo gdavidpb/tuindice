@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,12 +23,14 @@ import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
 
 @Composable
-fun AddEvaluationStep1View(
+fun AddEvaluationContentView(
 	modifier: Modifier = Modifier,
-	state: AddEvaluation.State.Step1,
+	state: AddEvaluation.State.Content,
 	onSubjectChange: (subject: Subject) -> Unit,
 	onTypeChange: (type: EvaluationType) -> Unit,
-	onNextStepClick: () -> Unit
+	onDateChange: (date: Long?) -> Unit,
+	onMaxGradeChange: (grade: Double?) -> Unit,
+	onDoneClick: () -> Unit
 ) {
 	Box(
 		modifier = Modifier
@@ -40,12 +42,12 @@ fun AddEvaluationStep1View(
 		) {
 			Text(
 				modifier = Modifier
-					.fillMaxWidth()
-					.padding(
-						bottom = dimensionResource(id = R.dimen.dp_8)
-					),
-				text = stringResource(id = R.string.label_add_evaluation_subject),
-				style = MaterialTheme.typography.headlineMedium,
+					.fillMaxWidth(),
+				text = stringResource(
+					id = R.string.label_add_evaluation_subject
+				).uppercase(),
+				style = MaterialTheme.typography.labelLarge,
+				color = MaterialTheme.colorScheme.outline,
 				fontWeight = FontWeight.Black
 			)
 
@@ -59,16 +61,61 @@ fun AddEvaluationStep1View(
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(
-						vertical = dimensionResource(id = R.dimen.dp_8)
+						top = dimensionResource(id = R.dimen.dp_8)
 					),
-				text = stringResource(id = R.string.label_add_evaluation_type),
-				style = MaterialTheme.typography.headlineMedium,
+				text = stringResource(
+					id = R.string.label_add_evaluation_type
+				).uppercase(),
+				style = MaterialTheme.typography.labelLarge,
+				color = MaterialTheme.colorScheme.outline,
 				fontWeight = FontWeight.Black
 			)
 
 			EvaluationTypePicker(
 				selectedType = state.type,
 				onTypeChange = onTypeChange
+			)
+
+			Text(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(
+						vertical = dimensionResource(id = R.dimen.dp_12)
+					),
+				text = stringResource(
+					id = R.string.label_add_evaluation_date
+				).uppercase(),
+				style = MaterialTheme.typography.labelLarge,
+				color = MaterialTheme.colorScheme.outline,
+				fontWeight = FontWeight.Black
+			)
+
+			EvaluationDatePicker(
+				modifier = Modifier
+					.fillMaxWidth(),
+				selectedDate = state.date,
+				onDateChange = onDateChange
+			)
+
+			Text(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(
+						vertical = dimensionResource(id = R.dimen.dp_12)
+					),
+				text = stringResource(
+					id = R.string.label_add_evaluation_max_grade
+				).uppercase(),
+				style = MaterialTheme.typography.labelLarge,
+				color = MaterialTheme.colorScheme.outline,
+				fontWeight = FontWeight.Black
+			)
+
+			EvaluationGradeTextField(
+				modifier = Modifier
+					.fillMaxWidth(),
+				grade = state.maxGrade,
+				onGradeChange = onMaxGradeChange
 			)
 		}
 
@@ -77,10 +124,10 @@ fun AddEvaluationStep1View(
 				.align(Alignment.BottomEnd)
 				.padding(dimensionResource(id = R.dimen.dp_24)),
 			containerColor = MaterialTheme.colorScheme.primary,
-			onClick = onNextStepClick
+			onClick = onDoneClick
 		) {
 			Icon(
-				imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
+				imageVector = Icons.Outlined.Done,
 				contentDescription = null
 			)
 		}

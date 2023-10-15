@@ -75,21 +75,13 @@ sealed class Destination(
 			bottomBarConfig = BottomBarConfig.Evaluations
 		)
 
-	sealed class AddEvaluation(
-		subRoute: String
-	) : Destination(
-		route = "${route}_${subRoute}",
+	object AddEvaluation
+		: Destination(
+		route = "add_evaluation",
 		title = "Agregar evaluación",
 		isTopDestination = false,
 		isBottomDestination = false
-	) {
-		companion object {
-			val route = "add_evaluation"
-		}
-
-		object Step1 : AddEvaluation(subRoute = "step_1")
-		object Step2 : AddEvaluation(subRoute = "step_2")
-	}
+	)
 
 	object About :
 		Destination(
