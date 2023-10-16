@@ -35,16 +35,20 @@ fun EvaluationsView(
 			}
 
 			items(evaluations) { evaluation ->
+				// TODO evaluation presentation model
+				val typeName = stringResource(id = evaluation.type.stringRes())
+				val evaluationName = "$typeName ${evaluation.ordinal}"
+
 				EvaluationItemView(
 					modifier = Modifier
 						.clickable {
 							onEvaluationClick(evaluation.evaluationId)
 						}
 						.animateItemPlacement(),
-					name = evaluation.name,
+					name = evaluationName,
 					subjectCode = evaluation.subject.code,
 					date = evaluation.date.formatAsDayOfWeekAndDate(),
-					type = stringResource(id = evaluation.type.stringRes()),
+					type = typeName,
 					icon = evaluation.type.iconRes(),
 					grade = evaluation.grade,
 					maxGrade = evaluation.maxGrade,

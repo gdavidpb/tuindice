@@ -6,6 +6,7 @@ data class AddEvaluationParams(
 	val quarterId: String?,
 	val subjectId: String?,
 	val type: EvaluationType?,
+	val grade: Double?,
 	val maxGrade: Double?,
 	val date: Long?
 )

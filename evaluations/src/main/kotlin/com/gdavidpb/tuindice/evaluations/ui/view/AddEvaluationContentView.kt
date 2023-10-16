@@ -45,10 +45,10 @@ fun AddEvaluationContentView(
 					.fillMaxWidth(),
 				text = stringResource(
 					id = R.string.label_add_evaluation_subject
-				).uppercase(),
-				style = MaterialTheme.typography.labelLarge,
-				color = MaterialTheme.colorScheme.outline,
-				fontWeight = FontWeight.Black
+				),
+				style = MaterialTheme.typography.bodyLarge,
+				color = MaterialTheme.colorScheme.onSurface,
+				fontWeight = FontWeight.Medium
 			)
 
 			EvaluationSubjectPicker(
@@ -65,10 +65,10 @@ fun AddEvaluationContentView(
 					),
 				text = stringResource(
 					id = R.string.label_add_evaluation_type
-				).uppercase(),
-				style = MaterialTheme.typography.labelLarge,
-				color = MaterialTheme.colorScheme.outline,
-				fontWeight = FontWeight.Black
+				),
+				style = MaterialTheme.typography.bodyLarge,
+				color = MaterialTheme.colorScheme.onSurface,
+				fontWeight = FontWeight.Medium
 			)
 
 			EvaluationTypePicker(
@@ -84,10 +84,10 @@ fun AddEvaluationContentView(
 					),
 				text = stringResource(
 					id = R.string.label_add_evaluation_date
-				).uppercase(),
-				style = MaterialTheme.typography.labelLarge,
-				color = MaterialTheme.colorScheme.outline,
-				fontWeight = FontWeight.Black
+				),
+				style = MaterialTheme.typography.bodyLarge,
+				color = MaterialTheme.colorScheme.onSurface,
+				fontWeight = FontWeight.Medium
 			)
 
 			EvaluationDatePicker(
@@ -105,10 +105,10 @@ fun AddEvaluationContentView(
 					),
 				text = stringResource(
 					id = R.string.label_add_evaluation_max_grade
-				).uppercase(),
-				style = MaterialTheme.typography.labelLarge,
-				color = MaterialTheme.colorScheme.outline,
-				fontWeight = FontWeight.Black
+				),
+				style = MaterialTheme.typography.bodyLarge,
+				color = MaterialTheme.colorScheme.onSurface,
+				fontWeight = FontWeight.Medium
 			)
 
 			EvaluationGradeTextField(

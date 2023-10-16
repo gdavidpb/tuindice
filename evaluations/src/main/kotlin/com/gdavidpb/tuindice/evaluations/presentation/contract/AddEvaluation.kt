@@ -29,11 +29,14 @@ object AddEvaluation {
 			val subject: Subject?,
 			val type: EvaluationType?,
 			val date: Long?,
+			val grade: Double?,
 			val maxGrade: Double?
 		) : Action()
 	}
 
 	sealed class Event : ViewEvent {
+		object NavigateToEvaluations : Event()
+
 		class ShowSnackBar(
 			val message: String
 		) : Event()

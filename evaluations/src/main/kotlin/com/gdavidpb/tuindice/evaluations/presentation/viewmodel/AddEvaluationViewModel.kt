@@ -79,6 +79,7 @@ class AddEvaluationViewModel(
 				subject = currentState.subject,
 				type = currentState.type,
 				date = currentState.date,
+				grade = currentState.grade,
 				maxGrade = currentState.maxGrade
 			)
 		)

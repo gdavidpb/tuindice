@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.room
 
+import androidx.room.withTransaction
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
@@ -26,14 +27,27 @@ class RoomDataSource(
 	}
 
 	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
-		val evaluationEntity = add.toEvaluationEntity(
-			uid = uid,
-			name = "", // TODO
-			grade = 0.0, // TODO
-			isCompleted = false // TODO
-		)
+		room.withTransaction {
+			val evaluationEntity = add.toEvaluationEntity(
+				uid = uid
+			)
 
-		room.evaluations.upsertEntities(listOf(evaluationEntity))
+			room.evaluations.upsertEntities(listOf(evaluationEntity))
+
+			val subjectEvaluations = room.evaluations.getSubjectEvaluationsByType(
+				uid = uid,
+				sid = add.subjectId,
+				type = add.type.ordinal
+			)
+
+			subjectEvaluations.forEachIndexed { index, entity ->
+				room.evaluations.updateEvaluationOrdinalById(
+					uid = uid,
+					eid = entity.id,
+					ordinal = index + 1
+				)
+			}
+		}
 	}
 
 	override suspend fun saveEvaluations(uid: String, evaluations: List<Evaluation>) {
