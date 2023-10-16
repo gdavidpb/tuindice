@@ -9,11 +9,36 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.error.AddEvaluationError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 
 class AddEvaluationReducer(
 	private val resourceResolver: ResourceResolver
-) :
-	BaseReducer<AddEvaluation.State, AddEvaluation.Event, Unit, AddEvaluationError>() {
+) : BaseReducer<AddEvaluation.State, AddEvaluation.Event, Unit, AddEvaluationError>() {
+
+	override suspend fun reduceLoadingState(
+		currentState: AddEvaluation.State,
+		useCaseState: UseCaseState.Loading<Unit, AddEvaluationError>
+	): Flow<ViewOutput> {
+		return flowOf(AddEvaluation.State.Loading)
+	}
+
+	override suspend fun reduceDataState(
+		currentState: AddEvaluation.State,
+		useCaseState: UseCaseState.Data<Unit, AddEvaluationError>
+	): Flow<ViewOutput> {
+		return flow {
+			emit(
+				AddEvaluation.Event.ShowSnackBar(
+					message = resourceResolver.getString(R.string.snack_add_evaluation_done)
+				)
+			)
+
+			emit(
+				AddEvaluation.Event.NavigateToEvaluations
+			)
+		}
+	}
+
 	override suspend fun reduceErrorState(
 		currentState: AddEvaluation.State,
 		useCaseState: UseCaseState.Error<Unit, AddEvaluationError>

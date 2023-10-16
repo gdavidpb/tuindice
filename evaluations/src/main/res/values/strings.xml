@@ -35,4 +35,6 @@
     <string name="label_state_completed">Completadas</string>
     <string name="label_state_not_grade">Sin nota</string>
 
+    <string name="snack_add_evaluation_done">¡Evaluación agregada!</string>
+
 </resources>

@@ -51,4 +51,29 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 		uid: String,
 		eid: String
 	): Int
+
+	@Query(
+		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
+				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
+				"AND ${EvaluationTable.SUBJECT_ID} = :sid " +
+				"AND ${EvaluationTable.TYPE} = :type " +
+				"ORDER BY ${EvaluationTable.DATE} ASC"
+	)
+	abstract suspend fun getSubjectEvaluationsByType(
+		uid: String,
+		sid: String,
+		type: Int
+	): List<EvaluationEntity>
+
+	@Query(
+		"UPDATE ${EvaluationTable.TABLE_NAME} " +
+				"SET ${EvaluationTable.ORDINAL} = :ordinal " +
+				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
+				"AND ${EvaluationTable.ID} = :eid"
+	)
+	abstract suspend fun updateEvaluationOrdinalById(
+		uid: String,
+		eid: String,
+		ordinal: Int
+	)
 }

@@ -4,10 +4,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.base.utils.extension.navigatePopUpTo
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationsRoute
 
 fun NavController.navigateToEvaluations() {
-	navigate(Destination.Evaluations.route)
+	navigatePopUpTo(Destination.Evaluations)
 }
 
 fun NavGraphBuilder.evaluationsScreen(

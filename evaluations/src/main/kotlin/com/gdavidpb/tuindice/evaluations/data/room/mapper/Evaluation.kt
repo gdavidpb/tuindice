@@ -13,7 +13,7 @@ fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	subjectId = subjectId,
 	quarterId = quarterId,
 	accountId = uid,
-	name = name,
+	ordinal = ordinal,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
@@ -23,29 +23,30 @@ fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 )
 
 fun EvaluationAdd.toEvaluationEntity(
-	uid: String,
-	name: String,
-	grade: Double,
-	isCompleted: Boolean
-) = EvaluationEntity(
-	id = reference,
-	subjectId = subjectId,
-	quarterId = quarterId,
-	accountId = uid,
-	name = name,
-	grade = grade,
-	maxGrade = maxGrade,
-	date = Date(date),
-	lastModified = Date(date),
-	type = type,
-	isCompleted = isCompleted
-)
+	uid: String
+): EvaluationEntity {
+	val date = Date(date)
+
+	return EvaluationEntity(
+		id = reference,
+		subjectId = subjectId,
+		quarterId = quarterId,
+		accountId = uid,
+		ordinal = 0,
+		grade = grade,
+		maxGrade = maxGrade,
+		date = date,
+		lastModified = date,
+		type = type,
+		isCompleted = date.isOverdue()
+	)
+}
 
 fun EvaluationWithSubject.toEvaluation() = Evaluation(
 	evaluationId = evaluation.id,
 	subjectId = evaluation.subjectId,
 	quarterId = evaluation.quarterId,
-	name = evaluation.name,
+	ordinal = evaluation.ordinal,
 	grade = evaluation.grade,
 	maxGrade = evaluation.maxGrade,
 	date = evaluation.date,

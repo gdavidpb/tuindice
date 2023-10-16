@@ -36,6 +36,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.navigation.addEvaluationSc
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsScreen
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.navigateToAddEvaluation
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.navigateToEvaluation
+import com.gdavidpb.tuindice.evaluations.presentation.navigation.navigateToEvaluations
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignIn
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToUpdatePassword
 import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
@@ -225,6 +226,9 @@ fun TuIndiceScreen(
 				)
 
 				addEvaluationScreen(
+					navigateToEvaluations = {
+						navController.navigateToEvaluations()
+					},
 					showSnackBar = showSnackBar
 				)
 

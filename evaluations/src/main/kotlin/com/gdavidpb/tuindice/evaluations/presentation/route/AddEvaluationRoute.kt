@@ -12,6 +12,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AddEvaluationRoute(
+	onNavigateToEvaluations: () -> Unit,
 	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit,
 	viewModel: AddEvaluationViewModel = koinViewModel()
 ) {
@@ -19,6 +20,9 @@ fun AddEvaluationRoute(
 
 	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
 		when (event) {
+			is AddEvaluation.Event.NavigateToEvaluations ->
+				onNavigateToEvaluations()
+
 			is AddEvaluation.Event.ShowSnackBar ->
 				showSnackBar(event.message, null, null)
 		}

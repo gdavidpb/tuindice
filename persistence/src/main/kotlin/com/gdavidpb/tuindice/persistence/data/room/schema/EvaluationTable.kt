@@ -9,7 +9,7 @@ object EvaluationTable {
 	const val ACCOUNT_ID = "evaluation_account_id"
 	const val SUBJECT_CODE = "evaluation_subject_code"
 	const val SUBJECT_NAME = "evaluation_subject_name"
-	const val NAME = "evaluation_name"
+	const val ORDINAL = "evaluation_name"
 	const val GRADE = "evaluation_grade"
 	const val MAX_GRADE = "evaluation_max_grade"
 	const val TYPE = "evaluation_type"
