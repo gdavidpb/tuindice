@@ -33,9 +33,21 @@ object Evaluations {
 			val filter: EvaluationFilter
 		) : Action()
 
+		class CheckEvaluationAsCompleted(
+			val evaluationId: String
+		) : Action()
+
+		class UncheckEvaluationAsCompleted(
+			val evaluationId: String
+		) : Action()
+
 		object AddEvaluation : Action()
 
 		class EditEvaluation(
+			val evaluationId: String
+		) : Action()
+
+		class RemoveEvaluation(
 			val evaluationId: String
 		) : Action()
 	}

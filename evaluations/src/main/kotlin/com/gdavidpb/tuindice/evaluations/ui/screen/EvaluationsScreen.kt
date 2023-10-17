@@ -14,6 +14,8 @@ fun EvaluationsScreen(
 	state: Evaluations.State,
 	onAddEvaluationClick: () -> Unit,
 	onEvaluationClick: (evaluationId: String) -> Unit,
+	onEvaluationDelete: (evaluationId: String) -> Unit,
+	onEvaluationIsCompletedChange: (evaluationId: String, isCompleted: Boolean) -> Unit,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
 	onClearFiltersClick: () -> Unit,
 	onRetryClick: () -> Unit
@@ -29,9 +31,11 @@ fun EvaluationsScreen(
 				EvaluationsContentView(
 					state = targetState,
 					onAddEvaluationClick = onAddEvaluationClick,
+					onEvaluationClick = onEvaluationClick,
+					onEvaluationDelete = onEvaluationDelete,
+					onEvaluationIsCompletedChange = onEvaluationIsCompletedChange,
 					onClearFiltersClick = onClearFiltersClick,
-					onFilterCheckedChange = onFilterCheckedChange,
-					onEvaluationClick = onEvaluationClick
+					onFilterCheckedChange = onFilterCheckedChange
 				)
 
 			is Evaluations.State.Failed ->

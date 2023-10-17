@@ -29,7 +29,9 @@ fun EvaluationsContentView(
 	onAddEvaluationClick: () -> Unit,
 	onClearFiltersClick: () -> Unit,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
-	onEvaluationClick: (evaluationId: String) -> Unit
+	onEvaluationClick: (evaluationId: String) -> Unit,
+	onEvaluationDelete: (evaluationId: String) -> Unit,
+	onEvaluationIsCompletedChange: (evaluationId: String, isCompleted: Boolean) -> Unit
 ) {
 	val lazyColumState = rememberLazyListState()
 
@@ -51,7 +53,9 @@ fun EvaluationsContentView(
 				EvaluationsView(
 					evaluations = state.filteredEvaluations,
 					lazyListState = lazyColumState,
-					onEvaluationClick = onEvaluationClick
+					onEvaluationClick = onEvaluationClick,
+					onEvaluationDelete = onEvaluationDelete,
+					onEvaluationIsCompletedChange = onEvaluationIsCompletedChange
 				)
 			else
 				EvaluationsEmptyMatchView()

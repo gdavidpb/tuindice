@@ -27,6 +27,15 @@ class EvaluationsViewModel(
 	fun editEvaluationAction(evaluationId: String) =
 		emitAction(Evaluations.Action.EditEvaluation(evaluationId))
 
+	fun removeEvaluationAction(evaluationId: String) =
+		emitAction(Evaluations.Action.RemoveEvaluation(evaluationId))
+
+	fun updateEvaluationIsCompletedAction(evaluationId: String, isCompleted: Boolean) =
+		if (isCompleted)
+			emitAction(Evaluations.Action.CheckEvaluationAsCompleted(evaluationId))
+		else
+			emitAction(Evaluations.Action.UncheckEvaluationAsCompleted(evaluationId))
+
 	override suspend fun reducer(action: Evaluations.Action) {
 		when (action) {
 			is Evaluations.Action.LoadEvaluations ->
@@ -62,6 +71,18 @@ class EvaluationsViewModel(
 				sendEvent(
 					Evaluations.Event.NavigateToAddEvaluation
 				)
+
+			is Evaluations.Action.RemoveEvaluation -> {
+				// TODO RemoveEvaluation
+			}
+
+			is Evaluations.Action.CheckEvaluationAsCompleted -> {
+				// TODO CheckEvaluationAsCompleted
+			}
+
+			is Evaluations.Action.UncheckEvaluationAsCompleted -> {
+				// TODO UncheckEvaluationAsCompleted
+			}
 
 			is Evaluations.Action.EditEvaluation ->
 				sendEvent(
