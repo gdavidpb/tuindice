@@ -42,6 +42,8 @@ fun EvaluationsRoute(
 		state = viewState,
 		onAddEvaluationClick = viewModel::addEvaluationAction,
 		onEvaluationClick = viewModel::editEvaluationAction,
+		onEvaluationDelete = viewModel::removeEvaluationAction,
+		onEvaluationIsCompletedChange = viewModel::updateEvaluationIsCompletedAction,
 		onClearFiltersClick = viewModel::loadEvaluationsAction,
 		onFilterCheckedChange = viewModel::filterEvaluationsAction,
 		onRetryClick = viewModel::loadEvaluationsAction
