@@ -32,7 +32,7 @@ fun List<Evaluation>.computeAvailableFilters(resourceResolver: ResourceResolver)
 		) { evaluation -> evaluation.isCompleted },
 		EvaluationStateFilter(
 			label = resourceResolver.getString(R.string.label_state_not_grade)
-		) { evaluation -> evaluation.isNotGraded }
+		) { evaluation -> evaluation.isGradeRequired }
 	)
 
 	val subjectsFilters =
