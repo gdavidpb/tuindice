@@ -12,42 +12,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsDayOfWeekAndDate
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsToNow
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.iconRes
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.stringRes
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun EvaluationsView(
-	evaluations: List<Evaluation>,
+	evaluations: List<EvaluationsGroupItem>,
 	lazyListState: LazyListState,
 	onEvaluationClick: (evaluationId: String) -> Unit,
 	onEvaluationDelete: (evaluationId: String) -> Unit,
 	onEvaluationIsCompletedChange: (evaluationId: String, isCompleted: Boolean) -> Unit
 ) {
-	val evaluationsByDate =
-		evaluations.groupBy { evaluation ->
-			evaluation.date.formatAsToNow()
-		}
-
 	LazyColumn(
 		state = lazyListState
 	) {
-		evaluationsByDate.forEach { (group, evaluations) ->
+		evaluations.forEach { (title, items) ->
 			stickyHeader {
-				EvaluationHeaderView(label = group)
+				EvaluationHeaderView(label = title)
 			}
 
-			items(evaluations) { evaluation ->
-				// TODO evaluation presentation model
-				val typeName = stringResource(id = evaluation.type.stringRes())
-				val evaluationName = "$typeName ${evaluation.ordinal}"
-
-				val currentFraction = remember { mutableFloatStateOf(0f) }
+			items(items) { evaluation ->
+				val dismissProgress = remember { mutableFloatStateOf(0f) }
 
 				val dismissState = rememberDismissState(
 					positionalThreshold = { _ -> 0f },
@@ -67,11 +53,11 @@ fun EvaluationsView(
 							else -> {}
 						}
 
-						currentFraction.floatValue > THRESHOLD_EVALUATION_SWIPE
+						dismissProgress.floatValue > THRESHOLD_EVALUATION_SWIPE
 					}
 				)
 
-				currentFraction.floatValue = dismissState.progress
+				dismissProgress.floatValue = dismissState.progress
 
 				EvaluationSwipeToDismiss(
 					isCompleted = evaluation.isCompleted,
@@ -85,16 +71,7 @@ fun EvaluationsView(
 								)
 							}
 							.animateItemPlacement(),
-						name = evaluationName,
-						subjectCode = evaluation.subject.code,
-						date = evaluation.date.formatAsDayOfWeekAndDate(),
-						type = typeName,
-						icon = evaluation.type.iconRes(),
-						grade = evaluation.grade,
-						maxGrade = evaluation.maxGrade,
-						isContinuous = evaluation.isContinuous,
-						isNotGraded = evaluation.isNotGraded,
-						isCompleted = evaluation.isCompleted
+						item = evaluation
 					)
 				}
 			}

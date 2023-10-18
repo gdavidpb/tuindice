@@ -26,7 +26,7 @@ class GetEvaluationsUseCase(
 			(a.date.time - currentTime).sign + (b.date.time - currentTime).sign
 		}
 			.then(compareBy(Evaluation::isCompleted))
-			.then(compareBy(Evaluation::isNotGraded))
+			.then(compareBy(Evaluation::isGradeRequired))
 
 	override suspend fun executeOnBackground(params: List<EvaluationFilter>): Flow<GetEvaluations> {
 		val activeUId = authRepository.getActiveAuth().uid
