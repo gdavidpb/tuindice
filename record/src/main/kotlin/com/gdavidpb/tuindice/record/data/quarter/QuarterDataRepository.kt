@@ -24,8 +24,7 @@ class QuarterDataRepository(
 			.transform { localQuarters ->
 				val isOnCooldown = settingsDataSource.isGetQuartersOnCooldown()
 
-				if (localQuarters.isNotEmpty())
-					emit(localQuarters)
+				emit(localQuarters)
 
 				if (!isOnCooldown) {
 					val remoteQuarters = remoteDataSource.getQuarters()
