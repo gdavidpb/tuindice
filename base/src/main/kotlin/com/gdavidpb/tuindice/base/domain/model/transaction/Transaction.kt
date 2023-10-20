@@ -4,5 +4,5 @@ data class Transaction(
 	val reference: String,
 	val type: TransactionType,
 	val action: TransactionAction,
-	val data: String
+	val data: String // TODO optional
 )

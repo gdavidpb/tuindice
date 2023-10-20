@@ -5,14 +5,8 @@ import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_MOCK
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.persistence.data.room.entity.QuarterEntity
-import com.gdavidpb.tuindice.record.data.api.request.RemoveQuarterRequest
 import com.gdavidpb.tuindice.record.data.api.response.QuarterResponse
-import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import java.util.Date
-
-fun QuarterRemove.toRemoveQuarterRequest() = RemoveQuarterRequest(
-	quarterId = quarterId
-)
 
 fun QuarterResponse.toQuarter(): Quarter {
 	val isEditable = (status == STATUS_QUARTER_CURRENT) || (status == STATUS_QUARTER_MOCK)

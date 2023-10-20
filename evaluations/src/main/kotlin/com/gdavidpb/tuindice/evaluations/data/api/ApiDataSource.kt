@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
 import com.gdavidpb.tuindice.evaluations.data.api.mapper.toAddEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.mapper.toEvaluation
-import com.gdavidpb.tuindice.evaluations.data.api.mapper.toRemoveEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
@@ -42,9 +41,7 @@ class ApiDataSource(
 	}
 
 	override suspend fun removeEvaluation(remove: EvaluationRemove) {
-		val request = remove.toRemoveEvaluationRequest()
-
-		evaluationsApi.deleteEvaluation(request)
+		evaluationsApi.deleteEvaluation(remove.evaluationId)
 			.getOrThrow()
 	}
 }

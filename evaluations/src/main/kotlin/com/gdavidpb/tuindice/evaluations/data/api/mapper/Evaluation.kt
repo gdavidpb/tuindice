@@ -3,11 +3,9 @@ package com.gdavidpb.tuindice.evaluations.data.api.mapper
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.data.api.request.AddEvaluationRequest
-import com.gdavidpb.tuindice.evaluations.data.api.request.RemoveEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.response.EvaluationResponse
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.utils.extension.isOverdue
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
@@ -58,8 +56,4 @@ fun EvaluationUpdate.toAddEvaluationRequest() = UpdateEvaluationRequest(
 	date = date,
 	type = type?.ordinal,
 	isCompleted = isCompleted
-)
-
-fun EvaluationRemove.toRemoveEvaluationRequest() = RemoveEvaluationRequest(
-	evaluationId = evaluationId
 )

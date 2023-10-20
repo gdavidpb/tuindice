@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.api
 
 import com.gdavidpb.tuindice.evaluations.data.api.request.AddEvaluationRequest
-import com.gdavidpb.tuindice.evaluations.data.api.request.RemoveEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.api.response.EvaluationResponse
 import com.gdavidpb.tuindice.transactions.domain.annotation.EnqueueOnFailure
@@ -32,6 +31,6 @@ interface EvaluationsApi {
 	@EnqueueOnFailure
 	@DELETE("evaluations")
 	suspend fun deleteEvaluation(
-		@Body request: RemoveEvaluationRequest
+		@Query("eid") evaluationId: String
 	): Response<Unit>
 }
