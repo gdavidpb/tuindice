@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.base.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extension.ViewAction
 import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
 import com.gdavidpb.tuindice.base.utils.extension.ViewState
@@ -37,6 +39,9 @@ abstract class BaseViewModel<State : ViewState, Action : ViewAction, Event : Vie
 	protected abstract suspend fun reducer(action: Action)
 
 	protected fun emitAction(action: Action) {
+		if (BuildConfig.DEBUG)
+			Log.i("ViewModel", "${this::class.simpleName}::emitAction: $action")
+
 		viewModelScope.launch { actionFlow.emit(action) }
 	}
 
@@ -45,10 +50,16 @@ abstract class BaseViewModel<State : ViewState, Action : ViewAction, Event : Vie
 	}
 
 	fun setState(state: State) {
+		if (BuildConfig.DEBUG)
+			Log.i("ViewModel", "${this::class.simpleName}::setState: $state")
+
 		stateFlow.value = state
 	}
 
 	fun sendEvent(event: Event) {
+		if (BuildConfig.DEBUG)
+			Log.i("ViewModel", "${this::class.simpleName}::sendEvent: $event")
+
 		viewModelScope.launch { eventChannel.send(event) }
 	}
 }
