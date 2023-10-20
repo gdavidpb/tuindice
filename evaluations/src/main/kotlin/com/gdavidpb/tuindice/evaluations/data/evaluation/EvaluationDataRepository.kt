@@ -37,8 +37,7 @@ class EvaluationDataRepository(
 			.transform { localEvaluations ->
 				val isOnCooldown = settingsDataSource.isGetEvaluationsOnCooldown()
 
-				if (localEvaluations.isNotEmpty())
-					emit(localEvaluations)
+				emit(localEvaluations)
 
 				if (!isOnCooldown) {
 					val remoteEvaluations = remoteDataSource.getEvaluations()
