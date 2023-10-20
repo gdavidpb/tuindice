@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.rememberDialogState
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.hasCamera
@@ -26,7 +27,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SummaryRoute(
 	onNavigateToUpdatePassword: () -> Unit,
-	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit,
+	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: SummaryViewModel = koinViewModel()
 ) {
 	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
@@ -62,7 +63,7 @@ fun SummaryRoute(
 				onNavigateToUpdatePassword()
 
 			is Summary.Event.ShowSnackBar ->
-				showSnackBar(event.message, null, null)
+				showSnackBar(SnackBarMessage(message = event.message))
 
 			is Summary.Event.ShowProfilePictureSettingsDialog ->
 				dialogState.value = SummaryDialog.ProfilePictureSettings(

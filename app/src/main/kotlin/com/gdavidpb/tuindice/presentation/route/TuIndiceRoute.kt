@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.presentation.route
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -135,17 +136,23 @@ fun TuIndiceRoute(
 		onNavigateTo = navController::navigatePopUpTo,
 		onNavigateBack = navController::popBackStack,
 		onSetLastScreen = viewModel::setLastScreenAction
-	) { message, actionLabel, action ->
+	) { (message, actionLabel, onAction, onDismissed) ->
 		coroutineScope.launch {
 			snackbarHostState.currentSnackbarData?.dismiss()
 
 			val snackBarResult = snackbarHostState.showSnackbar(
 				message = message,
-				actionLabel = actionLabel
+				actionLabel = actionLabel,
+				duration = if (actionLabel == null)
+					SnackbarDuration.Short
+				else
+					SnackbarDuration.Long
 			)
 
-			if (snackBarResult == SnackbarResult.ActionPerformed)
-				action?.invoke()
+			when (snackBarResult) {
+				SnackbarResult.ActionPerformed -> onAction?.invoke()
+				SnackbarResult.Dismissed -> onDismissed?.invoke()
+			}
 		}
 	}
 }

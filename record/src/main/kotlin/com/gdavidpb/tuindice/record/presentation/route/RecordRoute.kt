@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpdateSubjectParams
 import com.gdavidpb.tuindice.record.presentation.contract.Record
@@ -14,7 +15,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun RecordRoute(
 	onNavigateToUpdatePassword: () -> Unit,
-	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit,
+	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: RecordViewModel = koinViewModel()
 ) {
 	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
@@ -25,7 +26,7 @@ fun RecordRoute(
 				onNavigateToUpdatePassword()
 
 			is Record.Event.ShowSnackBar ->
-				showSnackBar(event.message, null, null)
+				showSnackBar(SnackBarMessage(message = event.message))
 		}
 	}
 

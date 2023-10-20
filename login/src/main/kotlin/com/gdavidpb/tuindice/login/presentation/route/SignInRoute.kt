@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.login.presentation.route
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
@@ -13,7 +14,7 @@ import org.koin.androidx.compose.koinViewModel
 fun SignInRoute(
 	onNavigateToSummary: () -> Unit,
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
-	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit,
+	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: SignInViewModel = koinViewModel()
 ) {
 	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
@@ -31,9 +32,11 @@ fun SignInRoute(
 
 			is SignIn.Event.ShowSnackBar ->
 				showSnackBar(
-					event.message,
-					event.actionLabel,
-					viewModel::signInAction
+					SnackBarMessage(
+						message = event.message,
+						actionLabel = event.actionLabel,
+						onAction = viewModel::signInAction
+					)
 				)
 		}
 	}
