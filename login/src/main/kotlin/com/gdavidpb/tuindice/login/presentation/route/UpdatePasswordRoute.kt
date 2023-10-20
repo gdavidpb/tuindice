@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.login.presentation.route
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.login.presentation.viewmodel.UpdatePasswordViewModel
@@ -12,7 +13,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun UpdatePasswordRoute(
 	onDismissRequest: () -> Unit,
-	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit,
+	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: UpdatePasswordViewModel = koinViewModel()
 ) {
 	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
@@ -23,7 +24,7 @@ fun UpdatePasswordRoute(
 				onDismissRequest()
 
 			is UpdatePassword.Event.ShowSnackBar ->
-				showSnackBar(event.message, null, null)
+				showSnackBar(SnackBarMessage(message = event.message))
 		}
 	}
 

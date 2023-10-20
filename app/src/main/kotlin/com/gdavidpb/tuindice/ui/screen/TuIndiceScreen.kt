@@ -24,6 +24,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.about.presentation.navigation.aboutScreen
+import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.navigation.browserScreen
@@ -66,7 +67,7 @@ fun TuIndiceScreen(
 	onNavigateTo: (destination: Destination) -> Unit,
 	onNavigateBack: () -> Unit,
 	onSetLastScreen: (route: String) -> Unit,
-	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit
+	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	if (state !is Main.State.Content) return
 

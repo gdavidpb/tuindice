@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.enrollmentproof.presentation.route
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.openFile
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
@@ -15,7 +16,7 @@ import java.io.File
 fun EnrollmentProofFetchRoute(
 	onNavigateToUpdatePassword: () -> Unit,
 	onDismissRequest: () -> Unit,
-	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit,
+	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: EnrollmentProofViewModel = koinViewModel()
 ) {
 	val context = LocalContext.current
@@ -32,7 +33,7 @@ fun EnrollmentProofFetchRoute(
 				context.openFile(file = File(event.path))
 
 			is Enrollment.Event.ShowSnackBar ->
-				showSnackBar(event.message, null, null)
+				showSnackBar(SnackBarMessage(message = event.message))
 		}
 	}
 
