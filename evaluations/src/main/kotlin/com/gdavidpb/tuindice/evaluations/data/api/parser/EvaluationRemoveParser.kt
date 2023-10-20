@@ -3,10 +3,7 @@ package com.gdavidpb.tuindice.evaluations.data.api.parser
 import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
-import com.gdavidpb.tuindice.base.utils.extension.bodyAs
-import com.gdavidpb.tuindice.base.utils.extension.bodyToString
 import com.gdavidpb.tuindice.base.utils.extension.findAnnotation
-import com.gdavidpb.tuindice.evaluations.data.api.request.RemoveEvaluationRequest
 import com.gdavidpb.tuindice.transactions.data.api.transaction.RequestParser
 import okhttp3.Request
 import retrofit2.http.DELETE
@@ -17,17 +14,15 @@ class EvaluationRemoveParser : RequestParser {
 	}
 
 	override fun parse(request: Request): Transaction {
-		val body = request.bodyAs<RemoveEvaluationRequest>()
-		val json = request.bodyToString()
+		val evaluationId = request.url.queryParameter("eid")
 
-		requireNotNull(body)
-		requireNotNull(json)
+		requireNotNull(evaluationId)
 
 		return Transaction(
-			reference = body.evaluationId,
+			reference = evaluationId,
 			type = TransactionType.EVALUATION,
 			action = TransactionAction.DELETE,
-			data = json
+			data = ""
 		)
 	}
 }
