@@ -37,9 +37,11 @@ class EvaluationDataRepository(
 			.transform { localEvaluations ->
 				val isOnCooldown = settingsDataSource.isGetEvaluationsOnCooldown()
 
-				emit(localEvaluations)
+				if (isOnCooldown)
+					emit(localEvaluations)
+				else {
+					if (localEvaluations.isNotEmpty()) emit(localEvaluations)
 
-				if (!isOnCooldown) {
 					val remoteEvaluations = remoteDataSource.getEvaluations()
 
 					localDataSource.saveEvaluations(uid, remoteEvaluations)

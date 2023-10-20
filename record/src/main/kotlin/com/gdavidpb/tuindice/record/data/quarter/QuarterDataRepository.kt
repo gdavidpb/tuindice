@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.transform
 
 class QuarterDataRepository(
@@ -24,9 +25,11 @@ class QuarterDataRepository(
 			.transform { localQuarters ->
 				val isOnCooldown = settingsDataSource.isGetQuartersOnCooldown()
 
-				emit(localQuarters)
+				if (isOnCooldown)
+					emit(localQuarters)
+				else {
+					if (localQuarters.isNotEmpty()) emit(localQuarters)
 
-				if (!isOnCooldown) {
 					val remoteQuarters = remoteDataSource.getQuarters()
 
 					localDataSource.saveQuarters(uid, remoteQuarters)
