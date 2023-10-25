@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.evaluations.presentation.route.AddEvaluationRoute
 
@@ -20,7 +21,7 @@ fun NavController.navigateToEvaluation(args: EvaluationArgs) {
 
 fun NavGraphBuilder.addEvaluationScreen(
 	navigateToEvaluations: () -> Unit,
-	showSnackBar: (message: String, actionLabel: String?, action: (() -> Unit)?) -> Unit
+	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	composable(Destination.AddEvaluation.route) {
 		AddEvaluationRoute(

@@ -50,6 +50,12 @@ object Evaluations {
 		class RemoveEvaluation(
 			val evaluationId: String
 		) : Action()
+
+		class ConfirmRemoveEvaluation(
+			val evaluationId: String
+		) : Action()
+
+		object CloseDialog : Action()
 	}
 
 	sealed class Event : ViewEvent {
@@ -58,6 +64,13 @@ object Evaluations {
 		class NavigateToEvaluation(
 			val evaluationId: String
 		) : Event()
+
+		class ShowRemoveEvaluationDialog(
+			val evaluationId: String,
+			val message: String
+		) : Event()
+
+		object CloseDialog : Event()
 
 		class ShowSnackBar(
 			val message: String
