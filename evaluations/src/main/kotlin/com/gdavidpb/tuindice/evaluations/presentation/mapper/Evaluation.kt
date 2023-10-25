@@ -7,10 +7,11 @@ import androidx.compose.material.icons.outlined.Apartment
 import androidx.compose.material.icons.outlined.AreaChart
 import androidx.compose.material.icons.outlined.BackHand
 import androidx.compose.material.icons.outlined.Build
-import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.CoPresent
-import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Event
+import androidx.compose.material.icons.outlined.EventAvailable
+import androidx.compose.material.icons.outlined.EventRepeat
 import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.HistoryEdu
 import androidx.compose.material.icons.outlined.ModeComment
@@ -57,10 +58,11 @@ fun Evaluation.toEvaluationItem() = EvaluationItem(
 		MaterialTheme.colorScheme.error
 	else
 		Color.Unspecified,
-	dateIcon = if (isCompleted)
-		Icons.Outlined.Done
-	else
-		Icons.Outlined.CalendarToday,
+	dateIcon = when {
+		isCompleted -> Icons.Outlined.EventAvailable
+		isContinuous -> Icons.Outlined.EventRepeat
+		else -> Icons.Outlined.Event
+	},
 	dateIconColor = when {
 		isCompleted -> MaterialTheme.colorScheme.primary
 		isGradeRequired -> MaterialTheme.colorScheme.error

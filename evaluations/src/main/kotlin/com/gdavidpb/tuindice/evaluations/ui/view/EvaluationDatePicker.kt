@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -112,7 +112,7 @@ fun EvaluationDatePicker(
 			Icon(
 				modifier = Modifier
 					.padding(end = dimensionResource(id = R.dimen.dp_12)),
-				imageVector = Icons.Outlined.CalendarToday,
+				imageVector = Icons.Outlined.Event,
 				tint = MaterialTheme.colorScheme.onSurface,
 				contentDescription = ""
 			)
