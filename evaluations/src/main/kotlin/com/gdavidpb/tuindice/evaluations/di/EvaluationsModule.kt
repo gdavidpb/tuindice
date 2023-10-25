@@ -28,6 +28,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluati
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.RemoveEvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.AddEvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -48,6 +49,7 @@ val evaluationsModule = module {
 	factoryOf(::EvaluationsReducer)
 	factoryOf(::AvailableSubjectsReducer)
 	factoryOf(::AddEvaluationReducer)
+	factoryOf(::RemoveEvaluationReducer)
 
 	/* Use cases */
 

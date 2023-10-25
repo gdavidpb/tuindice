@@ -38,22 +38,23 @@ fun EvaluationsView(
 				val dismissState = rememberDismissState(
 					positionalThreshold = { _ -> 0f },
 					confirmValueChange = { confirmValue ->
-						when (confirmValue) {
-							DismissValue.DismissedToEnd ->
-								onEvaluationIsCompletedChange(
-									evaluation.evaluationId,
-									!evaluation.isCompleted
-								)
+						if (dismissProgress.floatValue > THRESHOLD_EVALUATION_SWIPE)
+							when (confirmValue) {
+								DismissValue.DismissedToEnd ->
+									onEvaluationIsCompletedChange(
+										evaluation.evaluationId,
+										!evaluation.isCompleted
+									)
 
-							DismissValue.DismissedToStart ->
-								onEvaluationDelete(
-									evaluation.evaluationId
-								)
+								DismissValue.DismissedToStart ->
+									onEvaluationDelete(
+										evaluation.evaluationId
+									)
 
-							else -> {}
-						}
+								else -> {}
+							}
 
-						dismissProgress.floatValue > THRESHOLD_EVALUATION_SWIPE
+						false
 					}
 				)
 

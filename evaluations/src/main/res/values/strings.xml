@@ -36,6 +36,10 @@
     <string name="label_state_completed">Completadas</string>
     <string name="label_state_not_grade">Sin nota</string>
 
-    <string name="snack_add_evaluation_done">¡Evaluación agregada!</string>
+    <string name="dialog_title_remove_evaluation">Atención</string>
+    <string name="dialog_message_remove_evaluation">¿Está seguro que deseas eliminar la evaluación?</string>
+
+    <string name="snack_evaluation_added">Evaluación agregada</string>
+    <string name="snack_evaluation_removed">Evaluación removida</string>
 
 </resources>

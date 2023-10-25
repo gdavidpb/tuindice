@@ -29,7 +29,7 @@ class AddEvaluationReducer(
 		return flow {
 			emit(
 				AddEvaluation.Event.ShowSnackBar(
-					message = resourceResolver.getString(R.string.snack_add_evaluation_done)
+					message = resourceResolver.getString(R.string.snack_evaluation_added)
 				)
 			)
 
