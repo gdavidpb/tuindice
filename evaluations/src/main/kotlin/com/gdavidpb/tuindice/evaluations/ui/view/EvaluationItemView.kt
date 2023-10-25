@@ -55,6 +55,7 @@ fun EvaluationItemView(
 			Column {
 				Text(
 					modifier = Modifier
+						.padding(bottom = dimensionResource(id = R.dimen.dp_6))
 						.fillMaxWidth(),
 					text = item.name,
 					maxLines = 1,
