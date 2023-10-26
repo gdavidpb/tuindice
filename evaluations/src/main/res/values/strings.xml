@@ -37,7 +37,8 @@
     <string name="label_state_not_grade">Sin nota</string>
 
     <string name="dialog_title_remove_evaluation">Atención</string>
-    <string name="dialog_message_remove_evaluation">¿Está seguro que deseas eliminar la evaluación?</string>
+    <string name="dialog_message_remove_evaluation">¿Eliminar %1$s ─ %2$s?</string>
+    <string name="dialog_button_remove_evaluation">Eliminar</string>
 
     <string name="snack_evaluation_added">Evaluación agregada</string>
     <string name="snack_evaluation_removed">Evaluación removida</string>

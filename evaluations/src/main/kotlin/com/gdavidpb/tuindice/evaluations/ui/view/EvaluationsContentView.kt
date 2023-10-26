@@ -25,6 +25,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsToNow
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 
 @Composable
@@ -33,9 +34,9 @@ fun EvaluationsContentView(
 	onAddEvaluationClick: () -> Unit,
 	onClearFiltersClick: () -> Unit,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
-	onEvaluationClick: (evaluationId: String) -> Unit,
-	onEvaluationDelete: (evaluationId: String) -> Unit,
-	onEvaluationIsCompletedChange: (evaluationId: String, isCompleted: Boolean) -> Unit
+	onEvaluationClick: (evaluation: EvaluationItem) -> Unit,
+	onEvaluationDelete: (evaluation: EvaluationItem) -> Unit,
+	onEvaluationIsCompletedChange: (evaluation: EvaluationItem, isCompleted: Boolean) -> Unit
 ) {
 	val lazyColumState = rememberLazyListState()
 

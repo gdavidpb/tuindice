@@ -49,10 +49,11 @@ fun Evaluation.toEvaluationItem() = EvaluationItem(
 		type.asString(),
 		ordinal
 	),
-	description = stringResource(
+	subjectCode = subject.code,
+	typeAndSubjectCode = stringResource(
 		id = R.string.evaluation_title, type.asString(), subject.code
 	),
-	descriptionIcon = type.asIcon(),
+	typeIcon = type.asIcon(),
 	date = date.formatAsDayOfWeekAndDate(),
 	dateColor = if (isGradeRequired)
 		MaterialTheme.colorScheme.error
