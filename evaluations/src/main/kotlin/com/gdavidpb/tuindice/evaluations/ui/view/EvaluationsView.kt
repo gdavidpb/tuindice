@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
 
@@ -20,9 +21,9 @@ import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
 fun EvaluationsView(
 	evaluations: List<EvaluationsGroupItem>,
 	lazyListState: LazyListState,
-	onEvaluationClick: (evaluationId: String) -> Unit,
-	onEvaluationDelete: (evaluationId: String) -> Unit,
-	onEvaluationIsCompletedChange: (evaluationId: String, isCompleted: Boolean) -> Unit
+	onEvaluationClick: (evaluation: EvaluationItem) -> Unit,
+	onEvaluationDelete: (evaluation: EvaluationItem) -> Unit,
+	onEvaluationIsCompletedChange: (evaluation: EvaluationItem, isCompleted: Boolean) -> Unit
 ) {
 	LazyColumn(
 		state = lazyListState
@@ -42,13 +43,13 @@ fun EvaluationsView(
 							when (confirmValue) {
 								DismissValue.DismissedToEnd ->
 									onEvaluationIsCompletedChange(
-										evaluation.evaluationId,
+										evaluation,
 										!evaluation.isCompleted
 									)
 
 								DismissValue.DismissedToStart ->
 									onEvaluationDelete(
-										evaluation.evaluationId
+										evaluation
 									)
 
 								else -> {}
@@ -68,7 +69,7 @@ fun EvaluationsView(
 						modifier = Modifier
 							.clickable {
 								onEvaluationClick(
-									evaluation.evaluationId
+									evaluation
 								)
 							}
 							.animateItemPlacement(),

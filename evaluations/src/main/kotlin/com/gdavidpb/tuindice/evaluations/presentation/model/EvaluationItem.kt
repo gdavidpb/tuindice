@@ -6,8 +6,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 data class EvaluationItem(
 	val evaluationId: String,
 	val name: String,
-	val description: String,
-	val descriptionIcon: ImageVector,
+	val subjectCode: String,
+	val typeAndSubjectCode: String,
+	val typeIcon: ImageVector,
 	val date: String,
 	val dateColor: Color,
 	val dateIcon: ImageVector,

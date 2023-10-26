@@ -73,7 +73,7 @@ fun EvaluationItemView(
 					Icon(
 						modifier = Modifier
 							.size(dimensionResource(id = R.dimen.dp_16)),
-						imageVector = item.descriptionIcon,
+						imageVector = item.typeIcon,
 						tint = MaterialTheme.colorScheme.outline,
 						contentDescription = null
 					)
@@ -81,7 +81,7 @@ fun EvaluationItemView(
 					Text(
 						modifier = Modifier
 							.padding(start = dimensionResource(id = R.dimen.dp_12)),
-						text = item.description,
+						text = item.typeAndSubjectCode,
 						maxLines = 1,
 						overflow = TextOverflow.Ellipsis,
 						style = MaterialTheme.typography.bodyMedium
@@ -113,8 +113,7 @@ fun EvaluationItemView(
 						maxLines = 1,
 						overflow = TextOverflow.Ellipsis,
 						color = item.dateColor,
-						style = MaterialTheme.typography.bodyMedium,
-						fontWeight = FontWeight.Light
+						style = MaterialTheme.typography.bodyMedium
 					)
 				}
 

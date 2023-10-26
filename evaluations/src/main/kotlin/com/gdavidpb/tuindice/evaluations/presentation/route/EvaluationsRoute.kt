@@ -36,7 +36,7 @@ fun EvaluationsRoute(
 
 			is Evaluations.Event.NavigateToEvaluation ->
 				onNavigateToEvaluation(
-					event.evaluationId
+					event.evaluation.evaluationId
 				)
 
 			is Evaluations.Event.ShowSnackBar ->
@@ -44,8 +44,7 @@ fun EvaluationsRoute(
 
 			is Evaluations.Event.ShowRemoveEvaluationDialog ->
 				dialogState.value = EvaluationsDialog.RemoveEvaluationDialog(
-					evaluationId = event.evaluationId,
-					message = event.message
+					evaluation = event.evaluation
 				)
 
 			is Evaluations.Event.CloseDialog ->
@@ -61,7 +60,7 @@ fun EvaluationsRoute(
 		is EvaluationsDialog.RemoveEvaluationDialog ->
 			RemoveEvaluationDialog(
 				sheetState = sheetState,
-				evaluationId = state.evaluationId,
+				evaluation = state.evaluation,
 				onConfirmClick = viewModel::confirmRemoveEvaluationAction,
 				onDismissRequest = viewModel::closeDialogAction
 			)

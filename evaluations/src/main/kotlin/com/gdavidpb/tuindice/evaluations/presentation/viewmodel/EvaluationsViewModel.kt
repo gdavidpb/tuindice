@@ -1,13 +1,12 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.base.utils.extension.collect
-import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.RemoveEvaluationReducer
 
@@ -15,8 +14,7 @@ class EvaluationsViewModel(
 	private val getEvaluationsUseCase: GetEvaluationsUseCase,
 	private val evaluationsReducer: EvaluationsReducer,
 	private val removeEvaluationUseCase: RemoveEvaluationUseCase,
-	private val removeEvaluationReducer: RemoveEvaluationReducer,
-	private val resourceResolver: ResourceResolver
+	private val removeEvaluationReducer: RemoveEvaluationReducer
 ) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Event>(initialViewState = Evaluations.State.Loading) {
 
 	fun loadEvaluationsAction() =
@@ -31,20 +29,20 @@ class EvaluationsViewModel(
 	fun addEvaluationAction() =
 		emitAction(Evaluations.Action.AddEvaluation)
 
-	fun editEvaluationAction(evaluationId: String) =
-		emitAction(Evaluations.Action.EditEvaluation(evaluationId))
+	fun editEvaluationAction(evaluation: EvaluationItem) =
+		emitAction(Evaluations.Action.EditEvaluation(evaluation))
 
-	fun removeEvaluationAction(evaluationId: String) =
-		emitAction(Evaluations.Action.RemoveEvaluation(evaluationId))
+	fun removeEvaluationAction(evaluation: EvaluationItem) =
+		emitAction(Evaluations.Action.RemoveEvaluation(evaluation))
 
-	fun confirmRemoveEvaluationAction(evaluationId: String) =
-		emitAction(Evaluations.Action.ConfirmRemoveEvaluation(evaluationId))
+	fun confirmRemoveEvaluationAction(evaluation: EvaluationItem) =
+		emitAction(Evaluations.Action.ConfirmRemoveEvaluation(evaluation))
 
-	fun updateEvaluationIsCompletedAction(evaluationId: String, isCompleted: Boolean) =
+	fun updateEvaluationIsCompletedAction(evaluation: EvaluationItem, isCompleted: Boolean) =
 		if (isCompleted)
-			emitAction(Evaluations.Action.CheckEvaluationAsCompleted(evaluationId))
+			emitAction(Evaluations.Action.CheckEvaluationAsCompleted(evaluation))
 		else
-			emitAction(Evaluations.Action.UncheckEvaluationAsCompleted(evaluationId))
+			emitAction(Evaluations.Action.UncheckEvaluationAsCompleted(evaluation))
 
 	fun closeDialogAction() =
 		emitAction(Evaluations.Action.CloseDialog)
@@ -85,19 +83,16 @@ class EvaluationsViewModel(
 					Evaluations.Event.NavigateToAddEvaluation
 				)
 
-			is Evaluations.Action. RemoveEvaluation ->
+			is Evaluations.Action.RemoveEvaluation ->
 				sendEvent(
 					Evaluations.Event.ShowRemoveEvaluationDialog(
-						evaluationId = action.evaluationId,
-						message = resourceResolver.getString(
-							R.string.dialog_message_remove_evaluation
-						)
+						evaluation = action.evaluation
 					)
 				)
 
 			is Evaluations.Action.ConfirmRemoveEvaluation ->
 				removeEvaluationUseCase
-					.execute(params = action.evaluationId)
+					.execute(params = action.evaluation.evaluationId)
 					.collect(viewModel = this, reducer = removeEvaluationReducer)
 
 			is Evaluations.Action.CheckEvaluationAsCompleted -> {
@@ -111,7 +106,7 @@ class EvaluationsViewModel(
 			is Evaluations.Action.EditEvaluation ->
 				sendEvent(
 					Evaluations.Event.NavigateToEvaluation(
-						evaluationId = action.evaluationId
+						evaluation = action.evaluation
 					)
 				)
 
