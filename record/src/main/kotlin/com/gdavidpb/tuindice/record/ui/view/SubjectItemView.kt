@@ -78,7 +78,6 @@ fun SubjectItemView(
 		) = createRefs()
 
 		Text(
-			text = codeString,
 			modifier = Modifier
 				.constrainAs(textCode) {
 					start.linkTo(parent.start)
@@ -87,22 +86,22 @@ fun SubjectItemView(
 
 					width = Dimension.fillToConstraints
 				},
+			text = codeString,
 			maxLines = 1,
 			overflow = TextOverflow.Ellipsis
 		)
 
 		Text(
-			text = gradeString,
 			modifier = Modifier
 				.constrainAs(textGrade) {
 					end.linkTo(parent.end)
 					top.linkTo(parent.top)
 				},
+			text = gradeString,
 			fontWeight = FontWeight.Medium
 		)
 
 		Text(
-			text = name,
 			modifier = Modifier
 				.constrainAs(textName) {
 					start.linkTo(parent.start)
@@ -114,32 +113,24 @@ fun SubjectItemView(
 				.padding(
 					end = dimensionResource(id = R.dimen.dp_16)
 				),
+			text = name,
 			maxLines = 1,
 			fontWeight = FontWeight.Light,
 			overflow = TextOverflow.Ellipsis
 		)
 
 		Text(
-			text = stringResource(id = R.string.subject_credits, credits),
 			modifier = Modifier
 				.constrainAs(textCredits) {
 					end.linkTo(textGrade.end)
 					top.linkTo(textGrade.bottom)
 				},
+			text = stringResource(id = R.string.subject_credits, credits),
 			fontWeight = FontWeight.Light
 		)
 
 		if (isEditable) {
 			Slider(
-				value = grade.toFloat(),
-				steps = MAX_SUBJECT_GRADE - 1,
-				valueRange = Ranges.subjectGrade,
-				onValueChange = { grade ->
-					onGradeChange(grade.toInt(), false)
-				},
-				onValueChangeFinished = {
-					onGradeChange(grade, true)
-				},
 				modifier = Modifier
 					.constrainAs(sliderGrade) {
 						start.linkTo(parent.start)
@@ -148,7 +139,16 @@ fun SubjectItemView(
 						bottom.linkTo(parent.bottom)
 
 						width = Dimension.fillToConstraints
-					}
+					},
+				value = grade.toFloat(),
+				steps = MAX_SUBJECT_GRADE - 1,
+				valueRange = Ranges.subjectGrade,
+				onValueChange = { grade ->
+					onGradeChange(grade.toInt(), false)
+				},
+				onValueChangeFinished = {
+					onGradeChange(grade, true)
+				}
 			)
 		}
 	}
