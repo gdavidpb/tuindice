@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.base.utils.extension.ViewAction
 import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
 import com.gdavidpb.tuindice.base.utils.extension.ViewState
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 
 object Evaluations {
 	sealed class State : ViewState {
@@ -34,43 +33,23 @@ object Evaluations {
 			val filter: EvaluationFilter
 		) : Action()
 
-		class CheckEvaluationAsCompleted(
-			val evaluation: EvaluationItem
-		) : Action()
-
-		class UncheckEvaluationAsCompleted(
-			val evaluation: EvaluationItem
-		) : Action()
-
 		object AddEvaluation : Action()
 
 		class EditEvaluation(
-			val evaluation: EvaluationItem
+			val evaluationId: String
 		) : Action()
 
 		class RemoveEvaluation(
-			val evaluation: EvaluationItem
+			val evaluationId: String
 		) : Action()
-
-		class ConfirmRemoveEvaluation(
-			val evaluation: EvaluationItem
-		) : Action()
-
-		object CloseDialog : Action()
 	}
 
 	sealed class Event : ViewEvent {
 		object NavigateToAddEvaluation : Event()
 
 		class NavigateToEvaluation(
-			val evaluation: EvaluationItem
+			val evaluationId: String
 		) : Event()
-
-		class ShowRemoveEvaluationDialog(
-			val evaluation: EvaluationItem
-		) : Event()
-
-		object CloseDialog : Event()
 
 		class ShowSnackBar(
 			val message: String

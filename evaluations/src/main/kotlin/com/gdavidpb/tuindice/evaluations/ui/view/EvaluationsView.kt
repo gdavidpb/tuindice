@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
 
@@ -21,9 +20,9 @@ import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
 fun EvaluationsView(
 	evaluations: List<EvaluationsGroupItem>,
 	lazyListState: LazyListState,
-	onEvaluationClick: (evaluation: EvaluationItem) -> Unit,
-	onEvaluationDelete: (evaluation: EvaluationItem) -> Unit,
-	onEvaluationIsCompletedChange: (evaluation: EvaluationItem, isCompleted: Boolean) -> Unit
+	onEvaluationClick: (evaluationId: String) -> Unit,
+	onEvaluationEdit: (evaluationId: String) -> Unit,
+	onEvaluationDelete: (evaluationId: String) -> Unit
 ) {
 	LazyColumn(
 		state = lazyListState
@@ -33,7 +32,10 @@ fun EvaluationsView(
 				EvaluationHeaderView(label = title)
 			}
 
-			items(items) { evaluation ->
+			items(
+				items = items,
+				key = { evaluation -> evaluation.evaluationId }
+			) { evaluation ->
 				val dismissProgress = remember { mutableFloatStateOf(0f) }
 
 				val dismissState = rememberDismissState(
@@ -42,15 +44,15 @@ fun EvaluationsView(
 						if (dismissProgress.floatValue > THRESHOLD_EVALUATION_SWIPE)
 							when (confirmValue) {
 								DismissValue.DismissedToEnd ->
-									onEvaluationIsCompletedChange(
-										evaluation,
-										!evaluation.isCompleted
+									onEvaluationEdit(
+										evaluation.evaluationId
 									)
 
-								DismissValue.DismissedToStart ->
+								DismissValue.DismissedToStart -> {
 									onEvaluationDelete(
-										evaluation
+										evaluation.evaluationId
 									)
+								}
 
 								else -> {}
 							}
@@ -62,14 +64,13 @@ fun EvaluationsView(
 				dismissProgress.floatValue = dismissState.progress
 
 				EvaluationSwipeToDismiss(
-					isCompleted = evaluation.isCompleted,
 					state = dismissState
 				) {
 					EvaluationItemView(
 						modifier = Modifier
 							.clickable {
 								onEvaluationClick(
-									evaluation
+									evaluation.evaluationId
 								)
 							}
 							.animateItemPlacement(),

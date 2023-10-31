@@ -1,16 +1,16 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
@@ -18,96 +18,152 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.R
-import com.gdavidpb.tuindice.evaluations.utils.SCALE_EVALUATION_SWIPE_ICON_MAX
-import com.gdavidpb.tuindice.evaluations.utils.SCALE_EVALUATION_SWIPE_ICON_MIN
 import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EvaluationSwipeToDismiss(
-	isCompleted: Boolean,
 	state: DismissState,
 	dismissContent: @Composable RowScope.() -> Unit
 ) {
+	val boxWidth = remember {
+		mutableFloatStateOf(0f)
+	}
+
+	val backgroundInfo = getBackgroundInfo(
+		dismissState = state,
+		width = boxWidth.floatValue
+	)
+
 	SwipeToDismiss(
 		state = state,
 		background = {
-			val direction = state.dismissDirection
+			val (color, icon, text, alignment, offset) = backgroundInfo
 
-			val color by animateColorAsState(
-				targetValue = when (state.targetValue) {
-					DismissValue.Default ->
-						Color.Transparent
-
-					DismissValue.DismissedToEnd ->
-						MaterialTheme.colorScheme.primaryContainer
-
-					DismissValue.DismissedToStart ->
-						MaterialTheme.colorScheme.errorContainer
-				},
-				label = "SwipeToDismiss_animateColorAsState"
-			)
-
-			val icon = when (direction) {
-				DismissDirection.StartToEnd ->
-					if (isCompleted) Icons.AutoMirrored.Filled.Undo else Icons.Default.Done
-
-				DismissDirection.EndToStart ->
-					Icons.Default.Delete
-
-				else -> null
-			}
-
-			val alignment = when (direction) {
-				DismissDirection.StartToEnd ->
-					Alignment.CenterStart
-
-				DismissDirection.EndToStart ->
-					Alignment.CenterEnd
-
-				else -> null
-			}
-
-			val scale by animateFloatAsState(
-				targetValue = when (state.targetValue) {
-					DismissValue.Default ->
-						0f
-
-					DismissValue.DismissedToEnd, DismissValue.DismissedToStart ->
-						if (state.progress < THRESHOLD_EVALUATION_SWIPE)
-							SCALE_EVALUATION_SWIPE_ICON_MIN
-						else
-							SCALE_EVALUATION_SWIPE_ICON_MAX
-				},
-				label = "SwipeToDismiss_animateFloatAsState"
-			)
-
-			if (icon != null && alignment != null)
+			if (icon != null &&
+				text != null &&
+				alignment != null &&
+				offset != null
+			) {
 				Box(
 					modifier = Modifier
 						.fillMaxSize()
 						.background(color),
 					contentAlignment = alignment
 				) {
-					Icon(
+					Row(
 						modifier = Modifier
-							.padding(
-								horizontal = dimensionResource(id = R.dimen.dp_24)
-							)
-							.scale(scale),
-						imageVector = icon,
-						contentDescription = ""
-					)
+							.offset(x = offset)
+							.onPlaced { layout ->
+								boxWidth.floatValue = layout.size.width.toFloat()
+							}
+					) {
+						Icon(
+							modifier = Modifier
+								.padding(
+									end = dimensionResource(id = R.dimen.dp_4)
+								),
+							imageVector = icon,
+							contentDescription = null
+						)
+
+						Text(text = text)
+					}
 				}
+			}
 		},
 		dismissContent = dismissContent
 	)
 }
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun getBackgroundInfo(dismissState: DismissState, width: Float): BackgroundInfo {
+	val color by animateColorAsState(
+		targetValue = when (dismissState.targetValue) {
+			DismissValue.DismissedToEnd ->
+				MaterialTheme.colorScheme.primaryContainer
+
+			DismissValue.DismissedToStart ->
+				MaterialTheme.colorScheme.errorContainer
+
+			else ->
+				Color.Transparent
+		},
+		label = "SwipeToDismiss_animateColorAsState"
+	)
+
+	return when (dismissState.dismissDirection) {
+		DismissDirection.StartToEnd -> BackgroundInfo(
+			color = color,
+			icon = Icons.Outlined.Edit,
+			text = stringResource(id = R.string.label_evaluation_swipe_edit),
+			alignment = Alignment.CenterStart,
+			offset = getOffset(
+				progress = dismissState.progress,
+				direction = -1f,
+				width = width
+			)
+		)
+
+		DismissDirection.EndToStart -> BackgroundInfo(
+			color = color,
+			icon = Icons.Default.Delete,
+			text = stringResource(id = R.string.label_evaluation_swipe_delete),
+			alignment = Alignment.CenterEnd,
+			offset = getOffset(
+				progress = dismissState.progress,
+				direction = 1f,
+				width = width
+			)
+		)
+
+		else -> BackgroundInfo(
+			color = color,
+			icon = null,
+			text = null,
+			alignment = null,
+			offset = 0.dp
+		)
+	}
+}
+
+@Composable
+@ReadOnlyComposable
+private fun getOffset(progress: Float, direction: Float, width: Float): Dp {
+	val padding = LocalContext.current.resources.getDimension(R.dimen.dp_8)
+
+	return (width * direction * (THRESHOLD_EVALUATION_SWIPE - progress))
+		.let { offset ->
+			if (direction < 0)
+				offset.coerceAtMost(padding)
+			else
+				offset.coerceAtLeast(-padding)
+		}
+		.dp
+}
+
+private data class BackgroundInfo(
+	val color: Color,
+	val icon: ImageVector?,
+	val text: String?,
+	val alignment: Alignment?,
+	val offset: Dp?
+)

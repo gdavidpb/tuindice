@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.RemoveEvaluationReducer
 
@@ -29,23 +28,11 @@ class EvaluationsViewModel(
 	fun addEvaluationAction() =
 		emitAction(Evaluations.Action.AddEvaluation)
 
-	fun editEvaluationAction(evaluation: EvaluationItem) =
-		emitAction(Evaluations.Action.EditEvaluation(evaluation))
+	fun editEvaluationAction(evaluationId: String) =
+		emitAction(Evaluations.Action.EditEvaluation(evaluationId))
 
-	fun removeEvaluationAction(evaluation: EvaluationItem) =
-		emitAction(Evaluations.Action.RemoveEvaluation(evaluation))
-
-	fun confirmRemoveEvaluationAction(evaluation: EvaluationItem) =
-		emitAction(Evaluations.Action.ConfirmRemoveEvaluation(evaluation))
-
-	fun updateEvaluationIsCompletedAction(evaluation: EvaluationItem, isCompleted: Boolean) =
-		if (isCompleted)
-			emitAction(Evaluations.Action.CheckEvaluationAsCompleted(evaluation))
-		else
-			emitAction(Evaluations.Action.UncheckEvaluationAsCompleted(evaluation))
-
-	fun closeDialogAction() =
-		emitAction(Evaluations.Action.CloseDialog)
+	fun removeEvaluationAction(evaluationId: String) =
+		emitAction(Evaluations.Action.RemoveEvaluation(evaluationId))
 
 	override suspend fun reducer(action: Evaluations.Action) {
 		when (action) {
@@ -83,37 +70,17 @@ class EvaluationsViewModel(
 					Evaluations.Event.NavigateToAddEvaluation
 				)
 
-			is Evaluations.Action.RemoveEvaluation ->
-				sendEvent(
-					Evaluations.Event.ShowRemoveEvaluationDialog(
-						evaluation = action.evaluation
-					)
-				)
-
-			is Evaluations.Action.ConfirmRemoveEvaluation ->
-				removeEvaluationUseCase
-					.execute(params = action.evaluation.evaluationId)
-					.collect(viewModel = this, reducer = removeEvaluationReducer)
-
-			is Evaluations.Action.CheckEvaluationAsCompleted -> {
-				// TODO CheckEvaluationAsCompleted
-			}
-
-			is Evaluations.Action.UncheckEvaluationAsCompleted -> {
-				// TODO UncheckEvaluationAsCompleted
-			}
-
 			is Evaluations.Action.EditEvaluation ->
 				sendEvent(
 					Evaluations.Event.NavigateToEvaluation(
-						evaluation = action.evaluation
+						evaluationId = action.evaluationId
 					)
 				)
 
-			is Evaluations.Action.CloseDialog ->
-				sendEvent(
-					Evaluations.Event.CloseDialog
-				)
+			is Evaluations.Action.RemoveEvaluation ->
+				removeEvaluationUseCase
+					.execute(params = action.evaluationId)
+					.collect(viewModel = this, reducer = removeEvaluationReducer)
 		}
 	}
 }

@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -102,7 +100,7 @@ fun EvaluationItemView(
 						modifier = Modifier
 							.size(dimensionResource(id = R.dimen.dp_16)),
 						imageVector = item.dateIcon,
-						tint = item.dateIconColor,
+						tint = item.highlightIconColor,
 						contentDescription = null
 					)
 
@@ -112,7 +110,7 @@ fun EvaluationItemView(
 						text = item.date,
 						maxLines = 1,
 						overflow = TextOverflow.Ellipsis,
-						color = item.dateColor,
+						color = item.highlightTextColor,
 						style = MaterialTheme.typography.bodyMedium
 					)
 				}
@@ -127,8 +125,8 @@ fun EvaluationItemView(
 						Icon(
 							modifier = Modifier
 								.size(dimensionResource(id = R.dimen.dp_16)),
-							imageVector = Icons.Outlined.BookmarkBorder,
-							tint = item.dateIconColor,
+							imageVector = item.gradesIcon,
+							tint = item.highlightIconColor,
 							contentDescription = null
 						)
 
@@ -138,7 +136,7 @@ fun EvaluationItemView(
 							text = item.grades,
 							maxLines = 1,
 							overflow = TextOverflow.Ellipsis,
-							color = item.dateColor,
+							color = item.highlightTextColor,
 							style = MaterialTheme.typography.bodyMedium
 						)
 					}
