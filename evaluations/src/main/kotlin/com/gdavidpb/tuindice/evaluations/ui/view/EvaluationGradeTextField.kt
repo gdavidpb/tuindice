@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DonutLarge
@@ -21,7 +22,9 @@ fun EvaluationGradeTextField(
 	modifier: Modifier = Modifier,
 	grade: Double?,
 	onGradeChange: (grade: Double?) -> Unit,
-	error: String? = null
+	error: String? = null,
+	imeAction: ImeAction = ImeAction.Default,
+	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
 	OutlinedTextField(
 		modifier = modifier,
@@ -54,9 +57,10 @@ fun EvaluationGradeTextField(
 			)
 		},
 		keyboardOptions = KeyboardOptions(
-			imeAction = ImeAction.Next,
+			imeAction = imeAction,
 			keyboardType = KeyboardType.Decimal
 		),
+		keyboardActions = keyboardActions,
 		singleLine = true
 	)
 }

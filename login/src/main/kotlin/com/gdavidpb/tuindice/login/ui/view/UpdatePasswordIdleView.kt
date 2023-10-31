@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 
@@ -58,6 +59,7 @@ fun UpdatePasswordIdleView(
 			password = state.password,
 			onPasswordChange = onPasswordChange,
 			error = state.error,
+			imeAction = ImeAction.Done,
 			keyboardActions = KeyboardActions(onDone = {
 				if (state.password.isNotEmpty()) onConfirmClick()
 			})

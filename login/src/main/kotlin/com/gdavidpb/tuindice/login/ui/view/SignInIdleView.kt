@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.gdavidpb.tuindice.login.R
@@ -77,6 +78,7 @@ fun SignInIdleView(
 				),
 			password = state.password,
 			onPasswordChange = onPasswordChange,
+			imeAction = ImeAction.Done,
 			keyboardActions = KeyboardActions(onDone = {
 				if (isSignInEnabled) onSignInClick()
 			})

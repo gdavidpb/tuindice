@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material3.FloatingActionButton
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.R
@@ -115,7 +117,9 @@ fun AddEvaluationContentView(
 				modifier = Modifier
 					.fillMaxWidth(),
 				grade = state.maxGrade,
-				onGradeChange = onMaxGradeChange
+				onGradeChange = onMaxGradeChange,
+				imeAction = ImeAction.Done,
+				keyboardActions = KeyboardActions(onDone = { onDoneClick() })
 			)
 		}
 

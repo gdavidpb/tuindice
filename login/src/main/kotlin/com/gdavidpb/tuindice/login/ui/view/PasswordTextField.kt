@@ -28,6 +28,7 @@ fun PasswordTextField(
 	password: String,
 	onPasswordChange: (password: String) -> Unit,
 	error: String? = null,
+	imeAction: ImeAction = ImeAction.Default,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
 	val passwordField = remember { mutableStateOf(TextFieldValue(password)) }
@@ -67,7 +68,7 @@ fun PasswordTextField(
 			)
 		},
 		keyboardOptions = KeyboardOptions(
-			imeAction = ImeAction.Done,
+			imeAction = imeAction,
 			keyboardType = KeyboardType.Password
 		),
 		keyboardActions = keyboardActions,
