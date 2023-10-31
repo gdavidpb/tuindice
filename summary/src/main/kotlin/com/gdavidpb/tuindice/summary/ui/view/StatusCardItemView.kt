@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -17,7 +16,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import com.gdavidpb.tuindice.summary.R
@@ -28,15 +27,14 @@ fun StatusCardItemView(
 	header: String,
 	entries: List<SummaryEntry>
 ) {
-	val lineWidth = with(LocalDensity.current) { dimensionResource(id = R.dimen.dp_8).toPx() }
+	val lineWidth = LocalContext.current.resources.getDimension(R.dimen.dp_8)
 
 	ElevatedCard(
 		modifier = Modifier
 			.fillMaxWidth()
-			.height(dimensionResource(id = R.dimen.dp_128))
 			.padding(
 				horizontal = dimensionResource(id = R.dimen.dp_16),
-				vertical = dimensionResource(id = R.dimen.dp_8)
+				vertical = dimensionResource(id = R.dimen.dp_12)
 			)
 	) {
 		Text(
@@ -103,8 +101,8 @@ fun RowScope.DistributionView(
 	weight: Float,
 	color: Color
 ) {
-	val height = with(LocalDensity.current) { dimensionResource(id = R.dimen.dp_6).toPx() }
-	val radius = with(LocalDensity.current) { dimensionResource(id = R.dimen.dp_8).toPx() }
+	val height = LocalContext.current.resources.getDimension(R.dimen.dp_6)
+	val radius = LocalContext.current.resources.getDimension(R.dimen.dp_8)
 
 	Text(
 		modifier = Modifier

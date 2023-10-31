@@ -39,7 +39,9 @@ fun SummaryContentView(
 		isLoading = state.isProfilePictureLoading
 	)
 
-	val updatingTransition = rememberInfiniteTransition()
+	val updatingTransition = rememberInfiniteTransition(
+		label = "SummaryContentView_rememberInfiniteTransition"
+	)
 
 	val updatingAnimation = updatingTransition.animateFloat(
 		initialValue = 0f,
@@ -49,7 +51,8 @@ fun SummaryContentView(
 				durationMillis = 500,
 				easing = LinearEasing
 			)
-		)
+		),
+		label = "SummaryContentView_animateFloat"
 	)
 
 	Column(

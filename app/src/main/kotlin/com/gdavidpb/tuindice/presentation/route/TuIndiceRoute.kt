@@ -18,7 +18,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.rememberDialogState
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
@@ -38,15 +37,12 @@ import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.review.ReviewManager
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.getKoin
 import org.koin.compose.koinInject
-import org.koin.core.Koin
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialNavigationApi::class)
 @Composable
 fun TuIndiceRoute(
 	startData: String?,
-	koin: Koin = getKoin(),
 	reviewManager: ReviewManager = koinInject(),
 	appUpdateManager: AppUpdateManager = koinInject(),
 	viewModel: MainViewModel = koinViewModel()
@@ -127,11 +123,6 @@ fun TuIndiceRoute(
 				is TopBarAction.FetchEnrollmentProofAction ->
 					navController.navigateToEnrollmentProofFetch()
 			}
-		},
-		onNavigateToHome = {
-			koin.deleteScope(
-				scopeId = Destination.AddEvaluation.route
-			)
 		},
 		onNavigateTo = navController::navigatePopUpTo,
 		onNavigateBack = navController::popBackStack,

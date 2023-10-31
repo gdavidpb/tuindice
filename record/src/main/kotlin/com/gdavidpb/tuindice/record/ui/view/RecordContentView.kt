@@ -16,7 +16,10 @@ fun RecordContentView(
 		modifier = Modifier
 			.fillMaxSize()
 	) {
-		items(state.quarters) { quarter ->
+		items(
+			items = state.quarters,
+			key = { quarter -> quarter.id }
+		) { quarter ->
 			with(quarter) {
 				QuarterItemView(
 					name = name,
