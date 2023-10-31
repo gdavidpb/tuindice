@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsFailedView
@@ -14,9 +13,9 @@ import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsLoadingView
 fun EvaluationsScreen(
 	state: Evaluations.State,
 	onAddEvaluationClick: () -> Unit,
-	onEvaluationClick: (evaluation: EvaluationItem) -> Unit,
-	onEvaluationDelete: (evaluation: EvaluationItem) -> Unit,
-	onEvaluationIsCompletedChange: (evaluation: EvaluationItem, isCompleted: Boolean) -> Unit,
+	onEvaluationClick: (evaluationId: String) -> Unit,
+	onEvaluationEdit: (evaluationId: String) -> Unit,
+	onEvaluationDelete: (evaluationId: String) -> Unit,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
 	onClearFiltersClick: () -> Unit,
 	onRetryClick: () -> Unit
@@ -33,8 +32,8 @@ fun EvaluationsScreen(
 					state = targetState,
 					onAddEvaluationClick = onAddEvaluationClick,
 					onEvaluationClick = onEvaluationClick,
+					onEvaluationEdit = onEvaluationEdit,
 					onEvaluationDelete = onEvaluationDelete,
-					onEvaluationIsCompletedChange = onEvaluationIsCompletedChange,
 					onClearFiltersClick = onClearFiltersClick,
 					onFilterCheckedChange = onFilterCheckedChange
 				)

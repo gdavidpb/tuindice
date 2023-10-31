@@ -58,7 +58,9 @@ class RoomDataSource(
 	}
 
 	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
-		room.evaluations.deleteEvaluation(uid = uid, eid = remove.evaluationId)
+		val count = room.evaluations.deleteEvaluation(uid = uid, eid = remove.evaluationId)
+
+		check(count == 1)
 	}
 
 	override suspend fun getAvailableSubjects(uid: String): Flow<List<Subject>> {

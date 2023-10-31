@@ -5,6 +5,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Apartment
 import androidx.compose.material.icons.outlined.AreaChart
+import androidx.compose.material.icons.outlined.AssignmentLate
+import androidx.compose.material.icons.outlined.AssignmentTurnedIn
 import androidx.compose.material.icons.outlined.BackHand
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.CoPresent
@@ -50,24 +52,28 @@ fun Evaluation.toEvaluationItem() = EvaluationItem(
 		ordinal
 	),
 	subjectCode = subject.code,
+	grade = grade,
+	maxGrade = maxGrade,
+	highlightIconColor = when {
+		isCompleted -> MaterialTheme.colorScheme.primary
+		isGradeRequired -> MaterialTheme.colorScheme.error
+		else -> MaterialTheme.colorScheme.outline
+	},
+	highlightTextColor = when {
+		isGradeRequired -> MaterialTheme.colorScheme.error
+		else -> Color.Unspecified
+	},
 	typeAndSubjectCode = stringResource(
-		id = R.string.evaluation_title, type.asString(), subject.code
+		id = R.string.evaluation_title,
+		type.asString(),
+		subject.code
 	),
 	typeIcon = type.asIcon(),
 	date = date.formatAsDayOfWeekAndDate(),
-	dateColor = if (isGradeRequired)
-		MaterialTheme.colorScheme.error
-	else
-		Color.Unspecified,
 	dateIcon = when {
 		isCompleted -> Icons.Outlined.EventAvailable
 		isContinuous -> Icons.Outlined.EventRepeat
 		else -> Icons.Outlined.Event
-	},
-	dateIconColor = when {
-		isCompleted -> MaterialTheme.colorScheme.primary
-		isGradeRequired -> MaterialTheme.colorScheme.error
-		else -> MaterialTheme.colorScheme.outline
 	},
 	grades = if (!isGradeRequired)
 		stringResource(
@@ -79,8 +85,11 @@ fun Evaluation.toEvaluationItem() = EvaluationItem(
 		stringResource(
 			id = R.string.evaluation_not_completed
 		),
+	gradesIcon = if (!isGradeRequired)
+		Icons.Outlined.AssignmentTurnedIn
+	else
+		Icons.Outlined.AssignmentLate,
 	isDone = (isCompleted || isContinuous || isGradeRequired),
-	isCompleted = isCompleted,
 	isGradeRequired = isGradeRequired
 )
 

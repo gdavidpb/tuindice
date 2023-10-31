@@ -36,9 +36,10 @@
     <string name="label_state_completed">Completadas</string>
     <string name="label_state_not_grade">Sin nota</string>
 
-    <string name="dialog_title_remove_evaluation">Atención</string>
-    <string name="dialog_message_remove_evaluation">¿Eliminar %1$s ─ %2$s?</string>
-    <string name="dialog_button_remove_evaluation">Eliminar</string>
+    <string name="label_evaluation_swipe_delete">Eliminar</string>
+    <string name="label_evaluation_swipe_edit">Editar</string>
+
+    <string name="dialog_title_add_evaluation_grade">Agregar nota</string>
 
     <string name="snack_evaluation_added">Evaluación agregada</string>
     <string name="snack_evaluation_removed">Evaluación removida</string>

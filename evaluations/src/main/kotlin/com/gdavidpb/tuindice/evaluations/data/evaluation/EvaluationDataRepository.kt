@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.data.evaluation
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.SettingsDataSource
@@ -25,9 +26,11 @@ class EvaluationDataRepository(
 				if (evaluation != null)
 					emit(evaluation)
 				else
-					emit(remoteDataSource.getEvaluation(eid).also { response ->
-						localDataSource.saveEvaluations(uid, listOf(response))
-					})
+					emit(
+						remoteDataSource.getEvaluation(eid).also { response ->
+							localDataSource.saveEvaluations(uid, listOf(response))
+						}
+					)
 			}
 	}
 
@@ -68,8 +71,8 @@ class EvaluationDataRepository(
 	}
 
 	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
-		remoteDataSource.removeEvaluation(remove)
 		localDataSource.removeEvaluation(uid, remove)
+		noAwait { remoteDataSource.removeEvaluation(remove) }
 	}
 
 	override suspend fun getAvailableSubjects(uid: String): Flow<List<Subject>> {

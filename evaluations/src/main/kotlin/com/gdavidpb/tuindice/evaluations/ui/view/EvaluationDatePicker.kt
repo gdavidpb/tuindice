@@ -114,7 +114,7 @@ fun EvaluationDatePicker(
 					.padding(end = dimensionResource(id = R.dimen.dp_12)),
 				imageVector = Icons.Outlined.Event,
 				tint = MaterialTheme.colorScheme.onSurface,
-				contentDescription = ""
+				contentDescription = null
 			)
 
 			Text(
