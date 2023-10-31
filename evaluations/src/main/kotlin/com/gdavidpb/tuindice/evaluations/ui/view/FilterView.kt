@@ -34,7 +34,10 @@ fun FilterView(
 				space = dimensionResource(id = R.dimen.dp_6)
 			)
 	) {
-		items(entries.toList()) { (filter, isChecked) ->
+		items(
+			items = entries.toList(),
+			key = { entry -> entry.first.getLabel() }
+		) { (filter, isChecked) ->
 			FilterChip(
 				selected = isChecked,
 				onClick = {

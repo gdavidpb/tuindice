@@ -22,7 +22,9 @@ fun EvaluationFilterView(
 	)
 
 	LazyColumn {
-		items(filters) { item ->
+		items(
+			items = filters
+		) { item ->
 			FilterView(
 				modifier = Modifier
 					.padding(horizontal = dimensionResource(id = R.dimen.dp_12)),
