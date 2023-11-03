@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Event
@@ -115,9 +114,9 @@ fun EvaluationDatePicker(
 		) {
 			Icon(
 				modifier = Modifier
-					.padding(end = dimensionResource(id = R.dimen.dp_8)),
+					.offset(x = -dimensionResource(id = R.dimen.dp_8)),
 				imageVector = Icons.Outlined.Event,
-				tint = MaterialTheme.colorScheme.onSurface,
+				tint = MaterialTheme.colorScheme.outline,
 				contentDescription = null
 			)
 
