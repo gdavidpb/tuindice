@@ -15,6 +15,7 @@ object AddEvaluation {
 			val subject: Subject? = null,
 			val type: EvaluationType? = null,
 			val date: Long? = null,
+			val isOverdue: Boolean = false,
 			val grade: Double? = null,
 			val maxGrade: Double? = null
 		) : State()
@@ -25,6 +26,14 @@ object AddEvaluation {
 	sealed class Action : ViewAction {
 		object LoadAvailableSubjects : Action()
 
+		data class ClickGrade(
+			val grade: Double
+		) : Action()
+
+		data class ClickMaxGrade(
+			val grade: Double
+		) : Action()
+
 		data class ClickDone(
 			val subject: Subject?,
 			val type: EvaluationType?,
@@ -32,13 +41,25 @@ object AddEvaluation {
 			val grade: Double?,
 			val maxGrade: Double?
 		) : Action()
+
+		object CloseDialog : Action()
 	}
 
 	sealed class Event : ViewEvent {
 		object NavigateToEvaluations : Event()
 
+		class ShowGradePickerDialog(
+			val grade: Double
+		) : Event()
+
+		class ShowMaxGradePickerDialog(
+			val grade: Double
+		) : Event()
+
 		class ShowSnackBar(
 			val message: String
 		) : Event()
+
+		object CloseDialog : Event()
 	}
 }
