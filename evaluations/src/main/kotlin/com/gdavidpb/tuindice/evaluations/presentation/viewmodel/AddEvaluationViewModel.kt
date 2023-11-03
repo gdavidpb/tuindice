@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toAddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsReducer
+import com.gdavidpb.tuindice.evaluations.utils.extension.isOverdue
 
 class AddEvaluationViewModel(
 	private val getAvailableSubjectsUseCase: GetAvailableSubjectsUseCase,
@@ -49,7 +50,20 @@ class AddEvaluationViewModel(
 
 		setState(
 			currentState.copy(
-				date = date
+				date = date,
+				isOverdue = date.isOverdue()
+			)
+		)
+	}
+
+	fun setGrade(grade: Double?) {
+		val currentState = getCurrentState()
+
+		if (currentState !is AddEvaluation.State.Content) return
+
+		setState(
+			currentState.copy(
+				grade = grade
 			)
 		)
 	}
@@ -85,6 +99,15 @@ class AddEvaluationViewModel(
 		)
 	}
 
+	fun clickGradeAction(grade: Double?) =
+		emitAction(AddEvaluation.Action.ClickGrade(grade ?: 0.0))
+
+	fun clickMaxGradeAction(grade: Double?) =
+		emitAction(AddEvaluation.Action.ClickMaxGrade(grade ?: 0.0))
+
+	fun closeDialogAction() =
+		emitAction(AddEvaluation.Action.CloseDialog)
+
 	override suspend fun reducer(action: AddEvaluation.Action) {
 		when (action) {
 			is AddEvaluation.Action.LoadAvailableSubjects ->
@@ -100,6 +123,23 @@ class AddEvaluationViewModel(
 						params = action.toAddEvaluationParams()
 					)
 					.collect(viewModel = this, reducer = addEvaluationReducer)
+
+			is AddEvaluation.Action.ClickGrade ->
+				sendEvent(
+					AddEvaluation.Event.ShowGradePickerDialog(
+						grade = action.grade
+					)
+				)
+
+			is AddEvaluation.Action.ClickMaxGrade ->
+				sendEvent(
+					AddEvaluation.Event.ShowMaxGradePickerDialog(
+						grade = action.grade
+					)
+				)
+
+			is AddEvaluation.Action.CloseDialog ->
+				sendEvent(AddEvaluation.Event.CloseDialog)
 		}
 	}
 }

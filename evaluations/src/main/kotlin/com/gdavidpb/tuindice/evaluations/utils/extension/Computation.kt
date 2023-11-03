@@ -20,7 +20,9 @@ fun Double.toSubjectGrade() = when (roundToInt()) {
 	else -> 1
 }
 
-fun Date.isOverdue() = time != 0L && daysDistance() < 0
+fun Long?.isOverdue() = this != null && Date(this).isOverdue()
+
+fun Date?.isOverdue() = this != null && time != 0L && daysDistance() < 0
 
 fun List<Evaluation>.computeAvailableFilters(resourceResolver: ResourceResolver): List<EvaluationFilter> {
 	val statesFilters = listOf(

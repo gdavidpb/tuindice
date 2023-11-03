@@ -52,6 +52,8 @@ fun EvaluationDatePicker(
 		DatePickerDialog(
 			onDismissRequest = {
 				isPickerDialogOpen.value = false
+
+				datePickerState.setSelection(selectedDate)
 			},
 			confirmButton = {
 				TextButton(
@@ -73,6 +75,8 @@ fun EvaluationDatePicker(
 				TextButton(
 					onClick = {
 						isPickerDialogOpen.value = false
+
+						datePickerState.setSelection(selectedDate)
 					}
 				) {
 					Text(
@@ -111,7 +115,7 @@ fun EvaluationDatePicker(
 		) {
 			Icon(
 				modifier = Modifier
-					.padding(end = dimensionResource(id = R.dimen.dp_12)),
+					.padding(end = dimensionResource(id = R.dimen.dp_8)),
 				imageVector = Icons.Outlined.Event,
 				tint = MaterialTheme.colorScheme.onSurface,
 				contentDescription = null

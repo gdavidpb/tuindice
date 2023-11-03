@@ -15,7 +15,8 @@ fun AddEvaluationScreen(
 	onSubjectChange: (subject: Subject) -> Unit,
 	onTypeChange: (type: EvaluationType) -> Unit,
 	onDateChange: (date: Long?) -> Unit,
-	onMaxGradeChange: (grade: Double?) -> Unit,
+	onGradeClick: (grade: Double?) -> Unit,
+	onMaxGradeClick: (grade: Double?) -> Unit,
 	onDoneClick: () -> Unit,
 	onRetryClick: () -> Unit
 ) {
@@ -32,7 +33,8 @@ fun AddEvaluationScreen(
 					onSubjectChange = onSubjectChange,
 					onTypeChange = onTypeChange,
 					onDateChange = onDateChange,
-					onMaxGradeChange = onMaxGradeChange,
+					onGradeClick = onGradeClick,
+					onMaxGradeClick = onMaxGradeClick,
 					onDoneClick = onDoneClick
 				)
 
