@@ -89,11 +89,7 @@ fun EvaluationItemView(
 				Row(
 					modifier = Modifier
 						.fillMaxWidth()
-						.padding(
-							top = dimensionResource(
-								id = if (item.isDone) R.dimen.dp_16 else R.dimen.dp_6
-							)
-						),
+						.padding(top = dimensionResource(R.dimen.dp_16)),
 					verticalAlignment = Alignment.CenterVertically
 				) {
 					Icon(
@@ -115,31 +111,30 @@ fun EvaluationItemView(
 					)
 				}
 
-				if (item.isDone)
-					Row(
+				Row(
+					modifier = Modifier
+						.fillMaxWidth()
+						.padding(vertical = dimensionResource(id = R.dimen.dp_4)),
+					verticalAlignment = Alignment.CenterVertically
+				) {
+					Icon(
 						modifier = Modifier
-							.fillMaxWidth()
-							.padding(vertical = dimensionResource(id = R.dimen.dp_4)),
-						verticalAlignment = Alignment.CenterVertically
-					) {
-						Icon(
-							modifier = Modifier
-								.size(dimensionResource(id = R.dimen.dp_16)),
-							imageVector = item.gradesIcon,
-							tint = item.highlightIconColor,
-							contentDescription = null
-						)
+							.size(dimensionResource(id = R.dimen.dp_16)),
+						imageVector = item.gradesIcon,
+						tint = item.highlightIconColor,
+						contentDescription = null
+					)
 
-						Text(
-							modifier = Modifier
-								.padding(start = dimensionResource(id = R.dimen.dp_12)),
-							text = item.grades,
-							maxLines = 1,
-							overflow = TextOverflow.Ellipsis,
-							color = item.highlightTextColor,
-							style = MaterialTheme.typography.bodyMedium
-						)
-					}
+					Text(
+						modifier = Modifier
+							.padding(start = dimensionResource(id = R.dimen.dp_12)),
+						text = item.grades,
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis,
+						color = item.highlightTextColor,
+						style = MaterialTheme.typography.bodyMedium
+					)
+				}
 			}
 		}
 	}
