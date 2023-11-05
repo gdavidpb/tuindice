@@ -75,7 +75,7 @@ fun Evaluation.toEvaluationItem() = EvaluationItem(
 		isContinuous -> Icons.Outlined.EventRepeat
 		else -> Icons.Outlined.Event
 	},
-	grades = if (!isGradeRequired)
+	grades = if (isCompleted || isContinuous)
 		stringResource(
 			id = R.string.evaluation_grade,
 			grade,
@@ -83,13 +83,13 @@ fun Evaluation.toEvaluationItem() = EvaluationItem(
 		)
 	else
 		stringResource(
-			id = R.string.evaluation_not_completed
+			id = R.string.evaluation_not_grade,
+			maxGrade
 		),
-	gradesIcon = if (!isGradeRequired)
+	gradesIcon = if (isCompleted || isContinuous)
 		Icons.Outlined.AssignmentTurnedIn
 	else
 		Icons.Outlined.AssignmentLate,
-	isDone = (isCompleted || isContinuous || isGradeRequired),
 	isGradeRequired = isGradeRequired
 )
 
