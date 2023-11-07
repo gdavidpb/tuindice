@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
@@ -32,21 +34,22 @@ fun WheelPicker(
 	state: LazyListState = rememberLazyListState(),
 	itemHeight: Dp,
 	additionalItemCount: Int = WheelPickerDefaults.AdditionalItemCount,
+	itemValidator: (index: Int) -> Boolean = { true },
 	onItemPicked: (index: Int) -> Unit,
 	content: @Composable BoxScope.(index: Int) -> Unit
 ) {
 	val coroutineScope = rememberCoroutineScope()
 	val currentOnItemPicked by rememberUpdatedState(onItemPicked)
+	val currentIndex = remember { mutableIntStateOf(state.firstVisibleItemIndex) }
 
 	val itemHalfHeight = with(LocalDensity.current) { itemHeight.toPx() / 2 }
 
 	LaunchedEffect(state.isScrollInProgress) {
 		if (!state.isScrollInProgress && state.firstVisibleItemScrollOffset != 0) {
-			if (state.firstVisibleItemScrollOffset < itemHalfHeight) {
+			if (state.firstVisibleItemScrollOffset < itemHalfHeight)
 				state.animateScrollToItem(state.firstVisibleItemIndex)
-			} else {
+			else
 				state.animateScrollToItem(state.firstVisibleItemIndex + 1)
-			}
 		}
 	}
 
@@ -54,7 +57,17 @@ fun WheelPicker(
 		snapshotFlow { state.isScrollInProgress }
 			.filter { isScrollInProgress -> !isScrollInProgress && state.firstVisibleItemScrollOffset == 0 }
 			.drop(1)
-			.collect { currentOnItemPicked(state.firstVisibleItemIndex + additionalItemCount) }
+			.collect {
+				val index = state.firstVisibleItemIndex + additionalItemCount
+
+				if (itemValidator(index)) {
+					currentIndex.intValue = state.firstVisibleItemIndex
+
+					currentOnItemPicked(index)
+				} else {
+					state.animateScrollToItem(currentIndex.intValue)
+				}
+			}
 	}
 
 	LazyColumn(
@@ -74,12 +87,10 @@ fun WheelPicker(
 					.height(height = itemHeight)
 					.clickable {
 						if (enabled)
-							coroutineScope.launch {
-								state.animateScrollToItem(
-									(counter - additionalItemCount)
-										.coerceAtLeast(0)
-								)
-							}
+							if (counter - additionalItemCount >= 0)
+								coroutineScope.launch {
+									state.animateScrollToItem(counter - additionalItemCount)
+								}
 					}
 			) {
 				content(counter)

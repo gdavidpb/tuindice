@@ -11,11 +11,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -29,17 +27,18 @@ import com.gdavidpb.tuindice.base.ui.view.WheelPicker
 import com.gdavidpb.tuindice.base.ui.view.WheelPickerDefaults
 import com.gdavidpb.tuindice.base.utils.extension.MeasureUnconstrainedViewSize
 import com.gdavidpb.tuindice.base.utils.extension.fadingEdge
+import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.MAX_EVALUATION_GRADE
+import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.MIN_EVALUATION_GRADE
+import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.computeDecimals
+import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.computeInts
 import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.decimalSeparator
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.decimals
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.decimals_step
 import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.getLoopingIndex
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.ints
 import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.toGrade
 import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.toGradeWheelValue
-import kotlinx.coroutines.launch
 
 object EvaluationGradeWheelPickerDefaults {
 	val ItemSeparatorWidth = 1.5.dp
+	val GradeRange = MIN_EVALUATION_GRADE..MAX_EVALUATION_GRADE
 }
 
 private val fadingBrush = Brush.verticalGradient(
@@ -53,22 +52,23 @@ private val fadingBrush = Brush.verticalGradient(
 fun EvaluationGradeWheelPicker(
 	modifier: Modifier = Modifier,
 	grade: Double,
+	gradeRange: ClosedFloatingPointRange<Double> = EvaluationGradeWheelPickerDefaults.GradeRange,
 	onGradeChange: (grade: Double) -> Unit,
 	additionalItemCount: Int = WheelPickerDefaults.AdditionalItemCount,
 	textStyle: TextStyle = TextStyle.Default
 ) {
-	val coroutineScope = rememberCoroutineScope()
-
 	val currentOnGradeChange by rememberUpdatedState(onGradeChange)
 
 	val currentGrade = remember {
 		mutableStateOf(grade.toGradeWheelValue())
 	}
 
-	val isDecimalEnabled = remember {
-		derivedStateOf {
-			currentGrade.value.int != 100
-		}
+	val ints = remember {
+		gradeRange.computeInts()
+	}
+
+	val decimals = remember {
+		gradeRange.computeDecimals()
 	}
 
 	val intsLoopingStartIndex = getLoopingIndex(
@@ -142,6 +142,13 @@ fun EvaluationGradeWheelPicker(
 				count = Int.MAX_VALUE,
 				additionalItemCount = additionalItemCount,
 				itemHeight = measuredSize.height,
+				itemValidator = { index ->
+					val int = ints[index % ints.size]
+
+					val newGrade = currentGrade.value.copy(int = int).toGrade()
+
+					newGrade in gradeRange
+				},
 				onItemPicked = { index ->
 					val int = ints[index % ints.size]
 
@@ -149,16 +156,7 @@ fun EvaluationGradeWheelPicker(
 						int = int
 					)
 
-					if (int != 100) {
-						currentOnGradeChange(currentGrade.value.toGrade())
-					} else {
-						coroutineScope.launch {
-							val diffIndex = (currentGrade.value.decimal / decimals_step)
-							val newIndex = (decimalsState.firstVisibleItemIndex - diffIndex)
-
-							decimalsState.animateScrollToItem(index = newIndex)
-						}
-					}
+					currentOnGradeChange(currentGrade.value.toGrade())
 				}
 			) { index ->
 				Text(
@@ -196,9 +194,15 @@ fun EvaluationGradeWheelPicker(
 					},
 				state = decimalsState,
 				count = Int.MAX_VALUE,
-				enabled = isDecimalEnabled.value,
 				additionalItemCount = additionalItemCount,
 				itemHeight = measuredSize.height,
+				itemValidator = { index ->
+					val decimal = decimals[index % decimals.size]
+
+					val newGrade = currentGrade.value.copy(decimal = decimal).toGrade()
+
+					newGrade in gradeRange
+				},
 				onItemPicked = { index ->
 					val decimal = decimals[index % decimals.size]
 

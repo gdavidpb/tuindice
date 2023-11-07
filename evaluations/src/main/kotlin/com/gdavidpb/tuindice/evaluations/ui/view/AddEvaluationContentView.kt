@@ -35,7 +35,7 @@ fun AddEvaluationContentView(
 	onSubjectChange: (subject: Subject) -> Unit,
 	onTypeChange: (type: EvaluationType) -> Unit,
 	onDateChange: (date: Long?) -> Unit,
-	onGradeClick: (grade: Double?) -> Unit,
+	onGradeClick: (grade: Double?, maxGrade: Double?) -> Unit,
 	onMaxGradeClick: (grade: Double?) -> Unit,
 	onDoneClick: () -> Unit
 ) {
@@ -143,7 +143,7 @@ fun AddEvaluationContentView(
 					InputChip(
 						selected = false,
 						onClick = {
-							onGradeClick(state.grade)
+							onGradeClick(state.grade, state.maxGrade)
 						},
 						label = {
 							Text(

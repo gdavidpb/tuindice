@@ -99,8 +99,8 @@ class AddEvaluationViewModel(
 		)
 	}
 
-	fun clickGradeAction(grade: Double?) =
-		emitAction(AddEvaluation.Action.ClickGrade(grade ?: 0.0))
+	fun clickGradeAction(grade: Double?, maxGrade: Double?) =
+		emitAction(AddEvaluation.Action.ClickGrade(grade ?: 0.0, maxGrade ?: 0.0))
 
 	fun clickMaxGradeAction(grade: Double?) =
 		emitAction(AddEvaluation.Action.ClickMaxGrade(grade ?: 0.0))
@@ -127,7 +127,8 @@ class AddEvaluationViewModel(
 			is AddEvaluation.Action.ClickGrade ->
 				sendEvent(
 					AddEvaluation.Event.ShowGradePickerDialog(
-						grade = action.grade
+						grade = action.grade,
+						maxGrade = action.maxGrade
 					)
 				)
 
