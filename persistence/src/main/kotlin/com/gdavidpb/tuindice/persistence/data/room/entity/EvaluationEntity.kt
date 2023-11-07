@@ -1,12 +1,16 @@
 package com.gdavidpb.tuindice.persistence.data.room.entity
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.persistence.data.room.schema.AccountTable
 import com.gdavidpb.tuindice.persistence.data.room.schema.EvaluationTable
 import com.gdavidpb.tuindice.persistence.data.room.schema.QuarterTable
 import com.gdavidpb.tuindice.persistence.data.room.schema.SubjectTable
-import java.util.*
+import java.util.Date
 
 @Entity(
 	tableName = EvaluationTable.TABLE_NAME,
@@ -48,7 +52,6 @@ data class EvaluationEntity(
 	@ColumnInfo(name = EvaluationTable.GRADE) val grade: Double,
 	@ColumnInfo(name = EvaluationTable.MAX_GRADE) val maxGrade: Double,
 	@ColumnInfo(name = EvaluationTable.DATE) val date: Date,
-	@ColumnInfo(name = EvaluationTable.LAST_MODIFIED) val lastModified: Date,
 	@ColumnInfo(name = EvaluationTable.IS_COMPLETED) val isCompleted: Boolean,
 	@ColumnInfo(name = EvaluationTable.TYPE) val type: EvaluationType
 )
