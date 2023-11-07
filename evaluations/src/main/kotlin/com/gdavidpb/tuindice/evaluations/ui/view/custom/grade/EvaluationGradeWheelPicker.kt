@@ -93,7 +93,7 @@ fun EvaluationGradeWheelPicker(
 
 	MeasureUnconstrainedViewSize(viewToMeasure = {
 		Text(
-			text = "${ints.last()}",
+			text = "$MAX_EVALUATION_GRADE",
 			style = textStyle
 		)
 	}) { measuredSize ->
