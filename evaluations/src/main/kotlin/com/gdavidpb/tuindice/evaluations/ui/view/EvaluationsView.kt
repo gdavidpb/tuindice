@@ -69,9 +69,10 @@ fun EvaluationsView(
 					EvaluationItemView(
 						modifier = Modifier
 							.clickable {
-								onEvaluationClick(
-									evaluation.evaluationId
-								)
+								if (evaluation.isClickable)
+									onEvaluationClick(
+										evaluation.evaluationId
+									)
 							}
 							.animateItemPlacement(),
 						item = evaluation

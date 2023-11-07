@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableSubjectsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
@@ -28,6 +29,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluati
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.LoadEvaluationGradesReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.RemoveEvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.AddEvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
@@ -48,6 +50,7 @@ val evaluationsModule = module {
 
 	factoryOf(::EvaluationsReducer)
 	factoryOf(::AvailableSubjectsReducer)
+	factoryOf(::LoadEvaluationGradesReducer)
 	factoryOf(::AddEvaluationReducer)
 	factoryOf(::RemoveEvaluationReducer)
 
@@ -55,6 +58,7 @@ val evaluationsModule = module {
 
 	factoryOf(::GetEvaluationAndAvailableSubjectsUseCase)
 	factoryOf(::GetEvaluationsUseCase)
+	factoryOf(::GetEvaluationUseCase)
 	factoryOf(::UpdateEvaluationUseCase)
 	factoryOf(::RemoveEvaluationUseCase)
 	factoryOf(::AddEvaluationUseCase)
