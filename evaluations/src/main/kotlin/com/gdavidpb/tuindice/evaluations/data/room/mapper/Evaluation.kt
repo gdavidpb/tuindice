@@ -17,30 +17,22 @@ fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
-	lastModified = lastModified,
 	type = type,
 	isCompleted = isCompleted
 )
 
-fun EvaluationAdd.toEvaluationEntity(
-	uid: String
-): EvaluationEntity {
-	val date = Date(date)
-
-	return EvaluationEntity(
-		id = reference,
-		subjectId = subjectId,
-		quarterId = quarterId,
-		accountId = uid,
-		ordinal = 0,
-		grade = grade,
-		maxGrade = maxGrade,
-		date = date,
-		lastModified = date,
-		type = type,
-		isCompleted = date.isOverdue()
-	)
-}
+fun EvaluationAdd.toEvaluationEntity(uid: String) = EvaluationEntity(
+	id = reference,
+	subjectId = subjectId,
+	quarterId = quarterId,
+	accountId = uid,
+	ordinal = 0,
+	grade = grade,
+	maxGrade = maxGrade,
+	date = Date(date),
+	type = type,
+	isCompleted = date.isOverdue()
+)
 
 fun EvaluationWithSubject.toEvaluation() = Evaluation(
 	evaluationId = evaluation.id,
@@ -50,7 +42,6 @@ fun EvaluationWithSubject.toEvaluation() = Evaluation(
 	grade = evaluation.grade,
 	maxGrade = evaluation.maxGrade,
 	date = evaluation.date,
-	lastModified = evaluation.lastModified,
 	type = evaluation.type,
 	subject = subject.toSubject(isEditable = true),
 	isCompleted = evaluation.isCompleted,

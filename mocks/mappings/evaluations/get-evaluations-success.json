@@ -17,7 +17,6 @@
         "grade": 0.0,
         "max_grade": 35.0,
         "date": 1690915928000,
-        "last_modified": 1651118400000,
         "type": 0,
         "subject": {
           "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
@@ -38,7 +37,6 @@
         "grade": 17.0,
         "max_grade": 20.0,
         "date": 1686380532000,
-        "last_modified": 1686380532000,
         "type": 10,
         "subject": {
           "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
@@ -59,7 +57,6 @@
         "grade": 2.5,
         "max_grade": 2.5,
         "date": 0,
-        "last_modified": 1647831600000,
         "type": 12,
         "subject": {
           "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
@@ -80,7 +77,6 @@
         "grade": 0.0,
         "max_grade": 35.0,
         "date": 1691035200000,
-        "last_modified": 1686380532000,
         "type": 0,
         "subject": {
           "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
@@ -101,7 +97,6 @@
         "grade": 0.0,
         "max_grade": 20.0,
         "date": 1691175128000,
-        "last_modified": 1686380532000,
         "type": 0,
         "subject": {
           "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
@@ -122,7 +117,6 @@
         "grade": 0.0,
         "max_grade": 15.0,
         "date": 1691779928000,
-        "last_modified": 1686380532000,
         "type": 1,
         "subject": {
           "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",

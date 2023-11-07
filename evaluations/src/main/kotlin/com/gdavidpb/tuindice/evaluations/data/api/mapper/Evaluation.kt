@@ -20,7 +20,6 @@ fun EvaluationResponse.toEvaluation() = Evaluation(
 	grade = grade,
 	maxGrade = maxGrade,
 	date = Date(date),
-	lastModified = Date(lastModified),
 	type = EvaluationType.values()[type],
 	subject = subject.toSubject(isEditable = true),
 	isCompleted = isCompleted,
@@ -36,7 +35,6 @@ fun EvaluationResponse.toEvaluationEntity(uid: String) = EvaluationEntity(
 	grade = grade,
 	maxGrade = maxGrade,
 	date = Date(date),
-	lastModified = Date(lastModified),
 	isCompleted = isCompleted,
 	type = EvaluationType.values()[type]
 )

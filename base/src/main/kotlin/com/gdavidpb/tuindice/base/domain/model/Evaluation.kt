@@ -11,7 +11,6 @@ data class Evaluation(
 	val grade: Double,
 	val maxGrade: Double,
 	val date: Date,
-	val lastModified: Date,
 	val type: EvaluationType,
 	val subject: Subject,
 	val isOverdue: Boolean,
