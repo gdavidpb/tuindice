@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.mapper.toQuarter
 import kotlinx.coroutines.flow.Flow
@@ -21,9 +22,9 @@ class RoomDataSource(
 			.map { evaluations -> evaluations.map { evaluation -> evaluation.toEvaluation() } }
 	}
 
-	override suspend fun getEvaluation(uid: String, eid: String): Flow<Evaluation?> {
+	override suspend fun getEvaluation(uid: String, eid: String): Evaluation {
 		return room.evaluations.getEvaluationWithSubject(uid, eid)
-			.map { evaluation -> evaluation?.toEvaluation() }
+			.toEvaluation()
 	}
 
 	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
@@ -57,14 +58,26 @@ class RoomDataSource(
 		room.evaluations.upsertEntities(evaluationEntities)
 	}
 
-	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
-		val count = room.evaluations.deleteEvaluation(uid = uid, eid = remove.evaluationId)
-
-		check(count == 1)
+	override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate) {
+		room.evaluations.updateEvaluation(
+			uid = uid,
+			eid = update.evaluationId,
+			grade = update.grade,
+			maxGrade = update.maxGrade,
+			date = update.date,
+			type = update.type,
+			isCompleted = update.isCompleted
+		)
 	}
 
-	override suspend fun getAvailableSubjects(uid: String): Flow<List<Subject>> {
+	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
+		room.evaluations.deleteEvaluation(uid = uid, eid = remove.evaluationId)
+	}
+
+	override suspend fun getAvailableSubjects(uid: String): List<Subject> {
 		return room.quarters.getCurrentQuarterWithSubjects(uid)
-			.map { quarter -> quarter?.toQuarter()?.subjects ?: listOf() }
+			?.toQuarter()
+			?.subjects
+			?: emptyList()
 	}
 }
