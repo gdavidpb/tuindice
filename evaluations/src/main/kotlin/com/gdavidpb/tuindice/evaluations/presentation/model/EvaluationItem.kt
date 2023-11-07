@@ -17,5 +17,6 @@ data class EvaluationItem(
 	val dateIcon: ImageVector,
 	val grades: String,
 	val gradesIcon: ImageVector,
-	val isGradeRequired: Boolean
+	val isGradeRequired: Boolean,
+	val isClickable: Boolean
 )

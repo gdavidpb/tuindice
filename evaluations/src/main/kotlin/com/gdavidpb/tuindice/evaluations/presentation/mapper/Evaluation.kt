@@ -6,6 +6,7 @@ import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Apartment
 import androidx.compose.material.icons.outlined.AreaChart
 import androidx.compose.material.icons.outlined.AssignmentLate
+import androidx.compose.material.icons.outlined.AssignmentReturned
 import androidx.compose.material.icons.outlined.AssignmentTurnedIn
 import androidx.compose.material.icons.outlined.BackHand
 import androidx.compose.material.icons.outlined.Build
@@ -75,22 +76,30 @@ fun Evaluation.toEvaluationItem() = EvaluationItem(
 		isContinuous -> Icons.Outlined.EventRepeat
 		else -> Icons.Outlined.Event
 	},
-	grades = if (isCompleted || isContinuous)
-		stringResource(
+	grades = when {
+		isCompleted || isContinuous -> stringResource(
 			id = R.string.evaluation_grade,
 			grade,
 			maxGrade
 		)
-	else
-		stringResource(
+
+		!isOverdue -> stringResource(
+			id = R.string.evaluation_pending_grade,
+			maxGrade
+		)
+
+		else -> stringResource(
 			id = R.string.evaluation_not_grade,
 			maxGrade
-		),
-	gradesIcon = if (isCompleted || isContinuous)
-		Icons.Outlined.AssignmentTurnedIn
-	else
-		Icons.Outlined.AssignmentLate,
-	isGradeRequired = isGradeRequired
+		)
+	},
+	gradesIcon = when {
+		isCompleted || isContinuous -> Icons.Outlined.AssignmentTurnedIn
+		!isOverdue -> Icons.Outlined.AssignmentReturned
+		else -> Icons.Outlined.AssignmentLate
+	},
+	isGradeRequired = isGradeRequired,
+	isClickable = isGradeRequired || isContinuous || isCompleted
 )
 
 @Composable

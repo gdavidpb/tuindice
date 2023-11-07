@@ -35,6 +35,15 @@ object Evaluations {
 
 		object AddEvaluation : Action()
 
+		class ShowEvaluationGradeDialog(
+			val evaluationId: String
+		) : Action()
+
+		class SetEvaluationGrade(
+			val evaluationId: String,
+			val grade: Double
+		) : Action()
+
 		class EditEvaluation(
 			val evaluationId: String
 		) : Action()
@@ -42,6 +51,8 @@ object Evaluations {
 		class RemoveEvaluation(
 			val evaluationId: String
 		) : Action()
+
+		object CloseDialog : Action()
 	}
 
 	sealed class Event : ViewEvent {
@@ -51,8 +62,16 @@ object Evaluations {
 			val evaluationId: String
 		) : Event()
 
+		class ShowGradePickerDialog(
+			val evaluationId: String,
+			val grade: Double,
+			val maxGrade: Double
+		) : Event()
+
 		class ShowSnackBar(
 			val message: String
 		) : Event()
+
+		object CloseDialog : Event()
 	}
 }
