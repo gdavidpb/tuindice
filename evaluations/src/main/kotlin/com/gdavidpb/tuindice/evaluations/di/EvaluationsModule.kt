@@ -31,6 +31,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsR
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.LoadEvaluationGradesReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.RemoveEvaluationReducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.SetEvaluationGradeReducer
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.AddEvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -51,6 +52,7 @@ val evaluationsModule = module {
 	factoryOf(::EvaluationsReducer)
 	factoryOf(::AvailableSubjectsReducer)
 	factoryOf(::LoadEvaluationGradesReducer)
+	factoryOf(::SetEvaluationGradeReducer)
 	factoryOf(::AddEvaluationReducer)
 	factoryOf(::RemoveEvaluationReducer)
 

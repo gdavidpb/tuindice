@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAndAvailableSubj
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.GetEvaluationParams
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 
 class GetEvaluationAndAvailableSubjectsUseCase(
@@ -20,16 +19,16 @@ class GetEvaluationAndAvailableSubjectsUseCase(
 			evaluationRepository
 				.getEvaluation(uid = activeUId, eid = params.evaluationId)
 		else
-			flowOf(null)
+			null
 
 		val availableSubjects = evaluationRepository
 			.getAvailableSubjects(uid = activeUId)
 
-		return evaluation.combine(availableSubjects) { getEvaluation, getAvailableSubjects ->
-			EvaluationAndAvailableSubjects(
-				evaluation = getEvaluation,
-				availableSubjects = getAvailableSubjects
-			)
-		}
+		val evaluationAndAvailableSubjects = EvaluationAndAvailableSubjects(
+			evaluation = evaluation,
+			availableSubjects = availableSubjects
+		)
+
+		return flowOf(evaluationAndAvailableSubjects)
 	}
 }

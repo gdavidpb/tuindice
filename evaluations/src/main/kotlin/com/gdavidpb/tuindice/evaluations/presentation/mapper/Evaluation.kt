@@ -29,8 +29,16 @@ import androidx.compose.ui.res.stringResource
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.R
+import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
+import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
+
+fun (Evaluations.Action.SetEvaluationGrade).toUpdateEvaluationParams() =
+	UpdateEvaluationParams(
+		evaluationId = evaluationId,
+		grade = grade
+	)
 
 @Composable
 @ReadOnlyComposable

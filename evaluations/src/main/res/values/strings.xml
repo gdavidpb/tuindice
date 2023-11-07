@@ -43,6 +43,7 @@
 
     <string name="dialog_title_add_evaluation_grade">Elige una nota</string>
 
+    <string name="snack_evaluation_set_grade">Nota actualizada</string>
     <string name="snack_evaluation_added">Evaluación agregada</string>
     <string name="snack_evaluation_removed">Evaluación removida</string>
 
