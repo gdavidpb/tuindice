@@ -19,19 +19,8 @@ class EvaluationDataRepository(
 	private val remoteDataSource: RemoteDataSource,
 	private val settingsDataSource: SettingsDataSource
 ) : EvaluationRepository {
-	override suspend fun getEvaluation(uid: String, eid: String): Flow<Evaluation> {
+	override suspend fun getEvaluation(uid: String, eid: String): Evaluation {
 		return localDataSource.getEvaluation(uid, eid)
-			.distinctUntilChanged()
-			.transform { evaluation ->
-				if (evaluation != null)
-					emit(evaluation)
-				else
-					emit(
-						remoteDataSource.getEvaluation(eid).also { response ->
-							localDataSource.saveEvaluations(uid, listOf(response))
-						}
-					)
-			}
 	}
 
 	override suspend fun getEvaluations(uid: String): Flow<List<Evaluation>> {
@@ -58,16 +47,12 @@ class EvaluationDataRepository(
 
 	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
 		localDataSource.addEvaluation(uid, add)
-
-		val evaluation = remoteDataSource.addEvaluation(add)
-
-		localDataSource.saveEvaluations(uid, listOf(evaluation))
+		noAwait { remoteDataSource.addEvaluation(add) }
 	}
 
-	override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate): Evaluation {
-		return remoteDataSource.updateEvaluation(update).also { evaluation ->
-			localDataSource.saveEvaluations(uid, listOf(evaluation))
-		}
+	override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate) {
+		localDataSource.updateEvaluation(uid, update)
+		noAwait { remoteDataSource.updateEvaluation(update) }
 	}
 
 	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
@@ -75,7 +60,7 @@ class EvaluationDataRepository(
 		noAwait { remoteDataSource.removeEvaluation(remove) }
 	}
 
-	override suspend fun getAvailableSubjects(uid: String): Flow<List<Subject>> {
+	override suspend fun getAvailableSubjects(uid: String): List<Subject> {
 		return localDataSource.getAvailableSubjects(uid)
 	}
 }

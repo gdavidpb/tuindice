@@ -28,7 +28,7 @@ abstract class QuarterDao : UpsertDao<QuarterEntity>() {
 	@Transaction
 	abstract fun getCurrentQuarterWithSubjects(
 		uid: String
-	): Flow<QuarterWithSubjects?>
+	): QuarterWithSubjects?
 
 	@Query(
 		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
