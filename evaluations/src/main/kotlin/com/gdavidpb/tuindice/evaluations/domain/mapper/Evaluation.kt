@@ -17,7 +17,7 @@ fun AddEvaluationParams.toEvaluationAdd() = EvaluationAdd(
 )
 
 fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(
-	evaluationId = evaluationId!!,
+	evaluationId = evaluationId,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,

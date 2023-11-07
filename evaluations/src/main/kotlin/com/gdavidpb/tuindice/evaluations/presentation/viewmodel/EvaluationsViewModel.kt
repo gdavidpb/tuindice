@@ -6,16 +6,21 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toUpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.LoadEvaluationGradesReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.RemoveEvaluationReducer
+import com.gdavidpb.tuindice.evaluations.presentation.reducer.SetEvaluationGradeReducer
 
 class EvaluationsViewModel(
 	private val getEvaluationsUseCase: GetEvaluationsUseCase,
 	private val evaluationsReducer: EvaluationsReducer,
 	private val getEvaluationUseCase: GetEvaluationUseCase,
 	private val loadEvaluationGradesReducer: LoadEvaluationGradesReducer,
+	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
+	private val setEvaluationGradeReducer: SetEvaluationGradeReducer,
 	private val removeEvaluationUseCase: RemoveEvaluationUseCase,
 	private val removeEvaluationReducer: RemoveEvaluationReducer
 ) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Event>(initialViewState = Evaluations.State.Loading) {
@@ -88,9 +93,10 @@ class EvaluationsViewModel(
 					.execute(params = action.evaluationId)
 					.collect(viewModel = this, reducer = loadEvaluationGradesReducer)
 
-			is Evaluations.Action.SetEvaluationGrade -> {
-				// TODO
-			}
+			is Evaluations.Action.SetEvaluationGrade ->
+				updateEvaluationUseCase
+					.execute(params = action.toUpdateEvaluationParams())
+					.collect(viewModel = this, reducer = setEvaluationGradeReducer)
 
 			is Evaluations.Action.EditEvaluation ->
 				sendEvent(
