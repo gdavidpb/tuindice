@@ -6,7 +6,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.suspendCoroutine
 import com.google.android.gms.tasks.Task as GMSTask
 import com.google.android.play.core.tasks.Task as CoreTask
@@ -17,14 +16,6 @@ suspend fun <T> GMSTask<T>.awaitOrNull(): T? = runCatching { await() }.getOrNull
 
 suspend fun <T> CoreTask<T>.await(): T? = suspendCoroutine { continuation ->
 	runCatching { Tasks.await(this) }.also(continuation::resumeWith)
-}
-
-suspend fun suspendNoAwait(block: suspend () -> Unit) {
-	CoroutineScope(coroutineContext).launch {
-		runCatching {
-			block()
-		}
-	}
 }
 
 fun noAwait(block: suspend () -> Unit) {

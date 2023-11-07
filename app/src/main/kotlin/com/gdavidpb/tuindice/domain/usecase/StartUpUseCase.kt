@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
-import com.gdavidpb.tuindice.base.utils.extension.suspendNoAwait
+import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.domain.model.StartUpData
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpError
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
@@ -28,9 +28,7 @@ class StartUpUseCase(
 			throw ServicesUnavailableException(servicesStatus)
 		}
 
-		suspendNoAwait {
-			runCatching { configRepository.tryFetch() }
-		}
+		noAwait { configRepository.tryFetch() }
 
 		val isActiveAuth = authRepository.isActiveAuth()
 
