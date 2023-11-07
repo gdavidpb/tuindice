@@ -12,6 +12,8 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationDialog
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.AddEvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.ui.dialog.GradePickerDialog
 import com.gdavidpb.tuindice.evaluations.ui.screen.AddEvaluationScreen
+import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.EvaluationGradeWheelPickerDefaults
+import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.MIN_EVALUATION_GRADE
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -33,7 +35,8 @@ fun AddEvaluationRoute(
 
 			is AddEvaluation.Event.ShowGradePickerDialog ->
 				dialogState.value = EvaluationDialog.GradePicker(
-					grade = event.grade
+					grade = event.grade,
+					maxGrade = event.maxGrade
 				)
 
 			is AddEvaluation.Event.ShowMaxGradePickerDialog ->
@@ -54,6 +57,7 @@ fun AddEvaluationRoute(
 		is EvaluationDialog.GradePicker ->
 			GradePickerDialog(
 				selectedGrade = dialog.grade,
+				gradeRange = MIN_EVALUATION_GRADE..dialog.maxGrade,
 				onGradeChange = viewModel::setGrade,
 				onDismissRequest = viewModel::closeDialogAction
 			)
@@ -61,6 +65,7 @@ fun AddEvaluationRoute(
 		is EvaluationDialog.MaxGradePicker ->
 			GradePickerDialog(
 				selectedGrade = dialog.grade,
+				gradeRange = EvaluationGradeWheelPickerDefaults.GradeRange,
 				onGradeChange = viewModel::setMaxGrade,
 				onDismissRequest = viewModel::closeDialogAction
 			)

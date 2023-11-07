@@ -27,7 +27,8 @@ object AddEvaluation {
 		object LoadAvailableSubjects : Action()
 
 		data class ClickGrade(
-			val grade: Double
+			val grade: Double,
+			val maxGrade: Double
 		) : Action()
 
 		data class ClickMaxGrade(
@@ -49,7 +50,8 @@ object AddEvaluation {
 		object NavigateToEvaluations : Event()
 
 		class ShowGradePickerDialog(
-			val grade: Double
+			val grade: Double,
+			val maxGrade: Double
 		) : Event()
 
 		class ShowMaxGradePickerDialog(

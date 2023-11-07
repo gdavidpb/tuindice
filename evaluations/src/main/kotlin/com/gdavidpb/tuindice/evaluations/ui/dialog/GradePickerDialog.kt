@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.EvaluationGradeWhe
 @Composable
 fun GradePickerDialog(
 	selectedGrade: Double,
+	gradeRange: ClosedFloatingPointRange<Double>,
 	onGradeChange: (grade: Double) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
@@ -41,6 +42,7 @@ fun GradePickerDialog(
 				modifier = Modifier
 					.fillMaxWidth(),
 				grade = selectedGrade,
+				gradeRange = gradeRange,
 				onGradeChange = { grade ->
 					selectedGradeState.doubleValue = grade
 				},
