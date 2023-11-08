@@ -93,15 +93,13 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 		grade: Double? = null,
 		maxGrade: Double? = null,
 		date: Long? = null,
-		type: EvaluationType? = null,
-		isCompleted: Boolean? = null
+		type: EvaluationType? = null
 	) {
 		val update = mapOf(
 			EvaluationTable.GRADE to grade,
 			EvaluationTable.MAX_GRADE to maxGrade,
 			EvaluationTable.DATE to date,
-			EvaluationTable.TYPE to type,
-			EvaluationTable.IS_COMPLETED to isCompleted
+			EvaluationTable.TYPE to type
 		)
 
 		val params = update.values

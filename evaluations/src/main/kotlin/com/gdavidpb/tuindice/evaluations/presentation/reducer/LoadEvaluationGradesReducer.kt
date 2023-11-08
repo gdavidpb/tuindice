@@ -25,7 +25,7 @@ class LoadEvaluationGradesReducer(
 			emit(
 				Evaluations.Event.ShowGradePickerDialog(
 					evaluationId = evaluation.evaluationId,
-					grade = evaluation.grade,
+					grade = evaluation.grade ?: 0.0,
 					maxGrade = evaluation.maxGrade
 				)
 			)

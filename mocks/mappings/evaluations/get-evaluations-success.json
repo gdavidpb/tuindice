@@ -14,7 +14,6 @@
         "sid": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
         "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
         "ordinal": 1,
-        "grade": 0.0,
         "max_grade": 35.0,
         "date": 1690915928000,
         "type": 0,
@@ -26,8 +25,7 @@
           "credits": 3,
           "grade": 0,
           "status": 1
-        },
-        "is_completed": false
+        }
       },
       {
         "id": "msgkQ6C7eir2uiB2tCcSA",
@@ -46,8 +44,7 @@
           "credits": 3,
           "grade": 0,
           "status": 1
-        },
-        "is_completed": true
+        }
       },
       {
         "id": "WZdpMbXq0v8i8KtnUAg",
@@ -66,15 +63,13 @@
           "credits": 3,
           "grade": 0,
           "status": 1
-        },
-        "is_completed": false
+        }
       },
       {
         "id": "f1p0NCJ9cuH7vdsYiGw",
         "sid": "00U3tK0t7sdStu4GjWrJvDVLUofn",
         "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
         "ordinal": 1,
-        "grade": 0.0,
         "max_grade": 35.0,
         "date": 1691035200000,
         "type": 0,
@@ -86,15 +81,13 @@
           "credits": 3,
           "grade": 5,
           "status": 0
-        },
-        "is_completed": false
+        }
       },
       {
         "id": "aINYeiuvk2bh7rq7hAzkQ",
         "sid": "00U3tK0t7sdStu4GjWrJvDVLUofn",
         "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
         "ordinal": 2,
-        "grade": 0.0,
         "max_grade": 20.0,
         "date": 1691175128000,
         "type": 0,
@@ -106,17 +99,15 @@
           "credits": 3,
           "grade": 5,
           "status": 0
-        },
-        "is_completed": false
+        }
       },
       {
         "id": "7sdStu4GjWrJvkj8hmMDV",
         "sid": "00U3tK0t7sdStu4GjWrJvDVLUofn",
         "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
         "ordinal": 1,
-        "grade": 0.0,
         "max_grade": 15.0,
-        "date": 1691779928000,
+        "date": 1709990935000,
         "type": 1,
         "subject": {
           "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
@@ -126,8 +117,7 @@
           "credits": 3,
           "grade": 5,
           "status": 0
-        },
-        "is_completed": false
+        }
       }
     ],
     "fixedDelayMilliseconds": 3000

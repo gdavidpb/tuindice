@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toAddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsReducer
-import com.gdavidpb.tuindice.evaluations.utils.extension.isOverdue
+import com.gdavidpb.tuindice.evaluations.utils.extension.isDatePassed
 
 class AddEvaluationViewModel(
 	private val getAvailableSubjectsUseCase: GetAvailableSubjectsUseCase,
@@ -51,7 +51,7 @@ class AddEvaluationViewModel(
 		setState(
 			currentState.copy(
 				date = date,
-				isOverdue = date.isOverdue()
+				isOverdue = date.isDatePassed()
 			)
 		)
 	}

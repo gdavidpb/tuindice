@@ -7,6 +7,5 @@ data class EvaluationUpdate(
 	val grade: Double?,
 	val maxGrade: Double?,
 	val date: Long?,
-	val type: EvaluationType?,
-	val isCompleted: Boolean?
+	val type: EvaluationType?
 )

@@ -39,7 +39,7 @@ fun EvaluationItemView(
 				.fillMaxWidth()
 				.padding(dimensionResource(id = R.dimen.dp_16))
 		) {
-			if (item.isGradeRequired)
+			if (item.isOverdue)
 				Box(
 					modifier = Modifier
 						.align(Alignment.TopEnd)

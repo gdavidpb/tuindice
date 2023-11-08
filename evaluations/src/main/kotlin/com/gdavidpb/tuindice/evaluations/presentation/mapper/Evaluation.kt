@@ -27,6 +27,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
@@ -63,13 +64,13 @@ fun Evaluation.toEvaluationItem() = EvaluationItem(
 	subjectCode = subject.code,
 	grade = grade,
 	maxGrade = maxGrade,
-	highlightIconColor = when {
-		isCompleted -> MaterialTheme.colorScheme.primary
-		isGradeRequired -> MaterialTheme.colorScheme.error
+	highlightIconColor = when (state) {
+		EvaluationState.COMPLETED -> MaterialTheme.colorScheme.primary
+		EvaluationState.OVERDUE -> MaterialTheme.colorScheme.error
 		else -> MaterialTheme.colorScheme.outline
 	},
-	highlightTextColor = when {
-		isGradeRequired -> MaterialTheme.colorScheme.error
+	highlightTextColor = when (state) {
+		EvaluationState.OVERDUE -> MaterialTheme.colorScheme.error
 		else -> Color.Unspecified
 	},
 	typeAndSubjectCode = stringResource(
@@ -79,35 +80,35 @@ fun Evaluation.toEvaluationItem() = EvaluationItem(
 	),
 	typeIcon = type.asIcon(),
 	date = date.formatAsDayOfWeekAndDate(),
-	dateIcon = when {
-		isCompleted -> Icons.Outlined.EventAvailable
-		isContinuous -> Icons.Outlined.EventRepeat
+	dateIcon = when (state) {
+		EvaluationState.COMPLETED -> Icons.Outlined.EventAvailable
+		EvaluationState.CONTINUOUS -> Icons.Outlined.EventRepeat
 		else -> Icons.Outlined.Event
 	},
-	grades = when {
-		isCompleted || isContinuous -> stringResource(
+	grades = when (state) {
+		EvaluationState.COMPLETED, EvaluationState.CONTINUOUS -> stringResource(
 			id = R.string.evaluation_grade,
-			grade,
+			grade ?: 0.0,
 			maxGrade
 		)
 
-		!isOverdue -> stringResource(
+		EvaluationState.PENDING -> stringResource(
 			id = R.string.evaluation_pending_grade,
 			maxGrade
 		)
 
-		else -> stringResource(
+		EvaluationState.OVERDUE -> stringResource(
 			id = R.string.evaluation_not_grade,
 			maxGrade
 		)
 	},
-	gradesIcon = when {
-		isCompleted || isContinuous -> Icons.Outlined.AssignmentTurnedIn
-		!isOverdue -> Icons.Outlined.AssignmentReturned
-		else -> Icons.Outlined.AssignmentLate
+	gradesIcon = when (state) {
+		EvaluationState.COMPLETED, EvaluationState.CONTINUOUS -> Icons.Outlined.AssignmentTurnedIn
+		EvaluationState.PENDING -> Icons.Outlined.AssignmentReturned
+		EvaluationState.OVERDUE -> Icons.Outlined.AssignmentLate
 	},
-	isGradeRequired = isGradeRequired,
-	isClickable = isGradeRequired || isContinuous || isCompleted
+	isOverdue = (state == EvaluationState.OVERDUE),
+	isClickable = (state != EvaluationState.PENDING)
 )
 
 @Composable

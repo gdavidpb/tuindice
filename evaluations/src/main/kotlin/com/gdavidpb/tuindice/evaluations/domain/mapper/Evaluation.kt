@@ -21,6 +21,5 @@ fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
-	type = type,
-	isCompleted = isCompleted
+	type = type
 )
