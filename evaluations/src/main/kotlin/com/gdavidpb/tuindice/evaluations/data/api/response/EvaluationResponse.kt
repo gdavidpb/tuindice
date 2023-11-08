@@ -8,10 +8,9 @@ data class EvaluationResponse(
 	@SerializedName("sid") val sid: String,
 	@SerializedName("qid") val qid: String,
 	@SerializedName("ordinal") val ordinal: Int,
-	@SerializedName("grade") val grade: Double,
+	@SerializedName("grade") val grade: Double?,
 	@SerializedName("max_grade") val maxGrade: Double,
 	@SerializedName("date") val date: Long,
 	@SerializedName("type") val type: Int,
-	@SerializedName("is_completed") val isCompleted: Boolean,
 	@SerializedName("subject") val subject: SubjectResponse
 )

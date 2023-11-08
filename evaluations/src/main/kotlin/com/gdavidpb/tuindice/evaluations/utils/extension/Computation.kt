@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.utils.extension
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.base.utils.extension.daysDistance
 import com.gdavidpb.tuindice.evaluations.R
@@ -20,21 +21,30 @@ fun Double.toSubjectGrade() = when (roundToInt()) {
 	else -> 1
 }
 
-fun Long?.isOverdue() = this != null && Date(this).isOverdue()
+fun Long?.isDatePassed() = this != null && this != 0L && Date(this).daysDistance() < 0
 
-fun Date?.isOverdue() = this != null && time != 0L && daysDistance() < 0
+fun computeEvaluationState(grade: Double?, date: Long): EvaluationState {
+	val hasDatePassed = date.isDatePassed()
+
+	return when {
+		date == 0L -> EvaluationState.CONTINUOUS
+		grade == null && hasDatePassed -> EvaluationState.OVERDUE
+		grade != null && hasDatePassed -> EvaluationState.COMPLETED
+		else -> EvaluationState.PENDING
+	}
+}
 
 fun List<Evaluation>.computeAvailableFilters(resourceResolver: ResourceResolver): List<EvaluationFilter> {
 	val statesFilters = listOf(
 		EvaluationStateFilter(
 			label = resourceResolver.getString(R.string.label_state_pending)
-		) { evaluation -> !evaluation.isCompleted },
+		) { evaluation -> evaluation.state == EvaluationState.PENDING },
 		EvaluationStateFilter(
 			label = resourceResolver.getString(R.string.label_state_completed)
-		) { evaluation -> evaluation.isCompleted },
+		) { evaluation -> evaluation.state == EvaluationState.COMPLETED },
 		EvaluationStateFilter(
 			label = resourceResolver.getString(R.string.label_state_not_grade)
-		) { evaluation -> evaluation.isGradeRequired }
+		) { evaluation -> evaluation.state == EvaluationState.OVERDUE }
 	)
 
 	val subjectsFilters =

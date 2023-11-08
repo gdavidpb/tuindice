@@ -8,13 +8,10 @@ data class Evaluation(
 	val subjectId: String,
 	val quarterId: String,
 	val ordinal: Int,
-	val grade: Double,
+	val grade: Double?,
 	val maxGrade: Double,
 	val date: Date,
 	val type: EvaluationType,
-	val subject: Subject,
-	val isOverdue: Boolean,
-	val isCompleted: Boolean,
-	val isContinuous: Boolean = (date.time == 0L),
-	val isGradeRequired: Boolean = (isOverdue && !isCompleted)
+	val state: EvaluationState,
+	val subject: Subject
 )

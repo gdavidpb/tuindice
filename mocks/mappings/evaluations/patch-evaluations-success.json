@@ -25,8 +25,7 @@
         "credits": 3,
         "grade": 0,
         "status": 1
-      },
-      "is_completed": true
+      }
     },
     "fixedDelayMilliseconds": 1500
   }

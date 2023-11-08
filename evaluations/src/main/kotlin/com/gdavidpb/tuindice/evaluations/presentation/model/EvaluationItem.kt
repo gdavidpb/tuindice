@@ -7,7 +7,7 @@ data class EvaluationItem(
 	val evaluationId: String,
 	val name: String,
 	val subjectCode: String,
-	val grade: Double,
+	val grade: Double?,
 	val maxGrade: Double,
 	val highlightIconColor: Color,
 	val highlightTextColor: Color,
@@ -17,6 +17,6 @@ data class EvaluationItem(
 	val dateIcon: ImageVector,
 	val grades: String,
 	val gradesIcon: ImageVector,
-	val isGradeRequired: Boolean,
+	val isOverdue: Boolean,
 	val isClickable: Boolean
 )

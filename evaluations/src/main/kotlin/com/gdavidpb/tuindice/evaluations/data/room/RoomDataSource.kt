@@ -65,8 +65,7 @@ class RoomDataSource(
 			grade = update.grade,
 			maxGrade = update.maxGrade,
 			date = update.date,
-			type = update.type,
-			isCompleted = update.isCompleted
+			type = update.type
 		)
 	}
 
