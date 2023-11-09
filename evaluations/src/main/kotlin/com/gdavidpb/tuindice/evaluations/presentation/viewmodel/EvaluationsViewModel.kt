@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
+import androidx.lifecycle.viewModelScope
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
@@ -13,6 +14,11 @@ import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.LoadEvaluationGradesReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.RemoveEvaluationReducer
 import com.gdavidpb.tuindice.evaluations.presentation.reducer.SetEvaluationGradeReducer
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 class EvaluationsViewModel(
 	private val getEvaluationsUseCase: GetEvaluationsUseCase,
@@ -24,6 +30,16 @@ class EvaluationsViewModel(
 	private val removeEvaluationUseCase: RemoveEvaluationUseCase,
 	private val removeEvaluationReducer: RemoveEvaluationReducer
 ) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Event>(initialViewState = Evaluations.State.Loading) {
+
+	private val activeFilters = viewState
+		.filterIsInstance<Evaluations.State.Content>()
+		.map { content -> content.activeFilters }
+		.distinctUntilChanged()
+		.stateIn(
+			scope = viewModelScope,
+			started = SharingStarted.WhileSubscribed(5000L),
+			initialValue = emptyList()
+		)
 
 	fun loadEvaluationsAction() =
 		emitAction(Evaluations.Action.LoadEvaluations)
@@ -56,31 +72,29 @@ class EvaluationsViewModel(
 		when (action) {
 			is Evaluations.Action.LoadEvaluations ->
 				getEvaluationsUseCase
-					.execute(params = emptyList())
+					.execute(params = activeFilters)
 					.collect(viewModel = this, reducer = evaluationsReducer)
 
 			is Evaluations.Action.CheckEvaluationFilter -> {
 				val currentState = getCurrentState()
 
-				if (currentState is Evaluations.State.Content) {
-					val activeFilters = currentState.activeFilters + action.filter
-
-					getEvaluationsUseCase
-						.execute(params = activeFilters)
-						.collect(viewModel = this, reducer = evaluationsReducer)
-				}
+				if (currentState is Evaluations.State.Content)
+					setState(
+						currentState.copy(
+							activeFilters = currentState.activeFilters + action.filter
+						)
+					)
 			}
 
 			is Evaluations.Action.UncheckEvaluationFilter -> {
 				val currentState = getCurrentState()
 
-				if (currentState is Evaluations.State.Content) {
-					val activeFilters = currentState.activeFilters - action.filter
-
-					getEvaluationsUseCase
-						.execute(params = activeFilters)
-						.collect(viewModel = this, reducer = evaluationsReducer)
-				}
+				if (currentState is Evaluations.State.Content)
+					setState(
+						currentState.copy(
+							activeFilters = currentState.activeFilters - action.filter
+						)
+					)
 			}
 
 			is Evaluations.Action.AddEvaluation ->
