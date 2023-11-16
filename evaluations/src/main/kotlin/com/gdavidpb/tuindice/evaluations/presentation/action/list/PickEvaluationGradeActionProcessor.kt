@@ -29,11 +29,14 @@ class PickEvaluationGradeActionProcessor(
 					is UseCaseState.Data -> { state ->
 						val evaluation = useCaseState.value
 
-						Evaluations.Effect.ShowGradePickerDialog(
-							evaluationId = evaluation.evaluationId,
-							grade = evaluation.grade ?: 0.0,
-							maxGrade = evaluation.maxGrade
+						sideEffect(
+							Evaluations.Effect.ShowGradePickerDialog(
+								evaluationId = evaluation.evaluationId,
+								grade = evaluation.grade ?: 0.0,
+								maxGrade = evaluation.maxGrade
+							)
 						)
+
 						state
 					}
 
