@@ -39,7 +39,9 @@ class StartUpActionProcessor(
 					is UseCaseState.Error -> { _ ->
 						when (val error = useCaseState.error) {
 							is StartUpError.NoServices ->
-								sideEffect(Main.Effect.ShowNoServicesDialog(status = error.status))
+								sideEffect(
+									Main.Effect.ShowNoServicesDialog(status = error.status)
+								)
 
 							else -> {}
 						}

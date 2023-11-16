@@ -22,7 +22,9 @@ class TakeProfilePictureActionProcessor(
 		return takeProfilePictureUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { state -> state }
+					is UseCaseState.Loading -> { state ->
+						state
+					}
 
 					is UseCaseState.Data -> { state ->
 						sideEffect(

@@ -14,8 +14,10 @@ class OpenProfilePictureSettingsActionProcessor
 		sideEffect: (Summary.Effect) -> Unit
 	): Flow<Mutation<Summary.State>> {
 		return flowOf { state ->
-			Summary.Effect.ShowProfilePictureSettingsDialog(
-				showRemove = state is Summary.State.Content && state.profilePictureUrl.isNotEmpty()
+			sideEffect(
+				Summary.Effect.ShowProfilePictureSettingsDialog(
+					showRemove = state is Summary.State.Content && state.profilePictureUrl.isNotEmpty()
+				)
 			)
 
 			state

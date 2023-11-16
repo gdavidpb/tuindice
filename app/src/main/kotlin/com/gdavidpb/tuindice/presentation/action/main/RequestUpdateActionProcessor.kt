@@ -24,8 +24,10 @@ class RequestUpdateActionProcessor(
 					}
 
 					is UseCaseState.Data -> { state ->
+						sideEffect(
+							Main.Effect.StartUpdateFlow(updateInfo = useCaseState.value)
+						)
 
-						Main.Effect.StartUpdateFlow(updateInfo = useCaseState.value)
 						state
 					}
 
