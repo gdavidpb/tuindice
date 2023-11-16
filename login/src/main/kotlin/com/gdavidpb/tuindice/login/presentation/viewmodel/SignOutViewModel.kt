@@ -1,25 +1,25 @@
 package com.gdavidpb.tuindice.login.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.base.utils.extension.collect
-import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
+import com.gdavidpb.tuindice.login.presentation.action.SignOutActionProcessor
 import com.gdavidpb.tuindice.login.presentation.contract.SignOut
-import com.gdavidpb.tuindice.login.presentation.reducer.SignOutReducer
+import kotlinx.coroutines.flow.Flow
 
 class SignOutViewModel(
-	private val signOutUseCase: SignOutUseCase,
-	private val signOutReducer: SignOutReducer
-) : BaseViewModel<SignOut.State, SignOut.Action, SignOut.Event>(initialViewState = SignOut.State.Idle) {
+	private val signOutActionProcessor: SignOutActionProcessor
+) : BaseViewModel<SignOut.State, SignOut.Action, SignOut.Effect>(initialState = SignOut.State.Idle) {
 
 	fun signOutAction() =
-		emitAction(SignOut.Action.ConfirmSignOut)
+		sendAction(SignOut.Action.ConfirmSignOut)
 
-	override suspend fun reducer(action: SignOut.Action) {
-		when (action) {
+	override fun processAction(
+		action: SignOut.Action,
+		sideEffect: (SignOut.Effect) -> Unit
+	): Flow<Mutation<SignOut.State>> {
+		return when (action) {
 			is SignOut.Action.ConfirmSignOut ->
-				signOutUseCase
-					.execute(Unit)
-					.collect(viewModel = this, reducer = signOutReducer)
+				signOutActionProcessor.process(action, sideEffect)
 		}
 	}
 }

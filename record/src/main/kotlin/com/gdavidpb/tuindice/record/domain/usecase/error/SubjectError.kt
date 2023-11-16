@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.record.domain.usecase.error
 
-sealed class SubjectError {
-	object OutOfRangeGrade : SubjectError()
+import com.gdavidpb.tuindice.base.domain.usecase.base.Error
+
+sealed class SubjectError : Error {
+	data object OutOfRangeGrade : SubjectError()
 }

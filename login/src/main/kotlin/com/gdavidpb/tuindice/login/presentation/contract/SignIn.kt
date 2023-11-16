@@ -1,8 +1,9 @@
 package com.gdavidpb.tuindice.login.presentation.contract
 
-import com.gdavidpb.tuindice.base.utils.extension.ViewAction
-import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
-import com.gdavidpb.tuindice.base.utils.extension.ViewState
+import com.gdavidpb.tuindice.base.presentation.ViewAction
+import com.gdavidpb.tuindice.base.presentation.ViewEffect
+import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
 
 object SignIn {
 	sealed class State : ViewState {
@@ -19,27 +20,40 @@ object SignIn {
 	}
 
 	sealed class Action : ViewAction {
+		class SetUsbId(
+			val usbId: String
+		) : Action()
+
+		class SetPassword(
+			val password: String
+		) : Action()
+
 		class ClickSignIn(
 			val usbId: String,
 			val password: String
 		) : Action()
 
-		object OpenTermsAndConditions : Action()
+		data object ClickTermsAndConditions : Action()
 
-		object OpenPrivacyPolicy : Action()
+		data object ClickPrivacyPolicy : Action()
 	}
 
-	sealed class Event : ViewEvent {
-		object NavigateToSummary : Event()
+	sealed class Effect : ViewEffect {
+		data object NavigateToSummary : Effect()
 
 		class NavigateToBrowser(
 			val title: String,
 			val url: String
-		) : Event()
+		) : Effect()
 
 		class ShowSnackBar(
+			val message: String
+		) : Effect()
+
+		class ShowRetrySnackBar(
 			val message: String,
-			val actionLabel: String? = null
-		) : Event()
+			val actionLabel: String,
+			val params: SignInParams
+		) : Effect()
 	}
 }

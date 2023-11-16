@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.summary.presentation.contract
 
-import com.gdavidpb.tuindice.base.utils.extension.ViewAction
-import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
-import com.gdavidpb.tuindice.base.utils.extension.ViewState
+import com.gdavidpb.tuindice.base.presentation.ViewAction
+import com.gdavidpb.tuindice.base.presentation.ViewEffect
+import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object Summary {
 	sealed class State : ViewState {
-		object Loading : State()
+		data object Loading : State()
 
 		data class Content(
 			val name: String,
@@ -29,27 +29,27 @@ object Summary {
 			val isUpdating: Boolean
 		) : State()
 
-		object Failed : State()
+		data object Failed : State()
 	}
 
 	sealed class Action : ViewAction {
-		object LoadSummary : Action()
-		object TakeProfilePicture : Action()
-		object PickProfilePicture : Action()
+		data object LoadSummary : Action()
+		data object TakeProfilePicture : Action()
+		data object PickProfilePicture : Action()
 		class UploadProfilePicture(val path: String) : Action()
-		object OpenProfilePictureSettings : Action()
-		object RemoveProfilePicture : Action()
-		object ConfirmRemoveProfilePicture : Action()
-		object CloseDialog : Action()
+		data object OpenProfilePictureSettings : Action()
+		data object RemoveProfilePicture : Action()
+		data object ConfirmRemoveProfilePicture : Action()
+		data object CloseDialog : Action()
 	}
 
-	sealed class Event : ViewEvent {
-		class OpenCamera(val output: String) : Event()
-		object OpenPicker : Event()
-		object NavigateToOutdatedPassword : Event()
-		class ShowSnackBar(val message: String) : Event()
-		class ShowProfilePictureSettingsDialog(val showRemove: Boolean) : Event()
-		object ShowRemoveProfilePictureConfirmationDialog : Event()
-		object CloseDialog : Event()
+	sealed class Effect : ViewEffect {
+		class OpenCamera(val output: String) : Effect()
+		data object OpenPicker : Effect()
+		data object NavigateToOutdatedPassword : Effect()
+		class ShowSnackBar(val message: String) : Effect()
+		class ShowProfilePictureSettingsDialog(val showRemove: Boolean) : Effect()
+		data object ShowRemoveProfilePictureConfirmationDialog : Effect()
+		data object CloseDialog : Effect()
 	}
 }

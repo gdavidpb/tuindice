@@ -1,42 +1,42 @@
 package com.gdavidpb.tuindice.about.presentation.contract
 
-import com.gdavidpb.tuindice.base.utils.extension.ViewAction
-import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
-import com.gdavidpb.tuindice.base.utils.extension.ViewState
+import com.gdavidpb.tuindice.base.presentation.ViewAction
+import com.gdavidpb.tuindice.base.presentation.ViewEffect
+import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object About {
 	sealed class State : ViewState {
-		object Idle : State()
+		data object Idle : State()
 	}
 
 	sealed class Action : ViewAction {
-		object OpenTermsAndConditions : Action()
-		object OpenPrivacyPolicy : Action()
+		data object OpenTermsAndConditions : Action()
+		data object OpenPrivacyPolicy : Action()
 		class OpenUrl(val url: String) : Action()
-		object RateOnPlayStore : Action()
-		object ReportBug : Action()
-		object ContactDeveloper : Action()
-		object ShareApp : Action()
+		data object RateOnPlayStore : Action()
+		data object ReportBug : Action()
+		data object ContactDeveloper : Action()
+		data object ShareApp : Action()
 	}
 
-	sealed class Event : ViewEvent {
+	sealed class Effect : ViewEffect {
 		class NavigateToBrowser(
 			val title: String,
 			val url: String
-		) : Event()
+		) : Effect()
 
 		class StartShare(
 			val subject: String,
 			val text: String
-		) : Event()
+		) : Effect()
 
-		object StartPlayStore : Event()
-		object StartEmail : Event()
+		data object StartPlayStore : Effect()
+		data object StartEmail : Effect()
 
 		class StartBrowser(
 			val url: String
-		) : Event()
+		) : Effect()
 
-		object ShowReportBugDialog : Event()
+		data object ShowReportBugDialog : Effect()
 	}
 }

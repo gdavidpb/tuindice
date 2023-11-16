@@ -2,13 +2,13 @@ package com.gdavidpb.tuindice.evaluations.presentation.contract
 
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.base.utils.extension.ViewAction
-import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
-import com.gdavidpb.tuindice.base.utils.extension.ViewState
+import com.gdavidpb.tuindice.base.presentation.ViewAction
+import com.gdavidpb.tuindice.base.presentation.ViewEffect
+import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object AddEvaluation {
 	sealed class State : ViewState {
-		object Loading : State()
+		data object Loading : State()
 
 		data class Content(
 			val availableSubjects: List<Subject>,
@@ -20,22 +20,42 @@ object AddEvaluation {
 			val maxGrade: Double? = null
 		) : State()
 
-		object Failed : State()
+		data object Failed : State()
 	}
 
 	sealed class Action : ViewAction {
-		object LoadAvailableSubjects : Action()
+		data object LoadAvailableSubjects : Action()
 
-		data class ClickGrade(
+		class SetSubject(
+			val subject: Subject
+		) : Action()
+
+		class SetType(
+			val type: EvaluationType
+		) : Action()
+
+		class SetDate(
+			val date: Long?
+		) : Action()
+
+		class SetGrade(
+			val grade: Double?
+		) : Action()
+
+		class SetMaxGrade(
+			val maxGrade: Double?
+		) : Action()
+
+		class ClickGrade(
 			val grade: Double,
 			val maxGrade: Double
 		) : Action()
 
-		data class ClickMaxGrade(
+		class ClickMaxGrade(
 			val grade: Double
 		) : Action()
 
-		data class ClickDone(
+		class ClickDone(
 			val subject: Subject?,
 			val type: EvaluationType?,
 			val date: Long?,
@@ -43,25 +63,25 @@ object AddEvaluation {
 			val maxGrade: Double?
 		) : Action()
 
-		object CloseDialog : Action()
+		data object CloseDialog : Action()
 	}
 
-	sealed class Event : ViewEvent {
-		object NavigateToEvaluations : Event()
+	sealed class Effect : ViewEffect {
+		data object NavigateToEvaluations : Effect()
 
 		class ShowGradePickerDialog(
 			val grade: Double,
 			val maxGrade: Double
-		) : Event()
+		) : Effect()
 
 		class ShowMaxGradePickerDialog(
 			val grade: Double
-		) : Event()
+		) : Effect()
 
 		class ShowSnackBar(
 			val message: String
-		) : Event()
+		) : Effect()
 
-		object CloseDialog : Event()
+		data object CloseDialog : Effect()
 	}
 }

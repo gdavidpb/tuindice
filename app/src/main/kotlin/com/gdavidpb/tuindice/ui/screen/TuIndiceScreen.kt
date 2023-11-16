@@ -27,8 +27,6 @@ import com.gdavidpb.tuindice.about.presentation.navigation.aboutScreen
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
-import com.gdavidpb.tuindice.base.presentation.navigation.browserScreen
-import com.gdavidpb.tuindice.base.presentation.navigation.navigateToBrowser
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.mapScreenDestination
@@ -44,6 +42,8 @@ import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
 import com.gdavidpb.tuindice.login.presentation.navigation.signOutDialog
 import com.gdavidpb.tuindice.login.presentation.navigation.updatePasswordDialog
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.navigation.browserScreen
+import com.gdavidpb.tuindice.presentation.navigation.navigateToBrowser
 import com.gdavidpb.tuindice.record.presentation.navigation.recordScreen
 import com.gdavidpb.tuindice.summary.presentation.navigation.navigateToSummary
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryScreen
@@ -185,15 +185,16 @@ fun TuIndiceScreen(
 					},
 					onDismissRequest = {
 						navController.popBackStack()
-					}
+					},
+					showSnackBar = showSnackBar
 				)
 
 				signInScreen(
 					navigateToSummary = {
 						navController.navigateToSummary()
 					},
-					navigateToBrowser = { args ->
-						navController.navigateToBrowser(args)
+					navigateToBrowser = { title, url ->
+						navController.navigateToBrowser(title, url)
 					},
 					showSnackBar = showSnackBar
 				)
@@ -230,8 +231,8 @@ fun TuIndiceScreen(
 				)
 
 				aboutScreen(
-					navigateToBrowser = { args ->
-						navController.navigateToBrowser(args)
+					navigateToBrowser = { title, url ->
+						navController.navigateToBrowser(title, url)
 					}
 				)
 

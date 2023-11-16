@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.base.utils.extension.sharedPreferences
 import com.gdavidpb.tuindice.data.AuthMockDataSource
@@ -32,9 +31,18 @@ import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.evaluations.data.resolution.EvaluationResolutionHandler
-import com.gdavidpb.tuindice.presentation.reducer.GetUpdateInfoReducer
-import com.gdavidpb.tuindice.presentation.reducer.RequestReviewReducer
-import com.gdavidpb.tuindice.presentation.reducer.StartUpReducer
+import com.gdavidpb.tuindice.presentation.action.browser.CloseBrowserDialogActionProcessor
+import com.gdavidpb.tuindice.presentation.action.browser.ConfirmOpenExternalResourceActionProcessor
+import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
+import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceActionProcessor
+import com.gdavidpb.tuindice.presentation.action.browser.SetLoadingActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.CloseMainDialogActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.SetLastScreenActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
+import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
 import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
@@ -73,11 +81,20 @@ val appMockModule = module {
 	viewModelOf(::MainViewModel)
 	viewModelOf(::BrowserViewModel)
 
-	/* Reducers */
+	/* Action processor */
 
-	factoryOf(::StartUpReducer)
-	factoryOf(::RequestReviewReducer)
-	factoryOf(::GetUpdateInfoReducer)
+	factoryOf(::UpdateStateActionProcessor)
+	factoryOf(::StartUpActionProcessor)
+	factoryOf(::RequestReviewActionProcessor)
+	factoryOf(::RequestUpdateActionProcessor)
+	factoryOf(::SetLastScreenActionProcessor)
+	factoryOf(::CloseMainDialogActionProcessor)
+
+	factoryOf(::NavigateToActionProcessor)
+	factoryOf(::SetLoadingActionProcessor)
+	factoryOf(::OpenExternalResourceActionProcessor)
+	factoryOf(::ConfirmOpenExternalResourceActionProcessor)
+	factoryOf(::CloseBrowserDialogActionProcessor)
 
 	/* Use cases */
 

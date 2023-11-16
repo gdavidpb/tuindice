@@ -2,7 +2,9 @@ package com.gdavidpb.tuindice.enrollmentproof.presentation.route
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.openFile
@@ -19,21 +21,23 @@ fun EnrollmentProofFetchRoute(
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: EnrollmentProofViewModel = koinViewModel()
 ) {
+	val viewState by viewModel.state.collectAsStateWithLifecycle()
+
 	val context = LocalContext.current
 
-	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
-		when (event) {
-			is Enrollment.Event.CloseDialog ->
+	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
+		when (effect) {
+			is Enrollment.Effect.CloseDialog ->
 				onDismissRequest()
 
-			is Enrollment.Event.NavigateToOutdatedPassword ->
+			is Enrollment.Effect.NavigateToOutdatedPassword ->
 				onNavigateToUpdatePassword()
 
-			is Enrollment.Event.OpenEnrollmentProof ->
-				context.openFile(file = File(event.path))
+			is Enrollment.Effect.OpenEnrollmentProof ->
+				context.openFile(file = File(effect.path))
 
-			is Enrollment.Event.ShowSnackBar ->
-				showSnackBar(SnackBarMessage(message = event.message))
+			is Enrollment.Effect.ShowSnackBar ->
+				showSnackBar(SnackBarMessage(message = effect.message))
 		}
 	}
 
@@ -42,6 +46,7 @@ fun EnrollmentProofFetchRoute(
 	}
 
 	EnrollmentProofFetchDialog(
+		state = viewState,
 		onDismissRequest = onDismissRequest
 	)
 }

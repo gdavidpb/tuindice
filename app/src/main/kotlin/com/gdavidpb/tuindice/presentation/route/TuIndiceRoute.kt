@@ -47,7 +47,7 @@ fun TuIndiceRoute(
 	appUpdateManager: AppUpdateManager = koinInject(),
 	viewModel: MainViewModel = koinViewModel()
 ) {
-	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 	val context = LocalContext.current
 	val lifecycleOwner = LocalLifecycleOwner.current
@@ -58,28 +58,28 @@ fun TuIndiceRoute(
 	val snackbarHostState = remember { SnackbarHostState() }
 	val dialogState = rememberDialogState<MainDialog>()
 
-	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
-		when (event) {
-			is Main.Event.StartUpdateFlow ->
+	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
+		when (effect) {
+			is Main.Effect.StartUpdateFlow ->
 				appUpdateManager.startUpdateFlowForResult(
-					event.updateInfo,
+					effect.updateInfo,
 					AppUpdateType.IMMEDIATE,
 					context.findActivity(),
 					RequestCodes.APP_UPDATE
 				)
 
-			is Main.Event.ShowNoServicesDialog ->
+			is Main.Effect.ShowNoServicesDialog ->
 				dialogState.value = MainDialog.GooglePlayServicesUnavailable
 
-			is Main.Event.ShowReviewDialog ->
+			is Main.Effect.ShowReviewDialog ->
 				lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
 					reviewManager.launchReview(
 						activity = context.findActivity(),
-						reviewInfo = event.reviewInfo
+						reviewInfo = effect.reviewInfo
 					)
 				}
 
-			is Main.Event.CloseDialog ->
+			is Main.Effect.CloseDialog ->
 				dialogState.value = null
 		}
 	}
@@ -111,7 +111,7 @@ fun TuIndiceRoute(
 
 	TuIndiceScreen(
 		state = viewState,
-		updateState = viewModel::setState,
+		updateState = viewModel::updateStateAction,
 		navController = navController,
 		bottomSheetNavigator = bottomSheetNavigator,
 		snackbarHostState = snackbarHostState,

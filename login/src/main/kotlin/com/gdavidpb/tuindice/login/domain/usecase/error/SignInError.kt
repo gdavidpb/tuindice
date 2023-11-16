@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.login.domain.usecase.error
 
-sealed class SignInError {
+import com.gdavidpb.tuindice.base.domain.usecase.base.Error
+
+sealed class SignInError : Error {
 	object Timeout : SignInError()
 	object InvalidCredentials : SignInError()
 	object EmptyUsbId : SignInError()

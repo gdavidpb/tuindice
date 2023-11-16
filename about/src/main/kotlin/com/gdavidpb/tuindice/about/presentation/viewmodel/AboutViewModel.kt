@@ -1,76 +1,73 @@
 package com.gdavidpb.tuindice.about.presentation.viewmodel
 
-import com.gdavidpb.tuindice.about.BuildConfig
-import com.gdavidpb.tuindice.about.R
+import com.gdavidpb.tuindice.about.presentation.action.ContactDeveloperActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.OpenPrivacyPolicyActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.OpenTermsAndConditionsActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.OpenUrlActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.RateOnPlayStoreActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.ReportBugActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.base.utils.ResourceResolver
+import kotlinx.coroutines.flow.Flow
 
 class AboutViewModel(
-	private val resourceResolver: ResourceResolver
-) : BaseViewModel<About.State, About.Action, About.Event>(initialViewState = About.State.Idle) {
+	private val contactDeveloperActionProcessor: ContactDeveloperActionProcessor,
+	private val openTermsAndConditionsActionProcessor: OpenTermsAndConditionsActionProcessor,
+	private val openPrivacyPolicyActionProcessor: OpenPrivacyPolicyActionProcessor,
+	private val shareAppActionProcessor: ShareAppActionProcessor,
+	private val rateOnPlayStoreActionProcessor: RateOnPlayStoreActionProcessor,
+	private val reportBugActionProcessor: ReportBugActionProcessor,
+	private val openUrlActionProcessor: OpenUrlActionProcessor
+) : BaseViewModel<About.State, About.Action, About.Effect>(initialState = About.State.Idle) {
 
 	fun openTermsAndConditionsAction() =
-		emitAction(About.Action.OpenTermsAndConditions)
+		sendAction(About.Action.OpenTermsAndConditions)
 
 	fun openPrivacyPolicyAction() =
-		emitAction(About.Action.OpenPrivacyPolicy)
+		sendAction(About.Action.OpenPrivacyPolicy)
 
 	fun shareAppAction() =
-		emitAction(About.Action.ShareApp)
+		sendAction(About.Action.ShareApp)
 
 	fun rateOnPlayStoreAction() =
-		emitAction(About.Action.RateOnPlayStore)
+		sendAction(About.Action.RateOnPlayStore)
 
 	fun reportBugAction() =
-		emitAction(About.Action.ReportBug)
+		sendAction(About.Action.ReportBug)
 
 	fun contactDeveloperAction() =
-		emitAction(About.Action.ContactDeveloper)
+		sendAction(About.Action.ContactDeveloper)
 
 	fun openUrlAction(url: String) =
-		emitAction(About.Action.OpenUrl(url))
+		sendAction(About.Action.OpenUrl(url))
 
-	override suspend fun reducer(action: About.Action) {
-		when (action) {
-			is About.Action.OpenTermsAndConditions ->
-				sendEvent(
-					About.Event.NavigateToBrowser(
-						title = resourceResolver.getString(R.string.label_terms_and_conditions),
-						url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS
-					)
-				)
+	override fun processAction(
+		action: About.Action,
+		sideEffect: (About.Effect) -> Unit
+	): Flow<Mutation<About.State>> {
+		return when (action) {
+			is About.Action.ContactDeveloper ->
+				contactDeveloperActionProcessor.process(action, sideEffect)
 
 			is About.Action.OpenPrivacyPolicy ->
-				sendEvent(
-					About.Event.NavigateToBrowser(
-						title = resourceResolver.getString(R.string.label_privacy_policy),
-						url = BuildConfig.URL_APP_PRIVACY_POLICY
-					)
-				)
+				openPrivacyPolicyActionProcessor.process(action, sideEffect)
 
-			is About.Action.ShareApp ->
-				sendEvent(
-					About.Event.StartShare(
-						text = resourceResolver.getString(
-							R.string.about_share_message,
-							BuildConfig.APPLICATION_ID
-						),
-						subject = resourceResolver.getString(R.string.app_name)
-					)
-				)
+			is About.Action.OpenTermsAndConditions ->
+				openTermsAndConditionsActionProcessor.process(action, sideEffect)
 
 			is About.Action.RateOnPlayStore ->
-				sendEvent(About.Event.StartPlayStore)
+				rateOnPlayStoreActionProcessor.process(action, sideEffect)
 
 			is About.Action.ReportBug ->
-				sendEvent(About.Event.ShowReportBugDialog)
+				reportBugActionProcessor.process(action, sideEffect)
 
-			is About.Action.ContactDeveloper ->
-				sendEvent(About.Event.StartEmail)
+			is About.Action.ShareApp ->
+				shareAppActionProcessor.process(action, sideEffect)
 
 			is About.Action.OpenUrl ->
-				sendEvent(About.Event.StartBrowser(url = action.url))
+				openUrlActionProcessor.process(action, sideEffect)
 		}
 	}
 }

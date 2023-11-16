@@ -24,33 +24,33 @@ fun AboutRoute(
 ) {
 	val context = LocalContext.current
 
-	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
-		when (event) {
-			is About.Event.NavigateToBrowser ->
-				onNavigateToBrowser(event.title, event.url)
+	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
+		when (effect) {
+			is About.Effect.NavigateToBrowser ->
+				onNavigateToBrowser(effect.title, effect.url)
 
-			is About.Event.StartBrowser ->
-				context.browse(event.url)
+			is About.Effect.StartBrowser ->
+				context.browse(effect.url)
 
-			is About.Event.ShowReportBugDialog ->
+			is About.Effect.ShowReportBugDialog ->
 				context.email(
 					email = contactEmail,
 					subject = contactSubject
 				)
 
-			is About.Event.StartEmail ->
+			is About.Effect.StartEmail ->
 				context.email(
 					email = contactEmail,
 					subject = contactSubject
 				)
 
-			is About.Event.StartPlayStore ->
+			is About.Effect.StartPlayStore ->
 				context.playStore()
 
-			is About.Event.StartShare ->
+			is About.Effect.StartShare ->
 				context.share(
-					subject = event.subject,
-					text = event.text
+					subject = effect.subject,
+					text = effect.text
 				)
 		}
 	}

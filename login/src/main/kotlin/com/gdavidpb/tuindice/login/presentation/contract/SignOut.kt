@@ -1,20 +1,24 @@
 package com.gdavidpb.tuindice.login.presentation.contract
 
-import com.gdavidpb.tuindice.base.utils.extension.ViewAction
-import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
-import com.gdavidpb.tuindice.base.utils.extension.ViewState
+import com.gdavidpb.tuindice.base.presentation.ViewAction
+import com.gdavidpb.tuindice.base.presentation.ViewEffect
+import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object SignOut {
 	sealed class State : ViewState {
-		object Idle : State()
-		object LoggingOut : State()
+		data object Idle : State()
+		data object LoggingOut : State()
 	}
 
 	sealed class Action : ViewAction {
-		object ConfirmSignOut : Action()
+		data object ConfirmSignOut : Action()
 	}
 
-	sealed class Event : ViewEvent {
-		object NavigateToSignIn : Event()
+	sealed class Effect : ViewEffect {
+		data object NavigateToSignIn : Effect()
+
+		class ShowSnackBar(
+			val message: String
+		) : Effect()
 	}
 }

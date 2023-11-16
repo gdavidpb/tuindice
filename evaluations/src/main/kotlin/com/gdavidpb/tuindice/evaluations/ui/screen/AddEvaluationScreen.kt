@@ -17,7 +17,13 @@ fun AddEvaluationScreen(
 	onDateChange: (date: Long?) -> Unit,
 	onGradeClick: (grade: Double?, maxGrade: Double?) -> Unit,
 	onMaxGradeClick: (grade: Double?) -> Unit,
-	onDoneClick: () -> Unit,
+	onDoneClick: (
+		subject: Subject?,
+		type: EvaluationType?,
+		date: Long?,
+		grade: Double?,
+		maxGrade: Double?
+	) -> Unit,
 	onRetryClick: () -> Unit
 ) {
 	SealedCrossfade(

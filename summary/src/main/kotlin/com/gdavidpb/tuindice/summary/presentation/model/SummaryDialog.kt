@@ -8,7 +8,7 @@ sealed class SummaryDialog : Dialog {
 		val showRemove: Boolean
 	) : SummaryDialog()
 
-	object RemoveProfilePictureConfirmation : SummaryDialog()
+	data object RemoveProfilePictureConfirmation : SummaryDialog()
 
-	object OutdatedPassword : SummaryDialog()
+	data object OutdatedPassword : SummaryDialog()
 }

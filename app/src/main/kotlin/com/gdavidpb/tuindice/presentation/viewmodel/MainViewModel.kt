@@ -1,68 +1,67 @@
 package com.gdavidpb.tuindice.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.base.utils.extension.collect
-import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
-import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
-import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
-import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
+import com.gdavidpb.tuindice.presentation.action.main.CloseMainDialogActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.SetLastScreenActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
 import com.gdavidpb.tuindice.presentation.contract.Main
-import com.gdavidpb.tuindice.presentation.reducer.GetUpdateInfoReducer
-import com.gdavidpb.tuindice.presentation.reducer.RequestReviewReducer
-import com.gdavidpb.tuindice.presentation.reducer.StartUpReducer
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.review.ReviewManager
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.Flow
 
 class MainViewModel(
-	private val startUpUseCase: StartUpUseCase,
-	private val requestReviewUseCase: RequestReviewUseCase,
-	private val setLastScreenUseCase: SetLastScreenUseCase,
-	private val getUpdateInfoUseCase: GetUpdateInfoUseCase,
-	private val startUpReducer: StartUpReducer,
-	private val requestReviewReducer: RequestReviewReducer,
-	private val getUpdateInfoReducer: GetUpdateInfoReducer
-) : BaseViewModel<Main.State, Main.Action, Main.Event>(initialViewState = Main.State.Starting) {
+	private val updateStateActionProcessor: UpdateStateActionProcessor,
+	private val startUpActionProcessor: StartUpActionProcessor,
+	private val requestReviewActionProcessor: RequestReviewActionProcessor,
+	private val requestUpdateActionProcessor: RequestUpdateActionProcessor,
+	private val setLastScreenActionProcessor: SetLastScreenActionProcessor,
+	private val closeMainDialogActionProcessor: CloseMainDialogActionProcessor
+) : BaseViewModel<Main.State, Main.Action, Main.Effect>(initialState = Main.State.Starting) {
+
+	fun updateStateAction(state: Main.State) =
+		sendAction(Main.Action.UpdateState(state))
 
 	fun startUpAction(data: String?) =
-		emitAction(Main.Action.StartUp(data = data))
+		sendAction(Main.Action.StartUp(data = data))
 
 	fun requestReviewAction(reviewManager: ReviewManager) =
-		emitAction(Main.Action.RequestReview(reviewManager))
+		sendAction(Main.Action.RequestReview(reviewManager))
 
 	fun setLastScreenAction(route: String) =
-		emitAction(Main.Action.SetLastScreen(route))
+		sendAction(Main.Action.SetLastScreen(route))
 
 	fun checkUpdateAction(appUpdateManager: AppUpdateManager) =
-		emitAction(Main.Action.RequestUpdate(appUpdateManager))
+		sendAction(Main.Action.RequestUpdate(appUpdateManager))
 
 	fun closeDialogAction() =
-		emitAction(Main.Action.CloseDialog)
+		sendAction(Main.Action.CloseDialog)
 
-	override suspend fun reducer(action: Main.Action) {
-		when (action) {
+	override fun processAction(
+		action: Main.Action,
+		sideEffect: (Main.Effect) -> Unit
+	): Flow<Mutation<Main.State>> {
+		return when (action) {
+			is Main.Action.UpdateState ->
+				updateStateActionProcessor.process(action, sideEffect)
+
 			is Main.Action.StartUp ->
-				startUpUseCase
-					.execute(params = action.data)
-					.collect(viewModel = this, reducer = startUpReducer)
+				startUpActionProcessor.process(action, sideEffect)
 
 			is Main.Action.RequestReview ->
-				requestReviewUseCase
-					.execute(params = action.reviewManager)
-					.collect(viewModel = this, reducer = requestReviewReducer)
-
-			is Main.Action.SetLastScreen ->
-				setLastScreenUseCase
-					.execute(params = action.route)
-					.collect()
+				requestReviewActionProcessor.process(action, sideEffect)
 
 			is Main.Action.RequestUpdate ->
-				getUpdateInfoUseCase
-					.execute(params = action.appUpdateManager)
-					.collect(viewModel = this, reducer = getUpdateInfoReducer)
+				requestUpdateActionProcessor.process(action, sideEffect)
+
+			is Main.Action.SetLastScreen ->
+				setLastScreenActionProcessor.process(action, sideEffect)
 
 			is Main.Action.CloseDialog ->
-				sendEvent(Main.Event.CloseDialog)
+				closeMainDialogActionProcessor.process(action, sideEffect)
 		}
 	}
 }

@@ -30,7 +30,7 @@ fun SignInIdleView(
 	state: SignIn.State,
 	onUsbIdChange: (usbId: String) -> Unit,
 	onPasswordChange: (password: String) -> Unit,
-	onSignInClick: () -> Unit,
+	onSignInClick: (usbId: String, password: String) -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit
 ) {
@@ -80,7 +80,7 @@ fun SignInIdleView(
 			onPasswordChange = onPasswordChange,
 			imeAction = ImeAction.Done,
 			keyboardActions = KeyboardActions(onDone = {
-				if (isSignInEnabled) onSignInClick()
+				if (isSignInEnabled) onSignInClick(state.usbId, state.password)
 			})
 		)
 
@@ -92,7 +92,7 @@ fun SignInIdleView(
 					horizontal = dimensionResource(id = R.dimen.dp_32)
 				),
 			enabled = isSignInEnabled,
-			onClick = onSignInClick
+			onClick = { onSignInClick(state.usbId, state.password) }
 		) {
 			Text(text = stringResource(id = R.string.button_sign_in))
 		}

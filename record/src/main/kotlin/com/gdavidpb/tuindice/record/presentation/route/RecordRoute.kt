@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
-import com.gdavidpb.tuindice.record.domain.usecase.param.UpdateSubjectParams
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
@@ -18,15 +17,15 @@ fun RecordRoute(
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: RecordViewModel = koinViewModel()
 ) {
-	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
-	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
-		when (event) {
-			is Record.Event.NavigateToOutdatedPassword ->
+	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
+		when (effect) {
+			is Record.Effect.NavigateToOutdatedPassword ->
 				onNavigateToUpdatePassword()
 
-			is Record.Event.ShowSnackBar ->
-				showSnackBar(SnackBarMessage(message = event.message))
+			is Record.Effect.ShowSnackBar ->
+				showSnackBar(SnackBarMessage(message = effect.message))
 		}
 	}
 
@@ -37,14 +36,6 @@ fun RecordRoute(
 	RecordScreen(
 		state = viewState,
 		onRetryClick = viewModel::loadQuartersAction,
-		onSubjectGradeChange = { subjectId, newGrade, isSelected ->
-			viewModel.updateSubjectAction(
-				UpdateSubjectParams(
-					subjectId = subjectId,
-					grade = newGrade,
-					dispatchToRemote = isSelected
-				)
-			)
-		}
+		onSubjectGradeChange = viewModel::updateSubjectAction
 	)
 }

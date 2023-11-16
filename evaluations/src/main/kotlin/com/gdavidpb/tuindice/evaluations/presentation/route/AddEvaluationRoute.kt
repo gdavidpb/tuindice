@@ -22,29 +22,29 @@ fun AddEvaluationRoute(
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: AddEvaluationViewModel = koinViewModel()
 ) {
-	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+	val viewState by viewModel.state.collectAsStateWithLifecycle()
 	val dialogState = rememberDialogState<EvaluationDialog>()
 
-	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
-		when (event) {
-			is AddEvaluation.Event.NavigateToEvaluations ->
+	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
+		when (effect) {
+			is AddEvaluation.Effect.NavigateToEvaluations ->
 				onNavigateToEvaluations()
 
-			is AddEvaluation.Event.ShowSnackBar ->
-				showSnackBar(SnackBarMessage(message = event.message))
+			is AddEvaluation.Effect.ShowSnackBar ->
+				showSnackBar(SnackBarMessage(message = effect.message))
 
-			is AddEvaluation.Event.ShowGradePickerDialog ->
+			is AddEvaluation.Effect.ShowGradePickerDialog ->
 				dialogState.value = EvaluationDialog.GradePicker(
-					grade = event.grade,
-					maxGrade = event.maxGrade
+					grade = effect.grade,
+					maxGrade = effect.maxGrade
 				)
 
-			is AddEvaluation.Event.ShowMaxGradePickerDialog ->
+			is AddEvaluation.Effect.ShowMaxGradePickerDialog ->
 				dialogState.value = EvaluationDialog.MaxGradePicker(
-					grade = event.grade
+					grade = effect.grade
 				)
 
-			is AddEvaluation.Event.CloseDialog ->
+			is AddEvaluation.Effect.CloseDialog ->
 				dialogState.value = null
 		}
 	}
@@ -58,7 +58,7 @@ fun AddEvaluationRoute(
 			GradePickerDialog(
 				selectedGrade = dialog.grade,
 				gradeRange = MIN_EVALUATION_GRADE..dialog.maxGrade,
-				onGradeChange = viewModel::setGrade,
+				onGradeChange = viewModel::setGradeAction,
 				onDismissRequest = viewModel::closeDialogAction
 			)
 
@@ -66,7 +66,7 @@ fun AddEvaluationRoute(
 			GradePickerDialog(
 				selectedGrade = dialog.grade,
 				gradeRange = EvaluationGradeWheelPickerDefaults.GradeRange,
-				onGradeChange = viewModel::setMaxGrade,
+				onGradeChange = viewModel::setMaxGradeAction,
 				onDismissRequest = viewModel::closeDialogAction
 			)
 
@@ -75,9 +75,9 @@ fun AddEvaluationRoute(
 
 	AddEvaluationScreen(
 		state = viewState,
-		onSubjectChange = viewModel::setSubject,
-		onTypeChange = viewModel::setType,
-		onDateChange = viewModel::setDate,
+		onSubjectChange = viewModel::setSubjectAction,
+		onTypeChange = viewModel::setTypeAction,
+		onDateChange = viewModel::setDateAction,
 		onGradeClick = viewModel::clickGradeAction,
 		onMaxGradeClick = viewModel::clickMaxGradeAction,
 		onDoneClick = viewModel::clickDoneAction,

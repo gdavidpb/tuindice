@@ -22,7 +22,7 @@ import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 fun UpdatePasswordIdleView(
 	state: UpdatePassword.State,
 	onPasswordChange: (password: String) -> Unit,
-	onConfirmClick: () -> Unit,
+	onConfirmClick: (password: String) -> Unit,
 ) {
 	if (state !is UpdatePassword.State.Idle) return
 
@@ -61,7 +61,8 @@ fun UpdatePasswordIdleView(
 			error = state.error,
 			imeAction = ImeAction.Done,
 			keyboardActions = KeyboardActions(onDone = {
-				if (state.password.isNotEmpty()) onConfirmClick()
+				if (state.password.isNotEmpty())
+					onConfirmClick(state.password)
 			})
 		)
 	}

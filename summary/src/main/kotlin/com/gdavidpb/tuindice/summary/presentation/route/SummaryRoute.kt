@@ -30,7 +30,7 @@ fun SummaryRoute(
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: SummaryViewModel = koinViewModel()
 ) {
-	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 	val context = LocalContext.current
 	val sheetState = rememberModalBottomSheetState()
@@ -46,35 +46,35 @@ fun SummaryRoute(
 		onResult = { result -> if (result) viewModel.uploadTakenProfilePictureAction() }
 	)
 
-	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
-		when (event) {
-			is Summary.Event.OpenCamera -> {
-				registerTakePicture.launch(Uri.parse(event.output))
+	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
+		when (effect) {
+			is Summary.Effect.OpenCamera -> {
+				registerTakePicture.launch(Uri.parse(effect.output))
 
-				viewModel.setCameraOutput(event.output)
+				viewModel.setCameraOutput(effect.output)
 			}
 
-			is Summary.Event.OpenPicker ->
+			is Summary.Effect.OpenPicker ->
 				pickVisualMediaRequest.launch(
 					PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
 				)
 
-			is Summary.Event.NavigateToOutdatedPassword ->
+			is Summary.Effect.NavigateToOutdatedPassword ->
 				onNavigateToUpdatePassword()
 
-			is Summary.Event.ShowSnackBar ->
-				showSnackBar(SnackBarMessage(message = event.message))
+			is Summary.Effect.ShowSnackBar ->
+				showSnackBar(SnackBarMessage(message = effect.message))
 
-			is Summary.Event.ShowProfilePictureSettingsDialog ->
+			is Summary.Effect.ShowProfilePictureSettingsDialog ->
 				dialogState.value = SummaryDialog.ProfilePictureSettings(
 					showTake = context.hasCamera(),
-					showRemove = event.showRemove
+					showRemove = effect.showRemove
 				)
 
-			is Summary.Event.ShowRemoveProfilePictureConfirmationDialog ->
+			is Summary.Effect.ShowRemoveProfilePictureConfirmationDialog ->
 				dialogState.value = SummaryDialog.RemoveProfilePictureConfirmation
 
-			is Summary.Event.CloseDialog ->
+			is Summary.Effect.CloseDialog ->
 				dialogState.value = null
 		}
 	}
