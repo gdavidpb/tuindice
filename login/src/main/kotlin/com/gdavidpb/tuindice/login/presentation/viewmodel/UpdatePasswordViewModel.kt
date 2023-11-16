@@ -1,33 +1,34 @@
 package com.gdavidpb.tuindice.login.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.base.utils.extension.collect
-import com.gdavidpb.tuindice.login.domain.usecase.UpdatePasswordUseCase
+import com.gdavidpb.tuindice.login.presentation.action.SetUpdatePasswordActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.UpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
-import com.gdavidpb.tuindice.login.presentation.reducer.UpdatePasswordReducer
+import kotlinx.coroutines.flow.Flow
 
 class UpdatePasswordViewModel(
-	private val updatePasswordUseCase: UpdatePasswordUseCase,
-	private val updatePasswordReducer: UpdatePasswordReducer
-) : BaseViewModel<UpdatePassword.State, UpdatePassword.Action, UpdatePassword.Event>(
-	initialViewState = UpdatePassword.State.Idle()
+	private val setUpdatePasswordActionProcessor: SetUpdatePasswordActionProcessor,
+	private val updatePasswordActionProcessor: UpdatePasswordActionProcessor
+) : BaseViewModel<UpdatePassword.State, UpdatePassword.Action, UpdatePassword.Effect>(
+	initialState = UpdatePassword.State.Idle()
 ) {
-	fun signInAction() {
-		val currentState = getCurrentState()
+	fun signInAction(password: String) =
+		sendAction(UpdatePassword.Action.ClickSignIn(password))
 
-		if (currentState is UpdatePassword.State.Idle) {
-			val (password) = currentState
+	fun setPasswordAction(password: String) =
+		sendAction(UpdatePassword.Action.SetPassword(password))
 
-			emitAction(UpdatePassword.Action.ClickSignIn(password))
-		}
-	}
+	override fun processAction(
+		action: UpdatePassword.Action,
+		sideEffect: (UpdatePassword.Effect) -> Unit
+	): Flow<Mutation<UpdatePassword.State>> {
+		return when (action) {
+			is UpdatePassword.Action.SetPassword ->
+				setUpdatePasswordActionProcessor.process(action, sideEffect)
 
-	override suspend fun reducer(action: UpdatePassword.Action) {
-		when (action) {
 			is UpdatePassword.Action.ClickSignIn ->
-				updatePasswordUseCase
-					.execute(params = action.password)
-					.collect(viewModel = this, reducer = updatePasswordReducer)
+				updatePasswordActionProcessor.process(action, sideEffect)
 		}
 	}
 }

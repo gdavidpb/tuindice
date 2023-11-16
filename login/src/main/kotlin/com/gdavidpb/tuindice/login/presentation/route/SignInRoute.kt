@@ -17,25 +17,37 @@ fun SignInRoute(
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: SignInViewModel = koinViewModel()
 ) {
-	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
-	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
-		when (event) {
-			is SignIn.Event.NavigateToSummary ->
+	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
+		when (effect) {
+			is SignIn.Effect.NavigateToSummary ->
 				onNavigateToSummary()
 
-			is SignIn.Event.NavigateToBrowser ->
+			is SignIn.Effect.NavigateToBrowser ->
 				onNavigateToBrowser(
-					event.title,
-					event.url
+					effect.title,
+					effect.url
 				)
 
-			is SignIn.Event.ShowSnackBar ->
+			is SignIn.Effect.ShowSnackBar ->
 				showSnackBar(
 					SnackBarMessage(
-						message = event.message,
-						actionLabel = event.actionLabel,
-						onAction = viewModel::signInAction
+						message = effect.message
+					)
+				)
+
+			is SignIn.Effect.ShowRetrySnackBar ->
+				showSnackBar(
+					SnackBarMessage(
+						message = effect.message,
+						actionLabel = effect.actionLabel,
+						onAction = {
+							viewModel.signInAction(
+								usbId = effect.params.usbId,
+								password = effect.params.password
+							)
+						}
 					)
 				)
 		}
@@ -43,18 +55,8 @@ fun SignInRoute(
 
 	SignInScreen(
 		state = viewState,
-		onUsbIdChange = { usbId ->
-			val currentState = viewModel.getCurrentState()
-
-			if (currentState is SignIn.State.Idle)
-				viewModel.setState(currentState.copy(usbId = usbId))
-		},
-		onPasswordChange = { password ->
-			val currentState = viewModel.getCurrentState()
-
-			if (currentState is SignIn.State.Idle)
-				viewModel.setState(currentState.copy(password = password))
-		},
+		onUsbIdChange = viewModel::setUsbIdAction,
+		onPasswordChange = viewModel::setPasswordAction,
 		onSignInClick = viewModel::signInAction,
 		onTermsAndConditionsClick = viewModel::openTermsAndConditionsAction,
 		onPrivacyPolicyClick = viewModel::openPrivacyPolicyAction

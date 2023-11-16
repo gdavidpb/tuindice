@@ -26,12 +26,25 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEval
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluationParamsValidator
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.LoadEvaluationGradesReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.RemoveEvaluationReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.SetEvaluationGradeReducer
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.AddEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.CloseAddDialogActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.LoadAvailableSubjectsActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.PickGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.PickMaxGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetDateActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetMaxGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetSubjectActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetTypeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.CheckEvaluationFilterActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.CloseListDialogActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.LoadEvaluationsActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.OpenAddEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.OpenEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.PickEvaluationGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.RemoveEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.SetEvaluationGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.UncheckEvaluationFilterActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.AddEvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -47,14 +60,28 @@ val evaluationsModule = module {
 	viewModelOf(::EvaluationsViewModel)
 	viewModelOf(::AddEvaluationViewModel)
 
-	/* Reducers */
+	/* Action processor */
 
-	factoryOf(::EvaluationsReducer)
-	factoryOf(::AvailableSubjectsReducer)
-	factoryOf(::LoadEvaluationGradesReducer)
-	factoryOf(::SetEvaluationGradeReducer)
-	factoryOf(::AddEvaluationReducer)
-	factoryOf(::RemoveEvaluationReducer)
+	factoryOf(::LoadAvailableSubjectsActionProcessor)
+	factoryOf(::AddEvaluationActionProcessor)
+	factoryOf(::PickGradeActionProcessor)
+	factoryOf(::PickMaxGradeActionProcessor)
+	factoryOf(::CloseAddDialogActionProcessor)
+	factoryOf(::SetSubjectActionProcessor)
+	factoryOf(::SetTypeActionProcessor)
+	factoryOf(::SetDateActionProcessor)
+	factoryOf(::SetGradeActionProcessor)
+	factoryOf(::SetMaxGradeActionProcessor)
+
+	factoryOf(::LoadEvaluationsActionProcessor)
+	factoryOf(::CheckEvaluationFilterActionProcessor)
+	factoryOf(::UncheckEvaluationFilterActionProcessor)
+	factoryOf(::OpenAddEvaluationActionProcessor)
+	factoryOf(::PickEvaluationGradeActionProcessor)
+	factoryOf(::SetEvaluationGradeActionProcessor)
+	factoryOf(::OpenEvaluationActionProcessor)
+	factoryOf(::RemoveEvaluationActionProcessor)
+	factoryOf(::CloseListDialogActionProcessor)
 
 	/* Use cases */
 

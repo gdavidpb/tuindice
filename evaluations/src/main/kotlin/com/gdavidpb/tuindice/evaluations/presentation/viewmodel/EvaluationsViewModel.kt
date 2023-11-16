@@ -1,19 +1,20 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.base.utils.extension.collect
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.CheckEvaluationFilterActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.CloseListDialogActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.LoadEvaluationsActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.OpenAddEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.OpenEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.PickEvaluationGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.RemoveEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.SetEvaluationGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.UncheckEvaluationFilterActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.toUpdateEvaluationParams
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.EvaluationsReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.LoadEvaluationGradesReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.RemoveEvaluationReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.SetEvaluationGradeReducer
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
@@ -21,17 +22,18 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 class EvaluationsViewModel(
-	private val getEvaluationsUseCase: GetEvaluationsUseCase,
-	private val evaluationsReducer: EvaluationsReducer,
-	private val getEvaluationUseCase: GetEvaluationUseCase,
-	private val loadEvaluationGradesReducer: LoadEvaluationGradesReducer,
-	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
-	private val setEvaluationGradeReducer: SetEvaluationGradeReducer,
-	private val removeEvaluationUseCase: RemoveEvaluationUseCase,
-	private val removeEvaluationReducer: RemoveEvaluationReducer
-) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Event>(initialViewState = Evaluations.State.Loading) {
+	private val loadEvaluationsActionProcessor: LoadEvaluationsActionProcessor,
+	private val checkEvaluationFilterActionProcessor: CheckEvaluationFilterActionProcessor,
+	private val uncheckEvaluationFilterActionProcessor: UncheckEvaluationFilterActionProcessor,
+	private val openAddEvaluationActionProcessor: OpenAddEvaluationActionProcessor,
+	private val pickEvaluationGradeActionProcessor: PickEvaluationGradeActionProcessor,
+	private val setEvaluationGradeActionProcessor: SetEvaluationGradeActionProcessor,
+	private val openEvaluationActionProcessor: OpenEvaluationActionProcessor,
+	private val removeEvaluationActionProcessor: RemoveEvaluationActionProcessor,
+	private val closeListDialogActionProcessor: CloseListDialogActionProcessor
+) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Effect>(initialState = Evaluations.State.Loading) {
 
-	private val activeFilters = viewState
+	private val activeFilters = state
 		.filterIsInstance<Evaluations.State.Content>()
 		.map { content -> content.activeFilters }
 		.distinctUntilChanged()
@@ -42,92 +44,63 @@ class EvaluationsViewModel(
 		)
 
 	fun loadEvaluationsAction() =
-		emitAction(Evaluations.Action.LoadEvaluations)
+		sendAction(Evaluations.Action.LoadEvaluations(activeFilters))
 
 	fun filterEvaluationsAction(filter: EvaluationFilter, isChecked: Boolean) =
 		if (isChecked)
-			emitAction(Evaluations.Action.CheckEvaluationFilter(filter))
+			sendAction(Evaluations.Action.CheckEvaluationFilter(filter))
 		else
-			emitAction(Evaluations.Action.UncheckEvaluationFilter(filter))
+			sendAction(Evaluations.Action.UncheckEvaluationFilter(filter))
 
 	fun addEvaluationAction() =
-		emitAction(Evaluations.Action.AddEvaluation)
+		sendAction(Evaluations.Action.AddEvaluation)
 
 	fun editEvaluationAction(evaluationId: String) =
-		emitAction(Evaluations.Action.EditEvaluation(evaluationId))
+		sendAction(Evaluations.Action.EditEvaluation(evaluationId))
 
 	fun removeEvaluationAction(evaluationId: String) =
-		emitAction(Evaluations.Action.RemoveEvaluation(evaluationId))
+		sendAction(Evaluations.Action.RemoveEvaluation(evaluationId))
 
 	fun showEvaluationGradeDialogAction(evaluationId: String) =
-		emitAction(Evaluations.Action.ShowEvaluationGradeDialog(evaluationId))
+		sendAction(Evaluations.Action.ShowEvaluationGradeDialog(evaluationId))
 
 	fun setEvaluationGradeAction(evaluationId: String, grade: Double) =
-		emitAction(Evaluations.Action.SetEvaluationGrade(evaluationId, grade))
+		sendAction(Evaluations.Action.SetEvaluationGrade(evaluationId, grade))
 
 	fun closeDialogAction() =
-		emitAction(Evaluations.Action.CloseDialog)
+		sendAction(Evaluations.Action.CloseDialog)
 
-	override suspend fun reducer(action: Evaluations.Action) {
-		when (action) {
+	override fun processAction(
+		action: Evaluations.Action,
+		sideEffect: (Evaluations.Effect) -> Unit
+	): Flow<Mutation<Evaluations.State>> {
+		return when (action) {
 			is Evaluations.Action.LoadEvaluations ->
-				getEvaluationsUseCase
-					.execute(params = activeFilters)
-					.collect(viewModel = this, reducer = evaluationsReducer)
+				loadEvaluationsActionProcessor.process(action, sideEffect)
 
-			is Evaluations.Action.CheckEvaluationFilter -> {
-				val currentState = getCurrentState()
+			is Evaluations.Action.CheckEvaluationFilter ->
+				checkEvaluationFilterActionProcessor.process(action, sideEffect)
 
-				if (currentState is Evaluations.State.Content)
-					setState(
-						currentState.copy(
-							activeFilters = currentState.activeFilters + action.filter
-						)
-					)
-			}
-
-			is Evaluations.Action.UncheckEvaluationFilter -> {
-				val currentState = getCurrentState()
-
-				if (currentState is Evaluations.State.Content)
-					setState(
-						currentState.copy(
-							activeFilters = currentState.activeFilters - action.filter
-						)
-					)
-			}
+			is Evaluations.Action.UncheckEvaluationFilter ->
+				uncheckEvaluationFilterActionProcessor.process(action, sideEffect)
 
 			is Evaluations.Action.AddEvaluation ->
-				sendEvent(
-					Evaluations.Event.NavigateToAddEvaluation
-				)
+				openAddEvaluationActionProcessor.process(action, sideEffect)
 
 			is Evaluations.Action.ShowEvaluationGradeDialog ->
-				getEvaluationUseCase
-					.execute(params = action.evaluationId)
-					.collect(viewModel = this, reducer = loadEvaluationGradesReducer)
+				pickEvaluationGradeActionProcessor.process(action, sideEffect)
 
 			is Evaluations.Action.SetEvaluationGrade ->
-				updateEvaluationUseCase
-					.execute(params = action.toUpdateEvaluationParams())
-					.collect(viewModel = this, reducer = setEvaluationGradeReducer)
+				setEvaluationGradeActionProcessor.process(action, sideEffect)
 
 			is Evaluations.Action.EditEvaluation ->
-				sendEvent(
-					Evaluations.Event.NavigateToEvaluation(
-						evaluationId = action.evaluationId
-					)
-				)
+				openEvaluationActionProcessor.process(action, sideEffect)
 
 			is Evaluations.Action.RemoveEvaluation ->
-				removeEvaluationUseCase
-					.execute(params = action.evaluationId)
-					.collect(viewModel = this, reducer = removeEvaluationReducer)
+				removeEvaluationActionProcessor.process(action, sideEffect)
 
 			is Evaluations.Action.CloseDialog ->
-				sendEvent(
-					Evaluations.Event.CloseDialog
-				)
+				closeListDialogActionProcessor.process(action, sideEffect)
 		}
 	}
 }

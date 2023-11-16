@@ -1,27 +1,28 @@
 package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.base.utils.extension.collect
-import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.TakeProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.presentation.action.CloseDialogActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.LoadSummaryActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.OpenProfilePictureSettingsActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.PickProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.presentation.reducer.RemoveProfilePictureReducer
-import com.gdavidpb.tuindice.summary.presentation.reducer.SummaryReducer
-import com.gdavidpb.tuindice.summary.presentation.reducer.TakeProfilePictureReducer
-import com.gdavidpb.tuindice.summary.presentation.reducer.UploadProfilePictureReducer
+import kotlinx.coroutines.flow.Flow
 
 class SummaryViewModel(
-	private val getAccountUseCase: GetAccountUseCase,
-	private val takeProfilePictureUseCase: TakeProfilePictureUseCase,
-	private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
-	private val removeProfilePictureUseCase: RemoveProfilePictureUseCase,
-	private val summaryReducer: SummaryReducer,
-	private val takeProfilePictureReducer: TakeProfilePictureReducer,
-	private val uploadProfilePictureReducer: UploadProfilePictureReducer,
-	private val removeProfilePictureReducer: RemoveProfilePictureReducer
-) : BaseViewModel<Summary.State, Summary.Action, Summary.Event>(initialViewState = Summary.State.Loading) {
+	private val loadSummaryActionProcessor: LoadSummaryActionProcessor,
+	private val takeProfilePictureActionProcessor: TakeProfilePictureActionProcessor,
+	private val uploadProfilePictureActionProcessor: UploadProfilePictureActionProcessor,
+	private val confirmRemoveProfilePictureActionProcessor: ConfirmRemoveProfilePictureActionProcessor,
+	private val pickProfilePictureActionProcessor: PickProfilePictureActionProcessor,
+	private val removeProfilePictureActionProcessor: RemoveProfilePictureActionProcessor,
+	private val closeDialogActionProcessor: CloseDialogActionProcessor,
+	private val openProfilePictureSettingsActionProcessor: OpenProfilePictureSettingsActionProcessor
+) : BaseViewModel<Summary.State, Summary.Action, Summary.Effect>(initialState = Summary.State.Loading) {
 
 	private var cameraOutput: String = ""
 
@@ -30,73 +31,61 @@ class SummaryViewModel(
 	}
 
 	fun loadSummaryAction() =
-		emitAction(Summary.Action.LoadSummary)
+		sendAction(Summary.Action.LoadSummary)
 
 	fun takeProfilePictureAction() =
-		emitAction(Summary.Action.TakeProfilePicture)
+		sendAction(Summary.Action.TakeProfilePicture)
 
 	fun pickProfilePictureAction() =
-		emitAction(Summary.Action.PickProfilePicture)
+		sendAction(Summary.Action.PickProfilePicture)
 
 	fun uploadProfilePictureAction(path: String) =
-		emitAction(Summary.Action.UploadProfilePicture(path))
+		sendAction(Summary.Action.UploadProfilePicture(path))
 
 	fun uploadTakenProfilePictureAction() =
-		emitAction(Summary.Action.UploadProfilePicture(path = cameraOutput))
+		sendAction(Summary.Action.UploadProfilePicture(path = cameraOutput))
 			.also { cameraOutput = "" }
 
 	fun removeProfilePictureAction() =
-		emitAction(Summary.Action.RemoveProfilePicture)
+		sendAction(Summary.Action.RemoveProfilePicture)
 
 	fun confirmRemoveProfilePictureAction() =
-		emitAction(Summary.Action.ConfirmRemoveProfilePicture)
+		sendAction(Summary.Action.ConfirmRemoveProfilePicture)
 
 	fun openProfilePictureSettingsAction() =
-		emitAction(Summary.Action.OpenProfilePictureSettings)
+		sendAction(Summary.Action.OpenProfilePictureSettings)
 
 	fun closeDialogAction() =
-		emitAction(Summary.Action.CloseDialog)
+		sendAction(Summary.Action.CloseDialog)
 
-	override suspend fun reducer(action: Summary.Action) {
-		when (action) {
+	override fun processAction(
+		action: Summary.Action,
+		sideEffect: (Summary.Effect) -> Unit
+	): Flow<Mutation<Summary.State>> {
+		return when (action) {
 			is Summary.Action.LoadSummary ->
-				getAccountUseCase
-					.execute(params = Unit)
-					.collect(viewModel = this, reducer = summaryReducer)
+				loadSummaryActionProcessor.process(action, sideEffect)
 
 			is Summary.Action.TakeProfilePicture ->
-				takeProfilePictureUseCase
-					.execute(params = Unit)
-					.collect(viewModel = this, reducer = takeProfilePictureReducer)
-
-			is Summary.Action.PickProfilePicture ->
-				sendEvent(Summary.Event.OpenPicker)
+				takeProfilePictureActionProcessor.process(action, sideEffect)
 
 			is Summary.Action.UploadProfilePicture ->
-				uploadProfilePictureUseCase
-					.execute(params = action.path)
-					.collect(viewModel = this, reducer = uploadProfilePictureReducer)
-
-			is Summary.Action.RemoveProfilePicture ->
-				sendEvent(Summary.Event.ShowRemoveProfilePictureConfirmationDialog)
+				uploadProfilePictureActionProcessor.process(action, sideEffect)
 
 			is Summary.Action.ConfirmRemoveProfilePicture ->
-				removeProfilePictureUseCase
-					.execute(params = Unit)
-					.collect(viewModel = this, reducer = removeProfilePictureReducer)
+				confirmRemoveProfilePictureActionProcessor.process(action, sideEffect)
+
+			is Summary.Action.RemoveProfilePicture ->
+				removeProfilePictureActionProcessor.process(action, sideEffect)
+
+			is Summary.Action.OpenProfilePictureSettings ->
+				openProfilePictureSettingsActionProcessor.process(action, sideEffect)
+
+			is Summary.Action.PickProfilePicture ->
+				pickProfilePictureActionProcessor.process(action, sideEffect)
 
 			is Summary.Action.CloseDialog ->
-				sendEvent(Summary.Event.CloseDialog)
-
-			is Summary.Action.OpenProfilePictureSettings -> {
-				val currentState = getCurrentState()
-
-				sendEvent(
-					Summary.Event.ShowProfilePictureSettingsDialog(
-						showRemove = currentState is Summary.State.Content && currentState.profilePictureUrl.isNotEmpty()
-					)
-				)
-			}
+				closeDialogActionProcessor.process(action, sideEffect)
 		}
 	}
 }

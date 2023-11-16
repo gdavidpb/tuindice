@@ -1,65 +1,56 @@
 package com.gdavidpb.tuindice.base.presentation.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.utils.extension.ViewAction
-import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
-import com.gdavidpb.tuindice.base.utils.extension.ViewState
+import com.gdavidpb.tuindice.base.presentation.Mutation
+import com.gdavidpb.tuindice.base.presentation.ViewAction
+import com.gdavidpb.tuindice.base.presentation.ViewEffect
+import com.gdavidpb.tuindice.base.presentation.ViewState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-abstract class BaseViewModel<State : ViewState, Action : ViewAction, Event : ViewEvent>(
-	val initialViewState: State
+@OptIn(ExperimentalCoroutinesApi::class)
+abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
+	initialState: S
 ) : ViewModel() {
-	private val stateFlow = MutableStateFlow(initialViewState)
-	val viewState = stateFlow.asStateFlow()
+	private val actionsChannel = Channel<A>()
+	private val effectsChannel = Channel<E>()
+	val effect = effectsChannel
+		.receiveAsFlow()
 
-	private val actionFlow = MutableSharedFlow<Action>()
-	private val viewAction = actionFlow.asSharedFlow()
+	val state = actionsChannel
+		.receiveAsFlow()
+		.flatMapConcat { action -> processAction(action, ::sendEffect) }
+		.scan(initialState) { currentState, mutation -> mutation(currentState) }
+		.distinctUntilChanged()
+		.stateIn(
+			scope = viewModelScope,
+			started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L),
+			initialValue = initialState
+		)
 
-	private val eventChannel = Channel<Event>()
-	val viewEvent = eventChannel.receiveAsFlow()
+	protected abstract fun processAction(
+		action: A,
+		sideEffect: (E) -> Unit
+	): Flow<Mutation<S>>
 
-	init {
+	protected fun sendAction(action: A) {
 		viewModelScope.launch {
-			viewAction
-				.collect { action ->
-					launch { reducer(action) }
-				}
+			actionsChannel.send(action)
 		}
 	}
 
-	protected abstract suspend fun reducer(action: Action)
-
-	protected fun emitAction(action: Action) {
-		if (BuildConfig.DEBUG)
-			Log.i("ViewModel", "${this::class.simpleName}::emitAction: $action")
-
-		viewModelScope.launch { actionFlow.emit(action) }
-	}
-
-	fun getCurrentState(): State {
-		return viewState.value
-	}
-
-	fun setState(state: State) {
-		if (BuildConfig.DEBUG)
-			Log.i("ViewModel", "${this::class.simpleName}::setState: $state")
-
-		stateFlow.value = state
-	}
-
-	fun sendEvent(event: Event) {
-		if (BuildConfig.DEBUG)
-			Log.i("ViewModel", "${this::class.simpleName}::sendEvent: $event")
-
-		viewModelScope.launch { eventChannel.send(event) }
+	private fun sendEffect(effect: E) {
+		viewModelScope.launch {
+			effectsChannel.send(effect)
+		}
 	}
 }

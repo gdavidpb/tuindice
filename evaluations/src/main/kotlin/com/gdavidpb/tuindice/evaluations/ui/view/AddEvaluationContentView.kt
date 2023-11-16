@@ -37,7 +37,13 @@ fun AddEvaluationContentView(
 	onDateChange: (date: Long?) -> Unit,
 	onGradeClick: (grade: Double?, maxGrade: Double?) -> Unit,
 	onMaxGradeClick: (grade: Double?) -> Unit,
-	onDoneClick: () -> Unit
+	onDoneClick: (
+		subject: Subject?,
+		type: EvaluationType?,
+		date: Long?,
+		grade: Double?,
+		maxGrade: Double?
+	) -> Unit
 ) {
 	Box(
 		modifier = Modifier
@@ -181,7 +187,15 @@ fun AddEvaluationContentView(
 				.align(Alignment.BottomEnd)
 				.padding(dimensionResource(id = R.dimen.dp_24)),
 			containerColor = MaterialTheme.colorScheme.primary,
-			onClick = onDoneClick
+			onClick = {
+				onDoneClick(
+					state.subject,
+					state.type,
+					state.date,
+					state.grade,
+					state.maxGrade
+				)
+			}
 		) {
 			Icon(
 				imageVector = Icons.Outlined.Done,

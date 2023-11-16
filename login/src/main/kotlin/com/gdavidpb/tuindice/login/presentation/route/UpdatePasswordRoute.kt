@@ -16,26 +16,21 @@ fun UpdatePasswordRoute(
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: UpdatePasswordViewModel = koinViewModel()
 ) {
-	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
-	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
-		when (event) {
-			is UpdatePassword.Event.CloseDialog ->
+	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
+		when (effect) {
+			is UpdatePassword.Effect.CloseDialog ->
 				onDismissRequest()
 
-			is UpdatePassword.Event.ShowSnackBar ->
-				showSnackBar(SnackBarMessage(message = event.message))
+			is UpdatePassword.Effect.ShowSnackBar ->
+				showSnackBar(SnackBarMessage(message = effect.message))
 		}
 	}
 
 	UpdatePasswordDialog(
 		state = viewState,
-		onPasswordChange = { password ->
-			val currentState = viewModel.getCurrentState()
-
-			if (currentState is UpdatePassword.State.Idle)
-				viewModel.setState(currentState.copy(password = password))
-		},
+		onPasswordChange = viewModel::setPasswordAction,
 		onConfirmClick = viewModel::signInAction,
 		onDismissRequest = onDismissRequest
 	)

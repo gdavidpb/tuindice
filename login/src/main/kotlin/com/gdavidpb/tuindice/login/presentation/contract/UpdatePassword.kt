@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.login.presentation.contract
 
-import com.gdavidpb.tuindice.base.utils.extension.ViewAction
-import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
-import com.gdavidpb.tuindice.base.utils.extension.ViewState
+import com.gdavidpb.tuindice.base.presentation.ViewAction
+import com.gdavidpb.tuindice.base.presentation.ViewEffect
+import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object UpdatePassword {
 	sealed class State : ViewState {
@@ -15,11 +15,12 @@ object UpdatePassword {
 	}
 
 	sealed class Action : ViewAction {
+		class SetPassword(val password: String) : Action()
 		class ClickSignIn(val password: String) : Action()
 	}
 
-	sealed class Event : ViewEvent {
-		object CloseDialog : Event()
-		class ShowSnackBar(val message: String) : Event()
+	sealed class Effect : ViewEffect {
+		data object CloseDialog : Effect()
+		class ShowSnackBar(val message: String) : Effect()
 	}
 }

@@ -22,34 +22,34 @@ fun EvaluationsRoute(
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: EvaluationsViewModel = koinViewModel()
 ) {
-	val viewState by viewModel.viewState.collectAsStateWithLifecycle()
+	val viewState by viewModel.state.collectAsStateWithLifecycle()
 	val dialogState = rememberDialogState<EvaluationsDialog>()
 
-	CollectEffectWithLifecycle(flow = viewModel.viewEvent) { event ->
-		when (event) {
-			is Evaluations.Event.NavigateToAddEvaluation ->
+	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
+		when (effect) {
+			is Evaluations.Effect.NavigateToAddEvaluation ->
 				onNavigateToAddEvaluation()
 
-			is Evaluations.Event.NavigateToEvaluation ->
+			is Evaluations.Effect.NavigateToEvaluation ->
 				onNavigateToEvaluation(
-					event.evaluationId
+					effect.evaluationId
 				)
 
-			is Evaluations.Event.ShowGradePickerDialog ->
+			is Evaluations.Effect.ShowGradePickerDialog ->
 				dialogState.value = EvaluationsDialog.GradePicker(
-					evaluationId = event.evaluationId,
-					grade = event.grade,
-					maxGrade = event.maxGrade
+					evaluationId = effect.evaluationId,
+					grade = effect.grade,
+					maxGrade = effect.maxGrade
 				)
 
-			is Evaluations.Event.ShowSnackBar ->
+			is Evaluations.Effect.ShowSnackBar ->
 				showSnackBar(
 					SnackBarMessage(
-						message = event.message
+						message = effect.message
 					)
 				)
 
-			is Evaluations.Event.CloseDialog ->
+			is Evaluations.Effect.CloseDialog ->
 				dialogState.value = null
 		}
 	}

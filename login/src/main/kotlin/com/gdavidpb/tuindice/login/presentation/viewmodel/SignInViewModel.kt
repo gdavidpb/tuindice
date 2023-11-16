@@ -1,61 +1,70 @@
 package com.gdavidpb.tuindice.login.presentation.viewmodel
 
-import com.gdavidpb.tuindice.base.BuildConfig
+import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.base.utils.ResourceResolver
-import com.gdavidpb.tuindice.base.utils.extension.collect
-import com.gdavidpb.tuindice.login.R
-import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
+import com.gdavidpb.tuindice.login.presentation.action.OpenPrivacyPolicyActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.OpenTermsAndConditionsActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.SetPasswordActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.SetUsbIdActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.SignInActionProcessor
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
-import com.gdavidpb.tuindice.login.presentation.mapper.toSignInParams
-import com.gdavidpb.tuindice.login.presentation.reducer.SignInReducer
+import kotlinx.coroutines.flow.Flow
 
 class SignInViewModel(
-	private val resourceResolver: ResourceResolver,
-	private val signInUseCase: SignInUseCase,
-	private val signInReducer: SignInReducer
-) : BaseViewModel<SignIn.State, SignIn.Action, SignIn.Event>(initialViewState = SignIn.State.Idle()) {
+	private val signInActionProcessor: SignInActionProcessor,
+	private val setUsbIdActionProcessor: SetUsbIdActionProcessor,
+	private val setPasswordActionProcessor: SetPasswordActionProcessor,
+	private val openTermsAndConditionsActionProcessor: OpenTermsAndConditionsActionProcessor,
+	private val privacyPolicyActionProcessor: OpenPrivacyPolicyActionProcessor
+) : BaseViewModel<SignIn.State, SignIn.Action, SignIn.Effect>(initialState = SignIn.State.Idle()) {
 
-	fun signInAction() {
-		val currentState = getCurrentState()
-
-		if (currentState is SignIn.State.Idle)
-			emitAction(
-				SignIn.Action.ClickSignIn(
-					usbId = currentState.usbId,
-					password = currentState.password
-				)
+	fun setUsbIdAction(usbId: String) =
+		sendAction(
+			SignIn.Action.SetUsbId(
+				usbId = usbId
 			)
-	}
+		)
+
+	fun setPasswordAction(password: String) =
+		sendAction(
+			SignIn.Action.SetPassword(
+				password = password
+			)
+		)
+
+	fun signInAction(usbId: String, password: String) =
+		sendAction(
+			SignIn.Action.ClickSignIn(
+				usbId = usbId,
+				password = password
+			)
+		)
 
 	fun openTermsAndConditionsAction() =
-		emitAction(SignIn.Action.OpenTermsAndConditions)
+		sendAction(SignIn.Action.ClickTermsAndConditions)
 
 	fun openPrivacyPolicyAction() =
-		emitAction(SignIn.Action.OpenPrivacyPolicy)
+		sendAction(SignIn.Action.ClickPrivacyPolicy)
 
-	override suspend fun reducer(action: SignIn.Action) {
-		when (action) {
+	override fun processAction(
+		action: SignIn.Action,
+		sideEffect: (SignIn.Effect) -> Unit
+	): Flow<Mutation<SignIn.State>> {
+		return when (action) {
+			is SignIn.Action.SetUsbId ->
+				setUsbIdActionProcessor.process(action, sideEffect)
+
+			is SignIn.Action.SetPassword ->
+				setPasswordActionProcessor.process(action, sideEffect)
+
 			is SignIn.Action.ClickSignIn ->
-				signInUseCase
-					.execute(params = action.toSignInParams())
-					.collect(viewModel = this, reducer = signInReducer)
+				signInActionProcessor.process(action, sideEffect)
 
-			is SignIn.Action.OpenTermsAndConditions ->
-				sendEvent(
-					SignIn.Event.NavigateToBrowser(
-						title = resourceResolver.getString(R.string.label_terms_and_conditions),
-						url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS
-					)
-				)
+			is SignIn.Action.ClickTermsAndConditions ->
+				openTermsAndConditionsActionProcessor.process(action, sideEffect)
 
-			is SignIn.Action.OpenPrivacyPolicy ->
-				sendEvent(
-					SignIn.Event.NavigateToBrowser(
-						title = resourceResolver.getString(R.string.label_privacy_policy),
-						url = BuildConfig.URL_APP_PRIVACY_POLICY
-					)
-				)
+			is SignIn.Action.ClickPrivacyPolicy ->
+				privacyPolicyActionProcessor.process(action, sideEffect)
 		}
 	}
 }

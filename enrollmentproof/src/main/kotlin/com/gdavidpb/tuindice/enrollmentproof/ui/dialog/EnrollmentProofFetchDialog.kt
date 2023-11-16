@@ -20,10 +20,12 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.gdavidpb.tuindice.enrollmentproof.R
+import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnrollmentProofFetchDialog(
+	state: Enrollment.State,
 	onDismissRequest: () -> Unit
 ) {
 	val lottieComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.an_enrollment))

@@ -1,26 +1,26 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel
 
-import com.gdavidpb.tuindice.base.utils.extension.collect
+import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
+import com.gdavidpb.tuindice.enrollmentproof.presentation.action.FetchEnrollmentProofActionProcessor
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
-import com.gdavidpb.tuindice.enrollmentproof.presentation.reducer.EnrollmentProofReducer
+import kotlinx.coroutines.flow.Flow
 
 class EnrollmentProofViewModel(
-	private val enrollmentProofUseCase: FetchEnrollmentProofUseCase,
-	private val enrollmentProofReducer: EnrollmentProofReducer
-) : BaseViewModel<Enrollment.State, Enrollment.Action, Enrollment.Event>(
-	initialViewState = Enrollment.State.Fetching
+	private val enrollmentProofActionProcessor: FetchEnrollmentProofActionProcessor
+) : BaseViewModel<Enrollment.State, Enrollment.Action, Enrollment.Effect>(
+	initialState = Enrollment.State.Fetching
 ) {
 	fun fetchEnrollmentProofAction() =
-		emitAction(Enrollment.Action.FetchEnrollmentProof)
+		sendAction(Enrollment.Action.FetchEnrollmentProof)
 
-	override suspend fun reducer(action: Enrollment.Action) {
-		when (action) {
+	override fun processAction(
+		action: Enrollment.Action,
+		sideEffect: (Enrollment.Effect) -> Unit
+	): Flow<Mutation<Enrollment.State>> {
+		return when (action) {
 			is Enrollment.Action.FetchEnrollmentProof ->
-				enrollmentProofUseCase
-					.execute(params = Unit)
-					.collect(viewModel = this, reducer = enrollmentProofReducer)
+				enrollmentProofActionProcessor.process(action, sideEffect)
 		}
 	}
 }

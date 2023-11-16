@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase.error
 
-sealed class UpdateEvaluationError {
-	object SubjectMissed : UpdateEvaluationError()
-	object TypeMissed : UpdateEvaluationError()
-	object MaxGradeMissed : UpdateEvaluationError()
+import com.gdavidpb.tuindice.base.domain.usecase.base.Error
+
+sealed class UpdateEvaluationError : Error {
+	data object SubjectMissed : UpdateEvaluationError()
+	data object TypeMissed : UpdateEvaluationError()
+	data object MaxGradeMissed : UpdateEvaluationError()
 }

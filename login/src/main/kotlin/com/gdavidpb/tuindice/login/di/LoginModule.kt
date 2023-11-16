@@ -14,9 +14,14 @@ import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExcepti
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.login.domain.usecase.validator.UpdatePasswordParamsValidator
-import com.gdavidpb.tuindice.login.presentation.reducer.SignInReducer
-import com.gdavidpb.tuindice.login.presentation.reducer.SignOutReducer
-import com.gdavidpb.tuindice.login.presentation.reducer.UpdatePasswordReducer
+import com.gdavidpb.tuindice.login.presentation.action.OpenPrivacyPolicyActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.OpenTermsAndConditionsActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.SetPasswordActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.SetUpdatePasswordActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.SetUsbIdActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.SignInActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.SignOutActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.UpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.UpdatePasswordViewModel
@@ -34,11 +39,16 @@ val loginModule = module {
 	viewModelOf(::SignOutViewModel)
 	viewModelOf(::UpdatePasswordViewModel)
 
-	/* Reducers */
+	/* Action Processors */
 
-	factoryOf(::SignInReducer)
-	factoryOf(::SignOutReducer)
-	factoryOf(::UpdatePasswordReducer)
+	factoryOf(::SignInActionProcessor)
+	factoryOf(::SetUsbIdActionProcessor)
+	factoryOf(::SetPasswordActionProcessor)
+	factoryOf(::OpenTermsAndConditionsActionProcessor)
+	factoryOf(::OpenPrivacyPolicyActionProcessor)
+	factoryOf(::SignOutActionProcessor)
+	factoryOf(::SetUpdatePasswordActionProcessor)
+	factoryOf(::UpdatePasswordActionProcessor)
 
 	/* Use cases */
 

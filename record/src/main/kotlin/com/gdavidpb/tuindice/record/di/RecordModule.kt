@@ -22,10 +22,8 @@ import com.gdavidpb.tuindice.record.domain.usecase.WithdrawSubjectUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.GetQuartersExceptionHandler
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateSubjectExceptionHandler
 import com.gdavidpb.tuindice.record.domain.usecase.validator.UpdateSubjectParamsValidator
-import com.gdavidpb.tuindice.record.presentation.reducer.RecordReducer
-import com.gdavidpb.tuindice.record.presentation.reducer.RemoveQuarterReducer
-import com.gdavidpb.tuindice.record.presentation.reducer.UpdateSubjectReducer
-import com.gdavidpb.tuindice.record.presentation.reducer.WithdrawSubjectReducer
+import com.gdavidpb.tuindice.record.presentation.action.LoadQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.UpdateSubjectActionProcessor
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
@@ -39,11 +37,10 @@ val recordModule = module {
 
 	viewModelOf(::RecordViewModel)
 
-	/* Reducers */
-	factoryOf(::RecordReducer)
-	factoryOf(::RemoveQuarterReducer)
-	factoryOf(::UpdateSubjectReducer)
-	factoryOf(::WithdrawSubjectReducer)
+	/* Action processor */
+
+	factoryOf(::LoadQuartersActionProcessor)
+	factoryOf(::UpdateSubjectActionProcessor)
 
 	/* Use cases */
 

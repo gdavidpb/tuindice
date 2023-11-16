@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.base.domain.usecase.base
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.utils.ReportKeys
 
-abstract class ExceptionHandler<T> {
+abstract class ExceptionHandler<T : Error> {
 	protected abstract val reportingRepository: ReportingRepository
 
 	protected open fun parseException(throwable: Throwable): T? = null

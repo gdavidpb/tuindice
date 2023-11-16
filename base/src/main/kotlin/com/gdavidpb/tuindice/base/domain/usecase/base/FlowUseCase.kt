@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 
-abstract class FlowUseCase<P, T, E>(
+abstract class FlowUseCase<P, T, E : Error>(
 	protected open val backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 	protected open val paramsValidator: ParamsValidator<P>? = null

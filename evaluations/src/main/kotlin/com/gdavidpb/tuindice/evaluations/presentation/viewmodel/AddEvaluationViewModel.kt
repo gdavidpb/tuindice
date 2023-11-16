@@ -2,145 +2,111 @@ package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.base.utils.extension.collect
-import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.AddEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.CloseAddDialogActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.LoadAvailableSubjectsActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.PickGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.PickMaxGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetDateActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetMaxGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetSubjectActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetTypeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.toAddEvaluationParams
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.AddEvaluationReducer
-import com.gdavidpb.tuindice.evaluations.presentation.reducer.AvailableSubjectsReducer
-import com.gdavidpb.tuindice.evaluations.utils.extension.isDatePassed
+import kotlinx.coroutines.flow.Flow
 
 class AddEvaluationViewModel(
-	private val getAvailableSubjectsUseCase: GetAvailableSubjectsUseCase,
-	private val availableSubjectsReducer: AvailableSubjectsReducer,
-	private val addEvaluationUseCase: AddEvaluationUseCase,
-	private val addEvaluationReducer: AddEvaluationReducer
-) : BaseViewModel<AddEvaluation.State, AddEvaluation.Action, AddEvaluation.Event>(initialViewState = AddEvaluation.State.Loading) {
+	private val loadAvailableSubjectsActionProcessor: LoadAvailableSubjectsActionProcessor,
+	private val addEvaluationActionProcessor: AddEvaluationActionProcessor,
+	private val pickGradeActionProcessor: PickGradeActionProcessor,
+	private val pickMaxGradeActionProcessor: PickMaxGradeActionProcessor,
+	private val closeAddDialogActionProcessor: CloseAddDialogActionProcessor,
+	private val setSubjectActionProcessor: SetSubjectActionProcessor,
+	private val setTypeActionProcessor: SetTypeActionProcessor,
+	private val setDateActionProcessor: SetDateActionProcessor,
+	private val setGradeActionProcessor: SetGradeActionProcessor,
+	private val setMaxGradeActionProcessor: SetMaxGradeActionProcessor
+) : BaseViewModel<AddEvaluation.State, AddEvaluation.Action, AddEvaluation.Effect>(initialState = AddEvaluation.State.Loading) {
 
-	fun setSubject(subject: Subject) {
-		val currentState = getCurrentState()
+	fun setSubjectAction(subject: Subject) =
+		sendAction(AddEvaluation.Action.SetSubject(subject))
 
-		if (currentState !is AddEvaluation.State.Content) return
+	fun setTypeAction(type: EvaluationType) =
+		sendAction(AddEvaluation.Action.SetType(type))
 
-		setState(
-			currentState.copy(
-				subject = subject
-			)
-		)
-	}
+	fun setDateAction(date: Long?) =
+		sendAction(AddEvaluation.Action.SetDate(date))
 
-	fun setType(type: EvaluationType) {
-		val currentState = getCurrentState()
+	fun setGradeAction(grade: Double?) =
+		sendAction(AddEvaluation.Action.SetGrade(grade))
 
-		if (currentState !is AddEvaluation.State.Content) return
-
-		setState(
-			currentState.copy(
-				type = type
-			)
-		)
-	}
-
-	fun setDate(date: Long?) {
-		val currentState = getCurrentState()
-
-		if (currentState !is AddEvaluation.State.Content) return
-
-		setState(
-			currentState.copy(
-				date = date,
-				isOverdue = date.isDatePassed()
-			)
-		)
-	}
-
-	fun setGrade(grade: Double?) {
-		val currentState = getCurrentState()
-
-		if (currentState !is AddEvaluation.State.Content) return
-
-		setState(
-			currentState.copy(
-				grade = grade
-			)
-		)
-	}
-
-	fun setMaxGrade(grade: Double?) {
-		val currentState = getCurrentState()
-
-		if (currentState !is AddEvaluation.State.Content) return
-
-		setState(
-			currentState.copy(
-				maxGrade = grade
-			)
-		)
-	}
+	fun setMaxGradeAction(grade: Double?) =
+		sendAction(AddEvaluation.Action.SetMaxGrade(grade))
 
 	fun loadAvailableSubjectsAction() =
-		emitAction(AddEvaluation.Action.LoadAvailableSubjects)
+		sendAction(AddEvaluation.Action.LoadAvailableSubjects)
 
-	fun clickDoneAction() {
-		val currentState = getCurrentState()
-
-		if (currentState !is AddEvaluation.State.Content) return
-
-		emitAction(
-			AddEvaluation.Action.ClickDone(
-				subject = currentState.subject,
-				type = currentState.type,
-				date = currentState.date,
-				grade = currentState.grade,
-				maxGrade = currentState.maxGrade
-			)
+	fun clickDoneAction(
+		subject: Subject?,
+		type: EvaluationType?,
+		date: Long?,
+		grade: Double?,
+		maxGrade: Double?
+	) = sendAction(
+		AddEvaluation.Action.ClickDone(
+			subject = subject,
+			type = type,
+			date = date,
+			grade = grade,
+			maxGrade = maxGrade
 		)
-	}
+	)
 
 	fun clickGradeAction(grade: Double?, maxGrade: Double?) =
-		emitAction(AddEvaluation.Action.ClickGrade(grade ?: 0.0, maxGrade ?: 0.0))
+		sendAction(AddEvaluation.Action.ClickGrade(grade ?: 0.0, maxGrade ?: 0.0))
 
 	fun clickMaxGradeAction(grade: Double?) =
-		emitAction(AddEvaluation.Action.ClickMaxGrade(grade ?: 0.0))
+		sendAction(AddEvaluation.Action.ClickMaxGrade(grade ?: 0.0))
 
 	fun closeDialogAction() =
-		emitAction(AddEvaluation.Action.CloseDialog)
+		sendAction(AddEvaluation.Action.CloseDialog)
 
-	override suspend fun reducer(action: AddEvaluation.Action) {
-		when (action) {
+	override fun processAction(
+		action: AddEvaluation.Action,
+		sideEffect: (AddEvaluation.Effect) -> Unit
+	): Flow<Mutation<AddEvaluation.State>> {
+		return when (action) {
 			is AddEvaluation.Action.LoadAvailableSubjects ->
-				getAvailableSubjectsUseCase
-					.execute(
-						params = Unit
-					)
-					.collect(viewModel = this, reducer = availableSubjectsReducer)
+				loadAvailableSubjectsActionProcessor.process(action, sideEffect)
 
 			is AddEvaluation.Action.ClickDone ->
-				addEvaluationUseCase
-					.execute(
-						params = action.toAddEvaluationParams()
-					)
-					.collect(viewModel = this, reducer = addEvaluationReducer)
+				addEvaluationActionProcessor.process(action, sideEffect)
 
 			is AddEvaluation.Action.ClickGrade ->
-				sendEvent(
-					AddEvaluation.Event.ShowGradePickerDialog(
-						grade = action.grade,
-						maxGrade = action.maxGrade
-					)
-				)
+				pickGradeActionProcessor.process(action, sideEffect)
 
 			is AddEvaluation.Action.ClickMaxGrade ->
-				sendEvent(
-					AddEvaluation.Event.ShowMaxGradePickerDialog(
-						grade = action.grade
-					)
-				)
+				pickMaxGradeActionProcessor.process(action, sideEffect)
 
 			is AddEvaluation.Action.CloseDialog ->
-				sendEvent(AddEvaluation.Event.CloseDialog)
+				closeAddDialogActionProcessor.process(action, sideEffect)
+
+			is AddEvaluation.Action.SetSubject ->
+				setSubjectActionProcessor.process(action, sideEffect)
+
+			is AddEvaluation.Action.SetType ->
+				setTypeActionProcessor.process(action, sideEffect)
+
+			is AddEvaluation.Action.SetDate ->
+				setDateActionProcessor.process(action, sideEffect)
+
+			is AddEvaluation.Action.SetGrade ->
+				setGradeActionProcessor.process(action, sideEffect)
+
+			is AddEvaluation.Action.SetMaxGrade ->
+				setMaxGradeActionProcessor.process(action, sideEffect)
 		}
 	}
 }

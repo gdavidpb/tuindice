@@ -21,10 +21,14 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetAccountE
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
-import com.gdavidpb.tuindice.summary.presentation.reducer.RemoveProfilePictureReducer
-import com.gdavidpb.tuindice.summary.presentation.reducer.SummaryReducer
-import com.gdavidpb.tuindice.summary.presentation.reducer.TakeProfilePictureReducer
-import com.gdavidpb.tuindice.summary.presentation.reducer.UploadProfilePictureReducer
+import com.gdavidpb.tuindice.summary.presentation.action.CloseDialogActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.LoadSummaryActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.OpenProfilePictureSettingsActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.PickProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
@@ -38,12 +42,17 @@ val summaryModule = module {
 
 	viewModelOf(::SummaryViewModel)
 
-	/* Reducers */
+	/* Action processor */
 
-	factoryOf(::SummaryReducer)
-	factoryOf(::TakeProfilePictureReducer)
-	factoryOf(::UploadProfilePictureReducer)
-	factoryOf(::RemoveProfilePictureReducer)
+	factoryOf(::LoadSummaryActionProcessor)
+	factoryOf(::TakeProfilePictureActionProcessor)
+	factoryOf(::UploadProfilePictureActionProcessor)
+	factoryOf(::ConfirmRemoveProfilePictureActionProcessor)
+	factoryOf(::PickProfilePictureActionProcessor)
+	factoryOf(::RemoveProfilePictureActionProcessor)
+	factoryOf(::CloseDialogActionProcessor)
+	factoryOf(::OpenProfilePictureSettingsActionProcessor)
+
 
 	/* Use cases */
 

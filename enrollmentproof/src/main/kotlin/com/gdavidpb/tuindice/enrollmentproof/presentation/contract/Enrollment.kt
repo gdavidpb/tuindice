@@ -1,22 +1,22 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.contract
 
-import com.gdavidpb.tuindice.base.utils.extension.ViewAction
-import com.gdavidpb.tuindice.base.utils.extension.ViewEvent
-import com.gdavidpb.tuindice.base.utils.extension.ViewState
+import com.gdavidpb.tuindice.base.presentation.ViewAction
+import com.gdavidpb.tuindice.base.presentation.ViewEffect
+import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object Enrollment {
 	sealed class State : ViewState {
-		object Fetching : State()
+		data object Fetching : State()
 	}
 
 	sealed class Action : ViewAction {
-		object FetchEnrollmentProof : Action()
+		data object FetchEnrollmentProof : Action()
 	}
 
-	sealed class Event : ViewEvent {
-		object CloseDialog : Event()
-		class OpenEnrollmentProof(val path: String) : Event()
-		object NavigateToOutdatedPassword : Event()
-		class ShowSnackBar(val message: String) : Event()
+	sealed class Effect : ViewEffect {
+		data object CloseDialog : Effect()
+		class OpenEnrollmentProof(val path: String) : Effect()
+		data object NavigateToOutdatedPassword : Effect()
+		class ShowSnackBar(val message: String) : Effect()
 	}
 }

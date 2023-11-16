@@ -1,64 +1,39 @@
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.base.utils.extension.collect
-import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.UpdateSubjectUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.WithdrawSubjectUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.param.RemoveQuarterParams
-import com.gdavidpb.tuindice.record.domain.usecase.param.UpdateSubjectParams
-import com.gdavidpb.tuindice.record.domain.usecase.param.WithdrawSubjectParams
+import com.gdavidpb.tuindice.record.presentation.action.LoadQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.UpdateSubjectActionProcessor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
-import com.gdavidpb.tuindice.record.presentation.reducer.RecordReducer
-import com.gdavidpb.tuindice.record.presentation.reducer.RemoveQuarterReducer
-import com.gdavidpb.tuindice.record.presentation.reducer.UpdateSubjectReducer
-import com.gdavidpb.tuindice.record.presentation.reducer.WithdrawSubjectReducer
+import kotlinx.coroutines.flow.Flow
 
 class RecordViewModel(
-	private val getQuartersUseCase: GetQuartersUseCase,
-	private val removeQuarterUseCase: RemoveQuarterUseCase,
-	private val updateSubjectUseCase: UpdateSubjectUseCase,
-	private val withdrawSubjectUseCase: WithdrawSubjectUseCase,
-	private val recordReducer: RecordReducer,
-	private val removeQuarterReducer: RemoveQuarterReducer,
-	private val updateSubjectReducer: UpdateSubjectReducer,
-	private val withdrawSubjectReducer: WithdrawSubjectReducer
-) : BaseViewModel<Record.State, Record.Action, Record.Event>(initialViewState = Record.State.Loading) {
+	private val loadQuartersActionProcessor: LoadQuartersActionProcessor,
+	private val updateSubjectActionProcessor: UpdateSubjectActionProcessor
+) : BaseViewModel<Record.State, Record.Action, Record.Effect>(initialState = Record.State.Loading) {
 
 	fun loadQuartersAction() =
-		emitAction(Record.Action.LoadQuarters)
+		sendAction(Record.Action.LoadQuarters)
 
-	fun removeQuarterAction(params: RemoveQuarterParams) =
-		emitAction(Record.Action.RemoveQuarter(params))
+	fun updateSubjectAction(subjectId: String, grade: Int, dispatchToRemote: Boolean) =
+		sendAction(
+			Record.Action.UpdateSubject(
+				subjectId = subjectId,
+				grade = grade,
+				dispatchToRemote = dispatchToRemote
+			)
+		)
 
-	fun updateSubjectAction(params: UpdateSubjectParams) =
-		emitAction(Record.Action.UpdateSubject(params))
-
-	fun withdrawSubjectAction(params: WithdrawSubjectParams) =
-		emitAction(Record.Action.WithdrawSubject(params))
-
-	override suspend fun reducer(action: Record.Action) {
-		when (action) {
+	override fun processAction(
+		action: Record.Action,
+		sideEffect: (Record.Effect) -> Unit
+	): Flow<Mutation<Record.State>> {
+		return when (action) {
 			is Record.Action.LoadQuarters ->
-				getQuartersUseCase
-					.execute(params = Unit)
-					.collect(viewModel = this, reducer = recordReducer)
-
-			is Record.Action.RemoveQuarter ->
-				removeQuarterUseCase
-					.execute(params = action.params)
-					.collect(viewModel = this, reducer = removeQuarterReducer)
+				loadQuartersActionProcessor.process(action, sideEffect)
 
 			is Record.Action.UpdateSubject ->
-				updateSubjectUseCase
-					.execute(params = action.params)
-					.collect(viewModel = this, reducer = updateSubjectReducer)
-
-			is Record.Action.WithdrawSubject ->
-				withdrawSubjectUseCase
-					.execute(params = action.params)
-					.collect(viewModel = this, reducer = withdrawSubjectReducer)
+				updateSubjectActionProcessor.process(action, sideEffect)
 		}
 	}
 }
