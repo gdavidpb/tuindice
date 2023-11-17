@@ -41,7 +41,8 @@
     <string name="label_evaluation_swipe_delete">Eliminar</string>
     <string name="label_evaluation_swipe_edit">Editar</string>
 
-    <string name="dialog_title_add_evaluation_grade">Elige una nota</string>
+    <string name="dialog_title_add_evaluation_grade">Nota obtenida</string>
+    <string name="dialog_title_add_evaluation_max_grade">Nota máxima</string>
 
     <string name="snack_evaluation_set_grade">Nota actualizada</string>
     <string name="snack_evaluation_added">Evaluación agregada</string>
