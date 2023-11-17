@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.presentation.action.list
+package com.gdavidpb.tuindice.evaluations.presentation.action.evaluations
 
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor

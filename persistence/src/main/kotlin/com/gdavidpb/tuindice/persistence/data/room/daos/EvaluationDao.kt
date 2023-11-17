@@ -95,11 +95,11 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 		date: Long? = null,
 		type: EvaluationType? = null
 	) {
-		val update = mapOf(
+		val update = mapOf<String, Any?>(
 			EvaluationTable.GRADE to grade,
 			EvaluationTable.MAX_GRADE to maxGrade,
 			EvaluationTable.DATE to date,
-			EvaluationTable.TYPE to type
+			EvaluationTable.TYPE to type?.ordinal
 		)
 
 		val params = update.values

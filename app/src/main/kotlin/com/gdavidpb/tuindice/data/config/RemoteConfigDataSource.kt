@@ -48,7 +48,7 @@ class RemoteConfigDataSource(
 			Destination.Summary.route to Destination.Summary,
 			Destination.Record.route to Destination.Record,
 			Destination.Evaluations.route to Destination.Evaluations,
-			Destination.AddEvaluation.route to Destination.AddEvaluation,
+			Destination.Evaluation.route to Destination.Evaluation,
 			Destination.About.route to Destination.About,
 			Destination.Browser.route to Destination.Browser,
 			Destination.EnrollmentProofFetch.route to Destination.EnrollmentProofFetch,

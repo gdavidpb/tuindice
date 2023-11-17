@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 
-object AddEvaluation {
+object Evaluation {
 	sealed class State : ViewState {
 		data object Loading : State()
 
@@ -25,6 +25,10 @@ object AddEvaluation {
 
 	sealed class Action : ViewAction {
 		data object LoadAvailableSubjects : Action()
+
+		class LoadEvaluation(
+			val evaluationId: String
+		) : Action()
 
 		class SetSubject(
 			val subject: Subject
@@ -55,7 +59,16 @@ object AddEvaluation {
 			val maxGrade: Double?
 		) : Action()
 
-		class ClickDone(
+		class ClickAddEvaluation(
+			val subject: Subject?,
+			val type: EvaluationType?,
+			val date: Long?,
+			val grade: Double?,
+			val maxGrade: Double?
+		) : Action()
+
+		class ClickEditEvaluation(
+			val evaluationId: String,
 			val subject: Subject?,
 			val type: EvaluationType?,
 			val date: Long?,

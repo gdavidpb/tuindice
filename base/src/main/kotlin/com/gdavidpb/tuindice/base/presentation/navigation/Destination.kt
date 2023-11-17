@@ -75,10 +75,10 @@ sealed class Destination(
 			bottomBarConfig = BottomBarConfig.Evaluations
 		)
 
-	data object AddEvaluation
+	data object Evaluation
 		: Destination(
-		route = "add_evaluation",
-		title = "Agregar evaluación",
+		route = "evaluation",
+		title = "{title}",
 		isTopDestination = false,
 		isBottomDestination = false
 	)
