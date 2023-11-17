@@ -11,7 +11,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
@@ -28,7 +28,7 @@ abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 
 	val state = actionsChannel
 		.receiveAsFlow()
-		.flatMapConcat { action -> processAction(action, ::sendEffect) }
+		.flatMapMerge { action -> processAction(action, ::sendEffect) }
 		.scan(initialState) { currentState, mutation -> mutation(currentState) }
 		.distinctUntilChanged()
 		.stateIn(
