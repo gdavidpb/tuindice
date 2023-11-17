@@ -12,19 +12,19 @@ sealed class Destination(
 	val topBarConfig: TopBarConfig? = null,
 	val bottomBarConfig: BottomBarConfig? = null
 ) {
-	object EnrollmentProofFetch :
+	data object EnrollmentProofFetch :
 		Destination(
 			route = "enrollment_proof_fetch",
 			isDialogDestination = true
 		)
 
-	object UpdatePassword :
+	data object UpdatePassword :
 		Destination(
 			route = "update_password",
 			isDialogDestination = true
 		)
 
-	object SignIn :
+	data object SignIn :
 		Destination(
 			route = "sign_in",
 			title = "TuIndice",
@@ -32,13 +32,13 @@ sealed class Destination(
 			isBottomDestination = false
 		)
 
-	object SignOut :
+	data object SignOut :
 		Destination(
 			route = "sign_out",
 			isDialogDestination = true
 		)
 
-	object Browser :
+	data object Browser :
 		Destination(
 			route = "browser",
 			title = "{title}",
@@ -46,7 +46,7 @@ sealed class Destination(
 			isBottomDestination = false
 		)
 
-	object Summary :
+	data object Summary :
 		Destination(
 			route = "summary",
 			title = "Resumen",
@@ -56,7 +56,7 @@ sealed class Destination(
 			bottomBarConfig = BottomBarConfig.Summary
 		)
 
-	object Record :
+	data object Record :
 		Destination(
 			route = "record",
 			title = "Informe Académico",
@@ -66,7 +66,7 @@ sealed class Destination(
 			bottomBarConfig = BottomBarConfig.Record
 		)
 
-	object Evaluations :
+	data object Evaluations :
 		Destination(
 			route = "evaluations",
 			title = "Evaluaciones",
@@ -75,7 +75,7 @@ sealed class Destination(
 			bottomBarConfig = BottomBarConfig.Evaluations
 		)
 
-	object AddEvaluation
+	data object AddEvaluation
 		: Destination(
 		route = "add_evaluation",
 		title = "Agregar evaluación",
@@ -83,7 +83,7 @@ sealed class Destination(
 		isBottomDestination = false
 	)
 
-	object About :
+	data object About :
 		Destination(
 			route = "about",
 			title = "Acerca de",

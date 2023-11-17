@@ -20,7 +20,7 @@ class LoadEvaluationsActionProcessor(
 		action: Evaluations.Action.LoadEvaluations,
 		sideEffect: (Evaluations.Effect) -> Unit
 	): Flow<Mutation<Evaluations.State>> {
-		return getEvaluationsUseCase.execute(action.activeFilters)
+		return getEvaluationsUseCase.execute(params = action.activeFilters)
 			.map { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> { _ ->
