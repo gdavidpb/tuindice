@@ -16,9 +16,9 @@ import kotlinx.coroutines.flow.Flow
 class SummaryViewModel(
 	private val loadSummaryActionProcessor: LoadSummaryActionProcessor,
 	private val takeProfilePictureActionProcessor: TakeProfilePictureActionProcessor,
+	private val pickProfilePictureActionProcessor: PickProfilePictureActionProcessor,
 	private val uploadProfilePictureActionProcessor: UploadProfilePictureActionProcessor,
 	private val confirmRemoveProfilePictureActionProcessor: ConfirmRemoveProfilePictureActionProcessor,
-	private val pickProfilePictureActionProcessor: PickProfilePictureActionProcessor,
 	private val removeProfilePictureActionProcessor: RemoveProfilePictureActionProcessor,
 	private val closeDialogActionProcessor: CloseDialogActionProcessor,
 	private val openProfilePictureSettingsActionProcessor: OpenProfilePictureSettingsActionProcessor
@@ -69,6 +69,9 @@ class SummaryViewModel(
 			is Summary.Action.TakeProfilePicture ->
 				takeProfilePictureActionProcessor.process(action, sideEffect)
 
+			is Summary.Action.PickProfilePicture ->
+				pickProfilePictureActionProcessor.process(action, sideEffect)
+
 			is Summary.Action.UploadProfilePicture ->
 				uploadProfilePictureActionProcessor.process(action, sideEffect)
 
@@ -80,9 +83,6 @@ class SummaryViewModel(
 
 			is Summary.Action.OpenProfilePictureSettings ->
 				openProfilePictureSettingsActionProcessor.process(action, sideEffect)
-
-			is Summary.Action.PickProfilePicture ->
-				pickProfilePictureActionProcessor.process(action, sideEffect)
 
 			is Summary.Action.CloseDialog ->
 				closeDialogActionProcessor.process(action, sideEffect)
