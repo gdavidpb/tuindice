@@ -15,11 +15,8 @@ class GetEvaluationAndAvailableSubjectsUseCase(
 	override suspend fun executeOnBackground(params: GetEvaluationParams): Flow<EvaluationAndAvailableSubjects> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		val evaluation = if (params.evaluationId.isNotEmpty())
-			evaluationRepository
-				.getEvaluation(uid = activeUId, eid = params.evaluationId)
-		else
-			null
+		val evaluation = evaluationRepository
+			.getEvaluation(uid = activeUId, eid = params.evaluationId)
 
 		val availableSubjects = evaluationRepository
 			.getAvailableSubjects(uid = activeUId)

@@ -1,36 +1,36 @@
-package com.gdavidpb.tuindice.evaluations.presentation.action.add
+package com.gdavidpb.tuindice.evaluations.presentation.action.evaluation
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
-import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
+import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class LoadAvailableSubjectsActionProcessor(
 	private val getAvailableSubjectsUseCase: GetAvailableSubjectsUseCase
-) : ActionProcessor<AddEvaluation.State, AddEvaluation.Action.LoadAvailableSubjects, AddEvaluation.Effect>() {
+) : ActionProcessor<Evaluation.State, Evaluation.Action.LoadAvailableSubjects, Evaluation.Effect>() {
 
 	override fun process(
-		action: AddEvaluation.Action.LoadAvailableSubjects,
-		sideEffect: (AddEvaluation.Effect) -> Unit
-	): Flow<Mutation<AddEvaluation.State>> {
+		action: Evaluation.Action.LoadAvailableSubjects,
+		sideEffect: (Evaluation.Effect) -> Unit
+	): Flow<Mutation<Evaluation.State>> {
 		return getAvailableSubjectsUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> { _ ->
-						AddEvaluation.State.Loading
+						Evaluation.State.Loading
 					}
 
 					is UseCaseState.Data -> { _ ->
-						AddEvaluation.State.Content(
+						Evaluation.State.Content(
 							availableSubjects = useCaseState.value
 						)
 					}
 
 					is UseCaseState.Error -> { _ ->
-						AddEvaluation.State.Failed
+						Evaluation.State.Failed
 					}
 				}
 			}

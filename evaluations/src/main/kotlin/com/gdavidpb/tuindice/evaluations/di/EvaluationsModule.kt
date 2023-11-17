@@ -26,27 +26,29 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEval
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.UpdateEvaluationParamsValidator
-import com.gdavidpb.tuindice.evaluations.presentation.action.add.AddEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.add.CloseAddDialogActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.add.LoadAvailableSubjectsActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.add.PickGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.add.PickMaxGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetDateActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetMaxGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetSubjectActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetTypeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.list.CheckEvaluationFilterActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.list.ClearEvaluationFiltersActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.list.CloseListDialogActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.list.LoadEvaluationsActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.list.OpenAddEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.list.OpenEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.list.PickEvaluationGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.list.RemoveEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.list.SetEvaluationGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.list.UncheckEvaluationFilterActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.AddEvaluationViewModel
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.AddEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.CloseAddDialogActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.EditEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadAvailableSubjectsActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickMaxGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetDateActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetMaxGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetSubjectActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetTypeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.CheckEvaluationFilterActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.ClearEvaluationFiltersActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.CloseListDialogActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenAddEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.PickEvaluationGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
@@ -59,12 +61,14 @@ val evaluationsModule = module {
 	/* View Models */
 
 	viewModelOf(::EvaluationsViewModel)
-	viewModelOf(::AddEvaluationViewModel)
+	viewModelOf(::EvaluationViewModel)
 
 	/* Action processor */
 
 	factoryOf(::LoadAvailableSubjectsActionProcessor)
+	factoryOf(::LoadEvaluationActionProcessor)
 	factoryOf(::AddEvaluationActionProcessor)
+	factoryOf(::EditEvaluationActionProcessor)
 	factoryOf(::PickGradeActionProcessor)
 	factoryOf(::PickMaxGradeActionProcessor)
 	factoryOf(::CloseAddDialogActionProcessor)

@@ -4,14 +4,14 @@ import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
-import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
-import com.gdavidpb.tuindice.evaluations.ui.view.AddEvaluationContentView
+import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
+import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationContentView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationFailedView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationLoadingView
 
 @Composable
-fun AddEvaluationScreen(
-	state: AddEvaluation.State,
+fun EvaluationScreen(
+	state: Evaluation.State,
 	onSubjectChange: (subject: Subject) -> Unit,
 	onTypeChange: (type: EvaluationType) -> Unit,
 	onDateChange: (date: Long?) -> Unit,
@@ -30,11 +30,11 @@ fun AddEvaluationScreen(
 		targetState = state
 	) { targetState ->
 		when (targetState) {
-			is AddEvaluation.State.Loading ->
+			is Evaluation.State.Loading ->
 				EvaluationLoadingView()
 
-			is AddEvaluation.State.Content ->
-				AddEvaluationContentView(
+			is Evaluation.State.Content ->
+				EvaluationContentView(
 					state = targetState,
 					onSubjectChange = onSubjectChange,
 					onTypeChange = onTypeChange,
@@ -44,7 +44,7 @@ fun AddEvaluationScreen(
 					onDoneClick = onDoneClick
 				)
 
-			is AddEvaluation.State.Failed ->
+			is Evaluation.State.Failed ->
 				EvaluationFailedView(
 					onRetryClick = onRetryClick
 				)

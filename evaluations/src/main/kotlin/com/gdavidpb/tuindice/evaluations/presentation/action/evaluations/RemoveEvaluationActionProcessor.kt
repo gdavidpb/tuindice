@@ -1,26 +1,25 @@
-package com.gdavidpb.tuindice.evaluations.presentation.action.list
+package com.gdavidpb.tuindice.evaluations.presentation.action.evaluations
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.evaluations.R
-import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.toUpdateEvaluationParams
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class SetEvaluationGradeActionProcessor(
-	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
+class RemoveEvaluationActionProcessor(
+	private val removeEvaluationUseCase: RemoveEvaluationUseCase,
 	private val resourceResolver: ResourceResolver
-) : ActionProcessor<Evaluations.State, Evaluations.Action.SetEvaluationGrade, Evaluations.Effect>() {
+) : ActionProcessor<Evaluations.State, Evaluations.Action.RemoveEvaluation, Evaluations.Effect>() {
 
 	override fun process(
-		action: Evaluations.Action.SetEvaluationGrade,
+		action: Evaluations.Action.RemoveEvaluation,
 		sideEffect: (Evaluations.Effect) -> Unit
 	): Flow<Mutation<Evaluations.State>> {
-		return updateEvaluationUseCase.execute(params = action.toUpdateEvaluationParams())
+		return removeEvaluationUseCase.execute(params = action.evaluationId)
 			.map { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> { state ->
@@ -30,7 +29,7 @@ class SetEvaluationGradeActionProcessor(
 					is UseCaseState.Data -> { state ->
 						sideEffect(
 							Evaluations.Effect.ShowSnackBar(
-								message = resourceResolver.getString(R.string.snack_evaluation_set_grade)
+								message = resourceResolver.getString(R.string.snack_evaluation_removed)
 							)
 						)
 

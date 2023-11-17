@@ -1,21 +1,19 @@
-package com.gdavidpb.tuindice.evaluations.presentation.action.list
+package com.gdavidpb.tuindice.evaluations.presentation.action.evaluations
 
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import kotlinx.coroutines.flow.Flow
 
-class OpenEvaluationActionProcessor
-	: ActionProcessor<Evaluations.State, Evaluations.Action.EditEvaluation, Evaluations.Effect>() {
+class OpenAddEvaluationActionProcessor
+	: ActionProcessor<Evaluations.State, Evaluations.Action.AddEvaluation, Evaluations.Effect>() {
 
 	override fun process(
-		action: Evaluations.Action.EditEvaluation,
+		action: Evaluations.Action.AddEvaluation,
 		sideEffect: (Evaluations.Effect) -> Unit
 	): Flow<Mutation<Evaluations.State>> {
 		sideEffect(
-			Evaluations.Effect.NavigateToEvaluation(
-				evaluationId = action.evaluationId
-			)
+			Evaluations.Effect.NavigateToAddEvaluation
 		)
 
 		return super.process(action, sideEffect)

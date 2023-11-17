@@ -25,13 +25,13 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.R
-import com.gdavidpb.tuindice.evaluations.presentation.contract.AddEvaluation
+import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddEvaluationContentView(
+fun EvaluationContentView(
 	modifier: Modifier = Modifier,
-	state: AddEvaluation.State.Content,
+	state: Evaluation.State.Content,
 	onSubjectChange: (subject: Subject) -> Unit,
 	onTypeChange: (type: EvaluationType) -> Unit,
 	onDateChange: (date: Long?) -> Unit,
