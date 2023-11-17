@@ -9,14 +9,13 @@ object Browser {
 		data object Idle : State()
 
 		data class Content(
-			val title: String,
 			val url: String,
 			val isLoading: Boolean
 		) : State()
 	}
 
 	sealed class Action : ViewAction {
-		class NavigateTo(val title: String, val url: String) : Action()
+		class NavigateTo(val url: String) : Action()
 		class SetLoading(val isLoading: Boolean) : Action()
 		class OpenExternalResource(val url: String) : Action()
 		class ConfirmOpenExternalResource(val url: String) : Action()
