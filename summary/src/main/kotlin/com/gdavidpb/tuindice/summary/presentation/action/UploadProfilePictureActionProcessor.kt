@@ -5,14 +5,14 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.summary.R
-import com.gdavidpb.tuindice.summary.domain.usecase.TakeProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureError
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class UploadProfilePictureActionProcessor(
-	private val takeProfilePictureUseCase: TakeProfilePictureUseCase,
+	private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
 	private val resourceResolver: ResourceResolver
 ) : ActionProcessor<Summary.State, Summary.Action.UploadProfilePicture, Summary.Effect>() {
 
@@ -20,7 +20,7 @@ class UploadProfilePictureActionProcessor(
 		action: Summary.Action.UploadProfilePicture,
 		sideEffect: (Summary.Effect) -> Unit
 	): Flow<Mutation<Summary.State>> {
-		return takeProfilePictureUseCase.execute(Unit)
+		return uploadProfilePictureUseCase.execute(params = action.path)
 			.map { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> { state ->
