@@ -39,10 +39,10 @@ class AddEvaluationViewModel(
 	fun setDateAction(date: Long?) =
 		sendAction(AddEvaluation.Action.SetDate(date))
 
-	fun setGradeAction(grade: Double?) =
+	fun setGradeAction(grade: Double) =
 		sendAction(AddEvaluation.Action.SetGrade(grade))
 
-	fun setMaxGradeAction(grade: Double?) =
+	fun setMaxGradeAction(grade: Double) =
 		sendAction(AddEvaluation.Action.SetMaxGrade(grade))
 
 	fun loadAvailableSubjectsAction() =
@@ -65,10 +65,10 @@ class AddEvaluationViewModel(
 	)
 
 	fun clickGradeAction(grade: Double?, maxGrade: Double?) =
-		sendAction(AddEvaluation.Action.ClickGrade(grade ?: 0.0, maxGrade ?: 0.0))
+		sendAction(AddEvaluation.Action.ClickGrade(grade, maxGrade))
 
-	fun clickMaxGradeAction(grade: Double?) =
-		sendAction(AddEvaluation.Action.ClickMaxGrade(grade ?: 0.0))
+	fun clickMaxGradeAction(maxGrade: Double?) =
+		sendAction(AddEvaluation.Action.ClickMaxGrade(maxGrade))
 
 	fun closeDialogAction() =
 		sendAction(AddEvaluation.Action.CloseDialog)

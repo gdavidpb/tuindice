@@ -3,10 +3,12 @@ package com.gdavidpb.tuindice.evaluations.presentation.route
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.rememberDialogState
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
+import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsDialog
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
@@ -61,6 +63,7 @@ fun EvaluationsRoute(
 	when (val dialog = dialogState.value) {
 		is EvaluationsDialog.GradePicker ->
 			GradePickerDialog(
+				title = stringResource(id = R.string.dialog_title_add_evaluation_grade),
 				selectedGrade = dialog.grade,
 				gradeRange = MIN_EVALUATION_GRADE..dialog.maxGrade,
 				onGradeChange = { grade ->

@@ -39,20 +39,20 @@ object AddEvaluation {
 		) : Action()
 
 		class SetGrade(
-			val grade: Double?
+			val grade: Double
 		) : Action()
 
 		class SetMaxGrade(
-			val maxGrade: Double?
-		) : Action()
-
-		class ClickGrade(
-			val grade: Double,
 			val maxGrade: Double
 		) : Action()
 
+		class ClickGrade(
+			val grade: Double?,
+			val maxGrade: Double?
+		) : Action()
+
 		class ClickMaxGrade(
-			val grade: Double
+			val maxGrade: Double?
 		) : Action()
 
 		class ClickDone(
@@ -70,12 +70,12 @@ object AddEvaluation {
 		data object NavigateToEvaluations : Effect()
 
 		class ShowGradePickerDialog(
-			val grade: Double,
-			val maxGrade: Double
+			val grade: Double?,
+			val maxGrade: Double?
 		) : Effect()
 
 		class ShowMaxGradePickerDialog(
-			val grade: Double
+			val maxGrade: Double?
 		) : Effect()
 
 		class ShowSnackBar(
