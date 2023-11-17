@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.error.UpdateEvaluationError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toUpdateEvaluationParams
 import kotlinx.coroutines.flow.Flow
@@ -43,35 +42,11 @@ class EditEvaluationActionProcessor(
 					}
 
 					is UseCaseState.Error -> { state ->
-						when (useCaseState.error) {
-							is UpdateEvaluationError.SubjectMissed ->
-								sideEffect(
-									Evaluation.Effect.ShowSnackBar(
-										message = resourceResolver.getString(R.string.error_evaluation_subject_missed)
-									)
-								)
-
-							is UpdateEvaluationError.TypeMissed ->
-								sideEffect(
-									Evaluation.Effect.ShowSnackBar(
-										message = resourceResolver.getString(R.string.error_evaluation_type_missed)
-									)
-								)
-
-							is UpdateEvaluationError.MaxGradeMissed ->
-								sideEffect(
-									Evaluation.Effect.ShowSnackBar(
-										message = resourceResolver.getString(R.string.error_evaluation_max_grade_missed)
-									)
-								)
-
-							else ->
-								sideEffect(
-									Evaluation.Effect.ShowSnackBar(
-										message = resourceResolver.getString(R.string.snack_default_error)
-									)
-								)
-						}
+						sideEffect(
+							Evaluation.Effect.ShowSnackBar(
+								message = resourceResolver.getString(R.string.snack_default_error)
+							)
+						)
 
 						state
 					}
