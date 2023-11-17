@@ -18,8 +18,8 @@ class BrowserViewModel(
 	private val closeBrowserDialogActionProcessor: CloseBrowserDialogActionProcessor
 ) : BaseViewModel<Browser.State, Browser.Action, Browser.Effect>(initialState = Browser.State.Idle) {
 
-	fun navigateToAction(title: String, url: String) =
-		sendAction(Browser.Action.NavigateTo(title, url))
+	fun navigateToAction(url: String) =
+		sendAction(Browser.Action.NavigateTo(url))
 
 	fun openExternalResourceAction(url: String) =
 		sendAction(Browser.Action.OpenExternalResource(url))

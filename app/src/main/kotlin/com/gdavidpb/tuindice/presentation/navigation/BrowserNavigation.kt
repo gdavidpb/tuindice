@@ -7,6 +7,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.presentation.route.BrowserRoute
 
 fun NavController.navigateToBrowser(title: String, url: String) {
 	navigate("${Destination.Browser.route}/${Uri.encode(title)}/${Uri.encode(url)}")
@@ -20,8 +21,7 @@ fun NavGraphBuilder.browserScreen() {
 			navArgument("url") { type = NavType.StringType }
 		)
 	) { backStackEntry ->
-		com.gdavidpb.tuindice.presentation.route.BrowserRoute(
-			title = backStackEntry.arguments?.getString("title") ?: "",
+		BrowserRoute(
 			url = backStackEntry.arguments?.getString("url") ?: ""
 		)
 	}

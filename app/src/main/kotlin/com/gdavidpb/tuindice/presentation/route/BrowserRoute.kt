@@ -19,7 +19,6 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrowserRoute(
-	title: String,
 	url: String,
 	viewModel: com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel = koinViewModel()
 ) {
@@ -43,7 +42,7 @@ fun BrowserRoute(
 	}
 
 	LaunchedEffect(Unit) {
-		viewModel.navigateToAction(title = title, url = url)
+		viewModel.navigateToAction( url = url)
 	}
 
 	when (val state = dialogState.value) {
