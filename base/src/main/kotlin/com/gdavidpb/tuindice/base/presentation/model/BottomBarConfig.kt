@@ -15,22 +15,22 @@ sealed class BottomBarConfig(
 	val unselectedIcon: ImageVector,
 	val selectedIcon: ImageVector
 ) {
-	object Summary : BottomBarConfig(
+	data object Summary : BottomBarConfig(
 		unselectedIcon = Icons.Outlined.BookmarkBorder,
 		selectedIcon = Icons.Filled.Bookmark
 	)
 
-	object Record : BottomBarConfig(
+	data object Record : BottomBarConfig(
 		unselectedIcon = Icons.Outlined.Book,
 		selectedIcon = Icons.Filled.Book
 	)
 
-	object Evaluations : BottomBarConfig(
+	data object Evaluations : BottomBarConfig(
 		unselectedIcon = Icons.Outlined.DateRange,
 		selectedIcon = Icons.Filled.DateRange
 	)
 
-	object About : BottomBarConfig(
+	data object About : BottomBarConfig(
 		unselectedIcon = Icons.Outlined.FavoriteBorder,
 		selectedIcon = Icons.Filled.Favorite
 	)
