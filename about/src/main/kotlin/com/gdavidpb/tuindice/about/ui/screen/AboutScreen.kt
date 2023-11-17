@@ -21,12 +21,14 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import com.gdavidpb.tuindice.about.R
+import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.ui.view.AboutHeaderView
 import com.gdavidpb.tuindice.about.ui.view.AboutView
 import com.gdavidpb.tuindice.about.ui.view.getVersionName
 
 @Composable
 fun AboutScreen(
+	state: About.State,
 	onCreativeCommonsClick: () -> Unit,
 	onXClick: () -> Unit,
 	onGithubClick: () -> Unit,

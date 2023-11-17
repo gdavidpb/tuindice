@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.about.presentation.route
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.about.BuildConfig
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
@@ -22,6 +24,7 @@ fun AboutRoute(
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
 	viewModel: AboutViewModel = koinViewModel()
 ) {
+	val viewState by viewModel.state.collectAsStateWithLifecycle()
 	val context = LocalContext.current
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
@@ -56,6 +59,7 @@ fun AboutRoute(
 	}
 
 	AboutScreen(
+		state = viewState,
 		onCreativeCommonsClick = { viewModel.openUrlAction(BuildConfig.URL_CREATIVE_COMMONS) },
 		onXClick = { viewModel.openUrlAction(BuildConfig.URL_X) },
 		onGithubClick = { viewModel.openUrlAction(BuildConfig.URL_GITHUB) },
