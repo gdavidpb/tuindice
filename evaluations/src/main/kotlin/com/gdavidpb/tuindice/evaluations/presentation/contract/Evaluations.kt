@@ -36,6 +36,8 @@ object Evaluations {
 			val filter: EvaluationFilter
 		) : Action()
 
+		data object ClearEvaluationFilters : Action()
+
 		data object AddEvaluation : Action()
 
 		class ShowEvaluationGradeDialog(

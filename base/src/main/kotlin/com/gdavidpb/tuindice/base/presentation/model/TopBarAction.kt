@@ -9,12 +9,12 @@ sealed class TopBarAction(
 	val action: String,
 	val icon: ImageVector
 ) {
-	object SignOutAction : TopBarAction(
+	data object SignOutAction : TopBarAction(
 		action = "sign_out",
 		icon = Icons.Outlined.Logout
 	)
 
-	object FetchEnrollmentProofAction : TopBarAction(
+	data object FetchEnrollmentProofAction : TopBarAction(
 		action = "enrollment_proof",
 		icon = Icons.Outlined.FindInPage
 	)
