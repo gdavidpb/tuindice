@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.action.list.CheckEvaluationFilterActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.ClearEvaluationFiltersActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.list.CloseListDialogActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.list.LoadEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.list.OpenAddEvaluationActionProcessor
@@ -25,6 +26,7 @@ class EvaluationsViewModel(
 	private val loadEvaluationsActionProcessor: LoadEvaluationsActionProcessor,
 	private val checkEvaluationFilterActionProcessor: CheckEvaluationFilterActionProcessor,
 	private val uncheckEvaluationFilterActionProcessor: UncheckEvaluationFilterActionProcessor,
+	private val clearEvaluationFiltersActionProcessor: ClearEvaluationFiltersActionProcessor,
 	private val openAddEvaluationActionProcessor: OpenAddEvaluationActionProcessor,
 	private val pickEvaluationGradeActionProcessor: PickEvaluationGradeActionProcessor,
 	private val setEvaluationGradeActionProcessor: SetEvaluationGradeActionProcessor,
@@ -46,11 +48,14 @@ class EvaluationsViewModel(
 	fun loadEvaluationsAction() =
 		sendAction(Evaluations.Action.LoadEvaluations(activeFilters))
 
-	fun filterEvaluationsAction(filter: EvaluationFilter, isChecked: Boolean) =
+	fun toggleFilterAction(filter: EvaluationFilter, isChecked: Boolean) =
 		if (isChecked)
 			sendAction(Evaluations.Action.CheckEvaluationFilter(filter))
 		else
 			sendAction(Evaluations.Action.UncheckEvaluationFilter(filter))
+
+	fun clearFiltersAction() =
+		sendAction(Evaluations.Action.ClearEvaluationFilters)
 
 	fun addEvaluationAction() =
 		sendAction(Evaluations.Action.AddEvaluation)
@@ -83,6 +88,9 @@ class EvaluationsViewModel(
 
 			is Evaluations.Action.UncheckEvaluationFilter ->
 				uncheckEvaluationFilterActionProcessor.process(action, sideEffect)
+
+			is Evaluations.Action.ClearEvaluationFilters ->
+				clearEvaluationFiltersActionProcessor.process(action, sideEffect)
 
 			is Evaluations.Action.AddEvaluation ->
 				openAddEvaluationActionProcessor.process(action, sideEffect)

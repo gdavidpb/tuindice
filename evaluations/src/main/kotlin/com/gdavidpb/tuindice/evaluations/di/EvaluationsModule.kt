@@ -37,6 +37,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetMaxGradeActi
 import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetSubjectActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.add.SetTypeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.list.CheckEvaluationFilterActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.list.ClearEvaluationFiltersActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.list.CloseListDialogActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.list.LoadEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.list.OpenAddEvaluationActionProcessor
@@ -76,6 +77,7 @@ val evaluationsModule = module {
 	factoryOf(::LoadEvaluationsActionProcessor)
 	factoryOf(::CheckEvaluationFilterActionProcessor)
 	factoryOf(::UncheckEvaluationFilterActionProcessor)
+	factoryOf(::ClearEvaluationFiltersActionProcessor)
 	factoryOf(::OpenAddEvaluationActionProcessor)
 	factoryOf(::PickEvaluationGradeActionProcessor)
 	factoryOf(::SetEvaluationGradeActionProcessor)
