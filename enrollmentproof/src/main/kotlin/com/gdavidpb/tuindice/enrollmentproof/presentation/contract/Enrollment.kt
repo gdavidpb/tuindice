@@ -5,18 +5,18 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object Enrollment {
-	sealed class State : ViewState {
-		data object Fetching : State()
+	sealed interface State : ViewState {
+		data object Fetching : State
 	}
 
-	sealed class Action : ViewAction {
-		data object FetchEnrollmentProof : Action()
+	sealed interface Action : ViewAction {
+		data object FetchEnrollmentProof : Action
 	}
 
-	sealed class Effect : ViewEffect {
-		data object CloseDialog : Effect()
-		class OpenEnrollmentProof(val path: String) : Effect()
-		data object NavigateToOutdatedPassword : Effect()
-		class ShowSnackBar(val message: String) : Effect()
+	sealed interface Effect : ViewEffect {
+		data object CloseDialog : Effect
+		class OpenEnrollmentProof(val path: String) : Effect
+		data object NavigateToOutdatedPassword : Effect
+		class ShowSnackBar(val message: String) : Effect
 	}
 }

@@ -12,8 +12,8 @@ import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 
 object Main {
-	sealed class State : ViewState {
-		data object Starting : State()
+	sealed interface State : ViewState {
+		data object Starting : State
 
 		data class Content(
 			val title: String,
@@ -21,24 +21,24 @@ object Main {
 			val currentDestination: Destination,
 			val destinations: Map<String, Destination>,
 			val topBarConfig: TopBarConfig? = null
-		) : State()
+		) : State
 
-		data object Failed : State()
+		data object Failed : State
 	}
 
-	sealed class Action : ViewAction {
-		class UpdateState(val state: State) : Action()
-		class StartUp(val data: String?) : Action()
-		class RequestReview(val reviewManager: ReviewManager) : Action()
-		class RequestUpdate(val appUpdateManager: AppUpdateManager) : Action()
-		class SetLastScreen(val route: String) : Action()
-		data object CloseDialog : Action()
+	sealed interface Action : ViewAction {
+		class UpdateState(val state: State) : Action
+		class StartUp(val data: String?) : Action
+		class RequestReview(val reviewManager: ReviewManager) : Action
+		class RequestUpdate(val appUpdateManager: AppUpdateManager) : Action
+		class SetLastScreen(val route: String) : Action
+		data object CloseDialog : Action
 	}
 
-	sealed class Effect : ViewEffect {
-		class ShowNoServicesDialog(val status: ServicesStatus) : Effect()
-		class ShowReviewDialog(val reviewInfo: ReviewInfo) : Effect()
-		class StartUpdateFlow(val updateInfo: AppUpdateInfo) : Effect()
-		data object CloseDialog : Effect()
+	sealed interface Effect : ViewEffect {
+		class ShowNoServicesDialog(val status: ServicesStatus) : Effect
+		class ShowReviewDialog(val reviewInfo: ReviewInfo) : Effect
+		class StartUpdateFlow(val updateInfo: AppUpdateInfo) : Effect
+		data object CloseDialog : Effect
 	}
 }
