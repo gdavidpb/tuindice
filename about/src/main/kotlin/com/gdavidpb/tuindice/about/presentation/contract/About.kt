@@ -5,38 +5,38 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object About {
-	sealed class State : ViewState {
-		data object Idle : State()
+	sealed interface State : ViewState {
+		data object Idle : State
 	}
 
-	sealed class Action : ViewAction {
-		data object OpenTermsAndConditions : Action()
-		data object OpenPrivacyPolicy : Action()
-		class OpenUrl(val url: String) : Action()
-		data object RateOnPlayStore : Action()
-		data object ReportBug : Action()
-		data object ContactDeveloper : Action()
-		data object ShareApp : Action()
+	sealed interface Action : ViewAction {
+		data object OpenTermsAndConditions : Action
+		data object OpenPrivacyPolicy : Action
+		class OpenUrl(val url: String) : Action
+		data object RateOnPlayStore : Action
+		data object ReportBug : Action
+		data object ContactDeveloper : Action
+		data object ShareApp : Action
 	}
 
-	sealed class Effect : ViewEffect {
+	sealed interface Effect : ViewEffect {
 		class NavigateToBrowser(
 			val title: String,
 			val url: String
-		) : Effect()
+		) : Effect
 
 		class StartShare(
 			val subject: String,
 			val text: String
-		) : Effect()
+		) : Effect
 
-		data object StartPlayStore : Effect()
-		data object StartEmail : Effect()
+		data object StartPlayStore : Effect
+		data object StartEmail : Effect
 
 		class StartBrowser(
 			val url: String
-		) : Effect()
+		) : Effect
 
-		data object ShowReportBugDialog : Effect()
+		data object ShowReportBugDialog : Effect
 	}
 }

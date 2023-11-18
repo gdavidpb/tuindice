@@ -6,54 +6,54 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
 
 object SignIn {
-	sealed class State : ViewState {
+	sealed interface State : ViewState {
 		data class Idle(
 			val usbId: String = "",
 			val password: String = ""
-		) : State()
+		) : State
 
 		data class LoggingIn(
 			val usbId: String,
 			val password: String,
 			val messages: List<String>
-		) : State()
+		) : State
 	}
 
-	sealed class Action : ViewAction {
+	sealed interface Action : ViewAction {
 		class SetUsbId(
 			val usbId: String
-		) : Action()
+		) : Action
 
 		class SetPassword(
 			val password: String
-		) : Action()
+		) : Action
 
 		class ClickSignIn(
 			val usbId: String,
 			val password: String
-		) : Action()
+		) : Action
 
-		data object ClickTermsAndConditions : Action()
+		data object ClickTermsAndConditions : Action
 
-		data object ClickPrivacyPolicy : Action()
+		data object ClickPrivacyPolicy : Action
 	}
 
-	sealed class Effect : ViewEffect {
-		data object NavigateToSummary : Effect()
+	sealed interface Effect : ViewEffect {
+		data object NavigateToSummary : Effect
 
 		class NavigateToBrowser(
 			val title: String,
 			val url: String
-		) : Effect()
+		) : Effect
 
 		class ShowSnackBar(
 			val message: String
-		) : Effect()
+		) : Effect
 
 		class ShowRetrySnackBar(
 			val message: String,
 			val actionLabel: String,
 			val params: SignInParams
-		) : Effect()
+		) : Effect
 	}
 }

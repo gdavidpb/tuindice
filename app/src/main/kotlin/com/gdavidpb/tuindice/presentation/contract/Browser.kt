@@ -5,26 +5,26 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object Browser {
-	sealed class State : ViewState {
-		data object Idle : State()
+	sealed interface State : ViewState {
+		data object Idle : State
 
 		data class Content(
 			val url: String,
 			val isLoading: Boolean
-		) : State()
+		) : State
 	}
 
-	sealed class Action : ViewAction {
-		class NavigateTo(val url: String) : Action()
-		class SetLoading(val isLoading: Boolean) : Action()
-		class OpenExternalResource(val url: String) : Action()
-		class ConfirmOpenExternalResource(val url: String) : Action()
-		data object CloseDialog : Action()
+	sealed interface Action : ViewAction {
+		class NavigateTo(val url: String) : Action
+		class SetLoading(val isLoading: Boolean) : Action
+		class OpenExternalResource(val url: String) : Action
+		class ConfirmOpenExternalResource(val url: String) : Action
+		data object CloseDialog : Action
 	}
 
-	sealed class Effect : ViewEffect {
-		class OpenExternalResource(val url: String) : Effect()
-		class ShowExternalResourceDialog(val url: String) : Effect()
-		data object CloseDialog : Effect()
+	sealed interface Effect : ViewEffect {
+		class OpenExternalResource(val url: String) : Effect
+		class ShowExternalResourceDialog(val url: String) : Effect
+		data object CloseDialog : Effect
 	}
 }

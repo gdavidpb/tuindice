@@ -7,8 +7,8 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object Evaluation {
-	sealed class State : ViewState {
-		data object Loading : State()
+	sealed interface State : ViewState {
+		data object Loading : State
 
 		data class Content(
 			val availableSubjects: List<Subject>,
@@ -18,46 +18,46 @@ object Evaluation {
 			val isOverdue: Boolean = false,
 			val grade: Double? = null,
 			val maxGrade: Double? = null
-		) : State()
+		) : State
 
-		data object Failed : State()
+		data object Failed : State
 	}
 
-	sealed class Action : ViewAction {
-		data object LoadAvailableSubjects : Action()
+	sealed interface Action : ViewAction {
+		data object LoadAvailableSubjects : Action
 
 		class LoadEvaluation(
 			val evaluationId: String
-		) : Action()
+		) : Action
 
 		class SetSubject(
 			val subject: Subject
-		) : Action()
+		) : Action
 
 		class SetType(
 			val type: EvaluationType
-		) : Action()
+		) : Action
 
 		class SetDate(
 			val date: Long?
-		) : Action()
+		) : Action
 
 		class SetGrade(
 			val grade: Double
-		) : Action()
+		) : Action
 
 		class SetMaxGrade(
 			val maxGrade: Double
-		) : Action()
+		) : Action
 
 		class ClickGrade(
 			val grade: Double?,
 			val maxGrade: Double?
-		) : Action()
+		) : Action
 
 		class ClickMaxGrade(
 			val maxGrade: Double?
-		) : Action()
+		) : Action
 
 		class ClickAddEvaluation(
 			val subject: Subject?,
@@ -65,7 +65,7 @@ object Evaluation {
 			val date: Long?,
 			val grade: Double?,
 			val maxGrade: Double?
-		) : Action()
+		) : Action
 
 		class ClickEditEvaluation(
 			val evaluationId: String,
@@ -74,27 +74,27 @@ object Evaluation {
 			val date: Long?,
 			val grade: Double?,
 			val maxGrade: Double?
-		) : Action()
+		) : Action
 
-		data object CloseDialog : Action()
+		data object CloseDialog : Action
 	}
 
-	sealed class Effect : ViewEffect {
-		data object NavigateToEvaluations : Effect()
+	sealed interface Effect : ViewEffect {
+		data object NavigateToEvaluations : Effect
 
 		class ShowGradePickerDialog(
 			val grade: Double?,
 			val maxGrade: Double?
-		) : Effect()
+		) : Effect
 
 		class ShowMaxGradePickerDialog(
 			val maxGrade: Double?
-		) : Effect()
+		) : Effect
 
 		class ShowSnackBar(
 			val message: String
-		) : Effect()
+		) : Effect
 
-		data object CloseDialog : Effect()
+		data object CloseDialog : Effect
 	}
 }
