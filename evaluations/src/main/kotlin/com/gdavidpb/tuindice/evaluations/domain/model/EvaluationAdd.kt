@@ -8,6 +8,6 @@ data class EvaluationAdd(
 	val subjectId: String,
 	val type: EvaluationType,
 	val date: Long,
-	val grade: Double,
+	val grade: Double?,
 	val maxGrade: Double
 )

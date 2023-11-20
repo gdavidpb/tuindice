@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.error.AddEvaluationError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toAddEvaluationParams
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 class AddEvaluationActionProcessor(
