@@ -17,7 +17,7 @@ dependencies {
     debugApi "com.squareup.retrofit2:retrofit-mock:${versions.retrofit}"
 
     /* AndroidX */
-    api "androidx.browser:browser:1.6.0"
+    api "androidx.browser:browser:1.7.0"
     api "androidx.preference:preference-ktx:1.2.1"
     api "androidx.work:work-runtime-ktx:${versions.work}"
     api "androidx.exifinterface:exifinterface:1.3.6"
@@ -42,17 +42,14 @@ dependencies {
     api "com.google.android.play:core-ktx:1.8.1"
 
     /* Compose */
-    api platform("androidx.compose:compose-bom:2023.09.00")
+    api platform("androidx.compose:compose-bom:2023.10.01")
 
     api "androidx.compose.ui:ui-tooling:1.5.4"
     api "androidx.compose.ui:ui-tooling-preview:1.5.4"
+    api "androidx.activity:activity-compose:1.8.1"
     api "androidx.compose.material3:material3:1.1.2"
     api "androidx.compose.material:material-icons-extended:1.5.4"
     api "androidx.constraintlayout:constraintlayout-compose:1.0.1"
-
-    api "androidx.activity:activity-compose:1.8.0"
-    api "androidx.lifecycle:lifecycle-runtime-compose:2.6.2"
-    api "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2"
 
     /* Navigation */
     api "androidx.navigation:navigation-compose:${versions.navigation}"
@@ -64,6 +61,8 @@ dependencies {
     api "androidx.arch.core:core-common:2.2.0"
 
     /* Lifecycle */
+    api "androidx.lifecycle:lifecycle-runtime-compose:${versions.lifecycle}"
+    api "androidx.lifecycle:lifecycle-viewmodel-compose:${versions.lifecycle}"
     api "androidx.lifecycle:lifecycle-extensions:${versions.lifecycle_ext}"
     api "androidx.lifecycle:lifecycle-runtime-ktx:${versions.lifecycle}"
     api "androidx.lifecycle:lifecycle-viewmodel-ktx:${versions.lifecycle}"
