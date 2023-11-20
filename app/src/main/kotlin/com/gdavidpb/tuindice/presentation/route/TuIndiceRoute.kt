@@ -42,7 +42,6 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialNavigationApi::class)
 @Composable
 fun TuIndiceRoute(
-	startData: String?,
 	reviewManager: ReviewManager = koinInject(),
 	appUpdateManager: AppUpdateManager = koinInject(),
 	viewModel: MainViewModel = koinViewModel()
@@ -85,7 +84,6 @@ fun TuIndiceRoute(
 	}
 
 	LaunchedEffect(Unit) {
-		viewModel.startUpAction(data = startData)
 		viewModel.requestReviewAction(reviewManager = reviewManager)
 
 		lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
