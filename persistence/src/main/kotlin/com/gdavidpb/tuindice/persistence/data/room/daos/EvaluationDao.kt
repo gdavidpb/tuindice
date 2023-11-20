@@ -66,20 +66,8 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 	abstract suspend fun getSubjectEvaluationsByType(
 		uid: String,
 		sid: String,
-		type: Int
+		type: EvaluationType
 	): List<EvaluationEntity>
-
-	@Query(
-		"UPDATE ${EvaluationTable.TABLE_NAME} " +
-				"SET ${EvaluationTable.ORDINAL} = :ordinal " +
-				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
-				"AND ${EvaluationTable.ID} = :eid"
-	)
-	abstract suspend fun updateEvaluationOrdinalById(
-		uid: String,
-		eid: String,
-		ordinal: Int
-	)
 
 	@RawQuery
 	@Transaction
