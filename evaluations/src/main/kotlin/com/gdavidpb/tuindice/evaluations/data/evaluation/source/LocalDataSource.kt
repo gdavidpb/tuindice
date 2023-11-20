@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {
 	suspend fun getEvaluations(uid: String): Flow<List<Evaluation>>
-	suspend fun getEvaluation(uid: String, eid: String): Evaluation
+	suspend fun getEvaluation(uid: String, eid: String): Evaluation?
 
 	suspend fun addEvaluation(uid: String, add: EvaluationAdd)
 	suspend fun saveEvaluations(uid: String, evaluations: List<Evaluation>)

@@ -33,7 +33,7 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 	abstract fun getEvaluationWithSubject(
 		uid: String,
 		eid: String
-	): EvaluationWithSubject
+	): EvaluationWithSubject?
 
 	@Query(
 		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
