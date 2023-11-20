@@ -7,13 +7,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
 
-fun Double.formatGrade() = if (this % 1 == 0.0) toInt().formatGrade() else formatGrade(2)
-
 fun Double.formatGrade(decimals: Int) = "%.${decimals}f".format(round(decimals))
 
 fun Float.formatGrade(decimals: Int) = "%.${decimals}f".format(toDouble().round(decimals))
-
-fun Int.formatGrade() = "$this"
 
 fun Pair<Date, Date>.formatQuarterName(): String {
 	val start = first.format("MMM")?.capitalize()
