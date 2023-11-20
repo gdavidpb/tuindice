@@ -17,7 +17,7 @@ class StartUpActionProcessor(
 		action: Main.Action.StartUp,
 		sideEffect: (Main.Effect) -> Unit
 	): Flow<Mutation<Main.State>> {
-		return startUpUseCase.execute(params = action.data)
+		return startUpUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> { _ ->

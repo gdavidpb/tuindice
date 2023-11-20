@@ -20,13 +20,13 @@ class MainViewModel(
 	private val requestUpdateActionProcessor: RequestUpdateActionProcessor,
 	private val setLastScreenActionProcessor: SetLastScreenActionProcessor,
 	private val closeMainDialogActionProcessor: CloseMainDialogActionProcessor
-) : BaseViewModel<Main.State, Main.Action, Main.Effect>(initialState = Main.State.Starting) {
+) : BaseViewModel<Main.State, Main.Action, Main.Effect>(
+	initialState = Main.State.Starting,
+	initialAction = Main.Action.StartUp
+) {
 
 	fun updateStateAction(state: Main.State) =
 		sendAction(Main.Action.UpdateState(state))
-
-	fun startUpAction(data: String?) =
-		sendAction(Main.Action.StartUp(data = data))
 
 	fun requestReviewAction(reviewManager: ReviewManager) =
 		sendAction(Main.Action.RequestReview(reviewManager))

@@ -12,9 +12,7 @@ class MainActivity : ComponentActivity() {
 
 		setContent {
 			TuIndiceTheme {
-				TuIndiceRoute(
-					startData = intent.dataString
-				)
+				TuIndiceRoute()
 			}
 		}
 	}

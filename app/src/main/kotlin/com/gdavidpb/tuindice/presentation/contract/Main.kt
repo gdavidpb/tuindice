@@ -28,7 +28,7 @@ object Main {
 
 	sealed interface Action : ViewAction {
 		class UpdateState(val state: State) : Action
-		class StartUp(val data: String?) : Action
+		data object StartUp : Action
 		class RequestReview(val reviewManager: ReviewManager) : Action
 		class RequestUpdate(val appUpdateManager: AppUpdateManager) : Action
 		class SetLastScreen(val route: String) : Action

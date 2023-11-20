@@ -20,8 +20,8 @@ class StartUpUseCase(
 	private val mobileServicesRepository: MobileServicesRepository,
 	private val configRepository: ConfigRepository,
 	override val exceptionHandler: StartUpExceptionHandler
-) : FlowUseCase<String?, StartUpData, StartUpError>() {
-	override suspend fun executeOnBackground(params: String?): Flow<StartUpData> {
+) : FlowUseCase<Unit, StartUpData, StartUpError>() {
+	override suspend fun executeOnBackground(params: Unit): Flow<StartUpData> {
 		val servicesStatus = mobileServicesRepository.getServicesStatus()
 
 		check(servicesStatus.isAvailable) {

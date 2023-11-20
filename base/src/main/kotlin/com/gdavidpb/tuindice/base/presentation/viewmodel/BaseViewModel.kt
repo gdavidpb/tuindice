@@ -10,8 +10,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
@@ -19,7 +21,8 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class)
 abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
-	initialState: S
+	initialState: S,
+	initialAction: A? = null
 ) : ViewModel() {
 	private val actionsChannel = Channel<A>()
 	private val effectsChannel = Channel<E>()
@@ -28,6 +31,7 @@ abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 
 	val state = actionsChannel
 		.receiveAsFlow()
+		.onStart { if (initialAction != null) emit(initialAction) }
 		.flatMapMerge { action -> processAction(action, ::sendEffect) }
 		.scan(initialState) { currentState, mutation -> mutation(currentState) }
 		.distinctUntilChanged()
