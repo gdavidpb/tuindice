@@ -22,9 +22,9 @@ class RoomDataSource(
 			.map { evaluations -> evaluations.map { evaluation -> evaluation.toEvaluation() } }
 	}
 
-	override suspend fun getEvaluation(uid: String, eid: String): Evaluation {
+	override suspend fun getEvaluation(uid: String, eid: String): Evaluation? {
 		return room.evaluations.getEvaluationWithSubject(uid, eid)
-			.toEvaluation()
+			?.toEvaluation()
 	}
 
 	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {

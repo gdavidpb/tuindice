@@ -21,6 +21,10 @@ class EvaluationDataRepository(
 ) : EvaluationRepository {
 	override suspend fun getEvaluation(uid: String, eid: String): Evaluation {
 		return localDataSource.getEvaluation(uid, eid)
+			?: remoteDataSource.getEvaluation(eid)
+				.also { evaluation ->
+					localDataSource.saveEvaluations(uid, listOf(evaluation))
+				}
 	}
 
 	override suspend fun getEvaluations(uid: String): Flow<List<Evaluation>> {
