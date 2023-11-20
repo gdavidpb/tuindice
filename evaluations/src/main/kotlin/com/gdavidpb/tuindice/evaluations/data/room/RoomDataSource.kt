@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.evaluations.data.room
 
-import androidx.room.withTransaction
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
@@ -28,27 +27,13 @@ class RoomDataSource(
 	}
 
 	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
-		room.withTransaction {
-			val evaluationEntity = add.toEvaluationEntity(
-				uid = uid
-			)
+		val evaluationEntity = add.toEvaluationEntity(
+			uid = uid
+		)
 
-			room.evaluations.upsertEntities(listOf(evaluationEntity))
-
-			val subjectEvaluations = room.evaluations.getSubjectEvaluationsByType(
-				uid = uid,
-				sid = add.subjectId,
-				type = add.type.ordinal
-			)
-
-			subjectEvaluations.forEachIndexed { index, entity ->
-				room.evaluations.updateEvaluationOrdinalById(
-					uid = uid,
-					eid = entity.id,
-					ordinal = index + 1
-				)
-			}
-		}
+		room.evaluations.upsertEntities(
+			entities = listOf(evaluationEntity)
+		)
 	}
 
 	override suspend fun saveEvaluations(uid: String, evaluations: List<Evaluation>) {
@@ -70,7 +55,10 @@ class RoomDataSource(
 	}
 
 	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
-		room.evaluations.deleteEvaluation(uid = uid, eid = remove.evaluationId)
+		room.evaluations.deleteEvaluation(
+			uid = uid,
+			eid = remove.evaluationId
+		)
 	}
 
 	override suspend fun getAvailableSubjects(uid: String): List<Subject> {

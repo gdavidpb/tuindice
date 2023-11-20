@@ -35,18 +35,33 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 
 @Composable
 @ReadOnlyComposable
-fun List<Evaluation>.toEvaluationGroupItem() = groupBy { evaluation ->
-	evaluation.date.formatAsToNow()
-}.map { (title, evaluations) ->
-	EvaluationsGroupItem(
-		title = title,
-		items = evaluations.map { evaluation -> evaluation.toEvaluationItem() }
-	)
+fun List<Evaluation>.toEvaluationGroupItem(): List<EvaluationsGroupItem> {
+	val ordinalsById =
+		sortedBy { evaluation -> evaluation.date }
+			.groupBy { evaluation -> evaluation.subjectId to evaluation.type }
+			.flatMap { (_, evaluations) ->
+				evaluations
+					.mapIndexed { index, evaluation ->
+						evaluation.evaluationId to index + 1
+					}
+			}.toMap()
+
+	return groupBy { evaluation -> evaluation.date.formatAsToNow() }
+		.map { (title, evaluations) ->
+			EvaluationsGroupItem(
+				title = title,
+				items = evaluations.map { evaluation ->
+					evaluation.toEvaluationItem(
+						ordinal = ordinalsById[evaluation.evaluationId] ?: 1
+					)
+				}
+			)
+		}
 }
 
 @Composable
 @ReadOnlyComposable
-fun Evaluation.toEvaluationItem() = EvaluationItem(
+fun Evaluation.toEvaluationItem(ordinal: Int) = EvaluationItem(
 	evaluationId = evaluationId,
 	name = stringResource(
 		id = R.string.evaluation_name,
