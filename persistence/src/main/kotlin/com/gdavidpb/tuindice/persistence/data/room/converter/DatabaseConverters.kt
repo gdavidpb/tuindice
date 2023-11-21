@@ -4,15 +4,8 @@ import androidx.room.TypeConverter
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
-import java.util.*
 
 class DatabaseConverters {
-	@TypeConverter
-	fun dateToLong(value: Date): Long = value.time
-
-	@TypeConverter
-	fun longToDate(value: Long): Date = Date(value)
-
 	@TypeConverter
 	fun intToBoolean(value: Int): Boolean = value != 0
 

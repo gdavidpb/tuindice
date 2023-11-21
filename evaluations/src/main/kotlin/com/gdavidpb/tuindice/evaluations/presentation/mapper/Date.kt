@@ -1,42 +1,41 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
+import com.gdavidpb.tuindice.base.presentation.mapper.daysToNow
+import com.gdavidpb.tuindice.base.presentation.mapper.formatDate
+import com.gdavidpb.tuindice.base.presentation.mapper.weeksToNow
 import com.gdavidpb.tuindice.base.utils.extension.capitalize
-import com.gdavidpb.tuindice.base.utils.extension.daysDistance
-import com.gdavidpb.tuindice.base.utils.extension.format
-import com.gdavidpb.tuindice.base.utils.extension.weeksDistance
-import java.util.Date
 
-fun Date.formatAsToNow(): String {
-	val daysDistance = daysDistance()
-	val weeksDistance = weeksDistance()
+fun Long.isDatePassed() = this != 0L && daysToNow() < 0
+
+fun Long.formatAsToNow(): String {
+	val daysDistance = daysToNow()
+	val weeksDistance = weeksToNow()
 
 	return when {
-		time == 0L -> "Evaluación continua"
-		daysDistance == 0L -> "Hoy"
-		daysDistance == 1L -> "Mañana"
-		daysDistance == -1L -> "Ayer"
-		weeksDistance == 0L -> {
-			val now = Date()
-
-			if (before(now))
-				"El ${format("EEEE 'pasado —' dd 'de' MMMM")}"
+		this == 0L -> "Evaluación continua"
+		daysDistance == 0 -> "Hoy"
+		daysDistance == 1 -> "Mañana"
+		daysDistance == -1 -> "Ayer"
+		weeksDistance == 0 -> {
+			if (this < System.currentTimeMillis())
+				"El ${formatDate("EEEE 'pasado —' dd 'de' MMMM")}"
 			else
-				"Este ${format("EEEE '—' dd 'de' MMMM")}"
+				"Este ${formatDate("EEEE '—' dd 'de' MMMM")}"
 		}
 
-		weeksDistance == 1L -> "El próximo ${format("EEEE '—' dd 'de' MMMM")}"
+		weeksDistance == 1 -> "El próximo ${formatDate("EEEE '—' dd 'de' MMMM")}"
 		weeksDistance in 2..12 -> "En $weeksDistance semanas"
-		else -> format("EEEE '—' dd/MM/yy")?.capitalize()!!
+		else -> formatDate("EEEE '—' dd/MM/yy")?.capitalize()!!
 	}
 }
 
-fun Date.formatAsDayOfWeekAndDate(): String {
-	return if (time == 0L)
+fun Long.formatAsDayOfWeekAndDate(): String {
+	return if (this == 0L)
 		"Evaluación continua"
 	else
-		format("EEEE '—' dd/MM/yy")?.capitalize()!!
+		formatDate("EEEE '—' dd/MM/yy")?.capitalize()!!
 }
 
-fun Long?.formatAsShortDayOfWeekAndDate(): String {
-	return Date(this!!).format("EEE '—' dd/MM/yy")?.capitalize()!!
+fun Long.formatAsShortDayOfWeekAndDate(): String {
+	return formatDate("EEE '—' dd/MM/yy")?.capitalize()!!
 }

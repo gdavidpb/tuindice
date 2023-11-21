@@ -18,7 +18,7 @@ fun EvaluationResponse.toEvaluation() = Evaluation(
 	quarterId = qid,
 	grade = grade,
 	maxGrade = maxGrade,
-	date = Date(date),
+	date = date,
 	type = EvaluationType.values()[type],
 	state = computeEvaluationState(grade = grade, date = date),
 	subject = subject.toSubject(isEditable = true)
@@ -31,7 +31,7 @@ fun EvaluationResponse.toEvaluationEntity(uid: String) = EvaluationEntity(
 	accountId = uid,
 	grade = grade,
 	maxGrade = maxGrade,
-	date = Date(date),
+	date = date,
 	type = EvaluationType.values()[type]
 )
 

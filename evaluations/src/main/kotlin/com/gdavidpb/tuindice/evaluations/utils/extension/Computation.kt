@@ -3,14 +3,13 @@ package com.gdavidpb.tuindice.evaluations.utils.extension
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
-import com.gdavidpb.tuindice.base.utils.extension.daysDistance
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsToNow
-import java.util.Date
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.isDatePassed
 import kotlin.math.roundToInt
 
 fun Double.toSubjectGrade() = when (roundToInt()) {
@@ -20,8 +19,6 @@ fun Double.toSubjectGrade() = when (roundToInt()) {
 	in 85..Integer.MAX_VALUE -> 5
 	else -> 1
 }
-
-fun Long?.isDatePassed() = this != null && this != 0L && Date(this).daysDistance() < 0
 
 fun computeEvaluationState(grade: Double?, date: Long): EvaluationState {
 	val hasDatePassed = date.isDatePassed()

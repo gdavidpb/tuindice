@@ -23,7 +23,7 @@ class GetEvaluationsUseCase(
 		Comparator<Evaluation> { a, b ->
 			val currentTime = System.currentTimeMillis()
 
-			(a.date.time - currentTime).sign + (b.date.time - currentTime).sign
+			(a.date - currentTime).sign + (b.date - currentTime).sign
 		}
 			.then(compareBy(Evaluation::state))
 
