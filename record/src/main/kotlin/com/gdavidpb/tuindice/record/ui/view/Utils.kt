@@ -8,21 +8,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.withStyle
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 
 @Composable
 @ReadOnlyComposable
-fun String.annotatedQuarterValue(baselineShift: Float = 0.0f) = buildAnnotatedString {
+fun String.annotatedQuarterValue() = buildAnnotatedString {
 	val before = substringBefore(" ")
 	val after = substringAfter(" ")
 
 	withStyle(
 		SpanStyle(
 			color = MaterialTheme.colorScheme.primary,
-			fontWeight = FontWeight.Medium,
-			baselineShift = BaselineShift(baselineShift)
+			fontWeight = FontWeight.Medium
 		)
 	) {
 		append(before)

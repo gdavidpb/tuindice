@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.record.ui.view
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,6 +52,21 @@ fun QuarterItemView(
 				fontWeight = FontWeight.Black
 			)
 
+			val animatedGrade = animateFloatAsState(
+				targetValue = grade.toFloat(),
+				label = "animatedGrade_animateFloatAsState"
+			)
+
+			val animatedGradeSum = animateFloatAsState(
+				targetValue = gradeSum.toFloat(),
+				label = "animatedGradeSum_animateFloatAsState"
+			)
+
+			val animatedCredits = animateIntAsState(
+				targetValue = credits,
+				label = "animatedCredits_animateIntAsState"
+			)
+
 			Row(
 				modifier = Modifier
 					.fillMaxWidth()
@@ -59,18 +76,18 @@ fun QuarterItemView(
 				horizontalArrangement = Arrangement.SpaceAround
 			) {
 				Text(
-					text = stringResource(id = R.string.quarter_grade_diff, grade)
+					text = stringResource(id = R.string.quarter_grade_diff, animatedGrade.value)
 						.annotatedQuarterValue(),
 					style = MaterialTheme.typography.titleMedium
 				)
 				Text(
-					text = stringResource(id = R.string.quarter_grade_sum, gradeSum)
+					text = stringResource(id = R.string.quarter_grade_sum, animatedGradeSum.value)
 						.annotatedQuarterValue(),
 					style = MaterialTheme.typography.titleMedium
 				)
 				Text(
-					text = stringResource(id = R.string.quarter_credits, credits)
-						.annotatedQuarterValue(-0.1f),
+					text = stringResource(id = R.string.quarter_credits, animatedCredits.value)
+						.annotatedQuarterValue(),
 					style = MaterialTheme.typography.titleMedium
 				)
 			}
