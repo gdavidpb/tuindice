@@ -28,8 +28,7 @@ fun RecordContentView(
 					credits = credits,
 					subjects = quarter.subjects,
 					onSubjectGradeChange = { subject, grade, isSelected ->
-						if (isSelected)
-							onSubjectGradeChange(subject.id, grade, true)
+						onSubjectGradeChange(subject.id, grade, isSelected)
 					}
 				)
 			}
