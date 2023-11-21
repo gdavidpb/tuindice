@@ -36,5 +36,5 @@ data class AccountEntity(
 	@ColumnInfo(name = AccountTable.RETIRED_CREDITS) val retiredCredits: Int,
 	@ColumnInfo(name = AccountTable.FAILED_SUBJECTS) val failedSubjects: Int,
 	@ColumnInfo(name = AccountTable.FAILED_CREDITS) val failedCredits: Int,
-	@ColumnInfo(name = AccountTable.LAST_UPDATE) val lastUpdate: Date
+	@ColumnInfo(name = AccountTable.LAST_UPDATE) val lastUpdate: Long
 )

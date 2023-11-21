@@ -1,11 +1,13 @@
 package com.gdavidpb.tuindice.base.utils
 
+import kotlinx.datetime.TimeZone
 import java.util.Locale
-import java.util.TimeZone
+import java.util.TimeZone as JavaTimeZone
 
 /* Default locale */
 val DEFAULT_LOCALE: Locale = Locale("es", "VE")
-val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone("America/Caracas")
+val DEFAULT_TIME_ZONE: TimeZone = TimeZone.of("America/Caracas")
+val DEFAULT_JAVA_TIME_ZONE: JavaTimeZone = JavaTimeZone.getTimeZone("America/Caracas")
 
 /* Request codes */
 object RequestCodes {

@@ -31,8 +31,8 @@ data class QuarterEntity(
 	@ColumnInfo(name = QuarterTable.ACCOUNT_ID) val accountId: String,
 	@ColumnInfo(name = QuarterTable.NAME) val name: String,
 	@ColumnInfo(name = QuarterTable.STATUS) val status: Int,
-	@ColumnInfo(name = QuarterTable.START_DATE) val startDate: Date,
-	@ColumnInfo(name = QuarterTable.END_DATE) val endDate: Date,
+	@ColumnInfo(name = QuarterTable.START_DATE) val startDate: Long,
+	@ColumnInfo(name = QuarterTable.END_DATE) val endDate: Long,
 	@ColumnInfo(name = QuarterTable.GRADE) val grade: Double,
 	@ColumnInfo(name = QuarterTable.GRADE_SUM) val gradeSum: Double,
 	@ColumnInfo(name = QuarterTable.CREDITS) val credits: Int

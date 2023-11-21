@@ -5,8 +5,8 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableSubjectsUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.isDatePassed
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toGetEvaluationParams
-import com.gdavidpb.tuindice.evaluations.utils.extension.isDatePassed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -31,8 +31,8 @@ class LoadEvaluationActionProcessor(
 								availableSubjects = availableSubjects,
 								subject = evaluation?.subject,
 								type = evaluation?.type,
-								date = evaluation?.date?.time,
-								isOverdue = evaluation?.date?.time.isDatePassed(),
+								date = evaluation?.date,
+								isOverdue = evaluation?.date?.isDatePassed() ?: false,
 								grade = evaluation?.grade,
 								maxGrade = evaluation?.maxGrade
 							)

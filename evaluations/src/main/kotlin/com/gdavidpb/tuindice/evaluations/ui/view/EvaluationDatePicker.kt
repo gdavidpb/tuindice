@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.mapper.toLocalTimeZone
+import com.gdavidpb.tuindice.base.presentation.mapper.toUTCTimeZone
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsShortDayOfWeekAndDate
 
@@ -34,7 +36,7 @@ fun EvaluationDatePicker(
 	onDateChange: (date: Long?) -> Unit
 ) {
 	val datePickerState = rememberDatePickerState(
-		initialSelectedDateMillis = selectedDate
+		initialSelectedDateMillis = selectedDate?.toUTCTimeZone()
 	)
 
 	val isPickerDialogOpen = remember {
@@ -52,14 +54,16 @@ fun EvaluationDatePicker(
 			onDismissRequest = {
 				isPickerDialogOpen.value = false
 
-				datePickerState.setSelection(selectedDate)
+				datePickerState.setSelection(selectedDate?.toUTCTimeZone())
 			},
 			confirmButton = {
 				TextButton(
 					onClick = {
 						isPickerDialogOpen.value = false
 
-						val date = datePickerState.selectedDateMillis
+						val date = datePickerState
+							.selectedDateMillis
+							?.toLocalTimeZone()
 
 						onDateChange(date)
 					},
@@ -75,7 +79,7 @@ fun EvaluationDatePicker(
 					onClick = {
 						isPickerDialogOpen.value = false
 
-						datePickerState.setSelection(selectedDate)
+						datePickerState.setSelection(selectedDate?.toUTCTimeZone())
 					}
 				) {
 					Text(
@@ -122,7 +126,10 @@ fun EvaluationDatePicker(
 
 			Text(
 				text = if (isDateSelected.value)
-					datePickerState.selectedDateMillis.formatAsShortDayOfWeekAndDate()
+					datePickerState.selectedDateMillis
+						?.toLocalTimeZone()
+						?.formatAsShortDayOfWeekAndDate()
+						?: stringResource(id = R.string.label_evaluation_date)
 				else
 					stringResource(id = R.string.label_evaluation_date),
 				maxLines = 1,

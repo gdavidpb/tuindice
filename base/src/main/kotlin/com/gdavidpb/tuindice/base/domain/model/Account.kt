@@ -23,5 +23,5 @@ data class Account(
 	val retiredCredits: Int,
 	val failedSubjects: Int,
 	val failedCredits: Int,
-	val lastUpdate: Date
+	val lastUpdate: Long
 )

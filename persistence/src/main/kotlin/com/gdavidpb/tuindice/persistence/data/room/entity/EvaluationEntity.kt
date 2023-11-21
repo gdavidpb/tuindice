@@ -50,6 +50,6 @@ data class EvaluationEntity(
 	@ColumnInfo(name = EvaluationTable.ACCOUNT_ID) val accountId: String,
 	@ColumnInfo(name = EvaluationTable.GRADE) val grade: Double?,
 	@ColumnInfo(name = EvaluationTable.MAX_GRADE) val maxGrade: Double,
-	@ColumnInfo(name = EvaluationTable.DATE) val date: Date,
+	@ColumnInfo(name = EvaluationTable.DATE) val date: Long,
 	@ColumnInfo(name = EvaluationTable.TYPE) val type: EvaluationType
 )

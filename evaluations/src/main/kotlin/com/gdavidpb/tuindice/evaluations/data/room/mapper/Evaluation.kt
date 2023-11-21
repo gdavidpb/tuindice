@@ -26,7 +26,7 @@ fun EvaluationAdd.toEvaluationEntity(uid: String) = EvaluationEntity(
 	accountId = uid,
 	grade = grade,
 	maxGrade = maxGrade,
-	date = Date(date),
+	date = date,
 	type = type
 )
 
@@ -38,6 +38,9 @@ fun EvaluationWithSubject.toEvaluation() = Evaluation(
 	maxGrade = evaluation.maxGrade,
 	date = evaluation.date,
 	type = evaluation.type,
-	state = computeEvaluationState(grade = evaluation.grade, date = evaluation.date.time),
+	state = computeEvaluationState(
+		grade = evaluation.grade,
+		date = evaluation.date
+	),
 	subject = subject.toSubject(isEditable = true)
 )

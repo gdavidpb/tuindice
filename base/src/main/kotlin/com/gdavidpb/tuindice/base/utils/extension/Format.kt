@@ -11,14 +11,6 @@ fun Double.formatGrade(decimals: Int) = "%.${decimals}f".format(round(decimals))
 
 fun Float.formatGrade(decimals: Int) = "%.${decimals}f".format(toDouble().round(decimals))
 
-fun Pair<Date, Date>.formatQuarterName(): String {
-	val start = first.format("MMM")?.capitalize()
-	val end = second.format("MMM")?.capitalize()
-	val year = first.format("yyyy")
-
-	return "$start - $end $year".replace("\\.".toRegex(), "")
-}
-
 fun String.capitalize() =
 	replaceFirstChar { c ->
 		if (c.isLowerCase())
@@ -26,19 +18,3 @@ fun String.capitalize() =
 		else
 			"$c"
 	}
-
-private val dateFormatCache = ConcurrentHashMap<String, DateFormat>()
-
-fun Date.format(format: String) = dateFormatCache.getOrPut(format) {
-	SimpleDateFormat(format, DEFAULT_LOCALE).apply {
-		timeZone = DEFAULT_TIME_ZONE
-	}
-}.runCatching {
-	format(Date(this@format.time - DEFAULT_TIME_ZONE.rawOffset))
-}.getOrNull()
-
-fun String.parse(format: String) = dateFormatCache.getOrPut(format) {
-	SimpleDateFormat(format, DEFAULT_LOCALE).apply {
-		timeZone = DEFAULT_TIME_ZONE
-	}
-}.runCatching { parse(this@parse) }.getOrNull()

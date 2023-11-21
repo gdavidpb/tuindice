@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_MOCK
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.persistence.data.room.entity.QuarterEntity
 import com.gdavidpb.tuindice.record.data.api.response.QuarterResponse
-import java.util.Date
 
 fun QuarterResponse.toQuarter(): Quarter {
 	val isEditable = (status == STATUS_QUARTER_CURRENT) || (status == STATUS_QUARTER_MOCK)
@@ -14,8 +13,8 @@ fun QuarterResponse.toQuarter(): Quarter {
 	return Quarter(
 		id = id,
 		name = name,
-		startDate = Date(startDate),
-		endDate = Date(endDate),
+		startDate = startDate,
+		endDate = endDate,
 		grade = grade,
 		gradeSum = gradeSum,
 		credits = credits,
@@ -31,8 +30,8 @@ fun QuarterResponse.toQuarterAndSubjectsEntities(uid: String) = QuarterEntity(
 	accountId = uid,
 	name = name,
 	status = status,
-	startDate = Date(startDate),
-	endDate = Date(endDate),
+	startDate = startDate,
+	endDate = endDate,
 	grade = grade,
 	gradeSum = gradeSum,
 	credits = credits

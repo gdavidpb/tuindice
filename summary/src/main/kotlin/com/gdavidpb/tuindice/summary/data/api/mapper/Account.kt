@@ -25,5 +25,5 @@ fun AccountResponse.toAccount() = Account(
 	retiredCredits = retiredCredits,
 	failedSubjects = failedSubjects,
 	failedCredits = failedCredits,
-	lastUpdate = Date(lastUpdate)
+	lastUpdate = lastUpdate
 )

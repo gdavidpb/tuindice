@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice
 
-import com.gdavidpb.tuindice.base.utils.extension.daysDistance
-import com.gdavidpb.tuindice.base.utils.extension.weeksDistance
+import com.gdavidpb.tuindice.base.presentation.mapper.daysToNow
+import com.gdavidpb.tuindice.base.presentation.mapper.weeksToNow
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.Calendar
@@ -14,7 +14,7 @@ class DateTest {
 				add(Calendar.DAY_OF_YEAR, days)
 			}
 
-			val actualDistance = futureDate.time.daysDistance()
+			val actualDistance = futureDate.timeInMillis.daysToNow()
 
 			assertEquals(days, actualDistance)
 		}
@@ -27,7 +27,7 @@ class DateTest {
 				add(Calendar.WEEK_OF_YEAR, week)
 			}
 
-			val actualDistance = futureDate.time.weeksDistance()
+			val actualDistance = futureDate.timeInMillis.weeksToNow()
 
 			assertEquals(week, actualDistance)
 		}

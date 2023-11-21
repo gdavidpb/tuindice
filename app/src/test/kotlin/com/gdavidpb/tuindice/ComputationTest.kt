@@ -2,19 +2,24 @@ package com.gdavidpb.tuindice
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.base.presentation.mapper.parseDate
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_MOCK
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_NO_EFFECT
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_RETIRED
-import com.gdavidpb.tuindice.base.utils.extension.*
+import com.gdavidpb.tuindice.base.utils.extension.computeCredits
+import com.gdavidpb.tuindice.base.utils.extension.computeGrade
+import com.gdavidpb.tuindice.base.utils.extension.computeGradeSum
+import com.gdavidpb.tuindice.base.utils.extension.removeNoEffect
 import com.gdavidpb.tuindice.evaluations.utils.extension.toSubjectGrade
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.util.*
+import java.util.Locale
+import java.util.TimeZone
 import kotlin.math.floor
 
 class ComputationTest {
@@ -129,8 +134,8 @@ class ComputationTest {
 	@Test
 	fun computeGradeSum_Test() {
 		val quarter1 = createQuarter(
-			startDate = "Enero 2019".parse("MMMM yyyy")!!,
-			endDate = "Marzo 2019".parse("MMMM yyyy")!!,
+			startDate = "Enero 2019".parseDate("MMMM yyyy")!!.time,
+			endDate = "Marzo 2019".parseDate("MMMM yyyy")!!.time,
 			status = TestValues.STATUS_QUARTER_COMPLETED,
 			subjects = mutableListOf(
 				createSubject(code = "MA1111", grade = 2, credits = 4),
@@ -140,8 +145,8 @@ class ComputationTest {
 		)
 
 		val quarter2 = createQuarter(
-			startDate = "Julio 2019".parse("MMMM yyyy")!!,
-			endDate = "Agosto 2019".parse("MMMM yyyy")!!,
+			startDate = "Julio 2019".parseDate("MMMM yyyy")!!.time,
+			endDate = "Agosto 2019".parseDate("MMMM yyyy")!!.time,
 			status = TestValues.STATUS_QUARTER_COMPLETED,
 			subjects = mutableListOf(
 				createSubject(code = "MA1111", grade = 2, credits = 4)
@@ -149,8 +154,8 @@ class ComputationTest {
 		)
 
 		val quarter3 = createQuarter(
-			startDate = "Septiembre 2019".parse("MMMM yyyy")!!,
-			endDate = "Diciembre 2019".parse("MMMM yyyy")!!,
+			startDate = "Septiembre 2019".parseDate("MMMM yyyy")!!.time,
+			endDate = "Diciembre 2019".parseDate("MMMM yyyy")!!.time,
 			status = TestValues.STATUS_QUARTER_COMPLETED,
 			subjects = mutableListOf(
 				createSubject(code = "MA1111", grade = 5, credits = 4),
@@ -159,8 +164,8 @@ class ComputationTest {
 		)
 
 		val quarter4 = createQuarter(
-			startDate = "Enero 2020".parse("MMMM yyyy")!!,
-			endDate = "Marzo 2020".parse("MMMM yyyy")!!,
+			startDate = "Enero 2020".parseDate("MMMM yyyy")!!.time,
+			endDate = "Marzo 2020".parseDate("MMMM yyyy")!!.time,
 			status = TestValues.STATUS_QUARTER_RETIRED,
 			subjects = mutableListOf(
 				createSubject(code = "MA1112", grade = 5, credits = 4),
@@ -169,8 +174,8 @@ class ComputationTest {
 		)
 
 		val quarter5 = createQuarter(
-			startDate = "Septiembre 2020".parse("MMMM yyyy")!!,
-			endDate = "Diciembre 2020".parse("MMMM yyyy")!!,
+			startDate = "Septiembre 2020".parseDate("MMMM yyyy")!!.time,
+			endDate = "Diciembre 2020".parseDate("MMMM yyyy")!!.time,
 			status = TestValues.STATUS_QUARTER_CURRENT,
 			subjects = mutableListOf(
 				createSubject(code = "MA1112", grade = 5, credits = 4),
@@ -195,13 +200,13 @@ class ComputationTest {
 	}
 
 	private fun createQuarter(
-		startDate: Date = Date(),
-		endDate: Date = Date(),
+		startDate: Long = System.currentTimeMillis(),
+		endDate: Long = System.currentTimeMillis(),
 		status: Int = 0,
 		subjects: MutableList<Subject> = mutableListOf()
 	) = Quarter(
 		id = "",
-		name = (startDate to endDate).formatQuarterName(),
+		name = "",
 		startDate = startDate,
 		endDate = endDate,
 		grade = 0.0,
