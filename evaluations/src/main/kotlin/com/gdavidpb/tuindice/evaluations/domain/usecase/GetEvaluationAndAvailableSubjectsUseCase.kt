@@ -16,7 +16,7 @@ class GetEvaluationAndAvailableSubjectsUseCase(
 		val activeUId = authRepository.getActiveAuth().uid
 
 		val evaluation = evaluationRepository
-			.getEvaluation(uid = activeUId, eid = params.evaluationId)
+			.getEvaluationStream(uid = activeUId, eid = params.evaluationId)
 
 		val availableSubjects = evaluationRepository
 			.getAvailableSubjects(uid = activeUId)

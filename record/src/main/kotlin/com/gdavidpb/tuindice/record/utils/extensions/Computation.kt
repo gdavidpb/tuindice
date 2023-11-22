@@ -1,9 +1,10 @@
-package com.gdavidpb.tuindice.base.utils.extension
+package com.gdavidpb.tuindice.record.utils.extensions
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_OK
+import com.gdavidpb.tuindice.base.utils.extension.round
 
 fun Collection<Subject>.removeNoEffect(): Collection<Subject> {
 	val containsNoEffect = size > 1 && first().grade >= 3

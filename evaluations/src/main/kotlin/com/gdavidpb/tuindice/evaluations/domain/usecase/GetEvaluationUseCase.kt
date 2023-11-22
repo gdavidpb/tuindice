@@ -15,7 +15,7 @@ class GetEvaluationUseCase(
 	override suspend fun executeOnBackground(params: String): Flow<Evaluation> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		val evaluation = evaluationRepository.getEvaluation(uid = activeUId, eid = params)
+		val evaluation = evaluationRepository.getEvaluationStream(uid = activeUId, eid = params)
 
 		return flowOf(evaluation)
 	}

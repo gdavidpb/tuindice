@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.data.quarter
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
+import com.gdavidpb.tuindice.record.data.quarter.source.CacheDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.SettingsDataSource
@@ -15,12 +16,13 @@ import kotlinx.coroutines.flow.transform
 class QuarterDataRepository(
 	private val localDataSource: LocalDataSource,
 	private val remoteDataSource: RemoteDataSource,
+	private val cacheDataSource: CacheDataSource,
 	private val settingsDataSource: SettingsDataSource
 ) : QuarterRepository {
-	override suspend fun getQuarters(
+	override suspend fun getQuartersStream(
 		uid: String
 	): Flow<List<Quarter>> {
-		return localDataSource.getQuarters(uid)
+		return localDataSource.getQuartersStream(uid)
 			.distinctUntilChanged()
 			.transform { localQuarters ->
 				val isOnCooldown = settingsDataSource.isGetQuartersOnCooldown()
@@ -41,13 +43,42 @@ class QuarterDataRepository(
 			}
 	}
 
-	override suspend fun removeQuarter(uid: String, remove: QuarterRemove) {
+	override suspend fun removeQuarter(
+		uid: String,
+		remove: QuarterRemove
+	) {
 		localDataSource.removeQuarter(uid, remove)
 		noAwait { remoteDataSource.removeQuarter(remove) }
 	}
 
-	override suspend fun updateSubject(uid: String, update: SubjectUpdate) {
+	override suspend fun updateSubject(
+		uid: String,
+		update: SubjectUpdate
+	) {
 		localDataSource.updateSubject(uid, update)
+
+		val quarter = localDataSource.getQuarter(
+			uid = uid,
+			qid = update.quarterId
+		)
+
+		val quarters = localDataSource.getQuarters(
+			uid = uid
+		)
+
+		if (quarter != null)
+			cacheDataSource.computeQuarters(
+				uid = uid,
+				from = quarter,
+				quarters = quarters
+			).also { updatedQuarters ->
+				if (updatedQuarters.isNotEmpty())
+					localDataSource.saveQuarters(
+						uid = uid,
+						quarters = updatedQuarters
+					)
+			}
+
 		if (update.dispatchToRemote) noAwait { remoteDataSource.updateSubject(update) }
 	}
 }

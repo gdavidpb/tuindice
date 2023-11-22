@@ -15,9 +15,15 @@ class RecordViewModel(
 	fun loadQuartersAction() =
 		sendAction(Record.Action.LoadQuarters)
 
-	fun updateSubjectAction(subjectId: String, grade: Int, dispatchToRemote: Boolean) =
+	fun updateSubjectAction(
+		quarterId: String,
+		subjectId: String,
+		grade: Int,
+		dispatchToRemote: Boolean
+	) =
 		sendAction(
 			Record.Action.UpdateSubject(
+				quarterId = quarterId,
 				subjectId = subjectId,
 				grade = grade,
 				dispatchToRemote = dispatchToRemote

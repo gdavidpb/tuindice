@@ -6,8 +6,10 @@ import com.gdavidpb.tuindice.record.data.api.ApiDataSource
 import com.gdavidpb.tuindice.record.data.api.RecordApi
 import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
 import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
+import com.gdavidpb.tuindice.record.data.cache.MemoryDataSource
 import com.gdavidpb.tuindice.record.data.preferences.PreferencesDataSource
 import com.gdavidpb.tuindice.record.data.quarter.QuarterDataRepository
+import com.gdavidpb.tuindice.record.data.quarter.source.CacheDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
 import com.gdavidpb.tuindice.record.data.quarter.source.SettingsDataSource
@@ -61,6 +63,7 @@ val recordModule = module {
 
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
 	factoryOf(::ApiDataSource) { bind<RemoteDataSource>() }
+	factoryOf(::MemoryDataSource) { bind<CacheDataSource>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsDataSource>() }
 
 	/* Record Api */
