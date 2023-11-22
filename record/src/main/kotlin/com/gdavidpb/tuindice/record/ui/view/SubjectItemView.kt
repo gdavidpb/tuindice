@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.persistence.utils.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.utils.Ranges
+import kotlin.math.roundToInt
 
 @Composable
 fun SubjectItemView(
@@ -143,8 +144,11 @@ fun SubjectItemView(
 				value = grade.toFloat(),
 				steps = MAX_SUBJECT_GRADE - 1,
 				valueRange = Ranges.subjectGrade,
-				onValueChange = { grade ->
-					onGradeChange(grade.toInt(), false)
+				onValueChange = { newGrade ->
+					val roundNewGrade = newGrade.roundToInt()
+
+					if (roundNewGrade != grade)
+						onGradeChange(roundNewGrade, false)
 				},
 				onValueChangeFinished = {
 					onGradeChange(grade, true)
