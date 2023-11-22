@@ -55,7 +55,7 @@ fun EvaluationItemView(
 					modifier = Modifier
 						.padding(bottom = dimensionResource(id = R.dimen.dp_6))
 						.fillMaxWidth(),
-					text = item.name,
+					text = item.nameText,
 					maxLines = 1,
 					overflow = TextOverflow.Ellipsis,
 					color = MaterialTheme.colorScheme.onBackground,
@@ -79,7 +79,7 @@ fun EvaluationItemView(
 					Text(
 						modifier = Modifier
 							.padding(start = dimensionResource(id = R.dimen.dp_12)),
-						text = item.typeAndSubjectCode,
+						text = item.typeAndSubjectCodeText,
 						maxLines = 1,
 						overflow = TextOverflow.Ellipsis,
 						style = MaterialTheme.typography.bodyMedium
@@ -103,7 +103,7 @@ fun EvaluationItemView(
 					Text(
 						modifier = Modifier
 							.padding(start = dimensionResource(id = R.dimen.dp_12)),
-						text = item.date,
+						text = item.dateText,
 						maxLines = 1,
 						overflow = TextOverflow.Ellipsis,
 						color = item.highlightTextColor,
@@ -128,7 +128,7 @@ fun EvaluationItemView(
 					Text(
 						modifier = Modifier
 							.padding(start = dimensionResource(id = R.dimen.dp_12)),
-						text = item.grades,
+						text = item.gradesText,
 						maxLines = 1,
 						overflow = TextOverflow.Ellipsis,
 						color = item.highlightTextColor,

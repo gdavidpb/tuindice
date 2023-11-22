@@ -17,7 +17,10 @@ class RemoveQuarterUseCase(
 
 		val remove = params.toQuarterRemove()
 
-		quarterRepository.removeQuarter(uid = activeUId, remove = remove)
+		quarterRepository.removeQuarter(
+			uid = activeUId,
+			remove = remove
+		)
 
 		return flowOf(Unit)
 	}

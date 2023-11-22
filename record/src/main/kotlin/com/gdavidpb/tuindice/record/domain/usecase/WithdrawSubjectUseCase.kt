@@ -17,7 +17,10 @@ class WithdrawSubjectUseCase(
 
 		val update = params.toSubjectUpdate()
 
-		quarterRepository.updateSubject(uid = activeUId, update = update)
+		quarterRepository.updateSubject(
+			uid = activeUId,
+			update = update
+		)
 
 		return flowOf(Unit)
 	}

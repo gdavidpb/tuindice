@@ -5,17 +5,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 data class EvaluationItem(
 	val evaluationId: String,
-	val name: String,
-	val subjectCode: String,
 	val grade: Double?,
 	val maxGrade: Double,
+	val nameText: String,
+	val subjectCodeText: String,
 	val highlightIconColor: Color,
 	val highlightTextColor: Color,
-	val typeAndSubjectCode: String,
+	val typeAndSubjectCodeText: String,
 	val typeIcon: ImageVector,
-	val date: String,
+	val dateText: String,
 	val dateIcon: ImageVector,
-	val grades: String,
+	val gradesText: String,
 	val gradesIcon: ImageVector,
 	val isOverdue: Boolean,
 	val isClickable: Boolean
