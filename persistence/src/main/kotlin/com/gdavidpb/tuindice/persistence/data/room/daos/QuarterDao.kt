@@ -43,7 +43,7 @@ abstract class QuarterDao : UpsertDao<QuarterEntity>() {
 	@Query(
 		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
 				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid " +
-				"ORDER BY ${QuarterTable.START_DATE} DESC"
+				"ORDER BY ${QuarterTable.START_DATE} ASC"
 	)
 	@Transaction
 	abstract fun getQuartersWithSubjects(

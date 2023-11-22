@@ -69,7 +69,7 @@ class QuarterDataRepository(
 		if (quarter != null)
 			cacheDataSource.computeQuarters(
 				uid = uid,
-				from = quarter,
+				origin = quarter,
 				quarters = quarters
 			).also { updatedQuarters ->
 				if (updatedQuarters.isNotEmpty())

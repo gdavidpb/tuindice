@@ -10,6 +10,36 @@
     },
     "jsonBody": [
       {
+        "id": "iwfzBlV2YHym2DdSL0FsvET8agoA",
+        "name": "Abril - Julio 2023",
+        "start_date": 1680318000000,
+        "end_date": 1688184000000,
+        "grade": 5.0,
+        "grade_sum": 5.0,
+        "credits": 6,
+        "status": 2,
+        "subjects": [
+          {
+            "id": "Km1dQ1oLkIba26yLsaT7XhDf7so7",
+            "qid": "iwfzBlV2YHym2DdSL0FsvET8agoA",
+            "code": "FS1113",
+            "name": "FISICA III",
+            "credits": 3,
+            "grade": 5,
+            "status": 0
+          },
+          {
+            "id": "kW43Wd1nIUCu1NxZSrsLrwmefpyo",
+            "qid": "iwfzBlV2YHym2DdSL0FsvET8agoA",
+            "code": "MA1112",
+            "name": "MATEMATICAS II",
+            "credits": 3,
+            "grade": 5,
+            "status": 0
+          }
+        ]
+      },
+      {
         "id": "08VtwH4cm10d5aknZvzR41i26b4t",
         "name": "Enero - Marzo 2023",
         "start_date": 1672542000000,
