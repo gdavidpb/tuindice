@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
+import android.util.LruCache
+
 inline fun <T> MutableList<T>.selfMapNotNull(operator: (T) -> T?): List<T> {
 	val iterator = listIterator()
 
@@ -14,4 +16,8 @@ inline fun <T> MutableList<T>.selfMapNotNull(operator: (T) -> T?): List<T> {
 	}
 
 	return this
+}
+
+inline fun <K, V> LruCache<K, V>.getOrPut(key: K, defaultValue: () -> V): V {
+	return get(key) ?: defaultValue().also { value -> put(key, value) }
 }
