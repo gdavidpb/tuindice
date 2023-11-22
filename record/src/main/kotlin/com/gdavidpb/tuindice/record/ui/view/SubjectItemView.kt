@@ -5,65 +5,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.gdavidpb.tuindice.persistence.utils.MAX_SUBJECT_GRADE
-import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.R
+import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.utils.Ranges
 import kotlin.math.roundToInt
 
 @Composable
 fun SubjectItemView(
-	code: String,
-	name: String,
-	credits: Int,
-	grade: Int,
-	isRetired: Boolean,
-	isNoEffect: Boolean,
-	isEditable: Boolean,
+	modifier: Modifier = Modifier,
+	item: SubjectItem,
 	onGradeChange: (newGrade: Int, isSelected: Boolean) -> Unit
 ) {
-	val gradeString =
-		if (grade != MIN_SUBJECT_GRADE)
-			stringResource(id = R.string.subject_grade, grade)
-		else "—"
-
-	val statusString = when {
-		isRetired -> stringResource(id = R.string.subject_retired)
-		isNoEffect -> stringResource(id = R.string.subject_no_effect)
-		else -> null
-	}?.let { status ->
-		stringResource(id = R.string.subject_status, status)
-	}
-
-	val codeString = remember(isRetired, isNoEffect) {
-		buildAnnotatedString {
-			withStyle(style = SpanStyle(fontWeight = FontWeight.Medium)) {
-				append(code)
-			}
-
-			if (statusString != null) {
-				append(" ")
-
-				withStyle(style = SpanStyle(fontWeight = FontWeight.Light)) {
-					append(statusString)
-				}
-			}
-		}
-	}
-
 	ConstraintLayout(
-		modifier = Modifier
+		modifier = modifier
 			.fillMaxWidth()
 			.padding(
 				vertical = dimensionResource(id = R.dimen.dp_8),
@@ -87,7 +48,7 @@ fun SubjectItemView(
 
 					width = Dimension.fillToConstraints
 				},
-			text = codeString,
+			text = item.codeAndStatusText,
 			maxLines = 1,
 			overflow = TextOverflow.Ellipsis
 		)
@@ -98,7 +59,7 @@ fun SubjectItemView(
 					end.linkTo(parent.end)
 					top.linkTo(parent.top)
 				},
-			text = gradeString,
+			text = item.gradeText,
 			fontWeight = FontWeight.Medium
 		)
 
@@ -114,7 +75,7 @@ fun SubjectItemView(
 				.padding(
 					end = dimensionResource(id = R.dimen.dp_16)
 				),
-			text = name,
+			text = item.nameText,
 			maxLines = 1,
 			fontWeight = FontWeight.Light,
 			overflow = TextOverflow.Ellipsis
@@ -126,11 +87,11 @@ fun SubjectItemView(
 					end.linkTo(textGrade.end)
 					top.linkTo(textGrade.bottom)
 				},
-			text = stringResource(id = R.string.subject_credits, credits),
+			text = item.creditsText,
 			fontWeight = FontWeight.Light
 		)
 
-		if (isEditable) {
+		if (item.isEditable) {
 			Slider(
 				modifier = Modifier
 					.constrainAs(sliderGrade) {
@@ -141,17 +102,17 @@ fun SubjectItemView(
 
 						width = Dimension.fillToConstraints
 					},
-				value = grade.toFloat(),
+				value = item.grade.toFloat(),
 				steps = MAX_SUBJECT_GRADE - 1,
 				valueRange = Ranges.subjectGrade,
 				onValueChange = { newGrade ->
 					val roundNewGrade = newGrade.roundToInt()
 
-					if (roundNewGrade != grade)
+					if (roundNewGrade != item.grade)
 						onGradeChange(roundNewGrade, false)
 				},
 				onValueChangeFinished = {
-					onGradeChange(grade, true)
+					onGradeChange(item.grade, true)
 				}
 			)
 		}

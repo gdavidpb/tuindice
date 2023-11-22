@@ -18,8 +18,8 @@ import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun EvaluationsView(
-	evaluations: List<EvaluationsGroupItem>,
 	lazyListState: LazyListState,
+	evaluations: List<EvaluationsGroupItem>,
 	onEvaluationClick: (evaluationId: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
 	onEvaluationDelete: (evaluationId: String) -> Unit

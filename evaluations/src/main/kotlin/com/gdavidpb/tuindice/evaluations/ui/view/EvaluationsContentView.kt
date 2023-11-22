@@ -22,7 +22,7 @@ import androidx.compose.ui.res.dimensionResource
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationGroupItem
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItemList
 
 @Composable
 fun EvaluationsContentView(
@@ -53,11 +53,11 @@ fun EvaluationsContentView(
 			if (state.filteredEvaluations.isNotEmpty()) {
 				val evaluations = state
 					.filteredEvaluations
-					.toEvaluationGroupItem()
+					.toEvaluationItemList()
 
 				EvaluationsView(
-					evaluations = evaluations,
 					lazyListState = lazyColumState,
+					evaluations = evaluations,
 					onEvaluationClick = onEvaluationClick,
 					onEvaluationEdit = onEvaluationEdit,
 					onEvaluationDelete = onEvaluationDelete

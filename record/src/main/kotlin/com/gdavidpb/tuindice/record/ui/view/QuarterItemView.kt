@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.record.ui.view
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,24 +11,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.R
+import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 
 @Composable
 fun QuarterItemView(
 	modifier: Modifier = Modifier,
-	name: String,
-	grade: Double,
-	gradeSum: Double,
-	credits: Int,
-	subjects: List<Subject>,
-	onSubjectGradeChange: (subject: Subject, newGrade: Int, isSelected: Boolean) -> Unit
+	item: QuarterItem,
+	onSubjectGradeChange: (
+		quarterId: String,
+		subjectId: String,
+		newGrade: Int,
+		isSelected: Boolean
+	) -> Unit
 ) {
-	val subjectsStates = rememberSubjectsStates(subjects = subjects)
-
 	ElevatedCard(
 		modifier = modifier
 			.fillMaxWidth()
@@ -47,24 +42,9 @@ fun QuarterItemView(
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(dimensionResource(id = R.dimen.dp_8)),
-				text = name,
+				text = item.nameText,
 				style = MaterialTheme.typography.titleLarge,
 				fontWeight = FontWeight.Black
-			)
-
-			val animatedGrade = animateFloatAsState(
-				targetValue = grade.toFloat(),
-				label = "animatedGrade_animateFloatAsState"
-			)
-
-			val animatedGradeSum = animateFloatAsState(
-				targetValue = gradeSum.toFloat(),
-				label = "animatedGradeSum_animateFloatAsState"
-			)
-
-			val animatedCredits = animateIntAsState(
-				targetValue = credits,
-				label = "animatedCredits_animateIntAsState"
 			)
 
 			Row(
@@ -76,35 +56,31 @@ fun QuarterItemView(
 				horizontalArrangement = Arrangement.SpaceAround
 			) {
 				Text(
-					text = stringResource(id = R.string.quarter_grade_diff, animatedGrade.value)
-						.annotatedQuarterValue(),
+					text = item.gradeText,
 					style = MaterialTheme.typography.titleMedium
 				)
 				Text(
-					text = stringResource(id = R.string.quarter_grade_sum, animatedGradeSum.value)
-						.annotatedQuarterValue(),
+					text = item.gradeSumText,
 					style = MaterialTheme.typography.titleMedium
 				)
 				Text(
-					text = stringResource(id = R.string.quarter_credits, animatedCredits.value)
-						.annotatedQuarterValue(),
+					text = item.creditsText,
 					style = MaterialTheme.typography.titleMedium
 				)
 			}
 
-			subjects.forEach { subject ->
+			item.subjects.forEach { subject ->
 				SubjectItemView(
-					code = subject.code,
-					name = subject.name,
-					credits = subject.credits,
-					grade = subjectsStates[subject.id]?.intValue ?: subject.grade,
-					isRetired = subject.grade == MIN_SUBJECT_GRADE || subject.isRetired,
-					isNoEffect = subject.isNoEffect,
-					isEditable = subject.isEditable,
+					item = subject,
 					onGradeChange = { newGrade, isSelected ->
-						subjectsStates[subject.id]?.intValue = newGrade
+						item.states[subject.subjectId]?.intValue = newGrade
 
-						onSubjectGradeChange(subject, newGrade, isSelected)
+						onSubjectGradeChange(
+							subject.quarterId,
+							subject.subjectId,
+							newGrade,
+							isSelected
+						)
 					}
 				)
 			}

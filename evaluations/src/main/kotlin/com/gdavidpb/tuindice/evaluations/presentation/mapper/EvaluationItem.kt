@@ -35,7 +35,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 
 @Composable
 @ReadOnlyComposable
-fun List<Evaluation>.toEvaluationGroupItem(): List<EvaluationsGroupItem> {
+fun List<Evaluation>.toEvaluationItemList(): List<EvaluationsGroupItem> {
 	val ordinalsById =
 		sortedBy { evaluation -> evaluation.date }
 			.groupBy { evaluation -> evaluation.subjectId to evaluation.type }
@@ -63,14 +63,14 @@ fun List<Evaluation>.toEvaluationGroupItem(): List<EvaluationsGroupItem> {
 @ReadOnlyComposable
 fun Evaluation.toEvaluationItem(ordinal: Int) = EvaluationItem(
 	evaluationId = evaluationId,
-	name = stringResource(
+	grade = grade,
+	maxGrade = maxGrade,
+	nameText = stringResource(
 		id = R.string.evaluation_name,
 		type.asString(),
 		ordinal
 	),
-	subjectCode = subject.code,
-	grade = grade,
-	maxGrade = maxGrade,
+	subjectCodeText = subject.code,
 	highlightIconColor = when (state) {
 		EvaluationState.COMPLETED -> MaterialTheme.colorScheme.primary
 		EvaluationState.OVERDUE -> MaterialTheme.colorScheme.error
@@ -80,19 +80,19 @@ fun Evaluation.toEvaluationItem(ordinal: Int) = EvaluationItem(
 		EvaluationState.OVERDUE -> MaterialTheme.colorScheme.error
 		else -> Color.Unspecified
 	},
-	typeAndSubjectCode = stringResource(
+	typeAndSubjectCodeText = stringResource(
 		id = R.string.evaluation_title,
 		type.asString(),
 		subject.code
 	),
 	typeIcon = type.asIcon(),
-	date = date.formatAsDayOfWeekAndDate(),
+	dateText = date.formatAsDayOfWeekAndDate(),
 	dateIcon = when (state) {
 		EvaluationState.COMPLETED -> Icons.Outlined.EventAvailable
 		EvaluationState.CONTINUOUS -> Icons.Outlined.EventRepeat
 		else -> Icons.Outlined.Event
 	},
-	grades = when (state) {
+	gradesText = when (state) {
 		EvaluationState.COMPLETED, EvaluationState.CONTINUOUS -> stringResource(
 			id = R.string.evaluation_grade,
 			grade ?: 0.0,
