@@ -1,15 +1,16 @@
 package com.gdavidpb.tuindice.record.data.cache
 
+import android.util.LruCache
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
+import com.gdavidpb.tuindice.base.utils.extension.getOrPut
 import com.gdavidpb.tuindice.base.utils.extension.selfMapNotNull
 import com.gdavidpb.tuindice.record.data.quarter.source.CacheDataSource
 import com.gdavidpb.tuindice.record.utils.extensions.computeCredits
 import com.gdavidpb.tuindice.record.utils.extensions.computeGrade
 import com.gdavidpb.tuindice.record.utils.extensions.computeGradeSum
 import java.util.Objects
-import java.util.concurrent.ConcurrentHashMap
 
-private val computationCache = ConcurrentHashMap<Int, Quarter>()
+private val computationCache = LruCache<Int, Quarter>(1_000)
 
 class MemoryDataSource : CacheDataSource {
 	override suspend fun computeQuarters(
@@ -26,14 +27,16 @@ class MemoryDataSource : CacheDataSource {
 						quarters = quarters
 					)
 
-					computationCache
-						.getOrPut(id) {
-							quarter.copy(
-								grade = quarter.subjects.computeGrade(),
-								gradeSum = quarters.computeGradeSum(until = quarter),
-								credits = quarter.subjects.computeCredits()
-							)
-						}
+					synchronized(computationCache) {
+						computationCache
+							.getOrPut(id) {
+								quarter.copy(
+									grade = quarter.subjects.computeGrade(),
+									gradeSum = quarters.computeGradeSum(until = quarter),
+									credits = quarter.subjects.computeCredits()
+								)
+							}
+					}
 				} else {
 					null
 				}
@@ -41,7 +44,9 @@ class MemoryDataSource : CacheDataSource {
 	}
 
 	override suspend fun invalidate(uid: String) {
-		computationCache.clear()
+		synchronized(computationCache) {
+			computationCache.evictAll()
+		}
 	}
 
 	private fun computeIdentifier(origin: Quarter, quarters: List<Quarter>): Int {
