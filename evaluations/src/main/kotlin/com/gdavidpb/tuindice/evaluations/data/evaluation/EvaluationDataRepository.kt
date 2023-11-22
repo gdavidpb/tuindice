@@ -19,14 +19,6 @@ class EvaluationDataRepository(
 	private val remoteDataSource: RemoteDataSource,
 	private val settingsDataSource: SettingsDataSource
 ) : EvaluationRepository {
-	override suspend fun getEvaluation(uid: String, eid: String): Evaluation {
-		return localDataSource.getEvaluation(uid, eid)
-			?: remoteDataSource.getEvaluation(eid)
-				.also { evaluation ->
-					localDataSource.saveEvaluations(uid, listOf(evaluation))
-				}
-	}
-
 	override suspend fun getEvaluations(uid: String): Flow<List<Evaluation>> {
 		return localDataSource.getEvaluations(uid)
 			.distinctUntilChanged()
@@ -47,6 +39,14 @@ class EvaluationDataRepository(
 					emit(remoteEvaluations)
 				}
 			}
+	}
+
+	override suspend fun getEvaluationStream(uid: String, eid: String): Evaluation {
+		return localDataSource.getEvaluation(uid, eid)
+			?: remoteDataSource.getEvaluation(eid)
+				.also { evaluation ->
+					localDataSource.saveEvaluations(uid, listOf(evaluation))
+				}
 	}
 
 	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {

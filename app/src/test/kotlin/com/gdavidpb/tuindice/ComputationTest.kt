@@ -8,10 +8,10 @@ import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_MOCK
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_NO_EFFECT
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_RETIRED
-import com.gdavidpb.tuindice.base.utils.extension.computeCredits
-import com.gdavidpb.tuindice.base.utils.extension.computeGrade
-import com.gdavidpb.tuindice.base.utils.extension.computeGradeSum
-import com.gdavidpb.tuindice.base.utils.extension.removeNoEffect
+import com.gdavidpb.tuindice.record.utils.extensions.computeCredits
+import com.gdavidpb.tuindice.record.utils.extensions.computeGrade
+import com.gdavidpb.tuindice.record.utils.extensions.computeGradeSum
+import com.gdavidpb.tuindice.record.utils.extensions.removeNoEffect
 import com.gdavidpb.tuindice.evaluations.utils.extension.toSubjectGrade
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import org.junit.Assert.assertEquals

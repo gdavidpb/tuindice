@@ -12,7 +12,7 @@ class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
 	override suspend fun getAccount(uid: String): Flow<Account?> {
-		return room.accounts.getAccount(uid)
+		return room.accounts.getAccountStream(uid)
 			.map { account -> account?.toAccount() }
 	}
 

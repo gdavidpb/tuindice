@@ -22,6 +22,7 @@ object Record {
 		data object LoadQuarters : Action
 
 		class UpdateSubject(
+			val quarterId: String,
 			val subjectId: String,
 			val grade: Int,
 			val dispatchToRemote: Boolean

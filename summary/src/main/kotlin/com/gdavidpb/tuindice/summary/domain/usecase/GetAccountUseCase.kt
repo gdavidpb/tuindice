@@ -16,6 +16,6 @@ class GetAccountUseCase(
 	override suspend fun executeOnBackground(params: Unit): Flow<Account> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		return accountRepository.getAccount(uid = activeUId)
+		return accountRepository.getAccountStream(uid = activeUId)
 	}
 }

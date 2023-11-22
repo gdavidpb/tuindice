@@ -4,10 +4,10 @@ import androidx.room.withTransaction
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.persistence.data.room.mapper.toQuarter
 import com.gdavidpb.tuindice.persistence.data.room.mapper.toQuarterEntity
 import com.gdavidpb.tuindice.persistence.data.room.mapper.toSubjectEntity
+import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import kotlinx.coroutines.flow.Flow
@@ -16,10 +16,19 @@ import kotlinx.coroutines.flow.map
 class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
-	override suspend fun getQuarters(
+	override suspend fun getQuarter(uid: String, qid: String): Quarter? {
+		return room.quarters.getQuarterWithSubjects(uid, qid)?.toQuarter()
+	}
+
+	override suspend fun getQuarters(uid: String): List<Quarter> {
+		return room.quarters.getQuartersWithSubjects(uid)
+			.map { quarter -> quarter.toQuarter() }
+	}
+
+	override suspend fun getQuartersStream(
 		uid: String
 	): Flow<List<Quarter>> {
-		return room.quarters.getQuartersWithSubjects(uid)
+		return room.quarters.getQuartersWithSubjectsStream(uid)
 			.map { quarters -> quarters.map { quarter -> quarter.toQuarter() } }
 	}
 

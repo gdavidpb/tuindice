@@ -13,7 +13,7 @@ abstract class AccountDao : UpsertDao<AccountEntity>() {
 		"SELECT * FROM ${AccountTable.TABLE_NAME} " +
 				"WHERE ${AccountTable.ID} = :uid"
 	)
-	abstract fun getAccount(
+	abstract fun getAccountStream(
 		uid: String
 	): Flow<AccountEntity?>
 
