@@ -19,6 +19,7 @@ abstract class FlowUseCase<P, T, E : Error>(
 
 	abstract suspend fun executeOnBackground(params: P): Flow<T>
 
+	@Suppress("USELESS_CAST")
 	fun execute(params: P): Flow<UseCaseState<T, E>> {
 		return flow {
 			emitAll(executeOnBackground(params))
