@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Subject
 import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Info
@@ -12,7 +13,6 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.StarBorder
-import androidx.compose.material.icons.outlined.Subject
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -65,7 +65,7 @@ fun AboutScreen(
 			) { onCreativeCommonsClick() }
 
 			AboutView(
-				icon = Icons.Outlined.Subject,
+				icon = Icons.AutoMirrored.Outlined.Subject,
 				text = stringResource(id = R.string.about_terms_and_conditions),
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			) { onTermsAndConditionsClick() }
