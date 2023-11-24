@@ -1,12 +1,12 @@
-package com.gdavidpb.tuindice.data.fcm
+package com.gdavidpb.tuindice.data.firebase
 
 import com.gdavidpb.tuindice.base.utils.extension.awaitOrNull
-import com.gdavidpb.tuindice.data.fcm.source.RemoteDataSource
+import com.gdavidpb.tuindice.data.messaging.source.ProviderDataSource
 import com.google.firebase.messaging.FirebaseMessaging
 
-class FCMRemoteDataSource(
+class FirebaseMessagingDataSource(
 	private val firebaseMessaging: FirebaseMessaging
-) : RemoteDataSource {
+) : ProviderDataSource {
 	override suspend fun getToken(): String? {
 		return firebaseMessaging.token.awaitOrNull()
 	}

@@ -1,13 +1,24 @@
-package com.gdavidpb.tuindice.data.fcm
+package com.gdavidpb.tuindice.data.preferences
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
-import com.gdavidpb.tuindice.data.fcm.source.LocalDataSource
+import com.gdavidpb.tuindice.data.messaging.source.LocalDataSource
 
-class FCMLocalDataSource(
+class MessagingPreferencesDataSource(
 	private val sharedPreferences: SharedPreferences
 ) : LocalDataSource {
+	override suspend fun isEnrolled(): Boolean {
+		return sharedPreferences
+			.getBoolean(PreferencesKeys.IS_ENROLLED, false)
+	}
+
+	override suspend fun markAsEnrolled() {
+		sharedPreferences.edit {
+			putBoolean(PreferencesKeys.IS_ENROLLED, true)
+		}
+	}
+
 	override suspend fun getSubscribedTopics(): List<String> {
 		val topics = sharedPreferences
 			.getStringSet(PreferencesKeys.SUBSCRIBED_TOPICS, setOf()) ?: setOf()

@@ -4,10 +4,10 @@ import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
+import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.login.utils.SubscriptionTopics
 import kotlinx.coroutines.flow.Flow
@@ -26,18 +26,17 @@ class SignInUseCase(
 
 		if (isActiveAuth) authRepository.signOut()
 
-		val messagingToken = messagingRepository.getToken()
-
 		val bearerToken = loginRepository.signIn(
 			username = params.usbId,
 			password = params.password,
-			messagingToken = messagingToken,
 			refreshToken = false
 		).token
 
 		val authSignIn = authRepository.signIn(token = bearerToken)
 
 		reportingRepository.setIdentifier(identifier = authSignIn.uid)
+
+		messagingRepository.enroll()
 
 		messagingRepository.subscribeToTopic(topic = SubscriptionTopics.TOPIC_GENERAL)
 
