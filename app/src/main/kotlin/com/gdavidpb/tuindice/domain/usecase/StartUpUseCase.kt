@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.domain.usecase
 import com.gdavidpb.tuindice.base.domain.exception.ServicesUnavailableException
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.flowOf
 class StartUpUseCase(
 	private val authRepository: AuthRepository,
 	private val settingsRepository: SettingsRepository,
+	private val messagingRepository: MessagingRepository,
 	private val mobileServicesRepository: MobileServicesRepository,
 	private val configRepository: ConfigRepository,
 	override val exceptionHandler: StartUpExceptionHandler
@@ -29,6 +31,7 @@ class StartUpUseCase(
 		}
 
 		noAwait { configRepository.tryFetch() }
+		noAwait { messagingRepository.enroll() }
 
 		val isActiveAuth = authRepository.isActiveAuth()
 

@@ -4,6 +4,7 @@ import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
 import androidx.work.WorkManager
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
@@ -13,21 +14,24 @@ import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
+import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.base.utils.extension.sharedPreferences
 import com.gdavidpb.tuindice.data.android.AndroidApplicationDataSource
+import com.gdavidpb.tuindice.data.api.ApiDataSource
+import com.gdavidpb.tuindice.data.api.MessagingApi
 import com.gdavidpb.tuindice.data.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.data.crashlytics.CrashlyticsReportingDataSource
-import com.gdavidpb.tuindice.data.fcm.FCMDataRepository
-import com.gdavidpb.tuindice.data.fcm.FCMLocalDataSource
-import com.gdavidpb.tuindice.data.fcm.FCMRemoteDataSource
-import com.gdavidpb.tuindice.data.fcm.source.LocalDataSource
-import com.gdavidpb.tuindice.data.fcm.source.RemoteDataSource
 import com.gdavidpb.tuindice.data.firebase.FirebaseAuthDataSource
+import com.gdavidpb.tuindice.data.firebase.FirebaseMessagingDataSource
 import com.gdavidpb.tuindice.data.google.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.koin.ReleaseKoinDataSource
+import com.gdavidpb.tuindice.data.messaging.MessagingDataRepository
+import com.gdavidpb.tuindice.data.messaging.source.LocalDataSource
+import com.gdavidpb.tuindice.data.messaging.source.ProviderDataSource
+import com.gdavidpb.tuindice.data.messaging.source.RemoteDataSource
 import com.gdavidpb.tuindice.data.network.AndroidNetworkDataSource
+import com.gdavidpb.tuindice.data.preferences.MessagingPreferencesDataSource
 import com.gdavidpb.tuindice.data.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
@@ -50,6 +54,7 @@ import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcess
 import com.gdavidpb.tuindice.presentation.action.main.SetLastScreenActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
+import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
 import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
@@ -74,6 +79,8 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 val appModule = module {
@@ -202,6 +209,17 @@ val appModule = module {
 			.build()
 	}
 
+	/* Messaging Api */
+
+	single {
+		Retrofit.Builder()
+			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
+			.addConverterFactory(GsonConverterFactory.create())
+			.client(get())
+			.build()
+			.create<MessagingApi>()
+	}
+
 	/* Utils */
 
 	singleOf(::Gson)
@@ -231,12 +249,13 @@ val appModule = module {
 
 	/* Repositories */
 
-	factoryOf(::FCMDataRepository) { bind<MessagingRepository>() }
+	factoryOf(::MessagingDataRepository) { bind<MessagingRepository>() }
 
 	/* Data sources */
 
-	factoryOf(::FCMRemoteDataSource) { bind<RemoteDataSource>() }
-	factoryOf(::FCMLocalDataSource) { bind<LocalDataSource>() }
+	factoryOf(::ApiDataSource) { bind<RemoteDataSource>() }
+	factoryOf(::FirebaseMessagingDataSource) { bind<ProviderDataSource>() }
+	factoryOf(::MessagingPreferencesDataSource) { bind<LocalDataSource>() }
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
 	factoryOf(::RemoteConfigDataSource) { bind<ConfigRepository>() }

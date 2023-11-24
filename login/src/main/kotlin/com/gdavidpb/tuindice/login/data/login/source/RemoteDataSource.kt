@@ -6,7 +6,6 @@ interface RemoteDataSource {
 	suspend fun signIn(
 		username: String,
 		password: String,
-		messagingToken: String? = null,
 		refreshToken: Boolean
 	): SignIn
 }
