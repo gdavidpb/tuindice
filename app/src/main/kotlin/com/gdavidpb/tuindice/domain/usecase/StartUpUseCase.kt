@@ -39,9 +39,6 @@ class StartUpUseCase(
 
 		val startDestination = if (isActiveAuth) {
 			val lastScreen = settingsRepository.getLastScreen()
-			val activeToken = authRepository.getActiveToken()
-
-			settingsRepository.setActiveToken(token = activeToken)
 
 			destinations[lastScreen] ?: Destination.Summary
 		} else {

@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.data.firebase
 
 import com.gdavidpb.tuindice.base.domain.model.Auth
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.utils.extension.awaitOrNull
 import com.gdavidpb.tuindice.data.firebase.mapper.toAuth
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
@@ -23,7 +22,7 @@ class FirebaseAuthDataSource(
 	override suspend fun getActiveToken(): String {
 		return auth.currentUser
 			?.getIdToken(true)
-			?.awaitOrNull()
+			?.await()
 			?.token
 			?: error("getActiveToken")
 	}
