@@ -21,16 +21,6 @@ class PreferencesDataSource(
 		}
 	}
 
-	override fun getActiveToken(): String? {
-		return sharedPreferences.getString(PreferencesKeys.ACTIVE_TOKEN, null)
-	}
-
-	override fun setActiveToken(token: String) {
-		sharedPreferences.edit {
-			putString(PreferencesKeys.ACTIVE_TOKEN, token)
-		}
-	}
-
 	override fun isReviewSuggested(value: Int): Boolean {
 		val counter = sharedPreferences.getInt(PreferencesKeys.SYNCS_COUNTER, 0) + 1
 

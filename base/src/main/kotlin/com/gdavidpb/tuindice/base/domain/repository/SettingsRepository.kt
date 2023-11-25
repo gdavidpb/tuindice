@@ -6,8 +6,5 @@ interface SettingsRepository {
 	fun getLastScreen(): String
 	fun setLastScreen(route: String)
 
-	fun getActiveToken(): String?
-	fun setActiveToken(token: String)
-
 	fun clear()
 }

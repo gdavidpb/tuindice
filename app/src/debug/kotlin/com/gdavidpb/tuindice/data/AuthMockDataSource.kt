@@ -4,8 +4,9 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.gdavidpb.tuindice.base.domain.model.Auth
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
-import java.util.*
+import java.util.UUID
 
 class AuthMockDataSource(
 	private val sharedPreferences: SharedPreferences
@@ -17,16 +18,19 @@ class AuthMockDataSource(
 	private val token = UUID.randomUUID().toString()
 
 	override suspend fun isActiveAuth(): Boolean {
-		return sharedPreferences.contains(PreferencesKeys.ACTIVE_TOKEN)
+		return sharedPreferences.contains(PreferencesKeys.LAST_SCREEN)
 	}
 
 	override suspend fun getActiveAuth(): Auth {
-		return Auth(uid = uid, email = email)
+		return if (sharedPreferences.contains(PreferencesKeys.LAST_SCREEN))
+			Auth(uid = uid, email = email)
+		else
+			throw IllegalStateException()
 	}
 
 	override suspend fun signIn(token: String): Auth {
 		sharedPreferences.edit {
-			putString(PreferencesKeys.ACTIVE_TOKEN, token)
+			putString(PreferencesKeys.LAST_SCREEN, Destination.Summary.route)
 		}
 
 		return Auth(uid = uid, email = email)
@@ -34,11 +38,14 @@ class AuthMockDataSource(
 
 	override suspend fun signOut() {
 		sharedPreferences.edit {
-			remove(PreferencesKeys.ACTIVE_TOKEN)
+			remove(PreferencesKeys.LAST_SCREEN)
 		}
 	}
 
 	override suspend fun getActiveToken(): String {
-		return token
+		return if (sharedPreferences.contains(PreferencesKeys.LAST_SCREEN))
+			token
+		else
+			throw IllegalStateException()
 	}
 }
