@@ -41,6 +41,9 @@ dependencies {
     /* Google */
     api "com.google.android.play:core:1.10.3"
     api "com.google.android.play:core-ktx:1.8.1"
+    api("com.google.android.play:integrity:1.3.0") {
+        exclude group: "com.google.android.play", module: "core-common"
+    }
 
     /* Compose */
     api platform("androidx.compose:compose-bom:2023.10.01")

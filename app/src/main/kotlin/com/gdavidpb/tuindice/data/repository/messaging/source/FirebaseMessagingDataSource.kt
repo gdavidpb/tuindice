@@ -1,21 +1,21 @@
 package com.gdavidpb.tuindice.data.repository.messaging.source
 
-import com.gdavidpb.tuindice.base.utils.extension.awaitOrNull
 import com.gdavidpb.tuindice.data.repository.messaging.ProviderDataSource
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.tasks.await
 
 class FirebaseMessagingDataSource(
 	private val firebaseMessaging: FirebaseMessaging
 ) : ProviderDataSource {
 	override suspend fun getToken(): String? {
-		return firebaseMessaging.token.awaitOrNull()
+		return runCatching { firebaseMessaging.token.await() }.getOrNull()
 	}
 
 	override suspend fun subscribeToTopic(topic: String) {
-		firebaseMessaging.subscribeToTopic(topic).awaitOrNull()
+		runCatching { firebaseMessaging.subscribeToTopic(topic).await() }.getOrNull()
 	}
 
 	override suspend fun unsubscribeFromTopic(topic: String) {
-		firebaseMessaging.unsubscribeFromTopic(topic).awaitOrNull()
+		runCatching { firebaseMessaging.unsubscribeFromTopic(topic).await() }.getOrNull()
 	}
 }

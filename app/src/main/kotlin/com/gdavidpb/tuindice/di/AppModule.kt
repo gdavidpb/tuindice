@@ -6,6 +6,7 @@ import androidx.work.WorkManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
@@ -17,23 +18,26 @@ import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.base.utils.extension.sharedPreferences
-import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.source.ApiDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.AttestationApi
+import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
+import com.gdavidpb.tuindice.data.repository.attestation.source.AttestationApiDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.source.DigestDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.source.PlayIntegrityDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingApi
-import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
-import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
-import com.gdavidpb.tuindice.data.source.auth.FirebaseAuthDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.source.FirebaseMessagingDataSource
-import com.gdavidpb.tuindice.data.source.mobile.GooglePlayServicesDataSource
-import com.gdavidpb.tuindice.data.source.di.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingDataRepository
-import com.gdavidpb.tuindice.data.repository.messaging.LocalDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.ProviderDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.RemoteDataSource
-import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
+import com.gdavidpb.tuindice.data.repository.messaging.source.FirebaseMessagingDataSource
+import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingApiDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingPreferencesDataSource
-import com.gdavidpb.tuindice.utils.AuthorizationInterceptor
+import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
+import com.gdavidpb.tuindice.data.source.auth.FirebaseAuthDataSource
+import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
+import com.gdavidpb.tuindice.data.source.di.ReleaseKoinDataSource
+import com.gdavidpb.tuindice.data.source.mobile.GooglePlayServicesDataSource
+import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
+import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
+import com.gdavidpb.tuindice.data.utils.AttestationInterceptor
+import com.gdavidpb.tuindice.data.utils.AuthorizationInterceptor
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
@@ -65,6 +69,7 @@ import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionParser
 import com.gdavidpb.tuindice.transactions.data.room.resolution.ResolutionApplier
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -82,6 +87,12 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import com.gdavidpb.tuindice.data.repository.attestation.LocalDataSource as AttestationLocal
+import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
+import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource as AttestationRemote
+import com.gdavidpb.tuindice.data.repository.messaging.LocalDataSource as MessagingLocal
+import com.gdavidpb.tuindice.data.repository.messaging.ProviderDataSource as MessagingProvider
+import com.gdavidpb.tuindice.data.repository.messaging.RemoteDataSource as MessagingRemote
 
 val appModule = module {
 	/* Application */
@@ -177,9 +188,14 @@ val appModule = module {
 		FirebaseCrashlytics.getInstance()
 	}
 
+	single {
+		IntegrityManagerFactory.create(androidContext())
+	}
+
 	/* OkHttpClient */
 
 	singleOf(::AuthorizationInterceptor)
+	singleOf(::AttestationInterceptor)
 	singleOf(::TransactionInterceptor)
 
 	single {
@@ -205,11 +221,12 @@ val appModule = module {
 			.writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
 			.addInterceptor(get<HttpLoggingInterceptor>())
 			.addInterceptor(get<AuthorizationInterceptor>())
+			.addInterceptor(get<AttestationInterceptor>())
 			.addInterceptor(get<TransactionInterceptor>())
 			.build()
 	}
 
-	/* Messaging Api */
+	/* Apis */
 
 	single {
 		Retrofit.Builder()
@@ -218,6 +235,15 @@ val appModule = module {
 			.client(get())
 			.build()
 			.create<MessagingApi>()
+	}
+
+	single {
+		Retrofit.Builder()
+			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
+			.addConverterFactory(GsonConverterFactory.create())
+			.client(get())
+			.build()
+			.create<AttestationApi>()
 	}
 
 	/* Utils */
@@ -250,12 +276,16 @@ val appModule = module {
 	/* Repositories */
 
 	factoryOf(::MessagingDataRepository) { bind<MessagingRepository>() }
+	factoryOf(::AttestationDataRepository) { bind<AttestationRepository>() }
 
 	/* Data sources */
 
-	factoryOf(::ApiDataSource) { bind<RemoteDataSource>() }
-	factoryOf(::FirebaseMessagingDataSource) { bind<ProviderDataSource>() }
-	factoryOf(::MessagingPreferencesDataSource) { bind<LocalDataSource>() }
+	factoryOf(::DigestDataSource) { bind<AttestationLocal>() }
+	factoryOf(::MessagingApiDataSource) { bind<MessagingRemote>() }
+	factoryOf(::AttestationApiDataSource) { bind<AttestationRemote>() }
+	factoryOf(::PlayIntegrityDataSource) { bind<AttestationProvider>() }
+	factoryOf(::FirebaseMessagingDataSource) { bind<MessagingProvider>() }
+	factoryOf(::MessagingPreferencesDataSource) { bind<MessagingLocal>() }
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
 	factoryOf(::RemoteConfigDataSource) { bind<ConfigRepository>() }

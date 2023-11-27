@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingApi
 import com.gdavidpb.tuindice.data.repository.messaging.RemoteDataSource
 
-class ApiDataSource(
+class MessagingApiDataSource(
 	private val messagingApi: MessagingApi
 ) : RemoteDataSource {
 	override suspend fun enroll(messagingToken: String) {
