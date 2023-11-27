@@ -5,6 +5,7 @@ import androidx.core.content.getSystemService
 import androidx.work.WorkManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
@@ -15,16 +16,18 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.base.utils.extension.sharedPreferences
+import com.gdavidpb.tuindice.data.AttestationMockDataRepository
 import com.gdavidpb.tuindice.data.AuthMockDataSource
 import com.gdavidpb.tuindice.data.DebugKoinDataSource
+import com.gdavidpb.tuindice.data.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.MessagingMockDataSource
 import com.gdavidpb.tuindice.data.RemoteConfigMockDataSource
 import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
-import com.gdavidpb.tuindice.data.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.source.mobile.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
-import com.gdavidpb.tuindice.utils.AuthorizationInterceptor
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
+import com.gdavidpb.tuindice.data.utils.AttestationInterceptor
+import com.gdavidpb.tuindice.data.utils.AuthorizationInterceptor
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
@@ -160,6 +163,7 @@ val appMockModule = module {
 	/* OkHttpClient */
 
 	singleOf(::AuthorizationInterceptor)
+	singleOf(::AttestationInterceptor)
 	singleOf(::TransactionInterceptor)
 
 	single {
@@ -185,6 +189,7 @@ val appMockModule = module {
 			.writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
 			.addInterceptor(get<HttpLoggingInterceptor>())
 			.addInterceptor(get<AuthorizationInterceptor>())
+			.addInterceptor(get<AttestationInterceptor>())
 			.addInterceptor(get<TransactionInterceptor>())
 			.build()
 	}
@@ -213,9 +218,13 @@ val appMockModule = module {
 		)
 	}
 
-	/* Data sources */
+	/* Repositories */
 
 	factoryOf(::MessagingMockDataSource) { bind<MessagingRepository>() }
+	factoryOf(::AttestationMockDataRepository) { bind<AttestationRepository>() }
+
+	/* Data sources */
+
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
 	factoryOf(::RemoteConfigMockDataSource) { bind<ConfigRepository>() }

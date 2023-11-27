@@ -2,16 +2,16 @@ package com.gdavidpb.tuindice.data.source.config
 
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
-import com.gdavidpb.tuindice.base.utils.extension.awaitOrNull
 import com.gdavidpb.tuindice.base.utils.extension.getStringList
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import kotlinx.coroutines.tasks.await
 
 class RemoteConfigDataSource(
 	private val remoteConfig: FirebaseRemoteConfig
 ) : ConfigRepository {
 	override suspend fun tryFetch() {
-		remoteConfig.fetchAndActivate().awaitOrNull()
+		runCatching { remoteConfig.fetchAndActivate().await() }.getOrNull()
 	}
 
 	override fun getTimeout(key: String): Long {
