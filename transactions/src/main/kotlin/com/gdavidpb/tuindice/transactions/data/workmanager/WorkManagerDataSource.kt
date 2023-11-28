@@ -1,7 +1,14 @@
 package com.gdavidpb.tuindice.transactions.data.workmanager
 
-import androidx.work.*
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.gdavidpb.tuindice.transactions.data.offline.source.SchedulerDataSource
+import com.gdavidpb.tuindice.transactions.utils.WorkerBackoff
+import com.gdavidpb.tuindice.transactions.utils.WorkerName
 import java.util.concurrent.TimeUnit
 
 class WorkManagerDataSource(
@@ -16,13 +23,13 @@ class WorkManagerDataSource(
 			.setConstraints(constraints)
 			.setBackoffCriteria(
 				backoffPolicy = BackoffPolicy.EXPONENTIAL,
-				backoffDelay = com.gdavidpb.tuindice.transactions.utils.WorkerBackoff.SYNC_WORKER,
+				backoffDelay = WorkerBackoff.SYNC_WORKER,
 				timeUnit = TimeUnit.MILLISECONDS
 			)
 			.build()
 
 		workManager.enqueueUniqueWork(
-			com.gdavidpb.tuindice.transactions.utils.WorkerName.SYNC_WORKER,
+			WorkerName.SYNC_WORKER,
 			ExistingWorkPolicy.KEEP,
 			syncWorker
 		)

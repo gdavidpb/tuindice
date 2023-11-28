@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.di
 
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
+import androidx.work.ListenableWorker
 import androidx.work.WorkManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
@@ -54,6 +55,7 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.Subj
 import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionInterceptor
 import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionParser
 import com.gdavidpb.tuindice.transactions.data.room.resolution.ResolutionApplier
+import com.gdavidpb.tuindice.transactions.data.workmanager.SyncWorker
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
@@ -68,6 +70,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.androidx.workmanager.dsl.workerOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -75,12 +78,6 @@ import org.koin.dsl.module
 import java.util.concurrent.TimeUnit
 
 val appMockModule = module {
-	/* Application */
-
-	single {
-		androidContext().sharedPreferences()
-	}
-
 	/* View Models */
 
 	viewModelOf(::MainViewModel)
@@ -130,7 +127,9 @@ val appMockModule = module {
 		ResourceResolver(androidContext())
 	}
 
-	/* Google */
+	single {
+		androidContext().sharedPreferences()
+	}
 
 	single {
 		WorkManager.getInstance(androidContext())
@@ -147,6 +146,8 @@ val appMockModule = module {
 	single<ReviewManager> {
 		FakeReviewManager(androidContext())
 	}
+
+	workerOf(::SyncWorker) { bind<ListenableWorker>() }
 
 	/* Firebase */
 
