@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.di
 
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
+import androidx.work.ListenableWorker
 import androidx.work.WorkManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.BuildConfig
@@ -67,6 +68,7 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.Subj
 import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionInterceptor
 import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionParser
 import com.gdavidpb.tuindice.transactions.data.room.resolution.ResolutionApplier
+import com.gdavidpb.tuindice.transactions.data.workmanager.SyncWorker
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.integrity.IntegrityManagerFactory
@@ -82,6 +84,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.androidx.workmanager.dsl.workerOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -96,12 +99,6 @@ import com.gdavidpb.tuindice.data.repository.messaging.ProviderDataSource as Mes
 import com.gdavidpb.tuindice.data.repository.messaging.RemoteDataSource as MessagingRemote
 
 val appModule = module {
-	/* Application */
-
-	single {
-		androidContext().sharedPreferences()
-	}
-
 	/* View Models */
 
 	viewModelOf(::MainViewModel)
@@ -148,10 +145,12 @@ val appModule = module {
 	}
 
 	single {
-		ResourceResolver(androidContext())
+		androidContext().sharedPreferences()
 	}
 
-	/* Google */
+	single {
+		ResourceResolver(androidContext())
+	}
 
 	single {
 		WorkManager.getInstance(androidContext())
@@ -168,6 +167,8 @@ val appModule = module {
 	single {
 		ReviewManagerFactory.create(androidContext())
 	}
+
+	workerOf(::SyncWorker) { bind<ListenableWorker>() }
 
 	/* Firebase */
 

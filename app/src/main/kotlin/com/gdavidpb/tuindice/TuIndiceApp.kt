@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.transactions.di.transactionsModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
 import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import java.util.Locale
@@ -32,9 +33,8 @@ class TuIndiceApp : Application() {
 
 		startKoin {
 			androidLogger(Level.NONE)
-
 			androidContext(this@TuIndiceApp)
-
+			workManagerFactory()
 			androidFileProperties()
 
 			modules(
