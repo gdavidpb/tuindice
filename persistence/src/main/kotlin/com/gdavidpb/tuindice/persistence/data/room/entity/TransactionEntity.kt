@@ -12,10 +12,10 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.TransactionTable
 )
 data class TransactionEntity(
 	@PrimaryKey @ColumnInfo(name = TransactionTable.ID) val id: String,
+	@ColumnInfo(name = TransactionTable.TIMESTAMP) val timestamp: Long,
 	@ColumnInfo(name = TransactionTable.ACCOUNT_ID) val accountId: String,
 	@ColumnInfo(name = TransactionTable.REFERENCE) val reference: String,
 	@ColumnInfo(name = TransactionTable.TYPE) val type: TransactionType,
 	@ColumnInfo(name = TransactionTable.ACTION) val action: TransactionAction,
-	@ColumnInfo(name = TransactionTable.ORDINAL) val ordinal: Long,
-	@ColumnInfo(name = TransactionTable.DATA) val data: String,
+	@ColumnInfo(name = TransactionTable.DATA) val data: String
 )
