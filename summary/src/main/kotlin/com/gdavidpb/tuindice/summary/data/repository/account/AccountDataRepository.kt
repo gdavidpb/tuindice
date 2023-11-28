@@ -1,9 +1,6 @@
-package com.gdavidpb.tuindice.summary.data.account
+package com.gdavidpb.tuindice.summary.data.repository.account
 
 import com.gdavidpb.tuindice.base.domain.model.Account
-import com.gdavidpb.tuindice.summary.data.account.source.LocalDataSource
-import com.gdavidpb.tuindice.summary.data.account.source.RemoteDataSource
-import com.gdavidpb.tuindice.summary.data.account.source.SettingsDataSource
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 import kotlinx.coroutines.flow.Flow

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.summary.data.room.mapper
+package com.gdavidpb.tuindice.summary.data.repository.account.source.database.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.persistence.data.room.entity.AccountEntity
