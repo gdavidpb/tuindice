@@ -1,13 +1,13 @@
-package com.gdavidpb.tuindice.summary.data.encoder
+package com.gdavidpb.tuindice.summary.data.repository.account.source
 
 import android.content.ContentResolver
 import android.graphics.Bitmap
 import androidx.core.net.toUri
 import com.gdavidpb.tuindice.base.utils.extension.encodeToBase64String
-import com.gdavidpb.tuindice.summary.data.encoder.mapper.decodeRotationDegrees
-import com.gdavidpb.tuindice.summary.data.encoder.mapper.decodeScaleFactor
-import com.gdavidpb.tuindice.summary.data.encoder.mapper.decodeScaledBitmap
-import com.gdavidpb.tuindice.summary.data.encoder.mapper.rotate
+import com.gdavidpb.tuindice.summary.data.repository.account.source.encoder.mapper.decodeRotationDegrees
+import com.gdavidpb.tuindice.summary.data.repository.account.source.encoder.mapper.decodeScaleFactor
+import com.gdavidpb.tuindice.summary.data.repository.account.source.encoder.mapper.decodeScaledBitmap
+import com.gdavidpb.tuindice.summary.data.repository.account.source.encoder.mapper.rotate
 import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
 import java.io.ByteArrayOutputStream
 import java.io.IOException

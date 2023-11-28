@@ -1,13 +1,14 @@
-package com.gdavidpb.tuindice.summary.data.api
+package com.gdavidpb.tuindice.summary.data.repository.account.source
 
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
-import com.gdavidpb.tuindice.summary.data.api.mapper.toAccount
-import com.gdavidpb.tuindice.summary.data.api.mapper.toProfilePicture
-import com.gdavidpb.tuindice.summary.data.account.source.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.repository.account.SummaryApi
+import com.gdavidpb.tuindice.summary.data.repository.account.source.api.mapper.toAccount
+import com.gdavidpb.tuindice.summary.data.repository.account.source.api.mapper.toProfilePicture
+import com.gdavidpb.tuindice.summary.data.repository.account.RemoteDataSource
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 
-class ApiDataSource(
+class SummaryApiDataSource(
 	private val summaryApi: SummaryApi
 ) : RemoteDataSource {
 	override suspend fun getAccount(): Account {

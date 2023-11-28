@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.summary.data.account.source
+package com.gdavidpb.tuindice.summary.data.repository.account
 
 import com.gdavidpb.tuindice.base.domain.model.Account
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture

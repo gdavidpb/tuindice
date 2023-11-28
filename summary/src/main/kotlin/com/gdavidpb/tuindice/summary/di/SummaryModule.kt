@@ -2,15 +2,15 @@ package com.gdavidpb.tuindice.summary.di
 
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extension.create
-import com.gdavidpb.tuindice.summary.data.account.AccountDataRepository
-import com.gdavidpb.tuindice.summary.data.account.source.LocalDataSource
-import com.gdavidpb.tuindice.summary.data.account.source.RemoteDataSource
-import com.gdavidpb.tuindice.summary.data.account.source.SettingsDataSource
-import com.gdavidpb.tuindice.summary.data.api.ApiDataSource
-import com.gdavidpb.tuindice.summary.data.api.SummaryApi
-import com.gdavidpb.tuindice.summary.data.encoder.ImageEncoderDataSource
-import com.gdavidpb.tuindice.summary.data.preferences.PreferencesDataSource
-import com.gdavidpb.tuindice.summary.data.room.RoomDataSource
+import com.gdavidpb.tuindice.summary.data.repository.account.AccountDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.account.LocalDataSource
+import com.gdavidpb.tuindice.summary.data.repository.account.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.repository.account.SettingsDataSource
+import com.gdavidpb.tuindice.summary.data.repository.account.source.SummaryApiDataSource
+import com.gdavidpb.tuindice.summary.data.repository.account.SummaryApi
+import com.gdavidpb.tuindice.summary.data.repository.account.source.ImageEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.repository.account.source.PreferencesDataSource
+import com.gdavidpb.tuindice.summary.data.repository.account.source.RoomDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
@@ -72,7 +72,7 @@ val summaryModule = module {
 	/* Data sources */
 
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
-	factoryOf(::ApiDataSource) { bind<RemoteDataSource>() }
+	factoryOf(::SummaryApiDataSource) { bind<RemoteDataSource>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsDataSource>() }
 
 	/* Summary Api */
