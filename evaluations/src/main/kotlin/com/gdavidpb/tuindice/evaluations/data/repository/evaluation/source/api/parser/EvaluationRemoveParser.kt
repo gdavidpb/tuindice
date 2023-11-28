@@ -15,8 +15,7 @@ class EvaluationRemoveParser : TransactionParser {
 		return Transaction(
 			reference = evaluationId,
 			type = TransactionType.EVALUATION,
-			action = TransactionAction.DELETE,
-			data = ""
+			action = TransactionAction.DELETE
 		)
 	}
 }
