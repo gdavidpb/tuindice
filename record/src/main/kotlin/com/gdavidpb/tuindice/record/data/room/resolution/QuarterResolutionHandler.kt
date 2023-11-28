@@ -3,15 +3,13 @@ package com.gdavidpb.tuindice.record.data.room.resolution
 import com.gdavidpb.tuindice.base.domain.model.resolution.Resolution
 import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionAction
 import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionType
-import com.gdavidpb.tuindice.base.utils.extension.fromJson
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.record.data.api.mapper.toQuarterAndSubjectsEntities
 import com.gdavidpb.tuindice.record.data.api.response.QuarterResponse
 import com.gdavidpb.tuindice.transactions.data.room.resolution.ResolutionHandler
-import com.google.gson.Gson
+import kotlinx.serialization.json.Json
 
 class QuarterResolutionHandler(
-	private val gson: Gson,
 	private val room: TuIndiceDatabase
 ) : ResolutionHandler {
 	override suspend fun match(resolution: Resolution): Boolean {
@@ -19,7 +17,7 @@ class QuarterResolutionHandler(
 	}
 
 	override suspend fun apply(resolution: Resolution) {
-		val (quarterEntity, subjectEntities) = gson.fromJson<QuarterResponse>(json = resolution.data)
+		val (quarterEntity, subjectEntities) = Json.decodeFromString<QuarterResponse>(string = resolution.data)
 			.toQuarterAndSubjectsEntities(uid = resolution.uid)
 
 		if (resolution.localReference != resolution.remoteReference)

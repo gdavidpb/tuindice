@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.login.data.api.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class SignInResponse(
-	@SerializedName("token") val token: String
+	@SerialName("token") val token: String
 )

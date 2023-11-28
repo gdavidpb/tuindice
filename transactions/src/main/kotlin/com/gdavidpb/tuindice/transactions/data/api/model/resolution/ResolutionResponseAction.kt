@@ -1,12 +1,16 @@
 package com.gdavidpb.tuindice.transactions.data.api.model.resolution
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 enum class ResolutionResponseAction {
-	@SerializedName("add")
+	@SerialName("add")
 	ADD,
-	@SerializedName("update")
+
+	@SerialName("update")
 	UPDATE,
-	@SerializedName("delete")
+
+	@SerialName("delete")
 	DELETE
 }

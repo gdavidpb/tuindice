@@ -45,6 +45,8 @@ fun AboutScreen(
 	onContactDeveloperClick: () -> Unit,
 	onReportBugClick: () -> Unit
 ) {
+	if (state != About.State.Idle) return
+
 	Column(
 		modifier = Modifier
 			.verticalScroll(rememberScrollState())

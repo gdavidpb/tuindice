@@ -95,3 +95,9 @@
     boolean getDEBUG() return false;
     boolean getRECOVER_STACK_TRACES() return false;
 }
+
+# Kotlin serializer
+
+-dontwarn kotlinx.serialization.KSerializer
+-dontwarn kotlinx.serialization.Serializable
+-dontwarn kotlinx.serialization.internal.AbstractPolymorphicSerializer

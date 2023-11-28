@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.record.data.api.request
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class UpdateSubjectRequest(
-	@SerializedName("subject_id") val subjectId: String,
-	@SerializedName("grade") val grade: Int
+	@SerialName("subject_id") val subjectId: String,
+	@SerialName("grade") val grade: Int
 )

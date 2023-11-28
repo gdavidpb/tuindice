@@ -53,7 +53,6 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 val evaluationsModule = module {
 	/* View Models */
@@ -116,7 +115,7 @@ val evaluationsModule = module {
 	single {
 		Retrofit.Builder()
 			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
-			.addConverterFactory(GsonConverterFactory.create())
+			.addConverterFactory(get())
 			.client(get())
 			.build()
 			.create<EvaluationsApi>()

@@ -2,11 +2,13 @@ package com.gdavidpb.tuindice.transactions.data.api.request
 
 import com.gdavidpb.tuindice.transactions.data.api.model.transaction.TransactionRequestAction
 import com.gdavidpb.tuindice.transactions.data.api.model.transaction.TransactionRequestType
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class TransactionRequest(
-	@SerializedName("reference") val reference: String,
-	@SerializedName("type") val type: TransactionRequestType,
-	@SerializedName("action") val action: TransactionRequestAction,
-	@SerializedName("data") val data: String
+	@SerialName("reference") val reference: String,
+	@SerialName("type") val type: TransactionRequestType,
+	@SerialName("action") val action: TransactionRequestAction,
+	@SerialName("data") val data: String
 )

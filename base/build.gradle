@@ -25,6 +25,7 @@ dependencies {
     /* Kotlin */
     api "org.jetbrains.kotlin:kotlin-reflect:${versions.kotlin}"
     api "org.jetbrains.kotlinx:kotlinx-datetime:0.4.1"
+    api "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.1"
 
     /* Koin */
     api "io.insert-koin:koin-android:${versions.koin}"
@@ -73,9 +74,9 @@ dependencies {
 
     /* Retrofit */
     api "com.squareup.retrofit2:retrofit:${versions.retrofit}"
-    api "com.squareup.retrofit2:converter-gson:${versions.retrofit}"
     api "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}"
     api "com.squareup.okhttp3:okhttp:${versions.okhttp}"
+    api "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0"
 
     /* Coroutines */
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}"

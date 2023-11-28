@@ -1,15 +1,17 @@
 package com.gdavidpb.tuindice.record.data.api.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class QuarterResponse(
-	@SerializedName("id") val id: String,
-	@SerializedName("name") val name: String,
-	@SerializedName("start_date") val startDate: Long,
-	@SerializedName("end_date") val endDate: Long,
-	@SerializedName("grade") val grade: Double,
-	@SerializedName("grade_sum") val gradeSum: Double,
-	@SerializedName("credits") val credits: Int,
-	@SerializedName("status") val status: Int,
-	@SerializedName("subjects") val subjects: List<SubjectResponse>
+	@SerialName("id") val id: String,
+	@SerialName("name") val name: String,
+	@SerialName("start_date") val startDate: Long,
+	@SerialName("end_date") val endDate: Long,
+	@SerialName("grade") val grade: Double,
+	@SerialName("grade_sum") val gradeSum: Double,
+	@SerialName("credits") val credits: Int,
+	@SerialName("status") val status: Int,
+	@SerialName("subjects") val subjects: List<SubjectResponse>
 )

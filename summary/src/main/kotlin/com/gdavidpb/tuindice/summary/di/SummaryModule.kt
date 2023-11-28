@@ -22,8 +22,8 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfi
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
 import com.gdavidpb.tuindice.summary.presentation.action.CloseDialogActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.LoadSummaryActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.LoadSummaryActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.OpenProfilePictureSettingsActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.PickProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureActionProcessor
@@ -35,7 +35,6 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 val summaryModule = module {
 	/* View Models */
@@ -81,7 +80,7 @@ val summaryModule = module {
 	single {
 		Retrofit.Builder()
 			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
-			.addConverterFactory(GsonConverterFactory.create())
+			.addConverterFactory(get())
 			.client(get())
 			.build()
 			.create<SummaryApi>()
