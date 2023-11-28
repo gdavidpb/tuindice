@@ -48,12 +48,9 @@ import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.parser.QuarterRemoveParser
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.parser.SubjectUpdateParser
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.QuarterResolutionHandler
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.SubjectResolutionHandler
 import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionInterceptor
-import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionParser
 import com.gdavidpb.tuindice.transactions.data.room.resolution.ResolutionApplier
 import com.gdavidpb.tuindice.transactions.data.workmanager.SyncWorker
 import com.google.android.gms.common.GoogleApiAvailability
@@ -201,15 +198,6 @@ val appMockModule = module {
 
 	factory {
 		Json.asConverterFactory("application/json".toMediaType())
-	}
-
-	single {
-		TransactionParser(
-			parsers = listOf(
-				get<SubjectUpdateParser>(),
-				get<QuarterRemoveParser>()
-			)
-		)
 	}
 
 	single {

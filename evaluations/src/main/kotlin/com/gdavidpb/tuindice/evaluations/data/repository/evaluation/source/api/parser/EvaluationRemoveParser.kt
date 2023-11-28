@@ -3,16 +3,10 @@ package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.
 import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
-import com.gdavidpb.tuindice.base.utils.extension.findAnnotation
-import com.gdavidpb.tuindice.transactions.data.api.transaction.RequestParser
+import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionParser
 import okhttp3.Request
-import retrofit2.http.DELETE
 
-class EvaluationRemoveParser : RequestParser {
-	override fun match(request: Request): Boolean {
-		return request.findAnnotation<DELETE>()?.value == "evaluations"
-	}
-
+class EvaluationRemoveParser : TransactionParser {
 	override fun parse(request: Request): Transaction {
 		val evaluationId = request.url.queryParameter("eid")
 

@@ -3,31 +3,37 @@ package com.gdavidpb.tuindice.transactions.data.api.transaction
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.transactions.domain.repository.TransactionRepository
-import com.gdavidpb.tuindice.transactions.utils.extension.isEnqueueOnFailure
+import com.gdavidpb.tuindice.transactions.utils.extension.getEnqueued
+import com.gdavidpb.tuindice.transactions.utils.extension.isEnqueuedApi
 import okhttp3.Interceptor
 import okhttp3.Response
+import kotlin.reflect.full.createInstance
 
 class TransactionInterceptor(
 	private val authRepository: AuthRepository,
-	private val transactionRepository: TransactionRepository,
-	private val transactionParser: TransactionParser
+	private val transactionRepository: TransactionRepository
 ) : Interceptor {
 	override fun intercept(chain: Interceptor.Chain): Response {
 		val request = chain.request()
-		val isEnqueueOnFailure = request.isEnqueueOnFailure()
+		val isEnqueuedApi = request.isEnqueuedApi()
 
-		return if (isEnqueueOnFailure) {
+		return if (isEnqueuedApi) {
 			runCatching {
 				chain.proceed(request)
 			}.getOrElse { throwable ->
-				noAwait {
-					val activeUId = authRepository.getActiveAuth().uid
-					val transaction = transactionParser.fromRequest(request)
+				val enqueue = request.getEnqueued()
 
-					transactionRepository.enqueueTransaction(
-						uid = activeUId,
-						transaction = transaction
-					)
+				if (enqueue != null) {
+					noAwait {
+						val activeUId = authRepository.getActiveAuth().uid
+						val transactionParser = enqueue.parser.createInstance()
+						val transaction = transactionParser.parse(request)
+
+						transactionRepository.enqueueTransaction(
+							uid = activeUId,
+							transaction = transaction
+						)
+					}
 				}
 
 				throw throwable

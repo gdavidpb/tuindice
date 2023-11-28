@@ -5,17 +5,11 @@ import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
 import com.gdavidpb.tuindice.base.utils.extension.bodyAs
 import com.gdavidpb.tuindice.base.utils.extension.bodyToString
-import com.gdavidpb.tuindice.base.utils.extension.findAnnotation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.request.UpdateEvaluationRequest
-import com.gdavidpb.tuindice.transactions.data.api.transaction.RequestParser
+import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionParser
 import okhttp3.Request
-import retrofit2.http.PATCH
 
-class EvaluationUpdateParser : RequestParser {
-	override fun match(request: Request): Boolean {
-		return request.findAnnotation<PATCH>()?.value == "evaluations"
-	}
-
+class EvaluationUpdateParser : TransactionParser {
 	override fun parse(request: Request): Transaction {
 		val body = request.bodyAs<UpdateEvaluationRequest>()
 		val json = request.bodyToString()

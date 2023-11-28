@@ -23,13 +23,13 @@ class AttestationInterceptor(
 
 					if (attestation != null) {
 						val attestationToken = runCatching {
-							val parser = attestation.parser.createInstance()
-							val payload = parser.getPayload(request)
+							val attestationParser = attestation.parser.createInstance()
+							val attestationPayload = attestationParser.parse(request)
 
 							runBlocking {
 								attestationRepository.getToken(
 									operation = request.url.encodedPath,
-									payload = payload
+									payload = attestationPayload
 								)
 							}
 						}.getOrNull()
