@@ -1,10 +1,10 @@
-package com.gdavidpb.tuindice.enrollmentproof.data.storage
+package com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.source
 
 import android.content.Context
 import com.gdavidpb.tuindice.base.utils.extension.File
 import com.gdavidpb.tuindice.base.utils.extension.decodeFromBase64String
 import com.gdavidpb.tuindice.base.utils.extension.encodeToBase64String
-import com.gdavidpb.tuindice.enrollmentproof.data.enrollmentproof.source.StorageDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.StorageDataSource
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 
 class InternalStorageDataSource(
