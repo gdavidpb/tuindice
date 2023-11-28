@@ -8,8 +8,8 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import kotlinx.coroutines.flow.Flow
 
 interface EvaluationRepository {
-	suspend fun getEvaluations(uid: String): Flow<List<Evaluation>>
-	suspend fun getEvaluationStream(uid: String, eid: String): Evaluation
+	suspend fun getEvaluationsStream(uid: String): Flow<List<Evaluation>>
+	suspend fun getEvaluation(uid: String, eid: String): Evaluation?
 
 	suspend fun addEvaluation(uid: String, add: EvaluationAdd)
 	suspend fun updateEvaluation(uid: String, update: EvaluationUpdate)

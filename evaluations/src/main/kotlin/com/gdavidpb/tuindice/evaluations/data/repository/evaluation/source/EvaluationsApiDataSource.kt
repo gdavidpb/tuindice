@@ -2,11 +2,12 @@ package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
+import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.EvaluationsApi
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.RemoteDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toAddEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toUpdateEvaluationRequest
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.RemoteDataSource
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
@@ -20,10 +21,17 @@ class EvaluationsApiDataSource(
 			.map { evaluationResponse -> evaluationResponse.toEvaluation() }
 	}
 
-	override suspend fun getEvaluation(eid: String): Evaluation {
-		return evaluationsApi.getEvaluation(eid)
-			.getOrThrow()
-			.toEvaluation()
+	override suspend fun getEvaluation(eid: String): Evaluation? {
+		return runCatching {
+			evaluationsApi.getEvaluation(eid)
+				.getOrThrow()
+				.toEvaluation()
+		}.getOrElse { throwable ->
+			if (throwable.isNotFound())
+				return null
+			else
+				throw throwable
+		}
 	}
 
 	override suspend fun addEvaluation(add: EvaluationAdd): Evaluation {
