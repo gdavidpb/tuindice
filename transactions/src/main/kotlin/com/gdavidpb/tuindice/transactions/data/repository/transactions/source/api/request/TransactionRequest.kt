@@ -10,5 +10,5 @@ data class TransactionRequest(
 	@SerialName("reference") val reference: String,
 	@SerialName("type") val type: TransactionRequestType,
 	@SerialName("action") val action: TransactionRequestAction,
-	@SerialName("data") val data: String
+	@SerialName("data") val data: String? = null
 )

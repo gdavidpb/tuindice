@@ -15,8 +15,7 @@ class QuarterRemoveParser : TransactionParser {
 		return Transaction(
 			reference = quarterId,
 			type = TransactionType.QUARTER,
-			action = TransactionAction.DELETE,
-			data = ""
+			action = TransactionAction.DELETE
 		)
 	}
 }

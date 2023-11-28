@@ -17,5 +17,5 @@ data class TransactionEntity(
 	@ColumnInfo(name = TransactionTable.REFERENCE) val reference: String,
 	@ColumnInfo(name = TransactionTable.TYPE) val type: TransactionType,
 	@ColumnInfo(name = TransactionTable.ACTION) val action: TransactionAction,
-	@ColumnInfo(name = TransactionTable.DATA) val data: String
+	@ColumnInfo(name = TransactionTable.DATA) val data: String?
 )
