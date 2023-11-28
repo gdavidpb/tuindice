@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.enrollmentproof.data.api.response
+package com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.source.api.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

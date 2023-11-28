@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.enrollmentproof.data.enrollmentproof.source
+package com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof
 
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 

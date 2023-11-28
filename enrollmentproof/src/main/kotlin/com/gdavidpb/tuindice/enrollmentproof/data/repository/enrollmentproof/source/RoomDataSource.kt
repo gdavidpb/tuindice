@@ -1,6 +1,6 @@
-package com.gdavidpb.tuindice.enrollmentproof.data.room
+package com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.source
 
-import com.gdavidpb.tuindice.enrollmentproof.data.enrollmentproof.source.LocalDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.LocalDataSource
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 
 class RoomDataSource(

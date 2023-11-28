@@ -1,9 +1,6 @@
-package com.gdavidpb.tuindice.enrollmentproof.data.enrollmentproof
+package com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof
 
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.enrollmentproof.data.enrollmentproof.source.LocalDataSource
-import com.gdavidpb.tuindice.enrollmentproof.data.enrollmentproof.source.RemoteDataSource
-import com.gdavidpb.tuindice.enrollmentproof.data.enrollmentproof.source.StorageDataSource
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 
