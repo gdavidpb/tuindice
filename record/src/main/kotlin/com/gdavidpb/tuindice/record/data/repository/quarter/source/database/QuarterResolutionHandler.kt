@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionType
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.mapper.toQuarterAndSubjectsEntities
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.QuarterResponse
-import com.gdavidpb.tuindice.transactions.data.room.resolution.ResolutionHandler
+import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.database.resolution.ResolutionHandler
 import kotlinx.serialization.json.Json
 
 class QuarterResolutionHandler(
