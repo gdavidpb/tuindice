@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.transactions.data.repository.transactions.source
 
-import com.gdavidpb.tuindice.base.domain.model.resolution.Resolution
-import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
+import com.gdavidpb.tuindice.transactions.domain.model.Resolution
+import com.gdavidpb.tuindice.transactions.domain.model.Transaction
 import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
 import com.gdavidpb.tuindice.transactions.data.repository.transactions.SyncApi
 import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.api.mapper.toResolution

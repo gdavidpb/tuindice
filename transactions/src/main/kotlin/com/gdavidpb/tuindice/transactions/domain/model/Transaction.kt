@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.domain.model.transaction
+package com.gdavidpb.tuindice.transactions.domain.model
 
 data class Transaction(
 	val timestamp: Long = System.currentTimeMillis(),

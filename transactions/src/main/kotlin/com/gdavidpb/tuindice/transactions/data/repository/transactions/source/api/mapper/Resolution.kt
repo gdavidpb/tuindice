@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.transactions.data.repository.transactions.source.api.mapper
 
-import com.gdavidpb.tuindice.base.domain.model.resolution.Resolution
-import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionAction
-import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionType
+import com.gdavidpb.tuindice.transactions.domain.model.Resolution
+import com.gdavidpb.tuindice.transactions.domain.model.ResolutionAction
+import com.gdavidpb.tuindice.transactions.domain.model.ResolutionType
 import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.api.model.ResolutionResponseAction
 import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.api.model.ResolutionResponseType
 import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.api.response.ResolutionResponse

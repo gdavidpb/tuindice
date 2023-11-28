@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.domain.model.resolution
+package com.gdavidpb.tuindice.transactions.domain.model
 
 enum class ResolutionType {
 	QUARTER, SUBJECT, EVALUATION
