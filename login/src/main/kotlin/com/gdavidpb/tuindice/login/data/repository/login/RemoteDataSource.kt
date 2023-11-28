@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.login.data.login.source
+package com.gdavidpb.tuindice.login.data.repository.login
 
 import com.gdavidpb.tuindice.login.domain.model.SignIn
 

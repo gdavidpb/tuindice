@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.login.data.api.response
+package com.gdavidpb.tuindice.login.data.repository.login.source.api.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

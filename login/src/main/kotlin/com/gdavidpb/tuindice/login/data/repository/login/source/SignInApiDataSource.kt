@@ -1,12 +1,13 @@
-package com.gdavidpb.tuindice.login.data.api
+package com.gdavidpb.tuindice.login.data.repository.login.source
 
 import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
-import com.gdavidpb.tuindice.login.data.api.mapper.toSignIn
-import com.gdavidpb.tuindice.login.data.login.source.RemoteDataSource
+import com.gdavidpb.tuindice.login.data.repository.login.source.api.mapper.toSignIn
+import com.gdavidpb.tuindice.login.data.repository.login.RemoteDataSource
+import com.gdavidpb.tuindice.login.data.repository.login.SignInApi
 import com.gdavidpb.tuindice.login.domain.model.SignIn
 import okhttp3.Credentials
 
-class ApiDataSource(
+class SignInApiDataSource(
 	private val signInApi: SignInApi
 ) : RemoteDataSource {
 	override suspend fun signIn(

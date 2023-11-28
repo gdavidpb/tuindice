@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.login.data.api.attestation
+package com.gdavidpb.tuindice.login.data.repository.login.source.api.attestation
 
 import com.gdavidpb.tuindice.base.domain.model.attestation.Attestation
 import okhttp3.Request

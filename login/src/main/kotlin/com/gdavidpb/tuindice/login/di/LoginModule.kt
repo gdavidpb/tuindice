@@ -2,10 +2,10 @@ package com.gdavidpb.tuindice.login.di
 
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extension.create
-import com.gdavidpb.tuindice.login.data.api.ApiDataSource
-import com.gdavidpb.tuindice.login.data.api.SignInApi
-import com.gdavidpb.tuindice.login.data.login.LoginDataRepository
-import com.gdavidpb.tuindice.login.data.login.source.RemoteDataSource
+import com.gdavidpb.tuindice.login.data.repository.login.source.SignInApiDataSource
+import com.gdavidpb.tuindice.login.data.repository.login.SignInApi
+import com.gdavidpb.tuindice.login.data.repository.login.LoginDataRepository
+import com.gdavidpb.tuindice.login.data.repository.login.RemoteDataSource
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
@@ -66,7 +66,7 @@ val loginModule = module {
 
 	/* Data sources */
 
-	factoryOf(::ApiDataSource) { bind<RemoteDataSource>() }
+	factoryOf(::SignInApiDataSource) { bind<RemoteDataSource>() }
 
 	/* SignIn Api */
 
