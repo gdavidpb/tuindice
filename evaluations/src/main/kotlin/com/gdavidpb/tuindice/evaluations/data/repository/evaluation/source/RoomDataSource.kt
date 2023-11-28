@@ -1,10 +1,10 @@
-package com.gdavidpb.tuindice.evaluations.data.room
+package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
-import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluation
-import com.gdavidpb.tuindice.evaluations.data.room.mapper.toEvaluationEntity
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluation
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate

@@ -1,8 +1,8 @@
-package com.gdavidpb.tuindice.evaluations.data.api
+package com.gdavidpb.tuindice.evaluations.data.repository.evaluation
 
-import com.gdavidpb.tuindice.evaluations.data.api.request.AddEvaluationRequest
-import com.gdavidpb.tuindice.evaluations.data.api.request.UpdateEvaluationRequest
-import com.gdavidpb.tuindice.evaluations.data.api.response.EvaluationResponse
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.request.AddEvaluationRequest
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.request.UpdateEvaluationRequest
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.response.EvaluationResponse
 import com.gdavidpb.tuindice.transactions.domain.annotation.EnqueueOnFailure
 import retrofit2.Response
 import retrofit2.http.*

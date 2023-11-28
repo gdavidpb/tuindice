@@ -1,10 +1,10 @@
-package com.gdavidpb.tuindice.evaluations.data.resolution
+package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.resolution
 
 import com.gdavidpb.tuindice.base.domain.model.resolution.Resolution
 import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionAction
 import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionType
-import com.gdavidpb.tuindice.evaluations.data.api.mapper.toEvaluationEntity
-import com.gdavidpb.tuindice.evaluations.data.api.response.EvaluationResponse
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toEvaluationEntity
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.response.EvaluationResponse
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.transactions.data.room.resolution.ResolutionHandler
 import kotlinx.serialization.json.Json

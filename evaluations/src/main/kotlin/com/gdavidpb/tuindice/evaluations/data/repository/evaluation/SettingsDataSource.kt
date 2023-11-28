@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.data.evaluation.source
+package com.gdavidpb.tuindice.evaluations.data.repository.evaluation
 
 interface SettingsDataSource {
 	suspend fun isGetEvaluationsOnCooldown(): Boolean

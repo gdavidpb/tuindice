@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.data.api.parser
+package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.parser
 
 import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
@@ -6,27 +6,27 @@ import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
 import com.gdavidpb.tuindice.base.utils.extension.bodyAs
 import com.gdavidpb.tuindice.base.utils.extension.bodyToString
 import com.gdavidpb.tuindice.base.utils.extension.findAnnotation
-import com.gdavidpb.tuindice.evaluations.data.api.request.UpdateEvaluationRequest
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.request.AddEvaluationRequest
 import com.gdavidpb.tuindice.transactions.data.api.transaction.RequestParser
 import okhttp3.Request
-import retrofit2.http.PATCH
+import retrofit2.http.POST
 
-class EvaluationUpdateParser : RequestParser {
+class EvaluationAddParser : RequestParser {
 	override fun match(request: Request): Boolean {
-		return request.findAnnotation<PATCH>()?.value == "evaluations"
+		return request.findAnnotation<POST>()?.value == "evaluations"
 	}
 
 	override fun parse(request: Request): Transaction {
-		val body = request.bodyAs<UpdateEvaluationRequest>()
+		val body = request.bodyAs<AddEvaluationRequest>()
 		val json = request.bodyToString()
 
 		requireNotNull(body)
 		requireNotNull(json)
 
 		return Transaction(
-			reference = body.evaluationId,
-			type = TransactionType.QUARTER,
-			action = TransactionAction.DELETE,
+			reference = body.reference,
+			type = TransactionType.EVALUATION,
+			action = TransactionAction.ADD,
 			data = json
 		)
 	}

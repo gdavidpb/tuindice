@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.data.room.mapper
+package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd

@@ -1,11 +1,8 @@
-package com.gdavidpb.tuindice.evaluations.data.evaluation
+package com.gdavidpb.tuindice.evaluations.data.repository.evaluation
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
-import com.gdavidpb.tuindice.evaluations.data.evaluation.source.LocalDataSource
-import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
-import com.gdavidpb.tuindice.evaluations.data.evaluation.source.SettingsDataSource
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate

@@ -7,8 +7,10 @@ import kotlinx.serialization.Serializable
 enum class TransactionRequestAction {
 	@SerialName("add")
 	ADD,
+
 	@SerialName("update")
 	UPDATE,
+
 	@SerialName("delete")
 	DELETE
 }

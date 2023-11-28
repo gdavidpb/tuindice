@@ -1,16 +1,17 @@
-package com.gdavidpb.tuindice.evaluations.data.api
+package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
-import com.gdavidpb.tuindice.evaluations.data.api.mapper.toAddEvaluationRequest
-import com.gdavidpb.tuindice.evaluations.data.api.mapper.toEvaluation
-import com.gdavidpb.tuindice.evaluations.data.api.mapper.toUpdateEvaluationRequest
-import com.gdavidpb.tuindice.evaluations.data.evaluation.source.RemoteDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.EvaluationsApi
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toAddEvaluationRequest
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toEvaluation
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toUpdateEvaluationRequest
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.RemoteDataSource
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 
-class ApiDataSource(
+class EvaluationsApiDataSource(
 	private val evaluationsApi: EvaluationsApi
 ) : RemoteDataSource {
 	override suspend fun getEvaluations(): List<Evaluation> {
