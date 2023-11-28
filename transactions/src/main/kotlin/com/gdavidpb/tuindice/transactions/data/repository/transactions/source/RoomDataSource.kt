@@ -5,9 +5,9 @@ import com.gdavidpb.tuindice.base.domain.model.resolution.Resolution
 import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.transactions.data.repository.transactions.LocalDataSource
 import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.database.mapper.toTransaction
 import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.database.mapper.toTransactionEntity
-import com.gdavidpb.tuindice.transactions.data.repository.transactions.LocalDataSource
 import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.database.resolution.ResolutionApplier
 
 class RoomDataSource(
@@ -34,8 +34,7 @@ class RoomDataSource(
 	}
 
 	private suspend fun internalCreateTransaction(uid: String, transaction: Transaction): String {
-		val transactionOrdinal = room.counters.getAndIncrement(uid)
-		val transactionEntity = transaction.toTransactionEntity(uid, transactionOrdinal)
+		val transactionEntity = transaction.toTransactionEntity(uid)
 
 		room.transactions.upsertTransaction(entity = transactionEntity)
 

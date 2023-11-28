@@ -8,6 +8,6 @@ object TransactionTable {
 	const val REFERENCE = "transaction_ref"
 	const val TYPE = "transaction_type"
 	const val ACTION = "transaction_action"
-	const val ORDINAL = "transaction_ordinal"
+	const val TIMESTAMP = "transaction_timestamp"
 	const val DATA = "transaction_data"
 }
