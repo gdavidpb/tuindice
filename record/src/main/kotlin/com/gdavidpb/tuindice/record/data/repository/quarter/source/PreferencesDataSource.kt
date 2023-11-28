@@ -1,8 +1,8 @@
-package com.gdavidpb.tuindice.record.data.preferences
+package com.gdavidpb.tuindice.record.data.repository.quarter.source
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.gdavidpb.tuindice.record.data.quarter.source.SettingsDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.SettingsDataSource
 import com.gdavidpb.tuindice.record.utils.CooldownTimes
 import com.gdavidpb.tuindice.record.utils.PreferencesKeys
 

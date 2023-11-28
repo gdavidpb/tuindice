@@ -1,11 +1,11 @@
-package com.gdavidpb.tuindice.record.data.api.mapper
+package com.gdavidpb.tuindice.record.data.repository.quarter.source.api.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_MOCK
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.persistence.data.room.entity.QuarterEntity
-import com.gdavidpb.tuindice.record.data.api.response.QuarterResponse
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.QuarterResponse
 
 fun QuarterResponse.toQuarter(): Quarter {
 	val isEditable = (status == STATUS_QUARTER_CURRENT) || (status == STATUS_QUARTER_MOCK)

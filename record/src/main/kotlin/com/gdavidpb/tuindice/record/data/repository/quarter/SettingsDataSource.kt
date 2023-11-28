@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.data.quarter.source
+package com.gdavidpb.tuindice.record.data.repository.quarter
 
 interface SettingsDataSource {
 	suspend fun isGetQuartersOnCooldown(): Boolean

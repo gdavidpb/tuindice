@@ -1,11 +1,7 @@
-package com.gdavidpb.tuindice.record.data.quarter
+package com.gdavidpb.tuindice.record.data.repository.quarter
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
-import com.gdavidpb.tuindice.record.data.quarter.source.CacheDataSource
-import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
-import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
-import com.gdavidpb.tuindice.record.data.quarter.source.SettingsDataSource
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository

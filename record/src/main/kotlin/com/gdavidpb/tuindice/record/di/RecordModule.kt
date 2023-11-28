@@ -2,20 +2,20 @@ package com.gdavidpb.tuindice.record.di
 
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extension.create
-import com.gdavidpb.tuindice.record.data.api.ApiDataSource
-import com.gdavidpb.tuindice.record.data.api.RecordApi
-import com.gdavidpb.tuindice.record.data.api.parser.QuarterRemoveParser
-import com.gdavidpb.tuindice.record.data.api.parser.SubjectUpdateParser
-import com.gdavidpb.tuindice.record.data.cache.MemoryDataSource
-import com.gdavidpb.tuindice.record.data.preferences.PreferencesDataSource
-import com.gdavidpb.tuindice.record.data.quarter.QuarterDataRepository
-import com.gdavidpb.tuindice.record.data.quarter.source.CacheDataSource
-import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
-import com.gdavidpb.tuindice.record.data.quarter.source.RemoteDataSource
-import com.gdavidpb.tuindice.record.data.quarter.source.SettingsDataSource
-import com.gdavidpb.tuindice.record.data.room.RoomDataSource
-import com.gdavidpb.tuindice.record.data.room.resolution.QuarterResolutionHandler
-import com.gdavidpb.tuindice.record.data.room.resolution.SubjectResolutionHandler
+import com.gdavidpb.tuindice.record.data.repository.quarter.CacheDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.LocalDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.QuarterDataRepository
+import com.gdavidpb.tuindice.record.data.repository.quarter.RecordApi
+import com.gdavidpb.tuindice.record.data.repository.quarter.RemoteDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.SettingsDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.MemoryDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.PreferencesDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.RecordApiDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.RoomDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.parser.QuarterRemoveParser
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.parser.SubjectUpdateParser
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.QuarterResolutionHandler
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.SubjectResolutionHandler
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
@@ -61,7 +61,7 @@ val recordModule = module {
 	/* Data sources */
 
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
-	factoryOf(::ApiDataSource) { bind<RemoteDataSource>() }
+	factoryOf(::RecordApiDataSource) { bind<RemoteDataSource>() }
 	factoryOf(::MemoryDataSource) { bind<CacheDataSource>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsDataSource>() }
 

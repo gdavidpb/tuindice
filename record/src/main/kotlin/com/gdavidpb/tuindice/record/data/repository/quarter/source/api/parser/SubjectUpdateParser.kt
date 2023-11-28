@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.data.api.parser
+package com.gdavidpb.tuindice.record.data.repository.quarter.source.api.parser
 
 import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
 import com.gdavidpb.tuindice.base.utils.extension.bodyAs
 import com.gdavidpb.tuindice.base.utils.extension.bodyToString
 import com.gdavidpb.tuindice.base.utils.extension.findAnnotation
-import com.gdavidpb.tuindice.record.data.api.request.UpdateSubjectRequest
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.request.UpdateSubjectRequest
 import com.gdavidpb.tuindice.transactions.data.api.transaction.RequestParser
 import okhttp3.Request
 import retrofit2.http.PATCH

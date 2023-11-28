@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.data.api.request
+package com.gdavidpb.tuindice.record.data.repository.quarter.source.api.request
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
