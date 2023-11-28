@@ -9,6 +9,7 @@ class ResolutionDataRepository(
 	override suspend fun syncTransactions(uid: String) {
 		val pendingTransactions = localDataSource.getTransactionsQueue(uid)
 
-		remoteDataSource.sync(pendingTransactions)
+		if (pendingTransactions.isNotEmpty())
+			remoteDataSource.sync(pendingTransactions)
 	}
 }
