@@ -1,12 +1,16 @@
 package com.gdavidpb.tuindice.transactions.data.api.model.transaction
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 enum class TransactionRequestType {
-	@SerializedName("quarter")
+	@SerialName("quarter")
 	QUARTER,
-	@SerializedName("subject")
+
+	@SerialName("subject")
 	SUBJECT,
-	@SerializedName("evaluation")
+
+	@SerialName("evaluation")
 	EVALUATION
 }

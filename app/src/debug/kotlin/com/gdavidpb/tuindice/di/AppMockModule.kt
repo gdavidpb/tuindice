@@ -26,8 +26,8 @@ import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSourc
 import com.gdavidpb.tuindice.data.source.mobile.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
-import com.gdavidpb.tuindice.data.utils.AttestationInterceptor
-import com.gdavidpb.tuindice.data.utils.AuthorizationInterceptor
+import com.gdavidpb.tuindice.data.utils.retrofit.AttestationInterceptor
+import com.gdavidpb.tuindice.data.utils.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
@@ -61,7 +61,9 @@ import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.testing.FakeReviewManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.gson.Gson
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -196,7 +198,9 @@ val appMockModule = module {
 
 	/* Utils */
 
-	singleOf(::Gson)
+	factory {
+		Json.asConverterFactory("application/json".toMediaType())
+	}
 
 	single {
 		TransactionParser(

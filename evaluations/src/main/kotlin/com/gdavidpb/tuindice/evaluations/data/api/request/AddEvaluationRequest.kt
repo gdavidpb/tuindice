@@ -1,12 +1,14 @@
 package com.gdavidpb.tuindice.evaluations.data.api.request
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class AddEvaluationRequest(
-	@SerializedName("reference") val reference: String,
-	@SerializedName("subject_id") val subjectId: String,
-	@SerializedName("type") val type: Int,
-	@SerializedName("grade") val grade: Double?,
-	@SerializedName("max_grade") val maxGrade: Double,
-	@SerializedName("date") val date: Long,
+	@SerialName("reference") val reference: String,
+	@SerialName("subject_id") val subjectId: String,
+	@SerialName("type") val type: Int,
+	@SerialName("grade") val grade: Double?,
+	@SerialName("max_grade") val maxGrade: Double,
+	@SerialName("date") val date: Long,
 )

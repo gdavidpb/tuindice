@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.data.repository.attestation.source.api.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class AttestationIdResponse(
-	@SerializedName("id") val id: String
+	@SerialName("id") val id: String
 )

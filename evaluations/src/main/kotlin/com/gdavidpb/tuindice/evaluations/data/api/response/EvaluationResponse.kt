@@ -1,15 +1,17 @@
 package com.gdavidpb.tuindice.evaluations.data.api.response
 
 import com.gdavidpb.tuindice.record.data.api.response.SubjectResponse
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class EvaluationResponse(
-	@SerializedName("id") val id: String,
-	@SerializedName("sid") val sid: String,
-	@SerializedName("qid") val qid: String,
-	@SerializedName("grade") val grade: Double?,
-	@SerializedName("max_grade") val maxGrade: Double,
-	@SerializedName("date") val date: Long,
-	@SerializedName("type") val type: Int,
-	@SerializedName("subject") val subject: SubjectResponse
+	@SerialName("id") val id: String,
+	@SerialName("sid") val sid: String,
+	@SerialName("qid") val qid: String,
+	@SerialName("grade") val grade: Double?,
+	@SerialName("max_grade") val maxGrade: Double,
+	@SerialName("date") val date: Long,
+	@SerialName("type") val type: Int,
+	@SerialName("subject") val subject: SubjectResponse
 )

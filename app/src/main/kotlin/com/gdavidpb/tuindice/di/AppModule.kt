@@ -36,8 +36,8 @@ import com.gdavidpb.tuindice.data.source.mobile.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
-import com.gdavidpb.tuindice.data.utils.AttestationInterceptor
-import com.gdavidpb.tuindice.data.utils.AuthorizationInterceptor
+import com.gdavidpb.tuindice.data.utils.retrofit.AttestationInterceptor
+import com.gdavidpb.tuindice.data.utils.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
@@ -75,7 +75,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.gson.Gson
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -85,7 +87,6 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import com.gdavidpb.tuindice.data.repository.attestation.LocalDataSource as AttestationLocal
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
@@ -231,7 +232,7 @@ val appModule = module {
 	single {
 		Retrofit.Builder()
 			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
-			.addConverterFactory(GsonConverterFactory.create())
+			.addConverterFactory(get())
 			.client(get())
 			.build()
 			.create<MessagingApi>()
@@ -240,7 +241,7 @@ val appModule = module {
 	single {
 		Retrofit.Builder()
 			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
-			.addConverterFactory(GsonConverterFactory.create())
+			.addConverterFactory(get())
 			.client(get())
 			.build()
 			.create<AttestationApi>()
@@ -248,7 +249,9 @@ val appModule = module {
 
 	/* Utils */
 
-	singleOf(::Gson)
+	factory {
+		Json.asConverterFactory("application/json".toMediaType())
+	}
 
 	single {
 		TransactionParser(

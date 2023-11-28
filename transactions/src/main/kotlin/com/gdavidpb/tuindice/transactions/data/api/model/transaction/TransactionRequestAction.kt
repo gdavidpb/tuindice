@@ -1,12 +1,14 @@
 package com.gdavidpb.tuindice.transactions.data.api.model.transaction
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 enum class TransactionRequestAction {
-	@SerializedName("add")
+	@SerialName("add")
 	ADD,
-	@SerializedName("update")
+	@SerialName("update")
 	UPDATE,
-	@SerializedName("delete")
+	@SerialName("delete")
 	DELETE
 }

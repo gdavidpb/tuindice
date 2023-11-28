@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.summary.data.api.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ProfilePictureResponse(
-	@SerializedName("uid") val uid: String,
-	@SerializedName("url") val url: String
+	@SerialName("uid") val uid: String,
+	@SerialName("url") val url: String
 )

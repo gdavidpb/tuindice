@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.utils
+package com.gdavidpb.tuindice.data.utils.retrofit
 
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository

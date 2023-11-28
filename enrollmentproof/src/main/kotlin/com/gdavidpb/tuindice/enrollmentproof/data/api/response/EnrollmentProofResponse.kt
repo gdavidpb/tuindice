@@ -1,8 +1,11 @@
 package com.gdavidpb.tuindice.enrollmentproof.data.api.response
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
 
 data class EnrollmentProofResponse(
-	@SerializedName("name") val name: String,
-	@SerializedName("content") val content: String
+	@SerialName("name") val name: String,
+	@SerialName("content") val content: String
 )
