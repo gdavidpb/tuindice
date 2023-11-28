@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.data.api.parser
+package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.parser
 
 import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
 import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction

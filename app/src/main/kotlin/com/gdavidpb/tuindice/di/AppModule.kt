@@ -43,10 +43,10 @@ import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
-import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationAddParser
-import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationRemoveParser
-import com.gdavidpb.tuindice.evaluations.data.api.parser.EvaluationUpdateParser
-import com.gdavidpb.tuindice.evaluations.data.resolution.EvaluationResolutionHandler
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.parser.EvaluationAddParser
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.parser.EvaluationRemoveParser
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.parser.EvaluationUpdateParser
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.resolution.EvaluationResolutionHandler
 import com.gdavidpb.tuindice.presentation.action.browser.CloseBrowserDialogActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.ConfirmOpenExternalResourceActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
