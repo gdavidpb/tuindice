@@ -29,13 +29,20 @@ class PickEvaluationGradeActionProcessor(
 					is UseCaseState.Data -> { state ->
 						val evaluation = useCaseState.value
 
-						sideEffect(
-							Evaluations.Effect.ShowGradePickerDialog(
-								evaluationId = evaluation.evaluationId,
-								grade = evaluation.grade ?: 0.0,
-								maxGrade = evaluation.maxGrade
+						if (evaluation != null)
+							sideEffect(
+								Evaluations.Effect.ShowGradePickerDialog(
+									evaluationId = evaluation.evaluationId,
+									grade = evaluation.grade ?: 0.0,
+									maxGrade = evaluation.maxGrade
+								)
 							)
-						)
+						else
+							sideEffect(
+								Evaluations.Effect.ShowSnackBar(
+									message = resourceResolver.getString(R.string.snack_default_error)
+								)
+							)
 
 						state
 					}
