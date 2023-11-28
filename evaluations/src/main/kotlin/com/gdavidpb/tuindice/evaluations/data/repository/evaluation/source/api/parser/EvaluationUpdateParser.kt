@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
 import com.gdavidpb.tuindice.base.utils.extension.bodyAs
 import com.gdavidpb.tuindice.base.utils.extension.bodyToString
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.request.UpdateEvaluationRequest
-import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionParser
+import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.api.retrofit.TransactionParser
 import okhttp3.Request
 
 class EvaluationUpdateParser : TransactionParser {

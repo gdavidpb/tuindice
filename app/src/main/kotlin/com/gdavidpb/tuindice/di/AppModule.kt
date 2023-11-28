@@ -2,10 +2,11 @@ package com.gdavidpb.tuindice.di
 
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
-import androidx.work.ListenableWorker
 import androidx.work.WorkManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.BuildConfig
+import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AttestationInterceptor
+import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
@@ -37,8 +38,6 @@ import com.gdavidpb.tuindice.data.source.mobile.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
-import com.gdavidpb.tuindice.data.utils.retrofit.AttestationInterceptor
-import com.gdavidpb.tuindice.data.utils.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
@@ -60,9 +59,8 @@ import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.QuarterResolutionHandler
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.SubjectResolutionHandler
-import com.gdavidpb.tuindice.transactions.data.api.transaction.TransactionInterceptor
-import com.gdavidpb.tuindice.transactions.data.room.resolution.ResolutionApplier
-import com.gdavidpb.tuindice.transactions.data.workmanager.SyncWorker
+import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.api.retrofit.TransactionInterceptor
+import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.database.resolution.ResolutionApplier
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.integrity.IntegrityManagerFactory
@@ -78,7 +76,6 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModelOf
-import org.koin.androidx.workmanager.dsl.workerOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -162,8 +159,6 @@ val appModule = module {
 		ReviewManagerFactory.create(androidContext())
 	}
 
-	workerOf(::SyncWorker) { bind<ListenableWorker>() }
-
 	/* Firebase */
 
 	single {
@@ -192,7 +187,6 @@ val appModule = module {
 
 	singleOf(::AuthorizationInterceptor)
 	singleOf(::AttestationInterceptor)
-	singleOf(::TransactionInterceptor)
 
 	single {
 		val logger = HttpLoggingInterceptor.Logger { message ->

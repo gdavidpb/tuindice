@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionType
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.response.EvaluationResponse
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.transactions.data.room.resolution.ResolutionHandler
+import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.database.resolution.ResolutionHandler
 import kotlinx.serialization.json.Json
 
 class EvaluationResolutionHandler(
