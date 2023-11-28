@@ -50,7 +50,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.QuarterResolutionHandler
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.SubjectResolutionHandler
 import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.api.retrofit.TransactionInterceptor
-import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.database.resolution.ResolutionApplier
+import com.gdavidpb.tuindice.transactions.domain.model.ResolutionType
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
@@ -195,13 +195,10 @@ val appMockModule = module {
 	}
 
 	single {
-		ResolutionApplier(
-			room = get(),
-			resolutionHandlers = listOf(
-				get<SubjectResolutionHandler>(),
-				get<QuarterResolutionHandler>(),
-				get<EvaluationResolutionHandler>()
-			)
+		mapOf(
+			ResolutionType.QUARTER to get<QuarterResolutionHandler>(),
+			ResolutionType.SUBJECT to get<SubjectResolutionHandler>(),
+			ResolutionType.EVALUATION to get<EvaluationResolutionHandler>()
 		)
 	}
 

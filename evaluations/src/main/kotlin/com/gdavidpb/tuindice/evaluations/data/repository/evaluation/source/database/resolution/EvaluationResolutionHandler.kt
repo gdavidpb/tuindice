@@ -1,21 +1,16 @@
 package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.resolution
 
-import com.gdavidpb.tuindice.base.domain.model.resolution.Resolution
-import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionAction
-import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionType
+import com.gdavidpb.tuindice.transactions.domain.model.Resolution
+import com.gdavidpb.tuindice.transactions.domain.model.ResolutionAction
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.response.EvaluationResponse
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.database.resolution.ResolutionHandler
+import com.gdavidpb.tuindice.transactions.domain.model.ResolutionHandler
 import kotlinx.serialization.json.Json
 
 class EvaluationResolutionHandler(
 	private val room: TuIndiceDatabase
 ) : ResolutionHandler {
-	override suspend fun match(resolution: Resolution): Boolean {
-		return (resolution.type == ResolutionType.EVALUATION)
-	}
-
 	override suspend fun apply(resolution: Resolution) {
 		val subjectEntity = Json.decodeFromString<EvaluationResponse>(string = resolution.data)
 			.toEvaluationEntity(uid = resolution.uid)

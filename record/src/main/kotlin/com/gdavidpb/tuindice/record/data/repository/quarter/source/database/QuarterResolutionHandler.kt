@@ -1,21 +1,16 @@
 package com.gdavidpb.tuindice.record.data.repository.quarter.source.database
 
-import com.gdavidpb.tuindice.base.domain.model.resolution.Resolution
-import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionAction
-import com.gdavidpb.tuindice.base.domain.model.resolution.ResolutionType
+import com.gdavidpb.tuindice.transactions.domain.model.Resolution
+import com.gdavidpb.tuindice.transactions.domain.model.ResolutionAction
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.mapper.toQuarterAndSubjectsEntities
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.QuarterResponse
-import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.database.resolution.ResolutionHandler
+import com.gdavidpb.tuindice.transactions.domain.model.ResolutionHandler
 import kotlinx.serialization.json.Json
 
 class QuarterResolutionHandler(
 	private val room: TuIndiceDatabase
 ) : ResolutionHandler {
-	override suspend fun match(resolution: Resolution): Boolean {
-		return (resolution.type == ResolutionType.QUARTER)
-	}
-
 	override suspend fun apply(resolution: Resolution) {
 		val (quarterEntity, subjectEntities) = Json.decodeFromString<QuarterResponse>(string = resolution.data)
 			.toQuarterAndSubjectsEntities(uid = resolution.uid)

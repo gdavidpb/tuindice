@@ -2,8 +2,6 @@ package com.gdavidpb.tuindice.persistence.data.room.converter
 
 import androidx.room.TypeConverter
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
-import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
 
 class DatabaseConverters {
 	@TypeConverter
@@ -17,16 +15,4 @@ class DatabaseConverters {
 
 	@TypeConverter
 	fun intToEvaluationType(value: Int): EvaluationType = EvaluationType.values()[value]
-
-	@TypeConverter
-	fun transactionActionToInt(value: TransactionAction): Int = value.ordinal
-
-	@TypeConverter
-	fun intToTransactionAction(value: Int): TransactionAction = TransactionAction.values()[value]
-
-	@TypeConverter
-	fun transactionTypeToInt(value: TransactionType): Int = value.ordinal
-
-	@TypeConverter
-	fun intToTransactionType(value: Int): TransactionType = TransactionType.values()[value]
 }

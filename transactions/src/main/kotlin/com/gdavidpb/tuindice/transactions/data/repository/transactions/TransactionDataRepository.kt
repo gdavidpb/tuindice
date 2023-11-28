@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.transactions.data.repository.transactions
 
-import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
+import com.gdavidpb.tuindice.transactions.domain.model.Transaction
 import com.gdavidpb.tuindice.transactions.domain.repository.TransactionRepository
 
 class TransactionDataRepository(

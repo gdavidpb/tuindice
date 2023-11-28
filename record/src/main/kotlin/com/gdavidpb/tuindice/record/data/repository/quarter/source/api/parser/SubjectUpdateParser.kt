@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.record.data.repository.quarter.source.api.parser
 
-import com.gdavidpb.tuindice.base.domain.model.transaction.Transaction
-import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionAction
-import com.gdavidpb.tuindice.base.domain.model.transaction.TransactionType
+import com.gdavidpb.tuindice.transactions.domain.model.Transaction
+import com.gdavidpb.tuindice.transactions.domain.model.TransactionAction
+import com.gdavidpb.tuindice.transactions.domain.model.TransactionType
 import com.gdavidpb.tuindice.base.utils.extension.bodyAs
 import com.gdavidpb.tuindice.base.utils.extension.bodyToString
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.request.UpdateSubjectRequest
