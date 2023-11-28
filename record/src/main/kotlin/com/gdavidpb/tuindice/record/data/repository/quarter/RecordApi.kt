@@ -1,8 +1,8 @@
-package com.gdavidpb.tuindice.record.data.api
+package com.gdavidpb.tuindice.record.data.repository.quarter
 
-import com.gdavidpb.tuindice.record.data.api.request.UpdateSubjectRequest
-import com.gdavidpb.tuindice.record.data.api.response.QuarterResponse
-import com.gdavidpb.tuindice.record.data.api.response.SubjectResponse
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.request.UpdateSubjectRequest
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.QuarterResponse
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.SubjectResponse
 import com.gdavidpb.tuindice.transactions.domain.annotation.EnqueueOnFailure
 import retrofit2.Response
 import retrofit2.http.*

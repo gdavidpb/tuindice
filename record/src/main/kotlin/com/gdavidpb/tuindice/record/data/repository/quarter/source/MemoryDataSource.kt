@@ -1,10 +1,10 @@
-package com.gdavidpb.tuindice.record.data.cache
+package com.gdavidpb.tuindice.record.data.repository.quarter.source
 
 import android.util.LruCache
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.utils.extension.getOrPut
 import com.gdavidpb.tuindice.base.utils.extension.selfMapNotNull
-import com.gdavidpb.tuindice.record.data.quarter.source.CacheDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.CacheDataSource
 import com.gdavidpb.tuindice.record.utils.extensions.computeCredits
 import com.gdavidpb.tuindice.record.utils.extensions.computeGrade
 import com.gdavidpb.tuindice.record.utils.extensions.computeGradeSum

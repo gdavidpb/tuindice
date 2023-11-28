@@ -1,12 +1,12 @@
-package com.gdavidpb.tuindice.record.data.api.mapper
+package com.gdavidpb.tuindice.record.data.repository.quarter.source.api.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_NO_EFFECT
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_RETIRED
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
-import com.gdavidpb.tuindice.record.data.api.request.UpdateSubjectRequest
-import com.gdavidpb.tuindice.record.data.api.response.SubjectResponse
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.request.UpdateSubjectRequest
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.SubjectResponse
 import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 
 fun SubjectUpdate.toUpdateSubjectRequest() = UpdateSubjectRequest(

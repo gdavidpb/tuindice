@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.data.room
+package com.gdavidpb.tuindice.record.data.repository.quarter.source
 
 import androidx.room.withTransaction
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.mapper.toQuarter
 import com.gdavidpb.tuindice.persistence.data.room.mapper.toQuarterEntity
 import com.gdavidpb.tuindice.persistence.data.room.mapper.toSubjectEntity
-import com.gdavidpb.tuindice.record.data.quarter.source.LocalDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.LocalDataSource
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 import kotlinx.coroutines.flow.Flow
