@@ -5,5 +5,5 @@ import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.FUNCTION)
 annotation class AttestedApi(
-	val parser: KClass<out Attestation>
+	val parser: KClass<out Attestation<*>>
 )
