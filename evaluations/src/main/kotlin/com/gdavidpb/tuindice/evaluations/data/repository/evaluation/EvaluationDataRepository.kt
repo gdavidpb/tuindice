@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.onStart
 
 class EvaluationDataRepository(
 	private val localDataSource: LocalDataSource,
@@ -19,21 +19,15 @@ class EvaluationDataRepository(
 	override suspend fun getEvaluationsStream(uid: String): Flow<List<Evaluation>> {
 		return localDataSource.getEvaluations(uid)
 			.distinctUntilChanged()
-			.transform { localEvaluations ->
+			.onStart {
 				val isOnCooldown = settingsDataSource.isGetEvaluationsOnCooldown()
 
-				if (isOnCooldown)
-					emit(localEvaluations)
-				else {
-					if (localEvaluations.isNotEmpty()) emit(localEvaluations)
-
+				if (!isOnCooldown) {
 					val remoteEvaluations = remoteDataSource.getEvaluations()
 
 					localDataSource.saveEvaluations(uid, remoteEvaluations)
 
 					settingsDataSource.setGetEvaluationsOnCooldown()
-
-					emit(remoteEvaluations)
 				}
 			}
 	}
