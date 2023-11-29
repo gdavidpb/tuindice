@@ -49,7 +49,6 @@ import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.QuarterResolutionHandler
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.SubjectResolutionHandler
-import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.api.retrofit.TransactionInterceptor
 import com.gdavidpb.tuindice.transactions.domain.model.ResolutionType
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -184,7 +183,6 @@ val appMockModule = module {
 			.addInterceptor(get<HttpLoggingInterceptor>())
 			.addInterceptor(get<AuthorizationInterceptor>())
 			.addInterceptor(get<AttestationInterceptor>())
-			.addInterceptor(get<TransactionInterceptor>())
 			.build()
 	}
 
