@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.mapper.toSubject
-import java.util.Date
 
 fun EvaluationResponse.toEvaluation() = Evaluation(
 	evaluationId = id,

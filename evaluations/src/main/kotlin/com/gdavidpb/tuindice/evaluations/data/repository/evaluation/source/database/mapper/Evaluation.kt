@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.room.mapper.toSubject
 import com.gdavidpb.tuindice.persistence.data.room.otm.EvaluationWithSubject
-import java.util.Date
 
 fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	id = evaluationId,
