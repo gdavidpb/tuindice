@@ -54,25 +54,6 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 		eid: String
 	): Int
 
-	@Query(
-		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
-				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
-				"AND ${EvaluationTable.SUBJECT_ID} = :sid " +
-				"AND ${EvaluationTable.TYPE} = :type " +
-				"ORDER BY ${EvaluationTable.DATE} ASC"
-	)
-	abstract suspend fun getSubjectEvaluationsByType(
-		uid: String,
-		sid: String,
-		type: EvaluationType
-	): List<EvaluationEntity>
-
-	@RawQuery
-	@Transaction
-	abstract suspend fun rawUpdateEvaluation(
-		query: SupportSQLiteQuery
-	): Int
-
 	suspend fun updateEvaluation(
 		uid: String,
 		eid: String,
