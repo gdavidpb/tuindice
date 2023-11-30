@@ -2,10 +2,8 @@ package com.gdavidpb.tuindice.persistence.data.room.daos
 
 import androidx.room.Dao
 import androidx.room.Query
-import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
-import androidx.sqlite.db.SupportSQLiteQuery
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.room.otm.EvaluationWithSubject
@@ -102,7 +100,7 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 					null
 			}.joinToString()
 
-		rawUpdateEvaluation(
+		rawQuery(
 			SimpleSQLiteQuery(
 				query = "UPDATE ${EvaluationTable.TABLE_NAME} " +
 						"SET $set " +
