@@ -27,9 +27,7 @@ class RoomDataSource(
 	}
 
 	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
-		val evaluationEntity = add.toEvaluationEntity(
-			uid = uid
-		)
+		val evaluationEntity = add.toEvaluationEntity(uid)
 
 		room.evaluations.upsertEntities(
 			entities = listOf(evaluationEntity)
@@ -44,13 +42,21 @@ class RoomDataSource(
 	}
 
 	override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate) {
-		room.evaluations.updateEvaluation(
-			uid = uid,
-			eid = update.evaluationId,
+		val evaluationEntity = room.evaluations
+			.getEvaluation(
+				uid = uid,
+				eid = update.evaluationId
+			)
+
+		val updatedEvaluationEntity = evaluationEntity.copy(
 			grade = update.grade,
-			maxGrade = update.maxGrade,
-			date = update.date,
-			type = update.type
+			maxGrade = update.maxGrade ?: evaluationEntity.maxGrade,
+			date = update.date ?: evaluationEntity.date,
+			type = update.type ?: evaluationEntity.type
+		)
+
+		room.evaluations.upsertEntities(
+			entities = listOf(updatedEvaluationEntity)
 		)
 	}
 
