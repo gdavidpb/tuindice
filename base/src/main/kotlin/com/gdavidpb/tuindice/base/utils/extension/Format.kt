@@ -1,11 +1,6 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
-import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.concurrent.ConcurrentHashMap
 
 fun Double.formatGrade(decimals: Int) = "%.${decimals}f".format(round(decimals))
 

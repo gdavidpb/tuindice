@@ -7,7 +7,6 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.gdavidpb.tuindice.persistence.data.room.schema.AccountTable
 import com.gdavidpb.tuindice.persistence.data.room.schema.QuarterTable
-import java.util.Date
 
 @Entity(
 	tableName = QuarterTable.TABLE_NAME,
