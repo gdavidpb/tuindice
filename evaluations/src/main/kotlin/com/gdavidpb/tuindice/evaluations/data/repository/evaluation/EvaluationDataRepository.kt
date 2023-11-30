@@ -42,17 +42,30 @@ class EvaluationDataRepository(
 
 	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
 		localDataSource.addEvaluation(uid, add)
-		noAwait { remoteDataSource.addEvaluation(add) }
+
+		noAwait {
+			remoteDataSource.addEvaluation(add).also { evaluation ->
+				localDataSource.saveEvaluations(uid, listOf(evaluation))
+			}
+		}
 	}
 
 	override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate) {
 		localDataSource.updateEvaluation(uid, update)
-		noAwait { remoteDataSource.updateEvaluation(update) }
+
+		noAwait {
+			remoteDataSource.updateEvaluation(update).also { evaluation ->
+				localDataSource.saveEvaluations(uid, listOf(evaluation))
+			}
+		}
 	}
 
 	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
 		localDataSource.removeEvaluation(uid, remove)
-		noAwait { remoteDataSource.removeEvaluation(remove) }
+
+		noAwait {
+			remoteDataSource.removeEvaluation(remove)
+		}
 	}
 
 	override suspend fun getAvailableSubjects(uid: String): List<Subject> {

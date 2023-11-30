@@ -3,8 +3,6 @@ package com.gdavidpb.tuindice.persistence.data.room.daos
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
-import androidx.sqlite.db.SimpleSQLiteQuery
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.room.otm.EvaluationWithSubject
 import com.gdavidpb.tuindice.persistence.data.room.schema.EvaluationTable
@@ -36,6 +34,16 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 	@Query(
 		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
 				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
+				"AND ${EvaluationTable.ID} = :eid"
+	)
+	abstract suspend fun getEvaluation(
+		uid: String,
+		eid: String
+	): EvaluationEntity
+
+	@Query(
+		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
+				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
 				"AND ${EvaluationTable.SUBJECT_ID} = :sid " +
 				"ORDER BY ${EvaluationTable.DATE} ASC"
 	)
@@ -53,42 +61,4 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 		uid: String,
 		eid: String
 	): Int
-
-	suspend fun updateEvaluation(
-		uid: String,
-		eid: String,
-		grade: Double? = null,
-		maxGrade: Double? = null,
-		date: Long? = null,
-		type: EvaluationType? = null
-	) {
-		val update = mapOf<String, Any?>(
-			EvaluationTable.GRADE to grade,
-			EvaluationTable.MAX_GRADE to maxGrade,
-			EvaluationTable.DATE to date,
-			EvaluationTable.TYPE to type?.ordinal
-		)
-
-		val params = update.values
-			.filterNotNull()
-			.toTypedArray()
-
-		val set = update
-			.mapNotNull { (column, value) ->
-				if (value != null)
-					"$column = ?"
-				else
-					null
-			}.joinToString()
-
-		rawQuery(
-			SimpleSQLiteQuery(
-				query = "UPDATE ${EvaluationTable.TABLE_NAME} " +
-						"SET $set " +
-						"WHERE ${EvaluationTable.ACCOUNT_ID} = ? " +
-						"AND ${EvaluationTable.ID} = ?",
-				bindArgs = params + uid + eid
-			)
-		)
-	}
 }
