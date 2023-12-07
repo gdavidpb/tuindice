@@ -17,8 +17,8 @@ fun Transaction.toTransactionEntity(uid: String) = TransactionEntity(
 
 fun TransactionEntity.toTransaction() = Transaction(
 	reference = reference,
-	type = TransactionType.values()[type],
-	action = TransactionAction.values()[action],
+	type = TransactionType.entries[type],
+	action = TransactionAction.entries[action],
 	timestamp = timestamp,
 	data = data
 )
