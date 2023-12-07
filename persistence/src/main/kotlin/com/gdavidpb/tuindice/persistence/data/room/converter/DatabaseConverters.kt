@@ -14,5 +14,5 @@ class DatabaseConverters {
 	fun evaluationTypeToInt(value: EvaluationType): Int = value.ordinal
 
 	@TypeConverter
-	fun intToEvaluationType(value: Int): EvaluationType = EvaluationType.values()[value]
+	fun intToEvaluationType(value: Int): EvaluationType = EvaluationType.entries[value]
 }

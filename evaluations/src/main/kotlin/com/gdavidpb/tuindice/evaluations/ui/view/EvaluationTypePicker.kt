@@ -38,7 +38,7 @@ fun EvaluationTypePicker(
 				space = dimensionResource(id = R.dimen.dp_8)
 			)
 	) {
-		EvaluationType.values()
+		EvaluationType.entries
 			.forEach { type ->
 				FilterChip(
 					selected = (type == selectedTypeState.value),
