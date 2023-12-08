@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.enrollmentproof.domain.usecase
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofError
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
@@ -21,7 +20,7 @@ class FetchEnrollmentProofUseCase(
 
 		val enrollmentProof = enrollmentProofRepository.getEnrollmentProof(
 			uid = activeAuth.uid
-		) ?: throw EnrollmentProofNotFoundException()
+		)
 
 		val canOpenEnrollmentProof =
 			applicationRepository.canOpenFile(path = enrollmentProof.source)
