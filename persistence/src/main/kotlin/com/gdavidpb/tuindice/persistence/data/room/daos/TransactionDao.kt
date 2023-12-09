@@ -5,7 +5,6 @@ import androidx.room.Query
 import androidx.room.Upsert
 import com.gdavidpb.tuindice.persistence.data.room.entity.TransactionEntity
 import com.gdavidpb.tuindice.persistence.data.room.schema.TransactionTable
-import java.util.*
 
 @Dao
 abstract class TransactionDao {
@@ -19,8 +18,18 @@ abstract class TransactionDao {
 	): List<TransactionEntity>
 
 	@Upsert
-	abstract suspend fun upsertTransaction(
+	abstract suspend fun enqueueTransaction(
 		entity: TransactionEntity
+	)
+
+	@Query(
+		"DELETE FROM ${TransactionTable.TABLE_NAME} " +
+				"WHERE ${TransactionTable.ACCOUNT_ID} = :uid " +
+				"AND ${TransactionTable.ID} = :tid"
+	)
+	abstract suspend fun dequeueTransaction(
+		uid: String,
+		tid: String
 	)
 
 	@Query(
@@ -28,7 +37,7 @@ abstract class TransactionDao {
 				"WHERE ${TransactionTable.ACCOUNT_ID} = :uid " +
 				"AND ${TransactionTable.REFERENCE} = :reference"
 	)
-	abstract suspend fun deleteTransactionsByReference(
+	abstract suspend fun dequeueTransactionsByReference(
 		uid: String,
 		reference: String
 	)
