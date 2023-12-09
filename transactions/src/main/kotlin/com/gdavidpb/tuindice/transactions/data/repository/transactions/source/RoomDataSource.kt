@@ -1,15 +1,15 @@
 package com.gdavidpb.tuindice.transactions.data.repository.transactions.source
 
 import androidx.room.withTransaction
-import com.gdavidpb.tuindice.transactions.domain.model.Resolution
-import com.gdavidpb.tuindice.transactions.domain.model.ResolutionType
-import com.gdavidpb.tuindice.transactions.domain.model.Transaction
-import com.gdavidpb.tuindice.transactions.domain.model.TransactionAction
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.transactions.data.repository.transactions.LocalDataSource
 import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.database.mapper.toTransaction
 import com.gdavidpb.tuindice.transactions.data.repository.transactions.source.database.mapper.toTransactionEntity
+import com.gdavidpb.tuindice.transactions.domain.model.Resolution
 import com.gdavidpb.tuindice.transactions.domain.model.ResolutionHandler
+import com.gdavidpb.tuindice.transactions.domain.model.ResolutionType
+import com.gdavidpb.tuindice.transactions.domain.model.Transaction
+import com.gdavidpb.tuindice.transactions.domain.model.TransactionAction
 
 class RoomDataSource(
 	private val room: TuIndiceDatabase,
@@ -21,13 +21,13 @@ class RoomDataSource(
 	}
 
 	override suspend fun enqueueTransaction(uid: String, transaction: Transaction): String {
-		return if (transaction.action != TransactionAction.DELETE)
-			internalCreateTransaction(uid, transaction)
-		else
+		return if (transaction.action == TransactionAction.DELETE)
 			room.withTransaction {
 				internalDiscardTransactions(uid, transaction)
 				internalCreateTransaction(uid, transaction)
 			}
+		else
+			internalCreateTransaction(uid, transaction)
 	}
 
 	override suspend fun applyResolutions(uid: String, resolutions: List<Resolution>) {
@@ -38,7 +38,7 @@ class RoomDataSource(
 				if (resolutionHandler != null) {
 					resolutionHandler.apply(resolution)
 
-					room.transactions.deleteTransactionsByReference(
+					room.transactions.dequeueTransactionsByReference(
 						uid = uid,
 						reference = resolution.localReference
 					)
@@ -50,13 +50,13 @@ class RoomDataSource(
 	private suspend fun internalCreateTransaction(uid: String, transaction: Transaction): String {
 		val transactionEntity = transaction.toTransactionEntity(uid)
 
-		room.transactions.upsertTransaction(entity = transactionEntity)
+		room.transactions.enqueueTransaction(entity = transactionEntity)
 
 		return transactionEntity.id
 	}
 
 	private suspend fun internalDiscardTransactions(uid: String, transaction: Transaction) {
-		room.transactions.deleteTransactionsByReference(
+		room.transactions.dequeueTransactionsByReference(
 			uid = uid,
 			reference = transaction.reference
 		)

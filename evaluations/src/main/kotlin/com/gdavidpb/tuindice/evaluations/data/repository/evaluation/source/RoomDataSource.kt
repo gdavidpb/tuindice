@@ -1,10 +1,12 @@
 package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source
 
+import androidx.room.withTransaction
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluationEntity
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toTransactionEntity
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
@@ -26,19 +28,21 @@ class RoomDataSource(
 			?.toEvaluation()
 	}
 
-	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
-		val evaluationEntity = add.toEvaluationEntity(uid)
-
-		room.evaluations.upsertEntities(
-			entities = listOf(evaluationEntity)
-		)
+	override suspend fun getAvailableSubjects(uid: String): List<Subject> {
+		return room.quarters.getCurrentQuarterWithSubjects(uid)
+			?.toQuarter()
+			?.subjects
+			?: emptyList()
 	}
 
-	override suspend fun saveEvaluations(uid: String, evaluations: List<Evaluation>) {
-		val evaluationEntities = evaluations
-			.map { evaluation -> evaluation.toEvaluationEntity(uid) }
+	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
+		val evaluationEntity = add.toEvaluationEntity(uid)
+		val transactionEntity = add.toTransactionEntity(uid)
 
-		room.evaluations.upsertEntities(evaluationEntities)
+		room.withTransaction {
+			room.evaluations.upsertEntity(entity = evaluationEntity)
+			room.transactions.enqueueTransaction(entity = transactionEntity)
+		}
 	}
 
 	override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate) {
@@ -55,22 +59,48 @@ class RoomDataSource(
 			type = update.type ?: evaluationEntity.type
 		)
 
-		room.evaluations.upsertEntities(
-			entities = listOf(updatedEvaluationEntity)
-		)
+		val transactionEntity = update.toTransactionEntity(uid)
+
+		room.withTransaction {
+			room.evaluations.upsertEntity(entity = updatedEvaluationEntity)
+			room.transactions.enqueueTransaction(entity = transactionEntity)
+		}
 	}
 
 	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
-		room.evaluations.deleteEvaluation(
-			uid = uid,
-			eid = remove.evaluationId
-		)
+		val transactionEntity = remove.toTransactionEntity(uid)
+
+		room.withTransaction {
+			room.evaluations.deleteEvaluation(
+				uid = uid,
+				eid = remove.evaluationId
+			)
+
+			room.transactions.dequeueTransactionsByReference(
+				uid = uid,
+				reference = remove.evaluationId
+			)
+
+			room.transactions.enqueueTransaction(
+				entity = transactionEntity
+			)
+		}
 	}
 
-	override suspend fun getAvailableSubjects(uid: String): List<Subject> {
-		return room.quarters.getCurrentQuarterWithSubjects(uid)
-			?.toQuarter()
-			?.subjects
-			?: emptyList()
+	override suspend fun saveEvaluations(uid: String, evaluations: List<Evaluation>) {
+		room.withTransaction {
+			evaluations.forEach { evaluation ->
+				val evaluationEntity = evaluation.toEvaluationEntity(uid)
+
+				room.evaluations.upsertEntity(
+					entity = evaluationEntity
+				)
+
+				room.transactions.dequeueTransactionsByReference(
+					uid = uid,
+					reference = evaluation.evaluationId
+				)
+			}
+		}
 	}
 }

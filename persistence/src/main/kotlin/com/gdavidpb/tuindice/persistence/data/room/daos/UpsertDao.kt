@@ -16,14 +16,16 @@ abstract class UpsertDao<T> {
 		entity: T
 	)
 
+	open suspend fun upsertEntity(entity: T) {
+		val index = insertEntity(entity)
+
+		if (index == -1L) updateEntity(entity)
+	}
+
 	@Transaction
 	open suspend fun upsertEntities(
 		entities: List<T>
 	) {
-		entities.forEach { entity ->
-			val index = insertEntity(entity)
-
-			if (index == -1L) updateEntity(entity)
-		}
+		entities.forEach { entity -> upsertEntity(entity) }
 	}
 }
