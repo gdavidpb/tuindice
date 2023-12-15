@@ -6,6 +6,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SignInAttestationPayload(
-	@SerialName("basicToken") val basicToken: String,
-	@SerialName("refreshToken") val refreshToken: Boolean
+	@SerialName("basicToken") val basicToken: String
 ) : AttestationPayload

@@ -8,9 +8,8 @@ class LoginDataRepository(
 ) : LoginRepository {
 	override suspend fun signIn(
 		username: String,
-		password: String,
-		refreshToken: Boolean
+		password: String
 	): SignIn {
-		return remoteDataSource.signIn(username, password, refreshToken)
+		return remoteDataSource.signIn(username, password)
 	}
 }
