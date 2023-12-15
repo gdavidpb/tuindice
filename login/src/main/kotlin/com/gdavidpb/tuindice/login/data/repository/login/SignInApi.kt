@@ -11,9 +11,8 @@ import retrofit2.http.POST
 interface SignInApi {
 	@PublicApi
 	@AttestedApi(SignInAttestationParser::class)
-	@POST("signIn")
+	@POST("sign-in")
 	suspend fun signIn(
-		@Header("Authorization") basicToken: String,
-		@Header("Re-Authenticate") refreshToken: Boolean
+		@Header("Authorization") basicToken: String
 	): Response<SignInResponse>
 }

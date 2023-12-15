@@ -22,8 +22,7 @@ class UpdatePasswordUseCase(
 
 		val bearerToken = loginRepository.signIn(
 			username = usbId,
-			password = params,
-			refreshToken = true
+			password = params
 		).token
 
 		authRepository.signOut()

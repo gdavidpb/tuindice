@@ -28,8 +28,7 @@ class SignInUseCase(
 
 		val bearerToken = loginRepository.signIn(
 			username = params.usbId,
-			password = params.password,
-			refreshToken = false
+			password = params.password
 		).token
 
 		val authSignIn = authRepository.signIn(token = bearerToken)

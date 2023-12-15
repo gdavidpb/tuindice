@@ -6,8 +6,7 @@ import okhttp3.Request
 class SignInAttestationParser : AttestationParser<SignInAttestationPayload> {
 	override fun parse(request: Request): SignInAttestationPayload {
 		return SignInAttestationPayload(
-			basicToken = request.headers["Authorization"].toString(),
-			refreshToken = request.headers["Re-Authenticate"].toBoolean()
+			basicToken = request.headers["Authorization"].toString()
 		)
 	}
 }
