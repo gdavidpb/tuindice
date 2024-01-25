@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.migration.MigrationManager
 import com.gdavidpb.tuindice.persistence.di.persistenceModule
 import com.gdavidpb.tuindice.record.di.recordModule
 import com.gdavidpb.tuindice.summary.di.summaryModule
-import com.gdavidpb.tuindice.transactions.di.transactionsModule
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
@@ -48,8 +47,7 @@ class TuIndiceMockApp : Application() {
 				recordModule,
 				aboutModule,
 				enrollmentProofModule,
-				evaluationsModule,
-				transactionsModule
+				evaluationsModule
 			)
 		}
 	}

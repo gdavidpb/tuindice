@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluationEntity
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toTransactionEntity
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
@@ -37,12 +36,8 @@ class RoomDataSource(
 
 	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
 		val evaluationEntity = add.toEvaluationEntity(uid)
-		val transactionEntity = add.toTransactionEntity(uid)
 
-		room.withTransaction {
-			room.evaluations.upsertEntity(entity = evaluationEntity)
-			room.transactions.enqueueTransaction(entity = transactionEntity)
-		}
+		room.evaluations.upsertEntity(entity = evaluationEntity)
 	}
 
 	override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate) {
@@ -59,32 +54,14 @@ class RoomDataSource(
 			type = update.type ?: evaluationEntity.type
 		)
 
-		val transactionEntity = update.toTransactionEntity(uid)
-
-		room.withTransaction {
-			room.evaluations.upsertEntity(entity = updatedEvaluationEntity)
-			room.transactions.enqueueTransaction(entity = transactionEntity)
-		}
+		room.evaluations.upsertEntity(entity = updatedEvaluationEntity)
 	}
 
 	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
-		val transactionEntity = remove.toTransactionEntity(uid)
-
-		room.withTransaction {
-			room.evaluations.deleteEvaluation(
-				uid = uid,
-				eid = remove.evaluationId
-			)
-
-			room.transactions.dequeueTransactionsByReference(
-				uid = uid,
-				reference = remove.evaluationId
-			)
-
-			room.transactions.enqueueTransaction(
-				entity = transactionEntity
-			)
-		}
+		room.evaluations.deleteEvaluation(
+			uid = uid,
+			eid = remove.evaluationId
+		)
 	}
 
 	override suspend fun saveEvaluations(uid: String, evaluations: List<Evaluation>) {
@@ -94,11 +71,6 @@ class RoomDataSource(
 
 				room.evaluations.upsertEntity(
 					entity = evaluationEntity
-				)
-
-				room.transactions.dequeueTransactionsByReference(
-					uid = uid,
-					reference = evaluation.evaluationId
 				)
 			}
 		}

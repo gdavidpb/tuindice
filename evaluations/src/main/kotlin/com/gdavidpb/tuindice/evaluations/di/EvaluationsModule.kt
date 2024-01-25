@@ -2,17 +2,13 @@ package com.gdavidpb.tuindice.evaluations.di
 
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extension.create
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.EvaluationsApiDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.EvaluationsApi
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.parser.EvaluationAddParser
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.parser.EvaluationRemoveParser
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.parser.EvaluationUpdateParser
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.EvaluationDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.EvaluationsApi
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.RemoteDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.SettingsDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.EvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.PreferencesDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.resolution.EvaluationResolutionHandler
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.RoomDataSource
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
@@ -120,16 +116,6 @@ val evaluationsModule = module {
 			.build()
 			.create<EvaluationsApi>()
 	}
-
-	/* Request parsers */
-
-	factoryOf(::EvaluationAddParser)
-	factoryOf(::EvaluationUpdateParser)
-	factoryOf(::EvaluationRemoveParser)
-
-	/* Resolution handlers */
-
-	factoryOf(::EvaluationResolutionHandler)
 
 	/* Exception handlers */
 
