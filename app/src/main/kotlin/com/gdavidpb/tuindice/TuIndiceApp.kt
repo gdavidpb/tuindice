@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.migration.MigrationManager
 import com.gdavidpb.tuindice.persistence.di.persistenceModule
 import com.gdavidpb.tuindice.record.di.recordModule
 import com.gdavidpb.tuindice.summary.di.summaryModule
-import com.gdavidpb.tuindice.transactions.di.transactionsModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
 import org.koin.android.ext.koin.androidLogger
@@ -45,8 +44,7 @@ class TuIndiceApp : Application() {
 				recordModule,
 				aboutModule,
 				enrollmentProofModule,
-				evaluationsModule,
-				transactionsModule
+				evaluationsModule
 			)
 		}
 	}

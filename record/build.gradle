@@ -12,5 +12,4 @@ android {
 dependencies {
     implementation project(":base")
     implementation project(":persistence")
-    implementation project(":transactions")
 }

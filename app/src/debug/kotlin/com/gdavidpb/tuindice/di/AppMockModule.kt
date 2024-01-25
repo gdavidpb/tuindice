@@ -33,7 +33,6 @@ import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.resolution.EvaluationResolutionHandler
 import com.gdavidpb.tuindice.presentation.action.browser.CloseBrowserDialogActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.ConfirmOpenExternalResourceActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
@@ -47,9 +46,6 @@ import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.QuarterResolutionHandler
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.SubjectResolutionHandler
-import com.gdavidpb.tuindice.transactions.domain.model.ResolutionType
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
@@ -190,14 +186,6 @@ val appMockModule = module {
 
 	factory {
 		Json.asConverterFactory("application/json".toMediaType())
-	}
-
-	single {
-		mapOf(
-			ResolutionType.QUARTER to get<QuarterResolutionHandler>(),
-			ResolutionType.SUBJECT to get<SubjectResolutionHandler>(),
-			ResolutionType.EVALUATION to get<EvaluationResolutionHandler>()
-		)
 	}
 
 	/* Repositories */

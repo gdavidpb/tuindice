@@ -53,7 +53,6 @@ dependencies {
     implementation project(":record")
     implementation project(":enrollmentproof")
     implementation project(":evaluations")
-    implementation project(":transactions")
 
     testImplementation "junit:junit:4.13.2"
 }

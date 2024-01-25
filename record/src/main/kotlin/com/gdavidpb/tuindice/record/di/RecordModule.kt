@@ -12,10 +12,6 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.source.MemoryDataSou
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.PreferencesDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.RecordApiDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.RoomDataSource
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.parser.QuarterRemoveParser
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.parser.SubjectUpdateParser
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.QuarterResolutionHandler
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.SubjectResolutionHandler
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
@@ -75,16 +71,6 @@ val recordModule = module {
 			.build()
 			.create<RecordApi>()
 	}
-
-	/* Request parsers */
-
-	factoryOf(::SubjectUpdateParser)
-	factoryOf(::QuarterRemoveParser)
-
-	/* Resolution handlers */
-
-	factoryOf(::SubjectResolutionHandler)
-	factoryOf(::QuarterResolutionHandler)
 
 	/* Exception handlers */
 

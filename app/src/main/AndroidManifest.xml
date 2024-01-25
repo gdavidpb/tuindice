@@ -38,7 +38,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-ø        </activity>
+        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"

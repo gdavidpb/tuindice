@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.login.di.loginModule
 import com.gdavidpb.tuindice.persistence.di.persistenceModule
 import com.gdavidpb.tuindice.record.di.recordModule
 import com.gdavidpb.tuindice.summary.di.summaryModule
-import com.gdavidpb.tuindice.transactions.di.transactionsModule
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
 
@@ -24,8 +23,7 @@ class ReleaseKoinDataSource : DependenciesRepository {
 				recordModule,
 				aboutModule,
 				enrollmentProofModule,
-				evaluationsModule,
-				transactionsModule
+				evaluationsModule
 			)
 		)
 		loadKoinModules(
@@ -37,8 +35,7 @@ class ReleaseKoinDataSource : DependenciesRepository {
 				recordModule,
 				aboutModule,
 				enrollmentProofModule,
-				evaluationsModule,
-				transactionsModule
+				evaluationsModule
 			)
 		)
 	}
