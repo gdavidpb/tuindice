@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.summary.ui.screen
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.runtime.Composable
+import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.ui.view.SummaryFailedView
 import com.gdavidpb.tuindice.summary.ui.view.SummaryContentView
+import com.gdavidpb.tuindice.summary.ui.view.SummaryFailedView
 import com.gdavidpb.tuindice.summary.ui.view.SummaryLoadingView
 
 @Composable
@@ -13,7 +13,7 @@ fun SummaryScreen(
 	onRetryClick: () -> Unit,
 	onEditProfilePictureClick: () -> Unit
 ) {
-	Crossfade(targetState = state) { targetState ->
+	SealedCrossfade(targetState = state) { targetState ->
 		when (targetState) {
 			is Summary.State.Loading ->
 				SummaryLoadingView()
