@@ -3,12 +3,15 @@ package com.gdavidpb.tuindice.evaluations.data.repository.evaluation
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluation
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 
 class EvaluationDataRepository(
@@ -16,16 +19,25 @@ class EvaluationDataRepository(
 	private val remoteDataSource: RemoteDataSource,
 	private val settingsDataSource: SettingsDataSource
 ) : EvaluationRepository {
-	override suspend fun getEvaluationsStream(uid: String): Flow<List<Evaluation>> {
+	override suspend fun getEvaluations(uid: String): Flow<List<Evaluation>> {
 		return localDataSource.getEvaluations(uid)
 			.distinctUntilChanged()
+			.map { localEvaluations ->
+				localEvaluations.map { localEvaluation ->
+					localEvaluation.toEvaluation()
+				}
+			}
 			.onStart {
 				val isOnCooldown = settingsDataSource.isGetEvaluationsOnCooldown()
 
 				if (!isOnCooldown) {
-					val remoteEvaluations = remoteDataSource.getEvaluations()
+					val remoteEvaluations = remoteDataSource
+						.getEvaluations()
 
-					localDataSource.saveEvaluations(uid, remoteEvaluations)
+					val localEvaluations = remoteEvaluations
+						.map { remoteEvaluation -> remoteEvaluation.toLocalEvaluation() }
+
+					localDataSource.saveEvaluations(uid, localEvaluations)
 
 					settingsDataSource.setGetEvaluationsOnCooldown()
 				}
@@ -33,10 +45,13 @@ class EvaluationDataRepository(
 	}
 
 	override suspend fun getEvaluation(uid: String, eid: String): Evaluation? {
-		return localDataSource.getEvaluation(uid, eid)
+		return localDataSource.getEvaluation(uid, eid)?.toEvaluation()
 			?: remoteDataSource.getEvaluation(eid)
+				?.toEvaluation()
 				?.also { evaluation ->
-					localDataSource.saveEvaluations(uid, listOf(evaluation))
+					val localEvaluation = evaluation.toLocalEvaluation()
+
+					localDataSource.saveEvaluations(uid, listOf(localEvaluation))
 				}
 	}
 
@@ -45,7 +60,7 @@ class EvaluationDataRepository(
 
 		noAwait {
 			remoteDataSource.addEvaluation(add).also { evaluation ->
-				localDataSource.saveEvaluations(uid, listOf(evaluation))
+				localDataSource.saveEvaluations(uid, listOf(evaluation.toLocalEvaluation()))
 			}
 		}
 	}
@@ -55,7 +70,7 @@ class EvaluationDataRepository(
 
 		noAwait {
 			remoteDataSource.updateEvaluation(update).also { evaluation ->
-				localDataSource.saveEvaluations(uid, listOf(evaluation))
+				localDataSource.saveEvaluations(uid, listOf(evaluation.toLocalEvaluation()))
 			}
 		}
 	}

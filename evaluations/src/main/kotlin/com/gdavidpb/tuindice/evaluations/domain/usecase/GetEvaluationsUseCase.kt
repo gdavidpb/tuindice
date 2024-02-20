@@ -30,7 +30,7 @@ class GetEvaluationsUseCase(
 	override suspend fun executeOnBackground(params: Flow<List<EvaluationFilter>>): Flow<GetEvaluations> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		return evaluationRepository.getEvaluationsStream(uid = activeUId)
+		return evaluationRepository.getEvaluations(uid = activeUId)
 			.combine(params) { evaluations, activeFilters ->
 				val availableFilters = evaluations.computeAvailableFilters(resourceResolver)
 				val sortedEvaluations = evaluations.sortedWith(evaluationComparator)
