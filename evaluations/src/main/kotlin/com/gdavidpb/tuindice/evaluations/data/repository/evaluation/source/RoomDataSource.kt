@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source
 
 import androidx.room.withTransaction
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
@@ -17,12 +17,12 @@ import kotlinx.coroutines.flow.map
 class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
-	override suspend fun getEvaluations(uid: String): Flow<List<Evaluation>> {
+	override suspend fun getEvaluations(uid: String): Flow<List<LocalEvaluation>> {
 		return room.evaluations.getEvaluationsWithSubject(uid)
 			.map { evaluations -> evaluations.map { evaluation -> evaluation.toEvaluation() } }
 	}
 
-	override suspend fun getEvaluation(uid: String, eid: String): Evaluation? {
+	override suspend fun getEvaluation(uid: String, eid: String): LocalEvaluation? {
 		return room.evaluations.getEvaluationWithSubject(uid, eid)
 			?.toEvaluation()
 	}
@@ -64,7 +64,7 @@ class RoomDataSource(
 		)
 	}
 
-	override suspend fun saveEvaluations(uid: String, evaluations: List<Evaluation>) {
+	override suspend fun saveEvaluations(uid: String, evaluations: List<LocalEvaluation>) {
 		room.withTransaction {
 			evaluations.forEach { evaluation ->
 				val evaluationEntity = evaluation.toEvaluationEntity(uid)
