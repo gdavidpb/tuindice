@@ -11,13 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissState
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -40,7 +39,7 @@ import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EvaluationSwipeToDismiss(
-	state: DismissState,
+	state: SwipeToDismissBoxState,
 	dismissContent: @Composable RowScope.() -> Unit
 ) {
 	val boxWidth = remember {
@@ -48,13 +47,13 @@ fun EvaluationSwipeToDismiss(
 	}
 
 	val backgroundInfo = getBackgroundInfo(
-		dismissState = state,
+		state = state,
 		width = boxWidth.floatValue
 	)
 
-	SwipeToDismiss(
+	SwipeToDismissBox(
 		state = state,
-		background = {
+		backgroundContent = {
 			val (color, icon, text, alignment, offset) = backgroundInfo
 
 			if (icon != null &&
@@ -89,19 +88,19 @@ fun EvaluationSwipeToDismiss(
 				}
 			}
 		},
-		dismissContent = dismissContent
+		content = dismissContent
 	)
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun getBackgroundInfo(dismissState: DismissState, width: Float): BackgroundInfo {
+private fun getBackgroundInfo(state: SwipeToDismissBoxState, width: Float): BackgroundInfo {
 	val color by animateColorAsState(
-		targetValue = when (dismissState.targetValue) {
-			DismissValue.DismissedToEnd ->
+		targetValue = when (state.targetValue) {
+			SwipeToDismissBoxValue.StartToEnd ->
 				MaterialTheme.colorScheme.primaryContainer
 
-			DismissValue.DismissedToStart ->
+			SwipeToDismissBoxValue.EndToStart ->
 				MaterialTheme.colorScheme.errorContainer
 
 			else ->
@@ -110,26 +109,26 @@ private fun getBackgroundInfo(dismissState: DismissState, width: Float): Backgro
 		label = "SwipeToDismiss_animateColorAsState"
 	)
 
-	return when (dismissState.dismissDirection) {
-		DismissDirection.StartToEnd -> BackgroundInfo(
+	return when (state.dismissDirection) {
+		SwipeToDismissBoxValue.StartToEnd -> BackgroundInfo(
 			color = color,
 			icon = Icons.Outlined.Edit,
 			text = stringResource(id = R.string.label_evaluation_swipe_edit),
 			alignment = Alignment.CenterStart,
 			offset = getOffset(
-				progress = dismissState.progress,
+				progress = state.progress,
 				direction = -1f,
 				width = width
 			)
 		)
 
-		DismissDirection.EndToStart -> BackgroundInfo(
+		SwipeToDismissBoxValue.EndToStart -> BackgroundInfo(
 			color = color,
 			icon = Icons.Default.Delete,
 			text = stringResource(id = R.string.label_evaluation_swipe_delete),
 			alignment = Alignment.CenterEnd,
 			offset = getOffset(
-				progress = dismissState.progress,
+				progress = state.progress,
 				direction = 1f,
 				width = width
 			)
