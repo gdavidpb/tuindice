@@ -5,9 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberDismissState
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -38,17 +38,17 @@ fun EvaluationsView(
 			) { evaluation ->
 				val dismissProgress = remember { mutableFloatStateOf(0f) }
 
-				val dismissState = rememberDismissState(
+				val dismissState = rememberSwipeToDismissBoxState(
 					positionalThreshold = { _ -> 0f },
 					confirmValueChange = { confirmValue ->
 						if (dismissProgress.floatValue > THRESHOLD_EVALUATION_SWIPE)
 							when (confirmValue) {
-								DismissValue.DismissedToEnd ->
+								SwipeToDismissBoxValue.StartToEnd ->
 									onEvaluationEdit(
 										evaluation.evaluationId
 									)
 
-								DismissValue.DismissedToStart -> {
+								SwipeToDismissBoxValue.EndToStart -> {
 									onEvaluationDelete(
 										evaluation.evaluationId
 									)
