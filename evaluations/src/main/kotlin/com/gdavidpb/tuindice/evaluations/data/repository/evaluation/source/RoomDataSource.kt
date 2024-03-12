@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
 class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
-	override suspend fun getEvaluations(uid: String): Flow<List<LocalEvaluation>> {
+	override fun getEvaluations(uid: String): Flow<List<LocalEvaluation>> {
 		return room.evaluations.getEvaluationsWithSubject(uid)
 			.map { evaluations -> evaluations.map { evaluation -> evaluation.toEvaluation() } }
 	}
