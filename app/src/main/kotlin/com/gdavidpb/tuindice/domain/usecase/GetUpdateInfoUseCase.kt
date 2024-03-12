@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.base.utils.extension.await
 import com.gdavidpb.tuindice.base.utils.extension.isUpdateAvailable
 import com.gdavidpb.tuindice.base.utils.extension.isUpdateStalled
 import com.google.android.play.core.appupdate.AppUpdateInfo
@@ -11,6 +10,7 @@ import com.google.android.play.core.ktx.isImmediateUpdateAllowed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.tasks.await
 
 class GetUpdateInfoUseCase(
 	private val configRepository: ConfigRepository

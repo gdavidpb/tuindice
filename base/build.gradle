@@ -17,7 +17,7 @@ dependencies {
     debugApi "com.squareup.retrofit2:retrofit-mock:${versions.retrofit}"
 
     /* AndroidX */
-    api "androidx.browser:browser:1.7.0"
+    api "androidx.browser:browser:1.8.0"
     api "androidx.preference:preference-ktx:1.2.1"
     api "androidx.work:work-runtime-ktx:${versions.work}"
     api "androidx.exifinterface:exifinterface:1.3.7"
@@ -33,28 +33,25 @@ dependencies {
     api "io.insert-koin:koin-androidx-workmanager:${versions.koin}"
 
     /* Firebase */
-    api platform("com.google.firebase:firebase-bom:30.2.0")
+    api platform("com.google.firebase:firebase-bom:32.7.4")
     api "com.google.firebase:firebase-config"
-    api "com.google.firebase:firebase-core"
     api "com.google.firebase:firebase-auth"
     api "com.google.firebase:firebase-messaging"
     api "com.google.firebase:firebase-crashlytics"
 
     /* Google */
-    api "com.google.android.play:core:1.10.3"
-    api "com.google.android.play:core-ktx:1.8.1"
-    api("com.google.android.play:integrity:1.3.0") {
-        exclude group: "com.google.android.play", module: "core-common"
-    }
+    api "com.google.android.play:app-update-ktx:2.1.0"
+    api "com.google.android.play:review-ktx:2.0.1"
+    api "com.google.android.play:integrity:1.3.0"
 
     /* Compose */
     api platform("androidx.compose:compose-bom:2024.02.01")
 
-    api "androidx.compose.ui:ui-tooling:1.6.2"
-    api "androidx.compose.ui:ui-tooling-preview:1.6.2"
+    api "androidx.compose.ui:ui-tooling:1.6.3"
+    api "androidx.compose.ui:ui-tooling-preview:1.6.3"
     api "androidx.activity:activity-compose:1.8.2"
-    api "androidx.compose.material3:material3:1.2.0"
-    api "androidx.compose.material:material-icons-extended:1.6.2"
+    api "androidx.compose.material3:material3:1.2.1"
+    api "androidx.compose.material:material-icons-extended:1.6.3"
     api "androidx.constraintlayout:constraintlayout-compose:1.0.1"
 
     /* Navigation */
