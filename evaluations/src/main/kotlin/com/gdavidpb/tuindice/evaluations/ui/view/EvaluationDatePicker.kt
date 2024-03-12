@@ -54,7 +54,7 @@ fun EvaluationDatePicker(
 			onDismissRequest = {
 				isPickerDialogOpen.value = false
 
-				datePickerState.setSelection(selectedDate?.toUTCTimeZone())
+				datePickerState.selectedDateMillis = selectedDate?.toUTCTimeZone()
 			},
 			confirmButton = {
 				TextButton(
@@ -79,7 +79,7 @@ fun EvaluationDatePicker(
 					onClick = {
 						isPickerDialogOpen.value = false
 
-						datePickerState.setSelection(selectedDate?.toUTCTimeZone())
+						datePickerState.selectedDateMillis = selectedDate?.toUTCTimeZone()
 					}
 				) {
 					Text(
@@ -146,7 +146,7 @@ fun EvaluationDatePicker(
 			else
 				ButtonDefaults.outlinedButtonColors(),
 			onClick = {
-				datePickerState.setSelection(null)
+				datePickerState.selectedDateMillis = null
 				onDateChange(null)
 			},
 			shape = RoundedCornerShape(
