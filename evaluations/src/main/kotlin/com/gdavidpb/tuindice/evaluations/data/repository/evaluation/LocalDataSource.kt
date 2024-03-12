@@ -8,7 +8,8 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {
-	suspend fun getEvaluations(uid: String): Flow<List<LocalEvaluation>>
+	fun getEvaluations(uid: String): Flow<List<LocalEvaluation>>
+
 	suspend fun getEvaluation(uid: String, eid: String): LocalEvaluation?
 	suspend fun getAvailableSubjects(uid: String): List<Subject>
 
