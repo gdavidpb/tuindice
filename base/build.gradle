@@ -86,4 +86,7 @@ dependencies {
     /* Coil */
     api "io.coil-kt:coil:2.4.0"
     api "io.coil-kt:coil-compose:2.4.0"
+
+    /* Store */
+    api "org.mobilenativefoundation.store:store5:5.1.0-alpha02"
 }
