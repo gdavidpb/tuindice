@@ -10,6 +10,9 @@ import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.SettingsData
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.EvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.PreferencesDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.RoomDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationFetcher
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationSourceOfTruth
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationStore
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
@@ -99,6 +102,12 @@ val evaluationsModule = module {
 	/* Repositories */
 
 	factoryOf(::EvaluationDataRepository) { bind<EvaluationRepository>() }
+
+	/* Store */
+
+	factoryOf(::EvaluationStore)
+	factoryOf(::EvaluationFetcher)
+	factoryOf(::EvaluationSourceOfTruth)
 
 	/* Data sources */
 
