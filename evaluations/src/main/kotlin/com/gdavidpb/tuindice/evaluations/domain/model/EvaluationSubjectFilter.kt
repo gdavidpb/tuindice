@@ -10,7 +10,7 @@ class EvaluationSubjectFilter(
 	}
 
 	override fun match(evaluation: Evaluation): Boolean {
-		return subjectCode == evaluation.subject.code
+		return subjectCode == evaluation.subjectCode
 	}
 
 	override fun equals(other: Any?): Boolean {
@@ -19,9 +19,7 @@ class EvaluationSubjectFilter(
 
 		other as EvaluationSubjectFilter
 
-		if (subjectCode != other.subjectCode) return false
-
-		return true
+		return subjectCode == other.subjectCode
 	}
 
 	override fun hashCode(): Int {

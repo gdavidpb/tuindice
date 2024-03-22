@@ -3,58 +3,44 @@ package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.data
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.RemoteEvaluation
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
-import com.gdavidpb.tuindice.persistence.data.room.mapper.toSubject
 import com.gdavidpb.tuindice.persistence.data.room.otm.EvaluationWithSubject
-
-fun RemoteEvaluation.toEvaluation() = Evaluation(
-	evaluationId = evaluationId,
-	subjectId = subjectId,
-	quarterId = quarterId,
-	grade = grade,
-	maxGrade = maxGrade,
-	date = date,
-	type = type,
-	state = state,
-	subject = subject
-)
 
 fun RemoteEvaluation.toLocalEvaluation() = LocalEvaluation(
 	evaluationId = evaluationId,
 	subjectId = subjectId,
+	subjectCode = subjectCode,
 	quarterId = quarterId,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
 	type = type,
-	state = state,
-	subject = subject
+	state = state
 )
 
 fun LocalEvaluation.toEvaluation() = Evaluation(
 	evaluationId = evaluationId,
 	subjectId = subjectId,
+	subjectCode = subjectCode,
 	quarterId = quarterId,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
 	type = type,
-	state = state,
-	subject = subject
+	state = state
 )
 
 fun Evaluation.toLocalEvaluation() = LocalEvaluation(
 	evaluationId = evaluationId,
 	subjectId = subjectId,
+	subjectCode = subjectCode,
 	quarterId = quarterId,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
 	type = type,
-	state = state,
-	subject = subject
+	state = state
 )
 
 fun LocalEvaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
@@ -68,8 +54,8 @@ fun LocalEvaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	type = type
 )
 
-fun EvaluationAdd.toEvaluationEntity(uid: String) = EvaluationEntity(
-	id = reference,
+fun Evaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
+	id = evaluationId,
 	subjectId = subjectId,
 	quarterId = quarterId,
 	accountId = uid,
@@ -82,6 +68,7 @@ fun EvaluationAdd.toEvaluationEntity(uid: String) = EvaluationEntity(
 fun EvaluationWithSubject.toEvaluation() = LocalEvaluation(
 	evaluationId = evaluation.id,
 	subjectId = evaluation.subjectId,
+	subjectCode = subject.code,
 	quarterId = evaluation.quarterId,
 	grade = evaluation.grade,
 	maxGrade = evaluation.maxGrade,
@@ -90,6 +77,5 @@ fun EvaluationWithSubject.toEvaluation() = LocalEvaluation(
 	state = computeEvaluationState(
 		grade = evaluation.grade,
 		date = evaluation.date
-	),
-	subject = subject.toSubject(isEditable = true)
+	)
 )

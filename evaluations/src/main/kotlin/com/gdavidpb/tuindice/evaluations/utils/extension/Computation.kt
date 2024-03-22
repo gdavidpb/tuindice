@@ -20,11 +20,11 @@ fun Double.toSubjectGrade() = when (roundToInt()) {
 	else -> 1
 }
 
-fun computeEvaluationState(grade: Double?, date: Long): EvaluationState {
+fun computeEvaluationState(grade: Double?, date: Long?): EvaluationState {
 	val hasDatePassed = date.isDatePassed()
 
 	return when {
-		date == 0L -> EvaluationState.CONTINUOUS
+		date == null -> EvaluationState.CONTINUOUS
 		grade == null && hasDatePassed -> EvaluationState.OVERDUE
 		grade != null && hasDatePassed -> EvaluationState.COMPLETED
 		else -> EvaluationState.PENDING
@@ -45,7 +45,7 @@ fun List<Evaluation>.computeAvailableFilters(resourceResolver: ResourceResolver)
 	)
 
 	val subjectsFilters =
-		map { evaluation -> evaluation.subject.code }
+		map { evaluation -> evaluation.subjectCode }
 			.distinct()
 			.map { subject -> EvaluationSubjectFilter(subject) }
 

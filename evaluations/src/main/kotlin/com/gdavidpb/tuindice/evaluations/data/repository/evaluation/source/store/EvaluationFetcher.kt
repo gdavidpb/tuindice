@@ -8,6 +8,8 @@ class EvaluationFetcher(
 	private val remoteDataSource: RemoteDataSource
 ) : Fetcher<EvaluationKey, List<RemoteEvaluation>> by Fetcher.of(
 	fetch = { key: EvaluationKey ->
+		require(key is EvaluationKey.Read)
+
 		when (key) {
 			is EvaluationKey.Read.All ->
 				remoteDataSource.getEvaluations()

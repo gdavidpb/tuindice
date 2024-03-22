@@ -70,7 +70,7 @@ fun Evaluation.toEvaluationItem(ordinal: Int) = EvaluationItem(
 		type.asString(),
 		ordinal
 	),
-	subjectCodeText = subject.code,
+	subjectCodeText = subjectCode,
 	highlightIconColor = when (state) {
 		EvaluationState.COMPLETED -> MaterialTheme.colorScheme.primary
 		EvaluationState.OVERDUE -> MaterialTheme.colorScheme.error
@@ -83,7 +83,7 @@ fun Evaluation.toEvaluationItem(ordinal: Int) = EvaluationItem(
 	typeAndSubjectCodeText = stringResource(
 		id = R.string.evaluation_title,
 		type.asString(),
-		subject.code
+		subjectCode
 	),
 	typeIcon = type.asIcon(),
 	dateText = date.formatAsDayOfWeekAndDate(),

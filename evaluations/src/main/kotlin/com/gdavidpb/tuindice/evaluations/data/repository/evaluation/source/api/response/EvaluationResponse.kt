@@ -11,7 +11,7 @@ data class EvaluationResponse(
 	@SerialName("qid") val qid: String,
 	@SerialName("grade") val grade: Double? = null,
 	@SerialName("max_grade") val maxGrade: Double,
-	@SerialName("date") val date: Long,
+	@SerialName("date") val date: Long? = null,
 	@SerialName("type") val type: Int,
 	@SerialName("subject") val subject: SubjectResponse
 )

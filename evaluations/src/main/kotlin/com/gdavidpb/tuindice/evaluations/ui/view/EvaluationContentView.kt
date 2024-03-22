@@ -64,7 +64,7 @@ fun EvaluationContentView(
 
 			EvaluationSubjectPicker(
 				subjects = state.availableSubjects,
-				selectedSubject = state.subject,
+				selectedSubject = state.selectedSubject,
 				onSubjectChange = onSubjectChange
 			)
 
@@ -187,7 +187,7 @@ fun EvaluationContentView(
 			containerColor = MaterialTheme.colorScheme.primary,
 			onClick = {
 				onDoneClick(
-					state.subject,
+					state.selectedSubject,
 					state.type,
 					state.date,
 					state.grade,
