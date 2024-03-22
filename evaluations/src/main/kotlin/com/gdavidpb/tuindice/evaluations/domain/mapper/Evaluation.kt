@@ -1,19 +1,21 @@
 package com.gdavidpb.tuindice.evaluations.domain.mapper
 
-import com.gdavidpb.tuindice.base.utils.extension.generateReference
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
+import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 
-fun AddEvaluationParams.toEvaluationAdd() = EvaluationAdd(
-	reference = generateReference(),
-	quarterId = quarterId!!,
+fun AddEvaluationParams.toEvaluation(evaluationId: String) = Evaluation(
+	evaluationId = evaluationId,
 	subjectId = subjectId!!,
+	subjectCode = subjectCode!!,
+	quarterId = quarterId!!,
 	grade = grade,
 	maxGrade = maxGrade!!,
-	date = date!!,
-	type = type!!
+	date = date,
+	type = type!!,
+	state = computeEvaluationState(grade, date)
 )
 
 fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(

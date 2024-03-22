@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source
 
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.EvaluationsApi
@@ -8,7 +9,6 @@ import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.Remote
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toAddEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toRemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toUpdateEvaluationRequest
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 
@@ -34,8 +34,8 @@ class EvaluationsApiDataSource(
 		}
 	}
 
-	override suspend fun addEvaluation(add: EvaluationAdd): RemoteEvaluation {
-		val request = add.toAddEvaluationRequest()
+	override suspend fun addEvaluation(evaluation: Evaluation): RemoteEvaluation {
+		val request = evaluation.toAddEvaluationRequest()
 
 		return evaluationsApi.addEvaluation(request)
 			.getOrThrow()

@@ -2,7 +2,8 @@ package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluationAdd
+import com.gdavidpb.tuindice.base.utils.extension.generateReference
+import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.AddEvaluationError
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
@@ -20,11 +21,13 @@ class AddEvaluationUseCase(
 	override suspend fun executeOnBackground(params: AddEvaluationParams): Flow<Unit> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		val add = params.toEvaluationAdd()
+		val evaluation = params.toEvaluation(
+			evaluationId = generateReference()
+		)
 
 		evaluationRepository.addEvaluation(
 			uid = activeUId,
-			add = add
+			evaluation = evaluation
 		)
 
 		return flowOf(Unit)

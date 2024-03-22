@@ -12,7 +12,7 @@ object Evaluation {
 
 		data class Content(
 			val availableSubjects: List<Subject>,
-			val subject: Subject? = null,
+			val selectedSubject: Subject? = null,
 			val type: EvaluationType? = null,
 			val date: Long? = null,
 			val isOverdue: Boolean = false,

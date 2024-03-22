@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source
 
 import androidx.room.withTransaction
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluationEntity
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
@@ -34,8 +34,8 @@ class RoomDataSource(
 			?: emptyList()
 	}
 
-	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
-		val evaluationEntity = add.toEvaluationEntity(uid)
+	override suspend fun addEvaluation(uid: String, evaluation: Evaluation) {
+		val evaluationEntity = evaluation.toEvaluationEntity(uid)
 
 		room.evaluations.upsertEntity(entity = evaluationEntity)
 	}

@@ -16,7 +16,7 @@ class SetSubjectActionProcessor
 		return flowOf { state ->
 			if (state is Evaluation.State.Content)
 				state.copy(
-					subject = action.subject
+					selectedSubject = action.subject
 				)
 			else
 				state

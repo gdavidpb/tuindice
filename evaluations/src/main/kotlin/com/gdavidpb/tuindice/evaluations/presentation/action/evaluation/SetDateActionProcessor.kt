@@ -18,7 +18,7 @@ class SetDateActionProcessor
 			if (state is Evaluation.State.Content)
 				state.copy(
 					date = action.date,
-					isOverdue = action.date?.isDatePassed() ?: false
+					isOverdue = action.date.isDatePassed()
 				)
 			else
 				state

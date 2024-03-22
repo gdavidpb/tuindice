@@ -3,9 +3,8 @@ package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.stor
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.SettingsDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.RemoteEvaluation
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toLocalEvaluation
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.mobilenativefoundation.store.store5.SourceOfTruth
@@ -13,8 +12,10 @@ import org.mobilenativefoundation.store.store5.SourceOfTruth
 class EvaluationSourceOfTruth(
 	private val localDataSource: LocalDataSource,
 	private val settingsDataSource: SettingsDataSource
-) : SourceOfTruth<EvaluationKey, List<RemoteEvaluation>, List<Evaluation>> by SourceOfTruth.of(
+) : SourceOfTruth<EvaluationKey, List<LocalEvaluation>, List<Evaluation>> by SourceOfTruth.of(
 	reader = { key: EvaluationKey ->
+		require(key is EvaluationKey.Read)
+
 		when (key) {
 			is EvaluationKey.Read.All ->
 				localDataSource.getEvaluations(
@@ -30,23 +31,28 @@ class EvaluationSourceOfTruth(
 				}
 		}
 	},
-	writer = { key: EvaluationKey, output: List<RemoteEvaluation> ->
+	writer = { key: EvaluationKey, input: List<LocalEvaluation> ->
 		when (key) {
 			is EvaluationKey.Read.All -> {
 				settingsDataSource.setGetEvaluationsOnCooldown()
 
 				localDataSource.saveEvaluations(
 					uid = key.uid,
-					evaluations = output.map { evaluation -> evaluation.toLocalEvaluation() }
+					evaluations = input
 				)
 			}
 
-			is EvaluationKey.Read.ById -> {
+			is EvaluationKey.Read.ById ->
 				localDataSource.saveEvaluations(
 					uid = key.uid,
-					evaluations = output.map { evaluation -> evaluation.toLocalEvaluation() }
+					evaluations = input
 				)
-			}
+
+			is EvaluationKey.Write.Add ->
+				localDataSource.saveEvaluations(
+					uid = key.uid,
+					evaluations = input
+				)
 		}
 	}
 )

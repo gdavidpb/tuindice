@@ -27,12 +27,16 @@ class LoadEvaluationActionProcessor(
 
 					is UseCaseState.Data -> { _ ->
 						with(useCaseState.value) {
+							val selectedSubject = availableSubjects.find { subject ->
+								subject.code == evaluation?.subjectCode
+							}
+
 							Evaluation.State.Content(
 								availableSubjects = availableSubjects,
-								subject = evaluation?.subject,
+								selectedSubject = selectedSubject,
 								type = evaluation?.type,
 								date = evaluation?.date,
-								isOverdue = evaluation?.date?.isDatePassed() ?: false,
+								isOverdue = evaluation?.date.isDatePassed(),
 								grade = evaluation?.grade,
 								maxGrade = evaluation?.maxGrade
 							)

@@ -10,5 +10,5 @@ data class AddEvaluationRequest(
 	@SerialName("type") val type: Int,
 	@SerialName("grade") val grade: Double? = null,
 	@SerialName("max_grade") val maxGrade: Double,
-	@SerialName("date") val date: Long,
+	@SerialName("date") val date: Long?
 )

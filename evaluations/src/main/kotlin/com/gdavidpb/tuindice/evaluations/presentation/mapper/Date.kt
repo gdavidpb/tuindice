@@ -5,14 +5,15 @@ import com.gdavidpb.tuindice.base.presentation.mapper.formatDate
 import com.gdavidpb.tuindice.base.presentation.mapper.weeksToNow
 import com.gdavidpb.tuindice.base.utils.extension.capitalize
 
-fun Long.isDatePassed() = this != 0L && daysToNow() < 0
+fun Long?.isDatePassed() = this != null && daysToNow() < 0
 
-fun Long.formatAsToNow(): String {
+fun Long?.formatAsToNow(): String {
+	if (this == null) return "Evaluación continua"
+
 	val daysDistance = daysToNow()
 	val weeksDistance = weeksToNow()
 
 	return when {
-		this == 0L -> "Evaluación continua"
 		daysDistance == 0 -> "Hoy"
 		daysDistance == 1 -> "Mañana"
 		daysDistance == -1 -> "Ayer"
@@ -29,11 +30,10 @@ fun Long.formatAsToNow(): String {
 	}
 }
 
-fun Long.formatAsDayOfWeekAndDate(): String {
-	return if (this == 0L)
-		"Evaluación continua"
-	else
-		formatDate("EEEE '—' dd/MM/yy")?.capitalize()!!
+fun Long?.formatAsDayOfWeekAndDate(): String {
+	if (this == null) return "Evaluación continua"
+
+	return formatDate("EEEE '—' dd/MM/yy")?.capitalize()!!
 }
 
 fun Long.formatAsShortDayOfWeekAndDate(): String {
