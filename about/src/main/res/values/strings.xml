@@ -70,19 +70,19 @@
     <string name="about_header_libs">Detrás de TuIndice</string>
 
     <string name="about_kotlin">
-        Kotlin 1.9.22\n
+        Kotlin 1.9.23\n
         Concise. Cross‑platform. Fun.\n
         © 2012 JetBrains
     </string>
 
     <string name="about_compose">
-        JetPack Compose 2024.02.01\n
+        JetPack Compose 2024.02.02\n
         Build better apps faster with Jetpack Compose.\n
         © 2019 JetBrains &amp; Google
     </string>
 
     <string name="about_firebase">
-        Firebase 32.7.4\n
+        Firebase 32.8.0\n
         Quickly develop high-quality apps and grow your business.\n
         © 2014 Google
     </string>
