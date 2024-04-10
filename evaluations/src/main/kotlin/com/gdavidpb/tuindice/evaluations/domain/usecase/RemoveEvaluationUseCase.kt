@@ -16,7 +16,7 @@ class RemoveEvaluationUseCase(
 		val activeUId = authRepository.getActiveAuth().uid
 
 		val remove = EvaluationRemove(
-			evaluationId = params
+			id = params
 		)
 
 		evaluationRepository.removeEvaluation(uid = activeUId, remove = remove)

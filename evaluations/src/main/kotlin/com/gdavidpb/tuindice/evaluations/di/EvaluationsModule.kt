@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.RoomD
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationConverter
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationFetcher
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationSourceOfTruth
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationStore
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationUpdater
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
@@ -107,7 +106,6 @@ val evaluationsModule = module {
 
 	/* Store */
 
-	factoryOf(::EvaluationStore)
 	factoryOf(::EvaluationFetcher)
 	factoryOf(::EvaluationSourceOfTruth)
 	factoryOf(::EvaluationConverter)

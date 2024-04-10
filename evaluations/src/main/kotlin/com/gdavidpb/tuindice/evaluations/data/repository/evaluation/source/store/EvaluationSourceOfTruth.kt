@@ -5,6 +5,9 @@ import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSou
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.SettingsDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluation
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluationRemove
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluationUpdate
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.mobilenativefoundation.store.store5.SourceOfTruth
@@ -52,6 +55,30 @@ class EvaluationSourceOfTruth(
 				localDataSource.saveEvaluations(
 					uid = key.uid,
 					evaluations = input
+				)
+
+			is EvaluationKey.Write.Update ->
+				localDataSource.updateEvaluation(
+					uid = key.uid,
+					update = input.first().toEvaluationUpdate()
+				)
+
+			is EvaluationKey.Remove.ById -> {
+				localDataSource.removeEvaluation(
+					uid = key.uid,
+					remove = input.first().toEvaluationRemove()
+				)
+			}
+		}
+	},
+	delete = { key ->
+		require(key is EvaluationKey.Remove)
+
+		when (key) {
+			is EvaluationKey.Remove.ById ->
+				localDataSource.removeEvaluation(
+					uid = key.uid,
+					remove = EvaluationRemove(id = key.eid)
 				)
 		}
 	}

@@ -7,11 +7,13 @@ import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AttestationInterceptor
 import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AuthorizationInterceptor
+import com.gdavidpb.tuindice.base.data.repository.source.uuid.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
+import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
@@ -243,6 +245,7 @@ val appModule = module {
 
 	/* Data sources */
 
+	factoryOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	factoryOf(::DigestDataSource) { bind<AttestationLocal>() }
 	factoryOf(::MessagingApiDataSource) { bind<MessagingRemote>() }
 	factoryOf(::AttestationApiDataSource) { bind<AttestationRemote>() }

@@ -26,6 +26,8 @@ fun (Evaluation.Action.ClickEditEvaluation).toUpdateEvaluationParams() =
 	UpdateEvaluationParams(
 		evaluationId = evaluationId,
 		subjectId = subject?.id,
+		subjectCode = subject?.code,
+		quarterId = subject?.qid,
 		grade = grade ?: 0.0,
 		maxGrade = maxGrade,
 		date = date,
@@ -35,5 +37,11 @@ fun (Evaluation.Action.ClickEditEvaluation).toUpdateEvaluationParams() =
 fun (Evaluations.Action.SetEvaluationGrade).toUpdateEvaluationParams() =
 	UpdateEvaluationParams(
 		evaluationId = evaluationId,
-		grade = grade
+		subjectId = null,
+		subjectCode = null,
+		quarterId = null,
+		grade = grade,
+		maxGrade = null,
+		date = null,
+		type = null
 	)

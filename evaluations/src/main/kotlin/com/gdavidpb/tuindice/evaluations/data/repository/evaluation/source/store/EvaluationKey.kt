@@ -10,5 +10,10 @@ sealed class EvaluationKey(open val uid: String) {
 
 	sealed class Write(override val uid: String) : EvaluationKey(uid) {
 		class Add(uid: String, val evaluation: Evaluation) : Write(uid)
+		class Update(uid: String, val evaluation: Evaluation) : Write(uid)
+	}
+
+	sealed class Remove(override val uid: String) : EvaluationKey(uid) {
+		class ById(uid: String, val eid: String) : Remove(uid)
 	}
 }

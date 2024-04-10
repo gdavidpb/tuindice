@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper
 
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.request.AddEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.request.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.response.EvaluationResponse
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 
@@ -21,8 +21,8 @@ fun EvaluationResponse.toRemoteEvaluation() = RemoteEvaluation(
 	state = computeEvaluationState(grade = grade, date = date)
 )
 
-fun Evaluation.toAddEvaluationRequest() = AddEvaluationRequest(
-	reference = evaluationId,
+fun EvaluationAdd.toAddEvaluationRequest() = AddEvaluationRequest(
+	reference = reference,
 	subjectId = subjectId,
 	type = type.ordinal,
 	grade = grade,
@@ -31,7 +31,7 @@ fun Evaluation.toAddEvaluationRequest() = AddEvaluationRequest(
 )
 
 fun EvaluationUpdate.toUpdateEvaluationRequest() = UpdateEvaluationRequest(
-	evaluationId = evaluationId,
+	evaluationId = id,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
