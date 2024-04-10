@@ -1,25 +1,56 @@
 package com.gdavidpb.tuindice.evaluations.domain.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.UpdateEvaluationParams
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 
-fun AddEvaluationParams.toEvaluation(evaluationId: String) = Evaluation(
-	evaluationId = evaluationId,
+fun AddEvaluationParams.toEvaluationAdd(reference: String) = EvaluationAdd(
+	reference = reference,
 	subjectId = subjectId!!,
 	subjectCode = subjectCode!!,
 	quarterId = quarterId!!,
 	grade = grade,
 	maxGrade = maxGrade!!,
 	date = date,
-	type = type!!,
-	state = computeEvaluationState(grade, date)
+	type = type!!
 )
 
 fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(
-	evaluationId = evaluationId,
+	id = evaluationId,
+	grade = grade,
+	maxGrade = maxGrade,
+	date = date,
+	type = type
+)
+
+fun EvaluationAdd.toEvaluation() = Evaluation(
+	evaluationId = reference,
+	subjectId = subjectId,
+	subjectCode = subjectCode,
+	quarterId = quarterId,
+	type = type,
+	date = date,
+	grade = grade,
+	maxGrade = maxGrade,
+	state = computeEvaluationState(grade, date)
+)
+
+fun Evaluation.toEvaluationAdd() = EvaluationAdd(
+	reference = evaluationId,
+	subjectId = subjectId,
+	subjectCode = subjectCode,
+	quarterId = quarterId,
+	grade = grade,
+	maxGrade = maxGrade,
+	date = date,
+	type = type
+)
+
+fun Evaluation.toEvaluationUpdate() = EvaluationUpdate(
+	id = evaluationId,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
