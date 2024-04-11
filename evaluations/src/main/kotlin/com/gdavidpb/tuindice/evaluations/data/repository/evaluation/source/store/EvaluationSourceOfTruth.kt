@@ -21,7 +21,7 @@ class EvaluationSourceOfTruth(
 
 		when (key) {
 			is EvaluationKey.Read.All ->
-				localDataSource.getEvaluations(
+				localDataSource.getEvaluationsFlow(
 					uid = key.uid
 				).map { evaluations -> evaluations.map { evaluation -> evaluation.toEvaluation() } }
 

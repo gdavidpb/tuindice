@@ -16,7 +16,7 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 				"ORDER BY ${EvaluationTable.DATE} ASC"
 	)
 	@Transaction
-	abstract fun getEvaluationsWithSubject(
+	abstract fun getEvaluationsWithSubjectFlow(
 		uid: String
 	): Flow<List<EvaluationWithSubject>>
 

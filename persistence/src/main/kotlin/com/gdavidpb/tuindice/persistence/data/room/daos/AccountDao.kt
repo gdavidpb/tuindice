@@ -5,7 +5,6 @@ import androidx.room.Query
 import com.gdavidpb.tuindice.persistence.data.room.entity.AccountEntity
 import com.gdavidpb.tuindice.persistence.data.room.schema.AccountTable
 import kotlinx.coroutines.flow.Flow
-import java.util.*
 
 @Dao
 abstract class AccountDao : UpsertDao<AccountEntity>() {
@@ -13,7 +12,7 @@ abstract class AccountDao : UpsertDao<AccountEntity>() {
 		"SELECT * FROM ${AccountTable.TABLE_NAME} " +
 				"WHERE ${AccountTable.ID} = :uid"
 	)
-	abstract fun getAccountStream(
+	abstract fun getAccountFlow(
 		uid: String
 	): Flow<AccountEntity?>
 

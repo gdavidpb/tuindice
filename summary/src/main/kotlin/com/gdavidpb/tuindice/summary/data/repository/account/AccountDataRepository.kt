@@ -12,8 +12,8 @@ class AccountDataRepository(
 	private val remoteDataSource: RemoteDataSource,
 	private val settingsDataSource: SettingsDataSource
 ) : AccountRepository {
-	override suspend fun getAccountStream(uid: String): Flow<Account> {
-		return localDataSource.getAccount(uid)
+	override suspend fun getAccountFlow(uid: String): Flow<Account> {
+		return localDataSource.getAccountFlow(uid)
 			.distinctUntilChanged()
 			.transform { localAccount ->
 				val isOnCooldown = settingsDataSource.isGetAccountOnCooldown()
