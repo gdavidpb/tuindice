@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.map
 class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
-	override suspend fun getAccount(uid: String): Flow<Account?> {
-		return room.accounts.getAccountStream(uid)
+	override fun getAccountFlow(uid: String): Flow<Account?> {
+		return room.accounts.getAccountFlow(uid)
 			.map { account -> account?.toAccount() }
 	}
 

@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.persistence.data.room.daos
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Query
+import androidx.room.Transaction
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.persistence.data.room.entity.QuarterEntity
 import com.gdavidpb.tuindice.persistence.data.room.otm.QuarterWithSubjects
@@ -36,7 +38,7 @@ abstract class QuarterDao : UpsertDao<QuarterEntity>() {
 				"ORDER BY ${QuarterTable.START_DATE} DESC"
 	)
 	@Transaction
-	abstract fun getQuartersWithSubjectsStream(
+	abstract fun getQuartersWithSubjectsFlow(
 		uid: String
 	): Flow<List<QuarterWithSubjects>>
 

@@ -39,7 +39,7 @@ class EvaluationDataRepository(
 ).build(
 	updater = updater
 ), EvaluationRepository {
-	override suspend fun getEvaluations(uid: String): Flow<List<Evaluation>> {
+	override suspend fun getEvaluationsFlow(uid: String): Flow<List<Evaluation>> {
 		val isOnCooldown = settingsDataSource.isGetEvaluationsOnCooldown()
 
 		val evaluations = if (isOnCooldown)
