@@ -10,10 +10,10 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 
 fun EvaluationResponse.toRemoteEvaluation() = RemoteEvaluation(
-	evaluationId = id,
+	id = id,
 	subjectId = sid,
-	quarterId = qid,
 	subjectCode = subject.code,
+	quarterId = qid,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
