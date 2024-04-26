@@ -33,7 +33,8 @@ class EvaluationUpdater(
 				UpdaterResult.Success.Typed(
 					value = EvaluationWriteResponse(key)
 				)
-			}, onFailure = { throwable ->
+			},
+			onFailure = { throwable ->
 				UpdaterResult.Error.Exception(throwable)
 			}
 		)

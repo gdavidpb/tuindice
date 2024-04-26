@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.evaluations.data.repository.evaluation
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluation
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationConverter
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationFetcher
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationKey
@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.mapper.toSubject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.mapNotNull
@@ -90,7 +91,7 @@ class EvaluationDataRepository(
 					maxGrade = update.maxGrade ?: actualEvaluation.maxGrade,
 					date = update.date ?: actualEvaluation.date
 				)
-		}.toEvaluation()
+		}.toLocalEvaluation()
 
 		write(
 			StoreWriteRequest.of(
@@ -111,5 +112,6 @@ class EvaluationDataRepository(
 
 	override suspend fun getAvailableSubjects(uid: String): List<Subject> {
 		return localDataSource.getAvailableSubjects(uid)
+			.map { localSubject -> localSubject.toSubject() }
 	}
 }

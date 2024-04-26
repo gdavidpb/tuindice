@@ -11,11 +11,11 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.room.otm.EvaluationWithSubject
 
 fun LocalEvaluation.toEvaluationRemove() = EvaluationRemove(
-	id = evaluationId
+	id = id
 )
 
 fun LocalEvaluation.toEvaluationUpdate() = EvaluationUpdate(
-	id = evaluationId,
+	id = id,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
@@ -23,7 +23,7 @@ fun LocalEvaluation.toEvaluationUpdate() = EvaluationUpdate(
 )
 
 fun RemoteEvaluation.toLocalEvaluation() = LocalEvaluation(
-	evaluationId = evaluationId,
+	id = id,
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
@@ -34,8 +34,8 @@ fun RemoteEvaluation.toLocalEvaluation() = LocalEvaluation(
 	state = state
 )
 
-fun LocalEvaluation.toEvaluation() = Evaluation(
-	evaluationId = evaluationId,
+fun LocalEvaluation.toLocalEvaluation() = Evaluation(
+	evaluationId = id,
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
@@ -47,7 +47,7 @@ fun LocalEvaluation.toEvaluation() = Evaluation(
 )
 
 fun Evaluation.toLocalEvaluation() = LocalEvaluation(
-	evaluationId = evaluationId,
+	id = evaluationId,
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
@@ -59,7 +59,7 @@ fun Evaluation.toLocalEvaluation() = LocalEvaluation(
 )
 
 fun LocalEvaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
-	id = evaluationId,
+	id = id,
 	subjectId = subjectId,
 	quarterId = quarterId,
 	accountId = uid,
@@ -80,8 +80,8 @@ fun EvaluationAdd.toEvaluationEntity(uid: String) = EvaluationEntity(
 	type = type
 )
 
-fun EvaluationWithSubject.toEvaluation() = LocalEvaluation(
-	evaluationId = evaluation.id,
+fun EvaluationWithSubject.toLocalEvaluation() = LocalEvaluation(
+	id = evaluation.id,
 	subjectId = evaluation.subjectId,
 	subjectCode = subject.code,
 	quarterId = evaluation.quarterId,

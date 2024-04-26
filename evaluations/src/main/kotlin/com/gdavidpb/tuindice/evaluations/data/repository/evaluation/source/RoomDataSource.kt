@@ -1,16 +1,16 @@
 package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source
 
 import androidx.room.withTransaction
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.LocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluationEntity
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.persistence.data.room.mapper.toQuarter
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.mapper.toLocalQuarter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -19,17 +19,17 @@ class RoomDataSource(
 ) : LocalDataSource {
 	override fun getEvaluationsFlow(uid: String): Flow<List<LocalEvaluation>> {
 		return room.evaluations.getEvaluationsWithSubjectFlow(uid)
-			.map { evaluations -> evaluations.map { evaluation -> evaluation.toEvaluation() } }
+			.map { evaluations -> evaluations.map { evaluation -> evaluation.toLocalEvaluation() } }
 	}
 
 	override suspend fun getEvaluation(uid: String, eid: String): LocalEvaluation? {
 		return room.evaluations.getEvaluationWithSubject(uid, eid)
-			?.toEvaluation()
+			?.toLocalEvaluation()
 	}
 
-	override suspend fun getAvailableSubjects(uid: String): List<Subject> {
+	override suspend fun getAvailableSubjects(uid: String): List<LocalSubject> {
 		return room.quarters.getCurrentQuarterWithSubjects(uid)
-			?.toQuarter()
+			?.toLocalQuarter()
 			?.subjects
 			?: emptyList()
 	}

@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 
 data class LocalEvaluation(
-	val evaluationId: String,
+	val id: String,
 	val subjectId: String,
 	val subjectCode: String,
 	val quarterId: String,
