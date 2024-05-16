@@ -3,17 +3,17 @@ buildscript {
         core = [:]
 
         core.appId = "com.gdavidpb.tuindice"
-        core.minSdk = 21
+        core.minSdk = 23
         core.targetSdk = 34
 
         versions = [:]
 
-        versions.kotlin = "1.9.23"
+        versions.kotlin = "1.9.24"
         versions.koin = "3.5.0"
         versions.okhttp = "5.0.0-alpha.11"
         versions.retrofit = "2.9.0"
         versions.coroutines = "1.7.3"
-        versions.lifecycle = "2.7.0"
+        versions.lifecycle = "2.8.0"
         versions.lifecycle_ext = "2.2.0"
         versions.navigation = "2.7.7"
         versions.room = "2.6.1"
@@ -28,7 +28,7 @@ buildscript {
     dependencies {
         classpath "com.google.gms:google-services:4.4.1"
         classpath "com.android.tools.build:gradle:8.4.0"
-        classpath "com.google.firebase:firebase-crashlytics-gradle:2.9.9"
+        classpath "com.google.firebase:firebase-crashlytics-gradle:3.0.1"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}"
     }
 }
