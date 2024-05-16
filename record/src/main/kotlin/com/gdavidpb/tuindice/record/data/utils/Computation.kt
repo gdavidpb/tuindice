@@ -1,12 +1,12 @@
-package com.gdavidpb.tuindice.record.utils.extensions
+package com.gdavidpb.tuindice.record.data.utils
 
-import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_OK
 import com.gdavidpb.tuindice.base.utils.extension.round
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
 
-fun Collection<Subject>.removeNoEffect(): Collection<Subject> {
+fun Collection<LocalSubject>.removeNoEffect(): Collection<LocalSubject> {
 	val containsNoEffect = size > 1 && first().grade >= 3
 
 	return if (containsNoEffect)
@@ -15,11 +15,11 @@ fun Collection<Subject>.removeNoEffect(): Collection<Subject> {
 		this
 }
 
-fun Collection<Subject>.computeCredits() = sumOf {
+fun Collection<LocalSubject>.computeCredits() = sumOf {
 	if (it.grade != 0) it.credits else 0
 }
 
-fun Collection<Subject>.computeGrade(): Double {
+fun Collection<LocalSubject>.computeGrade(): Double {
 	val creditsSum = computeCredits().toDouble()
 
 	val weightedSum = sumOf {
@@ -31,8 +31,9 @@ fun Collection<Subject>.computeGrade(): Double {
 	return grade.round(4)
 }
 
-fun Collection<Quarter>.computeGradeSum(until: Quarter = first()) =
-	filter { it.startDate <= until.startDate && it.status != STATUS_QUARTER_RETIRED }
+fun Collection<LocalQuarter>.computeGradeSum(until: LocalQuarter = first()) =
+	asSequence()
+		.filter { it.startDate <= until.startDate && it.status != STATUS_QUARTER_RETIRED }
 		/* Get all subjects */
 		.flatMap { it.subjects }
 		/* Filter valid subjects */
@@ -40,6 +41,6 @@ fun Collection<Quarter>.computeGradeSum(until: Quarter = first()) =
 		/* Group by code */
 		.groupBy { it.code }
 		/* If you've seen this subject more than once and now you approved this */
-		.flatMap { (_, subjects) -> subjects.removeNoEffect() }
+		.flatMap { (_, subjects) -> subjects.removeNoEffect() }.toList()
 		/* Compute grade */
 		.computeGrade()

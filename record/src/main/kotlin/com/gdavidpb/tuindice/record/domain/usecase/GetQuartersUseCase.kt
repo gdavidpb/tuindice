@@ -16,6 +16,6 @@ class GetQuartersUseCase(
 	override suspend fun executeOnBackground(params: Unit): Flow<List<Quarter>> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		return quarterRepository.getQuartersStream(uid = activeUId)
+		return quarterRepository.getQuartersFlow(uid = activeUId)
 	}
 }

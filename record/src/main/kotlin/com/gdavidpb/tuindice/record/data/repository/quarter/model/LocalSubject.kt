@@ -1,6 +1,6 @@
-package com.gdavidpb.tuindice.base.domain.model.subject
+package com.gdavidpb.tuindice.record.data.repository.quarter.model
 
-data class Subject(
+data class LocalSubject(
 	val id: String,
 	val quarterId: String,
 	val code: String,
