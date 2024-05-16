@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.di
 
+import android.util.LruCache
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.record.data.repository.quarter.CacheDataSource
@@ -8,18 +9,23 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.QuarterDataRepositor
 import com.gdavidpb.tuindice.record.data.repository.quarter.RecordApi
 import com.gdavidpb.tuindice.record.data.repository.quarter.RemoteDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.SettingsDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.MemoryDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.PreferencesDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.RecordApiDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.RoomDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.QuarterConverter
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.QuarterFetcher
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.QuarterSourceOfTruth
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.QuarterUpdater
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.UpdateSubjectUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuarterUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.WithdrawSubjectUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.GetQuartersExceptionHandler
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateSubjectExceptionHandler
-import com.gdavidpb.tuindice.record.domain.usecase.validator.UpdateSubjectParamsValidator
+import com.gdavidpb.tuindice.record.domain.usecase.validator.UpdateQuarterParamsValidator
 import com.gdavidpb.tuindice.record.presentation.action.LoadQuartersActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.UpdateSubjectActionProcessor
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
@@ -43,16 +49,29 @@ val recordModule = module {
 
 	factoryOf(::GetQuartersUseCase)
 	factoryOf(::RemoveQuarterUseCase)
-	factoryOf(::UpdateSubjectUseCase)
+	factoryOf(::UpdateQuarterUseCase)
 	factoryOf(::WithdrawSubjectUseCase)
+
+	/* Quarters cache */
+
+	single {
+		LruCache<Int, LocalQuarter>(1_000)
+	}
 
 	/* Validators */
 
-	factoryOf(::UpdateSubjectParamsValidator)
+	factoryOf(::UpdateQuarterParamsValidator)
 
 	/* Repositories */
 
 	factoryOf(::QuarterDataRepository) { bind<QuarterRepository>() }
+
+	/* Store */
+
+	factoryOf(::QuarterFetcher)
+	factoryOf(::QuarterSourceOfTruth)
+	factoryOf(::QuarterConverter)
+	factoryOf(::QuarterUpdater)
 
 	/* Data sources */
 

@@ -5,14 +5,14 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.record.R
-import com.gdavidpb.tuindice.record.domain.usecase.UpdateSubjectUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuarterUseCase
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.toUpdateSubjectParams
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class UpdateSubjectActionProcessor(
-	private val updateSubjectUseCase: UpdateSubjectUseCase,
+	private val updateQuarterUseCase: UpdateQuarterUseCase,
 	private val resourceResolver: ResourceResolver
 ) : ActionProcessor<Record.State, Record.Action.UpdateSubject, Record.Effect>() {
 
@@ -20,7 +20,7 @@ class UpdateSubjectActionProcessor(
 		action: Record.Action.UpdateSubject,
 		sideEffect: (Record.Effect) -> Unit
 	): Flow<Mutation<Record.State>> {
-		return updateSubjectUseCase.execute(params = action.toUpdateSubjectParams())
+		return updateQuarterUseCase.execute(params = action.toUpdateSubjectParams())
 			.map { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> { state ->

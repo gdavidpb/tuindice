@@ -1,13 +1,12 @@
 package com.gdavidpb.tuindice.record.data.repository.quarter
 
-import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
-import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
+import com.gdavidpb.tuindice.record.domain.model.QuarterUpdate
 
 interface RemoteDataSource {
-	suspend fun getQuarters(): List<Quarter>
+	suspend fun getQuarters(): List<RemoteQuarter>
 	suspend fun removeQuarter(remove: QuarterRemove)
 
-	suspend fun updateSubject(update: SubjectUpdate): Subject
+	suspend fun updateQuarter(update: QuarterUpdate)
 }

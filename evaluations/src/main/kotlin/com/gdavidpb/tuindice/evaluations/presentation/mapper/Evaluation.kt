@@ -15,7 +15,7 @@ fun (Evaluation.Action.ClickAddEvaluation).toAddEvaluationParams() =
 	AddEvaluationParams(
 		subjectId = subject?.id,
 		subjectCode = subject?.code,
-		quarterId = subject?.qid,
+		quarterId = subject?.quarterId,
 		grade = grade,
 		maxGrade = maxGrade,
 		date = date,
@@ -27,7 +27,7 @@ fun (Evaluation.Action.ClickEditEvaluation).toUpdateEvaluationParams() =
 		evaluationId = evaluationId,
 		subjectId = subject?.id,
 		subjectCode = subject?.code,
-		quarterId = subject?.qid,
+		quarterId = subject?.quarterId,
 		grade = grade ?: 0.0,
 		maxGrade = maxGrade,
 		date = date,

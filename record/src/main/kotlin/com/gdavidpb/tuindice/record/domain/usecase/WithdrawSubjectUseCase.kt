@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.record.domain.mapper.toSubjectUpdate
+import com.gdavidpb.tuindice.record.domain.mapper.toQuarterUpdate
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.usecase.param.WithdrawSubjectParams
 import kotlinx.coroutines.flow.Flow
@@ -15,9 +15,9 @@ class WithdrawSubjectUseCase(
 	override suspend fun executeOnBackground(params: WithdrawSubjectParams): Flow<Unit> {
 		val activeUId = authRepository.getActiveAuth().uid
 
-		val update = params.toSubjectUpdate()
+		val update = params.toQuarterUpdate()
 
-		quarterRepository.updateSubject(
+		quarterRepository.updateQuarter(
 			uid = activeUId,
 			update = update
 		)

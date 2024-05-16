@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "PATCH",
+    "urlPath": "/quarters"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}

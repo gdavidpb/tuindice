@@ -1,19 +1,19 @@
 package com.gdavidpb.tuindice
 
-import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.presentation.mapper.parseDate
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_CURRENT
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_MOCK
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_NO_EFFECT
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_RETIRED
-import com.gdavidpb.tuindice.record.utils.extensions.computeCredits
-import com.gdavidpb.tuindice.record.utils.extensions.computeGrade
-import com.gdavidpb.tuindice.record.utils.extensions.computeGradeSum
-import com.gdavidpb.tuindice.record.utils.extensions.removeNoEffect
 import com.gdavidpb.tuindice.evaluations.utils.extension.toSubjectGrade
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
+import com.gdavidpb.tuindice.record.data.utils.computeCredits
+import com.gdavidpb.tuindice.record.data.utils.computeGrade
+import com.gdavidpb.tuindice.record.data.utils.computeGradeSum
+import com.gdavidpb.tuindice.record.data.utils.removeNoEffect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -203,8 +203,8 @@ class ComputationTest {
 		startDate: Long = System.currentTimeMillis(),
 		endDate: Long = System.currentTimeMillis(),
 		status: Int = 0,
-		subjects: MutableList<Subject> = mutableListOf()
-	) = Quarter(
+		subjects: MutableList<LocalSubject> = mutableListOf()
+	) = LocalQuarter(
 		id = "",
 		name = "",
 		startDate = startDate,
@@ -225,9 +225,9 @@ class ComputationTest {
 		credits: Int = 0,
 		status: Int = TestValues.STATUS_SUBJECT_OK,
 		isEditable: Boolean = true
-	) = Subject(
+	) = LocalSubject(
 		id = "",
-		qid = "",
+		quarterId = "",
 		code = code,
 		name = name,
 		credits = credits,

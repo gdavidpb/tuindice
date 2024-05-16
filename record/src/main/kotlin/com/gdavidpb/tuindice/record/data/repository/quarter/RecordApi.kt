@@ -1,10 +1,13 @@
 package com.gdavidpb.tuindice.record.data.repository.quarter
 
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.request.UpdateSubjectRequest
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.request.UpdateQuarterRequest
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.QuarterResponse
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.SubjectResponse
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.PATCH
+import retrofit2.http.Query
 
 interface RecordApi {
 	@GET("quarters")
@@ -15,8 +18,8 @@ interface RecordApi {
 		@Query("qid") quarterId: String
 	): Response<Unit>
 
-	@PATCH("subjects")
-	suspend fun updateSubject(
-		@Body request: UpdateSubjectRequest
-	): Response<SubjectResponse>
+	@PATCH("quarters")
+	suspend fun updateQuarter(
+		@Body request: UpdateQuarterRequest
+	): Response<Unit>
 }

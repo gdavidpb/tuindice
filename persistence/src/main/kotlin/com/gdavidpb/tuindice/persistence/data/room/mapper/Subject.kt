@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 
 fun Subject.toSubjectEntity(uid: String) = SubjectEntity(
 	id = id,
-	quarterId = qid,
+	quarterId = quarterId,
 	accountId = uid,
 	code = code,
 	name = name,
@@ -19,7 +19,7 @@ fun Subject.toSubjectEntity(uid: String) = SubjectEntity(
 
 fun SubjectEntity.toSubject(isEditable: Boolean) = Subject(
 	id = id,
-	qid = quarterId,
+	quarterId = quarterId,
 	code = code,
 	name = name,
 	credits = credits,

@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 @Composable
 fun Subject.toSubjectItem() = SubjectItem(
 	subjectId = id,
-	quarterId = qid,
+	quarterId = quarterId,
 	grade = grade,
 	codeAndStatusText = buildAnnotatedString {
 		withStyle(style = SpanStyle(fontWeight = FontWeight.Medium)) {
