@@ -17,8 +17,6 @@ abstract class NetworkObject(
 
         other as Node
 
-        if (id != other.id) return false
-
-        return true
+        return id == other.id
     }
 }

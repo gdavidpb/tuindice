@@ -20,9 +20,7 @@ class EvaluationDateFilter(
 
 		other as EvaluationDateFilter
 
-		if (date != other.date) return false
-
-		return true
+		return date == other.date
 	}
 
 	override fun hashCode(): Int {
