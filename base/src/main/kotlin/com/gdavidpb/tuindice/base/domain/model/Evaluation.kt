@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.base.domain.model
 
 data class Evaluation(
-	val evaluationId: String,
+	val id: String,
 	val subjectId: String,
 	val subjectCode: String,
 	val quarterId: String,

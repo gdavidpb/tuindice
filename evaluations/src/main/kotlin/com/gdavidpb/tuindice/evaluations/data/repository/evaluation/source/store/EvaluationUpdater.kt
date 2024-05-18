@@ -2,9 +2,7 @@ package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.stor
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.RemoteDataSource
-import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluationAdd
-import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluationUpdate
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
+import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toRemoteEvaluation
 import org.mobilenativefoundation.store.store5.Updater
 import org.mobilenativefoundation.store.store5.UpdaterResult
 
@@ -17,13 +15,16 @@ class EvaluationUpdater(
 		runCatching {
 			when (key) {
 				is EvaluationKey.Write.Add ->
-					remoteDataSource.addEvaluation(add = input.first().toEvaluationAdd())
+					remoteDataSource
+						.addEvaluation(evaluation = input.first().toRemoteEvaluation())
 
 				is EvaluationKey.Write.Update ->
-					remoteDataSource.updateEvaluation(update = input.first().toEvaluationUpdate())
+					remoteDataSource
+						.updateEvaluation(evaluation = input.first().toRemoteEvaluation())
 
 				is EvaluationKey.Remove.ById ->
-					remoteDataSource.removeEvaluation(remove = EvaluationRemove(id = key.eid))
+					remoteDataSource
+						.removeEvaluation(eid = key.eid)
 
 				else ->
 					throw IllegalStateException()

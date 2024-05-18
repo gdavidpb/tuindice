@@ -5,9 +5,6 @@ import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSou
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.SettingsDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toLocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluationRemove
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluationUpdate
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.mobilenativefoundation.store.store5.SourceOfTruth
@@ -21,13 +18,16 @@ class EvaluationSourceOfTruth(
 
 		when (key) {
 			is EvaluationKey.Read.All ->
-				localDataSource.getEvaluationsFlow(
-					uid = key.uid
-				).map { evaluations -> evaluations.map { evaluation -> evaluation.toLocalEvaluation() } }
+				localDataSource
+					.getEvaluationsFlow(uid = key.uid)
+					.map { evaluations -> evaluations.map { evaluation -> evaluation.toLocalEvaluation() } }
 
 			is EvaluationKey.Read.ById ->
 				flow {
-					val evaluation = localDataSource.getEvaluation(key.uid, key.eid)?.toLocalEvaluation()
+					val evaluation = localDataSource
+						.getEvaluation(key.uid, key.eid)
+						?.toLocalEvaluation()
+
 					val evaluations = listOfNotNull(evaluation)
 
 					emit(evaluations)
@@ -60,13 +60,13 @@ class EvaluationSourceOfTruth(
 			is EvaluationKey.Write.Update ->
 				localDataSource.updateEvaluation(
 					uid = key.uid,
-					update = input.first().toEvaluationUpdate()
+					evaluation = input.first()
 				)
 
 			is EvaluationKey.Remove.ById -> {
 				localDataSource.removeEvaluation(
 					uid = key.uid,
-					remove = input.first().toEvaluationRemove()
+					eid = key.eid
 				)
 			}
 		}
@@ -78,7 +78,7 @@ class EvaluationSourceOfTruth(
 			is EvaluationKey.Remove.ById ->
 				localDataSource.removeEvaluation(
 					uid = key.uid,
-					remove = EvaluationRemove(id = key.eid)
+					eid = key.eid
 				)
 		}
 	}
