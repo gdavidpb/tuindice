@@ -20,9 +20,7 @@ class EvaluationStateFilter(
 
 		other as EvaluationStateFilter
 
-		if (label != other.label) return false
-
-		return true
+		return label == other.label
 	}
 
 	override fun hashCode(): Int {
