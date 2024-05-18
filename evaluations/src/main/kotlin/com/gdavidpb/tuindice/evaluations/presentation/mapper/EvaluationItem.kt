@@ -42,7 +42,7 @@ fun List<Evaluation>.toEvaluationItemList(): List<EvaluationsGroupItem> {
 			.flatMap { (_, evaluations) ->
 				evaluations
 					.mapIndexed { index, evaluation ->
-						evaluation.evaluationId to index + 1
+						evaluation.id to index + 1
 					}
 			}.toMap()
 
@@ -52,7 +52,7 @@ fun List<Evaluation>.toEvaluationItemList(): List<EvaluationsGroupItem> {
 				title = title,
 				items = evaluations.map { evaluation ->
 					evaluation.toEvaluationItem(
-						ordinal = ordinalsById[evaluation.evaluationId] ?: 1
+						ordinal = ordinalsById[evaluation.id] ?: 1
 					)
 				}
 			)
@@ -62,7 +62,7 @@ fun List<Evaluation>.toEvaluationItemList(): List<EvaluationsGroupItem> {
 @Composable
 @ReadOnlyComposable
 fun Evaluation.toEvaluationItem(ordinal: Int) = EvaluationItem(
-	evaluationId = evaluationId,
+	evaluationId = id,
 	grade = grade,
 	maxGrade = maxGrade,
 	nameText = stringResource(

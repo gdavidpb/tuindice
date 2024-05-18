@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.evaluations.data.repository.evaluation
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationConverter
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationFetcher
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationKey
@@ -81,22 +80,21 @@ class EvaluationDataRepository(
 	}
 
 	override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate) {
-		val evaluation = localDataSource.getEvaluation(
-			uid = uid,
-			eid = update.id
-		)!!.let { actualEvaluation ->
-			actualEvaluation
-				.copy(
-					grade = update.grade ?: actualEvaluation.grade,
-					maxGrade = update.maxGrade ?: actualEvaluation.maxGrade,
-					date = update.date ?: actualEvaluation.date
-				)
-		}.toLocalEvaluation()
+		val evaluation = get<EvaluationKey, List<Evaluation>, EvaluationReadResponse>(
+			key = EvaluationKey.Read.ById(uid = uid, eid = update.id)
+		).first()
+
+		val updatedEvaluation = evaluation.copy(
+			grade = update.grade,
+			maxGrade = update.maxGrade ?: evaluation.maxGrade,
+			date = update.date ?: evaluation.date,
+			type = update.type ?: evaluation.type
+		)
 
 		write(
 			StoreWriteRequest.of(
-				key = EvaluationKey.Write.Update(uid, evaluation),
-				value = listOf(evaluation)
+				key = EvaluationKey.Write.Update(uid, updatedEvaluation),
+				value = listOf(updatedEvaluation)
 			)
 		)
 	}

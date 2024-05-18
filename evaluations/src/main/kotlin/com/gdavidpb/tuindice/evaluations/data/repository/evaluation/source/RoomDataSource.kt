@@ -5,9 +5,6 @@ import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSou
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toLocalEvaluation
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.mapper.toLocalQuarter
@@ -34,34 +31,24 @@ class RoomDataSource(
 			?: emptyList()
 	}
 
-	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
-		val evaluationEntity = add.toEvaluationEntity(uid)
+	override suspend fun addEvaluation(uid: String, evaluation: LocalEvaluation): LocalEvaluation {
+		val evaluationEntity = evaluation.toEvaluationEntity(uid)
 
 		room.evaluations.upsertEntity(entity = evaluationEntity)
+
+		return evaluation
 	}
 
-	override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate) {
-		val evaluationEntity = room.evaluations
-			.getEvaluation(
-				uid = uid,
-				eid = update.id
-			)
+	override suspend fun updateEvaluation(uid: String, evaluation: LocalEvaluation):LocalEvaluation {
+		val evaluationEntity = evaluation.toEvaluationEntity(uid)
 
-		val updatedEvaluationEntity = evaluationEntity.copy(
-			grade = update.grade,
-			maxGrade = update.maxGrade ?: evaluationEntity.maxGrade,
-			date = update.date ?: evaluationEntity.date,
-			type = update.type ?: evaluationEntity.type
-		)
+		room.evaluations.upsertEntity(entity = evaluationEntity)
 
-		room.evaluations.upsertEntity(entity = updatedEvaluationEntity)
+		return evaluation
 	}
 
-	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
-		room.evaluations.deleteEvaluation(
-			uid = uid,
-			eid = remove.id
-		)
+	override suspend fun removeEvaluation(uid: String, eid: String) {
+		room.evaluations.deleteEvaluation(uid, eid)
 	}
 
 	override suspend fun saveEvaluations(uid: String, evaluations: List<LocalEvaluation>) {

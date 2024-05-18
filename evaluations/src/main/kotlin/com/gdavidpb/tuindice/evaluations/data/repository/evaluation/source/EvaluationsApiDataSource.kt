@@ -34,24 +34,24 @@ class EvaluationsApiDataSource(
 		}
 	}
 
-	override suspend fun addEvaluation(add: EvaluationAdd): RemoteEvaluation {
-		val request = add.toAddEvaluationRequest()
+	override suspend fun addEvaluation(evaluation: RemoteEvaluation): RemoteEvaluation {
+		val request = evaluation.toAddEvaluationRequest()
 
 		return evaluationsApi.addEvaluation(request)
 			.getOrThrow()
 			.toRemoteEvaluation()
 	}
 
-	override suspend fun updateEvaluation(update: EvaluationUpdate): RemoteEvaluation {
-		val request = update.toUpdateEvaluationRequest()
+	override suspend fun updateEvaluation(evaluation: RemoteEvaluation): RemoteEvaluation {
+		val request = evaluation.toUpdateEvaluationRequest()
 
 		return evaluationsApi.updateEvaluation(request)
 			.getOrThrow()
 			.toRemoteEvaluation()
 	}
 
-	override suspend fun removeEvaluation(remove: EvaluationRemove) {
-		evaluationsApi.deleteEvaluation(remove.id)
+	override suspend fun removeEvaluation(eid: String) {
+		evaluationsApi.deleteEvaluation(eid)
 			.getOrThrow()
 	}
 }

@@ -3,24 +3,9 @@ package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.data
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.RemoteEvaluation
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.room.otm.EvaluationWithSubject
-
-fun LocalEvaluation.toEvaluationRemove() = EvaluationRemove(
-	id = id
-)
-
-fun LocalEvaluation.toEvaluationUpdate() = EvaluationUpdate(
-	id = id,
-	grade = grade,
-	maxGrade = maxGrade,
-	date = date,
-	type = type
-)
 
 fun RemoteEvaluation.toLocalEvaluation() = LocalEvaluation(
 	id = id,
@@ -35,7 +20,7 @@ fun RemoteEvaluation.toLocalEvaluation() = LocalEvaluation(
 )
 
 fun LocalEvaluation.toLocalEvaluation() = Evaluation(
-	evaluationId = id,
+	id = id,
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
@@ -47,7 +32,7 @@ fun LocalEvaluation.toLocalEvaluation() = Evaluation(
 )
 
 fun Evaluation.toLocalEvaluation() = LocalEvaluation(
-	id = evaluationId,
+	id = id,
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
@@ -60,17 +45,6 @@ fun Evaluation.toLocalEvaluation() = LocalEvaluation(
 
 fun LocalEvaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	id = id,
-	subjectId = subjectId,
-	quarterId = quarterId,
-	accountId = uid,
-	grade = grade,
-	maxGrade = maxGrade,
-	date = date,
-	type = type
-)
-
-fun EvaluationAdd.toEvaluationEntity(uid: String) = EvaluationEntity(
-	id = reference,
 	subjectId = subjectId,
 	quarterId = quarterId,
 	accountId = uid,

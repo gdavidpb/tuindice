@@ -27,7 +27,7 @@ fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(
 )
 
 fun EvaluationAdd.toEvaluation() = Evaluation(
-	evaluationId = reference,
+	id = reference,
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
@@ -36,23 +36,4 @@ fun EvaluationAdd.toEvaluation() = Evaluation(
 	grade = grade,
 	maxGrade = maxGrade,
 	state = computeEvaluationState(grade, date)
-)
-
-fun Evaluation.toEvaluationAdd() = EvaluationAdd(
-	reference = evaluationId,
-	subjectId = subjectId,
-	subjectCode = subjectCode,
-	quarterId = quarterId,
-	grade = grade,
-	maxGrade = maxGrade,
-	date = date,
-	type = type
-)
-
-fun Evaluation.toEvaluationUpdate() = EvaluationUpdate(
-	id = evaluationId,
-	grade = grade,
-	maxGrade = maxGrade,
-	date = date,
-	type = type
 )
