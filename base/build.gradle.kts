@@ -32,8 +32,8 @@ android {
 	buildTypes {
 		debug {
 			buildConfigField("String", "APPLICATION_ID", "\"com.gdavidpb.tuindice\"")
-			buildConfigField("String", "VERSION_NAME", "\"${defaultConfig.versionName}\"")
-			buildConfigField("Integer", "VERSION_CODE", "${defaultConfig.versionCode}")
+			buildConfigField("String", "VERSION_NAME", "\"5.8\"")
+			buildConfigField("Integer", "VERSION_CODE", "35")
 
 			buildConfigField("String", "MASTER_KEY_ALIAS", "\"tuindice_key\"")
 
@@ -45,8 +45,8 @@ android {
 		}
 		release {
 			buildConfigField("String", "APPLICATION_ID", "\"com.gdavidpb.tuindice\"")
-			buildConfigField("String", "VERSION_NAME", "\"${defaultConfig.versionName}\"")
-			buildConfigField("Integer", "VERSION_CODE", "${defaultConfig.versionCode}")
+			buildConfigField("String", "VERSION_NAME", "\"5.8\"")
+			buildConfigField("Integer", "VERSION_CODE", "35")
 
 			buildConfigField("String", "MASTER_KEY_ALIAS", "\"tuindice_key\"")
 
@@ -62,10 +62,12 @@ android {
 dependencies {
 	debugApi(libs.bundles.debug)
 
-	/* AndroidX */
+	/* Compose */
 	api(platform(libs.compose.bom))
-	api(libs.bundles.androidx)
 	api(libs.bundles.compose)
+
+	/* AndroidX */
+	api(libs.bundles.androidx)
 	api(libs.bundles.navigation)
 	api(libs.bundles.architecture)
 	api(libs.bundles.lifecycle)
