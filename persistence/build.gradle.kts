@@ -1,7 +1,9 @@
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    id(libs.plugins.ksp.get().pluginId) version libs.versions.ksp.get()
+
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -23,10 +25,6 @@ android {
 
     buildFeatures {
         compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
     }
 }
 

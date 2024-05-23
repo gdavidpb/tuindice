@@ -1,3 +1,7 @@
+plugins {
+	alias(libs.plugins.compose.compiler) apply false
+}
+
 buildscript {
 	repositories {
 		google()

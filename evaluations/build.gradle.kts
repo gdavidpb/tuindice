@@ -1,7 +1,9 @@
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    id(libs.plugins.kotlin.serialization.get().pluginId) version libs.versions.kotlin.serialization.get()
+
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -23,10 +25,6 @@ android {
 
     buildFeatures {
         compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
     }
 }
 
