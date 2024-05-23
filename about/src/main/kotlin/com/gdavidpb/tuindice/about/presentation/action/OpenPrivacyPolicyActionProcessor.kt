@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.about.presentation.action
 
-import com.gdavidpb.tuindice.about.BuildConfig
 import com.gdavidpb.tuindice.about.R
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.utils.ResourceResolver

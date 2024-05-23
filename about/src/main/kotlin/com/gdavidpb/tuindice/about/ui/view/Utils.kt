@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.about.ui.view
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.res.stringResource
-import com.gdavidpb.tuindice.about.BuildConfig
+import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.about.R
 
 @Composable
