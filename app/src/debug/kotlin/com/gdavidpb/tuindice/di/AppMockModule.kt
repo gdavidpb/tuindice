@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.di
 
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
-import androidx.work.WorkManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AttestationInterceptor
 import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AuthorizationInterceptor
@@ -120,10 +119,6 @@ val appMockModule = module {
 
 	single {
 		androidContext().sharedPreferences()
-	}
-
-	single {
-		WorkManager.getInstance(androidContext())
 	}
 
 	single<AppUpdateManager> {

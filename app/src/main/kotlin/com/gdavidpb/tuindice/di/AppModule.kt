@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.di
 
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
-import androidx.work.WorkManager
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AttestationInterceptor
@@ -138,10 +137,6 @@ val appModule = module {
 
 	single {
 		ResourceResolver(androidContext())
-	}
-
-	single {
-		WorkManager.getInstance(androidContext())
 	}
 
 	single {
