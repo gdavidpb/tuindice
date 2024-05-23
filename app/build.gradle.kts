@@ -3,6 +3,8 @@ plugins {
 	id("com.android.application")
 	id("com.google.gms.google-services")
 	id("com.google.firebase.crashlytics")
+
+	alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -19,10 +21,6 @@ android {
 
 	buildFeatures {
 		compose = true
-	}
-
-	composeOptions {
-		kotlinCompilerExtensionVersion = "1.5.14"
 	}
 
 	defaultConfig {
