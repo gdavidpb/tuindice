@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.record.domain.mapper
 
-import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import com.gdavidpb.tuindice.record.domain.model.QuarterUpdate
@@ -28,10 +27,4 @@ fun WithdrawSubjectParams.toQuarterUpdate() = QuarterUpdate(
 		)
 	),
 	dispatchToRemote = true
-)
-
-fun Quarter.toQuarterUpdate() = QuarterUpdate(
-	id = id,
-	subjectsUpdates = subjects.map { subject -> subject.toSubjectUpdate() },
-	dispatchToRemote = false
 )

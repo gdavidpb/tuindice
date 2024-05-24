@@ -6,8 +6,6 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.RemoteDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.mapper.toRemoteQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.mapper.toUpdateQuarterRequest
-import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
-import com.gdavidpb.tuindice.record.domain.model.QuarterUpdate
 
 class RecordApiDataSource(
 	private val recordApi: RecordApi
@@ -18,15 +16,22 @@ class RecordApiDataSource(
 			.map { quarterResponse -> quarterResponse.toRemoteQuarter() }
 	}
 
-	override suspend fun removeQuarter(remove: QuarterRemove) {
-		recordApi.deleteQuarter(remove.id)
+	override suspend fun getQuarter(qid: String): RemoteQuarter? {
+		return recordApi.getQuarter()
+			.getOrThrow()
+			.toRemoteQuarter()
+	}
+
+	override suspend fun removeQuarter(qid: String) {
+		recordApi.deleteQuarter(qid)
 			.getOrThrow()
 	}
 
-	override suspend fun updateQuarter(update: QuarterUpdate) {
-		val request = update.toUpdateQuarterRequest()
+	override suspend fun updateQuarter(quarter: RemoteQuarter): RemoteQuarter {
+		val request = quarter.toUpdateQuarterRequest()
 
-		recordApi.updateQuarter(request)
+		return recordApi.updateQuarter(request)
 			.getOrThrow()
+			.toRemoteQuarter()
 	}
 }

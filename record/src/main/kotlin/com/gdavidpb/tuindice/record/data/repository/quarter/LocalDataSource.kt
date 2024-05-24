@@ -8,12 +8,10 @@ import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {
 	fun getQuartersFlow(uid: String): Flow<List<LocalQuarter>>
-
 	suspend fun getQuarters(uid: String): List<LocalQuarter>
 	suspend fun getQuarter(uid: String, qid: String): LocalQuarter?
 	suspend fun removeQuarter(uid: String, remove: QuarterRemove)
 	suspend fun updateQuarter(uid: String, update: QuarterUpdate)
-
 	suspend fun saveSubjects(uid: String, subjects: List<LocalSubject>)
 	suspend fun saveQuarters(uid: String, quarters: List<LocalQuarter>)
 }

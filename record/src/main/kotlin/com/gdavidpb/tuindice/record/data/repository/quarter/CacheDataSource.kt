@@ -1,13 +1,13 @@
 package com.gdavidpb.tuindice.record.data.repository.quarter
 
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
+import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 
 interface CacheDataSource {
 	suspend fun computeQuarters(
 		uid: String,
-		origin: LocalQuarter,
-		quarters: List<LocalQuarter>
-	): List<LocalQuarter>
+		origin: Quarter,
+		quarters: List<Quarter>
+	): List<Quarter>
 
 	suspend fun invalidate(uid: String)
 }

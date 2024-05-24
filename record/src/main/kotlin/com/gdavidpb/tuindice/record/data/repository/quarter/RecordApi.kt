@@ -13,6 +13,9 @@ interface RecordApi {
 	@GET("quarters")
 	suspend fun getQuarters(): Response<List<QuarterResponse>>
 
+	@GET("quarters")
+	suspend fun getQuarter(): Response<QuarterResponse>
+
 	@DELETE("quarters")
 	suspend fun deleteQuarter(
 		@Query("qid") quarterId: String
@@ -21,5 +24,5 @@ interface RecordApi {
 	@PATCH("quarters")
 	suspend fun updateQuarter(
 		@Body request: UpdateQuarterRequest
-	): Response<Unit>
+	): Response<QuarterResponse>
 }

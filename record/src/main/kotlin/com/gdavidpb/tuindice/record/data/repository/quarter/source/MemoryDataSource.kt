@@ -1,23 +1,23 @@
 package com.gdavidpb.tuindice.record.data.repository.quarter.source
 
 import android.util.LruCache
+import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.utils.extension.getOrPut
 import com.gdavidpb.tuindice.base.utils.extension.selfMapNotNull
 import com.gdavidpb.tuindice.record.data.repository.quarter.CacheDataSource
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.utils.computeCredits
 import com.gdavidpb.tuindice.record.data.utils.computeGrade
 import com.gdavidpb.tuindice.record.data.utils.computeGradeSum
 import java.util.Objects
 
 class MemoryDataSource(
-	private val computationCache: LruCache<Int, LocalQuarter>
+	private val computationCache: LruCache<Int, Quarter>
 ) : CacheDataSource {
 	override suspend fun computeQuarters(
 		uid: String,
-		origin: LocalQuarter,
-		quarters: List<LocalQuarter>
-	): List<LocalQuarter> {
+		origin: Quarter,
+		quarters: List<Quarter>
+	): List<Quarter> {
 		return quarters
 			.toMutableList()
 			.selfMapNotNull { quarter ->
@@ -49,7 +49,7 @@ class MemoryDataSource(
 		}
 	}
 
-	private fun computeIdentifier(origin: LocalQuarter, quarters: List<LocalQuarter>): Int {
+	private fun computeIdentifier(origin: Quarter, quarters: List<Quarter>): Int {
 		val grades = quarters
 			.flatMap { quarter ->
 				quarter.subjects.map { subject ->
