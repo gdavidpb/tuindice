@@ -9,11 +9,14 @@ sealed class QuarterKey(open val uid: String) {
 	}
 
 	sealed class Write(uid: String) : QuarterKey(uid) {
-		class SaveAll(uid: String, val quarters: List<Quarter>) : Write(uid)
-		class Update(uid: String, val quarter: Quarter) : Write(uid)
+		class SaveAll(uid: String, val quarters: List<Quarter>, val dispatchToRemote: Boolean) : Write(uid)
 	}
 
 	sealed class Remove(uid: String) : QuarterKey(uid) {
 		class ById(uid: String, val qid: String) : Remove(uid)
+	}
+
+	sealed class Compute(uid: String) : QuarterKey(uid) {
+		class BySetSubjectGrade(uid: String, val qid: String, val sid: String, val grade: Int) : Compute(uid)
 	}
 }

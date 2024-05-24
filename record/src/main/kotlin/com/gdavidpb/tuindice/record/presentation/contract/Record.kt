@@ -21,7 +21,7 @@ object Record {
 	sealed interface Action : ViewAction {
 		data object LoadQuarters : Action
 
-		class UpdateSubject(
+		class SetSubjectGrade(
 			val quarterId: String,
 			val subjectId: String,
 			val grade: Int,
