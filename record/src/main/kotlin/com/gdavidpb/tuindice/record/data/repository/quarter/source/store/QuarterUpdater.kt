@@ -14,11 +14,14 @@ class QuarterUpdater(
 
 		runCatching {
 			when (key) {
-				is QuarterKey.Write.Update ->
-					remoteDataSource.updateQuarter(quarter = input.first().toRemoteQuarter())
+				is QuarterKey.Write.SaveAll ->
+					if (key.dispatchToRemote)
+						remoteDataSource
+							.addQuarters(quarters = input.map { quarter -> quarter.toRemoteQuarter() })
 
 				is QuarterKey.Remove.ById ->
-					remoteDataSource.removeQuarter(qid = key.qid)
+					remoteDataSource
+						.removeQuarter(qid = key.qid)
 
 				else ->
 					throw IllegalStateException()

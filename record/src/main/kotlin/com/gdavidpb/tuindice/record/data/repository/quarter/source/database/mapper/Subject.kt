@@ -7,12 +7,6 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSubject
-import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
-
-fun LocalSubject.toSubjectUpdate() = SubjectUpdate(
-	id = id,
-	grade = grade
-)
 
 fun SubjectEntity.toLocalSubject(isEditable: Boolean) = LocalSubject(
 	id = id,

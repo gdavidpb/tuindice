@@ -17,18 +17,3 @@ inline fun <reified T : Annotation> Request.findAnnotation() =
 
 inline fun <reified T : Annotation> Request.hasAnnotation() =
 	findAnnotation<T>() != null
-
-inline fun <reified T> Request.bodyAs() =
-	tag(Invocation::class.java)
-		?.arguments()
-		?.filterIsInstance<T>()
-		?.firstOrNull()
-
-fun Request.bodyToString(): String? {
-	return body?.run {
-		okio.Buffer().use { buffer ->
-			writeTo(buffer)
-			buffer.readUtf8()
-		}
-	}
-}

@@ -8,18 +8,6 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.QuarterEntity
 import com.gdavidpb.tuindice.persistence.data.room.otm.QuarterWithSubjects
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
-import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
-import com.gdavidpb.tuindice.record.domain.model.QuarterUpdate
-
-fun LocalQuarter.toQuarterRemove() = QuarterRemove(
-	id = id
-)
-
-fun LocalQuarter.toQuarterUpdate() = QuarterUpdate(
-	id = id,
-	subjectsUpdates = subjects.map { subject -> subject.toSubjectUpdate() },
-	dispatchToRemote = false
-)
 
 fun RemoteQuarter.toLocalQuarter() = LocalQuarter(
 	id = id,

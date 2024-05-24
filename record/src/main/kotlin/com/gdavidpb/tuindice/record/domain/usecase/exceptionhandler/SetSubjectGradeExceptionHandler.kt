@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.record.domain.exception.SubjectIllegalArgumentException
 import com.gdavidpb.tuindice.record.domain.usecase.error.SubjectError
 
-class UpdateSubjectExceptionHandler(
+class SetSubjectGradeExceptionHandler(
 	override val reportingRepository: ReportingRepository
 ) : ExceptionHandler<SubjectError>() {
 	override fun parseException(throwable: Throwable): SubjectError? {

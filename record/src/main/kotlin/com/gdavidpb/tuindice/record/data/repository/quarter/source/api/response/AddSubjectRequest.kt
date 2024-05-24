@@ -4,6 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AddQuarterResponse(
-	@SerialName("quarters") val quarters: List<QuarterResponse>
+data class AddSubjectRequest(
+	@SerialName("reference") val reference: String,
+	@SerialName("code") val code: String,
+	@SerialName("grade") val grade: Int
 )

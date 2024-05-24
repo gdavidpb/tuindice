@@ -14,17 +14,6 @@ abstract class QuarterDao : UpsertDao<QuarterEntity>() {
 	@Query(
 		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
 				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid " +
-				"AND ${QuarterTable.ID} = :qid"
-	)
-	@Transaction
-	abstract suspend fun getQuarterWithSubjects(
-		uid: String,
-		qid: String
-	): QuarterWithSubjects?
-
-	@Query(
-		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
-				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid " +
 				"AND ${QuarterTable.STATUS} = $STATUS_QUARTER_CURRENT"
 	)
 	@Transaction
@@ -41,16 +30,6 @@ abstract class QuarterDao : UpsertDao<QuarterEntity>() {
 	abstract fun getQuartersWithSubjectsFlow(
 		uid: String
 	): Flow<List<QuarterWithSubjects>>
-
-	@Query(
-		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
-				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid " +
-				"ORDER BY ${QuarterTable.START_DATE} ASC"
-	)
-	@Transaction
-	abstract fun getQuartersWithSubjects(
-		uid: String
-	): List<QuarterWithSubjects>
 
 	@Query(
 		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +

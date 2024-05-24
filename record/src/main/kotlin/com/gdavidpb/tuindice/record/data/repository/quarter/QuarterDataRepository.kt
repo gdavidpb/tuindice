@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.Quarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.QuarterSourceOfTruth
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.QuarterUpdater
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
-import com.gdavidpb.tuindice.record.domain.model.QuarterUpdate
+import com.gdavidpb.tuindice.record.domain.model.SubjectGradeSet
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -26,7 +26,6 @@ class QuarterDataRepository(
 	private val sourceOfTruth: QuarterSourceOfTruth,
 	private val converter: QuarterConverter,
 	private val updater: QuarterUpdater,
-	private val cacheDataSource: CacheDataSource,
 	private val settingsDataSource: SettingsDataSource
 ) : MutableStore<QuarterKey, List<Quarter>> by MutableStoreBuilder.from(
 	fetcher = fetcher,
@@ -58,56 +57,33 @@ class QuarterDataRepository(
 			.mapNotNull { response -> response.dataOrNull() }
 	}
 
-	override suspend fun updateQuarter(uid: String, update: QuarterUpdate) {
-		val quarter = get<QuarterKey, List<Quarter>, QuarterReadResponse>(
-			key = QuarterKey.Read.ById(uid = uid, qid = update.id)
-		).first()
-
-		val updatedQuarter = quarter.copy(
-			subjects = quarter.subjects.map { subject ->
-				val updatedGrade = update
-					.subjectsUpdates
-					.find { subjectUpdate -> subject.id == subjectUpdate.id }
-					?.grade
-
-				if (updatedGrade != null)
-					subject.copy(grade = updatedGrade)
-				else
-					subject
-			}
-		)
-
-		write(
-			StoreWriteRequest.of(
-				key = QuarterKey.Write.Update(uid, updatedQuarter),
-				value = listOf(updatedQuarter)
-			)
-		)
-
-		val quarters = get<QuarterKey, List<Quarter>, QuarterReadResponse>(
-			key = QuarterKey.Read.All(uid = uid)
-		)
-
-		val updatedQuarters = cacheDataSource.computeQuarters(
-			uid = uid,
-			origin = updatedQuarter,
-			quarters = quarters
-		)
-
-		if (updatedQuarters.isNotEmpty())
-			write(
-				StoreWriteRequest.of(
-					key = QuarterKey.Write.SaveAll(uid, updatedQuarters),
-					value = updatedQuarters
-				)
-			)
-	}
-
 	override suspend fun removeQuarter(uid: String, remove: QuarterRemove) {
 		clear(
 			QuarterKey.Remove.ById(
 				uid = uid,
 				qid = remove.id
+			)
+		)
+	}
+
+	override suspend fun setSubjectGrade(uid: String, set: SubjectGradeSet) {
+		val updatedQuarters = get<QuarterKey, List<Quarter>, QuarterReadResponse>(
+			QuarterKey.Compute.BySetSubjectGrade(
+				uid = uid,
+				qid = set.quarterId,
+				sid = set.id,
+				grade = set.grade
+			)
+		)
+
+		write(
+			StoreWriteRequest.of(
+				key = QuarterKey.Write.SaveAll(
+					uid = uid,
+					quarters = updatedQuarters,
+					dispatchToRemote = set.dispatchToRemote
+				),
+				value = updatedQuarters
 			)
 		)
 	}
