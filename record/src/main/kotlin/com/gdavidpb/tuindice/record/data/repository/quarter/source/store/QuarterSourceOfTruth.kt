@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.mapp
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.mapper.toQuarterRemove
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.mapper.toQuarterUpdate
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.mobilenativefoundation.store.store5.SourceOfTruth
 
@@ -23,6 +24,17 @@ class QuarterSourceOfTruth(
 				localDataSource.getQuartersFlow(
 					uid = key.uid
 				).map { quarters -> quarters.map { quarter -> quarter.toQuarter() } }
+
+			is QuarterKey.Read.ById ->
+				flow {
+					val quarter = localDataSource
+						.getQuarter(key.uid, key.qid)
+						?.toQuarter()
+
+					val quarters = listOfNotNull(quarter)
+
+					emit(quarters)
+				}
 		}
 	},
 	writer = { key: QuarterKey, input: List<LocalQuarter> ->
@@ -35,6 +47,18 @@ class QuarterSourceOfTruth(
 					quarters = input
 				)
 			}
+
+			is QuarterKey.Read.ById ->
+				localDataSource.saveQuarters(
+					uid = key.uid,
+					quarters = input
+				)
+
+			is QuarterKey.Write.SaveAll ->
+				localDataSource.saveQuarters(
+					uid = key.uid,
+					quarters = input
+				)
 
 			is QuarterKey.Write.Update ->
 				localDataSource.updateQuarter(

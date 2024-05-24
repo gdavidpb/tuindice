@@ -13,6 +13,9 @@ class QuarterFetcher(
 		when (key) {
 			is QuarterKey.Read.All ->
 				remoteDataSource.getQuarters()
+
+			is QuarterKey.Read.ById ->
+				listOfNotNull(remoteDataSource.getQuarter(qid = key.qid))
 		}
 	}
 )

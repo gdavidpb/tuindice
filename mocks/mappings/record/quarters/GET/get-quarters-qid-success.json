@@ -1,7 +1,12 @@
 {
   "request": {
-    "method": "PATCH",
-    "urlPath": "/quarters"
+    "method": "GET",
+    "urlPath": "/quarters",
+    "queryParameters": {
+      "qid": {
+        "matches": "[\\daA-zZ]+"
+      }
+    }
   },
   "response": {
     "status": 200,
@@ -38,6 +43,6 @@
         }
       ]
     },
-    "fixedDelayMilliseconds": 1000
+    "fixedDelayMilliseconds": 3000
   }
 }

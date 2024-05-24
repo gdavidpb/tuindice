@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.record.data.repository.quarter
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
-import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.QuarterConverter
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.QuarterFetcher
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.QuarterKey
@@ -18,6 +17,8 @@ import org.mobilenativefoundation.store.core5.ExperimentalStoreApi
 import org.mobilenativefoundation.store.store5.MutableStore
 import org.mobilenativefoundation.store.store5.MutableStoreBuilder
 import org.mobilenativefoundation.store.store5.StoreReadRequest
+import org.mobilenativefoundation.store.store5.StoreWriteRequest
+import org.mobilenativefoundation.store.store5.impl.extensions.get
 
 @OptIn(ExperimentalStoreApi::class)
 class QuarterDataRepository(
@@ -25,8 +26,6 @@ class QuarterDataRepository(
 	private val sourceOfTruth: QuarterSourceOfTruth,
 	private val converter: QuarterConverter,
 	private val updater: QuarterUpdater,
-	private val localDataSource: LocalDataSource,
-	private val remoteDataSource: RemoteDataSource,
 	private val cacheDataSource: CacheDataSource,
 	private val settingsDataSource: SettingsDataSource
 ) : MutableStore<QuarterKey, List<Quarter>> by MutableStoreBuilder.from(
@@ -60,31 +59,48 @@ class QuarterDataRepository(
 	}
 
 	override suspend fun updateQuarter(uid: String, update: QuarterUpdate) {
-		localDataSource.updateQuarter(uid, update)
+		val quarter = get<QuarterKey, List<Quarter>, QuarterReadResponse>(
+			key = QuarterKey.Read.ById(uid = uid, qid = update.id)
+		).first()
 
-		val quarter = localDataSource.getQuarter(
-			uid = uid,
-			qid = update.id
-		)
+		val updatedQuarter = quarter.copy(
+			subjects = quarter.subjects.map { subject ->
+				val updatedGrade = update
+					.subjectsUpdates
+					.find { subjectUpdate -> subject.id == subjectUpdate.id }
+					?.grade
 
-		val quarters = localDataSource.getQuarters(
-			uid = uid
-		)
-
-		if (quarter != null)
-			cacheDataSource.computeQuarters(
-				uid = uid,
-				origin = quarter,
-				quarters = quarters
-			).also { updatedQuarters ->
-				if (updatedQuarters.isNotEmpty())
-					localDataSource.saveQuarters(
-						uid = uid,
-						quarters = updatedQuarters
-					)
+				if (updatedGrade != null)
+					subject.copy(grade = updatedGrade)
+				else
+					subject
 			}
+		)
 
-		if (update.dispatchToRemote) noAwait { remoteDataSource.updateQuarter(update) }
+		write(
+			StoreWriteRequest.of(
+				key = QuarterKey.Write.Update(uid, updatedQuarter),
+				value = listOf(updatedQuarter)
+			)
+		)
+
+		val quarters = get<QuarterKey, List<Quarter>, QuarterReadResponse>(
+			key = QuarterKey.Read.All(uid = uid)
+		)
+
+		val updatedQuarters = cacheDataSource.computeQuarters(
+			uid = uid,
+			origin = updatedQuarter,
+			quarters = quarters
+		)
+
+		if (updatedQuarters.isNotEmpty())
+			write(
+				StoreWriteRequest.of(
+					key = QuarterKey.Write.SaveAll(uid, updatedQuarters),
+					value = updatedQuarters
+				)
+			)
 	}
 
 	override suspend fun removeQuarter(uid: String, remove: QuarterRemove) {

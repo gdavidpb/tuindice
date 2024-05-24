@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.record.data.utils
 
+import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
+import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_OK
 import com.gdavidpb.tuindice.base.utils.extension.round
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
 
-fun Collection<LocalSubject>.removeNoEffect(): Collection<LocalSubject> {
+fun Collection<Subject>.removeNoEffect(): Collection<Subject> {
 	val containsNoEffect = size > 1 && first().grade >= 3
 
 	return if (containsNoEffect)
@@ -15,11 +15,11 @@ fun Collection<LocalSubject>.removeNoEffect(): Collection<LocalSubject> {
 		this
 }
 
-fun Collection<LocalSubject>.computeCredits() = sumOf {
+fun Collection<Subject>.computeCredits() = sumOf {
 	if (it.grade != 0) it.credits else 0
 }
 
-fun Collection<LocalSubject>.computeGrade(): Double {
+fun Collection<Subject>.computeGrade(): Double {
 	val creditsSum = computeCredits().toDouble()
 
 	val weightedSum = sumOf {
@@ -31,7 +31,7 @@ fun Collection<LocalSubject>.computeGrade(): Double {
 	return grade.round(4)
 }
 
-fun Collection<LocalQuarter>.computeGradeSum(until: LocalQuarter = first()) =
+fun Collection<Quarter>.computeGradeSum(until: Quarter = first()) =
 	asSequence()
 		.filter { it.startDate <= until.startDate && it.status != STATUS_QUARTER_RETIRED }
 		/* Get all subjects */

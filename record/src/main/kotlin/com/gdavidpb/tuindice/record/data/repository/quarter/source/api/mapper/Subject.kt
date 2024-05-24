@@ -3,12 +3,10 @@ package com.gdavidpb.tuindice.record.data.repository.quarter.source.api.mapper
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_NO_EFFECT
 import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_RETIRED
-import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSubject
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.request.UpdateSubjectRequest
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.SubjectResponse
-import com.gdavidpb.tuindice.record.domain.model.SubjectUpdate
 
 fun SubjectResponse.toRemoteSubject(isEditable: Boolean) = RemoteSubject(
 	id = id,
@@ -23,12 +21,12 @@ fun SubjectResponse.toRemoteSubject(isEditable: Boolean) = RemoteSubject(
 	isNoEffect = (status == STATUS_SUBJECT_NO_EFFECT)
 )
 
-fun SubjectUpdate.toUpdateSubjectRequest() = UpdateSubjectRequest(
+fun RemoteSubject.toUpdateSubjectRequest() = UpdateSubjectRequest(
 	subjectId = id,
 	grade = grade
 )
 
-fun SubjectResponse.toSubject(isEditable: Boolean) = Subject(
+fun Subject.toRemoteSubject() = RemoteSubject(
 	id = id,
 	quarterId = quarterId,
 	code = code,
@@ -37,17 +35,6 @@ fun SubjectResponse.toSubject(isEditable: Boolean) = Subject(
 	grade = grade,
 	status = status,
 	isEditable = isEditable,
-	isRetired = (!isEditable && status == STATUS_SUBJECT_RETIRED) || (isEditable && grade == MIN_SUBJECT_GRADE),
-	isNoEffect = (status == STATUS_SUBJECT_NO_EFFECT)
-)
-
-fun SubjectResponse.toSubjectEntity(uid: String) = SubjectEntity(
-	id = id,
-	quarterId = quarterId,
-	accountId = uid,
-	code = code,
-	name = name,
-	credits = credits,
-	grade = grade,
-	status = status
+	isRetired = isRetired,
+	isNoEffect = isNoEffect
 )

@@ -8,9 +8,6 @@ import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.Remote
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toAddEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toRemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toUpdateEvaluationRequest
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 
 class EvaluationsApiDataSource(
 	private val evaluationsApi: EvaluationsApi

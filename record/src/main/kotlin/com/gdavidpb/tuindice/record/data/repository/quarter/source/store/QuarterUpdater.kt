@@ -2,8 +2,7 @@ package com.gdavidpb.tuindice.record.data.repository.quarter.source.store
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.RemoteDataSource
-import com.gdavidpb.tuindice.record.domain.mapper.toQuarterUpdate
-import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.mapper.toRemoteQuarter
 import org.mobilenativefoundation.store.store5.Updater
 import org.mobilenativefoundation.store.store5.UpdaterResult
 
@@ -16,10 +15,10 @@ class QuarterUpdater(
 		runCatching {
 			when (key) {
 				is QuarterKey.Write.Update ->
-					remoteDataSource.updateQuarter(update = input.first().toQuarterUpdate())
+					remoteDataSource.updateQuarter(quarter = input.first().toRemoteQuarter())
 
 				is QuarterKey.Remove.ById ->
-					remoteDataSource.removeQuarter(remove = QuarterRemove(id = key.qid))
+					remoteDataSource.removeQuarter(qid = key.qid)
 
 				else ->
 					throw IllegalStateException()
