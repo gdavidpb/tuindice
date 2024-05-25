@@ -18,7 +18,6 @@
     <string name="evaluation_grade">%1$.2f / %2$.2f</string>
     <string name="evaluation_not_grade">Sin nota / %1$.2f</string>
     <string name="evaluation_pending_grade">Pendiente / %1$.2f</string>
-    <string name="evaluation_max_grade"> / %1$.2f</string>
     <string name="evaluation_title">%1$s ─ %2$s</string>
 
     <string name="label_add_evaluation_subject">Materia</string>
@@ -33,9 +32,6 @@
     <string name="error_evaluation_subject_missed">Debes seleccionar una materia</string>
     <string name="error_evaluation_type_missed">Debes seleccionar un tipo</string>
     <string name="error_evaluation_max_grade_missed">Debes asignar una nota máxima</string>
-    <string name="error_evaluation_grade_missed">Debes asignar una nota</string>
-    <string name="error_evaluation_grade_invalid_range">El valor debe estar entre 0.25 y 100</string>
-    <string name="error_evaluation_grade_invalid_step">El valor debe ser múltiplo de 0.25</string>
 
     <string name="label_state_pending">Pendientes</string>
     <string name="label_state_completed">Completadas</string>

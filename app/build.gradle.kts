@@ -25,7 +25,7 @@ android {
 
 	defaultConfig {
 		applicationId = "com.gdavidpb.tuindice"
-		minSdk = 26
+		minSdk = 23
 		targetSdk = 34
 		versionCode = 35
 		versionName = "5.8"

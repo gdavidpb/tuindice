@@ -74,7 +74,7 @@ fun EvaluationsView(
 										evaluation.evaluationId
 									)
 							}
-							.animateItemPlacement(),
+							.animateItem(),
 						item = evaluation
 					)
 				}

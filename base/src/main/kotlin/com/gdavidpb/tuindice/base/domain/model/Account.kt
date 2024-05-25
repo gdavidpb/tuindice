@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.base.domain.model
 
-import java.util.*
-
 data class Account(
 	val id: String,
 	val cid: String,

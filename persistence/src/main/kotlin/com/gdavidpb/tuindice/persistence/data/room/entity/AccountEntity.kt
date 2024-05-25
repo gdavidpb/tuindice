@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.gdavidpb.tuindice.persistence.data.room.schema.AccountTable
-import java.util.*
 
 @Entity(
 	tableName = AccountTable.TABLE_NAME,

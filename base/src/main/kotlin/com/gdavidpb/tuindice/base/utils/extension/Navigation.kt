@@ -30,7 +30,7 @@ fun Flow<NavBackStackEntry>.mapScreenDestination(destinations: Map<String, Desti
 	}
 
 fun NavController.navigatePopUpTo(destination: Destination) {
-	while (popBackStack());
+	while (popBackStack()) Unit
 
 	navigate(route = destination.route) {
 		launchSingleTop = true

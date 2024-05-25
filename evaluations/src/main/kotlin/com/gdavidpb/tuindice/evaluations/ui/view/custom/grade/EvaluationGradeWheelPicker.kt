@@ -25,6 +25,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.gdavidpb.tuindice.base.ui.view.WheelPicker
 import com.gdavidpb.tuindice.base.ui.view.WheelPickerDefaults
+import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.base.utils.extension.MeasureUnconstrainedViewSize
 import com.gdavidpb.tuindice.base.utils.extension.fadingEdge
 import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.MAX_EVALUATION_GRADE
@@ -162,8 +163,7 @@ fun EvaluationGradeWheelPicker(
 				Text(
 					modifier = Modifier
 						.fillMaxWidth(),
-					text = String
-						.format("%02d", ints[index % ints.size]),
+					text = "%02d".format(DEFAULT_LOCALE, ints[index % ints.size]),
 					style = textStyle,
 					textAlign = TextAlign.End
 				)
@@ -216,8 +216,7 @@ fun EvaluationGradeWheelPicker(
 				Text(
 					modifier = Modifier
 						.fillMaxWidth(),
-					text = String
-						.format("%02d", decimals[index % decimals.size]),
+					text = "%02d".format(DEFAULT_LOCALE, decimals[index % decimals.size]),
 					style = textStyle,
 					textAlign = TextAlign.Start
 				)
