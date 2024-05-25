@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +40,10 @@ fun SubjectItemView(
 			textCredits,
 			sliderGrade
 		) = createRefs()
+
+		val grade = remember {
+			mutableIntStateOf(item.grade)
+		}
 
 		Text(
 			modifier = Modifier
@@ -105,14 +111,18 @@ fun SubjectItemView(
 				value = item.grade.toFloat(),
 				steps = MAX_SUBJECT_GRADE - 1,
 				valueRange = Ranges.subjectGrade,
-				onValueChange = { newGrade ->
-					val roundNewGrade = newGrade.roundToInt()
+				onValueChange = { value ->
+					val newGrade = value.roundToInt()
+					val oldGrade = grade.intValue
 
-					if (roundNewGrade != item.grade)
-						onGradeChange(roundNewGrade, false)
+					if (newGrade != oldGrade) {
+						grade.intValue = newGrade
+
+						onGradeChange(newGrade, false)
+					}
 				},
 				onValueChangeFinished = {
-					onGradeChange(item.grade, true)
+					onGradeChange(grade.intValue, true)
 				}
 			)
 		}
