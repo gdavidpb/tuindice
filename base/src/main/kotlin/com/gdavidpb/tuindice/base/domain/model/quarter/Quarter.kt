@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.base.domain.model.quarter
 
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import java.util.*
 
 data class Quarter(
 	val id: String,

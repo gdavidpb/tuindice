@@ -2,8 +2,6 @@ package com.gdavidpb.tuindice.record.data.repository.quarter
 
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
-import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
-import com.gdavidpb.tuindice.record.domain.model.SubjectGradeSet
 import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {
