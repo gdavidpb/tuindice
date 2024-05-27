@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.navigation.BottomSheetNavigator
+import androidx.compose.material.navigation.ModalBottomSheetLayout
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,13 +48,9 @@ import com.gdavidpb.tuindice.presentation.navigation.navigateToBrowser
 import com.gdavidpb.tuindice.record.presentation.navigation.recordScreen
 import com.gdavidpb.tuindice.summary.presentation.navigation.navigateToSummary
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryScreen
-import com.google.accompanist.navigation.material.BottomSheetNavigator
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
-import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 
 @OptIn(
-	ExperimentalMaterial3Api::class,
-	ExperimentalMaterialNavigationApi::class
+	ExperimentalMaterial3Api::class
 )
 @Composable
 fun TuIndiceScreen(

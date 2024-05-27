@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.presentation.route
 
+import androidx.compose.material.navigation.rememberBottomSheetNavigator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -29,8 +30,6 @@ import com.gdavidpb.tuindice.presentation.model.MainDialog
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.dialog.GooglePlayServicesDialog
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
-import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.ktx.launchReview
@@ -39,7 +38,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialNavigationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TuIndiceRoute(
 	reviewManager: ReviewManager = koinInject(),
