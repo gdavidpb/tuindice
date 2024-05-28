@@ -1,11 +1,12 @@
 package com.gdavidpb.tuindice.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.presentation.Mutation
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.presentation.action.main.CloseMainDialogActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.SetLastScreenActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.SetLastDestinationActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
 import com.gdavidpb.tuindice.presentation.contract.Main
@@ -18,7 +19,7 @@ class MainViewModel(
 	private val startUpActionProcessor: StartUpActionProcessor,
 	private val requestReviewActionProcessor: RequestReviewActionProcessor,
 	private val requestUpdateActionProcessor: RequestUpdateActionProcessor,
-	private val setLastScreenActionProcessor: SetLastScreenActionProcessor,
+	private val setLastDestinationActionProcessor: SetLastDestinationActionProcessor,
 	private val closeMainDialogActionProcessor: CloseMainDialogActionProcessor
 ) : BaseViewModel<Main.State, Main.Action, Main.Effect>(
 	initialState = Main.State.Starting,
@@ -31,8 +32,8 @@ class MainViewModel(
 	fun requestReviewAction(reviewManager: ReviewManager) =
 		sendAction(Main.Action.RequestReview(reviewManager))
 
-	fun setLastScreenAction(route: String) =
-		sendAction(Main.Action.SetLastScreen(route))
+	fun setLastDestinationAction(destination: Destination) =
+		sendAction(Main.Action.SetLastDestination(destination))
 
 	fun checkUpdateAction(appUpdateManager: AppUpdateManager) =
 		sendAction(Main.Action.RequestUpdate(appUpdateManager))
@@ -57,8 +58,8 @@ class MainViewModel(
 			is Main.Action.RequestUpdate ->
 				requestUpdateActionProcessor.process(action, sideEffect)
 
-			is Main.Action.SetLastScreen ->
-				setLastScreenActionProcessor.process(action, sideEffect)
+			is Main.Action.SetLastDestination ->
+				setLastDestinationActionProcessor.process(action, sideEffect)
 
 			is Main.Action.CloseDialog ->
 				closeMainDialogActionProcessor.process(action, sideEffect)

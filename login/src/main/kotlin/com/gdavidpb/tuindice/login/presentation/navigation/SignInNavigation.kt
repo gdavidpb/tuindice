@@ -17,7 +17,7 @@ fun NavGraphBuilder.signInScreen(
 	navigateToBrowser: (title: String, url: String) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
-	composable(Destination.SignIn.route) {
+	composable<Destination.SignIn> {
 		SignInRoute(
 			onNavigateToSummary = navigateToSummary,
 			onNavigateToBrowser = navigateToBrowser,

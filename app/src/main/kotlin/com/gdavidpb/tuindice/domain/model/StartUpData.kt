@@ -7,6 +7,5 @@ data class StartUpData(
 	val title: String,
 	val startDestination: Destination,
 	val currentDestination: Destination,
-	val destinations: Map<String, Destination>,
 	val topBarConfig: TopBarConfig?
 )

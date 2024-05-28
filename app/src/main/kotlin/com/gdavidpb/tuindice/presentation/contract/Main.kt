@@ -19,7 +19,6 @@ object Main {
 			val title: String,
 			val startDestination: Destination,
 			val currentDestination: Destination,
-			val destinations: Map<String, Destination>,
 			val topBarConfig: TopBarConfig? = null
 		) : State
 
@@ -31,7 +30,7 @@ object Main {
 		data object StartUp : Action
 		class RequestReview(val reviewManager: ReviewManager) : Action
 		class RequestUpdate(val appUpdateManager: AppUpdateManager) : Action
-		class SetLastScreen(val route: String) : Action
+		class SetLastDestination(val destination: Destination) : Action
 		data object CloseDialog : Action
 	}
 

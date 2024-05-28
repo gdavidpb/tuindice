@@ -14,17 +14,15 @@ fun NavController.navigateToEvaluations() {
 
 fun NavGraphBuilder.evaluationsScreen(
 	navigateToAddEvaluation: () -> Unit,
-	navigateToEvaluation: (args: EvaluationArgs) -> Unit,
+	navigateToEvaluation: (evaluationId: String?) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
-	composable(Destination.Evaluations.route) {
+	composable<Destination.Evaluations> {
 		EvaluationsRoute(
 			onNavigateToAddEvaluation = navigateToAddEvaluation,
 			onNavigateToEvaluation = { evaluationId ->
 				navigateToEvaluation(
-					EvaluationArgs(
-						evaluationId = evaluationId
-					)
+					evaluationId
 				)
 			},
 			showSnackBar = showSnackBar

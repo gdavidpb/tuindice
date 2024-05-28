@@ -123,7 +123,7 @@ fun TuIndiceRoute(
 		},
 		onNavigateTo = navController::navigatePopUpTo,
 		onNavigateBack = navController::popBackStack,
-		onSetLastScreen = viewModel::setLastScreenAction
+		onSetDestinationScreen = viewModel::setLastDestinationAction
 	) { (message, actionLabel, onAction, onDismissed) ->
 		coroutineScope.launch {
 			snackbarHostState.currentSnackbarData?.dismiss()

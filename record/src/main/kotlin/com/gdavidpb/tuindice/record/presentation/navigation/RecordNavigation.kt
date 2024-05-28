@@ -8,14 +8,14 @@ import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.record.presentation.route.RecordRoute
 
 fun NavController.navigateToRecord() {
-	navigate(Destination.Record.route)
+	navigate(Destination.Record)
 }
 
 fun NavGraphBuilder.recordScreen(
 	navigateToUpdatePassword: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
-	composable(Destination.Record.route) {
+	composable<Destination.Record> {
 		RecordRoute(
 			onNavigateToUpdatePassword = navigateToUpdatePassword,
 			showSnackBar = showSnackBar

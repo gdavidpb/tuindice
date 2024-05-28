@@ -31,7 +31,7 @@ import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
-import com.gdavidpb.tuindice.domain.usecase.SetLastScreenUseCase
+import com.gdavidpb.tuindice.domain.usecase.SetLastDestinationUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.presentation.action.browser.CloseBrowserDialogActionProcessor
@@ -42,7 +42,7 @@ import com.gdavidpb.tuindice.presentation.action.browser.SetLoadingActionProcess
 import com.gdavidpb.tuindice.presentation.action.main.CloseMainDialogActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.SetLastScreenActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.SetLastDestinationActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
@@ -79,7 +79,7 @@ val appMockModule = module {
 	factoryOf(::StartUpActionProcessor)
 	factoryOf(::RequestReviewActionProcessor)
 	factoryOf(::RequestUpdateActionProcessor)
-	factoryOf(::SetLastScreenActionProcessor)
+	factoryOf(::SetLastDestinationActionProcessor)
 	factoryOf(::CloseMainDialogActionProcessor)
 
 	factoryOf(::NavigateToActionProcessor)
@@ -92,7 +92,7 @@ val appMockModule = module {
 
 	factoryOf(::StartUpUseCase)
 	factoryOf(::RequestReviewUseCase)
-	factoryOf(::SetLastScreenUseCase)
+	factoryOf(::SetLastDestinationUseCase)
 	factoryOf(::GetUpdateInfoUseCase)
 
 	/* Exception handlers */
