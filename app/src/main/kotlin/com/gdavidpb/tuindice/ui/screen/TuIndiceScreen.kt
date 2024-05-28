@@ -19,7 +19,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.navigation.NavHostController
@@ -31,7 +30,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
-import com.gdavidpb.tuindice.base.utils.extension.mapScreenDestination
+import com.gdavidpb.tuindice.base.utils.extension.mapDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchDialog
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationScreen
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsScreen
@@ -62,7 +61,7 @@ fun TuIndiceScreen(
 	onAction: (action: TopBarAction) -> Unit,
 	onNavigateTo: (destination: Destination) -> Unit,
 	onNavigateBack: () -> Unit,
-	onSetLastScreen: (route: String) -> Unit,
+	onSetDestinationScreen: (destination: Destination) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	if (state !is Main.State.Content) return
@@ -70,14 +69,14 @@ fun TuIndiceScreen(
 	LaunchedEffect(navController) {
 		navController
 			.currentBackStackEntryFlow
-			.mapScreenDestination(state.destinations)
-			.collect { (title, destination) ->
+			.mapDestination()
+			.collect { destination ->
 				if (destination.isBottomDestination)
-					onSetLastScreen(destination.route)
+					onSetDestinationScreen(destination)
 
 				updateState(
 					state.copy(
-						title = title,
+						title = destination.title,
 						currentDestination = destination,
 						topBarConfig = destination.topBarConfig
 					)
@@ -113,21 +112,22 @@ fun TuIndiceScreen(
 		},
 		bottomBar = {
 			if (state.currentDestination.isBottomDestination) {
-				val bottomDestinations = remember(state.destinations) {
-					state.destinations.values.filter { destination -> destination.isBottomDestination }
-				}
-
 				NavigationBar(
 					modifier = Modifier.height(dimensionResource(id = R.dimen.dp_48)),
 					containerColor = MaterialTheme.colorScheme.onSecondary
 				) {
-					bottomDestinations.forEach { destination ->
+					listOf(
+						Destination.Summary,
+						Destination.Record,
+						Destination.Evaluations,
+						Destination.About
+					).forEach { destination ->
 						val bottomBarConfig = destination.bottomBarConfig
 
 						requireNotNull(bottomBarConfig)
 
 						val isNavigationBarItemSelected =
-							(destination.route == state.currentDestination.route)
+							(destination == state.currentDestination)
 
 						val navigationBarItemIcon =
 							if (isNavigationBarItemSelected)
@@ -156,7 +156,7 @@ fun TuIndiceScreen(
 		ModalBottomSheetLayout(bottomSheetNavigator) {
 			NavHost(
 				navController = navController,
-				startDestination = state.startDestination.route,
+				startDestination = state.startDestination,
 				modifier = Modifier.padding(innerPadding)
 			) {
 				enrollmentProofFetchDialog(

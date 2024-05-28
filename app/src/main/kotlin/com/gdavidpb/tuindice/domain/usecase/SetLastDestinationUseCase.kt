@@ -2,14 +2,15 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
-class SetLastScreenUseCase(
+class SetLastDestinationUseCase(
 	private val settingsRepository: SettingsRepository
-) : FlowUseCase<String, Unit, Nothing>() {
-	override suspend fun executeOnBackground(params: String): Flow<Unit> {
-		settingsRepository.setLastScreen(route = params)
+) : FlowUseCase<Destination, Unit, Nothing>() {
+	override suspend fun executeOnBackground(params: Destination): Flow<Unit> {
+		settingsRepository.setLastDestination(destination = params)
 
 		return flowOf(Unit)
 	}

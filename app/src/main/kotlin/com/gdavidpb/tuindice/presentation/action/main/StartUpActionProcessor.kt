@@ -30,7 +30,6 @@ class StartUpActionProcessor(
 								title = title,
 								startDestination = startDestination,
 								currentDestination = currentDestination,
-								destinations = destinations,
 								topBarConfig = topBarConfig
 							)
 						}

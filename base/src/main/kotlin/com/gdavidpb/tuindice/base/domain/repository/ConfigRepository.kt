@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.base.domain.repository
 
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination
-
 interface ConfigRepository {
 	suspend fun tryFetch()
 
@@ -12,5 +10,4 @@ interface ConfigRepository {
 	fun getTimeUpdateStalenessDays(): Int
 	fun getSyncsToSuggestReview(): Int
 	fun getConnectionTimeout(): Long
-	fun getDestinations(): Map<String, Destination>
 }

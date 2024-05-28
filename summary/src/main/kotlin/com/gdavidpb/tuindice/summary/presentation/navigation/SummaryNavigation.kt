@@ -16,7 +16,7 @@ fun NavGraphBuilder.summaryScreen(
 	navigateToUpdatePassword: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
-	composable(Destination.Summary.route) {
+	composable<Destination.Summary> {
 		SummaryRoute(
 			onNavigateToUpdatePassword = navigateToUpdatePassword,
 			showSnackBar = showSnackBar

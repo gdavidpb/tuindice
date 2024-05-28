@@ -1,28 +1,27 @@
 package com.gdavidpb.tuindice.presentation.navigation
 
-import android.net.Uri
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavType
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.presentation.route.BrowserRoute
 
 fun NavController.navigateToBrowser(title: String, url: String) {
-	navigate("${Destination.Browser.route}/${Uri.encode(title)}/${Uri.encode(url)}")
+	navigate(
+		Destination.Browser(
+			title = title,
+			url = url
+		)
+	)
 }
 
 fun NavGraphBuilder.browserScreen() {
-	composable(
-		route = "${Destination.Browser.route}/{title}/{url}",
-		arguments = listOf(
-			navArgument("title") { type = NavType.StringType },
-			navArgument("url") { type = NavType.StringType }
-		)
-	) { backStackEntry ->
+	composable<Destination.Browser> { backStackEntry ->
+		val destination = backStackEntry.toRoute<Destination.Browser>()
+
 		BrowserRoute(
-			url = backStackEntry.arguments?.getString("url") ?: ""
+			url = destination.url
 		)
 	}
 }

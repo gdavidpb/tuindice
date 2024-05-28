@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.Auth
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
+import com.gdavidpb.tuindice.data.mapper.toDestinationName
 import java.util.UUID
 
 class AuthMockDataSource(
@@ -18,11 +19,11 @@ class AuthMockDataSource(
 	private val token = UUID.randomUUID().toString()
 
 	override suspend fun isActiveAuth(): Boolean {
-		return sharedPreferences.contains(PreferencesKeys.LAST_SCREEN)
+		return sharedPreferences.contains(PreferencesKeys.LAST_DESTINATION)
 	}
 
 	override suspend fun getActiveAuth(): Auth {
-		return if (sharedPreferences.contains(PreferencesKeys.LAST_SCREEN))
+		return if (sharedPreferences.contains(PreferencesKeys.LAST_DESTINATION))
 			Auth(uid = uid, email = email)
 		else
 			throw IllegalStateException()
@@ -30,7 +31,7 @@ class AuthMockDataSource(
 
 	override suspend fun signIn(token: String): Auth {
 		sharedPreferences.edit {
-			putString(PreferencesKeys.LAST_SCREEN, Destination.Summary.route)
+			putString(PreferencesKeys.LAST_DESTINATION, Destination.Summary.toDestinationName())
 		}
 
 		return Auth(uid = uid, email = email)
@@ -38,12 +39,12 @@ class AuthMockDataSource(
 
 	override suspend fun signOut() {
 		sharedPreferences.edit {
-			remove(PreferencesKeys.LAST_SCREEN)
+			remove(PreferencesKeys.LAST_DESTINATION)
 		}
 	}
 
 	override suspend fun getActiveToken(): String {
-		return if (sharedPreferences.contains(PreferencesKeys.LAST_SCREEN))
+		return if (sharedPreferences.contains(PreferencesKeys.LAST_DESTINATION))
 			token
 		else
 			throw IllegalStateException()

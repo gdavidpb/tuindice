@@ -35,21 +35,15 @@ class StartUpUseCase(
 
 		val isActiveAuth = authRepository.isActiveAuth()
 
-		val destinations = configRepository.getDestinations()
-
-		val startDestination = if (isActiveAuth) {
-			val lastScreen = settingsRepository.getLastScreen()
-
-			destinations[lastScreen] ?: Destination.Summary
-		} else {
+		val startDestination = if (isActiveAuth)
+			settingsRepository.getLastDestination()
+		else
 			Destination.SignIn
-		}
 
 		val startUpData = StartUpData(
 			title = startDestination.title,
 			startDestination = startDestination,
 			currentDestination = startDestination,
-			destinations = destinations,
 			topBarConfig = startDestination.topBarConfig
 		)
 
