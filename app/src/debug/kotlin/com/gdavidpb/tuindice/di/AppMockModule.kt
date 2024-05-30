@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.di
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.R
+import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AttestationInterceptor
 import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.base.data.repository.source.uuid.UUIDIdentifierDataSource
@@ -55,6 +56,11 @@ import com.google.android.play.core.review.testing.FakeReviewManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -144,6 +150,22 @@ val appMockModule = module {
 	single {
 		FirebaseAuth.getInstance().apply {
 			useEmulator("10.0.2.2", 9099)
+		}
+	}
+
+	/* KtorHttpClient */
+
+	single {
+		HttpClient(CIO) {
+			expectSuccess = false
+
+			defaultRequest {
+				url(BuildConfig.ENDPOINT_TU_INDICE_API)
+			}
+
+			install(ContentNegotiation) {
+				json()
+			}
 		}
 	}
 

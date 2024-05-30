@@ -66,6 +66,11 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -173,6 +178,22 @@ val appModule = module {
 
 	single {
 		IntegrityManagerFactory.create(androidContext())
+	}
+
+	/* KtorHttpClient */
+
+	single {
+		HttpClient(CIO) {
+			expectSuccess = false
+
+			defaultRequest {
+				url(BuildConfig.ENDPOINT_TU_INDICE_API)
+			}
+
+			install(ContentNegotiation) {
+				json()
+			}
+		}
 	}
 
 	/* OkHttpClient */
