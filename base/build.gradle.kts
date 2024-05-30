@@ -88,6 +88,9 @@ dependencies {
 	/* Retrofit */
 	api(libs.bundles.retrofit)
 
+	/* Ktor */
+	api(libs.bundles.ktor)
+
 	/* Coil */
 	api(libs.bundles.coil)
 
