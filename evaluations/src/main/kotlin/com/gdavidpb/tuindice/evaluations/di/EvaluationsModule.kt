@@ -1,9 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.di
 
-import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.EvaluationDataRepository
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.EvaluationsApi
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.RemoteDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.SettingsDataSource
@@ -52,7 +49,6 @@ import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
-import retrofit2.Retrofit
 
 val evaluationsModule = module {
 	/* View Models */
@@ -116,17 +112,6 @@ val evaluationsModule = module {
 	factoryOf(::EvaluationsApiDataSource) { bind<RemoteDataSource>() }
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsDataSource>() }
-
-	/* SignIn Api */
-
-	single {
-		Retrofit.Builder()
-			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
-			.addConverterFactory(get())
-			.client(get())
-			.build()
-			.create<EvaluationsApi>()
-	}
 
 	/* Exception handlers */
 
