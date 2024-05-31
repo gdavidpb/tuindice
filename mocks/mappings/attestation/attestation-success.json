@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/attestation"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "48973a17-9ee8-489a-9511-efa57aea1f65"
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

@@ -1,11 +1,8 @@
 package com.gdavidpb.tuindice.login.di
 
-import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.utils.extension.create
-import com.gdavidpb.tuindice.login.data.repository.login.source.SignInApiDataSource
-import com.gdavidpb.tuindice.login.data.repository.login.SignInApi
 import com.gdavidpb.tuindice.login.data.repository.login.LoginDataRepository
 import com.gdavidpb.tuindice.login.data.repository.login.RemoteDataSource
+import com.gdavidpb.tuindice.login.data.repository.login.source.SignInApiDataSource
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
@@ -29,7 +26,6 @@ import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
-import retrofit2.Retrofit
 
 val loginModule = module {
 	/* View Models */
@@ -67,17 +63,6 @@ val loginModule = module {
 	/* Data sources */
 
 	factoryOf(::SignInApiDataSource) { bind<RemoteDataSource>() }
-
-	/* SignIn Api */
-
-	single {
-		Retrofit.Builder()
-			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
-			.addConverterFactory(get())
-			.client(get())
-			.build()
-			.create<SignInApi>()
-	}
 
 	/* Exception handlers */
 

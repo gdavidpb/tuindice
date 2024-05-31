@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/sign-in"
+    "urlPath": "/sign-in",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic MTEtMTExMTE6MTIzNDU2"
+      }
+    }
   },
   "response": {
     "status": 200,
