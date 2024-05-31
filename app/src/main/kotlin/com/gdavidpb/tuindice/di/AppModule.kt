@@ -18,13 +18,11 @@ import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
-import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.base.utils.extension.sharedPreferences
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
 import com.gdavidpb.tuindice.data.repository.attestation.source.AttestationApiDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.DigestDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.PlayIntegrityDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.MessagingApi
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingDataRepository
 import com.gdavidpb.tuindice.data.repository.messaging.source.FirebaseMessagingDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingApiDataSource
@@ -89,7 +87,6 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 import com.gdavidpb.tuindice.data.repository.attestation.LocalDataSource as AttestationLocal
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
@@ -267,17 +264,6 @@ val appModule = module {
 			.addInterceptor(get<HttpLoggingInterceptor>())
 			.addInterceptor(get<AuthorizationInterceptor>())
 			.build()
-	}
-
-	/* Apis */
-
-	single {
-		Retrofit.Builder()
-			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
-			.addConverterFactory(get())
-			.client(get())
-			.build()
-			.create<MessagingApi>()
 	}
 
 	/* Utils */
