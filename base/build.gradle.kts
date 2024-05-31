@@ -59,8 +59,6 @@ android {
 }
 
 dependencies {
-	debugApi(libs.bundles.debug)
-
 	/* Compose */
 	api(platform(libs.compose.bom))
 	api(libs.bundles.compose)
@@ -84,9 +82,6 @@ dependencies {
 
 	/* Google */
 	api(libs.bundles.google)
-
-	/* Retrofit */
-	api(libs.bundles.retrofit)
 
 	/* Ktor */
 	api(libs.bundles.ktor)
