@@ -67,7 +67,6 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.api.ClientPlugin
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.ANDROID
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
@@ -201,7 +200,7 @@ val appModule = module {
 			}
 
 			install(Logging) {
-				logger = Logger.ANDROID
+				logger = get<Logger>()
 				level = LogLevel.ALL
 
 				sanitizeHeader { header ->
@@ -224,6 +223,14 @@ val appModule = module {
 
 					request.bearerAuth(token = bearerToken)
 				}
+			}
+		}
+	}
+
+	single<Logger> {
+		object : Logger {
+			override fun log(message: String) {
+				get<ReportingRepository>().logMessage(message)
 			}
 		}
 	}

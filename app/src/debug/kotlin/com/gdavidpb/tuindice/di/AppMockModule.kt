@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.di
 
 import android.net.ConnectivityManager
+import android.util.Log
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.BuildConfig
@@ -63,7 +64,6 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.api.ClientPlugin
 import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.ANDROID
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
@@ -184,7 +184,7 @@ val appMockModule = module {
 			}
 
 			install(Logging) {
-				logger = Logger.ANDROID
+				logger = get<Logger>()
 				level = LogLevel.ALL
 
 				sanitizeHeader { header ->
@@ -207,6 +207,14 @@ val appMockModule = module {
 
 					request.bearerAuth(token = bearerToken)
 				}
+			}
+		}
+	}
+
+	single<Logger> {
+		object : Logger {
+			override fun log(message: String) {
+				Log.i("Http Client", message)
 			}
 		}
 	}
