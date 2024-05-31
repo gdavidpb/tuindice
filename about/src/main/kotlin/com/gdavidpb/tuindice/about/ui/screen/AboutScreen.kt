@@ -36,7 +36,7 @@ fun AboutScreen(
 	onComposeClick: () -> Unit,
 	onFirebaseClick: () -> Unit,
 	onKoinClick: () -> Unit,
-	onRetrofitClick: () -> Unit,
+	onKtorClick: () -> Unit,
 	onDstClick: () -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit,
@@ -153,11 +153,11 @@ fun AboutScreen(
 			) { onKoinClick() }
 
 			AboutView(
-				icon = ImageVector.vectorResource(id = R.drawable.ic_square),
-				text = stringResource(id = R.string.about_retrofit),
+				icon = ImageVector.vectorResource(id = R.drawable.ic_ktor),
+				text = stringResource(id = R.string.about_ktor),
 				size = dimensionResource(id = R.dimen.dp_48),
 				tint = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onBackground else null
-			) { onRetrofitClick() }
+			) { onKtorClick() }
 		}
 
 		AboutHeaderView(

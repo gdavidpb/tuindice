@@ -67,7 +67,7 @@ fun AboutRoute(
 		onComposeClick = { viewModel.openUrlAction(BuildConfig.URL_COMPOSE) },
 		onFirebaseClick = { viewModel.openUrlAction(BuildConfig.URL_FIREBASE) },
 		onKoinClick = { viewModel.openUrlAction(BuildConfig.URL_KOIN) },
-		onRetrofitClick = { viewModel.openUrlAction(BuildConfig.URL_RETROFIT) },
+		onKtorClick = { viewModel.openUrlAction(BuildConfig.URL_KTOR) },
 		onDstClick = { viewModel.openUrlAction(BuildConfig.URL_DST) },
 		onTermsAndConditionsClick = viewModel::openTermsAndConditionsAction,
 		onPrivacyPolicyClick = viewModel::openPrivacyPolicyAction,
