@@ -1,16 +1,20 @@
 package com.gdavidpb.tuindice.data.repository.attestation.source
 
-import com.gdavidpb.tuindice.base.utils.extension.getOrThrow
-import com.gdavidpb.tuindice.data.repository.attestation.AttestationApi
 import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.source.api.response.AttestationIdResponse
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 
 class AttestationApiDataSource(
-	private val attestationApi: AttestationApi
+	private val ktorClient: HttpClient
 ) : RemoteDataSource {
 	override suspend fun getAttestationId(operation: String): String {
-		return attestationApi
-			.getAttestationId(operation)
-			.getOrThrow()
+		return ktorClient.get("attestation") {
+			parameter("operation", operation)
+		}
+			.body<AttestationIdResponse>()
 			.id
 	}
 }
