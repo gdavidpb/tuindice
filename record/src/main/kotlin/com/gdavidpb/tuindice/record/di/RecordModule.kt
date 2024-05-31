@@ -1,11 +1,8 @@
 package com.gdavidpb.tuindice.record.di
 
 import android.util.LruCache
-import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.record.data.repository.quarter.LocalDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.QuarterDataRepository
-import com.gdavidpb.tuindice.record.data.repository.quarter.RecordApi
 import com.gdavidpb.tuindice.record.data.repository.quarter.RemoteDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.SettingsDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
@@ -30,7 +27,6 @@ import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
-import retrofit2.Retrofit
 
 val recordModule = module {
 	/* View Models */
@@ -78,17 +74,6 @@ val recordModule = module {
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
 	factoryOf(::RecordApiDataSource) { bind<RemoteDataSource>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsDataSource>() }
-
-	/* Record Api */
-
-	single {
-		Retrofit.Builder()
-			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
-			.addConverterFactory(get())
-			.client(get())
-			.build()
-			.create<RecordApi>()
-	}
 
 	/* Exception handlers */
 
