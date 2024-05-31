@@ -67,6 +67,7 @@ android {
 }
 
 dependencies {
+	implementation(libs.security.crypto.ktx)
 	testImplementation(libs.bundles.testing)
 	androidTestImplementation(libs.bundles.testing.android)
 

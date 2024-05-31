@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.di
 
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.data.repository.source.uuid.UUIDIdentifierDataSource
@@ -17,7 +19,6 @@ import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
-import com.gdavidpb.tuindice.base.utils.extension.sharedPreferences
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
 import com.gdavidpb.tuindice.data.repository.attestation.source.AttestationApiDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.DigestDataSource
@@ -133,7 +134,18 @@ val appModule = module {
 	}
 
 	single {
-		androidContext().sharedPreferences()
+		val masterKey = MasterKey.Builder(androidContext())
+			.setRequestStrongBoxBacked(true)
+			.setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+			.build()
+
+		EncryptedSharedPreferences.create(
+			androidContext(),
+			BuildConfig.APPLICATION_ID,
+			masterKey,
+			EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+			EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+		)
 	}
 
 	single {

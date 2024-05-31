@@ -37,6 +37,7 @@ core-ktx = "1.13.1"
 compose = "1.7.0-beta02"
 material = "1.12.0"
 ktor = "2.3.11"
+security-crypto-ktx = "1.1.0-alpha06"
 
 [libraries]
 # Room
@@ -57,6 +58,7 @@ browser = { module = "androidx.browser:browser", version.ref = "browser" }
 preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preference-ktx" }
 exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exifinterface" }
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "android-gradle-plugin" }
+security-crypto-ktx = { module = "androidx.security:security-crypto-ktx", version.ref = "security-crypto-ktx" }
 
 # Kotlin
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
@@ -142,7 +144,7 @@ coil = ["coil", "coil-compose"]
 room = ["room-ktx", "room-runtime"]
 testing = ["junit", "wiremock"]
 testing-android = ["koin-test", "test-runner", "espresso-core"]
-androidx = ["core-ktx", "browser", "preference-ktx", "exifinterface"]
+androidx = ["core-ktx", "browser", "preference-ktx", "exifinterface", "security-crypto-ktx"]
 kotlin = ["kotlin-reflect", "kotlinx-datetime", "kotlinx-serialization-json"]
 koin = ["koin-android", "koin-androidx-compose"]
 firebase = ["firebase-config", "firebase-auth", "firebase-messaging", "firebase-crashlytics"]

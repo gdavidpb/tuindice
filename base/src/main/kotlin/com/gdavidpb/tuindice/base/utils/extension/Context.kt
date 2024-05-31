@@ -4,18 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
-import androidx.preference.PreferenceManager
 import com.gdavidpb.tuindice.base.BuildConfig
 import java.io.File
-
-fun Context.sharedPreferences(): SharedPreferences {
-	return PreferenceManager.getDefaultSharedPreferences(this)
-}
 
 fun Context.openFile(file: File): Boolean {
 	return runCatching {
