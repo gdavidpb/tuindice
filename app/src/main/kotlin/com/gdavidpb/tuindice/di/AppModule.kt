@@ -188,7 +188,7 @@ val appModule = module {
 
 			install(HttpTimeout) {
 				val configRepository = get<ConfigRepository>()
-				val timeout = configRepository.getConnectionTimeout()
+				val timeout = configRepository.getTimeout()
 
 				requestTimeoutMillis = timeout
 				connectTimeoutMillis = timeout

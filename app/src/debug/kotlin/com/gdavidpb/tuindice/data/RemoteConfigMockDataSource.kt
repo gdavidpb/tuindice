@@ -11,8 +11,8 @@ class RemoteConfigMockDataSource(
 	override suspend fun tryFetch() {
 	}
 
-	override fun getTimeout(key: String): Long {
-		return remoteConfig.getLong(key)
+	override fun getTimeout(): Long {
+		return remoteConfig.getLong(ConfigKeys.TIME_OUT_CONNECTION)
 	}
 
 	override fun getContactEmail(): String {
@@ -33,9 +33,5 @@ class RemoteConfigMockDataSource(
 
 	override fun getSyncsToSuggestReview(): Int {
 		return remoteConfig.getLong(ConfigKeys.SYNCS_TO_SUGGEST_REVIEW).toInt()
-	}
-
-	override fun getConnectionTimeout(): Long {
-		return remoteConfig.getLong(ConfigKeys.TIME_OUT_CONNECTION)
 	}
 }
