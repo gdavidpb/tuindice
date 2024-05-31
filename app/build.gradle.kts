@@ -5,6 +5,7 @@ plugins {
 	id("com.google.firebase.crashlytics")
 
 	alias(libs.plugins.compose.compiler)
+	alias(libs.plugins.kotlin.serialization)
 }
 
 android {

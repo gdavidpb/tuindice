@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SignInAttestationPayload(
-	@SerialName("basicToken") val basicToken: String
+	@SerialName("usb_id") val usbId: String,
+	@SerialName("password") val password: String
 ) : AttestationPayload

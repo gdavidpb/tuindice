@@ -4,7 +4,6 @@ import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AttestationInterceptor
 import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.base.data.repository.source.uuid.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
@@ -19,13 +18,18 @@ import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
+import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.base.utils.extension.sharedPreferences
-import com.gdavidpb.tuindice.data.AttestationMockDataRepository
+import com.gdavidpb.tuindice.data.AttestationProviderMockDataSource
 import com.gdavidpb.tuindice.data.AuthMockDataSource
 import com.gdavidpb.tuindice.data.DebugKoinDataSource
 import com.gdavidpb.tuindice.data.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.MessagingMockDataSource
 import com.gdavidpb.tuindice.data.RemoteConfigMockDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.AttestationApi
+import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
+import com.gdavidpb.tuindice.data.repository.attestation.source.AttestationApiDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.source.DigestDataSource
 import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.mobile.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
@@ -58,8 +62,17 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.api.ClientPlugin
+import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.ANDROID
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.bearerAuth
+import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -70,8 +83,13 @@ import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
+import com.gdavidpb.tuindice.data.repository.attestation.LocalDataSource as AttestationLocal
+import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
+import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource as AttestationRemote
 
 val appMockModule = module {
 	/* View Models */
@@ -157,14 +175,49 @@ val appMockModule = module {
 
 	single {
 		HttpClient(CIO) {
-			expectSuccess = false
+			expectSuccess = true
 
-			defaultRequest {
+			install(DefaultRequest) {
 				url(BuildConfig.ENDPOINT_TU_INDICE_API)
+			}
+
+			install(HttpTimeout) {
+				val configRepository = get<ConfigRepository>()
+				val timeout = configRepository.getConnectionTimeout()
+
+				requestTimeoutMillis = timeout
+				connectTimeoutMillis = timeout
+				socketTimeoutMillis = timeout
 			}
 
 			install(ContentNegotiation) {
 				json()
+			}
+
+			install(Logging) {
+				logger = Logger.ANDROID
+				level = LogLevel.ALL
+
+				sanitizeHeader { header ->
+					header == HttpHeaders.Authorization
+				}
+			}
+
+			install(get<ClientPlugin<Unit>>(named("Authorization")))
+		}
+	}
+
+	single(named("Authorization")) {
+		createClientPlugin("Authorization") {
+			onRequest { request, _ ->
+				val authRepository = get<AuthRepository>()
+				val isActiveAuth = authRepository.isActiveAuth()
+
+				if (isActiveAuth) {
+					val bearerToken = authRepository.getActiveToken()
+
+					request.bearerAuth(token = bearerToken)
+				}
 			}
 		}
 	}
@@ -172,7 +225,6 @@ val appMockModule = module {
 	/* OkHttpClient */
 
 	singleOf(::AuthorizationInterceptor)
-	singleOf(::AttestationInterceptor)
 
 	single {
 		val logger = HttpLoggingInterceptor.Logger { message ->
@@ -197,8 +249,18 @@ val appMockModule = module {
 			.writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
 			.addInterceptor(get<HttpLoggingInterceptor>())
 			.addInterceptor(get<AuthorizationInterceptor>())
-			.addInterceptor(get<AttestationInterceptor>())
 			.build()
+	}
+
+	/* Apis */
+
+	single {
+		Retrofit.Builder()
+			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
+			.addConverterFactory(get())
+			.client(get())
+			.build()
+			.create<AttestationApi>()
 	}
 
 	/* Utils */
@@ -210,11 +272,14 @@ val appMockModule = module {
 	/* Repositories */
 
 	factoryOf(::MessagingMockDataSource) { bind<MessagingRepository>() }
-	factoryOf(::AttestationMockDataRepository) { bind<AttestationRepository>() }
+	factoryOf(::AttestationDataRepository) { bind<AttestationRepository>() }
 
 	/* Data sources */
 
 	factoryOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
+	factoryOf(::DigestDataSource) { bind<AttestationLocal>() }
+	factoryOf(::AttestationApiDataSource) { bind<AttestationRemote>() }
+	factoryOf(::AttestationProviderMockDataSource) { bind<AttestationProvider>() }
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
 	factoryOf(::RemoteConfigMockDataSource) { bind<ConfigRepository>() }

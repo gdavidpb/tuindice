@@ -4,7 +4,6 @@ import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AttestationInterceptor
 import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.base.data.repository.source.uuid.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
@@ -68,8 +67,17 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.api.ClientPlugin
+import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.ANDROID
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.bearerAuth
+import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -80,6 +88,7 @@ import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
@@ -184,14 +193,49 @@ val appModule = module {
 
 	single {
 		HttpClient(CIO) {
-			expectSuccess = false
+			expectSuccess = true
 
-			defaultRequest {
+			install(DefaultRequest) {
 				url(BuildConfig.ENDPOINT_TU_INDICE_API)
+			}
+
+			install(HttpTimeout) {
+				val configRepository = get<ConfigRepository>()
+				val timeout = configRepository.getConnectionTimeout()
+
+				requestTimeoutMillis = timeout
+				connectTimeoutMillis = timeout
+				socketTimeoutMillis = timeout
 			}
 
 			install(ContentNegotiation) {
 				json()
+			}
+
+			install(Logging) {
+				logger = Logger.ANDROID
+				level = LogLevel.ALL
+
+				sanitizeHeader { header ->
+					header == HttpHeaders.Authorization
+				}
+			}
+
+			install(get<ClientPlugin<Unit>>(named("Authorization")))
+		}
+	}
+
+	single(named("Authorization")) {
+		createClientPlugin("Authorization") {
+			onRequest { request, _ ->
+				val authRepository = get<AuthRepository>()
+				val isActiveAuth = authRepository.isActiveAuth()
+
+				if (isActiveAuth) {
+					val bearerToken = authRepository.getActiveToken()
+
+					request.bearerAuth(token = bearerToken)
+				}
 			}
 		}
 	}
@@ -199,7 +243,6 @@ val appModule = module {
 	/* OkHttpClient */
 
 	singleOf(::AuthorizationInterceptor)
-	singleOf(::AttestationInterceptor)
 
 	single {
 		val logger = HttpLoggingInterceptor.Logger { message ->
@@ -224,7 +267,6 @@ val appModule = module {
 			.writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
 			.addInterceptor(get<HttpLoggingInterceptor>())
 			.addInterceptor(get<AuthorizationInterceptor>())
-			.addInterceptor(get<AttestationInterceptor>())
 			.build()
 	}
 
@@ -262,8 +304,8 @@ val appModule = module {
 	/* Data sources */
 
 	factoryOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
-	factoryOf(::DigestDataSource) { bind<AttestationLocal>() }
 	factoryOf(::MessagingApiDataSource) { bind<MessagingRemote>() }
+	factoryOf(::DigestDataSource) { bind<AttestationLocal>() }
 	factoryOf(::AttestationApiDataSource) { bind<AttestationRemote>() }
 	factoryOf(::PlayIntegrityDataSource) { bind<AttestationProvider>() }
 	factoryOf(::FirebaseMessagingDataSource) { bind<MessagingProvider>() }

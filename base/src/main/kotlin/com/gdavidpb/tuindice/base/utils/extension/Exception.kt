@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.TimeoutCancellationException
-import retrofit2.HttpException
 import java.io.InterruptedIOException
-import java.net.HttpURLConnection
 import java.net.SocketException
 import java.net.UnknownHostException
 import java.util.concurrent.ExecutionException
@@ -11,27 +11,27 @@ import java.util.concurrent.TimeoutException
 import javax.net.ssl.SSLException
 
 fun Throwable.isUnavailable() = when (this) {
-	is HttpException -> (code() == HttpURLConnection.HTTP_UNAVAILABLE)
+	is ClientRequestException -> (response.status == HttpStatusCode.ServiceUnavailable)
 	else -> false
 }
 
 fun Throwable.isForbidden() = when (this) {
-	is HttpException -> (code() == HttpURLConnection.HTTP_FORBIDDEN)
+	is ClientRequestException -> (response.status == HttpStatusCode.Forbidden)
 	else -> false
 }
 
 fun Throwable.isConflict() = when (this) {
-	is HttpException -> (code() == HttpURLConnection.HTTP_CONFLICT)
+	is ClientRequestException -> (response.status == HttpStatusCode.Conflict)
 	else -> false
 }
 
 fun Throwable.isUnauthorized() = when (this) {
-	is HttpException -> (code() == HttpURLConnection.HTTP_UNAUTHORIZED)
+	is ClientRequestException -> (response.status == HttpStatusCode.Unauthorized)
 	else -> false
 }
 
 fun Throwable.isNotFound() = when (this) {
-	is HttpException -> (code() == HttpURLConnection.HTTP_NOT_FOUND)
+	is ClientRequestException -> (response.status == HttpStatusCode.NotFound)
 	else -> false
 }
 
