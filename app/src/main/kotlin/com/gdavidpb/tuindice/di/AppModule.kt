@@ -4,7 +4,6 @@ import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.data.repository.source.api.retrofit.AuthorizationInterceptor
 import com.gdavidpb.tuindice.base.data.repository.source.uuid.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
@@ -61,7 +60,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.DefaultRequest
@@ -76,18 +74,12 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.bearerAuth
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
-import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import java.util.concurrent.TimeUnit
 import com.gdavidpb.tuindice.data.repository.attestation.LocalDataSource as AttestationLocal
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
 import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource as AttestationRemote
@@ -234,42 +226,6 @@ val appModule = module {
 				}
 			}
 		}
-	}
-
-	/* OkHttpClient */
-
-	singleOf(::AuthorizationInterceptor)
-
-	single {
-		val logger = HttpLoggingInterceptor.Logger { message ->
-			get<ReportingRepository>().logMessage(message)
-		}
-
-		HttpLoggingInterceptor(logger).apply {
-			level = HttpLoggingInterceptor.Level.BODY
-
-			redactHeader("Cookie")
-			redactHeader("Authorization")
-		}
-	}
-
-	single {
-		val connectionTimeout = get<ConfigRepository>().getConnectionTimeout()
-
-		OkHttpClient.Builder()
-			.callTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-			.connectTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-			.readTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-			.writeTimeout(connectionTimeout, TimeUnit.MILLISECONDS)
-			.addInterceptor(get<HttpLoggingInterceptor>())
-			.addInterceptor(get<AuthorizationInterceptor>())
-			.build()
-	}
-
-	/* Utils */
-
-	factory {
-		Json.asConverterFactory("application/json".toMediaType())
 	}
 
 	/* Repositories */
