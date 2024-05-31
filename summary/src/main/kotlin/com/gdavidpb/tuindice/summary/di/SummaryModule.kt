@@ -1,16 +1,13 @@
 package com.gdavidpb.tuindice.summary.di
 
-import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.utils.extension.create
 import com.gdavidpb.tuindice.summary.data.repository.account.AccountDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.account.LocalDataSource
 import com.gdavidpb.tuindice.summary.data.repository.account.RemoteDataSource
 import com.gdavidpb.tuindice.summary.data.repository.account.SettingsDataSource
-import com.gdavidpb.tuindice.summary.data.repository.account.source.SummaryApiDataSource
-import com.gdavidpb.tuindice.summary.data.repository.account.SummaryApi
 import com.gdavidpb.tuindice.summary.data.repository.account.source.ImageEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.repository.account.source.PreferencesDataSource
 import com.gdavidpb.tuindice.summary.data.repository.account.source.RoomDataSource
+import com.gdavidpb.tuindice.summary.data.repository.account.source.SummaryApiDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
@@ -34,7 +31,6 @@ import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
-import retrofit2.Retrofit
 
 val summaryModule = module {
 	/* View Models */
@@ -74,17 +70,6 @@ val summaryModule = module {
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
 	factoryOf(::SummaryApiDataSource) { bind<RemoteDataSource>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsDataSource>() }
-
-	/* Summary Api */
-
-	single {
-		Retrofit.Builder()
-			.baseUrl(BuildConfig.ENDPOINT_TU_INDICE_API)
-			.addConverterFactory(get())
-			.client(get())
-			.build()
-			.create<SummaryApi>()
-	}
 
 	/* Exception handlers */
 
