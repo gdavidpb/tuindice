@@ -35,7 +35,7 @@ android {
             buildConfigField("String", "URL_COMPOSE", "\"https://developer.android.com/jetpack/compose/\"")
             buildConfigField("String", "URL_FIREBASE", "\"https://firebase.com/\"")
             buildConfigField("String", "URL_KOIN", "\"https://insert-koin.io/\"")
-            buildConfigField("String", "URL_RETROFIT", "\"https://square.github.io/retrofit/\"")
+            buildConfigField("String", "URL_KTOR", "\"https://ktor.io/\"")
             buildConfigField("String", "URL_DST", "\"https://www.dst.usb.ve/inicio/\"")
             buildConfigField("String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\"")
         }
@@ -47,7 +47,7 @@ android {
             buildConfigField("String", "URL_COMPOSE", "\"https://developer.android.com/jetpack/compose/\"")
             buildConfigField("String", "URL_FIREBASE", "\"https://firebase.com/\"")
             buildConfigField("String", "URL_KOIN", "\"https://insert-koin.io/\"")
-            buildConfigField("String", "URL_RETROFIT", "\"https://square.github.io/retrofit/\"")
+            buildConfigField("String", "URL_KTOR", "\"https://ktor.io/\"")
             buildConfigField("String", "URL_DST", "\"https://www.dst.usb.ve/inicio/\"")
             buildConfigField("String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\"")
         }
