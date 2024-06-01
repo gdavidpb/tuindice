@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsFailedView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsLoadingView
+import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsNoSubjectsView
 
 @Composable
 fun EvaluationsScreen(
@@ -42,6 +43,9 @@ fun EvaluationsScreen(
 				EvaluationsFailedView(
 					onRetryClick = onRetryClick
 				)
+
+			is Evaluations.State.NoSubjects ->
+				EvaluationsNoSubjectsView()
 
 			is Evaluations.State.Empty ->
 				EvaluationsEmptyView(

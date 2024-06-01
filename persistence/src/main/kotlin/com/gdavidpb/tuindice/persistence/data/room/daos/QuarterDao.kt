@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_CURRENT
+import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_MOCK
 import com.gdavidpb.tuindice.persistence.data.room.entity.QuarterEntity
 import com.gdavidpb.tuindice.persistence.data.room.otm.QuarterWithSubjects
 import com.gdavidpb.tuindice.persistence.data.room.schema.QuarterTable
@@ -14,12 +15,12 @@ abstract class QuarterDao : UpsertDao<QuarterEntity>() {
 	@Query(
 		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
 				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid " +
-				"AND ${QuarterTable.STATUS} = $STATUS_QUARTER_CURRENT"
+				"AND ${QuarterTable.STATUS} IN ($STATUS_QUARTER_CURRENT, $STATUS_QUARTER_MOCK)"
 	)
 	@Transaction
-	abstract fun getCurrentQuarterWithSubjects(
+	abstract fun getOpenQuartersWithSubjects(
 		uid: String
-	): QuarterWithSubjects?
+	): List<QuarterWithSubjects>
 
 	@Query(
 		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +

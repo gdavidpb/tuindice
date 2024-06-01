@@ -42,40 +42,44 @@ class LoadEvaluationsActionProcessor(
 					}
 
 					is UseCaseState.Error -> { _ ->
-						when (val error = useCaseState.error) {
-							is EvaluationsError.NoConnection ->
-								sideEffect(
-									Evaluations.Effect.ShowSnackBar(
-										message = if (error.isNetworkAvailable)
-											resourceResolver.getString(R.string.snack_service_unavailable)
-										else
-											resourceResolver.getString(R.string.snack_network_unavailable)
+						if (useCaseState.error is EvaluationsError.NoSubjects)
+							Evaluations.State.NoSubjects
+						else {
+							when (val error = useCaseState.error) {
+								is EvaluationsError.NoConnection ->
+									sideEffect(
+										Evaluations.Effect.ShowSnackBar(
+											message = if (error.isNetworkAvailable)
+												resourceResolver.getString(R.string.snack_service_unavailable)
+											else
+												resourceResolver.getString(R.string.snack_network_unavailable)
+										)
 									)
-								)
 
-							is EvaluationsError.Timeout ->
-								sideEffect(
-									Evaluations.Effect.ShowSnackBar(
-										message = resourceResolver.getString(R.string.snack_timeout)
+								is EvaluationsError.Timeout ->
+									sideEffect(
+										Evaluations.Effect.ShowSnackBar(
+											message = resourceResolver.getString(R.string.snack_timeout)
+										)
 									)
-								)
 
-							is EvaluationsError.Unavailable ->
-								sideEffect(
-									Evaluations.Effect.ShowSnackBar(
-										message = resourceResolver.getString(R.string.snack_service_unavailable)
+								is EvaluationsError.Unavailable ->
+									sideEffect(
+										Evaluations.Effect.ShowSnackBar(
+											message = resourceResolver.getString(R.string.snack_service_unavailable)
+										)
 									)
-								)
 
-							else ->
-								sideEffect(
-									Evaluations.Effect.ShowSnackBar(
-										message = resourceResolver.getString(R.string.snack_default_error)
+								else ->
+									sideEffect(
+										Evaluations.Effect.ShowSnackBar(
+											message = resourceResolver.getString(R.string.snack_default_error)
+										)
 									)
-								)
+							}
+
+							Evaluations.State.Failed
 						}
-
-						Evaluations.State.Failed
 					}
 				}
 			}

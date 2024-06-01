@@ -20,6 +20,8 @@ object Evaluations {
 
 		data object Empty : State
 
+		data object NoSubjects : State
+
 		data object Failed : State
 	}
 

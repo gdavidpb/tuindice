@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.datab
 import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.mapper.toLocalQuarter
+import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.mapper.toLocalSubject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -25,10 +25,9 @@ class RoomDataSource(
 	}
 
 	override suspend fun getAvailableSubjects(uid: String): List<LocalSubject> {
-		return room.quarters.getCurrentQuarterWithSubjects(uid)
-			?.toLocalQuarter()
-			?.subjects
-			?: emptyList()
+		return room.quarters.getOpenQuartersWithSubjects(uid)
+			.flatMap { quarter -> quarter.subjects }
+			.map { subject -> subject.toLocalSubject(isEditable = true) }
 	}
 
 	override suspend fun addEvaluation(uid: String, evaluation: LocalEvaluation): LocalEvaluation {
@@ -39,7 +38,7 @@ class RoomDataSource(
 		return evaluation
 	}
 
-	override suspend fun updateEvaluation(uid: String, evaluation: LocalEvaluation):LocalEvaluation {
+	override suspend fun updateEvaluation(uid: String, evaluation: LocalEvaluation): LocalEvaluation {
 		val evaluationEntity = evaluation.toEvaluationEntity(uid)
 
 		room.evaluations.upsertEntity(entity = evaluationEntity)
