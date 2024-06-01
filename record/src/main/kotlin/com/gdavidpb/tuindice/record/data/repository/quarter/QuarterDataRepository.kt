@@ -18,6 +18,7 @@ import org.mobilenativefoundation.store.store5.MutableStore
 import org.mobilenativefoundation.store.store5.MutableStoreBuilder
 import org.mobilenativefoundation.store.store5.StoreReadRequest
 import org.mobilenativefoundation.store.store5.StoreWriteRequest
+import org.mobilenativefoundation.store.store5.impl.extensions.fresh
 import org.mobilenativefoundation.store.store5.impl.extensions.get
 
 @OptIn(ExperimentalStoreApi::class)
@@ -55,6 +56,21 @@ class QuarterDataRepository(
 		return quarters
 			.distinctUntilChanged()
 			.mapNotNull { response -> response.dataOrNull() }
+	}
+
+	override suspend fun getQuarters(uid: String): List<Quarter> {
+		val isOnCooldown = settingsDataSource.isGetQuartersOnCooldown()
+
+		val quarters = if (isOnCooldown)
+			get<QuarterKey, List<Quarter>, QuarterReadResponse>(
+				key = QuarterKey.Read.All(uid)
+			)
+		else
+			fresh<QuarterKey, List<Quarter>, QuarterReadResponse>(
+				key = QuarterKey.Read.All(uid)
+			)
+
+		return quarters
 	}
 
 	override suspend fun removeQuarter(uid: String, remove: QuarterRemove) {

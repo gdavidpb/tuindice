@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface EvaluationRepository {
 	suspend fun getEvaluationsFlow(uid: String): Flow<List<Evaluation>>
-
 	suspend fun getEvaluation(uid: String, eid: String): Evaluation?
 	suspend fun addEvaluation(uid: String, add: EvaluationAdd)
 	suspend fun updateEvaluation(uid: String, update: EvaluationUpdate)

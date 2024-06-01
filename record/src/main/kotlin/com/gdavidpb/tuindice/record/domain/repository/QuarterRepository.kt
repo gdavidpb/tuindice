@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface QuarterRepository {
 	suspend fun getQuartersFlow(uid: String): Flow<List<Quarter>>
+	suspend fun getQuarters(uid: String): List<Quarter>
 	suspend fun removeQuarter(uid: String, remove: QuarterRemove)
 	suspend fun setSubjectGrade(uid: String, set: SubjectGradeSet)
 }
