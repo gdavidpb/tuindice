@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.login.data.repository.login
 
 import com.gdavidpb.tuindice.login.domain.model.SignIn
-import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
+import com.gdavidpb.tuindice.login.domain.repository.SignInRepository
 
-class LoginDataRepository(
+class SignInDataRepository(
 	private val remoteDataSource: RemoteDataSource
-) : LoginRepository {
+) : SignInRepository {
 	override suspend fun signIn(
 		username: String,
 		password: String,

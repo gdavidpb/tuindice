@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.login.data.repository.login.source.api.attestation.SignInAttestationPayload
-import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
+import com.gdavidpb.tuindice.login.domain.repository.SignInRepository
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class SignInUseCase(
 	private val authRepository: AuthRepository,
-	private val loginRepository: LoginRepository,
+	private val signInRepository: SignInRepository,
 	private val attestationRepository: AttestationRepository,
 	private val messagingRepository: MessagingRepository,
 	private val reportingRepository: ReportingRepository,
@@ -39,7 +39,7 @@ class SignInUseCase(
 			payload = attestationPayload
 		)
 
-		val bearerToken = loginRepository.signIn(
+		val bearerToken = signInRepository.signIn(
 			username = params.usbId,
 			password = params.password,
 			attestation = attestationToken
