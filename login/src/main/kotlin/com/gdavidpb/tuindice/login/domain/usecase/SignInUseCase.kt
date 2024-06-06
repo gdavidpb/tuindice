@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.login.data.repository.login.source.api.attestation.SignInAttestationPayload
 import com.gdavidpb.tuindice.login.domain.repository.SignInRepository
-import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
+import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidator
@@ -23,7 +23,7 @@ class SignInUseCase(
 	private val reportingRepository: ReportingRepository,
 	override val paramsValidator: SignInParamsValidator,
 	override val exceptionHandler: SignInExceptionHandler
-) : FlowUseCase<SignInParams, Unit, SignInError>() {
+) : FlowUseCase<SignInParams, Unit, SignInUseCaseError>() {
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
 		val isActiveAuth = authRepository.isActiveAuth()
 

@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.summary.R
 import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.error.GetAccountError
+import com.gdavidpb.tuindice.summary.domain.usecase.error.GetAccountUseCaseError
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.mapper.formatLastUpdate
 import com.gdavidpb.tuindice.summary.presentation.mapper.toShortName
@@ -59,7 +59,7 @@ class LoadSummaryActionProcessor(
 
 					is UseCaseState.Error -> { state ->
 						when (val error = useCaseState.error) {
-							is GetAccountError.NoConnection -> {
+							is GetAccountUseCaseError.NoConnection -> {
 								sideEffect(
 									Summary.Effect.ShowSnackBar(
 										message = if (error.isNetworkAvailable)
@@ -72,7 +72,7 @@ class LoadSummaryActionProcessor(
 								Summary.State.Failed
 							}
 
-							is GetAccountError.OutdatedPassword -> {
+							is GetAccountUseCaseError.OutdatedPassword -> {
 								if (state is Summary.State.Content) {
 									sideEffect(
 										Summary.Effect.NavigateToOutdatedPassword
@@ -85,7 +85,7 @@ class LoadSummaryActionProcessor(
 									Summary.State.Failed
 							}
 
-							is GetAccountError.Timeout -> {
+							is GetAccountUseCaseError.Timeout -> {
 								sideEffect(
 									Summary.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.snack_timeout)
@@ -95,7 +95,7 @@ class LoadSummaryActionProcessor(
 								Summary.State.Failed
 							}
 
-							is GetAccountError.Unavailable -> {
+							is GetAccountUseCaseError.Unavailable -> {
 								sideEffect(
 									Summary.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.snack_no_service)

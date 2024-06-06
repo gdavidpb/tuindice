@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.mapper.toSubjectGradeSet
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
-import com.gdavidpb.tuindice.record.domain.usecase.error.SubjectError
+import com.gdavidpb.tuindice.record.domain.usecase.error.SubjectUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
 import com.gdavidpb.tuindice.record.domain.usecase.param.SetSubjectGradeParams
 import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
@@ -16,7 +16,7 @@ class SetSubjectGradeUseCase(
 	private val quarterRepository: QuarterRepository,
 	override val paramsValidator: SetSubjectGradeParamsValidator,
 	override val exceptionHandler: SetSubjectGradeExceptionHandler
-) : FlowUseCase<SetSubjectGradeParams, Unit, SubjectError>() {
+) : FlowUseCase<SetSubjectGradeParams, Unit, SubjectUseCaseError>() {
 	override suspend fun executeOnBackground(params: SetSubjectGradeParams): Flow<Unit> {
 		val activeUId = authRepository.getActiveAuth().uid
 

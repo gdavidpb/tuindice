@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.domain.exception
 
-import com.gdavidpb.tuindice.record.domain.usecase.error.SubjectError
+import com.gdavidpb.tuindice.record.domain.usecase.error.SubjectUseCaseError
 
 class SubjectIllegalArgumentException(
-	val error: SubjectError
+	val error: SubjectUseCaseError
 ) : IllegalArgumentException()

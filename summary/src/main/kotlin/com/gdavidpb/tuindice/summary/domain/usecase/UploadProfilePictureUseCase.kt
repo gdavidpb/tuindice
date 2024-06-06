@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
-import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureError
+import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +16,7 @@ class UploadProfilePictureUseCase(
 	private val encoderRepository: EncoderRepository,
 	override val paramsValidator: UploadProfilePictureParamsValidator,
 	override val exceptionHandler: UploadProfilePictureExceptionHandler
-) : FlowUseCase<String, String, ProfilePictureError>() {
+) : FlowUseCase<String, String, ProfilePictureUseCaseError>() {
 	override suspend fun executeOnBackground(params: String): Flow<String> {
 		val activeUId = authRepository.getActiveAuth().uid
 		val encodedPicture = encoderRepository.encodePicture(path = params)

@@ -9,20 +9,20 @@ import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.login.domain.exception.SignInIllegalArgumentException
-import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
+import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 
 class SignInExceptionHandler(
 	private val networkRepository: NetworkRepository,
 	override val reportingRepository: ReportingRepository
-) : ExceptionHandler<SignInError>() {
-	override fun parseException(throwable: Throwable): SignInError? {
+) : ExceptionHandler<SignInUseCaseError>() {
+	override fun parseException(throwable: Throwable): SignInUseCaseError? {
 		return when {
 			throwable is SignInIllegalArgumentException -> throwable.error
-			throwable.isForbidden() -> SignInError.AccountDisabled
-			throwable.isUnavailable() -> SignInError.Unavailable
-			throwable.isUnauthorized() -> SignInError.InvalidCredentials
-			throwable.isTimeout() -> SignInError.Timeout
-			throwable.isConnection() -> SignInError.NoConnection(networkRepository.isAvailable())
+			throwable.isForbidden() -> SignInUseCaseError.AccountDisabled
+			throwable.isUnavailable() -> SignInUseCaseError.Unavailable
+			throwable.isUnauthorized() -> SignInUseCaseError.InvalidCredentials
+			throwable.isTimeout() -> SignInUseCaseError.Timeout
+			throwable.isConnection() -> SignInUseCaseError.NoConnection(networkRepository.isAvailable())
 			else -> null
 		}
 	}

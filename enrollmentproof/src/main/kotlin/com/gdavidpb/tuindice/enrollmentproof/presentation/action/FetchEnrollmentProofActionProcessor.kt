@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.enrollmentproof.R
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
-import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofError
+import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -41,7 +41,7 @@ class FetchEnrollmentProofActionProcessor(
 
 					is UseCaseState.Error -> { state ->
 						when (val error = useCaseState.error) {
-							is FetchEnrollmentProofError.NoConnection ->
+							is FetchEnrollmentProofUseCaseError.NoConnection ->
 								sideEffect(
 									Enrollment.Effect.ShowSnackBar(
 										message = if (error.isNetworkAvailable)
@@ -51,33 +51,33 @@ class FetchEnrollmentProofActionProcessor(
 									)
 								)
 
-							is FetchEnrollmentProofError.NotFound ->
+							is FetchEnrollmentProofUseCaseError.NotFound ->
 								sideEffect(
 									Enrollment.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.snack_enrollment_not_found)
 									)
 								)
 
-							is FetchEnrollmentProofError.UnsupportedFile ->
+							is FetchEnrollmentProofUseCaseError.UnsupportedFile ->
 								sideEffect(
 									Enrollment.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.snack_enrollment_unsupported)
 									)
 								)
 
-							is FetchEnrollmentProofError.OutdatedPassword ->
+							is FetchEnrollmentProofUseCaseError.OutdatedPassword ->
 								sideEffect(
 									Enrollment.Effect.NavigateToOutdatedPassword
 								)
 
-							is FetchEnrollmentProofError.Timeout ->
+							is FetchEnrollmentProofUseCaseError.Timeout ->
 								sideEffect(
 									Enrollment.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.snack_timeout)
 									)
 								)
 
-							is FetchEnrollmentProofError.Unavailable ->
+							is FetchEnrollmentProofUseCaseError.Unavailable ->
 								sideEffect(
 									Enrollment.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.snack_service_unavailable)

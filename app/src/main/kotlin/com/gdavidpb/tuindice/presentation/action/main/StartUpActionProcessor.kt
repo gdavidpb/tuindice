@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
-import com.gdavidpb.tuindice.domain.usecase.error.StartUpError
+import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.presentation.contract.Main
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -37,7 +37,7 @@ class StartUpActionProcessor(
 
 					is UseCaseState.Error -> { _ ->
 						when (val error = useCaseState.error) {
-							is StartUpError.NoServices ->
+							is StartUpUseCaseError.NoServices ->
 								sideEffect(
 									Main.Effect.ShowNoServicesDialog(status = error.status)
 								)

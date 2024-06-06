@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsError
+import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -42,11 +42,11 @@ class LoadEvaluationsActionProcessor(
 					}
 
 					is UseCaseState.Error -> { _ ->
-						if (useCaseState.error is EvaluationsError.NoSubjects)
+						if (useCaseState.error is EvaluationsUseCaseError.NoSubjects)
 							Evaluations.State.NoSubjects
 						else {
 							when (val error = useCaseState.error) {
-								is EvaluationsError.NoConnection ->
+								is EvaluationsUseCaseError.NoConnection ->
 									sideEffect(
 										Evaluations.Effect.ShowSnackBar(
 											message = if (error.isNetworkAvailable)
@@ -56,14 +56,14 @@ class LoadEvaluationsActionProcessor(
 										)
 									)
 
-								is EvaluationsError.Timeout ->
+								is EvaluationsUseCaseError.Timeout ->
 									sideEffect(
 										Evaluations.Effect.ShowSnackBar(
 											message = resourceResolver.getString(R.string.snack_timeout)
 										)
 									)
 
-								is EvaluationsError.Unavailable ->
+								is EvaluationsUseCaseError.Unavailable ->
 									sideEffect(
 										Evaluations.Effect.ShowSnackBar(
 											message = resourceResolver.getString(R.string.snack_service_unavailable)

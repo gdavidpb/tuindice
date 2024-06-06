@@ -7,18 +7,18 @@ import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
-import com.gdavidpb.tuindice.record.domain.usecase.error.GetQuartersError
+import com.gdavidpb.tuindice.record.domain.usecase.error.GetQuartersUseCaseError
 
 class GetQuartersExceptionHandler(
 	private val networkRepository: NetworkRepository,
 	override val reportingRepository: ReportingRepository
-) : ExceptionHandler<GetQuartersError>() {
-	override fun parseException(throwable: Throwable): GetQuartersError? {
+) : ExceptionHandler<GetQuartersUseCaseError>() {
+	override fun parseException(throwable: Throwable): GetQuartersUseCaseError? {
 		return when {
-			throwable.isUnavailable() -> GetQuartersError.Unavailable
-			throwable.isConflict() -> GetQuartersError.OutdatedPassword
-			throwable.isTimeout() -> GetQuartersError.Timeout
-			throwable.isConnection() -> GetQuartersError.NoConnection(networkRepository.isAvailable())
+			throwable.isUnavailable() -> GetQuartersUseCaseError.Unavailable
+			throwable.isConflict() -> GetQuartersUseCaseError.OutdatedPassword
+			throwable.isTimeout() -> GetQuartersUseCaseError.Timeout
+			throwable.isConnection() -> GetQuartersUseCaseError.NoConnection(networkRepository.isAvailable())
 			else -> null
 		}
 	}

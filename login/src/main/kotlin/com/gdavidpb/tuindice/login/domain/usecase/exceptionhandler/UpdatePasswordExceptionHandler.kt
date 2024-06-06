@@ -7,18 +7,18 @@ import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
-import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
+import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 
 class UpdatePasswordExceptionHandler(
 	private val networkRepository: NetworkRepository,
 	override val reportingRepository: ReportingRepository
-) : ExceptionHandler<SignInError>() {
-	override fun parseException(throwable: Throwable): SignInError? {
+) : ExceptionHandler<SignInUseCaseError>() {
+	override fun parseException(throwable: Throwable): SignInUseCaseError? {
 		return when {
-			throwable.isUnauthorized() -> SignInError.InvalidCredentials
-			throwable.isUnavailable() -> SignInError.Unavailable
-			throwable.isTimeout() -> SignInError.Timeout
-			throwable.isConnection() -> SignInError.NoConnection(networkRepository.isAvailable())
+			throwable.isUnauthorized() -> SignInUseCaseError.InvalidCredentials
+			throwable.isUnavailable() -> SignInUseCaseError.Unavailable
+			throwable.isTimeout() -> SignInUseCaseError.Timeout
+			throwable.isConnection() -> SignInUseCaseError.NoConnection(networkRepository.isAvailable())
 			else -> null
 		}
 	}

@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.usecase.UpdatePasswordUseCase
-import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
+import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -49,19 +49,19 @@ class UpdatePasswordActionProcessor(
 					is UseCaseState.Error -> { state ->
 						if (state is UpdatePassword.State.Idle) {
 							val error = when (val error = useCaseState.error) {
-								is SignInError.InvalidCredentials ->
+								is SignInUseCaseError.InvalidCredentials ->
 									resourceResolver.getString(R.string.error_invalid_password)
 
-								is SignInError.NoConnection ->
+								is SignInUseCaseError.NoConnection ->
 									if (error.isNetworkAvailable)
 										resourceResolver.getString(R.string.snack_service_unavailable)
 									else
 										resourceResolver.getString(R.string.snack_network_unavailable)
 
-								is SignInError.Timeout ->
+								is SignInUseCaseError.Timeout ->
 									resourceResolver.getString(R.string.snack_timeout)
 
-								is SignInError.Unavailable ->
+								is SignInUseCaseError.Unavailable ->
 									resourceResolver.getString(R.string.snack_service_unavailable)
 
 								else ->

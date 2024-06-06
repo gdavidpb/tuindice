@@ -7,18 +7,18 @@ import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
-import com.gdavidpb.tuindice.summary.domain.usecase.error.GetAccountError
+import com.gdavidpb.tuindice.summary.domain.usecase.error.GetAccountUseCaseError
 
 class GetAccountExceptionHandler(
 	private val networkRepository: NetworkRepository,
 	override val reportingRepository: ReportingRepository
-) : ExceptionHandler<GetAccountError>() {
-	override fun parseException(throwable: Throwable): GetAccountError? {
+) : ExceptionHandler<GetAccountUseCaseError>() {
+	override fun parseException(throwable: Throwable): GetAccountUseCaseError? {
 		return when {
-			throwable.isUnavailable() -> GetAccountError.Unavailable
-			throwable.isConflict() -> GetAccountError.OutdatedPassword
-			throwable.isTimeout() -> GetAccountError.Timeout
-			throwable.isConnection() -> GetAccountError.NoConnection(networkRepository.isAvailable())
+			throwable.isUnavailable() -> GetAccountUseCaseError.Unavailable
+			throwable.isConflict() -> GetAccountUseCaseError.OutdatedPassword
+			throwable.isTimeout() -> GetAccountUseCaseError.Timeout
+			throwable.isConnection() -> GetAccountUseCaseError.NoConnection(networkRepository.isAvailable())
 			else -> null
 		}
 	}

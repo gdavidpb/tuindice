@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.error.GetQuartersError
+import com.gdavidpb.tuindice.record.domain.usecase.error.GetQuartersUseCaseError
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -38,7 +38,7 @@ class LoadQuartersActionProcessor(
 
 					is UseCaseState.Error -> { _ ->
 						when (val error = useCaseState.error) {
-							is GetQuartersError.NoConnection ->
+							is GetQuartersUseCaseError.NoConnection ->
 								sideEffect(
 									Record.Effect.ShowSnackBar(
 										message = if (error.isNetworkAvailable)
@@ -48,19 +48,19 @@ class LoadQuartersActionProcessor(
 									)
 								)
 
-							is GetQuartersError.OutdatedPassword ->
+							is GetQuartersUseCaseError.OutdatedPassword ->
 								sideEffect(
 									Record.Effect.NavigateToOutdatedPassword
 								)
 
-							is GetQuartersError.Timeout ->
+							is GetQuartersUseCaseError.Timeout ->
 								sideEffect(
 									Record.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.snack_timeout)
 									)
 								)
 
-							is GetQuartersError.Unavailable ->
+							is GetQuartersUseCaseError.Unavailable ->
 								sideEffect(
 									Record.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.snack_service_unavailable)

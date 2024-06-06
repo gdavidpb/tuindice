@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.base.utils.extension.config
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
-import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
+import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.presentation.mapper.toSignInParams
 import kotlinx.coroutines.flow.Flow
@@ -52,21 +52,21 @@ class SignInActionProcessor(
 					is UseCaseState.Error -> { state ->
 						if (state is SignIn.State.LoggingIn) {
 							when (val error = useCaseState.error) {
-								is SignInError.InvalidCredentials ->
+								is SignInUseCaseError.InvalidCredentials ->
 									sideEffect(
 										SignIn.Effect.ShowSnackBar(
 											message = resourceResolver.getString(R.string.snack_invalid_credentials)
 										)
 									)
 
-								is SignInError.AccountDisabled ->
+								is SignInUseCaseError.AccountDisabled ->
 									sideEffect(
 										SignIn.Effect.ShowSnackBar(
 											message = resourceResolver.getString(R.string.snack_account_disabled)
 										)
 									)
 
-								is SignInError.NoConnection ->
+								is SignInUseCaseError.NoConnection ->
 									sideEffect(
 										SignIn.Effect.ShowRetrySnackBar(
 											message = if (error.isNetworkAvailable)
@@ -78,7 +78,7 @@ class SignInActionProcessor(
 										)
 									)
 
-								is SignInError.Timeout ->
+								is SignInUseCaseError.Timeout ->
 									sideEffect(
 										SignIn.Effect.ShowRetrySnackBar(
 											message = resourceResolver.getString(R.string.snack_timeout),
@@ -87,7 +87,7 @@ class SignInActionProcessor(
 										)
 									)
 
-								is SignInError.Unavailable ->
+								is SignInUseCaseError.Unavailable ->
 									sideEffect(
 										SignIn.Effect.ShowRetrySnackBar(
 											message = resourceResolver.getString(R.string.snack_service_unavailable),

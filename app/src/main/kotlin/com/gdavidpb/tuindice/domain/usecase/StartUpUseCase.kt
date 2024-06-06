@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.domain.model.StartUpData
-import com.gdavidpb.tuindice.domain.usecase.error.StartUpError
+import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -22,7 +22,7 @@ class StartUpUseCase(
 	private val mobileServicesRepository: MobileServicesRepository,
 	private val configRepository: ConfigRepository,
 	override val exceptionHandler: StartUpExceptionHandler
-) : FlowUseCase<Unit, StartUpData, StartUpError>() {
+) : FlowUseCase<Unit, StartUpData, StartUpUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<StartUpData> {
 		val servicesStatus = mobileServicesRepository.getServicesStatus()
 

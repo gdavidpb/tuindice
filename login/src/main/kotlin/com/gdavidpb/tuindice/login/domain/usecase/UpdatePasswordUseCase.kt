@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.login.data.repository.login.source.api.attestation.SignInAttestationPayload
 import com.gdavidpb.tuindice.login.domain.repository.SignInRepository
-import com.gdavidpb.tuindice.login.domain.usecase.error.SignInError
+import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.validator.UpdatePasswordParamsValidator
 import com.gdavidpb.tuindice.login.presentation.mapper.asUsbId
@@ -18,7 +18,7 @@ class UpdatePasswordUseCase(
 	private val attestationRepository: AttestationRepository,
 	override val paramsValidator: UpdatePasswordParamsValidator,
 	override val exceptionHandler: UpdatePasswordExceptionHandler
-) : FlowUseCase<String, Unit, SignInError>() {
+) : FlowUseCase<String, Unit, SignInUseCaseError>() {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val activeAuth = authRepository.getActiveAuth()
 		val usbId = activeAuth.email.asUsbId()

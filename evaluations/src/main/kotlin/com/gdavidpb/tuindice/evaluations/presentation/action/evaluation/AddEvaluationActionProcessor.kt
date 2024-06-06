@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.error.AddEvaluationError
+import com.gdavidpb.tuindice.evaluations.domain.usecase.error.AddEvaluationUseCaseError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toAddEvaluationParams
 import kotlinx.coroutines.flow.Flow
@@ -44,21 +44,21 @@ class AddEvaluationActionProcessor(
 
 					is UseCaseState.Error -> { state ->
 						when (useCaseState.error) {
-							is AddEvaluationError.SubjectMissed ->
+							is AddEvaluationUseCaseError.SubjectMissed ->
 								sideEffect(
 									Evaluation.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.error_evaluation_subject_missed)
 									)
 								)
 
-							is AddEvaluationError.TypeMissed ->
+							is AddEvaluationUseCaseError.TypeMissed ->
 								sideEffect(
 									Evaluation.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.error_evaluation_type_missed)
 									)
 								)
 
-							is AddEvaluationError.MaxGradeMissed ->
+							is AddEvaluationUseCaseError.MaxGradeMissed ->
 								sideEffect(
 									Evaluation.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.error_evaluation_max_grade_missed)

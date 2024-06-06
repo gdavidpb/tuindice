@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.evaluations.domain.exception.NoSubjectsException
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
-import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsError
+import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.GetEvaluationsExceptionHandler
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeAvailableFilters
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
@@ -22,7 +22,7 @@ class GetEvaluationsUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	private val resourceResolver: ResourceResolver,
 	override val exceptionHandler: GetEvaluationsExceptionHandler
-) : FlowUseCase<Flow<List<EvaluationFilter>>, GetEvaluations, EvaluationsError>() {
+) : FlowUseCase<Flow<List<EvaluationFilter>>, GetEvaluations, EvaluationsUseCaseError>() {
 
 	private val evaluationComparator =
 		Comparator<Evaluation> { a, b ->

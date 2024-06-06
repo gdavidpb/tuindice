@@ -9,21 +9,21 @@ import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
-import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofError
+import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
 
 class FetchEnrollmentProofExceptionHandler(
 	private val networkRepository: NetworkRepository,
 	override val reportingRepository: ReportingRepository
-) : ExceptionHandler<FetchEnrollmentProofError>() {
-	override fun parseException(throwable: Throwable): FetchEnrollmentProofError? {
+) : ExceptionHandler<FetchEnrollmentProofUseCaseError>() {
+	override fun parseException(throwable: Throwable): FetchEnrollmentProofUseCaseError? {
 		return when {
-			throwable is EnrollmentProofNotFoundException -> FetchEnrollmentProofError.NotFound
-			throwable is UnsupportedOperationException -> FetchEnrollmentProofError.UnsupportedFile
-			throwable.isNotFound() -> FetchEnrollmentProofError.NotFound
-			throwable.isUnavailable() -> FetchEnrollmentProofError.Unavailable
-			throwable.isConflict() -> FetchEnrollmentProofError.OutdatedPassword
-			throwable.isTimeout() -> FetchEnrollmentProofError.Timeout
-			throwable.isConnection() -> FetchEnrollmentProofError.NoConnection(networkRepository.isAvailable())
+			throwable is EnrollmentProofNotFoundException -> FetchEnrollmentProofUseCaseError.NotFound
+			throwable is UnsupportedOperationException -> FetchEnrollmentProofUseCaseError.UnsupportedFile
+			throwable.isNotFound() -> FetchEnrollmentProofUseCaseError.NotFound
+			throwable.isUnavailable() -> FetchEnrollmentProofUseCaseError.Unavailable
+			throwable.isConflict() -> FetchEnrollmentProofUseCaseError.OutdatedPassword
+			throwable.isTimeout() -> FetchEnrollmentProofUseCaseError.Timeout
+			throwable.isConnection() -> FetchEnrollmentProofUseCaseError.NoConnection(networkRepository.isAvailable())
 			else -> null
 		}
 	}

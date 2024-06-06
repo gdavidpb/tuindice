@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.summary.R
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureError
+import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -51,14 +51,14 @@ class ConfirmRemoveProfilePictureActionProcessor(
 					is UseCaseState.Error -> { state ->
 						if (state is Summary.State.Content) {
 							when (val error = useCaseState.error) {
-								is ProfilePictureError.Timeout ->
+								is ProfilePictureUseCaseError.Timeout ->
 									sideEffect(
 										Summary.Effect.ShowSnackBar(
 											message = resourceResolver.getString(R.string.snack_timeout)
 										)
 									)
 
-								is ProfilePictureError.NoConnection ->
+								is ProfilePictureUseCaseError.NoConnection ->
 									sideEffect(
 										Summary.Effect.ShowSnackBar(
 											message = if (error.isNetworkAvailable)
