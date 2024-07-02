@@ -91,17 +91,11 @@ fun TuIndiceRoute(
 	}
 
 	when (dialogState.value) {
-		is MainDialog.GooglePlayServicesUnavailable -> {
-			val nonDismissSheetState = rememberModalBottomSheetState(
-				confirmValueChange = { false }
-			)
-
+		is MainDialog.GooglePlayServicesUnavailable ->
 			GooglePlayServicesDialog(
-				sheetState = nonDismissSheetState,
 				onConfirmExitClick = { context.findActivity().finish() },
 				onDismissRequest = viewModel::closeDialogAction
 			)
-		}
 
 		null -> {}
 	}

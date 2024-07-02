@@ -9,6 +9,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetDefaults
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
@@ -33,6 +35,7 @@ fun ConfirmationDialog(
 	onPositiveClick: () -> Unit = {},
 	onNegativeClick: () -> Unit = {},
 	onDismissRequest: () -> Unit = {},
+	properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
 	content: @Composable () -> Unit = {}
 ) {
 	val coroutineScope = rememberCoroutineScope()
@@ -48,7 +51,8 @@ fun ConfirmationDialog(
 
 	ModalBottomSheet(
 		sheetState = sheetState,
-		onDismissRequest = onDismissRequest
+		onDismissRequest = onDismissRequest,
+		properties = properties
 	) {
 		Column(
 			modifier = Modifier

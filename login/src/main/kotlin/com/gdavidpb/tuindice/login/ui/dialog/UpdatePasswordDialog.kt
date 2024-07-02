@@ -5,6 +5,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -45,7 +46,8 @@ fun UpdatePasswordDialog(
 			if (state is UpdatePassword.State.Idle)
 				onConfirmClick(state.password)
 		},
-		onDismissRequest = onDismissRequest
+		onDismissRequest = onDismissRequest,
+		properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false)
 	) {
 		AnimatedContent(
 			targetState = isLoading,
