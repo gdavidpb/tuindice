@@ -58,8 +58,6 @@ object Evaluations {
 		class RemoveEvaluation(
 			val evaluationId: String
 		) : Action
-
-		data object CloseDialog : Action
 	}
 
 	sealed interface Effect : ViewEffect {
@@ -69,7 +67,7 @@ object Evaluations {
 			val evaluationId: String
 		) : Effect
 
-		class ShowGradePickerDialog(
+		class NavigateToGradePickerDialog(
 			val evaluationId: String,
 			val grade: Double,
 			val maxGrade: Double
@@ -78,7 +76,5 @@ object Evaluations {
 		class ShowSnackBar(
 			val message: String
 		) : Effect
-
-		data object CloseDialog : Effect
 	}
 }

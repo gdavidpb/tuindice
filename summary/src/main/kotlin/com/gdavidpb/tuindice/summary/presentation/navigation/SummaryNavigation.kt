@@ -18,8 +18,8 @@ fun NavGraphBuilder.summaryNavigation(
 	navController: NavController,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
-	navigation<SummaryDestination.NavGraph>(startDestination = SummaryDestination.SummaryScreen) {
-		composable<SummaryDestination.SummaryScreen> {
+	navigation<SummaryDestination.NavGraph>(startDestination = SummaryDestination.Summary) {
+		composable<SummaryDestination.Summary> {
 			SummaryRoute(
 				onNavigateToProfilePictureSettingsDialog = { showRemove ->
 					navController.navigate(

@@ -13,7 +13,7 @@ class PickGradeActionProcessor
 		sideEffect: (Evaluation.Effect) -> Unit
 	): Flow<Mutation<Evaluation.State>> {
 		sideEffect(
-			Evaluation.Effect.ShowGradePickerDialog(
+			Evaluation.Effect.NavigateToGradePickerDialog(
 				grade = action.grade,
 				maxGrade = action.maxGrade
 			)

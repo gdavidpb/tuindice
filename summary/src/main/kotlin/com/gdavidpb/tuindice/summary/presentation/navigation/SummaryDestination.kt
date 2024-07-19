@@ -9,7 +9,7 @@ sealed class SummaryDestination : Destination2() {
 	data object NavGraph : SummaryDestination()
 
 	@Serializable
-	data object SummaryScreen : SummaryDestination()
+	data object Summary : SummaryDestination()
 
 	@Serializable
 	data class ProfilePictureSettingsDialog(
