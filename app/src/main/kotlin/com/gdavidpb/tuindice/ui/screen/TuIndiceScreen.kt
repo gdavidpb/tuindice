@@ -32,10 +32,7 @@ import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.mapDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchDialog
-import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationScreen
-import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsScreen
-import com.gdavidpb.tuindice.evaluations.presentation.navigation.navigateToEvaluation
-import com.gdavidpb.tuindice.evaluations.presentation.navigation.navigateToEvaluations
+import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsNavigation
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignIn
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToUpdatePassword
 import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
@@ -163,6 +160,11 @@ fun TuIndiceScreen(
 					showSnackBar = showSnackBar
 				)
 
+				evaluationsNavigation(
+					navController = navController,
+					showSnackBar = showSnackBar
+				)
+
 				enrollmentProofFetchDialog(
 					navigateToUpdatePassword = {
 						navController.navigateToUpdatePassword()
@@ -203,23 +205,6 @@ fun TuIndiceScreen(
 				recordScreen(
 					navigateToUpdatePassword = {
 						navController.navigateToUpdatePassword()
-					},
-					showSnackBar = showSnackBar
-				)
-
-				evaluationsScreen(
-					navigateToAddEvaluation = {
-						navController.navigateToEvaluation()
-					},
-					navigateToEvaluation = { args ->
-						navController.navigateToEvaluation(args)
-					},
-					showSnackBar = showSnackBar
-				)
-
-				evaluationScreen(
-					navigateToEvaluations = {
-						navController.navigateToEvaluations()
 					},
 					showSnackBar = showSnackBar
 				)

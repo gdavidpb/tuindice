@@ -23,7 +23,6 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEval
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.GetEvaluationsExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.AddEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.CloseAddDialogActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.EditEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadAvailableSubjectsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
@@ -36,7 +35,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetSubje
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetTypeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.CheckEvaluationFilterActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.ClearEvaluationFiltersActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.CloseListDialogActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenAddEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEvaluationActionProcessor
@@ -65,7 +63,6 @@ val evaluationsModule = module {
 	factoryOf(::EditEvaluationActionProcessor)
 	factoryOf(::PickGradeActionProcessor)
 	factoryOf(::PickMaxGradeActionProcessor)
-	factoryOf(::CloseAddDialogActionProcessor)
 	factoryOf(::SetSubjectActionProcessor)
 	factoryOf(::SetTypeActionProcessor)
 	factoryOf(::SetDateActionProcessor)
@@ -81,7 +78,6 @@ val evaluationsModule = module {
 	factoryOf(::SetEvaluationGradeActionProcessor)
 	factoryOf(::OpenEvaluationActionProcessor)
 	factoryOf(::RemoveEvaluationActionProcessor)
-	factoryOf(::CloseListDialogActionProcessor)
 
 	/* Use cases */
 

@@ -75,26 +75,22 @@ object Evaluation {
 			val grade: Double?,
 			val maxGrade: Double?
 		) : Action
-
-		data object CloseDialog : Action
 	}
 
 	sealed interface Effect : ViewEffect {
 		data object NavigateToEvaluations : Effect
 
-		class ShowGradePickerDialog(
+		class NavigateToGradePickerDialog(
 			val grade: Double?,
 			val maxGrade: Double?
 		) : Effect
 
-		class ShowMaxGradePickerDialog(
+		class NavigateToMaxGradePickerDialog(
 			val maxGrade: Double?
 		) : Effect
 
 		class ShowSnackBar(
 			val message: String
 		) : Effect
-
-		data object CloseDialog : Effect
 	}
 }

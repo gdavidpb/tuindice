@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.CheckEvaluationFilterActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.ClearEvaluationFiltersActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.CloseListDialogActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenAddEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEvaluationActionProcessor
@@ -31,8 +30,7 @@ class EvaluationsViewModel(
 	private val pickEvaluationGradeActionProcessor: PickEvaluationGradeActionProcessor,
 	private val setEvaluationGradeActionProcessor: SetEvaluationGradeActionProcessor,
 	private val openEvaluationActionProcessor: OpenEvaluationActionProcessor,
-	private val removeEvaluationActionProcessor: RemoveEvaluationActionProcessor,
-	private val closeListDialogActionProcessor: CloseListDialogActionProcessor
+	private val removeEvaluationActionProcessor: RemoveEvaluationActionProcessor
 ) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Effect>(initialState = Evaluations.State.Loading) {
 
 	private val activeFilters = state
@@ -72,9 +70,6 @@ class EvaluationsViewModel(
 	fun setEvaluationGradeAction(evaluationId: String, grade: Double) =
 		sendAction(Evaluations.Action.SetEvaluationGrade(evaluationId, grade))
 
-	fun closeDialogAction() =
-		sendAction(Evaluations.Action.CloseDialog)
-
 	override fun processAction(
 		action: Evaluations.Action,
 		sideEffect: (Evaluations.Effect) -> Unit
@@ -106,9 +101,6 @@ class EvaluationsViewModel(
 
 			is Evaluations.Action.RemoveEvaluation ->
 				removeEvaluationActionProcessor.process(action, sideEffect)
-
-			is Evaluations.Action.CloseDialog ->
-				closeListDialogActionProcessor.process(action, sideEffect)
 		}
 	}
 }

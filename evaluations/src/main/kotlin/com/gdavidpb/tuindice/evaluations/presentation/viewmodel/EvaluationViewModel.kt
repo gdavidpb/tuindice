@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.AddEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.CloseAddDialogActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.EditEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadAvailableSubjectsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
@@ -26,7 +25,6 @@ class EvaluationViewModel(
 	private val editEvaluationActionProcessor: EditEvaluationActionProcessor,
 	private val pickGradeActionProcessor: PickGradeActionProcessor,
 	private val pickMaxGradeActionProcessor: PickMaxGradeActionProcessor,
-	private val closeAddDialogActionProcessor: CloseAddDialogActionProcessor,
 	private val setSubjectActionProcessor: SetSubjectActionProcessor,
 	private val setTypeActionProcessor: SetTypeActionProcessor,
 	private val setDateActionProcessor: SetDateActionProcessor,
@@ -95,9 +93,6 @@ class EvaluationViewModel(
 	fun clickMaxGradeAction(maxGrade: Double?) =
 		sendAction(Evaluation.Action.ClickMaxGrade(maxGrade))
 
-	fun closeDialogAction() =
-		sendAction(Evaluation.Action.CloseDialog)
-
 	override fun processAction(
 		action: Evaluation.Action,
 		sideEffect: (Evaluation.Effect) -> Unit
@@ -120,9 +115,6 @@ class EvaluationViewModel(
 
 			is Evaluation.Action.ClickMaxGrade ->
 				pickMaxGradeActionProcessor.process(action, sideEffect)
-
-			is Evaluation.Action.CloseDialog ->
-				closeAddDialogActionProcessor.process(action, sideEffect)
 
 			is Evaluation.Action.SetSubject ->
 				setSubjectActionProcessor.process(action, sideEffect)
