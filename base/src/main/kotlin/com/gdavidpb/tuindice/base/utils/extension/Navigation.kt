@@ -1,15 +1,15 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
+import android.annotation.SuppressLint
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 
 private val destinationsMap = mapOf(
-	Destination.Summary.serializer()
-		.hashCode() to { entry: NavBackStackEntry -> entry.toRoute<Destination.Summary>() },
 	Destination.Record.serializer()
 		.hashCode() to { entry: NavBackStackEntry -> entry.toRoute<Destination.Record>() },
 	Destination.Evaluations.serializer()
@@ -43,4 +43,15 @@ fun NavController.navigatePopUpTo(destination: Destination) {
 	navigate(route = destination) {
 		launchSingleTop = true
 	}
+}
+
+@SuppressLint("RestrictedApi")
+inline fun <reified T : BaseViewModel<*, *, *>> NavController.viewModel(): T? {
+	return visibleEntries.value.firstNotNullOfOrNull { backStackEntry ->
+		backStackEntry.viewModelStore.let { viewModelStore ->
+			viewModelStore.keys()
+				.find { key -> key.endsWith("${T::class.qualifiedName}") }
+				?.let(viewModelStore::get)
+		}
+	} as? T
 }
