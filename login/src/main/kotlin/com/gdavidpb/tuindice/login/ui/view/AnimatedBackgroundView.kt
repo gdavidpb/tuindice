@@ -9,7 +9,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -27,8 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun AnimatedBackgroundView(
-	@DrawableRes background: Int,
-	content: @Composable () -> Unit
+	@DrawableRes background: Int
 ) {
 	val resources = LocalContext.current.resources
 
@@ -66,32 +64,25 @@ fun AnimatedBackgroundView(
 		),
 	)
 
-	Box(
+	Canvas(
 		modifier = Modifier
 			.fillMaxSize()
-	) {
-		Canvas(
-			modifier = Modifier
-				.fillMaxSize()
-				.background(MaterialTheme.colorScheme.background)
-				.alpha(0.5f),
-			onDraw = {
-				translate(left = animatedX, top = 0f) {
-					drawRect(
-						brush = backgroundBrush,
-						size = Size(width = backgroundWidth, height = size.height)
-					)
-				}
-
-				translate(left = animatedX - backgroundWidth, top = 0f) {
-					drawRect(
-						brush = backgroundBrush,
-						size = Size(width = backgroundWidth, height = size.height)
-					)
-				}
+			.background(MaterialTheme.colorScheme.background)
+			.alpha(0.5f),
+		onDraw = {
+			translate(left = animatedX, top = 0f) {
+				drawRect(
+					brush = backgroundBrush,
+					size = Size(width = backgroundWidth, height = size.height)
+				)
 			}
-		)
 
-		content()
-	}
+			translate(left = animatedX - backgroundWidth, top = 0f) {
+				drawRect(
+					brush = backgroundBrush,
+					size = Size(width = backgroundWidth, height = size.height)
+				)
+			}
+		}
+	)
 }

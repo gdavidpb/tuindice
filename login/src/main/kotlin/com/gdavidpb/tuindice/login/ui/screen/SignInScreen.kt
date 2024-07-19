@@ -22,31 +22,31 @@ fun SignInScreen(
 ) {
 	AnimatedBackgroundView(
 		background = R.drawable.background
-	) {
-		AnimatedContent(
-			targetState = state is SignIn.State.LoggingIn,
-			transitionSpec = {
-				val enter = slideInHorizontally { x -> x }
-				val exit = slideOutHorizontally { x -> -x }
+	)
 
-				enter togetherWith exit
-			},
-			label = "AnimatedBackgroundViewAnimatedContent",
-		) { isLoggingIn ->
-			if (isLoggingIn)
-				SignInLoggingInView(
-					state = state
-				)
-			else
-				SignInIdleView(
-					state = state,
-					onUsbIdChange = onUsbIdChange,
-					onPasswordChange = onPasswordChange,
-					onSignInClick = onSignInClick,
-					onTermsAndConditionsClick = onTermsAndConditionsClick,
-					onPrivacyPolicyClick = onPrivacyPolicyClick
-				)
-		}
+	AnimatedContent(
+		targetState = state is SignIn.State.LoggingIn,
+		transitionSpec = {
+			val enter = slideInHorizontally { x -> x }
+			val exit = slideOutHorizontally { x -> -x }
+
+			enter togetherWith exit
+		},
+		label = "AnimatedBackgroundViewAnimatedContent",
+	) { isLoggingIn ->
+		if (isLoggingIn)
+			SignInLoggingInView(
+				state = state
+			)
+		else
+			SignInIdleView(
+				state = state,
+				onUsbIdChange = onUsbIdChange,
+				onPasswordChange = onPasswordChange,
+				onSignInClick = onSignInClick,
+				onTermsAndConditionsClick = onTermsAndConditionsClick,
+				onPrivacyPolicyClick = onPrivacyPolicyClick
+			)
 	}
 }
 

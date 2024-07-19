@@ -21,6 +21,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import com.gdavidpb.tuindice.login.R
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.utils.extension.isUsbId
@@ -110,4 +111,20 @@ fun SignInIdleView(
 			links = links
 		)
 	}
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SignInIdleViewPreview() {
+	SignInIdleView(
+		state = SignIn.State.Idle(
+			usbId = "",
+			password = ""
+		),
+		onUsbIdChange = {},
+		onPasswordChange = {},
+		onSignInClick = { _, _ -> },
+		onTermsAndConditionsClick = {},
+		onPrivacyPolicyClick = {}
+	)
 }
