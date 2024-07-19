@@ -40,16 +40,14 @@ object Summary {
 		data object OpenProfilePictureSettings : Action
 		data object RemoveProfilePicture : Action
 		data object ConfirmRemoveProfilePicture : Action
-		data object CloseDialog : Action
 	}
 
 	sealed interface Effect : ViewEffect {
+		class NavigateToProfilePictureSettingsDialog(val showRemove: Boolean) : Effect
+		data object NavigateToOutdatedPassword : Effect
+		data object NavigateToRemoveProfilePictureConfirmationDialog : Effect
 		class OpenCamera(val output: String) : Effect
 		data object OpenPicker : Effect
-		data object NavigateToOutdatedPassword : Effect
 		class ShowSnackBar(val message: String) : Effect
-		class ShowProfilePictureSettingsDialog(val showRemove: Boolean) : Effect
-		data object ShowRemoveProfilePictureConfirmationDialog : Effect
-		data object CloseDialog : Effect
 	}
 }

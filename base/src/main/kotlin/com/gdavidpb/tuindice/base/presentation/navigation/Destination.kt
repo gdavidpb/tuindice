@@ -7,6 +7,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 @Serializable
+abstract class Destination2
+
+@Serializable
 sealed class Destination(
 	@SerialName("destination_title")
 	open val title: String = "",
@@ -55,16 +58,6 @@ sealed class Destination(
 		title = title,
 		isTopDestination = false,
 		isBottomDestination = false
-	)
-
-	@Serializable
-	data object Summary
-		: Destination(
-		title = "Resumen",
-		isTopDestination = true,
-		isBottomDestination = true,
-		topBarConfig = TopBarConfig.Summary,
-		bottomBarConfig = BottomBarConfig.Summary
 	)
 
 	@Serializable

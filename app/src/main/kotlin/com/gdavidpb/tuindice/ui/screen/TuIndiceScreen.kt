@@ -45,8 +45,8 @@ import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.navigation.browserScreen
 import com.gdavidpb.tuindice.presentation.navigation.navigateToBrowser
 import com.gdavidpb.tuindice.record.presentation.navigation.recordScreen
-import com.gdavidpb.tuindice.summary.presentation.navigation.navigateToSummary
-import com.gdavidpb.tuindice.summary.presentation.navigation.summaryScreen
+import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
+import com.gdavidpb.tuindice.summary.presentation.navigation.summaryNavigation
 
 @OptIn(
 	ExperimentalMaterial3Api::class
@@ -117,7 +117,6 @@ fun TuIndiceScreen(
 					containerColor = MaterialTheme.colorScheme.onSecondary
 				) {
 					listOf(
-						Destination.Summary,
 						Destination.Record,
 						Destination.Evaluations,
 						Destination.About
@@ -159,6 +158,11 @@ fun TuIndiceScreen(
 				startDestination = state.startDestination,
 				modifier = Modifier.padding(innerPadding)
 			) {
+				summaryNavigation(
+					navController = navController,
+					showSnackBar = showSnackBar
+				)
+
 				enrollmentProofFetchDialog(
 					navigateToUpdatePassword = {
 						navController.navigateToUpdatePassword()
@@ -188,17 +192,10 @@ fun TuIndiceScreen(
 
 				signInScreen(
 					navigateToSummary = {
-						navController.navigateToSummary()
+						navController.navigate(SummaryDestination.NavGraph)
 					},
 					navigateToBrowser = { title, url ->
 						navController.navigateToBrowser(title, url)
-					},
-					showSnackBar = showSnackBar
-				)
-
-				summaryScreen(
-					navigateToUpdatePassword = {
-						navController.navigateToUpdatePassword()
 					},
 					showSnackBar = showSnackBar
 				)

@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.summary.presentation.action.CloseDialogActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.LoadSummaryActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.OpenProfilePictureSettingsActionProcessor
@@ -20,7 +19,6 @@ class SummaryViewModel(
 	private val uploadProfilePictureActionProcessor: UploadProfilePictureActionProcessor,
 	private val confirmRemoveProfilePictureActionProcessor: ConfirmRemoveProfilePictureActionProcessor,
 	private val removeProfilePictureActionProcessor: RemoveProfilePictureActionProcessor,
-	private val closeDialogActionProcessor: CloseDialogActionProcessor,
 	private val openProfilePictureSettingsActionProcessor: OpenProfilePictureSettingsActionProcessor
 ) : BaseViewModel<Summary.State, Summary.Action, Summary.Effect>(initialState = Summary.State.Loading) {
 
@@ -55,9 +53,6 @@ class SummaryViewModel(
 	fun openProfilePictureSettingsAction() =
 		sendAction(Summary.Action.OpenProfilePictureSettings)
 
-	fun closeDialogAction() =
-		sendAction(Summary.Action.CloseDialog)
-
 	override fun processAction(
 		action: Summary.Action,
 		sideEffect: (Summary.Effect) -> Unit
@@ -83,9 +78,6 @@ class SummaryViewModel(
 
 			is Summary.Action.OpenProfilePictureSettings ->
 				openProfilePictureSettingsActionProcessor.process(action, sideEffect)
-
-			is Summary.Action.CloseDialog ->
-				closeDialogActionProcessor.process(action, sideEffect)
 		}
 	}
 }
