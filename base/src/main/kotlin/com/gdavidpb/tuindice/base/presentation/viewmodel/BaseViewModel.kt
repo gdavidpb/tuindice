@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.utils.extension.waitForSubscribers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -45,12 +46,14 @@ abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 
 	protected fun sendAction(viewAction: A) {
 		viewModelScope.launch {
+			action.waitForSubscribers()
 			action.emit(viewAction)
 		}
 	}
 
 	private fun sendEffect(viewEffect: E) {
 		viewModelScope.launch {
+			effect.waitForSubscribers()
 			effect.emit(viewEffect)
 		}
 	}
