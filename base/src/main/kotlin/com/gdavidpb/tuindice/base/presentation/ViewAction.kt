@@ -1,3 +1,3 @@
 package com.gdavidpb.tuindice.base.presentation
 
-interface ViewAction
+abstract class ViewAction

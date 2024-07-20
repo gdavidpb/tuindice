@@ -6,31 +6,31 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object Record {
-	sealed interface State : ViewState {
-		data object Loading : State
+	sealed class State : ViewState() {
+		data object Loading : State()
 
 		data class Content(
 			val quarters: List<Quarter>
-		) : State
+		) : State()
 
-		data object Empty : State
+		data object Empty : State()
 
-		data object Failed : State
+		data object Failed : State()
 	}
 
-	sealed interface Action : ViewAction {
-		data object LoadQuarters : Action
+	sealed class Action : ViewAction() {
+		data object LoadQuarters : Action()
 
 		class SetSubjectGrade(
 			val quarterId: String,
 			val subjectId: String,
 			val grade: Int,
 			val dispatchToRemote: Boolean
-		) : Action
+		) : Action()
 	}
 
-	sealed interface Effect : ViewEffect {
-		data object NavigateToOutdatedPassword : Effect
-		class ShowSnackBar(val message: String) : Effect
+	sealed class Effect : ViewEffect() {
+		data object NavigateToOutdatedPassword : Effect()
+		class ShowSnackBar(val message: String) : Effect()
 	}
 }
