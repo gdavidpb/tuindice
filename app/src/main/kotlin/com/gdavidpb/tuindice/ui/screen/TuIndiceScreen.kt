@@ -39,15 +39,13 @@ import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
 import com.gdavidpb.tuindice.login.presentation.navigation.signOutDialog
 import com.gdavidpb.tuindice.login.presentation.navigation.updatePasswordDialog
 import com.gdavidpb.tuindice.presentation.contract.Main
-import com.gdavidpb.tuindice.presentation.navigation.browserScreen
-import com.gdavidpb.tuindice.presentation.navigation.navigateToBrowser
+import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
+import com.gdavidpb.tuindice.presentation.navigation.browserNavigation
 import com.gdavidpb.tuindice.record.presentation.navigation.recordScreen
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryNavigation
 
-@OptIn(
-	ExperimentalMaterial3Api::class
-)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TuIndiceScreen(
 	state: Main.State,
@@ -165,6 +163,10 @@ fun TuIndiceScreen(
 					showSnackBar = showSnackBar
 				)
 
+				browserNavigation(
+					navController = navController
+				)
+
 				enrollmentProofFetchDialog(
 					navigateToUpdatePassword = {
 						navController.navigateToUpdatePassword()
@@ -197,7 +199,11 @@ fun TuIndiceScreen(
 						navController.navigate(SummaryDestination.NavGraph)
 					},
 					navigateToBrowser = { title, url ->
-						navController.navigateToBrowser(title, url)
+						navController.navigate(
+							BrowserDestination.Browser(
+								url = url
+							)
+						)
 					},
 					showSnackBar = showSnackBar
 				)
@@ -211,11 +217,13 @@ fun TuIndiceScreen(
 
 				aboutScreen(
 					navigateToBrowser = { title, url ->
-						navController.navigateToBrowser(title, url)
+						navController.navigate(
+							BrowserDestination.Browser(
+								url = url
+							)
+						)
 					}
 				)
-
-				browserScreen()
 			}
 		}
 	}

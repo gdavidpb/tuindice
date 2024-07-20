@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.base.ui.dialog
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.gdavidpb.tuindice.base.R
@@ -12,11 +12,12 @@ import com.gdavidpb.tuindice.base.ui.view.getAnnotatedUrl
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExternalResourceDialog(
-	sheetState: SheetState,
 	url: String,
 	onConfirmClick: (url: String) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
+	val sheetState = rememberModalBottomSheetState()
+
 	ConfirmationDialog(
 		sheetState = sheetState,
 		titleText = stringResource(id = R.string.dialog_title_warning_external),

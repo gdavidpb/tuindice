@@ -5,17 +5,19 @@ import androidx.core.content.edit
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
-import com.gdavidpb.tuindice.data.mapper.toDestination
 import com.gdavidpb.tuindice.data.mapper.toDestinationName
 
 class PreferencesDataSource(
 	private val sharedPreferences: SharedPreferences
 ) : SettingsRepository {
 	override fun getLastDestination(): Destination {
+		TODO()
+		/*
 		return sharedPreferences
 			.getString(PreferencesKeys.LAST_DESTINATION, null)
 			?.toDestination()
 			?: Destination.Summary
+		 */
 	}
 
 	override fun setLastDestination(destination: Destination) {
