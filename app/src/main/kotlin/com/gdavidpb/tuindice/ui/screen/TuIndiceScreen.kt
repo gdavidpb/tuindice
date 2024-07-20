@@ -20,6 +20,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -30,9 +31,15 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
+import com.gdavidpb.tuindice.base.utils.extension.browse
+import com.gdavidpb.tuindice.base.utils.extension.findActivity
 import com.gdavidpb.tuindice.base.utils.extension.mapDestination
+import com.gdavidpb.tuindice.base.utils.extension.viewModel
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchDialog
+import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsNavigation
+import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
+import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignIn
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToUpdatePassword
 import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
@@ -45,6 +52,7 @@ import com.gdavidpb.tuindice.presentation.navigation.mainNavigation
 import com.gdavidpb.tuindice.record.presentation.navigation.recordNavigation
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryNavigation
+import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -149,36 +157,165 @@ fun TuIndiceScreen(
 		}
 	) { innerPadding ->
 		ModalBottomSheetLayout(bottomSheetNavigator) {
+			val context = LocalContext.current
+
 			NavHost(
 				navController = navController,
 				startDestination = state.startDestination,
 				modifier = Modifier.padding(innerPadding)
 			) {
 				mainNavigation(
-					navController = navController
+					onConfirmExitClick = {
+						context.findActivity().finish()
+					},
+					onDismissRequest = {
+						navController.navigateUp()
+					}
 				)
 
 				summaryNavigation(
-					navController = navController,
+					onNavigateToProfilePictureSettingsDialog = { showRemove ->
+						navController.navigate(
+							SummaryDestination.ProfilePictureSettingsDialog(
+								showRemove = showRemove
+							)
+						)
+					},
+					onNavigateToUpdatePassword = {
+						navController.navigate(
+							Destination.UpdatePassword
+						) // TODO
+					},
+					onNavigateToRemoveProfilePictureConfirmationDialog = {
+						navController.navigate(
+							SummaryDestination.RemoveProfilePictureConfirmationDialog
+						)
+					},
+					onDismissRequest = {
+						navController.navigateUp()
+					},
+					onConfirmRemoveProfilePicture = {
+						navController
+							.viewModel<SummaryViewModel>()
+							?.confirmRemoveProfilePictureAction()
+					},
+					onPickProfilePicture = {
+						navController
+							.viewModel<SummaryViewModel>()
+							?.pickProfilePictureAction()
+					},
+					onTakePicture = {
+						navController
+							.viewModel<SummaryViewModel>()
+							?.takeProfilePictureAction()
+					},
+					onRemoveProfilePicture = {
+						navController
+							.viewModel<SummaryViewModel>()
+							?.removeProfilePictureAction()
+					},
 					showSnackBar = showSnackBar
 				)
 
 				recordNavigation(
-					navController = navController,
+					onNavigateToUpdatePassword = {
+						TODO()
+					},
 					showSnackBar = showSnackBar
 				)
 
 				evaluationsNavigation(
-					navController = navController,
+					onNavigateToAddEvaluation = {
+						navController.navigate(
+							EvaluationsDestination.Evaluation(
+								evaluationId = null
+							)
+						)
+					},
+					onNavigateToEvaluation = { evaluationId ->
+						navController.navigate(
+							EvaluationsDestination.Evaluation(
+								evaluationId = evaluationId
+							)
+						)
+					},
+					onNavigateToEvaluationGradePickerDialog = { evaluationId, grade, maxGrade ->
+						navController.navigate(
+							EvaluationsDestination.EvaluationGradePickerDialog(
+								evaluationId = evaluationId,
+								grade = grade.toFloat(),
+								maxGrade = maxGrade.toFloat()
+							)
+						)
+					},
+					onNavigateToEvaluations = {
+						navController.navigate(EvaluationsDestination.Evaluations)
+					},
+					onNavigateToGradePickerDialog = { grade, maxGrade ->
+						navController.navigate(
+							EvaluationsDestination.GradePickerDialog(
+								grade = grade?.toFloat(),
+								maxGrade = maxGrade?.toFloat()
+							)
+						)
+					},
+					onNavigateToMaxGradePickerDialog = { maxGrade ->
+						navController.navigate(
+							EvaluationsDestination.MaxGradePickerDialog(
+								grade = maxGrade?.toFloat()
+							)
+						)
+					},
+					onDismissRequest = {
+						navController.navigateUp()
+					},
+					onSetGrade = { grade ->
+						navController
+							.viewModel<EvaluationViewModel>()
+							?.setGradeAction(
+								grade = grade
+							)
+					},
+					onSetMaxGrade = { grade ->
+						navController
+							.viewModel<EvaluationViewModel>()
+							?.setMaxGradeAction(
+								grade = grade
+							)
+					},
+					onSetEvaluationGrade = { evaluationId, grade ->
+						navController
+							.viewModel<EvaluationsViewModel>()
+							?.setEvaluationGradeAction(
+								evaluationId = evaluationId,
+								grade = grade
+							)
+					},
 					showSnackBar = showSnackBar
 				)
 
 				aboutNavigation(
-					navController = navController
+					onNavigateToBrowser = { title, url ->
+						navController.navigate(
+							BrowserDestination.Browser(url = url)
+						)
+					}
 				)
 
 				browserNavigation(
-					navController = navController
+					onNavigateToExternalResourceDialog = { url ->
+						navController.navigate(
+							BrowserDestination.ExternalResourceDialog(
+								url = url
+							)
+						)
+					},
+					onNavigateToExternalResource = { url ->
+						context.browse(url)
+					},
+					onDismissRequest = {
+						navController.navigateUp()
+					}
 				)
 
 				enrollmentProofFetchDialog(

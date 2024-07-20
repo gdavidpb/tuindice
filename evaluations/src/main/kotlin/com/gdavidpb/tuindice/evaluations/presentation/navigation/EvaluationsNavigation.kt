@@ -1,54 +1,39 @@
 package com.gdavidpb.tuindice.evaluations.presentation.navigation
 
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
-import com.gdavidpb.tuindice.base.utils.extension.viewModel
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationRoute
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationsRoute
-import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
-import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.evaluations.ui.dialog.GradePickerDialog
 import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.EvaluationGradeWheelPickerDefaults
 import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.MAX_EVALUATION_GRADE
 import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.MIN_EVALUATION_GRADE
 
 fun NavGraphBuilder.evaluationsNavigation(
-	navController: NavController,
+	onNavigateToAddEvaluation: () -> Unit,
+	onNavigateToEvaluation: (evaluationId: String) -> Unit,
+	onNavigateToEvaluationGradePickerDialog: (evaluationId: String, grade: Double, maxGrade: Double) -> Unit,
+	onNavigateToGradePickerDialog: (grade: Double?, maxGrade: Double?) -> Unit,
+	onNavigateToMaxGradePickerDialog: (maxGrade: Double?) -> Unit,
+	onNavigateToEvaluations: () -> Unit,
+	onSetGrade: (grade: Double) -> Unit,
+	onSetMaxGrade: (grade: Double) -> Unit,
+	onSetEvaluationGrade: (evaluationId: String, grade: Double) -> Unit,
+	onDismissRequest: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	navigation<EvaluationsDestination.NavGraph>(startDestination = EvaluationsDestination.Evaluations) {
 		composable<EvaluationsDestination.Evaluations> {
 			EvaluationsRoute(
-				onNavigateToAddEvaluation = {
-					navController.navigate(
-						EvaluationsDestination.Evaluation(
-							evaluationId = null
-						)
-					)
-				},
-				onNavigateToEvaluation = { evaluationId ->
-					navController.navigate(
-						EvaluationsDestination.Evaluation(
-							evaluationId = evaluationId
-						)
-					)
-				},
-				onNavigateToEvaluationGradePickerDialog = { evaluationId, grade, maxGrade ->
-					navController.navigate(
-						EvaluationsDestination.EvaluationGradePickerDialog(
-							evaluationId = evaluationId,
-							grade = grade.toFloat(),
-							maxGrade = maxGrade.toFloat()
-						)
-					)
-				},
+				onNavigateToAddEvaluation = onNavigateToAddEvaluation,
+				onNavigateToEvaluation = onNavigateToEvaluation,
+				onNavigateToEvaluationGradePickerDialog = onNavigateToEvaluationGradePickerDialog,
 				showSnackBar = showSnackBar
 			)
 		}
@@ -58,24 +43,9 @@ fun NavGraphBuilder.evaluationsNavigation(
 
 			EvaluationRoute(
 				evaluationId = args.evaluationId,
-				onNavigateToEvaluations = {
-					navController.navigate(EvaluationsDestination.Evaluations)
-				},
-				onNavigateToGradePickerDialog = { grade, maxGrade ->
-					navController.navigate(
-						EvaluationsDestination.GradePickerDialog(
-							grade = grade?.toFloat(),
-							maxGrade = maxGrade?.toFloat()
-						)
-					)
-				},
-				onNavigateToMaxGradePickerDialog = { maxGrade ->
-					navController.navigate(
-						EvaluationsDestination.MaxGradePickerDialog(
-							grade = maxGrade?.toFloat()
-						)
-					)
-				},
+				onNavigateToEvaluations = onNavigateToEvaluations,
+				onNavigateToGradePickerDialog = onNavigateToGradePickerDialog,
+				onNavigateToMaxGradePickerDialog = onNavigateToMaxGradePickerDialog,
 				showSnackBar = showSnackBar
 			)
 		}
@@ -86,17 +56,10 @@ fun NavGraphBuilder.evaluationsNavigation(
 			GradePickerDialog(
 				title = stringResource(R.string.dialog_title_add_evaluation_grade),
 				selectedGrade = args.grade?.toDouble(),
-				gradeRange = MIN_EVALUATION_GRADE..(args.maxGrade?.toDouble() ?: MAX_EVALUATION_GRADE),
-				onGradeChange = { grade ->
-					navController
-						.viewModel<EvaluationViewModel>()
-						?.setGradeAction(
-							grade = grade
-						)
-				},
-				onDismissRequest = {
-					navController.navigateUp()
-				}
+				gradeRange = MIN_EVALUATION_GRADE..(args.maxGrade?.toDouble()
+					?: MAX_EVALUATION_GRADE),
+				onGradeChange = onSetGrade,
+				onDismissRequest = onDismissRequest
 			)
 		}
 
@@ -107,16 +70,8 @@ fun NavGraphBuilder.evaluationsNavigation(
 				title = stringResource(id = R.string.dialog_title_add_evaluation_max_grade),
 				selectedGrade = args.grade?.toDouble(),
 				gradeRange = EvaluationGradeWheelPickerDefaults.GradeRange,
-				onGradeChange = { grade ->
-					navController
-						.viewModel<EvaluationViewModel>()
-						?.setMaxGradeAction(
-							grade = grade
-						)
-				},
-				onDismissRequest = {
-					navController.navigateUp()
-				}
+				onGradeChange = onSetMaxGrade,
+				onDismissRequest = onDismissRequest
 			)
 		}
 
@@ -128,16 +83,12 @@ fun NavGraphBuilder.evaluationsNavigation(
 				selectedGrade = args.grade.toDouble(),
 				gradeRange = MIN_EVALUATION_GRADE..args.maxGrade.toDouble(),
 				onGradeChange = { grade ->
-					navController
-						.viewModel<EvaluationsViewModel>()
-						?.setEvaluationGradeAction(
-							evaluationId = args.evaluationId,
-							grade = grade
-						)
+					onSetEvaluationGrade(
+						args.evaluationId,
+						grade
+					)
 				},
-				onDismissRequest = {
-					navController.navigateUp()
-				}
+				onDismissRequest = onDismissRequest
 			)
 		}
 	}
