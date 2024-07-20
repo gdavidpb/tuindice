@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.base.domain.repository
 
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination2
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 
 interface SettingsRepository {
 	fun isReviewSuggested(value: Int): Boolean
 
-	fun getLastDestination(): Destination2
-	fun setLastDestination(destination: Destination2)
+	fun getLastDestination(): Destination
+	fun setLastDestination(destination: Destination)
 
 	fun clear()
 }

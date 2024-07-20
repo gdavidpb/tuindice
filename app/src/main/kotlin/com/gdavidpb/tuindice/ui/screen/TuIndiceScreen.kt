@@ -11,8 +11,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -28,7 +26,6 @@ import com.gdavidpb.tuindice.about.presentation.navigation.aboutNavigation
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
-import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.browse
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
@@ -91,17 +88,19 @@ fun TuIndiceScreen(
 			TopAppBar(
 				title = {
 					TopAppBarAnimatedTitleView(
-						title = state.title
+						title = state.topBarTitle
 					)
 				},
 				actions = {
+					/* TODO
 					TopAppBarActionsView(
 						topBarConfig = state.topBarConfig,
 						onAction = onAction
 					)
+					 */
 				},
 				navigationIcon = {
-					if (!state.currentDestination.isTopDestination)
+					if (!state.isTopBarVisible)
 						IconButton(onClick = onNavigateBack) {
 							Icon(
 								imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -112,43 +111,44 @@ fun TuIndiceScreen(
 			)
 		},
 		bottomBar = {
-			if (state.currentDestination.isBottomDestination) {
+			if (state.isBottomBarVisible) {
 				NavigationBar(
 					modifier = Modifier.height(dimensionResource(id = R.dimen.dp_48)),
 					containerColor = MaterialTheme.colorScheme.onSecondary
 				) {
-					listOf(
-						Destination.Record,
-						Destination.Evaluations,
-						Destination.About
-					).forEach { destination ->
-						val bottomBarConfig = destination.bottomBarConfig
-
-						requireNotNull(bottomBarConfig)
-
-						val isNavigationBarItemSelected =
-							(destination == state.currentDestination)
-
-						val navigationBarItemIcon =
-							if (isNavigationBarItemSelected)
-								bottomBarConfig.selectedIcon
-							else
-								bottomBarConfig.unselectedIcon
-
-						NavigationBarItem(
-							icon = {
-								Icon(
-									imageVector = navigationBarItemIcon,
-									contentDescription = null
-								)
-							},
-							colors = NavigationBarItemDefaults.colors(
-								indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-							),
-							selected = isNavigationBarItemSelected,
-							onClick = { onNavigateTo(destination) }
-						)
-					}
+					// TODO
+//					listOf(
+//						Destination.Record,
+//						Destination.Evaluations,
+//						Destination.About
+//					).forEach { destination ->
+//						val bottomBarConfig = destination.bottomBarConfig
+//
+//						requireNotNull(bottomBarConfig)
+//
+//						val isNavigationBarItemSelected =
+//							(destination == state.currentDestination)
+//
+//						val navigationBarItemIcon =
+//							if (isNavigationBarItemSelected)
+//								bottomBarConfig.selectedIcon
+//							else
+//								bottomBarConfig.unselectedIcon
+//
+//						NavigationBarItem(
+//							icon = {
+//								Icon(
+//									imageVector = navigationBarItemIcon,
+//									contentDescription = null
+//								)
+//							},
+//							colors = NavigationBarItemDefaults.colors(
+//								indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+//							),
+//							selected = isNavigationBarItemSelected,
+//							onClick = { onNavigateTo(destination) }
+//						)
+//					}
 				}
 			}
 		}
