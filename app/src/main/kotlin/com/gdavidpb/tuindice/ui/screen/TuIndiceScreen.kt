@@ -24,7 +24,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.about.presentation.navigation.aboutScreen
+import com.gdavidpb.tuindice.about.presentation.navigation.aboutNavigation
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
@@ -173,6 +173,10 @@ fun TuIndiceScreen(
 					showSnackBar = showSnackBar
 				)
 
+				aboutNavigation(
+					navController = navController
+				)
+
 				browserNavigation(
 					navController = navController
 				)
@@ -216,16 +220,6 @@ fun TuIndiceScreen(
 						)
 					},
 					showSnackBar = showSnackBar
-				)
-
-				aboutScreen(
-					navigateToBrowser = { title, url ->
-						navController.navigate(
-							BrowserDestination.Browser(
-								url = url
-							)
-						)
-					}
 				)
 			}
 		}
