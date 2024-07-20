@@ -5,7 +5,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -62,10 +61,6 @@ fun SummaryRoute(
 			is Summary.Effect.NavigateToRemoveProfilePictureConfirmationDialog ->
 				onNavigateToRemoveProfilePictureConfirmationDialog()
 		}
-	}
-
-	LaunchedEffect(Unit) {
-		viewModel.loadSummaryAction()
 	}
 
 	SummaryScreen(
