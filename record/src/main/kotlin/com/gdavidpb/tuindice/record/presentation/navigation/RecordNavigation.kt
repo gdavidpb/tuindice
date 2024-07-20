@@ -3,22 +3,22 @@ package com.gdavidpb.tuindice.record.presentation.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.navigation
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.record.presentation.route.RecordRoute
 
-fun NavController.navigateToRecord() {
-	navigate(Destination.Record)
-}
-
-fun NavGraphBuilder.recordScreen(
-	navigateToUpdatePassword: () -> Unit,
+fun NavGraphBuilder.recordNavigation(
+	navController: NavController,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
-	composable<Destination.Record> {
-		RecordRoute(
-			onNavigateToUpdatePassword = navigateToUpdatePassword,
-			showSnackBar = showSnackBar
-		)
+	navigation<RecordDestination.NavGraph>(startDestination = RecordDestination.Record) {
+		composable<RecordDestination.Record> {
+			RecordRoute(
+				onNavigateToUpdatePassword = {
+					TODO()
+				},
+				showSnackBar = showSnackBar
+			)
+		}
 	}
 }
