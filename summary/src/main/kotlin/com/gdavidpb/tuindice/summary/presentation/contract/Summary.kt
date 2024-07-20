@@ -5,8 +5,8 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object Summary {
-	sealed interface State : ViewState {
-		data object Loading : State
+	sealed class State : ViewState() {
+		data object Loading : State()
 
 		data class Content(
 			val name: String,
@@ -27,27 +27,27 @@ object Summary {
 			val isLoading: Boolean,
 			val isUpdated: Boolean,
 			val isUpdating: Boolean
-		) : State
+		) : State()
 
-		data object Failed : State
+		data object Failed : State()
 	}
 
-	sealed interface Action : ViewAction {
-		data object LoadSummary : Action
-		data object TakeProfilePicture : Action
-		data object PickProfilePicture : Action
-		class UploadProfilePicture(val path: String) : Action
-		data object OpenProfilePictureSettings : Action
-		data object RemoveProfilePicture : Action
-		data object ConfirmRemoveProfilePicture : Action
+	sealed class Action : ViewAction() {
+		data object LoadSummary : Action()
+		data object TakeProfilePicture : Action()
+		data object PickProfilePicture : Action()
+		class UploadProfilePicture(val path: String) : Action()
+		data object OpenProfilePictureSettings : Action()
+		data object RemoveProfilePicture : Action()
+		data object ConfirmRemoveProfilePicture : Action()
 	}
 
-	sealed interface Effect : ViewEffect {
-		class NavigateToProfilePictureSettingsDialog(val showRemove: Boolean) : Effect
-		data object NavigateToOutdatedPassword : Effect
-		data object NavigateToRemoveProfilePictureConfirmationDialog : Effect
-		class OpenCamera(val output: String) : Effect
-		data object OpenPicker : Effect
-		class ShowSnackBar(val message: String) : Effect
+	sealed class Effect : ViewEffect() {
+		class NavigateToProfilePictureSettingsDialog(val showRemove: Boolean) : Effect()
+		data object NavigateToOutdatedPassword : Effect()
+		data object NavigateToRemoveProfilePictureConfirmationDialog : Effect()
+		class OpenCamera(val output: String) : Effect()
+		data object OpenPicker : Effect()
+		class ShowSnackBar(val message: String) : Effect()
 	}
 }
