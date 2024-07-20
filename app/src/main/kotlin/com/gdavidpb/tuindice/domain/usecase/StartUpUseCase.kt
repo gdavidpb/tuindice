@@ -7,11 +7,11 @@ import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
-import com.gdavidpb.tuindice.domain.model.StartUpData
+import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
+import com.gdavidpb.tuindice.login.presentation.navigation.LoginDestination
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -22,8 +22,8 @@ class StartUpUseCase(
 	private val mobileServicesRepository: MobileServicesRepository,
 	private val configRepository: ConfigRepository,
 	override val exceptionHandler: StartUpExceptionHandler
-) : FlowUseCase<Unit, StartUpData, StartUpUseCaseError>() {
-	override suspend fun executeOnBackground(params: Unit): Flow<StartUpData> {
+) : FlowUseCase<Unit, StartUpResult, StartUpUseCaseError>() {
+	override suspend fun executeOnBackground(params: Unit): Flow<StartUpResult> {
 		val servicesStatus = mobileServicesRepository.getServicesStatus()
 
 		check(servicesStatus.isAvailable) {
@@ -38,15 +38,12 @@ class StartUpUseCase(
 		val startDestination = if (isActiveAuth)
 			settingsRepository.getLastDestination()
 		else
-			Destination.SignIn
+			LoginDestination.NavGraph
 
-		val startUpData = StartUpData(
-			title = startDestination.title,
-			startDestination = startDestination,
-			currentDestination = startDestination,
-			topBarConfig = startDestination.topBarConfig
+		val startUpResult = StartUpResult(
+			startDestination = startDestination
 		)
 
-		return flowOf(startUpData)
+		return flowOf(startUpResult)
 	}
 }

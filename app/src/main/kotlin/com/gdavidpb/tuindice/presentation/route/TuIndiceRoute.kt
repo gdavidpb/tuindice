@@ -19,9 +19,8 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
-import com.gdavidpb.tuindice.base.utils.extension.navigatePopUpTo
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofFetchDestination
-import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignOut
+import com.gdavidpb.tuindice.login.presentation.navigation.LoginDestination
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
@@ -90,7 +89,9 @@ fun TuIndiceRoute(
 		onAction = { action ->
 			when (action) {
 				is TopBarAction.SignOutAction ->
-					navController.navigateToSignOut()
+					navController.navigate(
+						LoginDestination.SignOutDialog
+					)
 
 				is TopBarAction.FetchEnrollmentProofAction ->
 					navController.navigate(
@@ -98,8 +99,8 @@ fun TuIndiceRoute(
 					)
 			}
 		},
-		onNavigateTo = navController::navigatePopUpTo,
-		onNavigateBack = navController::popBackStack,
+		onNavigateTo = navController::navigate,
+		onNavigateBack = navController::navigateUp,
 		onSetDestinationScreen = viewModel::setLastDestinationAction
 	) { (message, actionLabel, onAction, onDismissed) ->
 		coroutineScope.launch {

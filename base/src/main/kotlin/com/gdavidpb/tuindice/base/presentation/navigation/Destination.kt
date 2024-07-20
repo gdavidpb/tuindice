@@ -25,42 +25,6 @@ sealed class Destination(
 	val bottomBarConfig: BottomBarConfig? = null
 ) {
 	@Serializable
-	data object EnrollmentProofFetch
-		: Destination(
-		isDialogDestination = true
-	)
-
-	@Serializable
-	data object UpdatePassword
-		: Destination(
-		isDialogDestination = true
-	)
-
-	@Serializable
-	data object SignIn
-		: Destination(
-		title = "TuIndice",
-		isTopDestination = true,
-		isBottomDestination = false
-	)
-
-	@Serializable
-	data object SignOut
-		: Destination(
-		isDialogDestination = true
-	)
-
-	@Serializable
-	data class Browser(
-		override val title: String,
-		val url: String
-	) : Destination(
-		title = title,
-		isTopDestination = false,
-		isBottomDestination = false
-	)
-
-	@Serializable
 	data object Record
 		: Destination(
 		title = "Informe Académico",
@@ -77,16 +41,6 @@ sealed class Destination(
 		isTopDestination = true,
 		isBottomDestination = true,
 		bottomBarConfig = BottomBarConfig.Evaluations
-	)
-
-	@Serializable
-	data class Evaluation(
-		override val title: String,
-		val evaluationId: String? = null
-	) : Destination(
-		title = title,
-		isTopDestination = false,
-		isBottomDestination = false
 	)
 
 	@Serializable
