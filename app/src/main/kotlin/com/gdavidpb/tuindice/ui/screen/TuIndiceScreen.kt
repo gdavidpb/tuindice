@@ -18,7 +18,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -33,7 +32,6 @@ import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.browse
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
-import com.gdavidpb.tuindice.base.utils.extension.mapDestination
 import com.gdavidpb.tuindice.base.utils.extension.viewModel
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchNavigation
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
@@ -67,6 +65,7 @@ fun TuIndiceScreen(
 ) {
 	if (state !is Main.State.Content) return
 
+	/* TODO
 	LaunchedEffect(navController) {
 		navController
 			.currentBackStackEntryFlow
@@ -84,6 +83,7 @@ fun TuIndiceScreen(
 				)
 			}
 	}
+	 */
 
 	Scaffold(
 		snackbarHost = { SnackbarHost(snackbarHostState) },
