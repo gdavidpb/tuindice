@@ -20,11 +20,10 @@ fun UpdatePasswordRoute(
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
-			is UpdatePassword.Effect.CloseDialog ->
-				onDismissRequest()
-
-			is UpdatePassword.Effect.ShowSnackBar ->
+			is UpdatePassword.Effect.ShowSnackBar -> {
 				showSnackBar(SnackBarMessage(message = effect.message))
+				onDismissRequest()
+			}
 		}
 	}
 

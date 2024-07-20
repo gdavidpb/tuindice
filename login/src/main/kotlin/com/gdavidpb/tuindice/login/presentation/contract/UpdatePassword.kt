@@ -20,7 +20,6 @@ object UpdatePassword {
 	}
 
 	sealed interface Effect : ViewEffect {
-		data object CloseDialog : Effect
 		class ShowSnackBar(val message: String) : Effect
 	}
 }

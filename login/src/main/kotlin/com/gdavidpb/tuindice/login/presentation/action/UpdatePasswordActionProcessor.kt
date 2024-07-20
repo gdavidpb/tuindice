@@ -39,10 +39,6 @@ class UpdatePasswordActionProcessor(
 							)
 						)
 
-						sideEffect(
-							UpdatePassword.Effect.CloseDialog
-						)
-
 						state
 					}
 
