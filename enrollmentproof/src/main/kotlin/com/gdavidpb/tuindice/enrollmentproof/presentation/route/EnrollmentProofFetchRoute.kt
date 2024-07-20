@@ -26,17 +26,18 @@ fun EnrollmentProofFetchRoute(
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
-			is Enrollment.Effect.CloseDialog ->
-				onDismissRequest()
-
 			is Enrollment.Effect.NavigateToOutdatedPassword ->
 				onNavigateToUpdatePassword()
 
-			is Enrollment.Effect.OpenEnrollmentProof ->
+			is Enrollment.Effect.OpenEnrollmentProof -> {
 				context.openFile(file = File(effect.path))
+				onDismissRequest()
+			}
 
-			is Enrollment.Effect.ShowSnackBar ->
+			is Enrollment.Effect.ShowSnackBar -> {
 				showSnackBar(SnackBarMessage(message = effect.message))
+				onDismissRequest()
+			}
 		}
 	}
 

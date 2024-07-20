@@ -14,9 +14,8 @@ object Enrollment {
 	}
 
 	sealed interface Effect : ViewEffect {
-		data object CloseDialog : Effect
-		class OpenEnrollmentProof(val path: String) : Effect
 		data object NavigateToOutdatedPassword : Effect
+		class OpenEnrollmentProof(val path: String) : Effect
 		class ShowSnackBar(val message: String) : Effect
 	}
 }

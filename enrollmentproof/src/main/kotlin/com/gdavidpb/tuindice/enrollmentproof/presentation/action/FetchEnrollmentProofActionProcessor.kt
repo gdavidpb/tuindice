@@ -32,10 +32,6 @@ class FetchEnrollmentProofActionProcessor(
 							Enrollment.Effect.OpenEnrollmentProof(path = useCaseState.value)
 						)
 
-						sideEffect(
-							Enrollment.Effect.CloseDialog
-						)
-
 						state
 					}
 
@@ -91,10 +87,6 @@ class FetchEnrollmentProofActionProcessor(
 									)
 								)
 						}
-
-						sideEffect(
-							Enrollment.Effect.CloseDialog
-						)
 
 						state
 					}

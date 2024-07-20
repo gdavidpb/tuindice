@@ -20,7 +20,7 @@ import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
 import com.gdavidpb.tuindice.base.utils.extension.navigatePopUpTo
-import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.navigateToEnrollmentProofFetch
+import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofFetchDestination
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignOut
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
@@ -93,7 +93,9 @@ fun TuIndiceRoute(
 					navController.navigateToSignOut()
 
 				is TopBarAction.FetchEnrollmentProofAction ->
-					navController.navigateToEnrollmentProofFetch()
+					navController.navigate(
+						EnrollmentProofFetchDestination.EnrollmentProofFetchDialog
+					)
 			}
 		},
 		onNavigateTo = navController::navigatePopUpTo,

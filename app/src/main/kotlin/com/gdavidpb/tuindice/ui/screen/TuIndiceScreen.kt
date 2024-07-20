@@ -40,11 +40,8 @@ import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDest
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsNavigation
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
-import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignIn
-import com.gdavidpb.tuindice.login.presentation.navigation.navigateToUpdatePassword
-import com.gdavidpb.tuindice.login.presentation.navigation.signInScreen
-import com.gdavidpb.tuindice.login.presentation.navigation.signOutDialog
-import com.gdavidpb.tuindice.login.presentation.navigation.updatePasswordDialog
+import com.gdavidpb.tuindice.login.presentation.navigation.LoginDestination
+import com.gdavidpb.tuindice.login.presentation.navigation.loginNavigation
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.browserNavigation
@@ -173,6 +170,26 @@ fun TuIndiceScreen(
 					}
 				)
 
+				loginNavigation(
+					onNavigateToSignIn = {
+						navController.navigate(LoginDestination.NavGraph)
+					},
+					onNavigateToSummary = {
+						navController.navigate(SummaryDestination.NavGraph)
+					},
+					onNavigateToBrowser = { title, url ->
+						navController.navigate(
+							BrowserDestination.Browser(
+								url = url
+							)
+						)
+					},
+					onDismissRequest = {
+						navController.navigateUp()
+					},
+					showSnackBar = showSnackBar
+				)
+
 				summaryNavigation(
 					onNavigateToProfilePictureSettingsDialog = { showRemove ->
 						navController.navigate(
@@ -183,8 +200,8 @@ fun TuIndiceScreen(
 					},
 					onNavigateToUpdatePassword = {
 						navController.navigate(
-							Destination.UpdatePassword
-						) // TODO
+							LoginDestination.UpdatePasswordDialog
+						)
 					},
 					onNavigateToRemoveProfilePictureConfirmationDialog = {
 						navController.navigate(
@@ -219,7 +236,9 @@ fun TuIndiceScreen(
 
 				recordNavigation(
 					onNavigateToUpdatePassword = {
-						TODO()
+						navController.navigate(
+							LoginDestination.UpdatePasswordDialog
+						)
 					},
 					showSnackBar = showSnackBar
 				)
@@ -304,7 +323,9 @@ fun TuIndiceScreen(
 
 				enrollmentProofFetchNavigation(
 					navigateToUpdatePassword = {
-						navController.navigateToUpdatePassword()
+						navController.navigate(
+							LoginDestination.UpdatePasswordDialog
+						)
 					},
 					onDismissRequest = {
 						navController.popBackStack()
@@ -326,37 +347,6 @@ fun TuIndiceScreen(
 					onDismissRequest = {
 						navController.navigateUp()
 					}
-				)
-
-				updatePasswordDialog(
-					onDismissRequest = {
-						navController.popBackStack()
-					},
-					showSnackBar = showSnackBar
-				)
-
-				signOutDialog(
-					navigateToSignIn = {
-						navController.navigateToSignIn()
-					},
-					onDismissRequest = {
-						navController.popBackStack()
-					},
-					showSnackBar = showSnackBar
-				)
-
-				signInScreen(
-					navigateToSummary = {
-						navController.navigate(SummaryDestination.NavGraph)
-					},
-					navigateToBrowser = { title, url ->
-						navController.navigate(
-							BrowserDestination.Browser(
-								url = url
-							)
-						)
-					},
-					showSnackBar = showSnackBar
 				)
 			}
 		}
