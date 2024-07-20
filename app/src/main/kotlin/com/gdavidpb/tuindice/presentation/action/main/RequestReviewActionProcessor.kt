@@ -25,7 +25,7 @@ class RequestReviewActionProcessor(
 
 					is UseCaseState.Data -> { state ->
 						sideEffect(
-							Main.Effect.ShowReviewDialog(reviewInfo = useCaseState.value)
+							Main.Effect.NavigateToReviewDialog(reviewInfo = useCaseState.value)
 						)
 
 						state

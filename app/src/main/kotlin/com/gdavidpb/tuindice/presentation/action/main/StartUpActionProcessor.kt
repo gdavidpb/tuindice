@@ -39,7 +39,7 @@ class StartUpActionProcessor(
 						when (val error = useCaseState.error) {
 							is StartUpUseCaseError.NoServices ->
 								sideEffect(
-									Main.Effect.ShowNoServicesDialog(status = error.status)
+									Main.Effect.NavigateToGooglePlayServicesUnavailableDialog(status = error.status)
 								)
 
 							else -> {}

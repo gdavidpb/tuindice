@@ -41,7 +41,6 @@ import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHan
 import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.SetLoadingActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.CloseMainDialogActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.SetLastDestinationActionProcessor
@@ -79,7 +78,6 @@ import com.gdavidpb.tuindice.data.repository.attestation.LocalDataSource as Atte
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
 import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource as AttestationRemote
 
-
 val appMockModule = module {
 	/* View Models */
 
@@ -93,7 +91,6 @@ val appMockModule = module {
 	factoryOf(::RequestReviewActionProcessor)
 	factoryOf(::RequestUpdateActionProcessor)
 	factoryOf(::SetLastDestinationActionProcessor)
-	factoryOf(::CloseMainDialogActionProcessor)
 
 	factoryOf(::NavigateToActionProcessor)
 	factoryOf(::SetLoadingActionProcessor)

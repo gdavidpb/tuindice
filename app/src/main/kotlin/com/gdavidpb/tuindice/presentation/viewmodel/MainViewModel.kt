@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.presentation.viewmodel
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.presentation.action.main.CloseMainDialogActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.SetLastDestinationActionProcessor
@@ -19,8 +18,7 @@ class MainViewModel(
 	private val startUpActionProcessor: StartUpActionProcessor,
 	private val requestReviewActionProcessor: RequestReviewActionProcessor,
 	private val requestUpdateActionProcessor: RequestUpdateActionProcessor,
-	private val setLastDestinationActionProcessor: SetLastDestinationActionProcessor,
-	private val closeMainDialogActionProcessor: CloseMainDialogActionProcessor
+	private val setLastDestinationActionProcessor: SetLastDestinationActionProcessor
 ) : BaseViewModel<Main.State, Main.Action, Main.Effect>(
 	initialState = Main.State.Starting,
 	initialAction = Main.Action.StartUp
@@ -37,9 +35,6 @@ class MainViewModel(
 
 	fun checkUpdateAction(appUpdateManager: AppUpdateManager) =
 		sendAction(Main.Action.RequestUpdate(appUpdateManager))
-
-	fun closeDialogAction() =
-		sendAction(Main.Action.CloseDialog)
 
 	override fun processAction(
 		action: Main.Action,
@@ -60,9 +55,6 @@ class MainViewModel(
 
 			is Main.Action.SetLastDestination ->
 				setLastDestinationActionProcessor.process(action, sideEffect)
-
-			is Main.Action.CloseDialog ->
-				closeMainDialogActionProcessor.process(action, sideEffect)
 		}
 	}
 }
