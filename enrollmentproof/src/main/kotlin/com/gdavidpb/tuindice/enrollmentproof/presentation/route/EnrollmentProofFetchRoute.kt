@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.route
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,10 +38,6 @@ fun EnrollmentProofFetchRoute(
 			is Enrollment.Effect.ShowSnackBar ->
 				showSnackBar(SnackBarMessage(message = effect.message))
 		}
-	}
-
-	LaunchedEffect(Unit) {
-		viewModel.fetchEnrollmentProofAction()
 	}
 
 	EnrollmentProofFetchDialog(

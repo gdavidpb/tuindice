@@ -9,11 +9,9 @@ import kotlinx.coroutines.flow.Flow
 class EnrollmentProofViewModel(
 	private val enrollmentProofActionProcessor: FetchEnrollmentProofActionProcessor
 ) : BaseViewModel<Enrollment.State, Enrollment.Action, Enrollment.Effect>(
-	initialState = Enrollment.State.Fetching
+	initialState = Enrollment.State.Fetching,
+	initialAction = Enrollment.Action.FetchEnrollmentProof
 ) {
-	fun fetchEnrollmentProofAction() =
-		sendAction(Enrollment.Action.FetchEnrollmentProof)
-
 	override fun processAction(
 		action: Enrollment.Action,
 		sideEffect: (Enrollment.Effect) -> Unit

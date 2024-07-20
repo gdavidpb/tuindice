@@ -20,8 +20,10 @@ class SummaryViewModel(
 	private val confirmRemoveProfilePictureActionProcessor: ConfirmRemoveProfilePictureActionProcessor,
 	private val removeProfilePictureActionProcessor: RemoveProfilePictureActionProcessor,
 	private val openProfilePictureSettingsActionProcessor: OpenProfilePictureSettingsActionProcessor
-) : BaseViewModel<Summary.State, Summary.Action, Summary.Effect>(initialState = Summary.State.Loading) {
-
+) : BaseViewModel<Summary.State, Summary.Action, Summary.Effect>(
+	initialState = Summary.State.Loading,
+	initialAction = Summary.Action.LoadSummary
+) {
 	private var cameraOutput: String = ""
 
 	fun setCameraOutput(output: String) {
