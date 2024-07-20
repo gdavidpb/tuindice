@@ -35,7 +35,7 @@ import com.gdavidpb.tuindice.base.utils.extension.browse
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
 import com.gdavidpb.tuindice.base.utils.extension.mapDestination
 import com.gdavidpb.tuindice.base.utils.extension.viewModel
-import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchDialog
+import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchNavigation
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsNavigation
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
@@ -302,6 +302,16 @@ fun TuIndiceScreen(
 					}
 				)
 
+				enrollmentProofFetchNavigation(
+					navigateToUpdatePassword = {
+						navController.navigateToUpdatePassword()
+					},
+					onDismissRequest = {
+						navController.popBackStack()
+					},
+					showSnackBar = showSnackBar
+				)
+
 				browserNavigation(
 					onNavigateToExternalResourceDialog = { url ->
 						navController.navigate(
@@ -316,16 +326,6 @@ fun TuIndiceScreen(
 					onDismissRequest = {
 						navController.navigateUp()
 					}
-				)
-
-				enrollmentProofFetchDialog(
-					navigateToUpdatePassword = {
-						navController.navigateToUpdatePassword()
-					},
-					onDismissRequest = {
-						navController.popBackStack()
-					},
-					showSnackBar = showSnackBar
 				)
 
 				updatePasswordDialog(
