@@ -4,9 +4,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.gdavidpb.tuindice.base.domain.model.Auth
 import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
-import com.gdavidpb.tuindice.data.mapper.toDestinationName
 import java.util.UUID
 
 class AuthMockDataSource(
@@ -30,11 +28,14 @@ class AuthMockDataSource(
 	}
 
 	override suspend fun signIn(token: String): Auth {
+		TODO()
+		/*
 		sharedPreferences.edit {
-			putString(PreferencesKeys.LAST_DESTINATION, Destination.Summary.toDestinationName())
+			putString(PreferencesKeys.LAST_DESTINATION, SummaryDestination.toDestinationName())
 		}
 
 		return Auth(uid = uid, email = email)
+		 */
 	}
 
 	override suspend fun signOut() {

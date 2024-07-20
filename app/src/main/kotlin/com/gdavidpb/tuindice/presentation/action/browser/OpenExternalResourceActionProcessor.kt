@@ -13,7 +13,7 @@ class OpenExternalResourceActionProcessor
 		sideEffect: (Browser.Effect) -> Unit
 	): Flow<Mutation<Browser.State>> {
 		sideEffect(
-			Browser.Effect.ShowExternalResourceDialog(url = action.url)
+			Browser.Effect.NavigateToExternalResourceDialog(url = action.url)
 		)
 
 		return super.process(action, sideEffect)

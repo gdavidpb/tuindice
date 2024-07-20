@@ -38,8 +38,6 @@ import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastDestinationUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
-import com.gdavidpb.tuindice.presentation.action.browser.CloseBrowserDialogActionProcessor
-import com.gdavidpb.tuindice.presentation.action.browser.ConfirmOpenExternalResourceActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.SetLoadingActionProcessor
@@ -100,8 +98,6 @@ val appMockModule = module {
 	factoryOf(::NavigateToActionProcessor)
 	factoryOf(::SetLoadingActionProcessor)
 	factoryOf(::OpenExternalResourceActionProcessor)
-	factoryOf(::ConfirmOpenExternalResourceActionProcessor)
-	factoryOf(::CloseBrowserDialogActionProcessor)
 
 	/* Use cases */
 

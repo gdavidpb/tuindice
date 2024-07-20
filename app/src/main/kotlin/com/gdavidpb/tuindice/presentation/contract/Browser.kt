@@ -18,13 +18,9 @@ object Browser {
 		class NavigateTo(val url: String) : Action
 		class SetLoading(val isLoading: Boolean) : Action
 		class OpenExternalResource(val url: String) : Action
-		class ConfirmOpenExternalResource(val url: String) : Action
-		data object CloseDialog : Action
 	}
 
 	sealed interface Effect : ViewEffect {
-		class OpenExternalResource(val url: String) : Effect
-		class ShowExternalResourceDialog(val url: String) : Effect
-		data object CloseDialog : Effect
+		class NavigateToExternalResourceDialog(val url: String) : Effect
 	}
 }
