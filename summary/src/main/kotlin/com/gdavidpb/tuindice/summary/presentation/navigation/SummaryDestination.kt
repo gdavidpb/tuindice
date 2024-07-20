@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.summary.presentation.navigation
 
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination2
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class SummaryDestination : Destination2() {
+sealed class SummaryDestination : Destination() {
 	@Serializable
 	data object NavGraph : SummaryDestination()
 

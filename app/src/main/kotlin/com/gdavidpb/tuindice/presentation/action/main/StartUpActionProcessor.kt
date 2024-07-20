@@ -27,10 +27,7 @@ class StartUpActionProcessor(
 					is UseCaseState.Data -> { _ ->
 						with(useCaseState.value) {
 							Main.State.Content(
-								title = title,
-								startDestination = startDestination,
-								currentDestination = currentDestination,
-								topBarConfig = topBarConfig
+								startDestination = startDestination
 							)
 						}
 					}

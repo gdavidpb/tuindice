@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.data.source.settings
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination2
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
 import com.gdavidpb.tuindice.data.mapper.toDestination
 import com.gdavidpb.tuindice.data.mapper.toDestinationName
@@ -12,14 +12,14 @@ import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 class PreferencesDataSource(
 	private val sharedPreferences: SharedPreferences
 ) : SettingsRepository {
-	override fun getLastDestination(): Destination2 {
+	override fun getLastDestination(): Destination {
 		return sharedPreferences
 			.getString(PreferencesKeys.LAST_DESTINATION, null)
 			?.toDestination()
 			?: SummaryDestination.NavGraph
 	}
 
-	override fun setLastDestination(destination: Destination2) {
+	override fun setLastDestination(destination: Destination) {
 		sharedPreferences.edit {
 			putString(PreferencesKeys.LAST_DESTINATION, destination.toDestinationName())
 		}
