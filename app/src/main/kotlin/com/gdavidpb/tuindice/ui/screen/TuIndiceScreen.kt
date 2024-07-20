@@ -41,6 +41,7 @@ import com.gdavidpb.tuindice.login.presentation.navigation.updatePasswordDialog
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.browserNavigation
+import com.gdavidpb.tuindice.presentation.navigation.mainNavigation
 import com.gdavidpb.tuindice.record.presentation.navigation.recordScreen
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryNavigation
@@ -153,6 +154,10 @@ fun TuIndiceScreen(
 				startDestination = state.startDestination,
 				modifier = Modifier.padding(innerPadding)
 			) {
+				mainNavigation(
+					navController = navController
+				)
+
 				summaryNavigation(
 					navController = navController,
 					showSnackBar = showSnackBar

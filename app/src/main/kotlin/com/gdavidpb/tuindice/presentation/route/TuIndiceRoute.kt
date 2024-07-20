@@ -1,11 +1,9 @@
 package com.gdavidpb.tuindice.presentation.route
 
 import androidx.compose.material.navigation.rememberBottomSheetNavigator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -18,7 +16,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
-import com.gdavidpb.tuindice.base.presentation.model.rememberDialogState
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
@@ -26,9 +23,8 @@ import com.gdavidpb.tuindice.base.utils.extension.navigatePopUpTo
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.navigateToEnrollmentProofFetch
 import com.gdavidpb.tuindice.login.presentation.navigation.navigateToSignOut
 import com.gdavidpb.tuindice.presentation.contract.Main
-import com.gdavidpb.tuindice.presentation.model.MainDialog
+import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.ui.dialog.GooglePlayServicesDialog
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
@@ -38,7 +34,6 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TuIndiceRoute(
 	reviewManager: ReviewManager = koinInject(),
@@ -54,7 +49,6 @@ fun TuIndiceRoute(
 	val navController = rememberNavController(bottomSheetNavigator)
 	val coroutineScope = rememberCoroutineScope()
 	val snackbarHostState = remember { SnackbarHostState() }
-	val dialogState = rememberDialogState<MainDialog>()
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
@@ -66,19 +60,16 @@ fun TuIndiceRoute(
 					RequestCodes.APP_UPDATE
 				)
 
-			is Main.Effect.ShowNoServicesDialog ->
-				dialogState.value = MainDialog.GooglePlayServicesUnavailable
+			is Main.Effect.NavigateToGooglePlayServicesUnavailableDialog ->
+				navController.navigate(MainDestination.GooglePlayServicesUnavailableDialog)
 
-			is Main.Effect.ShowReviewDialog ->
+			is Main.Effect.NavigateToReviewDialog ->
 				lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
 					reviewManager.launchReview(
 						activity = context.findActivity(),
 						reviewInfo = effect.reviewInfo
 					)
 				}
-
-			is Main.Effect.CloseDialog ->
-				dialogState.value = null
 		}
 	}
 
@@ -88,16 +79,6 @@ fun TuIndiceRoute(
 		lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
 			viewModel.checkUpdateAction(appUpdateManager = appUpdateManager)
 		}
-	}
-
-	when (dialogState.value) {
-		is MainDialog.GooglePlayServicesUnavailable ->
-			GooglePlayServicesDialog(
-				onConfirmExitClick = { context.findActivity().finish() },
-				onDismissRequest = viewModel::closeDialogAction
-			)
-
-		null -> {}
 	}
 
 	TuIndiceScreen(

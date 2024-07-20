@@ -1,7 +1,0 @@
-package com.gdavidpb.tuindice.presentation.model
-
-import com.gdavidpb.tuindice.base.presentation.model.Dialog
-
-sealed class MainDialog : Dialog {
-	data object GooglePlayServicesUnavailable : MainDialog()
-}

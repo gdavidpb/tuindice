@@ -31,13 +31,11 @@ object Main {
 		class RequestReview(val reviewManager: ReviewManager) : Action
 		class RequestUpdate(val appUpdateManager: AppUpdateManager) : Action
 		class SetLastDestination(val destination: Destination) : Action
-		data object CloseDialog : Action
 	}
 
 	sealed interface Effect : ViewEffect {
-		class ShowNoServicesDialog(val status: ServicesStatus) : Effect
-		class ShowReviewDialog(val reviewInfo: ReviewInfo) : Effect
+		class NavigateToGooglePlayServicesUnavailableDialog(val status: ServicesStatus) : Effect
+		class NavigateToReviewDialog(val reviewInfo: ReviewInfo) : Effect
 		class StartUpdateFlow(val updateInfo: AppUpdateInfo) : Effect
-		data object CloseDialog : Effect
 	}
 }
