@@ -10,7 +10,7 @@ fun NavGraphBuilder.enrollmentProofFetchNavigation(
 	onDismissRequest: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
-	dialog<EnrollmentProofFetchDestination> {
+	dialog<EnrollmentProofFetchDestination.EnrollmentProofFetchDialog> {
 		EnrollmentProofFetchRoute(
 			onNavigateToUpdatePassword = navigateToUpdatePassword,
 			onDismissRequest = onDismissRequest,

@@ -16,5 +16,6 @@ sealed class SummaryDestination : Destination() {
 		val showRemove: Boolean
 	) : SummaryDestination()
 
+	@Serializable
 	data object RemoveProfilePictureConfirmationDialog : SummaryDestination()
 }
