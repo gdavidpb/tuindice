@@ -14,8 +14,8 @@ class BrowserViewModel(
 	private val openExternalResourceActionProcessor: OpenExternalResourceActionProcessor
 ) : BaseViewModel<Browser.State, Browser.Action, Browser.Effect>(initialState = Browser.State.Idle) {
 
-	fun navigateToAction(url: String) =
-		sendAction(Browser.Action.NavigateTo(url))
+	fun navigateToAction(title: String, url: String) =
+		sendAction(Browser.Action.NavigateTo(title, url))
 
 	fun openExternalResourceAction(url: String) =
 		sendAction(Browser.Action.OpenExternalResource(url))

@@ -13,10 +13,11 @@ fun NavGraphBuilder.browserNavigation(
 	onDismissRequest: () -> Unit
 ) {
 	composable<BrowserDestination.Browser> { backStackEntry ->
-		val destination = backStackEntry.toRoute<BrowserDestination.Browser>()
+		val args = backStackEntry.toRoute<BrowserDestination.Browser>()
 
 		BrowserRoute(
-			url = destination.url,
+			title = args.title,
+			url = args.url,
 			onNavigateToExternalResourceDialog = onNavigateToExternalResourceDialog
 		)
 	}

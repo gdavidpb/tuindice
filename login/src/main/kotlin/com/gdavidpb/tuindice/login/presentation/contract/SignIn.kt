@@ -6,7 +6,10 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
 
 object SignIn {
-	sealed class State : ViewState() {
+	sealed class State(
+		override val topBarTitle: String = "TuIndice",
+		override val isTopBarVisible: Boolean = true
+	) : ViewState() {
 		data class Idle(
 			val usbId: String = "",
 			val password: String = ""

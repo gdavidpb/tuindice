@@ -12,6 +12,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun BrowserRoute(
+	title: String,
 	url: String,
 	onNavigateToExternalResourceDialog: (url: String) -> Unit,
 	viewModel: BrowserViewModel = koinViewModel()
@@ -26,7 +27,10 @@ fun BrowserRoute(
 	}
 
 	LaunchedEffect(Unit) {
-		viewModel.navigateToAction(url = url)
+		viewModel.navigateToAction(
+			title = title,
+			url = url
+		)
 	}
 
 	BrowserScreen(

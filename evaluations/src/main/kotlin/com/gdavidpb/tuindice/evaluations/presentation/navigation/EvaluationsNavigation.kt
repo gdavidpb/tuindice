@@ -7,6 +7,8 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.base.utils.extension.DoubleNavType
+import com.gdavidpb.tuindice.base.utils.extension.DoubleOptNavType
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationRoute
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationsRoute
@@ -14,6 +16,7 @@ import com.gdavidpb.tuindice.evaluations.ui.dialog.GradePickerDialog
 import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.EvaluationGradeWheelPickerDefaults
 import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.MAX_EVALUATION_GRADE
 import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.MIN_EVALUATION_GRADE
+import kotlin.reflect.typeOf
 
 fun NavGraphBuilder.evaluationsNavigation(
 	onNavigateToAddEvaluation: () -> Unit,
@@ -50,38 +53,44 @@ fun NavGraphBuilder.evaluationsNavigation(
 			)
 		}
 
-		dialog<EvaluationsDestination.GradePickerDialog> { backStackEntry ->
+		dialog<EvaluationsDestination.GradePickerDialog>(
+			typeMap = mapOf(typeOf<Double?>() to DoubleOptNavType)
+		) { backStackEntry ->
 			val args = backStackEntry.toRoute<EvaluationsDestination.GradePickerDialog>()
 
 			GradePickerDialog(
 				title = stringResource(R.string.dialog_title_add_evaluation_grade),
-				selectedGrade = args.grade?.toDouble(),
-				gradeRange = MIN_EVALUATION_GRADE..(args.maxGrade?.toDouble()
+				selectedGrade = args.grade,
+				gradeRange = MIN_EVALUATION_GRADE..(args.maxGrade
 					?: MAX_EVALUATION_GRADE),
 				onGradeChange = onSetGrade,
 				onDismissRequest = onDismissRequest
 			)
 		}
 
-		dialog<EvaluationsDestination.MaxGradePickerDialog> { backStackEntry ->
+		dialog<EvaluationsDestination.MaxGradePickerDialog>(
+			typeMap = mapOf(typeOf<Double?>() to DoubleOptNavType)
+		) { backStackEntry ->
 			val args = backStackEntry.toRoute<EvaluationsDestination.MaxGradePickerDialog>()
 
 			GradePickerDialog(
 				title = stringResource(id = R.string.dialog_title_add_evaluation_max_grade),
-				selectedGrade = args.grade?.toDouble(),
+				selectedGrade = args.grade,
 				gradeRange = EvaluationGradeWheelPickerDefaults.GradeRange,
 				onGradeChange = onSetMaxGrade,
 				onDismissRequest = onDismissRequest
 			)
 		}
 
-		dialog<EvaluationsDestination.EvaluationGradePickerDialog> { backStackEntry ->
+		dialog<EvaluationsDestination.EvaluationGradePickerDialog>(
+			typeMap = mapOf(typeOf<Double>() to DoubleNavType)
+		) { backStackEntry ->
 			val args = backStackEntry.toRoute<EvaluationsDestination.EvaluationGradePickerDialog>()
 
 			GradePickerDialog(
 				title = stringResource(id = R.string.dialog_title_add_evaluation_grade),
-				selectedGrade = args.grade.toDouble(),
-				gradeRange = MIN_EVALUATION_GRADE..args.maxGrade.toDouble(),
+				selectedGrade = args.grade,
+				gradeRange = MIN_EVALUATION_GRADE..args.maxGrade,
 				onGradeChange = { grade ->
 					onSetEvaluationGrade(
 						args.evaluationId,

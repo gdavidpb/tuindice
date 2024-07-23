@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 sealed class BrowserDestination : Destination() {
 	@Serializable
 	data class Browser(
+		val title: String,
 		val url: String
 	) : Destination()
 

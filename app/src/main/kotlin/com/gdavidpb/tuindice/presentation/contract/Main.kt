@@ -15,7 +15,10 @@ object Main {
 		data object Starting : State()
 
 		data class Content(
-			val startDestination: Destination
+			val startDestination: Destination,
+			override val topBarTitle: String = "",
+			override val isTopBarVisible: Boolean = false,
+			override val isBottomBarVisible: Boolean = false
 		) : State()
 
 		data object Failed : State()
