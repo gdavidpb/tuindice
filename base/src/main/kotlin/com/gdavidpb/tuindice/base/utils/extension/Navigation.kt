@@ -8,6 +8,7 @@ import androidx.navigation.NavType
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.isActive
@@ -27,6 +28,7 @@ inline fun <reified T : BaseViewModel<*, *, *>> NavController.viewModel(): T? {
 @SuppressLint("RestrictedApi")
 fun NavController.viewModelFlow() =
 	currentBackStackEntryFlow
+		.filter { backStackEntry -> backStackEntry.destination.navigatorName != "dialog" }
 		.mapLatest { backStackEntry ->
 			val viewModelStore = backStackEntry.viewModelStore
 

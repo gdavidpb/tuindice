@@ -7,10 +7,10 @@ import com.gdavidpb.tuindice.record.presentation.navigation.RecordDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 
 fun Destination.toDestinationName(): String = when (this) {
-	is SummaryDestination.NavGraph -> "summary"
-	is RecordDestination.NavGraph -> "record"
-	is EvaluationsDestination.NavGraph -> "evaluations"
-	is AboutDestination.NavGraph -> "about"
+	is SummaryDestination.Summary -> "summary"
+	is RecordDestination.Record -> "record"
+	is EvaluationsDestination.Evaluations -> "evaluations"
+	is AboutDestination.About -> "about"
 	else -> throw IllegalArgumentException()
 }
 

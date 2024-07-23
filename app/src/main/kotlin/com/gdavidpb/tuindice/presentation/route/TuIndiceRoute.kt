@@ -101,14 +101,17 @@ fun TuIndiceRoute(
 		},
 		onNavigateTo = { destination ->
 			val currentDestinationRoute = navController.currentDestination?.route
+			val isNewDestination = currentDestinationRoute != destination::class.qualifiedName
 
-			viewModel.setLastDestinationAction(destination)
+			if (isNewDestination) {
+				viewModel.setLastDestinationAction(destination)
 
-			navController.navigate(destination) {
-				if (currentDestinationRoute != null)
-					popUpTo(currentDestinationRoute) {
-						inclusive = true
-					}
+				navController.navigate(destination) {
+					if (currentDestinationRoute != null)
+						popUpTo(currentDestinationRoute) {
+							inclusive = true
+						}
+				}
 			}
 		},
 		onNavigateBack = {
