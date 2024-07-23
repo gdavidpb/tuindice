@@ -35,6 +35,7 @@ import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.browse
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
+import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.base.utils.extension.viewModel
 import com.gdavidpb.tuindice.base.utils.extension.viewModelFlow
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchNavigation
@@ -135,8 +136,8 @@ fun TuIndiceScreen(
 					containerColor = MaterialTheme.colorScheme.onSecondary
 				) {
 					bottomBarConfigs.forEach { bottomBarConfig ->
-						val isNavigationBarItemSelected =
-							navController.currentDestination?.route == bottomBarConfig.destination::class.qualifiedName
+						val isNavigationBarItemSelected = navController
+							.isCurrentDestination(destination = bottomBarConfig.destination)
 
 						val navigationBarItemIcon =
 							if (isNavigationBarItemSelected)
@@ -181,7 +182,13 @@ fun TuIndiceScreen(
 
 				loginNavigation(
 					onNavigateToSignIn = {
-						navController.navigate(LoginDestination.NavGraph)
+						navController.navigate(LoginDestination.NavGraph) {
+							launchSingleTop = true
+
+							popUpTo(SummaryDestination.NavGraph) {
+								inclusive = true
+							}
+						}
 					},
 					onNavigateToSummary = {
 						navController.navigate(SummaryDestination.NavGraph) {

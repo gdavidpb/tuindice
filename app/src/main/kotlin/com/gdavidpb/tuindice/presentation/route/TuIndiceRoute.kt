@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
+import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofFetchDestination
 import com.gdavidpb.tuindice.login.presentation.navigation.LoginDestination
 import com.gdavidpb.tuindice.presentation.contract.Main
@@ -100,15 +101,17 @@ fun TuIndiceRoute(
 			}
 		},
 		onNavigateTo = { destination ->
-			val currentDestinationRoute = navController.currentDestination?.route
-			val isNewDestination = currentDestinationRoute != destination::class.qualifiedName
+			val currentDestination = navController.currentDestination?.parent?.route
+			val isNewDestination = !navController.isCurrentDestination(destination)
 
 			if (isNewDestination) {
 				viewModel.setLastDestinationAction(destination)
 
 				navController.navigate(destination) {
-					if (currentDestinationRoute != null)
-						popUpTo(currentDestinationRoute) {
+					launchSingleTop = true
+
+					if (currentDestination != null)
+						popUpTo(currentDestination) {
 							inclusive = true
 						}
 				}

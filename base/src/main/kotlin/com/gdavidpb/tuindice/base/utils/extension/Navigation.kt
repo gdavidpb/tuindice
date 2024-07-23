@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.NavType
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -41,6 +42,10 @@ fun NavController.viewModelFlow() =
 			delay(100)
 			throwable is NullPointerException
 		}
+
+fun NavController.isCurrentDestination(destination: Destination): Boolean {
+	return currentDestination?.parent?.route == destination::class.qualifiedName
+}
 
 val DoubleOptNavType = object : NavType<Double?>(isNullableAllowed = true) {
 	override fun get(bundle: Bundle, key: String): Double? {

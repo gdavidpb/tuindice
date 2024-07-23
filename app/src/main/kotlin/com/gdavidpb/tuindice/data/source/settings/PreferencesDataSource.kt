@@ -16,7 +16,7 @@ class PreferencesDataSource(
 		return sharedPreferences
 			.getString(PreferencesKeys.LAST_DESTINATION, null)
 			?.toDestination()
-			?: SummaryDestination.Summary
+			?: SummaryDestination.NavGraph
 	}
 
 	override fun setLastDestination(destination: Destination) {

@@ -24,24 +24,24 @@ sealed class BottomBarConfig(
 	data object Summary : BottomBarConfig(
 		unselectedIcon = Icons.Outlined.BookmarkBorder,
 		selectedIcon = Icons.Filled.Bookmark,
-		destination = SummaryDestination.Summary
+		destination = SummaryDestination.NavGraph
 	)
 
 	data object Record : BottomBarConfig(
 		unselectedIcon = Icons.Outlined.Book,
 		selectedIcon = Icons.Filled.Book,
-		destination = RecordDestination.Record
+		destination = RecordDestination.NavGraph
 	)
 
 	data object Evaluations : BottomBarConfig(
 		unselectedIcon = Icons.Outlined.DateRange,
 		selectedIcon = Icons.Filled.DateRange,
-		destination = EvaluationsDestination.Evaluations
+		destination = EvaluationsDestination.NavGraph
 	)
 
 	data object About : BottomBarConfig(
 		unselectedIcon = Icons.Outlined.FavoriteBorder,
 		selectedIcon = Icons.Filled.Favorite,
-		destination = AboutDestination.About
+		destination = AboutDestination.NavGraph
 	)
 }
