@@ -33,7 +33,7 @@ class AuthMockDataSource(
 		sharedPreferences.edit {
 			putString(
 				PreferencesKeys.LAST_DESTINATION,
-				SummaryDestination.NavGraph.toDestinationName()
+				SummaryDestination.Summary.toDestinationName()
 			)
 		}
 
