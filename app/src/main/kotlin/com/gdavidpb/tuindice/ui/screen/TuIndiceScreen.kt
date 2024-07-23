@@ -31,6 +31,7 @@ import com.gdavidpb.tuindice.about.presentation.navigation.aboutNavigation
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.browse
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
@@ -81,6 +82,7 @@ fun TuIndiceScreen(
 					updateState(
 						state.copy(
 							topBarTitle = currentViewState.topBarTitle,
+							topBarConfig = currentViewState.topBarConfig,
 							isTopBarVisible = currentViewState.isTopBarVisible,
 							isBottomBarVisible = currentViewState.isBottomBarVisible
 						)
@@ -108,12 +110,10 @@ fun TuIndiceScreen(
 					)
 				},
 				actions = {
-					/* TODO
 					TopAppBarActionsView(
 						topBarConfig = state.topBarConfig,
 						onAction = onAction
 					)
-					 */
 				},
 				navigationIcon = {
 					val hasPreviousBackStackEntry = (navController.previousBackStackEntry != null)

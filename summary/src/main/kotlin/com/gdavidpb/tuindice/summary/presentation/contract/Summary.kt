@@ -3,10 +3,12 @@ package com.gdavidpb.tuindice.summary.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 
 object Summary {
 	sealed class State(
 		override val topBarTitle: String = "Resumen",
+		override val topBarConfig: TopBarConfig = TopBarConfig.Summary,
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true
 	) : ViewState() {
