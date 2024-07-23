@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -17,6 +18,7 @@ object Main {
 		data class Content(
 			val startDestination: Destination,
 			override val topBarTitle: String = "",
+			override val topBarConfig: TopBarConfig? = null,
 			override val isTopBarVisible: Boolean = false,
 			override val isBottomBarVisible: Boolean = false
 		) : State()
