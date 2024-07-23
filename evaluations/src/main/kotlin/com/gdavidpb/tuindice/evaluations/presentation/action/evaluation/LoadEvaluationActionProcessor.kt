@@ -32,6 +32,7 @@ class LoadEvaluationActionProcessor(
 							}
 
 							Evaluation.State.Content(
+								evaluationId = action.evaluationId,
 								availableSubjects = availableSubjects,
 								selectedSubject = selectedSubject,
 								type = evaluation?.type,

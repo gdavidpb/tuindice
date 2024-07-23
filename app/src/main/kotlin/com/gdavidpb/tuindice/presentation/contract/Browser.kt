@@ -9,13 +9,15 @@ object Browser {
 		data object Idle : State()
 
 		data class Content(
+			override val topBarTitle: String,
+			override val isTopBarVisible: Boolean = true,
 			val url: String,
 			val isLoading: Boolean
 		) : State()
 	}
 
 	sealed class Action : ViewAction() {
-		class NavigateTo(val url: String) : Action()
+		class NavigateTo(val title: String, val url: String) : Action()
 		class SetLoading(val isLoading: Boolean) : Action()
 		class OpenExternalResource(val url: String) : Action()
 	}

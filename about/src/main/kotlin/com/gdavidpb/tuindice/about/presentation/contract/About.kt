@@ -5,7 +5,11 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object About {
-	sealed class State : ViewState() {
+	sealed class State(
+		override val topBarTitle: String = "Acerca de",
+		override val isTopBarVisible: Boolean = true,
+		override val isBottomBarVisible: Boolean = true
+	) : ViewState() {
 		data object Idle : State()
 	}
 

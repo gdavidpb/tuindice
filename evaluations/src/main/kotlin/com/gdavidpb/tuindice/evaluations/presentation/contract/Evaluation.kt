@@ -11,6 +11,13 @@ object Evaluation {
 		data object Loading : State()
 
 		data class Content(
+			val evaluationId: String? = null,
+			override val topBarTitle: String =
+				if (evaluationId != null)
+					"Modificar evaluación"
+				else
+					"Agregar evaluación",
+			override val isTopBarVisible: Boolean = true,
 			val availableSubjects: List<Subject>,
 			val selectedSubject: Subject? = null,
 			val type: EvaluationType? = null,

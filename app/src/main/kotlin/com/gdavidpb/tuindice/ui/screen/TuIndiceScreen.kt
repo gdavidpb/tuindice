@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.ui.screen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -11,11 +12,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -30,6 +35,7 @@ import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.browse
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
 import com.gdavidpb.tuindice.base.utils.extension.viewModel
+import com.gdavidpb.tuindice.base.utils.extension.viewModelFlow
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchNavigation
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsNavigation
@@ -38,6 +44,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewM
 import com.gdavidpb.tuindice.login.presentation.navigation.LoginDestination
 import com.gdavidpb.tuindice.login.presentation.navigation.loginNavigation
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.model.BottomBarConfig
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.browserNavigation
 import com.gdavidpb.tuindice.presentation.navigation.mainNavigation
@@ -45,7 +52,11 @@ import com.gdavidpb.tuindice.record.presentation.navigation.recordNavigation
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryNavigation
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flowOn
 
+@SuppressLint("RestrictedApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TuIndiceScreen(
@@ -57,30 +68,35 @@ fun TuIndiceScreen(
 	onAction: (action: TopBarAction) -> Unit,
 	onNavigateTo: (destination: Destination) -> Unit,
 	onNavigateBack: () -> Unit,
-	onSetDestinationScreen: (destination: Destination) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	if (state !is Main.State.Content) return
 
-	/* TODO
 	LaunchedEffect(navController) {
 		navController
-			.currentBackStackEntryFlow
-			.mapDestination()
-			.collect { destination ->
-				if (destination.isBottomDestination)
-					onSetDestinationScreen(destination)
-
-				updateState(
-					state.copy(
-						title = destination.title,
-						currentDestination = destination,
-						topBarConfig = destination.topBarConfig
+			.viewModelFlow()
+			.flowOn(Dispatchers.IO)
+			.collectLatest { viewModel ->
+				viewModel.state.collect { currentViewState ->
+					updateState(
+						state.copy(
+							topBarTitle = currentViewState.topBarTitle,
+							isTopBarVisible = currentViewState.isTopBarVisible,
+							isBottomBarVisible = currentViewState.isBottomBarVisible
+						)
 					)
-				)
+				}
 			}
 	}
-	 */
+
+	val bottomBarConfigs = remember {
+		listOf(
+			BottomBarConfig.Summary,
+			BottomBarConfig.Record,
+			BottomBarConfig.Evaluations,
+			BottomBarConfig.About
+		)
+	}
 
 	Scaffold(
 		snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -100,7 +116,9 @@ fun TuIndiceScreen(
 					 */
 				},
 				navigationIcon = {
-					if (!state.isTopBarVisible)
+					val hasPreviousBackStackEntry = (navController.previousBackStackEntry != null)
+
+					if (hasPreviousBackStackEntry)
 						IconButton(onClick = onNavigateBack) {
 							Icon(
 								imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -116,39 +134,30 @@ fun TuIndiceScreen(
 					modifier = Modifier.height(dimensionResource(id = R.dimen.dp_48)),
 					containerColor = MaterialTheme.colorScheme.onSecondary
 				) {
-					// TODO
-//					listOf(
-//						Destination.Record,
-//						Destination.Evaluations,
-//						Destination.About
-//					).forEach { destination ->
-//						val bottomBarConfig = destination.bottomBarConfig
-//
-//						requireNotNull(bottomBarConfig)
-//
-//						val isNavigationBarItemSelected =
-//							(destination == state.currentDestination)
-//
-//						val navigationBarItemIcon =
-//							if (isNavigationBarItemSelected)
-//								bottomBarConfig.selectedIcon
-//							else
-//								bottomBarConfig.unselectedIcon
-//
-//						NavigationBarItem(
-//							icon = {
-//								Icon(
-//									imageVector = navigationBarItemIcon,
-//									contentDescription = null
-//								)
-//							},
-//							colors = NavigationBarItemDefaults.colors(
-//								indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-//							),
-//							selected = isNavigationBarItemSelected,
-//							onClick = { onNavigateTo(destination) }
-//						)
-//					}
+					bottomBarConfigs.forEach { bottomBarConfig ->
+						val isNavigationBarItemSelected =
+							navController.currentDestination?.route == bottomBarConfig.destination::class.qualifiedName
+
+						val navigationBarItemIcon =
+							if (isNavigationBarItemSelected)
+								bottomBarConfig.selectedIcon
+							else
+								bottomBarConfig.unselectedIcon
+
+						NavigationBarItem(
+							icon = {
+								Icon(
+									imageVector = navigationBarItemIcon,
+									contentDescription = null
+								)
+							},
+							colors = NavigationBarItemDefaults.colors(
+								indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+							),
+							selected = isNavigationBarItemSelected,
+							onClick = { onNavigateTo(bottomBarConfig.destination) }
+						)
+					}
 				}
 			}
 		}
@@ -175,11 +184,16 @@ fun TuIndiceScreen(
 						navController.navigate(LoginDestination.NavGraph)
 					},
 					onNavigateToSummary = {
-						navController.navigate(SummaryDestination.NavGraph)
+						navController.navigate(SummaryDestination.NavGraph) {
+							popUpTo<LoginDestination.NavGraph> {
+								inclusive = true
+							}
+						}
 					},
 					onNavigateToBrowser = { title, url ->
 						navController.navigate(
 							BrowserDestination.Browser(
+								title = title,
 								url = url
 							)
 						)
@@ -262,8 +276,8 @@ fun TuIndiceScreen(
 						navController.navigate(
 							EvaluationsDestination.EvaluationGradePickerDialog(
 								evaluationId = evaluationId,
-								grade = grade.toFloat(),
-								maxGrade = maxGrade.toFloat()
+								grade = grade,
+								maxGrade = maxGrade
 							)
 						)
 					},
@@ -273,15 +287,15 @@ fun TuIndiceScreen(
 					onNavigateToGradePickerDialog = { grade, maxGrade ->
 						navController.navigate(
 							EvaluationsDestination.GradePickerDialog(
-								grade = grade?.toFloat(),
-								maxGrade = maxGrade?.toFloat()
+								grade = grade,
+								maxGrade = maxGrade
 							)
 						)
 					},
 					onNavigateToMaxGradePickerDialog = { maxGrade ->
 						navController.navigate(
 							EvaluationsDestination.MaxGradePickerDialog(
-								grade = maxGrade?.toFloat()
+								grade = maxGrade
 							)
 						)
 					},
@@ -316,7 +330,10 @@ fun TuIndiceScreen(
 				aboutNavigation(
 					onNavigateToBrowser = { title, url ->
 						navController.navigate(
-							BrowserDestination.Browser(url = url)
+							BrowserDestination.Browser(
+								title = title,
+								url = url
+							)
 						)
 					}
 				)

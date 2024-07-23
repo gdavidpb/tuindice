@@ -18,19 +18,19 @@ sealed class EvaluationsDestination : Destination() {
 
 	@Serializable
 	data class GradePickerDialog(
-		val grade: Float?,
-		val maxGrade: Float?
+		val grade: Double?,
+		val maxGrade: Double?
 	) : EvaluationsDestination()
 
 	@Serializable
 	data class MaxGradePickerDialog(
-		val grade: Float?
+		val grade: Double?
 	) : EvaluationsDestination()
 
 	@Serializable
 	data class EvaluationGradePickerDialog(
 		val evaluationId: String,
-		val grade: Float,
-		val maxGrade: Float
+		val grade: Double,
+		val maxGrade: Double
 	) : EvaluationsDestination()
 }

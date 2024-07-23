@@ -15,6 +15,7 @@ class NavigateToActionProcessor
 	): Flow<Mutation<Browser.State>> {
 		return flowOf { _ ->
 			Browser.State.Content(
+				topBarTitle = action.title,
 				url = action.url,
 				isLoading = true
 			)

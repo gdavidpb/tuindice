@@ -99,9 +99,21 @@ fun TuIndiceRoute(
 					)
 			}
 		},
-		onNavigateTo = navController::navigate,
-		onNavigateBack = navController::navigateUp,
-		onSetDestinationScreen = viewModel::setLastDestinationAction
+		onNavigateTo = { destination ->
+			val currentDestinationRoute = navController.currentDestination?.route
+
+			viewModel.setLastDestinationAction(destination)
+
+			navController.navigate(destination) {
+				if (currentDestinationRoute != null)
+					popUpTo(currentDestinationRoute) {
+						inclusive = true
+					}
+			}
+		},
+		onNavigateBack = {
+			navController.navigateUp()
+		}
 	) { (message, actionLabel, onAction, onDismissed) ->
 		coroutineScope.launch {
 			snackbarHostState.currentSnackbarData?.dismiss()
