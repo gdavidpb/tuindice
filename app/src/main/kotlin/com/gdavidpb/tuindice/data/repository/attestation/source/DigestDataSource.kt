@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.data.repository.attestation.source
 
 import com.gdavidpb.tuindice.base.domain.model.attestation.AttestationNonce
 import com.gdavidpb.tuindice.base.domain.model.attestation.AttestationPayload
-import com.gdavidpb.tuindice.base.utils.extension.encodeToBase64String
 import com.gdavidpb.tuindice.data.repository.attestation.LocalDataSource
 import com.gdavidpb.tuindice.login.data.repository.login.source.api.attestation.SignInAttestationPayload
+import io.ktor.util.encodeBase64
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
@@ -34,6 +34,6 @@ class DigestDataSource : LocalDataSource {
 		val data = json.toByteArray()
 		val digest = sha256.digest(data)
 
-		return digest.encodeToBase64String()
+		return digest.encodeBase64()
 	}
 }

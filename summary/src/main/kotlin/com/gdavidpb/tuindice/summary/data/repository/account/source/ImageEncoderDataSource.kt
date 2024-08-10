@@ -3,12 +3,12 @@ package com.gdavidpb.tuindice.summary.data.repository.account.source
 import android.content.ContentResolver
 import android.graphics.Bitmap
 import androidx.core.net.toUri
-import com.gdavidpb.tuindice.base.utils.extension.encodeToBase64String
 import com.gdavidpb.tuindice.summary.data.repository.account.source.encoder.mapper.decodeRotationDegrees
 import com.gdavidpb.tuindice.summary.data.repository.account.source.encoder.mapper.decodeScaleFactor
 import com.gdavidpb.tuindice.summary.data.repository.account.source.encoder.mapper.decodeScaledBitmap
 import com.gdavidpb.tuindice.summary.data.repository.account.source.encoder.mapper.rotate
 import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
+import io.ktor.util.encodeBase64
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
@@ -54,7 +54,7 @@ class ImageEncoderDataSource(
 
 					bitmap.recycle()
 
-					outputStream.toByteArray().encodeToBase64String()
+					outputStream.toByteArray().encodeBase64()
 				}
 			}
 
