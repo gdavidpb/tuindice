@@ -30,24 +30,18 @@ android {
 
 	buildTypes {
 		debug {
-			buildConfigField("String", "APPLICATION_ID", "\"com.gdavidpb.tuindice\"")
-
 			buildConfigField("String", "MASTER_KEY_ALIAS", "\"tuindice_key\"")
 
-			buildConfigField("String", "ENDPOINT_TU_INDICE_API", "\"http://10.0.2.2:8080/\"")
-
-			buildConfigField("String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/privacy_policy.html\"")
-			buildConfigField("String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions.html\"")
+			buildConfigField("String", "URL_API", "\"http://10.0.2.2:8080/\"")
+			buildConfigField("String", "URL_PRIVACY_POLICY", "\"https://tuindice.app/privacy_policy.html\"")
+			buildConfigField("String", "URL_TERMS_AND_CONDITIONS", "\"https://tuindice.app/terms_and_conditions.html\"")
 		}
 		release {
-			buildConfigField("String", "APPLICATION_ID", "\"com.gdavidpb.tuindice\"")
-
 			buildConfigField("String", "MASTER_KEY_ALIAS", "\"tuindice_key\"")
 
-			buildConfigField("String", "ENDPOINT_TU_INDICE_API", "\"https://api.tuindice.app/\"")
-
-			buildConfigField("String", "URL_APP_PRIVACY_POLICY", "\"https://tu-indice-usb.firebaseapp.com/privacy_policy.html\"")
-			buildConfigField("String", "URL_APP_TERMS_AND_CONDITIONS", "\"https://tu-indice-usb.firebaseapp.com/terms_and_conditions.html\"")
+			buildConfigField("String", "URL_API", "\"https://api.tuindice.app/\"")
+			buildConfigField("String", "URL_PRIVACY_POLICY", "\"https://tuindice.app/privacy_policy.html\"")
+			buildConfigField("String", "URL_TERMS_AND_CONDITIONS", "\"https://tuindice.app/terms_and_conditions.html\"")
 		}
 	}
 }

@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.AccountEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.QuarterEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
-import com.gdavidpb.tuindice.persistence.data.room.schema.DatabaseModel
 
 @Database(
 	entities = [
@@ -21,7 +20,7 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.DatabaseModel
 		SubjectEntity::class,
 		EvaluationEntity::class
 	],
-	version = DatabaseModel.VERSION,
+	version = 1,
 	exportSchema = false
 )
 @TypeConverters(DatabaseConverters::class)

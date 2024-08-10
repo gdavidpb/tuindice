@@ -18,7 +18,7 @@ class OpenPrivacyPolicyActionProcessor(
 		sideEffect(
 			SignIn.Effect.NavigateToBrowser(
 				title = resourceResolver.getString(R.string.label_privacy_policy),
-				url = BuildConfig.URL_APP_PRIVACY_POLICY
+				url = BuildConfig.URL_PRIVACY_POLICY
 			)
 		)
 

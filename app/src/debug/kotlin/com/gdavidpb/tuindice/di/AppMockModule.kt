@@ -131,7 +131,7 @@ val appMockModule = module {
 
 		EncryptedSharedPreferences.create(
 			androidContext(),
-			BuildConfig.APPLICATION_ID,
+			androidContext().packageName,
 			masterKey,
 			EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
 			EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
@@ -171,7 +171,7 @@ val appMockModule = module {
 			expectSuccess = true
 
 			install(DefaultRequest) {
-				url(BuildConfig.ENDPOINT_TU_INDICE_API)
+				url(BuildConfig.URL_API)
 			}
 
 			install(HttpTimeout) {

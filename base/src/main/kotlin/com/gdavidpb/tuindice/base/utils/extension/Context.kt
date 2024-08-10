@@ -8,12 +8,11 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
-import com.gdavidpb.tuindice.base.BuildConfig
 import java.io.File
 
 fun Context.openFile(file: File): Boolean {
 	return runCatching {
-		val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID, file)
+		val uri = FileProvider.getUriForFile(this, packageName, file)
 
 		val intent = Intent(Intent.ACTION_VIEW, uri).apply {
 			flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
@@ -26,7 +25,7 @@ fun Context.openFile(file: File): Boolean {
 fun Context.canOpenFile(file: File): Boolean {
 	return runCatching {
 		val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)
-		val uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID, file)
+		val uri = FileProvider.getUriForFile(this, packageName, file)
 		val intent = Intent(Intent.ACTION_VIEW).apply {
 			setDataAndType(uri, mimeType)
 		}

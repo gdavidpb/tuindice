@@ -7,6 +7,10 @@ import androidx.annotation.StringRes
 class ResourceResolver(
 	private val context: Context
 ) {
+	fun getPackageName(): String {
+		return context.packageName
+	}
+
 	fun getString(@StringRes resId: Int, vararg formatArgs: Any): String {
 		return context.getString(resId, *formatArgs)
 	}

@@ -19,7 +19,7 @@ class OpenTermsAndConditionsActionProcessor(
 		sideEffect(
 			About.Effect.NavigateToBrowser(
 				title = resourceResolver.getString(R.string.label_terms_and_conditions),
-				url = BuildConfig.URL_APP_TERMS_AND_CONDITIONS
+				url = BuildConfig.URL_TERMS_AND_CONDITIONS
 			)
 		)
 

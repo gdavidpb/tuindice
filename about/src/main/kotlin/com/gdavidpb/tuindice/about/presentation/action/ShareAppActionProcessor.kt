@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.about.presentation.action
 
-import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.about.R
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.base.presentation.Mutation
@@ -20,7 +19,7 @@ class ShareAppActionProcessor(
 			About.Effect.StartShare(
 				text = resourceResolver.getString(
 					R.string.about_share_message,
-					BuildConfig.APPLICATION_ID
+					resourceResolver.getPackageName()
 				),
 				subject = resourceResolver.getString(R.string.app_name)
 			)
