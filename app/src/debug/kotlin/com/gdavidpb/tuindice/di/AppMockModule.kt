@@ -27,7 +27,6 @@ import com.gdavidpb.tuindice.data.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.MessagingMockDataSource
 import com.gdavidpb.tuindice.data.RemoteConfigMockDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
-import com.gdavidpb.tuindice.data.repository.attestation.source.AttestationApiDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.DigestDataSource
 import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.mobile.GooglePlayServicesDataSource
@@ -76,7 +75,6 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import com.gdavidpb.tuindice.data.repository.attestation.LocalDataSource as AttestationLocal
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
-import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource as AttestationRemote
 
 val appMockModule = module {
 	/* View Models */
@@ -234,7 +232,6 @@ val appMockModule = module {
 
 	factoryOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	factoryOf(::DigestDataSource) { bind<AttestationLocal>() }
-	factoryOf(::AttestationApiDataSource) { bind<AttestationRemote>() }
 	factoryOf(::AttestationProviderMockDataSource) { bind<AttestationProvider>() }
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }

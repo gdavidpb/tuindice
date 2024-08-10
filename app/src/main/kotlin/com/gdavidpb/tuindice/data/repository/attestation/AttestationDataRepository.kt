@@ -5,13 +5,14 @@ import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 
 class AttestationDataRepository(
 	private val localDataSource: LocalDataSource,
-	private val remoteDataSource: RemoteDataSource,
 	private val providerDataSource: ProviderDataSource
 ) : AttestationRepository {
-	override suspend fun getToken(operation: String, payload: AttestationPayload): String {
-		val identifier = remoteDataSource.getAttestationId(operation)
-		val nonce = localDataSource.getNonce(identifier, payload)
+	override suspend fun getToken(payload: AttestationPayload): String {
+		val nonce = localDataSource.getNonce(payload)
+		val token = providerDataSource.getToken(nonce)
 
-		return providerDataSource.getToken(nonce)
+		requireNotNull(token)
+
+		return token
 	}
 }

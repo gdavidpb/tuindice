@@ -20,7 +20,6 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
-import com.gdavidpb.tuindice.data.repository.attestation.source.AttestationApiDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.DigestDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.PlayIntegrityDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingDataRepository
@@ -79,7 +78,6 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import com.gdavidpb.tuindice.data.repository.attestation.LocalDataSource as AttestationLocal
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
-import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource as AttestationRemote
 import com.gdavidpb.tuindice.data.repository.messaging.LocalDataSource as MessagingLocal
 import com.gdavidpb.tuindice.data.repository.messaging.ProviderDataSource as MessagingProvider
 import com.gdavidpb.tuindice.data.repository.messaging.RemoteDataSource as MessagingRemote
@@ -179,7 +177,7 @@ val appModule = module {
 	}
 
 	single {
-		IntegrityManagerFactory.create(androidContext())
+		IntegrityManagerFactory.createStandard(androidContext())
 	}
 
 	/* KtorHttpClient */
@@ -248,11 +246,10 @@ val appModule = module {
 
 	/* Data sources */
 
+	factoryOf(::PlayIntegrityDataSource) { bind<AttestationProvider>() }
 	factoryOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	factoryOf(::MessagingApiDataSource) { bind<MessagingRemote>() }
 	factoryOf(::DigestDataSource) { bind<AttestationLocal>() }
-	factoryOf(::AttestationApiDataSource) { bind<AttestationRemote>() }
-	factoryOf(::PlayIntegrityDataSource) { bind<AttestationProvider>() }
 	factoryOf(::FirebaseMessagingDataSource) { bind<MessagingProvider>() }
 	factoryOf(::MessagingPreferencesDataSource) { bind<MessagingLocal>() }
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }

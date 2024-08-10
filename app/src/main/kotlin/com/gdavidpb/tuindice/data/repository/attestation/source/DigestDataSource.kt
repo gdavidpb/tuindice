@@ -13,36 +13,27 @@ import kotlinx.serialization.modules.subclass
 import java.security.MessageDigest
 
 class DigestDataSource : LocalDataSource {
-	companion object {
-		private val sha256 by lazy {
-			MessageDigest.getInstance("SHA-256")
-		}
-
-		private val nonceSerializer by lazy {
-			Json {
-				serializersModule = SerializersModule {
-					polymorphic(AttestationPayload::class) {
-						subclass(SignInAttestationPayload::class)
-					}
+	private val nonceSerializer by lazy {
+		Json {
+			serializersModule = SerializersModule {
+				polymorphic(AttestationPayload::class) {
+					subclass(SignInAttestationPayload::class)
 				}
 			}
 		}
 	}
 
-	override suspend fun getNonce(identifier: String, payload: AttestationPayload): String {
-		return synchronized(sha256) {
-			sha256.reset()
+	override suspend fun getNonce(payload: AttestationPayload): String {
+		val sha256 = MessageDigest.getInstance("SHA-256")
 
-			val nonce = AttestationNonce(
-				id = identifier,
-				payload = payload
-			)
+		val nonce = AttestationNonce(
+			payload = payload
+		)
 
-			val json = nonceSerializer.encodeToString(nonce)
-			val data = json.toByteArray()
-			val digest = sha256.digest(data)
+		val json = nonceSerializer.encodeToString(nonce)
+		val data = json.toByteArray()
+		val digest = sha256.digest(data)
 
-			digest.encodeToBase64String()
-		}
+		return digest.encodeToBase64String()
 	}
 }

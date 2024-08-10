@@ -5,6 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AttestationNonce(
-	@SerialName("id") val id: String,
 	@SerialName("payload") val payload: AttestationPayload
 )

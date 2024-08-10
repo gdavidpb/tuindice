@@ -35,7 +35,6 @@ class SignInUseCase(
 		)
 
 		val attestationToken = attestationRepository.getToken(
-			operation = "sign-in",
 			payload = attestationPayload
 		)
 

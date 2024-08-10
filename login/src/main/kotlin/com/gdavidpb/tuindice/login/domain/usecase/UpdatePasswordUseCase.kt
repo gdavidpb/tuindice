@@ -29,7 +29,6 @@ class UpdatePasswordUseCase(
 		)
 
 		val attestationToken = attestationRepository.getToken(
-			operation = "sign-in",
 			payload = attestationPayload
 		)
 
