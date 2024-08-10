@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.gdavidpb.tuindice.evaluations"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 23
