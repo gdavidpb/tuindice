@@ -12,12 +12,12 @@ android {
 	compileSdk = 35
 
 	kotlinOptions {
-		jvmTarget = "18"
+		jvmTarget = "21"
 	}
 
 	compileOptions {
-		sourceCompatibility = JavaVersion.VERSION_18
-		targetCompatibility = JavaVersion.VERSION_18
+		sourceCompatibility = JavaVersion.VERSION_21
+		targetCompatibility = JavaVersion.VERSION_21
 	}
 
 	buildFeatures {
