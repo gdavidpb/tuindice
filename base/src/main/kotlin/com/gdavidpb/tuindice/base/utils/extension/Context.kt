@@ -6,6 +6,7 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import java.io.File
@@ -45,7 +46,6 @@ fun Context.browse(url: String) {
 fun Context.hasCamera() =
 	packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
 
-
 fun Context.findActivity(): Activity {
 	var context = this
 	while (context is ContextWrapper) {
@@ -53,4 +53,21 @@ fun Context.findActivity(): Activity {
 		context = context.baseContext
 	}
 	error("No activity")
+}
+
+fun Context.versionCode(): Long {
+	val packageInfo = packageManager.getPackageInfo(packageName, 0)
+
+	return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+		packageInfo.longVersionCode
+	} else {
+		@Suppress("DEPRECATION")
+		packageInfo.versionCode.toLong()
+	}
+}
+
+fun Context.versionName(): String {
+	val packageInfo = packageManager.getPackageInfo(packageName, 0)
+
+	return packageInfo.versionName.toString()
 }

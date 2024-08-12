@@ -49,6 +49,7 @@ import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.utils.UserAgent
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.integrity.IntegrityManagerFactory
@@ -69,6 +70,7 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.bearerAuth
 import io.ktor.http.HttpHeaders
+import io.ktor.http.userAgent
 import io.ktor.serialization.kotlinx.json.json
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -186,8 +188,13 @@ val appModule = module {
 		HttpClient(CIO) {
 			expectSuccess = true
 
+			val userAgent = runCatching { UserAgent(androidContext()) }.getOrNull()
+
 			install(DefaultRequest) {
 				url(BuildConfig.URL_API)
+
+				if (userAgent != null)
+					userAgent("$userAgent")
 			}
 
 			install(HttpTimeout) {
