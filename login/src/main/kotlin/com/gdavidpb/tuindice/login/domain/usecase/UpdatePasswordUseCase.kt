@@ -11,6 +11,8 @@ import com.gdavidpb.tuindice.login.domain.usecase.validator.UpdatePasswordParams
 import com.gdavidpb.tuindice.login.presentation.mapper.asUsbId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class UpdatePasswordUseCase(
 	private val authRepository: AuthRepository,
@@ -23,14 +25,14 @@ class UpdatePasswordUseCase(
 		val activeAuth = authRepository.getActiveAuth()
 		val usbId = activeAuth.email.asUsbId()
 
-		val attestationPayload = SignInAttestationPayload(
+		val attestationToken = SignInAttestationPayload(
 			usbId = usbId,
 			password = params
-		)
-
-		val attestationToken = attestationRepository.getToken(
-			payload = attestationPayload
-		)
+		).let { payload ->
+			attestationRepository.getToken(
+				payload = Json.encodeToString(payload)
+			)
+		}
 
 		val bearerToken = signInRepository.signIn(
 			username = usbId,

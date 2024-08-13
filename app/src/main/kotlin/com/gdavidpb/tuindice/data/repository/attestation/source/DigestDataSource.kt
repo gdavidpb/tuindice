@@ -1,37 +1,14 @@
 package com.gdavidpb.tuindice.data.repository.attestation.source
 
-import com.gdavidpb.tuindice.base.domain.model.attestation.AttestationNonce
-import com.gdavidpb.tuindice.base.domain.model.attestation.AttestationPayload
 import com.gdavidpb.tuindice.data.repository.attestation.LocalDataSource
-import com.gdavidpb.tuindice.login.data.repository.login.source.api.attestation.SignInAttestationPayload
 import io.ktor.util.encodeBase64
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
-import kotlinx.serialization.modules.subclass
 import java.security.MessageDigest
 
 class DigestDataSource : LocalDataSource {
-	private val jsonSerializer by lazy {
-		Json {
-			serializersModule = SerializersModule {
-				polymorphic(AttestationPayload::class) {
-					subclass(SignInAttestationPayload::class)
-				}
-			}
-		}
-	}
-
-	override suspend fun getNonce(payload: AttestationPayload): String {
+	override suspend fun getNonce(payload: String): String {
 		val sha256 = MessageDigest.getInstance("SHA-256")
 
-		val nonce = AttestationNonce(
-			payload = payload
-		)
-
-		val json = jsonSerializer.encodeToString(nonce)
-		val data = json.toByteArray()
+		val data = payload.toByteArray()
 		val digest = sha256.digest(data)
 
 		return digest.encodeBase64()

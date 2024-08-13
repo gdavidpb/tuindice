@@ -14,6 +14,8 @@ import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidato
 import com.gdavidpb.tuindice.login.utils.SubscriptionTopics
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class SignInUseCase(
 	private val authRepository: AuthRepository,
@@ -29,14 +31,14 @@ class SignInUseCase(
 
 		if (isActiveAuth) authRepository.signOut()
 
-		val attestationPayload = SignInAttestationPayload(
+		val attestationToken = SignInAttestationPayload(
 			usbId = params.usbId,
 			password = params.password
-		)
-
-		val attestationToken = attestationRepository.getToken(
-			payload = attestationPayload
-		)
+		).let { payload ->
+			attestationRepository.getToken(
+				payload = Json.encodeToString(payload)
+			)
+		}
 
 		val bearerToken = signInRepository.signIn(
 			username = params.usbId,
