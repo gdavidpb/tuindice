@@ -13,7 +13,7 @@ import kotlinx.serialization.modules.subclass
 import java.security.MessageDigest
 
 class DigestDataSource : LocalDataSource {
-	private val nonceSerializer by lazy {
+	private val jsonSerializer by lazy {
 		Json {
 			serializersModule = SerializersModule {
 				polymorphic(AttestationPayload::class) {
@@ -30,7 +30,7 @@ class DigestDataSource : LocalDataSource {
 			payload = payload
 		)
 
-		val json = nonceSerializer.encodeToString(nonce)
+		val json = jsonSerializer.encodeToString(nonce)
 		val data = json.toByteArray()
 		val digest = sha256.digest(data)
 
