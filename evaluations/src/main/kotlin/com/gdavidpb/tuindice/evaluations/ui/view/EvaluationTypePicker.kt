@@ -14,11 +14,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.R
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.iconRes
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.stringRes
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.asIcon
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.asString
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -47,14 +46,14 @@ fun EvaluationTypePicker(
 					},
 					leadingIcon = {
 						Icon(
-							imageVector = type.iconRes(),
+							imageVector = type.asIcon(),
 							tint = MaterialTheme.colorScheme.outline,
 							contentDescription = null
 						)
 					},
 					label = {
 						Text(
-							text = stringResource(id = type.stringRes()),
+							text = type.asString(),
 							maxLines = 1
 						)
 					}

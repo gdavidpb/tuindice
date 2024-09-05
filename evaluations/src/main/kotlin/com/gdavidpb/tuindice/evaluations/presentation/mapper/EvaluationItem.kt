@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
-import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Apartment
@@ -153,38 +152,3 @@ fun EvaluationType.asString() = when (this) {
 	EvaluationType.WRITTEN_WORK -> R.string.evaluation_written_work
 	EvaluationType.OTHER -> R.string.evaluation_other
 }.let { resId -> stringResource(id = resId) }
-
-@StringRes
-@Deprecated("This will be removed.", ReplaceWith("EvaluationType.stringRes"))
-fun EvaluationType.stringRes() = when (this) {
-	EvaluationType.TEST -> R.string.evaluation_test
-	EvaluationType.ESSAY -> R.string.evaluation_essay
-	EvaluationType.ATTENDANCE -> R.string.evaluation_attendance
-	EvaluationType.INTERVENTIONS -> R.string.evaluation_interventions
-	EvaluationType.LABORATORY -> R.string.evaluation_laboratory
-	EvaluationType.MODEL -> R.string.evaluation_model
-	EvaluationType.PRESENTATION -> R.string.evaluation_presentation
-	EvaluationType.PROJECT -> R.string.evaluation_project
-	EvaluationType.QUIZ -> R.string.evaluation_quiz
-	EvaluationType.REPORT -> R.string.evaluation_report
-	EvaluationType.WORKSHOP -> R.string.evaluation_workshop
-	EvaluationType.WRITTEN_WORK -> R.string.evaluation_written_work
-	EvaluationType.OTHER -> R.string.evaluation_other
-}
-
-@Deprecated("This will be removed.", ReplaceWith("EvaluationType.asIcon"))
-fun EvaluationType.iconRes() = when (this) {
-	EvaluationType.TEST -> Icons.Outlined.FileCopy
-	EvaluationType.ESSAY -> Icons.Outlined.HistoryEdu
-	EvaluationType.ATTENDANCE -> Icons.Outlined.BackHand
-	EvaluationType.INTERVENTIONS -> Icons.Outlined.ModeComment
-	EvaluationType.LABORATORY -> Icons.Outlined.Science
-	EvaluationType.MODEL -> Icons.Outlined.Apartment
-	EvaluationType.PRESENTATION -> Icons.Outlined.CoPresent
-	EvaluationType.PROJECT -> Icons.Outlined.AccountTree
-	EvaluationType.QUIZ -> Icons.Outlined.Quiz
-	EvaluationType.REPORT -> Icons.Outlined.AreaChart
-	EvaluationType.WORKSHOP -> Icons.Outlined.Build
-	EvaluationType.WRITTEN_WORK -> Icons.Outlined.Edit
-	EvaluationType.OTHER -> Icons.Outlined.Tag
-}
