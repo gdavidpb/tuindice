@@ -7,32 +7,18 @@ class MessagingDataRepository(
 	private val remoteDataSource: RemoteDataSource,
 	private val providerDataSource: ProviderDataSource
 ) : MessagingRepository {
-	override suspend fun enroll() {
-		if (localDataSource.isEnrolled()) return
+	override suspend fun subscribe() {
+		if (localDataSource.isSubscribed()) return
 
 		val messagingToken = providerDataSource.getToken()
 
 		if (messagingToken != null) {
-			remoteDataSource.enroll(messagingToken)
-			localDataSource.markAsEnrolled()
+			remoteDataSource.subscribe(messagingToken)
+			localDataSource.markAsSubscribed()
 		}
 	}
 
-	override suspend fun subscribeToTopic(topic: String) {
-		if (!localDataSource.isSubscribedToTopic(topic)) {
-			providerDataSource.subscribeToTopic(topic)
-			localDataSource.saveSubscriptionTopic(topic)
-		}
-	}
-
-	override suspend fun unsubscribeFromTopic(topic: String) {
-		if (localDataSource.isSubscribedToTopic(topic))
-			providerDataSource.unsubscribeFromTopic(topic)
-	}
-
-	override suspend fun unsubscribeFromAllTopics() {
-		localDataSource.getSubscribedTopics().forEach { topic ->
-			providerDataSource.unsubscribeFromTopic(topic)
-		}
+	override suspend fun unsubscribe() {
+		remoteDataSource.unsubscribe()
 	}
 }

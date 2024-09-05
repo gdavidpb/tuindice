@@ -15,7 +15,7 @@ class SignOutUseCase(
 	private val applicationRepository: ApplicationRepository
 ) : FlowUseCase<Unit, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
-		messagingRepository.unsubscribeFromAllTopics()
+		messagingRepository.unsubscribe()
 		authRepository.signOut()
 		applicationRepository.clearData()
 		dependenciesRepository.restart()

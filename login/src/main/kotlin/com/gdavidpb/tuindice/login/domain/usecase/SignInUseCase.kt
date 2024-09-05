@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidator
-import com.gdavidpb.tuindice.login.utils.SubscriptionTopics
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.serialization.encodeToString
@@ -50,9 +49,7 @@ class SignInUseCase(
 
 		reportingRepository.setIdentifier(identifier = authSignIn.uid)
 
-		messagingRepository.enroll()
-
-		messagingRepository.subscribeToTopic(topic = SubscriptionTopics.TOPIC_GENERAL)
+		messagingRepository.subscribe()
 
 		return flowOf(Unit)
 	}

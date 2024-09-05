@@ -8,37 +8,14 @@ import com.gdavidpb.tuindice.data.repository.messaging.LocalDataSource
 class MessagingPreferencesDataSource(
 	private val sharedPreferences: SharedPreferences
 ) : LocalDataSource {
-	override suspend fun isEnrolled(): Boolean {
+	override suspend fun isSubscribed(): Boolean {
 		return sharedPreferences
-			.getBoolean(PreferencesKeys.IS_ENROLLED, false)
+			.getBoolean(PreferencesKeys.IS_SUBSCRIBED, false)
 	}
 
-	override suspend fun markAsEnrolled() {
+	override suspend fun markAsSubscribed() {
 		sharedPreferences.edit {
-			putBoolean(PreferencesKeys.IS_ENROLLED, true)
+			putBoolean(PreferencesKeys.IS_SUBSCRIBED, true)
 		}
-	}
-
-	override suspend fun getSubscribedTopics(): List<String> {
-		val topics = sharedPreferences
-			.getStringSet(PreferencesKeys.SUBSCRIBED_TOPICS, setOf()) ?: setOf()
-
-		return topics.toList()
-	}
-
-	override suspend fun saveSubscriptionTopic(topic: String) {
-		val topics = sharedPreferences
-			.getStringSet(PreferencesKeys.SUBSCRIBED_TOPICS, setOf()) ?: setOf()
-
-		sharedPreferences.edit {
-			putStringSet(PreferencesKeys.SUBSCRIBED_TOPICS, topics + topic)
-		}
-	}
-
-	override suspend fun isSubscribedToTopic(topic: String): Boolean {
-		val topics = sharedPreferences
-			.getStringSet(PreferencesKeys.SUBSCRIBED_TOPICS, setOf()) ?: setOf()
-
-		return topics.contains(topic)
 	}
 }

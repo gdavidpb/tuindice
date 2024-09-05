@@ -31,7 +31,7 @@ class StartUpUseCase(
 		}
 
 		noAwait { configRepository.tryFetch() }
-		noAwait { messagingRepository.enroll() }
+		noAwait { messagingRepository.subscribe() }
 
 		val isActiveAuth = authRepository.isActiveAuth()
 

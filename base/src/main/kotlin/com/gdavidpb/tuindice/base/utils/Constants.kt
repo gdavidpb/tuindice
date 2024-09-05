@@ -19,8 +19,7 @@ object RequestCodes {
 object PreferencesKeys {
 	const val LAST_DESTINATION = "lastDestination"
 	const val SYNCS_COUNTER = "syncsCounter"
-	const val IS_ENROLLED = "isEnrolled"
-	const val SUBSCRIBED_TOPICS = "subscribedTopics"
+	const val IS_SUBSCRIBED = "isSubscribed"
 }
 
 /* Reporting keys */
