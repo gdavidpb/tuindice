@@ -13,7 +13,9 @@ class StartUpExceptionHandler(
 ) : ExceptionHandler<StartUpUseCaseError>() {
 	override fun parseException(throwable: Throwable): StartUpUseCaseError? {
 		return when (throwable) {
-			is ServicesUnavailableException -> StartUpUseCaseError.NoServices(throwable.servicesStatus)
+			is ServicesUnavailableException ->
+				StartUpUseCaseError.NoServices(throwable.servicesStatus)
+
 			else -> {
 				noAwait {
 					applicationRepository.clearData()

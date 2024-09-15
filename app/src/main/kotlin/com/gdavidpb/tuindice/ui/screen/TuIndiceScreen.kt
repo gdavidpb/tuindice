@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.navigation.BottomSheetNavigator
-import androidx.compose.material.navigation.ModalBottomSheetLayout
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -65,7 +63,6 @@ fun TuIndiceScreen(
 	state: Main.State,
 	updateState: (Main.State) -> Unit,
 	navController: NavHostController,
-	bottomSheetNavigator: BottomSheetNavigator,
 	snackbarHostState: SnackbarHostState,
 	onAction: (action: TopBarAction) -> Unit,
 	onNavigateTo: (destination: Destination) -> Unit,
@@ -163,216 +160,214 @@ fun TuIndiceScreen(
 			}
 		}
 	) { innerPadding ->
-		ModalBottomSheetLayout(bottomSheetNavigator) {
-			val context = LocalContext.current
+		val context = LocalContext.current
 
-			NavHost(
-				navController = navController,
-				startDestination = state.startDestination,
-				modifier = Modifier.padding(innerPadding)
-			) {
-				mainNavigation(
-					onConfirmExitClick = {
-						context.findActivity().finish()
-					},
-					onDismissRequest = {
-						navController.navigateUp()
-					}
-				)
+		NavHost(
+			navController = navController,
+			startDestination = state.startDestination,
+			modifier = Modifier.padding(innerPadding)
+		) {
+			mainNavigation(
+				onConfirmExitClick = {
+					context.findActivity().finish()
+				},
+				onDismissRequest = {
+					navController.navigateUp()
+				}
+			)
 
-				loginNavigation(
-					onNavigateToSignIn = {
-						navController.navigate(LoginDestination.NavGraph) {
-							launchSingleTop = true
+			loginNavigation(
+				onNavigateToSignIn = {
+					navController.navigate(LoginDestination.NavGraph) {
+						launchSingleTop = true
 
-							popUpTo(SummaryDestination.NavGraph) {
-								inclusive = true
-							}
+						popUpTo(SummaryDestination.NavGraph) {
+							inclusive = true
 						}
-					},
-					onNavigateToSummary = {
-						navController.navigate(SummaryDestination.NavGraph) {
-							popUpTo<LoginDestination.NavGraph> {
-								inclusive = true
-							}
+					}
+				},
+				onNavigateToSummary = {
+					navController.navigate(SummaryDestination.NavGraph) {
+						popUpTo<LoginDestination.NavGraph> {
+							inclusive = true
 						}
-					},
-					onNavigateToBrowser = { title, url ->
-						navController.navigate(
-							BrowserDestination.Browser(
-								title = title,
-								url = url
-							)
-						)
-					},
-					onDismissRequest = {
-						navController.navigateUp()
-					},
-					showSnackBar = showSnackBar
-				)
-
-				summaryNavigation(
-					onNavigateToProfilePictureSettingsDialog = { showRemove ->
-						navController.navigate(
-							SummaryDestination.ProfilePictureSettingsDialog(
-								showRemove = showRemove
-							)
-						)
-					},
-					onNavigateToUpdatePassword = {
-						navController.navigate(
-							LoginDestination.UpdatePasswordDialog
-						)
-					},
-					onNavigateToRemoveProfilePictureConfirmationDialog = {
-						navController.navigate(
-							SummaryDestination.RemoveProfilePictureConfirmationDialog
-						)
-					},
-					onDismissRequest = {
-						navController.navigateUp()
-					},
-					onConfirmRemoveProfilePicture = {
-						navController
-							.viewModel<SummaryViewModel>()
-							?.confirmRemoveProfilePictureAction()
-					},
-					onPickProfilePicture = {
-						navController
-							.viewModel<SummaryViewModel>()
-							?.pickProfilePictureAction()
-					},
-					onTakePicture = {
-						navController
-							.viewModel<SummaryViewModel>()
-							?.takeProfilePictureAction()
-					},
-					onRemoveProfilePicture = {
-						navController
-							.viewModel<SummaryViewModel>()
-							?.removeProfilePictureAction()
-					},
-					showSnackBar = showSnackBar
-				)
-
-				recordNavigation(
-					onNavigateToUpdatePassword = {
-						navController.navigate(
-							LoginDestination.UpdatePasswordDialog
-						)
-					},
-					showSnackBar = showSnackBar
-				)
-
-				evaluationsNavigation(
-					onNavigateToAddEvaluation = {
-						navController.navigate(
-							EvaluationsDestination.Evaluation(
-								evaluationId = null
-							)
-						)
-					},
-					onNavigateToEvaluation = { evaluationId ->
-						navController.navigate(
-							EvaluationsDestination.Evaluation(
-								evaluationId = evaluationId
-							)
-						)
-					},
-					onNavigateToEvaluationGradePickerDialog = { evaluationId, grade, maxGrade ->
-						navController.navigate(
-							EvaluationsDestination.EvaluationGradePickerDialog(
-								evaluationId = evaluationId,
-								grade = grade,
-								maxGrade = maxGrade
-							)
-						)
-					},
-					onNavigateToEvaluations = {
-						navController.navigate(EvaluationsDestination.Evaluations)
-					},
-					onNavigateToGradePickerDialog = { grade, maxGrade ->
-						navController.navigate(
-							EvaluationsDestination.GradePickerDialog(
-								grade = grade,
-								maxGrade = maxGrade
-							)
-						)
-					},
-					onNavigateToMaxGradePickerDialog = { maxGrade ->
-						navController.navigate(
-							EvaluationsDestination.MaxGradePickerDialog(
-								grade = maxGrade
-							)
-						)
-					},
-					onDismissRequest = {
-						navController.navigateUp()
-					},
-					onSetGrade = { grade ->
-						navController
-							.viewModel<EvaluationViewModel>()
-							?.setGradeAction(
-								grade = grade
-							)
-					},
-					onSetMaxGrade = { grade ->
-						navController
-							.viewModel<EvaluationViewModel>()
-							?.setMaxGradeAction(
-								grade = grade
-							)
-					},
-					onSetEvaluationGrade = { evaluationId, grade ->
-						navController
-							.viewModel<EvaluationsViewModel>()
-							?.setEvaluationGradeAction(
-								evaluationId = evaluationId,
-								grade = grade
-							)
-					},
-					showSnackBar = showSnackBar
-				)
-
-				aboutNavigation(
-					onNavigateToBrowser = { title, url ->
-						navController.navigate(
-							BrowserDestination.Browser(
-								title = title,
-								url = url
-							)
-						)
 					}
-				)
-
-				enrollmentProofFetchNavigation(
-					navigateToUpdatePassword = {
-						navController.navigate(
-							LoginDestination.UpdatePasswordDialog
+				},
+				onNavigateToBrowser = { title, url ->
+					navController.navigate(
+						BrowserDestination.Browser(
+							title = title,
+							url = url
 						)
-					},
-					onDismissRequest = {
-						navController.popBackStack()
-					},
-					showSnackBar = showSnackBar
-				)
+					)
+				},
+				onDismissRequest = {
+					navController.navigateUp()
+				},
+				showSnackBar = showSnackBar
+			)
 
-				browserNavigation(
-					onNavigateToExternalResourceDialog = { url ->
-						navController.navigate(
-							BrowserDestination.ExternalResourceDialog(
-								url = url
-							)
+			summaryNavigation(
+				onNavigateToProfilePictureSettingsDialog = { showRemove ->
+					navController.navigate(
+						SummaryDestination.ProfilePictureSettingsDialog(
+							showRemove = showRemove
 						)
-					},
-					onNavigateToExternalResource = { url ->
-						context.browse(url)
-					},
-					onDismissRequest = {
-						navController.navigateUp()
-					}
-				)
-			}
+					)
+				},
+				onNavigateToUpdatePassword = {
+					navController.navigate(
+						LoginDestination.UpdatePasswordDialog
+					)
+				},
+				onNavigateToRemoveProfilePictureConfirmationDialog = {
+					navController.navigate(
+						SummaryDestination.RemoveProfilePictureConfirmationDialog
+					)
+				},
+				onDismissRequest = {
+					navController.navigateUp()
+				},
+				onConfirmRemoveProfilePicture = {
+					navController
+						.viewModel<SummaryViewModel>()
+						?.confirmRemoveProfilePictureAction()
+				},
+				onPickProfilePicture = {
+					navController
+						.viewModel<SummaryViewModel>()
+						?.pickProfilePictureAction()
+				},
+				onTakePicture = {
+					navController
+						.viewModel<SummaryViewModel>()
+						?.takeProfilePictureAction()
+				},
+				onRemoveProfilePicture = {
+					navController
+						.viewModel<SummaryViewModel>()
+						?.removeProfilePictureAction()
+				},
+				showSnackBar = showSnackBar
+			)
+
+			recordNavigation(
+				onNavigateToUpdatePassword = {
+					navController.navigate(
+						LoginDestination.UpdatePasswordDialog
+					)
+				},
+				showSnackBar = showSnackBar
+			)
+
+			evaluationsNavigation(
+				onNavigateToAddEvaluation = {
+					navController.navigate(
+						EvaluationsDestination.Evaluation(
+							evaluationId = null
+						)
+					)
+				},
+				onNavigateToEvaluation = { evaluationId ->
+					navController.navigate(
+						EvaluationsDestination.Evaluation(
+							evaluationId = evaluationId
+						)
+					)
+				},
+				onNavigateToEvaluationGradePickerDialog = { evaluationId, grade, maxGrade ->
+					navController.navigate(
+						EvaluationsDestination.EvaluationGradePickerDialog(
+							evaluationId = evaluationId,
+							grade = grade,
+							maxGrade = maxGrade
+						)
+					)
+				},
+				onNavigateToEvaluations = {
+					navController.navigate(EvaluationsDestination.Evaluations)
+				},
+				onNavigateToGradePickerDialog = { grade, maxGrade ->
+					navController.navigate(
+						EvaluationsDestination.GradePickerDialog(
+							grade = grade,
+							maxGrade = maxGrade
+						)
+					)
+				},
+				onNavigateToMaxGradePickerDialog = { maxGrade ->
+					navController.navigate(
+						EvaluationsDestination.MaxGradePickerDialog(
+							grade = maxGrade
+						)
+					)
+				},
+				onDismissRequest = {
+					navController.navigateUp()
+				},
+				onSetGrade = { grade ->
+					navController
+						.viewModel<EvaluationViewModel>()
+						?.setGradeAction(
+							grade = grade
+						)
+				},
+				onSetMaxGrade = { grade ->
+					navController
+						.viewModel<EvaluationViewModel>()
+						?.setMaxGradeAction(
+							grade = grade
+						)
+				},
+				onSetEvaluationGrade = { evaluationId, grade ->
+					navController
+						.viewModel<EvaluationsViewModel>()
+						?.setEvaluationGradeAction(
+							evaluationId = evaluationId,
+							grade = grade
+						)
+				},
+				showSnackBar = showSnackBar
+			)
+
+			aboutNavigation(
+				onNavigateToBrowser = { title, url ->
+					navController.navigate(
+						BrowserDestination.Browser(
+							title = title,
+							url = url
+						)
+					)
+				}
+			)
+
+			enrollmentProofFetchNavigation(
+				navigateToUpdatePassword = {
+					navController.navigate(
+						LoginDestination.UpdatePasswordDialog
+					)
+				},
+				onDismissRequest = {
+					navController.popBackStack()
+				},
+				showSnackBar = showSnackBar
+			)
+
+			browserNavigation(
+				onNavigateToExternalResourceDialog = { url ->
+					navController.navigate(
+						BrowserDestination.ExternalResourceDialog(
+							url = url
+						)
+					)
+				},
+				onNavigateToExternalResource = { url ->
+					context.browse(url)
+				},
+				onDismissRequest = {
+					navController.navigateUp()
+				}
+			)
 		}
 	}
 }

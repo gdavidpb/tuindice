@@ -40,7 +40,6 @@ class SignInActionProcessor(
 							state
 					}
 
-
 					is UseCaseState.Data -> { state ->
 						sideEffect(
 							SignIn.Effect.NavigateToSummary

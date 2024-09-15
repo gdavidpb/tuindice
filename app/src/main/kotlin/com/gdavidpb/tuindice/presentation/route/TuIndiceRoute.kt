@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.presentation.route
 
-import androidx.compose.material.navigation.rememberBottomSheetNavigator
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -45,8 +44,7 @@ fun TuIndiceRoute(
 	val context = LocalContext.current
 	val lifecycleOwner = LocalLifecycleOwner.current
 
-	val bottomSheetNavigator = rememberBottomSheetNavigator()
-	val navController = rememberNavController(bottomSheetNavigator)
+	val navController = rememberNavController()
 	val coroutineScope = rememberCoroutineScope()
 	val snackbarHostState = remember { SnackbarHostState() }
 
@@ -85,7 +83,6 @@ fun TuIndiceRoute(
 		state = viewState,
 		updateState = viewModel::updateStateAction,
 		navController = navController,
-		bottomSheetNavigator = bottomSheetNavigator,
 		snackbarHostState = snackbarHostState,
 		onAction = { action ->
 			when (action) {
