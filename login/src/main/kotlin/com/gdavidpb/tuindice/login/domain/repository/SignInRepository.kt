@@ -1,11 +1,9 @@
 package com.gdavidpb.tuindice.login.domain.repository
 
-import com.gdavidpb.tuindice.login.domain.model.SignIn
-
 interface SignInRepository {
-	suspend fun signIn(
+	suspend fun auth(
 		username: String,
 		password: String,
 		attestation: String
-	): SignIn
+	): String
 }

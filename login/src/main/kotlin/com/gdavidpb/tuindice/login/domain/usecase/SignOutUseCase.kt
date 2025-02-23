@@ -16,7 +16,7 @@ class SignOutUseCase(
 ) : FlowUseCase<Unit, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		messagingRepository.unsubscribe()
-		authRepository.signOut()
+		authRepository.revoke()
 		applicationRepository.clearData()
 		dependenciesRepository.restart()
 

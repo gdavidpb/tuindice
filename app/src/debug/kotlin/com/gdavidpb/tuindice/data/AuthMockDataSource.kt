@@ -29,7 +29,7 @@ class AuthMockDataSource(
 			throw IllegalStateException()
 	}
 
-	override suspend fun signIn(token: String): Auth {
+	override suspend fun auth(token: String): Auth {
 		sharedPreferences.edit {
 			putString(
 				PreferencesKeys.LAST_DESTINATION,
@@ -40,7 +40,7 @@ class AuthMockDataSource(
 		return Auth(uid = uid, email = email)
 	}
 
-	override suspend fun signOut() {
+	override suspend fun revoke() {
 		sharedPreferences.edit {
 			remove(PreferencesKeys.LAST_DESTINATION)
 		}

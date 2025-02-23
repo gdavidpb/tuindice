@@ -27,7 +27,7 @@ class FirebaseAuthDataSource(
 			?: error("getActiveToken")
 	}
 
-	override suspend fun signIn(token: String): Auth {
+	override suspend fun auth(token: String): Auth {
 		return auth.signInWithCustomToken(token)
 			.await()
 			.user
@@ -35,7 +35,7 @@ class FirebaseAuthDataSource(
 			?: error("signIn")
 	}
 
-	override suspend fun signOut() {
+	override suspend fun revoke() {
 		auth.signOut()
 	}
 }

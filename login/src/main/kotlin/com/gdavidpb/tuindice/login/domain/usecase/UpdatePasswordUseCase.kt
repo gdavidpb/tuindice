@@ -34,15 +34,15 @@ class UpdatePasswordUseCase(
 			)
 		}
 
-		val bearerToken = signInRepository.signIn(
+		val bearerToken = signInRepository.auth(
 			username = usbId,
 			password = params,
 			attestation = attestationToken
-		).token
+		)
 
-		authRepository.signOut()
+		authRepository.revoke()
 
-		authRepository.signIn(token = bearerToken)
+		authRepository.auth(token = bearerToken)
 
 		return flowOf(Unit)
 	}

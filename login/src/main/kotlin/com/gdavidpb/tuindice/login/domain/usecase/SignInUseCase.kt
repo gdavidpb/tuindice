@@ -28,7 +28,7 @@ class SignInUseCase(
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
 		val isActiveAuth = authRepository.isActiveAuth()
 
-		if (isActiveAuth) authRepository.signOut()
+		if (isActiveAuth) authRepository.revoke()
 
 		val attestationToken = SignInAttestationPayload(
 			usbId = params.usbId,
@@ -39,13 +39,13 @@ class SignInUseCase(
 			)
 		}
 
-		val bearerToken = signInRepository.signIn(
+		val bearerToken = signInRepository.auth(
 			username = params.usbId,
 			password = params.password,
 			attestation = attestationToken
-		).token
+		)
 
-		val authSignIn = authRepository.signIn(token = bearerToken)
+		val authSignIn = authRepository.auth(token = bearerToken)
 
 		reportingRepository.setIdentifier(identifier = authSignIn.uid)
 
