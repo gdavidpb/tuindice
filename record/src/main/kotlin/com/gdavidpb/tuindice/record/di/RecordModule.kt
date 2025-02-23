@@ -23,9 +23,9 @@ import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradePara
 import com.gdavidpb.tuindice.record.presentation.action.LoadQuartersActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
-import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val recordModule = module {

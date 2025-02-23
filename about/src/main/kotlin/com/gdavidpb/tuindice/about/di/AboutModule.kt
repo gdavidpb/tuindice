@@ -8,8 +8,8 @@ import com.gdavidpb.tuindice.about.presentation.action.RateOnPlayStoreActionProc
 import com.gdavidpb.tuindice.about.presentation.action.ReportBugActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
-import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val aboutModule = module {

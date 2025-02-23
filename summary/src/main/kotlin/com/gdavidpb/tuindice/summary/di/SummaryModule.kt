@@ -26,9 +26,9 @@ import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureAct
 import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
-import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val summaryModule = module {

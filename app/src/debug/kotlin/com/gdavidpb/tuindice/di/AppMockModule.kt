@@ -52,7 +52,6 @@ import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.testing.FakeReviewManager
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -68,9 +67,9 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import com.gdavidpb.tuindice.data.repository.attestation.LocalDataSource as AttestationLocal
@@ -158,12 +157,6 @@ val appMockModule = module {
 		}
 	}
 
-	single {
-		FirebaseAuth.getInstance().apply {
-			useEmulator("10.0.2.2", 9099)
-		}
-	}
-
 	/* KtorHttpClient */
 
 	single {
@@ -225,11 +218,11 @@ val appMockModule = module {
 
 	/* Repositories */
 
-	factoryOf(::MessagingMockDataSource) { bind<MessagingRepository>() }
 	factoryOf(::AttestationDataRepository) { bind<AttestationRepository>() }
 
 	/* Data sources */
 
+	factoryOf(::MessagingMockDataSource) { bind<MessagingRepository>() }
 	factoryOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	factoryOf(::DigestDataSource) { bind<AttestationLocal>() }
 	factoryOf(::AttestationProviderMockDataSource) { bind<AttestationProvider>() }

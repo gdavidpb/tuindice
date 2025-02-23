@@ -73,7 +73,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.userAgent
 import io.ktor.serialization.kotlinx.json.json
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.qualifier.named
