@@ -27,6 +27,11 @@
 -keep class com.google.crypto.** { *; }
 -dontwarn com.google.crypto.**
 
+# Google services rules
+-keep class com.google.android.gms.** { *; }
+-keep class com.google.android.play.core.** { *; }
+-dontwarn com.google.android.gms.common.annotation.NoNullnessRewrite
+
 # Koin rules
 -keepnames class androidx.lifecycle.ViewModel
 -keepclassmembers public class * extends androidx.lifecycle.ViewModel { public <init>(...); }
