@@ -30,11 +30,11 @@ class SignInUseCase(
 
 		if (isActiveAuth) authRepository.revoke()
 
-		val attestationToken = SignInAttestationPayload(
+		val attestation = SignInAttestationPayload(
 			usbId = params.usbId,
 			password = params.password
 		).let { payload ->
-			attestationRepository.getToken(
+			attestationRepository.getAttestation(
 				payload = Json.encodeToString(payload)
 			)
 		}
@@ -42,7 +42,7 @@ class SignInUseCase(
 		val bearerToken = signInRepository.auth(
 			username = params.usbId,
 			password = params.password,
-			attestation = attestationToken
+			attestation = attestation
 		)
 
 		val authSignIn = authRepository.auth(token = bearerToken)

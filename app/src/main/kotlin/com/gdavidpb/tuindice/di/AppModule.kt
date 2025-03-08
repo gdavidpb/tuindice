@@ -20,8 +20,10 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
-import com.gdavidpb.tuindice.data.repository.attestation.source.DigestDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.DigestDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.source.ChallengeApiDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.PlayIntegrityDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.source.SHA256DigestDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingDataRepository
 import com.gdavidpb.tuindice.data.repository.messaging.source.FirebaseMessagingDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingApiDataSource
@@ -73,13 +75,13 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.userAgent
 import io.ktor.serialization.kotlinx.json.json
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import com.gdavidpb.tuindice.data.repository.attestation.LocalDataSource as AttestationLocal
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
+import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource as AttestationRemote
 import com.gdavidpb.tuindice.data.repository.messaging.LocalDataSource as MessagingLocal
 import com.gdavidpb.tuindice.data.repository.messaging.ProviderDataSource as MessagingProvider
 import com.gdavidpb.tuindice.data.repository.messaging.RemoteDataSource as MessagingRemote
@@ -179,7 +181,7 @@ val appModule = module {
 	}
 
 	single {
-		IntegrityManagerFactory.createStandard(androidContext())
+		IntegrityManagerFactory.create(androidContext())
 	}
 
 	/* KtorHttpClient */
@@ -256,7 +258,8 @@ val appModule = module {
 	factoryOf(::PlayIntegrityDataSource) { bind<AttestationProvider>() }
 	factoryOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	factoryOf(::MessagingApiDataSource) { bind<MessagingRemote>() }
-	factoryOf(::DigestDataSource) { bind<AttestationLocal>() }
+	factoryOf(::ChallengeApiDataSource) { bind<AttestationRemote>() }
+	factoryOf(::SHA256DigestDataSource) { bind<DigestDataSource>() }
 	factoryOf(::FirebaseMessagingDataSource) { bind<MessagingProvider>() }
 	factoryOf(::MessagingPreferencesDataSource) { bind<MessagingLocal>() }
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }

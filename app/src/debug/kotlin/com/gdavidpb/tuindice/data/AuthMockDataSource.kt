@@ -7,8 +7,10 @@ import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
 import com.gdavidpb.tuindice.data.mapper.toDestinationName
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class AuthMockDataSource(
 	private val sharedPreferences: SharedPreferences
 ) : AuthRepository {
@@ -16,7 +18,7 @@ class AuthMockDataSource(
 	private val uid = "0IQZf2qtYZOTwutEX38qvBY5H8l2"
 	private val email = "11-11111@usb.ve"
 
-	private val token = UUID.randomUUID().toString()
+	private val token = Uuid.random().toString()
 
 	override suspend fun isActiveAuth(): Boolean {
 		return sharedPreferences.contains(PreferencesKeys.LAST_DESTINATION)

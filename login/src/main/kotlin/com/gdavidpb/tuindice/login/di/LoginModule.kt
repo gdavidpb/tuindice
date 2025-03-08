@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.login.di
 
 import com.gdavidpb.tuindice.login.data.repository.login.RemoteDataSource
 import com.gdavidpb.tuindice.login.data.repository.login.SignInDataRepository
-import com.gdavidpb.tuindice.login.data.repository.login.source.SignInApiDataSource
+import com.gdavidpb.tuindice.login.data.repository.login.source.AuthApiDataSource
 import com.gdavidpb.tuindice.login.domain.repository.SignInRepository
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
@@ -62,7 +62,7 @@ val loginModule = module {
 
 	/* Data sources */
 
-	factoryOf(::SignInApiDataSource) { bind<RemoteDataSource>() }
+	factoryOf(::AuthApiDataSource) { bind<RemoteDataSource>() }
 
 	/* Exception handlers */
 

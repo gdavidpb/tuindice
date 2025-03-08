@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/attestation"
+    "urlPath": "/auth/challenge"
   },
   "response": {
     "status": 200,
@@ -9,7 +9,8 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "id": "48973a17-9ee8-489a-9511-efa57aea1f65"
+      "id": "48973a17-9ee8-489a-9511-efa57aea1f65",
+      "challenge": "ZuNSiC0UZ3ouEX2OKOsSkA=="
     },
     "fixedDelayMilliseconds": 500
   }

@@ -1,17 +1,23 @@
 package com.gdavidpb.tuindice.data.repository.attestation
 
+import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 
 class AttestationDataRepository(
-	private val localDataSource: LocalDataSource,
-	private val providerDataSource: ProviderDataSource
+	private val remoteDataSource: RemoteDataSource,
+	private val providerDataSource: ProviderDataSource,
+	private val digestDataSource: DigestDataSource
 ) : AttestationRepository {
-	override suspend fun getToken(payload: String): String {
-		val nonce = localDataSource.getNonce(payload)
+	override suspend fun getAttestation(payload: String): Attestation {
+		val (id, challenge) = remoteDataSource.getChallenge()
+		val nonce = digestDataSource.digest(challenge, payload)
 		val token = providerDataSource.getToken(nonce)
 
 		requireNotNull(token)
 
-		return token
+		return Attestation(
+			id = id,
+			token = token
+		)
 	}
 }

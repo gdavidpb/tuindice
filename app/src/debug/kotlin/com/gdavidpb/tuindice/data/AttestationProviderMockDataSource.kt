@@ -1,10 +1,12 @@
 package com.gdavidpb.tuindice.data
 
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource
-import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class AttestationProviderMockDataSource : ProviderDataSource {
 	override suspend fun getToken(nonce: String): String {
-		return UUID.randomUUID().toString()
+		return Uuid.random().toString()
 	}
 }

@@ -53,12 +53,6 @@ android {
 		getByName("debug") {
 			isDebuggable = true
 			isMinifyEnabled = false
-
-			buildConfigField(
-				"Long",
-				"GOOGLE_CLOUD_PROJECT_NUMBER",
-				System.getenv("GOOGLE_CLOUD_PROJECT_NUMBER")
-			)
 		}
 		getByName("release") {
 			isDebuggable = false
@@ -67,12 +61,6 @@ android {
 			signingConfig = signingConfigs.getByName("release")
 
 			proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
-
-			buildConfigField(
-				"Long",
-				"GOOGLE_CLOUD_PROJECT_NUMBER",
-				System.getenv("GOOGLE_CLOUD_PROJECT_NUMBER")
-			)
 		}
 	}
 

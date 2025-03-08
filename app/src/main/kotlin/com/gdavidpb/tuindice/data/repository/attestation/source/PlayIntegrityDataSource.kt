@@ -1,33 +1,22 @@
 package com.gdavidpb.tuindice.data.repository.attestation.source
 
-import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource
-import com.google.android.play.core.integrity.StandardIntegrityManager
-import com.google.android.play.core.integrity.StandardIntegrityManager.PrepareIntegrityTokenRequest
-import com.google.android.play.core.integrity.StandardIntegrityManager.StandardIntegrityTokenRequest
+import com.google.android.play.core.integrity.IntegrityManager
+import com.google.android.play.core.integrity.IntegrityTokenRequest
 import kotlinx.coroutines.tasks.await
 
 class PlayIntegrityDataSource(
-	private val standardIntegrityManager: StandardIntegrityManager
+	private val integrityManager: IntegrityManager
 ) : ProviderDataSource {
 	override suspend fun getToken(nonce: String): String? {
-		val prepareRequest = PrepareIntegrityTokenRequest
-			.builder()
-			.setCloudProjectNumber(BuildConfig.GOOGLE_CLOUD_PROJECT_NUMBER)
+		val request = IntegrityTokenRequest.builder()
+			.setNonce(nonce)
 			.build()
 
-		val provider = standardIntegrityManager
-			.prepareIntegrityToken(prepareRequest)
+		val response = integrityManager
+			.requestIntegrityToken(request)
 			.await()
 
-		val integrityRequest = StandardIntegrityTokenRequest
-			.builder()
-			.setRequestHash(nonce)
-			.build()
-
-		return provider
-			.request(integrityRequest)
-			.await()
-			.token()
+		return response.token()
 	}
 }

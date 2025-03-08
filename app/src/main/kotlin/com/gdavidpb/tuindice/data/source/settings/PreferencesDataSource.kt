@@ -12,20 +12,20 @@ import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 class PreferencesDataSource(
 	private val sharedPreferences: SharedPreferences
 ) : SettingsRepository {
-	override fun getLastDestination(): Destination {
+	override suspend fun getLastDestination(): Destination {
 		return sharedPreferences
 			.getString(PreferencesKeys.LAST_DESTINATION, null)
 			?.toDestination()
 			?: SummaryDestination.NavGraph
 	}
 
-	override fun setLastDestination(destination: Destination) {
+	override suspend fun setLastDestination(destination: Destination) {
 		sharedPreferences.edit {
 			putString(PreferencesKeys.LAST_DESTINATION, destination.toDestinationName())
 		}
 	}
 
-	override fun isReviewSuggested(value: Int): Boolean {
+	override suspend fun isReviewSuggested(value: Int): Boolean {
 		val counter = sharedPreferences.getInt(PreferencesKeys.SYNCS_COUNTER, 0) + 1
 
 		sharedPreferences.edit {
@@ -35,7 +35,7 @@ class PreferencesDataSource(
 		return counter == value
 	}
 
-	override fun clear() {
+	override suspend fun clear() {
 		sharedPreferences.edit {
 			clear()
 		}

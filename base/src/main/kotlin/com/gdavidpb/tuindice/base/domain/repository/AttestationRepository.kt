@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.base.domain.repository
 
+import com.gdavidpb.tuindice.base.domain.model.Attestation
+
 interface AttestationRepository {
-	suspend fun getToken(payload: String): String
+	suspend fun getAttestation(payload: String): Attestation
 }

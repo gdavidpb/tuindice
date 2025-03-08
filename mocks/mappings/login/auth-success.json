@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/sign-in",
+    "urlPath": "/auth",
     "headers": {
       "Authorization": {
         "equalTo": "Basic MTEtMTExMTE6MTIzNDU2"
