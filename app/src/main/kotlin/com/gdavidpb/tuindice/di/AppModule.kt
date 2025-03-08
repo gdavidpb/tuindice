@@ -64,13 +64,13 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.api.ClientPlugin
-import io.ktor.client.plugins.api.createClientPlugin
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.request.bearerAuth
 import io.ktor.http.HttpHeaders
 import io.ktor.http.userAgent
 import io.ktor.serialization.kotlinx.json.json
@@ -78,7 +78,6 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.viewModelOf
-import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
 import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource as AttestationRemote
@@ -221,20 +220,20 @@ val appModule = module {
 				}
 			}
 
-			install(get<ClientPlugin<Unit>>(named("Authorization")))
-		}
-	}
+			install(Auth) {
+				bearer {
+					loadTokens {
+						val authRepository = get<AuthRepository>()
+						val isActiveAuth = authRepository.isActiveAuth()
 
-	single(named("Authorization")) {
-		createClientPlugin("Authorization") {
-			onRequest { request, _ ->
-				val authRepository = get<AuthRepository>()
-				val isActiveAuth = authRepository.isActiveAuth()
-
-				if (isActiveAuth) {
-					val bearerToken = authRepository.getActiveToken()
-
-					request.bearerAuth(token = bearerToken)
+						if (isActiveAuth)
+							BearerTokens(
+								accessToken = authRepository.getActiveToken(),
+								refreshToken = null
+							)
+						else
+							null
+					}
 				}
 			}
 		}
