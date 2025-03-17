@@ -9,7 +9,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 
@@ -23,17 +22,13 @@ class RecordApiDataSource(
 	}
 
 	override suspend fun getQuarter(qid: String): RemoteQuarter {
-		return ktorClient.get("quarters") {
-			parameter("qid", qid)
-		}
+		return ktorClient.get("quarters/$qid")
 			.body<QuarterResponse>()
 			.toRemoteQuarter()
 	}
 
 	override suspend fun removeQuarter(qid: String) {
-		ktorClient.delete("quarters") {
-			parameter("qid", qid)
-		}
+		ktorClient.delete("quarters/$qid")
 	}
 
 	override suspend fun addQuarters(quarters: List<RemoteQuarter>): List<RemoteQuarter> {
