@@ -8,9 +8,10 @@ import com.gdavidpb.tuindice.summary.data.repository.account.source.encoder.mapp
 import com.gdavidpb.tuindice.summary.data.repository.account.source.encoder.mapper.decodeScaledBitmap
 import com.gdavidpb.tuindice.summary.data.repository.account.source.encoder.mapper.rotate
 import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
-import io.ktor.util.encodeBase64
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.InputStream
 
 class ImageEncoderDataSource(
 	private val contentResolver: ContentResolver
@@ -21,7 +22,7 @@ class ImageEncoderDataSource(
 		const val QUALITY = 90
 	}
 
-	override suspend fun encodePicture(path: String): String {
+	override suspend fun encodePicture(path: String): InputStream {
 		val pictureUri = path.toUri()
 
 		val inputStream = { contentResolver.openInputStream(pictureUri) }
@@ -39,7 +40,8 @@ class ImageEncoderDataSource(
 				stream
 					.decodeScaledBitmap(scaleFactor)
 					.rotate(rotationDegrees)
-			}?.let { bitmap ->
+			}
+			?.let { bitmap ->
 				ByteArrayOutputStream().use { outputStream ->
 					val compress = bitmap.compress(
 						Bitmap.CompressFormat.JPEG,
@@ -54,8 +56,10 @@ class ImageEncoderDataSource(
 
 					bitmap.recycle()
 
-					outputStream.toByteArray().encodeBase64()
+					outputStream
 				}
+			}?.use { stream ->
+				ByteArrayInputStream(stream.toByteArray())
 			}
 
 		return encodedPicture ?: throw IOException("Unable to encode picture.")

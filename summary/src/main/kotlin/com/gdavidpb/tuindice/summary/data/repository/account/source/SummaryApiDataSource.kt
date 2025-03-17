@@ -13,6 +13,12 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.content.OutgoingContent
+import io.ktor.http.contentType
+import io.ktor.utils.io.ByteWriteChannel
+import io.ktor.utils.io.jvm.javaio.toOutputStream
+import java.io.InputStream
 
 class SummaryApiDataSource(
 	private val ktorClient: HttpClient
@@ -23,9 +29,18 @@ class SummaryApiDataSource(
 			.toAccount()
 	}
 
-	override suspend fun uploadProfilePicture(encodedPicture: String): ProfilePicture {
+	override suspend fun uploadProfilePicture(inputStream: InputStream): ProfilePicture {
 		return ktorClient.post("account/picture") {
-			setBody(encodedPicture)
+			contentType(ContentType.Application.OctetStream)
+			setBody(
+				object : OutgoingContent.WriteChannelContent() {
+					override suspend fun writeTo(channel: ByteWriteChannel) {
+						val output = channel.toOutputStream()
+
+						inputStream.use { input -> input.copyTo(output) }
+					}
+				}
+			)
 		}
 			.body<ProfilePictureResponse>()
 			.toProfilePicture()

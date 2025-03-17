@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.transform
+import java.io.InputStream
 
 class AccountDataRepository(
 	private val localDataSource: LocalDataSource,
@@ -33,8 +34,8 @@ class AccountDataRepository(
 			}
 	}
 
-	override suspend fun uploadProfilePicture(uid: String, encodedPicture: String): ProfilePicture {
-		return remoteDataSource.uploadProfilePicture(encodedPicture).also { profilePicture ->
+	override suspend fun uploadProfilePicture(uid: String, inputStream: InputStream): ProfilePicture {
+		return remoteDataSource.uploadProfilePicture(inputStream).also { profilePicture ->
 			localDataSource.saveProfilePicture(uid = uid, url = profilePicture.url)
 		}
 	}

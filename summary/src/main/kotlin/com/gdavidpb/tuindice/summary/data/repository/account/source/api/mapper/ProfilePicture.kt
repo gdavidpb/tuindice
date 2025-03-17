@@ -4,6 +4,5 @@ import com.gdavidpb.tuindice.summary.data.repository.account.source.api.response
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 
 fun ProfilePictureResponse.toProfilePicture() = ProfilePicture(
-	uid = uid,
 	url = url
 )
