@@ -47,7 +47,7 @@ class FetchEnrollmentProofActionProcessor(
 									)
 								)
 
-							is FetchEnrollmentProofUseCaseError.NoContent ->
+							is FetchEnrollmentProofUseCaseError.NotFound ->
 								sideEffect(
 									Enrollment.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.snack_enrollment_not_found)

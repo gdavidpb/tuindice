@@ -30,11 +30,6 @@ fun Throwable.isUnauthorized() = when (this) {
 	else -> false
 }
 
-fun Throwable.isNoContent() = when (this) {
-	is ClientRequestException -> (response.status == HttpStatusCode.NoContent)
-	else -> false
-}
-
 fun Throwable.isNotFound() = when (this) {
 	is ClientRequestException -> (response.status == HttpStatusCode.NotFound)
 	else -> false
