@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.summary.presentation.route
 
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
@@ -37,7 +37,7 @@ fun SummaryRoute(
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
 			is Summary.Effect.OpenCamera -> {
-				registerTakePicture.launch(Uri.parse(effect.output))
+				registerTakePicture.launch(effect.output.toUri())
 
 				viewModel.setCameraOutput(effect.output)
 			}

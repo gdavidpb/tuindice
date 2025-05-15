@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
@@ -36,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EvaluationSwipeToDismiss(
 	state: SwipeToDismissBoxState,
@@ -93,7 +91,6 @@ fun EvaluationSwipeToDismiss(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 private fun getBackgroundInfo(state: SwipeToDismissBoxState, width: Float): BackgroundInfo {
 	val color by animateColorAsState(
 		targetValue = when (state.targetValue) {

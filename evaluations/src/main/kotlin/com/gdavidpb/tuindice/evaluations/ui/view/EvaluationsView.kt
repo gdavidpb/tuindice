@@ -1,11 +1,9 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
@@ -15,7 +13,6 @@ import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun EvaluationsView(
 	lazyListState: LazyListState,

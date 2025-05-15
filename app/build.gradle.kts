@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-	compileSdk = 35
+	compileSdk = 36
 
 	kotlinOptions {
 		jvmTarget = "21"
@@ -28,8 +28,8 @@ android {
 	defaultConfig {
 		applicationId = "com.gdavidpb.tuindice"
 		minSdk = 23
-		targetSdk = 35
-		versionCode = 35
+		targetSdk = 36
+		versionCode = 36
 		versionName = "5.8"
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 	}

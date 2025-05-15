@@ -30,7 +30,6 @@ object ReportKeys {
 
 /* Status */
 const val STATUS_QUARTER_CURRENT = 0
-const val STATUS_QUARTER_COMPLETED = 1
 const val STATUS_QUARTER_MOCK = 2
 const val STATUS_QUARTER_RETIRED = 3
 

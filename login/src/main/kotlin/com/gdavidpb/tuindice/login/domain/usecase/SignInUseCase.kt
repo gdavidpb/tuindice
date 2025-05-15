@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class SignInUseCase(

@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,7 +18,6 @@ import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.asIcon
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.asString
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EvaluationTypePicker(
 	selectedType: EvaluationType? = null,

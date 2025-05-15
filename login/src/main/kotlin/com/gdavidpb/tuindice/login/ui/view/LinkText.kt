@@ -1,8 +1,9 @@
 package com.gdavidpb.tuindice.login.ui.view
 
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -18,13 +19,19 @@ fun LinkText(
 		buildAnnotatedString {
 			append(text)
 
-			links.forEach { (link, _) ->
+			links.forEach { (link, block) ->
 				val start = text.indexOf(link)
 				val end = start + link.length
 
 				if (start != -1) {
 					addStyle(
 						style = linkStyle,
+						start = start,
+						end = end
+					)
+
+					addLink(
+						LinkAnnotation.Clickable(tag = link) { block() },
 						start = start,
 						end = end
 					)
@@ -40,13 +47,8 @@ fun LinkText(
 		}
 	}
 
-	ClickableText(
+	Text(
 		text = annotatedString,
-		style = style,
-		onClick = { offset ->
-			annotatedString
-				.getStringAnnotations(offset, offset)
-				.firstOrNull()
-				?.let { span -> links[span.tag]?.invoke() }
-		})
+		style = style
+	)
 }

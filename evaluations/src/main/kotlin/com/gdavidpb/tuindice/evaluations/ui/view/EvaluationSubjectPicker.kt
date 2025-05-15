@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,7 +14,6 @@ import androidx.compose.ui.res.dimensionResource
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.R
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun EvaluationSubjectPicker(
 	modifier: Modifier = Modifier,

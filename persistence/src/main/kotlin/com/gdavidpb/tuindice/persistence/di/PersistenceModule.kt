@@ -15,7 +15,7 @@ val persistenceModule = module {
 
 		Room.databaseBuilder(androidContext(), TuIndiceDatabase::class.java, name)
 			.addCallback(get<TimestampCallback>())
-			.fallbackToDestructiveMigration()
+			.fallbackToDestructiveMigration(true)
 			.build()
 	}
 

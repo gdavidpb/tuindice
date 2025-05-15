@@ -10,6 +10,7 @@ import android.os.Build
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import java.io.File
+import androidx.core.net.toUri
 
 fun Context.openFile(file: File): Boolean {
 	return runCatching {
@@ -37,7 +38,7 @@ fun Context.canOpenFile(file: File): Boolean {
 
 fun Context.browse(url: String) {
 	runCatching {
-		val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+		val intent = Intent(Intent.ACTION_VIEW, url.toUri())
 
 		startActivity(intent)
 	}

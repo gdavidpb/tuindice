@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.login.domain.usecase.validator.UpdatePasswordParams
 import com.gdavidpb.tuindice.login.presentation.mapper.asUsbId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class UpdatePasswordUseCase(

@@ -2,12 +2,12 @@ package com.gdavidpb.tuindice.about.utils.extension
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
+import androidx.core.net.toUri
 import com.gdavidpb.tuindice.about.R
 import com.gdavidpb.tuindice.base.utils.extension.browse
 
 fun Context.playStore() {
-	val uri = Uri.parse(getString(R.string.about_google_play_intent, packageName))
+	val uri = getString(R.string.about_google_play_intent, packageName).toUri()
 	val intent = Intent(Intent.ACTION_VIEW, uri).apply {
 		addFlags(
 			Intent.FLAG_ACTIVITY_NO_HISTORY or
@@ -25,7 +25,7 @@ fun Context.playStore() {
 
 fun Context.email(email: String, subject: String = "", text: String = "") {
 	runCatching {
-		val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:")).apply {
+		val intent = Intent(Intent.ACTION_SENDTO, "mailto:".toUri()).apply {
 			putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
 
 			if (subject.isNotEmpty()) putExtra(Intent.EXTRA_SUBJECT, subject)

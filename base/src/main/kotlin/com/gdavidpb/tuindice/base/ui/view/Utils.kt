@@ -16,6 +16,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.core.net.toUri
 
 @SuppressLint("SetJavaScriptEnabled")
 fun Context.getWebView(
@@ -53,7 +54,7 @@ fun Context.getWebView(
 fun getAnnotatedUrl(url: String): AnnotatedString {
 	return buildAnnotatedString {
 		runCatching {
-			val uri = Uri.parse(url)
+			val uri = url.toUri()
 			val host = uri.host ?: error("Unable to parse url")
 
 			withStyle(

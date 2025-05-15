@@ -28,7 +28,7 @@ class TuIndiceMockApp : Application() {
 		Locale.setDefault(DEFAULT_LOCALE)
 		TimeZone.setDefault(DEFAULT_JAVA_TIME_ZONE)
 
-		FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
+		FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = false
 
 		MigrationManager.execute(applicationContext)
 
