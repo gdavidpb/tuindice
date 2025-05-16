@@ -17,7 +17,7 @@ class QuarterUpdater(
 				is QuarterKey.Write.SaveAll ->
 					if (key.dispatchToRemote)
 						remoteDataSource
-							.addQuarters(quarters = input.map { quarter -> quarter.toRemoteQuarter() })
+							.addQuarter(quarter = input.first().toRemoteQuarter())
 
 				is QuarterKey.Remove.ById ->
 					remoteDataSource

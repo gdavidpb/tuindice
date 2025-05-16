@@ -31,8 +31,8 @@ class RecordApiDataSource(
 		ktorClient.delete("quarters/$qid")
 	}
 
-	override suspend fun addQuarters(quarters: List<RemoteQuarter>): List<RemoteQuarter> {
-		val request = quarters.map { remoteQuarter -> remoteQuarter.toAddQuarterRequest() }
+	override suspend fun addQuarter(quarter: RemoteQuarter): List<RemoteQuarter> {
+		val request = quarter.toAddQuarterRequest()
 
 		return ktorClient.post("quarters") {
 			setBody(request)
