@@ -22,7 +22,6 @@ fun SubjectResponse.toRemoteSubject(isEditable: Boolean) = RemoteSubject(
 )
 
 fun RemoteSubject.toAddSubjectRequest() = AddSubjectRequest(
-	reference = id,
 	code = code,
 	grade = grade
 )

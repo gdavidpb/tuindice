@@ -5,8 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AddQuarterRequest(
-	@SerialName("reference") val reference: String,
-	@SerialName("start_date") val startDate: Long,
-	@SerialName("end_date") val endDate: Long,
+	@SerialName("quarter") val quarter: Int,
+	@SerialName("year") val year: Int,
 	@SerialName("subjects") val subjects: List<AddSubjectRequest>
 )

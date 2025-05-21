@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AddSubjectRequest(
-	@SerialName("reference") val reference: String,
 	@SerialName("code") val code: String,
 	@SerialName("grade") val grade: Int
 )
