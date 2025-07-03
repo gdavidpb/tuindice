@@ -17,14 +17,14 @@ fun Long?.formatAsToNow(): String {
 		daysDistance == 0 -> "Hoy"
 		daysDistance == 1 -> "Mañana"
 		daysDistance == -1 -> "Ayer"
-		weeksDistance == 0 -> {
+		weeksDistance == 0L -> {
 			if (this < System.currentTimeMillis())
 				"El ${formatDate("EEEE 'pasado —' dd 'de' MMMM")}"
 			else
 				"Este ${formatDate("EEEE '—' dd 'de' MMMM")}"
 		}
 
-		weeksDistance == 1 -> "El próximo ${formatDate("EEEE '—' dd 'de' MMMM")}"
+		weeksDistance == 1L -> "El próximo ${formatDate("EEEE '—' dd 'de' MMMM")}"
 		weeksDistance in 2..12 -> "En $weeksDistance semanas"
 		else -> formatDate("EEEE '—' dd/MM/yy")?.capitalize()!!
 	}

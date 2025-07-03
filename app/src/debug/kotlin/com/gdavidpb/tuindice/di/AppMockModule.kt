@@ -54,6 +54,8 @@ import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.testing.FakeAppUpdateManager
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.testing.FakeReviewManager
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -154,6 +156,16 @@ val appMockModule = module {
 	single {
 		FirebaseRemoteConfig.getInstance().apply {
 			setDefaultsAsync(R.xml.default_remote_config)
+		}
+	}
+
+	single {
+		FirebaseMessaging.getInstance()
+	}
+
+	single {
+		FirebaseCrashlytics.getInstance().apply {
+			isCrashlyticsCollectionEnabled = false
 		}
 	}
 

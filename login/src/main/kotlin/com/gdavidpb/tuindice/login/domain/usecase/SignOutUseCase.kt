@@ -1,24 +1,15 @@
 package com.gdavidpb.tuindice.login.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
-import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class SignOutUseCase(
-	private val authRepository: AuthRepository,
-	private val messagingRepository: MessagingRepository,
-	private val dependenciesRepository: DependenciesRepository,
-	private val applicationRepository: ApplicationRepository
+	private val loginRepository: LoginRepository
 ) : FlowUseCase<Unit, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
-		messagingRepository.unsubscribe()
-		authRepository.revoke()
-		applicationRepository.clearData()
-		dependenciesRepository.restart()
+		loginRepository.signOut()
 
 		return flowOf(Unit)
 	}

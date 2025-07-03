@@ -1,0 +1,13 @@
+package com.gdavidpb.tuindice.login.data.model
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class IssueTokensResponse(
+	@SerialName("uid") val uid: String,
+	@SerialName("email") val email: String,
+	@SerialName("access_token") val accessToken: String,
+	@SerialName("refresh_token") val refreshToken: String,
+	@SerialName("expires_in") val expiresIn: Long
+)

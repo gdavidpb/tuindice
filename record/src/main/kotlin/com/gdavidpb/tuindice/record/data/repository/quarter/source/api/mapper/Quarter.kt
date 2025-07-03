@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.record.data.repository.quarter.source.api.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
@@ -8,8 +10,10 @@ import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.AddQuarterRequest
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.QuarterResponse
-import kotlinx.datetime.Instant
+import kotlinx.datetime.Month
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 fun QuarterResponse.toRemoteQuarter(): RemoteQuarter {
 	val isEditable = (status == STATUS_QUARTER_CURRENT) || (status == STATUS_QUARTER_MOCK)
@@ -35,11 +39,11 @@ fun RemoteQuarter.toAddQuarterRequest(): AddQuarterRequest {
 		.toLocalDateTime(DEFAULT_TIME_ZONE)
 
 	val year = localTime.year
-	val quarter = when (localTime.monthNumber) {
-		1 -> 1
-		4 -> 2
-		6 -> 3
-		9 -> 4
+	val quarter = when (localTime.month) {
+		Month.JANUARY -> 1
+		Month.APRIL -> 2
+		Month.JUNE -> 3
+		Month.SEPTEMBER -> 4
 		else -> throw IllegalArgumentException()
 	}
 

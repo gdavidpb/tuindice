@@ -1,9 +1,15 @@
 package com.gdavidpb.tuindice.login.di
 
-import com.gdavidpb.tuindice.login.data.repository.login.RemoteDataSource
-import com.gdavidpb.tuindice.login.data.repository.login.SignInDataRepository
-import com.gdavidpb.tuindice.login.data.repository.login.source.AuthApiDataSource
-import com.gdavidpb.tuindice.login.domain.repository.SignInRepository
+import com.gdavidpb.tuindice.login.data.repository.AuthApiDataSource
+import com.gdavidpb.tuindice.login.data.repository.LoginDataRepository
+import com.gdavidpb.tuindice.login.data.repository.MessagingApiDataSource
+import com.gdavidpb.tuindice.login.data.repository.MessagingDataSource
+import com.gdavidpb.tuindice.login.data.repository.ReportingDataSource
+import com.gdavidpb.tuindice.login.data.source.CrashlyticsReportingDataSource
+import com.gdavidpb.tuindice.login.data.source.FirebaseMessagingDataSource
+import com.gdavidpb.tuindice.login.data.source.KtorAuthApiApiDataSource
+import com.gdavidpb.tuindice.login.data.source.KtorMessagingApiApiDataSource
+import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.UpdatePasswordUseCase
@@ -58,11 +64,14 @@ val loginModule = module {
 
 	/* Repositories */
 
-	factoryOf(::SignInDataRepository) { bind<SignInRepository>() }
+	factoryOf(::LoginDataRepository) { bind<LoginRepository>() }
 
 	/* Data sources */
 
-	factoryOf(::AuthApiDataSource) { bind<RemoteDataSource>() }
+	factoryOf(::KtorAuthApiApiDataSource) { bind<AuthApiDataSource>() }
+	factoryOf(::KtorMessagingApiApiDataSource) { bind<MessagingApiDataSource>() }
+	factoryOf(::CrashlyticsReportingDataSource) { bind<ReportingDataSource>() }
+	factoryOf(::FirebaseMessagingDataSource) { bind<MessagingDataSource>() }
 
 	/* Exception handlers */
 
