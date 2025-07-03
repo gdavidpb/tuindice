@@ -14,7 +14,6 @@ import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
-import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -24,7 +23,6 @@ import com.gdavidpb.tuindice.data.AttestationProviderMockDataSource
 import com.gdavidpb.tuindice.data.AuthMockDataSource
 import com.gdavidpb.tuindice.data.DebugKoinDataSource
 import com.gdavidpb.tuindice.data.DebugReportingDataSource
-import com.gdavidpb.tuindice.data.MessagingMockDataSource
 import com.gdavidpb.tuindice.data.RemoteConfigMockDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
 import com.gdavidpb.tuindice.data.repository.attestation.DigestDataSource
@@ -230,7 +228,6 @@ val appMockModule = module {
 
 	/* Data sources */
 
-	factoryOf(::MessagingMockDataSource) { bind<MessagingRepository>() }
 	factoryOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	factoryOf(::ChallengeApiDataSource) { bind<AttestationRemote>() }
 	factoryOf(::SHA256DigestDataSource) { bind<DigestDataSource>() }
