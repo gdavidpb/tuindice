@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/auth",
+    "urlPath": "/auth/token",
     "headers": {
       "Authorization": {
         "equalTo": "Basic MTEtMTExMTE6MTIzNDU2"
@@ -14,7 +14,11 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+      "uid": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
+      "email": "11-11111@usb.ve",
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+      "refresh_token": "AMf-vBwJ03ethWt8lb1j1X-aRD0ASt-gExR9dmM3nQ3tYV88MwMkiHEtJB6mhSu-Yk7fBYzIWYnXyqPZ930Hfh7xgxX6u0dEn1vRehi5H4BkCcZ1YGWGoAiQU7jopNDUueMQkOvrM-lurHTBH2Bp2CdDa87uumJeWVputi-UF5lOIdp4mapk6zCjm30ICOLGy4KRryYRUIvJ3CAuynYCfQuDIJfbvXfcMMyjqwOpWUOiu8tCSEUam3wENDfOu4RmFAnlxesASGJ_RoXpmWWAeSRqHpsir6i-C4Ci9tEk8j0gmGbXqCKbtYDRN2XYh_wrC-rluJnui75J0aph6UFunsQ65UgA9IECg1yf_WVdUjvGMjIEIDBOgTshd87IvGuH9a3zU1miZwDToHDq_bbKaK555P5PSpV1vhp9EUHwDAE35hNVKUaaTGQ",
+      "expires_in": 3600
     },
     "fixedDelayMilliseconds": 5000
   }

@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/auth",
+    "urlPath": "/auth/token",
     "headers": {
       "Authorization": {
         "doesNotMatch": "Basic MTEtMTExMTE6MTIzNDU2"
