@@ -1,9 +1,9 @@
-package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store
+package com.gdavidpb.tuindice.evaluations.data.source.store
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.LocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.RemoteEvaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toLocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import org.mobilenativefoundation.store.store5.Converter
 
 class EvaluationConverter

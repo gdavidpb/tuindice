@@ -1,7 +1,7 @@
-package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store
+package com.gdavidpb.tuindice.evaluations.data.source.store
 
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.RemoteDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.RemoteEvaluation
+import com.gdavidpb.tuindice.evaluations.data.repository.RemoteDataSource
+import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import org.mobilenativefoundation.store.store5.Fetcher
 
 class EvaluationFetcher(

@@ -1,12 +1,12 @@
-package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source
+package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.RemoteDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.RemoteEvaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toAddEvaluationRequest
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toRemoteEvaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.mapper.toUpdateEvaluationRequest
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.response.EvaluationResponse
+import com.gdavidpb.tuindice.evaluations.data.repository.RemoteDataSource
+import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
+import com.gdavidpb.tuindice.evaluations.data.mapper.toAddEvaluationRequest
+import com.gdavidpb.tuindice.evaluations.data.mapper.toRemoteEvaluation
+import com.gdavidpb.tuindice.evaluations.data.mapper.toUpdateEvaluationRequest
+import com.gdavidpb.tuindice.evaluations.data.model.EvaluationResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete

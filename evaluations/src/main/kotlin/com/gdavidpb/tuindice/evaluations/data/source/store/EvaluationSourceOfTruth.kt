@@ -1,10 +1,10 @@
-package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store
+package com.gdavidpb.tuindice.evaluations.data.source.store
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.SettingsDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.LocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toLocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.repository.LocalDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataSource
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.mobilenativefoundation.store.store5.SourceOfTruth

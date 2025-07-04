@@ -1,16 +1,16 @@
 package com.gdavidpb.tuindice.evaluations.di
 
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.EvaluationDataRepository
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.RemoteDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.SettingsDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.EvaluationsApiDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.PreferencesDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.RoomDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationConverter
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationFetcher
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationSourceOfTruth
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationUpdater
+import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.LocalDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.RemoteDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.EvaluationsApiDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.PreferencesDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.RoomDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationConverter
+import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationFetcher
+import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationSourceOfTruth
+import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationUpdater
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase

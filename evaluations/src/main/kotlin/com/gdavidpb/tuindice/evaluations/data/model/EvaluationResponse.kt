@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.response
+package com.gdavidpb.tuindice.evaluations.data.model
 
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.SubjectResponse
 import kotlinx.serialization.SerialName

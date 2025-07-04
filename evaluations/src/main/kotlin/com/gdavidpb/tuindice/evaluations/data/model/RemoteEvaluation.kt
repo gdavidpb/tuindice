@@ -1,9 +1,9 @@
-package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model
+package com.gdavidpb.tuindice.evaluations.data.model
 
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 
-data class LocalEvaluation(
+data class RemoteEvaluation(
 	val id: String,
 	val subjectId: String,
 	val subjectCode: String,

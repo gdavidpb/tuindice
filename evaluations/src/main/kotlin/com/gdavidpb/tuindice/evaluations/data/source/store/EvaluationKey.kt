@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store
+package com.gdavidpb.tuindice.evaluations.data.source.store
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 

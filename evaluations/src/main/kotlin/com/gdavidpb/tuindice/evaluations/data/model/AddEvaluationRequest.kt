@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.api.request
+package com.gdavidpb.tuindice.evaluations.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

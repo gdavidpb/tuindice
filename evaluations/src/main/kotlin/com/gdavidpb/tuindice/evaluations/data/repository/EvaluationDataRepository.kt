@@ -1,13 +1,13 @@
-package com.gdavidpb.tuindice.evaluations.data.repository.evaluation
+package com.gdavidpb.tuindice.evaluations.data.repository
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationConverter
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationFetcher
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationKey
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationReadResponse
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationSourceOfTruth
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.store.EvaluationUpdater
+import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationConverter
+import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationFetcher
+import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationKey
+import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationReadResponse
+import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationSourceOfTruth
+import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationUpdater
 import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove

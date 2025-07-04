@@ -1,6 +1,6 @@
-package com.gdavidpb.tuindice.evaluations.data.repository.evaluation
+package com.gdavidpb.tuindice.evaluations.data.repository
 
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.RemoteEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 
 interface RemoteDataSource {
 	suspend fun getEvaluations(): List<RemoteEvaluation>

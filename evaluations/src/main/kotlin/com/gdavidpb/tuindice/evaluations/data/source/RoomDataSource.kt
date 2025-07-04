@@ -1,10 +1,10 @@
-package com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source
+package com.gdavidpb.tuindice.evaluations.data.source
 
 import androidx.room.withTransaction
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.LocalDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.model.LocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toEvaluationEntity
-import com.gdavidpb.tuindice.evaluations.data.repository.evaluation.source.database.mapper.toLocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
+import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.repository.LocalDataSource
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.mapper.toLocalSubject
@@ -38,7 +38,10 @@ class RoomDataSource(
 		return evaluation
 	}
 
-	override suspend fun updateEvaluation(uid: String, evaluation: LocalEvaluation): LocalEvaluation {
+	override suspend fun updateEvaluation(
+		uid: String,
+		evaluation: LocalEvaluation
+	): LocalEvaluation {
 		val evaluationEntity = evaluation.toEvaluationEntity(uid)
 
 		room.evaluations.upsertEntity(entity = evaluationEntity)
