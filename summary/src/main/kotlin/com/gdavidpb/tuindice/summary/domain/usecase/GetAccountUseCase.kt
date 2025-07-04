@@ -14,7 +14,7 @@ class GetAccountUseCase(
 	override val exceptionHandler: GetAccountExceptionHandler
 ) : FlowUseCase<Unit, Account, GetAccountUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Account> {
-		val activeUId = authRepository.getActiveAuth().uid
+		val activeUId = authRepository.getActiveAuth()!!.uid
 
 		return accountRepository.getAccountFlow(uid = activeUId)
 	}

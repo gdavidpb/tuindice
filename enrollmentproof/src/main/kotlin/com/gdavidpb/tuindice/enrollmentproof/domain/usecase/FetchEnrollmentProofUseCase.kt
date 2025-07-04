@@ -16,10 +16,10 @@ class FetchEnrollmentProofUseCase(
 	override val exceptionHandler: FetchEnrollmentProofExceptionHandler
 ) : FlowUseCase<Unit, String, FetchEnrollmentProofUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<String> {
-		val activeAuth = authRepository.getActiveAuth()
+		val activeUId = authRepository.getActiveAuth()!!.uid
 
 		val enrollmentProof = enrollmentProofRepository.getEnrollmentProof(
-			uid = activeAuth.uid
+			uid = activeUId
 		)
 
 		val canOpenEnrollmentProof =

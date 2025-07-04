@@ -35,7 +35,7 @@ material = "1.12.0"
 ktor = "3.1.3"
 security-crypto-ktx = "1.1.0-beta01"
 material3 = "1.3.2"
-navigation = "2.9.0"
+navigation = "2.9.1"
 compose = "1.8.3"
 
 [libraries]
@@ -72,16 +72,15 @@ koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", versi
 # Firebase
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 firebase-config = { module = "com.google.firebase:firebase-config" }
-firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-crashlytics-gradle = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "firebase-crashlytics-gradle" }
 
 # Google
 app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "app-update-ktx" }
 review-ktx = { module = "com.google.android.play:review-ktx", version.ref = "review-ktx" }
 integrity = { module = "com.google.android.play:integrity", version.ref = "integrity" }
 google-services = { module = "com.google.gms:google-services", version.ref = "google-services" }
-firebase-crashlytics-gradle = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "firebase-crashlytics-gradle" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 
 # Compose
@@ -145,7 +144,7 @@ testing-android = ["koin-test", "test-runner", "espresso-core"]
 androidx = ["core-ktx", "browser", "preference-ktx", "exifinterface", "security-crypto-ktx"]
 kotlin = ["kotlin-reflect", "kotlinx-datetime", "kotlinx-serialization-json"]
 koin = ["koin-android", "koin-androidx-compose"]
-firebase = ["firebase-config", "firebase-auth", "firebase-messaging", "firebase-crashlytics"]
+firebase = ["firebase-config", "firebase-messaging", "firebase-crashlytics"]
 google = ["app-update-ktx", "material", "review-ktx", "integrity"]
 compose = ["compose-ui", "compose-foundation", "compose-animation", "compose-ui-tooling", "compose-preview", "compose-activity", "compose-material3", "compose-icons", "compose-constraintlayout"]
 navigation = ["navigation-compose"]

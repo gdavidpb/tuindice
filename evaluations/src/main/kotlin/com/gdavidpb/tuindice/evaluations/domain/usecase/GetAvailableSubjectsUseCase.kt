@@ -12,7 +12,7 @@ class GetAvailableSubjectsUseCase(
 	private val evaluationRepository: EvaluationRepository
 ) : FlowUseCase<Unit, List<Subject>, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<List<Subject>> {
-		val activeUId = authRepository.getActiveAuth().uid
+		val activeUId = authRepository.getActiveAuth()!!.uid
 
 		val availableSubjects = evaluationRepository
 			.getAvailableSubjects(uid = activeUId)

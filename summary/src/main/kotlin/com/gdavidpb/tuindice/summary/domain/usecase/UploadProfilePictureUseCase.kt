@@ -18,7 +18,7 @@ class UploadProfilePictureUseCase(
 	override val exceptionHandler: UploadProfilePictureExceptionHandler
 ) : FlowUseCase<String, String, ProfilePictureUseCaseError>() {
 	override suspend fun executeOnBackground(params: String): Flow<String> {
-		val activeUId = authRepository.getActiveAuth().uid
+		val activeUId = authRepository.getActiveAuth()!!.uid
 		val inputStream = encoderRepository.encodePicture(path = params)
 
 		val url = accountRepository.uploadProfilePicture(

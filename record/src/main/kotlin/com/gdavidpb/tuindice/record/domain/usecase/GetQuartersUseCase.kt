@@ -14,7 +14,7 @@ class GetQuartersUseCase(
 	override val exceptionHandler: GetQuartersExceptionHandler
 ) : FlowUseCase<Unit, List<Quarter>, GetQuartersUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<List<Quarter>> {
-		val activeUId = authRepository.getActiveAuth().uid
+		val activeUId = authRepository.getActiveAuth()!!.uid
 
 		return quarterRepository.getQuartersFlow(uid = activeUId)
 	}

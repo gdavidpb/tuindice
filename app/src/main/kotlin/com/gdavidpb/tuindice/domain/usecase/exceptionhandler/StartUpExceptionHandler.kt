@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.domain.usecase.exceptionhandler
 
-import com.gdavidpb.tuindice.base.domain.exception.ServicesUnavailableException
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 
 class StartUpExceptionHandler(
 	private val applicationRepository: ApplicationRepository,
@@ -13,8 +13,8 @@ class StartUpExceptionHandler(
 ) : ExceptionHandler<StartUpUseCaseError>() {
 	override fun parseException(throwable: Throwable): StartUpUseCaseError? {
 		return when (throwable) {
-			is ServicesUnavailableException ->
-				StartUpUseCaseError.NoServices(throwable.servicesStatus)
+			is GooglePlayServicesNotAvailableException ->
+				StartUpUseCaseError.NoServices
 
 			else -> {
 				noAwait {

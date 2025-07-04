@@ -13,7 +13,7 @@ class RemoveQuarterUseCase(
 	private val quarterRepository: QuarterRepository
 ) : FlowUseCase<RemoveQuarterParams, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: RemoveQuarterParams): Flow<Unit> {
-		val activeUId = authRepository.getActiveAuth().uid
+		val activeUId = authRepository.getActiveAuth()!!.uid
 
 		val remove = params.toQuarterRemove()
 

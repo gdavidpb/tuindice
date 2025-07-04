@@ -5,11 +5,11 @@ import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.data.AttestationProviderMockDataSource
-import com.gdavidpb.tuindice.data.AuthMockDataSource
+import com.gdavidpb.tuindice.data.MockAttestationProviderDataSource
+import com.gdavidpb.tuindice.data.MockAuthDataSource
 import com.gdavidpb.tuindice.data.DebugKoinDataSource
 import com.gdavidpb.tuindice.data.DebugReportingDataSource
-import com.gdavidpb.tuindice.data.RemoteConfigMockDataSource
+import com.gdavidpb.tuindice.data.MockRemoteConfigDataSource
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.ktor.client.plugins.logging.Logger
 import org.koin.core.module.dsl.bind
@@ -36,9 +36,9 @@ val appMockModule = module {
 
 	/* Data sources */
 
-	factoryOf(::AttestationProviderMockDataSource) { bind<AttestationProvider>() }
-	factoryOf(::RemoteConfigMockDataSource) { bind<ConfigRepository>() }
-	factoryOf(::AuthMockDataSource) { bind<AuthRepository>() }
+	factoryOf(::MockAttestationProviderDataSource) { bind<AttestationProvider>() }
+	factoryOf(::MockRemoteConfigDataSource) { bind<ConfigRepository>() }
+	factoryOf(::MockAuthDataSource) { bind<AuthRepository>() }
 	factoryOf(::DebugReportingDataSource) { bind<ReportingRepository>() }
 	factoryOf(::DebugKoinDataSource) { bind<DependenciesRepository>() }
 }

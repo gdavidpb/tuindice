@@ -13,7 +13,7 @@ class UpdateEvaluationUseCase(
 	private val evaluationRepository: EvaluationRepository
 ) : FlowUseCase<UpdateEvaluationParams, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: UpdateEvaluationParams): Flow<Unit> {
-		val activeUId = authRepository.getActiveAuth().uid
+		val activeUId = authRepository.getActiveAuth()!!.uid
 
 		val update = params.toEvaluationUpdate()
 

@@ -12,7 +12,6 @@ val DEFAULT_JAVA_TIME_ZONE: JavaTimeZone = JavaTimeZone.getTimeZone("America/Car
 /* Request codes */
 object RequestCodes {
 	const val APP_UPDATE = 1001
-	const val PLAY_SERVICES_RESOLUTION = 2404
 }
 
 /* Preferences keys */
@@ -20,6 +19,10 @@ object PreferencesKeys {
 	const val LAST_DESTINATION = "lastDestination"
 	const val SYNCS_COUNTER = "syncsCounter"
 	const val IS_SUBSCRIBED = "isSubscribed"
+	const val USER_UID = "uid"
+	const val USER_EMAIL = "email"
+	const val USER_ACCESS_TOKEN = "accessToken"
+	const val USER_REFRESH_TOKEN = "refreshToken"
 }
 
 /* Reporting keys */

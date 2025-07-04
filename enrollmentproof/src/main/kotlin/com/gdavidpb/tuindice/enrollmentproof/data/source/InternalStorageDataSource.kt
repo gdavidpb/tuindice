@@ -1,8 +1,8 @@
-package com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.source
+package com.gdavidpb.tuindice.enrollmentproof.data.source
 
 import android.content.Context
 import com.gdavidpb.tuindice.base.utils.extension.File
-import com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.StorageDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.StorageDataSource
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 import io.ktor.util.decodeBase64Bytes
 import io.ktor.util.encodeBase64

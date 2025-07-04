@@ -33,10 +33,10 @@ class StartUpActionProcessor(
 					}
 
 					is UseCaseState.Error -> { _ ->
-						when (val error = useCaseState.error) {
+						when (useCaseState.error) {
 							is StartUpUseCaseError.NoServices ->
 								sideEffect(
-									Main.Effect.NavigateToGooglePlayServicesUnavailableDialog(status = error.status)
+									Main.Effect.NavigateToGooglePlayServicesUnavailableDialog
 								)
 
 							else -> {}

@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.presentation.contract
 
-import com.gdavidpb.tuindice.base.domain.model.ServicesStatus
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
@@ -35,7 +34,7 @@ object Main {
 	}
 
 	sealed class Effect : ViewEffect() {
-		class NavigateToGooglePlayServicesUnavailableDialog(val status: ServicesStatus) : Effect()
+		object NavigateToGooglePlayServicesUnavailableDialog : Effect()
 		class NavigateToReviewDialog(val reviewInfo: ReviewInfo) : Effect()
 		class StartUpdateFlow(val updateInfo: AppUpdateInfo) : Effect()
 	}

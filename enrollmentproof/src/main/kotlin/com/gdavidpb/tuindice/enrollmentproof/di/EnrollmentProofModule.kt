@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.enrollmentproof.di
 
-import com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.EnrollmentProofDataRepository
-import com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.LocalDataSource
-import com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.RemoteDataSource
-import com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.StorageDataSource
-import com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.source.EnrollmentProofApiDataSource
-import com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.source.InternalStorageDataSource
-import com.gdavidpb.tuindice.enrollmentproof.data.repository.enrollmentproof.source.RoomDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.EnrollmentProofApiDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.EnrollmentProofDataRepository
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.DatabaseDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.StorageDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.source.InternalStorageDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.source.KtorEnrollmentProofApiDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.source.RoomDatabaseDataSource
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
@@ -36,8 +36,8 @@ val enrollmentProofModule = module {
 
 	/* Data sources */
 
-	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
-	factoryOf(::EnrollmentProofApiDataSource) { bind<RemoteDataSource>() }
+	factoryOf(::RoomDatabaseDataSource) { bind<DatabaseDataSource>() }
+	factoryOf(::KtorEnrollmentProofApiDataSource) { bind<EnrollmentProofApiDataSource>() }
 	factoryOf(::InternalStorageDataSource) { bind<StorageDataSource>() }
 
 	/* Exception handlers */

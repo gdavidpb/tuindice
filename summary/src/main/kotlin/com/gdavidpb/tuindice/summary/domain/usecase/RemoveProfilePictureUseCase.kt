@@ -14,7 +14,7 @@ class RemoveProfilePictureUseCase(
 	override val exceptionHandler: RemoveProfilePictureExceptionHandler
 ) : FlowUseCase<Unit, Unit, ProfilePictureUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
-		val activeUId = authRepository.getActiveAuth().uid
+		val activeUId = authRepository.getActiveAuth()!!.uid
 
 		accountRepository.removeProfilePicture(uid = activeUId)
 

@@ -20,7 +20,7 @@ class AddEvaluationUseCase(
 	override val exceptionHandler: AddEvaluationExceptionHandler
 ) : FlowUseCase<AddEvaluationParams, Unit, AddEvaluationUseCaseError>() {
 	override suspend fun executeOnBackground(params: AddEvaluationParams): Flow<Unit> {
-		val activeUId = authRepository.getActiveAuth().uid
+		val activeUId = authRepository.getActiveAuth()!!.uid
 
 		val evaluation = params.toEvaluationAdd(
 			reference = identifierRepository.generateRandomIdentifier()

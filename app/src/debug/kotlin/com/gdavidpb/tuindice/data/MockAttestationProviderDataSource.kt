@@ -5,7 +5,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
-class AttestationProviderMockDataSource : ProviderDataSource {
+class MockAttestationProviderDataSource : ProviderDataSource {
 	override suspend fun getToken(nonce: String): String {
 		return Uuid.random().toString()
 	}

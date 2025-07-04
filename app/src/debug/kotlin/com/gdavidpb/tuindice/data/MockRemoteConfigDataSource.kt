@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.utils.extension.getStringList
 import com.gdavidpb.tuindice.utils.ConfigKeys
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 
-class RemoteConfigMockDataSource(
+class MockRemoteConfigDataSource(
 	private val remoteConfig: FirebaseRemoteConfig
 ) : ConfigRepository {
 	override suspend fun tryFetch() {

@@ -18,7 +18,7 @@
     </queries>
 
     <application
-        android:name=".TuIndiceMockApp"
+        android:name=".MockTuIndiceApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"

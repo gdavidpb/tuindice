@@ -18,7 +18,7 @@ class SetSubjectGradeUseCase(
 	override val exceptionHandler: SetSubjectGradeExceptionHandler
 ) : FlowUseCase<SetSubjectGradeParams, Unit, SubjectUseCaseError>() {
 	override suspend fun executeOnBackground(params: SetSubjectGradeParams): Flow<Unit> {
-		val activeUId = authRepository.getActiveAuth().uid
+		val activeUId = authRepository.getActiveAuth()!!.uid
 
 		val set = params.toSubjectGradeSet()
 

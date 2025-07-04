@@ -14,7 +14,6 @@ import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
-import com.gdavidpb.tuindice.base.domain.repository.MobileServicesRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
@@ -29,10 +28,9 @@ import com.gdavidpb.tuindice.data.repository.messaging.source.FirebaseMessagingD
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingApiDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingPreferencesDataSource
 import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
-import com.gdavidpb.tuindice.data.source.auth.FirebaseAuthDataSource
+import com.gdavidpb.tuindice.data.source.auth.PreferencesAuthDataSource
 import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.di.ReleaseKoinDataSource
-import com.gdavidpb.tuindice.data.source.mobile.GooglePlayServicesDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
@@ -52,11 +50,9 @@ import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.utils.UserAgent
-import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -152,10 +148,6 @@ val appModule = module {
 	}
 
 	single {
-		GoogleApiAvailability.getInstance()
-	}
-
-	single {
 		ReviewManagerFactory.create(androidContext())
 	}
 
@@ -165,10 +157,6 @@ val appModule = module {
 		FirebaseRemoteConfig.getInstance().apply {
 			setDefaultsAsync(R.xml.default_remote_config)
 		}
-	}
-
-	single {
-		FirebaseAuth.getInstance()
 	}
 
 	single {
@@ -221,15 +209,16 @@ val appModule = module {
 			}
 
 			install(Auth) {
+				val authRepository = get<AuthRepository>()
+
 				bearer {
 					loadTokens {
-						val authRepository = get<AuthRepository>()
-						val isActiveAuth = authRepository.isActiveAuth()
+						val activeAuth = authRepository.getActiveAuth()
 
-						if (isActiveAuth)
+						if (activeAuth != null)
 							BearerTokens(
-								accessToken = authRepository.getActiveToken(),
-								refreshToken = null
+								accessToken = activeAuth.accessToken,
+								refreshToken = activeAuth.refreshToken
 							)
 						else
 							null
@@ -264,9 +253,8 @@ val appModule = module {
 	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
 	factoryOf(::RemoteConfigDataSource) { bind<ConfigRepository>() }
-	factoryOf(::FirebaseAuthDataSource) { bind<AuthRepository>() }
+	factoryOf(::PreferencesAuthDataSource) { bind<AuthRepository>() }
 	factoryOf(::CrashlyticsReportingDataSource) { bind<ReportingRepository>() }
 	factoryOf(::ReleaseKoinDataSource) { bind<DependenciesRepository>() }
 	factoryOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
-	factoryOf(::GooglePlayServicesDataSource) { bind<MobileServicesRepository>() }
 }

@@ -36,7 +36,7 @@ class GetEvaluationsUseCase(
 			.then(compareBy(Evaluation::state))
 
 	override suspend fun executeOnBackground(params: Flow<List<EvaluationFilter>>): Flow<GetEvaluations> {
-		val activeUId = authRepository.getActiveAuth().uid
+		val activeUId = authRepository.getActiveAuth()!!.uid
 
 		val availableSubjects = evaluationRepository
 			.getAvailableSubjects(uid = activeUId)
