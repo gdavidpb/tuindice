@@ -1,8 +1,5 @@
 package com.gdavidpb.tuindice.evaluations.data.model
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationState
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-
 data class LocalEvaluation(
 	val id: String,
 	val subjectId: String,
@@ -11,6 +8,6 @@ data class LocalEvaluation(
 	val grade: Double?,
 	val maxGrade: Double,
 	val date: Long?,
-	val type: EvaluationType,
-	val state: EvaluationState
+	val type: Int,
+	val isDone: Boolean
 )

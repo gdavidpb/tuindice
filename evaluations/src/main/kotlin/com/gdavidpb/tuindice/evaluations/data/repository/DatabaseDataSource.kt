@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
 import kotlinx.coroutines.flow.Flow
 
-interface LocalDataSource {
+interface DatabaseDataSource {
 	fun getEvaluationsFlow(uid: String): Flow<List<LocalEvaluation>>
 	suspend fun getEvaluation(uid: String, eid: String): LocalEvaluation?
 	suspend fun getAvailableSubjects(uid: String): List<LocalSubject>

@@ -1,35 +1,36 @@
 package com.gdavidpb.tuindice.evaluations.data.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.AddEvaluationRequest
-import com.gdavidpb.tuindice.evaluations.data.model.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.model.EvaluationResponse
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.room.otm.EvaluationWithSubject
 
 fun EvaluationResponse.toRemoteEvaluation() = RemoteEvaluation(
 	id = id,
-	subjectId = sid,
-	subjectCode = subject.code,
-	quarterId = qid,
+	subjectId = subjectId,
+	subjectCode = subjectCode,
+	quarterId = quarterId,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
-	type = EvaluationType.entries[type],
-	state = computeEvaluationState(grade = grade, date = date)
+	type = type,
+	isDone = isDone
 )
 
 fun RemoteEvaluation.toAddEvaluationRequest() = AddEvaluationRequest(
-	reference = id,
 	subjectId = subjectId,
-	type = type.ordinal,
 	grade = grade,
 	maxGrade = maxGrade,
-	date = date
+	date = date,
+	type = type,
+	isDone = isDone
 )
 
 fun RemoteEvaluation.toUpdateEvaluationRequest() = UpdateEvaluationRequest(
@@ -37,7 +38,8 @@ fun RemoteEvaluation.toUpdateEvaluationRequest() = UpdateEvaluationRequest(
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
-	type = type.ordinal
+	type = type,
+	isDone = isDone
 )
 
 fun Evaluation.toRemoteEvaluation() = RemoteEvaluation(
@@ -48,8 +50,8 @@ fun Evaluation.toRemoteEvaluation() = RemoteEvaluation(
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
-	type = type,
-	state = computeEvaluationState(grade = grade, date = date)
+	type = type.ordinal,
+	isDone = (state == EvaluationState.COMPLETED)
 )
 
 fun RemoteEvaluation.toLocalEvaluation() = LocalEvaluation(
@@ -61,7 +63,7 @@ fun RemoteEvaluation.toLocalEvaluation() = LocalEvaluation(
 	maxGrade = maxGrade,
 	date = date,
 	type = type,
-	state = state
+	isDone = isDone
 )
 
 fun LocalEvaluation.toLocalEvaluation() = Evaluation(
@@ -72,8 +74,8 @@ fun LocalEvaluation.toLocalEvaluation() = Evaluation(
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
-	type = type,
-	state = state
+	type = EvaluationType.entries[type],
+	state = computeEvaluationState(grade = grade, date = date)
 )
 
 fun Evaluation.toLocalEvaluation() = LocalEvaluation(
@@ -84,19 +86,21 @@ fun Evaluation.toLocalEvaluation() = LocalEvaluation(
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
-	type = type,
-	state = state
+	type = type.ordinal,
+	isDone = (state == EvaluationState.COMPLETED)
 )
 
 fun LocalEvaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
 	id = id,
 	subjectId = subjectId,
+	subjectCode = subjectCode,
 	quarterId = quarterId,
 	accountId = uid,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
-	type = type
+	type = type,
+	isDone = isDone
 )
 
 fun EvaluationWithSubject.toLocalEvaluation() = LocalEvaluation(
@@ -108,8 +112,5 @@ fun EvaluationWithSubject.toLocalEvaluation() = LocalEvaluation(
 	maxGrade = evaluation.maxGrade,
 	date = evaluation.date,
 	type = evaluation.type,
-	state = computeEvaluationState(
-		grade = evaluation.grade,
-		date = evaluation.date
-	)
+	isDone = evaluation.isDone
 )

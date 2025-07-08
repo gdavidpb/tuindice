@@ -9,5 +9,6 @@ data class UpdateEvaluationRequest(
 	@SerialName("grade") val grade: Double? = null,
 	@SerialName("max_grade") val maxGrade: Double? = null,
 	@SerialName("date") val date: Long? = null,
-	@SerialName("type") val type: Int? = null
+	@SerialName("type") val type: Int? = null,
+	@SerialName("is_done") val isDone: Boolean? = null
 )

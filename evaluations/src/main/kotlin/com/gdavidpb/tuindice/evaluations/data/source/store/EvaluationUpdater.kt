@@ -1,13 +1,13 @@
 package com.gdavidpb.tuindice.evaluations.data.source.store
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.RemoteDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.mapper.toRemoteEvaluation
 import org.mobilenativefoundation.store.store5.Updater
 import org.mobilenativefoundation.store.store5.UpdaterResult
 
 class EvaluationUpdater(
-	private val remoteDataSource: RemoteDataSource
+	private val evaluationsApiDataSource: EvaluationsApiDataSource
 ) : Updater<EvaluationKey, List<Evaluation>, EvaluationWriteResponse> by Updater.by(
 	post = { key, input ->
 		require(key is EvaluationKey.Write || key is EvaluationKey.Remove)
@@ -15,15 +15,15 @@ class EvaluationUpdater(
 		runCatching {
 			when (key) {
 				is EvaluationKey.Write.Add ->
-					remoteDataSource
+					evaluationsApiDataSource
 						.addEvaluation(evaluation = input.first().toRemoteEvaluation())
 
 				is EvaluationKey.Write.Update ->
-					remoteDataSource
+					evaluationsApiDataSource
 						.updateEvaluation(evaluation = input.first().toRemoteEvaluation())
 
 				is EvaluationKey.Remove.ById ->
-					remoteDataSource
+					evaluationsApiDataSource
 						.removeEvaluation(eid = key.eid)
 
 				else ->

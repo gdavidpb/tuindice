@@ -1,17 +1,17 @@
 package com.gdavidpb.tuindice.evaluations.data.model
 
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.SubjectResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class EvaluationResponse(
 	@SerialName("id") val id: String,
-	@SerialName("sid") val sid: String,
-	@SerialName("qid") val qid: String,
-	@SerialName("grade") val grade: Double? = null,
+	@SerialName("subject_id") val subjectId: String,
+	@SerialName("subject_code") val subjectCode: String,
+	@SerialName("quarter_id") val quarterId: String,
+	@SerialName("grade") val grade: Double?,
 	@SerialName("max_grade") val maxGrade: Double,
-	@SerialName("date") val date: Long? = null,
+	@SerialName("date") val date: Long?,
 	@SerialName("type") val type: Int,
-	@SerialName("subject") val subject: SubjectResponse
+	@SerialName("is_done") val isDone: Boolean
 )

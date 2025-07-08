@@ -30,7 +30,7 @@ class EvaluationDataRepository(
 	private val sourceOfTruth: EvaluationSourceOfTruth,
 	private val converter: EvaluationConverter,
 	private val updater: EvaluationUpdater,
-	private val localDataSource: LocalDataSource,
+	private val databaseDataSource: DatabaseDataSource,
 	private val settingsDataSource: SettingsDataSource
 ) : MutableStore<EvaluationKey, List<Evaluation>> by MutableStoreBuilder.from(
 	fetcher = fetcher,
@@ -109,7 +109,7 @@ class EvaluationDataRepository(
 	}
 
 	override suspend fun getAvailableSubjects(uid: String): List<Subject> {
-		return localDataSource.getAvailableSubjects(uid)
+		return databaseDataSource.getAvailableSubjects(uid)
 			.map { localSubject -> localSubject.toSubject() }
 	}
 }

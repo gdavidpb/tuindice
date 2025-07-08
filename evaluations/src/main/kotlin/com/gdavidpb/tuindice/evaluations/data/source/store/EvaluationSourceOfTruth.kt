@@ -3,14 +3,14 @@ package com.gdavidpb.tuindice.evaluations.data.source.store
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.LocalDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataSource
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.mobilenativefoundation.store.store5.SourceOfTruth
 
 class EvaluationSourceOfTruth(
-	private val localDataSource: LocalDataSource,
+	private val databaseDataSource: DatabaseDataSource,
 	private val settingsDataSource: SettingsDataSource
 ) : SourceOfTruth<EvaluationKey, List<LocalEvaluation>, List<Evaluation>> by SourceOfTruth.of(
 	reader = { key: EvaluationKey ->
@@ -18,13 +18,13 @@ class EvaluationSourceOfTruth(
 
 		when (key) {
 			is EvaluationKey.Read.All ->
-				localDataSource
+				databaseDataSource
 					.getEvaluationsFlow(uid = key.uid)
 					.map { evaluations -> evaluations.map { evaluation -> evaluation.toLocalEvaluation() } }
 
 			is EvaluationKey.Read.ById ->
 				flow {
-					val evaluation = localDataSource
+					val evaluation = databaseDataSource
 						.getEvaluation(key.uid, key.eid)
 						?.toLocalEvaluation()
 
@@ -39,32 +39,32 @@ class EvaluationSourceOfTruth(
 			is EvaluationKey.Read.All -> {
 				settingsDataSource.setGetEvaluationsOnCooldown()
 
-				localDataSource.saveEvaluations(
+				databaseDataSource.saveEvaluations(
 					uid = key.uid,
 					evaluations = input
 				)
 			}
 
 			is EvaluationKey.Read.ById ->
-				localDataSource.saveEvaluations(
+				databaseDataSource.saveEvaluations(
 					uid = key.uid,
 					evaluations = input
 				)
 
 			is EvaluationKey.Write.Add ->
-				localDataSource.saveEvaluations(
+				databaseDataSource.saveEvaluations(
 					uid = key.uid,
 					evaluations = input
 				)
 
 			is EvaluationKey.Write.Update ->
-				localDataSource.updateEvaluation(
+				databaseDataSource.updateEvaluation(
 					uid = key.uid,
 					evaluation = input.first()
 				)
 
 			is EvaluationKey.Remove.ById -> {
-				localDataSource.removeEvaluation(
+				databaseDataSource.removeEvaluation(
 					uid = key.uid,
 					eid = key.eid
 				)
@@ -76,7 +76,7 @@ class EvaluationSourceOfTruth(
 
 		when (key) {
 			is EvaluationKey.Remove.ById ->
-				localDataSource.removeEvaluation(
+				databaseDataSource.removeEvaluation(
 					uid = key.uid,
 					eid = key.eid
 				)

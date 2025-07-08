@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.evaluations.di
 
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationDataRepository
-import com.gdavidpb.tuindice.evaluations.data.repository.LocalDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.RemoteDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataSource
-import com.gdavidpb.tuindice.evaluations.data.source.EvaluationsApiDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.KtorEvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.PreferencesDataSource
-import com.gdavidpb.tuindice.evaluations.data.source.RoomDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.RoomDatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationConverter
 import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationFetcher
 import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationSourceOfTruth
@@ -106,8 +106,8 @@ val evaluationsModule = module {
 
 	/* Data sources */
 
-	factoryOf(::EvaluationsApiDataSource) { bind<RemoteDataSource>() }
-	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
+	factoryOf(::KtorEvaluationsApiDataSource) { bind<EvaluationsApiDataSource>() }
+	factoryOf(::RoomDatabaseDataSource) { bind<DatabaseDataSource>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsDataSource>() }
 
 	/* Exception handlers */

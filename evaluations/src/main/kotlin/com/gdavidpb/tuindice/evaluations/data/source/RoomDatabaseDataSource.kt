@@ -4,16 +4,16 @@ import androidx.room.withTransaction
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.repository.LocalDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.mapper.toLocalSubject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class RoomDataSource(
+class RoomDatabaseDataSource(
 	private val room: TuIndiceDatabase
-) : LocalDataSource {
+) : DatabaseDataSource {
 	override fun getEvaluationsFlow(uid: String): Flow<List<LocalEvaluation>> {
 		return room.evaluations.getEvaluationsWithSubjectFlow(uid)
 			.map { evaluations -> evaluations.map { evaluation -> evaluation.toLocalEvaluation() } }

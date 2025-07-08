@@ -18,7 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.EvaluationState
+import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.R
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 
 @Composable
@@ -138,4 +143,22 @@ fun EvaluationItemView(
 			}
 		}
 	}
+}
+
+@Preview
+@Composable
+fun EvaluationItemViewPreview() {
+	EvaluationItemView(
+		item = Evaluation(
+			id = "123",
+			subjectId = "123",
+			subjectCode = "MA1111",
+			quarterId = "123",
+			grade = 17.75,
+			maxGrade = 20.0,
+			date = System.currentTimeMillis(),
+			type = EvaluationType.TEST,
+			state = EvaluationState.COMPLETED
+		).toEvaluationItem(ordinal = 1)
+	)
 }
