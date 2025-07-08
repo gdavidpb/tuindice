@@ -21,7 +21,7 @@ class MockAuthDataSource(
 		return sharedPreferences.contains(PreferencesKeys.LAST_DESTINATION)
 	}
 
-	override suspend fun getActiveAuth(): Auth {
+	override suspend fun getActiveAuth(): Auth? {
 		return if (sharedPreferences.contains(PreferencesKeys.LAST_DESTINATION))
 			Auth(
 				uid = uid,
@@ -30,6 +30,6 @@ class MockAuthDataSource(
 				refreshToken = refreshToken
 			)
 		else
-			throw IllegalStateException()
+			null
 	}
 }
