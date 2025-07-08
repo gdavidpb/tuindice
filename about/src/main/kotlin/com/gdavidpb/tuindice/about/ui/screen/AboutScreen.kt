@@ -20,11 +20,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.gdavidpb.tuindice.about.R
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.ui.view.AboutHeaderView
 import com.gdavidpb.tuindice.about.ui.view.AboutView
-import com.gdavidpb.tuindice.about.ui.view.getVersionName
 
 @Composable
 fun AboutScreen(
@@ -45,7 +45,7 @@ fun AboutScreen(
 	onContactDeveloperClick: () -> Unit,
 	onReportBugClick: () -> Unit
 ) {
-	if (state != About.State.Idle) return
+	if (state !is About.State.Content) return
 
 	Column(
 		modifier = Modifier
@@ -56,7 +56,7 @@ fun AboutScreen(
 		) {
 			AboutView(
 				icon = Icons.Outlined.Info,
-				text = stringResource(id = R.string.about_version, getVersionName()),
+				text = stringResource(id = R.string.about_version, state.versionText),
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			)
 
@@ -171,4 +171,29 @@ fun AboutScreen(
 			) { onDstClick() }
 		}
 	}
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AboutScreenPreview() {
+	AboutScreen(
+		state = About.State.Content(
+			versionText = "Desarrollo v5.8 (36)"
+		),
+		onCreativeCommonsClick = {},
+		onXClick = {},
+		onGithubClick = {},
+		onKotlinClick = {},
+		onComposeClick = {},
+		onFirebaseClick = {},
+		onKoinClick = {},
+		onKtorClick = {},
+		onDstClick = {},
+		onTermsAndConditionsClick = {},
+		onPrivacyPolicyClick = {},
+		onShareAppClick = {},
+		onRateOnPlayStoreClick = {},
+		onContactDeveloperClick = {},
+		onReportBugClick = {}
+	)
 }

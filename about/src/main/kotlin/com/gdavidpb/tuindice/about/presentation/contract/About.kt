@@ -11,9 +11,13 @@ object About {
 		override val isBottomBarVisible: Boolean = true
 	) : ViewState() {
 		data object Idle : State()
+		data class Content(
+			val versionText: String
+		) : State()
 	}
 
 	sealed class Action : ViewAction() {
+		data object LoadVersion : Action()
 		data object OpenTermsAndConditions : Action()
 		data object OpenPrivacyPolicy : Action()
 		class OpenUrl(val url: String) : Action()

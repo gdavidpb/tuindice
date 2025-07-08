@@ -8,8 +8,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
-import java.io.File
 import androidx.core.net.toUri
+import java.io.File
 
 fun Context.openFile(file: File): Boolean {
 	return runCatching {

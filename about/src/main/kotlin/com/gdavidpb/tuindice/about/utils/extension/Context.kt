@@ -4,7 +4,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.net.toUri
 import com.gdavidpb.tuindice.about.R
+import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.utils.extension.browse
+import com.gdavidpb.tuindice.base.utils.extension.versionCode
+import com.gdavidpb.tuindice.base.utils.extension.versionName
 
 fun Context.playStore() {
 	val uri = getString(R.string.about_google_play_intent, packageName).toUri()
@@ -48,4 +51,16 @@ fun Context.share(subject: String = "", text: String) {
 
 		startActivity(intent)
 	}
+}
+
+fun Context.versionDescription(): String {
+	val environmentRes = if (BuildConfig.DEBUG) R.string.debug else R.string.release
+	val environmentName = getString(environmentRes)
+
+	return getString(
+		R.string.app_version,
+		environmentName,
+		versionName(),
+		versionCode()
+	)
 }

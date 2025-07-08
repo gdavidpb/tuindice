@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.about.presentation.viewmodel
 
 import com.gdavidpb.tuindice.about.presentation.action.ContactDeveloperActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.LoadVersionActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenPrivacyPolicyActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenTermsAndConditionsActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenUrlActionProcessor
@@ -13,6 +14,7 @@ import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.Flow
 
 class AboutViewModel(
+	private val loadVersionActionProcessor: LoadVersionActionProcessor,
 	private val contactDeveloperActionProcessor: ContactDeveloperActionProcessor,
 	private val openTermsAndConditionsActionProcessor: OpenTermsAndConditionsActionProcessor,
 	private val openPrivacyPolicyActionProcessor: OpenPrivacyPolicyActionProcessor,
@@ -20,8 +22,10 @@ class AboutViewModel(
 	private val rateOnPlayStoreActionProcessor: RateOnPlayStoreActionProcessor,
 	private val reportBugActionProcessor: ReportBugActionProcessor,
 	private val openUrlActionProcessor: OpenUrlActionProcessor
-) : BaseViewModel<About.State, About.Action, About.Effect>(initialState = About.State.Idle) {
-
+) : BaseViewModel<About.State, About.Action, About.Effect>(
+	initialState = About.State.Idle,
+	initialAction = About.Action.LoadVersion
+) {
 	fun openTermsAndConditionsAction() =
 		sendAction(About.Action.OpenTermsAndConditions)
 
@@ -48,6 +52,9 @@ class AboutViewModel(
 		sideEffect: (About.Effect) -> Unit
 	): Flow<Mutation<About.State>> {
 		return when (action) {
+			is About.Action.LoadVersion ->
+				loadVersionActionProcessor.process(action, sideEffect)
+
 			is About.Action.ContactDeveloper ->
 				contactDeveloperActionProcessor.process(action, sideEffect)
 
