@@ -76,7 +76,7 @@
     </string>
 
     <string name="about_compose">
-        JetPack Compose 2026.06.01\n
+        JetPack Compose 2025.07.00\n
         Build better apps faster with Jetpack Compose.\n
         © 2019 JetBrains &amp; Google
     </string>
@@ -94,7 +94,7 @@
     </string>
 
     <string name="about_ktor">
-        Ktor 3.1.3\n
+        Ktor 3.2.2\n
         Create asynchronous client and server applications. Open Source, free, and fun!.\n
         © 2017 JetBrains
     </string>
