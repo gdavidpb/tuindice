@@ -1,14 +1,12 @@
 package com.gdavidpb.tuindice.di
 
 import android.util.Log
-import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.data.MockAttestationProviderDataSource
-import com.gdavidpb.tuindice.data.MockAuthDataSource
 import com.gdavidpb.tuindice.data.DebugKoinDataSource
 import com.gdavidpb.tuindice.data.DebugReportingDataSource
+import com.gdavidpb.tuindice.data.MockAttestationProviderDataSource
 import com.gdavidpb.tuindice.data.MockRemoteConfigDataSource
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import io.ktor.client.plugins.logging.Logger
@@ -38,7 +36,6 @@ val appMockModule = module {
 
 	factoryOf(::MockAttestationProviderDataSource) { bind<AttestationProvider>() }
 	factoryOf(::MockRemoteConfigDataSource) { bind<ConfigRepository>() }
-	factoryOf(::MockAuthDataSource) { bind<AuthRepository>() }
 	factoryOf(::DebugReportingDataSource) { bind<ReportingRepository>() }
 	factoryOf(::DebugKoinDataSource) { bind<DependenciesRepository>() }
 }

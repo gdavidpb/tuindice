@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.base.data.repository.source.uuid
+package com.gdavidpb.tuindice.base.data.source
 
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import kotlin.uuid.ExperimentalUuidApi

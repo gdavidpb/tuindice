@@ -23,8 +23,8 @@ class RoomDataSource(
 	private val quartersCache: HashMap<String, LocalQuarter>,
 	private val computationCache: LruCache<Int, LocalQuarter>
 ) : LocalDataSource {
-	override fun getQuartersFlow(uid: String): Flow<List<LocalQuarter>> {
-		return room.quarters.getQuartersWithSubjectsFlow(uid)
+	override fun getQuartersFlow(): Flow<List<LocalQuarter>> {
+		return room.quarters.getQuartersWithSubjectsFlow()
 			.map { quarters ->
 				quarters
 					.map { quarter -> quarter.toLocalQuarter() }
@@ -37,17 +37,17 @@ class RoomDataSource(
 			}
 	}
 
-	override suspend fun getQuarter(uid: String, qid: String): LocalQuarter? {
+	override suspend fun getQuarter(qid: String): LocalQuarter? {
 		return quartersCache[qid]
 	}
 
-	override suspend fun saveQuarters(uid: String, quarters: List<LocalQuarter>) {
+	override suspend fun saveQuarters(quarters: List<LocalQuarter>) {
 		val quarterEntities = quarters
-			.map { quarter -> quarter.toQuarterEntity(uid) }
+			.map { quarter -> quarter.toQuarterEntity() }
 
 		val subjectEntities = quarters
 			.flatMap { quarter -> quarter.subjects }
-			.map { subject -> subject.toSubjectEntity(uid) }
+			.map { subject -> subject.toSubjectEntity() }
 
 		room.withTransaction {
 			room.quarters.upsertEntities(quarterEntities)
@@ -55,18 +55,18 @@ class RoomDataSource(
 		}
 	}
 
-	override suspend fun removeQuarter(uid: String, qid: String) {
-		room.quarters.deleteQuarter(uid = uid, qid = qid)
+	override suspend fun removeQuarter(qid: String) {
+		room.quarters.deleteQuarter(qid = qid)
 	}
 
-	override suspend fun saveSubjects(uid: String, subjects: List<LocalSubject>) {
+	override suspend fun saveSubjects(subjects: List<LocalSubject>) {
 		val subjectEntities = subjects
-			.map { subject -> subject.toSubjectEntity(uid) }
+			.map { subject -> subject.toSubjectEntity() }
 
 		room.subjects.upsertEntities(subjectEntities)
 	}
 
-	override suspend fun computeSetSubjectGrade(uid: String, qid: String, sid: String, grade: Int): List<LocalQuarter> {
+	override suspend fun computeSetSubjectGrade(qid: String, sid: String, grade: Int): List<LocalQuarter> {
 		val subjectQuarter = quartersCache[qid] ?: return emptyList()
 
 		val updatedQuarter = subjectQuarter.copy(

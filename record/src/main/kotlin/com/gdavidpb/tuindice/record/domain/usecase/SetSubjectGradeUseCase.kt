@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.mapper.toSubjectGradeSet
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
@@ -12,20 +11,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class SetSubjectGradeUseCase(
-	private val authRepository: AuthRepository,
 	private val quarterRepository: QuarterRepository,
 	override val paramsValidator: SetSubjectGradeParamsValidator,
 	override val exceptionHandler: SetSubjectGradeExceptionHandler
 ) : FlowUseCase<SetSubjectGradeParams, Unit, SubjectUseCaseError>() {
 	override suspend fun executeOnBackground(params: SetSubjectGradeParams): Flow<Unit> {
-		val activeUId = authRepository.getActiveAuth()!!.uid
-
 		val set = params.toSubjectGradeSet()
 
-		quarterRepository.setSubjectGrade(
-			uid = activeUId,
-			set = set
-		)
+		quarterRepository.setSubjectGrade(set = set)
 
 		return flowOf(Unit)
 	}

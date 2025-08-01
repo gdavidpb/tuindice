@@ -14,50 +14,29 @@ import kotlinx.coroutines.flow.Flow
 abstract class QuarterDao : UpsertDao<QuarterEntity>() {
 	@Query(
 		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
-				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid " +
-				"AND ${QuarterTable.STATUS} IN ($STATUS_QUARTER_CURRENT, $STATUS_QUARTER_MOCK)"
+				"WHERE ${QuarterTable.STATUS} IN ($STATUS_QUARTER_CURRENT, $STATUS_QUARTER_MOCK)"
 	)
 	@Transaction
-	abstract fun getOpenQuartersWithSubjects(
-		uid: String
-	): List<QuarterWithSubjects>
+	abstract fun getOpenQuartersWithSubjects(): List<QuarterWithSubjects>
 
 	@Query(
 		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
-				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid " +
 				"ORDER BY ${QuarterTable.START_DATE} DESC"
 	)
 	@Transaction
-	abstract fun getQuartersWithSubjectsFlow(
-		uid: String
-	): Flow<List<QuarterWithSubjects>>
+	abstract fun getQuartersWithSubjectsFlow(): Flow<List<QuarterWithSubjects>>
 
 	@Query(
 		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
-				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid " +
-				"AND ${QuarterTable.STATUS} = $STATUS_QUARTER_CURRENT"
+				"WHERE ${QuarterTable.STATUS} = $STATUS_QUARTER_CURRENT"
 	)
-	abstract suspend fun getCurrentQuarter(
-		uid: String
-	): QuarterEntity?
+	abstract suspend fun getCurrentQuarter(): QuarterEntity?
 
 	@Query(
 		"DELETE FROM ${QuarterTable.TABLE_NAME} " +
-				"WHERE ${QuarterTable.ACCOUNT_ID} = :uid " +
-				"AND ${QuarterTable.ID} = :qid"
+				"WHERE ${QuarterTable.ID} = :qid"
 	)
 	abstract suspend fun deleteQuarter(
-		uid: String,
 		qid: String
 	): Int
-
-	@Query(
-		"UPDATE ${QuarterTable.TABLE_NAME} " +
-				"SET ${QuarterTable.ID} = :toId " +
-				"WHERE ${QuarterTable.ID} = :fromId"
-	)
-	abstract suspend fun updateId(
-		fromId: String,
-		toId: String
-	)
 }

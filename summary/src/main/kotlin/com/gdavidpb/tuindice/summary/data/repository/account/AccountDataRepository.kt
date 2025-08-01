@@ -13,8 +13,8 @@ class AccountDataRepository(
 	private val remoteDataSource: RemoteDataSource,
 	private val settingsDataSource: SettingsDataSource
 ) : AccountRepository {
-	override suspend fun getAccountFlow(uid: String): Flow<Account> {
-		return localDataSource.getAccountFlow(uid)
+	override suspend fun getAccountFlow(): Flow<Account> {
+		return localDataSource.getAccountFlow()
 			.distinctUntilChanged()
 			.transform { localAccount ->
 				val isOnCooldown = settingsDataSource.isGetAccountOnCooldown()
@@ -25,7 +25,7 @@ class AccountDataRepository(
 				if (!isOnCooldown) {
 					val remoteAccount = remoteDataSource.getAccount()
 
-					localDataSource.saveAccount(uid, remoteAccount)
+					localDataSource.saveAccount(account = remoteAccount)
 
 					settingsDataSource.setGetAccountOnCooldown()
 
@@ -34,14 +34,14 @@ class AccountDataRepository(
 			}
 	}
 
-	override suspend fun uploadProfilePicture(uid: String, inputStream: InputStream): ProfilePicture {
+	override suspend fun uploadProfilePicture(inputStream: InputStream): ProfilePicture {
 		return remoteDataSource.uploadProfilePicture(inputStream).also { profilePicture ->
-			localDataSource.saveProfilePicture(uid = uid, url = profilePicture.url)
+			localDataSource.saveProfilePicture(url = profilePicture.url)
 		}
 	}
 
-	override suspend fun removeProfilePicture(uid: String) {
+	override suspend fun removeProfilePicture() {
 		remoteDataSource.removeProfilePicture()
-		localDataSource.saveProfilePicture(uid = uid, url = "")
+		localDataSource.saveProfilePicture(url = "")
 	}
 }

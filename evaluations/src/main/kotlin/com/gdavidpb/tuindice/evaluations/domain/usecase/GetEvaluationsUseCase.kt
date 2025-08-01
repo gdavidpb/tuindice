@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.evaluations.domain.exception.NoSubjectsException
@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.combine
 import kotlin.math.sign
 
 class GetEvaluationsUseCase(
-	private val authRepository: AuthRepository,
 	private val quarterRepository: QuarterRepository,
 	private val evaluationRepository: EvaluationRepository,
 	private val resourceResolver: ResourceResolver,
@@ -36,22 +35,20 @@ class GetEvaluationsUseCase(
 			.then(compareBy(Evaluation::state))
 
 	override suspend fun executeOnBackground(params: Flow<List<EvaluationFilter>>): Flow<GetEvaluations> {
-		val activeUId = authRepository.getActiveAuth()!!.uid
-
 		val availableSubjects = evaluationRepository
-			.getAvailableSubjects(uid = activeUId)
+			.getAvailableSubjects()
 
 		if (availableSubjects.isEmpty()) {
-			quarterRepository.getQuarters(uid = activeUId)
+			quarterRepository.getQuarters()
 
 			val refreshedAvailableSubjects = evaluationRepository
-				.getAvailableSubjects(uid = activeUId)
+				.getAvailableSubjects()
 
 			if (refreshedAvailableSubjects.isEmpty())
 				throw NoSubjectsException()
 		}
 
-		return evaluationRepository.getEvaluationsFlow(uid = activeUId)
+		return evaluationRepository.getEvaluationsFlow()
 			.combine(params) { evaluations, activeFilters ->
 				val availableFilters = evaluations.computeAvailableFilters(resourceResolver)
 				val sortedEvaluations = evaluations.sortedWith(evaluationComparator)

@@ -14,49 +14,46 @@ import kotlinx.coroutines.flow.map
 class RoomDatabaseDataSource(
 	private val room: TuIndiceDatabase
 ) : DatabaseDataSource {
-	override fun getEvaluationsFlow(uid: String): Flow<List<LocalEvaluation>> {
-		return room.evaluations.getEvaluationsWithSubjectFlow(uid)
+	override fun getEvaluationsFlow(): Flow<List<LocalEvaluation>> {
+		return room.evaluations.getEvaluationsWithSubjectFlow()
 			.map { evaluations -> evaluations.map { evaluation -> evaluation.toLocalEvaluation() } }
 	}
 
-	override suspend fun getEvaluation(uid: String, eid: String): LocalEvaluation? {
-		return room.evaluations.getEvaluationWithSubject(uid, eid)
+	override suspend fun getEvaluation(eid: String): LocalEvaluation? {
+		return room.evaluations.getEvaluationWithSubject(eid)
 			?.toLocalEvaluation()
 	}
 
-	override suspend fun getAvailableSubjects(uid: String): List<LocalSubject> {
-		return room.quarters.getOpenQuartersWithSubjects(uid)
+	override suspend fun getAvailableSubjects(): List<LocalSubject> {
+		return room.quarters.getOpenQuartersWithSubjects()
 			.flatMap { quarter -> quarter.subjects }
 			.map { subject -> subject.toLocalSubject(isEditable = true) }
 	}
 
-	override suspend fun addEvaluation(uid: String, evaluation: LocalEvaluation): LocalEvaluation {
-		val evaluationEntity = evaluation.toEvaluationEntity(uid)
+	override suspend fun addEvaluation(evaluation: LocalEvaluation): LocalEvaluation {
+		val evaluationEntity = evaluation.toEvaluationEntity()
 
 		room.evaluations.upsertEntity(entity = evaluationEntity)
 
 		return evaluation
 	}
 
-	override suspend fun updateEvaluation(
-		uid: String,
-		evaluation: LocalEvaluation
-	): LocalEvaluation {
-		val evaluationEntity = evaluation.toEvaluationEntity(uid)
+	override suspend fun updateEvaluation(evaluation: LocalEvaluation): LocalEvaluation {
+		val evaluationEntity = evaluation.toEvaluationEntity()
 
 		room.evaluations.upsertEntity(entity = evaluationEntity)
 
 		return evaluation
 	}
 
-	override suspend fun removeEvaluation(uid: String, eid: String) {
-		room.evaluations.deleteEvaluation(uid, eid)
+	override suspend fun removeEvaluation(eid: String) {
+		room.evaluations.deleteEvaluation(eid)
 	}
 
-	override suspend fun saveEvaluations(uid: String, evaluations: List<LocalEvaluation>) {
+	override suspend fun saveEvaluations(evaluations: List<LocalEvaluation>) {
 		room.withTransaction {
 			evaluations.forEach { evaluation ->
-				val evaluationEntity = evaluation.toEvaluationEntity(uid)
+				val evaluationEntity = evaluation.toEvaluationEntity()
 
 				room.evaluations.upsertEntity(
 					entity = evaluationEntity

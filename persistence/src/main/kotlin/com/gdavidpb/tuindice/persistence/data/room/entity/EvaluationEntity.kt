@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.gdavidpb.tuindice.persistence.data.room.schema.AccountTable
 import com.gdavidpb.tuindice.persistence.data.room.schema.EvaluationTable
 import com.gdavidpb.tuindice.persistence.data.room.schema.QuarterTable
 import com.gdavidpb.tuindice.persistence.data.room.schema.SubjectTable
@@ -13,13 +12,6 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.SubjectTable
 @Entity(
 	tableName = EvaluationTable.TABLE_NAME,
 	foreignKeys = [
-		ForeignKey(
-			entity = AccountEntity::class,
-			parentColumns = [AccountTable.ID],
-			childColumns = [EvaluationTable.ACCOUNT_ID],
-			onDelete = ForeignKey.CASCADE,
-			onUpdate = ForeignKey.CASCADE
-		),
 		ForeignKey(
 			entity = QuarterEntity::class,
 			parentColumns = [QuarterTable.ID],
@@ -36,7 +28,6 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.SubjectTable
 		)
 	],
 	indices = [
-		Index(value = [EvaluationTable.ACCOUNT_ID]),
 		Index(value = [EvaluationTable.QUARTER_ID]),
 		Index(value = [EvaluationTable.SUBJECT_ID])
 	]
@@ -46,7 +37,6 @@ data class EvaluationEntity(
 	@ColumnInfo(name = EvaluationTable.SUBJECT_ID) val subjectId: String,
 	@ColumnInfo(name = EvaluationTable.SUBJECT_CODE) val subjectCode: String,
 	@ColumnInfo(name = EvaluationTable.QUARTER_ID) val quarterId: String,
-	@ColumnInfo(name = EvaluationTable.ACCOUNT_ID) val accountId: String,
 	@ColumnInfo(name = EvaluationTable.GRADE) val grade: Double?,
 	@ColumnInfo(name = EvaluationTable.MAX_GRADE) val maxGrade: Double,
 	@ColumnInfo(name = EvaluationTable.DATE) val date: Long?,

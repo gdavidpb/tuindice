@@ -2,32 +2,19 @@ package com.gdavidpb.tuindice.persistence.data.room.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.gdavidpb.tuindice.persistence.data.room.schema.AccountTable
 import com.gdavidpb.tuindice.persistence.data.room.schema.QuarterTable
 
 @Entity(
 	tableName = QuarterTable.TABLE_NAME,
-	foreignKeys = [
-		ForeignKey(
-			entity = AccountEntity::class,
-			parentColumns = [AccountTable.ID],
-			childColumns = [QuarterTable.ACCOUNT_ID],
-			onDelete = ForeignKey.CASCADE,
-			onUpdate = ForeignKey.CASCADE
-		)
-	],
 	indices = [
 		Index(value = [QuarterTable.START_DATE, QuarterTable.END_DATE], unique = true),
-		Index(value = [QuarterTable.NAME], unique = true),
-		Index(value = [QuarterTable.ACCOUNT_ID])
+		Index(value = [QuarterTable.NAME], unique = true)
 	]
 )
 data class QuarterEntity(
 	@PrimaryKey @ColumnInfo(name = QuarterTable.ID) val id: String,
-	@ColumnInfo(name = QuarterTable.ACCOUNT_ID) val accountId: String,
 	@ColumnInfo(name = QuarterTable.NAME) val name: String,
 	@ColumnInfo(name = QuarterTable.STATUS) val status: Int,
 	@ColumnInfo(name = QuarterTable.START_DATE) val startDate: Long,

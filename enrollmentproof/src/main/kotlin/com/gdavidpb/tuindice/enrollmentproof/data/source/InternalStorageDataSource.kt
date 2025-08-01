@@ -12,8 +12,8 @@ class InternalStorageDataSource(
 ) : StorageDataSource {
 	private val enrollmentProofDir = "enrollmentProofs"
 
-	override suspend fun getEnrollmentProof(uid: String, name: String): EnrollmentProof {
-		val enrollmentProofFile = getEnrollmentProofFile(uid, name)
+	override suspend fun getEnrollmentProof(name: String): EnrollmentProof {
+		val enrollmentProofFile = getEnrollmentProofFile(name)
 		val base64EncodedString = enrollmentProofFile.readBytes().encodeBase64()
 
 		return EnrollmentProof(
@@ -22,18 +22,14 @@ class InternalStorageDataSource(
 		)
 	}
 
-	override suspend fun enrollmentProofExists(uid: String, name: String): Boolean {
-		val enrollmentProofFile = getEnrollmentProofFile(uid, name)
+	override suspend fun enrollmentProofExists(name: String): Boolean {
+		val enrollmentProofFile = getEnrollmentProofFile(name)
 
 		return enrollmentProofFile.exists()
 	}
 
-	override suspend fun saveEnrollmentProof(
-		uid: String,
-		name: String,
-		enrollmentProof: EnrollmentProof
-	) {
-		val enrollmentProofFile = getEnrollmentProofFile(uid, name)
+	override suspend fun saveEnrollmentProof(name: String, enrollmentProof: EnrollmentProof) {
+		val enrollmentProofFile = getEnrollmentProofFile(name)
 
 		enrollmentProofFile.apply {
 			parentFile?.mkdirs()
@@ -44,6 +40,6 @@ class InternalStorageDataSource(
 		}
 	}
 
-	private fun getEnrollmentProofFile(uid: String, name: String) =
-		File(context.filesDir, uid, enrollmentProofDir, "$name.pdf")
+	private fun getEnrollmentProofFile(name: String) =
+		File(context.filesDir, enrollmentProofDir, "$name.pdf")
 }

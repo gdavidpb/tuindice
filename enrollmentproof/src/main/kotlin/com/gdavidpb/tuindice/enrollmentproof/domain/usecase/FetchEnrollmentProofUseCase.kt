@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.enrollmentproof.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
@@ -10,17 +10,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class FetchEnrollmentProofUseCase(
-	private val authRepository: AuthRepository,
+	private val sessionRepository: SessionRepository,
 	private val applicationRepository: ApplicationRepository,
 	private val enrollmentProofRepository: EnrollmentProofRepository,
 	override val exceptionHandler: FetchEnrollmentProofExceptionHandler
 ) : FlowUseCase<Unit, String, FetchEnrollmentProofUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<String> {
-		val activeUId = authRepository.getActiveAuth()!!.uid
-
-		val enrollmentProof = enrollmentProofRepository.getEnrollmentProof(
-			uid = activeUId
-		)
+		val enrollmentProof = enrollmentProofRepository.getEnrollmentProof()
 
 		val canOpenEnrollmentProof =
 			applicationRepository.canOpenFile(path = enrollmentProof.source)

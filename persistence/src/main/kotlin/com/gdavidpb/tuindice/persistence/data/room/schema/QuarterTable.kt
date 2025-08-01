@@ -5,7 +5,6 @@ object QuarterTable {
 
 	const val ID = "quarter_id"
 	const val NAME = "quarter_name"
-	const val ACCOUNT_ID = "quarter_account_id"
 	const val STATUS = "quarter_status"
 	const val GRADE = "quarter_grade"
 	const val GRADE_SUM = "quarter_grade_sum"

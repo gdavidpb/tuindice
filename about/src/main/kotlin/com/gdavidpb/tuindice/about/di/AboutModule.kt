@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.about.di
 
 import com.gdavidpb.tuindice.about.data.repository.AboutDataRepository
+import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.presentation.action.ContactDeveloperActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.LoadVersionActionProcessor
@@ -11,7 +12,7 @@ import com.gdavidpb.tuindice.about.presentation.action.RateOnPlayStoreActionProc
 import com.gdavidpb.tuindice.about.presentation.action.ReportBugActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
-import org.koin.core.module.dsl.bind
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -25,7 +26,9 @@ val aboutModule = module {
 	factoryOf(::LoadVersionUseCase)
 
 	/* Repositories */
-	factoryOf(::AboutDataRepository) { bind<AboutDataRepository>() }
+	factory<AboutRepository> {
+		AboutDataRepository(context = androidContext())
+	}
 
 	/* Action processor */
 

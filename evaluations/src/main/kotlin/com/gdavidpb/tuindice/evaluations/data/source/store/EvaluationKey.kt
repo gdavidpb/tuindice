@@ -2,18 +2,18 @@ package com.gdavidpb.tuindice.evaluations.data.source.store
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 
-sealed class EvaluationKey(val uid: String) {
-	sealed class Read(uid: String) : EvaluationKey(uid) {
-		class ById(uid: String, val eid: String) : Read(uid)
-		class All(uid: String) : Read(uid)
+sealed interface EvaluationKey {
+	sealed class Read : EvaluationKey {
+		class ById(val eid: String) : Read()
+		object All : Read()
 	}
 
-	sealed class Write(uid: String) : EvaluationKey(uid) {
-		class Add(uid: String, val evaluation: Evaluation) : Write(uid)
-		class Update(uid: String, val evaluation: Evaluation) : Write(uid)
+	sealed class Write : EvaluationKey {
+		class Add(val evaluation: Evaluation) : Write()
+		class Update(val evaluation: Evaluation) : Write()
 	}
 
-	sealed class Remove(uid: String) : EvaluationKey(uid) {
-		class ById(uid: String, val eid: String) : Remove(uid)
+	sealed class Remove : EvaluationKey {
+		class ById(val eid: String) : Remove()
 	}
 }

@@ -11,18 +11,18 @@ import kotlinx.coroutines.flow.map
 class RoomDataSource(
 	private val room: TuIndiceDatabase
 ) : LocalDataSource {
-	override fun getAccountFlow(uid: String): Flow<Account?> {
-		return room.accounts.getAccountFlow(uid)
+	override fun getAccountFlow(): Flow<Account?> {
+		return room.accounts.getAccountFlow()
 			.map { account -> account?.toAccount() }
 	}
 
-	override suspend fun saveAccount(uid: String, account: Account) {
+	override suspend fun saveAccount(account: Account) {
 		val accountEntity = account.toAccountEntity()
 
 		room.accounts.upsertEntities(listOf(accountEntity))
 	}
 
-	override suspend fun saveProfilePicture(uid: String, url: String) {
-		room.accounts.updateProfilePicture(uid, url)
+	override suspend fun saveProfilePicture(url: String) {
+		room.accounts.updateProfilePicture(url)
 	}
 }

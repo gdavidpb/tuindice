@@ -2,21 +2,21 @@ package com.gdavidpb.tuindice.record.data.repository.quarter.source.store
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 
-sealed class QuarterKey(open val uid: String) {
-	sealed class Read(uid: String) : QuarterKey(uid) {
-		class All(uid: String) : Read(uid)
-		class ById(uid: String, val qid: String) : Read(uid)
+sealed interface QuarterKey {
+	sealed class Read : QuarterKey {
+		object All : Read()
+		class ById(val qid: String) : Read()
 	}
 
-	sealed class Write(uid: String) : QuarterKey(uid) {
-		class SaveAll(uid: String, val quarters: List<Quarter>, val dispatchToRemote: Boolean) : Write(uid)
+	sealed class Write : QuarterKey {
+		class SaveAll(val quarters: List<Quarter>, val dispatchToRemote: Boolean) : Write()
 	}
 
-	sealed class Remove(uid: String) : QuarterKey(uid) {
-		class ById(uid: String, val qid: String) : Remove(uid)
+	sealed class Remove : QuarterKey {
+		class ById(val qid: String) : Remove()
 	}
 
-	sealed class Compute(uid: String) : QuarterKey(uid) {
-		class BySetSubjectGrade(uid: String, val qid: String, val sid: String, val grade: Int) : Compute(uid)
+	sealed class Compute : QuarterKey {
+		class BySetSubjectGrade(val qid: String, val sid: String, val grade: Int) : Compute()
 	}
 }

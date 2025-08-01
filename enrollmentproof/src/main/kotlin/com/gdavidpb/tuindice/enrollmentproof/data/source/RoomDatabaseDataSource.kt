@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 class RoomDatabaseDataSource(
 	private val room: TuIndiceDatabase
 ) : DatabaseDataSource {
-	override suspend fun getCurrentQuarterName(uid: String): String? {
-		return room.quarters.getCurrentQuarter(uid)
+	override suspend fun getCurrentQuarterName(): String? {
+		return room.quarters.getCurrentQuarter()
 			?.name
 	}
 }

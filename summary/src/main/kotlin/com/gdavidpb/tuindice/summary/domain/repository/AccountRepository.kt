@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.Flow
 import java.io.InputStream
 
 interface AccountRepository {
-	suspend fun getAccountFlow(uid: String): Flow<Account>
+	suspend fun getAccountFlow(): Flow<Account>
 
-	suspend fun uploadProfilePicture(uid: String, inputStream: InputStream): ProfilePicture
-	suspend fun removeProfilePicture(uid: String)
+	suspend fun uploadProfilePicture(inputStream: InputStream): ProfilePicture
+	suspend fun removeProfilePicture()
 }

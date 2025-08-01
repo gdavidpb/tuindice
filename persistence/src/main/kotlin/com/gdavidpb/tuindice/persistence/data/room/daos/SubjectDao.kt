@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.persistence.data.room.daos
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Query
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
 import com.gdavidpb.tuindice.persistence.data.room.schema.SubjectTable
 
@@ -8,43 +9,27 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.SubjectTable
 abstract class SubjectDao : UpsertDao<SubjectEntity>() {
 	@Query(
 		"SELECT * FROM ${SubjectTable.TABLE_NAME} " +
-				"WHERE ${SubjectTable.ACCOUNT_ID} = :uid " +
-				"AND ${SubjectTable.ID} = :sid"
+				"WHERE ${SubjectTable.ID} = :sid"
 	)
 	abstract suspend fun getSubject(
-		uid: String,
 		sid: String
 	): SubjectEntity
 
 	@Query(
 		"UPDATE ${SubjectTable.TABLE_NAME} " +
 				"SET ${SubjectTable.GRADE} = :grade " +
-				"WHERE ${SubjectTable.ACCOUNT_ID} = :uid " +
-				"AND ${SubjectTable.ID} = :sid"
+				"WHERE ${SubjectTable.ID} = :sid"
 	)
 	abstract suspend fun updateSubject(
-		uid: String,
 		sid: String,
 		grade: Int
 	)
 
 	@Query(
 		"DELETE FROM ${SubjectTable.TABLE_NAME} " +
-				"WHERE ${SubjectTable.ACCOUNT_ID} = :uid " +
-				"AND ${SubjectTable.ID} = :sid"
+				"WHERE ${SubjectTable.ID} = :sid"
 	)
 	abstract suspend fun deleteSubject(
-		uid: String,
 		sid: String
 	): Int
-
-	@Query(
-		"UPDATE ${SubjectTable.TABLE_NAME} " +
-				"SET ${SubjectTable.ID} = :toId " +
-				"WHERE ${SubjectTable.ID} = :fromId"
-	)
-	abstract suspend fun updateId(
-		fromId: String,
-		toId: String
-	)
 }

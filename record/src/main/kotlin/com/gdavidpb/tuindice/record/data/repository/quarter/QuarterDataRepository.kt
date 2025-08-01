@@ -35,20 +35,20 @@ class QuarterDataRepository(
 ).build(
 	updater = updater
 ), QuarterRepository {
-	override suspend fun getQuartersFlow(uid: String): Flow<List<Quarter>> {
+	override suspend fun getQuartersFlow(): Flow<List<Quarter>> {
 		val isOnCooldown = settingsDataSource.isGetQuartersOnCooldown()
 
 		val quarters = if (isOnCooldown)
 			stream<QuarterReadResponse>(
 				request = StoreReadRequest.cached(
-					key = QuarterKey.Read.All(uid),
+					key = QuarterKey.Read.All,
 					refresh = false
 				)
 			)
 		else
 			stream<QuarterReadResponse>(
 				request = StoreReadRequest.fresh(
-					key = QuarterKey.Read.All(uid),
+					key = QuarterKey.Read.All,
 					fallBackToSourceOfTruth = true
 				)
 			)
@@ -58,34 +58,32 @@ class QuarterDataRepository(
 			.mapNotNull { response -> response.dataOrNull() }
 	}
 
-	override suspend fun getQuarters(uid: String): List<Quarter> {
+	override suspend fun getQuarters(): List<Quarter> {
 		val isOnCooldown = settingsDataSource.isGetQuartersOnCooldown()
 
 		val quarters = if (isOnCooldown)
 			get<QuarterKey, List<Quarter>, QuarterReadResponse>(
-				key = QuarterKey.Read.All(uid)
+				key = QuarterKey.Read.All
 			)
 		else
 			fresh<QuarterKey, List<Quarter>, QuarterReadResponse>(
-				key = QuarterKey.Read.All(uid)
+				key = QuarterKey.Read.All
 			)
 
 		return quarters
 	}
 
-	override suspend fun removeQuarter(uid: String, remove: QuarterRemove) {
+	override suspend fun removeQuarter(remove: QuarterRemove) {
 		clear(
 			QuarterKey.Remove.ById(
-				uid = uid,
 				qid = remove.id
 			)
 		)
 	}
 
-	override suspend fun setSubjectGrade(uid: String, set: SubjectGradeSet) {
+	override suspend fun setSubjectGrade(set: SubjectGradeSet) {
 		val updatedQuarters = get<QuarterKey, List<Quarter>, QuarterReadResponse>(
 			QuarterKey.Compute.BySetSubjectGrade(
-				uid = uid,
 				qid = set.quarterId,
 				sid = set.id,
 				grade = set.grade
@@ -95,7 +93,6 @@ class QuarterDataRepository(
 		write(
 			StoreWriteRequest.of(
 				key = QuarterKey.Write.SaveAll(
-					uid = uid,
 					quarters = updatedQuarters,
 					dispatchToRemote = set.dispatchToRemote
 				),

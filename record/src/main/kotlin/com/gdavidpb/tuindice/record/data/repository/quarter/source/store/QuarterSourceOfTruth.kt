@@ -18,17 +18,13 @@ class QuarterSourceOfTruth(
 
 		when (key) {
 			is QuarterKey.Read.All ->
-				localDataSource.getQuartersFlow(
-					uid = key.uid
-				).map { quarters -> quarters.map { quarter -> quarter.toQuarter() } }
+				localDataSource.getQuartersFlow()
+					.map { quarters -> quarters.map { quarter -> quarter.toQuarter() } }
 
 			is QuarterKey.Read.ById ->
 				flow {
 					val quarter = localDataSource
-						.getQuarter(
-							uid = key.uid,
-							qid = key.qid
-						)
+						.getQuarter(qid = key.qid)
 						?.toQuarter()
 
 					val quarters = listOfNotNull(quarter)
@@ -40,7 +36,6 @@ class QuarterSourceOfTruth(
 				flow {
 					val updatedQuarters = localDataSource
 						.computeSetSubjectGrade(
-							uid = key.uid,
 							qid = key.qid,
 							sid = key.sid,
 							grade = key.grade
@@ -59,26 +54,22 @@ class QuarterSourceOfTruth(
 				settingsDataSource.setGetQuartersOnCooldown()
 
 				localDataSource.saveQuarters(
-					uid = key.uid,
 					quarters = input
 				)
 			}
 
 			is QuarterKey.Read.ById ->
 				localDataSource.saveQuarters(
-					uid = key.uid,
 					quarters = input
 				)
 
 			is QuarterKey.Write.SaveAll ->
 				localDataSource.saveQuarters(
-					uid = key.uid,
 					quarters = input
 				)
 
 			is QuarterKey.Remove.ById ->
 				localDataSource.removeQuarter(
-					uid = key.uid,
 					qid = input.first().id
 				)
 
@@ -91,7 +82,6 @@ class QuarterSourceOfTruth(
 		when (key) {
 			is QuarterKey.Remove.ById ->
 				localDataSource.removeQuarter(
-					uid = key.uid,
 					qid = key.qid
 				)
 		}

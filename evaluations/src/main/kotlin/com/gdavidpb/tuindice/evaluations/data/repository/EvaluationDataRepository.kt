@@ -39,20 +39,20 @@ class EvaluationDataRepository(
 ).build(
 	updater = updater
 ), EvaluationRepository {
-	override suspend fun getEvaluationsFlow(uid: String): Flow<List<Evaluation>> {
+	override suspend fun getEvaluationsFlow(): Flow<List<Evaluation>> {
 		val isOnCooldown = settingsDataSource.isGetEvaluationsOnCooldown()
 
 		val evaluations = if (isOnCooldown)
 			stream<EvaluationReadResponse>(
 				request = StoreReadRequest.cached(
-					key = EvaluationKey.Read.All(uid),
+					key = EvaluationKey.Read.All,
 					refresh = false
 				)
 			)
 		else
 			stream<EvaluationReadResponse>(
 				request = StoreReadRequest.fresh(
-					key = EvaluationKey.Read.All(uid),
+					key = EvaluationKey.Read.All,
 					fallBackToSourceOfTruth = true
 				)
 			)
@@ -62,26 +62,26 @@ class EvaluationDataRepository(
 			.mapNotNull { response -> response.dataOrNull() }
 	}
 
-	override suspend fun getEvaluation(uid: String, eid: String): Evaluation? {
+	override suspend fun getEvaluation(eid: String): Evaluation? {
 		return get<EvaluationKey, List<Evaluation>, EvaluationReadResponse>(
-			key = EvaluationKey.Read.ById(uid, eid)
+			key = EvaluationKey.Read.ById(eid = eid)
 		).firstOrNull()
 	}
 
-	override suspend fun addEvaluation(uid: String, add: EvaluationAdd) {
+	override suspend fun addEvaluation(add: EvaluationAdd) {
 		val evaluation = add.toEvaluation()
 
 		write(
 			StoreWriteRequest.of(
-				key = EvaluationKey.Write.Add(uid, evaluation),
+				key = EvaluationKey.Write.Add(evaluation = evaluation),
 				value = listOf(evaluation)
 			)
 		)
 	}
 
-	override suspend fun updateEvaluation(uid: String, update: EvaluationUpdate) {
+	override suspend fun updateEvaluation(update: EvaluationUpdate) {
 		val evaluation = get<EvaluationKey, List<Evaluation>, EvaluationReadResponse>(
-			key = EvaluationKey.Read.ById(uid = uid, eid = update.id)
+			key = EvaluationKey.Read.ById(eid = update.id)
 		).first()
 
 		val updatedEvaluation = evaluation.copy(
@@ -93,23 +93,22 @@ class EvaluationDataRepository(
 
 		write(
 			StoreWriteRequest.of(
-				key = EvaluationKey.Write.Update(uid, updatedEvaluation),
+				key = EvaluationKey.Write.Update(evaluation = updatedEvaluation),
 				value = listOf(updatedEvaluation)
 			)
 		)
 	}
 
-	override suspend fun removeEvaluation(uid: String, remove: EvaluationRemove) {
+	override suspend fun removeEvaluation(remove: EvaluationRemove) {
 		clear(
 			EvaluationKey.Remove.ById(
-				uid = uid,
 				eid = remove.id
 			)
 		)
 	}
 
-	override suspend fun getAvailableSubjects(uid: String): List<Subject> {
-		return databaseDataSource.getAvailableSubjects(uid)
+	override suspend fun getAvailableSubjects(): List<Subject> {
+		return databaseDataSource.getAvailableSubjects()
 			.map { localSubject -> localSubject.toSubject() }
 	}
 }

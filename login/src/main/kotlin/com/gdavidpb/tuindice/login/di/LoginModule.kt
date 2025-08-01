@@ -1,15 +1,13 @@
 package com.gdavidpb.tuindice.login.di
 
-import com.gdavidpb.tuindice.login.data.repository.AuthApiDataSource
-import com.gdavidpb.tuindice.login.data.repository.LoginDataRepository
-import com.gdavidpb.tuindice.login.data.repository.MessagingApiDataSource
-import com.gdavidpb.tuindice.login.data.repository.MessagingDataSource
-import com.gdavidpb.tuindice.login.data.repository.ReportingDataSource
-import com.gdavidpb.tuindice.login.data.source.CrashlyticsReportingDataSource
-import com.gdavidpb.tuindice.login.data.source.FirebaseMessagingDataSource
-import com.gdavidpb.tuindice.login.data.source.KtorAuthApiApiDataSource
-import com.gdavidpb.tuindice.login.data.source.KtorMessagingApiApiDataSource
-import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
+import com.gdavidpb.tuindice.login.data.repository.CrashlyticsReportingDataRepository
+import com.gdavidpb.tuindice.login.data.repository.FirebaseMessagingDataRepository
+import com.gdavidpb.tuindice.login.data.repository.KtorAuthApiApiDataRepository
+import com.gdavidpb.tuindice.login.data.repository.KtorMessagingApiDataRepository
+import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
+import com.gdavidpb.tuindice.login.domain.repository.MessagingApiRepository
+import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.UpdatePasswordUseCase
@@ -64,14 +62,10 @@ val loginModule = module {
 
 	/* Repositories */
 
-	factoryOf(::LoginDataRepository) { bind<LoginRepository>() }
-
-	/* Data sources */
-
-	factoryOf(::KtorAuthApiApiDataSource) { bind<AuthApiDataSource>() }
-	factoryOf(::KtorMessagingApiApiDataSource) { bind<MessagingApiDataSource>() }
-	factoryOf(::CrashlyticsReportingDataSource) { bind<ReportingDataSource>() }
-	factoryOf(::FirebaseMessagingDataSource) { bind<MessagingDataSource>() }
+	factoryOf(::KtorAuthApiApiDataRepository) { bind<AuthApiRepository>() }
+	factoryOf(::KtorMessagingApiDataRepository) { bind<MessagingApiRepository>() }
+	factoryOf(::CrashlyticsReportingDataRepository) { bind<ReportingRepository>() }
+	factoryOf(::FirebaseMessagingDataRepository) { bind<MessagingRepository>() }
 
 	/* Exception handlers */
 

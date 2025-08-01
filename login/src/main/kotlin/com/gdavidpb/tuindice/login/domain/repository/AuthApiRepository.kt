@@ -1,8 +1,8 @@
-package com.gdavidpb.tuindice.login.data.repository
+package com.gdavidpb.tuindice.login.domain.repository
 
 import com.gdavidpb.tuindice.login.domain.model.IssueTokens
 
-interface AuthApiDataSource {
+interface AuthApiRepository {
 	suspend fun issueTokens(usbId: String, password: String): IssueTokens
 	suspend fun revokeTokens()
 }

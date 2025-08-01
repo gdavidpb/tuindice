@@ -12,53 +12,42 @@ import kotlinx.coroutines.flow.Flow
 abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 	@Query(
 		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
-				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
 				"ORDER BY ${EvaluationTable.DATE} ASC"
 	)
 	@Transaction
-	abstract fun getEvaluationsWithSubjectFlow(
-		uid: String
-	): Flow<List<EvaluationWithSubject>>
+	abstract fun getEvaluationsWithSubjectFlow(): Flow<List<EvaluationWithSubject>>
 
 	@Query(
 		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
-				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
-				"AND ${EvaluationTable.ID} = :eid"
+				"WHERE ${EvaluationTable.ID} = :eid"
 	)
 	@Transaction
 	abstract fun getEvaluationWithSubject(
-		uid: String,
 		eid: String
 	): EvaluationWithSubject?
 
 	@Query(
 		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
-				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
-				"AND ${EvaluationTable.ID} = :eid"
+				"WHERE ${EvaluationTable.ID} = :eid"
 	)
 	abstract suspend fun getEvaluation(
-		uid: String,
 		eid: String
 	): EvaluationEntity
 
 	@Query(
 		"SELECT * FROM ${EvaluationTable.TABLE_NAME} " +
-				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
-				"AND ${EvaluationTable.SUBJECT_ID} = :sid " +
+				"WHERE ${EvaluationTable.SUBJECT_ID} = :sid " +
 				"ORDER BY ${EvaluationTable.DATE} ASC"
 	)
 	abstract fun getSubjectEvaluations(
-		uid: String,
 		sid: String
 	): Flow<List<EvaluationEntity>>
 
 	@Query(
 		"DELETE FROM ${EvaluationTable.TABLE_NAME} " +
-				"WHERE ${EvaluationTable.ACCOUNT_ID} = :uid " +
-				"AND ${EvaluationTable.ID} = :eid"
+				"WHERE ${EvaluationTable.ID} = :eid"
 	)
 	abstract suspend fun deleteEvaluation(
-		uid: String,
 		eid: String
 	): Int
 }

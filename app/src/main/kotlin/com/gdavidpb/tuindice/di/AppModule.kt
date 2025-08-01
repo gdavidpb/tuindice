@@ -6,16 +6,21 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.gdavidpb.tuindice.R
 import com.gdavidpb.tuindice.base.BuildConfig
-import com.gdavidpb.tuindice.base.data.repository.source.uuid.UUIDIdentifierDataSource
+import com.gdavidpb.tuindice.base.data.repository.SessionDataRepository
+import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
+import com.gdavidpb.tuindice.base.data.source.MemorySessionDataSource
+import com.gdavidpb.tuindice.base.data.source.PreferencesSessionDataSource
+import com.gdavidpb.tuindice.base.data.source.SharedPreferencesSessionDataSource
+import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.base.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
@@ -28,7 +33,6 @@ import com.gdavidpb.tuindice.data.repository.messaging.source.FirebaseMessagingD
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingApiDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingPreferencesDataSource
 import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
-import com.gdavidpb.tuindice.data.source.auth.PreferencesAuthDataSource
 import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.di.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
@@ -73,6 +77,7 @@ import io.ktor.serialization.kotlinx.json.json
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
@@ -209,16 +214,16 @@ val appModule = module {
 			}
 
 			install(Auth) {
-				val authRepository = get<AuthRepository>()
+				val sessionRepository = get<SessionRepository>()
 
 				bearer {
 					loadTokens {
-						val activeAuth = authRepository.getActiveAuth()
+						val hasActiveTokens = sessionRepository.hasActiveSession()
 
-						if (activeAuth != null)
+						if (hasActiveTokens)
 							BearerTokens(
-								accessToken = activeAuth.accessToken,
-								refreshToken = activeAuth.refreshToken
+								accessToken = sessionRepository.getAccessToken(),
+								refreshToken = sessionRepository.getRefreshToken()
 							)
 						else
 							null
@@ -238,23 +243,25 @@ val appModule = module {
 
 	/* Repositories */
 
+	factoryOf(::SessionDataRepository) { bind<SessionRepository>() }
 	factoryOf(::MessagingDataRepository) { bind<MessagingRepository>() }
 	factoryOf(::AttestationDataRepository) { bind<AttestationRepository>() }
 
 	/* Data sources */
 
-	factoryOf(::PlayIntegrityDataSource) { bind<AttestationProvider>() }
-	factoryOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
-	factoryOf(::MessagingApiDataSource) { bind<MessagingRemote>() }
-	factoryOf(::ChallengeApiDataSource) { bind<AttestationRemote>() }
-	factoryOf(::SHA256DigestDataSource) { bind<DigestDataSource>() }
-	factoryOf(::FirebaseMessagingDataSource) { bind<MessagingProvider>() }
-	factoryOf(::MessagingPreferencesDataSource) { bind<MessagingLocal>() }
-	factoryOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
-	factoryOf(::PreferencesDataSource) { bind<SettingsRepository>() }
-	factoryOf(::RemoteConfigDataSource) { bind<ConfigRepository>() }
-	factoryOf(::PreferencesAuthDataSource) { bind<AuthRepository>() }
-	factoryOf(::CrashlyticsReportingDataSource) { bind<ReportingRepository>() }
-	factoryOf(::ReleaseKoinDataSource) { bind<DependenciesRepository>() }
-	factoryOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
+	singleOf(::InMemorySessionDataSource) { bind<MemorySessionDataSource>() }
+	singleOf(::SharedPreferencesSessionDataSource) { bind<PreferencesSessionDataSource>() }
+	singleOf(::PlayIntegrityDataSource) { bind<AttestationProvider>() }
+	singleOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
+	singleOf(::MessagingApiDataSource) { bind<MessagingRemote>() }
+	singleOf(::ChallengeApiDataSource) { bind<AttestationRemote>() }
+	singleOf(::SHA256DigestDataSource) { bind<DigestDataSource>() }
+	singleOf(::FirebaseMessagingDataSource) { bind<MessagingProvider>() }
+	singleOf(::MessagingPreferencesDataSource) { bind<MessagingLocal>() }
+	singleOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
+	singleOf(::PreferencesDataSource) { bind<SettingsRepository>() }
+	singleOf(::RemoteConfigDataSource) { bind<ConfigRepository>() }
+	singleOf(::CrashlyticsReportingDataSource) { bind<ReportingRepository>() }
+	singleOf(::ReleaseKoinDataSource) { bind<DependenciesRepository>() }
+	singleOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
 }

@@ -9,20 +9,15 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class AccountDao : UpsertDao<AccountEntity>() {
 	@Query(
-		"SELECT * FROM ${AccountTable.TABLE_NAME} " +
-				"WHERE ${AccountTable.ID} = :uid"
+		"SELECT * FROM ${AccountTable.TABLE_NAME}"
 	)
-	abstract fun getAccountFlow(
-		uid: String
-	): Flow<AccountEntity?>
+	abstract fun getAccountFlow(): Flow<AccountEntity?>
 
 	@Query(
 		"UPDATE ${AccountTable.TABLE_NAME} " +
-				"SET ${AccountTable.PICTURE_URL} = :url " +
-				"WHERE ${AccountTable.ID} = :uid"
+				"SET ${AccountTable.PICTURE_URL} = :url "
 	)
 	abstract suspend fun updateProfilePicture(
-		uid: String,
 		url: String
 	)
 }

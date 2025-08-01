@@ -5,11 +5,11 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
 import kotlinx.coroutines.flow.Flow
 
 interface DatabaseDataSource {
-	fun getEvaluationsFlow(uid: String): Flow<List<LocalEvaluation>>
-	suspend fun getEvaluation(uid: String, eid: String): LocalEvaluation?
-	suspend fun getAvailableSubjects(uid: String): List<LocalSubject>
-	suspend fun addEvaluation(uid: String, evaluation: LocalEvaluation): LocalEvaluation
-	suspend fun updateEvaluation(uid: String, evaluation: LocalEvaluation): LocalEvaluation
-	suspend fun removeEvaluation(uid: String, eid: String)
-	suspend fun saveEvaluations(uid: String, evaluations: List<LocalEvaluation>)
+	fun getEvaluationsFlow(): Flow<List<LocalEvaluation>>
+	suspend fun getEvaluation(eid: String): LocalEvaluation?
+	suspend fun getAvailableSubjects(): List<LocalSubject>
+	suspend fun addEvaluation(evaluation: LocalEvaluation): LocalEvaluation
+	suspend fun updateEvaluation(evaluation: LocalEvaluation): LocalEvaluation
+	suspend fun removeEvaluation(eid: String)
+	suspend fun saveEvaluations(evaluations: List<LocalEvaluation>)
 }

@@ -23,9 +23,8 @@ fun RemoteQuarter.toLocalQuarter() = LocalQuarter(
 	subjects = subjects.map { subject -> subject.toLocalSubject() }
 )
 
-fun LocalQuarter.toQuarterEntity(uid: String) = QuarterEntity(
+fun LocalQuarter.toQuarterEntity() = QuarterEntity(
 	id = id,
-	accountId = uid,
 	name = name,
 	status = status,
 	startDate = startDate,

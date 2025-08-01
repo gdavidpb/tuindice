@@ -21,10 +21,9 @@ fun SubjectEntity.toLocalSubject(isEditable: Boolean) = LocalSubject(
 	isNoEffect = (status == STATUS_SUBJECT_NO_EFFECT)
 )
 
-fun LocalSubject.toSubjectEntity(uid: String) = SubjectEntity(
+fun LocalSubject.toSubjectEntity() = SubjectEntity(
 	id = id,
 	quarterId = quarterId,
-	accountId = uid,
 	code = code,
 	name = name,
 	credits = credits,

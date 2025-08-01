@@ -19,13 +19,13 @@ class EvaluationSourceOfTruth(
 		when (key) {
 			is EvaluationKey.Read.All ->
 				databaseDataSource
-					.getEvaluationsFlow(uid = key.uid)
+					.getEvaluationsFlow()
 					.map { evaluations -> evaluations.map { evaluation -> evaluation.toLocalEvaluation() } }
 
 			is EvaluationKey.Read.ById ->
 				flow {
 					val evaluation = databaseDataSource
-						.getEvaluation(key.uid, key.eid)
+						.getEvaluation(eid = key.eid)
 						?.toLocalEvaluation()
 
 					val evaluations = listOfNotNull(evaluation)
@@ -40,32 +40,27 @@ class EvaluationSourceOfTruth(
 				settingsDataSource.setGetEvaluationsOnCooldown()
 
 				databaseDataSource.saveEvaluations(
-					uid = key.uid,
 					evaluations = input
 				)
 			}
 
 			is EvaluationKey.Read.ById ->
 				databaseDataSource.saveEvaluations(
-					uid = key.uid,
 					evaluations = input
 				)
 
 			is EvaluationKey.Write.Add ->
 				databaseDataSource.saveEvaluations(
-					uid = key.uid,
 					evaluations = input
 				)
 
 			is EvaluationKey.Write.Update ->
 				databaseDataSource.updateEvaluation(
-					uid = key.uid,
 					evaluation = input.first()
 				)
 
 			is EvaluationKey.Remove.ById -> {
 				databaseDataSource.removeEvaluation(
-					uid = key.uid,
 					eid = key.eid
 				)
 			}
@@ -77,7 +72,6 @@ class EvaluationSourceOfTruth(
 		when (key) {
 			is EvaluationKey.Remove.ById ->
 				databaseDataSource.removeEvaluation(
-					uid = key.uid,
 					eid = key.eid
 				)
 		}

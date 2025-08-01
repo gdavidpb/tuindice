@@ -19,7 +19,6 @@ object PreferencesKeys {
 	const val LAST_DESTINATION = "lastDestination"
 	const val SYNCS_COUNTER = "syncsCounter"
 	const val IS_SUBSCRIBED = "isSubscribed"
-	const val USER_UID = "uid"
 	const val USER_EMAIL = "email"
 	const val USER_ACCESS_TOKEN = "accessToken"
 	const val USER_REFRESH_TOKEN = "refreshToken"

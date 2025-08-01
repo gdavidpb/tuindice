@@ -4,9 +4,9 @@ import com.gdavidpb.tuindice.base.domain.model.Account
 import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {
-	fun getAccountFlow(uid: String): Flow<Account?>
+	fun getAccountFlow(): Flow<Account?>
 
-	suspend fun saveAccount(uid: String, account: Account)
+	suspend fun saveAccount(account: Account)
 
-	suspend fun saveProfilePicture(uid: String, url: String)
+	suspend fun saveProfilePicture(url: String)
 }

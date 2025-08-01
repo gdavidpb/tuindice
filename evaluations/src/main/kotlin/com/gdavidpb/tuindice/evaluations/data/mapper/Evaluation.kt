@@ -90,12 +90,11 @@ fun Evaluation.toLocalEvaluation() = LocalEvaluation(
 	isDone = (state == EvaluationState.COMPLETED)
 )
 
-fun LocalEvaluation.toEvaluationEntity(uid: String) = EvaluationEntity(
+fun LocalEvaluation.toEvaluationEntity() = EvaluationEntity(
 	id = id,
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
-	accountId = uid,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
