@@ -96,7 +96,8 @@ class QuarterDataRepository(
 					quarters = updatedQuarters,
 					dispatchToRemote = set.dispatchToRemote
 				),
-				value = updatedQuarters
+				value = updatedQuarters,
+				created = System.currentTimeMillis()
 			)
 		)
 	}

@@ -74,7 +74,8 @@ class EvaluationDataRepository(
 		write(
 			StoreWriteRequest.of(
 				key = EvaluationKey.Write.Add(evaluation = evaluation),
-				value = listOf(evaluation)
+				value = listOf(evaluation),
+				created = System.currentTimeMillis()
 			)
 		)
 	}
@@ -94,7 +95,8 @@ class EvaluationDataRepository(
 		write(
 			StoreWriteRequest.of(
 				key = EvaluationKey.Write.Update(evaluation = updatedEvaluation),
-				value = listOf(updatedEvaluation)
+				value = listOf(updatedEvaluation),
+				created = System.currentTimeMillis()
 			)
 		)
 	}
