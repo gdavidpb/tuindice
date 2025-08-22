@@ -10,21 +10,15 @@
     },
     "jsonBody": {
       "id": "08dnKZPiOtrmGoarY58G",
-      "sid": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
-      "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
-      "grade": 0.75,
-      "max_grade": 1.0,
-      "date": 1651118400000,
-      "type": 12,
-      "subject": {
-        "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
-        "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
-        "code": "FS1112",
-        "name": "FISICA II",
-        "credits": 3,
-        "grade": 0,
-        "status": 1
-      }
+      "quarter_id": "08VtwH4cm10d5aknZvzR41i26b4t",
+      "subject_id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
+      "subject_code": "FS1112",
+      "type": 0,
+      "grade": 0,
+      "max_grade": 35.0,
+      "date": 1690915928000,
+      "is_done": true,
+      "notes": ""
     },
     "fixedDelayMilliseconds": 1500
   }

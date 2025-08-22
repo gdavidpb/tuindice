@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.record.data.utils
 
-import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
-import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_OK
 import com.gdavidpb.tuindice.base.utils.extension.round
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
@@ -33,11 +31,11 @@ fun Collection<LocalSubject>.computeGrade(): Double {
 
 fun Collection<LocalQuarter>.computeGradeSum(until: LocalQuarter = first()) =
 	asSequence()
-		.filter { it.startDate <= until.startDate && it.status != STATUS_QUARTER_RETIRED }
+		.filter { it.startDate <= until.startDate }
 		/* Get all subjects */
 		.flatMap { it.subjects }
 		/* Filter valid subjects */
-		.filter { it.status == STATUS_SUBJECT_OK }
+		.filter { it.grade > 0 }
 		/* Group by code */
 		.groupBy { it.code }
 		/* If you've seen this subject more than once and now you approved this */

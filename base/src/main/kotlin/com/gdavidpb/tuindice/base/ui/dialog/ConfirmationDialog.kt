@@ -1,11 +1,14 @@
 package com.gdavidpb.tuindice.base.ui.dialog
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -16,7 +19,9 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import com.gdavidpb.tuindice.base.R
@@ -28,6 +33,7 @@ fun ConfirmationDialog(
 	sheetState: SheetState,
 	titleText: String? = null,
 	dismissOnPositive: Boolean = true,
+	positiveLoading: Boolean = false,
 	positiveEnabled: Boolean = true,
 	negativeEnabled: Boolean = true,
 	positiveText: String? = null,
@@ -94,9 +100,26 @@ fun ConfirmationDialog(
 								else
 									onPositiveClick()
 							},
-							enabled = positiveEnabled
+							enabled = positiveEnabled || !positiveLoading
 						) {
-							Text(text = positiveText)
+							Box(
+								contentAlignment = Alignment.Center
+							) {
+								Text(
+									text = positiveText,
+									color = if (positiveLoading)
+										Color.Transparent
+									else
+										Color.Unspecified
+								)
+
+								if (positiveLoading)
+									CircularProgressIndicator(
+										modifier = Modifier
+											.size(dimensionResource(R.dimen.dp_18)),
+										color = Color.White
+									)
+							}
 						}
 				}
 		}

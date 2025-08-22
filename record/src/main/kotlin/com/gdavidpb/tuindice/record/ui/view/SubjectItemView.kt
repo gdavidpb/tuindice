@@ -97,7 +97,7 @@ fun SubjectItemView(
 			fontWeight = FontWeight.Light
 		)
 
-		if (item.isEditable) {
+		if (!item.isReadOnly) {
 			Slider(
 				modifier = Modifier
 					.constrainAs(sliderGrade) {

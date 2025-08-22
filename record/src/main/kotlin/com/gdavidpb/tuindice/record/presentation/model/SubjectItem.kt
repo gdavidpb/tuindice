@@ -10,7 +10,6 @@ data class SubjectItem(
 	val nameText: String,
 	val gradeText: String,
 	val creditsText: String,
-	val isRetired: Boolean,
-	val isNoEffect: Boolean,
-	val isEditable: Boolean
+	val isReadOnly: Boolean,
+	val isRetired: Boolean
 )

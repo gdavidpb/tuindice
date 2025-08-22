@@ -3,8 +3,6 @@ package com.gdavidpb.tuindice.persistence.data.room.daos
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
-import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_CURRENT
-import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_MOCK
 import com.gdavidpb.tuindice.persistence.data.room.entity.QuarterEntity
 import com.gdavidpb.tuindice.persistence.data.room.otm.QuarterWithSubjects
 import com.gdavidpb.tuindice.persistence.data.room.schema.QuarterTable
@@ -14,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 abstract class QuarterDao : UpsertDao<QuarterEntity>() {
 	@Query(
 		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
-				"WHERE ${QuarterTable.STATUS} IN ($STATUS_QUARTER_CURRENT, $STATUS_QUARTER_MOCK)"
+				"WHERE ${QuarterTable.IS_READ_ONLY} = 0"
 	)
 	@Transaction
 	abstract fun getOpenQuartersWithSubjects(): List<QuarterWithSubjects>
@@ -28,7 +26,7 @@ abstract class QuarterDao : UpsertDao<QuarterEntity>() {
 
 	@Query(
 		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
-				"WHERE ${QuarterTable.STATUS} = $STATUS_QUARTER_CURRENT"
+				"WHERE ${QuarterTable.IS_CURRENT} = 1"
 	)
 	abstract suspend fun getCurrentQuarter(): QuarterEntity?
 

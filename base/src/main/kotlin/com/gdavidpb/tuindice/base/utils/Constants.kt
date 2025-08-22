@@ -19,9 +19,9 @@ object PreferencesKeys {
 	const val LAST_DESTINATION = "lastDestination"
 	const val SYNCS_COUNTER = "syncsCounter"
 	const val IS_SUBSCRIBED = "isSubscribed"
-	const val USER_EMAIL = "email"
 	const val USER_ACCESS_TOKEN = "accessToken"
 	const val USER_REFRESH_TOKEN = "refreshToken"
+	const val USER_USB_ID = "usbId"
 }
 
 /* Reporting keys */
@@ -29,12 +29,3 @@ object ReportKeys {
 	const val USE_CASE = "useCase"
 	const val IS_HANDLED = "isHandled"
 }
-
-/* Status */
-const val STATUS_QUARTER_CURRENT = 0
-const val STATUS_QUARTER_MOCK = 2
-const val STATUS_QUARTER_RETIRED = 3
-
-const val STATUS_SUBJECT_OK = 0
-const val STATUS_SUBJECT_RETIRED = 1
-const val STATUS_SUBJECT_NO_EFFECT = 2

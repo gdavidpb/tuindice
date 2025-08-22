@@ -13,6 +13,10 @@ class SessionDataRepository(
 				preferencesSessionDataSource.hasActiveSession()
 	}
 
+	override suspend fun setUsbId(usbId: String) {
+		preferencesSessionDataSource.setUsbId(usbId)
+	}
+
 	override suspend fun setAccessToken(accessToken: String) {
 		memorySessionDataSource.setAccessToken(accessToken)
 		preferencesSessionDataSource.setAccessToken(accessToken)
@@ -21,6 +25,10 @@ class SessionDataRepository(
 	override suspend fun setRefreshToken(refreshToken: String) {
 		memorySessionDataSource.setRefreshToken(refreshToken)
 		preferencesSessionDataSource.setRefreshToken(refreshToken)
+	}
+
+	override suspend fun getUsbId(): String {
+		return preferencesSessionDataSource.getUsbId() ?: throw IllegalStateException()
 	}
 
 	override suspend fun getAccessToken(): String {
@@ -53,5 +61,10 @@ class SessionDataRepository(
 		}
 
 		throw IllegalStateException()
+	}
+
+	override suspend fun clear() {
+		memorySessionDataSource.clear()
+		preferencesSessionDataSource.clear()
 	}
 }

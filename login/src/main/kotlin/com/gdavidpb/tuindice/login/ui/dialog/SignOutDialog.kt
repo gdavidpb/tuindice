@@ -25,6 +25,7 @@ fun SignOutDialog(
 		titleText = stringResource(id = R.string.dialog_title_sign_out),
 		positiveText = stringResource(id = R.string.dialog_button_sign_out),
 		negativeText = stringResource(id = R.string.cancel),
+		positiveLoading = state is SignOut.State.LoggingOut,
 		positiveEnabled = state is SignOut.State.Idle,
 		negativeEnabled = state is SignOut.State.Idle,
 		onPositiveClick = onConfirmClick,

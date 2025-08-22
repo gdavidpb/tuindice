@@ -27,7 +27,7 @@ class RoomDatabaseDataSource(
 	override suspend fun getAvailableSubjects(): List<LocalSubject> {
 		return room.quarters.getOpenQuartersWithSubjects()
 			.flatMap { quarter -> quarter.subjects }
-			.map { subject -> subject.toLocalSubject(isEditable = true) }
+			.map { subject -> subject.toLocalSubject() }
 	}
 
 	override suspend fun addEvaluation(evaluation: LocalEvaluation): LocalEvaluation {

@@ -11,106 +11,75 @@
     "jsonBody": [
       {
         "id": "08dnKZPiOtrmGoarY58G",
-        "sid": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
-        "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
+        "quarter_id": "08VtwH4cm10d5aknZvzR41i26b4t",
+        "subject_id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
+        "subject_code": "FS1112",
+        "type": 0,
+        "grade": 0,
         "max_grade": 35.0,
         "date": 1690915928000,
-        "type": 0,
-        "subject": {
-          "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
-          "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
-          "code": "FS1112",
-          "name": "FISICA II",
-          "credits": 3,
-          "grade": 0,
-          "status": 1
-        }
+        "is_done": true,
+        "notes": ""
       },
       {
         "id": "msgkQ6C7eir2uiB2tCcSA",
-        "sid": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
-        "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
-        "grade": 17.0,
+        "quarter_id": "08VtwH4cm10d5aknZvzR41i26b4t",
+        "subject_id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
+        "subject_code": "FS1112",
+        "type": 10,
+        "grade": 0.0,
         "max_grade": 20.0,
         "date": 1686380532000,
-        "type": 10,
-        "subject": {
-          "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
-          "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
-          "code": "FS1112",
-          "name": "FISICA II",
-          "credits": 3,
-          "grade": 0,
-          "status": 1
-        }
+        "is_done": true,
+        "notes": ""
       },
       {
         "id": "WZdpMbXq0v8i8KtnUAg",
-        "sid": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
-        "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
+        "quarter_id": "08VtwH4cm10d5aknZvzR41i26b4t",
+        "subject_id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
+        "subject_code": "FS1112",
+        "type": 12,
         "grade": 2.5,
         "max_grade": 2.5,
-        "type": 12,
-        "subject": {
-          "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
-          "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
-          "code": "FS1112",
-          "name": "FISICA II",
-          "credits": 3,
-          "grade": 0,
-          "status": 1
-        }
+        "date": 1686380532000,
+        "is_done": false,
+        "notes": ""
       },
       {
         "id": "f1p0NCJ9cuH7vdsYiGw",
-        "sid": "00U3tK0t7sdStu4GjWrJvDVLUofn",
-        "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
+        "quarter_id": "08VtwH4cm10d5aknZvzR41i26b4t",
+        "subject_id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
+        "subject_code": "CSZ621",
+        "type": 0,
+        "grade": 2.5,
         "max_grade": 35.0,
         "date": 1691035200000,
-        "type": 0,
-        "subject": {
-          "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
-          "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
-          "code": "CSZ621",
-          "name": "DEL MEDIOEVO AL BARROCO",
-          "credits": 3,
-          "grade": 5,
-          "status": 0
-        }
+        "is_done": false,
+        "notes": ""
       },
       {
         "id": "aINYeiuvk2bh7rq7hAzkQ",
-        "sid": "00U3tK0t7sdStu4GjWrJvDVLUofn",
-        "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
+        "quarter_id": "08VtwH4cm10d5aknZvzR41i26b4t",
+        "subject_id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
+        "subject_code": "CSZ621",
+        "type": 0,
+        "grade": 2.5,
         "max_grade": 20.0,
         "date": 1691175128000,
-        "type": 0,
-        "subject": {
-          "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
-          "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
-          "code": "CSZ621",
-          "name": "DEL MEDIOEVO AL BARROCO",
-          "credits": 3,
-          "grade": 5,
-          "status": 0
-        }
+        "is_done": false,
+        "notes": ""
       },
       {
         "id": "7sdStu4GjWrJvkj8hmMDV",
-        "sid": "00U3tK0t7sdStu4GjWrJvDVLUofn",
-        "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
+        "quarter_id": "08VtwH4cm10d5aknZvzR41i26b4t",
+        "subject_id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
+        "subject_code": "CSZ621",
+        "type": 0,
+        "grade": 0.0,
         "max_grade": 15.0,
         "date": 1709990935000,
-        "type": 1,
-        "subject": {
-          "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
-          "qid": "08VtwH4cm10d5aknZvzR41i26b4t",
-          "code": "CSZ621",
-          "name": "DEL MEDIOEVO AL BARROCO",
-          "credits": 3,
-          "grade": 5,
-          "status": 0
-        }
+        "is_done": false,
+        "notes": ""
       }
     ],
     "fixedDelayMilliseconds": 3000

@@ -12,6 +12,8 @@ data class QuarterResponse(
 	@SerialName("grade") val grade: Double,
 	@SerialName("grade_sum") val gradeSum: Double,
 	@SerialName("credits") val credits: Int,
-	@SerialName("status") val status: Int,
+	@SerialName("credits_sum") val creditsSum: Int,
+	@SerialName("is_current") val isCurrent: Boolean,
+	@SerialName("is_read_only") val isReadOnly: Boolean,
 	@SerialName("subjects") val subjects: List<SubjectResponse>
 )

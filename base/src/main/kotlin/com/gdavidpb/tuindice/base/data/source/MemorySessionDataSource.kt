@@ -8,4 +8,6 @@ interface MemorySessionDataSource {
 
 	suspend fun getAccessToken(): String?
 	suspend fun getRefreshToken(): String?
+
+	suspend fun clear()
 }

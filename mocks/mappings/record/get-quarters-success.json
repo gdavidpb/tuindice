@@ -17,7 +17,9 @@
         "grade": 5.0,
         "grade_sum": 5.0,
         "credits": 6,
-        "status": 2,
+        "credits_sum": 19,
+        "is_current": true,
+        "is_read_only": false,
         "subjects": [
           {
             "id": "Km1dQ1oLkIba26yLsaT7XhDf7so7",
@@ -25,8 +27,7 @@
             "code": "FS1113",
             "name": "FISICA III",
             "credits": 3,
-            "grade": 5,
-            "status": 0
+            "grade": 5
           },
           {
             "id": "kW43Wd1nIUCu1NxZSrsLrwmefpyo",
@@ -34,8 +35,7 @@
             "code": "MA1112",
             "name": "MATEMATICAS II",
             "credits": 3,
-            "grade": 5,
-            "status": 0
+            "grade": 5
           }
         ]
       },
@@ -47,7 +47,9 @@
         "grade": 5.0,
         "grade_sum": 5.0,
         "credits": 6,
-        "status": 0,
+        "credits_sum": 13,
+        "is_current": false,
+        "is_read_only": true,
         "subjects": [
           {
             "id": "008yiNvW7HNGLIcxEiWqQtfD1OfM",
@@ -55,8 +57,7 @@
             "code": "FS1112",
             "name": "FISICA II",
             "credits": 3,
-            "grade": 5,
-            "status": 0
+            "grade": 5
           },
           {
             "id": "00U3tK0t7sdStu4GjWrJvDVLUofn",
@@ -64,8 +65,7 @@
             "code": "CSZ621",
             "name": "DEL MEDIOEVO AL BARROCO",
             "credits": 3,
-            "grade": 5,
-            "status": 0
+            "grade": 5
           }
         ]
       },
@@ -77,7 +77,9 @@
         "grade": 5.0,
         "grade_sum": 5.0,
         "credits": 7,
-        "status": 1,
+        "credits_sum": 7,
+        "is_current": false,
+        "is_read_only": true,
         "subjects": [
           {
             "id": "07WxIVWrnNT2nDmkKWhPuxhlitJk",
@@ -85,8 +87,7 @@
             "code": "MA1111",
             "name": "MATEMATICAS I",
             "credits": 4,
-            "grade": 5,
-            "status": 0
+            "grade": 5
           },
           {
             "id": "08PTlYC32y133CVcY4rQlLVfWBvj",
@@ -94,8 +95,7 @@
             "code": "FS1111",
             "name": "FISICA I",
             "credits": 3,
-            "grade": 5,
-            "status": 0
+            "grade": 5
           }
         ]
       }

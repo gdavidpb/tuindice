@@ -12,7 +12,7 @@ import com.gdavidpb.tuindice.record.R
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 
 @Composable
-fun Subject.toSubjectItem() = SubjectItem(
+fun Subject.toSubjectItem(isReadOnly: Boolean) = SubjectItem(
 	subjectId = id,
 	quarterId = quarterId,
 	grade = grade,
@@ -22,8 +22,7 @@ fun Subject.toSubjectItem() = SubjectItem(
 		}
 
 		when {
-			(grade == MIN_SUBJECT_GRADE) || isRetired -> stringResource(id = R.string.subject_retired)
-			isNoEffect -> stringResource(id = R.string.subject_no_effect)
+			(grade == MIN_SUBJECT_GRADE) -> stringResource(id = R.string.subject_retired)
 			else -> null
 		}?.let { status ->
 			append(" ")
@@ -39,7 +38,6 @@ fun Subject.toSubjectItem() = SubjectItem(
 	else
 		"—",
 	creditsText = stringResource(id = R.string.subject_credits, credits),
-	isRetired = (grade == MIN_SUBJECT_GRADE) || isRetired,
-	isNoEffect = isNoEffect,
-	isEditable = isEditable
+	isRetired = (grade == MIN_SUBJECT_GRADE),
+	isReadOnly = isReadOnly
 )

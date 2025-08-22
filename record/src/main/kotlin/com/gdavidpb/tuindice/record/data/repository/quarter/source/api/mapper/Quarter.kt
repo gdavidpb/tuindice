@@ -4,9 +4,6 @@ package com.gdavidpb.tuindice.record.data.repository.quarter.source.api.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
-import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_CURRENT
-import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_MOCK
-import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.AddQuarterRequest
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.QuarterResponse
@@ -16,9 +13,6 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 fun QuarterResponse.toRemoteQuarter(): RemoteQuarter {
-	val isEditable = (status == STATUS_QUARTER_CURRENT) || (status == STATUS_QUARTER_MOCK)
-	val isRetired = (status == STATUS_QUARTER_RETIRED)
-
 	return RemoteQuarter(
 		id = id,
 		name = name,
@@ -27,10 +21,10 @@ fun QuarterResponse.toRemoteQuarter(): RemoteQuarter {
 		grade = grade,
 		gradeSum = gradeSum,
 		credits = credits,
-		status = status,
-		isEditable = isEditable,
-		isRetired = isRetired,
-		subjects = subjects.map { subjectResponse -> subjectResponse.toRemoteSubject(isEditable) }
+		creditsSum = creditsSum,
+		isCurrent = isCurrent,
+		isReadOnly = isReadOnly,
+		subjects = subjects.map { subjectResponse -> subjectResponse.toRemoteSubject() }
 	)
 }
 
@@ -62,8 +56,8 @@ fun Quarter.toRemoteQuarter() = RemoteQuarter(
 	grade = grade,
 	gradeSum = gradeSum,
 	credits = credits,
-	status = status,
-	isEditable = isEditable,
-	isRetired = isRetired,
+	creditsSum = creditsSum,
+	isCurrent = isCurrent,
+	isReadOnly = isReadOnly,
 	subjects = subjects.map { subject -> subject.toRemoteSubject() }
 )

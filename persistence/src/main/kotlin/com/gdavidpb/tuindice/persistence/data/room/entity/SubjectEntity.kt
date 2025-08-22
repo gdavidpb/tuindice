@@ -29,6 +29,5 @@ data class SubjectEntity(
 	@ColumnInfo(name = SubjectTable.CODE) val code: String,
 	@ColumnInfo(name = SubjectTable.NAME) val name: String,
 	@ColumnInfo(name = SubjectTable.CREDITS) val credits: Int,
-	@ColumnInfo(name = SubjectTable.GRADE) val grade: Int,
-	@ColumnInfo(name = SubjectTable.STATUS) val status: Int
+	@ColumnInfo(name = SubjectTable.GRADE) val grade: Int
 )

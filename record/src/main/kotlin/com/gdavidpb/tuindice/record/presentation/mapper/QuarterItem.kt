@@ -47,7 +47,9 @@ fun Quarter.toQuarterItem(): QuarterItem {
 			.annotatedQuarterValue(),
 		creditsText = stringResource(id = R.string.quarter_credits, animatedCredits.value)
 			.annotatedQuarterValue(),
-		subjects = subjects.map { subject -> subject.toSubjectItem() },
+		subjects = subjects.map { subject ->
+			subject.toSubjectItem(isReadOnly)
+		},
 		states = rememberSubjectsStates(subjects)
 	)
 }

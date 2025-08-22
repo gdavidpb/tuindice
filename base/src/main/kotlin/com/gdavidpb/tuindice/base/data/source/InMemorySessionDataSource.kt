@@ -23,4 +23,9 @@ class InMemorySessionDataSource : MemorySessionDataSource {
 	override suspend fun getRefreshToken(): String? {
 		return refreshToken
 	}
+
+	override suspend fun clear() {
+		accessToken = null
+		refreshToken = null
+	}
 }

@@ -12,6 +12,12 @@ class SharedPreferencesSessionDataSource(
 				sharedPreferences.contains(PreferencesKeys.USER_REFRESH_TOKEN)
 	}
 
+	override suspend fun setUsbId(usbId: String) {
+		sharedPreferences.edit {
+			putString(PreferencesKeys.USER_USB_ID, usbId)
+		}
+	}
+
 	override suspend fun setAccessToken(accessToken: String) {
 		sharedPreferences.edit {
 			putString(PreferencesKeys.USER_ACCESS_TOKEN, accessToken)
@@ -24,11 +30,21 @@ class SharedPreferencesSessionDataSource(
 		}
 	}
 
+	override suspend fun getUsbId(): String? {
+		return sharedPreferences.getString(PreferencesKeys.USER_USB_ID, null)
+	}
+
 	override suspend fun getAccessToken(): String? {
 		return sharedPreferences.getString(PreferencesKeys.USER_ACCESS_TOKEN, null)
 	}
 
 	override suspend fun getRefreshToken(): String? {
 		return sharedPreferences.getString(PreferencesKeys.USER_REFRESH_TOKEN, null)
+	}
+
+	override suspend fun clear() {
+		sharedPreferences.edit {
+			clear()
+		}
 	}
 }

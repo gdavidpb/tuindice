@@ -6,9 +6,5 @@ data class RemoteSubject(
 	val code: String,
 	val name: String,
 	val credits: Int,
-	val grade: Int,
-	val status: Int,
-	val isEditable: Boolean,
-	val isRetired: Boolean,
-	val isNoEffect: Boolean
+	val grade: Int
 )
