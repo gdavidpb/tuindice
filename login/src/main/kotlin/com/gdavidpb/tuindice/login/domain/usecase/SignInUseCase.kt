@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidator
+import com.gdavidpb.tuindice.login.presentation.mapper.asUsbId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -26,6 +27,10 @@ class SignInUseCase(
 		val tokens = authApiRepository.issueTokens(
 			usbId = params.usbId,
 			password = params.password
+		)
+
+		sessionRepository.setUsbId(
+			usbId = tokens.email.asUsbId()
 		)
 
 		sessionRepository.setAccessToken(
