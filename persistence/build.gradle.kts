@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.gdavidpb.tuindice.persistence"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 23
