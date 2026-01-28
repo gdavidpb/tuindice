@@ -3,14 +3,11 @@ package com.gdavidpb.tuindice.base.ui.view
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -49,9 +46,11 @@ fun Context.getWebView(
 	}
 }
 
-@Composable
-@ReadOnlyComposable
-fun getAnnotatedUrl(url: String): AnnotatedString {
+fun getAnnotatedUrl(
+	url: String,
+	primary: Color,
+	outlineVariant: Color
+): AnnotatedString {
 	return buildAnnotatedString {
 		runCatching {
 			val uri = url.toUri()
@@ -59,7 +58,7 @@ fun getAnnotatedUrl(url: String): AnnotatedString {
 
 			withStyle(
 				style = SpanStyle(
-					color = MaterialTheme.colorScheme.outlineVariant,
+					color = outlineVariant,
 					textDecoration = TextDecoration.Underline
 				)
 			) {
@@ -67,7 +66,7 @@ fun getAnnotatedUrl(url: String): AnnotatedString {
 
 				withStyle(
 					style = SpanStyle(
-						color = MaterialTheme.colorScheme.primary
+						color = primary
 					)
 				) {
 					append(host)
@@ -78,7 +77,7 @@ fun getAnnotatedUrl(url: String): AnnotatedString {
 		}.getOrElse {
 			withStyle(
 				style = SpanStyle(
-					color = MaterialTheme.colorScheme.primary,
+					color = primary,
 					textDecoration = TextDecoration.Underline
 				)
 			) {
