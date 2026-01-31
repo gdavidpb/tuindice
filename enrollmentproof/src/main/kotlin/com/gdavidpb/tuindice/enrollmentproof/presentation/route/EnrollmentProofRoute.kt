@@ -14,7 +14,7 @@ import org.koin.androidx.compose.koinViewModel
 import java.io.File
 
 @Composable
-fun EnrollmentProofFetchRoute(
+fun EnrollmentProofRoute(
 	onNavigateToUpdatePassword: () -> Unit,
 	onDismissRequest: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,

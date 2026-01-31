@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class EnrollmentProofFetchDestination : Destination() {
+sealed class EnrollmentProofDestination : Destination() {
 	@Serializable
-	data object EnrollmentProofFetchDialog : EnrollmentProofFetchDestination()
+	data object EnrollmentProofDialog : EnrollmentProofDestination()
 }

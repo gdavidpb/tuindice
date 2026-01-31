@@ -35,7 +35,7 @@ import com.gdavidpb.tuindice.base.utils.extension.findActivity
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.base.utils.extension.viewModel
 import com.gdavidpb.tuindice.base.utils.extension.viewModelFlow
-import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofFetchNavigation
+import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofNavigation
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsNavigation
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
@@ -339,7 +339,7 @@ fun TuIndiceScreen(
 				}
 			)
 
-			enrollmentProofFetchNavigation(
+			enrollmentProofNavigation(
 				navigateToUpdatePassword = {
 					navController.navigate(
 						LoginDestination.UpdatePasswordDialog

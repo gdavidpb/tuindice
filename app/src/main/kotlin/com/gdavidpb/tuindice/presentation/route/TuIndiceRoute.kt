@@ -19,7 +19,7 @@ import com.gdavidpb.tuindice.base.utils.RequestCodes
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.findActivity
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
-import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofFetchDestination
+import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
 import com.gdavidpb.tuindice.login.presentation.navigation.LoginDestination
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
@@ -93,7 +93,7 @@ fun TuIndiceRoute(
 
 				is TopBarAction.FetchEnrollmentProofAction ->
 					navController.navigate(
-						EnrollmentProofFetchDestination.EnrollmentProofFetchDialog
+						EnrollmentProofDestination.EnrollmentProofDialog
 					)
 			}
 		},
