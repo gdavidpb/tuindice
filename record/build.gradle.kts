@@ -1,3 +1,6 @@
+import com.android.build.api.dsl.LibraryExtension
+import org.gradle.kotlin.dsl.configure
+
 plugins {
     id("com.android.library")
     id("kotlin-android")
@@ -6,7 +9,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-android {
+extensions.configure<LibraryExtension> {
     namespace = "com.gdavidpb.tuindice.record"
     compileSdk = 36
 

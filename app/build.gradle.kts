@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.ApplicationExtension
+
 plugins {
 	id("kotlin-android")
 	id("com.android.application")
@@ -8,7 +10,7 @@ plugins {
 	alias(libs.plugins.kotlin.serialization)
 }
 
-android {
+extensions.configure<ApplicationExtension> {
 	compileSdk = 36
 
 	compileOptions {
