@@ -22,13 +22,13 @@ import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 
 @Composable
 fun AnimatedBackgroundView(
 	@DrawableRes background: Int
 ) {
-	val resources = LocalContext.current.resources
+	val resources = LocalResources.current
 
 	val backgroundBitmap = remember(resources) {
 		BitmapFactory.decodeResource(resources, background).asImageBitmap()

@@ -16,18 +16,18 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import com.gdavidpb.tuindice.summary.R
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryEntry
+import androidx.compose.ui.platform.LocalResources
 
 @Composable
 fun StatusCardItemView(
 	header: String,
 	entries: List<SummaryEntry>
 ) {
-	val lineWidth = LocalContext.current.resources.getDimension(R.dimen.dp_8)
+	val lineWidth = LocalResources.current.getDimension(R.dimen.dp_8)
 
 	ElevatedCard(
 		modifier = Modifier
@@ -101,8 +101,8 @@ fun RowScope.DistributionView(
 	weight: Float,
 	color: Color
 ) {
-	val height = LocalContext.current.resources.getDimension(R.dimen.dp_6)
-	val radius = LocalContext.current.resources.getDimension(R.dimen.dp_8)
+	val height = LocalResources.current.getDimension(R.dimen.dp_6)
+	val radius = LocalResources.current.getDimension(R.dimen.dp_8)
 
 	Text(
 		modifier = Modifier

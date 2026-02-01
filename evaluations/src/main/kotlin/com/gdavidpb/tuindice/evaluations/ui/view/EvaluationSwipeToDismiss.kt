@@ -27,13 +27,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
+import androidx.compose.ui.platform.LocalResources
 
 @Composable
 fun EvaluationSwipeToDismiss(
@@ -144,7 +144,7 @@ private fun getBackgroundInfo(state: SwipeToDismissBoxState, width: Float): Back
 @Composable
 @ReadOnlyComposable
 private fun getOffset(progress: Float, direction: Float, width: Float): Dp {
-	val padding = LocalContext.current.resources.getDimension(R.dimen.dp_8)
+	val padding = LocalResources.current.getDimension(R.dimen.dp_8)
 
 	return (width * direction * (THRESHOLD_EVALUATION_SWIPE - progress))
 		.let { offset ->
