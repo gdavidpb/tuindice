@@ -127,7 +127,7 @@ fun TuIndiceScreen(
 		bottomBar = {
 			if (state.isBottomBarVisible) {
 				NavigationBar(
-					modifier = Modifier.height(dimensionResource(id = R.dimen.dp_48)),
+					modifier = Modifier.height(dimensionResource(id = R.dimen.dp_64)),
 					containerColor = MaterialTheme.colorScheme.onSecondary
 				) {
 					bottomBarConfigs.forEach { bottomBarConfig ->
