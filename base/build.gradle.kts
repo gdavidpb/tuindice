@@ -29,15 +29,31 @@ android {
 			buildConfigField("String", "MASTER_KEY_ALIAS", "\"tuindice_key\"")
 
 			buildConfigField("String", "URL_API", "\"http://10.0.2.2:8080/\"")
-			buildConfigField("String", "URL_PRIVACY_POLICY", "\"https://tuindice.app/privacy_policy.html\"")
-			buildConfigField("String", "URL_TERMS_AND_CONDITIONS", "\"https://tuindice.app/terms_and_conditions.html\"")
+			buildConfigField(
+				"String",
+				"URL_PRIVACY_POLICY",
+				"\"https://tuindice.app/privacy_policy.html\""
+			)
+			buildConfigField(
+				"String",
+				"URL_TERMS_AND_CONDITIONS",
+				"\"https://tuindice.app/terms_and_conditions.html\""
+			)
 		}
 		release {
 			buildConfigField("String", "MASTER_KEY_ALIAS", "\"tuindice_key\"")
 
 			buildConfigField("String", "URL_API", "\"https://api.tuindice.app/\"")
-			buildConfigField("String", "URL_PRIVACY_POLICY", "\"https://tuindice.app/privacy_policy.html\"")
-			buildConfigField("String", "URL_TERMS_AND_CONDITIONS", "\"https://tuindice.app/terms_and_conditions.html\"")
+			buildConfigField(
+				"String",
+				"URL_PRIVACY_POLICY",
+				"\"https://tuindice.app/privacy_policy.html\""
+			)
+			buildConfigField(
+				"String",
+				"URL_TERMS_AND_CONDITIONS",
+				"\"https://tuindice.app/terms_and_conditions.html\""
+			)
 		}
 	}
 }
@@ -75,7 +91,4 @@ dependencies {
 
 	/* Lottie */
 	api(libs.lottie.compose)
-
-	/* Store */
-	api(libs.store)
 }

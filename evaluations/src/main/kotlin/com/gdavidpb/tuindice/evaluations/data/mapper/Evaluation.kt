@@ -66,7 +66,7 @@ fun RemoteEvaluation.toLocalEvaluation() = LocalEvaluation(
 	isDone = isDone
 )
 
-fun LocalEvaluation.toLocalEvaluation() = Evaluation(
+fun LocalEvaluation.toEvaluation() = Evaluation(
 	id = id,
 	subjectId = subjectId,
 	subjectCode = subjectCode,

@@ -9,7 +9,6 @@ coroutines = "1.10.2"
 firebase-bom = "34.8.0"
 coil = "2.7.0"
 compose-bom = "2026.01.01"
-store = "5.1.0-alpha08"
 lottie-compose = "6.7.1"
 androidx-core = "2.2.0"
 kotlinx-datetime = "0.7.1"
@@ -127,9 +126,6 @@ lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "
 # Coil
 coil = { module = "io.coil-kt:coil", version.ref = "coil" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
-
-# Store
-store = { module = "org.mobilenativefoundation.store:store5", version.ref = "store" }
 
 [plugins]
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
