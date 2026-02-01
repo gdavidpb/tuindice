@@ -1,16 +1,12 @@
 package com.gdavidpb.tuindice.evaluations.di
 
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.KtorEvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.PreferencesDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.RoomDatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationConverter
-import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationFetcher
-import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationSourceOfTruth
-import com.gdavidpb.tuindice.evaluations.data.source.store.EvaluationUpdater
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
@@ -96,13 +92,6 @@ val evaluationsModule = module {
 	/* Repositories */
 
 	factoryOf(::EvaluationDataRepository) { bind<EvaluationRepository>() }
-
-	/* Store */
-
-	factoryOf(::EvaluationFetcher)
-	factoryOf(::EvaluationSourceOfTruth)
-	factoryOf(::EvaluationConverter)
-	factoryOf(::EvaluationUpdater)
 
 	/* Data sources */
 

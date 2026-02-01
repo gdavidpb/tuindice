@@ -9,10 +9,6 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.PreferencesDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.RecordApiDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.RoomDataSource
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.QuarterConverter
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.QuarterFetcher
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.QuarterSourceOfTruth
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.store.QuarterUpdater
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
@@ -61,13 +57,6 @@ val recordModule = module {
 	/* Repositories */
 
 	factoryOf(::QuarterDataRepository) { bind<QuarterRepository>() }
-
-	/* Store */
-
-	factoryOf(::QuarterFetcher)
-	factoryOf(::QuarterSourceOfTruth)
-	factoryOf(::QuarterConverter)
-	factoryOf(::QuarterUpdater)
 
 	/* Data sources */
 
