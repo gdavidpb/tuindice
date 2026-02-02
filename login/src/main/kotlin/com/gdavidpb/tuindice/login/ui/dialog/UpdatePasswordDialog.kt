@@ -6,6 +6,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheetProperties
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -28,7 +29,9 @@ fun UpdatePasswordDialog(
 	val isLoading = state is UpdatePassword.State.Updating
 
 	val nonDismissSheetState = rememberModalBottomSheetState(
-		confirmValueChange = { false }
+		confirmValueChange = { sheetValue ->
+			sheetValue != SheetValue.Hidden
+		}
 	)
 
 	ConfirmationDialog(
