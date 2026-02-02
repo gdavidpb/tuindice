@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.login.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.login.domain.model.SignInAttestationPayload
 import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
 import com.gdavidpb.tuindice.login.domain.repository.MessagingApiRepository
 import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.flowOf
 class SignInUseCase(
 	private val sessionRepository: SessionRepository,
 	private val authApiRepository: AuthApiRepository,
+	private val attestationRepository: AttestationRepository,
 	private val messagingApiRepository: MessagingApiRepository,
 	private val reportingRepository: ReportingRepository,
 	private val messagingRepository: MessagingRepository,
@@ -24,9 +27,19 @@ class SignInUseCase(
 	override val exceptionHandler: SignInExceptionHandler
 ) : FlowUseCase<SignInParams, Unit, SignInUseCaseError>() {
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
-		val tokens = authApiRepository.issueTokens(
+		val attestationPayload = SignInAttestationPayload(
 			usbId = params.usbId,
 			password = params.password
+		)
+
+		val attestation = attestationRepository.getAttestation(
+			payload = attestationPayload
+		)
+
+		val tokens = authApiRepository.issueTokens(
+			usbId = params.usbId,
+			password = params.password,
+			attestation = attestation
 		)
 
 		sessionRepository.setUsbId(

@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.base.data.source.MemorySessionDataSource
 import com.gdavidpb.tuindice.base.data.source.PreferencesSessionDataSource
 import com.gdavidpb.tuindice.base.data.source.SharedPreferencesSessionDataSource
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
+import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
@@ -43,6 +44,7 @@ import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastDestinationUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
+import com.gdavidpb.tuindice.login.domain.model.SignInAttestationPayload
 import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.SetLoadingActionProcessor
@@ -74,6 +76,10 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.HttpHeaders
 import io.ktor.http.userAgent
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -237,6 +243,16 @@ val appModule = module {
 		object : Logger {
 			override fun log(message: String) {
 				get<ReportingRepository>().logMessage(message)
+			}
+		}
+	}
+
+	single {
+		Json {
+			serializersModule = SerializersModule {
+				polymorphic(AttestationPayload::class) {
+					subclass(SignInAttestationPayload::class)
+				}
 			}
 		}
 	}

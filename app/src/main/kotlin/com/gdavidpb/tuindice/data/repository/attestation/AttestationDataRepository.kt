@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.repository.attestation
 
 import com.gdavidpb.tuindice.base.domain.model.Attestation
+import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 
 class AttestationDataRepository(
@@ -8,7 +9,7 @@ class AttestationDataRepository(
 	private val providerDataSource: ProviderDataSource,
 	private val digestDataSource: DigestDataSource
 ) : AttestationRepository {
-	override suspend fun getAttestation(payload: String): Attestation {
+	override suspend fun getAttestation(payload: AttestationPayload): Attestation {
 		val (id, challenge) = remoteDataSource.getChallenge()
 		val nonce = digestDataSource.digest(challenge, payload)
 		val token = providerDataSource.getToken(nonce)
