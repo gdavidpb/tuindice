@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.data.repository.attestation.source
 
 import com.gdavidpb.tuindice.data.repository.attestation.DigestDataSource
-import io.ktor.util.encodeBase64
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import java.security.MessageDigest
+import kotlin.io.encoding.Base64
 
 class SHA256DigestDataSource : DigestDataSource {
 	override suspend fun digest(challenge: String, payload: String): String {
@@ -14,6 +14,6 @@ class SHA256DigestDataSource : DigestDataSource {
 
 		val hash = messageDigest.digest(data)
 
-		return hash.encodeBase64()
+		return Base64.encode(hash)
 	}
 }

@@ -4,8 +4,7 @@ import android.content.Context
 import com.gdavidpb.tuindice.base.utils.extension.File
 import com.gdavidpb.tuindice.enrollmentproof.data.repository.StorageDataSource
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
-import io.ktor.util.decodeBase64Bytes
-import io.ktor.util.encodeBase64
+import kotlin.io.encoding.Base64
 
 class InternalStorageDataSource(
 	private val context: Context
@@ -14,7 +13,7 @@ class InternalStorageDataSource(
 
 	override suspend fun getEnrollmentProof(name: String): EnrollmentProof {
 		val enrollmentProofFile = getEnrollmentProofFile(name)
-		val base64EncodedString = enrollmentProofFile.readBytes().encodeBase64()
+		val base64EncodedString = Base64.encode(enrollmentProofFile.readBytes())
 
 		return EnrollmentProof(
 			source = enrollmentProofFile.path,
@@ -34,7 +33,7 @@ class InternalStorageDataSource(
 		enrollmentProofFile.apply {
 			parentFile?.mkdirs()
 
-			val base64ByteArray = enrollmentProof.content.decodeBase64Bytes()
+			val base64ByteArray = Base64.decode(enrollmentProof.content)
 
 			writeBytes(base64ByteArray)
 		}
