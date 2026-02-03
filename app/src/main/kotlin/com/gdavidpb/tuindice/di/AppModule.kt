@@ -45,6 +45,7 @@ import com.gdavidpb.tuindice.domain.usecase.SetLastDestinationUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.login.domain.model.SignInAttestationPayload
+import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
 import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.SetLoadingActionProcessor
@@ -221,6 +222,7 @@ val appModule = module {
 
 			install(Auth) {
 				val sessionRepository = get<SessionRepository>()
+				val authApiRepository = get<AuthApiRepository>()
 
 				bearer {
 					loadTokens {
@@ -233,6 +235,29 @@ val appModule = module {
 							)
 						else
 							null
+					}
+
+					refreshTokens {
+						val oldAccessToken = oldTokens
+							?.accessToken
+							?: sessionRepository.getAccessToken()
+
+						val oldRefreshToken = oldTokens
+							?.refreshToken
+							?: sessionRepository.getRefreshToken()
+
+						val response = authApiRepository.refreshTokens(
+							accessToken = oldAccessToken,
+							refreshToken = oldRefreshToken
+						)
+
+						sessionRepository.setAccessToken(response.accessToken)
+						sessionRepository.setRefreshToken(response.refreshToken)
+
+						BearerTokens(
+							accessToken = response.accessToken,
+							refreshToken = response.refreshToken
+						)
 					}
 				}
 			}
