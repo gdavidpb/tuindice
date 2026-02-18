@@ -1,13 +1,7 @@
 package com.gdavidpb.tuindice
 
 import com.gdavidpb.tuindice.base.presentation.mapper.parseDate
-import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_CURRENT
-import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_MOCK
-import com.gdavidpb.tuindice.base.utils.STATUS_QUARTER_RETIRED
-import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_NO_EFFECT
-import com.gdavidpb.tuindice.base.utils.STATUS_SUBJECT_RETIRED
 import com.gdavidpb.tuindice.evaluations.utils.extension.toSubjectGrade
-import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
 import com.gdavidpb.tuindice.record.data.utils.computeCredits
@@ -25,21 +19,13 @@ import kotlin.math.floor
 class ComputationTest {
 
 	object TestValues {
-		const val STATUS_QUARTER_CURRENT = 0
-		const val STATUS_QUARTER_COMPLETED = 1
-		const val STATUS_QUARTER_RETIRED = 3
-
-		const val STATUS_SUBJECT_OK = 0
-		const val STATUS_SUBJECT_RETIRED = 1
-
 		val DEFAULT_LOCALE: Locale = Locale("es", "VE")
-		val DEFAULT_TIME_ZONE: TimeZone = TimeZone.getTimeZone("America/Caracas")
 	}
 
 	@Before
 	fun setDefaultLocaleTimeZone() {
 		Locale.setDefault(TestValues.DEFAULT_LOCALE)
-		TimeZone.setDefault(TestValues.DEFAULT_TIME_ZONE)
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
 	}
 
 	@Test
@@ -66,25 +52,24 @@ class ComputationTest {
 	}
 
 	@Test
-	fun filterNoEffect_Test() {
+	fun removeNoEffect_Test() {
 		val actualCase1 = listOf(
 			createSubject(code = "MA1111", grade = 5),
-			createSubject(code = "MA1111", grade = 2),
 			createSubject(code = "MA1111", grade = 1)
 		).removeNoEffect()
 
 		val expectedCase1 = listOf(
-			createSubject(code = "MA1111", grade = 5),
-			createSubject(code = "MA1111", grade = 1)
+			createSubject(code = "MA1111", grade = 5)
 		)
 
 		val actualCase2 = listOf(
-			createSubject(code = "MA1111", grade = 5),
+			createSubject(code = "MA1111", grade = 2),
 			createSubject(code = "MA1111", grade = 1)
 		).removeNoEffect()
 
 		val expectedCase2 = listOf(
-			createSubject(code = "MA1111", grade = 5)
+			createSubject(code = "MA1111", grade = 2),
+			createSubject(code = "MA1111", grade = 1)
 		)
 
 		val actualCase3 = listOf(
@@ -95,9 +80,21 @@ class ComputationTest {
 			createSubject(code = "MA1111", grade = 5)
 		)
 
+		val actualCase4 = listOf(
+			createSubject(code = "MA1111", grade = 5),
+			createSubject(code = "MA1111", grade = 2),
+			createSubject(code = "MA1111", grade = 1)
+		).removeNoEffect()
+
+		val expectedCase4 = listOf(
+			createSubject(code = "MA1111", grade = 5),
+			createSubject(code = "MA1111", grade = 1)
+		)
+
 		assertEquals(expectedCase1, actualCase1)
 		assertEquals(expectedCase2, actualCase2)
 		assertEquals(expectedCase3, actualCase3)
+		assertEquals(expectedCase4, actualCase4)
 	}
 
 	@Test
@@ -122,8 +119,8 @@ class ComputationTest {
 			createSubject(grade = 2, credits = 2)
 		)
 
-		val creditsSum = (4 + 0 + 2).toDouble()
-		val weightedSum = ((5 * 4) + (0 * 3) + (2 * 2)).toDouble()
+		val creditsSum = (4 + 2).toDouble()
+		val weightedSum = ((5 * 4) + (2 * 2)).toDouble()
 
 		val actualGrade = subjects.computeGrade()
 		val expectedGrade = floor(weightedSum / creditsSum * 10000.0) / 10000.0
@@ -136,8 +133,9 @@ class ComputationTest {
 		val quarter1 = createQuarter(
 			startDate = "Enero 2019".parseDate("MMMM yyyy")!!.time,
 			endDate = "Marzo 2019".parseDate("MMMM yyyy")!!.time,
-			status = TestValues.STATUS_QUARTER_COMPLETED,
-			subjects = mutableListOf(
+			isCurrent = false,
+			isReadOnly = true,
+			subjects = listOf(
 				createSubject(code = "MA1111", grade = 2, credits = 4),
 				createSubject(code = "ID1111", grade = 3, credits = 3),
 				createSubject(code = "CSA211", grade = 3, credits = 3)
@@ -147,8 +145,9 @@ class ComputationTest {
 		val quarter2 = createQuarter(
 			startDate = "Julio 2019".parseDate("MMMM yyyy")!!.time,
 			endDate = "Agosto 2019".parseDate("MMMM yyyy")!!.time,
-			status = TestValues.STATUS_QUARTER_COMPLETED,
-			subjects = mutableListOf(
+			isCurrent = false,
+			isReadOnly = true,
+			subjects = listOf(
 				createSubject(code = "MA1111", grade = 2, credits = 4)
 			)
 		)
@@ -156,8 +155,9 @@ class ComputationTest {
 		val quarter3 = createQuarter(
 			startDate = "Septiembre 2019".parseDate("MMMM yyyy")!!.time,
 			endDate = "Diciembre 2019".parseDate("MMMM yyyy")!!.time,
-			status = TestValues.STATUS_QUARTER_COMPLETED,
-			subjects = mutableListOf(
+			isCurrent = false,
+			isReadOnly = true,
+			subjects = listOf(
 				createSubject(code = "MA1111", grade = 5, credits = 4),
 				createSubject(code = "ID1112", grade = 5, credits = 3)
 			)
@@ -166,24 +166,25 @@ class ComputationTest {
 		val quarter4 = createQuarter(
 			startDate = "Enero 2020".parseDate("MMMM yyyy")!!.time,
 			endDate = "Marzo 2020".parseDate("MMMM yyyy")!!.time,
-			status = TestValues.STATUS_QUARTER_RETIRED,
-			subjects = mutableListOf(
-				createSubject(code = "MA1112", grade = 5, credits = 4),
-				createSubject(code = "ID1113", grade = 5, credits = 3)
+			isCurrent = false,
+			isReadOnly = true,
+			subjects = listOf(
+				createSubject(code = "MA1112", grade = 0, credits = 4),
+				createSubject(code = "ID1113", grade = 0, credits = 3)
 			)
 		)
 
 		val quarter5 = createQuarter(
 			startDate = "Septiembre 2020".parseDate("MMMM yyyy")!!.time,
 			endDate = "Diciembre 2020".parseDate("MMMM yyyy")!!.time,
-			status = TestValues.STATUS_QUARTER_CURRENT,
-			subjects = mutableListOf(
+			isCurrent = true,
+			isReadOnly = false,
+			subjects = listOf(
 				createSubject(code = "MA1112", grade = 5, credits = 4),
 				createSubject(
 					code = "ID1113",
-					grade = 5,
-					credits = 3,
-					status = TestValues.STATUS_SUBJECT_RETIRED
+					grade = 0,
+					credits = 3
 				)
 			)
 		)
@@ -202,8 +203,9 @@ class ComputationTest {
 	private fun createQuarter(
 		startDate: Long = System.currentTimeMillis(),
 		endDate: Long = System.currentTimeMillis(),
-		status: Int = 0,
-		subjects: MutableList<LocalSubject> = mutableListOf()
+		isCurrent: Boolean = false,
+		isReadOnly: Boolean = false,
+		subjects: List<LocalSubject> = listOf()
 	) = LocalQuarter(
 		id = "",
 		name = "",
@@ -212,29 +214,23 @@ class ComputationTest {
 		grade = 0.0,
 		gradeSum = 0.0,
 		credits = 0,
-		status = status,
-		subjects = subjects,
-		isEditable = (status == STATUS_QUARTER_CURRENT) || (status == STATUS_QUARTER_MOCK),
-		isRetired = (status == STATUS_QUARTER_RETIRED)
+		creditsSum = 0,
+		isCurrent = isCurrent,
+		isReadOnly = isReadOnly,
+		subjects = subjects
 	)
 
 	private fun createSubject(
 		code: String = "",
 		name: String = "",
 		grade: Int = 0,
-		credits: Int = 0,
-		status: Int = TestValues.STATUS_SUBJECT_OK,
-		isEditable: Boolean = true
+		credits: Int = 0
 	) = LocalSubject(
 		id = "",
 		quarterId = "",
 		code = code,
 		name = name,
 		credits = credits,
-		grade = grade,
-		status = status,
-		isEditable = isEditable,
-		isRetired = (!isEditable && status == STATUS_SUBJECT_RETIRED) || (isEditable && grade == MIN_SUBJECT_GRADE),
-		isNoEffect = (status == STATUS_SUBJECT_NO_EFFECT)
+		grade = grade
 	)
 }
