@@ -3,11 +3,11 @@
 package com.gdavidpb.tuindice.record.data.repository.quarter.source.api.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
-import com.gdavidpb.tuindice.base.utils.DEFAULT_TIME_ZONE
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.AddQuarterRequest
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.api.response.QuarterResponse
 import kotlinx.datetime.Month
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -30,7 +30,7 @@ fun QuarterResponse.toRemoteQuarter(): RemoteQuarter {
 
 fun RemoteQuarter.toAddQuarterRequest(): AddQuarterRequest {
 	val localTime = Instant.fromEpochMilliseconds(startDate)
-		.toLocalDateTime(DEFAULT_TIME_ZONE)
+		.toLocalDateTime(TimeZone.UTC)
 
 	val year = localTime.year
 	val quarter = when (localTime.month) {

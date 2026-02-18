@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice
 
 import android.app.Application
 import com.gdavidpb.tuindice.about.di.aboutModule
-import com.gdavidpb.tuindice.base.utils.DEFAULT_JAVA_TIME_ZONE
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.di.appMockModule
 import com.gdavidpb.tuindice.di.appModule
@@ -27,7 +26,7 @@ class MockTuIndiceApp : Application() {
 		super.onCreate()
 
 		Locale.setDefault(DEFAULT_LOCALE)
-		TimeZone.setDefault(DEFAULT_JAVA_TIME_ZONE)
+		TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
 
 		FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = false
 
