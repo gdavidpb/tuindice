@@ -221,11 +221,10 @@ val appModule = module {
 			}
 
 			install(Auth) {
-				val sessionRepository = get<SessionRepository>()
-				val authApiRepository = get<AuthApiRepository>()
-
 				bearer {
 					loadTokens {
+						val sessionRepository = get<SessionRepository>()
+
 						val hasActiveTokens = sessionRepository.hasActiveSession()
 
 						if (hasActiveTokens)
@@ -238,6 +237,9 @@ val appModule = module {
 					}
 
 					refreshTokens {
+						val sessionRepository = get<SessionRepository>()
+						val authApiRepository = get<AuthApiRepository>()
+
 						val oldAccessToken = oldTokens
 							?.accessToken
 							?: sessionRepository.getAccessToken()
