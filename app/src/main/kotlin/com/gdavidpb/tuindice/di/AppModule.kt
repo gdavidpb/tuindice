@@ -74,7 +74,9 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.contentType
 import io.ktor.http.userAgent
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -194,6 +196,8 @@ val appModule = module {
 			install(DefaultRequest) {
 				url(BuildConfig.URL_API)
 
+				contentType(ContentType.Application.Json)
+
 				if (userAgent != null)
 					userAgent("$userAgent")
 			}
@@ -208,7 +212,7 @@ val appModule = module {
 			}
 
 			install(ContentNegotiation) {
-				json()
+				json(get())
 			}
 
 			install(Logging) {
