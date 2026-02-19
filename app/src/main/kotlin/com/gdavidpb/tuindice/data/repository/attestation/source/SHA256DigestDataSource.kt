@@ -18,6 +18,6 @@ class SHA256DigestDataSource(
 
 		val hash = messageDigest.digest(jsonBytes)
 
-		return Base64.encode(hash)
+		return Base64.UrlSafe.encode(hash)
 	}
 }
