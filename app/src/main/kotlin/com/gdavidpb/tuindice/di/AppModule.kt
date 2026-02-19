@@ -45,6 +45,7 @@ import com.gdavidpb.tuindice.domain.usecase.SetLastDestinationUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.login.domain.model.IssueTokensAttestationPayload
+import com.gdavidpb.tuindice.login.domain.model.RefreshTokensAttestationPayload
 import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
 import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceActionProcessor
@@ -242,6 +243,7 @@ val appModule = module {
 
 					refreshTokens {
 						val sessionRepository = get<SessionRepository>()
+						val attestationRepository = get<AttestationRepository>()
 						val authApiRepository = get<AuthApiRepository>()
 
 						val oldAccessToken = oldTokens
@@ -252,9 +254,19 @@ val appModule = module {
 							?.refreshToken
 							?: sessionRepository.getRefreshToken()
 
-						val response = authApiRepository.refreshTokens(
+						val attestationPayload = RefreshTokensAttestationPayload(
 							accessToken = oldAccessToken,
 							refreshToken = oldRefreshToken
+						)
+
+						val attestation = attestationRepository.getAttestation(
+							payload = attestationPayload
+						)
+
+						val response = authApiRepository.refreshTokens(
+							accessToken = oldAccessToken,
+							refreshToken = oldRefreshToken,
+							attestation = attestation
 						)
 
 						sessionRepository.setAccessToken(response.accessToken)
@@ -286,6 +298,7 @@ val appModule = module {
 			serializersModule = SerializersModule {
 				polymorphic(AttestationPayload::class) {
 					subclass(IssueTokensAttestationPayload::class)
+					subclass(RefreshTokensAttestationPayload::class)
 				}
 			}
 		}

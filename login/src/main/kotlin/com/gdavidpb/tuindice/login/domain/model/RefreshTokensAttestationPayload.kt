@@ -5,7 +5,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RefreshTokenAttestationPayload(
+@SerialName("refresh_token_attestation")
+data class RefreshTokensAttestationPayload(
 	@SerialName("access_token") val accessToken: String,
 	@SerialName("refresh_token") val refreshToken: String
 ) : AttestationPayload()

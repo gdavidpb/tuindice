@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.login.domain.usecase
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.login.domain.model.RefreshTokenAttestationPayload
+import com.gdavidpb.tuindice.login.domain.model.IssueTokensAttestationPayload
 import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
@@ -21,12 +21,9 @@ class UpdatePasswordUseCase(
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val usbId = sessionRepository.getUsbId()
 
-		val accessToken = sessionRepository.getAccessToken()
-		val refreshToken = sessionRepository.getRefreshToken()
-
-		val attestationPayload = RefreshTokenAttestationPayload(
-			accessToken = accessToken,
-			refreshToken = refreshToken
+		val attestationPayload = IssueTokensAttestationPayload(
+			usbId = usbId,
+			password = params
 		)
 
 		val attestation = attestationRepository.getAttestation(

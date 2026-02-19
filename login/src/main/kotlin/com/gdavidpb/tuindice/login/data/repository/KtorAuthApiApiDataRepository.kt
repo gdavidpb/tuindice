@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.login.data.repository
 
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.login.data.model.IssueTokensResponse
-import com.gdavidpb.tuindice.login.data.model.RefreshTokenRequest
+import com.gdavidpb.tuindice.login.data.model.RefreshTokensRequest
 import com.gdavidpb.tuindice.login.domain.model.IssueTokens
 import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
 import io.ktor.client.HttpClient
@@ -36,13 +36,19 @@ class KtorAuthApiApiDataRepository(
 		)
 	}
 
-	override suspend fun refreshTokens(accessToken: String, refreshToken: String): IssueTokens {
-		val request = RefreshTokenRequest(
+	override suspend fun refreshTokens(
+		accessToken: String,
+		refreshToken: String,
+		attestation: Attestation
+	): IssueTokens {
+		val request = RefreshTokensRequest(
 			accessToken = accessToken,
 			refreshToken = refreshToken
 		)
 
 		val response = ktorClient.post("auth/token/refresh") {
+			header("Attestation-Id", attestation.id)
+			header("Attestation", attestation.token)
 			setBody(request)
 		}.body<IssueTokensResponse>()
 
