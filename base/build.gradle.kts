@@ -1,7 +1,6 @@
 import com.android.build.api.dsl.LibraryExtension
 
 plugins {
-	id("kotlin-android")
 	id("com.android.library")
 
 	alias(libs.plugins.compose.compiler)
@@ -24,6 +23,7 @@ extensions.configure<LibraryExtension> {
 	buildFeatures {
 		compose = true
 		buildConfig = true
+		resValues = false
 	}
 
 	buildTypes {

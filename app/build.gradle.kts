@@ -1,7 +1,6 @@
 import com.android.build.api.dsl.ApplicationExtension
 
 plugins {
-	id("kotlin-android")
 	id("com.android.application")
 	id("com.google.gms.google-services")
 	id("com.google.firebase.crashlytics")
@@ -21,6 +20,7 @@ extensions.configure<ApplicationExtension> {
 	buildFeatures {
 		compose = true
 		buildConfig = true
+		resValues = false
 	}
 
 	defaultConfig {

@@ -3,7 +3,6 @@ import org.gradle.kotlin.dsl.configure
 
 plugins {
     id("com.android.library")
-    id("kotlin-android")
 
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
@@ -25,6 +24,7 @@ extensions.configure<LibraryExtension> {
     buildFeatures {
         compose = true
         buildConfig = true
+        resValues = false
     }
 
     buildTypes {
