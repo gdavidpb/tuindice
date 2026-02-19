@@ -25,10 +25,10 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
-import com.gdavidpb.tuindice.data.repository.attestation.DigestDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.PayloadDigestDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.ChallengeApiDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.PlayIntegrityDataSource
-import com.gdavidpb.tuindice.data.repository.attestation.source.SHA256DigestDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.source.SHA256PayloadDigestDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingDataRepository
 import com.gdavidpb.tuindice.data.repository.messaging.source.FirebaseMessagingDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingApiDataSource
@@ -305,7 +305,7 @@ val appModule = module {
 	singleOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	singleOf(::MessagingApiDataSource) { bind<MessagingRemote>() }
 	singleOf(::ChallengeApiDataSource) { bind<AttestationRemote>() }
-	singleOf(::SHA256DigestDataSource) { bind<DigestDataSource>() }
+	singleOf(::SHA256PayloadDigestDataSource) { bind<PayloadDigestDataSource>() }
 	singleOf(::FirebaseMessagingDataSource) { bind<MessagingProvider>() }
 	singleOf(::MessagingPreferencesDataSource) { bind<MessagingLocal>() }
 	singleOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
