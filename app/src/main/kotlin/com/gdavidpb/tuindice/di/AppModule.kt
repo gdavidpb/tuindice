@@ -44,7 +44,7 @@ import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastDestinationUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
-import com.gdavidpb.tuindice.login.domain.model.SignInAttestationPayload
+import com.gdavidpb.tuindice.login.domain.model.IssueTokensAttestationPayload
 import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
 import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceActionProcessor
@@ -280,9 +280,12 @@ val appModule = module {
 
 	single {
 		Json {
+			explicitNulls = true
+			prettyPrint = false
+
 			serializersModule = SerializersModule {
 				polymorphic(AttestationPayload::class) {
-					subclass(SignInAttestationPayload::class)
+					subclass(IssueTokensAttestationPayload::class)
 				}
 			}
 		}

@@ -29,7 +29,7 @@ class KtorAuthApiApiDataRepository(
 
 		return IssueTokens(
 			uid = response.uid,
-			email = response.email,
+			usbId = response.usbId,
 			accessToken = response.accessToken,
 			refreshToken = response.refreshToken,
 			expiresIn = response.expiresIn
@@ -48,7 +48,7 @@ class KtorAuthApiApiDataRepository(
 
 		return IssueTokens(
 			uid = response.uid,
-			email = response.email,
+			usbId = response.usbId,
 			accessToken = response.accessToken,
 			refreshToken = response.refreshToken,
 			expiresIn = response.expiresIn
