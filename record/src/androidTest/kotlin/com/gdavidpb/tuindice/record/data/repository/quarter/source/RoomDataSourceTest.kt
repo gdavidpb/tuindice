@@ -273,6 +273,67 @@ class RoomDataSourceTest {
 		}
 
 	@Test
+	fun setSubjectGradeAndRecompute_whenCommitIsFalse_updatesPreviewFlowWithoutPersistingUntilCommit() =
+		runBlocking {
+			val quarter = createQuarter(
+				id = "q1",
+				startDate = 1000L,
+				subjects = listOf(
+					createSubject(
+						id = "s1",
+						quarterId = "q1",
+						code = "MA1111",
+						credits = 4,
+						grade = 2
+					),
+					createSubject(
+						id = "s2",
+						quarterId = "q1",
+						code = "FS1111",
+						credits = 2,
+						grade = 3
+					)
+				)
+			)
+
+			dataSource.saveQuarters(listOf(quarter))
+			dataSource.getQuartersFlow().first { quarters ->
+				quarters.size == 1 &&
+						quarters.first().subjects.first { subject -> subject.id == "s1" }.grade == 2
+			}
+
+			val previewResult = dataSource.setSubjectGradeAndRecompute(
+				qid = "q1",
+				sid = "s1",
+				grade = 5,
+				commit = false
+			)
+
+			assertEquals("q1", previewResult.updatedTargetQuarter?.id)
+
+			val previewQuarter = dataSource.getQuartersFlow().first { quarters ->
+				quarters.first().subjects.first { subject -> subject.id == "s1" }.grade == 5
+			}.first { it.id == "q1" }
+
+			assertEquals(5, previewQuarter.subjects.first { it.id == "s1" }.grade)
+			assertEquals(2, room.subjects.getSubject("s1").grade)
+
+			dataSource.setSubjectGradeAndRecompute(
+				qid = "q1",
+				sid = "s1",
+				grade = 5,
+				commit = true
+			)
+
+			val persistedQuarter = dataSource.getQuartersFlow().first { quarters ->
+				quarters.first().subjects.first { subject -> subject.id == "s1" }.grade == 5
+			}.first { it.id == "q1" }
+
+			assertEquals(5, persistedQuarter.subjects.first { it.id == "s1" }.grade)
+			assertEquals(5, room.subjects.getSubject("s1").grade)
+		}
+
+	@Test
 	fun getQuartersFlow_isOrderedByStartDateDescending() = runBlocking {
 		val olderQuarter = createQuarter(
 			id = "q-old",
