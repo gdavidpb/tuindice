@@ -13,6 +13,7 @@ extensions.configure<LibraryExtension> {
 
 	defaultConfig {
 		minSdk = 24
+		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 	}
 
 	compileOptions {
@@ -27,8 +28,10 @@ extensions.configure<LibraryExtension> {
 }
 
 dependencies {
-	implementation(project(":base"))
-	implementation(project(":persistence"))
+    implementation(project(":base"))
+    implementation(project(":persistence"))
 
-	testImplementation(libs.bundles.testing)
+    testImplementation(libs.bundles.testing)
+    androidTestImplementation(libs.bundles.testing.android)
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
 }
