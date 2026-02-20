@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -27,49 +28,58 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
-import androidx.compose.ui.platform.LocalResources
+import kotlin.math.abs
 
 @Composable
 fun EvaluationSwipeToDismiss(
 	state: SwipeToDismissBoxState,
+	onDismiss: (SwipeToDismissBoxValue) -> Unit,
 	dismissContent: @Composable RowScope.() -> Unit
 ) {
-	val boxWidth = remember {
+	val labelWidth = remember {
+		mutableFloatStateOf(0f)
+	}
+	val dismissWidth = remember {
 		mutableFloatStateOf(0f)
 	}
 
 	val backgroundInfo = getBackgroundInfo(
 		state = state,
-		width = boxWidth.floatValue
+		labelWidth = labelWidth.floatValue,
+		dismissWidth = dismissWidth.floatValue
 	)
 
 	SwipeToDismissBox(
 		state = state,
+		onDismiss = onDismiss,
 		backgroundContent = {
 			val (color, icon, text, alignment, offset) = backgroundInfo
 
-			if (icon != null &&
-				text != null &&
-				alignment != null &&
-				offset != null
+			Box(
+				modifier = Modifier
+					.fillMaxSize()
+					.background(color)
+					.onPlaced { layout ->
+						dismissWidth.floatValue = layout.size.width.toFloat()
+					},
+				contentAlignment = alignment ?: Alignment.Center
 			) {
-				Box(
-					modifier = Modifier
-						.fillMaxSize()
-						.background(color),
-					contentAlignment = alignment
+				if (icon != null &&
+					text != null &&
+					offset != null
 				) {
 					Row(
 						modifier = Modifier
 							.offset(x = offset)
 							.onPlaced { layout ->
-								boxWidth.floatValue = layout.size.width.toFloat()
+								labelWidth.floatValue = layout.size.width.toFloat()
 							}
 					) {
 						Icon(
@@ -91,18 +101,37 @@ fun EvaluationSwipeToDismiss(
 }
 
 @Composable
-private fun getBackgroundInfo(state: SwipeToDismissBoxState, width: Float): BackgroundInfo {
+private fun getBackgroundInfo(
+	state: SwipeToDismissBoxState,
+	labelWidth: Float,
+	dismissWidth: Float
+): BackgroundInfo {
+	val revealRange = (THRESHOLD_EVALUATION_SWIPE)
+		.coerceAtLeast(.01f)
+	val swipeProgress = if (dismissWidth > 0f)
+		runCatching { abs(state.requireOffset()) / dismissWidth }
+			.getOrDefault(0f)
+	else
+		0f
+
+	val targetAlpha = when (state.dismissDirection) {
+		SwipeToDismissBoxValue.Settled -> 0f
+		else -> (swipeProgress / revealRange)
+			.coerceIn(0f, 1f)
+	}
+
 	val color by animateColorAsState(
-		targetValue = when (state.targetValue) {
+		targetValue = when (state.dismissDirection) {
 			SwipeToDismissBoxValue.StartToEnd ->
-				MaterialTheme.colorScheme.primaryContainer
+				MaterialTheme.colorScheme.primaryContainer.copy(alpha = targetAlpha)
 
 			SwipeToDismissBoxValue.EndToStart ->
-				MaterialTheme.colorScheme.errorContainer
+				MaterialTheme.colorScheme.errorContainer.copy(alpha = targetAlpha)
 
 			else ->
-				Color.Transparent
+				MaterialTheme.colorScheme.background
 		},
+		animationSpec = tween(durationMillis = 200),
 		label = "SwipeToDismiss_animateColorAsState"
 	)
 
@@ -115,7 +144,7 @@ private fun getBackgroundInfo(state: SwipeToDismissBoxState, width: Float): Back
 			offset = getOffset(
 				progress = state.progress,
 				direction = -1f,
-				width = width
+				width = labelWidth
 			)
 		)
 
@@ -127,7 +156,7 @@ private fun getBackgroundInfo(state: SwipeToDismissBoxState, width: Float): Back
 			offset = getOffset(
 				progress = state.progress,
 				direction = 1f,
-				width = width
+				width = labelWidth
 			)
 		)
 

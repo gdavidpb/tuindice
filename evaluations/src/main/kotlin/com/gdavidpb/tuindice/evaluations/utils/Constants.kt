@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.evaluations.utils
 
 import kotlin.time.Duration.Companion.days
 
-const val THRESHOLD_EVALUATION_SWIPE = .3f
+const val THRESHOLD_EVALUATION_SWIPE = .33f
 
 object PreferencesKeys {
 	const val COOLDOWN_GET_EVALUATIONS = "cooldownGetEvaluations"
