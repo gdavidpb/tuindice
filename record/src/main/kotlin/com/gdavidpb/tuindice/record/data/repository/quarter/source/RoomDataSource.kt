@@ -28,7 +28,7 @@ class RoomDataSource(
 	private val indexComputationEngine: IndexComputationEngine
 ) : LocalDataSource {
 	private val writeMutex = Mutex()
-	private val previewVersion = MutableStateFlow(0L)
+	private val previewQuartersFlow = MutableStateFlow(0L)
 
 	@Volatile
 	private var inMemoryQuartersSnapshot: List<LocalQuarter>? = null
@@ -37,7 +37,7 @@ class RoomDataSource(
 	private var previewOverridesSnapshot: Map<SubjectPreviewKey, Int> = emptyMap()
 
 	override fun getQuartersFlow(): Flow<List<LocalQuarter>> {
-		val confirmedFlow = room.quarters.getQuartersWithSubjectsFlow()
+		val quartersFlow = room.quarters.getQuartersWithSubjectsFlow()
 			.map { quarters ->
 				quarters
 					.map { quarter -> quarter.toLocalQuarter() }
@@ -47,10 +47,7 @@ class RoomDataSource(
 				inMemoryQuartersSnapshot = quarters
 			}
 
-		return combine(
-			confirmedFlow,
-			previewVersion
-		) { confirmedQuarters, _ ->
+		return combine(quartersFlow, previewQuartersFlow) { confirmedQuarters, _ ->
 			applyPreviewToSnapshot(confirmedQuarters)
 		}
 	}
@@ -162,9 +159,7 @@ class RoomDataSource(
 			val hadPreviewOverride = previewOverridesSnapshot.containsKey(key)
 
 			if (grade == sourceSubject.grade) {
-				if (hadPreviewOverride) {
-					removePreviewOverride(key)
-				}
+				if (hadPreviewOverride) removePreviewOverride(key)
 
 				return@withLock SetSubjectGradeResult(
 					updatedQuarters = emptyList(),
@@ -174,18 +169,14 @@ class RoomDataSource(
 
 			val quarterToUpdate = sourceQuarter.copy(
 				subjects = sourceQuarter.subjects.map { subject ->
-					if (subject.id == sid)
-						subject.copy(grade = grade)
-					else
-						subject
+					if (subject.id == sid) subject.copy(grade = grade) else subject
 				}
 			)
+
 			val patchedSnapshot = confirmedSnapshot.map { quarter ->
-				if (quarter.id == qid)
-					quarterToUpdate
-				else
-					quarter
+				if (quarter.id == qid) quarterToUpdate else quarter
 			}
+
 			val recomputed = indexComputationEngine.recompute(
 				quarters = patchedSnapshot,
 				affectedStartDate = affectedStartDate
@@ -203,9 +194,8 @@ class RoomDataSource(
 			}
 
 			inMemoryQuartersSnapshot = recomputed.quarters.toCanonicalOrder()
-			if (hadPreviewOverride) {
-				removePreviewOverride(key)
-			}
+
+			if (hadPreviewOverride) removePreviewOverride(key)
 
 			SetSubjectGradeResult(
 				updatedQuarters = recomputed.affectedQuarters,
@@ -229,9 +219,7 @@ class RoomDataSource(
 	private fun applyPreviewToSnapshot(confirmedSnapshot: List<LocalQuarter>): List<LocalQuarter> {
 		val overrides = previewOverridesSnapshot
 
-		if (overrides.isEmpty()) {
-			return confirmedSnapshot
-		}
+		if (overrides.isEmpty()) return confirmedSnapshot
 
 		var affectedStartDate = Long.MAX_VALUE
 		var hasChanges = false
@@ -243,9 +231,7 @@ class RoomDataSource(
 				val previewGrade = overrides[SubjectPreviewKey(quarter.id, subject.id)]
 					?: return@map subject
 
-				if (previewGrade == subject.grade) {
-					return@map subject
-				}
+				if (previewGrade == subject.grade) return@map subject
 
 				hasChanges = true
 				quarterChanged = true
@@ -260,9 +246,7 @@ class RoomDataSource(
 				quarter
 		}
 
-		if (!hasChanges) {
-			return confirmedSnapshot
-		}
+		if (!hasChanges) return confirmedSnapshot
 
 		return indexComputationEngine.recompute(
 			quarters = patchedSnapshot,
@@ -285,17 +269,15 @@ class RoomDataSource(
 
 		if (changed) {
 			previewOverridesSnapshot = mutableOverrides.toMap()
-			previewVersion.value += 1
+			previewQuartersFlow.value += 1
 		}
 	}
 
 	private fun clearPreviewOverrides() {
-		if (previewOverridesSnapshot.isEmpty()) {
-			return
-		}
+		if (previewOverridesSnapshot.isEmpty()) return
 
 		previewOverridesSnapshot = emptyMap()
-		previewVersion.value += 1
+		previewQuartersFlow.value += 1
 	}
 
 	private fun removePreviewOverride(key: SubjectPreviewKey) {
@@ -303,15 +285,13 @@ class RoomDataSource(
 	}
 
 	private fun removePreviewOverrides(predicate: (SubjectPreviewKey) -> Boolean) {
-		if (previewOverridesSnapshot.isEmpty()) {
-			return
-		}
+		if (previewOverridesSnapshot.isEmpty()) return
 
 		val filtered = previewOverridesSnapshot.filterKeys { key -> !predicate(key) }
 
 		if (filtered.size != previewOverridesSnapshot.size) {
 			previewOverridesSnapshot = filtered
-			previewVersion.value += 1
+			previewQuartersFlow.value += 1
 		}
 	}
 
