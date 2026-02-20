@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.summary.data.repository.user.source.api.response.Us
 
 fun UserResponse.toUser() = User(
 	id = id,
-	cid = cid,
+	cid = cid.toString(),
 	usbId = usbId,
 	email = email,
 	pictureUrl = pictureUrl,

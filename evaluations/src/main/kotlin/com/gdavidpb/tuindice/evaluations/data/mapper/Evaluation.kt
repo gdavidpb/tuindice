@@ -34,7 +34,6 @@ fun RemoteEvaluation.toAddEvaluationRequest() = AddEvaluationRequest(
 )
 
 fun RemoteEvaluation.toUpdateEvaluationRequest() = UpdateEvaluationRequest(
-	evaluationId = id,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,

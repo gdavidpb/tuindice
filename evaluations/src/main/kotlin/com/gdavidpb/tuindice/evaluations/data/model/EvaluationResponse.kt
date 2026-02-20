@@ -10,9 +10,9 @@ data class EvaluationResponse(
 	@SerialName("subject_id") val subjectId: String,
 	@SerialName("subject_code") val subjectCode: String,
 	@SerialName("type") val type: Int,
-	@SerialName("grade") val grade: Double,
+	@SerialName("grade") val grade: Double?,
 	@SerialName("max_grade") val maxGrade: Double,
-	@SerialName("date") val date: Long,
+	@SerialName("date") val date: Long?,
 	@SerialName("is_done") val isDone: Boolean,
 	@SerialName("notes") val notes: String
 )

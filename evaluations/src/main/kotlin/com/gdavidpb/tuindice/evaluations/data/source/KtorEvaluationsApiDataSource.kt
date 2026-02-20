@@ -11,7 +11,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -54,7 +53,7 @@ class KtorEvaluationsApiDataSource(
 	override suspend fun updateEvaluation(evaluation: RemoteEvaluation): RemoteEvaluation {
 		val request = evaluation.toUpdateEvaluationRequest()
 
-		return ktorClient.patch("evaluations") {
+		return ktorClient.patch("evaluations/${evaluation.id}") {
 			setBody(request)
 		}
 			.body<EvaluationResponse>()
@@ -62,8 +61,6 @@ class KtorEvaluationsApiDataSource(
 	}
 
 	override suspend fun removeEvaluation(eid: String) {
-		ktorClient.delete("evaluations") {
-			parameter("eid", eid)
-		}
+		ktorClient.delete("evaluations/$eid")
 	}
 }

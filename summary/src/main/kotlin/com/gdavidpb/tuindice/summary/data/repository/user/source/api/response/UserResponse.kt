@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UserResponse(
 	@SerialName("id") val id: String,
-	@SerialName("c_id") val cid: String,
+	@SerialName("c_id") val cid: Int,
 	@SerialName("usb_id") val usbId: String,
 	@SerialName("email") val email: String,
 	@SerialName("full_name") val fullName: String,
@@ -21,9 +21,12 @@ data class UserResponse(
 	@SerialName("enrolled_credits") val enrolledCredits: Int,
 	@SerialName("approved_subjects") val approvedSubjects: Int,
 	@SerialName("approved_credits") val approvedCredits: Int,
+	@SerialName("approved_relation") val approvedRelation: Double,
 	@SerialName("retired_subjects") val retiredSubjects: Int,
 	@SerialName("retired_credits") val retiredCredits: Int,
+	@SerialName("retired_relation") val retiredRelation: Double,
 	@SerialName("failed_subjects") val failedSubjects: Int,
 	@SerialName("failed_credits") val failedCredits: Int,
+	@SerialName("failed_relation") val failedRelation: Double,
 	@SerialName("last_update") val lastUpdate: Long
 )
