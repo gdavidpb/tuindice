@@ -138,7 +138,8 @@ class RoomDataSourceTest {
 		val result = dataSource.setSubjectGradeAndRecompute(
 			qid = "missing-quarter",
 			sid = "s1",
-			grade = 5
+			grade = 5,
+			commit = true
 		)
 
 		assertTrue(result.updatedQuarters.isEmpty())
@@ -169,7 +170,8 @@ class RoomDataSourceTest {
 		val result = dataSource.setSubjectGradeAndRecompute(
 			qid = "q1",
 			sid = "s1",
-			grade = 5
+			grade = 5,
+			commit = true
 		)
 		val updated = result.updatedQuarters
 
@@ -218,7 +220,8 @@ class RoomDataSourceTest {
 			val result = dataSource.setSubjectGradeAndRecompute(
 				qid = "q1",
 				sid = "missing-subject",
-				grade = 5
+				grade = 5,
+				commit = true
 			)
 
 			assertTrue(result.updatedQuarters.isEmpty())
@@ -255,7 +258,8 @@ class RoomDataSourceTest {
 							dataSource.setSubjectGradeAndRecompute(
 								qid = "q1",
 								sid = "s1",
-								grade = grade
+								grade = grade,
+								commit = true
 							)
 						}
 					}

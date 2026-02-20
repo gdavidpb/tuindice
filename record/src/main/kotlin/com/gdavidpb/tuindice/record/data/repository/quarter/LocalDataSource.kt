@@ -14,6 +14,7 @@ interface LocalDataSource {
 	suspend fun setSubjectGradeAndRecompute(
 		qid: String,
 		sid: String,
-		grade: Int
+		grade: Int,
+		commit: Boolean
 	): SetSubjectGradeResult
 }

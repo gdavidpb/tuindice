@@ -84,41 +84,50 @@ class IndexComputationEngine {
 		)
 
 		val codeStates = hashMapOf<String, CodeState>()
-		val recomputedAscending = arrayListOf<LocalQuarter>()
+		val recomputedAscending = ArrayList<LocalQuarter>(quartersAscending.size)
 
 		var cumulativeWeighted = 0L
 		var cumulativeCredits = 0L
 
 		quartersAscending.forEach { quarter ->
-			val quarterCredits = quarter.subjects.computeCredits()
-			val quarterWeighted = quarter.subjects.sumOf { subject ->
-				subject.grade.toLong() * subject.credits
+			var quarterCredits = 0L
+			var quarterWeighted = 0L
+
+			quarter.subjects.forEach { subject ->
+				if (subject.grade != 0) {
+					quarterCredits += subject.credits
+				}
+
+				quarterWeighted += subject.grade.toLong() * subject.credits
 			}
 			val quarterGrade = computeAverage(
 				weighted = quarterWeighted,
-				credits = quarterCredits.toLong()
+				credits = quarterCredits
 			)
 
-			quarter.subjects
-				.sortedByDescending(LocalSubject::id)
-				.forEach { subject ->
-					if (subject.grade <= 0) return@forEach
+			val sortedSubjects = if (quarter.subjects.size > 1)
+				quarter.subjects.sortedByDescending(LocalSubject::id)
+			else
+				quarter.subjects
 
-					val state = codeStates.getOrPut(subject.code, ::CodeState)
+			sortedSubjects.forEach { subject ->
+				if (subject.grade <= 0) return@forEach
 
-					val previousWeighted = state.effectiveWeighted
-					val previousCredits = state.effectiveCredits
+				val state = codeStates.getOrPut(subject.code, ::CodeState)
 
-					state.add(
-						CodeAttempt(
-							grade = subject.grade,
-							credits = subject.credits
-						)
+				val previousWeighted = state.effectiveWeighted
+				val previousCredits = state.effectiveCredits
+
+				state.add(
+					CodeAttempt(
+						grade = subject.grade,
+						credits = subject.credits
 					)
+				)
 
-					cumulativeWeighted += (state.effectiveWeighted - previousWeighted)
-					cumulativeCredits += (state.effectiveCredits - previousCredits)
-				}
+				cumulativeWeighted += (state.effectiveWeighted - previousWeighted)
+				cumulativeCredits += (state.effectiveCredits - previousCredits)
+			}
 
 			recomputedAscending += quarter.copy(
 				grade = quarterGrade,
@@ -126,15 +135,17 @@ class IndexComputationEngine {
 					weighted = cumulativeWeighted,
 					credits = cumulativeCredits
 				),
-				credits = quarterCredits,
+				credits = quarterCredits.toInt(),
 				creditsSum = cumulativeCredits.toInt()
 			)
 		}
 
-		val quartersDescending = recomputedAscending.sortedWith(
-			compareByDescending<LocalQuarter> { it.startDate }
-				.thenBy { it.id }
-		)
+		/*
+		 * Reverse traversal preserves:
+		 * startDate DESC and, on ties, quarterId ASC
+		 * because ascending order used startDate ASC + quarterId DESC.
+		 */
+		val quartersDescending = recomputedAscending.asReversed()
 
 		return RecomputeResult(
 			quarters = quartersDescending,

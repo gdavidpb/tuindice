@@ -139,6 +139,7 @@ class QuarterDataRepositoryTest {
 		)
 
 		assertEquals(1, localDataSource.setSubjectGradeAndRecomputeCalls.size)
+		assertEquals(false, localDataSource.setSubjectGradeAndRecomputeCalls.first().commit)
 		assertTrue(remoteDataSource.addQuarterCalls.isEmpty())
 	}
 
@@ -186,6 +187,7 @@ class QuarterDataRepositoryTest {
 			.toRemoteQuarter()
 
 		assertEquals(1, localDataSource.setSubjectGradeAndRecomputeCalls.size)
+		assertEquals(true, localDataSource.setSubjectGradeAndRecomputeCalls.first().commit)
 		assertEquals(listOf(expectedRemoteQuarter), remoteDataSource.addQuarterCalls)
 	}
 
@@ -207,6 +209,7 @@ class QuarterDataRepositoryTest {
 			)
 
 			assertEquals(1, localDataSource.setSubjectGradeAndRecomputeCalls.size)
+			assertEquals(true, localDataSource.setSubjectGradeAndRecomputeCalls.first().commit)
 			assertTrue(remoteDataSource.addQuarterCalls.isEmpty())
 		}
 }

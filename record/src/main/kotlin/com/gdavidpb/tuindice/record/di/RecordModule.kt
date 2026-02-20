@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionPro
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -41,7 +42,7 @@ val recordModule = module {
 
 	/* Computation */
 
-	single { IndexComputationEngine() }
+	singleOf(::IndexComputationEngine)
 
 	/* Validators */
 
@@ -53,7 +54,8 @@ val recordModule = module {
 
 	/* Data sources */
 
-	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
+	singleOf(::RoomDataSource) { bind<LocalDataSource>() }
+
 	factoryOf(::RecordApiDataSource) { bind<RemoteDataSource>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsDataSource>() }
 

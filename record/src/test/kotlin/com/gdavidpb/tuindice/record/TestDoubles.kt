@@ -209,7 +209,8 @@ class FakeNetworkRepository(
 data class SetSubjectGradeAndRecomputeCall(
 	val qid: String,
 	val sid: String,
-	val grade: Int
+	val grade: Int,
+	val commit: Boolean
 )
 
 class FakeLocalDataSource(
@@ -259,9 +260,10 @@ class FakeLocalDataSource(
 	override suspend fun setSubjectGradeAndRecompute(
 		qid: String,
 		sid: String,
-		grade: Int
+		grade: Int,
+		commit: Boolean
 	): SetSubjectGradeResult {
-		setSubjectGradeAndRecomputeCalls += SetSubjectGradeAndRecomputeCall(qid, sid, grade)
+		setSubjectGradeAndRecomputeCalls += SetSubjectGradeAndRecomputeCall(qid, sid, grade, commit)
 		return setSubjectGradeAndRecomputeResult
 	}
 }

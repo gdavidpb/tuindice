@@ -44,7 +44,8 @@ class QuarterDataRepository(
 		val result = localDataSource.setSubjectGradeAndRecompute(
 			qid = set.quarterId,
 			sid = set.id,
-			grade = set.grade
+			grade = set.grade,
+			commit = set.dispatchToRemote
 		)
 
 		if (set.dispatchToRemote && result.updatedTargetQuarter != null) {

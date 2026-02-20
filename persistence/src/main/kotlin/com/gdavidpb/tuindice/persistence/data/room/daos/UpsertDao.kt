@@ -1,31 +1,11 @@
 package com.gdavidpb.tuindice.persistence.data.room.daos
 
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Transaction
-import androidx.room.Update
+import androidx.room.Upsert
 
 abstract class UpsertDao<T> {
-	@Insert(onConflict = OnConflictStrategy.IGNORE)
-	abstract suspend fun insertEntity(
-		entity: T
-	): Long
+	@Upsert
+	abstract suspend fun upsertEntity(entity: T)
 
-	@Update
-	abstract suspend fun updateEntity(
-		entity: T
-	)
-
-	open suspend fun upsertEntity(entity: T) {
-		val index = insertEntity(entity)
-
-		if (index == -1L) updateEntity(entity)
-	}
-
-	@Transaction
-	open suspend fun upsertEntities(
-		entities: List<T>
-	) {
-		entities.forEach { entity -> upsertEntity(entity) }
-	}
+	@Upsert
+	abstract suspend fun upsertEntities(entities: List<T>)
 }
