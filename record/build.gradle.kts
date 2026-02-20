@@ -28,10 +28,13 @@ extensions.configure<LibraryExtension> {
 }
 
 dependencies {
-    implementation(project(":base"))
-    implementation(project(":persistence"))
+	implementation(project(":base"))
+	implementation(project(":persistence"))
 
-    testImplementation(libs.bundles.testing)
-    androidTestImplementation(libs.bundles.testing.android)
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+	testImplementation(libs.bundles.testing)
+	androidTestImplementation(platform(libs.compose.bom))
+	androidTestImplementation(libs.bundles.testing.android)
+	androidTestImplementation(libs.test.ext.junit)
+	androidTestImplementation(libs.compose.ui.test.junit4)
+	debugImplementation(libs.compose.ui.test.manifest)
 }

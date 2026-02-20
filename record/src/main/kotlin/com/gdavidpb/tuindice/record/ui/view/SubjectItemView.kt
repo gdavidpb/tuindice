@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -100,6 +101,7 @@ fun SubjectItemView(
 		if (!item.isReadOnly) {
 			Slider(
 				modifier = Modifier
+					.testTag("subject_grade_slider_${item.subjectId}")
 					.constrainAs(sliderGrade) {
 						start.linkTo(parent.start)
 						end.linkTo(parent.end)
