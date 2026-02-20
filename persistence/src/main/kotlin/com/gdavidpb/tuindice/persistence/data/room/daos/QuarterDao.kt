@@ -22,6 +22,21 @@ abstract class QuarterDao : UpsertDao<QuarterEntity>() {
 				"ORDER BY ${QuarterTable.START_DATE} DESC"
 	)
 	@Transaction
+	abstract suspend fun getQuartersWithSubjects(): List<QuarterWithSubjects>
+
+	@Query(
+		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
+				"WHERE ${QuarterTable.ID} = :qid " +
+				"LIMIT 1"
+	)
+	@Transaction
+	abstract suspend fun getQuarterWithSubjects(qid: String): QuarterWithSubjects?
+
+	@Query(
+		"SELECT * FROM ${QuarterTable.TABLE_NAME} " +
+				"ORDER BY ${QuarterTable.START_DATE} DESC"
+	)
+	@Transaction
 	abstract fun getQuartersWithSubjectsFlow(): Flow<List<QuarterWithSubjects>>
 
 	@Query(

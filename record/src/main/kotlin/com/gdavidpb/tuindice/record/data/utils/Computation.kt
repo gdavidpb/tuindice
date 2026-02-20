@@ -4,6 +4,13 @@ import com.gdavidpb.tuindice.base.utils.extension.round
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
 
+private data class SubjectAttempt(
+	val startDate: Long,
+	val quarterId: String,
+	val subjectId: String,
+	val subject: LocalSubject
+)
+
 fun Collection<LocalSubject>.removeNoEffect(): Collection<LocalSubject> {
 	val containsNoEffect = size > 1 && first().grade >= 3
 
@@ -33,12 +40,35 @@ fun Collection<LocalQuarter>.computeGradeSum(until: LocalQuarter = first()) =
 	asSequence()
 		.filter { it.startDate <= until.startDate }
 		/* Get all subjects */
-		.flatMap { it.subjects }
+		.flatMap { quarter ->
+			quarter.subjects.asSequence()
+				.map { subject ->
+					SubjectAttempt(
+						startDate = quarter.startDate,
+						quarterId = quarter.id,
+						subjectId = subject.id,
+						subject = subject
+					)
+				}
+		}
 		/* Filter valid subjects */
-		.filter { it.grade > 0 }
+		.filter { attempt -> attempt.subject.grade > 0 }
+		/*
+		 * Deterministic recency for no effect:
+		 * (startDate DESC, quarterId, subjectId).
+		 */
+		.sortedWith(
+			compareByDescending<SubjectAttempt> { it.startDate }
+				.thenBy { it.quarterId }
+				.thenBy { it.subjectId }
+		)
 		/* Group by code */
-		.groupBy { it.code }
+		.groupBy { attempt -> attempt.subject.code }
 		/* If you've seen this subject more than once and now you approved this */
-		.flatMap { (_, subjects) -> subjects.removeNoEffect() }.toList()
+		.flatMap { (_, attempts) ->
+			attempts
+				.map { attempt -> attempt.subject }
+				.removeNoEffect()
+		}.toList()
 		/* Compute grade */
 		.computeGrade()

@@ -41,17 +41,14 @@ class QuarterDataRepository(
 	}
 
 	override suspend fun setSubjectGrade(set: SubjectGradeSet) {
-		val updatedLocalQuarters = localDataSource.computeSetSubjectGrade(
+		val result = localDataSource.setSubjectGradeAndRecompute(
 			qid = set.quarterId,
 			sid = set.id,
 			grade = set.grade
 		)
 
-		localDataSource.saveQuarters(quarters = updatedLocalQuarters)
-
-		if (set.dispatchToRemote) {
-			val quarterToUpdate = updatedLocalQuarters
-				.first { quarter -> quarter.subjects.any { subject -> subject.id == set.id } }
+		if (set.dispatchToRemote && result.updatedTargetQuarter != null) {
+			val quarterToUpdate = result.updatedTargetQuarter
 				.toQuarter()
 				.toRemoteQuarter()
 

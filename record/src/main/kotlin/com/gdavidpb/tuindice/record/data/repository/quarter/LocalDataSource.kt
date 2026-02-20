@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.data.repository.quarter
 
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.SetSubjectGradeResult
 import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {
@@ -10,5 +11,9 @@ interface LocalDataSource {
 	suspend fun removeQuarter(qid: String)
 	suspend fun saveQuarters(quarters: List<LocalQuarter>)
 	suspend fun saveSubjects(subjects: List<LocalSubject>)
-	suspend fun computeSetSubjectGrade(qid: String, sid: String, grade: Int): List<LocalQuarter>
+	suspend fun setSubjectGradeAndRecompute(
+		qid: String,
+		sid: String,
+		grade: Int
+	): SetSubjectGradeResult
 }

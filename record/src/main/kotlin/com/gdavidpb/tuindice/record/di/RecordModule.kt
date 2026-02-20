@@ -1,14 +1,13 @@
 package com.gdavidpb.tuindice.record.di
 
-import android.util.LruCache
 import com.gdavidpb.tuindice.record.data.repository.quarter.LocalDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.QuarterDataRepository
 import com.gdavidpb.tuindice.record.data.repository.quarter.RemoteDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.SettingsDataSource
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.PreferencesDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.RecordApiDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.source.RoomDataSource
+import com.gdavidpb.tuindice.record.data.utils.IndexComputationEngine
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
@@ -40,15 +39,9 @@ val recordModule = module {
 	factoryOf(::RemoveQuarterUseCase)
 	factoryOf(::SetSubjectGradeUseCase)
 
-	/* Quarters cache */
+	/* Computation */
 
-	single<LruCache<Int, LocalQuarter>> {
-		LruCache<Int, LocalQuarter>(1_000)
-	}
-
-	single<HashMap<String, LocalQuarter>> {
-		hashMapOf()
-	}
+	single { IndexComputationEngine() }
 
 	/* Validators */
 
