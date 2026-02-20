@@ -39,7 +39,7 @@ class SetSubjectGradeUseCaseTest {
             quarterId = "q1",
             subjectId = "s1",
             grade = 4,
-            dispatchToRemote = true
+            commit = true
         )
 
         val states = useCase.execute(params).toList()
@@ -53,7 +53,7 @@ class SetSubjectGradeUseCaseTest {
                     id = "s1",
                     quarterId = "q1",
                     grade = 4,
-                    dispatchToRemote = true
+                    commit = true
                 )
             ),
             quarterRepository.setSubjectGradeCalls
@@ -66,7 +66,7 @@ class SetSubjectGradeUseCaseTest {
             quarterId = "q1",
             subjectId = "s1",
             grade = 9,
-            dispatchToRemote = false
+            commit = false
         )
 
         val states = useCase.execute(params).toList()
@@ -85,7 +85,7 @@ class SetSubjectGradeUseCaseTest {
             quarterId = "q1",
             subjectId = "s1",
             grade = 5,
-            dispatchToRemote = false
+            commit = false
         )
         quarterRepository.setSubjectGradeThrowable = SubjectIllegalArgumentException(
             SubjectUseCaseError.OutOfRangeGrade

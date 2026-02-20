@@ -13,5 +13,5 @@ fun SetSubjectGradeParams.toSubjectGradeSet() = SubjectGradeSet(
 	id = subjectId,
 	quarterId = quarterId,
 	grade = grade,
-	dispatchToRemote = dispatchToRemote
+	commit = commit
 )

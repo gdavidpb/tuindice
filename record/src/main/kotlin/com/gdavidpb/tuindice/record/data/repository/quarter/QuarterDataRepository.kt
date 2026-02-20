@@ -45,10 +45,10 @@ class QuarterDataRepository(
 			qid = set.quarterId,
 			sid = set.id,
 			grade = set.grade,
-			commit = set.dispatchToRemote
+			commit = set.commit
 		)
 
-		if (set.dispatchToRemote && result.updatedTargetQuarter != null) {
+		if (set.commit && result.updatedTargetQuarter != null) {
 			val quarterToUpdate = result.updatedTargetQuarter
 				.toQuarter()
 				.toRemoteQuarter()

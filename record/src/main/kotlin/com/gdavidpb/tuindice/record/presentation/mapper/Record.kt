@@ -7,5 +7,5 @@ fun (Record.Action.SetSubjectGrade).toSetSubjectGradeParams() = SetSubjectGradeP
 	quarterId = quarterId,
 	subjectId = subjectId,
 	grade = grade,
-	dispatchToRemote = dispatchToRemote
+	commit = commit
 )

@@ -4,5 +4,5 @@ data class SetSubjectGradeParams(
 	val quarterId: String,
 	val subjectId: String,
 	val grade: Int,
-	val dispatchToRemote: Boolean
+	val commit: Boolean
 )

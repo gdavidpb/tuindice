@@ -19,14 +19,14 @@ class RecordViewModel(
 		quarterId: String,
 		subjectId: String,
 		grade: Int,
-		dispatchToRemote: Boolean
+		commit: Boolean
 	) =
 		sendAction(
 			Record.Action.SetSubjectGrade(
 				quarterId = quarterId,
 				subjectId = subjectId,
 				grade = grade,
-				dispatchToRemote = dispatchToRemote
+				commit = commit
 			)
 		)
 

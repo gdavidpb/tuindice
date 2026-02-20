@@ -4,5 +4,5 @@ data class SubjectGradeSet(
 	val id: String,
 	val quarterId: String,
 	val grade: Int,
-	val dispatchToRemote: Boolean
+	val commit: Boolean
 )

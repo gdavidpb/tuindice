@@ -134,7 +134,7 @@ class QuarterDataRepositoryTest {
 				id = "s1",
 				quarterId = "q1",
 				grade = 4,
-				dispatchToRemote = false
+				commit = false
 			)
 		)
 
@@ -177,7 +177,7 @@ class QuarterDataRepositoryTest {
 				id = "s-target",
 				quarterId = "q1",
 				grade = 5,
-				dispatchToRemote = true
+				commit = true
 			)
 		)
 
@@ -204,7 +204,7 @@ class QuarterDataRepositoryTest {
 					id = "target-subject",
 					quarterId = "q1",
 					grade = 5,
-					dispatchToRemote = true
+					commit = true
 				)
 			)
 

@@ -123,7 +123,7 @@ class RecordViewModelTest {
             quarterId = "q1",
             subjectId = "s1",
             grade = 9,
-            dispatchToRemote = true
+            commit = true
         )
 
         val effect = effectDeferred.await()
@@ -155,7 +155,7 @@ class RecordViewModelTest {
             quarterId = "q1",
             subjectId = "s1",
             grade = 4,
-            dispatchToRemote = true
+            commit = true
         )
 
         withTimeout(5_000L) {
@@ -170,7 +170,7 @@ class RecordViewModelTest {
                     id = "s1",
                     quarterId = "q1",
                     grade = 4,
-                    dispatchToRemote = true
+                    commit = true
                 )
             ),
             quarterRepository.setSubjectGradeCalls
