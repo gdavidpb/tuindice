@@ -55,7 +55,7 @@ class SessionDataRepository(
 		val preferencesRefreshToken = preferencesSessionDataSource.getRefreshToken()
 
 		if (preferencesRefreshToken != null) {
-			memorySessionDataSource.setAccessToken(preferencesRefreshToken)
+			memorySessionDataSource.setRefreshToken(preferencesRefreshToken)
 
 			return preferencesRefreshToken
 		}
