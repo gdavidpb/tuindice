@@ -1,12 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/quarters",
-    "queryParameters": {
-      "qid": {
-        "matches": "[\\daA-zZ]+"
-      }
-    }
+    "urlPathPattern": "/quarters/[A-Za-z0-9]+"
   },
   "response": {
     "status": 200,
@@ -21,7 +16,9 @@
       "grade": 5.0,
       "grade_sum": 5.0,
       "credits": 6,
-      "status": 2,
+      "credits_sum": 19,
+      "is_current": true,
+      "is_read_only": false,
       "subjects": [
         {
           "id": "Km1dQ1oLkIba26yLsaT7XhDf7so7",
@@ -29,8 +26,7 @@
           "code": "FS1113",
           "name": "FISICA III",
           "credits": 3,
-          "grade": 5,
-          "status": 0
+          "grade": 5
         },
         {
           "id": "kW43Wd1nIUCu1NxZSrsLrwmefpyo",
@@ -38,8 +34,7 @@
           "code": "MA1112",
           "name": "MATEMATICAS II",
           "credits": 3,
-          "grade": 5,
-          "status": 0
+          "grade": 5
         }
       ]
     },

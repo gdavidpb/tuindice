@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "DELETE",
-    "urlPathPattern": "/quarters/[A-Za-z0-9]+"
+    "urlPath": "/users/picture"
   },
   "response": {
     "status": 200,

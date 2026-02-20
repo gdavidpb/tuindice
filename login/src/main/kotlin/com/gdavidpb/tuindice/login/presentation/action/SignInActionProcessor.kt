@@ -58,10 +58,10 @@ class SignInActionProcessor(
 										)
 									)
 
-								is SignInUseCaseError.AccountDisabled ->
+								is SignInUseCaseError.UserDisabled ->
 									sideEffect(
 										SignIn.Effect.ShowSnackBar(
-											message = resourceResolver.getString(R.string.snack_account_disabled)
+											message = resourceResolver.getString(R.string.snack_user_disabled)
 										)
 									)
 

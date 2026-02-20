@@ -1,13 +1,13 @@
 {
   "request": {
-    "method": "DELETE",
-    "urlPathPattern": "/quarters/[A-Za-z0-9]+"
+    "method": "POST",
+    "urlPath": "/auth/token/revoke"
   },
   "response": {
     "status": 200,
     "headers": {
       "Content-Type": "application/json"
     },
-    "fixedDelayMilliseconds": 1000
+    "fixedDelayMilliseconds": 500
   }
 }

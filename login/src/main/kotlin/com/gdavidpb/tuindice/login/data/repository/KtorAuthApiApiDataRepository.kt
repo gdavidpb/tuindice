@@ -3,7 +3,9 @@ package com.gdavidpb.tuindice.login.data.repository
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.login.data.model.IssueTokensResponse
 import com.gdavidpb.tuindice.login.data.model.RefreshTokensRequest
+import com.gdavidpb.tuindice.login.data.model.RefreshTokensResponse
 import com.gdavidpb.tuindice.login.domain.model.IssueTokens
+import com.gdavidpb.tuindice.login.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -11,6 +13,7 @@ import io.ktor.client.request.basicAuth
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import java.util.Base64
 
 class KtorAuthApiApiDataRepository(
 	private val ktorClient: HttpClient
@@ -20,8 +23,12 @@ class KtorAuthApiApiDataRepository(
 		password: String,
 		attestation: Attestation
 	): IssueTokens {
+		val credentials = Base64.getEncoder()
+			.encodeToString("$usbId:$password".toByteArray())
+
 		val response = ktorClient.post("auth/token") {
 			basicAuth(usbId, password)
+			header("X-Forwarded-Authorization", "Basic $credentials")
 
 			header("Attestation-Id", attestation.id)
 			header("Attestation", attestation.token)
@@ -40,7 +47,7 @@ class KtorAuthApiApiDataRepository(
 		accessToken: String,
 		refreshToken: String,
 		attestation: Attestation
-	): IssueTokens {
+	): RefreshTokens {
 		val request = RefreshTokensRequest(
 			accessToken = accessToken,
 			refreshToken = refreshToken
@@ -50,11 +57,9 @@ class KtorAuthApiApiDataRepository(
 			header("Attestation-Id", attestation.id)
 			header("Attestation", attestation.token)
 			setBody(request)
-		}.body<IssueTokensResponse>()
+		}.body<RefreshTokensResponse>()
 
-		return IssueTokens(
-			uid = response.uid,
-			usbId = response.usbId,
+		return RefreshTokens(
 			accessToken = response.accessToken,
 			refreshToken = response.refreshToken,
 			expiresIn = response.expiresIn

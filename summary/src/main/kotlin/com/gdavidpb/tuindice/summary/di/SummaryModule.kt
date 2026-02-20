@@ -1,20 +1,20 @@
 package com.gdavidpb.tuindice.summary.di
 
-import com.gdavidpb.tuindice.summary.data.repository.account.AccountDataRepository
-import com.gdavidpb.tuindice.summary.data.repository.account.LocalDataSource
-import com.gdavidpb.tuindice.summary.data.repository.account.RemoteDataSource
-import com.gdavidpb.tuindice.summary.data.repository.account.SettingsDataSource
-import com.gdavidpb.tuindice.summary.data.repository.account.source.ImageEncoderDataSource
-import com.gdavidpb.tuindice.summary.data.repository.account.source.PreferencesDataSource
-import com.gdavidpb.tuindice.summary.data.repository.account.source.RoomDataSource
-import com.gdavidpb.tuindice.summary.data.repository.account.source.SummaryApiDataSource
-import com.gdavidpb.tuindice.summary.domain.repository.AccountRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.UserDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.source.ImageEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.source.PreferencesDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.source.RoomDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.source.SummaryApiDataSource
+import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
-import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.GetUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.TakeProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetAccountExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
@@ -49,7 +49,7 @@ val summaryModule = module {
 
 	/* Use cases */
 
-	factoryOf(::GetAccountUseCase)
+	factoryOf(::GetUserUseCase)
 	factoryOf(::TakeProfilePictureUseCase)
 	factoryOf(::UploadProfilePictureUseCase)
 	factoryOf(::RemoveProfilePictureUseCase)
@@ -60,7 +60,7 @@ val summaryModule = module {
 
 	/* Repositories */
 
-	factoryOf(::AccountDataRepository) { bind<AccountRepository>() }
+	factoryOf(::UserDataRepository) { bind<UserRepository>() }
 	factoryOf(::ImageEncoderDataSource) { bind<EncoderRepository>() }
 
 	/* Data sources */
@@ -71,7 +71,7 @@ val summaryModule = module {
 
 	/* Exception handlers */
 
-	factoryOf(::GetAccountExceptionHandler)
+	factoryOf(::GetUserExceptionHandler)
 	factoryOf(::RemoveProfilePictureExceptionHandler)
 	factoryOf(::UploadProfilePictureExceptionHandler)
 }

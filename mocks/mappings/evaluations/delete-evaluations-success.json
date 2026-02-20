@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "DELETE",
-    "urlPath": "/evaluations"
+    "urlPath": "/evaluations",
+    "queryParameters": {
+      "eid": {
+        "matches": "[A-Za-z0-9]+"
+      }
+    }
   },
   "response": {
     "status": 200,

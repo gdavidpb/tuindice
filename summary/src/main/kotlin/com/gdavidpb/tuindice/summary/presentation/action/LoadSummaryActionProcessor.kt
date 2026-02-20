@@ -5,8 +5,8 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.utils.ResourceResolver
 import com.gdavidpb.tuindice.summary.R
-import com.gdavidpb.tuindice.summary.domain.usecase.GetAccountUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.error.GetAccountUseCaseError
+import com.gdavidpb.tuindice.summary.domain.usecase.GetUserUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.error.GetUserUseCaseError
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.mapper.formatLastUpdate
 import com.gdavidpb.tuindice.summary.presentation.mapper.toShortName
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class LoadSummaryActionProcessor(
-	private val getAccountUseCase: GetAccountUseCase,
+	private val getUserUseCase: GetUserUseCase,
 	private val resourceResolver: ResourceResolver
 ) : ActionProcessor<Summary.State, Summary.Action.LoadSummary, Summary.Effect>() {
 
@@ -22,7 +22,7 @@ class LoadSummaryActionProcessor(
 		action: Summary.Action.LoadSummary,
 		sideEffect: (Summary.Effect) -> Unit
 	): Flow<Mutation<Summary.State>> {
-		return getAccountUseCase.execute(Unit)
+		return getUserUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> { _ ->
@@ -59,7 +59,7 @@ class LoadSummaryActionProcessor(
 
 					is UseCaseState.Error -> { state ->
 						when (val error = useCaseState.error) {
-							is GetAccountUseCaseError.NoConnection -> {
+							is GetUserUseCaseError.NoConnection -> {
 								sideEffect(
 									Summary.Effect.ShowSnackBar(
 										message = if (error.isNetworkAvailable)
@@ -72,7 +72,7 @@ class LoadSummaryActionProcessor(
 								Summary.State.Failed
 							}
 
-							is GetAccountUseCaseError.OutdatedPassword -> {
+							is GetUserUseCaseError.OutdatedPassword -> {
 								if (state is Summary.State.Content) {
 									sideEffect(
 										Summary.Effect.NavigateToOutdatedPassword
@@ -85,7 +85,7 @@ class LoadSummaryActionProcessor(
 									Summary.State.Failed
 							}
 
-							is GetAccountUseCaseError.Timeout -> {
+							is GetUserUseCaseError.Timeout -> {
 								sideEffect(
 									Summary.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.snack_timeout)
@@ -95,7 +95,7 @@ class LoadSummaryActionProcessor(
 								Summary.State.Failed
 							}
 
-							is GetAccountUseCaseError.Unavailable -> {
+							is GetUserUseCaseError.Unavailable -> {
 								sideEffect(
 									Summary.Effect.ShowSnackBar(
 										message = resourceResolver.getString(R.string.snack_no_service)

@@ -18,7 +18,7 @@ class SignInExceptionHandler(
 	override fun parseException(throwable: Throwable): SignInUseCaseError? {
 		return when {
 			throwable is SignInIllegalArgumentException -> throwable.error
-			throwable.isForbidden() -> SignInUseCaseError.AccountDisabled
+			throwable.isForbidden() -> SignInUseCaseError.UserDisabled
 			throwable.isUnavailable() -> SignInUseCaseError.Unavailable
 			throwable.isUnauthorized() -> SignInUseCaseError.InvalidCredentials
 			throwable.isTimeout() -> SignInUseCaseError.Timeout

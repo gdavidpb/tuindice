@@ -1,12 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/evaluations",
-    "queryParameters": {
-      "eid": {
-        "matches": "[\\daA-zZ]+"
-      }
-    }
+    "urlPathPattern": "/evaluations/[A-Za-z0-9]+"
   },
   "response": {
     "status": 200,

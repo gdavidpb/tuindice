@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/users/picture"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "url": "https://play-lh.googleusercontent.com/unApnxJoqYon387vSKODmye1ehQ3DE2fav56YUhPorCwHLPKwDEJzBBWCMkjYhRA7A=w480-h960"
+    },
+    "fixedDelayMilliseconds": 4000
+  }
+}
