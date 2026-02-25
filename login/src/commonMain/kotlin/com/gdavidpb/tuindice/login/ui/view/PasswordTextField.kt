@@ -2,6 +2,12 @@ package com.gdavidpb.tuindice.login.ui.view
 
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,6 +19,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import org.jetbrains.compose.resources.stringResource
+import tuindice.login.generated.resources.Res
+import tuindice.login.generated.resources.a11y_hide_password
+import tuindice.login.generated.resources.a11y_show_password
 
 @Composable
 fun PasswordTextField(
@@ -39,12 +49,32 @@ fun PasswordTextField(
 			onPasswordChange(passwordField.value.text)
 		},
 		isError = supportingText.value != null,
-		supportingText = {
-			val text = supportingText.value
+			supportingText = {
+				val text = supportingText.value
 
-			if (text != null) Text(text)
-		},
+				if (text != null) Text(text)
+			},
 		label = { Text(text = labelText) },
+		leadingIcon = {
+			Icon(
+				imageVector = Icons.Filled.Lock,
+				contentDescription = null
+			)
+		},
+		trailingIcon = {
+			IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+				Icon(
+					imageVector = if (passwordVisible.value)
+						Icons.Filled.VisibilityOff
+					else
+						Icons.Filled.Visibility,
+					contentDescription = if (passwordVisible.value)
+						stringResource(Res.string.a11y_hide_password)
+					else
+						stringResource(Res.string.a11y_show_password)
+				)
+			}
+		},
 		visualTransformation = if (passwordVisible.value) {
 			VisualTransformation.None
 		} else {

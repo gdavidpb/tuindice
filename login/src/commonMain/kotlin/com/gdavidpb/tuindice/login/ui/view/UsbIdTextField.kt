@@ -2,6 +2,9 @@ package com.gdavidpb.tuindice.login.ui.view
 
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,12 +58,18 @@ fun UsbIdTextField(
 			}
 		},
 		isError = supportingText.value != null,
-		supportingText = {
-			val text = supportingText.value
+			supportingText = {
+				val text = supportingText.value
 
-			if (text != null) Text(text)
-		},
+				if (text != null) Text(text)
+			},
 		label = { Text(text = labelText) },
+		leadingIcon = {
+			Icon(
+				imageVector = Icons.Filled.Person,
+				contentDescription = null
+			)
+		},
 		keyboardOptions = KeyboardOptions(
 			imeAction = ImeAction.Next,
 			keyboardType = KeyboardType.Number
