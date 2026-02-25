@@ -1,14 +1,10 @@
 package com.gdavidpb.tuindice.login.presentation.navigation
 
-import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
-import com.gdavidpb.tuindice.login.presentation.contract.SignIn
-import com.gdavidpb.tuindice.login.presentation.contract.SignOut
-import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.login.presentation.route.SignInRoute
 import com.gdavidpb.tuindice.login.presentation.route.SignOutRoute
 import com.gdavidpb.tuindice.login.presentation.route.UpdatePasswordRoute
@@ -22,26 +18,7 @@ fun NavGraphBuilder.loginNavigation(
 	onNavigateToSummary: () -> Unit,
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
 	onDismissRequest: () -> Unit,
-	showSnackBar: (message: SnackBarMessage) -> Unit,
-	signInContent: @Composable (
-		state: SignIn.State,
-		onUsbIdChange: (String) -> Unit,
-		onPasswordChange: (String) -> Unit,
-		onSignInClick: (usbId: String, password: String) -> Unit,
-		onTermsAndConditionsClick: () -> Unit,
-		onPrivacyPolicyClick: () -> Unit
-	) -> Unit,
-	signOutDialogContent: @Composable (
-		state: SignOut.State,
-		onConfirmClick: () -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit,
-	updatePasswordDialogContent: @Composable (
-		state: UpdatePassword.State,
-		onPasswordChange: (String) -> Unit,
-		onConfirmClick: (password: String) -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit
+	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	navigation<LoginDestination.NavGraph>(startDestination = LoginDestination.SignIn) {
 		composable<LoginDestination.SignIn> {
@@ -51,8 +28,7 @@ fun NavGraphBuilder.loginNavigation(
 				onNavigateToSummary = onNavigateToSummary,
 				onNavigateToBrowser = onNavigateToBrowser,
 				showSnackBar = showSnackBar,
-				viewModel = viewModel,
-				content = signInContent
+				viewModel = viewModel
 			)
 		}
 
@@ -63,8 +39,7 @@ fun NavGraphBuilder.loginNavigation(
 				onNavigateToSignIn = onNavigateToSignIn,
 				onDismissRequest = onDismissRequest,
 				showSnackBar = showSnackBar,
-				viewModel = viewModel,
-				content = signOutDialogContent
+				viewModel = viewModel
 			)
 		}
 
@@ -74,8 +49,7 @@ fun NavGraphBuilder.loginNavigation(
 			UpdatePasswordRoute(
 				onDismissRequest = onDismissRequest,
 				showSnackBar = showSnackBar,
-				viewModel = viewModel,
-				content = updatePasswordDialogContent
+				viewModel = viewModel
 			)
 		}
 	}

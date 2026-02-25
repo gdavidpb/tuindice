@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.Image
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -20,6 +21,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.utils.extension.isUsbId
+import org.jetbrains.compose.resources.painterResource
+import tuindice.login.generated.resources.Res
+import tuindice.login.generated.resources.ic_launcher
 
 @Composable
 fun SignInIdleView(
@@ -34,8 +38,7 @@ fun SignInIdleView(
 	policiesText: String,
 	usbIdLabelText: String,
 	passwordLabelText: String,
-	signInButtonText: String,
-	headerContent: @Composable () -> Unit = {}
+	signInButtonText: String
 ) {
 	val isSignInEnabled = state.usbId.isUsbId() && state.password.isNotEmpty()
 
@@ -49,7 +52,11 @@ fun SignInIdleView(
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.Center
 	) {
-		headerContent()
+		Image(
+			modifier = Modifier.padding(vertical = 32.dp),
+			painter = painterResource(Res.drawable.ic_launcher),
+			contentDescription = null
+		)
 
 		UsbIdTextField(
 			modifier = Modifier

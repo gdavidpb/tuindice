@@ -7,18 +7,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.presentation.contract.Browser
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
+import com.gdavidpb.tuindice.ui.screen.BrowserScreen
 
 @Composable
 fun BrowserRoute(
 	title: String,
 	url: String,
 	onNavigateToExternalResourceDialog: (url: String) -> Unit,
-	content: @Composable (
-		state: Browser.State,
-		onPageStarted: () -> Unit,
-		onPageFinished: () -> Unit,
-		onExternalResourceClick: (url: String) -> Unit
-	) -> Unit,
 	viewModel: BrowserViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
@@ -37,10 +32,10 @@ fun BrowserRoute(
 		)
 	}
 
-	content(
-		viewState,
-		viewModel::showLoadingAction,
-		viewModel::hideLoadingAction,
-		viewModel::openExternalResourceAction
+	BrowserScreen(
+		state = viewState,
+		onPageStarted = viewModel::showLoadingAction,
+		onPageFinished = viewModel::hideLoadingAction,
+		onExternalResourceClick = viewModel::openExternalResourceAction
 	)
 }

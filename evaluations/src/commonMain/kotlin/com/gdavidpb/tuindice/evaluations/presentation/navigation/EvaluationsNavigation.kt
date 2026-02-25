@@ -6,12 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
-import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
-import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationRoute
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationsRoute
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
@@ -30,32 +25,6 @@ fun NavGraphBuilder.evaluationsNavigation(
 	onSetEvaluationGrade: (evaluationId: String, grade: Double) -> Unit,
 	onDismissRequest: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
-	evaluationsContent: @Composable (
-		state: Evaluations.State,
-		onAddEvaluationClick: () -> Unit,
-		onEvaluationClick: (evaluationId: String) -> Unit,
-		onEvaluationEdit: (evaluationId: String) -> Unit,
-		onEvaluationDelete: (evaluationId: String) -> Unit,
-		onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
-		onClearFiltersClick: () -> Unit,
-		onRetryClick: () -> Unit
-	) -> Unit,
-	evaluationContent: @Composable (
-		state: Evaluation.State,
-		onSubjectChange: (subject: Subject) -> Unit,
-		onTypeChange: (type: EvaluationType) -> Unit,
-		onDateChange: (date: Long?) -> Unit,
-		onGradeClick: (grade: Double?, maxGrade: Double?) -> Unit,
-		onMaxGradeClick: (maxGrade: Double?) -> Unit,
-		onDoneClick: (
-			subject: Subject?,
-			type: EvaluationType?,
-			date: Long?,
-			grade: Double?,
-			maxGrade: Double?
-		) -> Unit,
-		onRetryClick: () -> Unit
-	) -> Unit,
 	gradePickerDialogContent: @Composable (
 		selectedGrade: Double?,
 		maxGrade: Double?,
@@ -83,8 +52,7 @@ fun NavGraphBuilder.evaluationsNavigation(
 				onNavigateToEvaluation = onNavigateToEvaluation,
 				onNavigateToEvaluationGradePickerDialog = onNavigateToEvaluationGradePickerDialog,
 				showSnackBar = showSnackBar,
-				viewModel = viewModel,
-				content = evaluationsContent
+				viewModel = viewModel
 			)
 		}
 
@@ -98,8 +66,7 @@ fun NavGraphBuilder.evaluationsNavigation(
 				onNavigateToGradePickerDialog = onNavigateToGradePickerDialog,
 				onNavigateToMaxGradePickerDialog = onNavigateToMaxGradePickerDialog,
 				showSnackBar = showSnackBar,
-				viewModel = viewModel,
-				content = evaluationContent
+				viewModel = viewModel
 			)
 		}
 

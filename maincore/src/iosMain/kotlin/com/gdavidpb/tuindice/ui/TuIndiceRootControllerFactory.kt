@@ -9,7 +9,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.ComposeUIViewController
-import com.gdavidpb.tuindice.about.ui.screen.AboutScreen
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
@@ -20,21 +19,14 @@ import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.di.IosPlatformBridge
 import com.gdavidpb.tuindice.di.requireIosKoin
 import com.gdavidpb.tuindice.evaluations.ui.screen.*
-import com.gdavidpb.tuindice.enrollmentproof.ui.screen.EnrollmentProofScreen
-import com.gdavidpb.tuindice.login.ui.screen.SignInScreen
-import com.gdavidpb.tuindice.login.ui.screen.SignOutScreen
-import com.gdavidpb.tuindice.login.ui.screen.UpdatePasswordScreen
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.route.TuIndiceCoordinatorRoute
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActionsFactory
 import com.gdavidpb.tuindice.summary.ui.screen.ProfilePictureSettingsContentDialog
 import com.gdavidpb.tuindice.summary.ui.screen.RemoveProfilePictureConfirmationContentDialog
-import com.gdavidpb.tuindice.summary.ui.screen.SummaryScreen
 import com.gdavidpb.tuindice.ui.dialog.GooglePlayServicesDialog
 import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
-import com.gdavidpb.tuindice.ui.screen.BrowserScreen
 import com.gdavidpb.tuindice.ui.screen.TuIndiceNavHost
 import com.gdavidpb.tuindice.ui.theme.TuIndiceSharedTheme
 import kotlinx.coroutines.launch
@@ -155,42 +147,10 @@ private fun TuIndiceRootContent() {
 							onDismissRequest = dismiss
 						)
 					},
-					signInContent = { signInState, usbIdChange, passwordChange, signInClick, termsClick, privacyClick ->
-						SignInScreen(
-							state = signInState,
-							onUsbIdChange = usbIdChange,
-							onPasswordChange = passwordChange,
-							onSignInClick = signInClick,
-							onTermsAndConditionsClick = termsClick,
-							onPrivacyPolicyClick = privacyClick
-						)
-					},
-					signOutDialogContent = { signOutState, confirmClick, dismissRequest ->
-						SignOutScreen(
-							state = signOutState,
-							onConfirmClick = confirmClick,
-							onDismissRequest = dismissRequest
-						)
-					},
-					updatePasswordDialogContent = { updatePasswordState, passwordChange, confirmClick, dismissRequest ->
-						UpdatePasswordScreen(
-							state = updatePasswordState,
-							onPasswordChange = passwordChange,
-							onConfirmClick = confirmClick,
-							onDismissRequest = dismissRequest
-						)
-					},
 					profilePictureActionsFactory = { viewModel ->
 						profilePictureActionsProvider.remember(
 							onPicturePicked = viewModel::uploadProfilePictureAction,
 							onPictureTaken = viewModel::uploadTakenProfilePictureAction
-						)
-					},
-					summaryContent = { summaryState, retryClick, editProfilePictureClick ->
-						SummaryScreen(
-							state = summaryState,
-							onRetryClick = retryClick,
-							onEditProfilePictureClick = editProfilePictureClick
 						)
 					},
 					removeProfilePictureConfirmationDialogContent = { confirmClick, dismissRequest ->
@@ -207,37 +167,6 @@ private fun TuIndiceRootContent() {
 							onTakePictureClick = takePictureClick,
 							onRemovePictureClick = removePictureClick,
 							onDismissRequest = dismissRequest
-						)
-					},
-					recordContent = { recordState, retryClick, subjectGradeChange ->
-						RecordScreen(
-							state = recordState,
-							onRetryClick = retryClick,
-							onSubjectGradeChange = subjectGradeChange
-						)
-					},
-					evaluationsContent = { evaluationsState, addEvaluationClick, evaluationClick, evaluationEdit, evaluationDelete, filterCheckedChange, clearFiltersClick, retryClick ->
-						EvaluationsScreen(
-							state = evaluationsState,
-							onAddEvaluationClick = addEvaluationClick,
-							onEvaluationClick = evaluationClick,
-							onEvaluationEdit = evaluationEdit,
-							onEvaluationDelete = evaluationDelete,
-							onFilterCheckedChange = filterCheckedChange,
-							onClearFiltersClick = clearFiltersClick,
-							onRetryClick = retryClick
-						)
-					},
-					evaluationContent = { evaluationState, subjectChange, typeChange, dateChange, gradeClick, maxGradeClick, doneClick, retryClick ->
-						EvaluationScreen(
-							state = evaluationState,
-							onSubjectChange = subjectChange,
-							onTypeChange = typeChange,
-							onDateChange = dateChange,
-							onGradeClick = gradeClick,
-							onMaxGradeClick = maxGradeClick,
-							onDoneClick = doneClick,
-							onRetryClick = retryClick
 						)
 					},
 					gradePickerDialogContent = { selectedGrade, maxGrade, gradeChange, dismissRequest ->
@@ -261,40 +190,6 @@ private fun TuIndiceRootContent() {
 							maxGrade = maxGrade,
 							onGradeChange = gradeChange,
 							onDismissRequest = dismissRequest
-						)
-					},
-					aboutContent = { aboutState, creativeCommonsClick, xClick, githubClick, kotlinClick, composeClick, firebaseClick, koinClick, ktorClick, dstClick, termsClick, privacyClick, shareClick, rateClick, contactClick, reportClick ->
-						AboutScreen(
-							state = aboutState,
-							onCreativeCommonsClick = creativeCommonsClick,
-							onXClick = xClick,
-							onGithubClick = githubClick,
-							onKotlinClick = kotlinClick,
-							onComposeClick = composeClick,
-							onFirebaseClick = firebaseClick,
-							onKoinClick = koinClick,
-							onKtorClick = ktorClick,
-							onDstClick = dstClick,
-							onTermsAndConditionsClick = termsClick,
-							onPrivacyPolicyClick = privacyClick,
-							onShareAppClick = shareClick,
-							onRateOnPlayStoreClick = rateClick,
-							onContactDeveloperClick = contactClick,
-							onReportBugClick = reportClick
-						)
-					},
-					enrollmentProofDialogContent = { enrollmentState, dismissRequest ->
-						EnrollmentProofScreen(
-							state = enrollmentState,
-							onDismissRequest = dismissRequest
-						)
-					},
-					browserContent = { browserState, pageStarted, pageFinished, externalResourceClick ->
-						BrowserScreen(
-							state = browserState,
-							onPageStarted = pageStarted,
-							onPageFinished = pageFinished,
-							onExternalResourceClick = externalResourceClick
 						)
 					},
 					externalResourceDialogContent = { url, confirmClick, dismissRequest ->

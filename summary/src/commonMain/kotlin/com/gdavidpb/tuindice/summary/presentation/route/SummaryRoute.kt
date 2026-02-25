@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
+import com.gdavidpb.tuindice.summary.ui.screen.SummaryScreen
 
 @Composable
 fun SummaryRoute(
@@ -15,12 +16,7 @@ fun SummaryRoute(
 	onNavigateToRemoveProfilePictureConfirmationDialog: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	profilePictureActions: ProfilePictureActions,
-	viewModel: SummaryViewModel,
-	content: @Composable (
-		state: Summary.State,
-		onRetryClick: () -> Unit,
-		onEditProfilePictureClick: () -> Unit
-	) -> Unit
+	viewModel: SummaryViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -50,9 +46,9 @@ fun SummaryRoute(
 		}
 	}
 
-	content(
-		viewState,
-		viewModel::loadSummaryAction,
-		viewModel::openProfilePictureSettingsAction
+	SummaryScreen(
+		state = viewState,
+		onRetryClick = viewModel::loadSummaryAction,
+		onEditProfilePictureClick = viewModel::openProfilePictureSettingsAction
 	)
 }

@@ -8,22 +8,13 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 
 @Composable
 fun RecordRoute(
 	onNavigateToUpdatePassword: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
-	viewModel: RecordViewModel,
-	content: @Composable (
-		state: Record.State,
-		onRetryClick: () -> Unit,
-		onSubjectGradeChange: (
-			quarterId: String,
-			subjectId: String,
-			newGrade: Int,
-			isSelected: Boolean
-		) -> Unit
-	) -> Unit
+	viewModel: RecordViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -41,9 +32,9 @@ fun RecordRoute(
 		viewModel.loadQuartersAction()
 	}
 
-	content(
-		viewState,
-		viewModel::loadQuartersAction,
-		viewModel::updateSubjectAction
+	RecordScreen(
+		state = viewState,
+		onRetryClick = viewModel::loadQuartersAction,
+		onSubjectGradeChange = viewModel::updateSubjectAction
 	)
 }

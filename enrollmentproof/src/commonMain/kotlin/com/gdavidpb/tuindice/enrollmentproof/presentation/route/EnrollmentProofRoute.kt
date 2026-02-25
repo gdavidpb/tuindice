@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
+import com.gdavidpb.tuindice.enrollmentproof.ui.screen.EnrollmentProofScreen
 
 @Composable
 fun EnrollmentProofRoute(
@@ -15,11 +16,7 @@ fun EnrollmentProofRoute(
 	onDismissRequest: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	externalActions: ExternalActionsRepository,
-	viewModel: EnrollmentProofViewModel,
-	content: @Composable (
-		state: Enrollment.State,
-		onDismissRequest: () -> Unit
-	) -> Unit
+	viewModel: EnrollmentProofViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -40,5 +37,8 @@ fun EnrollmentProofRoute(
 		}
 	}
 
-	content(viewState, onDismissRequest)
+	EnrollmentProofScreen(
+		state = viewState,
+		onDismissRequest = onDismissRequest
+	)
 }

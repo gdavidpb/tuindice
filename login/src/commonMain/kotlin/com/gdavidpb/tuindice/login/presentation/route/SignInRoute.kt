@@ -7,21 +7,14 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
+import com.gdavidpb.tuindice.login.ui.screen.SignInScreen
 
 @Composable
 fun SignInRoute(
 	onNavigateToSummary: () -> Unit,
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
-	viewModel: SignInViewModel,
-	content: @Composable (
-		state: SignIn.State,
-		onUsbIdChange: (value: String) -> Unit,
-		onPasswordChange: (value: String) -> Unit,
-		onSignInClick: (usbId: String, password: String) -> Unit,
-		onTermsAndConditionsClick: () -> Unit,
-		onPrivacyPolicyClick: () -> Unit
-	) -> Unit
+	viewModel: SignInViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -59,12 +52,12 @@ fun SignInRoute(
 		}
 	}
 
-	content(
-		viewState,
-		viewModel::setUsbIdAction,
-		viewModel::setPasswordAction,
-		viewModel::signInAction,
-		viewModel::openTermsAndConditionsAction,
-		viewModel::openPrivacyPolicyAction
+	SignInScreen(
+		state = viewState,
+		onUsbIdChange = viewModel::setUsbIdAction,
+		onPasswordChange = viewModel::setPasswordAction,
+		onSignInClick = viewModel::signInAction,
+		onTermsAndConditionsClick = viewModel::openTermsAndConditionsAction,
+		onPrivacyPolicyClick = viewModel::openPrivacyPolicyAction
 	)
 }

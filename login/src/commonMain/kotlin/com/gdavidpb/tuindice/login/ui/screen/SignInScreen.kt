@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
-import com.gdavidpb.tuindice.login.ui.custom.SignInHeader
 import com.gdavidpb.tuindice.login.ui.view.AnimatedPatternBackground
 import com.gdavidpb.tuindice.login.ui.view.SignInIdleView
 import com.gdavidpb.tuindice.login.ui.view.SignInLoggingInView
@@ -59,14 +58,12 @@ fun SignInScreen(
 						policiesText = stringResource(Res.string.label_policies),
 						usbIdLabelText = stringResource(Res.string.hint_usb_id),
 						passwordLabelText = stringResource(Res.string.hint_password),
-						signInButtonText = stringResource(Res.string.button_sign_in),
-						headerContent = { SignInHeader() }
+						signInButtonText = stringResource(Res.string.button_sign_in)
 					)
 
 				is SignIn.State.LoggingIn ->
 					SignInLoggingInView(
-						state = targetState,
-						headerContent = { SignInHeader() }
+						state = targetState
 					)
 			}
 		}

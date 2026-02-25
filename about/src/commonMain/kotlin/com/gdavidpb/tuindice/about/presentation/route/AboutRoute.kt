@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ExternalActionsRepository
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.config
+import com.gdavidpb.tuindice.about.ui.screen.AboutScreen
 
 private val contactEmail by config { getContactEmail() }
 private val contactSubject by config { getContactSubject() }
@@ -19,25 +20,7 @@ fun AboutRoute(
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
 	browserGateway: BrowserRepository,
 	externalActions: ExternalActionsRepository,
-	viewModel: AboutViewModel,
-	content: @Composable (
-		state: About.State,
-		onCreativeCommonsClick: () -> Unit,
-		onXClick: () -> Unit,
-		onGithubClick: () -> Unit,
-		onKotlinClick: () -> Unit,
-		onComposeClick: () -> Unit,
-		onFirebaseClick: () -> Unit,
-		onKoinClick: () -> Unit,
-		onKtorClick: () -> Unit,
-		onDstClick: () -> Unit,
-		onTermsAndConditionsClick: () -> Unit,
-		onPrivacyPolicyClick: () -> Unit,
-		onShareAppClick: () -> Unit,
-		onRateOnPlayStoreClick: () -> Unit,
-		onContactDeveloperClick: () -> Unit,
-		onReportBugClick: () -> Unit
-	) -> Unit
+	viewModel: AboutViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -72,22 +55,22 @@ fun AboutRoute(
 		}
 	}
 
-	content(
-		viewState,
-		{ viewModel.openUrlAction(AboutLinks.CREATIVE_COMMONS) },
-		{ viewModel.openUrlAction(AboutLinks.X) },
-		{ viewModel.openUrlAction(AboutLinks.GITHUB) },
-		{ viewModel.openUrlAction(AboutLinks.KOTLIN) },
-		{ viewModel.openUrlAction(AboutLinks.COMPOSE) },
-		{ viewModel.openUrlAction(AboutLinks.FIREBASE) },
-		{ viewModel.openUrlAction(AboutLinks.KOIN) },
-		{ viewModel.openUrlAction(AboutLinks.KTOR) },
-		{ viewModel.openUrlAction(AboutLinks.DST) },
-		viewModel::openTermsAndConditionsAction,
-		viewModel::openPrivacyPolicyAction,
-		viewModel::shareAppAction,
-		viewModel::rateOnPlayStoreAction,
-		viewModel::contactDeveloperAction,
-		viewModel::reportBugAction
+	AboutScreen(
+		state = viewState,
+		onCreativeCommonsClick = { viewModel.openUrlAction(AboutLinks.CREATIVE_COMMONS) },
+		onXClick = { viewModel.openUrlAction(AboutLinks.X) },
+		onGithubClick = { viewModel.openUrlAction(AboutLinks.GITHUB) },
+		onKotlinClick = { viewModel.openUrlAction(AboutLinks.KOTLIN) },
+		onComposeClick = { viewModel.openUrlAction(AboutLinks.COMPOSE) },
+		onFirebaseClick = { viewModel.openUrlAction(AboutLinks.FIREBASE) },
+		onKoinClick = { viewModel.openUrlAction(AboutLinks.KOIN) },
+		onKtorClick = { viewModel.openUrlAction(AboutLinks.KTOR) },
+		onDstClick = { viewModel.openUrlAction(AboutLinks.DST) },
+		onTermsAndConditionsClick = viewModel::openTermsAndConditionsAction,
+		onPrivacyPolicyClick = viewModel::openPrivacyPolicyAction,
+		onShareAppClick = viewModel::shareAppAction,
+		onRateOnPlayStoreClick = viewModel::rateOnPlayStoreAction,
+		onContactDeveloperClick = viewModel::contactDeveloperAction,
+		onReportBugClick = viewModel::reportBugAction
 	)
 }

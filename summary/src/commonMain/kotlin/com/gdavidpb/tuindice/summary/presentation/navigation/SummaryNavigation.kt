@@ -7,7 +7,6 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
-import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActions
 import com.gdavidpb.tuindice.summary.presentation.route.SummaryRoute
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
@@ -25,11 +24,6 @@ fun NavGraphBuilder.summaryNavigation(
 	onDismissRequest: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	profilePictureActionsFactory: @Composable (viewModel: SummaryViewModel) -> ProfilePictureActions,
-	summaryContent: @Composable (
-		state: Summary.State,
-		onRetryClick: () -> Unit,
-		onEditProfilePictureClick: () -> Unit
-	) -> Unit,
 	removeProfilePictureConfirmationDialogContent: @Composable (
 		onConfirmClick: () -> Unit,
 		onDismissRequest: () -> Unit
@@ -54,8 +48,7 @@ fun NavGraphBuilder.summaryNavigation(
 				onNavigateToUpdatePassword = onNavigateToUpdatePassword,
 				showSnackBar = showSnackBar,
 				profilePictureActions = profilePictureActions,
-				viewModel = viewModel,
-				content = summaryContent
+				viewModel = viewModel
 			)
 		}
 

@@ -7,18 +7,14 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.login.presentation.contract.SignOut
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignOutViewModel
+import com.gdavidpb.tuindice.login.ui.screen.SignOutScreen
 
 @Composable
 fun SignOutRoute(
 	onNavigateToSignIn: () -> Unit,
 	onDismissRequest: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
-	viewModel: SignOutViewModel,
-	content: @Composable (
-		state: SignOut.State,
-		onConfirmClick: () -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit
+	viewModel: SignOutViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -36,9 +32,9 @@ fun SignOutRoute(
 		}
 	}
 
-	content(
-		viewState,
-		viewModel::signOutAction,
-		onDismissRequest
+	SignOutScreen(
+		state = viewState,
+		onConfirmClick = viewModel::signOutAction,
+		onDismissRequest = onDismissRequest
 	)
 }

@@ -4,12 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
+import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationScreen
 
 @Composable
 fun EvaluationRoute(
@@ -18,23 +17,7 @@ fun EvaluationRoute(
 	onNavigateToGradePickerDialog: (grade: Double?, maxGrade: Double?) -> Unit,
 	onNavigateToMaxGradePickerDialog: (maxGrade: Double?) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
-	viewModel: EvaluationViewModel,
-	content: @Composable (
-		state: Evaluation.State,
-		onSubjectChange: (subject: Subject) -> Unit,
-		onTypeChange: (type: EvaluationType) -> Unit,
-		onDateChange: (date: Long?) -> Unit,
-		onGradeClick: (grade: Double?, maxGrade: Double?) -> Unit,
-		onMaxGradeClick: (grade: Double?) -> Unit,
-		onDoneClick: (
-			subject: Subject?,
-			type: EvaluationType?,
-			date: Long?,
-			grade: Double?,
-			maxGrade: Double?
-		) -> Unit,
-		onRetryClick: () -> Unit
-	) -> Unit
+	viewModel: EvaluationViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -66,15 +49,15 @@ fun EvaluationRoute(
 			viewModel.loadEvaluationAction(evaluationId)
 	}
 
-	content(
-		viewState,
-		viewModel::setSubjectAction,
-		viewModel::setTypeAction,
-		viewModel::setDateAction,
-		viewModel::clickGradeAction,
-		viewModel::clickMaxGradeAction,
-		{ subject, type, date, grade, maxGrade ->
-			if (evaluationId == null)
+	EvaluationScreen(
+		state = viewState,
+		onSubjectChange = viewModel::setSubjectAction,
+		onTypeChange = viewModel::setTypeAction,
+		onDateChange = viewModel::setDateAction,
+		onGradeClick = viewModel::clickGradeAction,
+		onMaxGradeClick = viewModel::clickMaxGradeAction,
+		onDoneClick = { subject, type, date, grade, maxGrade ->
+			if (evaluationId == null) {
 				viewModel.clickAddEvaluationAction(
 					subject = subject,
 					type = type,
@@ -82,7 +65,7 @@ fun EvaluationRoute(
 					grade = grade,
 					maxGrade = maxGrade
 				)
-			else
+			} else {
 				viewModel.clickEditEvaluationAction(
 					evaluationId = evaluationId,
 					subject = subject,
@@ -91,8 +74,9 @@ fun EvaluationRoute(
 					grade = grade,
 					maxGrade = maxGrade
 				)
+			}
 		},
-		{
+		onRetryClick = {
 			if (evaluationId == null)
 				viewModel.loadAvailableSubjectsAction()
 			else

@@ -7,18 +7,13 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.login.presentation.viewmodel.UpdatePasswordViewModel
+import com.gdavidpb.tuindice.login.ui.screen.UpdatePasswordScreen
 
 @Composable
 fun UpdatePasswordRoute(
 	onDismissRequest: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
-	viewModel: UpdatePasswordViewModel,
-	content: @Composable (
-		state: UpdatePassword.State,
-		onPasswordChange: (value: String) -> Unit,
-		onConfirmClick: (password: String) -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit
+	viewModel: UpdatePasswordViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -31,10 +26,10 @@ fun UpdatePasswordRoute(
 		}
 	}
 
-	content(
-		viewState,
-		viewModel::setPasswordAction,
-		viewModel::signInAction,
-		onDismissRequest
+	UpdatePasswordScreen(
+		state = viewState,
+		onPasswordChange = viewModel::setPasswordAction,
+		onConfirmClick = viewModel::signInAction,
+		onDismissRequest = onDismissRequest
 	)
 }

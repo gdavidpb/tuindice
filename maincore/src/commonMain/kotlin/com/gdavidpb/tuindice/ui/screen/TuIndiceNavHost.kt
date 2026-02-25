@@ -6,35 +6,22 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.navigation.aboutNavigation
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
-import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofNavigation
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
-import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
-import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsNavigation
-import com.gdavidpb.tuindice.login.presentation.contract.SignIn
-import com.gdavidpb.tuindice.login.presentation.contract.SignOut
-import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.login.presentation.navigation.LoginDestination
 import com.gdavidpb.tuindice.login.presentation.navigation.loginNavigation
-import com.gdavidpb.tuindice.presentation.contract.Browser
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.browserNavigation
 import com.gdavidpb.tuindice.presentation.navigation.mainNavigation
-import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.navigation.recordNavigation
-import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryNavigation
 import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActions
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.ui.navigation.edgeSwipeBackNavigation
 
 @Composable
@@ -58,31 +45,7 @@ fun TuIndiceNavHost(
 		onConfirmExitClick: () -> Unit,
 		onDismissRequest: () -> Unit
 	) -> Unit,
-	signInContent: @Composable (
-		state: SignIn.State,
-		onUsbIdChange: (String) -> Unit,
-		onPasswordChange: (String) -> Unit,
-		onSignInClick: (usbId: String, password: String) -> Unit,
-		onTermsAndConditionsClick: () -> Unit,
-		onPrivacyPolicyClick: () -> Unit
-	) -> Unit,
-	signOutDialogContent: @Composable (
-		state: SignOut.State,
-		onConfirmClick: () -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit,
-	updatePasswordDialogContent: @Composable (
-		state: UpdatePassword.State,
-		onPasswordChange: (String) -> Unit,
-		onConfirmClick: (password: String) -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit,
 	profilePictureActionsFactory: @Composable (viewModel: SummaryViewModel) -> ProfilePictureActions,
-	summaryContent: @Composable (
-		state: Summary.State,
-		onRetryClick: () -> Unit,
-		onEditProfilePictureClick: () -> Unit
-	) -> Unit,
 	removeProfilePictureConfirmationDialogContent: @Composable (
 		onConfirmClick: () -> Unit,
 		onDismissRequest: () -> Unit
@@ -94,42 +57,6 @@ fun TuIndiceNavHost(
 		onTakePictureClick: () -> Unit,
 		onRemovePictureClick: () -> Unit,
 		onDismissRequest: () -> Unit
-	) -> Unit,
-	recordContent: @Composable (
-		state: Record.State,
-		onRetryClick: () -> Unit,
-		onSubjectGradeChange: (
-			quarterId: String,
-			subjectId: String,
-			newGrade: Int,
-			isSelected: Boolean
-		) -> Unit
-	) -> Unit,
-	evaluationsContent: @Composable (
-		state: Evaluations.State,
-		onAddEvaluationClick: () -> Unit,
-		onEvaluationClick: (evaluationId: String) -> Unit,
-		onEvaluationEdit: (evaluationId: String) -> Unit,
-		onEvaluationDelete: (evaluationId: String) -> Unit,
-		onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
-		onClearFiltersClick: () -> Unit,
-		onRetryClick: () -> Unit
-	) -> Unit,
-	evaluationContent: @Composable (
-		state: Evaluation.State,
-		onSubjectChange: (subject: Subject) -> Unit,
-		onTypeChange: (type: EvaluationType) -> Unit,
-		onDateChange: (date: Long?) -> Unit,
-		onGradeClick: (grade: Double?, maxGrade: Double?) -> Unit,
-		onMaxGradeClick: (maxGrade: Double?) -> Unit,
-		onDoneClick: (
-			subject: Subject?,
-			type: EvaluationType?,
-			date: Long?,
-			grade: Double?,
-			maxGrade: Double?
-		) -> Unit,
-		onRetryClick: () -> Unit
 	) -> Unit,
 	gradePickerDialogContent: @Composable (
 		selectedGrade: Double?,
@@ -147,34 +74,6 @@ fun TuIndiceNavHost(
 		maxGrade: Double,
 		onGradeChange: (grade: Double) -> Unit,
 		onDismissRequest: () -> Unit
-	) -> Unit,
-	aboutContent: @Composable (
-		state: About.State,
-		onCreativeCommonsClick: () -> Unit,
-		onXClick: () -> Unit,
-		onGithubClick: () -> Unit,
-		onKotlinClick: () -> Unit,
-		onComposeClick: () -> Unit,
-		onFirebaseClick: () -> Unit,
-		onKoinClick: () -> Unit,
-		onKtorClick: () -> Unit,
-		onDstClick: () -> Unit,
-		onTermsAndConditionsClick: () -> Unit,
-		onPrivacyPolicyClick: () -> Unit,
-		onShareAppClick: () -> Unit,
-		onRateOnPlayStoreClick: () -> Unit,
-		onContactDeveloperClick: () -> Unit,
-		onReportBugClick: () -> Unit
-	) -> Unit,
-	enrollmentProofDialogContent: @Composable (
-		state: Enrollment.State,
-		onDismissRequest: () -> Unit
-	) -> Unit,
-	browserContent: @Composable (
-		state: Browser.State,
-		onPageStarted: () -> Unit,
-		onPageFinished: () -> Unit,
-		onExternalResourceClick: (url: String) -> Unit
 	) -> Unit,
 	externalResourceDialogContent: @Composable (
 		url: String,
@@ -220,10 +119,7 @@ fun TuIndiceNavHost(
 				navController.navigate(BrowserDestination.Browser(title = title, url = url))
 			},
 			onDismissRequest = { navController.navigateUp() },
-			showSnackBar = showSnackBar,
-			signInContent = signInContent,
-			signOutDialogContent = signOutDialogContent,
-			updatePasswordDialogContent = updatePasswordDialogContent
+			showSnackBar = showSnackBar
 		)
 
 		summaryNavigation(
@@ -244,7 +140,6 @@ fun TuIndiceNavHost(
 			onRemoveProfilePicture = onRemoveProfilePicture,
 			showSnackBar = showSnackBar,
 			profilePictureActionsFactory = profilePictureActionsFactory,
-			summaryContent = summaryContent,
 			removeProfilePictureConfirmationDialogContent = removeProfilePictureConfirmationDialogContent,
 			profilePictureSettingsDialogContent = profilePictureSettingsDialogContent
 		)
@@ -253,8 +148,7 @@ fun TuIndiceNavHost(
 			onNavigateToUpdatePassword = {
 				navController.navigate(LoginDestination.UpdatePasswordDialog)
 			},
-			showSnackBar = showSnackBar,
-			recordContent = recordContent
+			showSnackBar = showSnackBar
 		)
 
 		evaluationsNavigation(
@@ -290,8 +184,6 @@ fun TuIndiceNavHost(
 			onSetEvaluationGrade = onSetEvaluationGrade,
 			onDismissRequest = { navController.navigateUp() },
 			showSnackBar = showSnackBar,
-			evaluationsContent = evaluationsContent,
-			evaluationContent = evaluationContent,
 			gradePickerDialogContent = gradePickerDialogContent,
 			maxGradePickerDialogContent = maxGradePickerDialogContent,
 			evaluationGradePickerDialogContent = evaluationGradePickerDialogContent
@@ -300,8 +192,7 @@ fun TuIndiceNavHost(
 		aboutNavigation(
 			onNavigateToBrowser = { title, url ->
 				navController.navigate(BrowserDestination.Browser(title = title, url = url))
-			},
-			aboutContent = aboutContent
+			}
 		)
 
 		enrollmentProofNavigation(
@@ -309,8 +200,7 @@ fun TuIndiceNavHost(
 				navController.navigate(LoginDestination.UpdatePasswordDialog)
 			},
 			onDismissRequest = { navController.popBackStack() },
-			showSnackBar = showSnackBar,
-			enrollmentProofDialogContent = enrollmentProofDialogContent
+			showSnackBar = showSnackBar
 		)
 
 		browserNavigation(
@@ -319,7 +209,6 @@ fun TuIndiceNavHost(
 			},
 			onNavigateToExternalResource = onNavigateToExternalResource,
 			onDismissRequest = { navController.navigateUp() },
-			browserContent = browserContent,
 			externalResourceDialogContent = externalResourceDialogContent
 		)
 	}
