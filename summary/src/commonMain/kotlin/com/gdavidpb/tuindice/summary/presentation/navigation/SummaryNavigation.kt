@@ -1,11 +1,15 @@
 package com.gdavidpb.tuindice.summary.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActions
 import com.gdavidpb.tuindice.summary.presentation.route.SummaryRoute
@@ -22,6 +26,7 @@ fun NavGraphBuilder.summaryNavigation(
 	onTakePicture: () -> Unit,
 	onRemoveProfilePicture: () -> Unit,
 	onDismissRequest: () -> Unit,
+	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	profilePictureActionsFactory: @Composable (viewModel: SummaryViewModel) -> ProfilePictureActions,
 	removeProfilePictureConfirmationDialogContent: @Composable (
@@ -41,6 +46,11 @@ fun NavGraphBuilder.summaryNavigation(
 		composable<SummaryDestination.Summary> {
 			val viewModel = koinInject<SummaryViewModel>()
 			val profilePictureActions = profilePictureActionsFactory(viewModel)
+			val viewState by viewModel.state.collectAsStateWithLifecycle()
+
+			LaunchedEffect(viewState) {
+				onViewStateChanged(viewState)
+			}
 
 			SummaryRoute(
 				onNavigateToProfilePictureSettingsDialog = onNavigateToProfilePictureSettingsDialog,

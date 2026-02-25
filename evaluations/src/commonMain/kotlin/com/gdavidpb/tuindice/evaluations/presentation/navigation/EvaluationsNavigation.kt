@@ -1,11 +1,15 @@
 package com.gdavidpb.tuindice.evaluations.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationRoute
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationsRoute
@@ -24,6 +28,7 @@ fun NavGraphBuilder.evaluationsNavigation(
 	onSetMaxGrade: (grade: Double) -> Unit,
 	onSetEvaluationGrade: (evaluationId: String, grade: Double) -> Unit,
 	onDismissRequest: () -> Unit,
+	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	gradePickerDialogContent: @Composable (
 		selectedGrade: Double?,
@@ -46,6 +51,11 @@ fun NavGraphBuilder.evaluationsNavigation(
 	navigation<EvaluationsDestination.NavGraph>(startDestination = EvaluationsDestination.Evaluations) {
 		composable<EvaluationsDestination.Evaluations> {
 			val viewModel = koinInject<EvaluationsViewModel>()
+			val viewState by viewModel.state.collectAsStateWithLifecycle()
+
+			LaunchedEffect(viewState) {
+				onViewStateChanged(viewState)
+			}
 
 			EvaluationsRoute(
 				onNavigateToAddEvaluation = onNavigateToAddEvaluation,
@@ -59,6 +69,11 @@ fun NavGraphBuilder.evaluationsNavigation(
 		composable<EvaluationsDestination.Evaluation> { backStackEntry ->
 			val args = backStackEntry.toRoute<EvaluationsDestination.Evaluation>()
 			val viewModel = koinInject<EvaluationViewModel>()
+			val viewState by viewModel.state.collectAsStateWithLifecycle()
+
+			LaunchedEffect(viewState) {
+				onViewStateChanged(viewState)
+			}
 
 			EvaluationRoute(
 				evaluationId = args.evaluationId,

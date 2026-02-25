@@ -6,10 +6,6 @@ struct TuIndiceApp: App {
     @UIApplicationDelegateAdaptor(TuIndiceAppDelegate.self)
     private var appDelegate
 
-    init() {
-        TuIndiceAppBootstrap.start()
-    }
-
     var body: some Scene {
         WindowGroup {
             TuIndiceRootHostView()

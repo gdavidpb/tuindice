@@ -480,7 +480,7 @@ tasks.register("checkMaincoreHostFeatureEncapsulation") {
 	doLast {
 		val hostFiles = listOf(
 			file("maincore/src/androidMain/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceScreen.kt"),
-			file("maincore/src/iosMain/kotlin/com/gdavidpb/tuindice/ui/TuIndiceRootControllerFactory.kt")
+			file("maincore/src/iosMain/kotlin/com/gdavidpb/tuindice/ui/TuIndiceIosAppLauncher.kt")
 		)
 		val forbiddenSymbols = listOf(
 			"SignInScreen(",

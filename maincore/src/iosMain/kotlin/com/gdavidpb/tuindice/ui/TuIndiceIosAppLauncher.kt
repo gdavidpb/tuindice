@@ -1,12 +1,15 @@
 package com.gdavidpb.tuindice.ui
 
-import com.gdavidpb.tuindice.di.IosPlatformBridge
+import androidx.compose.ui.window.ComposeUIViewController
 import com.gdavidpb.tuindice.di.IosBuildVariant
+import com.gdavidpb.tuindice.di.IosPlatformBridge
 import com.gdavidpb.tuindice.di.getIosKoinOrNull
 import com.gdavidpb.tuindice.di.startIosKoin
+import com.gdavidpb.tuindice.presentation.route.TuIndiceAppHostRoute
+import com.gdavidpb.tuindice.ui.theme.TuIndiceSharedTheme
 import platform.UIKit.UIViewController
 
-class TuIndiceIosEntryPoint(
+class TuIndiceIosAppLauncher(
 	private val bridge: IosPlatformBridge,
 	private val apiBaseUrl: String,
 	private val privacyPolicyUrl: String,
@@ -16,7 +19,15 @@ class TuIndiceIosEntryPoint(
 ) {
 	fun createRootViewController(): UIViewController {
 		startKoinIfNeeded()
-		return TuIndiceRootControllerFactory().create()
+
+		return ComposeUIViewController {
+			TuIndiceSharedTheme {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					isSwipeBackNavigationEnabled = true
+				)
+			}
+		}
 	}
 
 	private fun startKoinIfNeeded() {

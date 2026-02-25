@@ -7,6 +7,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.gdavidpb.tuindice.about.presentation.navigation.aboutNavigation
+import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofNavigation
@@ -40,6 +41,7 @@ fun TuIndiceNavHost(
 	onSetGrade: (grade: Double) -> Unit,
 	onSetMaxGrade: (grade: Double) -> Unit,
 	onSetEvaluationGrade: (evaluationId: String, grade: Double) -> Unit,
+	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	googlePlayServicesDialogContent: @Composable (
 		onConfirmExitClick: () -> Unit,
@@ -119,6 +121,7 @@ fun TuIndiceNavHost(
 				navController.navigate(BrowserDestination.Browser(title = title, url = url))
 			},
 			onDismissRequest = { navController.navigateUp() },
+			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar
 		)
 
@@ -139,6 +142,7 @@ fun TuIndiceNavHost(
 			onTakePicture = onTakeProfilePicture,
 			onRemoveProfilePicture = onRemoveProfilePicture,
 			showSnackBar = showSnackBar,
+			onViewStateChanged = onViewStateChanged,
 			profilePictureActionsFactory = profilePictureActionsFactory,
 			removeProfilePictureConfirmationDialogContent = removeProfilePictureConfirmationDialogContent,
 			profilePictureSettingsDialogContent = profilePictureSettingsDialogContent
@@ -148,6 +152,7 @@ fun TuIndiceNavHost(
 			onNavigateToUpdatePassword = {
 				navController.navigate(LoginDestination.UpdatePasswordDialog)
 			},
+			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar
 		)
 
@@ -183,6 +188,7 @@ fun TuIndiceNavHost(
 			onSetMaxGrade = onSetMaxGrade,
 			onSetEvaluationGrade = onSetEvaluationGrade,
 			onDismissRequest = { navController.navigateUp() },
+			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar,
 			gradePickerDialogContent = gradePickerDialogContent,
 			maxGradePickerDialogContent = maxGradePickerDialogContent,
@@ -192,7 +198,8 @@ fun TuIndiceNavHost(
 		aboutNavigation(
 			onNavigateToBrowser = { title, url ->
 				navController.navigate(BrowserDestination.Browser(title = title, url = url))
-			}
+			},
+			onViewStateChanged = onViewStateChanged
 		)
 
 		enrollmentProofNavigation(
@@ -209,6 +216,7 @@ fun TuIndiceNavHost(
 			},
 			onNavigateToExternalResource = onNavigateToExternalResource,
 			onDismissRequest = { navController.navigateUp() },
+			onViewStateChanged = onViewStateChanged,
 			externalResourceDialogContent = externalResourceDialogContent
 		)
 	}

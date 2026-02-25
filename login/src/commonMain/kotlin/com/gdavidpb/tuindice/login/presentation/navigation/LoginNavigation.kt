@@ -4,6 +4,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.login.presentation.route.SignInRoute
 import com.gdavidpb.tuindice.login.presentation.route.SignOutRoute
@@ -18,11 +22,17 @@ fun NavGraphBuilder.loginNavigation(
 	onNavigateToSummary: () -> Unit,
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
 	onDismissRequest: () -> Unit,
+	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	navigation<LoginDestination.NavGraph>(startDestination = LoginDestination.SignIn) {
 		composable<LoginDestination.SignIn> {
 			val viewModel = koinInject<SignInViewModel>()
+			val viewState by viewModel.state.collectAsStateWithLifecycle()
+
+			LaunchedEffect(viewState) {
+				onViewStateChanged(viewState)
+			}
 
 			SignInRoute(
 				onNavigateToSummary = onNavigateToSummary,

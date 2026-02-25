@@ -111,7 +111,7 @@ fun getIosKoinOrNull(): Koin? = withIosKoinLock { IosKoinRuntime.koin }
 
 fun requireIosKoin(): Koin {
 	return getIosKoinOrNull()
-		?: error("iOS Koin is not started. Call TuIndiceIosEntryPoint first.")
+		?: error("iOS Koin is not started. Call TuIndiceIosAppLauncher first.")
 }
 
 private object IosKoinRuntime {

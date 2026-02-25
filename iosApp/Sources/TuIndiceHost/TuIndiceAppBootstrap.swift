@@ -21,7 +21,7 @@ enum TuIndiceAppBootstrap {
         #endif
     }()
     private static let bridge = TuIndicePlatformBridge()
-    private static let entryPoint = TuIndiceIosEntryPoint(
+    private static let appLauncher = TuIndiceIosAppLauncher(
         bridge: bridge,
         apiBaseUrl: resolvedApiBaseUrl(defaultValue: defaultApiBaseUrl),
         privacyPolicyUrl: bundleString(
@@ -37,13 +37,9 @@ enum TuIndiceAppBootstrap {
     )
     #endif
 
-    static func start() {
-        // Entry point is created lazily through static initialization.
-    }
-
     static func makeRootViewController() -> UIViewController {
         #if canImport(maincore) || canImport(Maincore)
-        let root = entryPoint.createRootViewController()
+        let root = appLauncher.createRootViewController()
         runSmokeValidationIfEnabled()
         return root
         #else

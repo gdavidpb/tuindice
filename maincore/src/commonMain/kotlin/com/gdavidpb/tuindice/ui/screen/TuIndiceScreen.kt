@@ -29,8 +29,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -39,13 +39,13 @@ import androidx.navigation.NavHostController
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.ui.dialog.ExternalResourceDialog
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
-import com.gdavidpb.tuindice.base.utils.extension.viewModelFlow
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationGradePickerContentDialog
 import com.gdavidpb.tuindice.evaluations.ui.screen.GradePickerContentDialog
 import com.gdavidpb.tuindice.evaluations.ui.screen.MaxGradePickerContentDialog
@@ -56,7 +56,6 @@ import com.gdavidpb.tuindice.summary.ui.screen.ProfilePictureSettingsContentDial
 import com.gdavidpb.tuindice.summary.ui.screen.RemoveProfilePictureConfirmationContentDialog
 import com.gdavidpb.tuindice.ui.dialog.GooglePlayServicesDialog
 import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
-import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,22 +109,17 @@ fun TuIndiceScreen(
 	val contentState = state
 	val profilePictureActionsProvider = koinInject<ProfilePictureActionsFactory>()
 	val hostUiTexts = koinInject<HostUiTextProvider>().getValues()
+	val latestContentState = rememberUpdatedState(contentState)
 
-	LaunchedEffect(navController) {
-		navController
-			.viewModelFlow()
-			.collectLatest { viewModel ->
-				viewModel.state.collect { currentViewState ->
-					updateState(
-						contentState.copy(
-							topBarTitle = currentViewState.topBarTitle,
-							topBarConfig = currentViewState.topBarConfig,
-							isTopBarVisible = currentViewState.isTopBarVisible,
-							isBottomBarVisible = currentViewState.isBottomBarVisible
-						)
-					)
-				}
-			}
+	val onViewStateChanged: (ViewState) -> Unit = { currentViewState ->
+		updateState(
+			latestContentState.value.copy(
+				topBarTitle = currentViewState.topBarTitle,
+				topBarConfig = currentViewState.topBarConfig,
+				isTopBarVisible = currentViewState.isTopBarVisible,
+				isBottomBarVisible = currentViewState.isBottomBarVisible
+			)
+		)
 	}
 
 	val bottomBarConfigs = remember {
@@ -140,36 +134,38 @@ fun TuIndiceScreen(
 	Scaffold(
 		snackbarHost = { SnackbarHost(snackbarHostState) },
 		topBar = {
-			TopAppBar(
-				title = {
-					TopAppBarAnimatedTitleView(
-						title = contentState.topBarTitle
-					)
-				},
-				actions = {
-					TopAppBarActionsView(
-						topBarConfig = contentState.topBarConfig,
-						onAction = onAction,
-						actionIconContent = { action ->
-							Icon(
-								imageVector = action.getIcon(),
-								contentDescription = null
-							)
-						}
-					)
-				},
-				navigationIcon = {
-					val hasPreviousBackStackEntry = (navController.previousBackStackEntry != null)
+			if (contentState.isTopBarVisible) {
+				TopAppBar(
+					title = {
+						TopAppBarAnimatedTitleView(
+							title = contentState.topBarTitle
+						)
+					},
+					actions = {
+						TopAppBarActionsView(
+							topBarConfig = contentState.topBarConfig,
+							onAction = onAction,
+							actionIconContent = { action ->
+								Icon(
+									imageVector = action.getIcon(),
+									contentDescription = null
+								)
+							}
+						)
+					},
+					navigationIcon = {
+						val hasPreviousBackStackEntry = (navController.previousBackStackEntry != null)
 
-					if (hasPreviousBackStackEntry)
-						IconButton(onClick = onNavigateBack) {
-							Icon(
-								imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-								contentDescription = null
-							)
-						}
-				}
-			)
+						if (hasPreviousBackStackEntry)
+							IconButton(onClick = onNavigateBack) {
+								Icon(
+									imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+									contentDescription = null
+								)
+							}
+					}
+				)
+			}
 		},
 		bottomBar = {
 			if (contentState.isBottomBarVisible) {
@@ -213,15 +209,16 @@ fun TuIndiceScreen(
 			onConfirmExitClick = onConfirmExitClick,
 			isCameraAvailable = isCameraAvailable,
 			onNavigateToExternalResource = onNavigateToExternalResource,
-			onConfirmRemoveProfilePicture = onConfirmRemoveProfilePicture,
-			onPickProfilePicture = onPickProfilePicture,
-			onTakeProfilePicture = onTakeProfilePicture,
-			onRemoveProfilePicture = onRemoveProfilePicture,
-			onSetGrade = onSetGrade,
-			onSetMaxGrade = onSetMaxGrade,
-			onSetEvaluationGrade = onSetEvaluationGrade,
-			showSnackBar = showSnackBar,
-			googlePlayServicesDialogContent = { confirm, dismiss ->
+				onConfirmRemoveProfilePicture = onConfirmRemoveProfilePicture,
+				onPickProfilePicture = onPickProfilePicture,
+				onTakeProfilePicture = onTakeProfilePicture,
+				onRemoveProfilePicture = onRemoveProfilePicture,
+				onSetGrade = onSetGrade,
+				onSetMaxGrade = onSetMaxGrade,
+				onSetEvaluationGrade = onSetEvaluationGrade,
+				onViewStateChanged = onViewStateChanged,
+				showSnackBar = showSnackBar,
+				googlePlayServicesDialogContent = { confirm, dismiss ->
 				GooglePlayServicesDialog(
 					titleText = hostUiTexts.googleServicesUnavailableTitle,
 					messageText = hostUiTexts.googleServicesUnavailableMessage,
