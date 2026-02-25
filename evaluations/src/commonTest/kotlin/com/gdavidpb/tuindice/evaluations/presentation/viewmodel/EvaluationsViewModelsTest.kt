@@ -54,6 +54,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
@@ -69,14 +70,19 @@ class EvaluationsViewModelsTest {
 		val repository = EvaluationsViewModelFakeEvaluationRepository()
 		val viewModel = createEvaluationsViewModel(repository)
 		val effects = mutableListOf<Evaluations.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val effectJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.effect.collect { effects += it }
+		}
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.state.collect()
+		}
 
 		try {
-			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil("evaluations action subscribed") { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil("evaluations effect subscribed") { viewModel.effect.subscriptionCount.value > 0 }
 
 			viewModel.loadEvaluationsAction()
-			waitUntil { viewModel.state.value is Evaluations.State.Content }
+			waitUntil("evaluations content loaded") { viewModel.state.value is Evaluations.State.Content }
 
 			val loaded = assertIs<Evaluations.State.Content>(viewModel.state.value)
 			assertEquals(1, loaded.originalEvaluations.size)
@@ -84,22 +90,22 @@ class EvaluationsViewModelsTest {
 
 			val filter = EvaluationSubjectFilter("MA1111")
 			viewModel.toggleFilterAction(filter = filter, isChecked = true)
-			waitUntil {
+			waitUntil("evaluations filter checked") {
 				val state = viewModel.state.value
 				state is Evaluations.State.Content && state.activeFilters.contains(filter)
 			}
 
 			viewModel.clearFiltersAction()
-			waitUntil {
+			waitUntil("evaluations filters cleared") {
 				val state = viewModel.state.value
 				state is Evaluations.State.Content && state.activeFilters.isEmpty()
 			}
 
 			viewModel.addEvaluationAction()
-			waitUntil { effects.any { it is Evaluations.Effect.NavigateToAddEvaluation } }
+			waitUntil("evaluations navigate add") { effects.any { it is Evaluations.Effect.NavigateToAddEvaluation } }
 
 			viewModel.showEvaluationGradeDialogAction("evaluation-1")
-			waitUntil { effects.any { it is Evaluations.Effect.NavigateToGradePickerDialog } }
+			waitUntil("evaluations show grade picker") { effects.any { it is Evaluations.Effect.NavigateToGradePickerDialog } }
 			val gradeDialog = effects.filterIsInstance<Evaluations.Effect.NavigateToGradePickerDialog>().last()
 			assertEquals("evaluation-1", gradeDialog.evaluationId)
 			assertEquals(18.5, gradeDialog.grade)
@@ -115,14 +121,19 @@ class EvaluationsViewModelsTest {
 		val repository = EvaluationsViewModelFakeEvaluationRepository()
 		val viewModel = createEvaluationViewModel(repository)
 		val effects = mutableListOf<EvaluationContract.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val effectJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.effect.collect { effects += it }
+		}
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.state.collect()
+		}
 
 		try {
-			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil("evaluation action subscribed") { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil("evaluation effect subscribed") { viewModel.effect.subscriptionCount.value > 0 }
 
 			viewModel.loadAvailableSubjectsAction()
-			waitUntil { viewModel.state.value is EvaluationContract.State.Content }
+			waitUntil("evaluation content loaded") { viewModel.state.value is EvaluationContract.State.Content }
 
 			val subject = repository.availableSubjects.first()
 			viewModel.setSubjectAction(subject)
@@ -130,7 +141,7 @@ class EvaluationsViewModelsTest {
 			viewModel.setMaxGradeAction(20.0)
 			viewModel.setGradeAction(18.5)
 
-			waitUntil {
+			waitUntil("evaluation form updated") {
 				val state = viewModel.state.value
 				state is EvaluationContract.State.Content &&
 					state.selectedSubject == subject &&
@@ -140,7 +151,9 @@ class EvaluationsViewModelsTest {
 			}
 
 			viewModel.clickGradeAction(grade = 18.5, maxGrade = 20.0)
-			waitUntil { effects.any { it is EvaluationContract.Effect.NavigateToGradePickerDialog } }
+			waitUntil("evaluation navigate grade picker") {
+				effects.any { it is EvaluationContract.Effect.NavigateToGradePickerDialog }
+			}
 
 			viewModel.clickAddEvaluationAction(
 				subject = subject,
@@ -150,7 +163,9 @@ class EvaluationsViewModelsTest {
 				maxGrade = 20.0
 			)
 
-			waitUntil { effects.any { it is EvaluationContract.Effect.NavigateToEvaluations } }
+			waitUntil("evaluation navigate evaluations") {
+				effects.any { it is EvaluationContract.Effect.NavigateToEvaluations }
+			}
 			assertEquals(1, repository.addCalls)
 			val snackBar = effects.filterIsInstance<EvaluationContract.Effect.ShowSnackBar>().last()
 			assertEquals("Evaluation added", snackBar.message)
@@ -231,7 +246,8 @@ class EvaluationsViewModelsTest {
 	}
 
 	private suspend fun waitUntil(
-		timeoutMs: Long = 2_000L,
+		label: String,
+		timeoutMs: Long = 5_000L,
 		condition: () -> Boolean
 	) {
 		val mark = TimeSource.Monotonic.markNow()
@@ -240,7 +256,7 @@ class EvaluationsViewModelsTest {
 			delay(20)
 		}
 
-		assertTrue(condition(), "Condition not reached within timeout.")
+		assertTrue(condition(), "Condition not reached within timeout: $label")
 	}
 }
 

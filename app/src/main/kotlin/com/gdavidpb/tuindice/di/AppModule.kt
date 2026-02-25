@@ -25,24 +25,24 @@ import com.gdavidpb.tuindice.data.repository.messaging.MessagingDataRepository
 import com.gdavidpb.tuindice.data.repository.messaging.source.FirebaseMessagingDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingApiDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingPreferencesDataSource
-import com.gdavidpb.tuindice.data.source.actions.AndroidExternalActions
+import com.gdavidpb.tuindice.data.source.actions.AndroidExternalActionsDataSource
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityProvider
 import com.gdavidpb.tuindice.data.source.activity.InMemoryCurrentActivityProvider
 import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
-import com.gdavidpb.tuindice.data.source.browser.AndroidBrowserGateway
+import com.gdavidpb.tuindice.data.source.browser.AndroidBrowserDataSource
 import com.gdavidpb.tuindice.data.source.config.AndroidRemoteConfigDataSource
-import com.gdavidpb.tuindice.data.source.device.AndroidDeviceInfoGateway
+import com.gdavidpb.tuindice.data.source.device.AndroidDeviceInfoDataSource
 import com.gdavidpb.tuindice.data.source.di.ReleaseKoinDataSource
 import com.gdavidpb.tuindice.data.source.environment.BuildConfigEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashReporter
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.reporting.FirebaseCrashReporter
-import com.gdavidpb.tuindice.data.source.review.PlayReviewGateway
+import com.gdavidpb.tuindice.data.source.review.PlayReviewDataSource
 import com.gdavidpb.tuindice.data.source.securestore.AndroidSecureStoreDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.data.source.ui.AndroidHostUiTextProvider
-import com.gdavidpb.tuindice.data.source.update.PlayUpdateGateway
+import com.gdavidpb.tuindice.data.source.update.PlayUpdateDataSource
 import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
 import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
@@ -199,13 +199,13 @@ val appModule = module {
 	singleOf(::FirebaseCrashReporter) { bind<CrashReporter>() }
 	singleOf(::ReleaseKoinDataSource) { bind<DependenciesRepository>() }
 	singleOf(::InMemoryCurrentActivityProvider) { bind<CurrentActivityProvider>() }
-	singleOf(::PlayReviewGateway) { bind<ReviewRepository>() }
-	singleOf(::PlayUpdateGateway) { bind<UpdateRepository>() }
-	singleOf(::AndroidBrowserGateway) { bind<BrowserRepository>() }
+	singleOf(::PlayReviewDataSource) { bind<ReviewRepository>() }
+	singleOf(::PlayUpdateDataSource) { bind<UpdateRepository>() }
+	singleOf(::AndroidBrowserDataSource) { bind<BrowserRepository>() }
 	singleOf(::AndroidBrowserScreenRenderer) { bind<BrowserScreenRenderer>() }
 	singleOf(::AndroidHostUiTextProvider) { bind<HostUiTextProvider>() }
-	singleOf(::AndroidExternalActions) { bind<ExternalActionsRepository>() }
-	singleOf(::AndroidDeviceInfoGateway) { bind<DeviceInfoRepository>() }
+	singleOf(::AndroidExternalActionsDataSource) { bind<ExternalActionsRepository>() }
+	singleOf(::AndroidDeviceInfoDataSource) { bind<DeviceInfoRepository>() }
 	singleOf(::AndroidSecureStoreDataSource) {
 		bind<SecureStoreDataSource>()
 		bind<SecureStoreRepository>()

@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.ExternalActionsRepository
 import java.io.File
 
-class AndroidExternalActions(
+class AndroidExternalActionsDataSource(
 	private val context: Context
 ) : ExternalActionsRepository {
 	override fun openFile(fileRef: PlatformFileRef): Boolean {

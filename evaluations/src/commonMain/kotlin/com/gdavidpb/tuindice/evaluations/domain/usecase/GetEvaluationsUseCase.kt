@@ -30,7 +30,7 @@ class GetEvaluationsUseCase(
 			val aDate = a.date ?: 0
 			val bDate = b.date ?: 0
 
-			(aDate - currentTime).sign + (bDate - currentTime).sign
+			(aDate - currentTime).sign.compareTo((bDate - currentTime).sign)
 		}
 			.then(compareBy(Evaluation::state))
 

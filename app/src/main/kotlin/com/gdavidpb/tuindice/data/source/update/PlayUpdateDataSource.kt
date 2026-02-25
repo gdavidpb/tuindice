@@ -10,7 +10,7 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.android.play.core.ktx.isImmediateUpdateAllowed
 import kotlinx.coroutines.tasks.await
 
-class PlayUpdateGateway(
+class PlayUpdateDataSource(
 	private val appUpdateManager: AppUpdateManager,
 	private val currentActivityProvider: CurrentActivityProvider
 ) : UpdateRepository {

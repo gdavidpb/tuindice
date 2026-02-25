@@ -6,7 +6,7 @@ import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.ktx.requestReview
 import com.google.android.play.core.review.ReviewManager
 
-class PlayReviewGateway(
+class PlayReviewDataSource(
 	private val reviewManager: ReviewManager,
 	private val currentActivityProvider: CurrentActivityProvider
 ) : ReviewRepository {

@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataSource
-import com.gdavidpb.tuindice.evaluations.data.source.DefaultEvaluationFilterLabelsProvider
+import com.gdavidpb.tuindice.evaluations.data.source.DefaultEvaluationFilterLabelsDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.KtorEvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.PreferencesDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.RoomDatabaseDataSource
@@ -110,5 +110,5 @@ val evaluationsCoreModule = module {
 	/* Shared text resources */
 
 	factoryOf(::DefaultEvaluationTextProvider) { bind<EvaluationTextProvider>() }
-	factoryOf(::DefaultEvaluationFilterLabelsProvider) { bind<EvaluationFilterLabelsRepository>() }
+	factoryOf(::DefaultEvaluationFilterLabelsDataSource) { bind<EvaluationFilterLabelsRepository>() }
 }

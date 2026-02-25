@@ -4,10 +4,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class DefaultEvaluationFilterLabelsProviderTest {
+class DefaultEvaluationFilterLabelsDataSourceTest {
 	@Test
 	fun providesExpectedStateLabels() {
-		val provider = DefaultEvaluationFilterLabelsProvider()
+		val provider = DefaultEvaluationFilterLabelsDataSource()
 
 		assertEquals("Pendientes", provider.pending())
 		assertEquals("Completadas", provider.completed())
@@ -16,7 +16,7 @@ class DefaultEvaluationFilterLabelsProviderTest {
 
 	@Test
 	fun dateLabel_isNotBlankForKnownTimestamp() {
-		val provider = DefaultEvaluationFilterLabelsProvider()
+		val provider = DefaultEvaluationFilterLabelsDataSource()
 
 		assertTrue(provider.date(0L).isNotBlank())
 	}

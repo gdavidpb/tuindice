@@ -162,7 +162,12 @@ class EvaluationsActionProcessorsExtendedTest {
 				grade = 19.0
 			),
 			sideEffect = effects::add
-		).toList()
+		).toList().let { mutations ->
+			applyEvaluationsMutations(
+				initialState = Evaluations.State.Loading,
+				mutations = mutations
+			)
+		}
 
 		assertEquals(19.0, repository.evaluations.first().grade)
 		val snackBar = assertIs<Evaluations.Effect.ShowSnackBar>(effects.single())
@@ -181,7 +186,12 @@ class EvaluationsActionProcessorsExtendedTest {
 		processor.process(
 			action = Evaluations.Action.ShowEvaluationGradeDialog("missing"),
 			sideEffect = effects::add
-		).toList()
+		).toList().let { mutations ->
+			applyEvaluationsMutations(
+				initialState = Evaluations.State.Loading,
+				mutations = mutations
+			)
+		}
 
 		val snackBar = assertIs<Evaluations.Effect.ShowSnackBar>(effects.single())
 		assertEquals("Default error", snackBar.message)
@@ -199,7 +209,12 @@ class EvaluationsActionProcessorsExtendedTest {
 		processor.process(
 			action = Evaluations.Action.RemoveEvaluation("evaluation-1"),
 			sideEffect = effects::add
-		).toList()
+		).toList().let { mutations ->
+			applyEvaluationsMutations(
+				initialState = Evaluations.State.Loading,
+				mutations = mutations
+			)
+		}
 
 		assertTrue(repository.evaluations.isEmpty())
 		val snackBar = assertIs<Evaluations.Effect.ShowSnackBar>(effects.single())
@@ -321,7 +336,12 @@ class EvaluationsActionProcessorsExtendedTest {
 				maxGrade = 20.0
 			),
 			sideEffect = effects::add
-		).toList()
+		).toList().let { mutations ->
+			applyEvaluationMutations(
+				initialState = EvaluationContract.State.Loading,
+				mutations = mutations
+			)
+		}
 
 		assertEquals(0, repository.addCalls)
 		val snackBar = assertIs<EvaluationContract.Effect.ShowSnackBar>(effects.single())
@@ -348,7 +368,12 @@ class EvaluationsActionProcessorsExtendedTest {
 				maxGrade = 20.0
 			),
 			sideEffect = effects::add
-		).toList()
+		).toList().let { mutations ->
+			applyEvaluationMutations(
+				initialState = EvaluationContract.State.Loading,
+				mutations = mutations
+			)
+		}
 
 		assertEquals(17.0, repository.evaluations.single().grade)
 		assertEquals(2, effects.size)

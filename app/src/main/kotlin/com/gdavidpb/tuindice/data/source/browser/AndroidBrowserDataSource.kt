@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.core.net.toUri
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 
-class AndroidBrowserGateway(
+class AndroidBrowserDataSource(
 	private val context: Context
 ) : BrowserRepository {
 	override fun open(url: String) {

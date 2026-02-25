@@ -5,7 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 
-class AndroidDeviceInfoGateway(
+class AndroidDeviceInfoDataSource(
 	private val context: Context
 ) : DeviceInfoRepository {
 	override fun appVersionName(): String {
