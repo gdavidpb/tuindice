@@ -2,9 +2,10 @@
 /.kotlin
 /*/build/
 /build
+/.gradle-local
+/captures
+/local.properties
 .gradle
 *.iml
 .DS_Store
 .externalNativeBuild
-/captures
-/local.properties
