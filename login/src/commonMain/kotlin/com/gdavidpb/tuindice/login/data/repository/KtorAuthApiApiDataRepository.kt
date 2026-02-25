@@ -15,6 +15,8 @@ import io.ktor.client.request.basicAuth
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import kotlin.io.encoding.Base64
 
 class KtorAuthApiApiDataRepository(
@@ -54,6 +56,7 @@ class KtorAuthApiApiDataRepository(
 
 		val response = ktorClient.post("auth/token/refresh") {
 			setAttestationHeaders(attestation)
+			header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
 			setBody(request)
 		}.body<RefreshTokensResponse>()
 

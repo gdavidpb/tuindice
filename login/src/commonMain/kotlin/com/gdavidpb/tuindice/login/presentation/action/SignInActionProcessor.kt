@@ -34,8 +34,8 @@ class SignInActionProcessor(
 					is UseCaseState.Loading -> { state ->
 						if (state is SignIn.State.Idle)
 							SignIn.State.LoggingIn(
-								usbId = state.usbId,
-								password = state.password,
+								usbId = params.usbId,
+								password = params.password,
 								messages = loadingMessages
 							)
 						else

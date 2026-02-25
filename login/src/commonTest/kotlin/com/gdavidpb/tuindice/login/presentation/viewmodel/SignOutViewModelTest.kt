@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.login.presentation.action.SignOutActionProcessor
 import com.gdavidpb.tuindice.login.presentation.contract.SignOut
 import com.gdavidpb.tuindice.login.presentation.resource.LoginTextProvider
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -35,11 +36,14 @@ class SignOutViewModelTest {
 			)
 		)
 		val effects = mutableListOf<SignOut.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val effectJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.effect.collect { effects += it }
+		}
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil { viewModel.effect.subscriptionCount.value > 0 }
 
 			viewModel.signOutAction()
 
@@ -68,11 +72,14 @@ class SignOutViewModelTest {
 			)
 		)
 		val effects = mutableListOf<SignOut.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val effectJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.effect.collect { effects += it }
+		}
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil { viewModel.effect.subscriptionCount.value > 0 }
 
 			viewModel.signOutAction()
 

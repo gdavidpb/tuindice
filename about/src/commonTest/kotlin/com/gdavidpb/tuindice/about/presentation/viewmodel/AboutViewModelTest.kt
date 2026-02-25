@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.resource.AboutTextProvider
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -45,19 +46,31 @@ class AboutViewModelTest {
 	fun actionDispatch_emitsExpectedEffects() = runBlocking {
 		val viewModel = createViewModel()
 		val effects = mutableListOf<About.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val effectJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.effect.collect { effects += it }
+		}
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil { viewModel.effect.subscriptionCount.value > 0 }
 
 			viewModel.openTermsAndConditionsAction()
-			viewModel.shareAppAction()
-			viewModel.reportBugAction()
-			viewModel.contactDeveloperAction()
-			viewModel.rateOnPlayStoreAction()
-			viewModel.openUrlAction("https://tuindice.app/github")
+			waitUntil { effects.size == 1 }
 
+			viewModel.shareAppAction()
+			waitUntil { effects.size == 2 }
+
+			viewModel.reportBugAction()
+			waitUntil { effects.size == 3 }
+
+			viewModel.contactDeveloperAction()
+			waitUntil { effects.size == 4 }
+
+			viewModel.rateOnPlayStoreAction()
+			waitUntil { effects.size == 5 }
+
+			viewModel.openUrlAction("https://tuindice.app/github")
 			waitUntil { effects.size == 6 }
 
 			val terms = assertIs<About.Effect.NavigateToBrowser>(effects[0])

@@ -6,29 +6,32 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.base.utils.extension.waitForSubscribers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapMerge
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.scan
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalAtomicApi::class)
 abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 	initialState: S,
 	initialAction: A? = null
 ) : ViewModel() {
+	private val initialActionLocker = AtomicBoolean(false)
+
 	val action = MutableSharedFlow<A>()
-	val effect = MutableSharedFlow<E>()
+	val effect = MutableSharedFlow<E>(
+		extraBufferCapacity = 8,
+		onBufferOverflow = BufferOverflow.DROP_OLDEST
+	)
 	val state = action
-		.onStart { if (initialAction != null) emit(initialAction) }
+		.onStart {
+			if (initialAction != null && initialActionLocker.compareAndSet(expectedValue = false, newValue = true)) {
+				emit(initialAction)
+			}
+		}
 		.flatMapMerge { action -> processAction(action, ::sendEffect) }
 		.scan(initialState) { currentState, mutation -> mutation(currentState) }
 		.distinctUntilChanged()
@@ -45,15 +48,18 @@ abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 	): Flow<Mutation<S>>
 
 	protected fun sendAction(viewAction: A) {
-		viewModelScope.launch {
-			action.waitForSubscribers()
-			action.emit(viewAction)
+		if (!action.tryEmit(viewAction)) {
+			viewModelScope.launch {
+				action.emit(viewAction)
+			}
 		}
 	}
 
 	private fun sendEffect(viewEffect: E) {
-		viewModelScope.launch {
-			effect.emit(viewEffect)
+		if (!effect.tryEmit(viewEffect)) {
+			viewModelScope.launch {
+				effect.emit(viewEffect)
+			}
 		}
 	}
 }

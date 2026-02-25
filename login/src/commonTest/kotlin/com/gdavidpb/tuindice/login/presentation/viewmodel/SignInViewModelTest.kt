@@ -8,13 +8,13 @@ import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository as BaseReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.login.domain.model.IssueTokens
 import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
 import com.gdavidpb.tuindice.login.domain.repository.MessagingApiRepository
 import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository
-import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository as LoginReportingRepository
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidator
@@ -25,6 +25,7 @@ import com.gdavidpb.tuindice.login.presentation.action.SetUsbIdActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.SignInActionProcessor
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.presentation.resource.LoginTextProvider
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -40,12 +41,17 @@ class SignInViewModelTest {
 	@Test
 	fun setUsbIdAndPasswordAction_updatesIdleState() = runBlocking {
 		val viewModel = createViewModel()
-		val stateJob = launch { viewModel.state.collect() }
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.action.subscriptionCount.value > 0 }
 
 			viewModel.setUsbIdAction("20-32000")
+			waitUntil {
+				val state = viewModel.state.value
+				state is SignIn.State.Idle && state.usbId == "20-32000"
+			}
+
 			viewModel.setPasswordAction("secret")
 
 			waitUntil {
@@ -65,11 +71,14 @@ class SignInViewModelTest {
 	fun signInAction_whenCredentialsAreValid_emitsNavigateToSummary() = runBlocking {
 		val viewModel = createViewModel()
 		val effects = mutableListOf<SignIn.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val effectJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.effect.collect { effects += it }
+		}
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil { viewModel.effect.subscriptionCount.value > 0 }
 
 			viewModel.signInAction(usbId = "20-32000", password = "secret")
 
@@ -90,13 +99,18 @@ class SignInViewModelTest {
 	fun openPolicyActions_emitBrowserEffects() = runBlocking {
 		val viewModel = createViewModel()
 		val effects = mutableListOf<SignIn.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val effectJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.effect.collect { effects += it }
+		}
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil { viewModel.effect.subscriptionCount.value > 0 }
 
 			viewModel.openTermsAndConditionsAction()
+			waitUntil { effects.size == 1 }
+
 			viewModel.openPrivacyPolicyAction()
 
 			waitUntil { effects.size == 2 }
@@ -233,7 +247,7 @@ private class SignInViewModelFakeMessagingApiRepository : MessagingApiRepository
 	override suspend fun subscribe(token: String) = Unit
 }
 
-private class SignInViewModelFakeReportingRepository : ReportingRepository {
+private class SignInViewModelFakeReportingRepository : LoginReportingRepository {
 	override suspend fun setIdentifier(id: String) = Unit
 }
 
@@ -266,7 +280,7 @@ private class SignInViewModelFakeNetworkStatusGateway : NetworkRepository {
 	override fun isAvailable(): Boolean = true
 }
 
-private object SignInViewModelFakeReportingGateway : ReportingRepository {
+private object SignInViewModelFakeReportingGateway : BaseReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 	override fun logException(throwable: Throwable) = Unit
 	override fun logMessage(message: String) = Unit

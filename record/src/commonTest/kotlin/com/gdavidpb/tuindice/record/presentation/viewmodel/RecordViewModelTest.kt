@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.record.presentation.action.LoadQuartersActionProces
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.resource.RecordTextProvider
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -58,7 +59,7 @@ class RecordViewModelTest {
 				textProvider = RecordViewModelFakeTextProvider
 			)
 		)
-		val stateJob = launch { viewModel.state.collect() }
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.action.subscriptionCount.value > 0 }
@@ -103,11 +104,14 @@ class RecordViewModelTest {
 			)
 		)
 		val effects = mutableListOf<Record.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val effectJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.effect.collect { effects += it }
+		}
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil { viewModel.effect.subscriptionCount.value > 0 }
 
 			viewModel.updateSubjectAction(
 				quarterId = "q1",

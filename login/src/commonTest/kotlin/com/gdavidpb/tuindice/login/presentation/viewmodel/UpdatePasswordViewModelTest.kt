@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.login.presentation.action.SetUpdatePasswordActionPr
 import com.gdavidpb.tuindice.login.presentation.action.UpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.login.presentation.resource.LoginTextProvider
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -32,7 +33,7 @@ class UpdatePasswordViewModelTest {
 	@Test
 	fun setPasswordAction_updatesIdleState() = runBlocking {
 		val viewModel = createViewModel(authApiRepository = UpdatePasswordViewModelFakeAuthApiRepository())
-		val stateJob = launch { viewModel.state.collect() }
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.action.subscriptionCount.value > 0 }
@@ -58,11 +59,14 @@ class UpdatePasswordViewModelTest {
 			authApiRepository = UpdatePasswordViewModelFakeAuthApiRepository()
 		)
 		val effects = mutableListOf<UpdatePassword.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val effectJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.effect.collect { effects += it }
+		}
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil { viewModel.effect.subscriptionCount.value > 0 }
 
 			viewModel.signInAction("new-password")
 
@@ -86,11 +90,14 @@ class UpdatePasswordViewModelTest {
 			)
 		)
 		val effects = mutableListOf<UpdatePassword.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val effectJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.effect.collect { effects += it }
+		}
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil { viewModel.effect.subscriptionCount.value > 0 }
 
 			viewModel.signInAction("new-password")
 

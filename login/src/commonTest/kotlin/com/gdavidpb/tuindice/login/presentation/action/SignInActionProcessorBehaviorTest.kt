@@ -6,13 +6,13 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository as BaseReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.login.domain.model.IssueTokens
 import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
 import com.gdavidpb.tuindice.login.domain.repository.MessagingApiRepository
 import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository
-import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository as LoginReportingRepository
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
@@ -201,7 +201,7 @@ private class SignInBehaviorFakeMessagingApiRepository : MessagingApiRepository 
 	override suspend fun subscribe(token: String) = Unit
 }
 
-private class SignInBehaviorFakeReportingRepository : ReportingRepository {
+private class SignInBehaviorFakeReportingRepository : LoginReportingRepository {
 	override suspend fun setIdentifier(id: String) = Unit
 }
 
@@ -223,7 +223,7 @@ private class SignInBehaviorFakeNetworkStatusGateway : NetworkRepository {
 	override fun isAvailable(): Boolean = true
 }
 
-private object SignInBehaviorFakeReportingGateway : ReportingRepository {
+private object SignInBehaviorFakeReportingGateway : BaseReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 	override fun logException(throwable: Throwable) = Unit
 	override fun logMessage(message: String) = Unit

@@ -12,7 +12,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-class RemoveQuarterUseCaseTest {
+class RemoveQuarterUseCaseAndroidHostTest {
     private val quarterRepository = FakeQuarterRepository()
 
     private lateinit var useCase: RemoveQuarterUseCase

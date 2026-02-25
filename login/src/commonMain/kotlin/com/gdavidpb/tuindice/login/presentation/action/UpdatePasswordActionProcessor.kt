@@ -25,7 +25,7 @@ class UpdatePasswordActionProcessor(
 					is UseCaseState.Loading -> { state ->
 						if (state is UpdatePassword.State.Idle)
 							UpdatePassword.State.Updating(
-								password = state.password
+								password = action.password
 							)
 						else
 							state

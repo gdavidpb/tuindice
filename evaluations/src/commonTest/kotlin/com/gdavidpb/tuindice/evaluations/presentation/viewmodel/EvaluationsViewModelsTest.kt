@@ -137,8 +137,23 @@ class EvaluationsViewModelsTest {
 
 			val subject = repository.availableSubjects.first()
 			viewModel.setSubjectAction(subject)
+			waitUntil("evaluation subject set") {
+				val state = viewModel.state.value
+				state is EvaluationContract.State.Content && state.selectedSubject == subject
+			}
+
 			viewModel.setTypeAction(EvaluationType.QUIZ)
+			waitUntil("evaluation type set") {
+				val state = viewModel.state.value
+				state is EvaluationContract.State.Content && state.type == EvaluationType.QUIZ
+			}
+
 			viewModel.setMaxGradeAction(20.0)
+			waitUntil("evaluation max grade set") {
+				val state = viewModel.state.value
+				state is EvaluationContract.State.Content && state.maxGrade == 20.0
+			}
+
 			viewModel.setGradeAction(18.5)
 
 			waitUntil("evaluation form updated") {

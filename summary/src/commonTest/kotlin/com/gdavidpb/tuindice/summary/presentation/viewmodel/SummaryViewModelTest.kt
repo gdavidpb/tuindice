@@ -27,6 +27,7 @@ import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActio
 import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.resource.SummaryTextProvider
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -45,7 +46,7 @@ class SummaryViewModelTest {
 	fun initialLoadSummaryAction_setsContentState() = runBlocking {
 		val userRepository = SummaryViewModelFakeUserRepository()
 		val viewModel = createViewModel(userRepository = userRepository)
-		val stateJob = launch { viewModel.state.collect() }
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.state.value is Summary.State.Content }
@@ -69,11 +70,15 @@ class SummaryViewModelTest {
 			encoderRepository = encoderRepository
 		)
 		val effects = mutableListOf<Summary.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val effectJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.effect.collect { effects += it }
+		}
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.state.value is Summary.State.Content }
+			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil { viewModel.effect.subscriptionCount.value > 0 }
 
 			viewModel.setCameraOutput(PlatformFileRef("/tmp/new-profile-picture.jpg"))
 			viewModel.uploadTakenProfilePictureAction()
@@ -99,11 +104,15 @@ class SummaryViewModelTest {
 	fun takeProfilePictureAction_emitsOpenCameraEffect() = runBlocking {
 		val viewModel = createViewModel()
 		val effects = mutableListOf<Summary.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val effectJob = launch(start = CoroutineStart.UNDISPATCHED) {
+			viewModel.effect.collect { effects += it }
+		}
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
 			waitUntil { viewModel.state.value is Summary.State.Content }
+			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil { viewModel.effect.subscriptionCount.value > 0 }
 
 			viewModel.takeProfilePictureAction()
 
