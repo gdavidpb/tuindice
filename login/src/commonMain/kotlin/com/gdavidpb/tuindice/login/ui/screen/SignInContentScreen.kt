@@ -6,18 +6,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
-import com.gdavidpb.tuindice.login.presentation.contract.SignOut
-import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
-import com.gdavidpb.tuindice.login.ui.dialog.SignOutDialog
-import com.gdavidpb.tuindice.login.ui.dialog.UpdatePasswordDialog
 import com.gdavidpb.tuindice.login.ui.view.AnimatedPatternBackground
 import com.gdavidpb.tuindice.login.ui.view.SignInIdleView
 import com.gdavidpb.tuindice.login.ui.view.SignInLoggingInView
-import com.gdavidpb.tuindice.login.ui.view.UpdatePasswordIdleView
-import com.gdavidpb.tuindice.login.ui.view.UpdatePasswordLoggingInView
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import tuindice.login.generated.resources.*
+import tuindice.login.generated.resources.Res
+import tuindice.login.generated.resources.background
+import tuindice.login.generated.resources.button_sign_in
+import tuindice.login.generated.resources.hint_password
+import tuindice.login.generated.resources.hint_usb_id
+import tuindice.login.generated.resources.ic_launcher
+import tuindice.login.generated.resources.label_policies
+import tuindice.login.generated.resources.link_privacy_policy
+import tuindice.login.generated.resources.link_terms_and_conditions
 
 @Composable
 fun SignInContentScreen(
@@ -50,69 +52,20 @@ fun SignInContentScreen(
 				usbIdLabelText = stringResource(Res.string.hint_usb_id),
 				passwordLabelText = stringResource(Res.string.hint_password),
 				signInButtonText = stringResource(Res.string.button_sign_in),
-				headerContent = { IosLoginHeader() }
+				headerContent = { LoginHeader() }
 			)
 		},
 		loggingInContent = { loggingInState ->
 			SignInLoggingInView(
 				state = loggingInState,
-				headerContent = { IosLoginHeader() }
+				headerContent = { LoginHeader() }
 			)
 		}
 	)
 }
 
 @Composable
-fun SignOutContentDialog(
-	state: SignOut.State,
-	onConfirmClick: () -> Unit,
-	onDismissRequest: () -> Unit
-) {
-	SignOutDialog(
-		state = state,
-		titleText = stringResource(Res.string.dialog_title_sign_out),
-		messageText = stringResource(Res.string.dialog_message_sign_out),
-		confirmText = stringResource(Res.string.dialog_button_sign_out),
-		cancelText = stringResource(Res.string.dialog_button_cancel),
-		onConfirmClick = onConfirmClick,
-		onDismissRequest = onDismissRequest
-	)
-}
-
-@Composable
-fun UpdatePasswordContentDialog(
-	state: UpdatePassword.State,
-	onPasswordChange: (String) -> Unit,
-	onConfirmClick: (password: String) -> Unit,
-	onDismissRequest: () -> Unit
-) {
-	UpdatePasswordDialog(
-		state = state,
-		titleText = stringResource(Res.string.dialog_title_update_password),
-		updatingTitleText = stringResource(Res.string.dialog_title_updating_password),
-		confirmText = stringResource(Res.string.dialog_button_update_password_confirm),
-		laterText = stringResource(Res.string.dialog_button_update_password_later),
-		onPasswordChange = onPasswordChange,
-		onConfirmClick = onConfirmClick,
-		onDismissRequest = onDismissRequest,
-		idleContent = { idleState, passwordChange, confirmClick ->
-			UpdatePasswordIdleView(
-				state = idleState,
-				onPasswordChange = passwordChange,
-				onConfirmClick = confirmClick,
-				appNameText = stringResource(Res.string.app_name),
-				messageText = stringResource(Res.string.dialog_message_update_password),
-				passwordLabelText = stringResource(Res.string.hint_password)
-			)
-		},
-		updatingContent = {
-			UpdatePasswordLoggingInView()
-		}
-	)
-}
-
-@Composable
-private fun IosLoginHeader() {
+private fun LoginHeader() {
 	Image(
 		modifier = Modifier.padding(vertical = 32.dp),
 		painter = painterResource(Res.drawable.ic_launcher),
