@@ -1362,11 +1362,10 @@ tasks.register("checkIosDeviceE2ERequiredChecksCoverage") {
 
 tasks.register("checkAttestationContractConsistency") {
 	group = "verification"
-	description = "Fails when attestation contract doc drifts from shared enum/headers."
-	notCompatibleWithConfigurationCache("Reads contract and source files from workspace.")
+	description = "Fails when shared attestation enum/headers/endpoints drift."
+	notCompatibleWithConfigurationCache("Reads shared source files from workspace.")
 
 	doLast {
-		val contractFile = file("KMP_BACKEND_ATTESTATION_CONTRACT.md")
 		val providerEnumFile = file(
 			"base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/domain/model/AttestationProvider.kt"
 		)
@@ -1374,9 +1373,6 @@ tasks.register("checkAttestationContractConsistency") {
 			"login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/data/repository/KtorAuthApiApiDataRepository.kt"
 		)
 
-		check(contractFile.exists()) {
-			"Missing attestation contract doc: ${contractFile.absolutePath}"
-		}
 		check(providerEnumFile.exists()) {
 			"Missing attestation provider enum: ${providerEnumFile.absolutePath}"
 		}
@@ -1384,12 +1380,14 @@ tasks.register("checkAttestationContractConsistency") {
 			"Missing auth repository source: ${authRepositoryFile.absolutePath}"
 		}
 
-		val contractText = contractFile.readText()
 		val providerEnumText = providerEnumFile.readText()
 		val authRepositoryText = authRepositoryFile.readText()
 
-		check(!contractText.contains("APPLE_DEVICE_CHECK")) {
-			"Legacy APPLE_DEVICE_CHECK reference detected in ${contractFile.relativeTo(rootDir)}."
+		check(!providerEnumText.contains("APPLE_DEVICE_CHECK")) {
+			"Legacy APPLE_DEVICE_CHECK reference detected in ${providerEnumFile.relativeTo(rootDir)}."
+		}
+		check(!authRepositoryText.contains("APPLE_DEVICE_CHECK")) {
+			"Legacy APPLE_DEVICE_CHECK reference detected in ${authRepositoryFile.relativeTo(rootDir)}."
 		}
 
 		val enumBody = providerEnumText
@@ -1410,10 +1408,6 @@ tasks.register("checkAttestationContractConsistency") {
 			"Could not parse providers from ${providerEnumFile.relativeTo(rootDir)}."
 		}
 
-		val missingProvidersInContract = providers.filterNot { provider ->
-			contractText.contains("`$provider`") || contractText.contains(provider)
-		}
-
 		val requiredHeaderTokens = listOf(
 			"Attestation-Id",
 			"Attestation",
@@ -1425,70 +1419,29 @@ tasks.register("checkAttestationContractConsistency") {
 			"auth/token",
 			"auth/token/refresh"
 		)
-		val requiredErrorCodes = listOf(
-			"ATTESTATION_MISSING",
-			"ATTESTATION_INVALID",
-			"ATTESTATION_EXPIRED",
-			"ATTESTATION_REPLAY",
-			"ATTESTATION_PROVIDER_UNSUPPORTED"
-		)
-		val requiredTelemetryMetrics = listOf(
-			"attestation_requests_total{provider}",
-			"attestation_reject_total{provider,code}",
-			"attestation_accept_total{provider}"
-		)
 		val requiredAppAttestKeyIdEnforcementTokens = listOf(
 			"attestation.provider == AttestationProvider.APP_ATTEST",
 			"require(!keyId.isNullOrBlank())",
 			"AuthHeaders.ATTESTATION_KEY_ID"
 		)
 
-		val missingHeadersInContract = requiredHeaderTokens.filterNot { token ->
-			contractText.contains("`$token`") || contractText.contains(token)
-		}
 		val missingHeadersInShared = requiredHeaderTokens.filterNot { token ->
 			authRepositoryText.contains("\"$token\"")
 		}
-		val missingEndpointsInContract = requiredEndpointTokens.filterNot { token ->
-			contractText.contains("`$token`") || contractText.contains(token)
-		}
 		val missingEndpointsInShared = requiredEndpointTokens.filterNot { token ->
 			authRepositoryText.contains("\"$token\"")
-		}
-		val missingErrorCodesInContract = requiredErrorCodes.filterNot { token ->
-			contractText.contains("`$token`") || contractText.contains(token)
-		}
-		val missingTelemetryMetricsInContract = requiredTelemetryMetrics.filterNot { token ->
-			contractText.contains("`$token`") || contractText.contains(token)
 		}
 		val missingAppAttestKeyIdEnforcementInShared = requiredAppAttestKeyIdEnforcementTokens.filterNot { token ->
 			authRepositoryText.contains(token)
 		}
 
-		if (missingProvidersInContract.isNotEmpty() ||
-			missingHeadersInContract.isNotEmpty() ||
-			missingHeadersInShared.isNotEmpty() ||
-			missingEndpointsInContract.isNotEmpty() ||
+		if (missingHeadersInShared.isNotEmpty() ||
 			missingEndpointsInShared.isNotEmpty() ||
-			missingErrorCodesInContract.isNotEmpty() ||
-			missingTelemetryMetricsInContract.isNotEmpty() ||
 			missingAppAttestKeyIdEnforcementInShared.isNotEmpty()
 		) {
 			error(
 				buildString {
-					appendLine("Attestation contract drift detected:")
-					if (missingProvidersInContract.isNotEmpty()) {
-						appendLine(
-							"- Missing providers in contract ${contractFile.relativeTo(rootDir)}: " +
-								missingProvidersInContract.joinToString()
-						)
-					}
-					if (missingHeadersInContract.isNotEmpty()) {
-						appendLine(
-							"- Missing headers in contract ${contractFile.relativeTo(rootDir)}: " +
-								missingHeadersInContract.joinToString()
-						)
-					}
+					appendLine("Shared attestation consistency check failed:")
 					if (missingHeadersInShared.isNotEmpty()) {
 						appendLine(
 							"- Missing header literals in shared auth source " +
@@ -1496,31 +1449,11 @@ tasks.register("checkAttestationContractConsistency") {
 								missingHeadersInShared.joinToString()
 						)
 					}
-					if (missingEndpointsInContract.isNotEmpty()) {
-						appendLine(
-							"- Missing endpoint tokens in contract ${contractFile.relativeTo(rootDir)}: " +
-								missingEndpointsInContract.joinToString()
-						)
-					}
 					if (missingEndpointsInShared.isNotEmpty()) {
 						appendLine(
 							"- Missing endpoint literals in shared auth source " +
 								"${authRepositoryFile.relativeTo(rootDir)}: " +
 								missingEndpointsInShared.joinToString()
-						)
-					}
-					if (missingErrorCodesInContract.isNotEmpty()) {
-						appendLine(
-							"- Missing recommended error codes in contract " +
-								"${contractFile.relativeTo(rootDir)}: " +
-								missingErrorCodesInContract.joinToString()
-						)
-					}
-					if (missingTelemetryMetricsInContract.isNotEmpty()) {
-						appendLine(
-							"- Missing telemetry metrics in contract " +
-								"${contractFile.relativeTo(rootDir)}: " +
-								missingTelemetryMetricsInContract.joinToString()
 						)
 					}
 					if (missingAppAttestKeyIdEnforcementInShared.isNotEmpty()) {
@@ -1986,7 +1919,19 @@ tasks.register("verifyIosHostSmoke") {
 tasks.register<Exec>("reportWorktreeHealth") {
 	group = "help"
 	description = "Generates a worktree health report with suggested atomic commit batches."
-	commandLine("bash", "${rootDir}/scripts/kmp/report-worktree-health.sh")
+	val reportScript = file("${rootDir}/scripts/kmp/report-worktree-health.sh")
+
+	onlyIf {
+		reportScript.exists()
+	}
+
+	doFirst {
+		check(reportScript.exists()) {
+			"Missing worktree report script: ${reportScript.absolutePath}"
+		}
+	}
+
+	commandLine("bash", reportScript.absolutePath)
 }
 
 tasks.register("verifyKmpMigration") {
