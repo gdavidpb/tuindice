@@ -56,9 +56,7 @@ import com.gdavidpb.tuindice.summary.ui.screen.ProfilePictureSettingsContentDial
 import com.gdavidpb.tuindice.summary.ui.screen.RemoveProfilePictureConfirmationContentDialog
 import com.gdavidpb.tuindice.ui.dialog.GooglePlayServicesDialog
 import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flowOn
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,6 +66,7 @@ fun TuIndiceScreen(
 	updateState: (Main.State) -> Unit,
 	onRetryStartUp: () -> Unit,
 	navController: NavHostController,
+	isSwipeBackNavigationEnabled: Boolean = false,
 	snackbarHostState: SnackbarHostState,
 	onAction: (action: TopBarAction) -> Unit,
 	onNavigateTo: (destination: Destination) -> Unit,
@@ -115,7 +114,6 @@ fun TuIndiceScreen(
 	LaunchedEffect(navController) {
 		navController
 			.viewModelFlow()
-			.flowOn(Dispatchers.IO)
 			.collectLatest { viewModel ->
 				viewModel.state.collect { currentViewState ->
 					updateState(
@@ -210,6 +208,7 @@ fun TuIndiceScreen(
 		TuIndiceNavHost(
 			navController = navController,
 			startDestination = contentState.startDestination,
+			isSwipeBackNavigationEnabled = isSwipeBackNavigationEnabled,
 			modifier = Modifier.padding(innerPadding),
 			onConfirmExitClick = onConfirmExitClick,
 			isCameraAvailable = isCameraAvailable,

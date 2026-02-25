@@ -211,6 +211,7 @@
 		};
 		A1B2C3D4E5F60708090A1033 /* Build KMP Framework */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
