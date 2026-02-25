@@ -11,7 +11,7 @@ import tuindice.login.generated.resources.dialog_message_sign_out
 import tuindice.login.generated.resources.dialog_title_sign_out
 
 @Composable
-fun SignOutContentDialog(
+fun SignOutScreen(
 	state: SignOut.State,
 	onConfirmClick: () -> Unit,
 	onDismissRequest: () -> Unit

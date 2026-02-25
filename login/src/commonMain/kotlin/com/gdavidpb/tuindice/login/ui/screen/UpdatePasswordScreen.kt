@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.login.ui.dialog.UpdatePasswordDialog
 import com.gdavidpb.tuindice.login.ui.view.UpdatePasswordIdleView
-import com.gdavidpb.tuindice.login.ui.view.UpdatePasswordLoggingInView
+import com.gdavidpb.tuindice.login.ui.view.UpdatePasswordUpdatingView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.login.generated.resources.Res
 import tuindice.login.generated.resources.app_name
@@ -16,7 +16,7 @@ import tuindice.login.generated.resources.dialog_title_updating_password
 import tuindice.login.generated.resources.hint_password
 
 @Composable
-fun UpdatePasswordContentDialog(
+fun UpdatePasswordScreen(
 	state: UpdatePassword.State,
 	onPasswordChange: (String) -> Unit,
 	onConfirmClick: (password: String) -> Unit,
@@ -32,8 +32,11 @@ fun UpdatePasswordContentDialog(
 		onConfirmClick = onConfirmClick,
 		onDismissRequest = onDismissRequest,
 		idleContent = { idleState, passwordChange, confirmClick ->
+			val currentIdleState = idleState as? UpdatePassword.State.Idle
+				?: return@UpdatePasswordDialog
+
 			UpdatePasswordIdleView(
-				state = idleState,
+				state = currentIdleState,
 				onPasswordChange = passwordChange,
 				onConfirmClick = confirmClick,
 				appNameText = stringResource(Res.string.app_name),
@@ -42,7 +45,7 @@ fun UpdatePasswordContentDialog(
 			)
 		},
 		updatingContent = {
-			UpdatePasswordLoggingInView()
+			UpdatePasswordUpdatingView()
 		}
 	)
 }

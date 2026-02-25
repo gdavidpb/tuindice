@@ -60,8 +60,8 @@ class SetSubjectGradeUseCaseTest {
         )
     }
 
-    @Test
-    fun execute_whenInvalidGrade_emitsOutOfRangeErrorAndDoesNotDispatch() = runBlocking {
+	@Test
+	fun execute_whenInvalidGrade_emitsOutOfRangeErrorAndDoesNotDispatch() = runBlocking {
         val params = SetSubjectGradeParams(
             quarterId = "q1",
             subjectId = "s1",
@@ -69,15 +69,16 @@ class SetSubjectGradeUseCaseTest {
             commit = false
         )
 
-        val states = useCase.execute(params).toList()
+		val states = useCase.execute(params).toList()
 
-        assertEquals(1, states.size)
-        assertEquals(
-            SubjectUseCaseError.OutOfRangeGrade,
-            (states[0] as UseCaseState.Error).error
-        )
-        assertTrue(quarterRepository.setSubjectGradeCalls.isEmpty())
-    }
+		assertEquals(2, states.size)
+		assertTrue(states[0] is UseCaseState.Loading)
+		assertEquals(
+			SubjectUseCaseError.OutOfRangeGrade,
+			(states[1] as UseCaseState.Error).error
+		)
+		assertTrue(quarterRepository.setSubjectGradeCalls.isEmpty())
+	}
 
     @Test
     fun execute_whenRepositoryThrowsDomainException_emitsParsedError() = runBlocking {

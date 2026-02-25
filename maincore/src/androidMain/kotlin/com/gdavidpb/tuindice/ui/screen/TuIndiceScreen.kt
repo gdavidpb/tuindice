@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.gdavidpb.tuindice.about.presentation.navigation.aboutNavigation
-import com.gdavidpb.tuindice.about.ui.screen.AboutContentRouteScreen
+import com.gdavidpb.tuindice.about.ui.screen.AboutScreen
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
@@ -50,32 +50,32 @@ import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.base.utils.extension.viewModelFlow
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofNavigation
-import com.gdavidpb.tuindice.enrollmentproof.ui.dialog.EnrollmentProofContentDialog
+import com.gdavidpb.tuindice.enrollmentproof.ui.screen.EnrollmentProofScreen
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsNavigation
-import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationContentScreen
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationGradePickerContentDialog
-import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationsContentScreen
+import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationScreen
+import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationsScreen
 import com.gdavidpb.tuindice.evaluations.ui.screen.GradePickerContentDialog
 import com.gdavidpb.tuindice.evaluations.ui.screen.MaxGradePickerContentDialog
 import com.gdavidpb.tuindice.login.presentation.navigation.LoginDestination
 import com.gdavidpb.tuindice.login.presentation.navigation.loginNavigation
-import com.gdavidpb.tuindice.login.ui.screen.SignInContentScreen
-import com.gdavidpb.tuindice.login.ui.screen.SignOutContentDialog
-import com.gdavidpb.tuindice.login.ui.screen.UpdatePasswordContentDialog
+import com.gdavidpb.tuindice.login.ui.screen.SignInScreen
+import com.gdavidpb.tuindice.login.ui.screen.SignOutScreen
+import com.gdavidpb.tuindice.login.ui.screen.UpdatePasswordScreen
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.BottomBarConfig
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.browserNavigation
 import com.gdavidpb.tuindice.presentation.navigation.mainNavigation
 import com.gdavidpb.tuindice.record.presentation.navigation.recordNavigation
-import com.gdavidpb.tuindice.record.ui.screen.RecordContentScreen
+import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryNavigation
 import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActionsFactory
 import com.gdavidpb.tuindice.summary.ui.screen.ProfilePictureSettingsContentDialog
 import com.gdavidpb.tuindice.summary.ui.screen.RemoveProfilePictureConfirmationContentDialog
-import com.gdavidpb.tuindice.summary.ui.screen.SummaryContentScreen
+import com.gdavidpb.tuindice.summary.ui.screen.SummaryScreen
 import com.gdavidpb.tuindice.ui.dialog.GooglePlayServicesDialog
 import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
 import kotlinx.coroutines.Dispatchers
@@ -254,7 +254,7 @@ fun TuIndiceScreen(
 				)
 			},
 			signInContent = { screenState, onUsbIdChange, onPasswordChange, onSignInClick, onTermsAndConditionsClick, onPrivacyPolicyClick ->
-				SignInContentScreen(
+				SignInScreen(
 					state = screenState,
 					onUsbIdChange = onUsbIdChange,
 					onPasswordChange = onPasswordChange,
@@ -264,14 +264,14 @@ fun TuIndiceScreen(
 				)
 			},
 			signOutDialogContent = { dialogState, onConfirmClick, onDismissRequest ->
-				SignOutContentDialog(
+				SignOutScreen(
 					state = dialogState,
 					onConfirmClick = onConfirmClick,
 					onDismissRequest = onDismissRequest
 				)
 			},
 			updatePasswordDialogContent = { dialogState, onPasswordChange, onConfirmClick, onDismissRequest ->
-				UpdatePasswordContentDialog(
+				UpdatePasswordScreen(
 					state = dialogState,
 					onPasswordChange = onPasswordChange,
 					onConfirmClick = onConfirmClick,
@@ -285,7 +285,7 @@ fun TuIndiceScreen(
 				)
 			},
 			summaryContent = { summaryState, onRetryClick, onEditProfilePictureClick ->
-				SummaryContentScreen(
+				SummaryScreen(
 					state = summaryState,
 					onRetryClick = onRetryClick,
 					onEditProfilePictureClick = onEditProfilePictureClick
@@ -308,14 +308,14 @@ fun TuIndiceScreen(
 				)
 			},
 			recordContent = { recordState, onRetryClick, onSubjectGradeChange ->
-				RecordContentScreen(
+				RecordScreen(
 					state = recordState,
 					onRetryClick = onRetryClick,
 					onSubjectGradeChange = onSubjectGradeChange
 				)
 			},
 			evaluationsContent = { evaluationsState, onAddEvaluationClick, onEvaluationClick, onEvaluationEdit, onEvaluationDelete, onFilterCheckedChange, onClearFiltersClick, onRetryClick ->
-				EvaluationsContentScreen(
+				EvaluationsScreen(
 					state = evaluationsState,
 					onAddEvaluationClick = onAddEvaluationClick,
 					onEvaluationClick = onEvaluationClick,
@@ -327,7 +327,7 @@ fun TuIndiceScreen(
 				)
 			},
 			evaluationContent = { evaluationState, onSubjectChange, onTypeChange, onDateChange, onGradeClick, onMaxGradeClick, onDoneClick, onRetryClick ->
-				EvaluationContentScreen(
+				EvaluationScreen(
 					state = evaluationState,
 					onSubjectChange = onSubjectChange,
 					onTypeChange = onTypeChange,
@@ -362,7 +362,7 @@ fun TuIndiceScreen(
 				)
 			},
 			aboutContent = { aboutState, onCreativeCommonsClick, onXClick, onGithubClick, onKotlinClick, onComposeClick, onFirebaseClick, onKoinClick, onKtorClick, onDstClick, onTermsAndConditionsClick, onPrivacyPolicyClick, onShareAppClick, onRateOnPlayStoreClick, onContactDeveloperClick, onReportBugClick ->
-				AboutContentRouteScreen(
+				AboutScreen(
 					state = aboutState,
 					onCreativeCommonsClick = onCreativeCommonsClick,
 					onXClick = onXClick,
@@ -382,7 +382,7 @@ fun TuIndiceScreen(
 				)
 			},
 			enrollmentProofDialogContent = { enrollmentState, onDismissRequest ->
-				EnrollmentProofContentDialog(
+				EnrollmentProofScreen(
 					state = enrollmentState,
 					onDismissRequest = onDismissRequest
 				)

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.about.ui.view
+package com.gdavidpb.tuindice.about.ui.custom
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,7 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AboutHeaderView(
+fun AboutHeader(
 	text: String,
 	content: @Composable () -> Unit
 ) {

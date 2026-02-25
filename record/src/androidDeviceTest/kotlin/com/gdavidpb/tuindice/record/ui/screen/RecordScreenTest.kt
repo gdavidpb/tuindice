@@ -13,10 +13,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.record.presentation.contract.Record
-import com.gdavidpb.tuindice.record.ui.view.RecordContentView
-import com.gdavidpb.tuindice.record.ui.view.RecordEmptyView
-import com.gdavidpb.tuindice.record.ui.view.RecordFailedView
-import com.gdavidpb.tuindice.record.ui.view.RecordLoadingView
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -38,28 +34,7 @@ class RecordScreenTest {
 				RecordScreen(
 					state = Record.State.Failed,
 					onRetryClick = { retryClicks++ },
-					onSubjectGradeChange = { _, _, _, _ -> },
-					loadingContent = { RecordLoadingView() },
-					contentStateContent = { state, onSubjectGradeChange ->
-						RecordContentView(
-							state = state,
-							onSubjectGradeChange = onSubjectGradeChange
-						)
-					},
-					failedContent = { onRetryClick ->
-						RecordFailedView(
-							title = "Error",
-							message = "Error",
-							retryText = retryLabel,
-							onRetryClick = onRetryClick
-						)
-					},
-					emptyContent = {
-						RecordEmptyView(
-							message = "Sin materias",
-							highlightedParts = emptyList()
-						)
-					}
+					onSubjectGradeChange = { _, _, _, _ -> }
 				)
 			}
 		}
@@ -94,27 +69,6 @@ class RecordScreenTest {
 							subjectId = subjectId,
 							grade = grade,
 							isSelected = isSelected
-						)
-					},
-					loadingContent = { RecordLoadingView() },
-					contentStateContent = { state, onSubjectGradeChange ->
-						RecordContentView(
-							state = state,
-							onSubjectGradeChange = onSubjectGradeChange
-						)
-					},
-					failedContent = { onRetryClick ->
-						RecordFailedView(
-							title = "Error",
-							message = "Error",
-							retryText = "Retry",
-							onRetryClick = onRetryClick
-						)
-					},
-					emptyContent = {
-						RecordEmptyView(
-							message = "Sin materias",
-							highlightedParts = emptyList()
 						)
 					}
 				)
@@ -152,28 +106,7 @@ class RecordScreenTest {
 						)
 					),
 					onRetryClick = {},
-					onSubjectGradeChange = { _, _, _, _ -> },
-					loadingContent = { RecordLoadingView() },
-					contentStateContent = { state, onSubjectGradeChange ->
-						RecordContentView(
-							state = state,
-							onSubjectGradeChange = onSubjectGradeChange
-						)
-					},
-					failedContent = { onRetryClick ->
-						RecordFailedView(
-							title = "Error",
-							message = "Error",
-							retryText = "Retry",
-							onRetryClick = onRetryClick
-						)
-					},
-					emptyContent = {
-						RecordEmptyView(
-							message = "Sin materias",
-							highlightedParts = emptyList()
-						)
-					}
+					onSubjectGradeChange = { _, _, _, _ -> }
 				)
 			}
 		}

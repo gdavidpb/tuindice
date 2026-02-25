@@ -18,15 +18,13 @@ import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 
 @Composable
 fun UpdatePasswordIdleView(
-	state: UpdatePassword.State,
+	state: UpdatePassword.State.Idle,
 	onPasswordChange: (password: String) -> Unit,
 	onConfirmClick: (password: String) -> Unit,
 	appNameText: String,
 	messageText: String,
 	passwordLabelText: String
 ) {
-	if (state !is UpdatePassword.State.Idle) return
-
 	val annotatedString = remember {
 		buildAnnotatedString {
 			val start = messageText.indexOf(appNameText)

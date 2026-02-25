@@ -23,7 +23,7 @@ import com.gdavidpb.tuindice.login.utils.extension.isUsbId
 
 @Composable
 fun SignInIdleView(
-	state: SignIn.State,
+	state: SignIn.State.Idle,
 	onUsbIdChange: (usbId: String) -> Unit,
 	onPasswordChange: (password: String) -> Unit,
 	onSignInClick: (usbId: String, password: String) -> Unit,
@@ -37,8 +37,6 @@ fun SignInIdleView(
 	signInButtonText: String,
 	headerContent: @Composable () -> Unit = {}
 ) {
-	if (state !is SignIn.State.Idle) return
-
 	val isSignInEnabled = state.usbId.isUsbId() && state.password.isNotEmpty()
 
 	val links = mapOf(

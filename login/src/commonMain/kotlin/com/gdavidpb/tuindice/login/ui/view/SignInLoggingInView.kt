@@ -10,11 +10,9 @@ import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 
 @Composable
 fun SignInLoggingInView(
-	state: SignIn.State,
+	state: SignIn.State.LoggingIn,
 	headerContent: @Composable () -> Unit = {}
 ) {
-	if (state !is SignIn.State.LoggingIn) return
-
 	Column(
 		modifier = Modifier.fillMaxSize(),
 		horizontalAlignment = Alignment.CenterHorizontally,

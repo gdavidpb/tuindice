@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.about.ui.view
+package com.gdavidpb.tuindice.about.ui.custom
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AboutView(
+fun AboutItem(
 	icon: Painter,
 	text: String,
 	tint: Color? = null,

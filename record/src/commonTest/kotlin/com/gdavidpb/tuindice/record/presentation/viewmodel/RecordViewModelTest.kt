@@ -61,10 +61,10 @@ class RecordViewModelTest {
 		)
 		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
-		try {
-			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			try {
+				waitUntil { viewModel.action.subscriptionCount.value > 0 }
 
-			viewModel.loadQuartersAction()
+				viewModel.action.emit(Record.Action.LoadQuarters)
 
 			waitUntil { viewModel.state.value is Record.State.Content }
 			val content = assertIs<Record.State.Content>(viewModel.state.value)
@@ -113,12 +113,14 @@ class RecordViewModelTest {
 			waitUntil { viewModel.action.subscriptionCount.value > 0 }
 			waitUntil { viewModel.effect.subscriptionCount.value > 0 }
 
-			viewModel.updateSubjectAction(
-				quarterId = "q1",
-				subjectId = "s1",
-				grade = 3,
-				commit = false
-			)
+				viewModel.action.emit(
+					Record.Action.SetSubjectGrade(
+						quarterId = "q1",
+						subjectId = "s1",
+						grade = 3,
+						commit = false
+					)
+				)
 
 			waitUntil { effects.isNotEmpty() }
 			val snackBar = assertIs<Record.Effect.ShowSnackBar>(effects.single())

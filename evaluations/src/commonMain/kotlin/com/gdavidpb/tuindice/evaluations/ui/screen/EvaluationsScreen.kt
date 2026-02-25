@@ -2,8 +2,25 @@ package com.gdavidpb.tuindice.evaluations.ui.screen
 
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
+import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
+import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
+import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyView
+import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsFailedView
+import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsLoadingView
+import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsNoSubjectsView
+import org.jetbrains.compose.resources.stringResource
+import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.button_add_evaluation
+import tuindice.evaluations.generated.resources.message_empty_evaluations
+import tuindice.evaluations.generated.resources.message_no_subjects_evaluations
+import tuindice.evaluations.generated.resources.title_empty_evaluations
+import tuindice.evaluations.generated.resources.title_no_subjects_evaluations
+import tuindice.evaluations.generated.resources.view_error_message
+import tuindice.evaluations.generated.resources.view_error_retry
+import tuindice.evaluations.generated.resources.view_error_title
 
 @Composable
 fun EvaluationsScreen(
@@ -14,47 +31,56 @@ fun EvaluationsScreen(
 	onEvaluationDelete: (evaluationId: String) -> Unit,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
 	onClearFiltersClick: () -> Unit,
-	onRetryClick: () -> Unit,
-	loadingContent: @Composable () -> Unit,
-	contentStateContent: @Composable (
-		state: Evaluations.State.Content,
-		onAddEvaluationClick: () -> Unit,
-		onEvaluationClick: (evaluationId: String) -> Unit,
-		onEvaluationEdit: (evaluationId: String) -> Unit,
-		onEvaluationDelete: (evaluationId: String) -> Unit,
-		onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
-		onClearFiltersClick: () -> Unit
-	) -> Unit,
-	failedContent: @Composable (onRetryClick: () -> Unit) -> Unit,
-	noSubjectsContent: @Composable () -> Unit,
-	emptyContent: @Composable (onAddEvaluationClick: () -> Unit) -> Unit
+	onRetryClick: () -> Unit
 ) {
 	SealedCrossfade(
 		targetState = state
 	) { targetState ->
 		when (targetState) {
 			is Evaluations.State.Loading ->
-				loadingContent()
+				EvaluationsLoadingView()
 
 			is Evaluations.State.Content ->
-				contentStateContent(
-					targetState,
-					onAddEvaluationClick,
-					onEvaluationClick,
-					onEvaluationEdit,
-					onEvaluationDelete,
-					onFilterCheckedChange,
-					onClearFiltersClick
+				EvaluationsContentView(
+					state = targetState,
+					onAddEvaluationClick = onAddEvaluationClick,
+					onClearFiltersClick = onClearFiltersClick,
+					onFilterCheckedChange = onFilterCheckedChange,
+					onEvaluationClick = onEvaluationClick,
+					onEvaluationEdit = onEvaluationEdit,
+					onEvaluationDelete = onEvaluationDelete
 				)
 
 			is Evaluations.State.Failed ->
-				failedContent(onRetryClick)
+				EvaluationsFailedView(
+					title = stringResource(Res.string.view_error_title),
+					message = stringResource(Res.string.view_error_message),
+					retryText = stringResource(Res.string.view_error_retry),
+					onRetryClick = onRetryClick,
+					headerContent = {
+						ErrorStateAnimationView()
+					}
+				)
 
 			is Evaluations.State.NoSubjects ->
-				noSubjectsContent()
+				EvaluationsNoSubjectsView(
+					title = stringResource(Res.string.title_no_subjects_evaluations),
+					message = stringResource(Res.string.message_no_subjects_evaluations),
+					headerContent = {
+						EmptyStateAnimationView()
+					}
+				)
 
 			is Evaluations.State.Empty ->
-				emptyContent(onAddEvaluationClick)
+				EvaluationsEmptyView(
+					title = stringResource(Res.string.title_empty_evaluations),
+					message = stringResource(Res.string.message_empty_evaluations),
+					actionLabel = stringResource(Res.string.button_add_evaluation),
+					onAddEvaluationClick = onAddEvaluationClick,
+					headerContent = {
+						EmptyStateAnimationView()
+					}
+				)
 		}
 	}
 }
