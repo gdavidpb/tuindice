@@ -36,6 +36,7 @@ fun SignInScreen(
 
 		AnimatedContent(
 			targetState = state,
+			contentKey = { targetState -> targetState::class },
 			transitionSpec = {
 				val enter = slideInHorizontally { x -> x }
 				val exit = slideOutHorizontally { x -> -x }
