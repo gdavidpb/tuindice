@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.about.presentation.action
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.resource.AboutTextProvider
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentGateway
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
@@ -141,6 +141,6 @@ private object FakeAboutTextProvider : AboutTextProvider {
 
 private class FakeAppEnvironmentGateway(
 	private val appEnvironment: AppEnvironment
-) : AppEnvironmentGateway {
+) : AppEnvironmentRepository {
 	override fun getEnvironment(): AppEnvironment = appEnvironment
 }

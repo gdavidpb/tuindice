@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.about.domain.repository
 
-class DefaultAboutVersionTextProvider : AboutVersionTextProvider {
+class DefaultAboutVersionTextProvider : AboutVersionTextRepository {
 	override fun environmentName(debug: Boolean): String {
 		return if (debug) "Desarrollo" else "Producción"
 	}

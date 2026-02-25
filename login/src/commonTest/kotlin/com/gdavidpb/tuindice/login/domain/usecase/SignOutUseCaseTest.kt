@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.login.domain.usecase
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
-import com.gdavidpb.tuindice.base.domain.repository.PushGateway
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import kotlinx.coroutines.flow.toList
@@ -61,7 +61,7 @@ private class FakeSessionRepository(
 
 private class FakePushGateway(
 	private val calls: MutableList<String>
-) : PushGateway {
+) : MessagingRepository {
 	override suspend fun subscribe() = Unit
 
 	override suspend fun unsubscribe() {

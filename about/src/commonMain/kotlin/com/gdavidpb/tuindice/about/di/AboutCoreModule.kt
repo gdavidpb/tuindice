@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.about.di
 
 import com.gdavidpb.tuindice.about.data.repository.AboutDataRepository
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
-import com.gdavidpb.tuindice.about.domain.repository.AboutVersionTextProvider
+import com.gdavidpb.tuindice.about.domain.repository.AboutVersionTextRepository
 import com.gdavidpb.tuindice.about.domain.repository.DefaultAboutVersionTextProvider
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.presentation.action.ContactDeveloperActionProcessor
@@ -36,7 +36,7 @@ val aboutCoreModule = module {
 	/* Shared text resources */
 
 	factoryOf(::DefaultAboutTextProvider) { bind<AboutTextProvider>() }
-	factoryOf(::DefaultAboutVersionTextProvider) { bind<AboutVersionTextProvider>() }
+	factoryOf(::DefaultAboutVersionTextProvider) { bind<AboutVersionTextRepository>() }
 
 	/* Action processor */
 

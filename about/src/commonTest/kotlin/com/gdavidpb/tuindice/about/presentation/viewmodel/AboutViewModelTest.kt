@@ -13,7 +13,7 @@ import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.resource.AboutTextProvider
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentGateway
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -130,7 +130,7 @@ private object AboutViewModelFakeTextProvider : AboutTextProvider {
 	override fun shareSubject(): String = "TuIndice App"
 }
 
-private class AboutViewModelFakeAppEnvironmentGateway : AppEnvironmentGateway {
+private class AboutViewModelFakeAppEnvironmentGateway : AppEnvironmentRepository {
 	override fun getEnvironment(): AppEnvironment {
 		return AppEnvironment(
 			apiBaseUrl = "https://api.tuindice.app/",

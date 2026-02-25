@@ -1,20 +1,22 @@
 package com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler
 
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
+import com.gdavidpb.tuindice.login.domain.exception.SignInIllegalArgumentException
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 
 class UpdatePasswordExceptionHandler(
-	private val networkRepository: NetworkStatusGateway,
-	override val reportingRepository: ReportingGateway
+	private val networkRepository: NetworkRepository,
+	override val reportingRepository: ReportingRepository
 ) : ExceptionHandler<SignInUseCaseError>() {
 	override fun parseException(throwable: Throwable): SignInUseCaseError? {
 		return when {
+			throwable is SignInIllegalArgumentException -> throwable.error
 			throwable.isUnauthorized() -> SignInUseCaseError.InvalidCredentials
 			throwable.isUnavailable() -> SignInUseCaseError.Unavailable
 			throwable.isTimeout() -> SignInUseCaseError.Timeout

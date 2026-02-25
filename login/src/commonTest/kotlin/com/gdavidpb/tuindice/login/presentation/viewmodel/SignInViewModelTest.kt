@@ -4,11 +4,11 @@ import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
-import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentGateway
-import com.gdavidpb.tuindice.base.domain.repository.ConfigGateway
-import com.gdavidpb.tuindice.base.domain.repository.IntegrityGateway
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.login.domain.model.IssueTokens
 import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
@@ -219,7 +219,7 @@ private class SignInViewModelFakeAuthApiRepository : AuthApiRepository {
 	override suspend fun revokeTokens() = Unit
 }
 
-private class SignInViewModelFakeIntegrityGateway : IntegrityGateway {
+private class SignInViewModelFakeIntegrityGateway : AttestationRepository {
 	override suspend fun getAttestation(payload: AttestationPayload): Attestation {
 		return Attestation(
 			id = "attestation-id",
@@ -241,7 +241,7 @@ private class SignInViewModelFakeMessagingRepository : MessagingRepository {
 	override suspend fun getToken(): String = "push-token"
 }
 
-private class SignInViewModelFakeConfigGateway : ConfigGateway {
+private class SignInViewModelFakeConfigGateway : ConfigRepository {
 	override suspend fun tryFetch() = Unit
 	override fun getTimeout(): Long = 30_000L
 	override fun getContactEmail(): String = "support@tuindice.app"
@@ -251,7 +251,7 @@ private class SignInViewModelFakeConfigGateway : ConfigGateway {
 	override fun getSyncsToSuggestReview(): Int = 3
 }
 
-private class SignInViewModelFakeAppEnvironmentGateway : AppEnvironmentGateway {
+private class SignInViewModelFakeAppEnvironmentGateway : AppEnvironmentRepository {
 	override fun getEnvironment(): AppEnvironment {
 		return AppEnvironment(
 			apiBaseUrl = "https://api.tuindice.app/",
@@ -262,11 +262,11 @@ private class SignInViewModelFakeAppEnvironmentGateway : AppEnvironmentGateway {
 	}
 }
 
-private class SignInViewModelFakeNetworkStatusGateway : NetworkStatusGateway {
+private class SignInViewModelFakeNetworkStatusGateway : NetworkRepository {
 	override fun isAvailable(): Boolean = true
 }
 
-private object SignInViewModelFakeReportingGateway : ReportingGateway {
+private object SignInViewModelFakeReportingGateway : ReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 	override fun logException(throwable: Throwable) = Unit
 	override fun logMessage(message: String) = Unit

@@ -5,14 +5,14 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.base.domain.repository.ConfigGateway
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
-import com.gdavidpb.tuindice.base.domain.repository.IntegrityGateway
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
-import com.gdavidpb.tuindice.base.domain.repository.PushGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository as BaseMessagingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
@@ -23,7 +23,7 @@ import com.gdavidpb.tuindice.login.domain.model.IssueTokensAttestationPayload
 import com.gdavidpb.tuindice.login.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
 import com.gdavidpb.tuindice.login.domain.repository.MessagingApiRepository
-import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository as LoginMessagingRepository
 import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository as LoginReportingRepository
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
@@ -325,7 +325,7 @@ private class WorkflowSettingsRepository(
 	override suspend fun clear() = Unit
 }
 
-private class WorkflowConfigGateway : ConfigGateway {
+private class WorkflowConfigGateway : ConfigRepository {
 	override suspend fun tryFetch() = Unit
 
 	override fun getTimeout(): Long = 30_000L
@@ -378,7 +378,7 @@ private class WorkflowAuthApiRepository(
 	override suspend fun revokeTokens() = Unit
 }
 
-private class WorkflowIntegrityGateway : IntegrityGateway {
+private class WorkflowIntegrityGateway : AttestationRepository {
 	var lastPayload: IssueTokensAttestationPayload? = null
 
 	override suspend fun getAttestation(payload: AttestationPayload): Attestation {
@@ -394,7 +394,7 @@ private class WorkflowIntegrityGateway : IntegrityGateway {
 
 private class WorkflowMessagingRepository(
 	private val token: String
-) : MessagingRepository {
+) : LoginMessagingRepository {
 	override suspend fun getToken(): String = token
 }
 
@@ -414,7 +414,7 @@ private class WorkflowLoginReportingRepository : LoginReportingRepository {
 	}
 }
 
-private class WorkflowPushGateway : PushGateway {
+private class WorkflowPushGateway : BaseMessagingRepository {
 	var unsubscribeCalls: Int = 0
 
 	override suspend fun subscribe() = Unit
@@ -446,11 +446,11 @@ private class WorkflowDependenciesRepository : DependenciesRepository {
 	}
 }
 
-private class WorkflowNetworkStatusGateway : NetworkStatusGateway {
+private class WorkflowNetworkStatusGateway : NetworkRepository {
 	override fun isAvailable(): Boolean = true
 }
 
-private class WorkflowReportingGateway : ReportingGateway {
+private class WorkflowReportingGateway : ReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 
 	override fun logException(throwable: Throwable) = Unit

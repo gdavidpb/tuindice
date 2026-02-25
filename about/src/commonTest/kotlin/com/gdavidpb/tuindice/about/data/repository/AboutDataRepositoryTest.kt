@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.about.data.repository
 
-import com.gdavidpb.tuindice.about.domain.repository.AboutVersionTextProvider
+import com.gdavidpb.tuindice.about.domain.repository.AboutVersionTextRepository
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentGateway
-import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoGateway
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -31,7 +31,7 @@ class AboutDataRepositoryTest {
 	}
 }
 
-private class FakeAboutVersionTextProvider : AboutVersionTextProvider {
+private class FakeAboutVersionTextProvider : AboutVersionTextRepository {
 	var lastDebugValue: Boolean? = null
 	var lastEnvironmentName: String? = null
 	var lastVersionName: String? = null
@@ -57,7 +57,7 @@ private class FakeAboutVersionTextProvider : AboutVersionTextProvider {
 private class FakeDeviceInfoGateway(
 	private val versionName: String,
 	private val versionCode: Long
-) : DeviceInfoGateway {
+) : DeviceInfoRepository {
 	override fun appVersionName(): String = versionName
 
 	override fun appVersionCode(): Long = versionCode
@@ -67,7 +67,7 @@ private class FakeDeviceInfoGateway(
 
 private class FakeAppEnvironmentGateway(
 	private val debug: Boolean
-) : AppEnvironmentGateway {
+) : AppEnvironmentRepository {
 	override fun getEnvironment(): AppEnvironment {
 		return AppEnvironment(
 			apiBaseUrl = "https://api.tuindice.app",

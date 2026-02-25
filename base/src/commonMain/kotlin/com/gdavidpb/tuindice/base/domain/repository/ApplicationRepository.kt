@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.base.domain.repository
 
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
-
-interface ApplicationRepository : FileGateway {
+interface ApplicationRepository : FileRepository {
 	suspend fun clearData()
 }

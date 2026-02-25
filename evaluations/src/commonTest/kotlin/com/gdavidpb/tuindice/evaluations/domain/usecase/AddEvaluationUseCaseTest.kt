@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
@@ -114,7 +114,7 @@ private class FixedIdentifierRepository(
 	override fun generateRandomIdentifier(): String = fixedId
 }
 
-private class FakeReportingGateway : ReportingGateway {
+private class FakeReportingGateway : ReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 
 	override fun logException(throwable: Throwable) = Unit

@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler
 
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
 import kotlinx.coroutines.delay
@@ -61,11 +61,11 @@ class FetchEnrollmentProofExceptionHandlerTest {
 	}
 }
 
-private class FakeNetworkStatusGateway : NetworkStatusGateway {
+private class FakeNetworkStatusGateway : NetworkRepository {
 	override fun isAvailable(): Boolean = true
 }
 
-private class FakeReportingGateway : ReportingGateway {
+private class FakeReportingGateway : ReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 
 	override fun logException(throwable: Throwable) = Unit

@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
-import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationFilterLabelsProvider
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationFilterLabelsRepository
 import kotlin.math.roundToInt
 
 fun Double.toSubjectGrade() = when (roundToInt()) {
@@ -30,7 +30,7 @@ fun computeEvaluationState(grade: Double?, date: Long?): EvaluationState {
 }
 
 fun List<Evaluation>.computeAvailableFilters(
-	labelsProvider: EvaluationFilterLabelsProvider
+	labelsProvider: EvaluationFilterLabelsRepository
 ): List<EvaluationFilter> {
 	val statesFilters = listOf(
 		EvaluationStateFilter(

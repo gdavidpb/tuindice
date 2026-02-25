@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.login.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.repository.IntegrityGateway
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.login.domain.model.IssueTokensAttestationPayload
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.flowOf
 class SignInUseCase(
 	private val sessionRepository: SessionRepository,
 	private val authApiRepository: AuthApiRepository,
-	private val attestationRepository: IntegrityGateway,
+	private val attestationRepository: AttestationRepository,
 	private val messagingApiRepository: MessagingApiRepository,
 	private val reportingRepository: ReportingRepository,
 	private val messagingRepository: MessagingRepository,

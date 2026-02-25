@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
-import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentGateway
-import com.gdavidpb.tuindice.base.domain.repository.ConfigGateway
-import com.gdavidpb.tuindice.base.domain.repository.IntegrityGateway
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.login.domain.model.IssueTokensAttestationPayload
 import com.gdavidpb.tuindice.login.domain.model.RefreshTokensAttestationPayload
@@ -44,10 +44,10 @@ fun createSharedJson(): Json {
 }
 
 fun createSharedHttpClient(
-	appEnvironmentRepository: AppEnvironmentGateway,
-	configRepository: ConfigGateway,
+	appEnvironmentRepository: AppEnvironmentRepository,
+	configRepository: ConfigRepository,
 	sessionRepository: SessionRepository,
-	attestationRepositoryProvider: () -> IntegrityGateway,
+	attestationRepositoryProvider: () -> AttestationRepository,
 	authApiRepositoryProvider: () -> AuthApiRepository,
 	logger: Logger,
 	json: Json,

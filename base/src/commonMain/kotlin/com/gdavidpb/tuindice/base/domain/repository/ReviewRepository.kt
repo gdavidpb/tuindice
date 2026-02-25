@@ -1,5 +1,5 @@
 package com.gdavidpb.tuindice.base.domain.repository
 
-interface ReviewGateway {
+interface ReviewRepository {
 	suspend fun launchReview()
 }

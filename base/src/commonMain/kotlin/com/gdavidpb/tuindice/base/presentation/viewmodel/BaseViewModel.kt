@@ -53,7 +53,6 @@ abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 
 	private fun sendEffect(viewEffect: E) {
 		viewModelScope.launch {
-			effect.waitForSubscribers()
 			effect.emit(viewEffect)
 		}
 	}

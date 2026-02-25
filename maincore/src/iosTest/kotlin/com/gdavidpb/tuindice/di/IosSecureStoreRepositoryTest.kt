@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
-import com.gdavidpb.tuindice.base.domain.repository.SecureStore
+import com.gdavidpb.tuindice.base.domain.repository.SecureStoreRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
 import io.ktor.client.HttpClient
@@ -57,7 +57,7 @@ class IosSecureStoreRepositoryTest {
 	@Test
 	fun secureStore_missingKey_doesNotTriggerImplicitMigrationWrite() = runBlocking {
 		withIosApp { koin, bridge ->
-			val secureStore = koin.get<SecureStore>()
+			val secureStore = koin.get<SecureStoreRepository>()
 
 			assertFalse(secureStore.contains("missing"))
 			assertNull(secureStore.getString("missing"))

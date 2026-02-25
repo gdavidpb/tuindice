@@ -74,7 +74,7 @@ fun startIosKoin(
 	debug: Boolean = false,
 	buildVariant: IosBuildVariant = if (debug) IosBuildVariant.DEBUG else IosBuildVariant.PRODUCTION,
 	databasePath: String = defaultIosDatabasePath(),
-	configValues: IosConfigValues = IosConfigValues(),
+	configValues: IosConfigValues = iosDefaultConfigValues(buildVariant),
 	extraModules: List<Module> = emptyList()
 ): Koin {
 	val platformConfig = IosPlatformConfig(

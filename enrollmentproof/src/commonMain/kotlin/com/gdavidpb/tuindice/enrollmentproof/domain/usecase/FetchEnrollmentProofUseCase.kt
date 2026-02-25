@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.enrollmentproof.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
-import com.gdavidpb.tuindice.base.domain.repository.FileGateway
+import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class FetchEnrollmentProofUseCase(
-	private val applicationRepository: FileGateway,
+	private val applicationRepository: FileRepository,
 	private val enrollmentProofRepository: EnrollmentProofRepository,
 	override val exceptionHandler: FetchEnrollmentProofExceptionHandler
 ) : FlowUseCase<Unit, PlatformFileRef, FetchEnrollmentProofUseCaseError>() {

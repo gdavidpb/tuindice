@@ -9,6 +9,8 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
 import com.gdavidpb.tuindice.base.data.repository.SessionDataRepository
+import com.gdavidpb.tuindice.base.data.source.config.ConfigDataSource
+import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
 import com.gdavidpb.tuindice.base.data.source.MemorySessionDataSource
 import com.gdavidpb.tuindice.base.data.source.PreferencesSessionDataSource
@@ -22,31 +24,29 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentGateway
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.base.domain.repository.BrowserGateway
-import com.gdavidpb.tuindice.base.domain.repository.ConfigGateway
+import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
-import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoGateway
-import com.gdavidpb.tuindice.base.domain.repository.ExternalActions
-import com.gdavidpb.tuindice.base.domain.repository.FileGateway
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
+import com.gdavidpb.tuindice.base.domain.repository.ExternalActionsRepository
+import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
-import com.gdavidpb.tuindice.base.domain.repository.IntegrityGateway
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.base.domain.repository.PushGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReviewGateway
-import com.gdavidpb.tuindice.base.domain.repository.SecureStore
+import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
+import com.gdavidpb.tuindice.base.domain.repository.SecureStoreRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.domain.repository.UpdateGateway
+import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfig
+import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
+import com.gdavidpb.tuindice.base.utils.RemoteConfigDefaultsProfile
+import com.gdavidpb.tuindice.base.utils.RemoteConfigKeys
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.login.data.repository.KtorAuthApiApiDataRepository
 import com.gdavidpb.tuindice.login.data.repository.KtorMessagingApiDataRepository
@@ -112,14 +112,49 @@ import platform.UIKit.UIWindow
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
-data class IosConfigValues(
-	val timeoutMillis: Long = 90_000L,
-	val contactEmail: String = "info@tuindice.app",
-	val contactSubject: String = "TuIndice - Contacto",
-	val loadingMessages: List<String> = listOf("Iniciando sesión…"),
-	val updateStalenessDays: Int = 7,
-	val syncsToSuggestReview: Int = 3
+private val IOS_PRODUCTION_DEFAULT_CONFIG = DefaultRemoteConfig.values(
+	RemoteConfigDefaultsProfile.PRODUCTION
 )
+
+data class IosConfigValues(
+	val timeoutMillis: Long = IOS_PRODUCTION_DEFAULT_CONFIG.timeoutMillis,
+	val contactEmail: String = IOS_PRODUCTION_DEFAULT_CONFIG.contactEmail,
+	val contactSubject: String = IOS_PRODUCTION_DEFAULT_CONFIG.contactSubject,
+	val loadingMessages: List<String> = IOS_PRODUCTION_DEFAULT_CONFIG.loadingMessages,
+	val updateStalenessDays: Int = IOS_PRODUCTION_DEFAULT_CONFIG.updateStalenessDays,
+	val syncsToSuggestReview: Int = IOS_PRODUCTION_DEFAULT_CONFIG.syncsToSuggestReview
+)
+
+internal fun iosDefaultConfigValues(buildVariant: IosBuildVariant): IosConfigValues {
+	val profile = when (buildVariant) {
+		IosBuildVariant.DEBUG -> RemoteConfigDefaultsProfile.DEBUG
+		IosBuildVariant.PRODUCTION -> RemoteConfigDefaultsProfile.PRODUCTION
+	}
+
+	return DefaultRemoteConfig.values(profile).toIosConfigValues()
+}
+
+private fun DefaultRemoteConfigValues.toIosConfigValues(): IosConfigValues {
+	return IosConfigValues(
+		timeoutMillis = timeoutMillis,
+		contactEmail = contactEmail,
+		contactSubject = contactSubject,
+		loadingMessages = loadingMessages,
+		updateStalenessDays = updateStalenessDays,
+		syncsToSuggestReview = syncsToSuggestReview
+	)
+}
+
+private fun IosConfigValues.toDefaultRemoteConfigValues(): DefaultRemoteConfigValues {
+	return DefaultRemoteConfigValues(
+		timeoutMillis = timeoutMillis,
+		contactEmail = contactEmail,
+		contactSubject = contactSubject,
+		loadingMessages = loadingMessages,
+		updateStalenessDays = updateStalenessDays,
+		syncsToSuggestReview = syncsToSuggestReview
+	)
+}
 
 data class IosUiTextValues(
 	val googleServicesUnavailableTitle: String = "Servicios no disponibles",
@@ -350,7 +385,7 @@ fun iosPlatformModule(
 	single<SecureStoreDataSource> {
 		config.secureStore ?: IosBridgeSecureStoreDataSource(get<IosPlatformBridge>())
 	}
-	single<SecureStore> { get<SecureStoreDataSource>() }
+	single<SecureStoreRepository> { get<SecureStoreDataSource>() }
 	single<DataStore<Preferences>> { config.dataStore }
 	singleOf(::InMemorySessionDataSource) { bind<MemorySessionDataSource>() }
 	singleOf(::SecureStoreSessionDataSource) { bind<PreferencesSessionDataSource>() }
@@ -362,23 +397,21 @@ fun iosPlatformModule(
 	single<HostUiTextProvider> { StaticHostUiTextProvider(config.uiTextValues) }
 	single<IdentifierRepository> { UUIDIdentifierDataSource() }
 	single<AppEnvironmentRepository> { IosAppEnvironmentDataSource(config.appEnvironment) }
-	single<AppEnvironmentGateway> { get<AppEnvironmentRepository>() }
+	single<RemoteConfigDataSource> { IosRemoteConfigDataSource(get<IosPlatformBridge>()) }
 	single<ConfigRepository> {
-		IosConfigDataSource(
-			values = config.configValues,
-			bridge = get<IosPlatformBridge>()
+		ConfigDataSource(
+			remoteConfigDataSource = get<RemoteConfigDataSource>(),
+			defaults = config.configValues.toDefaultRemoteConfigValues()
 		)
 	}
-	single<ConfigGateway> { get<ConfigRepository>() }
 	single<NetworkRepository> { IosNetworkDataSource(get<IosPlatformBridge>()) }
-	single<NetworkStatusGateway> { get<NetworkRepository>() }
 	single<DependenciesRepository> { IosDependenciesDataSource(get<IosPlatformBridge>()) }
-	single<DeviceInfoGateway> { IosDeviceInfoGateway(get<IosPlatformBridge>()) }
-	single<BrowserGateway> { IosBrowserGateway(get<IosPlatformBridge>()) }
+	single<DeviceInfoRepository> { IosDeviceInfoGateway(get<IosPlatformBridge>()) }
+	single<BrowserRepository> { IosBrowserGateway(get<IosPlatformBridge>()) }
 	single<BrowserScreenRenderer> { IosBrowserScreenRenderer() }
-	single<ExternalActions> { IosExternalActions(get<IosPlatformBridge>()) }
-	single<ReviewGateway> { IosReviewGateway(get<IosPlatformBridge>()) }
-	single<UpdateGateway> { IosUpdateGateway(get<IosPlatformBridge>()) }
+	single<ExternalActionsRepository> { IosExternalActions(get<IosPlatformBridge>()) }
+	single<ReviewRepository> { IosReviewGateway(get<IosPlatformBridge>()) }
+	single<UpdateRepository> { IosUpdateGateway(get<IosPlatformBridge>()) }
 	single<SettingsRepository> { IosSettingsDataSource(get<DataStore<Preferences>>()) }
 	single<ApplicationRepository> {
 		IosApplicationDataSource(
@@ -387,9 +420,8 @@ fun iosPlatformModule(
 			bridge = get<IosPlatformBridge>()
 		)
 	}
-	single<FileGateway> { get<ApplicationRepository>() }
+	single<FileRepository> { get<ApplicationRepository>() }
 	single<ReportingRepository> { IosReportingDataSource(get<IosPlatformBridge>()) }
-	single<ReportingGateway> { get<ReportingRepository>() }
 	factory<LoginReportingRepository> { IosLoginReportingDataSource(get<IosPlatformBridge>()) }
 	factory<LoginMessagingRepository> { IosLoginMessagingDataSource(get<IosPlatformBridge>()) }
 	factory<AuthApiRepository> {
@@ -409,7 +441,6 @@ fun iosPlatformModule(
 			bridge = get<IosPlatformBridge>()
 		)
 	}
-	factory<PushGateway> { get<MessagingRepository>() }
 	factory<AttestationRepository> {
 		IosAttestationDataRepository(
 			httpClientProvider = {
@@ -419,7 +450,6 @@ fun iosPlatformModule(
 			bridge = get<IosPlatformBridge>()
 		)
 	}
-	factory<IntegrityGateway> { get<AttestationRepository>() }
 
 	/* Serialization + network */
 
@@ -429,8 +459,8 @@ fun iosPlatformModule(
 
 	single(named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER)) {
 		createIosIdentityHttpClient(
-			appEnvironmentRepository = get<AppEnvironmentGateway>(),
-			configRepository = get<ConfigGateway>(),
+			appEnvironmentRepository = get<AppEnvironmentRepository>(),
+			configRepository = get<ConfigRepository>(),
 			logger = IOS_KTOR_LOGGER,
 			json = get<Json>(),
 			userAgentValue = createIosUserAgent(get<IosPlatformBridge>())
@@ -441,10 +471,10 @@ fun iosPlatformModule(
 		val bridge = get<IosPlatformBridge>()
 
 			createSharedHttpClient(
-				appEnvironmentRepository = get<AppEnvironmentGateway>(),
-				configRepository = get<ConfigGateway>(),
+				appEnvironmentRepository = get<AppEnvironmentRepository>(),
+				configRepository = get<ConfigRepository>(),
 				sessionRepository = get<SessionRepository>(),
-				attestationRepositoryProvider = { get<IntegrityGateway>() },
+				attestationRepositoryProvider = { get<AttestationRepository>() },
 				authApiRepositoryProvider = { get<AuthApiRepository>() },
 				logger = IOS_KTOR_LOGGER,
 				json = get<Json>(),
@@ -475,47 +505,15 @@ private class StaticHostUiTextProvider(
 	}
 }
 
-private class IosConfigDataSource(
-	private val values: IosConfigValues,
+private class IosRemoteConfigDataSource(
 	private val bridge: IosPlatformBridge
-) : ConfigRepository {
-	override suspend fun tryFetch() {
-		runCatching { bridge.fetchRemoteConfig() }
+) : RemoteConfigDataSource {
+	override suspend fun fetch() {
+		bridge.fetchRemoteConfig()
 	}
 
-	override fun getTimeout(): Long {
-		return bridge.remoteConfigString(IosRemoteConfigKeys.TIME_OUT_CONNECTION)
-			?.toLongOrNull()
-			?: values.timeoutMillis
-	}
-
-	override fun getContactEmail(): String {
-		return bridge.remoteConfigString(IosRemoteConfigKeys.CONTACT_EMAIL)
-			?: values.contactEmail
-	}
-
-	override fun getContactSubject(): String {
-		return bridge.remoteConfigString(IosRemoteConfigKeys.CONTACT_SUBJECT)
-			?: values.contactSubject
-	}
-
-	override fun getLoadingMessages(): List<String> {
-		return bridge.remoteConfigStringList(IosRemoteConfigKeys.LOADING_MESSAGES)
-			?: values.loadingMessages
-	}
-
-	override fun getTimeUpdateStalenessDays(): Int {
-		return bridge.remoteConfigString(IosRemoteConfigKeys.TIME_UPDATE_STALENESS_DAYS)
-			?.toLongOrNull()
-			?.toInt()
-			?: values.updateStalenessDays
-	}
-
-	override fun getSyncsToSuggestReview(): Int {
-		return bridge.remoteConfigString(IosRemoteConfigKeys.SYNCS_TO_SUGGEST_REVIEW)
-			?.toLongOrNull()
-			?.toInt()
-			?: values.syncsToSuggestReview
+	override fun getString(key: String): String? {
+		return bridge.remoteConfigString(key)
 	}
 }
 
@@ -539,7 +537,7 @@ private class IosDependenciesDataSource(
 
 private class IosDeviceInfoGateway(
 	private val bridge: IosPlatformBridge
-) : DeviceInfoGateway {
+) : DeviceInfoRepository {
 	override fun appVersionName(): String = bridge.appVersionName()
 
 	override fun appVersionCode(): Long = bridge.appVersionCode()
@@ -549,7 +547,7 @@ private class IosDeviceInfoGateway(
 
 private class IosBrowserGateway(
 	private val bridge: IosPlatformBridge
-) : BrowserGateway {
+) : BrowserRepository {
 	override fun open(url: String) {
 		bridge.openUrl(url)
 	}
@@ -557,7 +555,7 @@ private class IosBrowserGateway(
 
 private class IosExternalActions(
 	private val bridge: IosPlatformBridge
-) : ExternalActions {
+) : ExternalActionsRepository {
 	override fun openFile(fileRef: PlatformFileRef): Boolean {
 		return bridge.openFile(fileRef)
 	}
@@ -577,7 +575,7 @@ private class IosExternalActions(
 
 private class IosReviewGateway(
 	private val bridge: IosPlatformBridge
-) : ReviewGateway {
+) : ReviewRepository {
 	override suspend fun launchReview() {
 		bridge.launchReview()
 	}
@@ -585,7 +583,7 @@ private class IosReviewGateway(
 
 private class IosUpdateGateway(
 	private val bridge: IosPlatformBridge
-) : UpdateGateway {
+) : UpdateRepository {
 	override suspend fun checkForUpdate(stalenessDays: Int): UpdateAction? {
 		return bridge.checkForUpdate(stalenessDays)
 	}
@@ -856,15 +854,6 @@ private data class SubscribeRequest(
 	@SerialName("token") val token: String
 )
 
-private object IosRemoteConfigKeys {
-	const val CONTACT_EMAIL = "contact_email"
-	const val CONTACT_SUBJECT = "contact_subject"
-	const val LOADING_MESSAGES = "loading_messages"
-	const val TIME_UPDATE_STALENESS_DAYS = "time_update_staleness_days"
-	const val SYNCS_TO_SUGGEST_REVIEW = "syncs_to_suggest_review"
-	const val TIME_OUT_CONNECTION = "time_out_connection"
-}
-
 internal fun createIosUserAgent(bridge: IosPlatformBridge): String {
 	val appVersionName = bridge.appVersionName().ifBlank { "0.0.0" }
 	val appVersionCode = bridge.appVersionCode().coerceAtLeast(0L)
@@ -893,8 +882,8 @@ internal fun createIosUserAgent(bridge: IosPlatformBridge): String {
 }
 
 private fun createIosIdentityHttpClient(
-	appEnvironmentRepository: AppEnvironmentGateway,
-	configRepository: ConfigGateway,
+	appEnvironmentRepository: AppEnvironmentRepository,
+	configRepository: ConfigRepository,
 	logger: Logger,
 	json: Json,
 	userAgentValue: String?

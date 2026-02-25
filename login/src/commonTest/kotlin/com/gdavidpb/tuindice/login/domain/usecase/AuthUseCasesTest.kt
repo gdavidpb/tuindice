@@ -3,9 +3,8 @@ package com.gdavidpb.tuindice.login.domain.usecase
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
-import com.gdavidpb.tuindice.base.domain.repository.IntegrityGateway
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.login.domain.model.IssueTokens
@@ -14,7 +13,8 @@ import com.gdavidpb.tuindice.login.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
 import com.gdavidpb.tuindice.login.domain.repository.MessagingApiRepository
 import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository
-import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository as BaseReportingRepository
+import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository as LoginReportingRepository
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
@@ -214,7 +214,7 @@ private class AuthUseCaseFakeSessionRepository(
 	}
 }
 
-private class AuthUseCaseFakeIntegrityGateway : IntegrityGateway {
+private class AuthUseCaseFakeIntegrityGateway : AttestationRepository {
 	var lastPayload: IssueTokensAttestationPayload? = null
 
 	override suspend fun getAttestation(payload: AttestationPayload): Attestation {
@@ -278,7 +278,7 @@ private class AuthUseCaseFakeMessagingApiRepository : MessagingApiRepository {
 	}
 }
 
-private class AuthUseCaseFakeReportingRepository : ReportingRepository {
+private class AuthUseCaseFakeReportingRepository : LoginReportingRepository {
 	var lastIdentifier: String? = null
 
 	override suspend fun setIdentifier(id: String) {
@@ -286,11 +286,11 @@ private class AuthUseCaseFakeReportingRepository : ReportingRepository {
 	}
 }
 
-private class AuthUseCaseFakeNetworkStatusGateway : NetworkStatusGateway {
+private class AuthUseCaseFakeNetworkStatusGateway : NetworkRepository {
 	override fun isAvailable(): Boolean = true
 }
 
-private class AuthUseCaseFakeReportingGateway : ReportingGateway {
+private class AuthUseCaseFakeReportingGateway : BaseReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 
 	override fun logException(throwable: Throwable) = Unit

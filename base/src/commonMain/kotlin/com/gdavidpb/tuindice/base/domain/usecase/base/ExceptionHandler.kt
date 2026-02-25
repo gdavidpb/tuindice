@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.base.domain.usecase.base
 
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 
 abstract class ExceptionHandler<T : UseCaseError> {
-	protected abstract val reportingRepository: ReportingGateway
+	protected abstract val reportingRepository: ReportingRepository
 
 	protected open fun parseException(throwable: Throwable): T? = null
 

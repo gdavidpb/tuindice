@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.repository.ConfigGateway
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.flowOf
 class StartUpUseCase(
 	private val sessionRepository: SessionRepository,
 	private val settingsRepository: SettingsRepository,
-	private val configRepository: ConfigGateway,
+	private val configRepository: ConfigRepository,
 	override val exceptionHandler: ExceptionHandler<StartUpUseCaseError>
 ) : FlowUseCase<Unit, StartUpResult, StartUpUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<StartUpResult> {

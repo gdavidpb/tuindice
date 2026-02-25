@@ -1,3 +1,5 @@
 package com.gdavidpb.tuindice.base.domain.repository
 
-interface NetworkRepository : NetworkStatusGateway
+interface NetworkRepository {
+	fun isAvailable(): Boolean
+}

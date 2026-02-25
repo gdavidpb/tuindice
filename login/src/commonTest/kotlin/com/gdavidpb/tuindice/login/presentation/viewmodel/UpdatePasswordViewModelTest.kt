@@ -3,9 +3,9 @@ package com.gdavidpb.tuindice.login.presentation.viewmodel
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
-import com.gdavidpb.tuindice.base.domain.repository.IntegrityGateway
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.login.domain.model.IssueTokens
 import com.gdavidpb.tuindice.login.domain.model.RefreshTokens
@@ -219,7 +219,7 @@ private class UpdatePasswordViewModelFakeSessionRepository : SessionRepository {
 	}
 }
 
-private class UpdatePasswordViewModelFakeIntegrityGateway : IntegrityGateway {
+private class UpdatePasswordViewModelFakeIntegrityGateway : AttestationRepository {
 	override suspend fun getAttestation(payload: AttestationPayload): Attestation {
 		return Attestation(
 			id = "attestation-id",
@@ -230,11 +230,11 @@ private class UpdatePasswordViewModelFakeIntegrityGateway : IntegrityGateway {
 	}
 }
 
-private class UpdatePasswordViewModelFakeNetworkStatusGateway : NetworkStatusGateway {
+private class UpdatePasswordViewModelFakeNetworkStatusGateway : NetworkRepository {
 	override fun isAvailable(): Boolean = true
 }
 
-private class UpdatePasswordViewModelFakeReportingGateway : ReportingGateway {
+private class UpdatePasswordViewModelFakeReportingGateway : ReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 	override fun logException(throwable: Throwable) = Unit
 	override fun logMessage(message: String) = Unit

@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.persistence.utils.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
@@ -159,11 +159,11 @@ private class DomainFakeQuarterRepository(
 	}
 }
 
-private class FakeNetworkStatusGateway : NetworkStatusGateway {
+private class FakeNetworkStatusGateway : NetworkRepository {
 	override fun isAvailable(): Boolean = true
 }
 
-private class FakeReportingGateway : ReportingGateway {
+private class FakeReportingGateway : ReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 
 	override fun logException(throwable: Throwable) = Unit

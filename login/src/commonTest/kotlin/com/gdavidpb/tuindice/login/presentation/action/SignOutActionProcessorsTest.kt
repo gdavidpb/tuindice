@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.login.presentation.action
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
-import com.gdavidpb.tuindice.base.domain.repository.PushGateway
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.login.presentation.contract.SignOut
@@ -106,7 +106,7 @@ private class SignOutFakeSessionRepository : SessionRepository {
 
 private class SignOutFakePushGateway(
 	private val unsubscribeThrowable: Throwable? = null
-) : PushGateway {
+) : MessagingRepository {
 	override suspend fun subscribe() = Unit
 
 	override suspend fun unsubscribe() {

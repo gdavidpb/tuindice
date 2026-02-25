@@ -10,10 +10,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.ComposeUIViewController
 import com.gdavidpb.tuindice.about.ui.screen.AboutContentRouteScreen
-import com.gdavidpb.tuindice.base.domain.repository.BrowserGateway
-import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReviewGateway
-import com.gdavidpb.tuindice.base.domain.repository.UpdateGateway
+import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
+import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.ui.dialog.ExternalResourceDialog
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
@@ -55,14 +55,14 @@ private fun TuIndiceRootContent() {
 	val profilePictureActionsProvider = remember(koin) { koin.get<ProfilePictureActionsFactory>() }
 	val iosBridge = remember(koin) { koin.get<IosPlatformBridge>() }
 	val browserGateway = remember(iosBridge) {
-		object : BrowserGateway {
+		object : BrowserRepository {
 			override fun open(url: String) {
 				iosBridge.openUrl(url)
 			}
 		}
 	}
 	val deviceInfoGateway = remember(iosBridge) {
-		object : DeviceInfoGateway {
+		object : DeviceInfoRepository {
 			override fun appVersionName(): String = iosBridge.appVersionName()
 
 			override fun appVersionCode(): Long = iosBridge.appVersionCode()
@@ -70,8 +70,8 @@ private fun TuIndiceRootContent() {
 			override fun hasCamera(): Boolean = iosBridge.hasCamera()
 		}
 	}
-	val reviewGateway = remember(koin) { koin.get<ReviewGateway>() }
-	val updateGateway = remember(koin) { koin.get<UpdateGateway>() }
+	val reviewGateway = remember(koin) { koin.get<ReviewRepository>() }
+	val updateGateway = remember(koin) { koin.get<UpdateRepository>() }
 	val mainViewModel = remember(koin) { koin.get<MainViewModel>() }
 	val coroutineScope = rememberCoroutineScope()
 	val snackBarHostState = remember { SnackbarHostState() }

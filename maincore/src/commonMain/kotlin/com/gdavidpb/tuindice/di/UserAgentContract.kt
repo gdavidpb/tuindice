@@ -28,8 +28,11 @@ private fun sanitizeUserAgentSegment(
 	value: String,
 	fallback: String
 ): String {
-	return value
-		.trim()
-		.ifBlank { fallback }
-		.replace(";", "-")
+	val trimmedValue = value.trim()
+
+	if (trimmedValue.isBlank() || trimmedValue.all { char -> char == ';' }) {
+		return fallback
+	}
+
+	return trimmedValue.replace(";", "-")
 }

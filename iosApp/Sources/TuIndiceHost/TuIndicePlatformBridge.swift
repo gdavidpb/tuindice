@@ -39,6 +39,13 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
     private var latestPushToken: String?
     private var isReachable: Bool = true
     private var appStoreTrackUrl: String?
+    private let remoteConfigFetchInterval: TimeInterval = {
+        #if DEBUG
+        return 0
+        #else
+        return 43_200
+        #endif
+    }()
 
     private var isFirebaseConfigured: Bool {
         TuIndiceFirebaseRuntimeState.isConfigured
@@ -72,7 +79,12 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
             return
         }
 
-        RemoteConfig.remoteConfig().fetchAndActivate { _, error in
+        let remoteConfig = RemoteConfig.remoteConfig()
+        let settings = RemoteConfigSettings()
+        settings.minimumFetchInterval = remoteConfigFetchInterval
+        remoteConfig.configSettings = settings
+
+        remoteConfig.fetchAndActivate { _, error in
             completionHandler(error)
         }
         #else

@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.login.presentation.action
 
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentGateway
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.presentation.resource.LoginTextProvider
 import kotlinx.coroutines.flow.toList
@@ -145,6 +145,6 @@ private object FakeLoginTextProvider : LoginTextProvider {
 
 private class FakeAppEnvironmentGateway(
 	private val appEnvironment: AppEnvironment
-) : AppEnvironmentGateway {
+) : AppEnvironmentRepository {
 	override fun getEnvironment(): AppEnvironment = appEnvironment
 }

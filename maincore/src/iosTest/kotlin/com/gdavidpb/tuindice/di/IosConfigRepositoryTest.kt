@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.utils.RemoteConfigKeys
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -49,14 +50,12 @@ class IosConfigRepositoryTest {
 	fun appliesRemoteConfigOverridesAndFallsBackOnInvalidNumerics() = runBlocking {
 		val bridge = TestBridge().apply {
 			remoteStrings = mapOf(
-				"time_out_connection" to "not-a-number",
-				"contact_email" to "remote@tuindice.app",
-				"contact_subject" to "Remote Subject",
-				"time_update_staleness_days" to "15",
-				"syncs_to_suggest_review" to "invalid"
-			)
-			remoteLists = mapOf(
-				"loading_messages" to listOf("Remote 1", "Remote 2")
+				RemoteConfigKeys.TIME_OUT_CONNECTION to "not-a-number",
+				RemoteConfigKeys.CONTACT_EMAIL to "remote@tuindice.app",
+				RemoteConfigKeys.CONTACT_SUBJECT to "Remote Subject",
+				RemoteConfigKeys.LOADING_MESSAGES to "[\"Remote 1\", \"Remote 2\"]",
+				RemoteConfigKeys.TIME_UPDATE_STALENESS_DAYS to "15",
+				RemoteConfigKeys.SYNCS_TO_SUGGEST_REVIEW to "invalid"
 			)
 		}
 		val defaults = IosConfigValues(

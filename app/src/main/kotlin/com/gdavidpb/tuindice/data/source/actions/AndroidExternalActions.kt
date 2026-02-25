@@ -8,12 +8,12 @@ import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
-import com.gdavidpb.tuindice.base.domain.repository.ExternalActions
+import com.gdavidpb.tuindice.base.domain.repository.ExternalActionsRepository
 import java.io.File
 
 class AndroidExternalActions(
 	private val context: Context
-) : ExternalActions {
+) : ExternalActionsRepository {
 	override fun openFile(fileRef: PlatformFileRef): Boolean {
 		val source = fileRef.value
 		val uri = source.toUri()

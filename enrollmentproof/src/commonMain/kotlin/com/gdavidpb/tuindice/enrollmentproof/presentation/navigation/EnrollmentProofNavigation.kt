@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.enrollmentproof.presentation.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.dialog
-import com.gdavidpb.tuindice.base.domain.repository.ExternalActions
+import com.gdavidpb.tuindice.base.domain.repository.ExternalActionsRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 import com.gdavidpb.tuindice.enrollmentproof.presentation.route.EnrollmentProofRoute
@@ -20,7 +20,7 @@ fun NavGraphBuilder.enrollmentProofNavigation(
 	) -> Unit
 ) {
 	dialog<EnrollmentProofDestination.EnrollmentProofDialog> {
-		val externalActions = koinInject<ExternalActions>()
+		val externalActions = koinInject<ExternalActionsRepository>()
 		val viewModel = koinInject<EnrollmentProofViewModel>()
 
 		EnrollmentProofRoute(

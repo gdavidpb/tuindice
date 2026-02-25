@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.domain.exception.NoSubjectsException
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
-import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationFilterLabelsProvider
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationFilterLabelsRepository
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
@@ -19,7 +19,7 @@ import kotlin.math.sign
 class GetEvaluationsUseCase(
 	private val quarterRepository: QuarterRepository,
 	private val evaluationRepository: EvaluationRepository,
-	private val filterLabelsProvider: EvaluationFilterLabelsProvider,
+	private val filterLabelsProvider: EvaluationFilterLabelsRepository,
 	override val exceptionHandler: GetEvaluationsExceptionHandler
 ) : FlowUseCase<Flow<List<EvaluationFilter>>, GetEvaluations, EvaluationsUseCaseError>() {
 

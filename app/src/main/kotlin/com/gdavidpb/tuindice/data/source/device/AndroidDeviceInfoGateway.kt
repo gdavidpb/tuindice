@@ -3,11 +3,11 @@ package com.gdavidpb.tuindice.data.source.device
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoGateway
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 
 class AndroidDeviceInfoGateway(
 	private val context: Context
-) : DeviceInfoGateway {
+) : DeviceInfoRepository {
 	override fun appVersionName(): String {
 		val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
 		return packageInfo.versionName.toString()

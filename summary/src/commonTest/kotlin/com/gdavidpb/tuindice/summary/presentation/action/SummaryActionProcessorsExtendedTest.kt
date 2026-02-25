@@ -4,9 +4,9 @@ import com.gdavidpb.tuindice.base.domain.model.EncodedImage
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.model.PlatformUri
 import com.gdavidpb.tuindice.base.domain.model.User
-import com.gdavidpb.tuindice.base.domain.repository.FileGateway
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.FileRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
@@ -319,7 +319,7 @@ private class FakeSummaryEncoderRepository : EncoderRepository {
 	}
 }
 
-private class FakeFileGateway : FileGateway {
+private class FakeFileGateway : FileRepository {
 	override suspend fun createTemporaryFile(nameHint: String): PlatformFileRef {
 		return PlatformFileRef("/tmp/profile_picture.jpg")
 	}
@@ -327,11 +327,11 @@ private class FakeFileGateway : FileGateway {
 	override suspend fun canOpen(fileRef: PlatformFileRef): Boolean = true
 }
 
-private class FakeNetworkStatusGateway : NetworkStatusGateway {
+private class FakeNetworkStatusGateway : NetworkRepository {
 	override fun isAvailable(): Boolean = true
 }
 
-private object FakeReportingGateway : ReportingGateway {
+private object FakeReportingGateway : ReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 	override fun logException(throwable: Throwable) = Unit
 	override fun logMessage(message: String) = Unit

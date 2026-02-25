@@ -23,16 +23,15 @@ abstract class FlowUseCase<P, T, E : UseCaseError>(
 		return flow {
 			emitAll(executeOnBackground(params))
 		}.flowOn(backgroundDispatcher)
-			.map { data ->
-				UseCaseState.Data<T, E>(data) as UseCaseState<T, E>
-			}
-			.onStart {
-				paramsValidator?.validate(params)
-
-				emit(UseCaseState.Loading())
-			}
-			.catch { throwable ->
-				val error = exceptionHandler?.reportException(throwable)
+				.map { data ->
+					UseCaseState.Data<T, E>(data) as UseCaseState<T, E>
+				}
+				.onStart {
+					emit(UseCaseState.Loading())
+					paramsValidator?.validate(params)
+				}
+				.catch { throwable ->
+					val error = exceptionHandler?.reportException(throwable)
 
 				emit(UseCaseState.Error(error))
 			}

@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
-import com.gdavidpb.tuindice.base.domain.repository.FileGateway
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.FileRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
@@ -129,7 +129,7 @@ private class EnrollmentProofViewModelFakeRepository(
 
 private class EnrollmentProofViewModelFakeFileGateway(
 	private val canOpen: Boolean
-) : FileGateway {
+) : FileRepository {
 	override suspend fun createTemporaryFile(nameHint: String): PlatformFileRef {
 		return PlatformFileRef("/tmp/$nameHint")
 	}
@@ -137,11 +137,11 @@ private class EnrollmentProofViewModelFakeFileGateway(
 	override suspend fun canOpen(fileRef: PlatformFileRef): Boolean = canOpen
 }
 
-private class EnrollmentProofViewModelFakeNetworkGateway : NetworkStatusGateway {
+private class EnrollmentProofViewModelFakeNetworkGateway : NetworkRepository {
 	override fun isAvailable(): Boolean = true
 }
 
-private class EnrollmentProofViewModelFakeReportingGateway : ReportingGateway {
+private class EnrollmentProofViewModelFakeReportingGateway : ReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 	override fun logException(throwable: Throwable) = Unit
 	override fun logMessage(message: String) = Unit

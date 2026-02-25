@@ -1,16 +1,13 @@
 package com.gdavidpb.tuindice.di
 
 import android.util.Log
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
-import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.data.DebugKoinDataSource
 import com.gdavidpb.tuindice.data.DebugReportingDataSource
 import com.gdavidpb.tuindice.data.MockAttestationProviderDataSource
-import com.gdavidpb.tuindice.data.MockRemoteConfigDataSource
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.*
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
@@ -36,10 +33,8 @@ val appMockModule = module {
 	/* Data sources */
 
 	factoryOf(::MockAttestationProviderDataSource) { bind<AttestationProvider>() }
-	factoryOf(::MockRemoteConfigDataSource) { bind<ConfigRepository>() }
+	factoryOf(::DebugKoinDataSource) { bind<DependenciesRepository>() }
 	factoryOf(::DebugReportingDataSource) {
 		bind<ReportingRepository>()
-		bind<ReportingGateway>()
 	}
-	factoryOf(::DebugKoinDataSource) { bind<DependenciesRepository>() }
 }

@@ -1,5 +1,5 @@
 package com.gdavidpb.tuindice.base.domain.repository
 
-interface BrowserGateway {
+interface BrowserRepository {
 	fun open(url: String)
 }

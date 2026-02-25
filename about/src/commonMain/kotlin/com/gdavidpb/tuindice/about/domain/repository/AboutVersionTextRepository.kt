@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.about.domain.repository
 
-interface AboutVersionTextProvider {
+interface AboutVersionTextRepository {
 	fun environmentName(debug: Boolean): String
 
 	fun appVersion(

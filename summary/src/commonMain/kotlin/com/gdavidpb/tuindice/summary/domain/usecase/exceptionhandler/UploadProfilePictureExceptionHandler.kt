@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler
 
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
@@ -9,8 +9,8 @@ import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgum
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 
 class UploadProfilePictureExceptionHandler(
-	private val networkRepository: NetworkStatusGateway,
-	override val reportingRepository: ReportingGateway
+	private val networkRepository: NetworkRepository,
+	override val reportingRepository: ReportingRepository
 ) : ExceptionHandler<ProfilePictureUseCaseError>() {
 	override fun parseException(throwable: Throwable): ProfilePictureUseCaseError? {
 		return when {

@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository as LoginReportingRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +44,7 @@ class IosReportingRepositoryTest {
 	private fun withReportingDependencies(
 		bridge: ReportingBridge,
 		block: suspend (
-			reportingGateway: ReportingGateway,
+			reportingGateway: ReportingRepository,
 			loginReporting: LoginReportingRepository
 		) -> Unit
 	) = runBlocking {

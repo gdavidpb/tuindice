@@ -6,8 +6,8 @@ import androidx.datastore.preferences.core.Preferences
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
-import com.gdavidpb.tuindice.base.domain.repository.IntegrityGateway
-import com.gdavidpb.tuindice.base.domain.repository.PushGateway
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.persistence.di.createIosDatabase
 import com.gdavidpb.tuindice.persistence.di.persistenceCoreModule
@@ -53,8 +53,8 @@ class IosKoinResolutionRegressionTest {
 			try {
 				val koin = koinApp.koin
 
-				assertNotNull(koin.get<PushGateway>())
-				assertNotNull(koin.get<IntegrityGateway>())
+				assertNotNull(koin.get<MessagingRepository>())
+				assertNotNull(koin.get<AttestationRepository>())
 				assertNotNull(koin.get<SignOutViewModel>())
 				assertNotNull(koin.get<MainViewModel>())
 			} finally {

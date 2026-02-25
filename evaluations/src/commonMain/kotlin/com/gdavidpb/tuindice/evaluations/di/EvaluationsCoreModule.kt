@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.evaluations.data.source.DefaultEvaluationFilterLabe
 import com.gdavidpb.tuindice.evaluations.data.source.KtorEvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.PreferencesDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.RoomDatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationFilterLabelsProvider
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationFilterLabelsRepository
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
@@ -110,5 +110,5 @@ val evaluationsCoreModule = module {
 	/* Shared text resources */
 
 	factoryOf(::DefaultEvaluationTextProvider) { bind<EvaluationTextProvider>() }
-	factoryOf(::DefaultEvaluationFilterLabelsProvider) { bind<EvaluationFilterLabelsProvider>() }
+	factoryOf(::DefaultEvaluationFilterLabelsProvider) { bind<EvaluationFilterLabelsRepository>() }
 }

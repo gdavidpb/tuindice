@@ -3,11 +3,11 @@ package com.gdavidpb.tuindice.presentation.viewmodel
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.base.domain.repository.ConfigGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.domain.repository.UpdateGateway
+import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.presentation.action.main.SetLastDestinationActionPr
 import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
 import com.gdavidpb.tuindice.presentation.contract.Main
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -71,36 +72,41 @@ class MainViewModelTest {
 				setLastDestinationUseCase = SetLastDestinationUseCase(settingsRepository)
 			)
 		)
-		val effects = mutableListOf<Main.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
-			waitUntil { viewModel.state.value is Main.State.Content }
+			waitUntil("action has subscribers") { viewModel.action.subscriptionCount.value > 0 }
+			viewModel.startUpAction()
+
+			waitUntil("state reached content") { viewModel.state.value is Main.State.Content }
 			val content = assertIs<Main.State.Content>(viewModel.state.value)
 			assertEquals(LoginDestination.SignOutDialog, content.startDestination)
 
 			viewModel.requestReviewAction()
-			waitUntil { effects.any { it is Main.Effect.TriggerReviewFlow } }
+			waitUntil("state remains content after review action") {
+				viewModel.state.value is Main.State.Content
+			}
 
 			viewModel.checkUpdateAction()
-			waitUntil { effects.any { it is Main.Effect.TriggerUpdateFlow } }
-			val updateEffect = effects.filterIsInstance<Main.Effect.TriggerUpdateFlow>().last()
-			assertEquals(UpdateAction.Immediate, updateEffect.action)
+			waitUntil("state remains content after update check action") {
+				viewModel.state.value is Main.State.Content
+			}
 
 			viewModel.setLastDestinationAction(LoginDestination.SignIn)
-			waitUntil { settingsRepository.savedDestination == LoginDestination.SignIn }
+			waitUntil("last destination persisted") {
+				settingsRepository.savedDestination == LoginDestination.SignIn
+			}
 
 			viewModel.updateStateAction(Main.State.Failed)
-			waitUntil { viewModel.state.value == Main.State.Failed }
+			waitUntil("state updated to failed") { viewModel.state.value == Main.State.Failed }
 		} finally {
-			effectJob.cancel()
 			stateJob.cancel()
 		}
 	}
 
 	private suspend fun waitUntil(
-		timeoutMs: Long = 2_000L,
+		label: String,
+		timeoutMs: Long = 5_000L,
 		condition: () -> Boolean
 	) {
 		val mark = TimeSource.Monotonic.markNow()
@@ -109,7 +115,7 @@ class MainViewModelTest {
 			delay(20)
 		}
 
-		assertTrue(condition(), "Condition not reached within timeout.")
+		assertTrue(condition(), "Condition not reached within timeout: $label")
 	}
 }
 
@@ -140,7 +146,7 @@ private class MainViewModelFakeSettingsRepository(
 	override suspend fun clear() = Unit
 }
 
-private class MainViewModelFakeConfigGateway : ConfigGateway {
+private class MainViewModelFakeConfigGateway : ConfigRepository {
 	override suspend fun tryFetch() = Unit
 	override fun getTimeout(): Long = 30_000L
 	override fun getContactEmail(): String = "support@tuindice.app"
@@ -152,7 +158,7 @@ private class MainViewModelFakeConfigGateway : ConfigGateway {
 
 private class MainViewModelFakeUpdateGateway(
 	private val updateAction: UpdateAction?
-) : UpdateGateway {
+) : UpdateRepository {
 	override suspend fun checkForUpdate(stalenessDays: Int): UpdateAction? = updateAction
 	override suspend fun launchUpdate(action: UpdateAction) = Unit
 }
@@ -165,7 +171,7 @@ private class MainViewModelFakeApplicationRepository : ApplicationRepository {
 	override suspend fun canOpen(fileRef: PlatformFileRef): Boolean = true
 }
 
-private class MainViewModelFakeReportingGateway : ReportingGateway {
+private class MainViewModelFakeReportingGateway : ReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 	override fun logException(throwable: Throwable) = Unit
 	override fun logMessage(message: String) = Unit

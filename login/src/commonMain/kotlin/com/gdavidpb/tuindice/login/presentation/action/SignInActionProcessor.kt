@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.login.presentation.action
 
-import com.gdavidpb.tuindice.base.domain.repository.ConfigGateway
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.map
 
 class SignInActionProcessor(
 	private val signInUseCase: SignInUseCase,
-	private val configRepository: ConfigGateway,
+	private val configRepository: ConfigRepository,
 	private val textProvider: LoginTextProvider
 ) : ActionProcessor<SignIn.State, SignIn.Action.ClickSignIn, SignIn.Effect>() {
 

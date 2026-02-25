@@ -6,8 +6,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.about.domain.model.AboutLinks
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
-import com.gdavidpb.tuindice.base.domain.repository.BrowserGateway
-import com.gdavidpb.tuindice.base.domain.repository.ExternalActions
+import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
+import com.gdavidpb.tuindice.base.domain.repository.ExternalActionsRepository
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.config
 
@@ -17,8 +17,8 @@ private val contactSubject by config { getContactSubject() }
 @Composable
 fun AboutRoute(
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
-	browserGateway: BrowserGateway,
-	externalActions: ExternalActions,
+	browserGateway: BrowserRepository,
+	externalActions: ExternalActionsRepository,
 	viewModel: AboutViewModel,
 	content: @Composable (
 		state: About.State,

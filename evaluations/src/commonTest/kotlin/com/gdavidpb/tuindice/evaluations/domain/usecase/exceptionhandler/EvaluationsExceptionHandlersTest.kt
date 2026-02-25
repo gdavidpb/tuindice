@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler
 
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.evaluations.domain.exception.AddEvaluationIllegalArgumentException
 import com.gdavidpb.tuindice.evaluations.domain.exception.NoSubjectsException
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.AddEvaluationUseCaseError
@@ -57,7 +57,7 @@ class EvaluationsExceptionHandlersTest {
 	}
 }
 
-private class FakeReportingGateway : ReportingGateway {
+private class FakeReportingGateway : ReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 
 	override fun logException(throwable: Throwable) = Unit

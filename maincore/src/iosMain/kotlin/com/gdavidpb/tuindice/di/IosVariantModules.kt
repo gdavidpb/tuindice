@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.base.domain.repository.IntegrityGateway
 import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository as LoginMessagingRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -20,10 +19,6 @@ internal val iosDebugVariantModule: Module = module {
 		IosDebugAttestationDataRepository(
 			identityHttpClient = get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
 		)
-	}
-
-	factory<IntegrityGateway> {
-		get<AttestationRepository>()
 	}
 
 	factory<LoginMessagingRepository> {

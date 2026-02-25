@@ -7,10 +7,10 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.gdavidpb.tuindice.base.domain.repository.BrowserGateway
-import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReviewGateway
-import com.gdavidpb.tuindice.base.domain.repository.UpdateGateway
+import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
+import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
@@ -30,10 +30,10 @@ import org.koin.compose.koinInject
 fun TuIndiceCoordinatorRoute(
 	onConfirmExitClick: () -> Unit,
 	showSnackBar: (SnackBarMessage) -> Unit,
-	browserGateway: BrowserGateway = koinInject(),
-	deviceInfoGateway: DeviceInfoGateway = koinInject(),
-	reviewGateway: ReviewGateway = koinInject(),
-	updateGateway: UpdateGateway = koinInject(),
+	browserGateway: BrowserRepository = koinInject(),
+	deviceInfoGateway: DeviceInfoRepository = koinInject(),
+	reviewGateway: ReviewRepository = koinInject(),
+	updateGateway: UpdateRepository = koinInject(),
 	viewModel: MainViewModel = koinInject(),
 	content: @Composable (
 		state: Main.State,

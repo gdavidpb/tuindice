@@ -4,13 +4,13 @@ import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
-import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentGateway
-import com.gdavidpb.tuindice.base.domain.repository.ConfigGateway
-import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoGateway
-import com.gdavidpb.tuindice.base.domain.repository.FileGateway
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
-import com.gdavidpb.tuindice.base.domain.repository.SecureStore
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
+import com.gdavidpb.tuindice.base.domain.repository.FileRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SecureStoreRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.di.IosPlatformBridge
@@ -72,14 +72,14 @@ class TuIndiceIosSmokeVerifier {
 			runBlocking {
 				val koin = requireIosKoin()
 				val checks = mutableListOf<String>()
-				val appEnvironment = koin.get<AppEnvironmentGateway>().getEnvironment()
-				val networkStatusGateway = koin.get<NetworkStatusGateway>()
-				val deviceInfoGateway = koin.get<DeviceInfoGateway>()
-				val fileGateway = koin.get<FileGateway>()
-				val secureStore = koin.get<SecureStore>()
+				val appEnvironment = koin.get<AppEnvironmentRepository>().getEnvironment()
+				val networkStatusGateway = koin.get<NetworkRepository>()
+				val deviceInfoGateway = koin.get<DeviceInfoRepository>()
+				val fileGateway = koin.get<FileRepository>()
+				val secureStore = koin.get<SecureStoreRepository>()
 				val iosPlatformBridge = koin.get<IosPlatformBridge>()
-				val configGateway = koin.get<ConfigGateway>()
-				val reportingGateway = koin.get<ReportingGateway>()
+				val configGateway = koin.get<ConfigRepository>()
+				val reportingGateway = koin.get<ReportingRepository>()
 
 				// App environment contract is resolved and exposes non-empty runtime endpoints.
 				check(appEnvironment.apiBaseUrl.isNotBlank()) {
@@ -128,7 +128,7 @@ class TuIndiceIosSmokeVerifier {
 				// File gateway must create a platform file reference and be queryable.
 				val smokeFileRef = fileGateway.createTemporaryFile(nameHint = "ios-smoke.tmp")
 				check(smokeFileRef.value.isNotBlank()) {
-					"Smoke: FileGateway returned an empty PlatformFileRef."
+					"Smoke: FileRepository returned an empty PlatformFileRef."
 				}
 				fileGateway.canOpen(smokeFileRef)
 				checks += "file-gateway:ok"
@@ -138,10 +138,10 @@ class TuIndiceIosSmokeVerifier {
 				val smokeSecureStoreValue = "ok"
 				secureStore.putString(smokeSecureStoreKey, smokeSecureStoreValue)
 				check(secureStore.contains(smokeSecureStoreKey)) {
-					"Smoke: SecureStore did not contain the key after write."
+					"Smoke: SecureStoreRepository did not contain the key after write."
 				}
 				check(secureStore.getString(smokeSecureStoreKey) == smokeSecureStoreValue) {
-					"Smoke: SecureStore roundtrip value mismatch."
+					"Smoke: SecureStoreRepository roundtrip value mismatch."
 				}
 				checks += "secure-store:ok"
 

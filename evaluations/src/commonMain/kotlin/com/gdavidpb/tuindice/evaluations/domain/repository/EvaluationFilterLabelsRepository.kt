@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.domain.repository
 
-interface EvaluationFilterLabelsProvider {
+interface EvaluationFilterLabelsRepository {
 	fun pending(): String
 	fun completed(): String
 	fun noGrade(): String

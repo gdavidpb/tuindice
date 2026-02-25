@@ -1,3 +1,6 @@
 package com.gdavidpb.tuindice.base.domain.repository
 
-interface MessagingRepository : PushGateway
+interface MessagingRepository {
+	suspend fun subscribe()
+	suspend fun unsubscribe()
+}

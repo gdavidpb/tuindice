@@ -3,11 +3,11 @@ package com.gdavidpb.tuindice.domain.usecase
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.base.domain.repository.ConfigGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.domain.repository.UpdateGateway
+import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
@@ -441,7 +441,7 @@ private class FakeConfigGateway(
 	private val stalenessDays: Int = 7,
 	private val syncsToSuggestReview: Int = 5,
 	private val tryFetchThrowable: Throwable? = null
-) : ConfigGateway {
+) : ConfigRepository {
 	var tryFetchCalls: Int = 0
 
 	override suspend fun tryFetch() {
@@ -464,7 +464,7 @@ private class FakeConfigGateway(
 
 private class FakeUpdateGateway(
 	private val updateAction: UpdateAction?
-) : UpdateGateway {
+) : UpdateRepository {
 	var lastStalenessDays: Int? = null
 
 	override suspend fun checkForUpdate(stalenessDays: Int): UpdateAction? {
@@ -489,7 +489,7 @@ private class FakeApplicationRepository : ApplicationRepository {
 	override suspend fun canOpen(fileRef: PlatformFileRef): Boolean = true
 }
 
-private class FakeReportingGateway : ReportingGateway {
+private class FakeReportingGateway : ReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 
 	override fun logException(throwable: Throwable) = Unit

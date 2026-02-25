@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.source.update
 
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityProvider
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
-import com.gdavidpb.tuindice.base.domain.repository.UpdateGateway
+import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
@@ -13,7 +13,7 @@ import kotlinx.coroutines.tasks.await
 class PlayUpdateGateway(
 	private val appUpdateManager: AppUpdateManager,
 	private val currentActivityProvider: CurrentActivityProvider
-) : UpdateGateway {
+) : UpdateRepository {
 	private var pendingUpdateInfo: AppUpdateInfo? = null
 
 	override suspend fun checkForUpdate(stalenessDays: Int): UpdateAction? {

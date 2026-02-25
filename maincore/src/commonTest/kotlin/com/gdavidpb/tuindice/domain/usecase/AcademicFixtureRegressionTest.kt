@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
@@ -15,7 +15,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
-import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationFilterLabelsProvider
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationFilterLabelsRepository
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
@@ -181,7 +181,7 @@ private class AcademicFixtureEvaluationRepository(
 	}
 }
 
-private class AcademicFixtureLabelsProvider : EvaluationFilterLabelsProvider {
+private class AcademicFixtureLabelsProvider : EvaluationFilterLabelsRepository {
 	override fun pending(): String = "Pending"
 
 	override fun completed(): String = "Completed"
@@ -191,11 +191,11 @@ private class AcademicFixtureLabelsProvider : EvaluationFilterLabelsProvider {
 	override fun date(date: Long?): String = date?.toString() ?: "No date"
 }
 
-private class AcademicFixtureNetworkGateway : NetworkStatusGateway {
+private class AcademicFixtureNetworkGateway : NetworkRepository {
 	override fun isAvailable(): Boolean = true
 }
 
-private class AcademicFixtureReportingGateway : ReportingGateway {
+private class AcademicFixtureReportingGateway : ReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 
 	override fun logException(throwable: Throwable) = Unit

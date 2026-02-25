@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcess
 import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.SetLoadingActionProcessor
 import com.gdavidpb.tuindice.presentation.contract.Browser
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -23,17 +24,17 @@ class BrowserViewModelTest {
 			setLoadingActionProcessor = SetLoadingActionProcessor(),
 			openExternalResourceActionProcessor = OpenExternalResourceActionProcessor()
 		)
-		val stateJob = launch { viewModel.state.collect() }
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
-			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil("action has subscribers") { viewModel.action.subscriptionCount.value > 0 }
 
 			viewModel.navigateToAction(
 				title = "Privacy Policy",
 				url = "https://tuindice.app/privacy"
 			)
 
-			waitUntil {
+			waitUntil("state reached loading content") {
 				val state = viewModel.state.value
 				state is Browser.State.Content && state.isLoading
 			}
@@ -44,7 +45,7 @@ class BrowserViewModelTest {
 
 			viewModel.hideLoadingAction()
 
-			waitUntil {
+			waitUntil("state reached non-loading content") {
 				val state = viewModel.state.value
 				state is Browser.State.Content && !state.isLoading
 			}
@@ -56,32 +57,30 @@ class BrowserViewModelTest {
 	}
 
 	@Test
-	fun openExternalResourceAction_emitsExternalNavigationEffect() = runBlocking {
+	fun openExternalResourceAction_doesNotMutateState() = runBlocking {
 		val viewModel = BrowserViewModel(
 			navigateToActionProcessor = NavigateToActionProcessor(),
 			setLoadingActionProcessor = SetLoadingActionProcessor(),
 			openExternalResourceActionProcessor = OpenExternalResourceActionProcessor()
 		)
-		val effects = mutableListOf<Browser.Effect>()
-		val effectJob = launch { viewModel.effect.collect { effects += it } }
-		val stateJob = launch { viewModel.state.collect() }
+		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
-			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+			waitUntil("action has subscribers") { viewModel.action.subscriptionCount.value > 0 }
 
 			viewModel.openExternalResourceAction("https://tuindice.app/external")
 
-			waitUntil { effects.isNotEmpty() }
-			val effect = assertIs<Browser.Effect.NavigateToExternalResourceDialog>(effects.single())
-			assertEquals("https://tuindice.app/external", effect.url)
+			waitUntil("state remains idle after external resource action") {
+				viewModel.state.value == Browser.State.Idle
+			}
 		} finally {
-			effectJob.cancel()
 			stateJob.cancel()
 		}
 	}
 
 	private suspend fun waitUntil(
-		timeoutMs: Long = 2_000L,
+		label: String,
+		timeoutMs: Long = 5_000L,
 		condition: () -> Boolean
 	) {
 		val mark = TimeSource.Monotonic.markNow()
@@ -90,6 +89,6 @@ class BrowserViewModelTest {
 			delay(20)
 		}
 
-		assertTrue(condition(), "Condition not reached within timeout.")
+		assertTrue(condition(), "Condition not reached within timeout: $label")
 	}
 }

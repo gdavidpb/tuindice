@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.enrollmentproof.data.repository
 
-import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
@@ -103,6 +103,6 @@ private class FakeStorageDataSource(
 
 private class FakeNetworkStatusGateway(
 	private val available: Boolean
-) : NetworkStatusGateway {
+) : NetworkRepository {
 	override fun isAvailable(): Boolean = available
 }

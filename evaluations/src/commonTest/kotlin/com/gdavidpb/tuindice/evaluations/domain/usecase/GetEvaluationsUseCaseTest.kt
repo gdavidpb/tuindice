@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
@@ -13,7 +13,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
-import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationFilterLabelsProvider
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationFilterLabelsRepository
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.GetEvaluationsExceptionHandler
@@ -215,7 +215,7 @@ private class FakeQuarterRepository(
 	override suspend fun setSubjectGrade(set: SubjectGradeSet) = Unit
 }
 
-private class FakeEvaluationFilterLabelsProvider : EvaluationFilterLabelsProvider {
+private class FakeEvaluationFilterLabelsProvider : EvaluationFilterLabelsRepository {
 	override fun pending(): String = "Pending"
 
 	override fun completed(): String = "Completed"
@@ -225,7 +225,7 @@ private class FakeEvaluationFilterLabelsProvider : EvaluationFilterLabelsProvide
 	override fun date(date: Long?): String = date?.toString() ?: "Sin fecha"
 }
 
-private class GetEvaluationsFakeReportingGateway : ReportingGateway {
+private class GetEvaluationsFakeReportingGateway : ReportingRepository {
 	override fun setIdentifier(identifier: String) = Unit
 
 	override fun logException(throwable: Throwable) = Unit

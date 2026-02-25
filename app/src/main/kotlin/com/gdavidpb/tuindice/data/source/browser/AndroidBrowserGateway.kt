@@ -3,11 +3,11 @@ package com.gdavidpb.tuindice.data.source.browser
 import android.content.Context
 import android.content.Intent
 import androidx.core.net.toUri
-import com.gdavidpb.tuindice.base.domain.repository.BrowserGateway
+import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 
 class AndroidBrowserGateway(
 	private val context: Context
-) : BrowserGateway {
+) : BrowserRepository {
 	override fun open(url: String) {
 		runCatching {
 			context.startActivity(
