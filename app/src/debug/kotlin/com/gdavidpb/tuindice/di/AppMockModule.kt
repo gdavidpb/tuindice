@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.di
 
 import android.util.Log
+import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -36,6 +37,9 @@ val appMockModule = module {
 
 	factoryOf(::MockAttestationProviderDataSource) { bind<AttestationProvider>() }
 	factoryOf(::MockRemoteConfigDataSource) { bind<ConfigRepository>() }
-	factoryOf(::DebugReportingDataSource) { bind<ReportingRepository>() }
+	factoryOf(::DebugReportingDataSource) {
+		bind<ReportingRepository>()
+		bind<ReportingGateway>()
+	}
 	factoryOf(::DebugKoinDataSource) { bind<DependenciesRepository>() }
 }
