@@ -8,7 +8,7 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
-val loginModule = module {
+val loginAndroidModule = module {
 	/* Android repositories */
 
 	factoryOf(::CrashlyticsReportingDataRepository) { bind<ReportingRepository>() }

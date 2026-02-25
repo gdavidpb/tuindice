@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.di.createIosDatabase
 import com.gdavidpb.tuindice.persistence.di.defaultIosDatabasePath
-import com.gdavidpb.tuindice.persistence.di.persistenceCoreModule
+import com.gdavidpb.tuindice.persistence.di.persistenceCommonModule
 import org.koin.core.Koin
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
@@ -35,7 +35,7 @@ fun iosModules(
 ): List<Module> {
 	return iosSharedModules(
 		platformConfig = platformConfig,
-		extraModules = listOf(persistenceCoreModule(database)) + extraModules
+		extraModules = listOf(persistenceCommonModule(database)) + extraModules
 	)
 }
 

@@ -1,22 +1,22 @@
 package com.gdavidpb.tuindice.di
 
-import com.gdavidpb.tuindice.about.di.aboutCoreModule
-import com.gdavidpb.tuindice.enrollmentproof.di.enrollmentProofCoreModule
-import com.gdavidpb.tuindice.evaluations.di.evaluationsCoreModule
-import com.gdavidpb.tuindice.login.di.loginCoreModule
-import com.gdavidpb.tuindice.record.di.recordCoreModule
-import com.gdavidpb.tuindice.summary.di.summaryCoreModule
+import com.gdavidpb.tuindice.about.di.aboutCommonModule
+import com.gdavidpb.tuindice.enrollmentproof.di.enrollmentProofCommonModule
+import com.gdavidpb.tuindice.evaluations.di.evaluationsCommonModule
+import com.gdavidpb.tuindice.login.di.loginCommonModule
+import com.gdavidpb.tuindice.record.di.recordCommonModule
+import com.gdavidpb.tuindice.summary.di.summaryCommonModule
 import org.koin.core.module.Module
 
-fun sharedCoreModules(): List<Module> {
+fun sharedCommonModules(): List<Module> {
 	return listOf(
-		mainCoreModule,
-		loginCoreModule,
-		aboutCoreModule,
-		summaryCoreModule,
-		recordCoreModule,
-		evaluationsCoreModule,
-		enrollmentProofCoreModule
+		mainCommonModule,
+		loginCommonModule,
+		aboutCommonModule,
+		summaryCommonModule,
+		recordCommonModule,
+		evaluationsCommonModule,
+		enrollmentProofCommonModule
 	)
 }
 
@@ -25,7 +25,7 @@ fun sharedModules(
 	extraModules: List<Module> = emptyList()
 ): List<Module> {
 	return buildList {
-		addAll(sharedCoreModules())
+		addAll(sharedCommonModules())
 		addAll(platformModules)
 		addAll(extraModules)
 	}

@@ -10,7 +10,7 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
-val summaryModule = module {
+val summaryAndroidModule = module {
 	/* Android data sources */
 
 	factoryOf(::ImageEncoderDataSource) { bind<EncoderRepository>() }

@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
-val persistenceModule = module {
+val persistenceAndroidModule = module {
 	/* Database */
 
 	single {

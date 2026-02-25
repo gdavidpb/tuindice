@@ -6,7 +6,7 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
-val enrollmentProofModule = module {
+val enrollmentProofAndroidModule = module {
 	/* Android data sources */
 
 	factoryOf(::InternalStorageDataSource) { bind<StorageDataSource>() }

@@ -18,7 +18,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
-val mainCoreModule = module {
+val mainCommonModule = module {
 	/* View models */
 
 	factoryOf(::MainViewModel)

@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.persistence.di.createIosDatabase
-import com.gdavidpb.tuindice.persistence.di.persistenceCoreModule
+import com.gdavidpb.tuindice.persistence.di.persistenceCommonModule
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +42,7 @@ class IosKoinResolutionRegressionTest {
 							dataStore = dataStore
 						),
 						extraModules = listOf(
-							persistenceCoreModule(
+							persistenceCommonModule(
 								database = createIosDatabase(path = databasePath.toString())
 							)
 						)
