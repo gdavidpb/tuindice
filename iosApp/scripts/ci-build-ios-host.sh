@@ -7,6 +7,7 @@ WORKSPACE_PATH="$ROOT_DIR/TuIndiceHost.xcworkspace"
 SCHEME_NAME="TuIndiceHost"
 CONFIGURATION_NAME="${CONFIGURATION:-Debug}"
 DERIVED_DATA_PATH="${DERIVED_DATA_PATH:-}"
+IOS_PLATFORM="${IOS_PLATFORM:-simulator}"
 REQUIRE_SIMULATOR="${REQUIRE_SIMULATOR:-0}"
 
 skip_or_fail() {
@@ -29,18 +30,20 @@ if ! command -v xcrun >/dev/null 2>&1; then
 	skip_or_fail "xcrun is not available."
 fi
 
-SIMULATOR_DEVICES_OUTPUT="$(
-	xcrun simctl list devices available 2>&1 || true
-)"
+if [[ "$IOS_PLATFORM" == "simulator" ]]; then
+	SIMULATOR_DEVICES_OUTPUT="$(
+		xcrun simctl list devices available 2>&1 || true
+	)"
 
-if [[ "$SIMULATOR_DEVICES_OUTPUT" == *"Unable to locate device set"* ]] || \
-	[[ "$SIMULATOR_DEVICES_OUTPUT" == *"CoreSimulatorService connection became invalid"* ]] || \
-	[[ "$SIMULATOR_DEVICES_OUTPUT" == *"Connection refused"* ]]; then
-	skip_or_fail "CoreSimulatorService is unavailable in this environment."
-fi
+	if [[ "$SIMULATOR_DEVICES_OUTPUT" == *"Unable to locate device set"* ]] || \
+		[[ "$SIMULATOR_DEVICES_OUTPUT" == *"CoreSimulatorService connection became invalid"* ]] || \
+		[[ "$SIMULATOR_DEVICES_OUTPUT" == *"Connection refused"* ]]; then
+		skip_or_fail "CoreSimulatorService is unavailable in this environment."
+	fi
 
-if [[ "$SIMULATOR_DEVICES_OUTPUT" != *"iPhone"* ]]; then
-	skip_or_fail "no available iPhone simulators."
+	if [[ "$SIMULATOR_DEVICES_OUTPUT" != *"iPhone"* ]]; then
+		skip_or_fail "no available iPhone simulators."
+	fi
 fi
 
 if [[ -f "$ROOT_DIR/Podfile" ]] && command -v pod >/dev/null 2>&1; then
@@ -64,9 +67,19 @@ fi
 xcodebuild_args+=(
 	-scheme "$SCHEME_NAME"
 	-configuration "$CONFIGURATION_NAME"
-	-sdk iphonesimulator
-	-destination "generic/platform=iOS Simulator"
 )
+
+if [[ "$IOS_PLATFORM" == "simulator" ]]; then
+	xcodebuild_args+=(
+		-sdk iphonesimulator
+		-destination "generic/platform=iOS Simulator"
+	)
+else
+	xcodebuild_args+=(
+		-sdk iphoneos
+		-destination "generic/platform=iOS"
+	)
+fi
 
 if [[ -n "$DERIVED_DATA_PATH" ]]; then
 	xcodebuild_args+=(
@@ -74,8 +87,15 @@ if [[ -n "$DERIVED_DATA_PATH" ]]; then
 	)
 fi
 
+if [[ "$IOS_PLATFORM" == "simulator" ]]; then
+	DEFAULT_CODE_SIGNING_ALLOWED="NO"
+else
+	DEFAULT_CODE_SIGNING_ALLOWED="YES"
+fi
+CODE_SIGNING_ALLOWED_VALUE="${CODE_SIGNING_ALLOWED:-$DEFAULT_CODE_SIGNING_ALLOWED}"
+
 xcodebuild_args+=(
-	CODE_SIGNING_ALLOWED=NO
+	"CODE_SIGNING_ALLOWED=$CODE_SIGNING_ALLOWED_VALUE"
 	build
 )
 

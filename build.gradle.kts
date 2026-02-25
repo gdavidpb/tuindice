@@ -1835,14 +1835,77 @@ tasks.register<Exec>("verifyIosHostLaunchSmoke") {
 	commandLine("bash", "${rootDir}/iosApp/scripts/ci-smoke-ios-host.sh")
 }
 
+tasks.register<Exec>("verifyIosHostBuildDeviceRelease") {
+	group = "verification"
+	description = "Builds iOS host app in Release configuration (physical device)."
+
+	val isMacHost = System.getProperty("os.name")
+		.contains("Mac", ignoreCase = true)
+	val runHostBuild = System.getenv("TUINDICE_IOS_HOST_BUILD") == "1"
+	val runHostDeviceE2E = System.getenv("TUINDICE_IOS_HOST_E2E") == "1"
+
+	if (isMacHost && runHostBuild && runHostDeviceE2E) {
+		dependsOn(":maincore:linkReleaseFrameworkIosArm64")
+	}
+
+	onlyIf {
+		isMacHost && runHostBuild && runHostDeviceE2E
+	}
+
+	environment("CONFIGURATION", "Release")
+	environment("IOS_PLATFORM", "device")
+	environment("DERIVED_DATA_PATH", "${rootDir}/iosApp/.build/ios-host-device-release")
+	environment(
+		"CODE_SIGNING_ALLOWED",
+		System.getenv("TUINDICE_IOS_HOST_DEVICE_CODE_SIGNING_ALLOWED") ?: "YES"
+	)
+	commandLine("bash", "${rootDir}/iosApp/scripts/ci-build-ios-host.sh")
+}
+
+tasks.register<Exec>("verifyIosHostDeviceE2E") {
+	group = "verification"
+	description = "Installs and launches iOS host app on a physical device (Release E2E smoke)."
+
+	val isMacHost = System.getProperty("os.name")
+		.contains("Mac", ignoreCase = true)
+	val runHostDeviceE2E = System.getenv("TUINDICE_IOS_HOST_E2E") == "1"
+	val runHostBuild = System.getenv("TUINDICE_IOS_HOST_BUILD") == "1"
+
+	if (isMacHost && runHostDeviceE2E && runHostBuild) {
+		dependsOn("verifyIosHostBuildDeviceRelease")
+	}
+
+	onlyIf {
+		isMacHost && runHostDeviceE2E
+	}
+
+	environment("CONFIGURATION", "Release")
+	environment("DERIVED_DATA_PATH", "${rootDir}/iosApp/.build/ios-host-device-release")
+	environment("IOS_DEVICE_IDENTIFIER", System.getenv("TUINDICE_IOS_DEVICE_IDENTIFIER") ?: "")
+	if (runHostBuild) {
+		environment("SKIP_HOST_BUILD", "1")
+	}
+	if (System.getenv("TUINDICE_IOS_HOST_E2E_REQUIRE_DEVICE") == "1") {
+		environment("REQUIRE_DEVICE", "1")
+	}
+	System.getenv("TUINDICE_IOS_HOST_E2E_TIMEOUT_SECONDS")
+		?.takeIf { it.isNotBlank() }
+		?.let { timeoutSeconds ->
+			environment("E2E_LAUNCH_TIMEOUT_SECONDS", timeoutSeconds)
+		}
+
+	commandLine("bash", "${rootDir}/iosApp/scripts/ci-e2e-ios-host-device.sh")
+}
+
 tasks.register("verifyIosHostSmoke") {
 	group = "verification"
-	description = "Runs iOS host smoke builds (Debug + Release) and optional launch smoke."
+	description = "Runs iOS host smoke builds and optional launch/device E2E lanes."
 
 	dependsOn(
 		"verifyIosHostBuildDebug",
 		"verifyIosHostBuildRelease",
-		"verifyIosHostLaunchSmoke"
+		"verifyIosHostLaunchSmoke",
+		"verifyIosHostDeviceE2E"
 	)
 }
 
