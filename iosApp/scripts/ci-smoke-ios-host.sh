@@ -11,6 +11,9 @@ ENABLE_FUNCTIONAL_SMOKE="${ENABLE_FUNCTIONAL_SMOKE:-1}"
 SMOKE_LOG_TIMEOUT_SECONDS="${SMOKE_LOG_TIMEOUT_SECONDS:-20}"
 SMOKE_REQUIRED_CHECKS="${SMOKE_REQUIRED_CHECKS:-appenv:ok,network:,device:ok,user-agent:ok,file-gateway:ok,secure-store:ok,push:ok,attestation:APP_ATTEST,attestation-key-id:ok,startup:,destination:ok,review:,update:,config:ok,reporting:ok,browser-flow:ok,signin-flow:ok,about-flow:ok,summary-flow:ok,record-flow:ok,enrollment-flow:ok,evaluations-flow:ok,evaluation-flow:ok,feature-usecases:loading,viewmodels:ok}"
 SMOKE_RUN_ID="${SMOKE_RUN_ID:-$(date +%s)}"
+SMOKE_USBID="${SMOKE_USBID:-${TUINDICE_SMOKE_USBID:-}}"
+SMOKE_PASSWORD="${SMOKE_PASSWORD:-${TUINDICE_SMOKE_PASSWORD:-}}"
+AUTH_SMOKE_REQUIRED_CHECKS="${AUTH_SMOKE_REQUIRED_CHECKS:-signin-auth:ok,signout-auth:ok}"
 REQUIRE_SIMULATOR="${REQUIRE_SIMULATOR:-0}"
 HOST_APP_NAME="TuIndiceHost.app"
 SMOKE_MARKER_PREFIX="TUINDICE_SMOKE_MARKER"
@@ -109,8 +112,23 @@ xcrun simctl install "$SIMULATOR_UDID" "$APP_BUNDLE_PATH"
 
 LAUNCH_ARGUMENTS=()
 if [[ "$ENABLE_FUNCTIONAL_SMOKE" == "1" ]]; then
+	if [[ -n "$SMOKE_USBID" || -n "$SMOKE_PASSWORD" ]]; then
+		if [[ -z "$SMOKE_USBID" || -z "$SMOKE_PASSWORD" ]]; then
+			echo "iOS host smoke failed: both SMOKE_USBID and SMOKE_PASSWORD are required for authenticated smoke."
+			exit 1
+		fi
+
+		if [[ "$SMOKE_REQUIRED_CHECKS" != *"signin-auth:ok"* ]]; then
+			SMOKE_REQUIRED_CHECKS="${SMOKE_REQUIRED_CHECKS},${AUTH_SMOKE_REQUIRED_CHECKS}"
+		fi
+	fi
+
 	LAUNCH_ARGUMENTS+=("TUINDICE_IOS_SMOKE_VALIDATE=1")
 	LAUNCH_ARGUMENTS+=("TUINDICE_IOS_SMOKE_RUN_ID=$SMOKE_RUN_ID")
+	if [[ -n "$SMOKE_USBID" && -n "$SMOKE_PASSWORD" ]]; then
+		LAUNCH_ARGUMENTS+=("TUINDICE_SMOKE_USBID=$SMOKE_USBID")
+		LAUNCH_ARGUMENTS+=("TUINDICE_SMOKE_PASSWORD=$SMOKE_PASSWORD")
+	fi
 fi
 
 LAUNCH_OUTPUT="$(

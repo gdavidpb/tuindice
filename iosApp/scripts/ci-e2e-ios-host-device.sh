@@ -10,7 +10,7 @@ REQUIRE_DEVICE="${REQUIRE_DEVICE:-0}"
 E2E_LAUNCH_TIMEOUT_SECONDS="${E2E_LAUNCH_TIMEOUT_SECONDS:-45}"
 SMOKE_RUN_ID="${SMOKE_RUN_ID:-$(date +%s)}"
 SMOKE_MARKER_PREFIX="TUINDICE_SMOKE_MARKER"
-SMOKE_REQUIRED_CHECKS="${SMOKE_REQUIRED_CHECKS:-appenv:ok,network:,device:ok,user-agent:ok,file-gateway:ok,secure-store:ok,push:ok,attestation:APP_ATTEST,attestation-key-id:ok,startup:,destination:ok,review:,update:,config:ok,reporting:ok,browser-flow:ok,signin-flow:ok,about-flow:ok,summary-flow:ok,record-flow:ok,enrollment-flow:ok,evaluations-flow:ok,evaluation-flow:ok,feature-usecases:loading,viewmodels:ok}"
+SMOKE_REQUIRED_CHECKS="${SMOKE_REQUIRED_CHECKS:-smoke-runtime:disabled-on-device}"
 HOST_APP_NAME="TuIndiceHost.app"
 
 skip_or_fail() {
@@ -77,6 +77,11 @@ fi
 
 xcrun devicectl device uninstall app --device "$IOS_DEVICE_IDENTIFIER" "$BUNDLE_ID" >/dev/null 2>&1 || true
 xcrun devicectl device install app --device "$IOS_DEVICE_IDENTIFIER" "$APP_BUNDLE_PATH" >/dev/null
+
+if [[ -n "${SMOKE_USBID:-}" || -n "${SMOKE_PASSWORD:-}" || -n "${TUINDICE_SMOKE_USBID:-}" || -n "${TUINDICE_SMOKE_PASSWORD:-}" ]]; then
+	echo "iOS host device E2E failed: authenticated smoke is unavailable on iosArm64 runtime (smoke disabled on device). Use simulator smoke lane for authenticated checks."
+	exit 1
+fi
 
 LAUNCH_ENV_JSON="{\"TUINDICE_IOS_SMOKE_VALIDATE\":\"1\",\"TUINDICE_IOS_SMOKE_RUN_ID\":\"$SMOKE_RUN_ID\"}"
 

@@ -1218,6 +1218,18 @@ tasks.register("checkIosSmokeRequiredChecksCoverage") {
 		check(scriptContent.contains("TUINDICE_IOS_SMOKE_RUN_ID")) {
 			"iOS smoke script must keep run-id marker isolation (TUINDICE_IOS_SMOKE_RUN_ID)."
 		}
+		check(scriptContent.contains("TUINDICE_SMOKE_USBID")) {
+			"iOS smoke script must support optional authenticated smoke via TUINDICE_SMOKE_USBID."
+		}
+		check(scriptContent.contains("TUINDICE_SMOKE_PASSWORD")) {
+			"iOS smoke script must support optional authenticated smoke via TUINDICE_SMOKE_PASSWORD."
+		}
+		check(scriptContent.contains("signin-auth:ok")) {
+			"iOS smoke script must support authenticated smoke checks (signin-auth:ok)."
+		}
+		check(scriptContent.contains("signout-auth:ok")) {
+			"iOS smoke script must support authenticated smoke checks (signout-auth:ok)."
+		}
 		check(scriptContent.contains("\$SMOKE_MARKER_PREFIX:\$SMOKE_RUN_ID:PASS:")) {
 			"iOS smoke script must validate PASS marker with run-id isolation."
 		}
@@ -1234,7 +1246,7 @@ tasks.register("checkIosSmokeVerifierChecksCoverage") {
 
 	doLast {
 		val smokeScript = file("iosApp/scripts/ci-smoke-ios-host.sh")
-		val smokeVerifier = file("maincore/src/iosMain/kotlin/com/gdavidpb/tuindice/ui/TuIndiceIosSmokeVerifier.kt")
+		val smokeVerifier = file("maincore/src/iosSimulatorMain/kotlin/com/gdavidpb/tuindice/ui/TuIndiceIosSmokeVerifier.kt")
 
 		check(smokeScript.exists()) {
 			"Missing iOS smoke script: ${smokeScript.absolutePath}"
@@ -1281,6 +1293,68 @@ tasks.register("checkIosSmokeVerifierChecksCoverage") {
 			error(
 				"iOS smoke verifier is missing required check tokens from script: " +
 					missingTokens.joinToString()
+			)
+		}
+	}
+}
+
+tasks.register("checkIosDeviceE2ERequiredChecksCoverage") {
+	group = "verification"
+	description = "Fails when iOS host device E2E script weakens required production runtime checks."
+	notCompatibleWithConfigurationCache("Reads iOS device E2E script and smoke verifier from workspace.")
+
+	doLast {
+		val e2eScript = file("iosApp/scripts/ci-e2e-ios-host-device.sh")
+		val smokeVerifier = file("maincore/src/iosArm64Main/kotlin/com/gdavidpb/tuindice/ui/TuIndiceIosSmokeVerifier.kt")
+
+		check(e2eScript.exists()) {
+			"Missing iOS device E2E script: ${e2eScript.absolutePath}"
+		}
+		check(smokeVerifier.exists()) {
+			"Missing iOS smoke verifier source: ${smokeVerifier.absolutePath}"
+		}
+
+		val scriptContent = e2eScript.readText()
+		val verifierContent = smokeVerifier.readText()
+
+		val checksPrefix = "SMOKE_REQUIRED_CHECKS=\"\${SMOKE_REQUIRED_CHECKS:-"
+		val declaredChecks = scriptContent
+			.substringAfter(checksPrefix, missingDelimiterValue = "")
+			.substringBefore("}\"", missingDelimiterValue = "")
+
+		check(declaredChecks.isNotBlank()) {
+			"Could not parse default SMOKE_REQUIRED_CHECKS declaration from ${e2eScript.relativeTo(rootDir)}."
+		}
+
+		val requiredChecks = listOf(
+			"smoke-runtime:disabled-on-device"
+		)
+
+		val missingChecks = requiredChecks.filterNot { token -> declaredChecks.contains(token) }
+		if (missingChecks.isNotEmpty()) {
+			error(
+				"iOS device E2E required checks were weakened. Missing tokens in " +
+					"${e2eScript.relativeTo(rootDir)}: ${missingChecks.joinToString()}"
+			)
+		}
+
+		check(scriptContent.contains("TUINDICE_IOS_SMOKE_RUN_ID")) {
+			"iOS device E2E script must keep run-id marker isolation (TUINDICE_IOS_SMOKE_RUN_ID)."
+		}
+		check(scriptContent.contains("\$SMOKE_MARKER_PREFIX:\$SMOKE_RUN_ID:PASS:")) {
+			"iOS device E2E script must validate PASS marker with run-id isolation."
+		}
+		check(scriptContent.contains("\$SMOKE_MARKER_PREFIX:\$SMOKE_RUN_ID:FAIL:")) {
+			"iOS device E2E script must validate FAIL marker with run-id isolation."
+		}
+
+		val missingVerifierTokens = requiredChecks.filterNot { token ->
+			verifierContent.contains(token)
+		}
+		if (missingVerifierTokens.isNotEmpty()) {
+			error(
+				"iOS smoke verifier is missing required tokens from device E2E script: " +
+					missingVerifierTokens.joinToString()
 			)
 		}
 	}
@@ -1546,7 +1620,7 @@ tasks.register("checkIosAppAttestOnlySurface") {
 			"maincore/src/iosMain/kotlin/com/gdavidpb/tuindice/di/IosPlatformModule.kt"
 		)
 		val smokeVerifier = file(
-			"maincore/src/iosMain/kotlin/com/gdavidpb/tuindice/ui/TuIndiceIosSmokeVerifier.kt"
+			"maincore/src/iosSimulatorMain/kotlin/com/gdavidpb/tuindice/ui/TuIndiceIosSmokeVerifier.kt"
 		)
 
 		check(providerEnumFile.exists()) {
@@ -1946,6 +2020,7 @@ tasks.register("verifyKmpMigration") {
 		"checkNoLegacyDataMigrationCodepaths",
 		"checkIosSmokeRequiredChecksCoverage",
 		"checkIosSmokeVerifierChecksCoverage",
+		"checkIosDeviceE2ERequiredChecksCoverage",
 		"checkAttestationContractConsistency",
 		"checkIosStructuredUserAgent",
 		"checkIosAppAttestOnlySurface",

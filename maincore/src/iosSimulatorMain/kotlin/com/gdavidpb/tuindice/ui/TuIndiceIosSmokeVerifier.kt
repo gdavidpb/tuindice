@@ -30,6 +30,9 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
+import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
+import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
+import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignOutViewModel
@@ -59,6 +62,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.toKString
+import platform.posix.getenv
 
 class TuIndiceIosSmokeVerifier {
 	fun runChecks(): String {
@@ -86,6 +92,8 @@ class TuIndiceIosSmokeVerifier {
 					"Smoke: appEnvironment.termsAndConditionsUrl must not be blank."
 				}
 				checks += "appenv:ok"
+				val isDebugVariant = appEnvironment.debug
+				checks += if (isDebugVariant) "variant:debug" else "variant:production"
 
 				// Device/network shared gateways are callable from iOS host runtime.
 				val networkStatus = if (networkStatusGateway.isAvailable()) "online" else "offline"
@@ -142,7 +150,14 @@ class TuIndiceIosSmokeVerifier {
 				check(!pushToken.isNullOrBlank()) {
 					"Smoke: push token unavailable on iOS bridge."
 				}
+				val nonBlankPushToken = pushToken
 				checks += "push:ok"
+				if (!isDebugVariant) {
+					check(!nonBlankPushToken.startsWith(IOS_DEBUG_TOKEN_PREFIX)) {
+						"Smoke: production build must not use synthetic debug push token."
+					}
+					checks += "push:real"
+				}
 
 				val platformAttestation = iosPlatformBridge.requestAttestation("ios-smoke-attestation-input")
 					?: error("Smoke: attestation token unavailable on iOS bridge.")
@@ -157,6 +172,15 @@ class TuIndiceIosSmokeVerifier {
 				}
 				checks += "attestation:APP_ATTEST"
 				checks += "attestation-key-id:ok"
+				if (!isDebugVariant) {
+					check(!platformAttestation.token.startsWith(IOS_DEBUG_TOKEN_PREFIX)) {
+						"Smoke: production build must not use synthetic debug attestation token."
+					}
+					check(!platformAttestation.keyId.startsWith(IOS_DEBUG_TOKEN_PREFIX)) {
+						"Smoke: production build must not use synthetic debug attestation key id."
+					}
+					checks += "attestation:real"
+				}
 
 				// Startup flow executes and returns destination.
 				val startupStates = koin.get<StartUpUseCase>().execute(Unit).toList()
@@ -433,6 +457,33 @@ class TuIndiceIosSmokeVerifier {
 				koin.get<EnrollmentProofViewModel>()
 				checks += "viewmodels:ok"
 
+				// Optional authenticated smoke for real-device evidence (credentials injected by script).
+				val smokeUsbId = readEnvironmentValue(name = SMOKE_USBID_ENV_KEY)
+				val smokePassword = readEnvironmentValue(name = SMOKE_PASSWORD_ENV_KEY)
+				if (!smokeUsbId.isNullOrBlank() || !smokePassword.isNullOrBlank()) {
+					check(!smokeUsbId.isNullOrBlank() && !smokePassword.isNullOrBlank()) {
+						"Smoke: both $SMOKE_USBID_ENV_KEY and $SMOKE_PASSWORD_ENV_KEY are required when enabling authenticated smoke."
+					}
+
+					val signInStates = koin.get<SignInUseCase>()
+						.execute(SignInParams(usbId = smokeUsbId, password = smokePassword))
+						.toList()
+
+					check(signInStates.any { state -> state is UseCaseState.Data<*, *> }) {
+						"Smoke: authenticated sign-in did not complete successfully. States=${signInStates.describeForSmoke()}"
+					}
+					checks += "signin-auth:ok"
+
+					val signOutStates = koin.get<SignOutUseCase>()
+						.execute(Unit)
+						.toList()
+
+					check(signOutStates.any { state -> state is UseCaseState.Data<*, *> }) {
+						"Smoke: authenticated sign-out did not complete successfully. States=${signOutStates.describeForSmoke()}"
+					}
+					checks += "signout-auth:ok"
+				}
+
 				"PASS:${checks.joinToString(separator = ",")}"
 			}
 		}.getOrElse { throwable ->
@@ -484,8 +535,27 @@ class TuIndiceIosSmokeVerifier {
 		}
 	}
 
+	private fun List<UseCaseState<*, *>>.describeForSmoke(): String {
+		return joinToString(separator = ",") { state ->
+			when (state) {
+				is UseCaseState.Loading<*, *> -> "loading"
+				is UseCaseState.Data<*, *> -> "data"
+				is UseCaseState.Error<*, *> -> "error:${state.error?.toString() ?: "unknown"}"
+			}
+		}
+	}
+
+	@OptIn(ExperimentalForeignApi::class)
+	private fun readEnvironmentValue(name: String): String? {
+		val pointer = getenv(name) ?: return null
+		return pointer.toKString().takeIf { value -> value.isNotBlank() }
+	}
+
 	private companion object {
 		const val WAIT_TIMEOUT_MS = 2500L
 		const val POLL_DELAY_MS = 20L
+		const val IOS_DEBUG_TOKEN_PREFIX = "ios-debug-"
+		const val SMOKE_USBID_ENV_KEY = "TUINDICE_SMOKE_USBID"
+		const val SMOKE_PASSWORD_ENV_KEY = "TUINDICE_SMOKE_PASSWORD"
 	}
 }
