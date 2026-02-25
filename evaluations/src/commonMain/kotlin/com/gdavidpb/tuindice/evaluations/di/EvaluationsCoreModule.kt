@@ -40,6 +40,8 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.PickEva
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.DefaultEvaluationItemMappingProvider
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.EvaluationItemMappingProvider
 import com.gdavidpb.tuindice.evaluations.presentation.resource.DefaultEvaluationTextProvider
 import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationTextProvider
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
@@ -109,6 +111,7 @@ val evaluationsCoreModule = module {
 
 	/* Shared text resources */
 
+	factoryOf(::DefaultEvaluationItemMappingProvider) { bind<EvaluationItemMappingProvider>() }
 	factoryOf(::DefaultEvaluationTextProvider) { bind<EvaluationTextProvider>() }
 	factoryOf(::DefaultEvaluationFilterLabelsDataSource) { bind<EvaluationFilterLabelsRepository>() }
 }

@@ -1,14 +1,10 @@
 package com.gdavidpb.tuindice.ui.screen
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.UIKitView
-import com.gdavidpb.tuindice.presentation.contract.Browser
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
 import platform.Foundation.NSURL
@@ -25,13 +21,12 @@ class IosBrowserScreenRenderer : BrowserScreenRenderer {
 	@OptIn(ExperimentalForeignApi::class)
 	@Composable
 	override fun Render(
-		state: Browser.State,
+		url: String,
+		modifier: Modifier,
 		onPageStarted: () -> Unit,
 		onPageFinished: () -> Unit,
 		onExternalResourceClick: (url: String) -> Unit
 	) {
-		if (state !is Browser.State.Content) return
-
 		val navigationDelegate = remember(onPageStarted, onPageFinished, onExternalResourceClick) {
 			BrowserNavigationDelegate(
 				onPageStarted = onPageStarted,
@@ -53,27 +48,17 @@ class IosBrowserScreenRenderer : BrowserScreenRenderer {
 			}
 		}
 
-		androidx.compose.foundation.layout.Column(
-			modifier = Modifier.fillMaxSize()
-		) {
-			if (state.isLoading) {
-				LinearProgressIndicator(
-					modifier = Modifier.fillMaxWidth()
-				)
-			}
-
-			UIKitView(
-				factory = { webView },
-				update = { browserWebView ->
-					if (browserWebView.URL?.absoluteString != state.url) {
-						val url = NSURL.URLWithString(state.url) ?: return@UIKitView
-						val request = NSURLRequest.requestWithURL(url)
-						browserWebView.loadRequest(request)
-					}
-				},
-				modifier = Modifier.fillMaxSize()
-			)
-		}
+		UIKitView(
+			factory = { webView },
+			update = { browserWebView ->
+				if (browserWebView.URL?.absoluteString != url) {
+					val targetUrl = NSURL.URLWithString(url) ?: return@UIKitView
+					val request = NSURLRequest.requestWithURL(targetUrl)
+					browserWebView.loadRequest(request)
+				}
+			},
+			modifier = modifier
+		)
 	}
 }
 

@@ -28,9 +28,27 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import org.jetbrains.compose.resources.stringResource
-import tuindice.evaluations.generated.resources.*
+import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.evaluation_attendance
+import tuindice.evaluations.generated.resources.evaluation_essay
+import tuindice.evaluations.generated.resources.evaluation_grade
+import tuindice.evaluations.generated.resources.evaluation_interventions
+import tuindice.evaluations.generated.resources.evaluation_laboratory
+import tuindice.evaluations.generated.resources.evaluation_model
+import tuindice.evaluations.generated.resources.evaluation_name
+import tuindice.evaluations.generated.resources.evaluation_not_grade
+import tuindice.evaluations.generated.resources.evaluation_other
+import tuindice.evaluations.generated.resources.evaluation_pending_grade
+import tuindice.evaluations.generated.resources.evaluation_presentation
+import tuindice.evaluations.generated.resources.evaluation_project
+import tuindice.evaluations.generated.resources.evaluation_quiz
+import tuindice.evaluations.generated.resources.evaluation_report
+import tuindice.evaluations.generated.resources.evaluation_test
+import tuindice.evaluations.generated.resources.evaluation_title
+import tuindice.evaluations.generated.resources.evaluation_workshop
+import tuindice.evaluations.generated.resources.evaluation_written_work
 
-class IosEvaluationItemMappingProvider : EvaluationItemMappingProvider {
+class DefaultEvaluationItemMappingProvider : EvaluationItemMappingProvider {
 	@Composable
 	override fun rememberMapping(): EvaluationItemMapping {
 		val colorScheme = MaterialTheme.colorScheme
@@ -143,10 +161,7 @@ class IosEvaluationItemMappingProvider : EvaluationItemMappingProvider {
 	}
 }
 
-private fun EvaluationType.asString(typeLabels: Map<EvaluationType, String>) =
-	typeLabels.getValue(this)
-
-private fun EvaluationType.asIcon() = when (this) {
+fun EvaluationType.asIcon() = when (this) {
 	EvaluationType.TEST -> Icons.Outlined.FileCopy
 	EvaluationType.ESSAY -> Icons.Outlined.HistoryEdu
 	EvaluationType.ATTENDANCE -> Icons.Outlined.BackHand
@@ -161,6 +176,9 @@ private fun EvaluationType.asIcon() = when (this) {
 	EvaluationType.WRITTEN_WORK -> Icons.Outlined.Edit
 	EvaluationType.OTHER -> Icons.Outlined.Tag
 }
+
+private fun EvaluationType.asString(typeLabels: Map<EvaluationType, String>) =
+	typeLabels.getValue(this)
 
 @Composable
 fun EvaluationType.asString() = when (this) {
