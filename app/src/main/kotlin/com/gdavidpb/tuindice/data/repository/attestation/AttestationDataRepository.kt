@@ -12,13 +12,15 @@ class AttestationDataRepository(
 	override suspend fun getAttestation(payload: AttestationPayload): Attestation {
 		val (id, challenge) = remoteDataSource.getChallenge()
 		val nonce = payloadDigestDataSource.digest(challenge, payload)
-		val token = providerDataSource.getToken(nonce)
+		val providerAttestation = providerDataSource.getAttestation(nonce)
 
-		requireNotNull(token)
+		requireNotNull(providerAttestation)
 
 		return Attestation(
 			id = id,
-			token = token
+			token = providerAttestation.token,
+			provider = providerAttestation.provider,
+			keyId = providerAttestation.keyId
 		)
 	}
 }

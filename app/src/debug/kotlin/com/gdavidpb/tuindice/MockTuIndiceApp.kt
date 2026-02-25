@@ -1,17 +1,9 @@
 package com.gdavidpb.tuindice
 
 import android.app.Application
-import com.gdavidpb.tuindice.about.di.aboutModule
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
+import com.gdavidpb.tuindice.di.androidReleaseModules
 import com.gdavidpb.tuindice.di.appMockModule
-import com.gdavidpb.tuindice.di.appModule
-import com.gdavidpb.tuindice.enrollmentproof.di.enrollmentProofModule
-import com.gdavidpb.tuindice.evaluations.di.evaluationsModule
-import com.gdavidpb.tuindice.login.di.loginModule
-import com.gdavidpb.tuindice.migration.MigrationManager
-import com.gdavidpb.tuindice.persistence.di.persistenceModule
-import com.gdavidpb.tuindice.record.di.recordModule
-import com.gdavidpb.tuindice.summary.di.summaryModule
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
@@ -30,8 +22,6 @@ class MockTuIndiceApp : Application() {
 
 		FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = false
 
-		MigrationManager.execute(applicationContext)
-
 		startKoin {
 			androidLogger(Level.NONE)
 			androidContext(this@MockTuIndiceApp)
@@ -39,17 +29,7 @@ class MockTuIndiceApp : Application() {
 
 			allowOverride(true)
 
-			modules(
-				appModule,
-				appMockModule,
-				persistenceModule,
-				loginModule,
-				summaryModule,
-				recordModule,
-				aboutModule,
-				enrollmentProofModule,
-				evaluationsModule
-			)
+			modules(androidReleaseModules() + appMockModule)
 		}
 	}
 }

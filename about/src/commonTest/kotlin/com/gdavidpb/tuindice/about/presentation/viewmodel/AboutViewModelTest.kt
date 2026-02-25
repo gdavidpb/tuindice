@@ -1,0 +1,142 @@
+package com.gdavidpb.tuindice.about.presentation.viewmodel
+
+import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
+import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
+import com.gdavidpb.tuindice.about.presentation.action.ContactDeveloperActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.LoadVersionActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.OpenPrivacyPolicyActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.OpenTermsAndConditionsActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.OpenUrlActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.RateOnPlayStoreActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.ReportBugActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
+import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.presentation.resource.AboutTextProvider
+import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentGateway
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.TimeSource
+
+class AboutViewModelTest {
+	@Test
+	fun initialLoadVersionAction_setsContentState() = runBlocking {
+		val viewModel = createViewModel()
+		val stateJob = launch { viewModel.state.collect() }
+
+		try {
+			waitUntil { viewModel.state.value is About.State.Content }
+
+			val content = assertIs<About.State.Content>(viewModel.state.value)
+			assertEquals("TuIndice v3.5.1", content.versionText)
+		} finally {
+			stateJob.cancel()
+		}
+	}
+
+	@Test
+	fun actionDispatch_emitsExpectedEffects() = runBlocking {
+		val viewModel = createViewModel()
+		val effects = mutableListOf<About.Effect>()
+		val effectJob = launch { viewModel.effect.collect { effects += it } }
+		val stateJob = launch { viewModel.state.collect() }
+
+		try {
+			waitUntil { viewModel.action.subscriptionCount.value > 0 }
+
+			viewModel.openTermsAndConditionsAction()
+			viewModel.shareAppAction()
+			viewModel.reportBugAction()
+			viewModel.contactDeveloperAction()
+			viewModel.rateOnPlayStoreAction()
+			viewModel.openUrlAction("https://tuindice.app/github")
+
+			waitUntil { effects.size == 6 }
+
+			val terms = assertIs<About.Effect.NavigateToBrowser>(effects[0])
+			assertEquals("Terms", terms.title)
+			assertEquals("https://tuindice.app/terms", terms.url)
+
+			val share = assertIs<About.Effect.StartShare>(effects[1])
+			assertEquals("TuIndice App", share.subject)
+			assertEquals("Try TuIndice", share.text)
+
+			assertEquals(About.Effect.ShowReportBugDialog, effects[2])
+			assertEquals(About.Effect.StartEmail, effects[3])
+			assertEquals(About.Effect.StartPlayStore, effects[4])
+
+			val openUrl = assertIs<About.Effect.StartBrowser>(effects[5])
+			assertEquals("https://tuindice.app/github", openUrl.url)
+		} finally {
+			effectJob.cancel()
+			stateJob.cancel()
+		}
+	}
+
+	private fun createViewModel(): AboutViewModel {
+		return AboutViewModel(
+			loadVersionActionProcessor = LoadVersionActionProcessor(
+				loadVersionUseCase = LoadVersionUseCase(
+					aboutRepository = AboutViewModelFakeAboutRepository()
+				)
+			),
+			contactDeveloperActionProcessor = ContactDeveloperActionProcessor(),
+			openTermsAndConditionsActionProcessor = OpenTermsAndConditionsActionProcessor(
+				textProvider = AboutViewModelFakeTextProvider,
+				appEnvironmentRepository = AboutViewModelFakeAppEnvironmentGateway()
+			),
+			openPrivacyPolicyActionProcessor = OpenPrivacyPolicyActionProcessor(
+				textProvider = AboutViewModelFakeTextProvider,
+				appEnvironmentRepository = AboutViewModelFakeAppEnvironmentGateway()
+			),
+			shareAppActionProcessor = ShareAppActionProcessor(
+				textProvider = AboutViewModelFakeTextProvider
+			),
+			rateOnPlayStoreActionProcessor = RateOnPlayStoreActionProcessor(),
+			reportBugActionProcessor = ReportBugActionProcessor(),
+			openUrlActionProcessor = OpenUrlActionProcessor()
+		)
+	}
+
+	private suspend fun waitUntil(
+		timeoutMs: Long = 2_000L,
+		condition: () -> Boolean
+	) {
+		val mark = TimeSource.Monotonic.markNow()
+
+		while (!condition() && mark.elapsedNow() < timeoutMs.milliseconds) {
+			delay(20)
+		}
+
+		assertTrue(condition(), "Condition not reached within timeout.")
+	}
+}
+
+private class AboutViewModelFakeAboutRepository : AboutRepository {
+	override suspend fun getVersionDescription(): String = "TuIndice v3.5.1"
+}
+
+private object AboutViewModelFakeTextProvider : AboutTextProvider {
+	override fun privacyPolicyTitle(): String = "Privacy"
+	override fun termsAndConditionsTitle(): String = "Terms"
+	override fun shareMessage(): String = "Try TuIndice"
+	override fun shareSubject(): String = "TuIndice App"
+}
+
+private class AboutViewModelFakeAppEnvironmentGateway : AppEnvironmentGateway {
+	override fun getEnvironment(): AppEnvironment {
+		return AppEnvironment(
+			apiBaseUrl = "https://api.tuindice.app/",
+			privacyPolicyUrl = "https://tuindice.app/privacy",
+			termsAndConditionsUrl = "https://tuindice.app/terms",
+			debug = false
+		)
+	}
+}

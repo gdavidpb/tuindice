@@ -1,0 +1,43 @@
+package com.gdavidpb.tuindice.record.presentation.contract
+
+import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
+import com.gdavidpb.tuindice.base.presentation.ViewAction
+import com.gdavidpb.tuindice.base.presentation.ViewEffect
+import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
+import com.gdavidpb.tuindice.record.presentation.resource.recordScreenTitle
+
+object Record {
+	sealed class State(
+		override val topBarTitle: String = recordScreenTitle(),
+		override val topBarConfig: TopBarConfig = TopBarConfig.Record,
+		override val isTopBarVisible: Boolean = true,
+		override val isBottomBarVisible: Boolean = true
+	) : ViewState() {
+		data object Loading : State()
+
+		data class Content(
+			val quarters: List<Quarter>
+		) : State()
+
+		data object Empty : State()
+
+		data object Failed : State()
+	}
+
+	sealed class Action : ViewAction() {
+		data object LoadQuarters : Action()
+
+		class SetSubjectGrade(
+			val quarterId: String,
+			val subjectId: String,
+			val grade: Int,
+			val commit: Boolean
+		) : Action()
+	}
+
+	sealed class Effect : ViewEffect() {
+		data object NavigateToOutdatedPassword : Effect()
+		class ShowSnackBar(val message: String) : Effect()
+	}
+}

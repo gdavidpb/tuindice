@@ -1,0 +1,384 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A1B2C3D4E5F60708090A1020 /* TuIndiceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1010 /* TuIndiceApp.swift */; };
+		A1B2C3D4E5F60708090A1021 /* TuIndiceAppBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1011 /* TuIndiceAppBootstrap.swift */; };
+		A1B2C3D4E5F60708090A1022 /* TuIndiceAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1012 /* TuIndiceAppDelegate.swift */; };
+		A1B2C3D4E5F60708090A1023 /* TuIndicePlatformBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1013 /* TuIndicePlatformBridge.swift */; };
+		A1B2C3D4E5F60708090A1024 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A101A /* Assets.xcassets */; };
+		B27FFE1B4776D0780E777F67 /* Pods_TuIndiceHost.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FC9705D4B235589FC86BD3D /* Pods_TuIndiceHost.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		09A1C3B669336A46A163C3E4 /* Pods-TuIndiceHost.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TuIndiceHost.debug.xcconfig"; path = "Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost.debug.xcconfig"; sourceTree = "<group>"; };
+		5FC9705D4B235589FC86BD3D /* Pods_TuIndiceHost.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TuIndiceHost.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D4E5F60708090A1010 /* TuIndiceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndiceApp.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60708090A1011 /* TuIndiceAppBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndiceAppBootstrap.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60708090A1012 /* TuIndiceAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndiceAppDelegate.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60708090A1013 /* TuIndicePlatformBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndicePlatformBridge.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60708090A1014 /* TuIndiceHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TuIndiceHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D4E5F60708090A1015 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1B2C3D4E5F60708090A1016 /* TuIndiceHost.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TuIndiceHost.entitlements; sourceTree = "<group>"; };
+		A1B2C3D4E5F60708090A1017 /* build-kmp-framework.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-kmp-framework.sh"; sourceTree = "<group>"; };
+		A1B2C3D4E5F60708090A1018 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		A1B2C3D4E5F60708090A1019 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		A1B2C3D4E5F60708090A101A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AF1BDC0EEC885E12D192C018 /* Pods-TuIndiceHost.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TuIndiceHost.release.xcconfig"; path = "Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost.release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A1B2C3D4E5F60708090A1031 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B27FFE1B4776D0780E777F67 /* Pods_TuIndiceHost.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		494B8DE7FA8E3380579296A3 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				09A1C3B669336A46A163C3E4 /* Pods-TuIndiceHost.debug.xcconfig */,
+				AF1BDC0EEC885E12D192C018 /* Pods-TuIndiceHost.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F60708090A1070 = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60708090A1072 /* Sources/TuIndiceHost */,
+				A1B2C3D4E5F60708090A1073 /* Resources */,
+				A1B2C3D4E5F60708090A1074 /* Config */,
+				A1B2C3D4E5F60708090A1075 /* scripts */,
+				A1B2C3D4E5F60708090A1071 /* Products */,
+				494B8DE7FA8E3380579296A3 /* Pods */,
+				B45A6639F3EBB8F79D72CAC6 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F60708090A1071 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60708090A1014 /* TuIndiceHost.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F60708090A1072 /* Sources/TuIndiceHost */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60708090A1010 /* TuIndiceApp.swift */,
+				A1B2C3D4E5F60708090A1011 /* TuIndiceAppBootstrap.swift */,
+				A1B2C3D4E5F60708090A1012 /* TuIndiceAppDelegate.swift */,
+				A1B2C3D4E5F60708090A1013 /* TuIndicePlatformBridge.swift */,
+			);
+			path = Sources/TuIndiceHost;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F60708090A1073 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60708090A101A /* Assets.xcassets */,
+				A1B2C3D4E5F60708090A1015 /* Info.plist */,
+				A1B2C3D4E5F60708090A1016 /* TuIndiceHost.entitlements */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F60708090A1074 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60708090A1018 /* Debug.xcconfig */,
+				A1B2C3D4E5F60708090A1019 /* Release.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F60708090A1075 /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F60708090A1017 /* build-kmp-framework.sh */,
+			);
+			path = scripts;
+			sourceTree = "<group>";
+		};
+		B45A6639F3EBB8F79D72CAC6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5FC9705D4B235589FC86BD3D /* Pods_TuIndiceHost.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A1B2C3D4E5F60708090A1061 /* TuIndiceHost */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1B2C3D4E5F60708090A1051 /* Build configuration list for PBXNativeTarget "TuIndiceHost" */;
+			buildPhases = (
+				FE466F57FAC6DC1BCE6C38F1 /* [CP] Check Pods Manifest.lock */,
+				A1B2C3D4E5F60708090A1033 /* Build KMP Framework */,
+				A1B2C3D4E5F60708090A1030 /* Sources */,
+				A1B2C3D4E5F60708090A1031 /* Frameworks */,
+				A1B2C3D4E5F60708090A1032 /* Resources */,
+				561D6EB4BD158126FB4DA394 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TuIndiceHost;
+			productName = TuIndiceHost;
+			productReference = A1B2C3D4E5F60708090A1014 /* TuIndiceHost.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A1B2C3D4E5F60708090A1060 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					A1B2C3D4E5F60708090A1061 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+				};
+			};
+			buildConfigurationList = A1B2C3D4E5F60708090A1050 /* Build configuration list for PBXProject "TuIndiceHost" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A1B2C3D4E5F60708090A1070;
+			productRefGroup = A1B2C3D4E5F60708090A1071 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A1B2C3D4E5F60708090A1061 /* TuIndiceHost */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A1B2C3D4E5F60708090A1032 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1B2C3D4E5F60708090A1024 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		561D6EB4BD158126FB4DA394 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A1B2C3D4E5F60708090A1033 /* Build KMP Framework */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build KMP Framework";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/maincore-framework-${CONFIGURATION}-${PLATFORM_NAME}-${ARCHS}.stamp",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/scripts/build-kmp-framework.sh\"\n";
+		};
+		FE466F57FAC6DC1BCE6C38F1 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-TuIndiceHost-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A1B2C3D4E5F60708090A1030 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1B2C3D4E5F60708090A1020 /* TuIndiceApp.swift in Sources */,
+				A1B2C3D4E5F60708090A1021 /* TuIndiceAppBootstrap.swift in Sources */,
+				A1B2C3D4E5F60708090A1022 /* TuIndiceAppDelegate.swift in Sources */,
+				A1B2C3D4E5F60708090A1023 /* TuIndicePlatformBridge.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A1B2C3D4E5F60708090A1040 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+			};
+			name = Debug;
+		};
+		A1B2C3D4E5F60708090A1041 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		A1B2C3D4E5F60708090A1042 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A1B2C3D4E5F60708090A1018 /* Debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 94BBJ5X5GL;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A1B2C3D4E5F60708090A1043 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A1B2C3D4E5F60708090A1019 /* Release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A1B2C3D4E5F60708090A1050 /* Build configuration list for PBXProject "TuIndiceHost" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D4E5F60708090A1040 /* Debug */,
+				A1B2C3D4E5F60708090A1041 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1B2C3D4E5F60708090A1051 /* Build configuration list for PBXNativeTarget "TuIndiceHost" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D4E5F60708090A1042 /* Debug */,
+				A1B2C3D4E5F60708090A1043 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A1B2C3D4E5F60708090A1060 /* Project object */;
+}

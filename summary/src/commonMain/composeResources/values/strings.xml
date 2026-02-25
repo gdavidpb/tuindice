@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="summary_loading_title">Resumen</string>
+	<string name="summary_loading_message">Cargando…</string>
+	<string name="summary_failed_title">Resumen</string>
+	<string name="summary_failed_message">No se pudo cargar la información.</string>
+	<string name="summary_failed_retry">Reintentar</string>
+	<string name="dialog_title_remove_profile_picture">Atención</string>
+	<string name="dialog_message_remove_profile_picture">¿Estás seguro que deseas remover tu foto de perfil?</string>
+	<string name="dialog_button_remove">Remover</string>
+	<string name="dialog_button_cancel">Cancelar</string>
+	<string name="title_menu_profile_picture">Mi foto de perfil</string>
+	<string name="menu_pick_profile_picture">Subir foto</string>
+	<string name="menu_take_profile_picture">Tomar foto</string>
+	<string name="menu_remove_profile_picture">Remover foto</string>
+</resources>

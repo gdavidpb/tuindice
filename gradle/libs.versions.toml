@@ -2,6 +2,7 @@
 kotlin = "2.3.10"
 ksp = "2.3.2"
 room = "2.8.4"
+sqlite = "2.6.2"
 koin = "4.1.1"
 lifecycle = "2.10.0"
 lifecycle-ext = "2.2.0"
@@ -10,6 +11,7 @@ firebase-bom = "34.9.0"
 coil = "2.7.0"
 compose-bom = "2026.02.00"
 lottie-compose = "6.7.1"
+compottie = "2.0.1"
 androidx-core = "2.2.0"
 kotlinx-datetime = "0.7.1"
 kotlinx-serialization-json = "1.10.0"
@@ -28,15 +30,17 @@ activity-compose = "1.12.4"
 icons-compose = "1.7.8"
 constraintlayout-compose = "1.1.1"
 google-services = "4.4.4"
-android-gradle-plugin = "9.1.0-rc01"
+android-gradle-plugin = "8.12.0"
 firebase-crashlytics-gradle = "3.0.6"
 core-ktx = "1.17.0"
 material = "1.13.0"
 ktor = "3.4.0"
-security-crypto-ktx = "1.1.0"
 material3 = "1.4.0"
-navigation = "2.9.7"
+navigation = "2.9.1"
 compose = "1.10.3"
+compose-mpp = "1.9.3"
+compose-mpp-material3 = "1.9.0"
+datastore = "1.1.7"
 
 [libraries]
 # Room
@@ -58,7 +62,8 @@ browser = { module = "androidx.browser:browser", version.ref = "browser" }
 preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preference-ktx" }
 exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exifinterface" }
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "android-gradle-plugin" }
-security-crypto-ktx = { module = "androidx.security:security-crypto-ktx", version.ref = "security-crypto-ktx" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 
 # Kotlin
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
@@ -67,8 +72,10 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
 # Koin
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
-koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
+koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 
 # Firebase
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
@@ -86,6 +93,7 @@ material = { module = "com.google.android.material:material", version.ref = "mat
 
 # Compose
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "compose" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
@@ -97,9 +105,13 @@ compose-material3 = { module = "androidx.compose.material3:material3", version.r
 compose-constraintlayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayout-compose" }
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+jetbrains-compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-mpp" }
+jetbrains-compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-mpp" }
+jetbrains-compose-animation = { module = "org.jetbrains.compose.animation:animation", version.ref = "compose-mpp" }
+jetbrains-compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-mpp-material3" }
 
 # Navigation
-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
+navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation" }
 
 # Architecture
 core-runtime = { module = "androidx.arch.core:core-runtime", version.ref = "androidx-core" }
@@ -115,17 +127,22 @@ lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx
 # Ktor
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 # Coroutines
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutines" }
 
 # Lottie
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie-compose" }
+compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
 
 # Coil
 coil = { module = "io.coil-kt:coil", version.ref = "coil" }
@@ -133,6 +150,7 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 [plugins]
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-mpp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
@@ -141,14 +159,15 @@ coil = ["coil", "coil-compose"]
 room = ["room-ktx", "room-runtime"]
 testing = ["junit", "wiremock"]
 testing-android = ["koin-test", "test-runner", "espresso-core"]
-androidx = ["core-ktx", "browser", "preference-ktx", "exifinterface", "security-crypto-ktx"]
+androidx = ["core-ktx", "browser", "preference-ktx", "exifinterface", "datastore-preferences"]
 kotlin = ["kotlin-reflect", "kotlinx-datetime", "kotlinx-serialization-json"]
-koin = ["koin-android", "koin-androidx-compose"]
+koin = ["koin-android", "koin-compose", "koin-compose-viewmodel"]
 firebase = ["firebase-config", "firebase-messaging", "firebase-crashlytics"]
 google = ["app-update-ktx", "material", "review-ktx", "integrity"]
 compose = ["compose-ui", "compose-foundation", "compose-animation", "compose-ui-tooling", "compose-preview", "compose-activity", "compose-material3", "compose-icons", "compose-constraintlayout"]
+compose-mpp-core = ["jetbrains-compose-ui", "jetbrains-compose-foundation", "jetbrains-compose-animation", "jetbrains-compose-material3"]
 navigation = ["navigation-compose"]
 architecture = ["core-runtime", "core-common"]
 lifecycle = ["lifecycle-runtime-compose", "lifecycle-viewmodel-compose", "lifecycle-extensions", "lifecycle-runtime-ktx", "lifecycle-viewmodel-ktx"]
 coroutines = ["kotlinx-coroutines-android", "kotlinx-coroutines-play-services"]
-ktor = ["ktor-client-core", "ktor-client-cio", "ktor-client-auth", "ktor-client-logging", "ktor-client-content-negotiation", "ktor-serialization-kotlinx-json"]
+ktor = ["ktor-client-core", "ktor-client-auth", "ktor-client-logging", "ktor-client-content-negotiation", "ktor-serialization-kotlinx-json"]

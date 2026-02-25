@@ -1,96 +1,90 @@
-import com.android.build.api.dsl.LibraryExtension
-
 plugins {
-	id("com.android.library")
+	kotlin("multiplatform")
+	id("com.android.kotlin.multiplatform.library")
+	alias(libs.plugins.compose.multiplatform)
 
 	alias(libs.plugins.compose.compiler)
 	alias(libs.plugins.kotlin.serialization)
 }
 
-extensions.configure<LibraryExtension> {
-	namespace = "com.gdavidpb.tuindice.base"
-	compileSdk = 36
-
-	defaultConfig {
+kotlin {
+	android {
+		namespace = "com.gdavidpb.tuindice.base"
+		compileSdk = 36
 		minSdk = 24
-	}
 
-	compileOptions {
-		sourceCompatibility(JavaVersion.VERSION_21)
-		targetCompatibility(JavaVersion.VERSION_21)
-	}
-
-	buildFeatures {
-		compose = true
-		buildConfig = true
-		resValues = false
-	}
-
-	buildTypes {
-		debug {
-			buildConfigField("String", "MASTER_KEY_ALIAS", "\"tuindice_key\"")
-
-			buildConfigField("String", "URL_API", "\"http://0.0.0.0:8080/\"")
-			buildConfigField(
-				"String",
-				"URL_PRIVACY_POLICY",
-				"\"https://tuindice.app/privacy_policy.html\""
-			)
-			buildConfigField(
-				"String",
-				"URL_TERMS_AND_CONDITIONS",
-				"\"https://tuindice.app/terms_and_conditions.html\""
-			)
-		}
-		release {
-			buildConfigField("String", "MASTER_KEY_ALIAS", "\"tuindice_key\"")
-
-			buildConfigField("String", "URL_API", "\"https://api.tuindice.app/\"")
-			buildConfigField(
-				"String",
-				"URL_PRIVACY_POLICY",
-				"\"https://tuindice.app/privacy_policy.html\""
-			)
-			buildConfigField(
-				"String",
-				"URL_TERMS_AND_CONDITIONS",
-				"\"https://tuindice.app/terms_and_conditions.html\""
-			)
+		androidResources {
+			enable = true
 		}
 	}
-}
+	iosX64()
+	iosArm64()
+	iosSimulatorArm64()
 
-dependencies {
-	/* Compose */
-	api(platform(libs.compose.bom))
-	api(libs.bundles.compose)
+	applyDefaultHierarchyTemplate()
 
-	/* AndroidX */
-	api(libs.bundles.androidx)
-	api(libs.bundles.navigation)
-	api(libs.bundles.architecture)
-	api(libs.bundles.lifecycle)
-	api(libs.bundles.coroutines)
+	sourceSets {
+		val commonMain by getting {
+			dependencies {
+				api(libs.compose.runtime)
+				api(libs.bundles.compose.mpp.core)
+				api(compose.components.resources)
+				api(libs.navigation.compose)
+				api(libs.kotlinx.datetime)
+				api(libs.kotlinx.serialization.json)
+				api(libs.kotlinx.coroutines.core)
+				api(libs.ktor.client.core)
+				api(libs.datastore.preferences)
+				api(libs.koin.core)
+				api(libs.lifecycle.runtime.compose)
+				api(libs.compottie)
+			}
+		}
 
-	/* Kotlin */
-	api(libs.bundles.kotlin)
+		val commonTest by getting {
+			dependencies {
+				implementation(kotlin("test"))
+			}
+		}
 
-	/* Koin */
-	api(libs.bundles.koin)
+		val androidMain by getting {
+			dependencies {
+				/* Compose */
+				api(project.dependencies.platform(libs.compose.bom))
+				api(libs.bundles.compose)
 
-	/* Firebase */
-	api(platform(libs.firebase.bom))
-	api(libs.bundles.firebase)
+				/* AndroidX */
+				api(libs.bundles.androidx)
+				api(libs.bundles.navigation)
+				api(libs.bundles.architecture)
+				api(libs.bundles.lifecycle)
+				api(libs.bundles.coroutines)
 
-	/* Google */
-	api(libs.bundles.google)
+				/* Kotlin */
+				api(libs.bundles.kotlin)
 
-	/* Ktor */
-	api(libs.bundles.ktor)
+				/* Koin */
+				api(libs.koin.compose)
+				api(libs.koin.compose.viewmodel)
 
-	/* Coil */
-	api(libs.bundles.coil)
+				/* Firebase */
+				api(project.dependencies.platform(libs.firebase.bom))
+				api(libs.bundles.firebase)
 
-	/* Lottie */
-	api(libs.lottie.compose)
+				/* Ktor */
+				api(libs.bundles.ktor)
+				api(libs.ktor.client.okhttp)
+
+				/* Coil */
+				api(libs.bundles.coil)
+
+			}
+		}
+
+		val iosMain by getting {
+			dependencies {
+				api(libs.ktor.client.darwin)
+			}
+		}
+	}
 }

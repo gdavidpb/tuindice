@@ -19,7 +19,7 @@ import kotlin.math.floor
 class ComputationTest {
 
 	object TestValues {
-		val DEFAULT_LOCALE: Locale = Locale("es", "VE")
+		val DEFAULT_LOCALE: Locale = Locale.forLanguageTag("es-VE")
 	}
 
 	@Before

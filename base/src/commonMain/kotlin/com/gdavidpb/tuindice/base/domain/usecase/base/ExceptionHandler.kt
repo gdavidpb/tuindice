@@ -1,0 +1,26 @@
+package com.gdavidpb.tuindice.base.domain.usecase.base
+
+import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
+
+abstract class ExceptionHandler<T : UseCaseError> {
+	protected abstract val reportingRepository: ReportingGateway
+
+	protected open fun parseException(throwable: Throwable): T? = null
+
+	fun reportException(throwable: Throwable): T? {
+		val error = parseException(throwable)
+
+		with(reportingRepository) {
+			setCustomKey(USE_CASE_KEY, "${this::class.simpleName}")
+			setCustomKey(IS_HANDLED_KEY, error != null)
+			logException(throwable)
+		}
+
+		return error
+	}
+
+	companion object {
+		private const val USE_CASE_KEY = "useCase"
+		private const val IS_HANDLED_KEY = "isHandled"
+	}
+}

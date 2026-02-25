@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.data.repository.attestation.source
 
+import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.model.ProviderAttestation
 import com.google.android.play.core.integrity.IntegrityManager
 import com.google.android.play.core.integrity.IntegrityTokenRequest
 import kotlinx.coroutines.tasks.await
@@ -8,7 +10,7 @@ import kotlinx.coroutines.tasks.await
 class PlayIntegrityDataSource(
 	private val integrityManager: IntegrityManager
 ) : ProviderDataSource {
-	override suspend fun getToken(nonce: String): String? {
+	override suspend fun getAttestation(nonce: String): ProviderAttestation? {
 		val request = IntegrityTokenRequest.builder()
 			.setNonce(nonce)
 			.build()
@@ -17,6 +19,9 @@ class PlayIntegrityDataSource(
 			.requestIntegrityToken(request)
 			.await()
 
-		return response.token()
+		return ProviderAttestation(
+			token = response.token(),
+			provider = AttestationProvider.PLAY_INTEGRITY
+		)
 	}
 }

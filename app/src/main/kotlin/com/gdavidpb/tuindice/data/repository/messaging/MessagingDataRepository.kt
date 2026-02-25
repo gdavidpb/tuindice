@@ -8,17 +8,26 @@ class MessagingDataRepository(
 	private val providerDataSource: ProviderDataSource
 ) : MessagingRepository {
 	override suspend fun subscribe() {
-		if (localDataSource.isSubscribed()) return
-
 		val messagingToken = providerDataSource.getToken()
+			?.takeIf { token -> token.isNotBlank() }
+			?: return
 
-		if (messagingToken != null) {
-			remoteDataSource.subscribe(messagingToken)
-			localDataSource.markAsSubscribed()
+		val isSubscribed = localDataSource.isSubscribed()
+		val subscribedToken = localDataSource.getSubscribedToken()
+		val hasMatchingToken = isSubscribed && subscribedToken == messagingToken
+
+		if (hasMatchingToken) {
+			return
 		}
+
+		remoteDataSource.subscribe(messagingToken)
+		localDataSource.markAsSubscribed(token = messagingToken)
 	}
 
 	override suspend fun unsubscribe() {
-		remoteDataSource.unsubscribe()
+		runCatching {
+			remoteDataSource.unsubscribe()
+		}
+		localDataSource.clearSubscription()
 	}
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">TuIndice</string>
+	<string name="button_sign_in">Iniciar sesión</string>
+	<string name="label_policies">Al usar la aplicación, aceptas los\nTérminos y condiciones y Política de privacidad</string>
+	<string name="hint_usb_id">USBID</string>
+	<string name="hint_password">Contraseña</string>
+	<string name="link_terms_and_conditions">Términos y condiciones</string>
+	<string name="link_privacy_policy">Política de privacidad</string>
+	<string name="dialog_title_sign_out">Atención</string>
+	<string name="dialog_message_sign_out">¿Estás seguro que deseas cerrar sesión?</string>
+	<string name="dialog_button_sign_out">Cerrar sesión</string>
+	<string name="dialog_button_cancel">Cancelar</string>
+	<string name="dialog_title_update_password">Tu contraseña ha cambiado</string>
+	<string name="dialog_title_updating_password">Estamos actualizando tu contraseña…</string>
+	<string name="dialog_message_update_password">Confirma tu contraseña para seguir disfrutando de TuIndice.</string>
+	<string name="dialog_button_update_password_later">Más tarde</string>
+	<string name="dialog_button_update_password_confirm">Confirmar</string>
+</resources>

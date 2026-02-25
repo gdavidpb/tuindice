@@ -1,40 +1,68 @@
-import com.android.build.api.dsl.LibraryExtension
-
 plugins {
-	id("com.android.library")
+	kotlin("multiplatform")
+	id("com.android.kotlin.multiplatform.library")
+	alias(libs.plugins.compose.multiplatform)
 
 	alias(libs.plugins.compose.compiler)
 	alias(libs.plugins.kotlin.serialization)
 }
 
-extensions.configure<LibraryExtension> {
-	namespace = "com.gdavidpb.tuindice.record"
-	compileSdk = 36
-
-	defaultConfig {
+kotlin {
+	android {
+		namespace = "com.gdavidpb.tuindice.record"
+		compileSdk = 36
 		minSdk = 24
-		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+		androidResources {
+			enable = true
+		}
+
+		withHostTest {}
+		withDeviceTest {
+			instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+		}
 	}
+	iosX64()
+	iosArm64()
+	iosSimulatorArm64()
 
-	compileOptions {
-		sourceCompatibility(JavaVersion.VERSION_21)
-		targetCompatibility(JavaVersion.VERSION_21)
+	sourceSets {
+		val commonMain by getting {
+			dependencies {
+				implementation(project(":base"))
+				implementation(project(":persistence"))
+				implementation(libs.navigation.compose)
+				implementation(libs.koin.compose)
+				implementation(compose.components.resources)
+				implementation(compose.materialIconsExtended)
+			}
+		}
+
+		val commonTest by getting {
+			dependencies {
+				implementation(kotlin("test"))
+			}
+		}
+
+		val androidMain by getting {
+			dependencies {
+			}
+		}
+
+			val androidHostTest by getting {
+				dependencies {
+					implementation(libs.bundles.testing)
+					implementation(libs.ktor.client.cio)
+				}
+			}
+
+			val androidDeviceTest by getting {
+				dependencies {
+					implementation(project.dependencies.platform(libs.compose.bom))
+					implementation(libs.bundles.testing.android)
+				implementation(libs.test.ext.junit)
+				implementation(libs.compose.ui.test.junit4)
+			}
+		}
 	}
-
-	buildFeatures {
-		compose = true
-		resValues = false
-	}
-}
-
-dependencies {
-	implementation(project(":base"))
-	implementation(project(":persistence"))
-
-	testImplementation(libs.bundles.testing)
-	androidTestImplementation(platform(libs.compose.bom))
-	androidTestImplementation(libs.bundles.testing.android)
-	androidTestImplementation(libs.test.ext.junit)
-	androidTestImplementation(libs.compose.ui.test.junit4)
-	debugImplementation(libs.compose.ui.test.manifest)
 }

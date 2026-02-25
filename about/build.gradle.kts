@@ -1,59 +1,47 @@
-import com.android.build.api.dsl.LibraryExtension
-import org.gradle.kotlin.dsl.configure
-
 plugins {
-    id("com.android.library")
+	kotlin("multiplatform")
+	id("com.android.kotlin.multiplatform.library")
+	alias(libs.plugins.compose.multiplatform)
 
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.kotlin.serialization)
+	alias(libs.plugins.compose.compiler)
+	alias(libs.plugins.kotlin.serialization)
 }
 
-extensions.configure<LibraryExtension> {
-    namespace = "com.gdavidpb.tuindice.about"
-    compileSdk = 36
+kotlin {
+	android {
+		namespace = "com.gdavidpb.tuindice.about"
+		compileSdk = 36
+		minSdk = 24
 
-    defaultConfig {
-        minSdk = 24
-    }
+		androidResources {
+			enable = true
+		}
+	}
+	iosX64()
+	iosArm64()
+	iosSimulatorArm64()
 
-    compileOptions {
-        sourceCompatibility(JavaVersion.VERSION_21)
-        targetCompatibility(JavaVersion.VERSION_21)
-    }
+	sourceSets {
+		val commonMain by getting {
+			dependencies {
+				implementation(project(":base"))
+				implementation(libs.navigation.compose)
+				implementation(libs.koin.compose)
+				implementation(compose.components.resources)
+				implementation(compose.materialIconsExtended)
+			}
+		}
 
-    buildFeatures {
-        compose = true
-        buildConfig = true
-        resValues = false
-    }
+		val commonTest by getting {
+			dependencies {
+				implementation(kotlin("test"))
+			}
+		}
 
-    buildTypes {
-        getByName("debug") {
-            buildConfigField("String", "URL_X", "\"https://x.com/TuIndice/\"")
-            buildConfigField("String", "URL_GITHUB", "\"https://github.com/gdavidpb/tuindice/\"")
-            buildConfigField("String", "URL_KOTLIN", "\"https://kotlinlang.org/\"")
-            buildConfigField("String", "URL_COMPOSE", "\"https://developer.android.com/jetpack/compose/\"")
-            buildConfigField("String", "URL_FIREBASE", "\"https://firebase.com/\"")
-            buildConfigField("String", "URL_KOIN", "\"https://insert-koin.io/\"")
-            buildConfigField("String", "URL_KTOR", "\"https://ktor.io/\"")
-            buildConfigField("String", "URL_DST", "\"https://www.dst.usb.ve/inicio/\"")
-            buildConfigField("String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\"")
-        }
-
-        getByName("release") {
-            buildConfigField("String", "URL_X", "\"https://x.com/TuIndice/\"")
-            buildConfigField("String", "URL_GITHUB", "\"https://github.com/gdavidpb/tuindice/\"")
-            buildConfigField("String", "URL_KOTLIN", "\"https://kotlinlang.org/\"")
-            buildConfigField("String", "URL_COMPOSE", "\"https://developer.android.com/jetpack/compose/\"")
-            buildConfigField("String", "URL_FIREBASE", "\"https://firebase.com/\"")
-            buildConfigField("String", "URL_KOIN", "\"https://insert-koin.io/\"")
-            buildConfigField("String", "URL_KTOR", "\"https://ktor.io/\"")
-            buildConfigField("String", "URL_DST", "\"https://www.dst.usb.ve/inicio/\"")
-            buildConfigField("String", "URL_CREATIVE_COMMONS", "\"https://creativecommons.org/licenses/by-nc/4.0/\"")
-        }
-    }
-}
-
-dependencies {
-    implementation(project(":base"))
+		val androidMain by getting {
+			dependencies {
+				implementation(project(":base"))
+			}
+		}
+	}
 }

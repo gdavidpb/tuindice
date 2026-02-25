@@ -1,36 +1,73 @@
-import com.android.build.api.dsl.LibraryExtension
-import org.gradle.kotlin.dsl.configure
-
 plugins {
-    id("com.android.library")
+	kotlin("multiplatform")
+	id("com.android.kotlin.multiplatform.library")
 
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.compose.compiler)
+	alias(libs.plugins.ksp)
 }
 
-extensions.configure<LibraryExtension> {
-    namespace = "com.gdavidpb.tuindice.persistence"
-    compileSdk = 36
+kotlin {
+	android {
+		namespace = "com.gdavidpb.tuindice.persistence"
+		compileSdk = 36
+		minSdk = 24
 
-    defaultConfig {
-        minSdk = 24
-    }
+		androidResources {
+			enable = true
+		}
+	}
+	iosX64()
+	iosArm64()
+	iosSimulatorArm64()
 
-    compileOptions {
-        sourceCompatibility(JavaVersion.VERSION_21)
-        targetCompatibility(JavaVersion.VERSION_21)
-    }
+	compilerOptions {
+		freeCompilerArgs.add("-Xexpect-actual-classes")
+	}
 
-    buildFeatures {
-        compose = true
-        resValues = false
-    }
+	sourceSets {
+		val commonMain by getting {
+			dependencies {
+				implementation(project(":base"))
+				api(libs.room.runtime)
+			}
+		}
+
+		val commonTest by getting {
+			dependencies {
+				implementation(kotlin("test"))
+			}
+		}
+
+		val androidMain by getting {
+			dependencies {
+				implementation(libs.koin.android)
+				implementation(libs.room.ktx)
+			}
+		}
+
+		val iosX64Main by getting {
+			dependencies {
+				implementation(libs.sqlite.bundled)
+			}
+		}
+
+		val iosArm64Main by getting {
+			dependencies {
+				implementation(libs.sqlite.bundled)
+			}
+		}
+
+		val iosSimulatorArm64Main by getting {
+			dependencies {
+				implementation(libs.sqlite.bundled)
+			}
+		}
+	}
 }
 
 dependencies {
-    implementation(project(":base"))
-
-	/* Room */
-    ksp(libs.room.compiler)
-    api(libs.bundles.room)
+	add("kspCommonMainMetadata", libs.room.compiler)
+	add("kspAndroid", libs.room.compiler)
+	add("kspIosX64", libs.room.compiler)
+	add("kspIosArm64", libs.room.compiler)
+	add("kspIosSimulatorArm64", libs.room.compiler)
 }

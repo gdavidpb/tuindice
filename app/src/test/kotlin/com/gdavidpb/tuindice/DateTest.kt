@@ -29,7 +29,7 @@ class DateTest {
 
 			val actualDistance = futureDate.timeInMillis.weeksToNow()
 
-			assertEquals(week, actualDistance)
+			assertEquals(week.toLong(), actualDistance)
 		}
 	}
 }

@@ -1,16 +1,10 @@
 package com.gdavidpb.tuindice
 
 import android.app.Application
-import com.gdavidpb.tuindice.about.di.aboutModule
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
-import com.gdavidpb.tuindice.di.appModule
-import com.gdavidpb.tuindice.enrollmentproof.di.enrollmentProofModule
-import com.gdavidpb.tuindice.evaluations.di.evaluationsModule
-import com.gdavidpb.tuindice.login.di.loginModule
-import com.gdavidpb.tuindice.migration.MigrationManager
-import com.gdavidpb.tuindice.persistence.di.persistenceModule
-import com.gdavidpb.tuindice.record.di.recordModule
-import com.gdavidpb.tuindice.summary.di.summaryModule
+import com.gdavidpb.tuindice.data.source.activity.CurrentActivityLifecycleCallbacks
+import com.gdavidpb.tuindice.data.source.activity.CurrentActivityProvider
+import com.gdavidpb.tuindice.di.androidReleaseModules
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
 import org.koin.android.ext.koin.androidLogger
@@ -26,23 +20,18 @@ class TuIndiceApp : Application() {
 		Locale.setDefault(DEFAULT_LOCALE)
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
 
-		MigrationManager.execute(applicationContext)
-
-		startKoin {
+		val koinApplication = startKoin {
 			androidLogger(Level.NONE)
 			androidContext(this@TuIndiceApp)
 			androidFileProperties()
 
-			modules(
-				appModule,
-				persistenceModule,
-				loginModule,
-				summaryModule,
-				recordModule,
-				aboutModule,
-				enrollmentProofModule,
-				evaluationsModule
-			)
+			modules(androidReleaseModules())
 		}
+
+		registerActivityLifecycleCallbacks(
+			CurrentActivityLifecycleCallbacks(
+				currentActivityProvider = koinApplication.koin.get<CurrentActivityProvider>()
+			)
+		)
 	}
 }

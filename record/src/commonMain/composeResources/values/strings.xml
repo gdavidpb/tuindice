@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="record_loading_title">Informe académico</string>
+	<string name="record_loading_message">Cargando…</string>
+	<string name="record_failed_title">Informe académico</string>
+	<string name="record_failed_message">No se pudo cargar.</string>
+	<string name="record_failed_retry">Reintentar</string>
+	<string name="record_empty_title">Informe académico</string>
+	<string name="record_empty_message">Sin periodos disponibles.</string>
+	<string name="record_empty_illustration_message">¡Parece que alguien es nuevo por acá!\nTuIndice te da la bienvenida a La Simón\n¡Mucho éxito!</string>
+	<string name="record_app_name">TuIndice</string>
+	<string name="record_app_uni">La Simón</string>
+	<string name="quarter_grade_diff_pattern">Δx %1$.4f</string>
+	<string name="quarter_grade_sum_pattern">∑x %1$.4f</string>
+	<string name="quarter_credits_pattern">⦿ %1$d UC</string>
+	<string name="subject_status_pattern">(%1$s)</string>
+	<string name="subject_grade_pattern">%1$d / 5</string>
+	<string name="subject_credits_pattern">%1$d UC</string>
+	<string name="subject_retired">Retirada</string>
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">TuIndice</string>
+	<string name="about_version">Versión\n%1$s</string>
+	<string name="about_license">Creative Commons\nBY-NC 4.0</string>
+	<string name="about_terms_and_conditions">Términos y condiciones\nConoce las condiciones del servicio</string>
+	<string name="about_privacy_policy">Política de privacidad\nConoce como manejamos tus datos</string>
+	<string name="about_x">\@TuIndice\n¡Síguenos en X y enterate de todo!</string>
+	<string name="about_share">Compartir\nInvita a un amigo a descargar la aplicación</string>
+	<string name="about_rate">Puntúa\n¡Dale las 5 estrellas!</string>
+	<string name="about_header_developer">Desarrollador</string>
+	<string name="about_dev_info">Gerardo Prado\nSantiago, Chile</string>
+	<string name="about_source_code">GitHub Repository\nTuIndice</string>
+	<string name="about_dev_contact">Contacto\nContactar al desarrollador</string>
+	<string name="about_dev_report">Reportar un error\nReportar un error al desarrollador</string>
+	<string name="about_header_libs">Detrás de TuIndice</string>
+	<string name="about_kotlin">Kotlin 2.3.10\nConcise. Cross-platform. Fun.\n© 2012 JetBrains</string>
+	<string name="about_compose">JetPack Compose 2026.02.00\nBuild better apps faster with Jetpack Compose.\n© 2019 JetBrains &amp; Google</string>
+	<string name="about_firebase">Firebase 34.9.0\nQuickly develop high-quality apps and grow your business.\n© 2014 Google</string>
+	<string name="about_koin">Koin 4.1.1\nA pragmatic lightweight dependency injection framework for Kotlin.\n© 2018 Arnaud Giuliani</string>
+	<string name="about_ktor">Ktor 3.4.0\nCreate asynchronous client and server applications. Open Source, free, and fun!.\n© 2017 JetBrains</string>
+	<string name="about_header_special_thanks">Agradecimientos especiales</string>
+	<string name="about_dst">Dirección de Servicios Telemáticos\nUniversidad Simón Bolívar\nUnidad administrativa</string>
+</resources>

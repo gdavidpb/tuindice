@@ -1,62 +1,74 @@
 package com.gdavidpb.tuindice.di
 
+import android.content.Context
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import com.gdavidpb.tuindice.R
-import com.gdavidpb.tuindice.base.BuildConfig
 import com.gdavidpb.tuindice.base.data.repository.SessionDataRepository
 import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
 import com.gdavidpb.tuindice.base.data.source.MemorySessionDataSource
 import com.gdavidpb.tuindice.base.data.source.PreferencesSessionDataSource
-import com.gdavidpb.tuindice.base.data.source.SharedPreferencesSessionDataSource
+import com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSource
+import com.gdavidpb.tuindice.base.data.source.SecureStoreDataSource
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
-import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentGateway
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.BrowserGateway
+import com.gdavidpb.tuindice.base.domain.repository.ConfigGateway
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoGateway
+import com.gdavidpb.tuindice.base.domain.repository.ExternalActions
+import com.gdavidpb.tuindice.base.domain.repository.FileGateway
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
+import com.gdavidpb.tuindice.base.domain.repository.IntegrityGateway
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkStatusGateway
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.PushGateway
+import com.gdavidpb.tuindice.base.domain.repository.ReviewGateway
+import com.gdavidpb.tuindice.base.domain.repository.ReportingGateway
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SecureStore
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.utils.ResourceResolver
+import com.gdavidpb.tuindice.base.domain.repository.UpdateGateway
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
 import com.gdavidpb.tuindice.data.repository.attestation.PayloadDigestDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.ChallengeApiDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.PlayIntegrityDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.SHA256PayloadDigestDataSource
+import com.gdavidpb.tuindice.data.source.activity.CurrentActivityProvider
+import com.gdavidpb.tuindice.data.source.activity.InMemoryCurrentActivityProvider
+import com.gdavidpb.tuindice.data.source.browser.AndroidBrowserGateway
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingDataRepository
 import com.gdavidpb.tuindice.data.repository.messaging.source.FirebaseMessagingDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingApiDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingPreferencesDataSource
+import com.gdavidpb.tuindice.data.source.actions.AndroidExternalActions
 import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.di.ReleaseKoinDataSource
+import com.gdavidpb.tuindice.data.source.device.AndroidDeviceInfoGateway
+import com.gdavidpb.tuindice.data.source.environment.BuildConfigEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
+import com.gdavidpb.tuindice.data.source.reporting.CrashReporter
+import com.gdavidpb.tuindice.data.source.reporting.FirebaseCrashReporter
+import com.gdavidpb.tuindice.data.source.review.PlayReviewGateway
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
-import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
-import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
-import com.gdavidpb.tuindice.domain.usecase.SetLastDestinationUseCase
-import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
-import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
-import com.gdavidpb.tuindice.login.domain.model.IssueTokensAttestationPayload
-import com.gdavidpb.tuindice.login.domain.model.RefreshTokensAttestationPayload
-import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
-import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
-import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceActionProcessor
-import com.gdavidpb.tuindice.presentation.action.browser.SetLoadingActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.SetLastDestinationActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
-import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
-import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.data.source.securestore.AndroidSecureStoreDataSource
+import com.gdavidpb.tuindice.data.source.ui.AndroidHostUiTextProvider
+import com.gdavidpb.tuindice.data.source.update.PlayUpdateGateway
+import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
+import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
+import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
 import com.gdavidpb.tuindice.utils.UserAgent
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.integrity.IntegrityManagerFactory
@@ -64,31 +76,14 @@ import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.DefaultRequest
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.auth.providers.bearer
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.contentType
-import io.ktor.http.userAgent
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
-import kotlinx.serialization.modules.subclass
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
 import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource as AttestationRemote
@@ -97,34 +92,6 @@ import com.gdavidpb.tuindice.data.repository.messaging.ProviderDataSource as Mes
 import com.gdavidpb.tuindice.data.repository.messaging.RemoteDataSource as MessagingRemote
 
 val appModule = module {
-	/* View Models */
-
-	viewModelOf(::MainViewModel)
-	viewModelOf(::BrowserViewModel)
-
-	/* Action processor */
-
-	factoryOf(::UpdateStateActionProcessor)
-	factoryOf(::StartUpActionProcessor)
-	factoryOf(::RequestReviewActionProcessor)
-	factoryOf(::RequestUpdateActionProcessor)
-	factoryOf(::SetLastDestinationActionProcessor)
-
-	factoryOf(::NavigateToActionProcessor)
-	factoryOf(::SetLoadingActionProcessor)
-	factoryOf(::OpenExternalResourceActionProcessor)
-
-	/* Use cases */
-
-	factoryOf(::StartUpUseCase)
-	factoryOf(::RequestReviewUseCase)
-	factoryOf(::SetLastDestinationUseCase)
-	factoryOf(::GetUpdateInfoUseCase)
-
-	/* Exception handlers */
-
-	factoryOf(::StartUpExceptionHandler)
-
 	/* Android Services */
 
 	single {
@@ -140,22 +107,19 @@ val appModule = module {
 	}
 
 	single {
-		val masterKey = MasterKey.Builder(androidContext())
-			.setRequestStrongBoxBacked(true)
-			.setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-			.build()
-
-		EncryptedSharedPreferences.create(
-			androidContext(),
+		androidContext().getSharedPreferences(
 			androidContext().packageName,
-			masterKey,
-			EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-			EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+			Context.MODE_PRIVATE
 		)
 	}
 
-	single {
-		ResourceResolver(androidContext())
+	single<DataStore<Preferences>> {
+		PreferenceDataStoreFactory.create(
+			scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+			produceFile = {
+				androidContext().preferencesDataStoreFile(DATASTORE_FILE_NAME)
+			}
+		)
 	}
 
 	single {
@@ -188,99 +152,18 @@ val appModule = module {
 
 	/* KtorHttpClient */
 
-	single {
-		HttpClient(CIO) {
-			expectSuccess = true
-
-			val userAgent = runCatching { UserAgent(androidContext()) }.getOrNull()
-
-			install(DefaultRequest) {
-				url(BuildConfig.URL_API)
-
-				contentType(ContentType.Application.Json)
-
-				if (userAgent != null)
-					userAgent("$userAgent")
-			}
-
-			install(HttpTimeout) {
-				val configRepository = get<ConfigRepository>()
-				val timeout = configRepository.getTimeout()
-
-				requestTimeoutMillis = timeout
-				connectTimeoutMillis = timeout
-				socketTimeoutMillis = timeout
-			}
-
-			install(ContentNegotiation) {
-				json(get())
-			}
-
-			install(Logging) {
-				logger = get<Logger>()
-				level = LogLevel.ALL
-
-				sanitizeHeader { header ->
-					header == HttpHeaders.Authorization
-				}
-			}
-
-			install(Auth) {
-				bearer {
-					loadTokens {
-						val sessionRepository = get<SessionRepository>()
-
-						val hasActiveTokens = sessionRepository.hasActiveSession()
-
-						if (hasActiveTokens)
-							BearerTokens(
-								accessToken = sessionRepository.getAccessToken(),
-								refreshToken = sessionRepository.getRefreshToken()
-							)
-						else
-							null
-					}
-
-					refreshTokens {
-						val sessionRepository = get<SessionRepository>()
-						val attestationRepository = get<AttestationRepository>()
-						val authApiRepository = get<AuthApiRepository>()
-
-						val oldAccessToken = oldTokens
-							?.accessToken
-							?: sessionRepository.getAccessToken()
-
-						val oldRefreshToken = oldTokens
-							?.refreshToken
-							?: sessionRepository.getRefreshToken()
-
-						val attestationPayload = RefreshTokensAttestationPayload(
-							accessToken = oldAccessToken,
-							refreshToken = oldRefreshToken
-						)
-
-						val attestation = attestationRepository.getAttestation(
-							payload = attestationPayload
-						)
-
-						val response = authApiRepository.refreshTokens(
-							accessToken = oldAccessToken,
-							refreshToken = oldRefreshToken,
-							attestation = attestation
-						)
-
-						sessionRepository.setAccessToken(response.accessToken)
-						sessionRepository.setRefreshToken(response.refreshToken)
-
-						BearerTokens(
-							accessToken = response.accessToken,
-							refreshToken = response.refreshToken
-						)
-					}
-				}
-			}
+		single {
+			createSharedHttpClient(
+				appEnvironmentRepository = get(),
+				configRepository = get(),
+				sessionRepository = get(),
+				attestationRepositoryProvider = { get() },
+				authApiRepositoryProvider = { get() },
+				logger = get(),
+				json = get(),
+				userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()
+			)
 		}
-	}
 
 	single<Logger> {
 		object : Logger {
@@ -291,29 +174,29 @@ val appModule = module {
 	}
 
 	single {
-		Json {
-			explicitNulls = true
-			prettyPrint = false
-
-			serializersModule = SerializersModule {
-				polymorphic(AttestationPayload::class) {
-					subclass(IssueTokensAttestationPayload::class)
-					subclass(RefreshTokensAttestationPayload::class)
-				}
-			}
-		}
+		createSharedJson()
 	}
 
 	/* Repositories */
 
 	factoryOf(::SessionDataRepository) { bind<SessionRepository>() }
-	factoryOf(::MessagingDataRepository) { bind<MessagingRepository>() }
-	factoryOf(::AttestationDataRepository) { bind<AttestationRepository>() }
+	factoryOf(::MessagingDataRepository) {
+		bind<MessagingRepository>()
+		bind<PushGateway>()
+	}
+	factoryOf(::AttestationDataRepository) {
+		bind<AttestationRepository>()
+		bind<IntegrityGateway>()
+	}
 
 	/* Data sources */
 
 	singleOf(::InMemorySessionDataSource) { bind<MemorySessionDataSource>() }
-	singleOf(::SharedPreferencesSessionDataSource) { bind<PreferencesSessionDataSource>() }
+	singleOf(::AndroidSecureStoreDataSource) {
+		bind<SecureStoreDataSource>()
+		bind<SecureStore>()
+	}
+	singleOf(::SecureStoreSessionDataSource) { bind<PreferencesSessionDataSource>() }
 	singleOf(::PlayIntegrityDataSource) { bind<AttestationProvider>() }
 	singleOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	singleOf(::MessagingApiDataSource) { bind<MessagingRemote>() }
@@ -321,10 +204,37 @@ val appModule = module {
 	singleOf(::SHA256PayloadDigestDataSource) { bind<PayloadDigestDataSource>() }
 	singleOf(::FirebaseMessagingDataSource) { bind<MessagingProvider>() }
 	singleOf(::MessagingPreferencesDataSource) { bind<MessagingLocal>() }
-	singleOf(::AndroidApplicationDataSource) { bind<ApplicationRepository>() }
+	singleOf(::AndroidApplicationDataSource) {
+		bind<ApplicationRepository>()
+		bind<FileGateway>()
+	}
 	singleOf(::PreferencesDataSource) { bind<SettingsRepository>() }
-	singleOf(::RemoteConfigDataSource) { bind<ConfigRepository>() }
-	singleOf(::CrashlyticsReportingDataSource) { bind<ReportingRepository>() }
+	singleOf(::RemoteConfigDataSource) {
+		bind<ConfigRepository>()
+		bind<ConfigGateway>()
+	}
+	singleOf(::FirebaseCrashReporter) { bind<CrashReporter>() }
+	singleOf(::CrashlyticsReportingDataSource) {
+		bind<ReportingRepository>()
+		bind<ReportingGateway>()
+	}
 	singleOf(::ReleaseKoinDataSource) { bind<DependenciesRepository>() }
-	singleOf(::AndroidNetworkDataSource) { bind<NetworkRepository>() }
+	singleOf(::AndroidNetworkDataSource) {
+		bind<NetworkRepository>()
+		bind<NetworkStatusGateway>()
+	}
+	singleOf(::BuildConfigEnvironmentDataSource) {
+		bind<AppEnvironmentRepository>()
+		bind<AppEnvironmentGateway>()
+	}
+	singleOf(::InMemoryCurrentActivityProvider) { bind<CurrentActivityProvider>() }
+	singleOf(::PlayReviewGateway) { bind<ReviewGateway>() }
+	singleOf(::PlayUpdateGateway) { bind<UpdateGateway>() }
+	singleOf(::AndroidBrowserGateway) { bind<BrowserGateway>() }
+	singleOf(::AndroidBrowserScreenRenderer) { bind<BrowserScreenRenderer>() }
+	singleOf(::AndroidHostUiTextProvider) { bind<HostUiTextProvider>() }
+	singleOf(::AndroidExternalActions) { bind<ExternalActions>() }
+	singleOf(::AndroidDeviceInfoGateway) { bind<DeviceInfoGateway>() }
 }
+
+private const val DATASTORE_FILE_NAME = "tuindice.preferences_pb"

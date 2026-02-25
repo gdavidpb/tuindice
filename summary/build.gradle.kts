@@ -1,33 +1,48 @@
-import com.android.build.api.dsl.LibraryExtension
-import org.gradle.kotlin.dsl.configure
-
 plugins {
-	id("com.android.library")
+	kotlin("multiplatform")
+	id("com.android.kotlin.multiplatform.library")
+	alias(libs.plugins.compose.multiplatform)
 
 	alias(libs.plugins.compose.compiler)
 	alias(libs.plugins.kotlin.serialization)
 }
 
-extensions.configure<LibraryExtension> {
-	namespace = "com.gdavidpb.tuindice.summary"
-	compileSdk = 36
-
-	defaultConfig {
+kotlin {
+	android {
+		namespace = "com.gdavidpb.tuindice.summary"
+		compileSdk = 36
 		minSdk = 24
-	}
 
-	compileOptions {
-		sourceCompatibility(JavaVersion.VERSION_21)
-		targetCompatibility(JavaVersion.VERSION_21)
+		androidResources {
+			enable = true
+		}
 	}
+	iosX64()
+	iosArm64()
+	iosSimulatorArm64()
 
-	buildFeatures {
-		compose = true
-		resValues = false
+	sourceSets {
+		val commonMain by getting {
+			dependencies {
+				implementation(project(":base"))
+				implementation(project(":persistence"))
+				implementation(libs.navigation.compose)
+				implementation(libs.koin.compose)
+				implementation(compose.components.resources)
+				implementation(compose.materialIconsExtended)
+			}
+		}
+
+		val commonTest by getting {
+			dependencies {
+				implementation(kotlin("test"))
+			}
+		}
+
+		val androidMain by getting {
+			dependencies {
+				implementation(project(":base"))
+			}
+		}
 	}
-}
-
-dependencies {
-	implementation(project(":base"))
-	implementation(project(":persistence"))
 }

@@ -12,7 +12,9 @@ class MainActivity : ComponentActivity() {
 
 		setContent {
 			TuIndiceTheme {
-				TuIndiceRoute()
+				TuIndiceRoute(
+					onConfirmExitClick = ::finish
+				)
 			}
 		}
 	}
