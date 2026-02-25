@@ -35,7 +35,6 @@ import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActions
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.ui.navigation.PlatformBackGesture
 import com.gdavidpb.tuindice.ui.navigation.edgeSwipeBackNavigation
 
 @Composable
@@ -43,6 +42,7 @@ fun TuIndiceNavHost(
 	navController: NavHostController,
 	startDestination: Destination,
 	modifier: Modifier = Modifier.fillMaxSize(),
+	isSwipeBackNavigationEnabled: Boolean = false,
 	onConfirmExitClick: () -> Unit,
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
@@ -189,7 +189,7 @@ fun TuIndiceNavHost(
 		navController = navController,
 		startDestination = startDestination,
 		modifier = modifier.edgeSwipeBackNavigation(
-			enabled = PlatformBackGesture.isEnabled && canNavigateBack,
+			enabled = isSwipeBackNavigationEnabled && canNavigateBack,
 			onBack = { navController.navigateUp() }
 		)
 	) {

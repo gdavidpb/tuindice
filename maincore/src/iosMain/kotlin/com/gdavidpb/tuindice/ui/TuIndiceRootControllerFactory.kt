@@ -2,11 +2,7 @@ package com.gdavidpb.tuindice.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -24,27 +20,23 @@ import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.di.IosPlatformBridge
 import com.gdavidpb.tuindice.di.requireIosKoin
 import com.gdavidpb.tuindice.enrollmentproof.ui.dialog.EnrollmentProofContentDialog
-import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationContentScreen
-import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationGradePickerContentDialog
-import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationsContentScreen
-import com.gdavidpb.tuindice.evaluations.ui.screen.GradePickerContentDialog
-import com.gdavidpb.tuindice.evaluations.ui.screen.MaxGradePickerContentDialog
+import com.gdavidpb.tuindice.evaluations.ui.screen.*
 import com.gdavidpb.tuindice.login.ui.screen.SignInContentScreen
 import com.gdavidpb.tuindice.login.ui.screen.SignOutContentDialog
 import com.gdavidpb.tuindice.login.ui.screen.UpdatePasswordContentDialog
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.route.TuIndiceCoordinatorRoute
+import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.ui.screen.RecordContentScreen
+import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActionsFactory
 import com.gdavidpb.tuindice.summary.ui.screen.ProfilePictureSettingsContentDialog
 import com.gdavidpb.tuindice.summary.ui.screen.RemoveProfilePictureConfirmationContentDialog
-import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActionsFactory
 import com.gdavidpb.tuindice.summary.ui.screen.SummaryContentScreen
 import com.gdavidpb.tuindice.ui.dialog.GooglePlayServicesDialog
 import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
 import com.gdavidpb.tuindice.ui.screen.BrowserScreen
 import com.gdavidpb.tuindice.ui.screen.TuIndiceNavHost
 import com.gdavidpb.tuindice.ui.theme.TuIndiceSharedTheme
-import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 import platform.UIKit.UIViewController
 
@@ -54,10 +46,6 @@ class TuIndiceRootControllerFactory {
 			TuIndiceRootContent()
 		}
 	}
-}
-
-fun createTuIndiceRootViewController(): UIViewController {
-	return TuIndiceRootControllerFactory().create()
 }
 
 @Composable
@@ -117,13 +105,13 @@ private fun TuIndiceRootContent() {
 				updateGateway = updateGateway,
 				viewModel = mainViewModel
 			) { state, _, onRetryStartUp, navController, _, _, _, isCameraAvailable, onNavigateToExternalResource, onConfirmRemoveProfilePicture, onPickProfilePicture, onTakeProfilePicture, onRemoveProfilePicture, onSetGrade, onSetMaxGrade, onSetEvaluationGrade, showSnackBar ->
-					when (state) {
-						is Main.State.Starting -> {
-							Box(modifier = Modifier.fillMaxSize()) {
-								CircularProgressIndicator(
-									modifier = Modifier.align(Alignment.Center)
-								)
-							}
+				when (state) {
+					is Main.State.Starting -> {
+						Box(modifier = Modifier.fillMaxSize()) {
+							CircularProgressIndicator(
+								modifier = Modifier.align(Alignment.Center)
+							)
+						}
 						return@TuIndiceCoordinatorRoute
 					}
 
@@ -146,6 +134,7 @@ private fun TuIndiceRootContent() {
 				TuIndiceNavHost(
 					navController = navController,
 					startDestination = contentState.startDestination,
+					isSwipeBackNavigationEnabled = true,
 					onConfirmExitClick = {},
 					isCameraAvailable = isCameraAvailable,
 					onNavigateToExternalResource = onNavigateToExternalResource,

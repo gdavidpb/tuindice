@@ -43,7 +43,7 @@ fun AnimatedPatternBackground(
 
 	val transition = rememberInfiniteTransition(label = "AnimatedPatternBackground")
 	val animatedProgress by transition.animateFloat(
-		label = "animatedProgress",
+		label = "AnimatedPatternBackground",
 		initialValue = 0f,
 		targetValue = 1f,
 		animationSpec = infiniteRepeatable(
