@@ -40,23 +40,13 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.base.ui.dialog.ExternalResourceDialog
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
-import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationGradePickerContentDialog
-import com.gdavidpb.tuindice.evaluations.ui.screen.GradePickerContentDialog
-import com.gdavidpb.tuindice.evaluations.ui.screen.MaxGradePickerContentDialog
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.BottomBarConfig
-import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActionsFactory
-import com.gdavidpb.tuindice.summary.ui.screen.ProfilePictureSettingsContentDialog
-import com.gdavidpb.tuindice.summary.ui.screen.RemoveProfilePictureConfirmationContentDialog
-import com.gdavidpb.tuindice.ui.dialog.GooglePlayServicesDialog
-import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
-import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,8 +97,6 @@ fun TuIndiceScreen(
 	}
 
 	val contentState = state
-	val profilePictureActionsProvider = koinInject<ProfilePictureActionsFactory>()
-	val hostUiTexts = koinInject<HostUiTextProvider>().getValues()
 	val latestContentState = rememberUpdatedState(contentState)
 
 	val onViewStateChanged: (ViewState) -> Unit = { currentViewState ->
@@ -209,80 +197,15 @@ fun TuIndiceScreen(
 			onConfirmExitClick = onConfirmExitClick,
 			isCameraAvailable = isCameraAvailable,
 			onNavigateToExternalResource = onNavigateToExternalResource,
-				onConfirmRemoveProfilePicture = onConfirmRemoveProfilePicture,
-				onPickProfilePicture = onPickProfilePicture,
-				onTakeProfilePicture = onTakeProfilePicture,
-				onRemoveProfilePicture = onRemoveProfilePicture,
-				onSetGrade = onSetGrade,
-				onSetMaxGrade = onSetMaxGrade,
-				onSetEvaluationGrade = onSetEvaluationGrade,
-				onViewStateChanged = onViewStateChanged,
-				showSnackBar = showSnackBar,
-				googlePlayServicesDialogContent = { confirm, dismiss ->
-				GooglePlayServicesDialog(
-					titleText = hostUiTexts.googleServicesUnavailableTitle,
-					messageText = hostUiTexts.googleServicesUnavailableMessage,
-					exitText = hostUiTexts.googleServicesUnavailableExit,
-					onConfirmExitClick = confirm,
-					onDismissRequest = dismiss
-				)
-			},
-			profilePictureActionsFactory = { viewModel ->
-				profilePictureActionsProvider.remember(
-					onPicturePicked = viewModel::uploadProfilePictureAction,
-					onPictureTaken = viewModel::uploadTakenProfilePictureAction
-				)
-			},
-			removeProfilePictureConfirmationDialogContent = { onConfirmClick, onDismissRequest ->
-				RemoveProfilePictureConfirmationContentDialog(
-					onConfirmClick = onConfirmClick,
-					onDismissRequest = onDismissRequest
-				)
-			},
-			profilePictureSettingsDialogContent = { showRemove, cameraAvailable, onPickPictureClick, onTakePictureClick, onRemovePictureClick, onDismissRequest ->
-				ProfilePictureSettingsContentDialog(
-					showRemove = showRemove,
-					isCameraAvailable = cameraAvailable,
-					onPickPictureClick = onPickPictureClick,
-					onTakePictureClick = onTakePictureClick,
-					onRemovePictureClick = onRemovePictureClick,
-					onDismissRequest = onDismissRequest
-				)
-			},
-			gradePickerDialogContent = { selectedGrade, maxGrade, onGradeChange, onDismissRequest ->
-				GradePickerContentDialog(
-					selectedGrade = selectedGrade,
-					maxGrade = maxGrade,
-					onGradeChange = onGradeChange,
-					onDismissRequest = onDismissRequest
-				)
-			},
-			maxGradePickerDialogContent = { selectedGrade, onGradeChange, onDismissRequest ->
-				MaxGradePickerContentDialog(
-					selectedGrade = selectedGrade,
-					onGradeChange = onGradeChange,
-					onDismissRequest = onDismissRequest
-				)
-			},
-			evaluationGradePickerDialogContent = { selectedGrade, maxGrade, onGradeChange, onDismissRequest ->
-				EvaluationGradePickerContentDialog(
-					selectedGrade = selectedGrade,
-					maxGrade = maxGrade,
-					onGradeChange = onGradeChange,
-					onDismissRequest = onDismissRequest
-				)
-			},
-			externalResourceDialogContent = { url, onConfirmClick, onDismissRequest ->
-				ExternalResourceDialog(
-					url = url,
-					titleText = hostUiTexts.externalResourceTitle,
-					messageText = hostUiTexts.externalResourceMessage,
-					openText = hostUiTexts.externalResourceOpen,
-					cancelText = hostUiTexts.externalResourceCancel,
-					onConfirmClick = onConfirmClick,
-					onDismissRequest = onDismissRequest
-				)
-			}
+			onConfirmRemoveProfilePicture = onConfirmRemoveProfilePicture,
+			onPickProfilePicture = onPickProfilePicture,
+			onTakeProfilePicture = onTakeProfilePicture,
+			onRemoveProfilePicture = onRemoveProfilePicture,
+			onSetGrade = onSetGrade,
+			onSetMaxGrade = onSetMaxGrade,
+			onSetEvaluationGrade = onSetEvaluationGrade,
+			onViewStateChanged = onViewStateChanged,
+			showSnackBar = showSnackBar
 		)
 	}
 }

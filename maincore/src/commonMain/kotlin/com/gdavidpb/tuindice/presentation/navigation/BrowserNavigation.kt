@@ -1,16 +1,17 @@
 package com.gdavidpb.tuindice.presentation.navigation
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
-import androidx.navigation.toRoute
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.toRoute
+import com.gdavidpb.tuindice.base.ui.dialog.ExternalResourceDialog
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.presentation.route.BrowserRoute
+import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import org.koin.compose.koinInject
 
@@ -18,12 +19,7 @@ fun NavGraphBuilder.browserNavigation(
 	onNavigateToExternalResourceDialog: (url: String) -> Unit,
 	onNavigateToExternalResource: (url: String) -> Unit,
 	onDismissRequest: () -> Unit,
-	onViewStateChanged: (ViewState) -> Unit,
-	externalResourceDialogContent: @Composable (
-		url: String,
-		onConfirmClick: (url: String) -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit
+	onViewStateChanged: (ViewState) -> Unit
 ) {
 	composable<BrowserDestination.Browser>(
 		typeMap = emptyMap(),
@@ -56,7 +52,16 @@ fun NavGraphBuilder.browserNavigation(
 		dialogProperties = DialogProperties()
 	) { backStackEntry ->
 		val args = backStackEntry.toRoute<BrowserDestination.ExternalResourceDialog>()
+		val hostUiTexts = koinInject<HostUiTextProvider>().getValues()
 
-		externalResourceDialogContent(args.url, onNavigateToExternalResource, onDismissRequest)
+		ExternalResourceDialog(
+			url = args.url,
+			titleText = hostUiTexts.externalResourceTitle,
+			messageText = hostUiTexts.externalResourceMessage,
+			openText = hostUiTexts.externalResourceOpen,
+			cancelText = hostUiTexts.externalResourceCancel,
+			onConfirmClick = onNavigateToExternalResource,
+			onDismissRequest = onDismissRequest
+		)
 	}
 }

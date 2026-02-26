@@ -1,19 +1,20 @@
 package com.gdavidpb.tuindice.summary.presentation.navigation
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
-import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActions
+import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActionsFactory
 import com.gdavidpb.tuindice.summary.presentation.route.SummaryRoute
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
+import com.gdavidpb.tuindice.summary.ui.screen.ProfilePictureSettingsContentDialog
+import com.gdavidpb.tuindice.summary.ui.screen.RemoveProfilePictureConfirmationContentDialog
 import org.koin.compose.koinInject
 
 fun NavGraphBuilder.summaryNavigation(
@@ -27,25 +28,16 @@ fun NavGraphBuilder.summaryNavigation(
 	onRemoveProfilePicture: () -> Unit,
 	onDismissRequest: () -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
-	showSnackBar: (message: SnackBarMessage) -> Unit,
-	profilePictureActionsFactory: @Composable (viewModel: SummaryViewModel) -> ProfilePictureActions,
-	removeProfilePictureConfirmationDialogContent: @Composable (
-		onConfirmClick: () -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit,
-	profilePictureSettingsDialogContent: @Composable (
-		showRemove: Boolean,
-		isCameraAvailable: Boolean,
-		onPickPictureClick: () -> Unit,
-		onTakePictureClick: () -> Unit,
-		onRemovePictureClick: () -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit
+	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	navigation<SummaryDestination.NavGraph>(startDestination = SummaryDestination.Summary) {
 		composable<SummaryDestination.Summary> {
 			val viewModel = koinInject<SummaryViewModel>()
-			val profilePictureActions = profilePictureActionsFactory(viewModel)
+			val profilePictureActionsFactory = koinInject<ProfilePictureActionsFactory>()
+			val profilePictureActions = profilePictureActionsFactory.remember(
+				onPicturePicked = viewModel::uploadProfilePictureAction,
+				onPictureTaken = viewModel::uploadTakenProfilePictureAction
+			)
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 			LaunchedEffect(viewState) {
@@ -63,19 +55,22 @@ fun NavGraphBuilder.summaryNavigation(
 		}
 
 		dialog<SummaryDestination.RemoveProfilePictureConfirmationDialog> {
-			removeProfilePictureConfirmationDialogContent(onConfirmRemoveProfilePicture, onDismissRequest)
+			RemoveProfilePictureConfirmationContentDialog(
+				onConfirmClick = onConfirmRemoveProfilePicture,
+				onDismissRequest = onDismissRequest
+			)
 		}
 
 		dialog<SummaryDestination.ProfilePictureSettingsDialog> { backStackEntry ->
 			val args = backStackEntry.toRoute<SummaryDestination.ProfilePictureSettingsDialog>()
 
-			profilePictureSettingsDialogContent(
-				args.showRemove,
-				isCameraAvailable,
-				onPickProfilePicture,
-				onTakePicture,
-				onRemoveProfilePicture,
-				onDismissRequest
+			ProfilePictureSettingsContentDialog(
+				showRemove = args.showRemove,
+				isCameraAvailable = isCameraAvailable,
+				onPickPictureClick = onPickProfilePicture,
+				onTakePictureClick = onTakePicture,
+				onRemovePictureClick = onRemoveProfilePicture,
+				onDismissRequest = onDismissRequest
 			)
 		}
 	}

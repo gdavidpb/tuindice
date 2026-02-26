@@ -21,8 +21,6 @@ import com.gdavidpb.tuindice.presentation.navigation.mainNavigation
 import com.gdavidpb.tuindice.record.presentation.navigation.recordNavigation
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryNavigation
-import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActions
-import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.navigation.edgeSwipeBackNavigation
 
 @Composable
@@ -42,46 +40,7 @@ fun TuIndiceNavHost(
 	onSetMaxGrade: (grade: Double) -> Unit,
 	onSetEvaluationGrade: (evaluationId: String, grade: Double) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
-	showSnackBar: (message: SnackBarMessage) -> Unit,
-	googlePlayServicesDialogContent: @Composable (
-		onConfirmExitClick: () -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit,
-	profilePictureActionsFactory: @Composable (viewModel: SummaryViewModel) -> ProfilePictureActions,
-	removeProfilePictureConfirmationDialogContent: @Composable (
-		onConfirmClick: () -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit,
-	profilePictureSettingsDialogContent: @Composable (
-		showRemove: Boolean,
-		isCameraAvailable: Boolean,
-		onPickPictureClick: () -> Unit,
-		onTakePictureClick: () -> Unit,
-		onRemovePictureClick: () -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit,
-	gradePickerDialogContent: @Composable (
-		selectedGrade: Double?,
-		maxGrade: Double?,
-		onGradeChange: (grade: Double) -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit,
-	maxGradePickerDialogContent: @Composable (
-		selectedGrade: Double?,
-		onGradeChange: (grade: Double) -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit,
-	evaluationGradePickerDialogContent: @Composable (
-		selectedGrade: Double?,
-		maxGrade: Double,
-		onGradeChange: (grade: Double) -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit,
-	externalResourceDialogContent: @Composable (
-		url: String,
-		onConfirmClick: (url: String) -> Unit,
-		onDismissRequest: () -> Unit
-	) -> Unit
+	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	val currentBackStackEntry = navController.currentBackStackEntryAsState().value
 	val canNavigateBack = currentBackStackEntry != null && navController.previousBackStackEntry != null
@@ -96,8 +55,7 @@ fun TuIndiceNavHost(
 	) {
 		mainNavigation(
 			onConfirmExitClick = onConfirmExitClick,
-			onDismissRequest = { navController.navigateUp() },
-			content = googlePlayServicesDialogContent
+			onDismissRequest = { navController.navigateUp() }
 		)
 
 		loginNavigation(
@@ -142,10 +100,7 @@ fun TuIndiceNavHost(
 			onTakePicture = onTakeProfilePicture,
 			onRemoveProfilePicture = onRemoveProfilePicture,
 			showSnackBar = showSnackBar,
-			onViewStateChanged = onViewStateChanged,
-			profilePictureActionsFactory = profilePictureActionsFactory,
-			removeProfilePictureConfirmationDialogContent = removeProfilePictureConfirmationDialogContent,
-			profilePictureSettingsDialogContent = profilePictureSettingsDialogContent
+			onViewStateChanged = onViewStateChanged
 		)
 
 		recordNavigation(
@@ -189,10 +144,7 @@ fun TuIndiceNavHost(
 			onSetEvaluationGrade = onSetEvaluationGrade,
 			onDismissRequest = { navController.navigateUp() },
 			onViewStateChanged = onViewStateChanged,
-			showSnackBar = showSnackBar,
-			gradePickerDialogContent = gradePickerDialogContent,
-			maxGradePickerDialogContent = maxGradePickerDialogContent,
-			evaluationGradePickerDialogContent = evaluationGradePickerDialogContent
+			showSnackBar = showSnackBar
 		)
 
 		aboutNavigation(
@@ -216,8 +168,7 @@ fun TuIndiceNavHost(
 			},
 			onNavigateToExternalResource = onNavigateToExternalResource,
 			onDismissRequest = { navController.navigateUp() },
-			onViewStateChanged = onViewStateChanged,
-			externalResourceDialogContent = externalResourceDialogContent
+			onViewStateChanged = onViewStateChanged
 		)
 	}
 }
