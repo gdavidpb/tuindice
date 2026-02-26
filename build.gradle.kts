@@ -1705,6 +1705,42 @@ tasks.register("checkIosBridgeNoPlaceholders") {
 	}
 }
 
+tasks.register("checkDiFileLineBudget") {
+	group = "verification"
+	description = "Fails when DI files exceed agreed line budget."
+	notCompatibleWithConfigurationCache("Scans DI sources directly.")
+
+	doLast {
+		val maxLines = 250
+		val diSources = fileTree(rootDir) {
+			include("**/src/commonMain/kotlin/**/di/**/*.kt")
+			include("**/src/androidMain/kotlin/**/di/**/*.kt")
+			include("**/src/iosMain/kotlin/**/di/**/*.kt")
+			exclude("**/build/**", ".gradle/**")
+		}
+		val violations = mutableListOf<String>()
+
+		diSources.files
+			.sortedBy { it.path }
+			.forEach { sourceFile ->
+				val lineCount = sourceFile.readLines().size
+				if (lineCount > maxLines) {
+					violations += "${sourceFile.relativeTo(rootDir)}: $lineCount lines (max $maxLines)"
+				}
+			}
+
+		if (violations.isNotEmpty()) {
+			error(
+				buildString {
+					appendLine("DI file line budget exceeded:")
+					appendLine("Split files to keep DI focused on wiring only.")
+					violations.forEach { appendLine(it) }
+				}
+			)
+		}
+	}
+}
+
 tasks.register("verifyKmpTargets") {
 	group = "verification"
 	description = "Compiles KMP shared modules for Android and iOS simulator targets."
@@ -1967,13 +2003,14 @@ tasks.register("verifyKmpMigration") {
 		"checkIosSmokeVerifierChecksCoverage",
 		"checkIosDeviceE2ERequiredChecksCoverage",
 		"checkAttestationContractConsistency",
-		"checkIosStructuredUserAgent",
-		"checkIosAppAttestOnlySurface",
-		"checkIosDefaultBridgeNoSecureStoreFallback",
-		"checkIosBridgeNoPlaceholders",
-		"verifyKmpTargets",
-		"verifyKmpSharedTests",
-		"verifyIosHostTypecheck",
+			"checkIosStructuredUserAgent",
+			"checkIosAppAttestOnlySurface",
+			"checkIosDefaultBridgeNoSecureStoreFallback",
+			"checkIosBridgeNoPlaceholders",
+			"checkDiFileLineBudget",
+			"verifyKmpTargets",
+			"verifyKmpSharedTests",
+			"verifyIosHostTypecheck",
 		"verifyIosHostSmoke",
 		":app:compileDebugAndroidTestSources",
 		":app:compileDebugSources"

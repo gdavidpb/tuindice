@@ -1,0 +1,100 @@
+package com.gdavidpb.tuindice.di
+
+import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.contentType
+import io.ktor.http.userAgent
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+import platform.Foundation.NSBundle
+import platform.Foundation.NSLog
+import platform.UIKit.UIDevice
+
+internal fun createIosUserAgent(bridge: IosPlatformBridge): String {
+	val appVersionName = bridge.appVersionName().ifBlank { "0.0.0" }
+	val appVersionCode = bridge.appVersionCode().coerceAtLeast(0L)
+	val device = UIDevice.currentDevice
+	val osVersion = device.systemVersion.ifBlank { "Unknown" }
+	val osCode = osVersion
+		.substringBefore(".")
+		.toIntOrNull()
+		?: 0
+	val osId = NSBundle.mainBundle.objectForInfoDictionaryKey("DTPlatformBuild")
+		?.toString()
+		?.takeIf { it.isNotBlank() }
+		?: "Unknown"
+	val model = device.model.takeIf { it.isNotBlank() } ?: "Unknown"
+
+	return buildStructuredUserAgent(
+		appVersionName = appVersionName,
+		appVersionCode = appVersionCode,
+		osName = "iOS",
+		osVersion = osVersion,
+		osCode = osCode,
+		osId = osId,
+		manufacturer = "Apple",
+		model = model
+	)
+}
+
+internal fun createIosIdentityHttpClient(
+	appEnvironmentRepository: AppEnvironmentRepository,
+	configRepository: ConfigRepository,
+	logger: Logger,
+	json: Json,
+	userAgentValue: String?
+): HttpClient {
+	return createPlatformHttpClient {
+		expectSuccess = true
+
+		install(DefaultRequest) {
+			val appEnvironment = appEnvironmentRepository.getEnvironment()
+
+			url(appEnvironment.apiBaseUrl)
+			contentType(ContentType.Application.Json)
+
+			if (!userAgentValue.isNullOrBlank()) {
+				userAgent(userAgentValue)
+			}
+		}
+
+		install(HttpTimeout) {
+			val timeout = configRepository.getTimeout()
+
+			requestTimeoutMillis = timeout
+			connectTimeoutMillis = timeout
+			socketTimeoutMillis = timeout
+		}
+
+		install(ContentNegotiation) {
+			json(json)
+		}
+
+		install(Logging) {
+			this.logger = logger
+			level = LogLevel.ALL
+
+			sanitizeHeader { header ->
+				header == HttpHeaders.Authorization
+			}
+		}
+	}
+}
+
+internal const val IOS_IDENTITY_HTTP_CLIENT_QUALIFIER = "iosIdentityHttpClient"
+
+internal val IOS_KTOR_LOGGER = object : Logger {
+	override fun log(message: String) {
+		NSLog(message)
+	}
+}

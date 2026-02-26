@@ -8,8 +8,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
-import com.gdavidpb.tuindice.data.mapper.toDestination
-import com.gdavidpb.tuindice.data.mapper.toDestinationName
+import com.gdavidpb.tuindice.presentation.navigation.toDestinationOrThrow
+import com.gdavidpb.tuindice.presentation.navigation.toPersistedName
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import kotlinx.coroutines.flow.first
 
@@ -18,13 +18,13 @@ class PreferencesDataSource(
 ) : SettingsRepository {
 	override suspend fun getLastDestination(): Destination {
 		return dataStore.data.first()[LAST_DESTINATION]
-			?.toDestination()
+			?.toDestinationOrThrow()
 			?: SummaryDestination.NavGraph
 	}
 
 	override suspend fun setLastDestination(destination: Destination) {
 		dataStore.edit { preferences ->
-			preferences[LAST_DESTINATION] = destination.toDestinationName()
+			preferences[LAST_DESTINATION] = destination.toPersistedName()
 		}
 	}
 
