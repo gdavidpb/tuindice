@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.concurrent.atomics.AtomicBoolean
@@ -21,11 +21,12 @@ abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 ) : ViewModel() {
 	private val initialActionLocker = AtomicBoolean(false)
 
-	val action = MutableSharedFlow<A>()
-	val effect = MutableSharedFlow<E>(
-		extraBufferCapacity = 8,
-		onBufferOverflow = BufferOverflow.DROP_OLDEST
-	)
+	private val effectChannel = Channel<E>(Channel.BUFFERED)
+	private val actionChannel = Channel<A>(Channel.BUFFERED)
+
+	val action = actionChannel.receiveAsFlow()
+	val effect = effectChannel.receiveAsFlow()
+
 	val state = action
 		.onStart {
 			if (initialAction != null && initialActionLocker.compareAndSet(expectedValue = false, newValue = true)) {
@@ -48,18 +49,12 @@ abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 	): Flow<Mutation<S>>
 
 	protected fun sendAction(viewAction: A) {
-		if (!action.tryEmit(viewAction)) {
-			viewModelScope.launch {
-				action.emit(viewAction)
-			}
-		}
+		if (!actionChannel.trySend(viewAction).isSuccess)
+			viewModelScope.launch { actionChannel.send(viewAction) }
 	}
 
 	private fun sendEffect(viewEffect: E) {
-		if (!effect.tryEmit(viewEffect)) {
-			viewModelScope.launch {
-				effect.emit(viewEffect)
-			}
-		}
+		if (!effectChannel.trySend(viewEffect).isSuccess)
+			viewModelScope.launch { effectChannel.send(viewEffect) }
 	}
 }
