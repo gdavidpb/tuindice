@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.di
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.gdavidpb.tuindice.about.domain.repository.ExternalActionsRepository
 import com.gdavidpb.tuindice.base.data.repository.SessionDataRepository
 import com.gdavidpb.tuindice.base.data.source.*
 import com.gdavidpb.tuindice.base.data.source.config.ConfigDataSource
@@ -75,7 +74,6 @@ fun iosPlatformModule(
 	single<BrowserRepository> { IosBrowserGateway(get<IosPlatformBridge>()) }
 	single<BrowserScreenRenderer> { IosBrowserScreenRenderer() }
 	singleOf(::IosFileOpener) { bind<FileOpenerRepository>() }
-	singleOf(::IosExternalActions) { bind<ExternalActionsRepository>() }
 	single<ReviewRepository> { IosReviewGateway(get<IosPlatformBridge>()) }
 	single<UpdateRepository> { IosUpdateGateway(get<IosPlatformBridge>()) }
 	single<SettingsRepository> { IosSettingsDataSource(get<DataStore<Preferences>>()) }

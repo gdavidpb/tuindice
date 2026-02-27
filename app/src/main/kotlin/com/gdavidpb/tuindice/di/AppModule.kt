@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.about.domain.repository.ExternalActionsRepository
 import com.gdavidpb.tuindice.base.data.repository.SessionDataRepository
 import com.gdavidpb.tuindice.base.data.source.*
 import com.gdavidpb.tuindice.base.data.source.config.ConfigDataSource
@@ -26,7 +25,6 @@ import com.gdavidpb.tuindice.data.repository.messaging.MessagingDataRepository
 import com.gdavidpb.tuindice.data.repository.messaging.source.FirebaseMessagingDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingApiDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingPreferencesDataSource
-import com.gdavidpb.tuindice.data.source.actions.AndroidExternalActionsDataSource
 import com.gdavidpb.tuindice.data.source.actions.AndroidFileOpenerDataSource
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityProvider
 import com.gdavidpb.tuindice.data.source.activity.InMemoryCurrentActivityProvider
@@ -208,7 +206,6 @@ val appModule = module {
 	singleOf(::AndroidBrowserScreenRenderer) { bind<BrowserScreenRenderer>() }
 	singleOf(::AndroidHostUiTextProvider) { bind<HostUiTextProvider>() }
 	singleOf(::AndroidFileOpenerDataSource) { bind<BaseExternalActionsRepository>() }
-	singleOf(::AndroidExternalActionsDataSource) { bind<ExternalActionsRepository>() }
 	singleOf(::AndroidDeviceInfoDataSource) { bind<DeviceInfoRepository>() }
 	singleOf(::AndroidSecureStoreDataSource) {
 		bind<SecureStoreDataSource>()

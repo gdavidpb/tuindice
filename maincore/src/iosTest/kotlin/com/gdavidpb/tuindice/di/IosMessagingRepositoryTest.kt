@@ -307,10 +307,6 @@ private class PushBridge(
 
 	override fun canOpen(fileRef: PlatformFileRef): Boolean = false
 
-	override fun sendEmail(email: String, subject: String, text: String) = Unit
-
-	override fun shareText(subject: String, text: String) = Unit
-
 	override fun appVersionName(): String = "1.0.0"
 
 	override fun appVersionCode(): Long = 1L

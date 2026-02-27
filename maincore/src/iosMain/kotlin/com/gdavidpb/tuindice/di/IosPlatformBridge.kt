@@ -6,12 +6,9 @@ import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import platform.Foundation.NSBundle
 import platform.Foundation.NSLog
 import platform.Foundation.NSURL
-import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
 import platform.UIKit.UIImagePickerController
 import platform.UIKit.UIImagePickerControllerSourceType
-import platform.UIKit.UIViewController
-import platform.UIKit.UIWindow
 
 data class IosUiTextValues(
 	val googleServicesUnavailableTitle: String = "Servicios no disponibles",
@@ -42,8 +39,6 @@ interface IosPlatformBridge {
 	fun openStorePage()
 	fun openFile(fileRef: PlatformFileRef): Boolean
 	fun canOpen(fileRef: PlatformFileRef): Boolean
-	fun sendEmail(email: String, subject: String, text: String)
-	fun shareText(subject: String, text: String)
 	fun appVersionName(): String
 	fun appVersionCode(): Long
 	fun hasCamera(): Boolean
@@ -97,32 +92,6 @@ object DefaultIosPlatformBridge : IosPlatformBridge {
 	override fun canOpen(fileRef: PlatformFileRef): Boolean {
 		val platformUrl = fileRef.toPlatformUrl() ?: return false
 		return UIApplication.sharedApplication.canOpenURL(platformUrl)
-	}
-
-	override fun sendEmail(email: String, subject: String, text: String) {
-		val encodedSubject = subject.toMailQueryValue()
-		val encodedText = text.toMailQueryValue()
-
-		openUrl("mailto:$email?subject=$encodedSubject&body=$encodedText")
-	}
-
-	override fun shareText(subject: String, text: String) {
-		val topController = topViewController()
-			?: run {
-				sendEmail(email = "", subject = subject, text = text)
-				return
-			}
-
-		val activityController = UIActivityViewController(
-			activityItems = listOf(text),
-			applicationActivities = null
-		)
-
-		topController.presentViewController(
-			viewControllerToPresent = activityController,
-			animated = true,
-			completion = null
-		)
 	}
 
 	override fun appVersionName(): String {
@@ -186,28 +155,6 @@ object DefaultIosPlatformBridge : IosPlatformBridge {
 			rawValue.contains("://") -> NSURL.URLWithString(rawValue)
 			else -> NSURL.fileURLWithPath(rawValue)
 		}
-	}
-
-	private fun String.toMailQueryValue(): String {
-		return replace(" ", "%20")
-			.replace("\n", "%0A")
-			.replace("&", "%26")
-	}
-
-	private fun topViewController(): UIViewController? {
-		val keyWindow = UIApplication.sharedApplication
-			.windows
-			.firstOrNull { window ->
-				(window as? UIWindow)?.isKeyWindow() == true
-			} as? UIWindow
-
-		var current = keyWindow?.rootViewController
-
-		while (current?.presentedViewController != null) {
-			current = current.presentedViewController
-		}
-
-		return current
 	}
 
 	private fun failMissingBridge(api: String): Nothing {

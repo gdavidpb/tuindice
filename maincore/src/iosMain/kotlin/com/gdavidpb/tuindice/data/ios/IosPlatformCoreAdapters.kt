@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.data.ios
 
-import com.gdavidpb.tuindice.about.domain.repository.ExternalActionsRepository
 import com.gdavidpb.tuindice.base.data.source.SecureStoreDataSource
 import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
@@ -98,22 +97,6 @@ internal class IosFileOpener(
 ) : FileOpenerRepository {
 	override fun openFile(fileRef: PlatformFileRef): Boolean {
 		return bridge.openFile(fileRef)
-	}
-}
-
-internal class IosExternalActions(
-	private val bridge: IosPlatformBridge
-) : ExternalActionsRepository {
-	override fun sendEmail(email: String, subject: String, text: String) {
-		bridge.sendEmail(email, subject, text)
-	}
-
-	override fun shareText(subject: String, text: String) {
-		bridge.shareText(subject, text)
-	}
-
-	override fun openStorePage() {
-		bridge.openStorePage()
 	}
 }
 

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.source.actions
+package com.gdavidpb.tuindice.about.data.source
 
 import android.content.Context
 import android.content.Intent
