@@ -1,13 +1,16 @@
 package com.gdavidpb.tuindice.about.presentation.action
 
+import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
+import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 class AboutActionProcessorsTest {
 	@Test
@@ -115,17 +118,21 @@ class AboutActionProcessorsTest {
 	}
 
 	@Test
-	fun openUrlActionProcessor_emitsStartBrowser() = runBlocking {
-		val processor = OpenUrlActionProcessor()
+	fun openUrlActionProcessor_opensExternalUrlWithoutEffect() = runBlocking {
+		val browserRepository = FakeBrowserGateway()
+		val processor = OpenUrlActionProcessor(
+			openExternalUrlUseCase = OpenExternalUrlUseCase(browserRepository)
+		)
 		val effects = mutableListOf<About.Effect>()
+		val targetUrl = "https://tuindice.app/github"
 
 		processor.process(
-			action = About.Action.OpenUrl(url = "https://tuindice.app/github"),
+			action = About.Action.OpenUrl(url = targetUrl),
 			sideEffect = effects::add
 		).toList()
 
-		val effect = assertIs<About.Effect.StartBrowser>(effects.single())
-		assertEquals("https://tuindice.app/github", effect.url)
+		assertTrue(effects.isEmpty())
+		assertEquals(targetUrl, browserRepository.lastOpenedUrl)
 	}
 }
 
@@ -133,4 +140,12 @@ private class FakeAppEnvironmentGateway(
 	private val appEnvironment: AppEnvironment
 ) : AppEnvironmentRepository {
 	override fun getEnvironment(): AppEnvironment = appEnvironment
+}
+
+private class FakeBrowserGateway : BrowserRepository {
+	var lastOpenedUrl: String? = null
+
+	override fun open(url: String) {
+		lastOpenedUrl = url
+	}
 }

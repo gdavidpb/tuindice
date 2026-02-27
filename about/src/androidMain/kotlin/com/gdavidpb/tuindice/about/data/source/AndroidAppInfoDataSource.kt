@@ -9,17 +9,17 @@ class AndroidAppInfoDataSource(
 ) : AppInfoDataSource {
 	override fun appVersionName(): String {
 		val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+
 		return packageInfo.versionName.toString()
 	}
 
 	override fun appVersionCode(): Long {
 		val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
 
-		return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+		return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
 			packageInfo.longVersionCode
-		} else {
+		else
 			@Suppress("DEPRECATION")
 			packageInfo.versionCode.toLong()
-		}
 	}
 }

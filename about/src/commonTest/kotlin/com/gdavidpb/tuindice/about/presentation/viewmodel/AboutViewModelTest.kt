@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.about.presentation.viewmodel
 
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.presentation.action.ContactDeveloperActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.LoadVersionActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenPrivacyPolicyActionProcessor
@@ -13,6 +14,7 @@ import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
+import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -51,9 +53,6 @@ class AboutViewModelTest {
 		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
-			waitUntil { viewModel.action.subscriptionCount.value > 0 }
-			waitUntil { viewModel.effect.subscriptionCount.value > 0 }
-
 			viewModel.openTermsAndConditionsAction()
 			waitUntil { effects.size == 1 }
 
@@ -70,7 +69,8 @@ class AboutViewModelTest {
 			waitUntil { effects.size == 5 }
 
 			viewModel.openUrlAction("https://tuindice.app/github")
-			waitUntil { effects.size == 6 }
+			delay(100)
+			assertEquals(5, effects.size)
 
 			val terms = assertIs<About.Effect.NavigateToBrowser>(effects[0])
 			assertEquals("TuIndice - Términos y condiciones", terms.title)
@@ -83,9 +83,6 @@ class AboutViewModelTest {
 			assertEquals(About.Effect.ShowReportBugDialog, effects[2])
 			assertEquals(About.Effect.StartEmail, effects[3])
 			assertEquals(About.Effect.StartPlayStore, effects[4])
-
-			val openUrl = assertIs<About.Effect.StartBrowser>(effects[5])
-			assertEquals("https://tuindice.app/github", openUrl.url)
 		} finally {
 			effectJob.cancel()
 			stateJob.cancel()
@@ -109,7 +106,11 @@ class AboutViewModelTest {
 			shareAppActionProcessor = ShareAppActionProcessor(),
 			rateOnPlayStoreActionProcessor = RateOnPlayStoreActionProcessor(),
 			reportBugActionProcessor = ReportBugActionProcessor(),
-			openUrlActionProcessor = OpenUrlActionProcessor()
+			openUrlActionProcessor = OpenUrlActionProcessor(
+				openExternalUrlUseCase = OpenExternalUrlUseCase(
+					browserRepository = AboutViewModelFakeBrowserGateway()
+				)
+			)
 		)
 	}
 
@@ -140,4 +141,8 @@ private class AboutViewModelFakeAppEnvironmentGateway : AppEnvironmentRepository
 			debug = false
 		)
 	}
+}
+
+private class AboutViewModelFakeBrowserGateway : BrowserRepository {
+	override fun open(url: String) = Unit
 }

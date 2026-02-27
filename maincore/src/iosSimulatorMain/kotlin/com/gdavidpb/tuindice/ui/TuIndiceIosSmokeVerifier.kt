@@ -332,13 +332,7 @@ class TuIndiceIosSmokeVerifier {
 					aboutViewModel.rateOnPlayStoreAction()
 					rateEffect.await()
 
-					val customUrl = "https://tuindice.app/smoke/about"
-					val openUrlEffect = expectEffect(aboutViewModel.effect) { effect ->
-						effect is About.Effect.StartBrowser &&
-							effect.url == customUrl
-					}
-					aboutViewModel.openUrlAction(customUrl)
-					openUrlEffect.await()
+					aboutViewModel.openUrlAction("https://tuindice.app/smoke/about")
 				}
 				checks += "about-flow:ok"
 
