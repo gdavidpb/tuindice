@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.about.di.aboutAndroidModule
 import com.gdavidpb.tuindice.enrollmentproof.di.enrollmentProofAndroidModule
 import com.gdavidpb.tuindice.login.di.loginAndroidModule
 import com.gdavidpb.tuindice.persistence.di.persistenceAndroidModule
@@ -10,6 +11,7 @@ fun androidReleaseModules(): List<Module> {
 	return sharedModules(
 		platformModules = listOf(
 			appModule,
+			aboutAndroidModule,
 			persistenceAndroidModule,
 			loginAndroidModule,
 			summaryAndroidModule,

@@ -1,10 +1,6 @@
 package com.gdavidpb.tuindice.about.di
 
 import com.gdavidpb.tuindice.about.data.repository.AboutDataRepository
-import com.gdavidpb.tuindice.about.data.repository.AppInfoDataSource
-import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataSource
-import com.gdavidpb.tuindice.about.data.source.DefaultAppInfoDataSource
-import com.gdavidpb.tuindice.about.data.source.DefaultEnvironmentDataSource
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.presentation.action.*
@@ -25,9 +21,6 @@ val aboutCommonModule = module {
 	/* Repositories */
 
 	factoryOf(::AboutDataRepository) { bind<AboutRepository>() }
-
-	factoryOf(::DefaultEnvironmentDataSource) { bind<EnvironmentDataSource>() }
-	factoryOf(::DefaultAppInfoDataSource) { bind<AppInfoDataSource>() }
 
 	/* Action processor */
 
