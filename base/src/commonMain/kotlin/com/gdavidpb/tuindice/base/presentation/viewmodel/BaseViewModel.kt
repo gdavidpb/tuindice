@@ -11,7 +11,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalAtomicApi::class)
@@ -19,8 +18,6 @@ abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 	initialState: S,
 	initialAction: A? = null
 ) : ViewModel() {
-	private val initialActionLocker = AtomicBoolean(false)
-
 	private val effectChannel = Channel<E>(Channel.BUFFERED)
 	private val actionChannel = Channel<A>(Channel.BUFFERED)
 
@@ -28,11 +25,7 @@ abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 	val effect = effectChannel.receiveAsFlow()
 
 	val state = action
-		.onStart {
-			if (initialAction != null && initialActionLocker.compareAndSet(expectedValue = false, newValue = true)) {
-				emit(initialAction)
-			}
-		}
+		.onStart { if (initialAction != null) emit(initialAction) }
 		.flatMapMerge { action -> processAction(action, ::sendEffect) }
 		.scan(initialState) { currentState, mutation -> mutation(currentState) }
 		.distinctUntilChanged()

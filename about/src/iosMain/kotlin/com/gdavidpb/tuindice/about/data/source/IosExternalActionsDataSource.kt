@@ -34,7 +34,7 @@ class IosExternalActionsDataSource : ExternalActionsRepository {
 		)
 	}
 
-	override fun openStorePage() {
+	override fun openStore() {
 		openUrl("itms-apps://apps.apple.com")
 	}
 

@@ -220,7 +220,7 @@ private class FakeExternalActionsGateway : ExternalActionsRepository {
 		lastSharedText = text
 	}
 
-	override fun openStorePage() {
+	override fun openStore() {
 		openStorePageCalls++
 	}
 }

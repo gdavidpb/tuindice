@@ -34,7 +34,7 @@ class AndroidExternalActionsDataSource(
 		context.startActivity(chooserIntent)
 	}
 
-	override fun openStorePage() {
+	override fun openStore() {
 		val packageName = context.packageName
 		val intent = Intent(
 			Intent.ACTION_VIEW,
@@ -51,15 +51,12 @@ class AndroidExternalActionsDataSource(
 		runCatching {
 			context.startActivity(intent)
 		}.onFailure {
-			openBrowser("https://play.google.com/store/apps/details?id=$packageName")
-		}
-	}
+			val url = "https://play.google.com/store/apps/details?id=$packageName"
+			val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
+				addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+			}
 
-	private fun openBrowser(url: String) {
-		val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
-			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+			context.startActivity(intent)
 		}
-
-		context.startActivity(intent)
 	}
 }

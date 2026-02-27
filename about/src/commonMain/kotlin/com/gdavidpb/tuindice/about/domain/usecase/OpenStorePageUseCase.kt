@@ -9,7 +9,7 @@ class OpenStorePageUseCase(
 	private val externalActionsRepository: ExternalActionsRepository
 ) : FlowUseCase<Unit, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
-		externalActionsRepository.openStorePage()
+		externalActionsRepository.openStore()
 
 		return flowOf(Unit)
 	}
