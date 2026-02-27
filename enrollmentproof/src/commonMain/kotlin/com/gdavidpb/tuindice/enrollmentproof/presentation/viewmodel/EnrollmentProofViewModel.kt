@@ -12,7 +12,7 @@ class EnrollmentProofViewModel(
 	initialState = Enrollment.State.Fetching,
 	initialAction = Enrollment.Action.FetchEnrollmentProof
 ) {
-	override fun processAction(
+	override suspend fun processAction(
 		action: Enrollment.Action,
 		sideEffect: (Enrollment.Effect) -> Unit
 	): Flow<Mutation<Enrollment.State>> {

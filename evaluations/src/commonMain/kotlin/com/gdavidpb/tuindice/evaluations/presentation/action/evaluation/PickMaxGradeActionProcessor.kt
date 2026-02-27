@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 class PickMaxGradeActionProcessor
 	: ActionProcessor<Evaluation.State, Evaluation.Action.ClickMaxGrade, Evaluation.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Evaluation.Action.ClickMaxGrade,
 		sideEffect: (Evaluation.Effect) -> Unit
 	): Flow<Mutation<Evaluation.State>> {

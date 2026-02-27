@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flowOf
 class UpdateStateActionProcessor
 	: ActionProcessor<Main.State, Main.Action.UpdateState, Main.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Main.Action.UpdateState,
 		sideEffect: (Main.Effect) -> Unit
 	): Flow<Mutation<Main.State>> {

@@ -14,7 +14,7 @@ class LoadEvaluationActionProcessor(
 	private val getEvaluationAndAvailableSubjectsUseCase: GetEvaluationAndAvailableSubjectsUseCase
 ) : ActionProcessor<Evaluation.State, Evaluation.Action.LoadEvaluation, Evaluation.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Evaluation.Action.LoadEvaluation,
 		sideEffect: (Evaluation.Effect) -> Unit
 	): Flow<Mutation<Evaluation.State>> {

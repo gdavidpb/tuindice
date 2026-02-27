@@ -15,7 +15,7 @@ class UploadProfilePictureActionProcessor(
 	private val textProvider: SummaryTextProvider
 ) : ActionProcessor<Summary.State, Summary.Action.UploadProfilePicture, Summary.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Summary.Action.UploadProfilePicture,
 		sideEffect: (Summary.Effect) -> Unit
 	): Flow<Mutation<Summary.State>> {

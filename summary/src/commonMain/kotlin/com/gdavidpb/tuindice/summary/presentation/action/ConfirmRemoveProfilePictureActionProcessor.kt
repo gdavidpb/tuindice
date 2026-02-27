@@ -15,7 +15,7 @@ class ConfirmRemoveProfilePictureActionProcessor(
 	private val textProvider: SummaryTextProvider
 ) : ActionProcessor<Summary.State, Summary.Action.ConfirmRemoveProfilePicture, Summary.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Summary.Action.ConfirmRemoveProfilePicture,
 		sideEffect: (Summary.Effect) -> Unit
 	): Flow<Mutation<Summary.State>> {

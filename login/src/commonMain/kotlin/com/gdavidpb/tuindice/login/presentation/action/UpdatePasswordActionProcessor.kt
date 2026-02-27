@@ -15,7 +15,7 @@ class UpdatePasswordActionProcessor(
 	private val textProvider: LoginTextProvider
 ) : ActionProcessor<UpdatePassword.State, UpdatePassword.Action.ClickSignIn, UpdatePassword.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: UpdatePassword.Action.ClickSignIn,
 		sideEffect: (UpdatePassword.Effect) -> Unit
 	): Flow<Mutation<UpdatePassword.State>> {

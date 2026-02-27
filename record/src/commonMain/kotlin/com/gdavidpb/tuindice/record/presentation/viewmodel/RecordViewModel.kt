@@ -30,7 +30,7 @@ class RecordViewModel(
 			)
 		)
 
-	override fun processAction(
+	override suspend fun processAction(
 		action: Record.Action,
 		sideEffect: (Record.Effect) -> Unit
 	): Flow<Mutation<Record.State>> {

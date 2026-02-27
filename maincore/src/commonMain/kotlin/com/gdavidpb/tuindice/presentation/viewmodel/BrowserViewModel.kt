@@ -26,7 +26,7 @@ class BrowserViewModel(
 	fun hideLoadingAction() =
 		sendAction(Browser.Action.SetLoading(false))
 
-	override fun processAction(
+	override suspend fun processAction(
 		action: Browser.Action,
 		sideEffect: (Browser.Effect) -> Unit
 	): Flow<Mutation<Browser.State>> {

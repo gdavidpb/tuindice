@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class SetUsbIdActionProcessor :
 	ActionProcessor<SignIn.State, SignIn.Action.SetUsbId, SignIn.Effect>() {
-	override fun process(
+	override suspend fun process(
 		action: SignIn.Action.SetUsbId,
 		sideEffect: (SignIn.Effect) -> Unit
 	): Flow<Mutation<SignIn.State>> {

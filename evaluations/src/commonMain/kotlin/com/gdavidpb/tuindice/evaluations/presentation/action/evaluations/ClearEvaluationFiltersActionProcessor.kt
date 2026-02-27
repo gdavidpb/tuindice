@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flowOf
 class ClearEvaluationFiltersActionProcessor
 	: ActionProcessor<Evaluations.State, Evaluations.Action.ClearEvaluationFilters, Evaluations.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Evaluations.Action.ClearEvaluationFilters,
 		sideEffect: (Evaluations.Effect) -> Unit
 	): Flow<Mutation<Evaluations.State>> {

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 abstract class ActionProcessor<S : ViewState, A : ViewAction, E : ViewEffect> {
-	open fun process(
+	open suspend fun process(
 		action: A,
 		sideEffect: (E) -> Unit
 	): Flow<Mutation<S>> = flowOf { state -> state }

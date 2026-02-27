@@ -12,7 +12,7 @@ class LoadAvailableSubjectsActionProcessor(
 	private val getAvailableSubjectsUseCase: GetAvailableSubjectsUseCase
 ) : ActionProcessor<Evaluation.State, Evaluation.Action.LoadAvailableSubjects, Evaluation.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Evaluation.Action.LoadAvailableSubjects,
 		sideEffect: (Evaluation.Effect) -> Unit
 	): Flow<Mutation<Evaluation.State>> {

@@ -70,7 +70,7 @@ class EvaluationsViewModel(
 	fun setEvaluationGradeAction(evaluationId: String, grade: Double) =
 		sendAction(Evaluations.Action.SetEvaluationGrade(evaluationId, grade))
 
-	override fun processAction(
+	override suspend fun processAction(
 		action: Evaluations.Action,
 		sideEffect: (Evaluations.Effect) -> Unit
 	): Flow<Mutation<Evaluations.State>> {

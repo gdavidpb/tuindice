@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 class RemoveProfilePictureActionProcessor
 	: ActionProcessor<Summary.State, Summary.Action.RemoveProfilePicture, Summary.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Summary.Action.RemoveProfilePicture,
 		sideEffect: (Summary.Effect) -> Unit
 	): Flow<Mutation<Summary.State>> {

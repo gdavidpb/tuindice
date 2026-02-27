@@ -13,7 +13,7 @@ class SignOutViewModel(
 	fun signOutAction() =
 		sendAction(SignOut.Action.ConfirmSignOut)
 
-	override fun processAction(
+	override suspend fun processAction(
 		action: SignOut.Action,
 		sideEffect: (SignOut.Effect) -> Unit
 	): Flow<Mutation<SignOut.State>> {

@@ -15,7 +15,7 @@ class SetEvaluationGradeActionProcessor(
 	private val textProvider: EvaluationTextProvider
 ) : ActionProcessor<Evaluations.State, Evaluations.Action.SetEvaluationGrade, Evaluations.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Evaluations.Action.SetEvaluationGrade,
 		sideEffect: (Evaluations.Effect) -> Unit
 	): Flow<Mutation<Evaluations.State>> {

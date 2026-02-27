@@ -13,7 +13,7 @@ class SignOutActionProcessor(
 	private val signOutUseCase: SignOutUseCase,
 	private val textProvider: LoginTextProvider
 ) : ActionProcessor<SignOut.State, SignOut.Action.ConfirmSignOut, SignOut.Effect>() {
-	override fun process(
+	override suspend fun process(
 		action: SignOut.Action.ConfirmSignOut,
 		sideEffect: (SignOut.Effect) -> Unit
 	): Flow<Mutation<SignOut.State>> {

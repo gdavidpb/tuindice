@@ -16,7 +16,7 @@ class AddEvaluationActionProcessor(
 	private val textProvider: EvaluationTextProvider
 ) : ActionProcessor<Evaluation.State, Evaluation.Action.ClickAddEvaluation, Evaluation.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Evaluation.Action.ClickAddEvaluation,
 		sideEffect: (Evaluation.Effect) -> Unit
 	): Flow<Mutation<Evaluation.State>> {

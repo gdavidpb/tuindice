@@ -19,7 +19,7 @@ class UpdatePasswordViewModel(
 	fun setPasswordAction(password: String) =
 		sendAction(UpdatePassword.Action.SetPassword(password))
 
-	override fun processAction(
+	override suspend fun processAction(
 		action: UpdatePassword.Action,
 		sideEffect: (UpdatePassword.Effect) -> Unit
 	): Flow<Mutation<UpdatePassword.State>> {

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 class OpenExternalResourceActionProcessor
 	: ActionProcessor<Browser.State, Browser.Action.OpenExternalResource, Browser.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Browser.Action.OpenExternalResource,
 		sideEffect: (Browser.Effect) -> Unit
 	): Flow<Mutation<Browser.State>> {

@@ -46,7 +46,7 @@ class SignInViewModel(
 	fun openPrivacyPolicyAction() =
 		sendAction(SignIn.Action.ClickPrivacyPolicy)
 
-	override fun processAction(
+	override suspend fun processAction(
 		action: SignIn.Action,
 		sideEffect: (SignIn.Effect) -> Unit
 	): Flow<Mutation<SignIn.State>> {

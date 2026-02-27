@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flowOf
 class SetDateActionProcessor
 	: ActionProcessor<Evaluation.State, Evaluation.Action.SetDate, Evaluation.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Evaluation.Action.SetDate,
 		sideEffect: (Evaluation.Effect) -> Unit
 	): Flow<Mutation<Evaluation.State>> {

@@ -13,7 +13,7 @@ class SetMaxGradeActionProcessor
 	:
 	ActionProcessor<Evaluation.State, Evaluation.Action.SetMaxGrade, Evaluation.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Evaluation.Action.SetMaxGrade,
 		sideEffect: (Evaluation.Effect) -> Unit
 	): Flow<Mutation<Evaluation.State>> {

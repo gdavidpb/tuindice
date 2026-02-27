@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flowOf
 class SetSubjectActionProcessor
 	: ActionProcessor<Evaluation.State, Evaluation.Action.SetSubject, Evaluation.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Evaluation.Action.SetSubject,
 		sideEffect: (Evaluation.Effect) -> Unit
 	): Flow<Mutation<Evaluation.State>> {

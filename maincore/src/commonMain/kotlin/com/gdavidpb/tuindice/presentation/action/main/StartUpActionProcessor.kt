@@ -13,7 +13,7 @@ class StartUpActionProcessor(
 	private val startUpUseCase: StartUpUseCase
 ) : ActionProcessor<Main.State, Main.Action.StartUp, Main.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Main.Action.StartUp,
 		sideEffect: (Main.Effect) -> Unit
 	): Flow<Mutation<Main.State>> {

@@ -11,7 +11,7 @@ class OpenTermsAndConditionsActionProcessor(
 	private val textProvider: LoginTextProvider,
 	private val appEnvironmentRepository: AppEnvironmentRepository
 ) : ActionProcessor<SignIn.State, SignIn.Action.ClickTermsAndConditions, SignIn.Effect>() {
-	override fun process(
+	override suspend fun process(
 		action: SignIn.Action.ClickTermsAndConditions,
 		sideEffect: (SignIn.Effect) -> Unit
 	): Flow<Mutation<SignIn.State>> {

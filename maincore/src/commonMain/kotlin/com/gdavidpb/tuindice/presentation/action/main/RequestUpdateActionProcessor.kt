@@ -12,7 +12,7 @@ class RequestUpdateActionProcessor(
 	private val getUpdateInfoUseCase: GetUpdateInfoUseCase
 ) : ActionProcessor<Main.State, Main.Action.RequestUpdateCheck, Main.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Main.Action.RequestUpdateCheck,
 		sideEffect: (Main.Effect) -> Unit
 	): Flow<Mutation<Main.State>> {

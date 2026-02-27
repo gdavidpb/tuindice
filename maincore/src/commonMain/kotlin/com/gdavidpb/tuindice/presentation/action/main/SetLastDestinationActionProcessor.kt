@@ -11,7 +11,7 @@ class SetLastDestinationActionProcessor(
 	private val setLastDestinationUseCase: SetLastDestinationUseCase
 ) : ActionProcessor<Main.State, Main.Action.SetLastDestination, Main.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Main.Action.SetLastDestination,
 		sideEffect: (Main.Effect) -> Unit
 	): Flow<Mutation<Main.State>> {

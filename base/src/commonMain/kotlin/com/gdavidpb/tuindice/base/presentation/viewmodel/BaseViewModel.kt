@@ -43,7 +43,7 @@ abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 			initialValue = initialState
 		)
 
-	protected abstract fun processAction(
+	protected abstract suspend fun processAction(
 		action: A,
 		sideEffect: (E) -> Unit
 	): Flow<Mutation<S>>

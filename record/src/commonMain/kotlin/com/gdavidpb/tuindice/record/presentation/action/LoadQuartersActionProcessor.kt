@@ -15,7 +15,7 @@ class LoadQuartersActionProcessor(
 	private val textProvider: RecordTextProvider
 ) : ActionProcessor<Record.State, Record.Action.LoadQuarters, Record.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Record.Action.LoadQuarters,
 		sideEffect: (Record.Effect) -> Unit
 	): Flow<Mutation<Record.State>> {

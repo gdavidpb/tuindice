@@ -7,8 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 class ReportBugActionProcessor
 	: ActionProcessor<About.State, About.Action.ReportBug, About.Effect>() {
-
-	override fun process(
+	override suspend fun process(
 		action: About.Action.ReportBug,
 		sideEffect: (About.Effect) -> Unit
 	): Flow<Mutation<About.State>> {

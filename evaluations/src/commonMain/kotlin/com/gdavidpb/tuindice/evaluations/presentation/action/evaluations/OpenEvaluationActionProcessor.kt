@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 class OpenEvaluationActionProcessor
 	: ActionProcessor<Evaluations.State, Evaluations.Action.EditEvaluation, Evaluations.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Evaluations.Action.EditEvaluation,
 		sideEffect: (Evaluations.Effect) -> Unit
 	): Flow<Mutation<Evaluations.State>> {

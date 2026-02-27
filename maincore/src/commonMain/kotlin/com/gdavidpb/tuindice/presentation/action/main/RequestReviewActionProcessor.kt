@@ -12,7 +12,7 @@ class RequestReviewActionProcessor(
 	private val requestReviewUseCase: RequestReviewUseCase
 ) : ActionProcessor<Main.State, Main.Action.RequestReview, Main.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Main.Action.RequestReview,
 		sideEffect: (Main.Effect) -> Unit
 	): Flow<Mutation<Main.State>> {

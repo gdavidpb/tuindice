@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 class PickGradeActionProcessor
 	: ActionProcessor<Evaluation.State, Evaluation.Action.ClickGrade, Evaluation.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Evaluation.Action.ClickGrade,
 		sideEffect: (Evaluation.Effect) -> Unit
 	): Flow<Mutation<Evaluation.State>> {

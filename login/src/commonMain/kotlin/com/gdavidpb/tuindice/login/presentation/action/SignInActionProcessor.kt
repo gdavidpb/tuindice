@@ -22,7 +22,7 @@ class SignInActionProcessor(
 		configRepository.getLoadingMessages()
 	}
 
-	override fun process(
+	override suspend fun process(
 		action: SignIn.Action.ClickSignIn,
 		sideEffect: (SignIn.Effect) -> Unit
 	): Flow<Mutation<SignIn.State>> {

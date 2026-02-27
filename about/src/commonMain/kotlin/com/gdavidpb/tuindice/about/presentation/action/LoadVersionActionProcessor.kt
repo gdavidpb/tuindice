@@ -11,21 +11,20 @@ import kotlinx.coroutines.flow.map
 class LoadVersionActionProcessor(
 	private val loadVersionUseCase: LoadVersionUseCase
 ) : ActionProcessor<About.State, About.Action.LoadVersion, About.Effect>() {
-
-	override fun process(
+	override suspend fun process(
 		action: About.Action.LoadVersion,
 		sideEffect: (About.Effect) -> Unit
 	): Flow<Mutation<About.State>> {
 		return loadVersionUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Data -> { state ->
+					is UseCaseState.Data -> { _ ->
 						About.State.Content(
 							versionText = useCaseState.value
 						)
 					}
 
-					else -> { state ->
+					else -> { _ ->
 						About.State.Idle
 					}
 				}

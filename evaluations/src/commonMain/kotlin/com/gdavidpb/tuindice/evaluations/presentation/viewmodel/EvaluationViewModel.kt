@@ -93,7 +93,7 @@ class EvaluationViewModel(
 	fun clickMaxGradeAction(maxGrade: Double?) =
 		sendAction(Evaluation.Action.ClickMaxGrade(maxGrade))
 
-	override fun processAction(
+	override suspend fun processAction(
 		action: Evaluation.Action,
 		sideEffect: (Evaluation.Effect) -> Unit
 	): Flow<Mutation<Evaluation.State>> {

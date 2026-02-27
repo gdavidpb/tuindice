@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.about.presentation.action.RateOnPlayStoreActionProc
 import com.gdavidpb.tuindice.about.presentation.action.ReportBugActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.contract.About
-import com.gdavidpb.tuindice.about.presentation.resource.AboutTextProvider
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import kotlinx.coroutines.CoroutineStart
@@ -74,12 +73,12 @@ class AboutViewModelTest {
 			waitUntil { effects.size == 6 }
 
 			val terms = assertIs<About.Effect.NavigateToBrowser>(effects[0])
-			assertEquals("Terms", terms.title)
+			assertEquals("TuIndice - Términos y condiciones", terms.title)
 			assertEquals("https://tuindice.app/terms", terms.url)
 
 			val share = assertIs<About.Effect.StartShare>(effects[1])
-			assertEquals("TuIndice App", share.subject)
-			assertEquals("Try TuIndice", share.text)
+			assertEquals("TuIndice", share.subject)
+			assertEquals("TuIndice: Una nueva forma de administrar tus notas", share.text)
 
 			assertEquals(About.Effect.ShowReportBugDialog, effects[2])
 			assertEquals(About.Effect.StartEmail, effects[3])
@@ -102,16 +101,12 @@ class AboutViewModelTest {
 			),
 			contactDeveloperActionProcessor = ContactDeveloperActionProcessor(),
 			openTermsAndConditionsActionProcessor = OpenTermsAndConditionsActionProcessor(
-				textProvider = AboutViewModelFakeTextProvider,
 				appEnvironmentRepository = AboutViewModelFakeAppEnvironmentGateway()
 			),
 			openPrivacyPolicyActionProcessor = OpenPrivacyPolicyActionProcessor(
-				textProvider = AboutViewModelFakeTextProvider,
 				appEnvironmentRepository = AboutViewModelFakeAppEnvironmentGateway()
 			),
-			shareAppActionProcessor = ShareAppActionProcessor(
-				textProvider = AboutViewModelFakeTextProvider
-			),
+			shareAppActionProcessor = ShareAppActionProcessor(),
 			rateOnPlayStoreActionProcessor = RateOnPlayStoreActionProcessor(),
 			reportBugActionProcessor = ReportBugActionProcessor(),
 			openUrlActionProcessor = OpenUrlActionProcessor()
@@ -134,13 +129,6 @@ class AboutViewModelTest {
 
 private class AboutViewModelFakeAboutRepository : AboutRepository {
 	override suspend fun getVersionDescription(): String = "TuIndice v3.5.1"
-}
-
-private object AboutViewModelFakeTextProvider : AboutTextProvider {
-	override fun privacyPolicyTitle(): String = "Privacy"
-	override fun termsAndConditionsTitle(): String = "Terms"
-	override fun shareMessage(): String = "Try TuIndice"
-	override fun shareSubject(): String = "TuIndice App"
 }
 
 private class AboutViewModelFakeAppEnvironmentGateway : AppEnvironmentRepository {

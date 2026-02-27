@@ -37,7 +37,7 @@ class MainViewModel(
 	fun checkUpdateAction() =
 		sendAction(Main.Action.RequestUpdateCheck)
 
-	override fun processAction(
+	override suspend fun processAction(
 		action: Main.Action,
 		sideEffect: (Main.Effect) -> Unit
 	): Flow<Mutation<Main.State>> {

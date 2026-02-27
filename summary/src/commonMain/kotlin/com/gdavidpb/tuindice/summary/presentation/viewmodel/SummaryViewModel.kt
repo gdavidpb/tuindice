@@ -61,7 +61,7 @@ class SummaryViewModel(
 	fun openProfilePictureSettingsAction() =
 		sendAction(Summary.Action.OpenProfilePictureSettings)
 
-	override fun processAction(
+	override suspend fun processAction(
 		action: Summary.Action,
 		sideEffect: (Summary.Effect) -> Unit
 	): Flow<Mutation<Summary.State>> {

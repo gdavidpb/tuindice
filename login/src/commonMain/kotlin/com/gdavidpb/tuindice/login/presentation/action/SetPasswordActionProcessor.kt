@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class SetPasswordActionProcessor :
 	ActionProcessor<SignIn.State, SignIn.Action.SetPassword, SignIn.Effect>() {
-	override fun process(
+	override suspend fun process(
 		action: SignIn.Action.SetPassword,
 		sideEffect: (SignIn.Effect) -> Unit
 	): Flow<Mutation<SignIn.State>> {

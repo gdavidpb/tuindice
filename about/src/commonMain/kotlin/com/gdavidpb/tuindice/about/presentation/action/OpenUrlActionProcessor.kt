@@ -7,8 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 class OpenUrlActionProcessor
 	: ActionProcessor<About.State, About.Action.OpenUrl, About.Effect>() {
-
-	override fun process(
+	override suspend fun process(
 		action: About.Action.OpenUrl,
 		sideEffect: (About.Effect) -> Unit
 	): Flow<Mutation<About.State>> {

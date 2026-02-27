@@ -14,7 +14,7 @@ class RemoveEvaluationActionProcessor(
 	private val textProvider: EvaluationTextProvider
 ) : ActionProcessor<Evaluations.State, Evaluations.Action.RemoveEvaluation, Evaluations.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Evaluations.Action.RemoveEvaluation,
 		sideEffect: (Evaluations.Effect) -> Unit
 	): Flow<Mutation<Evaluations.State>> {

@@ -7,8 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 class RateOnPlayStoreActionProcessor
 	: ActionProcessor<About.State, About.Action.RateOnPlayStore, About.Effect>() {
-
-	override fun process(
+	override suspend fun process(
 		action: About.Action.RateOnPlayStore,
 		sideEffect: (About.Effect) -> Unit
 	): Flow<Mutation<About.State>> {

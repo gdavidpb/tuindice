@@ -47,7 +47,7 @@ class AboutViewModel(
 	fun openUrlAction(url: String) =
 		sendAction(About.Action.OpenUrl(url))
 
-	override fun processAction(
+	override suspend fun processAction(
 		action: About.Action,
 		sideEffect: (About.Effect) -> Unit
 	): Flow<Mutation<About.State>> {

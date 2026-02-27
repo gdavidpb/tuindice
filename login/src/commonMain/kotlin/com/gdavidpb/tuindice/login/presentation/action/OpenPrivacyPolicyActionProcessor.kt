@@ -11,7 +11,7 @@ class OpenPrivacyPolicyActionProcessor(
 	private val textProvider: LoginTextProvider,
 	private val appEnvironmentRepository: AppEnvironmentRepository
 ) : ActionProcessor<SignIn.State, SignIn.Action.ClickPrivacyPolicy, SignIn.Effect>() {
-	override fun process(
+	override suspend fun process(
 		action: SignIn.Action.ClickPrivacyPolicy,
 		sideEffect: (SignIn.Effect) -> Unit
 	): Flow<Mutation<SignIn.State>> {

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flowOf
 class SetLoadingActionProcessor
 	: ActionProcessor<Browser.State, Browser.Action.SetLoading, Browser.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Browser.Action.SetLoading,
 		sideEffect: (Browser.Effect) -> Unit
 	): Flow<Mutation<Browser.State>> {

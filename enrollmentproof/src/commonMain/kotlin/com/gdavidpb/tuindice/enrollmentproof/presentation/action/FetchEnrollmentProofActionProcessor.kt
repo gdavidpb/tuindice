@@ -15,7 +15,7 @@ class FetchEnrollmentProofActionProcessor(
 	private val textProvider: EnrollmentProofTextProvider
 ) : ActionProcessor<Enrollment.State, Enrollment.Action.FetchEnrollmentProof, Enrollment.Effect>() {
 
-	override fun process(
+	override suspend fun process(
 		action: Enrollment.Action.FetchEnrollmentProof,
 		sideEffect: (Enrollment.Effect) -> Unit
 	): Flow<Mutation<Enrollment.State>> {

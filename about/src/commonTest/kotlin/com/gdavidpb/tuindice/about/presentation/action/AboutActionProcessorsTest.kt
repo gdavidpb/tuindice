@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.about.presentation.action
 
 import com.gdavidpb.tuindice.about.presentation.contract.About
-import com.gdavidpb.tuindice.about.presentation.resource.AboutTextProvider
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import kotlinx.coroutines.flow.toList
@@ -15,7 +14,6 @@ class AboutActionProcessorsTest {
 	fun openTermsAndConditionsActionProcessor_emitsNavigateToBrowser() = runBlocking {
 		val termsUrl = "https://tuindice.app/terms"
 		val processor = OpenTermsAndConditionsActionProcessor(
-			textProvider = FakeAboutTextProvider,
 			appEnvironmentRepository = FakeAppEnvironmentGateway(
 				AppEnvironment(
 					apiBaseUrl = "https://api.tuindice.app/",
@@ -33,7 +31,7 @@ class AboutActionProcessorsTest {
 		).toList()
 
 		val effect = assertIs<About.Effect.NavigateToBrowser>(effects.single())
-		assertEquals("Terms", effect.title)
+		assertEquals("TuIndice - Términos y condiciones", effect.title)
 		assertEquals(termsUrl, effect.url)
 	}
 
@@ -41,7 +39,6 @@ class AboutActionProcessorsTest {
 	fun openPrivacyPolicyActionProcessor_emitsNavigateToBrowser() = runBlocking {
 		val privacyUrl = "https://tuindice.app/privacy"
 		val processor = OpenPrivacyPolicyActionProcessor(
-			textProvider = FakeAboutTextProvider,
 			appEnvironmentRepository = FakeAppEnvironmentGateway(
 				AppEnvironment(
 					apiBaseUrl = "https://api.tuindice.app/",
@@ -59,13 +56,13 @@ class AboutActionProcessorsTest {
 		).toList()
 
 		val effect = assertIs<About.Effect.NavigateToBrowser>(effects.single())
-		assertEquals("Privacy", effect.title)
+		assertEquals("TuIndice - Política de privacidad", effect.title)
 		assertEquals(privacyUrl, effect.url)
 	}
 
 	@Test
 	fun shareAppActionProcessor_emitsShareEffect() = runBlocking {
-		val processor = ShareAppActionProcessor(textProvider = FakeAboutTextProvider)
+		val processor = ShareAppActionProcessor()
 		val effects = mutableListOf<About.Effect>()
 
 		processor.process(
@@ -74,8 +71,8 @@ class AboutActionProcessorsTest {
 		).toList()
 
 		val effect = assertIs<About.Effect.StartShare>(effects.single())
-		assertEquals("TuIndice App", effect.subject)
-		assertEquals("Try TuIndice", effect.text)
+		assertEquals("TuIndice", effect.subject)
+		assertEquals("TuIndice: Una nueva forma de administrar tus notas", effect.text)
 	}
 
 	@Test
@@ -130,13 +127,6 @@ class AboutActionProcessorsTest {
 		val effect = assertIs<About.Effect.StartBrowser>(effects.single())
 		assertEquals("https://tuindice.app/github", effect.url)
 	}
-}
-
-private object FakeAboutTextProvider : AboutTextProvider {
-	override fun privacyPolicyTitle(): String = "Privacy"
-	override fun termsAndConditionsTitle(): String = "Terms"
-	override fun shareMessage(): String = "Try TuIndice"
-	override fun shareSubject(): String = "TuIndice App"
 }
 
 private class FakeAppEnvironmentGateway(
