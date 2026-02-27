@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.enrollmentproof.presentation.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.dialog
-import com.gdavidpb.tuindice.base.domain.repository.ExternalActionsRepository
+import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.enrollmentproof.presentation.route.EnrollmentProofRoute
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
@@ -14,7 +14,7 @@ fun NavGraphBuilder.enrollmentProofNavigation(
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	dialog<EnrollmentProofDestination.EnrollmentProofDialog> {
-		val externalActions = koinInject<ExternalActionsRepository>()
+		val externalActions = koinInject<FileOpenerRepository>()
 		val viewModel = koinInject<EnrollmentProofViewModel>()
 
 		EnrollmentProofRoute(

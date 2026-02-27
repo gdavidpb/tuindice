@@ -4,13 +4,12 @@ import com.gdavidpb.tuindice.about.domain.usecase.OpenStorePageUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ShareTextUseCase
+import com.gdavidpb.tuindice.about.domain.repository.ExternalActionsRepository
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.base.domain.repository.ExternalActionsRepository
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
@@ -209,8 +208,6 @@ private class FakeExternalActionsGateway : ExternalActionsRepository {
 	var lastEmailText: String? = null
 	var lastSharedSubject: String? = null
 	var lastSharedText: String? = null
-
-	override fun openFile(fileRef: PlatformFileRef): Boolean = true
 
 	override fun sendEmail(email: String, subject: String, text: String) {
 		lastEmail = email

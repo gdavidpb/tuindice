@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.data.ios
 
+import com.gdavidpb.tuindice.about.domain.repository.ExternalActionsRepository
 import com.gdavidpb.tuindice.base.data.source.SecureStoreDataSource
 import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
@@ -9,7 +10,7 @@ import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
-import com.gdavidpb.tuindice.base.domain.repository.ExternalActionsRepository
+import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
@@ -92,13 +93,17 @@ internal class IosBrowserGateway(
 	}
 }
 
-internal class IosExternalActions(
+internal class IosFileOpener(
 	private val bridge: IosPlatformBridge
-) : ExternalActionsRepository {
+) : FileOpenerRepository {
 	override fun openFile(fileRef: PlatformFileRef): Boolean {
 		return bridge.openFile(fileRef)
 	}
+}
 
+internal class IosExternalActions(
+	private val bridge: IosPlatformBridge
+) : ExternalActionsRepository {
 	override fun sendEmail(email: String, subject: String, text: String) {
 		bridge.sendEmail(email, subject, text)
 	}

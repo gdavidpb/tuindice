@@ -2,62 +2,21 @@ package com.gdavidpb.tuindice.di
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.gdavidpb.tuindice.about.domain.repository.ExternalActionsRepository
 import com.gdavidpb.tuindice.base.data.repository.SessionDataRepository
-import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
-import com.gdavidpb.tuindice.base.data.source.MemorySessionDataSource
-import com.gdavidpb.tuindice.base.data.source.PreferencesSessionDataSource
-import com.gdavidpb.tuindice.base.data.source.SecureStoreDataSource
-import com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSource
-import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
+import com.gdavidpb.tuindice.base.data.source.*
 import com.gdavidpb.tuindice.base.data.source.config.ConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
-import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
-import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
-import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
-import com.gdavidpb.tuindice.base.domain.repository.ExternalActionsRepository
-import com.gdavidpb.tuindice.base.domain.repository.FileRepository
-import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
-import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
-import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
-import com.gdavidpb.tuindice.base.domain.repository.SecureStoreRepository
-import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
-import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
-import com.gdavidpb.tuindice.data.ios.IosAppEnvironmentDataSource
-import com.gdavidpb.tuindice.data.ios.IosApplicationDataSource
-import com.gdavidpb.tuindice.data.ios.IosAttestationDataRepository
-import com.gdavidpb.tuindice.data.ios.IosBridgeSecureStoreDataSource
-import com.gdavidpb.tuindice.data.ios.IosBrowserGateway
-import com.gdavidpb.tuindice.data.ios.IosDependenciesDataSource
-import com.gdavidpb.tuindice.data.ios.IosDeviceInfoGateway
-import com.gdavidpb.tuindice.data.ios.IosExternalActions
-import com.gdavidpb.tuindice.data.ios.IosLoginMessagingDataSource
-import com.gdavidpb.tuindice.data.ios.IosLoginReportingDataSource
-import com.gdavidpb.tuindice.data.ios.IosMessagingDataRepository
-import com.gdavidpb.tuindice.data.ios.IosNetworkDataSource
-import com.gdavidpb.tuindice.data.ios.IosRemoteConfigDataSource
-import com.gdavidpb.tuindice.data.ios.IosReportingDataSource
-import com.gdavidpb.tuindice.data.ios.IosReviewGateway
-import com.gdavidpb.tuindice.data.ios.IosSettingsDataSource
-import com.gdavidpb.tuindice.data.ios.IosUpdateGateway
-import com.gdavidpb.tuindice.data.ios.StaticHostUiTextProvider
+import com.gdavidpb.tuindice.base.domain.repository.*
+import com.gdavidpb.tuindice.data.ios.*
 import com.gdavidpb.tuindice.login.data.repository.KtorAuthApiApiDataRepository
 import com.gdavidpb.tuindice.login.data.repository.KtorMessagingApiDataRepository
 import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
-import com.gdavidpb.tuindice.login.domain.repository.MessagingApiRepository as LoginMessagingApiRepository
-import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository as LoginMessagingRepository
-import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository as LoginReportingRepository
 import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.IosBrowserScreenRenderer
-import io.ktor.client.HttpClient
+import io.ktor.client.*
 import kotlinx.serialization.json.Json
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
@@ -65,6 +24,9 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import com.gdavidpb.tuindice.login.domain.repository.MessagingApiRepository as LoginMessagingApiRepository
+import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository as LoginMessagingRepository
+import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository as LoginReportingRepository
 
 data class IosPlatformConfig(
 	val appEnvironment: AppEnvironment = AppEnvironment(
@@ -112,7 +74,8 @@ fun iosPlatformModule(
 	single<DeviceInfoRepository> { IosDeviceInfoGateway(get<IosPlatformBridge>()) }
 	single<BrowserRepository> { IosBrowserGateway(get<IosPlatformBridge>()) }
 	single<BrowserScreenRenderer> { IosBrowserScreenRenderer() }
-	single<ExternalActionsRepository> { IosExternalActions(get<IosPlatformBridge>()) }
+	singleOf(::IosFileOpener) { bind<FileOpenerRepository>() }
+	singleOf(::IosExternalActions) { bind<ExternalActionsRepository>() }
 	single<ReviewRepository> { IosReviewGateway(get<IosPlatformBridge>()) }
 	single<UpdateRepository> { IosUpdateGateway(get<IosPlatformBridge>()) }
 	single<SettingsRepository> { IosSettingsDataSource(get<DataStore<Preferences>>()) }

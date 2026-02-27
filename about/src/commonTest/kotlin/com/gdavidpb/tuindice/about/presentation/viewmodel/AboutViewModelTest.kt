@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStorePageUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.ShareTextUseCase
+import com.gdavidpb.tuindice.about.domain.repository.ExternalActionsRepository
 import com.gdavidpb.tuindice.about.presentation.action.ContactDeveloperActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.LoadVersionActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenPrivacyPolicyActionProcessor
@@ -16,11 +17,9 @@ import com.gdavidpb.tuindice.about.presentation.action.ReportBugActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.base.domain.repository.ExternalActionsRepository
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -51,7 +50,7 @@ class AboutViewModelTest {
 
 	@Test
 	fun actionDispatch_emitsExpectedEffects() = runBlocking {
-		val externalActionsRepository = AboutViewModelFakeExternalActionsGateway()
+		val externalActionsRepository = ViewModelFakeExternalActionsGateway()
 		val browserRepository = AboutViewModelFakeBrowserGateway()
 		val viewModel = createViewModel(
 			externalActionsRepository = externalActionsRepository,
@@ -94,7 +93,7 @@ class AboutViewModelTest {
 	}
 
 	private fun createViewModel(
-		externalActionsRepository: ExternalActionsRepository = AboutViewModelFakeExternalActionsGateway(),
+		externalActionsRepository: ExternalActionsRepository = ViewModelFakeExternalActionsGateway(),
 		browserRepository: BrowserRepository = AboutViewModelFakeBrowserGateway(),
 		configRepository: ConfigRepository = AboutViewModelFakeConfigGateway()
 	): AboutViewModel {
@@ -193,13 +192,11 @@ private class AboutViewModelFakeConfigGateway : ConfigRepository {
 	override fun getSyncsToSuggestReview(): Int = 3
 }
 
-private class AboutViewModelFakeExternalActionsGateway : ExternalActionsRepository {
+private class ViewModelFakeExternalActionsGateway : ExternalActionsRepository {
 	var sendEmailCalls: Int = 0
 	var openStorePageCalls: Int = 0
 	var lastSharedSubject: String? = null
 	var lastSharedText: String? = null
-
-	override fun openFile(fileRef: PlatformFileRef): Boolean = true
 
 	override fun sendEmail(email: String, subject: String, text: String) {
 		sendEmailCalls++

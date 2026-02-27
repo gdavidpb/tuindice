@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.gdavidpb.tuindice.BuildConfig
+import com.gdavidpb.tuindice.about.domain.repository.ExternalActionsRepository
 import com.gdavidpb.tuindice.base.data.repository.SessionDataRepository
 import com.gdavidpb.tuindice.base.data.source.*
 import com.gdavidpb.tuindice.base.data.source.config.ConfigDataSource
@@ -26,6 +27,7 @@ import com.gdavidpb.tuindice.data.repository.messaging.source.FirebaseMessagingD
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingApiDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.MessagingPreferencesDataSource
 import com.gdavidpb.tuindice.data.source.actions.AndroidExternalActionsDataSource
+import com.gdavidpb.tuindice.data.source.actions.AndroidFileOpenerDataSource
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityProvider
 import com.gdavidpb.tuindice.data.source.activity.InMemoryCurrentActivityProvider
 import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
@@ -68,6 +70,7 @@ import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource as Att
 import com.gdavidpb.tuindice.data.repository.messaging.LocalDataSource as MessagingLocal
 import com.gdavidpb.tuindice.data.repository.messaging.ProviderDataSource as MessagingProvider
 import com.gdavidpb.tuindice.data.repository.messaging.RemoteDataSource as MessagingRemote
+import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository as BaseExternalActionsRepository
 
 val appModule = module {
 	/* Android Services */
@@ -204,6 +207,7 @@ val appModule = module {
 	singleOf(::AndroidBrowserDataSource) { bind<BrowserRepository>() }
 	singleOf(::AndroidBrowserScreenRenderer) { bind<BrowserScreenRenderer>() }
 	singleOf(::AndroidHostUiTextProvider) { bind<HostUiTextProvider>() }
+	singleOf(::AndroidFileOpenerDataSource) { bind<BaseExternalActionsRepository>() }
 	singleOf(::AndroidExternalActionsDataSource) { bind<ExternalActionsRepository>() }
 	singleOf(::AndroidDeviceInfoDataSource) { bind<DeviceInfoRepository>() }
 	singleOf(::AndroidSecureStoreDataSource) {
