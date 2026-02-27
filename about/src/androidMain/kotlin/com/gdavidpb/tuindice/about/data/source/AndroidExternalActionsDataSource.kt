@@ -9,30 +9,29 @@ class AndroidExternalActionsDataSource(
 	private val context: Context
 ) : ExternalActionsRepository {
 	override fun sendEmail(email: String, subject: String, text: String) {
-		runCatching {
-			val intent = Intent(Intent.ACTION_SENDTO, "mailto:".toUri()).apply {
-				putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
+		val intent = Intent(Intent.ACTION_SENDTO, "mailto:".toUri()).apply {
+			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+			putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
 
-				if (subject.isNotEmpty()) putExtra(Intent.EXTRA_SUBJECT, subject)
-				if (text.isNotEmpty()) putExtra(Intent.EXTRA_TEXT, text)
-			}
-
-			context.startActivity(intent)
+			if (subject.isNotEmpty()) putExtra(Intent.EXTRA_SUBJECT, subject)
+			if (text.isNotEmpty()) putExtra(Intent.EXTRA_TEXT, text)
 		}
+
+		context.startActivity(intent)
 	}
 
 	override fun shareText(subject: String, text: String) {
-		runCatching {
-			val intent = Intent(Intent.ACTION_SEND).apply {
-				type = "text/plain"
-				putExtra(Intent.EXTRA_SUBJECT, subject)
-				putExtra(Intent.EXTRA_TEXT, text)
-			}.let {
-				Intent.createChooser(it, null)
-			}
-
-			context.startActivity(intent)
+		val sendIntent = Intent(Intent.ACTION_SEND).apply {
+			type = "text/plain"
+			putExtra(Intent.EXTRA_SUBJECT, subject)
+			putExtra(Intent.EXTRA_TEXT, text)
 		}
+
+		val chooserIntent = Intent.createChooser(sendIntent, null).apply {
+			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+		}
+
+		context.startActivity(chooserIntent)
 	}
 
 	override fun openStorePage() {
@@ -42,9 +41,10 @@ class AndroidExternalActionsDataSource(
 			"market://details?id=$packageName".toUri()
 		).apply {
 			addFlags(
-				Intent.FLAG_ACTIVITY_NO_HISTORY or
-					Intent.FLAG_ACTIVITY_MULTIPLE_TASK or
-					Intent.FLAG_ACTIVITY_NEW_DOCUMENT
+				Intent.FLAG_ACTIVITY_NEW_TASK or
+						Intent.FLAG_ACTIVITY_NO_HISTORY or
+						Intent.FLAG_ACTIVITY_MULTIPLE_TASK or
+						Intent.FLAG_ACTIVITY_NEW_DOCUMENT
 			)
 		}
 
@@ -56,9 +56,10 @@ class AndroidExternalActionsDataSource(
 	}
 
 	private fun openBrowser(url: String) {
-		runCatching {
-			val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-			context.startActivity(intent)
+		val intent = Intent(Intent.ACTION_VIEW, url.toUri()).apply {
+			addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 		}
+
+		context.startActivity(intent)
 	}
 }
