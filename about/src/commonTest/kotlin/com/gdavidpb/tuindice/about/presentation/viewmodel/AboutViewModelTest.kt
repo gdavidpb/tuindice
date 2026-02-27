@@ -3,6 +3,9 @@ package com.gdavidpb.tuindice.about.presentation.viewmodel
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.OpenStorePageUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.ShareTextUseCase
 import com.gdavidpb.tuindice.about.presentation.action.ContactDeveloperActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.LoadVersionActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenPrivacyPolicyActionProcessor
@@ -13,8 +16,11 @@ import com.gdavidpb.tuindice.about.presentation.action.ReportBugActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
+import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.ExternalActionsRepository
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -45,7 +51,12 @@ class AboutViewModelTest {
 
 	@Test
 	fun actionDispatch_emitsExpectedEffects() = runBlocking {
-		val viewModel = createViewModel()
+		val externalActionsRepository = AboutViewModelFakeExternalActionsGateway()
+		val browserRepository = AboutViewModelFakeBrowserGateway()
+		val viewModel = createViewModel(
+			externalActionsRepository = externalActionsRepository,
+			browserRepository = browserRepository
+		)
 		val effects = mutableListOf<About.Effect>()
 		val effectJob = launch(start = CoroutineStart.UNDISPATCHED) {
 			viewModel.effect.collect { effects += it }
@@ -57,58 +68,73 @@ class AboutViewModelTest {
 			waitUntil { effects.size == 1 }
 
 			viewModel.shareAppAction()
-			waitUntil { effects.size == 2 }
-
 			viewModel.reportBugAction()
-			waitUntil { effects.size == 3 }
-
 			viewModel.contactDeveloperAction()
-			waitUntil { effects.size == 4 }
-
 			viewModel.rateOnPlayStoreAction()
-			waitUntil { effects.size == 5 }
-
 			viewModel.openUrlAction("https://tuindice.app/github")
 			delay(100)
-			assertEquals(5, effects.size)
+
+			assertEquals(1, effects.size)
 
 			val terms = assertIs<About.Effect.NavigateToBrowser>(effects[0])
 			assertEquals("TuIndice - Términos y condiciones", terms.title)
 			assertEquals("https://tuindice.app/terms", terms.url)
-
-			val share = assertIs<About.Effect.StartShare>(effects[1])
-			assertEquals("TuIndice", share.subject)
-			assertEquals("TuIndice: Una nueva forma de administrar tus notas", share.text)
-
-			assertEquals(About.Effect.ShowReportBugDialog, effects[2])
-			assertEquals(About.Effect.StartEmail, effects[3])
-			assertEquals(About.Effect.StartPlayStore, effects[4])
+			assertEquals("TuIndice", externalActionsRepository.lastSharedSubject)
+			assertEquals(
+				"TuIndice: Una nueva forma de administrar tus notas",
+				externalActionsRepository.lastSharedText
+			)
+			assertEquals(2, externalActionsRepository.sendEmailCalls)
+			assertEquals(1, externalActionsRepository.openStorePageCalls)
+			assertEquals("https://tuindice.app/github", browserRepository.lastOpenedUrl)
 		} finally {
 			effectJob.cancel()
 			stateJob.cancel()
 		}
 	}
 
-	private fun createViewModel(): AboutViewModel {
+	private fun createViewModel(
+		externalActionsRepository: ExternalActionsRepository = AboutViewModelFakeExternalActionsGateway(),
+		browserRepository: BrowserRepository = AboutViewModelFakeBrowserGateway(),
+		configRepository: ConfigRepository = AboutViewModelFakeConfigGateway()
+	): AboutViewModel {
 		return AboutViewModel(
 			loadVersionActionProcessor = LoadVersionActionProcessor(
 				loadVersionUseCase = LoadVersionUseCase(
 					aboutRepository = AboutViewModelFakeAboutRepository()
 				)
 			),
-			contactDeveloperActionProcessor = ContactDeveloperActionProcessor(),
+			contactDeveloperActionProcessor = ContactDeveloperActionProcessor(
+				sendSupportEmailUseCase = SendSupportEmailUseCase(
+					externalActionsRepository = externalActionsRepository,
+					configRepository = configRepository
+				)
+			),
 			openTermsAndConditionsActionProcessor = OpenTermsAndConditionsActionProcessor(
 				appEnvironmentRepository = AboutViewModelFakeAppEnvironmentGateway()
 			),
 			openPrivacyPolicyActionProcessor = OpenPrivacyPolicyActionProcessor(
 				appEnvironmentRepository = AboutViewModelFakeAppEnvironmentGateway()
 			),
-			shareAppActionProcessor = ShareAppActionProcessor(),
-			rateOnPlayStoreActionProcessor = RateOnPlayStoreActionProcessor(),
-			reportBugActionProcessor = ReportBugActionProcessor(),
+			shareAppActionProcessor = ShareAppActionProcessor(
+				shareTextUseCase = ShareTextUseCase(
+					externalActionsRepository = externalActionsRepository
+				)
+			),
+			rateOnPlayStoreActionProcessor = RateOnPlayStoreActionProcessor(
+				openStorePageUseCase = OpenStorePageUseCase(
+					externalActionsRepository = externalActionsRepository
+				)
+			),
+			reportBugActionProcessor = ReportBugActionProcessor(
+				sendSupportEmailUseCase = SendSupportEmailUseCase(
+					externalActionsRepository = externalActionsRepository,
+					configRepository = configRepository
+				)
+			),
 			openUrlActionProcessor = OpenUrlActionProcessor(
 				openExternalUrlUseCase = OpenExternalUrlUseCase(
-					browserRepository = AboutViewModelFakeBrowserGateway()
+					browserRepository = browserRepository
 				)
 			)
 		)
@@ -144,5 +170,47 @@ private class AboutViewModelFakeAppEnvironmentGateway : AppEnvironmentRepository
 }
 
 private class AboutViewModelFakeBrowserGateway : BrowserRepository {
-	override fun open(url: String) = Unit
+	var lastOpenedUrl: String? = null
+
+	override fun open(url: String) {
+		lastOpenedUrl = url
+	}
+}
+
+private class AboutViewModelFakeConfigGateway : ConfigRepository {
+	override suspend fun tryFetch() = Unit
+
+	override fun getTimeout(): Long = 5_000L
+
+	override fun getContactEmail(): String = "support@tuindice.app"
+
+	override fun getContactSubject(): String = "Support TuIndice"
+
+	override fun getLoadingMessages(): List<String> = listOf("Loading")
+
+	override fun getTimeUpdateStalenessDays(): Int = 7
+
+	override fun getSyncsToSuggestReview(): Int = 3
+}
+
+private class AboutViewModelFakeExternalActionsGateway : ExternalActionsRepository {
+	var sendEmailCalls: Int = 0
+	var openStorePageCalls: Int = 0
+	var lastSharedSubject: String? = null
+	var lastSharedText: String? = null
+
+	override fun openFile(fileRef: PlatformFileRef): Boolean = true
+
+	override fun sendEmail(email: String, subject: String, text: String) {
+		sendEmailCalls++
+	}
+
+	override fun shareText(subject: String, text: String) {
+		lastSharedSubject = subject
+		lastSharedText = text
+	}
+
+	override fun openStorePage() {
+		openStorePageCalls++
+	}
 }

@@ -1,10 +1,16 @@
 package com.gdavidpb.tuindice.about.presentation.action
 
+import com.gdavidpb.tuindice.about.domain.usecase.OpenStorePageUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.ShareTextUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
+import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.ExternalActionsRepository
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
@@ -64,8 +70,13 @@ class AboutActionProcessorsTest {
 	}
 
 	@Test
-	fun shareAppActionProcessor_emitsShareEffect() = runBlocking {
-		val processor = ShareAppActionProcessor()
+	fun shareAppActionProcessor_sharesContentWithoutEffect() = runBlocking {
+		val externalActionsRepository = FakeExternalActionsGateway()
+		val processor = ShareAppActionProcessor(
+			shareTextUseCase = ShareTextUseCase(
+				externalActionsRepository = externalActionsRepository
+			)
+		)
 		val effects = mutableListOf<About.Effect>()
 
 		processor.process(
@@ -73,14 +84,23 @@ class AboutActionProcessorsTest {
 			sideEffect = effects::add
 		).toList()
 
-		val effect = assertIs<About.Effect.StartShare>(effects.single())
-		assertEquals("TuIndice", effect.subject)
-		assertEquals("TuIndice: Una nueva forma de administrar tus notas", effect.text)
+		assertTrue(effects.isEmpty())
+		assertEquals("TuIndice", externalActionsRepository.lastSharedSubject)
+		assertEquals(
+			"TuIndice: Una nueva forma de administrar tus notas",
+			externalActionsRepository.lastSharedText
+		)
 	}
 
 	@Test
-	fun reportBugActionProcessor_emitsShowReportBugDialog() = runBlocking {
-		val processor = ReportBugActionProcessor()
+	fun reportBugActionProcessor_sendsSupportEmailWithoutEffect() = runBlocking {
+		val externalActionsRepository = FakeExternalActionsGateway()
+		val processor = ReportBugActionProcessor(
+			sendSupportEmailUseCase = SendSupportEmailUseCase(
+				externalActionsRepository = externalActionsRepository,
+				configRepository = FakeConfigGateway()
+			)
+		)
 		val effects = mutableListOf<About.Effect>()
 
 		processor.process(
@@ -88,12 +108,20 @@ class AboutActionProcessorsTest {
 			sideEffect = effects::add
 		).toList()
 
-		assertEquals(About.Effect.ShowReportBugDialog, effects.single())
+		assertTrue(effects.isEmpty())
+		assertEquals("support@tuindice.app", externalActionsRepository.lastEmail)
+		assertEquals("Support TuIndice", externalActionsRepository.lastEmailSubject)
 	}
 
 	@Test
-	fun contactDeveloperActionProcessor_emitsStartEmail() = runBlocking {
-		val processor = ContactDeveloperActionProcessor()
+	fun contactDeveloperActionProcessor_sendsSupportEmailWithoutEffect() = runBlocking {
+		val externalActionsRepository = FakeExternalActionsGateway()
+		val processor = ContactDeveloperActionProcessor(
+			sendSupportEmailUseCase = SendSupportEmailUseCase(
+				externalActionsRepository = externalActionsRepository,
+				configRepository = FakeConfigGateway()
+			)
+		)
 		val effects = mutableListOf<About.Effect>()
 
 		processor.process(
@@ -101,12 +129,19 @@ class AboutActionProcessorsTest {
 			sideEffect = effects::add
 		).toList()
 
-		assertEquals(About.Effect.StartEmail, effects.single())
+		assertTrue(effects.isEmpty())
+		assertEquals("support@tuindice.app", externalActionsRepository.lastEmail)
+		assertEquals("Support TuIndice", externalActionsRepository.lastEmailSubject)
 	}
 
 	@Test
-	fun rateOnPlayStoreActionProcessor_emitsStartPlayStore() = runBlocking {
-		val processor = RateOnPlayStoreActionProcessor()
+	fun rateOnPlayStoreActionProcessor_opensStoreWithoutEffect() = runBlocking {
+		val externalActionsRepository = FakeExternalActionsGateway()
+		val processor = RateOnPlayStoreActionProcessor(
+			openStorePageUseCase = OpenStorePageUseCase(
+				externalActionsRepository = externalActionsRepository
+			)
+		)
 		val effects = mutableListOf<About.Effect>()
 
 		processor.process(
@@ -114,7 +149,8 @@ class AboutActionProcessorsTest {
 			sideEffect = effects::add
 		).toList()
 
-		assertEquals(About.Effect.StartPlayStore, effects.single())
+		assertTrue(effects.isEmpty())
+		assertEquals(1, externalActionsRepository.openStorePageCalls)
 	}
 
 	@Test
@@ -147,5 +183,47 @@ private class FakeBrowserGateway : BrowserRepository {
 
 	override fun open(url: String) {
 		lastOpenedUrl = url
+	}
+}
+
+private class FakeConfigGateway : ConfigRepository {
+	override suspend fun tryFetch() = Unit
+
+	override fun getTimeout(): Long = 5_000L
+
+	override fun getContactEmail(): String = "support@tuindice.app"
+
+	override fun getContactSubject(): String = "Support TuIndice"
+
+	override fun getLoadingMessages(): List<String> = listOf("Loading")
+
+	override fun getTimeUpdateStalenessDays(): Int = 7
+
+	override fun getSyncsToSuggestReview(): Int = 3
+}
+
+private class FakeExternalActionsGateway : ExternalActionsRepository {
+	var openStorePageCalls: Int = 0
+	var lastEmail: String? = null
+	var lastEmailSubject: String? = null
+	var lastEmailText: String? = null
+	var lastSharedSubject: String? = null
+	var lastSharedText: String? = null
+
+	override fun openFile(fileRef: PlatformFileRef): Boolean = true
+
+	override fun sendEmail(email: String, subject: String, text: String) {
+		lastEmail = email
+		lastEmailSubject = subject
+		lastEmailText = text
+	}
+
+	override fun shareText(subject: String, text: String) {
+		lastSharedSubject = subject
+		lastSharedText = text
+	}
+
+	override fun openStorePage() {
+		openStorePageCalls++
 	}
 }

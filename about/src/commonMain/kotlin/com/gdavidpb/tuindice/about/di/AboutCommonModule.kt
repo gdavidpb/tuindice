@@ -3,7 +3,10 @@ package com.gdavidpb.tuindice.about.di
 import com.gdavidpb.tuindice.about.data.repository.AboutDataRepository
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.OpenStorePageUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.ShareTextUseCase
 import com.gdavidpb.tuindice.about.presentation.action.*
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import org.koin.core.module.dsl.bind
@@ -19,6 +22,9 @@ val aboutCommonModule = module {
 
 	factoryOf(::LoadVersionUseCase)
 	factoryOf(::OpenExternalUrlUseCase)
+	factoryOf(::SendSupportEmailUseCase)
+	factoryOf(::ShareTextUseCase)
+	factoryOf(::OpenStorePageUseCase)
 
 	/* Repositories */
 

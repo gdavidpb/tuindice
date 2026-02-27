@@ -32,14 +32,5 @@ object About {
 			val title: String,
 			val url: String
 		) : Effect()
-
-		data class StartShare(
-			val subject: String,
-			val text: String
-		) : Effect()
-
-		data object StartPlayStore : Effect()
-		data object StartEmail : Effect()
-		data object ShowReportBugDialog : Effect()
 	}
 }
