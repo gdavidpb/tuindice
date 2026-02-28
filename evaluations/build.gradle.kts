@@ -27,10 +27,11 @@ kotlin {
 				implementation(project(":base"))
 				implementation(project(":persistence"))
 				implementation(project(":record"))
+				implementation(libs.datastore.preferences)
 				implementation(libs.navigation.compose)
 				implementation(libs.koin.compose)
-				implementation(compose.components.resources)
-				implementation(compose.materialIconsExtended)
+				implementation(libs.components.resources)
+				implementation(libs.material.icons.extended)
 			}
 		}
 

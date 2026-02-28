@@ -28,7 +28,7 @@ kotlin {
 				implementation(project(":persistence"))
 				implementation(libs.navigation.compose)
 				implementation(libs.koin.compose)
-				implementation(compose.components.resources)
+				implementation(libs.components.resources)
 				implementation(libs.compottie)
 			}
 		}

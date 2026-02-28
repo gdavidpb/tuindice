@@ -27,8 +27,8 @@ kotlin {
 				implementation(project(":base"))
 				implementation(libs.navigation.compose)
 				implementation(libs.koin.compose)
-				implementation(compose.components.resources)
-				implementation(compose.materialIconsExtended)
+				implementation(libs.components.resources)
+				implementation(libs.material.icons.extended)
 			}
 		}
 
@@ -45,6 +45,9 @@ kotlin {
 			dependencies {
 				implementation(project(":base"))
 				implementation(project(":persistence"))
+				implementation(project.dependencies.platform(libs.firebase.bom))
+				implementation(libs.firebase.messaging)
+				implementation(libs.firebase.crashlytics)
 			}
 		}
 	}

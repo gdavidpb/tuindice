@@ -35,7 +35,10 @@ kotlin {
 				implementation(project(":record"))
 				implementation(project(":evaluations"))
 				implementation(project(":enrollmentproof"))
+				implementation(libs.datastore.preferences)
 				implementation(libs.koin.compose.viewmodel)
+				implementation(libs.kotlinx.serialization.json)
+				implementation(libs.material.icons.extended)
 				implementation(libs.navigation.compose)
 				implementation(libs.bundles.ktor)
 			}
@@ -49,7 +52,5 @@ kotlin {
 				implementation(libs.ktor.serialization.kotlinx.json)
 			}
 		}
-
-		val androidMain by getting
 	}
 }

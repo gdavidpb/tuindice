@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.testing.CURRENT_PRODUCTION_VERSION_TEXT
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
@@ -25,7 +26,7 @@ class AboutActionProcessorContractTest {
 	fun loadVersionActionProcessor_reducesStateToContent() = runTest {
 		val processor = LoadVersionActionProcessor(
 			loadVersionUseCase = LoadVersionUseCase(
-				aboutRepository = FakeAboutRepository("Producción v3.5.1 (351)")
+				aboutRepository = FakeAboutRepository(CURRENT_PRODUCTION_VERSION_TEXT)
 			)
 		)
 		val effects = mutableListOf<About.Effect>()
@@ -39,7 +40,7 @@ class AboutActionProcessorContractTest {
 
 			val contentMutation = awaitItem()
 			val content = assertIs<About.State.Content>(contentMutation(About.State.Idle))
-			assertEquals("Producción v3.5.1 (351)", content.versionText)
+			assertEquals(CURRENT_PRODUCTION_VERSION_TEXT, content.versionText)
 
 			awaitComplete()
 		}
@@ -48,12 +49,12 @@ class AboutActionProcessorContractTest {
 	}
 
 	@Test
-	fun openTermsAndConditionsActionProcessor_emitsNavigateToBrowserEffect() = runTest {
+		fun openTermsAndConditionsActionProcessor_emitsNavigateToBrowserEffect() = runTest {
 		val processor = OpenTermsAndConditionsActionProcessor(
 			appEnvironmentRepository = FakeAppEnvironmentRepository()
 		)
 		val effects = mutableListOf<About.Effect>()
-		val initialState = About.State.Content(versionText = "Producción v3.5.1 (351)")
+		val initialState = About.State.Content(versionText = CURRENT_PRODUCTION_VERSION_TEXT)
 
 		val finalState = processor.process(
 			action = About.Action.OpenTermsAndConditions,
@@ -68,12 +69,12 @@ class AboutActionProcessorContractTest {
 	}
 
 	@Test
-	fun openPrivacyPolicyActionProcessor_emitsNavigateToBrowserEffect() = runTest {
+		fun openPrivacyPolicyActionProcessor_emitsNavigateToBrowserEffect() = runTest {
 		val processor = OpenPrivacyPolicyActionProcessor(
 			appEnvironmentRepository = FakeAppEnvironmentRepository()
 		)
 		val effects = mutableListOf<About.Effect>()
-		val initialState = About.State.Content(versionText = "Producción v3.5.1 (351)")
+		val initialState = About.State.Content(versionText = CURRENT_PRODUCTION_VERSION_TEXT)
 
 		val finalState = processor.process(
 			action = About.Action.OpenPrivacyPolicy,
@@ -91,7 +92,7 @@ class AboutActionProcessorContractTest {
 	fun shareAppActionProcessor_emitsShareTextEffect() = runTest {
 		val processor = ShareAppActionProcessor()
 		val effects = mutableListOf<About.Effect>()
-		val initialState = About.State.Content(versionText = "Producción v3.5.1 (351)")
+		val initialState = About.State.Content(versionText = CURRENT_PRODUCTION_VERSION_TEXT)
 
 		val finalState = processor.process(
 			action = About.Action.ShareApp,
@@ -115,7 +116,7 @@ class AboutActionProcessorContractTest {
 			)
 		)
 		val effects = mutableListOf<About.Effect>()
-		val initialState = About.State.Content(versionText = "Producción v3.5.1 (351)")
+		val initialState = About.State.Content(versionText = CURRENT_PRODUCTION_VERSION_TEXT)
 
 		val finalState = processor.process(
 			action = About.Action.RateOnStore,
@@ -136,7 +137,7 @@ class AboutActionProcessorContractTest {
 			)
 		)
 		val effects = mutableListOf<About.Effect>()
-		val initialState = About.State.Content(versionText = "Producción v3.5.1 (351)")
+		val initialState = About.State.Content(versionText = CURRENT_PRODUCTION_VERSION_TEXT)
 
 		val finalState = processor.process(
 			action = About.Action.ReportBug,
@@ -157,7 +158,7 @@ class AboutActionProcessorContractTest {
 			)
 		)
 		val effects = mutableListOf<About.Effect>()
-		val initialState = About.State.Content(versionText = "Producción v3.5.1 (351)")
+		val initialState = About.State.Content(versionText = CURRENT_PRODUCTION_VERSION_TEXT)
 
 		val finalState = processor.process(
 			action = About.Action.ContactDeveloper,
@@ -179,7 +180,7 @@ class AboutActionProcessorContractTest {
 			)
 		)
 		val effects = mutableListOf<About.Effect>()
-		val initialState = About.State.Content(versionText = "Producción v3.5.1 (351)")
+		val initialState = About.State.Content(versionText = CURRENT_PRODUCTION_VERSION_TEXT)
 
 		val finalState = processor.process(
 			action = About.Action.OpenUrl(url = "https://tuindice.app/github"),

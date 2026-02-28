@@ -110,6 +110,8 @@ extensions.configure<ApplicationExtension> {
 
 dependencies {
 	implementation(libs.bundles.google)
+	implementation(platform(libs.firebase.bom))
+	implementation(libs.bundles.firebase)
 	implementation(libs.koin.android)
 	testImplementation(libs.bundles.testing)
 	androidTestImplementation(libs.bundles.testing.android)

@@ -5,8 +5,12 @@ import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataSource
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 
+const val CURRENT_APP_VERSION_NAME = "5.8"
+const val CURRENT_APP_VERSION_CODE = 36L
+val CURRENT_PRODUCTION_VERSION_TEXT = "Producción v$CURRENT_APP_VERSION_NAME ($CURRENT_APP_VERSION_CODE)"
+
 class FakeAboutRepository(
-	private val versionDescription: String = "Producción v3.5.1 (351)"
+	private val versionDescription: String = CURRENT_PRODUCTION_VERSION_TEXT
 ) : AboutRepository {
 	override suspend fun getVersionDescription(): String = versionDescription
 }
@@ -18,8 +22,8 @@ class FakeEnvironmentDataSource(
 }
 
 class FakeAppInfoDataSource(
-	private val versionName: String = "3.5.1",
-	private val versionCode: Long = 351L
+	private val versionName: String = CURRENT_APP_VERSION_NAME,
+	private val versionCode: Long = CURRENT_APP_VERSION_CODE
 ) : AppInfoDataSource {
 	override fun appVersionName(): String = versionName
 

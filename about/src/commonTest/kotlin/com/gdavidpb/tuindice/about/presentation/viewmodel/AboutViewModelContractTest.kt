@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.about.presentation.action.RateOnStoreActionProcesso
 import com.gdavidpb.tuindice.about.presentation.action.ReportBugActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.testing.CURRENT_PRODUCTION_VERSION_TEXT
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
@@ -33,7 +34,7 @@ class AboutViewModelContractTest {
 			assertEquals(About.State.Idle, initial)
 
 			val content = assertIs<About.State.Content>(awaitItem())
-			assertEquals("Producción v3.5.1 (351)", content.versionText)
+			assertEquals(CURRENT_PRODUCTION_VERSION_TEXT, content.versionText)
 
 			cancelAndIgnoreRemainingEvents()
 		}

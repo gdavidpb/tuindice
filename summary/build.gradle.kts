@@ -26,10 +26,11 @@ kotlin {
 			dependencies {
 				implementation(project(":base"))
 				implementation(project(":persistence"))
+				implementation(libs.datastore.preferences)
 				implementation(libs.navigation.compose)
 				implementation(libs.koin.compose)
-				implementation(compose.components.resources)
-				implementation(compose.materialIconsExtended)
+				implementation(libs.components.resources)
+				implementation(libs.material.icons.extended)
 			}
 		}
 
@@ -42,6 +43,8 @@ kotlin {
 		val androidMain by getting {
 			dependencies {
 				implementation(project(":base"))
+				implementation(libs.bundles.coil)
+				implementation(libs.exifinterface)
 			}
 		}
 	}

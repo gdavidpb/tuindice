@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.about.domain.usecase
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
+import com.gdavidpb.tuindice.about.testing.CURRENT_PRODUCTION_VERSION_TEXT
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
@@ -15,13 +16,13 @@ class AboutUseCaseContractTest {
 	fun loadVersionUseCase_emitsLoadingThenVersionDescription() = runTest {
 		val useCase = LoadVersionUseCase(
 			aboutRepository = FakeAboutRepository(
-				versionDescription = "Producción v3.5.1 (351)"
+				versionDescription = CURRENT_PRODUCTION_VERSION_TEXT
 			)
 		)
 
 		useCase.execute(Unit).test {
 			val data = awaitLoadingThenData(this)
-			assertEquals("Producción v3.5.1 (351)", data)
+			assertEquals(CURRENT_PRODUCTION_VERSION_TEXT, data)
 			awaitComplete()
 		}
 	}

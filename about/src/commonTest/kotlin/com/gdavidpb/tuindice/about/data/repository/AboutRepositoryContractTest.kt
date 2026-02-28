@@ -2,6 +2,9 @@ package com.gdavidpb.tuindice.about.data.repository
 
 import com.gdavidpb.tuindice.about.testing.FakeAppInfoDataSource
 import com.gdavidpb.tuindice.about.testing.FakeEnvironmentDataSource
+import com.gdavidpb.tuindice.about.testing.CURRENT_APP_VERSION_CODE
+import com.gdavidpb.tuindice.about.testing.CURRENT_APP_VERSION_NAME
+import com.gdavidpb.tuindice.about.testing.CURRENT_PRODUCTION_VERSION_TEXT
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -25,11 +28,11 @@ class AboutRepositoryContractTest {
 		val repository = AboutDataRepository(
 			environmentDataSource = FakeEnvironmentDataSource(isDebug = false),
 			appInfoDataSource = FakeAppInfoDataSource(
-				versionName = "3.5.1",
-				versionCode = 351L
+				versionName = CURRENT_APP_VERSION_NAME,
+				versionCode = CURRENT_APP_VERSION_CODE
 			)
 		)
 
-		assertEquals("Producción v3.5.1 (351)", repository.getVersionDescription())
+		assertEquals(CURRENT_PRODUCTION_VERSION_TEXT, repository.getVersionDescription())
 	}
 }

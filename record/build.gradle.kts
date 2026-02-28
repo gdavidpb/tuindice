@@ -33,8 +33,10 @@ kotlin {
 				implementation(project(":persistence"))
 				implementation(libs.navigation.compose)
 				implementation(libs.koin.compose)
-				implementation(compose.components.resources)
-				implementation(compose.materialIconsExtended)
+				implementation(libs.components.resources)
+				implementation(libs.datastore.preferences)
+				implementation(libs.kotlinx.datetime)
+				implementation(libs.material.icons.extended)
 			}
 		}
 
@@ -44,22 +46,17 @@ kotlin {
 			}
 		}
 
-		val androidMain by getting {
+		val androidHostTest by getting {
 			dependencies {
+				implementation(libs.bundles.testing)
+				implementation(libs.ktor.client.cio)
 			}
 		}
 
-			val androidHostTest by getting {
-				dependencies {
-					implementation(libs.bundles.testing)
-					implementation(libs.ktor.client.cio)
-				}
-			}
-
-			val androidDeviceTest by getting {
-				dependencies {
-					implementation(project.dependencies.platform(libs.compose.bom))
-					implementation(libs.bundles.testing.android)
+		val androidDeviceTest by getting {
+			dependencies {
+				implementation(project.dependencies.platform(libs.compose.bom))
+				implementation(libs.bundles.testing.android)
 				implementation(libs.test.ext.junit)
 				implementation(libs.compose.ui.test.junit4)
 			}

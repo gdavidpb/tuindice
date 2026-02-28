@@ -18,24 +18,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.about.generated.AboutDependencyTexts
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.ui.custom.AboutHeader
 import com.gdavidpb.tuindice.about.ui.custom.AboutItem
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.about.generated.resources.Res
-import tuindice.about.generated.resources.about_compose
 import tuindice.about.generated.resources.about_dev_contact
 import tuindice.about.generated.resources.about_dev_info
 import tuindice.about.generated.resources.about_dev_report
 import tuindice.about.generated.resources.about_dst
-import tuindice.about.generated.resources.about_firebase
 import tuindice.about.generated.resources.about_header_developer
 import tuindice.about.generated.resources.about_header_libs
 import tuindice.about.generated.resources.about_header_special_thanks
-import tuindice.about.generated.resources.about_koin
-import tuindice.about.generated.resources.about_kotlin
-import tuindice.about.generated.resources.about_ktor
 import tuindice.about.generated.resources.about_license
 import tuindice.about.generated.resources.about_privacy_policy
 import tuindice.about.generated.resources.about_rate
@@ -151,31 +147,31 @@ fun AboutContentView(
 		AboutHeader(text = stringResource(Res.string.about_header_libs)) {
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_kotlin),
-				text = stringResource(Res.string.about_kotlin),
+				text = AboutDependencyTexts.kotlinDescription,
 				size = 48.dp
 			) { onKotlinClick() }
 
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_compose),
-				text = stringResource(Res.string.about_compose),
+				text = AboutDependencyTexts.composeDescription,
 				size = 48.dp
 			) { onComposeClick() }
 
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_firebase),
-				text = stringResource(Res.string.about_firebase),
+				text = AboutDependencyTexts.firebaseDescription,
 				size = 48.dp
 			) { onFirebaseClick() }
 
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_koin),
-				text = stringResource(Res.string.about_koin),
+				text = AboutDependencyTexts.koinDescription,
 				size = 48.dp
 			) { onKoinClick() }
 
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_ktor),
-				text = stringResource(Res.string.about_ktor),
+				text = AboutDependencyTexts.ktorDescription,
 				size = 48.dp,
 				tint = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onBackground else null
 			) { onKtorClick() }

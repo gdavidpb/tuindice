@@ -19,6 +19,8 @@ kotlin {
 	iosArm64()
 	iosSimulatorArm64()
 
+	applyDefaultHierarchyTemplate()
+
 	compilerOptions {
 		freeCompilerArgs.add("-Xexpect-actual-classes")
 	}
@@ -27,6 +29,7 @@ kotlin {
 		val commonMain by getting {
 			dependencies {
 				implementation(project(":base"))
+				implementation(libs.koin.core)
 				api(libs.room.runtime)
 			}
 		}
@@ -44,19 +47,7 @@ kotlin {
 			}
 		}
 
-		val iosX64Main by getting {
-			dependencies {
-				implementation(libs.sqlite.bundled)
-			}
-		}
-
-		val iosArm64Main by getting {
-			dependencies {
-				implementation(libs.sqlite.bundled)
-			}
-		}
-
-		val iosSimulatorArm64Main by getting {
+		val iosMain by getting {
 			dependencies {
 				implementation(libs.sqlite.bundled)
 			}

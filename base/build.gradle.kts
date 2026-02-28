@@ -28,16 +28,17 @@ kotlin {
 			dependencies {
 				api(libs.compose.runtime)
 				api(libs.bundles.compose.mpp.core)
-				api(compose.components.resources)
 				api(libs.navigation.compose)
-				api(libs.kotlinx.datetime)
-				api(libs.kotlinx.serialization.json)
 				api(libs.kotlinx.coroutines.core)
 				api(libs.ktor.client.core)
-				api(libs.datastore.preferences)
-				api(libs.koin.core)
 				api(libs.lifecycle.runtime.compose)
-				api(libs.compottie)
+
+				implementation(libs.components.resources)
+				implementation(libs.kotlinx.datetime)
+				implementation(libs.kotlinx.serialization.json)
+				implementation(libs.datastore.preferences)
+				implementation(libs.koin.core)
+				implementation(libs.compottie)
 			}
 		}
 
@@ -67,17 +68,9 @@ kotlin {
 				api(libs.koin.compose)
 				api(libs.koin.compose.viewmodel)
 
-				/* Firebase */
-				api(project.dependencies.platform(libs.firebase.bom))
-				api(libs.bundles.firebase)
-
 				/* Ktor */
 				api(libs.bundles.ktor)
 				api(libs.ktor.client.okhttp)
-
-				/* Coil */
-				api(libs.bundles.coil)
-
 			}
 		}
 
