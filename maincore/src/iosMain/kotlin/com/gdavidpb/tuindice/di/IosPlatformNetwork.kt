@@ -17,7 +17,6 @@ import io.ktor.http.userAgent
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import platform.Foundation.NSBundle
-import platform.Foundation.NSLog
 import platform.UIKit.UIDevice
 
 internal fun createIosUserAgent(bridge: IosPlatformBridge): String {
@@ -95,6 +94,6 @@ internal const val IOS_IDENTITY_HTTP_CLIENT_QUALIFIER = "iosIdentityHttpClient"
 
 internal val IOS_KTOR_LOGGER = object : Logger {
 	override fun log(message: String) {
-		NSLog(message)
+		iosLog(message)
 	}
 }

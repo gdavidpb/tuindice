@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import platform.Foundation.NSBundle
-import platform.Foundation.NSLog
 import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 import platform.UIKit.UIImagePickerController
@@ -118,11 +117,11 @@ object DefaultIosPlatformBridge : IosPlatformBridge {
 	override fun setUserIdentifier(identifier: String) = Unit
 
 	override fun logMessage(message: String) {
-		NSLog(message)
+		iosLog(message)
 	}
 
 	override fun logException(throwable: Throwable) {
-		NSLog(throwable.message ?: "Unknown iOS bridge exception")
+		iosLog(throwable.message ?: "Unknown iOS bridge exception")
 	}
 
 	override fun setCustomKey(key: String, value: String) = Unit
