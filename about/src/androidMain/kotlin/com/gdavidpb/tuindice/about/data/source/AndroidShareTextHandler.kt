@@ -2,12 +2,12 @@ package com.gdavidpb.tuindice.about.data.source
 
 import android.content.Context
 import android.content.Intent
-import com.gdavidpb.tuindice.about.domain.repository.ExternalActionsRepository
+import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 
-class AndroidExternalActionsDataSource(
+class AndroidShareTextHandler(
 	private val context: Context
-) : ExternalActionsRepository {
-	override fun shareText(subject: String, text: String) {
+) : ShareTextHandler {
+	override fun invoke(subject: String, text: String) {
 		val sendIntent = Intent(Intent.ACTION_SEND).apply {
 			type = "text/plain"
 			putExtra(Intent.EXTRA_SUBJECT, subject)

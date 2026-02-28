@@ -12,7 +12,8 @@ class SendSupportEmailUseCase(
 	override suspend fun executeOnBackground(params: Unit): Flow<String> {
 		val email = configRepository.getContactEmail()
 		val subject = configRepository.getContactSubject().encodeURLParameter()
+		val body = "".encodeURLParameter()
 
-		return flowOf("mailto:$email?subject=$subject")
+		return flowOf("mailto:$email?subject=$subject&body=$body")
 	}
 }

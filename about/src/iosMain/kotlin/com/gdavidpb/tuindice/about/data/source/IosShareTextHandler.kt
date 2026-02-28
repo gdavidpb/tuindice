@@ -1,13 +1,13 @@
 package com.gdavidpb.tuindice.about.data.source
 
-import com.gdavidpb.tuindice.about.domain.repository.ExternalActionsRepository
+import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
 import platform.UIKit.UIViewController
 import platform.UIKit.UIWindow
 
-class IosExternalActionsDataSource : ExternalActionsRepository {
-	override fun shareText(subject: String, text: String) {
+class IosShareTextHandler : ShareTextHandler {
+	override fun invoke(subject: String, text: String) {
 		val topController = topViewController()
 			?: return
 

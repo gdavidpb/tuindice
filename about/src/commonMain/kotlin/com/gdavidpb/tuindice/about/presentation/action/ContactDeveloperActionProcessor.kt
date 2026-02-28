@@ -21,7 +21,7 @@ class ContactDeveloperActionProcessor(
 					is UseCaseState.Data -> { state ->
 						sideEffect(
 							About.Effect.OpenUri(
-								uri = useCaseState.value.uri
+								uri = useCaseState.value
 							)
 						)
 

@@ -5,9 +5,9 @@ import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataSource
 import com.gdavidpb.tuindice.about.data.source.AndroidAppInfoDataSource
 import com.gdavidpb.tuindice.about.data.source.AndroidEnvironmentDataSource
-import com.gdavidpb.tuindice.about.data.source.AndroidExternalActionsDataSource
+import com.gdavidpb.tuindice.about.data.source.AndroidShareTextHandler
 import com.gdavidpb.tuindice.about.data.source.AndroidStoreUrlDataSource
-import com.gdavidpb.tuindice.about.domain.repository.ExternalActionsRepository
+import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
@@ -16,5 +16,5 @@ val aboutAndroidModule = module {
 	factoryOf(::AndroidEnvironmentDataSource) { bind<EnvironmentDataSource>() }
 	factoryOf(::AndroidAppInfoDataSource) { bind<AppInfoDataSource>() }
 	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlDataSource>() }
-	factoryOf(::AndroidExternalActionsDataSource) { bind<ExternalActionsRepository>() }
+	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
 }
