@@ -9,9 +9,6 @@ import Maincore
 
 enum TuIndiceAppBootstrap {
     #if canImport(maincore) || canImport(Maincore)
-    private static let smokeValidationEnvKey = "TUINDICE_IOS_SMOKE_VALIDATE"
-    private static let smokeRunIdEnvKey = "TUINDICE_IOS_SMOKE_RUN_ID"
-    private static let smokeMarkerPrefix = "TUINDICE_SMOKE_MARKER"
     private static let defaultApiBaseUrl = "https://api.tuindice.app/"
     private static let buildVariant: IosBuildVariant = {
         #if DEBUG
@@ -39,9 +36,7 @@ enum TuIndiceAppBootstrap {
 
     static func makeRootViewController() -> UIViewController {
         #if canImport(maincore) || canImport(Maincore)
-        let root = appLauncher.createRootViewController()
-        runSmokeValidationIfEnabled()
-        return root
+        return appLauncher.createRootViewController()
         #else
         return UIViewController()
         #endif
@@ -54,35 +49,6 @@ enum TuIndiceAppBootstrap {
     }
 
     #if canImport(maincore) || canImport(Maincore)
-    private static func runSmokeValidationIfEnabled() {
-        guard isSmokeValidationEnabled() else { return }
-
-        DispatchQueue.global(qos: .userInitiated).async {
-            let smokeRunId = ProcessInfo.processInfo.environment[smokeRunIdEnvKey] ?? "default"
-            let result = TuIndiceIosSmokeVerifier().runChecks()
-            NSLog("\(smokeMarkerPrefix):\(smokeRunId):\(result)")
-        }
-    }
-
-    private static func isSmokeValidationEnabled() -> Bool {
-        return environmentBoolean(for: smokeValidationEnvKey, defaultValue: false)
-    }
-
-    private static func environmentBoolean(for key: String, defaultValue: Bool) -> Bool {
-        guard let rawValue = ProcessInfo.processInfo.environment[key] else {
-            return defaultValue
-        }
-
-        switch rawValue.lowercased() {
-        case "1", "true", "yes":
-            return true
-        case "0", "false", "no":
-            return false
-        default:
-            return defaultValue
-        }
-    }
-
     private static func bundleString(for key: String, defaultValue: String) -> String {
         if let value = ProcessInfo.processInfo.environment[key], value.isEmpty == false {
             return value

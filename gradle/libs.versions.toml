@@ -7,6 +7,7 @@ koin = "4.1.1"
 lifecycle = "2.10.0"
 lifecycle-ext = "2.2.0"
 coroutines = "1.10.2"
+turbine = "1.2.1"
 firebase-bom = "34.9.0"
 coil = "2.7.0"
 compose-bom = "2026.02.00"
@@ -137,8 +138,10 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 
 # Coroutines
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutines" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 # Lottie
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie-compose" }
@@ -170,4 +173,5 @@ navigation = ["navigation-compose"]
 architecture = ["core-runtime", "core-common"]
 lifecycle = ["lifecycle-runtime-compose", "lifecycle-viewmodel-compose", "lifecycle-extensions", "lifecycle-runtime-ktx", "lifecycle-viewmodel-ktx"]
 coroutines = ["kotlinx-coroutines-android", "kotlinx-coroutines-play-services"]
+testing-kmp = ["kotlinx-coroutines-test", "turbine"]
 ktor = ["ktor-client-core", "ktor-client-auth", "ktor-client-logging", "ktor-client-content-negotiation", "ktor-serialization-kotlinx-json"]
