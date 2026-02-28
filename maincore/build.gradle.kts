@@ -50,24 +50,6 @@ kotlin {
 			}
 		}
 
-		val iosMain by creating {
-			dependsOn(commonMain)
-		}
-		val iosArm64Main by getting {
-			dependsOn(iosMain)
-		}
-		val iosX64Main by getting {
-			dependsOn(iosMain)
-		}
-		val iosSimulatorArm64Main by getting {
-			dependsOn(iosMain)
-		}
-		val iosSimulatorMain by creating {
-			dependsOn(iosMain)
-			iosX64Main.dependsOn(this)
-			iosSimulatorArm64Main.dependsOn(this)
-		}
-
 		val androidMain by getting
 	}
 }

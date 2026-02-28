@@ -29,9 +29,9 @@ tasks.register("clean", Delete::class) {
 	delete(layout.buildDirectory)
 }
 
-tasks.register("verifyKmpTargets") {
+tasks.register("verifySharedCompilation") {
 	group = "verification"
-	description = "Compiles KMP shared modules for Android and iOS simulator targets."
+	description = "Compiles shared modules for Android and iOS simulator targets."
 
 	dependsOn(
 		":about:compileAndroidMain",
@@ -57,9 +57,9 @@ tasks.register("verifyKmpTargets") {
 	)
 }
 
-tasks.register("verifyKmpSharedTests") {
+tasks.register("verifySharedTests") {
 	group = "verification"
-	description = "Runs shared KMP tests on iOS x64 where available in CI/dev machines."
+	description = "Runs shared tests on iOS x64 where available in CI/dev machines."
 
 	dependsOn(
 		":about:iosX64Test",
@@ -168,10 +168,10 @@ tasks.register<Exec>("verifyIosHostBuildDeviceRelease") {
 	commandLine("bash", "${rootDir}/iosApp/scripts/ci-build-ios-host.sh")
 }
 
-tasks.register<Exec>("reportWorktreeHealth") {
-	group = "help"
-	description = "Generates a worktree health report with suggested atomic commit batches."
-	val reportScript = file("${rootDir}/scripts/kmp/report-worktree-health.sh")
+	tasks.register<Exec>("reportWorktreeHealth") {
+		group = "help"
+		description = "Generates a worktree health report with suggested atomic commit batches."
+		val reportScript = file("${rootDir}/scripts/report-worktree-health.sh")
 
 	onlyIf {
 		reportScript.exists()
