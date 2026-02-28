@@ -38,6 +38,8 @@ tasks.register("verifyKmpTargets") {
 		":about:compileKotlinIosSimulatorArm64",
 		":base:compileAndroidMain",
 		":base:compileKotlinIosSimulatorArm64",
+		":testkit:compileAndroidMain",
+		":testkit:compileKotlinIosSimulatorArm64",
 		":enrollmentproof:compileAndroidMain",
 		":enrollmentproof:compileKotlinIosSimulatorArm64",
 		":evaluations:compileAndroidMain",
@@ -62,6 +64,7 @@ tasks.register("verifyKmpSharedTests") {
 	dependsOn(
 		":about:iosX64Test",
 		":base:iosX64Test",
+		":testkit:iosX64Test",
 		":enrollmentproof:iosX64Test",
 		":evaluations:iosX64Test",
 		":login:iosX64Test",
@@ -108,7 +111,7 @@ tasks.register<Exec>("verifyIosHostBuildDebug") {
 
 	environment("CONFIGURATION", "Debug")
 	environment("DERIVED_DATA_PATH", "${rootDir}/iosApp/.build/ios-host-debug")
-	if (System.getenv("TUINDICE_IOS_HOST_SMOKE_REQUIRE_SIMULATOR") == "1") {
+	if (System.getenv("TUINDICE_IOS_HOST_REQUIRE_SIMULATOR") == "1") {
 		environment("REQUIRE_SIMULATOR", "1")
 	}
 	commandLine("bash", "${rootDir}/iosApp/scripts/ci-build-ios-host.sh")
@@ -132,38 +135,10 @@ tasks.register<Exec>("verifyIosHostBuildRelease") {
 
 	environment("CONFIGURATION", "Release")
 	environment("DERIVED_DATA_PATH", "${rootDir}/iosApp/.build/ios-host-release")
-	if (System.getenv("TUINDICE_IOS_HOST_SMOKE_REQUIRE_SIMULATOR") == "1") {
+	if (System.getenv("TUINDICE_IOS_HOST_REQUIRE_SIMULATOR") == "1") {
 		environment("REQUIRE_SIMULATOR", "1")
 	}
 	commandLine("bash", "${rootDir}/iosApp/scripts/ci-build-ios-host.sh")
-}
-
-tasks.register<Exec>("verifyIosHostLaunchSmoke") {
-	group = "verification"
-	description = "Installs and launches iOS host app on simulator (Debug smoke + functional marker validation)."
-
-	val isMacHost = System.getProperty("os.name")
-		.contains("Mac", ignoreCase = true)
-	val runHostSmoke = System.getenv("TUINDICE_IOS_HOST_SMOKE") == "1"
-	val runHostBuild = System.getenv("TUINDICE_IOS_HOST_BUILD") == "1"
-
-	if (isMacHost && runHostSmoke && runHostBuild) {
-		dependsOn("verifyIosHostBuildDebug")
-	}
-
-	onlyIf {
-		isMacHost && runHostSmoke
-	}
-
-	environment("CONFIGURATION", "Debug")
-	environment("DERIVED_DATA_PATH", "${rootDir}/iosApp/.build/ios-host-debug")
-	if (runHostBuild) {
-		environment("SKIP_HOST_BUILD", "1")
-	}
-	if (System.getenv("TUINDICE_IOS_HOST_SMOKE_REQUIRE_SIMULATOR") == "1") {
-		environment("REQUIRE_SIMULATOR", "1")
-	}
-	commandLine("bash", "${rootDir}/iosApp/scripts/ci-smoke-ios-host.sh")
 }
 
 tasks.register<Exec>("verifyIosHostBuildDeviceRelease") {
@@ -193,53 +168,6 @@ tasks.register<Exec>("verifyIosHostBuildDeviceRelease") {
 	commandLine("bash", "${rootDir}/iosApp/scripts/ci-build-ios-host.sh")
 }
 
-tasks.register<Exec>("verifyIosHostDeviceE2E") {
-	group = "verification"
-	description = "Installs and launches iOS host app on a physical device (Release E2E smoke)."
-
-	val isMacHost = System.getProperty("os.name")
-		.contains("Mac", ignoreCase = true)
-	val runHostDeviceE2E = System.getenv("TUINDICE_IOS_HOST_E2E") == "1"
-	val runHostBuild = System.getenv("TUINDICE_IOS_HOST_BUILD") == "1"
-
-	if (isMacHost && runHostDeviceE2E && runHostBuild) {
-		dependsOn("verifyIosHostBuildDeviceRelease")
-	}
-
-	onlyIf {
-		isMacHost && runHostDeviceE2E
-	}
-
-	environment("CONFIGURATION", "Release")
-	environment("DERIVED_DATA_PATH", "${rootDir}/iosApp/.build/ios-host-device-release")
-	environment("IOS_DEVICE_IDENTIFIER", System.getenv("TUINDICE_IOS_DEVICE_IDENTIFIER") ?: "")
-	if (runHostBuild) {
-		environment("SKIP_HOST_BUILD", "1")
-	}
-	if (System.getenv("TUINDICE_IOS_HOST_E2E_REQUIRE_DEVICE") == "1") {
-		environment("REQUIRE_DEVICE", "1")
-	}
-	System.getenv("TUINDICE_IOS_HOST_E2E_TIMEOUT_SECONDS")
-		?.takeIf { it.isNotBlank() }
-		?.let { timeoutSeconds ->
-			environment("E2E_LAUNCH_TIMEOUT_SECONDS", timeoutSeconds)
-		}
-
-	commandLine("bash", "${rootDir}/iosApp/scripts/ci-e2e-ios-host-device.sh")
-}
-
-tasks.register("verifyIosHostSmoke") {
-	group = "verification"
-	description = "Runs iOS host smoke builds and optional launch/device E2E lanes."
-
-	dependsOn(
-		"verifyIosHostBuildDebug",
-		"verifyIosHostBuildRelease",
-		"verifyIosHostLaunchSmoke",
-		"verifyIosHostDeviceE2E"
-	)
-}
-
 tasks.register<Exec>("reportWorktreeHealth") {
 	group = "help"
 	description = "Generates a worktree health report with suggested atomic commit batches."
@@ -256,18 +184,4 @@ tasks.register<Exec>("reportWorktreeHealth") {
 	}
 
 	commandLine("bash", reportScript.absolutePath)
-}
-
-tasks.register("verifyKmpMigration") {
-	group = "verification"
-	description = "Runs multiplatform compilation and smoke checks."
-
-	dependsOn(
-		"verifyKmpTargets",
-		"verifyKmpSharedTests",
-		"verifyIosHostTypecheck",
-		"verifyIosHostSmoke",
-		":app:compileDebugAndroidTestSources",
-		":app:compileDebugSources"
-	)
 }

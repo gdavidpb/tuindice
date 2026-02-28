@@ -15,13 +15,11 @@ import com.gdavidpb.tuindice.about.presentation.action.ReportBugActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
-import com.gdavidpb.tuindice.about.testing.FakeAppEnvironmentRepository
-import com.gdavidpb.tuindice.about.testing.FakeConfigRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
-import com.gdavidpb.tuindice.about.testing.RecordingBrowserRepository
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
+import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -45,9 +43,10 @@ class AboutViewModelContractTest {
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun userActions_emitExpectedEffects() = runTest {
 		val viewModel = createViewModel()
-		val stateCollector = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-			viewModel.state.collect()
-		}
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
 
 		try {
 			viewModel.state.test {

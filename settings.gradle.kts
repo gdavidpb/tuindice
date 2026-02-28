@@ -6,6 +6,7 @@ include(
 	":app",
 	":maincore",
 	":base",
+	":testkit",
 	":persistence",
 	":login",
 	":about",

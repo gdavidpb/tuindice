@@ -7,11 +7,11 @@ import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
-import com.gdavidpb.tuindice.about.testing.FakeAppEnvironmentRepository
-import com.gdavidpb.tuindice.about.testing.FakeConfigRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
-import com.gdavidpb.tuindice.about.testing.RecordingBrowserRepository
-import com.gdavidpb.tuindice.about.testing.reduceAboutState
+import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
+import com.gdavidpb.tuindice.testkit.mvi.reduceMutations
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -58,7 +58,7 @@ class AboutActionProcessorContractTest {
 		val finalState = processor.process(
 			action = About.Action.OpenTermsAndConditions,
 			sideEffect = effects::add
-		).toList().reduceAboutState(initialState)
+		).toList().reduceMutations(initialState)
 
 		assertEquals(initialState, finalState)
 
@@ -78,7 +78,7 @@ class AboutActionProcessorContractTest {
 		val finalState = processor.process(
 			action = About.Action.OpenPrivacyPolicy,
 			sideEffect = effects::add
-		).toList().reduceAboutState(initialState)
+		).toList().reduceMutations(initialState)
 
 		assertEquals(initialState, finalState)
 
@@ -96,7 +96,7 @@ class AboutActionProcessorContractTest {
 		val finalState = processor.process(
 			action = About.Action.ShareApp,
 			sideEffect = effects::add
-		).toList().reduceAboutState(initialState)
+		).toList().reduceMutations(initialState)
 
 		assertEquals(initialState, finalState)
 
@@ -120,7 +120,7 @@ class AboutActionProcessorContractTest {
 		val finalState = processor.process(
 			action = About.Action.RateOnStore,
 			sideEffect = effects::add
-		).toList().reduceAboutState(initialState)
+		).toList().reduceMutations(initialState)
 
 		assertEquals(initialState, finalState)
 
@@ -141,7 +141,7 @@ class AboutActionProcessorContractTest {
 		val finalState = processor.process(
 			action = About.Action.ReportBug,
 			sideEffect = effects::add
-		).toList().reduceAboutState(initialState)
+		).toList().reduceMutations(initialState)
 
 		assertEquals(initialState, finalState)
 
@@ -162,7 +162,7 @@ class AboutActionProcessorContractTest {
 		val finalState = processor.process(
 			action = About.Action.ContactDeveloper,
 			sideEffect = effects::add
-		).toList().reduceAboutState(initialState)
+		).toList().reduceMutations(initialState)
 
 		assertEquals(initialState, finalState)
 
@@ -184,7 +184,7 @@ class AboutActionProcessorContractTest {
 		val finalState = processor.process(
 			action = About.Action.OpenUrl(url = "https://tuindice.app/github"),
 			sideEffect = effects::add
-		).toList().reduceAboutState(initialState)
+		).toList().reduceMutations(initialState)
 
 		assertEquals(initialState, finalState)
 		assertNull(effects.singleOrNull())

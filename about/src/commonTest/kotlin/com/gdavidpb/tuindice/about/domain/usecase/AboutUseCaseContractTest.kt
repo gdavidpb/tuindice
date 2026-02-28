@@ -2,14 +2,13 @@ package com.gdavidpb.tuindice.about.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
-import com.gdavidpb.tuindice.about.testing.FakeConfigRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
-import com.gdavidpb.tuindice.about.testing.RecordingBrowserRepository
-import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
+import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class AboutUseCaseContractTest {
 	@Test
@@ -21,12 +20,8 @@ class AboutUseCaseContractTest {
 		)
 
 		useCase.execute(Unit).test {
-			assertTrue(awaitItem() is UseCaseState.Loading<*, *>)
-
-			val data = awaitItem()
-			assertTrue(data is UseCaseState.Data<*, *>)
-			assertEquals("Producción v3.5.1 (351)", data.value)
-
+			val data = awaitLoadingThenData(this)
+			assertEquals("Producción v3.5.1 (351)", data)
 			awaitComplete()
 		}
 	}
@@ -41,13 +36,10 @@ class AboutUseCaseContractTest {
 		)
 
 		useCase.execute(Unit).test {
-			assertTrue(awaitItem() is UseCaseState.Loading<*, *>)
-
-			val data = awaitItem()
-			assertTrue(data is UseCaseState.Data<*, *>)
+			val data = awaitLoadingThenData(this)
 			assertEquals(
 				"mailto:info@tuindice.app?subject=TuIndice%20Soporte&body=",
-				data.value
+				data
 			)
 
 			awaitComplete()
@@ -63,11 +55,8 @@ class AboutUseCaseContractTest {
 		)
 
 		useCase.execute(Unit).test {
-			assertTrue(awaitItem() is UseCaseState.Loading<*, *>)
-
-			val data = awaitItem()
-			assertTrue(data is UseCaseState.Data<*, *>)
-			assertEquals("itms-apps://apps.apple.com/app/id123", data.value)
+			val data = awaitLoadingThenData(this)
+			assertEquals("itms-apps://apps.apple.com/app/id123", data)
 
 			awaitComplete()
 		}
@@ -81,11 +70,8 @@ class AboutUseCaseContractTest {
 		)
 
 		useCase.execute("https://tuindice.app/about").test {
-			assertTrue(awaitItem() is UseCaseState.Loading<*, *>)
-
-			val data = awaitItem()
-			assertTrue(data is UseCaseState.Data<*, *>)
-			assertEquals(Unit, data.value)
+			val data = awaitLoadingThenData(this)
+			assertEquals(Unit, data)
 			assertEquals("https://tuindice.app/about", browserRepository.lastOpenedUrl)
 
 			awaitComplete()
