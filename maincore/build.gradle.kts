@@ -24,6 +24,8 @@ kotlin {
 		}
 	}
 
+	applyDefaultHierarchyTemplate()
+
 	sourceSets {
 		val commonMain by getting {
 			dependencies {
@@ -36,11 +38,25 @@ kotlin {
 				implementation(project(":evaluations"))
 				implementation(project(":enrollmentproof"))
 				implementation(libs.datastore.preferences)
-				implementation(libs.koin.compose.viewmodel)
+				implementation(libs.koin.compose)
+				implementation(libs.koin.core)
 				implementation(libs.kotlinx.serialization.json)
 				implementation(libs.material.icons.extended)
 				implementation(libs.navigation.compose)
 				implementation(libs.bundles.ktor)
+			}
+		}
+
+		val androidMain by getting {
+			dependencies {
+				implementation(project.dependencies.platform(libs.compose.bom))
+				implementation(libs.compose.ui)
+			}
+		}
+
+		val iosMain by getting {
+			dependencies {
+				implementation(libs.ktor.client.darwin)
 			}
 		}
 

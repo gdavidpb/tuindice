@@ -7,14 +7,12 @@ room = "2.8.4"
 sqlite = "2.6.2"
 koin = "4.1.1"
 lifecycle = "2.10.0"
-lifecycle-ext = "2.2.0"
 coroutines = "1.10.2"
 turbine = "1.2.1"
 firebase-bom = "34.10.0"
 coil = "2.7.0"
 compose-bom = "2026.02.01"
 compottie = "2.0.3"
-androidx-core = "2.2.0"
 kotlinx-datetime = "0.7.1"
 kotlinx-serialization-json = "1.10.0"
 browser = "1.9.0"
@@ -70,7 +68,6 @@ datastore-preferences = { module = "androidx.datastore:datastore-preferences", v
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 
 # Kotlin
-kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -79,7 +76,6 @@ kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", v
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
-koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 
 # Firebase
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
@@ -116,16 +112,8 @@ jetbrains-compose-material3 = { module = "org.jetbrains.compose.material3:materi
 # Navigation
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation" }
 
-# Architecture
-core-runtime = { module = "androidx.arch.core:core-runtime", version.ref = "androidx-core" }
-core-common = { module = "androidx.arch.core:core-common", version.ref = "androidx-core" }
-
 # Lifecycle
 lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
-lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycle-ext" }
-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 
 # Ktor
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -162,13 +150,9 @@ coil = ["coil", "coil-compose"]
 testing = ["junit", "wiremock"]
 testing-android = ["koin-test", "test-runner", "espresso-core"]
 androidx = ["core-ktx", "browser", "preference-ktx", "exifinterface", "datastore-preferences"]
-kotlin = ["kotlin-reflect", "kotlinx-datetime", "kotlinx-serialization-json"]
 firebase = ["firebase-config", "firebase-messaging", "firebase-crashlytics"]
 google = ["app-update-ktx", "material", "review-ktx", "integrity"]
 compose = ["compose-ui", "compose-foundation", "compose-animation", "compose-ui-tooling", "compose-preview", "compose-activity", "compose-material3", "compose-icons", "compose-constraintlayout"]
 compose-mpp-core = ["jetbrains-compose-ui", "jetbrains-compose-foundation", "jetbrains-compose-animation", "jetbrains-compose-material3"]
-navigation = ["navigation-compose"]
-architecture = ["core-runtime", "core-common"]
-lifecycle = ["lifecycle-runtime-compose", "lifecycle-viewmodel-compose", "lifecycle-extensions", "lifecycle-runtime-ktx", "lifecycle-viewmodel-ktx"]
 coroutines = ["kotlinx-coroutines-android", "kotlinx-coroutines-play-services"]
 ktor = ["ktor-client-core", "ktor-client-auth", "ktor-client-logging", "ktor-client-content-negotiation", "ktor-serialization-kotlinx-json"]

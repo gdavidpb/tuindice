@@ -43,11 +43,10 @@ kotlin {
 
 		val androidMain by getting {
 			dependencies {
-				implementation(project(":base"))
-				implementation(project(":persistence"))
 				implementation(project.dependencies.platform(libs.firebase.bom))
 				implementation(libs.firebase.messaging)
 				implementation(libs.firebase.crashlytics)
+				implementation(libs.kotlinx.coroutines.play.services)
 			}
 		}
 	}

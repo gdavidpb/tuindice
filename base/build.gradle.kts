@@ -51,33 +51,17 @@ kotlin {
 		val androidMain by getting {
 			dependencies {
 				/* Compose */
-				api(project.dependencies.platform(libs.compose.bom))
-				api(libs.bundles.compose)
+				implementation(project.dependencies.platform(libs.compose.bom))
+				implementation(libs.bundles.compose)
 
 				/* AndroidX */
-				api(libs.bundles.androidx)
-				api(libs.bundles.navigation)
-				api(libs.bundles.architecture)
-				api(libs.bundles.lifecycle)
-				api(libs.bundles.coroutines)
-
-				/* Kotlin */
-				api(libs.bundles.kotlin)
+				implementation(libs.bundles.androidx)
 
 				/* Koin */
-				api(libs.koin.compose)
-				api(libs.koin.compose.viewmodel)
-
-				/* Ktor */
-				api(libs.bundles.ktor)
-				api(libs.ktor.client.okhttp)
+				implementation(libs.koin.compose)
 			}
 		}
 
-		val iosMain by getting {
-			dependencies {
-				api(libs.ktor.client.darwin)
-			}
-		}
+		val iosMain by getting
 	}
 }

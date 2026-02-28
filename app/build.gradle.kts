@@ -109,10 +109,19 @@ extensions.configure<ApplicationExtension> {
 }
 
 dependencies {
+	implementation(platform(libs.compose.bom))
+	implementation(libs.bundles.compose)
+	implementation(libs.core.ktx)
+	implementation(libs.datastore.preferences)
+	implementation(libs.bundles.ktor)
+	implementation(libs.ktor.client.okhttp)
 	implementation(libs.bundles.google)
 	implementation(platform(libs.firebase.bom))
 	implementation(libs.bundles.firebase)
 	implementation(libs.koin.android)
+	implementation(libs.koin.core)
+	implementation(libs.kotlinx.coroutines.android)
+	implementation(libs.kotlinx.coroutines.play.services)
 	testImplementation(libs.bundles.testing)
 	androidTestImplementation(libs.bundles.testing.android)
 	androidTestImplementation(libs.test.ext.junit)

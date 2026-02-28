@@ -42,7 +42,8 @@ kotlin {
 
 		val androidMain by getting {
 			dependencies {
-				implementation(project(":base"))
+				implementation(libs.compose.activity)
+				implementation(libs.core.ktx)
 				implementation(libs.bundles.coil)
 				implementation(libs.exifinterface)
 			}

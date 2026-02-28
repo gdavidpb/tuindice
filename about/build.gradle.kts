@@ -40,12 +40,6 @@ kotlin {
 				implementation(project(":testkit"))
 			}
 		}
-
-		val androidMain by getting {
-			dependencies {
-				implementation(project(":base"))
-			}
-		}
 	}
 }
 
