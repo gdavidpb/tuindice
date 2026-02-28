@@ -75,7 +75,6 @@ class MainViewModelTest {
 		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
-			waitUntil("action has subscribers") { viewModel.action.subscriptionCount.value > 0 }
 			viewModel.startUpAction()
 
 			waitUntil("state reached content") { viewModel.state.value is Main.State.Content }

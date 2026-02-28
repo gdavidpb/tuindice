@@ -285,7 +285,7 @@ class TuIndiceIosSmokeVerifier {
 				}
 				checks += "signin-flow:ok"
 
-				// About actions keep browser navigation effects and execute external actions.
+				// About actions keep browser navigation effects and emit external URI/share effects.
 				val aboutViewModel = koin.get<AboutViewModel>()
 				withViewModelCollectors(aboutViewModel.state, aboutViewModel.effect) {
 					waitFor("Smoke: About version was not loaded.") {
@@ -306,11 +306,34 @@ class TuIndiceIosSmokeVerifier {
 					aboutViewModel.openPrivacyPolicyAction()
 					privacyEffect.await()
 
+					val shareEffect = expectEffect(aboutViewModel.effect) { effect ->
+						effect is About.Effect.ShareText
+					}
 					aboutViewModel.shareAppAction()
+
+					val reportBugEffect = expectEffect(aboutViewModel.effect) { effect ->
+						effect is About.Effect.OpenUri &&
+							effect.uri.startsWith("mailto:")
+					}
 					aboutViewModel.reportBugAction()
+
+					val contactDeveloperEffect = expectEffect(aboutViewModel.effect) { effect ->
+						effect is About.Effect.OpenUri &&
+							effect.uri.startsWith("mailto:")
+					}
 					aboutViewModel.contactDeveloperAction()
+
+					val openStoreEffect = expectEffect(aboutViewModel.effect) { effect ->
+						effect is About.Effect.OpenUri &&
+							(effect.uri.startsWith("market://") || effect.uri.startsWith("itms-apps://"))
+					}
 					aboutViewModel.rateOnPlayStoreAction()
 					aboutViewModel.openUrlAction("https://tuindice.app/smoke/about")
+
+					shareEffect.await()
+					reportBugEffect.await()
+					contactDeveloperEffect.await()
+					openStoreEffect.await()
 				}
 				checks += "about-flow:ok"
 

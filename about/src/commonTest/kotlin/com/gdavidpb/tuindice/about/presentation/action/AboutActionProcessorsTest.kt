@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.about.presentation.action
 
-import com.gdavidpb.tuindice.about.domain.usecase.OpenStorePageUseCase
+import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
-import com.gdavidpb.tuindice.about.domain.usecase.ShareTextUseCase
-import com.gdavidpb.tuindice.about.domain.repository.ExternalActionsRepository
+import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataSource
+import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
@@ -69,34 +69,27 @@ class AboutActionProcessorsTest {
 	}
 
 	@Test
-	fun shareAppActionProcessor_sharesContentWithoutEffect() = runBlocking {
-		val externalActionsRepository = FakeExternalActionsGateway()
-		val processor = ShareAppActionProcessor(
-			shareTextUseCase = ShareTextUseCase(
-				externalActionsRepository = externalActionsRepository
-			)
-		)
+	fun shareAppActionProcessor_emitsShareTextEffect() = runBlocking {
+		val processor = ShareAppActionProcessor()
 		val effects = mutableListOf<About.Effect>()
 
 		processor.process(
 			action = About.Action.ShareApp,
 			sideEffect = effects::add
-		).toList()
+		).toList().applyToState()
 
-		assertTrue(effects.isEmpty())
-		assertEquals("TuIndice", externalActionsRepository.lastSharedSubject)
+		val effect = assertIs<About.Effect.ShareText>(effects.single())
+		assertEquals("TuIndice", effect.subject)
 		assertEquals(
 			"TuIndice: Una nueva forma de administrar tus notas",
-			externalActionsRepository.lastSharedText
+			effect.text
 		)
 	}
 
 	@Test
-	fun reportBugActionProcessor_sendsSupportEmailWithoutEffect() = runBlocking {
-		val externalActionsRepository = FakeExternalActionsGateway()
+	fun reportBugActionProcessor_emitsMailtoUriEffect() = runBlocking {
 		val processor = ReportBugActionProcessor(
 			sendSupportEmailUseCase = SendSupportEmailUseCase(
-				externalActionsRepository = externalActionsRepository,
 				configRepository = FakeConfigGateway()
 			)
 		)
@@ -105,19 +98,19 @@ class AboutActionProcessorsTest {
 		processor.process(
 			action = About.Action.ReportBug,
 			sideEffect = effects::add
-		).toList()
+		).toList().applyToState()
 
-		assertTrue(effects.isEmpty())
-		assertEquals("support@tuindice.app", externalActionsRepository.lastEmail)
-		assertEquals("Support TuIndice", externalActionsRepository.lastEmailSubject)
+		val effect = assertIs<About.Effect.OpenUri>(effects.single())
+		assertEquals(
+			"mailto:support@tuindice.app?subject=Support%20TuIndice&body=",
+			effect.uri
+		)
 	}
 
 	@Test
-	fun contactDeveloperActionProcessor_sendsSupportEmailWithoutEffect() = runBlocking {
-		val externalActionsRepository = FakeExternalActionsGateway()
+	fun contactDeveloperActionProcessor_emitsMailtoUriEffect() = runBlocking {
 		val processor = ContactDeveloperActionProcessor(
 			sendSupportEmailUseCase = SendSupportEmailUseCase(
-				externalActionsRepository = externalActionsRepository,
 				configRepository = FakeConfigGateway()
 			)
 		)
@@ -126,30 +119,31 @@ class AboutActionProcessorsTest {
 		processor.process(
 			action = About.Action.ContactDeveloper,
 			sideEffect = effects::add
-		).toList()
+		).toList().applyToState()
 
-		assertTrue(effects.isEmpty())
-		assertEquals("support@tuindice.app", externalActionsRepository.lastEmail)
-		assertEquals("Support TuIndice", externalActionsRepository.lastEmailSubject)
+		val effect = assertIs<About.Effect.OpenUri>(effects.single())
+		assertEquals(
+			"mailto:support@tuindice.app?subject=Support%20TuIndice&body=",
+			effect.uri
+		)
 	}
 
 	@Test
-	fun rateOnPlayStoreActionProcessor_opensStoreWithoutEffect() = runBlocking {
-		val externalActionsRepository = FakeExternalActionsGateway()
-		val processor = RateOnPlayStoreActionProcessor(
-			openStorePageUseCase = OpenStorePageUseCase(
-				externalActionsRepository = externalActionsRepository
+	fun rateOnPlayStoreActionProcessor_emitsStoreUriEffect() = runBlocking {
+		val processor = RateOnStoreActionProcessor(
+			openStoreUseCase = OpenStoreUseCase(
+				storeUrlDataSource = FakeStoreUrlDataSource()
 			)
 		)
 		val effects = mutableListOf<About.Effect>()
 
 		processor.process(
-			action = About.Action.RateOnPlayStore,
+			action = About.Action.RateOnStore,
 			sideEffect = effects::add
-		).toList()
+		).toList().applyToState()
 
-		assertTrue(effects.isEmpty())
-		assertEquals(1, externalActionsRepository.openStorePageCalls)
+		val effect = assertIs<About.Effect.OpenUri>(effects.single())
+		assertEquals("market://details?id=com.gdavidpb.tuindice", effect.uri)
 	}
 
 	@Test
@@ -169,6 +163,12 @@ class AboutActionProcessorsTest {
 		assertTrue(effects.isEmpty())
 		assertEquals(targetUrl, browserRepository.lastOpenedUrl)
 	}
+}
+
+private fun List<Mutation<About.State>>.applyToState(
+	initialState: About.State = About.State.Idle
+): About.State {
+	return fold(initialState) { state, mutation -> mutation(state) }
 }
 
 private class FakeAppEnvironmentGateway(
@@ -201,26 +201,8 @@ private class FakeConfigGateway : ConfigRepository {
 	override fun getSyncsToSuggestReview(): Int = 3
 }
 
-private class FakeExternalActionsGateway : ExternalActionsRepository {
-	var openStorePageCalls: Int = 0
-	var lastEmail: String? = null
-	var lastEmailSubject: String? = null
-	var lastEmailText: String? = null
-	var lastSharedSubject: String? = null
-	var lastSharedText: String? = null
-
-	override fun sendEmail(email: String, subject: String, text: String) {
-		lastEmail = email
-		lastEmailSubject = subject
-		lastEmailText = text
-	}
-
-	override fun shareText(subject: String, text: String) {
-		lastSharedSubject = subject
-		lastSharedText = text
-	}
-
-	override fun openStore() {
-		openStorePageCalls++
+private class FakeStoreUrlDataSource : StoreUrlDataSource {
+	override fun getStoreUrl(): String {
+		return "market://details?id=com.gdavidpb.tuindice"
 	}
 }

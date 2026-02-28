@@ -21,7 +21,7 @@ object About {
 		data object OpenTermsAndConditions : Action()
 		data object OpenPrivacyPolicy : Action()
 		data class OpenUrl(val url: String) : Action()
-		data object RateOnPlayStore : Action()
+		data object RateOnStore : Action()
 		data object ReportBug : Action()
 		data object ContactDeveloper : Action()
 		data object ShareApp : Action()
@@ -31,6 +31,15 @@ object About {
 		data class NavigateToBrowser(
 			val title: String,
 			val url: String
+		) : Effect()
+
+		data class OpenUri(
+			val uri: String
+		) : Effect()
+
+		data class ShareText(
+			val subject: String,
+			val text: String
 		) : Effect()
 	}
 }

@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.about.presentation.action.LoadVersionActionProcesso
 import com.gdavidpb.tuindice.about.presentation.action.OpenPrivacyPolicyActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenTermsAndConditionsActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenUrlActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.RateOnPlayStoreActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.RateOnStoreActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.ReportBugActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.contract.About
@@ -19,7 +19,7 @@ class AboutViewModel(
 	private val openTermsAndConditionsActionProcessor: OpenTermsAndConditionsActionProcessor,
 	private val openPrivacyPolicyActionProcessor: OpenPrivacyPolicyActionProcessor,
 	private val shareAppActionProcessor: ShareAppActionProcessor,
-	private val rateOnPlayStoreActionProcessor: RateOnPlayStoreActionProcessor,
+	private val rateOnStoreActionProcessor: RateOnStoreActionProcessor,
 	private val reportBugActionProcessor: ReportBugActionProcessor,
 	private val openUrlActionProcessor: OpenUrlActionProcessor
 ) : BaseViewModel<About.State, About.Action, About.Effect>(
@@ -36,7 +36,7 @@ class AboutViewModel(
 		sendAction(About.Action.ShareApp)
 
 	fun rateOnPlayStoreAction() =
-		sendAction(About.Action.RateOnPlayStore)
+		sendAction(About.Action.RateOnStore)
 
 	fun reportBugAction() =
 		sendAction(About.Action.ReportBug)
@@ -64,8 +64,8 @@ class AboutViewModel(
 			is About.Action.OpenTermsAndConditions ->
 				openTermsAndConditionsActionProcessor.process(action, sideEffect)
 
-			is About.Action.RateOnPlayStore ->
-				rateOnPlayStoreActionProcessor.process(action, sideEffect)
+			is About.Action.RateOnStore ->
+				rateOnStoreActionProcessor.process(action, sideEffect)
 
 			is About.Action.ReportBug ->
 				reportBugActionProcessor.process(action, sideEffect)

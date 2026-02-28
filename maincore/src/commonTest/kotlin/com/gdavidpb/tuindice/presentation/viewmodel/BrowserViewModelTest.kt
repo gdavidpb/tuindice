@@ -27,8 +27,6 @@ class BrowserViewModelTest {
 		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
-			waitUntil("action has subscribers") { viewModel.action.subscriptionCount.value > 0 }
-
 			viewModel.navigateToAction(
 				title = "Privacy Policy",
 				url = "https://tuindice.app/privacy"
@@ -66,8 +64,6 @@ class BrowserViewModelTest {
 		val stateJob = launch(start = CoroutineStart.UNDISPATCHED) { viewModel.state.collect() }
 
 		try {
-			waitUntil("action has subscribers") { viewModel.action.subscriptionCount.value > 0 }
-
 			viewModel.openExternalResourceAction("https://tuindice.app/external")
 
 			waitUntil("state remains idle after external resource action") {

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.about.presentation.action
 
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +16,20 @@ class ContactDeveloperActionProcessor(
 		sideEffect: (About.Effect) -> Unit
 	): Flow<Mutation<About.State>> {
 		return sendSupportEmailUseCase.execute(Unit)
-			.map { _ -> { state -> state } }
+			.map { useCaseState ->
+				when (useCaseState) {
+					is UseCaseState.Data -> { state ->
+						sideEffect(
+							About.Effect.OpenUri(
+								uri = useCaseState.value.uri
+							)
+						)
+
+						state
+					}
+
+					else -> { state -> state }
+				}
+			}
 	}
 }
