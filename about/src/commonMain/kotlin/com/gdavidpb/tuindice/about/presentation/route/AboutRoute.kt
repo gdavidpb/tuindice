@@ -5,21 +5,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.about.domain.model.AboutLinks
-import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
-import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.about.ui.screen.AboutScreen
-import org.koin.compose.koinInject
+import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 
 @Composable
 fun AboutRoute(
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
-	viewModel: AboutViewModel,
-	shareTextHandler: ShareTextHandler = koinInject()
+	viewModel: AboutViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 	val uriHandler = LocalUriHandler.current
+	val shareTextHandler = LocalShareTextHandler.current
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
