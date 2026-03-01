@@ -32,13 +32,6 @@ fun TuIndiceNavHost(
 	onConfirmExitClick: () -> Unit,
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
-	onConfirmRemoveProfilePicture: () -> Unit,
-	onPickProfilePicture: () -> Unit,
-	onTakeProfilePicture: () -> Unit,
-	onRemoveProfilePicture: () -> Unit,
-	onSetGrade: (grade: Double) -> Unit,
-	onSetMaxGrade: (grade: Double) -> Unit,
-	onSetEvaluationGrade: (evaluationId: String, grade: Double) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
@@ -84,6 +77,7 @@ fun TuIndiceNavHost(
 		)
 
 		summaryNavigation(
+			navController = navController,
 			isCameraAvailable = isCameraAvailable,
 			onNavigateToProfilePictureSettingsDialog = { showRemove ->
 				navController.navigate(SummaryDestination.ProfilePictureSettingsDialog(showRemove = showRemove))
@@ -95,10 +89,6 @@ fun TuIndiceNavHost(
 				navController.navigate(SummaryDestination.RemoveProfilePictureConfirmationDialog)
 			},
 			onDismissRequest = { navController.navigateUp() },
-			onConfirmRemoveProfilePicture = onConfirmRemoveProfilePicture,
-			onPickProfilePicture = onPickProfilePicture,
-			onTakePicture = onTakeProfilePicture,
-			onRemoveProfilePicture = onRemoveProfilePicture,
 			showSnackBar = showSnackBar,
 			onViewStateChanged = onViewStateChanged
 		)
@@ -112,6 +102,7 @@ fun TuIndiceNavHost(
 		)
 
 		evaluationsNavigation(
+			navController = navController,
 			onNavigateToAddEvaluation = {
 				navController.navigate(EvaluationsDestination.Evaluation(evaluationId = null))
 			},
@@ -139,9 +130,6 @@ fun TuIndiceNavHost(
 				navController.navigate(EvaluationsDestination.MaxGradePickerDialog(grade = maxGrade))
 			},
 			onNavigateToEvaluations = { navController.navigate(EvaluationsDestination.Evaluations) },
-			onSetGrade = onSetGrade,
-			onSetMaxGrade = onSetMaxGrade,
-			onSetEvaluationGrade = onSetEvaluationGrade,
 			onDismissRequest = { navController.navigateUp() },
 			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar

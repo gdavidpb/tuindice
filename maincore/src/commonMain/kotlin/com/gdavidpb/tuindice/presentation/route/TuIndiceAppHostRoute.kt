@@ -18,14 +18,10 @@ import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
-import com.gdavidpb.tuindice.base.utils.extension.viewModel
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
-import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
-import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.login.presentation.navigation.LoginDestination
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
-import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -122,44 +118,6 @@ fun TuIndiceAppHostRoute(
 			onConfirmExitClick = onConfirmExitClick,
 			isCameraAvailable = deviceInfoRepository.hasCamera(),
 			onNavigateToExternalResource = browserRepository::open,
-			onConfirmRemoveProfilePicture = {
-				navController
-					.viewModel<SummaryViewModel>()
-					?.confirmRemoveProfilePictureAction()
-			},
-			onPickProfilePicture = {
-				navController
-					.viewModel<SummaryViewModel>()
-					?.pickProfilePictureAction()
-			},
-			onTakeProfilePicture = {
-				navController
-					.viewModel<SummaryViewModel>()
-					?.takeProfilePictureAction()
-			},
-			onRemoveProfilePicture = {
-				navController
-					.viewModel<SummaryViewModel>()
-					?.removeProfilePictureAction()
-			},
-			onSetGrade = { grade ->
-				navController
-					.viewModel<EvaluationViewModel>()
-					?.setGradeAction(grade = grade)
-			},
-			onSetMaxGrade = { grade ->
-				navController
-					.viewModel<EvaluationViewModel>()
-					?.setMaxGradeAction(grade = grade)
-			},
-			onSetEvaluationGrade = { evaluationId, grade ->
-				navController
-					.viewModel<EvaluationsViewModel>()
-					?.setEvaluationGradeAction(
-						evaluationId = evaluationId,
-						grade = grade
-					)
-			},
 			showSnackBar = showSnackBar
 		)
 	}

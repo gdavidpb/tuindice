@@ -63,13 +63,6 @@ fun TuIndiceScreen(
 	onConfirmExitClick: () -> Unit,
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
-	onConfirmRemoveProfilePicture: () -> Unit,
-	onPickProfilePicture: () -> Unit,
-	onTakeProfilePicture: () -> Unit,
-	onRemoveProfilePicture: () -> Unit,
-	onSetGrade: (grade: Double) -> Unit,
-	onSetMaxGrade: (grade: Double) -> Unit,
-	onSetEvaluationGrade: (evaluationId: String, grade: Double) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	when (state) {
@@ -197,13 +190,6 @@ fun TuIndiceScreen(
 			onConfirmExitClick = onConfirmExitClick,
 			isCameraAvailable = isCameraAvailable,
 			onNavigateToExternalResource = onNavigateToExternalResource,
-			onConfirmRemoveProfilePicture = onConfirmRemoveProfilePicture,
-			onPickProfilePicture = onPickProfilePicture,
-			onTakeProfilePicture = onTakeProfilePicture,
-			onRemoveProfilePicture = onRemoveProfilePicture,
-			onSetGrade = onSetGrade,
-			onSetMaxGrade = onSetMaxGrade,
-			onSetEvaluationGrade = onSetEvaluationGrade,
 			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar
 		)
