@@ -26,7 +26,6 @@ kotlin {
 			dependencies {
 				implementation(project(":base"))
 				implementation(project(":persistence"))
-				implementation(project(":record"))
 				implementation(libs.datastore.preferences)
 				implementation(libs.navigation.compose)
 				implementation(libs.koin.compose)
@@ -38,6 +37,7 @@ kotlin {
 		val commonTest by getting {
 			dependencies {
 				implementation(kotlin("test"))
+				implementation(project(":testkit"))
 			}
 		}
 	}

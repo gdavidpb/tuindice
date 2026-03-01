@@ -6,12 +6,15 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationFilterLabelsProvider
 import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationTextProvider
+import com.gdavidpb.tuindice.evaluations.utils.extension.computeAvailableFilters
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class LoadEvaluationsActionProcessor(
 	private val getEvaluationsUseCase: GetEvaluationsUseCase,
+	private val filterLabelsProvider: EvaluationFilterLabelsProvider,
 	private val textProvider: EvaluationTextProvider
 ) : ActionProcessor<Evaluations.State, Evaluations.Action.LoadEvaluations, Evaluations.Effect>() {
 
@@ -28,12 +31,15 @@ class LoadEvaluationsActionProcessor(
 
 					is UseCaseState.Data -> { _ ->
 						val evaluations = useCaseState.value
+						val availableFilters = evaluations.originalEvaluations.computeAvailableFilters(
+							labelsProvider = filterLabelsProvider
+						)
 
 						if (evaluations.originalEvaluations.isNotEmpty())
 							Evaluations.State.Content(
 								originalEvaluations = evaluations.originalEvaluations,
 								filteredEvaluations = evaluations.filteredEvaluations,
-								availableFilters = evaluations.availableFilters,
+								availableFilters = availableFilters,
 								activeFilters = evaluations.activeFilters
 							)
 						else

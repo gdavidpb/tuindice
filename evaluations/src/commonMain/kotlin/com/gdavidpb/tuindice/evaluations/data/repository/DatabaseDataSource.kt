@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.data.repository
 
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
+import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
 import kotlinx.coroutines.flow.Flow
 
 interface DatabaseDataSource {

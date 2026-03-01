@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.EvaluationItemMappingProvider
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsFailedView
@@ -25,6 +26,7 @@ import tuindice.evaluations.generated.resources.view_error_title
 @Composable
 fun EvaluationsScreen(
 	state: Evaluations.State,
+	mappingProvider: EvaluationItemMappingProvider,
 	onAddEvaluationClick: () -> Unit,
 	onEvaluationClick: (evaluationId: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
@@ -43,6 +45,7 @@ fun EvaluationsScreen(
 			is Evaluations.State.Content ->
 				EvaluationsContentView(
 					state = targetState,
+					mappingProvider = mappingProvider,
 					onAddEvaluationClick = onAddEvaluationClick,
 					onClearFiltersClick = onClearFiltersClick,
 					onFilterCheckedChange = onFilterCheckedChange,

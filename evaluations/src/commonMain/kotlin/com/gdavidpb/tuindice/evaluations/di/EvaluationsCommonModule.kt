@@ -4,11 +4,9 @@ import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataSource
-import com.gdavidpb.tuindice.evaluations.data.source.DefaultEvaluationFilterLabelsDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.KtorEvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.PreferencesDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.RoomDatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationFilterLabelsRepository
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
@@ -42,6 +40,8 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEval
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.DefaultEvaluationItemMappingProvider
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.EvaluationItemMappingProvider
+import com.gdavidpb.tuindice.evaluations.presentation.resource.DefaultEvaluationFilterLabelsProvider
+import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationFilterLabelsProvider
 import com.gdavidpb.tuindice.evaluations.presentation.resource.DefaultEvaluationTextProvider
 import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationTextProvider
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
@@ -113,5 +113,5 @@ val evaluationsCommonModule = module {
 
 	factoryOf(::DefaultEvaluationItemMappingProvider) { bind<EvaluationItemMappingProvider>() }
 	factoryOf(::DefaultEvaluationTextProvider) { bind<EvaluationTextProvider>() }
-	factoryOf(::DefaultEvaluationFilterLabelsDataSource) { bind<EvaluationFilterLabelsRepository>() }
+	factoryOf(::DefaultEvaluationFilterLabelsProvider) { bind<EvaluationFilterLabelsProvider>() }
 }

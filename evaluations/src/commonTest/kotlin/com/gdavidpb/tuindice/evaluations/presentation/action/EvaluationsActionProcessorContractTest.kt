@@ -1,0 +1,94 @@
+package com.gdavidpb.tuindice.evaluations.presentation.action
+
+import app.cash.turbine.test
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableSubjectsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.GetEvaluationsExceptionHandler
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
+import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
+import com.gdavidpb.tuindice.evaluations.testing.FakeEvaluationFilterLabelsProvider
+import com.gdavidpb.tuindice.evaluations.testing.FakeEvaluationTextProvider
+import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
+import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
+
+class EvaluationsActionProcessorContractTest {
+	@Test
+	fun loadEvaluationsActionProcessor_reducesStateToContent_withAvailableFilters() = runTest {
+		val processor = LoadEvaluationsActionProcessor(
+			getEvaluationsUseCase = GetEvaluationsUseCase(
+				evaluationRepository = RecordingEvaluationRepository(
+					initialEvaluations = listOf(
+						DEFAULT_PENDING_EVALUATION,
+						DEFAULT_COMPLETED_EVALUATION
+					)
+				),
+				exceptionHandler = GetEvaluationsExceptionHandler(
+					reportingRepository = RecordingReportingRepository()
+				)
+			),
+			filterLabelsProvider = FakeEvaluationFilterLabelsProvider(),
+			textProvider = FakeEvaluationTextProvider()
+		)
+		val effects = mutableListOf<Evaluations.Effect>()
+
+		processor.process(
+			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			sideEffect = effects::add
+		).test {
+			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Empty))
+
+			val content = assertIs<Evaluations.State.Content>(awaitItem()(Evaluations.State.Loading))
+			assertEquals(
+				listOf(DEFAULT_COMPLETED_EVALUATION, DEFAULT_PENDING_EVALUATION),
+				content.originalEvaluations
+			)
+			assertEquals(2, content.filteredEvaluations.size)
+			assertTrue(content.availableFilters.any { filter -> filter.getLabel() == DEFAULT_EVALUATION_SUBJECT.code })
+
+			awaitComplete()
+		}
+
+		assertTrue(effects.isEmpty())
+	}
+
+	@Test
+	fun loadEvaluationActionProcessor_reducesStateToEditableContent() = runTest {
+		val processor = LoadEvaluationActionProcessor(
+			getEvaluationAndAvailableSubjectsUseCase = GetEvaluationAndAvailableSubjectsUseCase(
+				RecordingEvaluationRepository(
+					initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
+					availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
+				)
+			)
+		)
+		val effects = mutableListOf<Evaluation.Effect>()
+
+		processor.process(
+			action = Evaluation.Action.LoadEvaluation(DEFAULT_PENDING_EVALUATION.id),
+			sideEffect = effects::add
+		).test {
+			assertEquals(Evaluation.State.Loading, awaitItem()(Evaluation.State.Failed))
+
+			val content = assertIs<Evaluation.State.Content>(awaitItem()(Evaluation.State.Loading))
+			assertEquals(DEFAULT_PENDING_EVALUATION.id, content.evaluationId)
+			assertEquals(DEFAULT_EVALUATION_SUBJECT, content.selectedSubject)
+			assertEquals(DEFAULT_PENDING_EVALUATION.maxGrade, content.maxGrade)
+
+			awaitComplete()
+		}
+
+		assertTrue(effects.isEmpty())
+	}
+}

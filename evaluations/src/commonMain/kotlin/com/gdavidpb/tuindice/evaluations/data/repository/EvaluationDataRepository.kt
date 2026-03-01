@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.data.repository
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluation
+import com.gdavidpb.tuindice.evaluations.data.mapper.toSubject
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.mapper.toRemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
@@ -10,7 +11,6 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
-import com.gdavidpb.tuindice.record.data.repository.quarter.mapper.toSubject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

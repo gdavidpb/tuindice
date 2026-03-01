@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.EvaluationItemMappingProvider
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItemList
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
@@ -113,6 +114,7 @@ fun EvaluationsContentView(
 @Composable
 fun EvaluationsContentView(
 	state: Evaluations.State.Content,
+	mappingProvider: EvaluationItemMappingProvider,
 	onAddEvaluationClick: () -> Unit,
 	onClearFiltersClick: () -> Unit,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
@@ -122,7 +124,7 @@ fun EvaluationsContentView(
 ) {
 	val evaluations = state
 		.filteredEvaluations
-		.toEvaluationItemList()
+		.toEvaluationItemList(mappingProvider = mappingProvider)
 
 	EvaluationsContentView(
 		state = state,

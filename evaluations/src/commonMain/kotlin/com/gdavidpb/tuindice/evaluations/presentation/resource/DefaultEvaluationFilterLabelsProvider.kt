@@ -1,9 +1,8 @@
-package com.gdavidpb.tuindice.evaluations.data.source
+package com.gdavidpb.tuindice.evaluations.presentation.resource
 
-import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationFilterLabelsRepository
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsToNow
 
-class DefaultEvaluationFilterLabelsDataSource : EvaluationFilterLabelsRepository {
+class DefaultEvaluationFilterLabelsProvider : EvaluationFilterLabelsProvider {
 	override fun pending(): String = "Pendientes"
 
 	override fun completed(): String = "Completadas"

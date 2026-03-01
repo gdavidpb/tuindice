@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
-import org.koin.compose.koinInject
 
 data class EvaluationItemMapping(
 	val evaluationName: (type: EvaluationType, ordinal: Int) -> String,
@@ -25,7 +24,7 @@ data class EvaluationItemMapping(
 
 @Composable
 fun List<Evaluation>.toEvaluationItemList(
-	mappingProvider: EvaluationItemMappingProvider = koinInject()
+	mappingProvider: EvaluationItemMappingProvider
 ): List<EvaluationsGroupItem> {
 	return toEvaluationItemList(mapping = mappingProvider.rememberMapping())
 }

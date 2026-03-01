@@ -1,13 +1,13 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
+import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalSubject
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.withImmediateTransaction
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
-import com.gdavidpb.tuindice.record.data.repository.quarter.source.database.mapper.toLocalSubject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
