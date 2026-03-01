@@ -9,9 +9,10 @@ abstract class ExceptionHandler<T : UseCaseError> {
 
 	fun reportException(throwable: Throwable): T? {
 		val error = parseException(throwable)
+		val handlerName = this::class.simpleName.orEmpty()
 
 		with(reportingRepository) {
-			setCustomKey(USE_CASE_KEY, "${this::class.simpleName}")
+			setCustomKey(USE_CASE_KEY, handlerName)
 			setCustomKey(IS_HANDLED_KEY, error != null)
 			logException(throwable)
 		}

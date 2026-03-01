@@ -68,6 +68,7 @@ kotlin {
 		val commonTest by getting {
 			dependencies {
 				implementation(kotlin("test"))
+				implementation(project(":testkit"))
 				implementation(libs.ktor.client.mock)
 				implementation(libs.ktor.client.content.negotiation)
 				implementation(libs.ktor.serialization.kotlinx.json)

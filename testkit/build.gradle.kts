@@ -21,6 +21,7 @@ kotlin {
 				api(kotlin("test"))
 				api(libs.kotlinx.coroutines.test)
 				api(libs.turbine)
+				implementation(libs.ktor.client.mock)
 			}
 		}
 
