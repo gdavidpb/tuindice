@@ -17,7 +17,6 @@ import com.gdavidpb.tuindice.login.data.repository.LoginMessagingDataSource
 import com.gdavidpb.tuindice.login.domain.model.IssueTokens
 import com.gdavidpb.tuindice.login.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
-import com.gdavidpb.tuindice.login.presentation.resource.LoginTextProvider
 
 val DEFAULT_LOGIN_ATTESTATION = Attestation(
 	id = "attestation-id",
@@ -222,18 +221,4 @@ class FakeLoginMessagingDataSource(
 	private val token: String = "push-token"
 ) : LoginMessagingDataSource {
 	override suspend fun getToken(): String = token
-}
-
-class FakeLoginTextProvider : LoginTextProvider {
-	override fun privacyPolicyTitle(): String = "Política"
-	override fun termsAndConditionsTitle(): String = "Términos"
-	override fun invalidCredentials(): String = "Credenciales inválidas"
-	override fun userDisabled(): String = "Usuario deshabilitado"
-	override fun serviceUnavailable(): String = "Servicio no disponible"
-	override fun networkUnavailable(): String = "Sin conexión"
-	override fun retry(): String = "Reintentar"
-	override fun timeout(): String = "Tiempo agotado"
-	override fun passwordUpdated(): String = "Contraseña actualizada"
-	override fun invalidPassword(): String = "Contraseña inválida"
-	override fun defaultError(): String = "Error"
 }

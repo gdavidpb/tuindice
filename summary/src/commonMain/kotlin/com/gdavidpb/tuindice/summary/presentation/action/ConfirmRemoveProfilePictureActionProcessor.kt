@@ -6,13 +6,18 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.presentation.resource.SummaryTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.getString
+import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.snack_default_error
+import tuindice.summary.generated.resources.snack_network_unavailable
+import tuindice.summary.generated.resources.snack_profile_picture_removed
+import tuindice.summary.generated.resources.snack_service_unavailable
+import tuindice.summary.generated.resources.snack_timeout
 
 class ConfirmRemoveProfilePictureActionProcessor(
-	private val removeProfilePictureUseCase: RemoveProfilePictureUseCase,
-	private val textProvider: SummaryTextProvider
+	private val removeProfilePictureUseCase: RemoveProfilePictureUseCase
 ) : ActionProcessor<Summary.State, Summary.Action.ConfirmRemoveProfilePicture, Summary.Effect>() {
 
 	override suspend fun process(
@@ -31,55 +36,55 @@ class ConfirmRemoveProfilePictureActionProcessor(
 							state
 					}
 
-					is UseCaseState.Data -> { state ->
-						if (state is Summary.State.Content) {
-							sideEffect(
-								Summary.Effect.ShowSnackBar(
-									message = textProvider.profilePictureRemoved()
-								)
-							)
+					is UseCaseState.Data -> run {
+						val successMessage = getString(Res.string.snack_profile_picture_removed)
 
-							state.copy(
-								profilePictureUrl = "",
-								isProfilePictureLoading = false
-							)
-						} else
-							state
+						suspend { state: Summary.State ->
+							if (state is Summary.State.Content) {
+								sideEffect(
+									Summary.Effect.ShowSnackBar(
+										message = successMessage
+									)
+								)
+
+								state.copy(
+									profilePictureUrl = "",
+									isProfilePictureLoading = false
+								)
+							} else
+								state
+						}
 					}
 
-					is UseCaseState.Error -> { state ->
-						if (state is Summary.State.Content) {
-							when (val error = useCaseState.error) {
-								is ProfilePictureUseCaseError.Timeout ->
-									sideEffect(
-										Summary.Effect.ShowSnackBar(
-											message = textProvider.timeout()
-										)
-									)
+					is UseCaseState.Error -> run {
+						val message = when (val error = useCaseState.error) {
+							is ProfilePictureUseCaseError.Timeout ->
+								getString(Res.string.snack_timeout)
 
-								is ProfilePictureUseCaseError.NoConnection ->
-									sideEffect(
-										Summary.Effect.ShowSnackBar(
-											message = if (error.isNetworkAvailable)
-												textProvider.serviceUnavailable()
-											else
-												textProvider.networkUnavailable()
-										)
-									)
+							is ProfilePictureUseCaseError.NoConnection ->
+								if (error.isNetworkAvailable)
+									getString(Res.string.snack_service_unavailable)
+								else
+									getString(Res.string.snack_network_unavailable)
 
-								else ->
-									sideEffect(
-										Summary.Effect.ShowSnackBar(
-											message = textProvider.defaultError()
-										)
-									)
-							}
+							else ->
+								getString(Res.string.snack_default_error)
+						}
 
-							state.copy(
-								isProfilePictureLoading = false
-							)
-						} else
-							state
+						suspend { state: Summary.State ->
+							if (state is Summary.State.Content) {
+								sideEffect(
+									Summary.Effect.ShowSnackBar(
+										message = message
+									)
+								)
+
+								state.copy(
+									isProfilePictureLoading = false
+								)
+							} else
+								state
+						}
 					}
 				}
 			}

@@ -20,7 +20,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetSubje
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetTypeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
-import com.gdavidpb.tuindice.evaluations.testing.FakeEvaluationTextProvider
 import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
@@ -76,7 +75,6 @@ class EvaluationViewModelContractTest {
 		val repository = RecordingEvaluationRepository(
 			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
 		)
-		val textProvider = FakeEvaluationTextProvider()
 
 		return EvaluationViewModel(
 			loadAvailableSubjectsActionProcessor = LoadAvailableSubjectsActionProcessor(
@@ -95,12 +93,10 @@ class EvaluationViewModelContractTest {
 					exceptionHandler = AddEvaluationExceptionHandler(
 						reportingRepository = RecordingReportingRepository()
 					)
-				),
-				textProvider = textProvider
+				)
 			),
 			editEvaluationActionProcessor = EditEvaluationActionProcessor(
-				updateEvaluationUseCase = UpdateEvaluationUseCase(repository),
-				textProvider = textProvider
+				updateEvaluationUseCase = UpdateEvaluationUseCase(repository)
 			),
 			pickGradeActionProcessor = PickGradeActionProcessor(),
 			pickMaxGradeActionProcessor = PickMaxGradeActionProcessor(),

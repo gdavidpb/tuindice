@@ -6,13 +6,15 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toUpdateEvaluationParams
-import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.getString
+import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.snack_default_error
+import tuindice.evaluations.generated.resources.snack_evaluation_updated
 
 class EditEvaluationActionProcessor(
-	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
-	private val textProvider: EvaluationTextProvider
+	private val updateEvaluationUseCase: UpdateEvaluationUseCase
 ) : ActionProcessor<Evaluation.State, Evaluation.Action.ClickEditEvaluation, Evaluation.Effect>() {
 
 	override suspend fun process(
@@ -26,28 +28,36 @@ class EditEvaluationActionProcessor(
 						Evaluation.State.Loading
 					}
 
-					is UseCaseState.Data -> { state ->
-						sideEffect(
-							Evaluation.Effect.ShowSnackBar(
-								message = textProvider.evaluationUpdated()
+					is UseCaseState.Data -> run {
+						val successMessage = getString(Res.string.snack_evaluation_updated)
+
+						suspend { state: Evaluation.State ->
+							sideEffect(
+								Evaluation.Effect.ShowSnackBar(
+									message = successMessage
+								)
 							)
-						)
 
-						sideEffect(
-							Evaluation.Effect.NavigateToEvaluations
-						)
+							sideEffect(
+								Evaluation.Effect.NavigateToEvaluations
+							)
 
-						state
+							state
+						}
 					}
 
-					is UseCaseState.Error -> { state ->
-						sideEffect(
-							Evaluation.Effect.ShowSnackBar(
-								message = textProvider.defaultError()
-							)
-						)
+					is UseCaseState.Error -> run {
+						val errorMessage = getString(Res.string.snack_default_error)
 
-						state
+						suspend { state: Evaluation.State ->
+							sideEffect(
+								Evaluation.Effect.ShowSnackBar(
+									message = errorMessage
+								)
+							)
+
+							state
+						}
 					}
 				}
 			}

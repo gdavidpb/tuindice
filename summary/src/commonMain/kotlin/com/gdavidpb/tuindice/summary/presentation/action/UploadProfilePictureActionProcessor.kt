@@ -6,13 +6,18 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.presentation.resource.SummaryTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.getString
+import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.snack_default_error
+import tuindice.summary.generated.resources.snack_network_unavailable
+import tuindice.summary.generated.resources.snack_profile_picture_updated
+import tuindice.summary.generated.resources.snack_service_unavailable
+import tuindice.summary.generated.resources.snack_timeout
 
 class UploadProfilePictureActionProcessor(
-	private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
-	private val textProvider: SummaryTextProvider
+	private val uploadProfilePictureUseCase: UploadProfilePictureUseCase
 ) : ActionProcessor<Summary.State, Summary.Action.UploadProfilePicture, Summary.Effect>() {
 
 	override suspend fun process(
@@ -31,55 +36,56 @@ class UploadProfilePictureActionProcessor(
 							state
 					}
 
-					is UseCaseState.Data -> { state ->
-						if (state is Summary.State.Content) {
-							sideEffect(
-								Summary.Effect.ShowSnackBar(
-									message = textProvider.profilePictureUpdated()
-								)
-							)
+					is UseCaseState.Data -> run {
+						val successMessage = getString(Res.string.snack_profile_picture_updated)
+						val pictureUrl = useCaseState.value
 
-							state.copy(
-								profilePictureUrl = useCaseState.value,
-								isProfilePictureLoading = false
-							)
-						} else
-							state
+						suspend { state: Summary.State ->
+							if (state is Summary.State.Content) {
+								sideEffect(
+									Summary.Effect.ShowSnackBar(
+										message = successMessage
+									)
+								)
+
+								state.copy(
+									profilePictureUrl = pictureUrl,
+									isProfilePictureLoading = false
+								)
+							} else
+								state
+						}
 					}
 
-					is UseCaseState.Error -> { state ->
-						when (val error = useCaseState.error) {
+					is UseCaseState.Error -> run {
+						val message = when (val error = useCaseState.error) {
 							is ProfilePictureUseCaseError.Timeout ->
-								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = textProvider.timeout()
-									)
-								)
+								getString(Res.string.snack_timeout)
 
 							is ProfilePictureUseCaseError.NoConnection ->
-								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = if (error.isNetworkAvailable)
-											textProvider.serviceUnavailable()
-										else
-											textProvider.networkUnavailable()
-									)
-								)
+								if (error.isNetworkAvailable)
+									getString(Res.string.snack_service_unavailable)
+								else
+									getString(Res.string.snack_network_unavailable)
 
 							else ->
-								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = textProvider.defaultError()
-									)
-								)
+								getString(Res.string.snack_default_error)
 						}
 
-						if (state is Summary.State.Content)
-							state.copy(
-								isProfilePictureLoading = false
+						suspend { state: Summary.State ->
+							sideEffect(
+								Summary.Effect.ShowSnackBar(
+									message = message
+								)
 							)
-						else
-							state
+
+							if (state is Summary.State.Content)
+								state.copy(
+									isProfilePictureLoading = false
+								)
+							else
+								state
+						}
 					}
 				}
 			}

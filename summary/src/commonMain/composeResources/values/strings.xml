@@ -13,4 +13,26 @@
 	<string name="menu_pick_profile_picture">Subir foto</string>
 	<string name="menu_take_profile_picture">Tomar foto</string>
 	<string name="menu_remove_profile_picture">Remover foto</string>
+	<string name="snack_profile_picture_updated">Foto de perfil actualizada</string>
+	<string name="snack_profile_picture_removed">Foto de perfil removida</string>
+	<string name="text_last_update">Última actualización: %1$s</string>
+	<string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
+	<string name="snack_service_unavailable">Servicio no disponible</string>
+	<string name="snack_network_unavailable">Comprueba tu conexión</string>
+	<string name="snack_timeout">Tiempo de espera agotado</string>
+	<string name="snack_default_error">¡Ha ocurrido un error!</string>
+	<string name="summary_subjects_approved">Aprobadas</string>
+	<string name="summary_subjects_failed">Reprobadas</string>
+	<string name="summary_subjects_retired">Retiradas</string>
+	<string name="summary_credits_approved">Aprobados</string>
+	<string name="summary_credits_failed">Reprobados</string>
+	<string name="summary_credits_retired">Retirados</string>
+	<plurals name="summary_subjects_header">
+		<item quantity="one">%d materia inscrita</item>
+		<item quantity="other">%d materias inscritas</item>
+	</plurals>
+	<plurals name="summary_credits_header">
+		<item quantity="one">%d crédito inscrito</item>
+		<item quantity="other">%d créditos inscritos</item>
+	</plurals>
 </resources>

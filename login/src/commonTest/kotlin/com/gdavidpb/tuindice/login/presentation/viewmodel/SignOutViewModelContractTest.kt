@@ -4,7 +4,6 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.login.presentation.action.SignOutActionProcessor
 import com.gdavidpb.tuindice.login.presentation.contract.SignOut
-import com.gdavidpb.tuindice.login.testing.FakeLoginTextProvider
 import com.gdavidpb.tuindice.login.testing.FakeSessionRepository
 import com.gdavidpb.tuindice.login.testing.RecordingApplicationRepository
 import com.gdavidpb.tuindice.login.testing.RecordingDependenciesRepository
@@ -26,8 +25,7 @@ class SignOutViewModelContractTest {
 					messagingRepository = RecordingMessagingRepository(),
 					applicationRepository = RecordingApplicationRepository(),
 					dependenciesRepository = RecordingDependenciesRepository()
-				),
-				textProvider = FakeLoginTextProvider()
+				)
 			)
 		)
 		val stateCollector = backgroundScope.launchStateCollector(

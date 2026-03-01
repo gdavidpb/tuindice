@@ -48,117 +48,115 @@ import tuindice.evaluations.generated.resources.evaluation_title
 import tuindice.evaluations.generated.resources.evaluation_workshop
 import tuindice.evaluations.generated.resources.evaluation_written_work
 
-class DefaultEvaluationItemMappingProvider : EvaluationItemMappingProvider {
-	@Composable
-	override fun rememberMapping(): EvaluationItemMapping {
-		val colorScheme = MaterialTheme.colorScheme
+@Composable
+fun rememberEvaluationItemMapping(): EvaluationItemMapping {
+	val colorScheme = MaterialTheme.colorScheme
 
-		val evaluationNamePattern = stringResource(Res.string.evaluation_name)
-		val evaluationTitlePattern = stringResource(Res.string.evaluation_title)
-		val evaluationGradePattern = stringResource(Res.string.evaluation_grade)
-		val evaluationPendingGradePattern = stringResource(Res.string.evaluation_pending_grade)
-		val evaluationNotGradePattern = stringResource(Res.string.evaluation_not_grade)
+	val evaluationNamePattern = stringResource(Res.string.evaluation_name)
+	val evaluationTitlePattern = stringResource(Res.string.evaluation_title)
+	val evaluationGradePattern = stringResource(Res.string.evaluation_grade)
+	val evaluationPendingGradePattern = stringResource(Res.string.evaluation_pending_grade)
+	val evaluationNotGradePattern = stringResource(Res.string.evaluation_not_grade)
 
-		val testLabel = stringResource(Res.string.evaluation_test)
-		val essayLabel = stringResource(Res.string.evaluation_essay)
-		val attendanceLabel = stringResource(Res.string.evaluation_attendance)
-		val interventionsLabel = stringResource(Res.string.evaluation_interventions)
-		val laboratoryLabel = stringResource(Res.string.evaluation_laboratory)
-		val modelLabel = stringResource(Res.string.evaluation_model)
-		val presentationLabel = stringResource(Res.string.evaluation_presentation)
-		val projectLabel = stringResource(Res.string.evaluation_project)
-		val quizLabel = stringResource(Res.string.evaluation_quiz)
-		val reportLabel = stringResource(Res.string.evaluation_report)
-		val workshopLabel = stringResource(Res.string.evaluation_workshop)
-		val writtenWorkLabel = stringResource(Res.string.evaluation_written_work)
-		val otherLabel = stringResource(Res.string.evaluation_other)
+	val testLabel = stringResource(Res.string.evaluation_test)
+	val essayLabel = stringResource(Res.string.evaluation_essay)
+	val attendanceLabel = stringResource(Res.string.evaluation_attendance)
+	val interventionsLabel = stringResource(Res.string.evaluation_interventions)
+	val laboratoryLabel = stringResource(Res.string.evaluation_laboratory)
+	val modelLabel = stringResource(Res.string.evaluation_model)
+	val presentationLabel = stringResource(Res.string.evaluation_presentation)
+	val projectLabel = stringResource(Res.string.evaluation_project)
+	val quizLabel = stringResource(Res.string.evaluation_quiz)
+	val reportLabel = stringResource(Res.string.evaluation_report)
+	val workshopLabel = stringResource(Res.string.evaluation_workshop)
+	val writtenWorkLabel = stringResource(Res.string.evaluation_written_work)
+	val otherLabel = stringResource(Res.string.evaluation_other)
 
-		val typeLabels = remember(
-			testLabel,
-			essayLabel,
-			attendanceLabel,
-			interventionsLabel,
-			laboratoryLabel,
-			modelLabel,
-			presentationLabel,
-			projectLabel,
-			quizLabel,
-			reportLabel,
-			workshopLabel,
-			writtenWorkLabel,
-			otherLabel
-		) {
-			mapOf(
-				EvaluationType.TEST to testLabel,
-				EvaluationType.ESSAY to essayLabel,
-				EvaluationType.ATTENDANCE to attendanceLabel,
-				EvaluationType.INTERVENTIONS to interventionsLabel,
-				EvaluationType.LABORATORY to laboratoryLabel,
-				EvaluationType.MODEL to modelLabel,
-				EvaluationType.PRESENTATION to presentationLabel,
-				EvaluationType.PROJECT to projectLabel,
-				EvaluationType.QUIZ to quizLabel,
-				EvaluationType.REPORT to reportLabel,
-				EvaluationType.WORKSHOP to workshopLabel,
-				EvaluationType.WRITTEN_WORK to writtenWorkLabel,
-				EvaluationType.OTHER to otherLabel
-			)
-		}
-
-		return EvaluationItemMapping(
-			evaluationName = { type, ordinal ->
-				evaluationNamePattern
-					.replace("%1${'$'}s", type.asString(typeLabels))
-					.replace("%2${'$'}d", ordinal.toString())
-			},
-			evaluationTitle = { type, subjectCode ->
-				evaluationTitlePattern
-					.replace("%1${'$'}s", type.asString(typeLabels))
-					.replace("%2${'$'}s", subjectCode)
-			},
-			gradesCompleted = { grade, maxGrade ->
-				evaluationGradePattern
-					.replace("%1${'$'}.2f", (grade ?: 0.0).formatGrade(decimals = 2))
-					.replace("%2${'$'}.2f", maxGrade.formatGrade(decimals = 2))
-			},
-			gradesPending = { maxGrade ->
-				evaluationPendingGradePattern
-					.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
-			},
-			gradesOverdue = { maxGrade ->
-				evaluationNotGradePattern
-					.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
-			},
-			typeIcon = { type -> type.asIcon() },
-			dateIcon = { state ->
-				when (state) {
-					EvaluationState.COMPLETED -> Icons.Outlined.EventAvailable
-					EvaluationState.CONTINUOUS -> Icons.Outlined.EventRepeat
-					else -> Icons.Outlined.Event
-				}
-			},
-			gradesIcon = { state ->
-				when (state) {
-					EvaluationState.COMPLETED, EvaluationState.CONTINUOUS -> Icons.Outlined.AssignmentTurnedIn
-					EvaluationState.PENDING -> Icons.Outlined.AssignmentReturned
-					EvaluationState.OVERDUE -> Icons.Outlined.AssignmentLate
-				}
-			},
-			highlightIconColor = { state ->
-				when (state) {
-					EvaluationState.COMPLETED -> colorScheme.primary
-					EvaluationState.OVERDUE -> colorScheme.error
-					else -> colorScheme.outline
-				}
-			},
-			highlightTextColor = { state ->
-				when (state) {
-					EvaluationState.OVERDUE -> colorScheme.error
-					else -> Color.Unspecified
-				}
-			}
+	val typeLabels = remember(
+		testLabel,
+		essayLabel,
+		attendanceLabel,
+		interventionsLabel,
+		laboratoryLabel,
+		modelLabel,
+		presentationLabel,
+		projectLabel,
+		quizLabel,
+		reportLabel,
+		workshopLabel,
+		writtenWorkLabel,
+		otherLabel
+	) {
+		mapOf(
+			EvaluationType.TEST to testLabel,
+			EvaluationType.ESSAY to essayLabel,
+			EvaluationType.ATTENDANCE to attendanceLabel,
+			EvaluationType.INTERVENTIONS to interventionsLabel,
+			EvaluationType.LABORATORY to laboratoryLabel,
+			EvaluationType.MODEL to modelLabel,
+			EvaluationType.PRESENTATION to presentationLabel,
+			EvaluationType.PROJECT to projectLabel,
+			EvaluationType.QUIZ to quizLabel,
+			EvaluationType.REPORT to reportLabel,
+			EvaluationType.WORKSHOP to workshopLabel,
+			EvaluationType.WRITTEN_WORK to writtenWorkLabel,
+			EvaluationType.OTHER to otherLabel
 		)
 	}
+
+	return EvaluationItemMapping(
+		evaluationName = { type, ordinal ->
+			evaluationNamePattern
+				.replace("%1${'$'}s", type.asString(typeLabels))
+				.replace("%2${'$'}d", ordinal.toString())
+		},
+		evaluationTitle = { type, subjectCode ->
+			evaluationTitlePattern
+				.replace("%1${'$'}s", type.asString(typeLabels))
+				.replace("%2${'$'}s", subjectCode)
+		},
+		gradesCompleted = { grade, maxGrade ->
+			evaluationGradePattern
+				.replace("%1${'$'}.2f", (grade ?: 0.0).formatGrade(decimals = 2))
+				.replace("%2${'$'}.2f", maxGrade.formatGrade(decimals = 2))
+		},
+		gradesPending = { maxGrade ->
+			evaluationPendingGradePattern
+				.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
+		},
+		gradesOverdue = { maxGrade ->
+			evaluationNotGradePattern
+				.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
+		},
+		typeIcon = { type -> type.asIcon() },
+		dateIcon = { state ->
+			when (state) {
+				EvaluationState.COMPLETED -> Icons.Outlined.EventAvailable
+				EvaluationState.CONTINUOUS -> Icons.Outlined.EventRepeat
+				else -> Icons.Outlined.Event
+			}
+		},
+		gradesIcon = { state ->
+			when (state) {
+				EvaluationState.COMPLETED, EvaluationState.CONTINUOUS -> Icons.Outlined.AssignmentTurnedIn
+				EvaluationState.PENDING -> Icons.Outlined.AssignmentReturned
+				EvaluationState.OVERDUE -> Icons.Outlined.AssignmentLate
+			}
+		},
+		highlightIconColor = { state ->
+			when (state) {
+				EvaluationState.COMPLETED -> colorScheme.primary
+				EvaluationState.OVERDUE -> colorScheme.error
+				else -> colorScheme.outline
+			}
+		},
+		highlightTextColor = { state ->
+			when (state) {
+				EvaluationState.OVERDUE -> colorScheme.error
+				else -> Color.Unspecified
+			}
+		}
+	)
 }
 
 fun EvaluationType.asIcon() = when (this) {

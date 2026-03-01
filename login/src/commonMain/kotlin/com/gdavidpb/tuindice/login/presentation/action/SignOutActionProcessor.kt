@@ -5,13 +5,14 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.login.presentation.contract.SignOut
-import com.gdavidpb.tuindice.login.presentation.resource.LoginTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.getString
+import tuindice.login.generated.resources.Res
+import tuindice.login.generated.resources.snack_default_error
 
 class SignOutActionProcessor(
-	private val signOutUseCase: SignOutUseCase,
-	private val textProvider: LoginTextProvider
+	private val signOutUseCase: SignOutUseCase
 ) : ActionProcessor<SignOut.State, SignOut.Action.ConfirmSignOut, SignOut.Effect>() {
 	override suspend fun process(
 		action: SignOut.Action.ConfirmSignOut,
@@ -32,14 +33,18 @@ class SignOutActionProcessor(
 						state
 					}
 
-					is UseCaseState.Error -> { _ ->
-						sideEffect(
-							SignOut.Effect.ShowSnackBar(
-								message = textProvider.defaultError()
-							)
-						)
+					is UseCaseState.Error -> run {
+						val errorMessage = getString(Res.string.snack_default_error)
 
-						SignOut.State.Idle
+						suspend { _: SignOut.State ->
+							sideEffect(
+								SignOut.Effect.ShowSnackBar(
+									message = errorMessage
+								)
+							)
+
+							SignOut.State.Idle
+						}
 					}
 				}
 			}

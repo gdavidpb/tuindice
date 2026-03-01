@@ -9,11 +9,13 @@ import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradePara
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
 import com.gdavidpb.tuindice.record.testing.FakeNetworkRepository
-import com.gdavidpb.tuindice.record.testing.FakeRecordTextProvider
 import com.gdavidpb.tuindice.record.testing.RecordingQuarterRepository
 import com.gdavidpb.tuindice.record.testing.RecordingReportingRepository
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.jetbrains.compose.resources.getString
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.snack_default_error
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -31,8 +33,7 @@ class RecordActionProcessorContractTest {
 					networkRepository = FakeNetworkRepository(isAvailable = true),
 					reportingRepository = RecordingReportingRepository()
 				)
-			),
-			textProvider = FakeRecordTextProvider()
+			)
 		)
 		val effects = mutableListOf<Record.Effect>()
 
@@ -60,8 +61,7 @@ class RecordActionProcessorContractTest {
 				exceptionHandler = SetSubjectGradeExceptionHandler(
 					reportingRepository = RecordingReportingRepository()
 				)
-			),
-			textProvider = FakeRecordTextProvider()
+			)
 		)
 		val initialState = Record.State.Content(
 			quarters = listOf(DEFAULT_RECORD_QUARTER)
@@ -83,6 +83,6 @@ class RecordActionProcessorContractTest {
 		}
 
 		val effect = assertIs<Record.Effect.ShowSnackBar>(effects.single())
-		assertEquals("Error", effect.message)
+		assertEquals(getString(Res.string.snack_default_error), effect.message)
 	}
 }

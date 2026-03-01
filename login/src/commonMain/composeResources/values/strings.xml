@@ -18,4 +18,15 @@
 	<string name="dialog_button_update_password_confirm">Confirmar</string>
 	<string name="a11y_show_password">Mostrar contraseña</string>
 	<string name="a11y_hide_password">Ocultar contraseña</string>
+	<string name="title_terms_and_conditions">TuIndice - Términos y condiciones</string>
+	<string name="title_privacy_policy">TuIndice - Política de privacidad</string>
+	<string name="error_invalid_credentials">USBID o contraseña inválida</string>
+	<string name="error_user_disabled">Cuenta inhabilitada</string>
+	<string name="error_invalid_password">Contraseña inválida</string>
+	<string name="label_retry">Reintentar</string>
+	<string name="snack_service_unavailable">Servicio no disponible</string>
+	<string name="snack_network_unavailable">Comprueba tu conexión</string>
+	<string name="snack_timeout">Tiempo de espera agotado</string>
+	<string name="snack_password_updated">Contraseña actualizada</string>
+	<string name="snack_default_error">¡Ha ocurrido un error!</string>
 </resources>

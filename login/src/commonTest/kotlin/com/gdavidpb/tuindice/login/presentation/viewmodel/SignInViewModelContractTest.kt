@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.login.presentation.action.SetUsbIdActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.SignInActionProcessor
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.testing.FakeAttestationRepository
-import com.gdavidpb.tuindice.login.testing.FakeLoginTextProvider
 import com.gdavidpb.tuindice.login.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.login.testing.RecordingLoginRepository
 import com.gdavidpb.tuindice.login.testing.RecordingReportingRepository
@@ -38,17 +37,14 @@ class SignInViewModelContractTest {
 						reportingRepository = RecordingReportingRepository()
 					)
 				),
-				configRepository = FakeConfigRepository(),
-				textProvider = FakeLoginTextProvider()
+				configRepository = FakeConfigRepository()
 			),
 			setUsbIdActionProcessor = SetUsbIdActionProcessor(),
 			setPasswordActionProcessor = SetPasswordActionProcessor(),
 			openTermsAndConditionsActionProcessor = OpenTermsAndConditionsActionProcessor(
-				textProvider = FakeLoginTextProvider(),
 				appEnvironmentRepository = FakeAppEnvironmentRepository()
 			),
 			privacyPolicyActionProcessor = OpenPrivacyPolicyActionProcessor(
-				textProvider = FakeLoginTextProvider(),
 				appEnvironmentRepository = FakeAppEnvironmentRepository()
 			)
 		)

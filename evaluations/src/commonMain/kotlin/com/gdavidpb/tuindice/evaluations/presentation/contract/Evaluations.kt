@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 object Evaluations {
 	sealed class State(
-		override val topBarTitle: String = evaluationsScreenTitle(),
+		override val topBarTitle: String = "Evaluaciones",
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true
 	) : ViewState() {

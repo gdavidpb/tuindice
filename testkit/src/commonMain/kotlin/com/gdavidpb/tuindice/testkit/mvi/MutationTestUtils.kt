@@ -2,6 +2,12 @@ package com.gdavidpb.tuindice.testkit.mvi
 
 import com.gdavidpb.tuindice.base.presentation.Mutation
 
-fun <S> List<Mutation<S>>.reduceMutations(initialState: S): S {
-	return fold(initialState) { state, mutation -> mutation(state) }
+suspend fun <S> List<Mutation<S>>.reduceMutations(initialState: S): S {
+	var state = initialState
+
+	for (mutation in this) {
+		state = mutation(state)
+	}
+
+	return state
 }

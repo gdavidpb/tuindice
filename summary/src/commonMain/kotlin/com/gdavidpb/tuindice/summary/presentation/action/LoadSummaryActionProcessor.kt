@@ -6,14 +6,21 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.summary.domain.usecase.GetUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.error.GetUserUseCaseError
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.mapper.formatLastUpdate
 import com.gdavidpb.tuindice.summary.presentation.mapper.toShortName
-import com.gdavidpb.tuindice.summary.presentation.resource.SummaryTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.getString
+import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.snack_default_error
+import tuindice.summary.generated.resources.snack_network_unavailable
+import tuindice.summary.generated.resources.snack_no_service
+import tuindice.summary.generated.resources.snack_service_unavailable
+import tuindice.summary.generated.resources.snack_timeout
+import tuindice.summary.generated.resources.text_last_update
 
 class LoadSummaryActionProcessor(
-	private val getUserUseCase: GetUserUseCase,
-	private val textProvider: SummaryTextProvider
+	private val getUserUseCase: GetUserUseCase
 ) : ActionProcessor<Summary.State, Summary.Action.LoadSummary, Summary.Effect>() {
 
 	override suspend fun process(
@@ -27,47 +34,59 @@ class LoadSummaryActionProcessor(
 						Summary.State.Loading
 					}
 
-					is UseCaseState.Data -> { _ ->
-						with(useCaseState.value) {
-							Summary.State.Content(
-								name = toShortName(),
-								lastUpdate = textProvider.lastUpdate(lastUpdate),
-								careerName = careerName,
-								grade = grade.toFloat(),
-								enrolledSubjects = enrolledSubjects,
-								enrolledCredits = enrolledCredits,
-								approvedSubjects = approvedSubjects,
-								approvedCredits = approvedCredits,
-								retiredSubjects = retiredSubjects,
-								retiredCredits = retiredCredits,
-								failedSubjects = failedSubjects,
-								failedCredits = failedCredits,
-								profilePictureUrl = pictureUrl,
-								isGradeVisible = (grade > 0.0),
-								isProfilePictureLoading = false,
-								isLoading = false,
-								isUpdated = true,
-								isUpdating = false
-							)
+					is UseCaseState.Data -> run {
+						val user = useCaseState.value
+						val lastUpdateText = getString(
+							Res.string.text_last_update,
+							user.lastUpdate.formatLastUpdate()
+						)
+
+						suspend { _: Summary.State ->
+							with(user) {
+								Summary.State.Content(
+									name = toShortName(),
+									lastUpdate = lastUpdateText,
+									careerName = careerName,
+									grade = grade.toFloat(),
+									enrolledSubjects = enrolledSubjects,
+									enrolledCredits = enrolledCredits,
+									approvedSubjects = approvedSubjects,
+									approvedCredits = approvedCredits,
+									retiredSubjects = retiredSubjects,
+									retiredCredits = retiredCredits,
+									failedSubjects = failedSubjects,
+									failedCredits = failedCredits,
+									profilePictureUrl = pictureUrl,
+									isGradeVisible = (grade > 0.0),
+									isProfilePictureLoading = false,
+									isLoading = false,
+									isUpdated = true,
+									isUpdating = false
+								)
+							}
 						}
 					}
 
-					is UseCaseState.Error -> { state ->
-						when (val error = useCaseState.error) {
-							is GetUserUseCaseError.NoConnection -> {
+					is UseCaseState.Error -> when (val error = useCaseState.error) {
+						is GetUserUseCaseError.NoConnection -> run {
+							val message = if (error.isNetworkAvailable)
+								getString(Res.string.snack_service_unavailable)
+							else
+								getString(Res.string.snack_network_unavailable)
+
+							suspend { _: Summary.State ->
 								sideEffect(
 									Summary.Effect.ShowSnackBar(
-										message = if (error.isNetworkAvailable)
-											textProvider.serviceUnavailable()
-										else
-											textProvider.networkUnavailable()
+										message = message
 									)
 								)
 
 								Summary.State.Failed
 							}
+						}
 
-							is GetUserUseCaseError.OutdatedPassword -> {
+						is GetUserUseCaseError.OutdatedPassword -> run {
+							suspend { state: Summary.State ->
 								if (state is Summary.State.Content) {
 									sideEffect(
 										Summary.Effect.NavigateToOutdatedPassword
@@ -79,21 +98,29 @@ class LoadSummaryActionProcessor(
 								} else
 									Summary.State.Failed
 							}
+						}
 
-							is GetUserUseCaseError.Timeout -> {
+						is GetUserUseCaseError.Timeout -> run {
+							val message = getString(Res.string.snack_timeout)
+
+							suspend { _: Summary.State ->
 								sideEffect(
 									Summary.Effect.ShowSnackBar(
-										message = textProvider.timeout()
+										message = message
 									)
 								)
 
 								Summary.State.Failed
 							}
+						}
 
-							is GetUserUseCaseError.Unavailable -> {
+						is GetUserUseCaseError.Unavailable -> run {
+							val message = getString(Res.string.snack_no_service)
+
+							suspend { state: Summary.State ->
 								sideEffect(
 									Summary.Effect.ShowSnackBar(
-										message = textProvider.noService()
+										message = message
 									)
 								)
 
@@ -104,11 +131,15 @@ class LoadSummaryActionProcessor(
 								else
 									Summary.State.Failed
 							}
+						}
 
-							else -> {
+						else -> run {
+							val message = getString(Res.string.snack_default_error)
+
+							suspend { _: Summary.State ->
 								sideEffect(
 									Summary.Effect.ShowSnackBar(
-										message = textProvider.defaultError()
+										message = message
 									)
 								)
 

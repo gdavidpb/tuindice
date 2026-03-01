@@ -11,7 +11,6 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.EvaluationItemMappingProvider
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationRoute
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationsRoute
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
@@ -40,7 +39,6 @@ fun NavGraphBuilder.evaluationsNavigation(
 	navigation<EvaluationsDestination.NavGraph>(startDestination = EvaluationsDestination.Evaluations) {
 		composable<EvaluationsDestination.Evaluations> { backStackEntry ->
 			val viewModel = koinInject<EvaluationsViewModel>()
-			val mappingProvider = koinInject<EvaluationItemMappingProvider>()
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 			LaunchedEffect(viewState) {
@@ -77,7 +75,6 @@ fun NavGraphBuilder.evaluationsNavigation(
 				onNavigateToEvaluation = onNavigateToEvaluation,
 				onNavigateToEvaluationGradePickerDialog = onNavigateToEvaluationGradePickerDialog,
 				showSnackBar = showSnackBar,
-				mappingProvider = mappingProvider,
 				viewModel = viewModel
 			)
 		}

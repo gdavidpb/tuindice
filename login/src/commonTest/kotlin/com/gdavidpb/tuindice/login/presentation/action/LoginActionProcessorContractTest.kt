@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.presentation.contract.SignOut
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.login.testing.FakeAttestationRepository
-import com.gdavidpb.tuindice.login.testing.FakeLoginTextProvider
 import com.gdavidpb.tuindice.login.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.login.testing.FakeSessionRepository
 import com.gdavidpb.tuindice.login.testing.RecordingApplicationRepository
@@ -22,6 +21,9 @@ import com.gdavidpb.tuindice.login.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.login.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import kotlinx.coroutines.test.runTest
+import org.jetbrains.compose.resources.getString
+import tuindice.login.generated.resources.Res
+import tuindice.login.generated.resources.snack_password_updated
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -39,8 +41,7 @@ class LoginActionProcessorContractTest {
 					reportingRepository = RecordingReportingRepository()
 				)
 			),
-			configRepository = FakeConfigRepository(),
-			textProvider = FakeLoginTextProvider()
+			configRepository = FakeConfigRepository()
 		)
 		val effects = mutableListOf<SignIn.Effect>()
 
@@ -75,8 +76,7 @@ class LoginActionProcessorContractTest {
 					networkRepository = FakeNetworkRepository(isAvailable = true),
 					reportingRepository = RecordingReportingRepository()
 				)
-			),
-			textProvider = FakeLoginTextProvider()
+			)
 		)
 		val effects = mutableListOf<UpdatePassword.Effect>()
 		val initialState = UpdatePassword.State.Idle(password = "new-secret")
@@ -92,7 +92,7 @@ class LoginActionProcessorContractTest {
 		}
 
 		val effect = assertIs<UpdatePassword.Effect.ShowSnackBar>(effects.single())
-		assertEquals("Contraseña actualizada", effect.message)
+		assertEquals(getString(Res.string.snack_password_updated), effect.message)
 	}
 
 	@Test
@@ -103,8 +103,7 @@ class LoginActionProcessorContractTest {
 				messagingRepository = RecordingMessagingRepository(),
 				applicationRepository = RecordingApplicationRepository(),
 				dependenciesRepository = RecordingDependenciesRepository()
-			),
-			textProvider = FakeLoginTextProvider()
+			)
 		)
 		val effects = mutableListOf<SignOut.Effect>()
 

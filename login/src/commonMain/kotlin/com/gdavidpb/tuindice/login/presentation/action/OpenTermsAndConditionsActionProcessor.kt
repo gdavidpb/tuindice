@@ -4,11 +4,12 @@ import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
-import com.gdavidpb.tuindice.login.presentation.resource.LoginTextProvider
 import kotlinx.coroutines.flow.Flow
+import org.jetbrains.compose.resources.getString
+import tuindice.login.generated.resources.Res
+import tuindice.login.generated.resources.title_terms_and_conditions
 
 class OpenTermsAndConditionsActionProcessor(
-	private val textProvider: LoginTextProvider,
 	private val appEnvironmentRepository: AppEnvironmentRepository
 ) : ActionProcessor<SignIn.State, SignIn.Action.ClickTermsAndConditions, SignIn.Effect>() {
 	override suspend fun process(
@@ -17,7 +18,7 @@ class OpenTermsAndConditionsActionProcessor(
 	): Flow<Mutation<SignIn.State>> {
 		sideEffect(
 			SignIn.Effect.NavigateToBrowser(
-				title = textProvider.termsAndConditionsTitle(),
+				title = getString(Res.string.title_terms_and_conditions),
 				url = appEnvironmentRepository.getEnvironment().termsAndConditionsUrl
 			)
 		)

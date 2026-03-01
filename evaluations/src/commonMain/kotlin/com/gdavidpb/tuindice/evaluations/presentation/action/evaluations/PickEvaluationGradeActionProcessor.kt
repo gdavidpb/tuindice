@@ -5,13 +5,14 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.getString
+import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.snack_default_error
 
 class PickEvaluationGradeActionProcessor(
-	private val getEvaluationUseCase: GetEvaluationUseCase,
-	private val textProvider: EvaluationTextProvider
+	private val getEvaluationUseCase: GetEvaluationUseCase
 ) : ActionProcessor<Evaluations.State, Evaluations.Action.ShowEvaluationGradeDialog, Evaluations.Effect>() {
 
 	override suspend fun process(
@@ -25,35 +26,42 @@ class PickEvaluationGradeActionProcessor(
 						state
 					}
 
-					is UseCaseState.Data -> { state ->
+					is UseCaseState.Data -> run {
 						val evaluation = useCaseState.value
+						val errorMessage = getString(Res.string.snack_default_error)
 
-						if (evaluation != null)
-							sideEffect(
-								Evaluations.Effect.NavigateToGradePickerDialog(
-									evaluationId = evaluation.id,
-									grade = evaluation.grade ?: 0.0,
-									maxGrade = evaluation.maxGrade
+						suspend { state: Evaluations.State ->
+							if (evaluation != null)
+								sideEffect(
+									Evaluations.Effect.NavigateToGradePickerDialog(
+										evaluationId = evaluation.id,
+										grade = evaluation.grade ?: 0.0,
+										maxGrade = evaluation.maxGrade
+									)
 								)
-							)
-						else
-							sideEffect(
-								Evaluations.Effect.ShowSnackBar(
-									message = textProvider.defaultError()
+							else
+								sideEffect(
+									Evaluations.Effect.ShowSnackBar(
+										message = errorMessage
+									)
 								)
-							)
 
-						state
+							state
+						}
 					}
 
-					is UseCaseState.Error -> { state ->
-						sideEffect(
-							Evaluations.Effect.ShowSnackBar(
-								message = textProvider.defaultError()
-							)
-						)
+					is UseCaseState.Error -> run {
+						val errorMessage = getString(Res.string.snack_default_error)
 
-						state
+						suspend { state: Evaluations.State ->
+							sideEffect(
+								Evaluations.Effect.ShowSnackBar(
+									message = errorMessage
+								)
+							)
+
+							state
+						}
 					}
 				}
 			}

@@ -8,13 +8,15 @@ import com.gdavidpb.tuindice.login.presentation.action.SetUpdatePasswordActionPr
 import com.gdavidpb.tuindice.login.presentation.action.UpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.login.testing.FakeAttestationRepository
-import com.gdavidpb.tuindice.login.testing.FakeLoginTextProvider
 import com.gdavidpb.tuindice.login.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.login.testing.FakeSessionRepository
 import com.gdavidpb.tuindice.login.testing.RecordingLoginRepository
 import com.gdavidpb.tuindice.login.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.runTest
+import org.jetbrains.compose.resources.getString
+import tuindice.login.generated.resources.Res
+import tuindice.login.generated.resources.snack_password_updated
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -35,8 +37,7 @@ class UpdatePasswordViewModelContractTest {
 						networkRepository = FakeNetworkRepository(isAvailable = true),
 						reportingRepository = RecordingReportingRepository()
 					)
-				),
-				textProvider = FakeLoginTextProvider()
+				)
 			)
 		)
 		val stateCollector = backgroundScope.launchStateCollector(
@@ -61,7 +62,7 @@ class UpdatePasswordViewModelContractTest {
 			viewModel.effect.test {
 				viewModel.signInAction("new-secret")
 				val effect = assertIs<UpdatePassword.Effect.ShowSnackBar>(awaitItem())
-				assertEquals("Contraseña actualizada", effect.message)
+				assertEquals(getString(Res.string.snack_password_updated), effect.message)
 
 				cancelAndIgnoreRemainingEvents()
 			}

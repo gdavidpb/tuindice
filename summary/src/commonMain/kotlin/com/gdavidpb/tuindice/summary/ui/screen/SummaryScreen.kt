@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.presentation.resource.SummaryItemsTextProvider
 import com.gdavidpb.tuindice.summary.ui.view.ProfilePictureView
 import com.gdavidpb.tuindice.summary.ui.view.ProfilePictureViewRenderer
 import com.gdavidpb.tuindice.summary.ui.view.SummaryContentView
@@ -32,8 +31,7 @@ fun SummaryScreen(
 	state: Summary.State,
 	onRetryClick: () -> Unit,
 	onEditProfilePictureClick: () -> Unit,
-	profilePictureViewRenderer: ProfilePictureViewRenderer,
-	summaryItemsTextProvider: SummaryItemsTextProvider
+	profilePictureViewRenderer: ProfilePictureViewRenderer
 ) {
 	SealedCrossfade(targetState = state) { targetState ->
 		when (targetState) {
@@ -55,8 +53,7 @@ fun SummaryScreen(
 				SummaryContentView(
 					state = targetState,
 					summaryItems = rememberSummaryItems(
-						state = targetState,
-						textProvider = summaryItemsTextProvider
+						state = targetState
 					),
 					onEditProfilePictureClick = onEditProfilePictureClick,
 					profilePictureContent = { profilePictureState, onLoading, onClick ->

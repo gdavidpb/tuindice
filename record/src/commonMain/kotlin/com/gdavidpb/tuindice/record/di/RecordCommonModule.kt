@@ -17,8 +17,6 @@ import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGr
 import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
 import com.gdavidpb.tuindice.record.presentation.action.LoadQuartersActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
-import com.gdavidpb.tuindice.record.presentation.resource.DefaultRecordTextProvider
-import com.gdavidpb.tuindice.record.presentation.resource.RecordTextProvider
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -63,8 +61,4 @@ val recordCommonModule = module {
 
 	factoryOf(::GetQuartersExceptionHandler)
 	factoryOf(::SetSubjectGradeExceptionHandler)
-
-	/* Shared text resources */
-
-	factoryOf(::DefaultRecordTextProvider) { bind<RecordTextProvider>() }
 }

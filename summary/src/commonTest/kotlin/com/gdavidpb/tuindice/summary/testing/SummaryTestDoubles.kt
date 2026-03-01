@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataSource
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataSource
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
-import com.gdavidpb.tuindice.summary.presentation.resource.SummaryTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -138,24 +137,6 @@ class FakePictureEncoderDataSource(
 		lastUri = uri
 		return encodedImage
 	}
-}
-
-class FakeSummaryTextProvider : SummaryTextProvider {
-	override fun lastUpdate(lastUpdate: Long): String = "Actualizado $lastUpdate"
-
-	override fun serviceUnavailable(): String = "Servicio no disponible"
-
-	override fun networkUnavailable(): String = "Sin conexion"
-
-	override fun timeout(): String = "Tiempo agotado"
-
-	override fun noService(): String = "Servicio sin respuesta"
-
-	override fun defaultError(): String = "Error"
-
-	override fun profilePictureUpdated(): String = "Foto actualizada"
-
-	override fun profilePictureRemoved(): String = "Foto eliminada"
 }
 
 class FakeFileRepository(

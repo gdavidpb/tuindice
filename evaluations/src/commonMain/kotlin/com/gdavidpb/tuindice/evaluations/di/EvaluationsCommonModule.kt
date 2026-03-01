@@ -38,12 +38,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.PickEva
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.DefaultEvaluationItemMappingProvider
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.EvaluationItemMappingProvider
-import com.gdavidpb.tuindice.evaluations.presentation.resource.DefaultEvaluationFilterLabelsProvider
-import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationFilterLabelsProvider
-import com.gdavidpb.tuindice.evaluations.presentation.resource.DefaultEvaluationTextProvider
-import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationTextProvider
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import org.koin.core.module.dsl.bind
@@ -108,10 +102,4 @@ val evaluationsCommonModule = module {
 
 	factoryOf(::GetEvaluationsExceptionHandler)
 	factoryOf(::AddEvaluationExceptionHandler)
-
-	/* Shared text resources */
-
-	factoryOf(::DefaultEvaluationItemMappingProvider) { bind<EvaluationItemMappingProvider>() }
-	factoryOf(::DefaultEvaluationTextProvider) { bind<EvaluationTextProvider>() }
-	factoryOf(::DefaultEvaluationFilterLabelsProvider) { bind<EvaluationFilterLabelsProvider>() }
 }

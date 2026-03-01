@@ -6,16 +6,21 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationFilterLabelsProvider
-import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationTextProvider
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeAvailableFilters
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.getString
+import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.label_state_completed
+import tuindice.evaluations.generated.resources.label_state_not_grade
+import tuindice.evaluations.generated.resources.label_state_pending
+import tuindice.evaluations.generated.resources.snack_default_error
+import tuindice.evaluations.generated.resources.snack_network_unavailable
+import tuindice.evaluations.generated.resources.snack_service_unavailable
+import tuindice.evaluations.generated.resources.snack_timeout
 
 class LoadEvaluationsActionProcessor(
-	private val getEvaluationsUseCase: GetEvaluationsUseCase,
-	private val filterLabelsProvider: EvaluationFilterLabelsProvider,
-	private val textProvider: EvaluationTextProvider
+	private val getEvaluationsUseCase: GetEvaluationsUseCase
 ) : ActionProcessor<Evaluations.State, Evaluations.Action.LoadEvaluations, Evaluations.Effect>() {
 
 	override suspend fun process(
@@ -29,61 +34,64 @@ class LoadEvaluationsActionProcessor(
 						Evaluations.State.Loading
 					}
 
-					is UseCaseState.Data -> { _ ->
+					is UseCaseState.Data -> run {
 						val evaluations = useCaseState.value
+						val pendingLabel = getString(Res.string.label_state_pending)
+						val completedLabel = getString(Res.string.label_state_completed)
+						val noGradeLabel = getString(Res.string.label_state_not_grade)
 						val availableFilters = evaluations.originalEvaluations.computeAvailableFilters(
-							labelsProvider = filterLabelsProvider
+							pendingLabel = pendingLabel,
+							completedLabel = completedLabel,
+							noGradeLabel = noGradeLabel
 						)
 
-						if (evaluations.originalEvaluations.isNotEmpty())
-							Evaluations.State.Content(
-								originalEvaluations = evaluations.originalEvaluations,
-								filteredEvaluations = evaluations.filteredEvaluations,
-								availableFilters = availableFilters,
-								activeFilters = evaluations.activeFilters
-							)
-						else
-							Evaluations.State.Empty
+						suspend { _: Evaluations.State ->
+							if (evaluations.originalEvaluations.isNotEmpty())
+								Evaluations.State.Content(
+									originalEvaluations = evaluations.originalEvaluations,
+									filteredEvaluations = evaluations.filteredEvaluations,
+									availableFilters = availableFilters,
+									activeFilters = evaluations.activeFilters
+								)
+							else
+								Evaluations.State.Empty
+						}
 					}
 
-					is UseCaseState.Error -> { _ ->
-						if (useCaseState.error is EvaluationsUseCaseError.NoSubjects)
-							Evaluations.State.NoSubjects
-						else {
-							when (val error = useCaseState.error) {
-								is EvaluationsUseCaseError.NoConnection ->
-									sideEffect(
-										Evaluations.Effect.ShowSnackBar(
-											message = if (error.isNetworkAvailable)
-												textProvider.serviceUnavailable()
-											else
-												textProvider.networkUnavailable()
-										)
-									)
+					is UseCaseState.Error -> run {
+						val error = useCaseState.error
+						val message = when (error) {
+							is EvaluationsUseCaseError.NoConnection ->
+								if (error.isNetworkAvailable)
+									getString(Res.string.snack_service_unavailable)
+								else
+									getString(Res.string.snack_network_unavailable)
 
-								is EvaluationsUseCaseError.Timeout ->
-									sideEffect(
-										Evaluations.Effect.ShowSnackBar(
-											message = textProvider.timeout()
-										)
-									)
+							is EvaluationsUseCaseError.Timeout ->
+								getString(Res.string.snack_timeout)
 
-								is EvaluationsUseCaseError.Unavailable ->
-									sideEffect(
-										Evaluations.Effect.ShowSnackBar(
-											message = textProvider.serviceUnavailable()
-										)
-									)
+							is EvaluationsUseCaseError.Unavailable ->
+								getString(Res.string.snack_service_unavailable)
 
-								else ->
-									sideEffect(
-										Evaluations.Effect.ShowSnackBar(
-											message = textProvider.defaultError()
-										)
+							is EvaluationsUseCaseError.NoSubjects ->
+								null
+
+							else ->
+								getString(Res.string.snack_default_error)
+						}
+
+						suspend { _: Evaluations.State ->
+							if (error is EvaluationsUseCaseError.NoSubjects)
+								Evaluations.State.NoSubjects
+							else {
+								sideEffect(
+									Evaluations.Effect.ShowSnackBar(
+										message = message!!
 									)
+								)
+
+								Evaluations.State.Failed
 							}
-
-							Evaluations.State.Failed
 						}
 					}
 				}

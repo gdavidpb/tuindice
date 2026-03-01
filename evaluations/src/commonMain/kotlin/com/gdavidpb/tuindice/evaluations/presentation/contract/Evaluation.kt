@@ -5,8 +5,6 @@ import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.evaluations.presentation.resource.addEvaluationScreenTitle
-import com.gdavidpb.tuindice.evaluations.presentation.resource.editEvaluationScreenTitle
 
 object Evaluation {
 	sealed class State : ViewState() {
@@ -16,9 +14,9 @@ object Evaluation {
 			val evaluationId: String? = null,
 			override val topBarTitle: String =
 				if (evaluationId != null)
-					editEvaluationScreenTitle()
+					"Modificar evaluación"
 				else
-					addEvaluationScreenTitle(),
+					"Agregar evaluación",
 			override val isTopBarVisible: Boolean = true,
 			val availableSubjects: List<Subject>,
 			val selectedSubject: Subject? = null,

@@ -64,4 +64,8 @@
 	<string name="snack_evaluation_added">Evaluación agregada</string>
 	<string name="snack_evaluation_updated">Evaluación actualizada</string>
 	<string name="snack_evaluation_removed">Evaluación removida</string>
+	<string name="snack_default_error">¡Ha ocurrido un error!</string>
+	<string name="snack_service_unavailable">Servicio no disponible</string>
+	<string name="snack_network_unavailable">Comprueba tu conexión</string>
+	<string name="snack_timeout">Tiempo de espera agotado</string>
 </resources>

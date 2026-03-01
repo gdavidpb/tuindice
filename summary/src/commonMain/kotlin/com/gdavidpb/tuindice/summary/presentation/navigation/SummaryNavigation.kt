@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActionsFactory
 import com.gdavidpb.tuindice.summary.presentation.route.SummaryRoute
-import com.gdavidpb.tuindice.summary.presentation.resource.SummaryItemsTextProvider
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.screen.ProfilePictureSettingsContentDialog
 import com.gdavidpb.tuindice.summary.ui.screen.RemoveProfilePictureConfirmationContentDialog
@@ -41,7 +40,6 @@ fun NavGraphBuilder.summaryNavigation(
 			val viewModel = koinInject<SummaryViewModel>()
 			val profilePictureActionsFactory = koinInject<ProfilePictureActionsFactory>()
 			val profilePictureViewRenderer = koinInject<ProfilePictureViewRenderer>()
-			val summaryItemsTextProvider = koinInject<SummaryItemsTextProvider>()
 			val profilePictureActions = profilePictureActionsFactory.remember(
 				onPicturePicked = viewModel::uploadProfilePictureAction,
 				onPictureTaken = viewModel::uploadTakenProfilePictureAction
@@ -94,7 +92,6 @@ fun NavGraphBuilder.summaryNavigation(
 				showSnackBar = showSnackBar,
 				profilePictureActions = profilePictureActions,
 				profilePictureViewRenderer = profilePictureViewRenderer,
-				summaryItemsTextProvider = summaryItemsTextProvider,
 				viewModel = viewModel
 			)
 		}

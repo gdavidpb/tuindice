@@ -15,7 +15,6 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.model.SetSubjectGrad
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import com.gdavidpb.tuindice.record.domain.model.SubjectGradeSet
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
-import com.gdavidpb.tuindice.record.presentation.resource.RecordTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -214,16 +213,6 @@ class FakeQuarterSettingsDataSource(
 	override suspend fun setGetQuartersOnCooldown() {
 		cooldownMarked = true
 	}
-}
-
-class FakeRecordTextProvider : RecordTextProvider {
-	override fun serviceUnavailable(): String = "Servicio no disponible"
-
-	override fun networkUnavailable(): String = "Sin conexion"
-
-	override fun timeout(): String = "Tiempo agotado"
-
-	override fun defaultError(): String = "Error"
 }
 
 class FakeNetworkRepository(

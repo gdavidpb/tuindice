@@ -21,8 +21,6 @@ import com.gdavidpb.tuindice.login.presentation.action.SetUsbIdActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.SignInActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.SignOutActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.UpdatePasswordActionProcessor
-import com.gdavidpb.tuindice.login.presentation.resource.DefaultLoginTextProvider
-import com.gdavidpb.tuindice.login.presentation.resource.LoginTextProvider
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.UpdatePasswordViewModel
@@ -67,11 +65,6 @@ val loginCommonModule = module {
 
 	factoryOf(::KtorLoginAuthApiDataSource) { bind<LoginAuthApiDataSource>() }
 	factoryOf(::KtorLoginMessagingApiDataSource) { bind<LoginMessagingApiDataSource>() }
-
-	/* Shared text resources */
-
-	factoryOf(::DefaultLoginTextProvider) { bind<LoginTextProvider>() }
-
 	/* Exception handlers */
 
 	factoryOf(::UpdatePasswordExceptionHandler)

@@ -6,7 +6,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.presentation.resource.SummaryItemsTextProvider
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.screen.SummaryScreen
 import com.gdavidpb.tuindice.summary.ui.view.ProfilePictureViewRenderer
@@ -19,7 +18,6 @@ fun SummaryRoute(
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	profilePictureActions: ProfilePictureActions,
 	profilePictureViewRenderer: ProfilePictureViewRenderer,
-	summaryItemsTextProvider: SummaryItemsTextProvider,
 	viewModel: SummaryViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
@@ -54,7 +52,6 @@ fun SummaryRoute(
 		state = viewState,
 		onRetryClick = viewModel::loadSummaryAction,
 		onEditProfilePictureClick = viewModel::openProfilePictureSettingsAction,
-		profilePictureViewRenderer = profilePictureViewRenderer,
-		summaryItemsTextProvider = summaryItemsTextProvider
+		profilePictureViewRenderer = profilePictureViewRenderer
 	)
 }

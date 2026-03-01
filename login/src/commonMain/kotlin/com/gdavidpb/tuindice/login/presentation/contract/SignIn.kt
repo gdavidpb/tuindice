@@ -4,11 +4,10 @@ import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
-import com.gdavidpb.tuindice.login.presentation.resource.signInScreenTitle
 
 object SignIn {
 	sealed class State(
-		override val topBarTitle: String = signInScreenTitle(),
+		override val topBarTitle: String = "TuIndice",
 		override val isTopBarVisible: Boolean = true
 	) : ViewState() {
 		data class Idle(

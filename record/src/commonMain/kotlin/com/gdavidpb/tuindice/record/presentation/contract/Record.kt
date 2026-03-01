@@ -5,11 +5,10 @@ import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
-import com.gdavidpb.tuindice.record.presentation.resource.recordScreenTitle
 
 object Record {
 	sealed class State(
-		override val topBarTitle: String = recordScreenTitle(),
+		override val topBarTitle: String = "Informe Académico",
 		override val topBarConfig: TopBarConfig = TopBarConfig.Record,
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true

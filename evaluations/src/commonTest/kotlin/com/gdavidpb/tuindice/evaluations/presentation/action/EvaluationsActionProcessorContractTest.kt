@@ -11,8 +11,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
-import com.gdavidpb.tuindice.evaluations.testing.FakeEvaluationFilterLabelsProvider
-import com.gdavidpb.tuindice.evaluations.testing.FakeEvaluationTextProvider
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
@@ -37,9 +35,7 @@ class EvaluationsActionProcessorContractTest {
 				exceptionHandler = GetEvaluationsExceptionHandler(
 					reportingRepository = RecordingReportingRepository()
 				)
-			),
-			filterLabelsProvider = FakeEvaluationFilterLabelsProvider(),
-			textProvider = FakeEvaluationTextProvider()
+			)
 		)
 		val effects = mutableListOf<Evaluations.Effect>()
 

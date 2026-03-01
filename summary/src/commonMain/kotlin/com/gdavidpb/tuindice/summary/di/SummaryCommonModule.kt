@@ -23,10 +23,6 @@ import com.gdavidpb.tuindice.summary.presentation.action.PickProfilePictureActio
 import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.resource.DefaultSummaryItemsTextProvider
-import com.gdavidpb.tuindice.summary.presentation.resource.DefaultSummaryTextProvider
-import com.gdavidpb.tuindice.summary.presentation.resource.SummaryItemsTextProvider
-import com.gdavidpb.tuindice.summary.presentation.resource.SummaryTextProvider
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -73,9 +69,4 @@ val summaryCommonModule = module {
 	factoryOf(::GetUserExceptionHandler)
 	factoryOf(::RemoveProfilePictureExceptionHandler)
 	factoryOf(::UploadProfilePictureExceptionHandler)
-
-	/* Shared text resources */
-
-	factoryOf(::DefaultSummaryTextProvider) { bind<SummaryTextProvider>() }
-	factoryOf(::DefaultSummaryItemsTextProvider) { bind<SummaryItemsTextProvider>() }
 }

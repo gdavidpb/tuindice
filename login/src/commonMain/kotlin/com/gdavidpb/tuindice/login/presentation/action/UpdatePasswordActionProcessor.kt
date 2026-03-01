@@ -6,13 +6,19 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.login.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
-import com.gdavidpb.tuindice.login.presentation.resource.LoginTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.getString
+import tuindice.login.generated.resources.Res
+import tuindice.login.generated.resources.error_invalid_password
+import tuindice.login.generated.resources.snack_default_error
+import tuindice.login.generated.resources.snack_network_unavailable
+import tuindice.login.generated.resources.snack_password_updated
+import tuindice.login.generated.resources.snack_service_unavailable
+import tuindice.login.generated.resources.snack_timeout
 
 class UpdatePasswordActionProcessor(
-	private val updatePasswordUseCase: UpdatePasswordUseCase,
-	private val textProvider: LoginTextProvider
+	private val updatePasswordUseCase: UpdatePasswordUseCase
 ) : ActionProcessor<UpdatePassword.State, UpdatePassword.Action.ClickSignIn, UpdatePassword.Effect>() {
 
 	override suspend fun process(
@@ -31,52 +37,58 @@ class UpdatePasswordActionProcessor(
 							state
 					}
 
-					is UseCaseState.Data -> { state ->
-						sideEffect(
-							UpdatePassword.Effect.ShowSnackBar(
-								message = textProvider.passwordUpdated()
-							)
-						)
+					is UseCaseState.Data -> run {
+						val successMessage = getString(Res.string.snack_password_updated)
 
-						state
+						suspend { state: UpdatePassword.State ->
+							sideEffect(
+								UpdatePassword.Effect.ShowSnackBar(
+									message = successMessage
+								)
+							)
+
+							state
+						}
 					}
 
-					is UseCaseState.Error -> { state ->
+					is UseCaseState.Error -> run {
 						val error = when (val useCaseError = useCaseState.error) {
 							is SignInUseCaseError.InvalidCredentials ->
-								textProvider.invalidPassword()
+								getString(Res.string.error_invalid_password)
 
 							is SignInUseCaseError.NoConnection ->
 								if (useCaseError.isNetworkAvailable)
-									textProvider.serviceUnavailable()
+									getString(Res.string.snack_service_unavailable)
 								else
-									textProvider.networkUnavailable()
+									getString(Res.string.snack_network_unavailable)
 
 							is SignInUseCaseError.Timeout ->
-								textProvider.timeout()
+								getString(Res.string.snack_timeout)
 
 							is SignInUseCaseError.Unavailable ->
-								textProvider.serviceUnavailable()
+								getString(Res.string.snack_service_unavailable)
 
 							else ->
-								textProvider.defaultError()
+								getString(Res.string.snack_default_error)
 						}
 
-						val currentPassword = when (state) {
-							is UpdatePassword.State.Idle -> state.password
-							is UpdatePassword.State.Updating -> state.password
-						}
+						suspend { state: UpdatePassword.State ->
+							val currentPassword = when (state) {
+								is UpdatePassword.State.Idle -> state.password
+								is UpdatePassword.State.Updating -> state.password
+							}
 
-						sideEffect(
-							UpdatePassword.Effect.ShowSnackBar(
-								message = error
+							sideEffect(
+								UpdatePassword.Effect.ShowSnackBar(
+									message = error
+								)
 							)
-						)
 
-						UpdatePassword.State.Idle(
-							password = currentPassword,
-							error = error
-						)
+							UpdatePassword.State.Idle(
+								password = currentPassword,
+								error = error
+							)
+						}
 					}
 				}
 			}

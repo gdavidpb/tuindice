@@ -8,14 +8,21 @@ import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.presentation.mapper.toSignInParams
-import com.gdavidpb.tuindice.login.presentation.resource.LoginTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.getString
+import tuindice.login.generated.resources.Res
+import tuindice.login.generated.resources.error_invalid_credentials
+import tuindice.login.generated.resources.error_user_disabled
+import tuindice.login.generated.resources.label_retry
+import tuindice.login.generated.resources.snack_default_error
+import tuindice.login.generated.resources.snack_network_unavailable
+import tuindice.login.generated.resources.snack_service_unavailable
+import tuindice.login.generated.resources.snack_timeout
 
 class SignInActionProcessor(
 	private val signInUseCase: SignInUseCase,
-	private val configRepository: ConfigRepository,
-	private val textProvider: LoginTextProvider
+	private val configRepository: ConfigRepository
 ) : ActionProcessor<SignIn.State, SignIn.Action.ClickSignIn, SignIn.Effect>() {
 
 	private val loadingMessages by lazy {
@@ -27,6 +34,7 @@ class SignInActionProcessor(
 		sideEffect: (SignIn.Effect) -> Unit
 	): Flow<Mutation<SignIn.State>> {
 		val params = action.toSignInParams()
+		val retryLabel = getString(Res.string.label_retry)
 
 		return signInUseCase.execute(params)
 			.map { useCaseState ->
@@ -50,69 +58,59 @@ class SignInActionProcessor(
 						state
 					}
 
-					is UseCaseState.Error -> { state ->
-						if (state is SignIn.State.LoggingIn) {
-							when (val error = useCaseState.error) {
-								is SignInUseCaseError.InvalidCredentials ->
-									sideEffect(
-										SignIn.Effect.ShowSnackBar(
-											message = textProvider.invalidCredentials()
-										)
-									)
+					is UseCaseState.Error -> run {
+						val error = useCaseState.error
+						val errorMessage = when (error) {
+							is SignInUseCaseError.InvalidCredentials ->
+								getString(Res.string.error_invalid_credentials)
 
-								is SignInUseCaseError.UserDisabled ->
-									sideEffect(
-										SignIn.Effect.ShowSnackBar(
-											message = textProvider.userDisabled()
-										)
-									)
+							is SignInUseCaseError.UserDisabled ->
+								getString(Res.string.error_user_disabled)
 
-								is SignInUseCaseError.NoConnection ->
-									sideEffect(
-										SignIn.Effect.ShowRetrySnackBar(
-											message = if (error.isNetworkAvailable)
-												textProvider.serviceUnavailable()
-											else
-												textProvider.networkUnavailable(),
-											actionLabel = textProvider.retry(),
-											params = params
-										)
-									)
+							is SignInUseCaseError.NoConnection ->
+								if (error.isNetworkAvailable)
+									getString(Res.string.snack_service_unavailable)
+								else
+									getString(Res.string.snack_network_unavailable)
 
-								is SignInUseCaseError.Timeout ->
-									sideEffect(
-										SignIn.Effect.ShowRetrySnackBar(
-											message = textProvider.timeout(),
-											actionLabel = textProvider.retry(),
-											params = params
-										)
-									)
+							is SignInUseCaseError.Timeout ->
+								getString(Res.string.snack_timeout)
 
-								is SignInUseCaseError.Unavailable ->
-									sideEffect(
-										SignIn.Effect.ShowRetrySnackBar(
-											message = textProvider.serviceUnavailable(),
-											actionLabel = textProvider.retry(),
-											params = params
-										)
-									)
+							is SignInUseCaseError.Unavailable ->
+								getString(Res.string.snack_service_unavailable)
 
-								else ->
-									sideEffect(
-										SignIn.Effect.ShowRetrySnackBar(
-											message = textProvider.defaultError(),
-											actionLabel = textProvider.retry(),
-											params = params
-										)
-									)
-							}
+							else ->
+								getString(Res.string.snack_default_error)
+						}
 
-							SignIn.State.Idle(
-								usbId = state.usbId,
-								password = state.password
-							)
-						} else
-							state
+						suspend { state: SignIn.State ->
+							if (state is SignIn.State.LoggingIn) {
+								when (error) {
+									is SignInUseCaseError.InvalidCredentials,
+									is SignInUseCaseError.UserDisabled ->
+										sideEffect(
+											SignIn.Effect.ShowSnackBar(
+												message = errorMessage
+											)
+										)
+
+									else ->
+										sideEffect(
+											SignIn.Effect.ShowRetrySnackBar(
+												message = errorMessage,
+												actionLabel = retryLabel,
+												params = params
+											)
+										)
+								}
+
+								SignIn.State.Idle(
+									usbId = state.usbId,
+									password = state.password
+								)
+							} else
+								state
+						}
 					}
 				}
 			}

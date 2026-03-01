@@ -18,8 +18,6 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
-import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationFilterLabelsProvider
-import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -283,40 +281,6 @@ class FakeSettingsDataSource(
 	override suspend fun setGetEvaluationsOnCooldown() {
 		cooldownMarked = true
 	}
-}
-
-class FakeEvaluationTextProvider : EvaluationTextProvider {
-	override fun defaultError(): String = "Error"
-
-	override fun serviceUnavailable(): String = "Servicio no disponible"
-
-	override fun networkUnavailable(): String = "Sin conexion"
-
-	override fun timeout(): String = "Tiempo agotado"
-
-	override fun evaluationAdded(): String = "Evaluacion agregada"
-
-	override fun evaluationUpdated(): String = "Evaluacion actualizada"
-
-	override fun evaluationRemoved(): String = "Evaluacion eliminada"
-
-	override fun evaluationGradeUpdated(): String = "Nota actualizada"
-
-	override fun evaluationSubjectMissed(): String = "Falta asignatura"
-
-	override fun evaluationTypeMissed(): String = "Falta tipo"
-
-	override fun evaluationMaxGradeMissed(): String = "Falta nota maxima"
-}
-
-class FakeEvaluationFilterLabelsProvider : EvaluationFilterLabelsProvider {
-	override fun pending(): String = "Pendientes"
-
-	override fun completed(): String = "Completadas"
-
-	override fun noGrade(): String = "Sin nota"
-
-	override fun date(date: Long?): String = "Fecha ${date ?: "continua"}"
 }
 
 class FakeIdentifierRepository(

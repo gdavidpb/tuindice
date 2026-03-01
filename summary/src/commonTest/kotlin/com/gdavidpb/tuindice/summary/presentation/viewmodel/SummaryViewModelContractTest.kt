@@ -20,7 +20,6 @@ import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.FakeFileRepository
 import com.gdavidpb.tuindice.summary.testing.FakeNetworkRepository
-import com.gdavidpb.tuindice.summary.testing.FakeSummaryTextProvider
 import com.gdavidpb.tuindice.summary.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
@@ -64,7 +63,6 @@ class SummaryViewModelContractTest {
 
 	private fun createViewModel(): SummaryViewModel {
 		val userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER))
-		val textProvider = FakeSummaryTextProvider()
 
 		return SummaryViewModel(
 			loadSummaryActionProcessor = LoadSummaryActionProcessor(
@@ -74,14 +72,12 @@ class SummaryViewModelContractTest {
 						networkRepository = FakeNetworkRepository(isAvailable = true),
 						reportingRepository = RecordingReportingRepository()
 					)
-				),
-				textProvider = textProvider
+				)
 			),
 			takeProfilePictureActionProcessor = TakeProfilePictureActionProcessor(
 				takeProfilePictureUseCase = TakeProfilePictureUseCase(
 					applicationRepository = FakeFileRepository()
-				),
-				textProvider = textProvider
+				)
 			),
 			pickProfilePictureActionProcessor = PickProfilePictureActionProcessor(),
 			uploadProfilePictureActionProcessor = UploadProfilePictureActionProcessor(
@@ -92,8 +88,7 @@ class SummaryViewModelContractTest {
 						networkRepository = FakeNetworkRepository(isAvailable = true),
 						reportingRepository = RecordingReportingRepository()
 					)
-				),
-				textProvider = textProvider
+				)
 			),
 			confirmRemoveProfilePictureActionProcessor = ConfirmRemoveProfilePictureActionProcessor(
 				removeProfilePictureUseCase = RemoveProfilePictureUseCase(
@@ -102,8 +97,7 @@ class SummaryViewModelContractTest {
 						networkRepository = FakeNetworkRepository(isAvailable = true),
 						reportingRepository = RecordingReportingRepository()
 					)
-				),
-				textProvider = textProvider
+				)
 			),
 			removeProfilePictureActionProcessor = RemoveProfilePictureActionProcessor(),
 			openProfilePictureSettingsActionProcessor = OpenProfilePictureSettingsActionProcessor()

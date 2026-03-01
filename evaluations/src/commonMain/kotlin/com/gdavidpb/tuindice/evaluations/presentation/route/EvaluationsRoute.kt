@@ -7,7 +7,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.EvaluationItemMappingProvider
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationsScreen
 
@@ -17,7 +16,6 @@ fun EvaluationsRoute(
 	onNavigateToEvaluation: (evaluationId: String) -> Unit,
 	onNavigateToEvaluationGradePickerDialog: (evaluationId: String, grade: Double, maxGrade: Double) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
-	mappingProvider: EvaluationItemMappingProvider,
 	viewModel: EvaluationsViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
@@ -54,7 +52,6 @@ fun EvaluationsRoute(
 
 	EvaluationsScreen(
 		state = viewState,
-		mappingProvider = mappingProvider,
 		onAddEvaluationClick = viewModel::addEvaluationAction,
 		onEvaluationClick = viewModel::showEvaluationGradeDialogAction,
 		onEvaluationEdit = viewModel::editEvaluationAction,

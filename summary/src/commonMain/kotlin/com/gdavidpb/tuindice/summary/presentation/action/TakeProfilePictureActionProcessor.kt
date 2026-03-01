@@ -5,13 +5,14 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.summary.domain.usecase.TakeProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.presentation.resource.SummaryTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.getString
+import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.snack_default_error
 
 class TakeProfilePictureActionProcessor(
-	private val takeProfilePictureUseCase: TakeProfilePictureUseCase,
-	private val textProvider: SummaryTextProvider
+	private val takeProfilePictureUseCase: TakeProfilePictureUseCase
 ) : ActionProcessor<Summary.State, Summary.Action.TakeProfilePicture, Summary.Effect>() {
 
 	override suspend fun process(
@@ -33,14 +34,18 @@ class TakeProfilePictureActionProcessor(
 						state
 					}
 
-					is UseCaseState.Error -> { state ->
-						sideEffect(
-							Summary.Effect.ShowSnackBar(
-								message = textProvider.defaultError()
-							)
-						)
+					is UseCaseState.Error -> run {
+						val message = getString(Res.string.snack_default_error)
 
-						state
+						suspend { state: Summary.State ->
+							sideEffect(
+								Summary.Effect.ShowSnackBar(
+									message = message
+								)
+							)
+
+							state
+						}
 					}
 				}
 			}

@@ -7,13 +7,18 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.AddEvaluationUseCaseError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toAddEvaluationParams
-import com.gdavidpb.tuindice.evaluations.presentation.resource.EvaluationTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.getString
+import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.error_evaluation_max_grade_missed
+import tuindice.evaluations.generated.resources.error_evaluation_subject_missed
+import tuindice.evaluations.generated.resources.error_evaluation_type_missed
+import tuindice.evaluations.generated.resources.snack_default_error
+import tuindice.evaluations.generated.resources.snack_evaluation_added
 
 class AddEvaluationActionProcessor(
-	private val addEvaluationUseCase: AddEvaluationUseCase,
-	private val textProvider: EvaluationTextProvider
+	private val addEvaluationUseCase: AddEvaluationUseCase
 ) : ActionProcessor<Evaluation.State, Evaluation.Action.ClickAddEvaluation, Evaluation.Effect>() {
 
 	override suspend fun process(
@@ -23,14 +28,14 @@ class AddEvaluationActionProcessor(
 		return addEvaluationUseCase.execute(params = action.toAddEvaluationParams())
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { _ ->
+					is UseCaseState.Loading -> suspend { _ ->
 						Evaluation.State.Loading
 					}
 
-					is UseCaseState.Data -> { state ->
+					is UseCaseState.Data -> suspend { state ->
 						sideEffect(
 							Evaluation.Effect.ShowSnackBar(
-								message = textProvider.evaluationAdded()
+								message = getString(Res.string.snack_evaluation_added)
 							)
 						)
 
@@ -41,36 +46,26 @@ class AddEvaluationActionProcessor(
 						state
 					}
 
-					is UseCaseState.Error -> { state ->
-						when (useCaseState.error) {
+					is UseCaseState.Error -> suspend { state: Evaluation.State ->
+						val errorMessage = when (useCaseState.error) {
 							is AddEvaluationUseCaseError.SubjectMissed ->
-								sideEffect(
-									Evaluation.Effect.ShowSnackBar(
-										message = textProvider.evaluationSubjectMissed()
-									)
-								)
+								getString(Res.string.error_evaluation_subject_missed)
 
 							is AddEvaluationUseCaseError.TypeMissed ->
-								sideEffect(
-									Evaluation.Effect.ShowSnackBar(
-										message = textProvider.evaluationTypeMissed()
-									)
-								)
+								getString(Res.string.error_evaluation_type_missed)
 
 							is AddEvaluationUseCaseError.MaxGradeMissed ->
-								sideEffect(
-									Evaluation.Effect.ShowSnackBar(
-										message = textProvider.evaluationMaxGradeMissed()
-									)
-								)
+								getString(Res.string.error_evaluation_max_grade_missed)
 
 							else ->
-								sideEffect(
-									Evaluation.Effect.ShowSnackBar(
-										message = textProvider.defaultError()
-									)
-								)
+								getString(Res.string.snack_default_error)
 						}
+
+						sideEffect(
+							Evaluation.Effect.ShowSnackBar(
+								message = errorMessage
+							)
+						)
 
 						state
 					}

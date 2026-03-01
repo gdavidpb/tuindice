@@ -18,8 +18,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEval
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
-import com.gdavidpb.tuindice.evaluations.testing.FakeEvaluationFilterLabelsProvider
-import com.gdavidpb.tuindice.evaluations.testing.FakeEvaluationTextProvider
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
@@ -70,7 +68,6 @@ class EvaluationsViewModelContractTest {
 		val repository = RecordingEvaluationRepository(
 			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
 		)
-		val textProvider = FakeEvaluationTextProvider()
 
 		return EvaluationsViewModel(
 			loadEvaluationsActionProcessor = LoadEvaluationsActionProcessor(
@@ -79,26 +76,21 @@ class EvaluationsViewModelContractTest {
 					exceptionHandler = GetEvaluationsExceptionHandler(
 						reportingRepository = RecordingReportingRepository()
 					)
-				),
-				filterLabelsProvider = FakeEvaluationFilterLabelsProvider(),
-				textProvider = textProvider
+				)
 			),
 			checkEvaluationFilterActionProcessor = CheckEvaluationFilterActionProcessor(),
 			uncheckEvaluationFilterActionProcessor = UncheckEvaluationFilterActionProcessor(),
 			clearEvaluationFiltersActionProcessor = ClearEvaluationFiltersActionProcessor(),
 			openAddEvaluationActionProcessor = OpenAddEvaluationActionProcessor(),
 			pickEvaluationGradeActionProcessor = PickEvaluationGradeActionProcessor(
-				getEvaluationUseCase = GetEvaluationUseCase(repository),
-				textProvider = textProvider
+				getEvaluationUseCase = GetEvaluationUseCase(repository)
 			),
 			setEvaluationGradeActionProcessor = SetEvaluationGradeActionProcessor(
-				updateEvaluationUseCase = UpdateEvaluationUseCase(repository),
-				textProvider = textProvider
+				updateEvaluationUseCase = UpdateEvaluationUseCase(repository)
 			),
 			openEvaluationActionProcessor = OpenEvaluationActionProcessor(),
 			removeEvaluationActionProcessor = RemoveEvaluationActionProcessor(
-				removeEvaluationUseCase = RemoveEvaluationUseCase(repository),
-				textProvider = textProvider
+				removeEvaluationUseCase = RemoveEvaluationUseCase(repository)
 			)
 		)
 	}

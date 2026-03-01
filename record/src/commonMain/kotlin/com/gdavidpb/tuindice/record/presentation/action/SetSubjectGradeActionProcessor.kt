@@ -6,13 +6,14 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.toSetSubjectGradeParams
-import com.gdavidpb.tuindice.record.presentation.resource.RecordTextProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.getString
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.snack_default_error
 
 class SetSubjectGradeActionProcessor(
-	private val setSubjectGradeUseCase: SetSubjectGradeUseCase,
-	private val textProvider: RecordTextProvider
+	private val setSubjectGradeUseCase: SetSubjectGradeUseCase
 ) : ActionProcessor<Record.State, Record.Action.SetSubjectGrade, Record.Effect>() {
 
 	override suspend fun process(
@@ -30,14 +31,18 @@ class SetSubjectGradeActionProcessor(
 						state
 					}
 
-					is UseCaseState.Error -> { state ->
-						sideEffect(
-							Record.Effect.ShowSnackBar(
-								message = textProvider.defaultError()
-							)
-						)
+					is UseCaseState.Error -> run {
+						val message = getString(Res.string.snack_default_error)
 
-						state
+						suspend { state: Record.State ->
+							sideEffect(
+								Record.Effect.ShowSnackBar(
+									message = message
+								)
+							)
+
+							state
+						}
 					}
 				}
 			}

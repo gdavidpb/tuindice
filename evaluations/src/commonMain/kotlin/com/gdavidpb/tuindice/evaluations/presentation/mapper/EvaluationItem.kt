@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
@@ -21,13 +20,6 @@ data class EvaluationItemMapping(
 	val highlightIconColor: (state: EvaluationState) -> Color,
 	val highlightTextColor: (state: EvaluationState) -> Color
 )
-
-@Composable
-fun List<Evaluation>.toEvaluationItemList(
-	mappingProvider: EvaluationItemMappingProvider
-): List<EvaluationsGroupItem> {
-	return toEvaluationItemList(mapping = mappingProvider.rememberMapping())
-}
 
 fun List<Evaluation>.toEvaluationItemList(
 	mapping: EvaluationItemMapping

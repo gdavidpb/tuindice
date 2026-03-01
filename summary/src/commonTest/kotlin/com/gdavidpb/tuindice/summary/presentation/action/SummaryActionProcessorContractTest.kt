@@ -8,13 +8,17 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetUserExce
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.mapper.formatLastUpdate
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.FakeNetworkRepository
-import com.gdavidpb.tuindice.summary.testing.FakeSummaryTextProvider
 import com.gdavidpb.tuindice.summary.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.jetbrains.compose.resources.getString
+import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.snack_profile_picture_updated
+import tuindice.summary.generated.resources.text_last_update
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -30,8 +34,7 @@ class SummaryActionProcessorContractTest {
 					networkRepository = FakeNetworkRepository(isAvailable = true),
 					reportingRepository = RecordingReportingRepository()
 				)
-			),
-			textProvider = FakeSummaryTextProvider()
+			)
 		)
 		val effects = mutableListOf<Summary.Effect>()
 
@@ -44,7 +47,13 @@ class SummaryActionProcessorContractTest {
 
 			val content = assertIs<Summary.State.Content>(awaitItem()(Summary.State.Loading))
 			assertEquals("Ana Diaz", content.name)
-			assertEquals("Actualizado ${DEFAULT_SUMMARY_USER.lastUpdate}", content.lastUpdate)
+			assertEquals(
+				getString(
+					Res.string.text_last_update,
+					DEFAULT_SUMMARY_USER.lastUpdate.formatLastUpdate()
+				),
+				content.lastUpdate
+			)
 			assertEquals(DEFAULT_SUMMARY_USER.pictureUrl, content.profilePictureUrl)
 
 			awaitComplete()
@@ -63,12 +72,14 @@ class SummaryActionProcessorContractTest {
 					networkRepository = FakeNetworkRepository(isAvailable = true),
 					reportingRepository = RecordingReportingRepository()
 				)
-			),
-			textProvider = FakeSummaryTextProvider()
+			)
 		)
 		val initialState = Summary.State.Content(
 			name = "Ana Diaz",
-			lastUpdate = "Actualizado ${DEFAULT_SUMMARY_USER.lastUpdate}",
+			lastUpdate = getString(
+				Res.string.text_last_update,
+				DEFAULT_SUMMARY_USER.lastUpdate.formatLastUpdate()
+			),
 			careerName = DEFAULT_SUMMARY_USER.careerName,
 			grade = DEFAULT_SUMMARY_USER.grade.toFloat(),
 			enrolledSubjects = DEFAULT_SUMMARY_USER.enrolledSubjects,
@@ -103,6 +114,6 @@ class SummaryActionProcessorContractTest {
 		}
 
 		val effect = assertIs<Summary.Effect.ShowSnackBar>(effects.single())
-		assertEquals("Foto actualizada", effect.message)
+		assertEquals(getString(Res.string.snack_profile_picture_updated), effect.message)
 	}
 }
