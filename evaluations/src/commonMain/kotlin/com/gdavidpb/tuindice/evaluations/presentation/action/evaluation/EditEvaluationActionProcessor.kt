@@ -24,40 +24,36 @@ class EditEvaluationActionProcessor(
 		return updateEvaluationUseCase.execute(params = action.toUpdateEvaluationParams())
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { _ ->
+					is UseCaseState.Loading -> suspend { _ ->
 						Evaluation.State.Loading
 					}
 
-					is UseCaseState.Data -> run {
+					is UseCaseState.Data -> suspend { state: Evaluation.State ->
 						val successMessage = getString(Res.string.snack_evaluation_updated)
 
-						suspend { state: Evaluation.State ->
-							sideEffect(
-								Evaluation.Effect.ShowSnackBar(
-									message = successMessage
-								)
+						sideEffect(
+							Evaluation.Effect.ShowSnackBar(
+								message = successMessage
 							)
+						)
 
-							sideEffect(
-								Evaluation.Effect.NavigateToEvaluations
-							)
+						sideEffect(
+							Evaluation.Effect.NavigateToEvaluations
+						)
 
-							state
-						}
+						state
 					}
 
-					is UseCaseState.Error -> run {
+					is UseCaseState.Error -> suspend { state: Evaluation.State ->
 						val errorMessage = getString(Res.string.snack_default_error)
 
-						suspend { state: Evaluation.State ->
-							sideEffect(
-								Evaluation.Effect.ShowSnackBar(
-									message = errorMessage
-								)
+						sideEffect(
+							Evaluation.Effect.ShowSnackBar(
+								message = errorMessage
 							)
+						)
 
-							state
-						}
+						state
 					}
 				}
 			}

@@ -23,36 +23,32 @@ class RemoveEvaluationActionProcessor(
 		return removeEvaluationUseCase.execute(params = action.evaluationId)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { state ->
+					is UseCaseState.Loading -> suspend { state ->
 						state
 					}
 
-					is UseCaseState.Data -> run {
+					is UseCaseState.Data -> suspend { state: Evaluations.State ->
 						val successMessage = getString(Res.string.snack_evaluation_removed)
 
-						suspend { state: Evaluations.State ->
-							sideEffect(
-								Evaluations.Effect.ShowSnackBar(
-									message = successMessage
-								)
+						sideEffect(
+							Evaluations.Effect.ShowSnackBar(
+								message = successMessage
 							)
+						)
 
-							state
-						}
+						state
 					}
 
-					is UseCaseState.Error -> run {
+					is UseCaseState.Error -> suspend { state: Evaluations.State ->
 						val errorMessage = getString(Res.string.snack_default_error)
 
-						suspend { state: Evaluations.State ->
-							sideEffect(
-								Evaluations.Effect.ShowSnackBar(
-									message = errorMessage
-								)
+						sideEffect(
+							Evaluations.Effect.ShowSnackBar(
+								message = errorMessage
 							)
+						)
 
-							state
-						}
+						state
 					}
 				}
 			}

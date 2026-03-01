@@ -23,26 +23,24 @@ class SetSubjectGradeActionProcessor(
 		return setSubjectGradeUseCase.execute(params = action.toSetSubjectGradeParams())
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { state ->
+					is UseCaseState.Loading -> suspend { state ->
 						state
 					}
 
-					is UseCaseState.Data -> { state ->
+					is UseCaseState.Data -> suspend { state ->
 						state
 					}
 
-					is UseCaseState.Error -> run {
+					is UseCaseState.Error -> suspend { state: Record.State ->
 						val message = getString(Res.string.snack_default_error)
 
-						suspend { state: Record.State ->
-							sideEffect(
-								Record.Effect.ShowSnackBar(
-									message = message
-								)
+						sideEffect(
+							Record.Effect.ShowSnackBar(
+								message = message
 							)
+						)
 
-							state
-						}
+						state
 					}
 				}
 			}

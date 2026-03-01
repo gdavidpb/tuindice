@@ -19,17 +19,17 @@ class LoadAvailableSubjectsActionProcessor(
 		return getAvailableSubjectsUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { _ ->
+					is UseCaseState.Loading -> suspend { _ ->
 						Evaluation.State.Loading
 					}
 
-					is UseCaseState.Data -> { _ ->
+					is UseCaseState.Data -> suspend { _ ->
 						Evaluation.State.Content(
 							availableSubjects = useCaseState.value
 						)
 					}
 
-					is UseCaseState.Error -> { _ ->
+					is UseCaseState.Error -> suspend { _ ->
 						Evaluation.State.Failed
 					}
 				}

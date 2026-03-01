@@ -18,13 +18,13 @@ class LoadVersionActionProcessor(
 		return loadVersionUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Data -> { _ ->
+					is UseCaseState.Data -> suspend { _ ->
 						About.State.Content(
 							versionText = useCaseState.value
 						)
 					}
 
-					else -> { _ ->
+					else -> suspend { _ ->
 						About.State.Idle
 					}
 				}

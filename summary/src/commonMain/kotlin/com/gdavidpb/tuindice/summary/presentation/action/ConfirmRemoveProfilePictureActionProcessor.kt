@@ -27,7 +27,7 @@ class ConfirmRemoveProfilePictureActionProcessor(
 		return removeProfilePictureUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { state ->
+					is UseCaseState.Loading -> suspend { state ->
 						if (state is Summary.State.Content)
 							state.copy(
 								isProfilePictureLoading = true
@@ -36,27 +36,25 @@ class ConfirmRemoveProfilePictureActionProcessor(
 							state
 					}
 
-					is UseCaseState.Data -> run {
+					is UseCaseState.Data -> suspend { state: Summary.State ->
 						val successMessage = getString(Res.string.snack_profile_picture_removed)
 
-						suspend { state: Summary.State ->
-							if (state is Summary.State.Content) {
-								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = successMessage
-									)
+						if (state is Summary.State.Content) {
+							sideEffect(
+								Summary.Effect.ShowSnackBar(
+									message = successMessage
 								)
+							)
 
-								state.copy(
-									profilePictureUrl = "",
-									isProfilePictureLoading = false
-								)
-							} else
-								state
-						}
+							state.copy(
+								profilePictureUrl = "",
+								isProfilePictureLoading = false
+							)
+						} else
+							state
 					}
 
-					is UseCaseState.Error -> run {
+					is UseCaseState.Error -> suspend { state: Summary.State ->
 						val message = when (val error = useCaseState.error) {
 							is ProfilePictureUseCaseError.Timeout ->
 								getString(Res.string.snack_timeout)
@@ -71,20 +69,18 @@ class ConfirmRemoveProfilePictureActionProcessor(
 								getString(Res.string.snack_default_error)
 						}
 
-						suspend { state: Summary.State ->
-							if (state is Summary.State.Content) {
-								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = message
-									)
+						if (state is Summary.State.Content) {
+							sideEffect(
+								Summary.Effect.ShowSnackBar(
+									message = message
 								)
+							)
 
-								state.copy(
-									isProfilePictureLoading = false
-								)
-							} else
-								state
-						}
+							state.copy(
+								isProfilePictureLoading = false
+							)
+						} else
+							state
 					}
 				}
 			}

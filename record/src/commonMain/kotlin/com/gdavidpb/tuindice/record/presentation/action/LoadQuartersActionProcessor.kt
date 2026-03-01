@@ -26,11 +26,11 @@ class LoadQuartersActionProcessor(
 		return getQuartersUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { _ ->
+					is UseCaseState.Loading -> suspend { _ ->
 						Record.State.Loading
 					}
 
-					is UseCaseState.Data -> { _ ->
+					is UseCaseState.Data -> suspend { _ ->
 						val quarters = useCaseState.value
 
 						if (quarters.isNotEmpty())
@@ -40,73 +40,63 @@ class LoadQuartersActionProcessor(
 					}
 
 					is UseCaseState.Error -> when (val error = useCaseState.error) {
-						is GetQuartersUseCaseError.NoConnection -> run {
+						is GetQuartersUseCaseError.NoConnection -> suspend { _: Record.State ->
 							val message = if (error.isNetworkAvailable)
 								getString(Res.string.snack_service_unavailable)
 							else
 								getString(Res.string.snack_network_unavailable)
 
-							suspend { _: Record.State ->
-								sideEffect(
-									Record.Effect.ShowSnackBar(
-										message = message
-									)
+							sideEffect(
+								Record.Effect.ShowSnackBar(
+									message = message
 								)
+							)
 
-								Record.State.Failed
-							}
+							Record.State.Failed
 						}
 
-						is GetQuartersUseCaseError.OutdatedPassword -> run {
-							suspend { _: Record.State ->
-								sideEffect(
-									Record.Effect.NavigateToOutdatedPassword
-								)
+						is GetQuartersUseCaseError.OutdatedPassword -> suspend { _: Record.State ->
+							sideEffect(
+								Record.Effect.NavigateToOutdatedPassword
+							)
 
-								Record.State.Failed
-							}
+							Record.State.Failed
 						}
 
-						is GetQuartersUseCaseError.Timeout -> run {
+						is GetQuartersUseCaseError.Timeout -> suspend { _: Record.State ->
 							val message = getString(Res.string.snack_timeout)
 
-							suspend { _: Record.State ->
-								sideEffect(
-									Record.Effect.ShowSnackBar(
-										message = message
-									)
+							sideEffect(
+								Record.Effect.ShowSnackBar(
+									message = message
 								)
+							)
 
-								Record.State.Failed
-							}
+							Record.State.Failed
 						}
 
-						is GetQuartersUseCaseError.Unavailable -> run {
+						is GetQuartersUseCaseError.Unavailable -> suspend { _: Record.State ->
 							val message = getString(Res.string.snack_service_unavailable)
 
-							suspend { _: Record.State ->
-								sideEffect(
-									Record.Effect.ShowSnackBar(
-										message = message
-									)
+							sideEffect(
+								Record.Effect.ShowSnackBar(
+									message = message
 								)
+							)
 
-								Record.State.Failed
-							}
+							Record.State.Failed
 						}
 
-						else -> run {
+						else -> suspend { _: Record.State ->
 							val message = getString(Res.string.snack_default_error)
 
-							suspend { _: Record.State ->
-								sideEffect(
-									Record.Effect.ShowSnackBar(
-										message = message
-									)
+							sideEffect(
+								Record.Effect.ShowSnackBar(
+									message = message
 								)
+							)
 
-								Record.State.Failed
-							}
+							Record.State.Failed
 						}
 					}
 				}

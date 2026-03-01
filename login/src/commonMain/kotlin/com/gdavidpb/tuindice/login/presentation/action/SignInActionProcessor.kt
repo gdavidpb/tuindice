@@ -39,7 +39,7 @@ class SignInActionProcessor(
 		return signInUseCase.execute(params)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { state ->
+					is UseCaseState.Loading -> suspend { state ->
 						if (state is SignIn.State.Idle)
 							SignIn.State.LoggingIn(
 								usbId = params.usbId,
@@ -50,7 +50,7 @@ class SignInActionProcessor(
 							state
 					}
 
-					is UseCaseState.Data -> { state ->
+					is UseCaseState.Data -> suspend { state ->
 						sideEffect(
 							SignIn.Effect.NavigateToSummary
 						)
@@ -58,7 +58,7 @@ class SignInActionProcessor(
 						state
 					}
 
-					is UseCaseState.Error -> run {
+					is UseCaseState.Error -> suspend { state: SignIn.State ->
 						val error = useCaseState.error
 						val errorMessage = when (error) {
 							is SignInUseCaseError.InvalidCredentials ->
@@ -83,34 +83,32 @@ class SignInActionProcessor(
 								getString(Res.string.snack_default_error)
 						}
 
-						suspend { state: SignIn.State ->
-							if (state is SignIn.State.LoggingIn) {
-								when (error) {
-									is SignInUseCaseError.InvalidCredentials,
-									is SignInUseCaseError.UserDisabled ->
-										sideEffect(
-											SignIn.Effect.ShowSnackBar(
-												message = errorMessage
-											)
+						if (state is SignIn.State.LoggingIn) {
+							when (error) {
+								is SignInUseCaseError.InvalidCredentials,
+								is SignInUseCaseError.UserDisabled ->
+									sideEffect(
+										SignIn.Effect.ShowSnackBar(
+											message = errorMessage
 										)
+									)
 
-									else ->
-										sideEffect(
-											SignIn.Effect.ShowRetrySnackBar(
-												message = errorMessage,
-												actionLabel = retryLabel,
-												params = params
-											)
+								else ->
+									sideEffect(
+										SignIn.Effect.ShowRetrySnackBar(
+											message = errorMessage,
+											actionLabel = retryLabel,
+											params = params
 										)
-								}
+									)
+							}
 
-								SignIn.State.Idle(
-									usbId = state.usbId,
-									password = state.password
-								)
-							} else
-								state
-						}
+							SignIn.State.Idle(
+								usbId = state.usbId,
+								password = state.password
+							)
+						} else
+							state
 					}
 				}
 			}

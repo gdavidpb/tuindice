@@ -11,5 +11,5 @@ abstract class ActionProcessor<S : ViewState, A : ViewAction, E : ViewEffect> {
 	open suspend fun process(
 		action: A,
 		sideEffect: (E) -> Unit
-	): Flow<Mutation<S>> = flowOf<Mutation<S>>({ state: S -> state })
+	): Flow<Mutation<S>> = flowOf<Mutation<S>>(suspend { state: S -> state })
 }

@@ -19,11 +19,11 @@ class RequestUpdateActionProcessor(
 		return getUpdateInfoUseCase.execute(params = Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { state ->
+					is UseCaseState.Loading -> suspend { state ->
 						state
 					}
 
-					is UseCaseState.Data -> { state ->
+					is UseCaseState.Data -> suspend { state ->
 						sideEffect(
 							Main.Effect.TriggerUpdateFlow(action = useCaseState.value)
 						)
@@ -31,7 +31,7 @@ class RequestUpdateActionProcessor(
 						state
 					}
 
-					is UseCaseState.Error -> { state ->
+					is UseCaseState.Error -> suspend { state ->
 						state
 					}
 				}

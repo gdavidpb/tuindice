@@ -28,7 +28,7 @@ class UpdatePasswordActionProcessor(
 		return updatePasswordUseCase.execute(params = action.password)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { state ->
+					is UseCaseState.Loading -> suspend { state ->
 						if (state is UpdatePassword.State.Idle)
 							UpdatePassword.State.Updating(
 								password = action.password
@@ -37,21 +37,19 @@ class UpdatePasswordActionProcessor(
 							state
 					}
 
-					is UseCaseState.Data -> run {
+					is UseCaseState.Data -> suspend { state: UpdatePassword.State ->
 						val successMessage = getString(Res.string.snack_password_updated)
 
-						suspend { state: UpdatePassword.State ->
-							sideEffect(
-								UpdatePassword.Effect.ShowSnackBar(
-									message = successMessage
-								)
+						sideEffect(
+							UpdatePassword.Effect.ShowSnackBar(
+								message = successMessage
 							)
+						)
 
-							state
-						}
+						state
 					}
 
-					is UseCaseState.Error -> run {
+					is UseCaseState.Error -> suspend { state: UpdatePassword.State ->
 						val error = when (val useCaseError = useCaseState.error) {
 							is SignInUseCaseError.InvalidCredentials ->
 								getString(Res.string.error_invalid_password)
@@ -72,23 +70,21 @@ class UpdatePasswordActionProcessor(
 								getString(Res.string.snack_default_error)
 						}
 
-						suspend { state: UpdatePassword.State ->
-							val currentPassword = when (state) {
-								is UpdatePassword.State.Idle -> state.password
-								is UpdatePassword.State.Updating -> state.password
-							}
-
-							sideEffect(
-								UpdatePassword.Effect.ShowSnackBar(
-									message = error
-								)
-							)
-
-							UpdatePassword.State.Idle(
-								password = currentPassword,
-								error = error
-							)
+						val currentPassword = when (state) {
+							is UpdatePassword.State.Idle -> state.password
+							is UpdatePassword.State.Updating -> state.password
 						}
+
+						sideEffect(
+							UpdatePassword.Effect.ShowSnackBar(
+								message = error
+							)
+						)
+
+						UpdatePassword.State.Idle(
+							password = currentPassword,
+							error = error
+						)
 					}
 				}
 			}

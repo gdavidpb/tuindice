@@ -21,11 +21,11 @@ class SignOutActionProcessor(
 		return signOutUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { _ ->
+					is UseCaseState.Loading -> suspend { _ ->
 						SignOut.State.LoggingOut
 					}
 
-					is UseCaseState.Data -> { state ->
+					is UseCaseState.Data -> suspend { state ->
 						sideEffect(
 							SignOut.Effect.NavigateToSignIn
 						)
@@ -33,18 +33,16 @@ class SignOutActionProcessor(
 						state
 					}
 
-					is UseCaseState.Error -> run {
+					is UseCaseState.Error -> suspend { _: SignOut.State ->
 						val errorMessage = getString(Res.string.snack_default_error)
 
-						suspend { _: SignOut.State ->
-							sideEffect(
-								SignOut.Effect.ShowSnackBar(
-									message = errorMessage
-								)
+						sideEffect(
+							SignOut.Effect.ShowSnackBar(
+								message = errorMessage
 							)
+						)
 
-							SignOut.State.Idle
-						}
+						SignOut.State.Idle
 					}
 				}
 			}

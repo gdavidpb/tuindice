@@ -20,11 +20,11 @@ class StartUpActionProcessor(
 		return startUpUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { _ ->
+					is UseCaseState.Loading -> suspend { _ ->
 						Main.State.Starting
 					}
 
-					is UseCaseState.Data -> { _ ->
+					is UseCaseState.Data -> suspend { _ ->
 						with(useCaseState.value) {
 							Main.State.Content(
 								startDestination = startDestination
@@ -32,7 +32,7 @@ class StartUpActionProcessor(
 						}
 					}
 
-					is UseCaseState.Error -> { _ ->
+					is UseCaseState.Error -> suspend { _ ->
 						when (useCaseState.error) {
 							is StartUpUseCaseError.NoServices ->
 								sideEffect(

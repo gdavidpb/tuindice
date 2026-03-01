@@ -22,46 +22,42 @@ class PickEvaluationGradeActionProcessor(
 		return getEvaluationUseCase.execute(params = action.evaluationId)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { state ->
+					is UseCaseState.Loading -> suspend { state ->
 						state
 					}
 
-					is UseCaseState.Data -> run {
+					is UseCaseState.Data -> suspend { state: Evaluations.State ->
 						val evaluation = useCaseState.value
 						val errorMessage = getString(Res.string.snack_default_error)
 
-						suspend { state: Evaluations.State ->
-							if (evaluation != null)
-								sideEffect(
-									Evaluations.Effect.NavigateToGradePickerDialog(
-										evaluationId = evaluation.id,
-										grade = evaluation.grade ?: 0.0,
-										maxGrade = evaluation.maxGrade
-									)
+						if (evaluation != null)
+							sideEffect(
+								Evaluations.Effect.NavigateToGradePickerDialog(
+									evaluationId = evaluation.id,
+									grade = evaluation.grade ?: 0.0,
+									maxGrade = evaluation.maxGrade
 								)
-							else
-								sideEffect(
-									Evaluations.Effect.ShowSnackBar(
-										message = errorMessage
-									)
-								)
-
-							state
-						}
-					}
-
-					is UseCaseState.Error -> run {
-						val errorMessage = getString(Res.string.snack_default_error)
-
-						suspend { state: Evaluations.State ->
+							)
+						else
 							sideEffect(
 								Evaluations.Effect.ShowSnackBar(
 									message = errorMessage
 								)
 							)
 
-							state
-						}
+						state
+					}
+
+					is UseCaseState.Error -> suspend { state: Evaluations.State ->
+						val errorMessage = getString(Res.string.snack_default_error)
+
+						sideEffect(
+							Evaluations.Effect.ShowSnackBar(
+								message = errorMessage
+							)
+						)
+
+						state
 					}
 				}
 			}

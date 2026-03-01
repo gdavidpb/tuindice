@@ -22,11 +22,11 @@ class FetchEnrollmentProofActionProcessor(
 		return enrollmentProofUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { _ ->
+					is UseCaseState.Loading -> suspend { _ ->
 						Enrollment.State.Fetching
 					}
 
-					is UseCaseState.Data -> { state ->
+					is UseCaseState.Data -> suspend { state ->
 						sideEffect(
 							Enrollment.Effect.OpenEnrollmentProof(fileRef = useCaseState.value)
 						)
@@ -34,7 +34,7 @@ class FetchEnrollmentProofActionProcessor(
 						state
 					}
 
-					is UseCaseState.Error -> { state ->
+					is UseCaseState.Error -> suspend { state ->
 						when (val error = useCaseState.error) {
 							is FetchEnrollmentProofUseCaseError.NoConnection ->
 								sideEffect(

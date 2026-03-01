@@ -21,11 +21,11 @@ class LoadEvaluationActionProcessor(
 		return getEvaluationAndAvailableSubjectsUseCase.execute(params = action.toGetEvaluationParams())
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { _ ->
+					is UseCaseState.Loading -> suspend { _ ->
 						Evaluation.State.Loading
 					}
 
-					is UseCaseState.Data -> { _ ->
+					is UseCaseState.Data -> suspend { _ ->
 						with(useCaseState.value) {
 							val selectedSubject = availableSubjects.find { subject ->
 								subject.code == evaluation?.subjectCode
@@ -44,7 +44,7 @@ class LoadEvaluationActionProcessor(
 						}
 					}
 
-					is UseCaseState.Error -> { _ ->
+					is UseCaseState.Error -> suspend { _ ->
 						Evaluation.State.Failed
 					}
 				}

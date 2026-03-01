@@ -30,11 +30,11 @@ class LoadEvaluationsActionProcessor(
 		return getEvaluationsUseCase.execute(params = action.activeFilters)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { _ ->
+					is UseCaseState.Loading -> suspend { _ ->
 						Evaluations.State.Loading
 					}
 
-					is UseCaseState.Data -> run {
+					is UseCaseState.Data -> suspend { _: Evaluations.State ->
 						val evaluations = useCaseState.value
 						val pendingLabel = getString(Res.string.label_state_pending)
 						val completedLabel = getString(Res.string.label_state_completed)
@@ -45,20 +45,18 @@ class LoadEvaluationsActionProcessor(
 							noGradeLabel = noGradeLabel
 						)
 
-						suspend { _: Evaluations.State ->
-							if (evaluations.originalEvaluations.isNotEmpty())
-								Evaluations.State.Content(
-									originalEvaluations = evaluations.originalEvaluations,
-									filteredEvaluations = evaluations.filteredEvaluations,
-									availableFilters = availableFilters,
-									activeFilters = evaluations.activeFilters
-								)
-							else
-								Evaluations.State.Empty
-						}
+						if (evaluations.originalEvaluations.isNotEmpty())
+							Evaluations.State.Content(
+								originalEvaluations = evaluations.originalEvaluations,
+								filteredEvaluations = evaluations.filteredEvaluations,
+								availableFilters = availableFilters,
+								activeFilters = evaluations.activeFilters
+							)
+						else
+							Evaluations.State.Empty
 					}
 
-					is UseCaseState.Error -> run {
+					is UseCaseState.Error -> suspend { _: Evaluations.State ->
 						val error = useCaseState.error
 						val message = when (error) {
 							is EvaluationsUseCaseError.NoConnection ->
@@ -80,18 +78,16 @@ class LoadEvaluationsActionProcessor(
 								getString(Res.string.snack_default_error)
 						}
 
-						suspend { _: Evaluations.State ->
-							if (error is EvaluationsUseCaseError.NoSubjects)
-								Evaluations.State.NoSubjects
-							else {
-								sideEffect(
-									Evaluations.Effect.ShowSnackBar(
-										message = message!!
-									)
+						if (error is EvaluationsUseCaseError.NoSubjects)
+							Evaluations.State.NoSubjects
+						else {
+							sideEffect(
+								Evaluations.Effect.ShowSnackBar(
+									message = message!!
 								)
+							)
 
-								Evaluations.State.Failed
-							}
+							Evaluations.State.Failed
 						}
 					}
 				}

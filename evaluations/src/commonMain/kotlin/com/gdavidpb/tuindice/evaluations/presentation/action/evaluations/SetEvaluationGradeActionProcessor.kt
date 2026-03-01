@@ -24,36 +24,32 @@ class SetEvaluationGradeActionProcessor(
 		return updateEvaluationUseCase.execute(params = action.toUpdateEvaluationParams())
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { state ->
+					is UseCaseState.Loading -> suspend { state ->
 						state
 					}
 
-					is UseCaseState.Data -> run {
+					is UseCaseState.Data -> suspend { state: Evaluations.State ->
 						val successMessage = getString(Res.string.snack_evaluation_set_grade)
 
-						suspend { state: Evaluations.State ->
-							sideEffect(
-								Evaluations.Effect.ShowSnackBar(
-									message = successMessage
-								)
+						sideEffect(
+							Evaluations.Effect.ShowSnackBar(
+								message = successMessage
 							)
+						)
 
-							state
-						}
+						state
 					}
 
-					is UseCaseState.Error -> run {
+					is UseCaseState.Error -> suspend { state: Evaluations.State ->
 						val errorMessage = getString(Res.string.snack_default_error)
 
-						suspend { state: Evaluations.State ->
-							sideEffect(
-								Evaluations.Effect.ShowSnackBar(
-									message = errorMessage
-								)
+						sideEffect(
+							Evaluations.Effect.ShowSnackBar(
+								message = errorMessage
 							)
+						)
 
-							state
-						}
+						state
 					}
 				}
 			}

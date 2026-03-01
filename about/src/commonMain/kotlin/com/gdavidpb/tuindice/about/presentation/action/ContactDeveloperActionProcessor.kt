@@ -18,7 +18,7 @@ class ContactDeveloperActionProcessor(
 		return sendSupportEmailUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Data -> { state ->
+					is UseCaseState.Data -> suspend { state ->
 						sideEffect(
 							About.Effect.OpenUri(
 								uri = useCaseState.value
@@ -28,7 +28,7 @@ class ContactDeveloperActionProcessor(
 						state
 					}
 
-					else -> { state -> state }
+					else -> suspend { state -> state }
 				}
 			}
 	}

@@ -27,7 +27,7 @@ class UploadProfilePictureActionProcessor(
 		return uploadProfilePictureUseCase.execute(params = action.uri)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { state ->
+					is UseCaseState.Loading -> suspend { state ->
 						if (state is Summary.State.Content)
 							state.copy(
 								isProfilePictureLoading = true
@@ -36,28 +36,26 @@ class UploadProfilePictureActionProcessor(
 							state
 					}
 
-					is UseCaseState.Data -> run {
+					is UseCaseState.Data -> suspend { state: Summary.State ->
 						val successMessage = getString(Res.string.snack_profile_picture_updated)
 						val pictureUrl = useCaseState.value
 
-						suspend { state: Summary.State ->
-							if (state is Summary.State.Content) {
-								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = successMessage
-									)
+						if (state is Summary.State.Content) {
+							sideEffect(
+								Summary.Effect.ShowSnackBar(
+									message = successMessage
 								)
+							)
 
-								state.copy(
-									profilePictureUrl = pictureUrl,
-									isProfilePictureLoading = false
-								)
-							} else
-								state
-						}
+							state.copy(
+								profilePictureUrl = pictureUrl,
+								isProfilePictureLoading = false
+							)
+						} else
+							state
 					}
 
-					is UseCaseState.Error -> run {
+					is UseCaseState.Error -> suspend { state: Summary.State ->
 						val message = when (val error = useCaseState.error) {
 							is ProfilePictureUseCaseError.Timeout ->
 								getString(Res.string.snack_timeout)
@@ -72,20 +70,18 @@ class UploadProfilePictureActionProcessor(
 								getString(Res.string.snack_default_error)
 						}
 
-						suspend { state: Summary.State ->
-							sideEffect(
-								Summary.Effect.ShowSnackBar(
-									message = message
-								)
+						sideEffect(
+							Summary.Effect.ShowSnackBar(
+								message = message
 							)
+						)
 
-							if (state is Summary.State.Content)
-								state.copy(
-									isProfilePictureLoading = false
-								)
-							else
-								state
-						}
+						if (state is Summary.State.Content)
+							state.copy(
+								isProfilePictureLoading = false
+							)
+						else
+							state
 					}
 				}
 			}

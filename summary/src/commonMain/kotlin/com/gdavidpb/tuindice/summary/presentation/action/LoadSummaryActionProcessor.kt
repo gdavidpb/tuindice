@@ -30,121 +30,109 @@ class LoadSummaryActionProcessor(
 		return getUserUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { _ ->
+					is UseCaseState.Loading -> suspend { _ ->
 						Summary.State.Loading
 					}
 
-					is UseCaseState.Data -> run {
+					is UseCaseState.Data -> suspend { _: Summary.State ->
 						val user = useCaseState.value
 						val lastUpdateText = getString(
 							Res.string.text_last_update,
 							user.lastUpdate.formatLastUpdate()
 						)
 
-						suspend { _: Summary.State ->
-							with(user) {
-								Summary.State.Content(
-									name = toShortName(),
-									lastUpdate = lastUpdateText,
-									careerName = careerName,
-									grade = grade.toFloat(),
-									enrolledSubjects = enrolledSubjects,
-									enrolledCredits = enrolledCredits,
-									approvedSubjects = approvedSubjects,
-									approvedCredits = approvedCredits,
-									retiredSubjects = retiredSubjects,
-									retiredCredits = retiredCredits,
-									failedSubjects = failedSubjects,
-									failedCredits = failedCredits,
-									profilePictureUrl = pictureUrl,
-									isGradeVisible = (grade > 0.0),
-									isProfilePictureLoading = false,
-									isLoading = false,
-									isUpdated = true,
-									isUpdating = false
-								)
-							}
+						with(user) {
+							Summary.State.Content(
+								name = toShortName(),
+								lastUpdate = lastUpdateText,
+								careerName = careerName,
+								grade = grade.toFloat(),
+								enrolledSubjects = enrolledSubjects,
+								enrolledCredits = enrolledCredits,
+								approvedSubjects = approvedSubjects,
+								approvedCredits = approvedCredits,
+								retiredSubjects = retiredSubjects,
+								retiredCredits = retiredCredits,
+								failedSubjects = failedSubjects,
+								failedCredits = failedCredits,
+								profilePictureUrl = pictureUrl,
+								isGradeVisible = (grade > 0.0),
+								isProfilePictureLoading = false,
+								isLoading = false,
+								isUpdated = true,
+								isUpdating = false
+							)
 						}
 					}
 
 					is UseCaseState.Error -> when (val error = useCaseState.error) {
-						is GetUserUseCaseError.NoConnection -> run {
+						is GetUserUseCaseError.NoConnection -> suspend { _: Summary.State ->
 							val message = if (error.isNetworkAvailable)
 								getString(Res.string.snack_service_unavailable)
 							else
 								getString(Res.string.snack_network_unavailable)
 
-							suspend { _: Summary.State ->
+							sideEffect(
+								Summary.Effect.ShowSnackBar(
+									message = message
+								)
+							)
+
+							Summary.State.Failed
+						}
+
+						is GetUserUseCaseError.OutdatedPassword -> suspend { state: Summary.State ->
+							if (state is Summary.State.Content) {
 								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = message
-									)
+									Summary.Effect.NavigateToOutdatedPassword
 								)
 
+								state.copy(
+									isUpdating = false
+								)
+							} else
 								Summary.State.Failed
-							}
 						}
 
-						is GetUserUseCaseError.OutdatedPassword -> run {
-							suspend { state: Summary.State ->
-								if (state is Summary.State.Content) {
-									sideEffect(
-										Summary.Effect.NavigateToOutdatedPassword
-									)
-
-									state.copy(
-										isUpdating = false
-									)
-								} else
-									Summary.State.Failed
-							}
-						}
-
-						is GetUserUseCaseError.Timeout -> run {
+						is GetUserUseCaseError.Timeout -> suspend { _: Summary.State ->
 							val message = getString(Res.string.snack_timeout)
 
-							suspend { _: Summary.State ->
-								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = message
-									)
+							sideEffect(
+								Summary.Effect.ShowSnackBar(
+									message = message
 								)
+							)
 
-								Summary.State.Failed
-							}
+							Summary.State.Failed
 						}
 
-						is GetUserUseCaseError.Unavailable -> run {
+						is GetUserUseCaseError.Unavailable -> suspend { state: Summary.State ->
 							val message = getString(Res.string.snack_no_service)
 
-							suspend { state: Summary.State ->
-								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = message
-									)
+							sideEffect(
+								Summary.Effect.ShowSnackBar(
+									message = message
 								)
+							)
 
-								if (state is Summary.State.Content)
-									state.copy(
-										isUpdated = false
-									)
-								else
-									Summary.State.Failed
-							}
+							if (state is Summary.State.Content)
+								state.copy(
+									isUpdated = false
+								)
+							else
+								Summary.State.Failed
 						}
 
-						else -> run {
+						else -> suspend { _: Summary.State ->
 							val message = getString(Res.string.snack_default_error)
 
-							suspend { _: Summary.State ->
-								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = message
-									)
+							sideEffect(
+								Summary.Effect.ShowSnackBar(
+									message = message
 								)
+							)
 
-								Summary.State.Failed
-							}
+							Summary.State.Failed
 						}
 					}
 				}

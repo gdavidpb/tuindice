@@ -22,11 +22,11 @@ class TakeProfilePictureActionProcessor(
 		return takeProfilePictureUseCase.execute(Unit)
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> { state ->
+					is UseCaseState.Loading -> suspend { state ->
 						state
 					}
 
-					is UseCaseState.Data -> { state ->
+					is UseCaseState.Data -> suspend { state ->
 						sideEffect(
 							Summary.Effect.OpenCamera(output = useCaseState.value)
 						)
@@ -34,18 +34,16 @@ class TakeProfilePictureActionProcessor(
 						state
 					}
 
-					is UseCaseState.Error -> run {
+					is UseCaseState.Error -> suspend { state: Summary.State ->
 						val message = getString(Res.string.snack_default_error)
 
-						suspend { state: Summary.State ->
-							sideEffect(
-								Summary.Effect.ShowSnackBar(
-									message = message
-								)
+						sideEffect(
+							Summary.Effect.ShowSnackBar(
+								message = message
 							)
+						)
 
-							state
-						}
+						state
 					}
 				}
 			}
