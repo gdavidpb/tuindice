@@ -9,9 +9,13 @@ import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.data.ios.*
-import com.gdavidpb.tuindice.login.data.repository.KtorAuthApiApiDataRepository
-import com.gdavidpb.tuindice.login.data.repository.KtorMessagingApiDataRepository
-import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
+import com.gdavidpb.tuindice.login.data.repository.LoginAuthApiDataSource
+import com.gdavidpb.tuindice.login.data.repository.LoginDataRepository
+import com.gdavidpb.tuindice.login.data.repository.LoginMessagingApiDataSource
+import com.gdavidpb.tuindice.login.data.repository.LoginMessagingDataSource
+import com.gdavidpb.tuindice.login.data.source.KtorLoginAuthApiDataSource
+import com.gdavidpb.tuindice.login.data.source.KtorLoginMessagingApiDataSource
+import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.IosBrowserScreenRenderer
@@ -23,9 +27,6 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import com.gdavidpb.tuindice.login.domain.repository.MessagingApiRepository as LoginMessagingApiRepository
-import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository as LoginMessagingRepository
-import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository as LoginReportingRepository
 
 data class IosPlatformConfig(
 	val appEnvironment: AppEnvironment = AppEnvironment(
@@ -86,16 +87,24 @@ fun iosPlatformModule(
 	}
 	single<FileRepository> { get<ApplicationRepository>() }
 	single<ReportingRepository> { IosReportingDataSource(get<IosPlatformBridge>()) }
-	factory<LoginReportingRepository> { IosLoginReportingDataSource(get<IosPlatformBridge>()) }
-	factory<LoginMessagingRepository> { IosLoginMessagingDataSource(get<IosPlatformBridge>()) }
-	factory<AuthApiRepository> {
-		KtorAuthApiApiDataRepository(
+	factory<LoginMessagingDataSource> { IosLoginMessagingDataSource(get<IosPlatformBridge>()) }
+	factory<LoginAuthApiDataSource> {
+		KtorLoginAuthApiDataSource(
 			ktorClient = get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
 		)
 	}
-	factory<LoginMessagingApiRepository> {
-		KtorMessagingApiDataRepository(
+	factory<LoginMessagingApiDataSource> {
+		KtorLoginMessagingApiDataSource(
 			ktorClient = get<HttpClient>()
+		)
+	}
+	factory<LoginRepository> {
+		LoginDataRepository(
+			authApiDataSource = get<LoginAuthApiDataSource>(),
+			messagingApiDataSource = get<LoginMessagingApiDataSource>(),
+			messagingDataSource = get<LoginMessagingDataSource>(),
+			sessionRepository = get<SessionRepository>(),
+			reportingRepository = get<ReportingRepository>()
 		)
 	}
 	factory<MessagingRepository> {
@@ -139,7 +148,7 @@ fun iosPlatformModule(
 			configRepository = get<ConfigRepository>(),
 			sessionRepository = get<SessionRepository>(),
 			attestationRepositoryProvider = { get<AttestationRepository>() },
-			authApiRepositoryProvider = { get<AuthApiRepository>() },
+			loginRepositoryProvider = { get<LoginRepository>() },
 			logger = IOS_KTOR_LOGGER,
 			json = get<Json>(),
 			userAgentValue = createIosUserAgent(bridge)

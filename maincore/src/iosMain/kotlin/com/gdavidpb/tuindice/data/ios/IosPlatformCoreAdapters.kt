@@ -17,8 +17,7 @@ import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.di.IosPlatformBridge
 import com.gdavidpb.tuindice.di.IosUiTextValues
 import com.gdavidpb.tuindice.di.restartIosKoinModules
-import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository as LoginMessagingRepository
-import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository as LoginReportingRepository
+import com.gdavidpb.tuindice.login.data.repository.LoginMessagingDataSource
 import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
 import com.gdavidpb.tuindice.ui.resource.HostUiTexts
 
@@ -140,17 +139,9 @@ internal class IosReportingDataSource(
 	}
 }
 
-internal class IosLoginReportingDataSource(
-	private val bridge: IosPlatformBridge
-) : LoginReportingRepository {
-	override suspend fun setIdentifier(id: String) {
-		bridge.setUserIdentifier(id)
-	}
-}
-
 internal class IosLoginMessagingDataSource(
 	private val bridge: IosPlatformBridge
-) : LoginMessagingRepository {
+) : LoginMessagingDataSource {
 	override suspend fun getToken(): String {
 		return bridge.pushToken()
 			?.takeIf { token -> token.isNotBlank() }

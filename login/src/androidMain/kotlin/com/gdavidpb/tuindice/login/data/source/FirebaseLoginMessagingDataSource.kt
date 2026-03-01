@@ -1,12 +1,12 @@
-package com.gdavidpb.tuindice.login.data.repository
+package com.gdavidpb.tuindice.login.data.source
 
-import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.login.data.repository.LoginMessagingDataSource
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
 
-class FirebaseMessagingDataRepository(
+class FirebaseLoginMessagingDataSource(
 	private val firebaseMessaging: FirebaseMessaging
-) : MessagingRepository {
+) : LoginMessagingDataSource {
 	override suspend fun getToken(): String {
 		return firebaseMessaging.token.await()
 			.takeIf { token -> token.isNotBlank() }

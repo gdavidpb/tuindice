@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.login.domain.model.IssueTokensAttestationPayload
 import com.gdavidpb.tuindice.login.domain.model.RefreshTokensAttestationPayload
-import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
+import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
@@ -48,7 +48,7 @@ fun createSharedHttpClient(
 	configRepository: ConfigRepository,
 	sessionRepository: SessionRepository,
 	attestationRepositoryProvider: () -> AttestationRepository,
-	authApiRepositoryProvider: () -> AuthApiRepository,
+	loginRepositoryProvider: () -> LoginRepository,
 	logger: Logger,
 	json: Json,
 	userAgentValue: String? = null
@@ -107,7 +107,7 @@ fun createSharedHttpClient(
 					val oldAccessToken = oldTokens?.accessToken ?: sessionRepository.getAccessToken()
 					val oldRefreshToken = oldTokens?.refreshToken ?: sessionRepository.getRefreshToken()
 					val attestationRepository = attestationRepositoryProvider()
-					val authApiRepository = authApiRepositoryProvider()
+					val loginRepository = loginRepositoryProvider()
 
 					val attestationPayload = RefreshTokensAttestationPayload(
 						accessToken = oldAccessToken,
@@ -116,14 +116,11 @@ fun createSharedHttpClient(
 
 					val attestation = attestationRepository.getAttestation(payload = attestationPayload)
 
-					val response = authApiRepository.refreshTokens(
+					val response = loginRepository.refreshTokens(
 						accessToken = oldAccessToken,
 						refreshToken = oldRefreshToken,
 						attestation = attestation
 					)
-
-					sessionRepository.setAccessToken(response.accessToken)
-					sessionRepository.setRefreshToken(response.refreshToken)
 
 					BearerTokens(
 						accessToken = response.accessToken,

@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.login.domain.model.IssueTokensAttestationPayload
-import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
+import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.validator.UpdatePasswordParamsValidator
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class UpdatePasswordUseCase(
-	private val authApiRepository: AuthApiRepository,
+	private val loginRepository: LoginRepository,
 	private val sessionRepository: SessionRepository,
 	private val attestationRepository: AttestationRepository,
 	override val paramsValidator: UpdatePasswordParamsValidator,
@@ -30,18 +30,10 @@ class UpdatePasswordUseCase(
 			payload = attestationPayload
 		)
 
-		val tokens = authApiRepository.issueTokens(
+		loginRepository.updatePassword(
 			usbId = usbId,
 			password = params,
 			attestation = attestation
-		)
-
-		sessionRepository.setAccessToken(
-			accessToken = tokens.accessToken
-		)
-
-		sessionRepository.setRefreshToken(
-			refreshToken = tokens.refreshToken
 		)
 
 		return flowOf(Unit)

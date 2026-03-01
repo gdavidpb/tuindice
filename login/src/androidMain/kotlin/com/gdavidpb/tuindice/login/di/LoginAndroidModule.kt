@@ -1,16 +1,13 @@
 package com.gdavidpb.tuindice.login.di
 
-import com.gdavidpb.tuindice.login.data.repository.CrashlyticsReportingDataRepository
-import com.gdavidpb.tuindice.login.data.repository.FirebaseMessagingDataRepository
-import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository
-import com.gdavidpb.tuindice.login.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.login.data.repository.LoginMessagingDataSource
+import com.gdavidpb.tuindice.login.data.source.FirebaseLoginMessagingDataSource
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
 val loginAndroidModule = module {
-	/* Android repositories */
+	/* Android data sources */
 
-	factoryOf(::CrashlyticsReportingDataRepository) { bind<ReportingRepository>() }
-	factoryOf(::FirebaseMessagingDataRepository) { bind<MessagingRepository>() }
+	factoryOf(::FirebaseLoginMessagingDataSource) { bind<LoginMessagingDataSource>() }
 }

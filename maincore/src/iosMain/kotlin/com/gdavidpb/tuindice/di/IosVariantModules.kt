@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.di
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.data.ios.IosDebugAttestationDataRepository
 import com.gdavidpb.tuindice.data.ios.IosDebugLoginMessagingDataSource
-import com.gdavidpb.tuindice.login.domain.repository.MessagingRepository as LoginMessagingRepository
+import com.gdavidpb.tuindice.login.data.repository.LoginMessagingDataSource
 import io.ktor.client.HttpClient
 import org.koin.core.module.Module
 import org.koin.core.qualifier.named
@@ -16,7 +16,7 @@ internal val iosDebugVariantModule: Module = module {
 		)
 	}
 
-	factory<LoginMessagingRepository> {
+	factory<LoginMessagingDataSource> {
 		IosDebugLoginMessagingDataSource()
 	}
 }

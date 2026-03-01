@@ -1,9 +1,11 @@
 package com.gdavidpb.tuindice.login.di
 
-import com.gdavidpb.tuindice.login.data.repository.KtorAuthApiApiDataRepository
-import com.gdavidpb.tuindice.login.data.repository.KtorMessagingApiDataRepository
-import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
-import com.gdavidpb.tuindice.login.domain.repository.MessagingApiRepository
+import com.gdavidpb.tuindice.login.data.repository.LoginAuthApiDataSource
+import com.gdavidpb.tuindice.login.data.repository.LoginDataRepository
+import com.gdavidpb.tuindice.login.data.repository.LoginMessagingApiDataSource
+import com.gdavidpb.tuindice.login.data.source.KtorLoginAuthApiDataSource
+import com.gdavidpb.tuindice.login.data.source.KtorLoginMessagingApiDataSource
+import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.UpdatePasswordUseCase
@@ -59,8 +61,12 @@ val loginCommonModule = module {
 
 	/* Repositories */
 
-	factoryOf(::KtorAuthApiApiDataRepository) { bind<AuthApiRepository>() }
-	factoryOf(::KtorMessagingApiDataRepository) { bind<MessagingApiRepository>() }
+	factoryOf(::LoginDataRepository) { bind<LoginRepository>() }
+
+	/* Data sources */
+
+	factoryOf(::KtorLoginAuthApiDataSource) { bind<LoginAuthApiDataSource>() }
+	factoryOf(::KtorLoginMessagingApiDataSource) { bind<LoginMessagingApiDataSource>() }
 
 	/* Shared text resources */
 

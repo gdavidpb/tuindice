@@ -1,13 +1,13 @@
-package com.gdavidpb.tuindice.login.data.repository
+package com.gdavidpb.tuindice.login.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.login.data.model.IssueTokensResponse
 import com.gdavidpb.tuindice.login.data.model.RefreshTokensRequest
 import com.gdavidpb.tuindice.login.data.model.RefreshTokensResponse
+import com.gdavidpb.tuindice.login.data.repository.LoginAuthApiDataSource
 import com.gdavidpb.tuindice.login.domain.model.IssueTokens
 import com.gdavidpb.tuindice.login.domain.model.RefreshTokens
-import com.gdavidpb.tuindice.login.domain.repository.AuthApiRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.HttpRequestBuilder
@@ -19,9 +19,9 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import kotlin.io.encoding.Base64
 
-class KtorAuthApiApiDataRepository(
+class KtorLoginAuthApiDataSource(
 	private val ktorClient: HttpClient
-) : AuthApiRepository {
+) : LoginAuthApiDataSource {
 	override suspend fun issueTokens(
 		usbId: String,
 		password: String,
@@ -65,10 +65,6 @@ class KtorAuthApiApiDataRepository(
 			refreshToken = response.refreshToken,
 			expiresIn = response.expiresIn
 		)
-	}
-
-	override suspend fun revokeTokens() {
-		ktorClient.post("auth/token/revoke")
 	}
 
 	private fun HttpRequestBuilder.setAttestationHeaders(attestation: Attestation) {
