@@ -1,14 +1,9 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.persistence.di.createIosDatabase
 import com.gdavidpb.tuindice.persistence.di.defaultIosDatabasePath
-import com.gdavidpb.tuindice.persistence.di.persistenceCommonModule
 import org.koin.core.Koin
-import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
-import org.koin.core.context.unloadKoinModules
 import org.koin.core.module.Module
 import platform.Foundation.NSLock
 
@@ -28,17 +23,6 @@ private inline fun <T> withIosKoinLock(block: () -> T): T {
 	}
 }
 
-fun iosModules(
-	database: TuIndiceDatabase,
-	platformConfig: IosPlatformConfig = IosPlatformConfig(),
-	extraModules: List<Module> = emptyList()
-): List<Module> {
-	return iosSharedModules(
-		platformConfig = platformConfig,
-		extraModules = listOf(persistenceCommonModule(database)) + extraModules
-	)
-}
-
 fun startIosKoin(
 	databasePath: String,
 	platformConfig: IosPlatformConfig = IosPlatformConfig(),
@@ -47,10 +31,8 @@ fun startIosKoin(
 	return withIosKoinLock {
 		IosKoinRuntime.koin?.let { existing -> return@withIosKoinLock existing }
 
-		val database = createIosDatabase(path = databasePath)
 		val modules = iosModules(
-			database = database,
-			platformConfig = platformConfig,
+			platformConfig = platformConfig.copy(databasePath = databasePath),
 			extraModules = extraModules
 		)
 
@@ -85,7 +67,8 @@ fun startIosKoin(
 			debug = debug
 		),
 		configValues = configValues,
-		bridge = bridge
+		bridge = bridge,
+		databasePath = databasePath
 	)
 
 	return startIosKoin(
@@ -93,18 +76,6 @@ fun startIosKoin(
 		platformConfig = platformConfig,
 		extraModules = iosVariantModules(buildVariant) + extraModules
 	)
-}
-
-fun restartIosKoinModules(): Boolean {
-	return withIosKoinLock {
-		val modules = IosKoinRuntime.modules
-		if (modules.isEmpty()) return@withIosKoinLock false
-
-		unloadKoinModules(modules)
-		loadKoinModules(modules)
-
-		return@withIosKoinLock true
-	}
 }
 
 fun getIosKoinOrNull(): Koin? = withIosKoinLock { IosKoinRuntime.koin }

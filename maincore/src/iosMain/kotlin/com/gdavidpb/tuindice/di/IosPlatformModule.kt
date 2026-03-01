@@ -2,20 +2,33 @@ package com.gdavidpb.tuindice.di
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.gdavidpb.tuindice.base.data.repository.SessionDataRepository
+import com.gdavidpb.tuindice.about.data.repository.AppInfoDataSource
+import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataSource
+import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataSource
+import com.gdavidpb.tuindice.about.data.source.IosAppInfoDataSource
+import com.gdavidpb.tuindice.about.data.source.IosEnvironmentDataSource
+import com.gdavidpb.tuindice.about.data.source.IosShareTextHandler
+import com.gdavidpb.tuindice.about.data.source.IosStoreUrlDataSource
+import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.base.data.source.*
 import com.gdavidpb.tuindice.base.data.source.config.ConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.repository.*
+import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
 import com.gdavidpb.tuindice.data.ios.*
 import com.gdavidpb.tuindice.login.data.repository.LoginAuthApiDataSource
-import com.gdavidpb.tuindice.login.data.repository.LoginDataRepository
-import com.gdavidpb.tuindice.login.data.repository.LoginMessagingApiDataSource
-import com.gdavidpb.tuindice.login.data.repository.LoginMessagingDataSource
 import com.gdavidpb.tuindice.login.data.source.KtorLoginAuthApiDataSource
-import com.gdavidpb.tuindice.login.data.source.KtorLoginMessagingApiDataSource
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
+import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.di.createIosDatabase
+import com.gdavidpb.tuindice.persistence.di.defaultIosDatabasePath
+import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.source.IosImageEncoderDataSource
+import com.gdavidpb.tuindice.summary.presentation.route.IosProfilePictureActionsFactory
+import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActionsFactory
+import com.gdavidpb.tuindice.summary.ui.view.IosProfilePictureViewRenderer
+import com.gdavidpb.tuindice.summary.ui.view.ProfilePictureViewRenderer
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.IosBrowserScreenRenderer
 import io.ktor.client.*
@@ -37,7 +50,8 @@ data class IosPlatformConfig(
 	val configValues: IosConfigValues = IosConfigValues(),
 	val bridge: IosPlatformBridge = DefaultIosPlatformBridge,
 	val secureStore: SecureStoreDataSource? = null,
-	val dataStore: DataStore<Preferences> = createIosDataStore()
+	val dataStore: DataStore<Preferences> = createIosDataStore(),
+	val databasePath: String = defaultIosDatabasePath()
 )
 
 fun iosPlatformModule(
@@ -50,9 +64,9 @@ fun iosPlatformModule(
 	}
 	single<SecureStoreRepository> { get<SecureStoreDataSource>() }
 	single<DataStore<Preferences>> { config.dataStore }
-	singleOf(::InMemorySessionDataSource) { bind<MemorySessionDataSource>() }
-	singleOf(::SecureStoreSessionDataSource) { bind<PreferencesSessionDataSource>() }
-	factoryOf(::SessionDataRepository) { bind<SessionRepository>() }
+	single<TuIndiceDatabase> {
+		createIosDatabase(path = config.databasePath)
+	}
 
 	/* Platform services */
 
@@ -67,7 +81,6 @@ fun iosPlatformModule(
 		)
 	}
 	single<NetworkRepository> { IosNetworkDataSource(get<IosPlatformBridge>()) }
-	single<DependenciesRepository> { IosDependenciesDataSource(get<IosPlatformBridge>()) }
 	single<DeviceInfoRepository> { IosDeviceInfoGateway(get<IosPlatformBridge>()) }
 	single<BrowserRepository> { IosBrowserGateway(get<IosPlatformBridge>()) }
 	single<BrowserScreenRenderer> { IosBrowserScreenRenderer() }
@@ -84,31 +97,17 @@ fun iosPlatformModule(
 	}
 	single<FileRepository> { get<ApplicationRepository>() }
 	single<ReportingRepository> { IosReportingDataSource(get<IosPlatformBridge>()) }
-	factory<LoginMessagingDataSource> { IosLoginMessagingDataSource(get<IosPlatformBridge>()) }
+	factory<PushTokenDataSource> { IosPushTokenDataSource(get<IosPlatformBridge>()) }
+	factoryOf(::IosEnvironmentDataSource) { bind<EnvironmentDataSource>() }
+	factoryOf(::IosAppInfoDataSource) { bind<AppInfoDataSource>() }
+	factoryOf(::IosStoreUrlDataSource) { bind<StoreUrlDataSource>() }
+	factoryOf(::IosShareTextHandler) { bind<ShareTextHandler>() }
+	factoryOf(::IosImageEncoderDataSource) { bind<PictureEncoderDataSource>() }
+	factoryOf(::IosProfilePictureActionsFactory) { bind<ProfilePictureActionsFactory>() }
+	factoryOf(::IosProfilePictureViewRenderer) { bind<ProfilePictureViewRenderer>() }
 	factory<LoginAuthApiDataSource> {
 		KtorLoginAuthApiDataSource(
 			ktorClient = get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
-		)
-	}
-	factory<LoginMessagingApiDataSource> {
-		KtorLoginMessagingApiDataSource(
-			ktorClient = get<HttpClient>()
-		)
-	}
-	factory<LoginRepository> {
-		LoginDataRepository(
-			authApiDataSource = get<LoginAuthApiDataSource>(),
-			messagingApiDataSource = get<LoginMessagingApiDataSource>(),
-			messagingDataSource = get<LoginMessagingDataSource>(),
-			sessionRepository = get<SessionRepository>(),
-			reportingRepository = get<ReportingRepository>()
-		)
-	}
-	factory<MessagingRepository> {
-		IosMessagingDataRepository(
-			dataStore = get<DataStore<Preferences>>(),
-			httpClientProvider = { get<HttpClient>() },
-			bridge = get<IosPlatformBridge>()
 		)
 	}
 	factory<AttestationRepository> {
@@ -122,10 +121,6 @@ fun iosPlatformModule(
 	}
 
 	/* Serialization + network */
-
-	single {
-		createSharedJson()
-	}
 
 	single(named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER)) {
 		createIosIdentityHttpClient(

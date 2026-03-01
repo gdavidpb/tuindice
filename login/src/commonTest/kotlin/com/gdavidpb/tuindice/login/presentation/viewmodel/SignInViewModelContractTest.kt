@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.login.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.login.testing.RecordingLoginRepository
+import com.gdavidpb.tuindice.login.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.login.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
@@ -23,6 +24,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class SignInViewModelContractTest {
+	private companion object {
+		const val VALID_USB_ID = "20-26123"
+	}
+
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun publicActions_updateState_andEmitEffects() = runTest {
@@ -30,6 +35,7 @@ class SignInViewModelContractTest {
 			signInActionProcessor = SignInActionProcessor(
 				signInUseCase = SignInUseCase(
 					loginRepository = RecordingLoginRepository(),
+					messagingRepository = RecordingMessagingRepository(),
 					attestationRepository = FakeAttestationRepository(),
 					paramsValidator = SignInParamsValidator(),
 					exceptionHandler = SignInExceptionHandler(
@@ -58,30 +64,32 @@ class SignInViewModelContractTest {
 			viewModel.state.test {
 				assertEquals(SignIn.State.Idle(), awaitItem())
 
-				viewModel.setUsbIdAction("20261234")
-				assertEquals(SignIn.State.Idle(usbId = "20261234"), awaitItem())
+				viewModel.setUsbIdAction(VALID_USB_ID)
+				assertEquals(SignIn.State.Idle(usbId = VALID_USB_ID), awaitItem())
 
 				viewModel.setPasswordAction("secret123")
 				assertEquals(
 					SignIn.State.Idle(
-						usbId = "20261234",
+						usbId = VALID_USB_ID,
 						password = "secret123"
 					),
 					awaitItem()
 				)
 
-				viewModel.signInAction("20261234", "secret123")
+				viewModel.signInAction(VALID_USB_ID, "secret123")
 				assertIs<SignIn.State.LoggingIn>(awaitItem())
 
 				cancelAndIgnoreRemainingEvents()
 			}
 
 			viewModel.effect.test {
+				assertIs<SignIn.Effect.NavigateToSummary>(awaitItem())
+
 				viewModel.openTermsAndConditionsAction()
 				val browserEffect = assertIs<SignIn.Effect.NavigateToBrowser>(awaitItem())
 				assertEquals("https://tuindice.app/terms", browserEffect.url)
 
-				viewModel.signInAction("20261234", "secret123")
+				viewModel.signInAction(VALID_USB_ID, "secret123")
 				assertIs<SignIn.Effect.NavigateToSummary>(awaitItem())
 
 				cancelAndIgnoreRemainingEvents()

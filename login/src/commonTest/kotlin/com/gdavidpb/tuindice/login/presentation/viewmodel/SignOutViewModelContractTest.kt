@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.login.presentation.action.SignOutActionProcessor
 import com.gdavidpb.tuindice.login.presentation.contract.SignOut
 import com.gdavidpb.tuindice.login.testing.FakeSessionRepository
 import com.gdavidpb.tuindice.login.testing.RecordingApplicationRepository
-import com.gdavidpb.tuindice.login.testing.RecordingDependenciesRepository
 import com.gdavidpb.tuindice.login.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.runTest
@@ -23,8 +22,7 @@ class SignOutViewModelContractTest {
 				signOutUseCase = SignOutUseCase(
 					sessionRepository = FakeSessionRepository(),
 					messagingRepository = RecordingMessagingRepository(),
-					applicationRepository = RecordingApplicationRepository(),
-					dependenciesRepository = RecordingDependenciesRepository()
+					applicationRepository = RecordingApplicationRepository()
 				)
 			)
 		)

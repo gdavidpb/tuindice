@@ -1,25 +1,13 @@
 package com.gdavidpb.tuindice.di
 
-import com.gdavidpb.tuindice.about.di.aboutIosModule
-import com.gdavidpb.tuindice.summary.di.summaryIosModule
 import org.koin.core.module.Module
 
-fun iosFeatureModules(
-	platformConfig: IosPlatformConfig = IosPlatformConfig()
-): List<Module> {
-	return listOf(
-		iosPlatformModule(platformConfig),
-		aboutIosModule,
-		summaryIosModule
-	)
-}
-
-fun iosSharedModules(
+fun iosModules(
 	platformConfig: IosPlatformConfig = IosPlatformConfig(),
 	extraModules: List<Module> = emptyList()
 ): List<Module> {
 	return sharedModules(
-		platformModules = iosFeatureModules(platformConfig),
+		platformModules = listOf(iosPlatformModule(platformConfig)),
 		extraModules = extraModules
 	)
 }

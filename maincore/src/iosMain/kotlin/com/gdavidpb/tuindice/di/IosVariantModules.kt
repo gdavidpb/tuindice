@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.data.ios.IosDebugAttestationDataRepository
-import com.gdavidpb.tuindice.data.ios.IosDebugLoginMessagingDataSource
-import com.gdavidpb.tuindice.login.data.repository.LoginMessagingDataSource
+import com.gdavidpb.tuindice.data.ios.IosDebugPushTokenDataSource
+import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
 import io.ktor.client.HttpClient
 import org.koin.core.module.Module
 import org.koin.core.qualifier.named
@@ -16,8 +16,8 @@ internal val iosDebugVariantModule: Module = module {
 		)
 	}
 
-	factory<LoginMessagingDataSource> {
-		IosDebugLoginMessagingDataSource()
+	factory<PushTokenDataSource> {
+		IosDebugPushTokenDataSource()
 	}
 }
 

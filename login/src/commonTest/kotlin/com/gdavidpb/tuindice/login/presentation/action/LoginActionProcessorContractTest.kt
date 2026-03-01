@@ -15,7 +15,6 @@ import com.gdavidpb.tuindice.login.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.login.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.login.testing.FakeSessionRepository
 import com.gdavidpb.tuindice.login.testing.RecordingApplicationRepository
-import com.gdavidpb.tuindice.login.testing.RecordingDependenciesRepository
 import com.gdavidpb.tuindice.login.testing.RecordingLoginRepository
 import com.gdavidpb.tuindice.login.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.login.testing.RecordingReportingRepository
@@ -29,11 +28,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class LoginActionProcessorContractTest {
+	private companion object {
+		const val VALID_USB_ID = "20-26123"
+	}
+
 	@Test
 	fun signInActionProcessor_emitsLoggingMutation_thenNavigatesToSummary() = runTest {
 		val processor = SignInActionProcessor(
 			signInUseCase = SignInUseCase(
 				loginRepository = RecordingLoginRepository(),
+				messagingRepository = RecordingMessagingRepository(),
 				attestationRepository = FakeAttestationRepository(),
 				paramsValidator = SignInParamsValidator(),
 				exceptionHandler = SignInExceptionHandler(
@@ -47,14 +51,14 @@ class LoginActionProcessorContractTest {
 
 		processor.process(
 			action = SignIn.Action.ClickSignIn(
-				usbId = "20261234",
+				usbId = VALID_USB_ID,
 				password = "secret123"
 			),
 			sideEffect = effects::add
 		).test {
 			val loading = awaitItem()(SignIn.State.Idle())
 			val logging = assertIs<SignIn.State.LoggingIn>(loading)
-			assertEquals("20261234", logging.usbId)
+			assertEquals(VALID_USB_ID, logging.usbId)
 
 			val next = awaitItem()(logging)
 			assertEquals(logging, next)
@@ -101,8 +105,7 @@ class LoginActionProcessorContractTest {
 			signOutUseCase = SignOutUseCase(
 				sessionRepository = FakeSessionRepository(),
 				messagingRepository = RecordingMessagingRepository(),
-				applicationRepository = RecordingApplicationRepository(),
-				dependenciesRepository = RecordingDependenciesRepository()
+				applicationRepository = RecordingApplicationRepository()
 			)
 		)
 		val effects = mutableListOf<SignOut.Effect>()

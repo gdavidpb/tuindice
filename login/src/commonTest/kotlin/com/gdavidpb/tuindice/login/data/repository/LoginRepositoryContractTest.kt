@@ -3,9 +3,7 @@ package com.gdavidpb.tuindice.login.data.repository
 import com.gdavidpb.tuindice.login.testing.DEFAULT_LOGIN_ATTESTATION
 import com.gdavidpb.tuindice.login.testing.DEFAULT_REFRESH_TOKENS
 import com.gdavidpb.tuindice.login.testing.FakeLoginAuthApiDataSource
-import com.gdavidpb.tuindice.login.testing.FakeLoginMessagingDataSource
 import com.gdavidpb.tuindice.login.testing.FakeSessionRepository
-import com.gdavidpb.tuindice.login.testing.RecordingLoginMessagingApiDataSource
 import com.gdavidpb.tuindice.login.testing.RecordingReportingRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -13,15 +11,12 @@ import kotlin.test.assertEquals
 
 class LoginRepositoryContractTest {
 	@Test
-	fun signIn_persistsTokens_setsIdentifier_andSubscribesMessaging() = runTest {
+	fun signIn_persistsTokens_andSetsIdentifier() = runTest {
 		val authDataSource = FakeLoginAuthApiDataSource()
-		val messagingApiDataSource = RecordingLoginMessagingApiDataSource()
 		val sessionRepository = FakeSessionRepository(usbId = "", accessToken = "", refreshToken = "")
 		val reportingRepository = RecordingReportingRepository()
 		val repository = LoginDataRepository(
 			authApiDataSource = authDataSource,
-			messagingApiDataSource = messagingApiDataSource,
-			messagingDataSource = FakeLoginMessagingDataSource(token = "push-token"),
 			sessionRepository = sessionRepository,
 			reportingRepository = reportingRepository
 		)
@@ -36,18 +31,14 @@ class LoginRepositoryContractTest {
 		assertEquals("access-token", sessionRepository.getAccessToken())
 		assertEquals("refresh-token", sessionRepository.getRefreshToken())
 		assertEquals("uid-123", reportingRepository.identifier)
-		assertEquals("push-token", messagingApiDataSource.subscribedToken)
 		assertEquals(1, authDataSource.issueCalls.size)
 	}
 
 	@Test
-	fun updatePassword_refreshesSessionTokens_withoutSubscribingMessaging() = runTest {
-		val messagingApiDataSource = RecordingLoginMessagingApiDataSource()
+	fun updatePassword_refreshesSessionTokens() = runTest {
 		val sessionRepository = FakeSessionRepository(accessToken = "old-access", refreshToken = "old-refresh")
 		val repository = LoginDataRepository(
 			authApiDataSource = FakeLoginAuthApiDataSource(),
-			messagingApiDataSource = messagingApiDataSource,
-			messagingDataSource = FakeLoginMessagingDataSource(token = "push-token"),
 			sessionRepository = sessionRepository,
 			reportingRepository = RecordingReportingRepository()
 		)
@@ -60,7 +51,6 @@ class LoginRepositoryContractTest {
 
 		assertEquals("access-token", sessionRepository.getAccessToken())
 		assertEquals("refresh-token", sessionRepository.getRefreshToken())
-		assertEquals(null, messagingApiDataSource.subscribedToken)
 	}
 
 	@Test
@@ -68,8 +58,6 @@ class LoginRepositoryContractTest {
 		val sessionRepository = FakeSessionRepository(accessToken = "old-access", refreshToken = "old-refresh")
 		val repository = LoginDataRepository(
 			authApiDataSource = FakeLoginAuthApiDataSource(refreshTokens = DEFAULT_REFRESH_TOKENS),
-			messagingApiDataSource = RecordingLoginMessagingApiDataSource(),
-			messagingDataSource = FakeLoginMessagingDataSource(),
 			sessionRepository = sessionRepository,
 			reportingRepository = RecordingReportingRepository()
 		)

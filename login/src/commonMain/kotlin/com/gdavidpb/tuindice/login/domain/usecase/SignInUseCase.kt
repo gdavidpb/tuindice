@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.login.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.login.domain.model.IssueTokensAttestationPayload
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class SignInUseCase(
 	private val loginRepository: LoginRepository,
+	private val messagingRepository: MessagingRepository,
 	private val attestationRepository: AttestationRepository,
 	override val paramsValidator: SignInParamsValidator,
 	override val exceptionHandler: SignInExceptionHandler
@@ -32,6 +34,7 @@ class SignInUseCase(
 			password = params.password,
 			attestation = attestation
 		)
+		messagingRepository.subscribe()
 
 		return flowOf(Unit)
 	}

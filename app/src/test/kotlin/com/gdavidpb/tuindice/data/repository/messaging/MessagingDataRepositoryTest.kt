@@ -3,18 +3,19 @@ package com.gdavidpb.tuindice.data.repository.messaging
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.fail
 import org.junit.Test
 
 class MessagingDataRepositoryTest {
 	@Test
 	fun subscribe_withFreshToken_postsAndPersistsToken() = runBlocking {
-		val local = FakeLocalDataSource()
-		val remote = FakeRemoteDataSource()
-		val provider = FakeProviderDataSource(token = "token-1")
+		val local = FakeMessagingLocalDataSource()
+		val remote = FakeMessagingRemoteDataSource()
+		val pushTokenDataSource = FakePushTokenDataSource(token = "token-1")
 		val repository = MessagingDataRepository(
 			localDataSource = local,
 			remoteDataSource = remote,
-			providerDataSource = provider
+			pushTokenDataSource = pushTokenDataSource
 		)
 
 		repository.subscribe()
@@ -26,16 +27,16 @@ class MessagingDataRepositoryTest {
 
 	@Test
 	fun subscribe_withSameTokenAndSubscribed_skipsRemoteCall() = runBlocking {
-		val local = FakeLocalDataSource().apply {
+		val local = FakeMessagingLocalDataSource().apply {
 			subscribed = true
 			subscribedToken = "token-1"
 		}
-		val remote = FakeRemoteDataSource()
-		val provider = FakeProviderDataSource(token = "token-1")
+		val remote = FakeMessagingRemoteDataSource()
+		val pushTokenDataSource = FakePushTokenDataSource(token = "token-1")
 		val repository = MessagingDataRepository(
 			localDataSource = local,
 			remoteDataSource = remote,
-			providerDataSource = provider
+			pushTokenDataSource = pushTokenDataSource
 		)
 
 		repository.subscribe()
@@ -46,16 +47,16 @@ class MessagingDataRepositoryTest {
 
 	@Test
 	fun subscribe_withRotatedToken_reSubscribesAndUpdatesStoredToken() = runBlocking {
-		val local = FakeLocalDataSource().apply {
+		val local = FakeMessagingLocalDataSource().apply {
 			subscribed = true
 			subscribedToken = "token-1"
 		}
-		val remote = FakeRemoteDataSource()
-		val provider = FakeProviderDataSource(token = "token-2")
+		val remote = FakeMessagingRemoteDataSource()
+		val pushTokenDataSource = FakePushTokenDataSource(token = "token-2")
 		val repository = MessagingDataRepository(
 			localDataSource = local,
 			remoteDataSource = remote,
-			providerDataSource = provider
+			pushTokenDataSource = pushTokenDataSource
 		)
 
 		repository.subscribe()
@@ -65,17 +66,22 @@ class MessagingDataRepositoryTest {
 	}
 
 	@Test
-	fun subscribe_withBlankToken_skipsRemoteCallAndDoesNotPersistSubscription() = runBlocking {
-		val local = FakeLocalDataSource()
-		val remote = FakeRemoteDataSource()
-		val provider = FakeProviderDataSource(token = "   ")
+	fun subscribe_withBlankToken_throwsAndDoesNotPersistSubscription() = runBlocking {
+		val local = FakeMessagingLocalDataSource()
+		val remote = FakeMessagingRemoteDataSource()
+		val pushTokenDataSource = FakePushTokenDataSource(token = "   ")
 		val repository = MessagingDataRepository(
 			localDataSource = local,
 			remoteDataSource = remote,
-			providerDataSource = provider
+			pushTokenDataSource = pushTokenDataSource
 		)
 
-		repository.subscribe()
+		try {
+			repository.subscribe()
+			fail("Expected subscribe() to fail when the push token is blank.")
+		} catch (_: IllegalStateException) {
+			// Expected path.
+		}
 
 		assertEquals(emptyList<String>(), remote.subscribeCalls)
 		assertEquals(false, local.isSubscribed())
@@ -84,15 +90,15 @@ class MessagingDataRepositoryTest {
 
 	@Test
 	fun unsubscribe_callsRemoteAndClearsLocalSubscription() = runBlocking {
-		val local = FakeLocalDataSource().apply {
+		val local = FakeMessagingLocalDataSource().apply {
 			subscribed = true
 			subscribedToken = "token-1"
 		}
-		val remote = FakeRemoteDataSource()
+		val remote = FakeMessagingRemoteDataSource()
 		val repository = MessagingDataRepository(
 			localDataSource = local,
 			remoteDataSource = remote,
-			providerDataSource = FakeProviderDataSource(token = "token-1")
+			pushTokenDataSource = FakePushTokenDataSource(token = "token-1")
 		)
 
 		repository.unsubscribe()
@@ -104,17 +110,17 @@ class MessagingDataRepositoryTest {
 
 	@Test
 	fun unsubscribe_whenRemoteFails_stillClearsLocalSubscription() = runBlocking {
-		val local = FakeLocalDataSource().apply {
+		val local = FakeMessagingLocalDataSource().apply {
 			subscribed = true
 			subscribedToken = "token-1"
 		}
-		val remote = FakeRemoteDataSource().apply {
+		val remote = FakeMessagingRemoteDataSource().apply {
 			unsubscribeError = IllegalStateException("network-error")
 		}
 		val repository = MessagingDataRepository(
 			localDataSource = local,
 			remoteDataSource = remote,
-			providerDataSource = FakeProviderDataSource(token = "token-1")
+			pushTokenDataSource = FakePushTokenDataSource(token = "token-1")
 		)
 
 		repository.unsubscribe()
@@ -125,7 +131,7 @@ class MessagingDataRepositoryTest {
 	}
 }
 
-private class FakeLocalDataSource : LocalDataSource {
+private class FakeMessagingLocalDataSource : MessagingLocalDataSource {
 	var subscribed: Boolean = false
 	var subscribedToken: String? = null
 
@@ -144,7 +150,7 @@ private class FakeLocalDataSource : LocalDataSource {
 	}
 }
 
-private class FakeRemoteDataSource : RemoteDataSource {
+private class FakeMessagingRemoteDataSource : MessagingRemoteDataSource {
 	val subscribeCalls = mutableListOf<String>()
 	var unsubscribeCalls: Int = 0
 	var unsubscribeError: Throwable? = null
@@ -161,8 +167,8 @@ private class FakeRemoteDataSource : RemoteDataSource {
 	}
 }
 
-private class FakeProviderDataSource(
+private class FakePushTokenDataSource(
 	private val token: String?
-) : ProviderDataSource {
-	override suspend fun getToken(): String? = token
+) : PushTokenDataSource {
+	override suspend fun getToken(): String = token ?: throw IllegalStateException("Push token unavailable.")
 }

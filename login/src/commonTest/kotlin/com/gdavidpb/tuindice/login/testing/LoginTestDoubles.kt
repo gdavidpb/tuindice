@@ -6,14 +6,11 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.login.data.repository.LoginAuthApiDataSource
-import com.gdavidpb.tuindice.login.data.repository.LoginMessagingApiDataSource
-import com.gdavidpb.tuindice.login.data.repository.LoginMessagingDataSource
 import com.gdavidpb.tuindice.login.domain.model.IssueTokens
 import com.gdavidpb.tuindice.login.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
@@ -159,14 +156,6 @@ class RecordingApplicationRepository : ApplicationRepository {
 	override suspend fun canOpen(fileRef: PlatformFileRef): Boolean = true
 }
 
-class RecordingDependenciesRepository : DependenciesRepository {
-	var restartCalls = 0
-
-	override fun restart() {
-		restartCalls++
-	}
-}
-
 class RecordingMessagingRepository : MessagingRepository {
 	var subscribeCalls = 0
 	var unsubscribeCalls = 0
@@ -207,18 +196,4 @@ class FakeLoginAuthApiDataSource(
 		throwable?.let { throw it }
 		return refreshTokens
 	}
-}
-
-class RecordingLoginMessagingApiDataSource : LoginMessagingApiDataSource {
-	var subscribedToken: String? = null
-
-	override suspend fun subscribe(token: String) {
-		subscribedToken = token
-	}
-}
-
-class FakeLoginMessagingDataSource(
-	private val token: String = "push-token"
-) : LoginMessagingDataSource {
-	override suspend fun getToken(): String = token
 }

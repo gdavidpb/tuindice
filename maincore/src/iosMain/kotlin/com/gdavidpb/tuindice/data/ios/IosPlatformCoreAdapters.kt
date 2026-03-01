@@ -7,16 +7,14 @@ import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
-import com.gdavidpb.tuindice.base.domain.repository.DependenciesRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
+import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
 import com.gdavidpb.tuindice.di.IosPlatformBridge
-import com.gdavidpb.tuindice.di.restartIosKoinModules
-import com.gdavidpb.tuindice.login.data.repository.LoginMessagingDataSource
 
 internal class IosAppEnvironmentDataSource(
 	private val environment: AppEnvironment
@@ -40,18 +38,6 @@ internal class IosNetworkDataSource(
 	private val bridge: IosPlatformBridge
 ) : NetworkRepository {
 	override fun isAvailable(): Boolean = bridge.isNetworkAvailable()
-}
-
-internal class IosDependenciesDataSource(
-	private val bridge: IosPlatformBridge
-) : DependenciesRepository {
-	override fun restart() {
-		if (restartIosKoinModules()) {
-			return
-		}
-
-		bridge.restartDependencies()
-	}
 }
 
 internal class IosDeviceInfoGateway(
@@ -120,9 +106,9 @@ internal class IosReportingDataSource(
 	}
 }
 
-internal class IosLoginMessagingDataSource(
+internal class IosPushTokenDataSource(
 	private val bridge: IosPlatformBridge
-) : LoginMessagingDataSource {
+) : PushTokenDataSource {
 	override suspend fun getToken(): String {
 		return bridge.pushToken()
 			?.takeIf { token -> token.isNotBlank() }

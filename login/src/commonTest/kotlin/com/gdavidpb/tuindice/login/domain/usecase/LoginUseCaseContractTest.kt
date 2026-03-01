@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.login.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.login.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.login.testing.FakeSessionRepository
 import com.gdavidpb.tuindice.login.testing.RecordingApplicationRepository
-import com.gdavidpb.tuindice.login.testing.RecordingDependenciesRepository
 import com.gdavidpb.tuindice.login.testing.RecordingLoginRepository
 import com.gdavidpb.tuindice.login.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.login.testing.RecordingReportingRepository
@@ -20,12 +19,18 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class LoginUseCaseContractTest {
+	private companion object {
+		const val VALID_USB_ID = "20-26123"
+	}
+
 	@Test
 	fun signInUseCase_emitsLoadingThenData_andDelegatesToRepository() = runTest {
 		val repository = RecordingLoginRepository()
 		val attestationRepository = FakeAttestationRepository()
+		val messagingRepository = RecordingMessagingRepository()
 		val useCase = SignInUseCase(
 			loginRepository = repository,
+			messagingRepository = messagingRepository,
 			attestationRepository = attestationRepository,
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
@@ -34,12 +39,13 @@ class LoginUseCaseContractTest {
 			)
 		)
 
-		useCase.execute(SignInParams(usbId = "20261234", password = "secret123")).test {
+		useCase.execute(SignInParams(usbId = VALID_USB_ID, password = "secret123")).test {
 			assertEquals(Unit, awaitLoadingThenData(this))
 			awaitComplete()
 		}
 
 		assertEquals(1, repository.signInCalls.size)
+		assertEquals(1, messagingRepository.subscribeCalls)
 	}
 
 	@Test
@@ -66,16 +72,14 @@ class LoginUseCaseContractTest {
 	}
 
 	@Test
-	fun signOutUseCase_emitsLoadingThenData_andClearsDependencies() = runTest {
+	fun signOutUseCase_emitsLoadingThenData_andClearsSessionData() = runTest {
 		val messagingRepository = RecordingMessagingRepository()
 		val sessionRepository = FakeSessionRepository()
 		val applicationRepository = RecordingApplicationRepository()
-		val dependenciesRepository = RecordingDependenciesRepository()
 		val useCase = SignOutUseCase(
 			sessionRepository = sessionRepository,
 			messagingRepository = messagingRepository,
-			applicationRepository = applicationRepository,
-			dependenciesRepository = dependenciesRepository
+			applicationRepository = applicationRepository
 		)
 
 		useCase.execute(Unit).test {
@@ -86,6 +90,5 @@ class LoginUseCaseContractTest {
 		assertEquals(true, sessionRepository.cleared)
 		assertEquals(1, messagingRepository.unsubscribeCalls)
 		assertEquals(true, applicationRepository.cleared)
-		assertEquals(1, dependenciesRepository.restartCalls)
 	}
 }

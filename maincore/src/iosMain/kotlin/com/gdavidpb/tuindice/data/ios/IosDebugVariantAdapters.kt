@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.login.data.repository.LoginMessagingDataSource
+import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -31,7 +31,7 @@ internal class IosDebugAttestationDataRepository(
 	}
 }
 
-internal class IosDebugLoginMessagingDataSource : LoginMessagingDataSource {
+internal class IosDebugPushTokenDataSource : PushTokenDataSource {
 	override suspend fun getToken(): String {
 		return IOS_DEBUG_PUSH_TOKEN
 	}

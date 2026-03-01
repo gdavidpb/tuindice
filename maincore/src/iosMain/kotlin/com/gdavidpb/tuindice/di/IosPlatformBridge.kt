@@ -36,7 +36,6 @@ interface IosPlatformBridge {
 	fun logMessage(message: String)
 	fun logException(throwable: Throwable)
 	fun setCustomKey(key: String, value: String)
-	fun restartDependencies()
 	fun secureStoreContains(key: String): Boolean
 	fun secureStoreGetString(key: String): String?
 	fun secureStorePutString(key: String, value: String)
@@ -115,10 +114,6 @@ object DefaultIosPlatformBridge : IosPlatformBridge {
 	}
 
 	override fun setCustomKey(key: String, value: String) = Unit
-
-	override fun restartDependencies() {
-		failMissingBridge(api = "restartDependencies")
-	}
 
 	override fun secureStoreContains(key: String): Boolean {
 		failMissingBridge(api = "secureStoreContains")

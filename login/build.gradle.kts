@@ -41,14 +41,5 @@ kotlin {
 				implementation(libs.ktor.serialization.kotlinx.json)
 			}
 		}
-
-		val androidMain by getting {
-			dependencies {
-				implementation(project.dependencies.platform(libs.firebase.bom))
-				implementation(libs.firebase.messaging)
-				implementation(libs.firebase.crashlytics)
-				implementation(libs.kotlinx.coroutines.play.services)
-			}
-		}
 	}
 }

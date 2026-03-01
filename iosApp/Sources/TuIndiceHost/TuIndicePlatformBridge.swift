@@ -434,8 +434,6 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         #endif
     }
 
-    func restartDependencies() {}
-
     func secureStoreContains(key: String) -> Bool {
         secureStore.contains(key)
     }
