@@ -1,0 +1,88 @@
+package com.gdavidpb.tuindice.record.presentation.action
+
+import app.cash.turbine.test
+import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.GetQuartersExceptionHandler
+import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
+import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
+import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
+import com.gdavidpb.tuindice.record.testing.FakeNetworkRepository
+import com.gdavidpb.tuindice.record.testing.FakeRecordTextProvider
+import com.gdavidpb.tuindice.record.testing.RecordingQuarterRepository
+import com.gdavidpb.tuindice.record.testing.RecordingReportingRepository
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
+
+class RecordActionProcessorContractTest {
+	@Test
+	fun loadQuartersActionProcessor_reducesStateToContent() = runTest {
+		val processor = LoadQuartersActionProcessor(
+			getQuartersUseCase = GetQuartersUseCase(
+				quarterRepository = RecordingQuarterRepository(
+					quarters = flowOf(listOf(DEFAULT_RECORD_QUARTER))
+				),
+				exceptionHandler = GetQuartersExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true),
+					reportingRepository = RecordingReportingRepository()
+				)
+			),
+			textProvider = FakeRecordTextProvider()
+		)
+		val effects = mutableListOf<Record.Effect>()
+
+		processor.process(
+			action = Record.Action.LoadQuarters,
+			sideEffect = effects::add
+		).test {
+			assertEquals(Record.State.Loading, awaitItem()(Record.State.Empty))
+
+			val content = assertIs<Record.State.Content>(awaitItem()(Record.State.Loading))
+			assertEquals(listOf(DEFAULT_RECORD_QUARTER), content.quarters)
+
+			awaitComplete()
+		}
+
+		assertTrue(effects.isEmpty())
+	}
+
+	@Test
+	fun setSubjectGradeActionProcessor_preservesState_andShowsErrorOnValidationFailure() = runTest {
+		val processor = SetSubjectGradeActionProcessor(
+			setSubjectGradeUseCase = SetSubjectGradeUseCase(
+				quarterRepository = RecordingQuarterRepository(),
+				paramsValidator = SetSubjectGradeParamsValidator(),
+				exceptionHandler = SetSubjectGradeExceptionHandler(
+					reportingRepository = RecordingReportingRepository()
+				)
+			),
+			textProvider = FakeRecordTextProvider()
+		)
+		val initialState = Record.State.Content(
+			quarters = listOf(DEFAULT_RECORD_QUARTER)
+		)
+		val effects = mutableListOf<Record.Effect>()
+
+		processor.process(
+			action = Record.Action.SetSubjectGrade(
+				quarterId = DEFAULT_RECORD_QUARTER.id,
+				subjectId = DEFAULT_RECORD_QUARTER.subjects.single().id,
+				grade = -1,
+				commit = false
+			),
+			sideEffect = effects::add
+		).test {
+			assertEquals(initialState, awaitItem()(initialState))
+			assertEquals(initialState, awaitItem()(initialState))
+			awaitComplete()
+		}
+
+		val effect = assertIs<Record.Effect.ShowSnackBar>(effects.single())
+		assertEquals("Error", effect.message)
+	}
+}
