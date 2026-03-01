@@ -9,16 +9,6 @@ import platform.UIKit.UIApplication
 import platform.UIKit.UIImagePickerController
 import platform.UIKit.UIImagePickerControllerSourceType
 
-data class IosUiTextValues(
-	val googleServicesUnavailableTitle: String = "Servicios no disponibles",
-	val googleServicesUnavailableMessage: String = "Google Play Services no aplica en iOS.",
-	val googleServicesUnavailableExit: String = "Salir",
-	val externalResourceTitle: String = "Abrir recurso externo",
-	val externalResourceMessage: String = "Estás a punto de abrir un enlace externo.",
-	val externalResourceOpen: String = "Abrir",
-	val externalResourceCancel: String = "Cancelar"
-)
-
 data class IosPlatformAttestation(
 	val token: String,
 	val keyId: String? = null,

@@ -11,9 +11,14 @@ import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.ui.dialog.ExternalResourceDialog
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.presentation.route.BrowserRoute
-import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+import tuindice.maincore.generated.resources.Res
+import tuindice.maincore.generated.resources.cancel
+import tuindice.maincore.generated.resources.dialog_message_warning_external
+import tuindice.maincore.generated.resources.dialog_title_warning_external
+import tuindice.maincore.generated.resources.open
 
 fun NavGraphBuilder.browserNavigation(
 	onNavigateToExternalResourceDialog: (url: String) -> Unit,
@@ -52,14 +57,13 @@ fun NavGraphBuilder.browserNavigation(
 		dialogProperties = DialogProperties()
 	) { backStackEntry ->
 		val args = backStackEntry.toRoute<BrowserDestination.ExternalResourceDialog>()
-		val hostUiTexts = koinInject<HostUiTextProvider>().getValues()
 
 		ExternalResourceDialog(
 			url = args.url,
-			titleText = hostUiTexts.externalResourceTitle,
-			messageText = hostUiTexts.externalResourceMessage,
-			openText = hostUiTexts.externalResourceOpen,
-			cancelText = hostUiTexts.externalResourceCancel,
+			titleText = stringResource(Res.string.dialog_title_warning_external),
+			messageText = stringResource(Res.string.dialog_message_warning_external),
+			openText = stringResource(Res.string.open),
+			cancelText = stringResource(Res.string.cancel),
 			onConfirmClick = onNavigateToExternalResource,
 			onDismissRequest = onDismissRequest
 		)

@@ -11,6 +11,10 @@ kotlin {
 		namespace = "com.gdavidpb.tuindice.maincore"
 		compileSdk = 36
 		minSdk = 24
+
+		androidResources {
+			enable = true
+		}
 	}
 
 	listOf(
@@ -40,6 +44,7 @@ kotlin {
 				implementation(libs.datastore.preferences)
 				implementation(libs.koin.compose)
 				implementation(libs.koin.core)
+				implementation(libs.components.resources)
 				implementation(libs.kotlinx.serialization.json)
 				implementation(libs.material.icons.extended)
 				implementation(libs.navigation.compose)

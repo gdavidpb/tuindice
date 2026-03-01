@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice
 import android.app.Application
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
 import com.gdavidpb.tuindice.di.androidReleaseModules
-import com.gdavidpb.tuindice.di.appMockModule
+import com.gdavidpb.tuindice.di.androidAppMockModule
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
@@ -29,7 +29,7 @@ class MockTuIndiceApp : Application() {
 
 			allowOverride(true)
 
-			modules(androidReleaseModules() + appMockModule)
+			modules(androidReleaseModules() + androidAppMockModule)
 		}
 	}
 }

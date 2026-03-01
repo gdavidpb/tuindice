@@ -15,32 +15,13 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.di.IosPlatformBridge
-import com.gdavidpb.tuindice.di.IosUiTextValues
 import com.gdavidpb.tuindice.di.restartIosKoinModules
 import com.gdavidpb.tuindice.login.data.repository.LoginMessagingDataSource
-import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
-import com.gdavidpb.tuindice.ui.resource.HostUiTexts
 
 internal class IosAppEnvironmentDataSource(
 	private val environment: AppEnvironment
 ) : AppEnvironmentRepository {
 	override fun getEnvironment(): AppEnvironment = environment
-}
-
-internal class StaticHostUiTextProvider(
-	private val values: IosUiTextValues
-) : HostUiTextProvider {
-	override fun getValues(): HostUiTexts {
-		return HostUiTexts(
-			googleServicesUnavailableTitle = values.googleServicesUnavailableTitle,
-			googleServicesUnavailableMessage = values.googleServicesUnavailableMessage,
-			googleServicesUnavailableExit = values.googleServicesUnavailableExit,
-			externalResourceTitle = values.externalResourceTitle,
-			externalResourceMessage = values.externalResourceMessage,
-			externalResourceOpen = values.externalResourceOpen,
-			externalResourceCancel = values.externalResourceCancel
-		)
-	}
 }
 
 internal class IosRemoteConfigDataSource(

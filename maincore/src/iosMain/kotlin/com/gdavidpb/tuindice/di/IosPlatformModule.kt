@@ -16,7 +16,6 @@ import com.gdavidpb.tuindice.login.data.repository.LoginMessagingDataSource
 import com.gdavidpb.tuindice.login.data.source.KtorLoginAuthApiDataSource
 import com.gdavidpb.tuindice.login.data.source.KtorLoginMessagingApiDataSource
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
-import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.IosBrowserScreenRenderer
 import io.ktor.client.*
@@ -36,7 +35,6 @@ data class IosPlatformConfig(
 		debug = false
 	),
 	val configValues: IosConfigValues = IosConfigValues(),
-	val uiTextValues: IosUiTextValues = IosUiTextValues(),
 	val bridge: IosPlatformBridge = DefaultIosPlatformBridge,
 	val secureStore: SecureStoreDataSource? = null,
 	val dataStore: DataStore<Preferences> = createIosDataStore()
@@ -59,7 +57,6 @@ fun iosPlatformModule(
 	/* Platform services */
 
 	single<IosPlatformBridge> { config.bridge }
-	single<HostUiTextProvider> { StaticHostUiTextProvider(config.uiTextValues) }
 	single<IdentifierRepository> { UUIDIdentifierDataSource() }
 	single<AppEnvironmentRepository> { IosAppEnvironmentDataSource(config.appEnvironment) }
 	single<RemoteConfigDataSource> { IosRemoteConfigDataSource(get<IosPlatformBridge>()) }

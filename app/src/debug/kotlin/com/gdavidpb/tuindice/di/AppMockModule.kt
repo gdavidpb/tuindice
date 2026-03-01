@@ -13,9 +13,7 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
 
-val appMockModule = module {
-	/* Firebase */
-
+val androidAppMockModule = module {
 	single {
 		FirebaseCrashlytics.getInstance().apply {
 			isCrashlyticsCollectionEnabled = false
@@ -30,11 +28,7 @@ val appMockModule = module {
 		}
 	}
 
-	/* Data sources */
-
 	factoryOf(::MockAttestationProviderDataSource) { bind<AttestationProvider>() }
 	factoryOf(::DebugKoinDataSource) { bind<DependenciesRepository>() }
-	factoryOf(::DebugReportingDataSource) {
-		bind<ReportingRepository>()
-	}
+	factoryOf(::DebugReportingDataSource) { bind<ReportingRepository>() }
 }

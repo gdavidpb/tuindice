@@ -4,8 +4,11 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.dialog
 import com.gdavidpb.tuindice.ui.dialog.GooglePlayServicesDialog
-import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
-import org.koin.compose.koinInject
+import org.jetbrains.compose.resources.stringResource
+import tuindice.maincore.generated.resources.Res
+import tuindice.maincore.generated.resources.dialog_message_no_gms_failure
+import tuindice.maincore.generated.resources.dialog_title_no_gms_failure
+import tuindice.maincore.generated.resources.exit
 
 fun NavGraphBuilder.mainNavigation(
 	onConfirmExitClick: () -> Unit,
@@ -16,12 +19,10 @@ fun NavGraphBuilder.mainNavigation(
 		deepLinks = emptyList(),
 		dialogProperties = DialogProperties()
 	) {
-		val hostUiTexts = koinInject<HostUiTextProvider>().getValues()
-
 		GooglePlayServicesDialog(
-			titleText = hostUiTexts.googleServicesUnavailableTitle,
-			messageText = hostUiTexts.googleServicesUnavailableMessage,
-			exitText = hostUiTexts.googleServicesUnavailableExit,
+			titleText = stringResource(Res.string.dialog_title_no_gms_failure),
+			messageText = stringResource(Res.string.dialog_message_no_gms_failure),
+			exitText = stringResource(Res.string.exit),
 			onConfirmExitClick = onConfirmExitClick,
 			onDismissRequest = onDismissRequest
 		)

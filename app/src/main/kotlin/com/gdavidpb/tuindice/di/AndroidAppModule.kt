@@ -41,9 +41,7 @@ import com.gdavidpb.tuindice.data.source.reporting.FirebaseCrashReporter
 import com.gdavidpb.tuindice.data.source.review.PlayReviewDataSource
 import com.gdavidpb.tuindice.data.source.securestore.AndroidSecureStoreDataSource
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
-import com.gdavidpb.tuindice.data.source.ui.AndroidHostUiTextProvider
 import com.gdavidpb.tuindice.data.source.update.PlayUpdateDataSource
-import com.gdavidpb.tuindice.ui.resource.HostUiTextProvider
 import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.utils.UserAgent
@@ -63,16 +61,14 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
+import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository as BaseExternalActionsRepository
 import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
 import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource as AttestationRemote
 import com.gdavidpb.tuindice.data.repository.messaging.LocalDataSource as MessagingLocal
 import com.gdavidpb.tuindice.data.repository.messaging.ProviderDataSource as MessagingProvider
 import com.gdavidpb.tuindice.data.repository.messaging.RemoteDataSource as MessagingRemote
-import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository as BaseExternalActionsRepository
 
-val appModule = module {
-	/* Android Services */
-
+val androidAppModule = module {
 	single {
 		androidContext().getSystemService<ConnectivityManager>()
 	}
@@ -111,8 +107,6 @@ val appModule = module {
 		ReviewManagerFactory.create(androidContext())
 	}
 
-	/* Firebase */
-
 	single<RemoteConfigDefaultsProfile> {
 		if (BuildConfig.DEBUG) {
 			RemoteConfigDefaultsProfile.DEBUG
@@ -147,8 +141,6 @@ val appModule = module {
 		IntegrityManagerFactory.create(androidContext())
 	}
 
-	/* KtorHttpClient */
-
 	single {
 		createSharedHttpClient(
 			appEnvironmentRepository = get(),
@@ -174,8 +166,6 @@ val appModule = module {
 		createSharedJson()
 	}
 
-	/* Repositories */
-
 	factoryOf(::SessionDataRepository) { bind<SessionRepository>() }
 	factoryOf(::MessagingDataRepository) {
 		bind<MessagingRepository>()
@@ -183,8 +173,6 @@ val appModule = module {
 	factoryOf(::AttestationDataRepository) {
 		bind<AttestationRepository>()
 	}
-
-	/* Data sources */
 
 	singleOf(::InMemorySessionDataSource) { bind<MemorySessionDataSource>() }
 	singleOf(::SecureStoreSessionDataSource) { bind<PreferencesSessionDataSource>() }
@@ -204,7 +192,6 @@ val appModule = module {
 	singleOf(::PlayUpdateDataSource) { bind<UpdateRepository>() }
 	singleOf(::AndroidBrowserDataSource) { bind<BrowserRepository>() }
 	singleOf(::AndroidBrowserScreenRenderer) { bind<BrowserScreenRenderer>() }
-	singleOf(::AndroidHostUiTextProvider) { bind<HostUiTextProvider>() }
 	singleOf(::AndroidFileOpenerDataSource) { bind<BaseExternalActionsRepository>() }
 	singleOf(::AndroidDeviceInfoDataSource) { bind<DeviceInfoRepository>() }
 	singleOf(::AndroidSecureStoreDataSource) {
