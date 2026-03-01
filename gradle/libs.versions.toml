@@ -41,6 +41,7 @@ compose = "1.10.4"
 compose-mpp = "1.10.1"
 compose-mpp-material3 = "1.9.0"
 datastore = "1.2.0"
+filekit = "0.13.0"
 
 [libraries]
 # Room
@@ -134,6 +135,7 @@ kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-cor
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
+filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
 
 # Coil
 coil = { module = "io.coil-kt:coil", version.ref = "coil" }
@@ -154,5 +156,4 @@ firebase = ["firebase-config", "firebase-messaging", "firebase-crashlytics"]
 google = ["app-update-ktx", "material", "review-ktx", "integrity"]
 compose = ["compose-ui", "compose-foundation", "compose-animation", "compose-ui-tooling", "compose-preview", "compose-activity", "compose-material3", "compose-icons", "compose-constraintlayout"]
 compose-mpp-core = ["jetbrains-compose-ui", "jetbrains-compose-foundation", "jetbrains-compose-animation", "jetbrains-compose-material3"]
-coroutines = ["kotlinx-coroutines-android", "kotlinx-coroutines-play-services"]
 ktor = ["ktor-client-core", "ktor-client-auth", "ktor-client-logging", "ktor-client-content-negotiation", "ktor-serialization-kotlinx-json"]

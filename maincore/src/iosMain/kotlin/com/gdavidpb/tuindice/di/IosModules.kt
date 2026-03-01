@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.about.di.aboutIosModule
-import com.gdavidpb.tuindice.enrollmentproof.di.enrollmentProofIosModule
 import com.gdavidpb.tuindice.summary.di.summaryIosModule
 import org.koin.core.module.Module
 
@@ -11,8 +10,7 @@ fun iosFeatureModules(
 	return listOf(
 		iosPlatformModule(platformConfig),
 		aboutIosModule,
-		summaryIosModule,
-		enrollmentProofIosModule
+		summaryIosModule
 	)
 }
 

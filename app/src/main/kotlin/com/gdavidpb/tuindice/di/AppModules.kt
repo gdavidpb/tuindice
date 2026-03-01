@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.about.di.aboutAndroidModule
-import com.gdavidpb.tuindice.enrollmentproof.di.enrollmentProofAndroidModule
 import com.gdavidpb.tuindice.login.di.loginAndroidModule
 import com.gdavidpb.tuindice.persistence.di.persistenceAndroidModule
 import com.gdavidpb.tuindice.summary.di.summaryAndroidModule
@@ -14,8 +13,7 @@ fun androidReleaseModules(): List<Module> {
 			aboutAndroidModule,
 			persistenceAndroidModule,
 			loginAndroidModule,
-			summaryAndroidModule,
-			enrollmentProofAndroidModule
+			summaryAndroidModule
 		)
 	)
 }

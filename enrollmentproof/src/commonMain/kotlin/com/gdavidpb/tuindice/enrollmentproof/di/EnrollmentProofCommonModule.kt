@@ -3,6 +3,8 @@ package com.gdavidpb.tuindice.enrollmentproof.di
 import com.gdavidpb.tuindice.enrollmentproof.data.repository.DatabaseDataSource
 import com.gdavidpb.tuindice.enrollmentproof.data.repository.EnrollmentProofApiDataSource
 import com.gdavidpb.tuindice.enrollmentproof.data.repository.EnrollmentProofDataRepository
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.StorageDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.source.FileKitStorageDataSource
 import com.gdavidpb.tuindice.enrollmentproof.data.source.KtorEnrollmentProofApiDataSource
 import com.gdavidpb.tuindice.enrollmentproof.data.source.RoomDatabaseDataSource
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
@@ -37,6 +39,7 @@ val enrollmentProofCommonModule = module {
 
 	factoryOf(::RoomDatabaseDataSource) { bind<DatabaseDataSource>() }
 	factoryOf(::KtorEnrollmentProofApiDataSource) { bind<EnrollmentProofApiDataSource>() }
+	factoryOf(::FileKitStorageDataSource) { bind<StorageDataSource>() }
 
 	/* Exception handlers */
 

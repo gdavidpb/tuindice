@@ -30,6 +30,7 @@ kotlin {
 				implementation(libs.koin.compose)
 				implementation(libs.components.resources)
 				implementation(libs.compottie)
+				implementation(libs.filekit.core)
 			}
 		}
 
