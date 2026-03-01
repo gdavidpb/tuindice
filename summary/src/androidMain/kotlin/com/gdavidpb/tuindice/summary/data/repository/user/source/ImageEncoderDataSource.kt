@@ -5,17 +5,17 @@ import android.graphics.Bitmap
 import androidx.core.net.toUri
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
 import com.gdavidpb.tuindice.base.domain.model.PlatformUri
+import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.repository.user.source.encoder.mapper.decodeRotationDegrees
 import com.gdavidpb.tuindice.summary.data.repository.user.source.encoder.mapper.decodeScaleFactor
 import com.gdavidpb.tuindice.summary.data.repository.user.source.encoder.mapper.decodeScaledBitmap
 import com.gdavidpb.tuindice.summary.data.repository.user.source.encoder.mapper.rotate
-import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
 class ImageEncoderDataSource(
 	private val contentResolver: ContentResolver
-) : EncoderRepository {
+) : PictureEncoderDataSource {
 
 	private object Settings {
 		const val SAMPLE = 1024

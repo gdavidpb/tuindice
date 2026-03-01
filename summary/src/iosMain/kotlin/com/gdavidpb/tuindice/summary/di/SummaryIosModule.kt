@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.di
 
+import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.IosImageEncoderDataSource
-import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
 import com.gdavidpb.tuindice.summary.presentation.route.IosProfilePictureActionsFactory
 import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActionsFactory
 import com.gdavidpb.tuindice.summary.ui.view.IosProfilePictureViewRenderer
@@ -11,7 +11,7 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
 val summaryIosModule = module {
-	factoryOf(::IosImageEncoderDataSource) { bind<EncoderRepository>() }
+	factoryOf(::IosImageEncoderDataSource) { bind<PictureEncoderDataSource>() }
 	factoryOf(::IosProfilePictureActionsFactory) { bind<ProfilePictureActionsFactory>() }
 	factoryOf(::IosProfilePictureViewRenderer) { bind<ProfilePictureViewRenderer>() }
 }

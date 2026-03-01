@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import org.koin.compose.koinInject
 
 interface ProfilePictureViewRenderer {
 	@Composable
@@ -38,7 +37,7 @@ fun ProfilePictureView(
 	state: ProfilePictureState,
 	onLoading: (isLoading: Boolean) -> Unit,
 	onClick: () -> Unit,
-	renderer: ProfilePictureViewRenderer = koinInject()
+	renderer: ProfilePictureViewRenderer
 ) {
 	Box(
 		modifier = modifier

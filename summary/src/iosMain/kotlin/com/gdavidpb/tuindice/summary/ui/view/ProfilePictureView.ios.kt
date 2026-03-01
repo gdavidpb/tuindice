@@ -17,16 +17,16 @@ import platform.Foundation.NSTemporaryDirectory
 import platform.UIKit.UIImage
 import platform.UIKit.UIImageView
 import platform.UIKit.UIViewContentMode
-import org.koin.compose.koinInject
 
-class IosProfilePictureViewRenderer : ProfilePictureViewRenderer {
+class IosProfilePictureViewRenderer(
+	private val httpClient: HttpClient
+) : ProfilePictureViewRenderer {
 	@Composable
 	override fun Render(
 		modifier: Modifier,
 		url: String,
 		onLoading: (isLoading: Boolean) -> Unit
 	) {
-		val httpClient = koinInject<HttpClient>()
 		var remoteImage by remember(url) {
 			mutableStateOf<UIImage?>(null)
 		}

@@ -1,8 +1,8 @@
-package com.gdavidpb.tuindice.summary.domain.repository
+package com.gdavidpb.tuindice.summary.data.repository.user
 
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
 import com.gdavidpb.tuindice.base.domain.model.PlatformUri
 
-interface EncoderRepository {
+interface PictureEncoderDataSource {
 	suspend fun encodePicture(uri: PlatformUri): EncodedImage
 }

@@ -2,11 +2,11 @@ package com.gdavidpb.tuindice.summary.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
 import com.gdavidpb.tuindice.base.domain.model.PlatformUri
-import com.gdavidpb.tuindice.summary.domain.repository.EncoderRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataSource
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
-class IosImageEncoderDataSource : EncoderRepository {
+class IosImageEncoderDataSource : PictureEncoderDataSource {
 	override suspend fun encodePicture(uri: PlatformUri): EncodedImage {
 		val path = uri.value
 			.removePrefix("file://")

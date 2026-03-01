@@ -5,12 +5,11 @@ import androidx.compose.material3.MaterialTheme
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.resource.SummaryItemsTextProvider
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
-import org.koin.compose.koinInject
 
 @Composable
 fun rememberSummaryItems(
 	state: Summary.State.Content,
-	textProvider: SummaryItemsTextProvider = koinInject()
+	textProvider: SummaryItemsTextProvider
 ): List<SummaryItem> {
 	return buildSummaryItems(
 		state = state,
