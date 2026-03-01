@@ -1,0 +1,220 @@
+package com.gdavidpb.tuindice.record.domain.service
+
+import com.gdavidpb.tuindice.base.presentation.mapper.parseDate
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
+import kotlin.math.floor
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class IndexComputationEngineTest {
+	private val engine = IndexComputationEngine()
+
+	@Test
+	fun recompute_calculatesQuarterCreditsIgnoringZeroGrades() {
+		val quarter = createQuarter(
+			id = "quarter-1",
+			subjects = listOf(
+				createSubject(id = "subject-1", quarterId = "quarter-1", grade = 5, credits = 4),
+				createSubject(id = "subject-2", quarterId = "quarter-1", grade = 0, credits = 3),
+				createSubject(id = "subject-3", quarterId = "quarter-1", grade = 2, credits = 2)
+			)
+		)
+
+		val actualCredits = recompute(quarter).single().credits
+
+		assertEquals(6, actualCredits)
+	}
+
+	@Test
+	fun recompute_calculatesQuarterGradeUsingWeightedAverage() {
+		val quarter = createQuarter(
+			id = "quarter-1",
+			subjects = listOf(
+				createSubject(id = "subject-1", quarterId = "quarter-1", grade = 5, credits = 4),
+				createSubject(id = "subject-2", quarterId = "quarter-1", grade = 0, credits = 3),
+				createSubject(id = "subject-3", quarterId = "quarter-1", grade = 2, credits = 2)
+			)
+		)
+
+		val creditsSum = (4 + 2).toDouble()
+		val weightedSum = ((5 * 4) + (2 * 2)).toDouble()
+		val expectedGrade = floor(weightedSum / creditsSum * 10000.0) / 10000.0
+
+		val actualGrade = recompute(quarter).single().grade
+
+		assertEquals(expectedGrade, actualGrade)
+	}
+
+	@Test
+	fun recompute_replacesOnlyThePreviousAttempt_whenLatestAttemptPassed() {
+		val oldestQuarter = createQuarter(
+			id = "quarter-1",
+			startDate = date("Enero 2019"),
+			endDate = date("Marzo 2019"),
+			subjects = listOf(
+				createSubject(
+					id = "subject-1",
+					quarterId = "quarter-1",
+					code = "MA1111",
+					grade = 1,
+					credits = 4
+				)
+			)
+		)
+		val middleQuarter = createQuarter(
+			id = "quarter-2",
+			startDate = date("Julio 2019"),
+			endDate = date("Agosto 2019"),
+			subjects = listOf(
+				createSubject(
+					id = "subject-2",
+					quarterId = "quarter-2",
+					code = "MA1111",
+					grade = 2,
+					credits = 4
+				)
+			)
+		)
+		val latestQuarter = createQuarter(
+			id = "quarter-3",
+			startDate = date("Septiembre 2019"),
+			endDate = date("Diciembre 2019"),
+			subjects = listOf(
+				createSubject(
+					id = "subject-3",
+					quarterId = "quarter-3",
+					code = "MA1111",
+					grade = 5,
+					credits = 4
+				)
+			)
+		)
+
+		val recomputedQuarter = recompute(
+			latestQuarter,
+			middleQuarter,
+			oldestQuarter
+		).first { quarter -> quarter.id == latestQuarter.id }
+
+		assertEquals(8, recomputedQuarter.creditsSum)
+		assertEquals(3.0, recomputedQuarter.gradeSum)
+	}
+
+	@Test
+	fun recompute_calculatesGradeSumAcrossQuartersRespectingRetakes() {
+		val quarter1 = createQuarter(
+			id = "quarter-1",
+			startDate = date("Enero 2019"),
+			endDate = date("Marzo 2019"),
+			isCurrent = false,
+			isReadOnly = true,
+			subjects = listOf(
+				createSubject(id = "subject-11", quarterId = "quarter-1", code = "MA1111", grade = 2, credits = 4),
+				createSubject(id = "subject-12", quarterId = "quarter-1", code = "ID1111", grade = 3, credits = 3),
+				createSubject(id = "subject-13", quarterId = "quarter-1", code = "CSA211", grade = 3, credits = 3)
+			)
+		)
+		val quarter2 = createQuarter(
+			id = "quarter-2",
+			startDate = date("Julio 2019"),
+			endDate = date("Agosto 2019"),
+			isCurrent = false,
+			isReadOnly = true,
+			subjects = listOf(
+				createSubject(id = "subject-21", quarterId = "quarter-2", code = "MA1111", grade = 2, credits = 4)
+			)
+		)
+		val quarter3 = createQuarter(
+			id = "quarter-3",
+			startDate = date("Septiembre 2019"),
+			endDate = date("Diciembre 2019"),
+			isCurrent = false,
+			isReadOnly = true,
+			subjects = listOf(
+				createSubject(id = "subject-31", quarterId = "quarter-3", code = "MA1111", grade = 5, credits = 4),
+				createSubject(id = "subject-32", quarterId = "quarter-3", code = "ID1112", grade = 5, credits = 3)
+			)
+		)
+		val quarter4 = createQuarter(
+			id = "quarter-4",
+			startDate = date("Enero 2020"),
+			endDate = date("Marzo 2020"),
+			isCurrent = false,
+			isReadOnly = true,
+			subjects = listOf(
+				createSubject(id = "subject-41", quarterId = "quarter-4", code = "MA1112", grade = 0, credits = 4),
+				createSubject(id = "subject-42", quarterId = "quarter-4", code = "ID1113", grade = 0, credits = 3)
+			)
+		)
+		val quarter5 = createQuarter(
+			id = "quarter-5",
+			startDate = date("Septiembre 2020"),
+			endDate = date("Diciembre 2020"),
+			isCurrent = true,
+			isReadOnly = false,
+			subjects = listOf(
+				createSubject(id = "subject-51", quarterId = "quarter-5", code = "MA1112", grade = 5, credits = 4),
+				createSubject(id = "subject-52", quarterId = "quarter-5", code = "ID1113", grade = 0, credits = 3)
+			)
+		)
+
+		val creditsSum = (4 + 3 + 3 + 4 + 3 + 4).toDouble()
+		val weightedSum = ((2 * 4) + (3 * 3) + (3 * 3) + (5 * 4) + (5 * 3) + (5 * 4)).toDouble()
+		val expectedGradeSum = floor(weightedSum / creditsSum * 10000.0) / 10000.0
+
+		val actualGradeSum = recompute(quarter5, quarter4, quarter3, quarter2, quarter1)
+			.first { quarter -> quarter.id == quarter5.id }
+			.gradeSum
+
+		assertEquals(expectedGradeSum, actualGradeSum)
+	}
+
+	private fun date(value: String): Long {
+		return value.parseDate("MMMM yyyy")!!.time
+	}
+
+	private fun createQuarter(
+		id: String = "",
+		startDate: Long = 0L,
+		endDate: Long = 0L,
+		isCurrent: Boolean = false,
+		isReadOnly: Boolean = false,
+		subjects: List<LocalSubject> = emptyList()
+	) = LocalQuarter(
+		id = id,
+		name = "",
+		startDate = startDate,
+		endDate = endDate,
+		grade = 0.0,
+		gradeSum = 0.0,
+		credits = 0,
+		creditsSum = 0,
+		isCurrent = isCurrent,
+		isReadOnly = isReadOnly,
+		subjects = subjects
+	)
+
+	private fun createSubject(
+		id: String = "",
+		quarterId: String = "",
+		code: String = "",
+		name: String = "",
+		grade: Int = 0,
+		credits: Int = 0
+	) = LocalSubject(
+		id = id,
+		quarterId = quarterId,
+		code = code,
+		name = name,
+		credits = credits,
+		grade = grade
+	)
+
+	private fun recompute(vararg quarters: LocalQuarter): List<LocalQuarter> {
+		return engine.recompute(
+			quarters = quarters.toList(),
+			affectedStartDate = Long.MIN_VALUE
+		).quarters
+	}
+}

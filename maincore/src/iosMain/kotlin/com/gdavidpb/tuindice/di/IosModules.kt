@@ -6,8 +6,10 @@ fun iosModules(
 	platformConfig: IosPlatformConfig = IosPlatformConfig(),
 	extraModules: List<Module> = emptyList()
 ): List<Module> {
-	return sharedModules(
-		platformModules = listOf(iosPlatformModule(platformConfig)),
+	return appModules(
+		platformBootstrap = IosKoinBootstrap(
+			platformConfig = platformConfig
+		),
 		extraModules = extraModules
 	)
 }

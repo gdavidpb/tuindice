@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.di
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.persistence.di.defaultIosDatabasePath
 import org.koin.core.Koin
-import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import platform.Foundation.NSLock
 
@@ -26,21 +25,21 @@ private inline fun <T> withIosKoinLock(block: () -> T): T {
 fun startIosKoin(
 	databasePath: String,
 	platformConfig: IosPlatformConfig = IosPlatformConfig(),
+	variantModules: List<Module> = emptyList(),
 	extraModules: List<Module> = emptyList()
 ): Koin {
 	return withIosKoinLock {
 		IosKoinRuntime.koin?.let { existing -> return@withIosKoinLock existing }
 
-		val modules = iosModules(
-			platformConfig = platformConfig.copy(databasePath = databasePath),
-			extraModules = extraModules
+		val koin = startAppKoin(
+			AppKoinBootstrapRequest(
+				platformBootstrap = IosKoinBootstrap(
+					platformConfig = platformConfig.copy(databasePath = databasePath),
+					platformVariantModules = variantModules
+				),
+				extraModules = extraModules
+			)
 		)
-
-		IosKoinRuntime.modules = modules
-
-		val koin = startKoin {
-			modules(modules)
-		}.koin
 
 		IosKoinRuntime.koin = koin
 
@@ -74,7 +73,8 @@ fun startIosKoin(
 	return startIosKoin(
 		databasePath = databasePath,
 		platformConfig = platformConfig,
-		extraModules = iosVariantModules(buildVariant) + extraModules
+		variantModules = iosVariantModules(buildVariant),
+		extraModules = extraModules
 	)
 }
 
@@ -86,6 +86,5 @@ fun requireIosKoin(): Koin {
 }
 
 private object IosKoinRuntime {
-	var modules: List<Module> = emptyList()
 	var koin: Koin? = null
 }
