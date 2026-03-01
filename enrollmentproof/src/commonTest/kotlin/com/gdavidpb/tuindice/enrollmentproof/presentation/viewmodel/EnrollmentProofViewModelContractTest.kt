@@ -1,0 +1,61 @@
+package com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel
+
+import app.cash.turbine.test
+import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
+import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
+import com.gdavidpb.tuindice.enrollmentproof.presentation.action.FetchEnrollmentProofActionProcessor
+import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
+import com.gdavidpb.tuindice.enrollmentproof.testing.DEFAULT_ENROLLMENT_PROOF
+import com.gdavidpb.tuindice.enrollmentproof.testing.DEFAULT_ENROLLMENT_PROOF_SOURCE
+import com.gdavidpb.tuindice.enrollmentproof.testing.FakeEnrollmentProofRepository
+import com.gdavidpb.tuindice.enrollmentproof.testing.FakeEnrollmentProofTextProvider
+import com.gdavidpb.tuindice.enrollmentproof.testing.FakeFileRepository
+import com.gdavidpb.tuindice.enrollmentproof.testing.FakeNetworkRepository
+import com.gdavidpb.tuindice.enrollmentproof.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+
+class EnrollmentProofViewModelContractTest {
+	@Test
+	@OptIn(ExperimentalCoroutinesApi::class)
+	fun initialAction_keepsFetchingStateAndEmitsOpenEnrollmentProofEffect() = runTest {
+		val viewModel = EnrollmentProofViewModel(
+			enrollmentProofActionProcessor = FetchEnrollmentProofActionProcessor(
+				enrollmentProofUseCase = FetchEnrollmentProofUseCase(
+					applicationRepository = FakeFileRepository(canOpen = true),
+					enrollmentProofRepository = FakeEnrollmentProofRepository(
+						enrollmentProof = DEFAULT_ENROLLMENT_PROOF
+					),
+					exceptionHandler = FetchEnrollmentProofExceptionHandler(
+						networkRepository = FakeNetworkRepository(isAvailable = true),
+						reportingRepository = RecordingReportingRepository()
+					)
+				),
+				textProvider = FakeEnrollmentProofTextProvider()
+			)
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(Enrollment.State.Fetching, awaitItem())
+				cancelAndIgnoreRemainingEvents()
+			}
+
+			viewModel.effect.test {
+				val effect = assertIs<Enrollment.Effect.OpenEnrollmentProof>(awaitItem())
+				assertEquals(DEFAULT_ENROLLMENT_PROOF_SOURCE, effect.fileRef.value)
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+}

@@ -37,6 +37,8 @@ kotlin {
 		val commonTest by getting {
 			dependencies {
 				implementation(kotlin("test"))
+				implementation(project(":testkit"))
+				implementation(libs.ktor.client.mock)
 			}
 		}
 	}
