@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.summary.data.repository.user
 
 import com.gdavidpb.tuindice.base.domain.model.User
-import com.gdavidpb.tuindice.base.domain.model.PlatformUri
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
+import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.transform
@@ -35,8 +35,8 @@ class UserDataRepository(
 			}
 	}
 
-	override suspend fun uploadProfilePicture(uri: PlatformUri): ProfilePicture {
-		val encodedImage = pictureEncoderDataSource.encodePicture(uri = uri)
+	override suspend fun uploadProfilePicture(file: PlatformFile): ProfilePicture {
+		val encodedImage = pictureEncoderDataSource.encodePicture(file = file)
 
 		return remoteDataSource.uploadProfilePicture(
 			content = encodedImage.content,

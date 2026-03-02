@@ -15,7 +15,6 @@ import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.ui.view.ProfilePictureView
-import com.gdavidpb.tuindice.summary.ui.view.ProfilePictureViewRenderer
 import com.gdavidpb.tuindice.summary.ui.view.SummaryContentView
 import com.gdavidpb.tuindice.summary.ui.view.SummaryFailedView
 import com.gdavidpb.tuindice.summary.ui.view.SummaryLoadingView
@@ -30,8 +29,7 @@ import tuindice.summary.generated.resources.summary_failed_title
 fun SummaryScreen(
 	state: Summary.State,
 	onRetryClick: () -> Unit,
-	onEditProfilePictureClick: () -> Unit,
-	profilePictureViewRenderer: ProfilePictureViewRenderer
+	onEditProfilePictureClick: () -> Unit
 ) {
 	SealedCrossfade(targetState = state) { targetState ->
 		when (targetState) {
@@ -60,8 +58,7 @@ fun SummaryScreen(
 						ProfilePictureView(
 							state = profilePictureState,
 							onLoading = onLoading,
-							onClick = onClick,
-							renderer = profilePictureViewRenderer
+							onClick = onClick
 						)
 					},
 					lastUpdateLeadingContent = { _, isUpdated, rotation ->

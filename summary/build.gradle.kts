@@ -26,6 +26,10 @@ kotlin {
 			dependencies {
 				implementation(project(":base"))
 				implementation(project(":persistence"))
+				implementation(libs.filekit.core)
+				implementation(libs.filekit.dialogs.compose)
+				implementation(libs.coil3.compose)
+				implementation(libs.coil3.network.ktor3)
 				implementation(libs.datastore.preferences)
 				implementation(libs.navigation.compose)
 				implementation(libs.koin.compose)
@@ -45,8 +49,6 @@ kotlin {
 			dependencies {
 				implementation(libs.compose.activity)
 				implementation(libs.core.ktx)
-				implementation(libs.bundles.coil)
-				implementation(libs.exifinterface)
 			}
 		}
 	}

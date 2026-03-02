@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.enrollmentproof.testing.FakeFileRepository
 import com.gdavidpb.tuindice.enrollmentproof.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.enrollmentproof.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -51,7 +52,7 @@ class EnrollmentProofViewModelContractTest {
 
 			viewModel.effect.test {
 				val effect = assertIs<Enrollment.Effect.OpenEnrollmentProof>(awaitItem())
-				assertEquals(DEFAULT_ENROLLMENT_PROOF_SOURCE, effect.fileRef.value)
+				assertEquals(PlatformFile(DEFAULT_ENROLLMENT_PROOF_SOURCE), effect.file)
 				cancelAndIgnoreRemainingEvents()
 			}
 		} finally {

@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.data.ios
 import com.gdavidpb.tuindice.base.data.source.SecureStoreDataSource
 import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
@@ -22,6 +21,8 @@ import com.gdavidpb.tuindice.di.IosRemoteConfigCapability
 import com.gdavidpb.tuindice.di.IosReviewCapability
 import com.gdavidpb.tuindice.di.IosSecureStoreCapability
 import com.gdavidpb.tuindice.di.IosUpdateCapability
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.path
 
 internal class IosAppEnvironmentDataSource(
 	private val environment: AppEnvironment
@@ -68,8 +69,8 @@ internal class IosBrowserGateway(
 internal class IosFileOpener(
 	private val externalActionsCapability: IosExternalActionsCapability
 ) : FileOpenerRepository {
-	override fun openFile(fileRef: PlatformFileRef): Boolean {
-		return externalActionsCapability.openFile(fileRef)
+	override fun openFile(file: PlatformFile): Boolean {
+		return externalActionsCapability.openFile(file.path)
 	}
 }
 

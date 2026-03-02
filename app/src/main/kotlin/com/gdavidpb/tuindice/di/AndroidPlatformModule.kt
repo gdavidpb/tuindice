@@ -48,12 +48,6 @@ import com.gdavidpb.tuindice.data.source.securestore.AndroidSecureStoreDataSourc
 import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.data.source.update.PlayUpdateDataSource
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.source.ImageEncoderDataSource
-import com.gdavidpb.tuindice.summary.presentation.route.AndroidProfilePictureActionsFactory
-import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActionsFactory
-import com.gdavidpb.tuindice.summary.ui.view.AndroidProfilePictureViewRenderer
-import com.gdavidpb.tuindice.summary.ui.view.ProfilePictureViewRenderer
 import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.utils.UserAgent
@@ -212,9 +206,6 @@ private fun Module.registerAndroidFeaturePlatformBindings() {
 	factoryOf(::AndroidAppInfoDataSource) { bind<AppInfoDataSource>() }
 	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlDataSource>() }
 	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
-	factoryOf(::ImageEncoderDataSource) { bind<PictureEncoderDataSource>() }
-	factoryOf(::AndroidProfilePictureActionsFactory) { bind<ProfilePictureActionsFactory>() }
-	factoryOf(::AndroidProfilePictureViewRenderer) { bind<ProfilePictureViewRenderer>() }
 }
 
 private fun Module.registerAndroidPlatformNetworking() {

@@ -323,17 +323,15 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         }
     }
 
-    func openFile(fileRef: Any) -> Bool {
-        guard let path = Self.resolvePath(fileRef) else { return false }
-        return openFile(path: path)
+    func openFile(path: String) -> Bool {
+        return openResolvedFile(path: path)
     }
 
-    func canOpen(fileRef: Any) -> Bool {
-        guard let path = Self.resolvePath(fileRef) else { return false }
-        return canOpen(path: path)
+    func canOpen(path: String) -> Bool {
+        return canOpenResolvedFile(path: path)
     }
 
-    private func openFile(path: String) -> Bool {
+    private func openResolvedFile(path: String) -> Bool {
         let url: URL
         if path.contains("://"), let parsed = URL(string: path) {
             url = parsed
@@ -346,7 +344,7 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         return true
     }
 
-    private func canOpen(path: String) -> Bool {
+    private func canOpenResolvedFile(path: String) -> Bool {
         let url: URL
         if path.contains("://"), let parsed = URL(string: path) {
             url = parsed
@@ -471,18 +469,6 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         }
 
         return root
-    }
-
-    private static func resolvePath(_ fileRef: Any) -> String? {
-        if let value = fileRef as? String {
-            return value
-        }
-
-        if let value = fileRef as? NSString {
-            return value as String
-        }
-
-        return nil
     }
 
     private static func isVersion(_ lhs: String, newerThan rhs: String) -> Bool {

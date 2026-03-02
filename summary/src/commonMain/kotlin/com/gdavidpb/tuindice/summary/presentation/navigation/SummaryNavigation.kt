@@ -11,12 +11,10 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
-import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActionsFactory
 import com.gdavidpb.tuindice.summary.presentation.route.SummaryRoute
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.screen.ProfilePictureSettingsContentDialog
 import com.gdavidpb.tuindice.summary.ui.screen.RemoveProfilePictureConfirmationContentDialog
-import com.gdavidpb.tuindice.summary.ui.view.ProfilePictureViewRenderer
 import org.koin.compose.koinInject
 
 private const val PROFILE_PICTURE_DIALOG_ACTION_KEY = "profile_picture_dialog_action"
@@ -38,12 +36,6 @@ fun NavGraphBuilder.summaryNavigation(
 	navigation<SummaryDestination.NavGraph>(startDestination = SummaryDestination.Summary) {
 		composable<SummaryDestination.Summary> { backStackEntry ->
 			val viewModel = koinInject<SummaryViewModel>()
-			val profilePictureActionsFactory = koinInject<ProfilePictureActionsFactory>()
-			val profilePictureViewRenderer = koinInject<ProfilePictureViewRenderer>()
-			val profilePictureActions = profilePictureActionsFactory.remember(
-				onPicturePicked = viewModel::uploadProfilePictureAction,
-				onPictureTaken = viewModel::uploadTakenProfilePictureAction
-			)
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 			LaunchedEffect(viewState) {
@@ -90,8 +82,6 @@ fun NavGraphBuilder.summaryNavigation(
 				onNavigateToRemoveProfilePictureConfirmationDialog = onNavigateToRemoveProfilePictureConfirmationDialog,
 				onNavigateToUpdatePassword = onNavigateToUpdatePassword,
 				showSnackBar = showSnackBar,
-				profilePictureActions = profilePictureActions,
-				profilePictureViewRenderer = profilePictureViewRenderer,
 				viewModel = viewModel
 			)
 		}

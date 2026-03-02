@@ -17,28 +17,42 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-
-interface ProfilePictureViewRenderer {
-	@Composable
-	fun Render(
-		modifier: Modifier,
-		url: String,
-		onLoading: (isLoading: Boolean) -> Unit
-	)
-}
+import coil3.ImageLoader
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 
 @Composable
 fun ProfilePictureView(
 	modifier: Modifier = Modifier,
 	state: ProfilePictureState,
 	onLoading: (isLoading: Boolean) -> Unit,
-	onClick: () -> Unit,
-	renderer: ProfilePictureViewRenderer
+	onClick: () -> Unit
 ) {
+	val platformContext = LocalPlatformContext.current
+	val imageLoader = remember(platformContext) {
+		ImageLoader.Builder(platformContext)
+			.components {
+				add(KtorNetworkFetcherFactory())
+			}
+			.build()
+	}
+
+	LaunchedEffect(state.url) {
+		if (state.url.isBlank()) {
+			onLoading(false)
+		}
+	}
+
 	Box(
 		modifier = modifier
 			.clickable { if (!state.isLoading) onClick() }
@@ -59,11 +73,20 @@ fun ProfilePictureView(
 					MaterialTheme.colorScheme.primary
 			)
 
-			renderer.Render(
-				modifier = Modifier.fillMaxSize(),
-				url = state.url,
-				onLoading = onLoading
-			)
+			if (state.url.isNotBlank())
+				AsyncImage(
+					modifier = Modifier.fillMaxSize(),
+					model = ImageRequest.Builder(platformContext)
+						.data(state.url)
+						.crossfade(true)
+						.build(),
+					imageLoader = imageLoader,
+					contentDescription = null,
+					contentScale = ContentScale.Crop,
+					onLoading = { onLoading(true) },
+					onSuccess = { onLoading(false) },
+					onError = { onLoading(false) },
+				)
 		}
 
 		IconButton(

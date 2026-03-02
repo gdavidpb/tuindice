@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.enrollmentproof.testing
 
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -25,6 +24,7 @@ import io.ktor.http.takeFrom
 import io.ktor.util.date.GMTDate
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.InternalAPI
+import io.github.vinceglb.filekit.PlatformFile
 import kotlin.coroutines.EmptyCoroutineContext
 
 const val CURRENT_QUARTER_NAME = "2026-1"
@@ -98,14 +98,10 @@ class FakeEnrollmentProofRepository(
 class FakeFileRepository(
 	private val canOpen: Boolean = true
 ) : FileRepository {
-	var lastCanOpenFileRef: PlatformFileRef? = null
+	var lastCanOpenFile: PlatformFile? = null
 
-	override suspend fun createTemporaryFile(nameHint: String): PlatformFileRef {
-		return PlatformFileRef("/tmp/$nameHint")
-	}
-
-	override suspend fun canOpen(fileRef: PlatformFileRef): Boolean {
-		lastCanOpenFileRef = fileRef
+	override suspend fun canOpen(file: PlatformFile): Boolean {
+		lastCanOpenFile = file
 		return canOpen
 	}
 }

@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.summary.presentation.action
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.base.domain.model.PlatformUri
 import com.gdavidpb.tuindice.summary.domain.usecase.GetUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetUserExceptionHandler
@@ -13,6 +12,7 @@ import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
+import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.compose.resources.getString
@@ -100,7 +100,7 @@ class SummaryActionProcessorContractTest {
 		val effects = mutableListOf<Summary.Effect>()
 
 		processor.process(
-			action = Summary.Action.UploadProfilePicture(PlatformUri("content://profile/new.jpg")),
+			action = Summary.Action.UploadProfilePicture(PlatformFile("content://profile/new.jpg")),
 			sideEffect = effects::add
 		).test {
 			val loading = assertIs<Summary.State.Content>(awaitItem()(initialState))

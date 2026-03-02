@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.contract
 
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import io.github.vinceglb.filekit.PlatformFile
 
 object Enrollment {
 	sealed class State : ViewState() {
@@ -16,7 +16,7 @@ object Enrollment {
 
 	sealed class Effect : ViewEffect() {
 		data object NavigateToOutdatedPassword : Effect()
-		class OpenEnrollmentProof(val fileRef: PlatformFileRef) : Effect()
+		class OpenEnrollmentProof(val file: PlatformFile) : Effect()
 		class ShowSnackBar(val message: String) : Effect()
 	}
 }

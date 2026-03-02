@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.summary.data.repository.user
 
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
-import com.gdavidpb.tuindice.base.domain.model.PlatformUri
+import io.github.vinceglb.filekit.PlatformFile
 
 interface PictureEncoderDataSource {
-	suspend fun encodePicture(uri: PlatformUri): EncodedImage
+	suspend fun encodePicture(file: PlatformFile): EncodedImage
 }

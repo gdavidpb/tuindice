@@ -32,6 +32,7 @@ kotlin {
 				api(libs.kotlinx.coroutines.core)
 				api(libs.ktor.client.core)
 				api(libs.lifecycle.runtime.compose)
+				api(libs.filekit.core)
 
 				implementation(libs.components.resources)
 				implementation(libs.kotlinx.datetime)

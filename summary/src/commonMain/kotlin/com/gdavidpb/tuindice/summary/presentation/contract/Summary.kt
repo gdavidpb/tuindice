@@ -1,11 +1,10 @@
 package com.gdavidpb.tuindice.summary.presentation.contract
 
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
-import com.gdavidpb.tuindice.base.domain.model.PlatformUri
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
+import io.github.vinceglb.filekit.PlatformFile
 
 object Summary {
 	sealed class State(
@@ -44,7 +43,7 @@ object Summary {
 		data object LoadSummary : Action()
 		data object TakeProfilePicture : Action()
 		data object PickProfilePicture : Action()
-		class UploadProfilePicture(val uri: PlatformUri) : Action()
+		class UploadProfilePicture(val file: PlatformFile) : Action()
 		data object OpenProfilePictureSettings : Action()
 		data object RemoveProfilePicture : Action()
 		data object ConfirmRemoveProfilePicture : Action()
@@ -54,7 +53,7 @@ object Summary {
 		class NavigateToProfilePictureSettingsDialog(val showRemove: Boolean) : Effect()
 		data object NavigateToOutdatedPassword : Effect()
 		data object NavigateToRemoveProfilePictureConfirmationDialog : Effect()
-		class OpenCamera(val output: PlatformFileRef) : Effect()
+		data object OpenCamera : Effect()
 		data object OpenPicker : Effect()
 		class ShowSnackBar(val message: String) : Effect()
 	}

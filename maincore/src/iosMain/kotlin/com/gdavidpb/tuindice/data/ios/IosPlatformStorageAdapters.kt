@@ -6,7 +6,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.gdavidpb.tuindice.base.data.source.SecureStoreDataSource
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
@@ -15,6 +14,8 @@ import com.gdavidpb.tuindice.di.IosExternalActionsCapability
 import com.gdavidpb.tuindice.di.temporaryStorageRoot
 import com.gdavidpb.tuindice.presentation.navigation.toDestinationOrDefault
 import com.gdavidpb.tuindice.presentation.navigation.toPersistedName
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.flow.first
 import okio.FileSystem
 
@@ -59,18 +60,8 @@ internal class IosApplicationDataSource(
 	private val secureStoreDataSource: SecureStoreDataSource,
 	private val externalActionsCapability: IosExternalActionsCapability
 ) : ApplicationRepository {
-	override suspend fun createTemporaryFile(nameHint: String): PlatformFileRef {
-		val storagePath = temporaryStorageRoot().resolve(nameHint)
-
-		FileSystem.SYSTEM.createDirectories(storagePath.parent!!)
-		FileSystem.SYSTEM.delete(storagePath, mustExist = false)
-		FileSystem.SYSTEM.write(storagePath) {}
-
-		return PlatformFileRef(storagePath.toString())
-	}
-
-	override suspend fun canOpen(fileRef: PlatformFileRef): Boolean {
-		return externalActionsCapability.canOpen(fileRef)
+	override suspend fun canOpen(file: PlatformFile): Boolean {
+		return externalActionsCapability.canOpen(file.path)
 	}
 
 	override suspend fun clearData() {

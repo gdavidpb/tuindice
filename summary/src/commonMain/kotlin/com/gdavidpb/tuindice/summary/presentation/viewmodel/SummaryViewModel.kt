@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
-import com.gdavidpb.tuindice.base.domain.model.PlatformUri
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
@@ -12,6 +10,7 @@ import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureAct
 import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.Flow
 
 class SummaryViewModel(
@@ -26,11 +25,6 @@ class SummaryViewModel(
 	initialState = Summary.State.Loading,
 	initialAction = Summary.Action.LoadSummary
 ) {
-	private var cameraOutput: PlatformFileRef? = null
-
-	fun setCameraOutput(output: PlatformFileRef) {
-		cameraOutput = output
-	}
 
 	fun loadSummaryAction() =
 		sendAction(Summary.Action.LoadSummary)
@@ -41,16 +35,8 @@ class SummaryViewModel(
 	fun pickProfilePictureAction() =
 		sendAction(Summary.Action.PickProfilePicture)
 
-	fun uploadProfilePictureAction(uri: PlatformUri) =
-		sendAction(Summary.Action.UploadProfilePicture(uri))
-
-	fun uploadTakenProfilePictureAction() {
-		val output = cameraOutput ?: return
-
-		sendAction(Summary.Action.UploadProfilePicture(uri = PlatformUri(output.value)))
-
-		cameraOutput = null
-	}
+	fun uploadProfilePictureAction(file: PlatformFile) =
+		sendAction(Summary.Action.UploadProfilePicture(file))
 
 	fun removeProfilePictureAction() =
 		sendAction(Summary.Action.RemoveProfilePicture)

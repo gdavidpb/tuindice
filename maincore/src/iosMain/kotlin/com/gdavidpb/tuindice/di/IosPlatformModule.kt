@@ -21,12 +21,6 @@ import com.gdavidpb.tuindice.login.data.source.KtorLoginAuthApiDataSource
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.di.createIosDatabase
-import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataSource
-import com.gdavidpb.tuindice.summary.data.source.IosImageEncoderDataSource
-import com.gdavidpb.tuindice.summary.presentation.route.IosProfilePictureActionsFactory
-import com.gdavidpb.tuindice.summary.presentation.route.ProfilePictureActionsFactory
-import com.gdavidpb.tuindice.summary.ui.view.IosProfilePictureViewRenderer
-import com.gdavidpb.tuindice.summary.ui.view.ProfilePictureViewRenderer
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.IosBrowserScreenRenderer
 import io.ktor.client.*
@@ -118,9 +112,6 @@ private fun Module.registerIosFeaturePlatformBindings() {
 	factoryOf(::IosAppInfoDataSource) { bind<AppInfoDataSource>() }
 	factoryOf(::IosStoreUrlDataSource) { bind<StoreUrlDataSource>() }
 	factoryOf(::IosShareTextHandler) { bind<ShareTextHandler>() }
-	factoryOf(::IosImageEncoderDataSource) { bind<PictureEncoderDataSource>() }
-	factoryOf(::IosProfilePictureActionsFactory) { bind<ProfilePictureActionsFactory>() }
-	factoryOf(::IosProfilePictureViewRenderer) { bind<ProfilePictureViewRenderer>() }
 }
 
 private fun Module.registerIosPlatformNetworking() {

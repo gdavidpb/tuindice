@@ -7,15 +7,16 @@ import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.path
 import java.io.File
 
 class AndroidFileOpenerDataSource(
 	private val context: Context
 ) : FileOpenerRepository {
-	override fun openFile(fileRef: PlatformFileRef): Boolean {
-		val source = fileRef.value
+	override fun openFile(file: PlatformFile): Boolean {
+		val source = file.path
 		val uri = source.toUri()
 
 		return if (uri.scheme == ContentResolver.SCHEME_CONTENT || uri.scheme == ContentResolver.SCHEME_FILE) {

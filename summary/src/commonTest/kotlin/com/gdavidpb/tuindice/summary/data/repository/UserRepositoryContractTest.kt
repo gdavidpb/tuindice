@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.summary.data.repository
 
-import com.gdavidpb.tuindice.base.domain.model.PlatformUri
 import com.gdavidpb.tuindice.summary.data.repository.user.UserDataRepository
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
@@ -8,6 +7,7 @@ import com.gdavidpb.tuindice.summary.testing.FakeLocalDataSource
 import com.gdavidpb.tuindice.summary.testing.FakePictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.testing.FakeRemoteDataSource
 import com.gdavidpb.tuindice.summary.testing.FakeSettingsDataSource
+import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -42,7 +42,7 @@ class UserRepositoryContractTest {
 	}
 
 	@Test
-	fun uploadProfilePicture_encodesUri_savesLocalUrl_andReturnsRemotePicture() = runTest {
+	fun uploadProfilePicture_encodesFile_savesLocalUrl_andReturnsRemotePicture() = runTest {
 		val localDataSource = FakeLocalDataSource()
 		val remoteDataSource = FakeRemoteDataSource(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE)
 		val encoderDataSource = FakePictureEncoderDataSource()
@@ -52,12 +52,12 @@ class UserRepositoryContractTest {
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
 			pictureEncoderDataSource = encoderDataSource
 		)
-		val uri = PlatformUri("content://profile/new.jpg")
+		val file = PlatformFile("content://profile/new.jpg")
 
-		val picture = repository.uploadProfilePicture(uri)
+		val picture = repository.uploadProfilePicture(file)
 
 		assertEquals(DEFAULT_SUMMARY_PROFILE_PICTURE, picture)
-		assertEquals(uri, encoderDataSource.lastUri)
+		assertEquals(file, encoderDataSource.lastFile)
 		assertEquals(DEFAULT_SUMMARY_PROFILE_PICTURE.url, localDataSource.savedProfilePictureUrls.single())
 		assertEquals("image/jpeg", remoteDataSource.uploadCalls.single().second)
 	}

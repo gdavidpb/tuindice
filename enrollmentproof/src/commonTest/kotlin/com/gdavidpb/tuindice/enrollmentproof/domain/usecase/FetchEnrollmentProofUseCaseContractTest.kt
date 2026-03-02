@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.enrollmentproof.domain.usecase
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
@@ -14,6 +13,7 @@ import com.gdavidpb.tuindice.enrollmentproof.testing.RecordingReportingRepositor
 import com.gdavidpb.tuindice.enrollmentproof.testing.clientRequestException
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
+import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -24,7 +24,7 @@ import kotlin.test.assertTrue
 
 class FetchEnrollmentProofUseCaseContractTest {
 	@Test
-	fun execute_emitsLoadingThenFileRefWhenEnrollmentProofCanBeOpened() = runTest {
+	fun execute_emitsLoadingThenFileWhenEnrollmentProofCanBeOpened() = runTest {
 		val fileRepository = FakeFileRepository(canOpen = true)
 		val useCase = createUseCase(
 			fileRepository = fileRepository,
@@ -35,8 +35,8 @@ class FetchEnrollmentProofUseCaseContractTest {
 
 		useCase.execute(Unit).test {
 			val data = awaitLoadingThenData(this)
-			assertEquals(PlatformFileRef(DEFAULT_ENROLLMENT_PROOF_SOURCE), data)
-			assertEquals(PlatformFileRef(DEFAULT_ENROLLMENT_PROOF_SOURCE), fileRepository.lastCanOpenFileRef)
+			assertEquals(PlatformFile(DEFAULT_ENROLLMENT_PROOF_SOURCE), data)
+			assertEquals(PlatformFile(DEFAULT_ENROLLMENT_PROOF_SOURCE), fileRepository.lastCanOpenFile)
 
 			awaitComplete()
 		}

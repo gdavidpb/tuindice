@@ -24,7 +24,7 @@ class UploadProfilePictureActionProcessor(
 		action: Summary.Action.UploadProfilePicture,
 		sideEffect: (Summary.Effect) -> Unit
 	): Flow<Mutation<Summary.State>> {
-		return uploadProfilePictureUseCase.execute(params = action.uri)
+		return uploadProfilePictureUseCase.execute(params = action.file)
 			.map { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> suspend { state ->

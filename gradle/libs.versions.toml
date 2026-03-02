@@ -10,7 +10,7 @@ lifecycle = "2.10.0"
 coroutines = "1.10.2"
 turbine = "1.2.1"
 firebase-bom = "34.10.0"
-coil = "2.7.0"
+coil3 = "3.4.0"
 compose-bom = "2026.02.01"
 compottie = "2.0.3"
 kotlinx-datetime = "0.7.1"
@@ -136,10 +136,12 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
 filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
+filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
+filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
 
 # Coil
-coil = { module = "io.coil-kt:coil", version.ref = "coil" }
-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
+coil3-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil3" }
 
 [plugins]
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
@@ -148,7 +150,6 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [bundles]
-coil = ["coil", "coil-compose"]
 testing = ["junit", "wiremock"]
 testing-android = ["koin-test", "test-runner", "espresso-core"]
 androidx = ["core-ktx", "browser", "preference-ktx", "exifinterface", "datastore-preferences"]

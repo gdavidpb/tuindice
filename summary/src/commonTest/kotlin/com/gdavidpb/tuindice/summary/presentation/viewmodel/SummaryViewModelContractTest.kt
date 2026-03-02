@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.summary.presentation.viewmodel
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.summary.domain.usecase.GetUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.TakeProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
@@ -18,7 +17,6 @@ import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActio
 import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
-import com.gdavidpb.tuindice.summary.testing.FakeFileRepository
 import com.gdavidpb.tuindice.summary.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
@@ -74,11 +72,7 @@ class SummaryViewModelContractTest {
 					)
 				)
 			),
-			takeProfilePictureActionProcessor = TakeProfilePictureActionProcessor(
-				takeProfilePictureUseCase = TakeProfilePictureUseCase(
-					applicationRepository = FakeFileRepository()
-				)
-			),
+			takeProfilePictureActionProcessor = TakeProfilePictureActionProcessor(),
 			pickProfilePictureActionProcessor = PickProfilePictureActionProcessor(),
 			uploadProfilePictureActionProcessor = UploadProfilePictureActionProcessor(
 				uploadProfilePictureUseCase = UploadProfilePictureUseCase(

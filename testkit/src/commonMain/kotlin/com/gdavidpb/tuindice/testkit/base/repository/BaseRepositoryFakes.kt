@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.testkit.base.repository
 
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
@@ -9,6 +8,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import io.github.vinceglb.filekit.PlatformFile
 
 class FakeAppEnvironmentRepository(
 	private val appEnvironment: AppEnvironment = AppEnvironment(
@@ -59,46 +59,33 @@ class RecordingReportingRepository : ReportingRepository {
 }
 
 class FakeFileRepository(
-	private val output: PlatformFileRef = PlatformFileRef("/tmp/test-file"),
+	private val output: PlatformFile = PlatformFile("/tmp/test-file"),
 	private val canOpenResult: Boolean = true
 ) : FileRepository {
-	var lastNameHint: String? = null
-	var lastCanOpenFileRef: PlatformFileRef? = null
+	var lastCanOpenFile: PlatformFile? = null
 
-	override suspend fun createTemporaryFile(nameHint: String): PlatformFileRef {
-		lastNameHint = nameHint
-		return output
-	}
-
-	override suspend fun canOpen(fileRef: PlatformFileRef): Boolean {
-		lastCanOpenFileRef = fileRef
+	override suspend fun canOpen(file: PlatformFile): Boolean {
+		lastCanOpenFile = file
 		return canOpenResult
 	}
 }
 
 class RecordingApplicationRepository(
-	private val output: PlatformFileRef = PlatformFileRef("/tmp/test-file"),
 	private val canOpenResult: Boolean = true
 ) : ApplicationRepository {
 	var cleared = false
 		private set
 	var clearCalls = 0
 		private set
-	var lastNameHint: String? = null
-	var lastCanOpenFileRef: PlatformFileRef? = null
+	var lastCanOpenFile: PlatformFile? = null
 
 	override suspend fun clearData() {
 		cleared = true
 		clearCalls++
 	}
 
-	override suspend fun createTemporaryFile(nameHint: String): PlatformFileRef {
-		lastNameHint = nameHint
-		return output
-	}
-
-	override suspend fun canOpen(fileRef: PlatformFileRef): Boolean {
-		lastCanOpenFileRef = fileRef
+	override suspend fun canOpen(file: PlatformFile): Boolean {
+		lastCanOpenFile = file
 		return canOpenResult
 	}
 }

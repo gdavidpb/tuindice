@@ -11,9 +11,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.gdavidpb.tuindice.base.data.source.SecureStoreDataSource
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.path
 import java.io.File
 
 class AndroidApplicationDataSource(
@@ -22,26 +23,16 @@ class AndroidApplicationDataSource(
 	private val dataStore: DataStore<Preferences>,
 	private val secureStoreDataSource: SecureStoreDataSource
 ) : ApplicationRepository {
-	override suspend fun createTemporaryFile(nameHint: String): PlatformFileRef {
-		val file = File(context.filesDir, nameHint).apply {
-			if (exists()) delete()
-			createNewFile()
-		}
-
-		val providerUri = FileProvider.getUriForFile(context, context.packageName, file)
-
-		return PlatformFileRef("$providerUri")
-	}
-
-	override suspend fun canOpen(fileRef: PlatformFileRef): Boolean {
-		val uri = fileRef.value.toUri()
+	override suspend fun canOpen(file: PlatformFile): Boolean {
+		val source = file.path
+		val uri = source.toUri()
 
 		return if (uri.scheme == ContentResolver.SCHEME_CONTENT || uri.scheme == ContentResolver.SCHEME_FILE) {
 			canOpenUri(uri = uri, mimeType = context.contentResolver.getType(uri))
 		} else {
-			val file = File(fileRef.value)
-			val providerUri = FileProvider.getUriForFile(context, context.packageName, file)
-			val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)
+			val localFile = File(source)
+			val providerUri = FileProvider.getUriForFile(context, context.packageName, localFile)
+			val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(localFile.extension)
 
 			canOpenUri(uri = providerUri, mimeType = mimeType)
 		}

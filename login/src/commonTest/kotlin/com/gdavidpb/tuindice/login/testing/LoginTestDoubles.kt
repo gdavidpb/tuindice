@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.login.testing
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
@@ -14,6 +13,7 @@ import com.gdavidpb.tuindice.login.data.repository.LoginAuthApiDataSource
 import com.gdavidpb.tuindice.login.domain.model.IssueTokens
 import com.gdavidpb.tuindice.login.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
+import io.github.vinceglb.filekit.PlatformFile
 
 val DEFAULT_LOGIN_ATTESTATION = Attestation(
 	id = "attestation-id",
@@ -149,11 +149,7 @@ class RecordingApplicationRepository : ApplicationRepository {
 		cleared = true
 	}
 
-	override suspend fun createTemporaryFile(nameHint: String): PlatformFileRef {
-		return PlatformFileRef("/tmp/$nameHint")
-	}
-
-	override suspend fun canOpen(fileRef: PlatformFileRef): Boolean = true
+	override suspend fun canOpen(file: PlatformFile): Boolean = true
 }
 
 class RecordingMessagingRepository : MessagingRepository {

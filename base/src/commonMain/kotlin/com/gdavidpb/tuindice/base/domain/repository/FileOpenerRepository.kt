@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.base.domain.repository
 
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
+import io.github.vinceglb.filekit.PlatformFile
 
 interface FileOpenerRepository {
-	fun openFile(fileRef: PlatformFileRef): Boolean
+	fun openFile(file: PlatformFile): Boolean
 }

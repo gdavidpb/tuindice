@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 
 data class IosPlatformAttestation(
@@ -35,8 +34,8 @@ interface IosUpdateCapability {
 
 interface IosExternalActionsCapability {
 	fun openUrl(url: String)
-	fun openFile(fileRef: PlatformFileRef): Boolean
-	fun canOpen(fileRef: PlatformFileRef): Boolean
+	fun openFile(path: String): Boolean
+	fun canOpen(path: String): Boolean
 }
 
 interface IosDeviceCapability {

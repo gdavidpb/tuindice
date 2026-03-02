@@ -26,7 +26,7 @@ fun EnrollmentProofRoute(
 				onNavigateToUpdatePassword()
 
 			is Enrollment.Effect.OpenEnrollmentProof -> {
-				externalActions.openFile(effect.fileRef)
+				externalActions.openFile(effect.file)
 				onDismissRequest()
 			}
 

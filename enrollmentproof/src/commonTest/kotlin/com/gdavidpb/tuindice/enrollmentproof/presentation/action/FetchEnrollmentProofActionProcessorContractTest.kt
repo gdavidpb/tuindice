@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.enrollmentproof.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.enrollmentproof.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.enrollmentproof.testing.clientRequestException
 import com.gdavidpb.tuindice.testkit.mvi.reduceMutations
+import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -38,7 +39,7 @@ class FetchEnrollmentProofActionProcessorContractTest {
 		assertEquals(Enrollment.State.Fetching, finalState)
 
 		val effect = assertIs<Enrollment.Effect.OpenEnrollmentProof>(effects.single())
-		assertEquals(DEFAULT_ENROLLMENT_PROOF_SOURCE, effect.fileRef.value)
+		assertEquals(PlatformFile(DEFAULT_ENROLLMENT_PROOF_SOURCE), effect.file)
 	}
 
 	@Test

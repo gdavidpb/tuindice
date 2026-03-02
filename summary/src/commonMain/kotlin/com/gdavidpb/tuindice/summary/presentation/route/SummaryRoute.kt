@@ -2,13 +2,18 @@ package com.gdavidpb.tuindice.summary.presentation.route
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.screen.SummaryScreen
-import com.gdavidpb.tuindice.summary.ui.view.ProfilePictureViewRenderer
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.openCameraPicker
+import io.github.vinceglb.filekit.dialogs.openFilePicker
+import kotlinx.coroutines.launch
 
 @Composable
 fun SummaryRoute(
@@ -16,21 +21,26 @@ fun SummaryRoute(
 	onNavigateToProfilePictureSettingsDialog: (showRemove: Boolean) -> Unit,
 	onNavigateToRemoveProfilePictureConfirmationDialog: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
-	profilePictureActions: ProfilePictureActions,
-	profilePictureViewRenderer: ProfilePictureViewRenderer,
 	viewModel: SummaryViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
+	val coroutineScope = rememberCoroutineScope()
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
-			is Summary.Effect.OpenCamera -> {
-				profilePictureActions.openCamera(effect.output)
-				viewModel.setCameraOutput(effect.output)
-			}
+			is Summary.Effect.OpenCamera ->
+				coroutineScope.launch {
+					runCatching { FileKit.openCameraPicker() }
+						.getOrNull()
+						?.let(viewModel::uploadProfilePictureAction)
+				}
 
 			is Summary.Effect.OpenPicker ->
-				profilePictureActions.openPicker()
+				coroutineScope.launch {
+					runCatching {
+						FileKit.openFilePicker(type = FileKitType.Image)
+					}.getOrNull()?.let(viewModel::uploadProfilePictureAction)
+				}
 
 			is Summary.Effect.NavigateToOutdatedPassword ->
 				onNavigateToUpdatePassword()
@@ -51,7 +61,6 @@ fun SummaryRoute(
 	SummaryScreen(
 		state = viewState,
 		onRetryClick = viewModel::loadSummaryAction,
-		onEditProfilePictureClick = viewModel::openProfilePictureSettingsAction,
-		profilePictureViewRenderer = profilePictureViewRenderer
+		onEditProfilePictureClick = viewModel::openProfilePictureSettingsAction
 	)
 }

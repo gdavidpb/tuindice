@@ -122,6 +122,7 @@ dependencies {
 	implementation(libs.koin.core)
 	implementation(libs.kotlinx.coroutines.android)
 	implementation(libs.kotlinx.coroutines.play.services)
+	implementation(libs.filekit.dialogs)
 	testImplementation(libs.bundles.testing)
 	androidTestImplementation(libs.bundles.testing.android)
 	androidTestImplementation(libs.test.ext.junit)

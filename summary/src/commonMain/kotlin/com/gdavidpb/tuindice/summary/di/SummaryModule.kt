@@ -1,16 +1,17 @@
 package com.gdavidpb.tuindice.summary.di
 
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataSource
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataSource
 import com.gdavidpb.tuindice.summary.data.repository.user.UserDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.source.FileKitPictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.repository.user.source.PreferencesDataSource
 import com.gdavidpb.tuindice.summary.data.repository.user.source.RoomDataSource
 import com.gdavidpb.tuindice.summary.data.repository.user.source.SummaryApiDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.TakeProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
@@ -46,7 +47,6 @@ val summaryModule = module {
 	/* Use cases */
 
 	factoryOf(::GetUserUseCase)
-	factoryOf(::TakeProfilePictureUseCase)
 	factoryOf(::UploadProfilePictureUseCase)
 	factoryOf(::RemoveProfilePictureUseCase)
 
@@ -63,6 +63,7 @@ val summaryModule = module {
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
 	factoryOf(::SummaryApiDataSource) { bind<RemoteDataSource>() }
 	factoryOf(::PreferencesDataSource) { bind<SettingsDataSource>() }
+	factoryOf(::FileKitPictureEncoderDataSource) { bind<PictureEncoderDataSource>() }
 
 	/* Exception handlers */
 

@@ -28,7 +28,7 @@ class FetchEnrollmentProofActionProcessor(
 
 					is UseCaseState.Data -> suspend { state ->
 						sideEffect(
-							Enrollment.Effect.OpenEnrollmentProof(fileRef = useCaseState.value)
+							Enrollment.Effect.OpenEnrollmentProof(file = useCaseState.value)
 						)
 
 						state

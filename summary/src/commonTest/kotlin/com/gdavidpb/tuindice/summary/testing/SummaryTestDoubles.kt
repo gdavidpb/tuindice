@@ -1,10 +1,7 @@
 package com.gdavidpb.tuindice.summary.testing
 
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
-import com.gdavidpb.tuindice.base.domain.model.PlatformFileRef
-import com.gdavidpb.tuindice.base.domain.model.PlatformUri
 import com.gdavidpb.tuindice.base.domain.model.User
-import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataSource
@@ -13,6 +10,7 @@ import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataSource
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataSource
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
+import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -55,13 +53,13 @@ class RecordingUserRepository(
 	private val profilePicture: ProfilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE,
 	private val throwable: Throwable? = null
 ) : UserRepository {
-	val uploadCalls = mutableListOf<PlatformUri>()
+	val uploadCalls = mutableListOf<PlatformFile>()
 	var removeCalls = 0
 
 	override suspend fun getUserFlow(): Flow<User> = users
 
-	override suspend fun uploadProfilePicture(uri: PlatformUri): ProfilePicture {
-		uploadCalls += uri
+	override suspend fun uploadProfilePicture(file: PlatformFile): ProfilePicture {
+		uploadCalls += file
 		throwable?.let { throw it }
 		return profilePicture
 	}
@@ -131,25 +129,12 @@ class FakeSettingsDataSource(
 class FakePictureEncoderDataSource(
 	private val encodedImage: EncodedImage = DEFAULT_ENCODED_IMAGE
 ) : PictureEncoderDataSource {
-	var lastUri: PlatformUri? = null
+	var lastFile: PlatformFile? = null
 
-	override suspend fun encodePicture(uri: PlatformUri): EncodedImage {
-		lastUri = uri
+	override suspend fun encodePicture(file: PlatformFile): EncodedImage {
+		lastFile = file
 		return encodedImage
 	}
-}
-
-class FakeFileRepository(
-	private val output: PlatformFileRef = PlatformFileRef("/tmp/profile_picture.jpg")
-) : FileRepository {
-	var lastNameHint: String? = null
-
-	override suspend fun createTemporaryFile(nameHint: String): PlatformFileRef {
-		lastNameHint = nameHint
-		return output
-	}
-
-	override suspend fun canOpen(fileRef: PlatformFileRef): Boolean = true
 }
 
 class FakeNetworkRepository(
