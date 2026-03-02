@@ -21,20 +21,20 @@ private inline fun <T> withIosKoinLock(block: () -> T): T {
 }
 
 internal fun startIosKoin(
-	platformConfig: IosPlatformConfig,
+	iOSContext: IOSContext,
 	variantModules: List<Module> = emptyList(),
 	extraModules: List<Module> = emptyList()
 ): Koin {
 	return withIosKoinLock {
 		IosKoinRuntime.koin?.let { existing -> return@withIosKoinLock existing }
 
-			val koin = startAppKoin(
-				AppKoinBootstrapRequest(
-					platformBootstrap = IosKoinBootstrap(
-						platformConfig = platformConfig,
-						platformVariantModules = variantModules
-					),
-					extraModules = extraModules
+		val koin = startAppKoin(
+			AppKoinBootstrapRequest(
+				platformBootstrap = IosKoinBootstrap(
+					iOSContext = iOSContext,
+					platformVariantModules = variantModules
+				),
+				extraModules = extraModules
 			)
 		)
 
@@ -49,17 +49,10 @@ fun startIosKoin(
 	extraModules: List<Module> = emptyList()
 ): Koin {
 	return startIosKoin(
-		platformConfig = hostConfig.toPlatformConfig(),
+		iOSContext = hostConfig.toIOSContext(),
 		variantModules = iosVariantModules(hostConfig.buildVariant),
 		extraModules = extraModules
 	)
-}
-
-internal fun getIosKoinOrNull(): Koin? = withIosKoinLock { IosKoinRuntime.koin }
-
-internal fun requireIosKoin(): Koin {
-	return getIosKoinOrNull()
-		?: error("iOS Koin is not started. Call IosAppHostBootstrap first.")
 }
 
 private object IosKoinRuntime {

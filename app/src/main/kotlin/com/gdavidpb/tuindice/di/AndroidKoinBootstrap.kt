@@ -11,6 +11,22 @@ import org.koin.core.KoinApplication
 import org.koin.core.logger.Level
 import org.koin.core.module.Module
 
+fun startAndroidAppKoin(
+	application: Application,
+	platformVariantModules: List<Module> = emptyList(),
+	isOverrideEnabled: Boolean = false
+): Koin {
+	return startAppKoin(
+		AppKoinBootstrapRequest(
+			platformBootstrap = AndroidKoinBootstrap(
+				application = application,
+				platformVariantModules = platformVariantModules,
+				isOverrideEnabled = isOverrideEnabled
+			)
+		)
+	)
+}
+
 class AndroidKoinBootstrap(
 	private val application: Application,
 	private val platformVariantModules: List<Module> = emptyList(),

@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.persistence.di.defaultIosDatabasePath
 
 data class IosAppHostConfig(
 	val bridge: IosPlatformBridge,
@@ -12,8 +11,8 @@ data class IosAppHostConfig(
 	val buildVariant: IosBuildVariant
 )
 
-internal fun IosAppHostConfig.toPlatformConfig(): IosPlatformConfig {
-	return IosPlatformConfig(
+internal fun IosAppHostConfig.toIOSContext(): IOSContext {
+	return IOSContext(
 		hostCapabilities = bridge.toHostCapabilities(),
 		appEnvironment = AppEnvironment(
 			apiBaseUrl = apiBaseUrl,
@@ -21,7 +20,6 @@ internal fun IosAppHostConfig.toPlatformConfig(): IosPlatformConfig {
 			termsAndConditionsUrl = termsAndConditionsUrl,
 			debug = debug
 		),
-		configValues = iosDefaultConfigValues(buildVariant),
-		databasePath = defaultIosDatabasePath()
+		configValues = iosDefaultConfigValues(buildVariant)
 	)
 }

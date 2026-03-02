@@ -2,9 +2,7 @@ package com.gdavidpb.tuindice
 
 import android.app.Application
 import com.gdavidpb.tuindice.base.utils.DEFAULT_LOCALE
-import com.gdavidpb.tuindice.di.AndroidKoinBootstrap
-import com.gdavidpb.tuindice.di.AppKoinBootstrapRequest
-import com.gdavidpb.tuindice.di.startAppKoin
+import com.gdavidpb.tuindice.di.startAndroidAppKoin
 import java.util.*
 
 class TuIndiceApp : Application() {
@@ -13,12 +11,6 @@ class TuIndiceApp : Application() {
 
 		Locale.setDefault(DEFAULT_LOCALE)
 
-		startAppKoin(
-			AppKoinBootstrapRequest(
-				platformBootstrap = AndroidKoinBootstrap(
-					application = this
-				)
-			)
-		)
+		startAndroidAppKoin(application = this)
 	}
 }

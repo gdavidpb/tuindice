@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.base.data.source.*
 import com.gdavidpb.tuindice.base.data.source.config.ConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
-import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
 import com.gdavidpb.tuindice.data.ios.*
@@ -22,7 +21,6 @@ import com.gdavidpb.tuindice.login.data.source.KtorLoginAuthApiDataSource
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.di.createIosDatabase
-import com.gdavidpb.tuindice.persistence.di.defaultIosDatabasePath
 import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.IosImageEncoderDataSource
 import com.gdavidpb.tuindice.summary.presentation.route.IosProfilePictureActionsFactory
@@ -40,61 +38,45 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-internal data class IosPlatformConfig(
-	val hostCapabilities: IosHostCapabilities,
-	val appEnvironment: AppEnvironment = AppEnvironment(
-		apiBaseUrl = "https://api.tuindice.app/",
-		privacyPolicyUrl = "https://tuindice.app/privacy_policy.html",
-		termsAndConditionsUrl = "https://tuindice.app/terms_and_conditions.html",
-		debug = false
-	),
-	val configValues: IosConfigValues = IosConfigValues(),
-	val secureStore: SecureStoreDataSource? = null,
-	val dataStore: DataStore<Preferences> = createIosDataStore(),
-	val databasePath: String = defaultIosDatabasePath()
-)
-
-internal fun iosPlatformModule(
-	config: IosPlatformConfig
-): Module = module {
-	registerIosPlatformStorage(config)
-	registerIosHostCapabilities(config)
-	registerIosPlatformServices(config)
+internal val iosPlatformModule: Module = module {
+	registerIosPlatformStorage()
+	registerIosPlatformPrimitives()
+	registerIosPlatformServices()
 	registerIosFeaturePlatformBindings()
 	registerIosPlatformNetworking()
 }
 
-private fun Module.registerIosPlatformStorage(config: IosPlatformConfig) {
+private fun Module.registerIosPlatformStorage() {
 	single<SecureStoreDataSource> {
-		config.secureStore ?: IosBridgeSecureStoreDataSource(get<IosSecureStoreCapability>())
+		iOSContext().secureStore ?: IosBridgeSecureStoreDataSource(get<IosSecureStoreCapability>())
 	}
 	single<SecureStoreRepository> { get<SecureStoreDataSource>() }
-	single<DataStore<Preferences>> { config.dataStore }
+	single<DataStore<Preferences>> { iOSContext().dataStore }
 	single<TuIndiceDatabase> {
-		createIosDatabase(path = config.databasePath)
+		createIosDatabase(path = iOSContext().databasePath)
 	}
 }
 
-private fun Module.registerIosHostCapabilities(config: IosPlatformConfig) {
-	single<IosRemoteConfigCapability> { config.hostCapabilities.remoteConfig }
-	single<IosAttestationCapability> { config.hostCapabilities.attestation }
-	single<IosPushCapability> { config.hostCapabilities.push }
-	single<IosReviewCapability> { config.hostCapabilities.review }
-	single<IosUpdateCapability> { config.hostCapabilities.update }
-	single<IosExternalActionsCapability> { config.hostCapabilities.externalActions }
-	single<IosDeviceCapability> { config.hostCapabilities.device }
-	single<IosObservabilityCapability> { config.hostCapabilities.observability }
-	single<IosSecureStoreCapability> { config.hostCapabilities.secureStore }
+private fun Module.registerIosPlatformPrimitives() {
+	single<IosRemoteConfigCapability> { iOSContext().hostCapabilities.remoteConfig }
+	single<IosAttestationCapability> { iOSContext().hostCapabilities.attestation }
+	single<IosPushCapability> { iOSContext().hostCapabilities.push }
+	single<IosReviewCapability> { iOSContext().hostCapabilities.review }
+	single<IosUpdateCapability> { iOSContext().hostCapabilities.update }
+	single<IosExternalActionsCapability> { iOSContext().hostCapabilities.externalActions }
+	single<IosDeviceCapability> { iOSContext().hostCapabilities.device }
+	single<IosObservabilityCapability> { iOSContext().hostCapabilities.observability }
+	single<IosSecureStoreCapability> { iOSContext().hostCapabilities.secureStore }
 }
 
-private fun Module.registerIosPlatformServices(config: IosPlatformConfig) {
+private fun Module.registerIosPlatformServices() {
 	single<IdentifierRepository> { UUIDIdentifierDataSource() }
-	single<AppEnvironmentRepository> { IosAppEnvironmentDataSource(config.appEnvironment) }
+	single<AppEnvironmentRepository> { IosAppEnvironmentDataSource(iOSContext().appEnvironment) }
 	single<RemoteConfigDataSource> { IosRemoteConfigDataSource(get<IosRemoteConfigCapability>()) }
 	single<ConfigRepository> {
 		ConfigDataSource(
 			remoteConfigDataSource = get<RemoteConfigDataSource>(),
-			defaults = config.configValues.toDefaultRemoteConfigValues()
+			defaults = iOSContext().configValues.toDefaultRemoteConfigValues()
 		)
 	}
 	single<NetworkRepository> { IosNetworkDataSource(get<IosDeviceCapability>()) }
