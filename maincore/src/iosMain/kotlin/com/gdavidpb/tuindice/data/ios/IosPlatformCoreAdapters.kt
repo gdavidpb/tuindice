@@ -14,7 +14,14 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
-import com.gdavidpb.tuindice.di.IosPlatformBridge
+import com.gdavidpb.tuindice.di.IosDeviceCapability
+import com.gdavidpb.tuindice.di.IosExternalActionsCapability
+import com.gdavidpb.tuindice.di.IosObservabilityCapability
+import com.gdavidpb.tuindice.di.IosPushCapability
+import com.gdavidpb.tuindice.di.IosRemoteConfigCapability
+import com.gdavidpb.tuindice.di.IosReviewCapability
+import com.gdavidpb.tuindice.di.IosSecureStoreCapability
+import com.gdavidpb.tuindice.di.IosUpdateCapability
 
 internal class IosAppEnvironmentDataSource(
 	private val environment: AppEnvironment
@@ -23,115 +30,115 @@ internal class IosAppEnvironmentDataSource(
 }
 
 internal class IosRemoteConfigDataSource(
-	private val bridge: IosPlatformBridge
+	private val remoteConfigCapability: IosRemoteConfigCapability
 ) : RemoteConfigDataSource {
 	override suspend fun fetch() {
-		bridge.fetchRemoteConfig()
+		remoteConfigCapability.fetchRemoteConfig()
 	}
 
 	override fun getString(key: String): String? {
-		return bridge.remoteConfigString(key)
+		return remoteConfigCapability.remoteConfigString(key)
 	}
 }
 
 internal class IosNetworkDataSource(
-	private val bridge: IosPlatformBridge
+	private val deviceCapability: IosDeviceCapability
 ) : NetworkRepository {
-	override fun isAvailable(): Boolean = bridge.isNetworkAvailable()
+	override fun isAvailable(): Boolean = deviceCapability.isNetworkAvailable()
 }
 
 internal class IosDeviceInfoGateway(
-	private val bridge: IosPlatformBridge
+	private val deviceCapability: IosDeviceCapability
 ) : DeviceInfoRepository {
-	override fun appVersionName(): String = bridge.appVersionName()
+	override fun appVersionName(): String = deviceCapability.appVersionName()
 
-	override fun appVersionCode(): Long = bridge.appVersionCode()
+	override fun appVersionCode(): Long = deviceCapability.appVersionCode()
 
-	override fun hasCamera(): Boolean = bridge.hasCamera()
+	override fun hasCamera(): Boolean = deviceCapability.hasCamera()
 }
 
 internal class IosBrowserGateway(
-	private val bridge: IosPlatformBridge
+	private val externalActionsCapability: IosExternalActionsCapability
 ) : BrowserRepository {
 	override fun open(url: String) {
-		bridge.openUrl(url)
+		externalActionsCapability.openUrl(url)
 	}
 }
 
 internal class IosFileOpener(
-	private val bridge: IosPlatformBridge
+	private val externalActionsCapability: IosExternalActionsCapability
 ) : FileOpenerRepository {
 	override fun openFile(fileRef: PlatformFileRef): Boolean {
-		return bridge.openFile(fileRef)
+		return externalActionsCapability.openFile(fileRef)
 	}
 }
 
 internal class IosReviewGateway(
-	private val bridge: IosPlatformBridge
+	private val reviewCapability: IosReviewCapability
 ) : ReviewRepository {
 	override suspend fun launchReview() {
-		bridge.launchReview()
+		reviewCapability.launchReview()
 	}
 }
 
 internal class IosUpdateGateway(
-	private val bridge: IosPlatformBridge
+	private val updateCapability: IosUpdateCapability
 ) : UpdateRepository {
 	override suspend fun checkForUpdate(stalenessDays: Int): UpdateAction? {
-		return bridge.checkForUpdate(stalenessDays)
+		return updateCapability.checkForUpdate(stalenessDays)
 	}
 
 	override suspend fun launchUpdate(action: UpdateAction) {
-		bridge.launchUpdate(action)
+		updateCapability.launchUpdate(action)
 	}
 }
 
 internal class IosReportingDataSource(
-	private val bridge: IosPlatformBridge
+	private val observabilityCapability: IosObservabilityCapability
 ) : ReportingRepository {
 	override fun setIdentifier(identifier: String) {
-		bridge.setUserIdentifier(identifier)
+		observabilityCapability.setUserIdentifier(identifier)
 	}
 
 	override fun logException(throwable: Throwable) {
-		bridge.logException(throwable)
+		observabilityCapability.logException(throwable)
 	}
 
 	override fun logMessage(message: String) {
-		bridge.logMessage(message)
+		observabilityCapability.logMessage(message)
 	}
 
 	override fun <T : Any> setCustomKey(key: String, value: T) {
-		bridge.setCustomKey(key, value.toString())
+		observabilityCapability.setCustomKey(key, value.toString())
 	}
 }
 
 internal class IosPushTokenDataSource(
-	private val bridge: IosPlatformBridge
+	private val pushCapability: IosPushCapability
 ) : PushTokenDataSource {
 	override suspend fun getToken(): String {
-		return bridge.pushToken()
+		return pushCapability.pushToken()
 			?.takeIf { token -> token.isNotBlank() }
 			?: throw IllegalStateException("Push token unavailable on iOS bridge.")
 	}
 }
 
 internal class IosBridgeSecureStoreDataSource(
-	private val bridge: IosPlatformBridge
+	private val secureStoreCapability: IosSecureStoreCapability
 ) : SecureStoreDataSource {
 	override fun contains(key: String): Boolean {
-		return bridge.secureStoreContains(key)
+		return secureStoreCapability.secureStoreContains(key)
 	}
 
 	override fun getString(key: String): String? {
-		return bridge.secureStoreGetString(key)
+		return secureStoreCapability.secureStoreGetString(key)
 	}
 
 	override fun putString(key: String, value: String) {
-		bridge.secureStorePutString(key, value)
+		secureStoreCapability.secureStorePutString(key, value)
 	}
 
 	override fun clear() {
-		bridge.secureStoreClear()
+		secureStoreCapability.secureStoreClear()
 	}
 }

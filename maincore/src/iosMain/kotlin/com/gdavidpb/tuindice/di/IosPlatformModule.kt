@@ -40,7 +40,8 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-data class IosPlatformConfig(
+internal data class IosPlatformConfig(
+	val hostCapabilities: IosHostCapabilities,
 	val appEnvironment: AppEnvironment = AppEnvironment(
 		apiBaseUrl = "https://api.tuindice.app/",
 		privacyPolicyUrl = "https://tuindice.app/privacy_policy.html",
@@ -48,63 +49,72 @@ data class IosPlatformConfig(
 		debug = false
 	),
 	val configValues: IosConfigValues = IosConfigValues(),
-	val bridge: IosPlatformBridge = DefaultIosPlatformBridge,
 	val secureStore: SecureStoreDataSource? = null,
 	val dataStore: DataStore<Preferences> = createIosDataStore(),
 	val databasePath: String = defaultIosDatabasePath()
 )
 
-fun iosPlatformModule(
-	config: IosPlatformConfig = IosPlatformConfig()
+internal fun iosPlatformModule(
+	config: IosPlatformConfig
 ): Module = module {
-	/* Session */
+	registerIosPlatformStorage(config)
+	registerIosHostCapabilities(config)
+	registerIosPlatformServices(config)
+	registerIosFeaturePlatformBindings()
+	registerIosPlatformNetworking()
+}
 
+private fun Module.registerIosPlatformStorage(config: IosPlatformConfig) {
 	single<SecureStoreDataSource> {
-		config.secureStore ?: IosBridgeSecureStoreDataSource(get<IosPlatformBridge>())
+		config.secureStore ?: IosBridgeSecureStoreDataSource(get<IosSecureStoreCapability>())
 	}
 	single<SecureStoreRepository> { get<SecureStoreDataSource>() }
 	single<DataStore<Preferences>> { config.dataStore }
 	single<TuIndiceDatabase> {
 		createIosDatabase(path = config.databasePath)
 	}
+}
 
-	/* Platform services */
+private fun Module.registerIosHostCapabilities(config: IosPlatformConfig) {
+	single<IosRemoteConfigCapability> { config.hostCapabilities.remoteConfig }
+	single<IosAttestationCapability> { config.hostCapabilities.attestation }
+	single<IosPushCapability> { config.hostCapabilities.push }
+	single<IosReviewCapability> { config.hostCapabilities.review }
+	single<IosUpdateCapability> { config.hostCapabilities.update }
+	single<IosExternalActionsCapability> { config.hostCapabilities.externalActions }
+	single<IosDeviceCapability> { config.hostCapabilities.device }
+	single<IosObservabilityCapability> { config.hostCapabilities.observability }
+	single<IosSecureStoreCapability> { config.hostCapabilities.secureStore }
+}
 
-	single<IosPlatformBridge> { config.bridge }
+private fun Module.registerIosPlatformServices(config: IosPlatformConfig) {
 	single<IdentifierRepository> { UUIDIdentifierDataSource() }
 	single<AppEnvironmentRepository> { IosAppEnvironmentDataSource(config.appEnvironment) }
-	single<RemoteConfigDataSource> { IosRemoteConfigDataSource(get<IosPlatformBridge>()) }
+	single<RemoteConfigDataSource> { IosRemoteConfigDataSource(get<IosRemoteConfigCapability>()) }
 	single<ConfigRepository> {
 		ConfigDataSource(
 			remoteConfigDataSource = get<RemoteConfigDataSource>(),
 			defaults = config.configValues.toDefaultRemoteConfigValues()
 		)
 	}
-	single<NetworkRepository> { IosNetworkDataSource(get<IosPlatformBridge>()) }
-	single<DeviceInfoRepository> { IosDeviceInfoGateway(get<IosPlatformBridge>()) }
-	single<BrowserRepository> { IosBrowserGateway(get<IosPlatformBridge>()) }
+	single<NetworkRepository> { IosNetworkDataSource(get<IosDeviceCapability>()) }
+	single<DeviceInfoRepository> { IosDeviceInfoGateway(get<IosDeviceCapability>()) }
+	single<BrowserRepository> { IosBrowserGateway(get<IosExternalActionsCapability>()) }
 	single<BrowserScreenRenderer> { IosBrowserScreenRenderer() }
 	singleOf(::IosFileOpener) { bind<FileOpenerRepository>() }
-	single<ReviewRepository> { IosReviewGateway(get<IosPlatformBridge>()) }
-	single<UpdateRepository> { IosUpdateGateway(get<IosPlatformBridge>()) }
+	single<ReviewRepository> { IosReviewGateway(get<IosReviewCapability>()) }
+	single<UpdateRepository> { IosUpdateGateway(get<IosUpdateCapability>()) }
 	single<SettingsRepository> { IosSettingsDataSource(get<DataStore<Preferences>>()) }
 	single<ApplicationRepository> {
 		IosApplicationDataSource(
 			dataStore = get<DataStore<Preferences>>(),
 			secureStoreDataSource = get<SecureStoreDataSource>(),
-			bridge = get<IosPlatformBridge>()
+			externalActionsCapability = get<IosExternalActionsCapability>()
 		)
 	}
 	single<FileRepository> { get<ApplicationRepository>() }
-	single<ReportingRepository> { IosReportingDataSource(get<IosPlatformBridge>()) }
-	factory<PushTokenDataSource> { IosPushTokenDataSource(get<IosPlatformBridge>()) }
-	factoryOf(::IosEnvironmentDataSource) { bind<EnvironmentDataSource>() }
-	factoryOf(::IosAppInfoDataSource) { bind<AppInfoDataSource>() }
-	factoryOf(::IosStoreUrlDataSource) { bind<StoreUrlDataSource>() }
-	factoryOf(::IosShareTextHandler) { bind<ShareTextHandler>() }
-	factoryOf(::IosImageEncoderDataSource) { bind<PictureEncoderDataSource>() }
-	factoryOf(::IosProfilePictureActionsFactory) { bind<ProfilePictureActionsFactory>() }
-	factoryOf(::IosProfilePictureViewRenderer) { bind<ProfilePictureViewRenderer>() }
+	single<ReportingRepository> { IosReportingDataSource(get<IosObservabilityCapability>()) }
+	factory<PushTokenDataSource> { IosPushTokenDataSource(get<IosPushCapability>()) }
 	factory<LoginAuthApiDataSource> {
 		KtorLoginAuthApiDataSource(
 			ktorClient = get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
@@ -116,25 +126,33 @@ fun iosPlatformModule(
 				get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
 			},
 			json = get<Json>(),
-			bridge = get<IosPlatformBridge>()
+			attestationCapability = get<IosAttestationCapability>()
 		)
 	}
+}
 
-	/* Serialization + network */
+private fun Module.registerIosFeaturePlatformBindings() {
+	factoryOf(::IosEnvironmentDataSource) { bind<EnvironmentDataSource>() }
+	factoryOf(::IosAppInfoDataSource) { bind<AppInfoDataSource>() }
+	factoryOf(::IosStoreUrlDataSource) { bind<StoreUrlDataSource>() }
+	factoryOf(::IosShareTextHandler) { bind<ShareTextHandler>() }
+	factoryOf(::IosImageEncoderDataSource) { bind<PictureEncoderDataSource>() }
+	factoryOf(::IosProfilePictureActionsFactory) { bind<ProfilePictureActionsFactory>() }
+	factoryOf(::IosProfilePictureViewRenderer) { bind<ProfilePictureViewRenderer>() }
+}
 
+private fun Module.registerIosPlatformNetworking() {
 	single(named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER)) {
 		createIosIdentityHttpClient(
 			appEnvironmentRepository = get<AppEnvironmentRepository>(),
 			configRepository = get<ConfigRepository>(),
 			logger = IOS_KTOR_LOGGER,
 			json = get<Json>(),
-			userAgentValue = createIosUserAgent(get<IosPlatformBridge>())
+			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())
 		)
 	}
 
 	single {
-		val bridge = get<IosPlatformBridge>()
-
 		createSharedHttpClient(
 			appEnvironmentRepository = get<AppEnvironmentRepository>(),
 			configRepository = get<ConfigRepository>(),
@@ -143,7 +161,7 @@ fun iosPlatformModule(
 			loginRepositoryProvider = { get<LoginRepository>() },
 			logger = IOS_KTOR_LOGGER,
 			json = get<Json>(),
-			userAgentValue = createIosUserAgent(bridge)
+			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())
 		)
 	}
 }

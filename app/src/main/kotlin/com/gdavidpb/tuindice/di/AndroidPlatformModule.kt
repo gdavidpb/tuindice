@@ -69,6 +69,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -78,18 +79,14 @@ import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as A
 import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource as AttestationRemote
 
 val androidPlatformModule = module {
-	single {
-		androidContext().getSystemService<ConnectivityManager>()
-	}
+	registerAndroidPlatformStorage()
+	registerAndroidPlatformPrimitives()
+	registerAndroidPlatformServices()
+	registerAndroidFeaturePlatformBindings()
+	registerAndroidPlatformNetworking()
+}
 
-	single {
-		androidContext().contentResolver
-	}
-
-	single {
-		androidContext().resources
-	}
-
+private fun Module.registerAndroidPlatformStorage() {
 	single {
 		androidContext().getSharedPreferences(
 			androidContext().packageName,
@@ -113,6 +110,20 @@ val androidPlatformModule = module {
 
 		Room.databaseBuilder(androidContext(), TuIndiceDatabase::class.java, name)
 			.build()
+	}
+}
+
+private fun Module.registerAndroidPlatformPrimitives() {
+	single {
+		androidContext().getSystemService<ConnectivityManager>()
+	}
+
+	single {
+		androidContext().contentResolver
+	}
+
+	single {
+		androidContext().resources
 	}
 
 	single {
@@ -156,47 +167,13 @@ val androidPlatformModule = module {
 	single {
 		IntegrityManagerFactory.create(androidContext())
 	}
+}
 
-	single {
-		createSharedHttpClient(
-			appEnvironmentRepository = get(),
-			configRepository = get(),
-			sessionRepository = get(),
-			attestationRepositoryProvider = { get() },
-			loginRepositoryProvider = { get() },
-			logger = get(),
-			json = get(),
-			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()
-		)
-	}
-
-	single<Logger> {
-		object : Logger {
-			override fun log(message: String) {
-				get<ReportingRepository>().logMessage(message)
-			}
-		}
-	}
-
-	factoryOf(::AttestationDataRepository) {
-		bind<AttestationRepository>()
-	}
-	factoryOf(::AndroidEnvironmentDataSource) { bind<EnvironmentDataSource>() }
-	factoryOf(::AndroidAppInfoDataSource) { bind<AppInfoDataSource>() }
-	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlDataSource>() }
-	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
-	factoryOf(::ImageEncoderDataSource) { bind<PictureEncoderDataSource>() }
-	factoryOf(::AndroidProfilePictureActionsFactory) { bind<ProfilePictureActionsFactory>() }
-	factoryOf(::AndroidProfilePictureViewRenderer) { bind<ProfilePictureViewRenderer>() }
-
-	singleOf(::PlayIntegrityDataSource) { bind<AttestationProvider>() }
+private fun Module.registerAndroidPlatformServices() {
 	singleOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
-	singleOf(::ChallengeApiDataSource) { bind<AttestationRemote>() }
-	singleOf(::SHA256PayloadDigestDataSource) { bind<PayloadDigestDataSource>() }
-	singleOf(::FirebasePushTokenDataSource) { bind<PushTokenDataSource>() }
 	singleOf(::PreferencesDataSource) { bind<SettingsRepository>() }
 	singleOf(::AndroidRemoteConfigDataSource) { bind<RemoteConfigDataSource>() }
-	singleOf(::FirebaseCrashReporter) { bind<CrashReporter>() }
+	singleOf(::FirebasePushTokenDataSource) { bind<PushTokenDataSource>() }
 	singleOf(::InMemoryCurrentActivityProvider) { bind<CurrentActivityProvider>() }
 	singleOf(::PlayReviewDataSource) { bind<ReviewRepository>() }
 	singleOf(::PlayUpdateDataSource) { bind<UpdateRepository>() }
@@ -212,6 +189,7 @@ val androidPlatformModule = module {
 		bind<ApplicationRepository>()
 		bind<FileRepository>()
 	}
+	singleOf(::FirebaseCrashReporter) { bind<CrashReporter>() }
 	singleOf(::CrashlyticsReportingDataSource) {
 		bind<ReportingRepository>()
 	}
@@ -225,6 +203,47 @@ val androidPlatformModule = module {
 		ConfigDataSource(
 			remoteConfigDataSource = get<RemoteConfigDataSource>(),
 			defaults = DefaultRemoteConfig.values(get<RemoteConfigDefaultsProfile>())
+		)
+	}
+}
+
+private fun Module.registerAndroidFeaturePlatformBindings() {
+	factoryOf(::AndroidEnvironmentDataSource) { bind<EnvironmentDataSource>() }
+	factoryOf(::AndroidAppInfoDataSource) { bind<AppInfoDataSource>() }
+	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlDataSource>() }
+	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
+	factoryOf(::ImageEncoderDataSource) { bind<PictureEncoderDataSource>() }
+	factoryOf(::AndroidProfilePictureActionsFactory) { bind<ProfilePictureActionsFactory>() }
+	factoryOf(::AndroidProfilePictureViewRenderer) { bind<ProfilePictureViewRenderer>() }
+}
+
+private fun Module.registerAndroidPlatformNetworking() {
+	single<Logger> {
+		object : Logger {
+			override fun log(message: String) {
+				get<ReportingRepository>().logMessage(message)
+			}
+		}
+	}
+
+	singleOf(::PlayIntegrityDataSource) { bind<AttestationProvider>() }
+	singleOf(::ChallengeApiDataSource) { bind<AttestationRemote>() }
+	singleOf(::SHA256PayloadDigestDataSource) { bind<PayloadDigestDataSource>() }
+
+	factoryOf(::AttestationDataRepository) {
+		bind<AttestationRepository>()
+	}
+
+	single {
+		createSharedHttpClient(
+			appEnvironmentRepository = get(),
+			configRepository = get(),
+			sessionRepository = get(),
+			attestationRepositoryProvider = { get() },
+			loginRepositoryProvider = { get() },
+			logger = get(),
+			json = get(),
+			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()
 		)
 	}
 }

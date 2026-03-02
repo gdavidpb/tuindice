@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.di.IosPlatformBridge
+import com.gdavidpb.tuindice.di.IosAttestationCapability
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -19,7 +19,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 internal class IosAttestationDataRepository(
 	private val httpClientProvider: () -> HttpClient,
 	private val json: Json,
-	private val bridge: IosPlatformBridge
+	private val attestationCapability: IosAttestationCapability
 ) : AttestationRepository {
 	@OptIn(ExperimentalEncodingApi::class)
 	override suspend fun getAttestation(payload: AttestationPayload): Attestation {
@@ -35,7 +35,7 @@ internal class IosAttestationDataRepository(
 
 		val attestationInput = Base64.UrlSafe.encode(noncePayload.encodeToByteArray())
 
-		val providerAttestation = bridge.requestAttestation(attestationInput)
+		val providerAttestation = attestationCapability.requestAttestation(attestationInput)
 			?: throw IllegalStateException("Attestation token unavailable on iOS bridge.")
 		check(providerAttestation.provider == AttestationProvider.APP_ATTEST) {
 			"Unsupported iOS attestation provider: ${providerAttestation.provider}."

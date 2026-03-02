@@ -19,9 +19,9 @@ import kotlinx.serialization.json.Json
 import platform.Foundation.NSBundle
 import platform.UIKit.UIDevice
 
-internal fun createIosUserAgent(bridge: IosPlatformBridge): String {
-	val appVersionName = bridge.appVersionName().ifBlank { "0.0.0" }
-	val appVersionCode = bridge.appVersionCode().coerceAtLeast(0L)
+internal fun createIosUserAgent(deviceCapability: IosDeviceCapability): String {
+	val appVersionName = deviceCapability.appVersionName().ifBlank { "0.0.0" }
+	val appVersionCode = deviceCapability.appVersionCode().coerceAtLeast(0L)
 	val device = UIDevice.currentDevice
 	val osVersion = device.systemVersion.ifBlank { "Unknown" }
 	val osCode = osVersion

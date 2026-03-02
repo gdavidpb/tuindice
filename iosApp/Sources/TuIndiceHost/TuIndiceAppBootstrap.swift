@@ -18,7 +18,7 @@ enum TuIndiceAppBootstrap {
         #endif
     }()
     private static let bridge = TuIndicePlatformBridge()
-    private static let appLauncher = TuIndiceIosAppLauncher(
+    private static let hostConfig = IosAppHostConfig(
         bridge: bridge,
         apiBaseUrl: resolvedApiBaseUrl(defaultValue: defaultApiBaseUrl),
         privacyPolicyUrl: bundleString(
@@ -32,11 +32,14 @@ enum TuIndiceAppBootstrap {
         debug: bundleBoolean(for: "TUINDICE_DEBUG", defaultValue: false),
         buildVariant: buildVariant
     )
+    private static let appBootstrap = IosAppHostBootstrap(
+        hostConfig: hostConfig
+    )
     #endif
 
     static func makeRootViewController() -> UIViewController {
         #if canImport(maincore) || canImport(Maincore)
-        return appLauncher.createRootViewController()
+        return appBootstrap.createRootViewController()
         #else
         return UIViewController()
         #endif

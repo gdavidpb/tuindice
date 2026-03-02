@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
-import com.gdavidpb.tuindice.di.IosPlatformBridge
+import com.gdavidpb.tuindice.di.IosExternalActionsCapability
 import com.gdavidpb.tuindice.di.temporaryStorageRoot
 import com.gdavidpb.tuindice.presentation.navigation.toDestinationOrDefault
 import com.gdavidpb.tuindice.presentation.navigation.toPersistedName
@@ -57,7 +57,7 @@ internal class IosSettingsDataSource(
 internal class IosApplicationDataSource(
 	private val dataStore: DataStore<Preferences>,
 	private val secureStoreDataSource: SecureStoreDataSource,
-	private val bridge: IosPlatformBridge
+	private val externalActionsCapability: IosExternalActionsCapability
 ) : ApplicationRepository {
 	override suspend fun createTemporaryFile(nameHint: String): PlatformFileRef {
 		val storagePath = temporaryStorageRoot().resolve(nameHint)
@@ -70,7 +70,7 @@ internal class IosApplicationDataSource(
 	}
 
 	override suspend fun canOpen(fileRef: PlatformFileRef): Boolean {
-		return bridge.canOpen(fileRef)
+		return externalActionsCapability.canOpen(fileRef)
 	}
 
 	override suspend fun clearData() {
