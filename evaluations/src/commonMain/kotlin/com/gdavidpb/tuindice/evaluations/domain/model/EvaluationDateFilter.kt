@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.domain.model
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 
 class EvaluationDateFilter(
+	private val group: EvaluationDateGroup,
 	private val label: String,
 	private val selector: (Evaluation) -> Boolean
 ) : EvaluationFilter {
@@ -18,10 +19,10 @@ class EvaluationDateFilter(
 		if (this === other) return true
 		if (other !is EvaluationDateFilter) return false
 
-		return label == other.label
+		return group == other.group
 	}
 
 	override fun hashCode(): Int {
-		return label.hashCode()
+		return group.hashCode()
 	}
 }

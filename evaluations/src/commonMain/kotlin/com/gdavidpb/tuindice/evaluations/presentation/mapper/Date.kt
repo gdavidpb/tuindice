@@ -6,34 +6,35 @@ import com.gdavidpb.tuindice.base.presentation.mapper.formatDate
 import com.gdavidpb.tuindice.base.presentation.mapper.weeksToNow
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.base.utils.extension.capitalize
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
+import com.gdavidpb.tuindice.evaluations.presentation.extension.toEvaluationLocalDate
 
-fun Long?.isDatePassed() = this != null && daysToNow() < 0
-
-fun Long?.formatAsToNow(): String {
-	if (this == null) return "Evaluación continua"
+fun Long?.toEvaluationDateGroup(): EvaluationDateGroup {
+	if (this == null) return EvaluationDateGroup.Continuous
 
 	val daysDistance = daysToNow()
 	val weeksDistance = weeksToNow()
+	val evaluationDate = toEvaluationLocalDate()
 
 	return when {
-		daysDistance == 0 -> "Hoy"
-		daysDistance == 1 -> "Mañana"
-		daysDistance == -1 -> "Ayer"
+		daysDistance == 0 -> EvaluationDateGroup.Today
+		daysDistance == 1 -> EvaluationDateGroup.Tomorrow
+		daysDistance == -1 -> EvaluationDateGroup.Yesterday
 		weeksDistance == 0L -> {
 			if (this < currentTimeMillis())
-				"El ${formatDate(DateTextStyle.WEEKDAY_PAST_DAY_MONTH)}"
+				EvaluationDateGroup.PastThisWeek(evaluationDate)
 			else
-				"Este ${formatDate(DateTextStyle.WEEKDAY_DAY_MONTH)}"
+				EvaluationDateGroup.ThisWeek(evaluationDate)
 		}
 
-		weeksDistance == 1L -> "El próximo ${formatDate(DateTextStyle.WEEKDAY_DAY_MONTH)}"
-		weeksDistance in 2..12 -> "En $weeksDistance semanas"
-		else -> formatDate(DateTextStyle.WEEKDAY_NUMERIC_DATE)?.capitalize()!!
+		weeksDistance == 1L -> EvaluationDateGroup.NextWeek(evaluationDate)
+		weeksDistance in 2..12 -> EvaluationDateGroup.WeeksAhead(weeksDistance)
+		else -> EvaluationDateGroup.ExactDate(evaluationDate)
 	}
 }
 
-fun Long?.formatAsDayOfWeekAndDate(): String {
-	if (this == null) return "Evaluación continua"
+fun Long?.formatAsDayOfWeekAndDate(noDateLabel: String): String {
+	if (this == null) return noDateLabel
 
 	return formatDate(DateTextStyle.WEEKDAY_NUMERIC_DATE)?.capitalize()!!
 }

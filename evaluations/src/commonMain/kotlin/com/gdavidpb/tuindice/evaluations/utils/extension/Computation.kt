@@ -7,7 +7,9 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsToNow
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.EvaluationDateTextMapping
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.getLabel
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationDateGroup
 import kotlin.math.roundToInt
 
 fun Double.toSubjectGrade() = when (roundToInt()) {
@@ -32,7 +34,8 @@ fun computeEvaluationState(grade: Double?, date: Long?): EvaluationState {
 fun List<Evaluation>.computeAvailableFilters(
 	pendingLabel: String,
 	completedLabel: String,
-	noGradeLabel: String
+	noGradeLabel: String,
+	dateTextMapping: EvaluationDateTextMapping
 ): List<EvaluationFilter> {
 	val statesFilters = listOf(
 		EvaluationStateFilter(
@@ -52,11 +55,14 @@ fun List<Evaluation>.computeAvailableFilters(
 			.map { subject -> EvaluationSubjectFilter(subject) }
 
 	val datesFilters =
-		map { evaluation -> evaluation.date.formatAsToNow() }
+		map { evaluation -> evaluation.date.toEvaluationDateGroup() }
 			.distinct()
-			.map { label ->
-				EvaluationDateFilter(label) { evaluation ->
-					evaluation.date.formatAsToNow() == label
+			.map { group ->
+				EvaluationDateFilter(
+					group = group,
+					label = group.getLabel(dateTextMapping)
+				) { evaluation ->
+					evaluation.date.toEvaluationDateGroup() == group
 				}
 			}
 

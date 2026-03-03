@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 
@@ -17,6 +18,8 @@ data class EvaluationItemMapping(
 	val typeIcon: (type: EvaluationType) -> ImageVector,
 	val dateIcon: (state: EvaluationState) -> ImageVector,
 	val gradesIcon: (state: EvaluationState) -> ImageVector,
+	val dateGroupTitle: (group: EvaluationDateGroup) -> String,
+	val dateText: (date: Long?) -> String,
 	val highlightIconColor: (state: EvaluationState) -> Color,
 	val highlightTextColor: (state: EvaluationState) -> Color
 )
@@ -34,10 +37,10 @@ fun List<Evaluation>.toEvaluationItemList(
 					}
 			}.toMap()
 
-	return groupBy { evaluation -> evaluation.date.formatAsToNow() }
-		.map { (title, evaluations) ->
+	return groupBy { evaluation -> evaluation.date.toEvaluationDateGroup() }
+		.map { (group, evaluations) ->
 			EvaluationsGroupItem(
-				title = title,
+				title = mapping.dateGroupTitle(group),
 				items = evaluations.map { evaluation ->
 					evaluation.toEvaluationItem(
 						ordinal = ordinalsById[evaluation.id] ?: 1,
@@ -61,7 +64,7 @@ fun Evaluation.toEvaluationItem(
 	highlightTextColor = mapping.highlightTextColor(state),
 	typeAndSubjectCodeText = mapping.evaluationTitle(type, subjectCode),
 	typeIcon = mapping.typeIcon(type),
-	dateText = date.formatAsDayOfWeekAndDate(),
+	dateText = mapping.dateText(date),
 	dateIcon = mapping.dateIcon(state),
 	gradesText = when (state) {
 		EvaluationState.COMPLETED, EvaluationState.CONTINUOUS ->

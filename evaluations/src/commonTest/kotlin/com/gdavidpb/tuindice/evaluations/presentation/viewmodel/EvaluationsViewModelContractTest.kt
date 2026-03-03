@@ -7,31 +7,24 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.GetEvaluationsExceptionHandler
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.CheckEvaluationFilterActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.ClearEvaluationFiltersActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenAddEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.PickEvaluationGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.*
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class EvaluationsViewModelContractTest {
 	@Test
-	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun publicActions_loadContent_updateFilters_andEmitNavigationEffect() = runTest {
-		val viewModel = createViewModel()
+		val viewModel = createViewModel(testScheduler)
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,
 			testScheduler = testScheduler
@@ -64,8 +57,14 @@ class EvaluationsViewModelContractTest {
 		}
 	}
 
-	private fun createViewModel(): EvaluationsViewModel {
+	private fun createViewModel(testScheduler: TestCoroutineScheduler): EvaluationsViewModel {
 		val repository = RecordingEvaluationRepository(
+			evaluationsFlow = kotlinx.coroutines.flow.flowOf(
+				listOf(
+					com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION,
+					com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
+				)
+			),
 			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
 		)
 

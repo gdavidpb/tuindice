@@ -51,6 +51,7 @@ import tuindice.evaluations.generated.resources.evaluation_written_work
 @Composable
 fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 	val colorScheme = MaterialTheme.colorScheme
+	val dateTextMapping = rememberEvaluationDateTextMapping()
 
 	val evaluationNamePattern = stringResource(Res.string.evaluation_name)
 	val evaluationTitlePattern = stringResource(Res.string.evaluation_title)
@@ -142,6 +143,12 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 				EvaluationState.PENDING -> Icons.Outlined.AssignmentReturned
 				EvaluationState.OVERDUE -> Icons.Outlined.AssignmentLate
 			}
+		},
+		dateGroupTitle = { bucket ->
+			bucket.getLabel(dateTextMapping)
+		},
+		dateText = { date ->
+			date.formatAsDayOfWeekAndDate(noDateLabel = dateTextMapping.noDateLabel)
 		},
 		highlightIconColor = { state ->
 			when (state) {

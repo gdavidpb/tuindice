@@ -5,12 +5,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.GetEvaluationsExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.GetEvaluationParams
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
-import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
-import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
-import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
+import com.gdavidpb.tuindice.evaluations.testing.*
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
 import kotlinx.coroutines.flow.flowOf
@@ -24,6 +19,12 @@ class EvaluationsUseCaseContractTest {
 		val filter = EvaluationSubjectFilter(DEFAULT_EVALUATION_SUBJECT.code)
 		val useCase = GetEvaluationsUseCase(
 			evaluationRepository = RecordingEvaluationRepository(
+				evaluationsFlow = flowOf(
+					listOf(
+						DEFAULT_PENDING_EVALUATION,
+						DEFAULT_COMPLETED_EVALUATION
+					)
+				),
 				initialEvaluations = listOf(
 					DEFAULT_PENDING_EVALUATION,
 					DEFAULT_COMPLETED_EVALUATION
@@ -50,6 +51,7 @@ class EvaluationsUseCaseContractTest {
 	fun getEvaluationsUseCase_returnsNoSubjectsError_whenFeatureHasNoSubjects() = runTest {
 		val useCase = GetEvaluationsUseCase(
 			evaluationRepository = RecordingEvaluationRepository(
+				evaluationsFlow = flowOf(emptyList()),
 				initialEvaluations = emptyList(),
 				availableSubjects = emptyList()
 			),

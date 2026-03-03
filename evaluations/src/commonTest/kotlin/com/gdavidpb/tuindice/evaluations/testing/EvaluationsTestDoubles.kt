@@ -137,6 +137,7 @@ class RecordingEvaluationRepository(
 		DEFAULT_PENDING_EVALUATION,
 		DEFAULT_COMPLETED_EVALUATION
 	),
+	private val evaluationsFlow: Flow<List<Evaluation>>? = null,
 	private val availableSubjects: List<Subject> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
 		SECOND_EVALUATION_SUBJECT
@@ -148,7 +149,7 @@ class RecordingEvaluationRepository(
 	val updateCalls = mutableListOf<EvaluationUpdate>()
 	val removeCalls = mutableListOf<EvaluationRemove>()
 
-	override suspend fun getEvaluationsFlow(): Flow<List<Evaluation>> = evaluationsState
+	override suspend fun getEvaluationsFlow(): Flow<List<Evaluation>> = evaluationsFlow ?: evaluationsState
 
 	override suspend fun getEvaluation(eid: String): Evaluation? {
 		return evaluationsState.value.firstOrNull { evaluation -> evaluation.id == eid }

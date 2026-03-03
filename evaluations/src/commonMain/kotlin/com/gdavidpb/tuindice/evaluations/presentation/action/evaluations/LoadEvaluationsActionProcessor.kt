@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationDateTextMapping
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeAvailableFilters
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -39,10 +40,12 @@ class LoadEvaluationsActionProcessor(
 						val pendingLabel = getString(Res.string.label_state_pending)
 						val completedLabel = getString(Res.string.label_state_completed)
 						val noGradeLabel = getString(Res.string.label_state_not_grade)
+						val dateTextMapping = getEvaluationDateTextMapping()
 						val availableFilters = evaluations.originalEvaluations.computeAvailableFilters(
 							pendingLabel = pendingLabel,
 							completedLabel = completedLabel,
-							noGradeLabel = noGradeLabel
+							noGradeLabel = noGradeLabel,
+							dateTextMapping = dateTextMapping
 						)
 
 						if (evaluations.originalEvaluations.isNotEmpty())

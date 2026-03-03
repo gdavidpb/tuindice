@@ -27,6 +27,12 @@ class EvaluationsActionProcessorContractTest {
 		val processor = LoadEvaluationsActionProcessor(
 			getEvaluationsUseCase = GetEvaluationsUseCase(
 				evaluationRepository = RecordingEvaluationRepository(
+					evaluationsFlow = flowOf(
+						listOf(
+							DEFAULT_PENDING_EVALUATION,
+							DEFAULT_COMPLETED_EVALUATION
+						)
+					),
 					initialEvaluations = listOf(
 						DEFAULT_PENDING_EVALUATION,
 						DEFAULT_COMPLETED_EVALUATION

@@ -48,6 +48,13 @@
 	<string name="label_evaluation_no_date_short">Sin fecha</string>
 	<string name="label_evaluation_swipe_delete">Eliminar</string>
 	<string name="label_evaluation_swipe_edit">Editar</string>
+	<string name="evaluation_date_today">Hoy</string>
+	<string name="evaluation_date_tomorrow">Mañana</string>
+	<string name="evaluation_date_yesterday">Ayer</string>
+	<string name="evaluation_date_past_week">El %1$s</string>
+	<string name="evaluation_date_this_week">Este %1$s</string>
+	<string name="evaluation_date_next_week">El próximo %1$s</string>
+	<string name="evaluation_date_weeks_ahead">En %1$d semanas</string>
 
 	<string name="error_evaluation_subject_missed">Debes seleccionar una materia</string>
 	<string name="error_evaluation_type_missed">Debes seleccionar un tipo</string>
