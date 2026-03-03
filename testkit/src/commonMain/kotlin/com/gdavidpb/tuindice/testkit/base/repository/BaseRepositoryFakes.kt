@@ -1,14 +1,23 @@
 package com.gdavidpb.tuindice.testkit.base.repository
 
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
+import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
+import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
+import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
+import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import io.github.vinceglb.filekit.PlatformFile
+
+data object FakeDestination : Destination()
 
 class FakeAppEnvironmentRepository(
 	private val appEnvironment: AppEnvironment = AppEnvironment(
@@ -27,6 +36,12 @@ class RecordingBrowserRepository : BrowserRepository {
 	override fun open(url: String) {
 		lastOpenedUrl = url
 	}
+}
+
+class FakeIdentifierRepository(
+	private val identifier: String = "identifier-1"
+) : IdentifierRepository {
+	override fun generateRandomIdentifier(): String = identifier
 }
 
 class FakeNetworkRepository(
@@ -90,6 +105,64 @@ class RecordingApplicationRepository(
 	}
 }
 
+class FakeSessionRepository(
+	private var usbId: String = "20261234",
+	private var accessToken: String = "access-token",
+	private var refreshToken: String = "refresh-token"
+) : SessionRepository {
+	var cleared = false
+		private set
+
+	override suspend fun hasActiveSession(): Boolean {
+		return accessToken.isNotBlank() && refreshToken.isNotBlank()
+	}
+
+	override suspend fun setUsbId(usbId: String) {
+		this.usbId = usbId
+	}
+
+	override suspend fun setAccessToken(accessToken: String) {
+		this.accessToken = accessToken
+	}
+
+	override suspend fun setRefreshToken(refreshToken: String) {
+		this.refreshToken = refreshToken
+	}
+
+	override suspend fun getUsbId(): String = usbId
+
+	override suspend fun getAccessToken(): String = accessToken
+
+	override suspend fun getRefreshToken(): String = refreshToken
+
+	override suspend fun clear() {
+		usbId = ""
+		accessToken = ""
+		refreshToken = ""
+		cleared = true
+	}
+}
+
+class FakeSettingsRepository(
+	private val reviewSuggested: Boolean = false,
+	private var lastDestination: Destination = FakeDestination
+) : SettingsRepository {
+	var cleared = false
+		private set
+
+	override suspend fun isReviewSuggested(value: Int): Boolean = reviewSuggested
+
+	override suspend fun getLastDestination(): Destination = lastDestination
+
+	override suspend fun setLastDestination(destination: Destination) {
+		lastDestination = destination
+	}
+
+	override suspend fun clear() {
+		cleared = true
+	}
+}
+
 class FakeConfigRepository(
 	private val email: String = "support@tuindice.app",
 	private val subject: String = "Support TuIndice"
@@ -107,4 +180,29 @@ class FakeConfigRepository(
 	override fun getTimeUpdateStalenessDays(): Int = 7
 
 	override fun getSyncsToSuggestReview(): Int = 3
+}
+
+class RecordingReviewRepository : ReviewRepository {
+	var launchCalls = 0
+		private set
+
+	override suspend fun launchReview() {
+		launchCalls++
+	}
+}
+
+class FakeUpdateRepository(
+	private val updateAction: UpdateAction? = null
+) : UpdateRepository {
+	var checkCalls = mutableListOf<Int>()
+	val launchedActions = mutableListOf<UpdateAction>()
+
+	override suspend fun checkForUpdate(stalenessDays: Int): UpdateAction? {
+		checkCalls += stalenessDays
+		return updateAction
+	}
+
+	override suspend fun launchUpdate(action: UpdateAction) {
+		launchedActions += action
+	}
 }

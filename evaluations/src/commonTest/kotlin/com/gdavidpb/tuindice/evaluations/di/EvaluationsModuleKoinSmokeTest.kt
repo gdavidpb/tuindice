@@ -1,0 +1,31 @@
+package com.gdavidpb.tuindice.evaluations.di
+
+import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
+import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
+import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
+import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
+import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
+import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.koin.assertResolves
+import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
+import kotlin.test.Test
+import org.koin.dsl.module
+
+class EvaluationsModuleKoinSmokeTest {
+	@Test
+	fun resolvesEvaluationsViewModels() = withKoinSmokeTest(
+		evaluationsModule,
+		module {
+			single<EvaluationRepository> { RecordingEvaluationRepository() }
+			single<IdentifierRepository> { FakeIdentifierRepository() }
+			single<ReportingRepository> { RecordingReportingRepository() }
+		}
+	) {
+		assertResolves(
+			EvaluationsViewModel::class,
+			EvaluationViewModel::class
+		)
+	}
+}

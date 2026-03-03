@@ -19,6 +19,7 @@ kotlin {
 			dependencies {
 				api(project(":base"))
 				api(kotlin("test"))
+				api(libs.koin.core)
 				api(libs.kotlinx.coroutines.test)
 				api(libs.turbine)
 				implementation(libs.ktor.client.mock)
