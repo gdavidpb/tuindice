@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.EvaluationGradeWheelPicker
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.MIN_EVALUATION_GRADE
+import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationGradeWheelPicker
+import com.gdavidpb.tuindice.evaluations.ui.model.MIN_EVALUATION_GRADE
 
 @Composable
 fun GradePickerDialog(

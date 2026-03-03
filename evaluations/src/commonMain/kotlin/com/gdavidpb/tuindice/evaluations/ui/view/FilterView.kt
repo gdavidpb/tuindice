@@ -20,10 +20,7 @@ fun FilterView(
 	LazyRow(
 		modifier = modifier
 			.fillMaxWidth(),
-		horizontalArrangement = Arrangement
-			.spacedBy(
-				space = 6.dp
-			)
+		horizontalArrangement = Arrangement.spacedBy(space = 6.dp)
 	) {
 		items(
 			items = entries.toList(),

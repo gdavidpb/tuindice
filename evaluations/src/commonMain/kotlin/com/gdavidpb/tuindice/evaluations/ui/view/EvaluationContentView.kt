@@ -23,32 +23,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsShortDayOfWeekAndDate
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
-import tuindice.evaluations.generated.resources.evaluation_attendance
-import tuindice.evaluations.generated.resources.evaluation_essay
-import tuindice.evaluations.generated.resources.evaluation_interventions
-import tuindice.evaluations.generated.resources.evaluation_laboratory
-import tuindice.evaluations.generated.resources.evaluation_model
-import tuindice.evaluations.generated.resources.evaluation_other
-import tuindice.evaluations.generated.resources.evaluation_presentation
-import tuindice.evaluations.generated.resources.evaluation_project
-import tuindice.evaluations.generated.resources.evaluation_quiz
-import tuindice.evaluations.generated.resources.evaluation_report
-import tuindice.evaluations.generated.resources.evaluation_test
-import tuindice.evaluations.generated.resources.evaluation_workshop
-import tuindice.evaluations.generated.resources.evaluation_written_work
 import tuindice.evaluations.generated.resources.label_add_evaluation_date
 import tuindice.evaluations.generated.resources.label_add_evaluation_grades
 import tuindice.evaluations.generated.resources.label_add_evaluation_max_grade
 import tuindice.evaluations.generated.resources.label_add_evaluation_subject
 import tuindice.evaluations.generated.resources.label_add_evaluation_type
-import tuindice.evaluations.generated.resources.label_evaluation_assign_today
-import tuindice.evaluations.generated.resources.label_evaluation_no_date_short
 
 @Composable
 fun EvaluationContentView(
@@ -101,25 +84,10 @@ fun EvaluationContentView(
 				fontWeight = FontWeight.Medium
 			)
 
-			Row(
-				modifier = Modifier
-					.fillMaxWidth()
-					.padding(top = 8.dp)
-			) {
-				EvaluationType.entries.forEach { type ->
-					InputChip(
-						modifier = Modifier
-							.padding(end = 8.dp),
-						selected = state.type == type,
-						onClick = {
-							onTypeChange(type)
-						},
-						label = {
-							Text(evaluationTypeLabel(type = type))
-						}
-					)
-				}
-			}
+			EvaluationTypePicker(
+				selectedType = state.type,
+				onTypeChange = onTypeChange
+			)
 
 			Text(
 				modifier = Modifier
@@ -131,38 +99,11 @@ fun EvaluationContentView(
 				fontWeight = FontWeight.Medium
 			)
 
-			Row(
-				modifier = Modifier
-					.fillMaxWidth()
-			) {
-				InputChip(
-					selected = false,
-					onClick = {
-						onDateChange(currentTimeMillis())
-					},
-					label = {
-						Text(
-							if (state.date == null) {
-								stringResource(Res.string.label_evaluation_assign_today)
-							} else {
-								state.date.formatAsShortDayOfWeekAndDate()
-							}
-						)
-					}
-				)
-
-				InputChip(
-					modifier = Modifier
-						.padding(start = 8.dp),
-					selected = state.date == null,
-					onClick = {
-						onDateChange(null)
-					},
-					label = {
-						Text(stringResource(Res.string.label_evaluation_no_date_short))
-					}
-				)
-			}
+			EvaluationDatePicker(
+				modifier = Modifier.fillMaxWidth(),
+				selectedDate = state.date,
+				onDateChange = onDateChange
+			)
 
 			Text(
 				modifier = Modifier
@@ -254,21 +195,4 @@ fun EvaluationContentView(
 			)
 		}
 	}
-}
-
-@Composable
-private fun evaluationTypeLabel(type: EvaluationType) = when (type) {
-	EvaluationType.TEST -> stringResource(Res.string.evaluation_test)
-	EvaluationType.ESSAY -> stringResource(Res.string.evaluation_essay)
-	EvaluationType.ATTENDANCE -> stringResource(Res.string.evaluation_attendance)
-	EvaluationType.INTERVENTIONS -> stringResource(Res.string.evaluation_interventions)
-	EvaluationType.LABORATORY -> stringResource(Res.string.evaluation_laboratory)
-	EvaluationType.MODEL -> stringResource(Res.string.evaluation_model)
-	EvaluationType.PRESENTATION -> stringResource(Res.string.evaluation_presentation)
-	EvaluationType.PROJECT -> stringResource(Res.string.evaluation_project)
-	EvaluationType.QUIZ -> stringResource(Res.string.evaluation_quiz)
-	EvaluationType.REPORT -> stringResource(Res.string.evaluation_report)
-	EvaluationType.WORKSHOP -> stringResource(Res.string.evaluation_workshop)
-	EvaluationType.WRITTEN_WORK -> stringResource(Res.string.evaluation_written_work)
-	EvaluationType.OTHER -> stringResource(Res.string.evaluation_other)
 }

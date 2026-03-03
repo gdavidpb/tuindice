@@ -31,6 +31,7 @@ kotlin {
 				implementation(libs.koin.compose)
 				implementation(libs.components.resources)
 				implementation(libs.material.icons.extended)
+				implementation(libs.kotlinx.datetime)
 			}
 		}
 

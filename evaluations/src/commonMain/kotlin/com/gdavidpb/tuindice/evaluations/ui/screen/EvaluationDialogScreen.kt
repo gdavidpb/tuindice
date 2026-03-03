@@ -2,14 +2,9 @@ package com.gdavidpb.tuindice.evaluations.ui.screen
 
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.evaluations.ui.dialog.GradePickerDialog
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.EvaluationGradeWheelPickerDefaults
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationGradeWheelPickerDefaults
 import org.jetbrains.compose.resources.stringResource
-import tuindice.evaluations.generated.resources.Res
-import tuindice.evaluations.generated.resources.accept
-import tuindice.evaluations.generated.resources.cancel
-import tuindice.evaluations.generated.resources.dialog_title_add_evaluation_grade
-import tuindice.evaluations.generated.resources.dialog_title_add_evaluation_max_grade
-import tuindice.evaluations.generated.resources.dialog_title_edit_evaluation_grade
+import tuindice.evaluations.generated.resources.*
 
 @Composable
 fun GradePickerContentDialog(

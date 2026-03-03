@@ -12,9 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.asIcon
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.asString
 
@@ -23,39 +22,37 @@ fun EvaluationTypePicker(
 	selectedType: EvaluationType? = null,
 	onTypeChange: (EvaluationType) -> Unit
 ) {
-	val selectedTypeState = remember { mutableStateOf(selectedType) }
+	val selectedTypeState = remember(selectedType) {
+		mutableStateOf(selectedType)
+	}
 
 	FlowRow(
 		modifier = Modifier
-			.padding(top = dimensionResource(id = R.dimen.dp_8))
+			.padding(top = 8.dp)
 			.fillMaxWidth(),
-		horizontalArrangement = Arrangement
-			.spacedBy(
-				space = dimensionResource(id = R.dimen.dp_8)
-			)
+		horizontalArrangement = Arrangement.spacedBy(6.dp)
 	) {
-		EvaluationType.entries
-			.forEach { type ->
-				FilterChip(
-					selected = (type == selectedTypeState.value),
-					onClick = {
-						selectedTypeState.value = type
-						onTypeChange(type)
-					},
-					leadingIcon = {
-						Icon(
-							imageVector = type.asIcon(),
-							tint = MaterialTheme.colorScheme.outline,
-							contentDescription = null
-						)
-					},
-					label = {
-						Text(
-							text = type.asString(),
-							maxLines = 1
-						)
-					}
-				)
-			}
+		EvaluationType.entries.forEach { type ->
+			FilterChip(
+				selected = (type == selectedTypeState.value),
+				onClick = {
+					selectedTypeState.value = type
+					onTypeChange(type)
+				},
+				leadingIcon = {
+					Icon(
+						imageVector = type.asIcon(),
+						tint = MaterialTheme.colorScheme.outline,
+						contentDescription = null
+					)
+				},
+				label = {
+					Text(
+						text = type.asString(),
+						maxLines = 1
+					)
+				}
+			)
+		}
 	}
 }

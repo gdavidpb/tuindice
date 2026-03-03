@@ -2,15 +2,7 @@
 
 package com.gdavidpb.tuindice.base.presentation.mapper
 
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.DayOfWeek
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.daysUntil
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
-import kotlinx.datetime.until
+import kotlinx.datetime.*
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -120,17 +112,3 @@ fun Long.weeksToNow() =
 				.date,
 			unit = DateTimeUnit.WEEK
 		)
-
-fun Long.toLocalTimeZone() =
-	Instant
-		.fromEpochMilliseconds(this)
-		.toLocalDateTime(TimeZone.UTC)
-		.toInstant(TimeZone.currentSystemDefault())
-		.toEpochMilliseconds()
-
-fun Long.toUTCTimeZone() =
-	Instant
-		.fromEpochMilliseconds(this)
-		.toLocalDateTime(TimeZone.currentSystemDefault())
-		.toInstant(TimeZone.UTC)
-		.toEpochMilliseconds()

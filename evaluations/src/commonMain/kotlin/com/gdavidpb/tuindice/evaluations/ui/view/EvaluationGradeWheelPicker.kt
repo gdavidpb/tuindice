@@ -1,22 +1,14 @@
-package com.gdavidpb.tuindice.evaluations.ui.view.custom.grade
+package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -28,19 +20,14 @@ import com.gdavidpb.tuindice.base.ui.view.WheelPicker
 import com.gdavidpb.tuindice.base.ui.view.WheelPickerDefaults
 import com.gdavidpb.tuindice.base.utils.extension.MeasureUnconstrainedViewSize
 import com.gdavidpb.tuindice.base.utils.extension.fadingEdge
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.MAX_EVALUATION_GRADE
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.MIN_EVALUATION_GRADE
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.computeDecimals
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.computeInts
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.decimalSeparator
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.getLoopingIndex
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.toGrade
-import com.gdavidpb.tuindice.evaluations.ui.view.custom.grade.utils.toGradeWheelValue
-
-object EvaluationGradeWheelPickerDefaults {
-	val ItemSeparatorWidth = 1.5.dp
-	val GradeRange = MIN_EVALUATION_GRADE..MAX_EVALUATION_GRADE
-}
+import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationGradeWheelPickerDefaults
+import com.gdavidpb.tuindice.evaluations.ui.model.MAX_EVALUATION_GRADE
+import com.gdavidpb.tuindice.evaluations.ui.model.computeDecimals
+import com.gdavidpb.tuindice.evaluations.ui.model.computeInts
+import com.gdavidpb.tuindice.evaluations.ui.model.decimalSeparator
+import com.gdavidpb.tuindice.evaluations.ui.model.getLoopingIndex
+import com.gdavidpb.tuindice.evaluations.ui.model.toGrade
+import com.gdavidpb.tuindice.evaluations.ui.model.toGradeWheelValue
 
 private val fadingBrush = Brush.verticalGradient(
 	0f to Color.Transparent,
