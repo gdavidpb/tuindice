@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Event
@@ -10,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.presentation.extension.*
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsShortDayOfWeekAndDate
@@ -82,11 +83,14 @@ fun EvaluationDatePicker(
 		)
 	}
 
-	Row(modifier = modifier) {
+	Row(
+		modifier = modifier
+	) {
 		OutlinedButton(
 			modifier = Modifier
 				.offset(x = 0.5.dp)
-				.weight(0.5f),
+				.weight(0.5f)
+				.defaultMinSize(minHeight = 56.dp),
 			colors = if (committedDate != null) {
 				ButtonDefaults.filledTonalButtonColors()
 			} else {
@@ -112,9 +116,12 @@ fun EvaluationDatePicker(
 			)
 
 			Text(
+				modifier = Modifier.fillMaxWidth(),
 				text = selectedDate?.formatAsShortDayOfWeekAndDate()
 					?: stringResource(Res.string.label_evaluation_date),
-				maxLines = 1,
+				maxLines = 2,
+				overflow = TextOverflow.Ellipsis,
+				textAlign = TextAlign.Center,
 				color = MaterialTheme.colorScheme.onSurface
 			)
 		}
@@ -122,7 +129,8 @@ fun EvaluationDatePicker(
 		OutlinedButton(
 			modifier = Modifier
 				.offset(x = (-0.5).dp)
-				.weight(0.5f),
+				.weight(0.5f)
+				.defaultMinSize(minHeight = 56.dp),
 			colors = if (committedDate == null) {
 				ButtonDefaults.filledTonalButtonColors()
 			} else {
@@ -139,8 +147,11 @@ fun EvaluationDatePicker(
 			)
 		) {
 			Text(
+				modifier = Modifier.fillMaxWidth(),
 				text = stringResource(Res.string.label_evaluation_no_date),
-				maxLines = 1,
+				maxLines = 2,
+				overflow = TextOverflow.Ellipsis,
+				textAlign = TextAlign.Center,
 				color = MaterialTheme.colorScheme.onSurface
 			)
 		}

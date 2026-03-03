@@ -20,14 +20,7 @@ import com.gdavidpb.tuindice.base.ui.view.WheelPicker
 import com.gdavidpb.tuindice.base.ui.view.WheelPickerDefaults
 import com.gdavidpb.tuindice.base.utils.extension.MeasureUnconstrainedViewSize
 import com.gdavidpb.tuindice.base.utils.extension.fadingEdge
-import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationGradeWheelPickerDefaults
-import com.gdavidpb.tuindice.evaluations.ui.model.MAX_EVALUATION_GRADE
-import com.gdavidpb.tuindice.evaluations.ui.model.computeDecimals
-import com.gdavidpb.tuindice.evaluations.ui.model.computeInts
-import com.gdavidpb.tuindice.evaluations.ui.model.decimalSeparator
-import com.gdavidpb.tuindice.evaluations.ui.model.getLoopingIndex
-import com.gdavidpb.tuindice.evaluations.ui.model.toGrade
-import com.gdavidpb.tuindice.evaluations.ui.model.toGradeWheelValue
+import com.gdavidpb.tuindice.evaluations.ui.model.*
 
 private val fadingBrush = Brush.verticalGradient(
 	0f to Color.Transparent,
@@ -47,15 +40,15 @@ fun EvaluationGradeWheelPicker(
 ) {
 	val currentOnGradeChange by rememberUpdatedState(onGradeChange)
 
-	val currentGrade = remember {
+	val currentGrade = remember(grade) {
 		mutableStateOf(grade.toGradeWheelValue())
 	}
 
-	val ints = remember {
+	val ints = remember(gradeRange.start, gradeRange.endInclusive) {
 		gradeRange.computeInts()
 	}
 
-	val decimals = remember {
+	val decimals = remember(gradeRange.start, gradeRange.endInclusive) {
 		gradeRange.computeDecimals()
 	}
 
@@ -84,31 +77,46 @@ fun EvaluationGradeWheelPicker(
 			text = "$MAX_EVALUATION_GRADE",
 			style = textStyle
 		)
-	}) { measuredSize ->
-		Box(modifier = modifier) {
-			Box(
-				modifier = Modifier
-					.align(Alignment.Center)
-					.background(
-						color = MaterialTheme.colorScheme.secondaryContainer,
-						shape = CircleShape
-					)
-					.border(
-						border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-						shape = CircleShape
-					)
-			) {
+	}) { itemSize ->
+		MeasureUnconstrainedViewSize(viewToMeasure = {
+			Text(
+				text = decimalSeparator,
+				style = textStyle
+			)
+		}) { separatorSize ->
+			val selectedFrameWidth =
+				(itemSize.width * 2) +
+					separatorSize.width +
+					(EvaluationGradeWheelPickerDefaults.ItemSeparatorWidth * 2)
+
+			Box(modifier = modifier) {
+				Box(
+					modifier = Modifier
+						.align(Alignment.Center)
+						.width(selectedFrameWidth)
+						.height(itemSize.height * 1.25f)
+						.background(
+							color = MaterialTheme.colorScheme.secondaryContainer,
+							shape = CircleShape
+						)
+						.border(
+							border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+							shape = CircleShape
+						)
+				)
+
 				Row(
+					modifier = Modifier.align(Alignment.Center),
 					verticalAlignment = Alignment.CenterVertically
 				) {
 					WheelPicker(
 						modifier = Modifier
-							.width(measuredSize.width)
+							.width(itemSize.width)
 							.fadingEdge(brush = fadingBrush),
 						state = intsState,
 						count = Int.MAX_VALUE,
 						additionalItemCount = additionalItemCount,
-						itemHeight = measuredSize.height,
+						itemHeight = itemSize.height,
 						itemValidator = { index ->
 							val int = ints[index % ints.size]
 
@@ -143,12 +151,12 @@ fun EvaluationGradeWheelPicker(
 
 					WheelPicker(
 						modifier = Modifier
-							.width(measuredSize.width)
+							.width(itemSize.width)
 							.fadingEdge(brush = fadingBrush),
 						state = decimalsState,
 						count = Int.MAX_VALUE,
 						additionalItemCount = additionalItemCount,
-						itemHeight = measuredSize.height,
+						itemHeight = itemSize.height,
 						itemValidator = { index ->
 							val decimal = decimals[index % decimals.size]
 
