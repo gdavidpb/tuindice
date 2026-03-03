@@ -27,14 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onPlaced
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.evaluations.R
 import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
 import kotlin.math.abs
 import org.jetbrains.compose.resources.stringResource
-import tuindice.evaluations.generated.resources.*
+import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.label_evaluation_swipe_delete
+import tuindice.evaluations.generated.resources.label_evaluation_swipe_edit
 
 @Composable
 fun EvaluationSwipeToDismiss(
@@ -83,9 +83,7 @@ fun EvaluationSwipeToDismiss(
 					) {
 						Icon(
 							modifier = Modifier
-								.padding(
-									end = dimensionResource(id = R.dimen.dp_4)
-								),
+								.padding(end = 4.dp),
 							imageVector = icon,
 							contentDescription = null
 						)
@@ -105,7 +103,7 @@ private fun getBackgroundInfo(
 	labelWidth: Float,
 	dismissWidth: Float
 ): BackgroundInfo {
-	val revealRange = (THRESHOLD_EVALUATION_SWIPE)
+	val revealRange = THRESHOLD_EVALUATION_SWIPE
 		.coerceAtLeast(.01f)
 	val swipeProgress = if (dismissWidth > 0f)
 		runCatching { abs(state.requireOffset()) / dismissWidth }
@@ -133,7 +131,6 @@ private fun getBackgroundInfo(
 		animationSpec = tween(durationMillis = 200),
 		label = "SwipeToDismiss_animateColorAsState"
 	)
-	val sidePadding = dimensionResource(id = R.dimen.dp_8)
 
 	return when (state.dismissDirection) {
 		SwipeToDismissBoxValue.StartToEnd -> BackgroundInfo(
@@ -145,7 +142,7 @@ private fun getBackgroundInfo(
 				progress = state.progress,
 				direction = -1f,
 				width = labelWidth,
-				padding = sidePadding
+				padding = 8.dp
 			)
 		)
 
@@ -158,7 +155,7 @@ private fun getBackgroundInfo(
 				progress = state.progress,
 				direction = 1f,
 				width = labelWidth,
-				padding = sidePadding
+				padding = 8.dp
 			)
 		)
 
