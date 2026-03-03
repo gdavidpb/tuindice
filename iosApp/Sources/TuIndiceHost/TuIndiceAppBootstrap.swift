@@ -10,6 +10,8 @@ import Maincore
 enum TuIndiceAppBootstrap {
     #if canImport(maincore) || canImport(Maincore)
     private static let defaultApiBaseUrl = "https://api.tuindice.app/"
+    private static let defaultLocaleTag = "es-VE"
+    private static let defaultAppleLocaleIdentifier = "es_VE"
     private static let buildVariant: IosBuildVariant = {
         #if DEBUG
         return .debug
@@ -39,6 +41,7 @@ enum TuIndiceAppBootstrap {
 
     static func makeRootViewController() -> UIViewController {
         #if canImport(maincore) || canImport(Maincore)
+        configureLocale()
         return appBootstrap.createRootViewController()
         #else
         return UIViewController()
@@ -121,6 +124,11 @@ enum TuIndiceAppBootstrap {
             host == "0.0.0.0" ||
             host == "::1"
         #endif
+    }
+
+    private static func configureLocale() {
+        UserDefaults.standard.set([defaultLocaleTag], forKey: "AppleLanguages")
+        UserDefaults.standard.set(defaultAppleLocaleIdentifier, forKey: "AppleLocale")
     }
     #endif
 }

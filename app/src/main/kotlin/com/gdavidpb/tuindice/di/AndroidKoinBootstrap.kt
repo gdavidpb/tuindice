@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.di
 
 import android.app.Application
+import com.gdavidpb.tuindice.base.utils.ANDROID_LOCALE_LANGUAGE_TAG
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityLifecycleCallbacks
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityProvider
 import org.koin.android.ext.koin.androidContext
@@ -10,12 +11,15 @@ import org.koin.core.Koin
 import org.koin.core.KoinApplication
 import org.koin.core.logger.Level
 import org.koin.core.module.Module
+import java.util.Locale
 
 fun startAndroidAppKoin(
 	application: Application,
 	platformVariantModules: List<Module> = emptyList(),
 	isOverrideEnabled: Boolean = false
 ): Koin {
+	Locale.setDefault(Locale.forLanguageTag(ANDROID_LOCALE_LANGUAGE_TAG))
+
 	return startAppKoin(
 		AppKoinBootstrapRequest(
 			platformBootstrap = AndroidKoinBootstrap(

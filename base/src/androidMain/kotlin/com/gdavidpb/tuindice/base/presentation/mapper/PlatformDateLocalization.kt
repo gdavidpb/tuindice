@@ -1,24 +1,30 @@
 package com.gdavidpb.tuindice.base.presentation.mapper
 
+import com.gdavidpb.tuindice.base.utils.ANDROID_LOCALE_LANGUAGE_TAG
 import java.text.DateFormatSymbols
+import java.util.Locale
 
 actual fun platformFullMonthNames(): List<String> {
-	return DateFormatSymbols()
+	return DateFormatSymbols(appLocale())
 		.months
 		.take(12)
 		.toList()
 }
 
 actual fun platformFullWeekdayNames(): List<String> {
-	return DateFormatSymbols()
+	return DateFormatSymbols(appLocale())
 		.weekdays
 		.toMondayFirstWeek()
 }
 
 actual fun platformShortWeekdayNames(): List<String> {
-	return DateFormatSymbols()
+	return DateFormatSymbols(appLocale())
 		.shortWeekdays
 		.toMondayFirstWeek()
+}
+
+private fun appLocale(): Locale {
+	return Locale.forLanguageTag(ANDROID_LOCALE_LANGUAGE_TAG)
 }
 
 private fun Array<String>.toMondayFirstWeek(): List<String> {
