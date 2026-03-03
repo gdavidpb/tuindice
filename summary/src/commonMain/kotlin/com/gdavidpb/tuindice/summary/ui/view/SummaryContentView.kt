@@ -7,11 +7,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.SyncProblem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
@@ -21,17 +27,7 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
 fun SummaryContentView(
 	state: Summary.State.Content,
 	summaryItems: List<SummaryItem>,
-	onEditProfilePictureClick: () -> Unit,
-	profilePictureContent: @Composable (
-		state: ProfilePictureState,
-		onLoading: (isLoading: Boolean) -> Unit,
-		onClick: () -> Unit
-	) -> Unit,
-	lastUpdateLeadingContent: @Composable (
-		isUpdating: Boolean,
-		isUpdated: Boolean,
-		rotation: Float
-	) -> Unit
+	onEditProfilePictureClick: () -> Unit
 ) {
 	val profilePictureState = rememberProfilePictureState(
 		url = state.profilePictureUrl,
@@ -59,14 +55,14 @@ fun SummaryContentView(
 			.fillMaxSize(),
 		horizontalAlignment = Alignment.CenterHorizontally
 	) {
-		profilePictureContent(
-			profilePictureState.value,
-			{ isLoading ->
+		ProfilePictureView(
+			state = profilePictureState.value,
+			onLoading = { isLoading ->
 				profilePictureState.value = profilePictureState.value.copy(
 					isLoading = isLoading || state.isProfilePictureLoading
 				)
 			},
-			onEditProfilePictureClick
+			onClick = onEditProfilePictureClick
 		)
 
 		GradeTextView(
@@ -89,10 +85,13 @@ fun SummaryContentView(
 				.padding(vertical = 8.dp),
 			verticalAlignment = Alignment.CenterVertically
 		) {
-			lastUpdateLeadingContent(
-				state.isUpdating,
-				state.isUpdated,
-				if (state.isUpdating) updatingAnimation.value else 0f
+			Icon(
+				modifier = Modifier
+					.padding(horizontal = 4.dp)
+					.rotate(if (state.isUpdating) updatingAnimation.value else 0f),
+				imageVector = if (state.isUpdated) Icons.Outlined.Sync else Icons.Outlined.SyncProblem,
+				tint = if (state.isUpdated) LocalContentColor.current else MaterialTheme.colorScheme.error,
+				contentDescription = null
 			)
 
 			Text(

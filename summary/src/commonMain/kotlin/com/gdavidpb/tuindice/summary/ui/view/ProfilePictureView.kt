@@ -59,12 +59,14 @@ fun ProfilePictureView(
 	) {
 		Box(
 			modifier = Modifier
-				.size(120.dp)
+				.size(128.dp)
 				.clip(CircleShape)
 				.background(MaterialTheme.colorScheme.surfaceVariant),
 			contentAlignment = Alignment.Center
 		) {
 			Icon(
+				modifier = Modifier
+					.size(48.dp),
 				imageVector = Icons.Outlined.Person,
 				contentDescription = null,
 				tint = if (state.url.isBlank())
@@ -91,14 +93,15 @@ fun ProfilePictureView(
 
 		IconButton(
 			modifier = Modifier
-				.size(32.dp)
+				.size(42.dp)
 				.align(Alignment.BottomEnd),
 			enabled = !state.isLoading,
 			colors = IconButtonDefaults.filledIconButtonColors(),
 			onClick = onClick
 		) {
 			Icon(
-				modifier = Modifier.padding(4.dp),
+				modifier = Modifier
+					.padding(4.dp),
 				imageVector = Icons.Outlined.Edit,
 				tint = MaterialTheme.colorScheme.onPrimary,
 				contentDescription = null

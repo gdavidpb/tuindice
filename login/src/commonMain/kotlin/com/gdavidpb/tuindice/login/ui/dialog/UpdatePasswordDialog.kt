@@ -11,6 +11,8 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
+import com.gdavidpb.tuindice.login.ui.view.UpdatePasswordIdleView
+import com.gdavidpb.tuindice.login.ui.view.UpdatePasswordUpdatingView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20,15 +22,12 @@ fun UpdatePasswordDialog(
 	updatingTitleText: String,
 	confirmText: String,
 	laterText: String,
+	appNameText: String,
+	messageText: String,
+	passwordLabelText: String,
 	onPasswordChange: (password: String) -> Unit,
 	onConfirmClick: (password: String) -> Unit,
-	onDismissRequest: () -> Unit,
-	idleContent: @Composable (
-		state: UpdatePassword.State,
-		onPasswordChange: (password: String) -> Unit,
-		onConfirmClick: (password: String) -> Unit
-	) -> Unit,
-	updatingContent: @Composable () -> Unit
+	onDismissRequest: () -> Unit
 ) {
 	val isConfirmEnabled = state is UpdatePassword.State.Idle && state.password.isNotEmpty()
 	val isLaterEnabled = state is UpdatePassword.State.Idle
@@ -66,13 +65,20 @@ fun UpdatePasswordDialog(
 			label = "ConfirmationDialogAnimatedContent",
 		) { isLoggingIn ->
 			if (isLoggingIn)
-				updatingContent()
-			else
-				idleContent(
-					state,
-					onPasswordChange,
-					onConfirmClick
+				UpdatePasswordUpdatingView()
+			else {
+				val currentIdleState = state as? UpdatePassword.State.Idle
+					?: return@AnimatedContent
+
+				UpdatePasswordIdleView(
+					state = currentIdleState,
+					onPasswordChange = onPasswordChange,
+					onConfirmClick = onConfirmClick,
+					appNameText = appNameText,
+					messageText = messageText,
+					passwordLabelText = passwordLabelText
 				)
+			}
 		}
 	}
 }

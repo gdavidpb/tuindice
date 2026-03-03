@@ -3,8 +3,6 @@ package com.gdavidpb.tuindice.login.ui.screen
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.login.ui.dialog.UpdatePasswordDialog
-import com.gdavidpb.tuindice.login.ui.view.UpdatePasswordIdleView
-import com.gdavidpb.tuindice.login.ui.view.UpdatePasswordUpdatingView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.login.generated.resources.Res
 import tuindice.login.generated.resources.app_name
@@ -28,24 +26,11 @@ fun UpdatePasswordScreen(
 		updatingTitleText = stringResource(Res.string.dialog_title_updating_password),
 		confirmText = stringResource(Res.string.dialog_button_update_password_confirm),
 		laterText = stringResource(Res.string.dialog_button_update_password_later),
+		appNameText = stringResource(Res.string.app_name),
+		messageText = stringResource(Res.string.dialog_message_update_password),
+		passwordLabelText = stringResource(Res.string.hint_password),
 		onPasswordChange = onPasswordChange,
 		onConfirmClick = onConfirmClick,
-		onDismissRequest = onDismissRequest,
-		idleContent = { idleState, passwordChange, confirmClick ->
-			val currentIdleState = idleState as? UpdatePassword.State.Idle
-				?: return@UpdatePasswordDialog
-
-			UpdatePasswordIdleView(
-				state = currentIdleState,
-				onPasswordChange = passwordChange,
-				onConfirmClick = confirmClick,
-				appNameText = stringResource(Res.string.app_name),
-				messageText = stringResource(Res.string.dialog_message_update_password),
-				passwordLabelText = stringResource(Res.string.hint_password)
-			)
-		},
-		updatingContent = {
-			UpdatePasswordUpdatingView()
-		}
+		onDismissRequest = onDismissRequest
 	)
 }
