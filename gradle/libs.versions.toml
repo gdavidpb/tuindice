@@ -43,6 +43,8 @@ compose-mpp-material3 = "1.9.0"
 datastore = "1.2.0"
 filekit = "0.13.0"
 kermit = "2.0.8"
+multiplatform-settings = "1.3.0"
+ksafe = "1.6.0"
 
 [libraries]
 # Room
@@ -140,6 +142,8 @@ filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "file
 filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
+ksafe = { module = "eu.anifantakis:ksafe", version.ref = "ksafe" }
 
 # Coil
 coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }

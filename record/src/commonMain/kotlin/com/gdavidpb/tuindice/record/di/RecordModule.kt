@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.record.data.repository.QuarterDataRepository
 import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataSource
 import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataSource
 import com.gdavidpb.tuindice.record.data.repository.QuarterSettingsDataSource
-import com.gdavidpb.tuindice.record.data.source.PreferencesDataSource
+import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.record.data.source.RecordApiDataSource
 import com.gdavidpb.tuindice.record.data.source.RoomDataSource
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradePara
 import com.gdavidpb.tuindice.record.presentation.action.LoadQuartersActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -55,7 +56,9 @@ val recordModule = module {
 
 	singleOf(::RoomDataSource) { bind<QuarterLocalDataSource>() }
 	factoryOf(::RecordApiDataSource) { bind<QuarterRemoteDataSource>() }
-	factoryOf(::PreferencesDataSource) { bind<QuarterSettingsDataSource>() }
+	single<QuarterSettingsDataSource> {
+		LocalSettingsDataSource(get<Settings>())
+	}
 
 	/* Exception handlers */
 

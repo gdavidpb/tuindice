@@ -1,5 +1,6 @@
-package com.gdavidpb.tuindice.base.data.source.config
+package com.gdavidpb.tuindice.base.data.repository
 
+import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.RemoteConfigKeys
@@ -7,12 +8,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 
-interface RemoteConfigDataSource {
-	suspend fun fetch()
-	fun getString(key: String): String?
-}
-
-class ConfigDataSource(
+class ConfigDataRepository(
 	private val remoteConfigDataSource: RemoteConfigDataSource,
 	private val defaults: DefaultRemoteConfigValues
 ) : ConfigRepository {

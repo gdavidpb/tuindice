@@ -432,22 +432,6 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         #endif
     }
 
-    func secureStoreContains(key: String) -> Bool {
-        secureStore.contains(key)
-    }
-
-    func secureStoreGetString(key: String) -> String? {
-        secureStore.read(key)
-    }
-
-    func secureStorePutString(key: String, value: String) {
-        secureStore.write(key, value: value)
-    }
-
-    func secureStoreClear() {
-        secureStore.clear()
-    }
-
     private static func topViewController(
         from root: UIViewController? = UIApplication.shared
             .connectedScenes

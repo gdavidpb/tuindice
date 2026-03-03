@@ -41,7 +41,6 @@ kotlin {
 				implementation(project(":record"))
 				implementation(project(":evaluations"))
 				implementation(project(":enrollmentproof"))
-				implementation(libs.datastore.preferences)
 				implementation(libs.koin.compose)
 				implementation(libs.koin.core)
 				implementation(libs.components.resources)

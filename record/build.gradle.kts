@@ -34,7 +34,6 @@ kotlin {
 				implementation(libs.navigation.compose)
 				implementation(libs.koin.compose)
 				implementation(libs.components.resources)
-				implementation(libs.datastore.preferences)
 				implementation(libs.kotlinx.datetime)
 				implementation(libs.material.icons.extended)
 			}

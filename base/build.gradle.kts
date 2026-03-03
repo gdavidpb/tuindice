@@ -34,11 +34,12 @@ kotlin {
 				api(libs.lifecycle.runtime.compose)
 				api(libs.filekit.core)
 				api(libs.kermit)
+				api(libs.multiplatform.settings)
+				api(libs.ksafe)
 
 				implementation(libs.components.resources)
 				implementation(libs.kotlinx.datetime)
 				implementation(libs.kotlinx.serialization.json)
-				implementation(libs.datastore.preferences)
 				implementation(libs.koin.core)
 				implementation(libs.compottie)
 			}

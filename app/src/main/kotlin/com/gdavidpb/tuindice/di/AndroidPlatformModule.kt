@@ -1,13 +1,8 @@
 package com.gdavidpb.tuindice.di
 
-import android.content.Context
 import android.net.ConnectivityManager
 import androidx.room.Room
 import androidx.core.content.getSystemService
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStoreFile
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.about.data.repository.AppInfoDataSource
 import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataSource
@@ -18,11 +13,11 @@ import com.gdavidpb.tuindice.about.data.source.AndroidShareTextHandler
 import com.gdavidpb.tuindice.about.data.source.AndroidStoreUrlDataSource
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.base.data.source.*
-import com.gdavidpb.tuindice.base.data.source.config.ConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
+import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfig
-import com.gdavidpb.tuindice.base.utils.RemoteConfigDefaultsProfile
+import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.extension.toFirebaseDefaultsMap
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
 import com.gdavidpb.tuindice.data.repository.attestation.PayloadDigestDataSource
@@ -44,8 +39,6 @@ import com.gdavidpb.tuindice.data.source.reporting.CrashReporter
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.reporting.FirebaseCrashReporter
 import com.gdavidpb.tuindice.data.source.review.PlayReviewDataSource
-import com.gdavidpb.tuindice.data.source.securestore.AndroidSecureStoreDataSource
-import com.gdavidpb.tuindice.data.source.settings.PreferencesDataSource
 import com.gdavidpb.tuindice.data.source.update.PlayUpdateDataSource
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
@@ -58,9 +51,9 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import com.russhwolf.settings.Settings
+import com.russhwolf.settings.SharedPreferencesSettings
+import eu.anifantakis.lib.ksafe.KSafe
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
@@ -80,21 +73,14 @@ val androidPlatformModule = module {
 }
 
 private fun Module.registerAndroidPlatformStorage() {
-	single {
-		androidContext().getSharedPreferences(
-			androidContext().packageName,
-			Context.MODE_PRIVATE
-		)
+	single<Settings.Factory> {
+		SharedPreferencesSettings.Factory(androidContext())
 	}
 
-	single<DataStore<Preferences>> {
-		val dataStoreFileName = "tuindice.preferences"
-
-		PreferenceDataStoreFactory.create(
-			scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-			produceFile = {
-				androidContext().preferencesDataStoreFile(dataStoreFileName)
-			}
+	single {
+		KSafe(
+			context = androidContext(),
+			fileName = APP_SECURE_STORE_NAME
 		)
 	}
 
@@ -127,17 +113,16 @@ private fun Module.registerAndroidPlatformPrimitives() {
 		ReviewManagerFactory.create(androidContext())
 	}
 
-	single<RemoteConfigDefaultsProfile> {
+	single<DefaultRemoteConfigValues> {
 		if (BuildConfig.DEBUG) {
-			RemoteConfigDefaultsProfile.DEBUG
+			DefaultRemoteConfig.values(com.gdavidpb.tuindice.base.utils.RemoteConfigDefaultsProfile.DEBUG)
 		} else {
-			RemoteConfigDefaultsProfile.PRODUCTION
+			DefaultRemoteConfig.values(com.gdavidpb.tuindice.base.utils.RemoteConfigDefaultsProfile.PRODUCTION)
 		}
 	}
 
 	single {
 		val defaultFetchInterval = 43_200L
-		val remoteConfigProfile = get<RemoteConfigDefaultsProfile>()
 		val fetchIntervalSeconds = if (BuildConfig.DEBUG) 0L else defaultFetchInterval
 
 		FirebaseRemoteConfig.getInstance().apply {
@@ -145,7 +130,7 @@ private fun Module.registerAndroidPlatformPrimitives() {
 				.setMinimumFetchIntervalInSeconds(fetchIntervalSeconds)
 				.build()
 			setConfigSettingsAsync(settings)
-			setDefaultsAsync(DefaultRemoteConfig.values(remoteConfigProfile).toFirebaseDefaultsMap())
+			setDefaultsAsync(get<DefaultRemoteConfigValues>().toFirebaseDefaultsMap())
 		}
 	}
 
@@ -164,7 +149,6 @@ private fun Module.registerAndroidPlatformPrimitives() {
 
 private fun Module.registerAndroidPlatformServices() {
 	singleOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
-	singleOf(::PreferencesDataSource) { bind<SettingsRepository>() }
 	singleOf(::AndroidRemoteConfigDataSource) { bind<RemoteConfigDataSource>() }
 	singleOf(::FirebasePushTokenDataSource) { bind<PushTokenDataSource>() }
 	singleOf(::InMemoryCurrentActivityProvider) { bind<CurrentActivityProvider>() }
@@ -174,10 +158,6 @@ private fun Module.registerAndroidPlatformServices() {
 	singleOf(::AndroidBrowserScreenRenderer) { bind<BrowserScreenRenderer>() }
 	singleOf(::AndroidFileOpenerDataSource) { bind<BaseExternalActionsRepository>() }
 	singleOf(::AndroidDeviceInfoDataSource) { bind<DeviceInfoRepository>() }
-	singleOf(::AndroidSecureStoreDataSource) {
-		bind<SecureStoreDataSource>()
-		bind<SecureStoreRepository>()
-	}
 	singleOf(::AndroidApplicationDataSource) {
 		bind<ApplicationRepository>()
 		bind<FileRepository>()
@@ -191,12 +171,6 @@ private fun Module.registerAndroidPlatformServices() {
 	}
 	singleOf(::BuildConfigEnvironmentDataSource) {
 		bind<AppEnvironmentRepository>()
-	}
-	single<ConfigRepository> {
-		ConfigDataSource(
-			remoteConfigDataSource = get<RemoteConfigDataSource>(),
-			defaults = DefaultRemoteConfig.values(get<RemoteConfigDefaultsProfile>())
-		)
 	}
 }
 

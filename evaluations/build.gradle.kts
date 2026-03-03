@@ -26,7 +26,6 @@ kotlin {
 			dependencies {
 				implementation(project(":base"))
 				implementation(project(":persistence"))
-				implementation(libs.datastore.preferences)
 				implementation(libs.navigation.compose)
 				implementation(libs.koin.compose)
 				implementation(libs.components.resources)

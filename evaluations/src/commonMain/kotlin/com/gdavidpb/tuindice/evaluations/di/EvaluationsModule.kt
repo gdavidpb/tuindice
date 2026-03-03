@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationDataRepositor
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.KtorEvaluationsApiDataSource
-import com.gdavidpb.tuindice.evaluations.data.source.PreferencesDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.RoomDatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
@@ -40,6 +40,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEval
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
+import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
@@ -96,7 +97,9 @@ val evaluationsModule = module {
 
 	factoryOf(::KtorEvaluationsApiDataSource) { bind<EvaluationsApiDataSource>() }
 	factoryOf(::RoomDatabaseDataSource) { bind<DatabaseDataSource>() }
-	factoryOf(::PreferencesDataSource) { bind<SettingsDataSource>() }
+	single<SettingsDataSource> {
+		LocalSettingsDataSource(get<Settings>())
+	}
 
 	/* Exception handlers */
 

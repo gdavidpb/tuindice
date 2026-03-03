@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.data.ios
 
-import com.gdavidpb.tuindice.base.data.source.SecureStoreDataSource
 import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
@@ -19,7 +18,6 @@ import com.gdavidpb.tuindice.di.IosObservabilityCapability
 import com.gdavidpb.tuindice.di.IosPushCapability
 import com.gdavidpb.tuindice.di.IosRemoteConfigCapability
 import com.gdavidpb.tuindice.di.IosReviewCapability
-import com.gdavidpb.tuindice.di.IosSecureStoreCapability
 import com.gdavidpb.tuindice.di.IosUpdateCapability
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
@@ -121,25 +119,5 @@ internal class IosPushTokenDataSource(
 		return pushCapability.pushToken()
 			?.takeIf { token -> token.isNotBlank() }
 			?: throw IllegalStateException("Push token unavailable on iOS bridge.")
-	}
-}
-
-internal class IosBridgeSecureStoreDataSource(
-	private val secureStoreCapability: IosSecureStoreCapability
-) : SecureStoreDataSource {
-	override fun contains(key: String): Boolean {
-		return secureStoreCapability.secureStoreContains(key)
-	}
-
-	override fun getString(key: String): String? {
-		return secureStoreCapability.secureStoreGetString(key)
-	}
-
-	override fun putString(key: String, value: String) {
-		secureStoreCapability.secureStorePutString(key, value)
-	}
-
-	override fun clear() {
-		secureStoreCapability.secureStoreClear()
 	}
 }

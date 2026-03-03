@@ -52,13 +52,6 @@ interface IosObservabilityCapability {
 	fun setCustomKey(key: String, value: String)
 }
 
-interface IosSecureStoreCapability {
-	fun secureStoreContains(key: String): Boolean
-	fun secureStoreGetString(key: String): String?
-	fun secureStorePutString(key: String, value: String)
-	fun secureStoreClear()
-}
-
 interface IosPlatformBridge :
 	IosRemoteConfigCapability,
 	IosAttestationCapability,
@@ -67,8 +60,7 @@ interface IosPlatformBridge :
 	IosUpdateCapability,
 	IosExternalActionsCapability,
 	IosDeviceCapability,
-	IosObservabilityCapability,
-	IosSecureStoreCapability
+	IosObservabilityCapability
 
 internal data class IosHostCapabilities(
 	val remoteConfig: IosRemoteConfigCapability,
@@ -78,8 +70,7 @@ internal data class IosHostCapabilities(
 	val update: IosUpdateCapability,
 	val externalActions: IosExternalActionsCapability,
 	val device: IosDeviceCapability,
-	val observability: IosObservabilityCapability,
-	val secureStore: IosSecureStoreCapability
+	val observability: IosObservabilityCapability
 )
 
 internal fun IosPlatformBridge.toHostCapabilities(): IosHostCapabilities {
@@ -91,7 +82,6 @@ internal fun IosPlatformBridge.toHostCapabilities(): IosHostCapabilities {
 		update = this,
 		externalActions = this,
 		device = this,
-		observability = this,
-		secureStore = this
+		observability = this
 	)
 }

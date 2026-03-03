@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.di
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import com.gdavidpb.tuindice.about.data.repository.AppInfoDataSource
 import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataSource
@@ -11,9 +9,10 @@ import com.gdavidpb.tuindice.about.data.source.IosShareTextHandler
 import com.gdavidpb.tuindice.about.data.source.IosStoreUrlDataSource
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.base.data.source.*
-import com.gdavidpb.tuindice.base.data.source.config.ConfigDataSource
+import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.domain.repository.*
+import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
 import com.gdavidpb.tuindice.data.ios.*
 import com.gdavidpb.tuindice.login.data.repository.LoginAuthApiDataSource
@@ -23,6 +22,9 @@ import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.di.createIosDatabase
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.IosBrowserScreenRenderer
+import com.russhwolf.settings.NSUserDefaultsSettings
+import com.russhwolf.settings.Settings
+import eu.anifantakis.lib.ksafe.KSafe
 import io.ktor.client.*
 import kotlinx.serialization.json.Json
 import org.koin.core.module.Module
@@ -41,11 +43,12 @@ internal val iosPlatformModule: Module = module {
 }
 
 private fun Module.registerIosPlatformStorage() {
-	single<SecureStoreDataSource> {
-		iOSContext().secureStore ?: IosBridgeSecureStoreDataSource(get<IosSecureStoreCapability>())
+	single<Settings.Factory> {
+		NSUserDefaultsSettings.Factory()
 	}
-	single<SecureStoreRepository> { get<SecureStoreDataSource>() }
-	single<DataStore<Preferences>> { iOSContext().dataStore }
+	single {
+		KSafe(fileName = APP_SECURE_STORE_NAME)
+	}
 	single<TuIndiceDatabase> {
 		createIosDatabase(path = iOSContext().databasePath)
 	}
@@ -60,19 +63,13 @@ private fun Module.registerIosPlatformPrimitives() {
 	single<IosExternalActionsCapability> { iOSContext().hostCapabilities.externalActions }
 	single<IosDeviceCapability> { iOSContext().hostCapabilities.device }
 	single<IosObservabilityCapability> { iOSContext().hostCapabilities.observability }
-	single<IosSecureStoreCapability> { iOSContext().hostCapabilities.secureStore }
+	single<DefaultRemoteConfigValues> { iOSContext().configValues }
 }
 
 private fun Module.registerIosPlatformServices() {
 	single<IdentifierRepository> { UUIDIdentifierDataSource() }
 	single<AppEnvironmentRepository> { IosAppEnvironmentDataSource(iOSContext().appEnvironment) }
 	single<RemoteConfigDataSource> { IosRemoteConfigDataSource(get<IosRemoteConfigCapability>()) }
-	single<ConfigRepository> {
-		ConfigDataSource(
-			remoteConfigDataSource = get<RemoteConfigDataSource>(),
-			defaults = iOSContext().configValues.toDefaultRemoteConfigValues()
-		)
-	}
 	single<NetworkRepository> { IosNetworkDataSource(get<IosDeviceCapability>()) }
 	single<DeviceInfoRepository> { IosDeviceInfoGateway(get<IosDeviceCapability>()) }
 	single<BrowserRepository> { IosBrowserGateway(get<IosExternalActionsCapability>()) }
@@ -80,11 +77,10 @@ private fun Module.registerIosPlatformServices() {
 	singleOf(::IosFileOpener) { bind<FileOpenerRepository>() }
 	single<ReviewRepository> { IosReviewGateway(get<IosReviewCapability>()) }
 	single<UpdateRepository> { IosUpdateGateway(get<IosUpdateCapability>()) }
-	single<SettingsRepository> { IosSettingsDataSource(get<DataStore<Preferences>>()) }
 	single<ApplicationRepository> {
 		IosApplicationDataSource(
-			dataStore = get<DataStore<Preferences>>(),
-			secureStoreDataSource = get<SecureStoreDataSource>(),
+			settingsRepository = get<SettingsRepository>(),
+			kSafe = get<KSafe>(),
 			externalActionsCapability = get<IosExternalActionsCapability>()
 		)
 	}

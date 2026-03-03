@@ -112,7 +112,6 @@ dependencies {
 	implementation(platform(libs.compose.bom))
 	implementation(libs.bundles.compose)
 	implementation(libs.core.ktx)
-	implementation(libs.datastore.preferences)
 	implementation(libs.bundles.ktor)
 	implementation(libs.ktor.client.okhttp)
 	implementation(libs.bundles.google)

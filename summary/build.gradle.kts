@@ -30,7 +30,6 @@ kotlin {
 				implementation(libs.filekit.dialogs.compose)
 				implementation(libs.coil3.compose)
 				implementation(libs.coil3.network.ktor3)
-				implementation(libs.datastore.preferences)
 				implementation(libs.navigation.compose)
 				implementation(libs.koin.compose)
 				implementation(libs.components.resources)

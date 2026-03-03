@@ -1,9 +1,7 @@
 package com.gdavidpb.tuindice.di
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import com.gdavidpb.tuindice.base.data.source.SecureStoreDataSource
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
+import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.persistence.di.defaultIosDatabasePath
 import org.koin.core.KoinApplication
 import org.koin.core.scope.Scope
@@ -11,9 +9,7 @@ import org.koin.core.scope.Scope
 internal data class IOSContext(
 	val hostCapabilities: IosHostCapabilities,
 	val appEnvironment: AppEnvironment,
-	val configValues: IosConfigValues,
-	val secureStore: SecureStoreDataSource? = null,
-	val dataStore: DataStore<Preferences> = createIosDataStore(),
+	val configValues: DefaultRemoteConfigValues,
 	val databasePath: String = defaultIosDatabasePath()
 )
 
