@@ -30,7 +30,7 @@ fun QuarterResponse.toRemoteQuarter(): RemoteQuarter {
 
 fun RemoteQuarter.toAddQuarterRequest(): AddQuarterRequest {
 	val localTime = Instant.fromEpochMilliseconds(startDate)
-		.toLocalDateTime(TimeZone.UTC)
+		.toLocalDateTime(TimeZone.currentSystemDefault())
 
 	val year = localTime.year
 	val quarter = when (localTime.month) {

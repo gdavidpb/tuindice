@@ -1,15 +1,11 @@
 package com.gdavidpb.tuindice.evaluations.presentation.extension
 
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.Month
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.daysUntil
-import kotlinx.datetime.toLocalDateTime
+import com.gdavidpb.tuindice.base.presentation.mapper.formatLocalizedMonthYear
+import kotlinx.datetime.*
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-internal fun LocalDate.toCalendarGrid(): List<LocalDate?> {
+fun LocalDate.toCalendarGrid(): List<LocalDate?> {
 	val leadingEmptyDays = dayOfWeek.ordinal
 	val daysInMonth = daysUntil(nextMonthStart())
 	val cells = MutableList<LocalDate?>(leadingEmptyDays) { null }
@@ -25,53 +21,38 @@ internal fun LocalDate.toCalendarGrid(): List<LocalDate?> {
 	return cells
 }
 
-internal fun LocalDate.monthStart() = LocalDate(year = year, month = month, day = 1)
+fun LocalDate.monthStart() = LocalDate(year = year, month = month, day = 1)
 
-internal fun LocalDate.previousMonthStart() = if (month.ordinal == 0) {
+fun LocalDate.previousMonthStart() = if (month.ordinal == 0) {
 	LocalDate(year = year - 1, month = Month.DECEMBER, day = 1)
 } else {
 	LocalDate(year = year, month = Month.entries[month.ordinal - 1], day = 1)
 }
 
-internal fun LocalDate.nextMonthStart() = if (month.ordinal == 11) {
+fun LocalDate.nextMonthStart() = if (month.ordinal == 11) {
 	LocalDate(year = year + 1, month = Month.JANUARY, day = 1)
 } else {
 	LocalDate(year = year, month = Month.entries[month.ordinal + 1], day = 1)
 }
 
-internal fun LocalDate.formatMonthYear(): String {
-	return "${monthNames[month.ordinal]} $year"
+fun LocalDate.formatMonthYear(): String {
+	return formatLocalizedMonthYear()
 }
 
-internal fun Long.toEvaluationLocalDate(): LocalDate {
+fun Long.toEvaluationLocalDate(): LocalDate {
 	return Instant
 		.fromEpochMilliseconds(this)
 		.toLocalDateTime(TimeZone.currentSystemDefault())
 		.date
 }
 
-internal fun LocalDate.toEvaluationEpochMillis(): Long {
+fun LocalDate.toEvaluationEpochMillis(): Long {
 	return atStartOfDayIn(TimeZone.currentSystemDefault())
 		.toEpochMilliseconds()
 }
 
-internal fun currentEvaluationLocalDate(): LocalDate {
+fun currentEvaluationLocalDate(): LocalDate {
 	return Clock.System.now()
 		.toLocalDateTime(TimeZone.currentSystemDefault())
 		.date
 }
-
-private val monthNames = listOf(
-	"enero",
-	"febrero",
-	"marzo",
-	"abril",
-	"mayo",
-	"junio",
-	"julio",
-	"agosto",
-	"septiembre",
-	"octubre",
-	"noviembre",
-	"diciembre"
-)

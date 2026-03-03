@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
+import com.gdavidpb.tuindice.base.presentation.mapper.DateTextStyle
 import com.gdavidpb.tuindice.base.presentation.mapper.daysToNow
 import com.gdavidpb.tuindice.base.presentation.mapper.formatDate
 import com.gdavidpb.tuindice.base.presentation.mapper.weeksToNow
@@ -20,23 +21,23 @@ fun Long?.formatAsToNow(): String {
 		daysDistance == -1 -> "Ayer"
 		weeksDistance == 0L -> {
 			if (this < currentTimeMillis())
-				"El ${formatDate("EEEE 'pasado —' dd 'de' MMMM")}"
+				"El ${formatDate(DateTextStyle.WEEKDAY_PAST_DAY_MONTH)}"
 			else
-				"Este ${formatDate("EEEE '—' dd 'de' MMMM")}"
+				"Este ${formatDate(DateTextStyle.WEEKDAY_DAY_MONTH)}"
 		}
 
-		weeksDistance == 1L -> "El próximo ${formatDate("EEEE '—' dd 'de' MMMM")}"
+		weeksDistance == 1L -> "El próximo ${formatDate(DateTextStyle.WEEKDAY_DAY_MONTH)}"
 		weeksDistance in 2..12 -> "En $weeksDistance semanas"
-		else -> formatDate("EEEE '—' dd/MM/yy")?.capitalize()!!
+		else -> formatDate(DateTextStyle.WEEKDAY_NUMERIC_DATE)?.capitalize()!!
 	}
 }
 
 fun Long?.formatAsDayOfWeekAndDate(): String {
 	if (this == null) return "Evaluación continua"
 
-	return formatDate("EEEE '—' dd/MM/yy")?.capitalize()!!
+	return formatDate(DateTextStyle.WEEKDAY_NUMERIC_DATE)?.capitalize()!!
 }
 
 fun Long.formatAsShortDayOfWeekAndDate(): String {
-	return formatDate("EEE '—' dd/MM/yy")?.capitalize()!!
+	return formatDate(DateTextStyle.SHORT_WEEKDAY_NUMERIC_DATE)?.capitalize()!!
 }

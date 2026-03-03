@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.record.domain.service
 
-import com.gdavidpb.tuindice.base.presentation.mapper.parseDate
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlin.math.floor
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,8 +52,8 @@ class IndexComputationEngineTest {
 	fun recompute_replacesOnlyThePreviousAttempt_whenLatestAttemptPassed() {
 		val oldestQuarter = createQuarter(
 			id = "quarter-1",
-			startDate = date("Enero 2019"),
-			endDate = date("Marzo 2019"),
+			startDate = date(2019, 1),
+			endDate = date(2019, 3),
 			subjects = listOf(
 				createSubject(
 					id = "subject-1",
@@ -64,8 +66,8 @@ class IndexComputationEngineTest {
 		)
 		val middleQuarter = createQuarter(
 			id = "quarter-2",
-			startDate = date("Julio 2019"),
-			endDate = date("Agosto 2019"),
+			startDate = date(2019, 7),
+			endDate = date(2019, 8),
 			subjects = listOf(
 				createSubject(
 					id = "subject-2",
@@ -78,8 +80,8 @@ class IndexComputationEngineTest {
 		)
 		val latestQuarter = createQuarter(
 			id = "quarter-3",
-			startDate = date("Septiembre 2019"),
-			endDate = date("Diciembre 2019"),
+			startDate = date(2019, 9),
+			endDate = date(2019, 12),
 			subjects = listOf(
 				createSubject(
 					id = "subject-3",
@@ -105,8 +107,8 @@ class IndexComputationEngineTest {
 	fun recompute_calculatesGradeSumAcrossQuartersRespectingRetakes() {
 		val quarter1 = createQuarter(
 			id = "quarter-1",
-			startDate = date("Enero 2019"),
-			endDate = date("Marzo 2019"),
+			startDate = date(2019, 1),
+			endDate = date(2019, 3),
 			isCurrent = false,
 			isReadOnly = true,
 			subjects = listOf(
@@ -117,8 +119,8 @@ class IndexComputationEngineTest {
 		)
 		val quarter2 = createQuarter(
 			id = "quarter-2",
-			startDate = date("Julio 2019"),
-			endDate = date("Agosto 2019"),
+			startDate = date(2019, 7),
+			endDate = date(2019, 8),
 			isCurrent = false,
 			isReadOnly = true,
 			subjects = listOf(
@@ -127,8 +129,8 @@ class IndexComputationEngineTest {
 		)
 		val quarter3 = createQuarter(
 			id = "quarter-3",
-			startDate = date("Septiembre 2019"),
-			endDate = date("Diciembre 2019"),
+			startDate = date(2019, 9),
+			endDate = date(2019, 12),
 			isCurrent = false,
 			isReadOnly = true,
 			subjects = listOf(
@@ -138,8 +140,8 @@ class IndexComputationEngineTest {
 		)
 		val quarter4 = createQuarter(
 			id = "quarter-4",
-			startDate = date("Enero 2020"),
-			endDate = date("Marzo 2020"),
+			startDate = date(2020, 1),
+			endDate = date(2020, 3),
 			isCurrent = false,
 			isReadOnly = true,
 			subjects = listOf(
@@ -149,8 +151,8 @@ class IndexComputationEngineTest {
 		)
 		val quarter5 = createQuarter(
 			id = "quarter-5",
-			startDate = date("Septiembre 2020"),
-			endDate = date("Diciembre 2020"),
+			startDate = date(2020, 9),
+			endDate = date(2020, 12),
 			isCurrent = true,
 			isReadOnly = false,
 			subjects = listOf(
@@ -170,8 +172,10 @@ class IndexComputationEngineTest {
 		assertEquals(expectedGradeSum, actualGradeSum)
 	}
 
-	private fun date(value: String): Long {
-		return value.parseDate("MMMM yyyy")!!.time
+	private fun date(year: Int, month: Int): Long {
+		return LocalDate(year, month, 1)
+			.atStartOfDayIn(TimeZone.currentSystemDefault())
+			.toEpochMilliseconds()
 	}
 
 	private fun createQuarter(

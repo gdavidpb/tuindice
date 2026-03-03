@@ -6,12 +6,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.mapper.localizedShortWeekdayNames
 
 @Composable
 fun WeekdayHeaderRow() {
+	val weekdayLabels = remember { localizedShortWeekdayNames() }
+
 	Row(
 		modifier = Modifier.fillMaxWidth(),
 		horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -27,5 +31,3 @@ fun WeekdayHeaderRow() {
 		}
 	}
 }
-
-private val weekdayLabels = listOf("lun", "mar", "mie", "jue", "vie", "sab", "dom")
