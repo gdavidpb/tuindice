@@ -58,7 +58,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
-import io.ktor.client.plugins.logging.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -209,14 +208,6 @@ private fun Module.registerAndroidFeaturePlatformBindings() {
 }
 
 private fun Module.registerAndroidPlatformNetworking() {
-	single<Logger> {
-		object : Logger {
-			override fun log(message: String) {
-				get<ReportingRepository>().logMessage(message)
-			}
-		}
-	}
-
 	singleOf(::PlayIntegrityDataSource) { bind<AttestationProvider>() }
 	singleOf(::ChallengeApiDataSource) { bind<AttestationRemote>() }
 	singleOf(::SHA256PayloadDigestDataSource) { bind<PayloadDigestDataSource>() }
@@ -232,7 +223,7 @@ private fun Module.registerAndroidPlatformNetworking() {
 			sessionRepository = get(),
 			attestationRepositoryProvider = { get() },
 			loginRepositoryProvider = { get() },
-			logger = get(),
+			logger = createAppKtorLogger(),
 			json = get(),
 			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()
 		)

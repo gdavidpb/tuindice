@@ -91,9 +91,3 @@ internal fun createIosIdentityHttpClient(
 }
 
 internal const val IOS_IDENTITY_HTTP_CLIENT_QUALIFIER = "iosIdentityHttpClient"
-
-internal val IOS_KTOR_LOGGER = object : Logger {
-	override fun log(message: String) {
-		iosLog(message)
-	}
-}

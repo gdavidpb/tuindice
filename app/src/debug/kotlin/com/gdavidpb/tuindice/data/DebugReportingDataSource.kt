@@ -1,22 +1,24 @@
 package com.gdavidpb.tuindice.data
 
-import android.util.Log
+import com.gdavidpb.tuindice.base.logging.appLogger
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 
 class DebugReportingDataSource : ReportingRepository {
-    override fun setIdentifier(identifier: String) {
-        Log.d("setIdentifier", identifier)
-    }
+	private val logger = appLogger(tag = "Reporting")
 
-    override fun logException(throwable: Throwable) {
-        throwable.printStackTrace()
-    }
+	override fun setIdentifier(identifier: String) {
+		logger.d { "setIdentifier(identifier=$identifier)" }
+	}
 
-    override fun logMessage(message: String) {
-        Log.d("log", message)
-    }
+	override fun logException(throwable: Throwable) {
+		logger.e(throwable) { "ReportingRepository.logException()" }
+	}
 
-    override fun <T : Any> setCustomKey(key: String, value: T) {
-        Log.d("setCustomKey", "$key = $value (${value::class.java.name})")
-    }
+	override fun logMessage(message: String) {
+		logger.i { message }
+	}
+
+	override fun <T : Any> setCustomKey(key: String, value: T) {
+		logger.d { "setCustomKey(key=$key, value=$value, type=${value::class.java.name})" }
+	}
 }

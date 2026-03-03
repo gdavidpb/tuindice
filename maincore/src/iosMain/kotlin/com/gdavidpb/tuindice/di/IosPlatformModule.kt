@@ -119,7 +119,7 @@ private fun Module.registerIosPlatformNetworking() {
 		createIosIdentityHttpClient(
 			appEnvironmentRepository = get<AppEnvironmentRepository>(),
 			configRepository = get<ConfigRepository>(),
-			logger = IOS_KTOR_LOGGER,
+			logger = createAppKtorLogger(),
 			json = get<Json>(),
 			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())
 		)
@@ -132,7 +132,7 @@ private fun Module.registerIosPlatformNetworking() {
 			sessionRepository = get<SessionRepository>(),
 			attestationRepositoryProvider = { get<AttestationRepository>() },
 			loginRepositoryProvider = { get<LoginRepository>() },
-			logger = IOS_KTOR_LOGGER,
+			logger = createAppKtorLogger(),
 			json = get<Json>(),
 			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())
 		)

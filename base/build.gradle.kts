@@ -33,6 +33,7 @@ kotlin {
 				api(libs.ktor.client.core)
 				api(libs.lifecycle.runtime.compose)
 				api(libs.filekit.core)
+				api(libs.kermit)
 
 				implementation(libs.components.resources)
 				implementation(libs.kotlinx.datetime)

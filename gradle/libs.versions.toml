@@ -42,6 +42,7 @@ compose-mpp = "1.10.1"
 compose-mpp-material3 = "1.9.0"
 datastore = "1.2.0"
 filekit = "0.13.0"
+kermit = "2.0.8"
 
 [libraries]
 # Room
@@ -138,6 +139,7 @@ compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "comp
 filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
 filekit-dialogs = { module = "io.github.vinceglb:filekit-dialogs", version.ref = "filekit" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekit" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 
 # Coil
 coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
