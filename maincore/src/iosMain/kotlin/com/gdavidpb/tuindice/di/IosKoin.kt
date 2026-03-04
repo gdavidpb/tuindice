@@ -20,7 +20,7 @@ private inline fun <T> withIosKoinLock(block: () -> T): T {
 	}
 }
 
-internal fun startIosKoin(
+fun startIosKoin(
 	iOSContext: IOSContext,
 	variantModules: List<Module> = emptyList(),
 	extraModules: List<Module> = emptyList()
@@ -53,6 +53,13 @@ fun startIosKoin(
 		variantModules = iosVariantModules(hostConfig.buildVariant),
 		extraModules = extraModules
 	)
+}
+
+fun iosVariantModules(buildVariant: IosBuildVariant): List<Module> {
+	return when (buildVariant) {
+		IosBuildVariant.DEBUG -> listOf(iosDebugVariantModule)
+		IosBuildVariant.PRODUCTION -> emptyList()
+	}
 }
 
 private object IosKoinRuntime {

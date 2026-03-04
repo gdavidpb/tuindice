@@ -3,23 +3,19 @@ package com.gdavidpb.tuindice.di
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.DefaultRequest
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.contentType
-import io.ktor.http.userAgent
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.client.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import platform.Foundation.NSBundle
 import platform.UIKit.UIDevice
 
-internal fun createIosUserAgent(deviceCapability: IosDeviceCapability): String {
+const val IOS_IDENTITY_HTTP_CLIENT_QUALIFIER = "iosIdentityHttpClient"
+
+fun createIosUserAgent(deviceCapability: IosDeviceCapability): String {
 	val appVersionName = deviceCapability.appVersionName().ifBlank { "0.0.0" }
 	val appVersionCode = deviceCapability.appVersionCode().coerceAtLeast(0L)
 	val device = UIDevice.currentDevice
@@ -46,7 +42,7 @@ internal fun createIosUserAgent(deviceCapability: IosDeviceCapability): String {
 	)
 }
 
-internal fun createIosIdentityHttpClient(
+fun createIosIdentityHttpClient(
 	appEnvironmentRepository: AppEnvironmentRepository,
 	configRepository: ConfigRepository,
 	logger: Logger,
@@ -89,5 +85,3 @@ internal fun createIosIdentityHttpClient(
 		}
 	}
 }
-
-internal const val IOS_IDENTITY_HTTP_CLIENT_QUALIFIER = "iosIdentityHttpClient"

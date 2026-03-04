@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.persistence.di.defaultIosDatabasePath
 import org.koin.core.KoinApplication
 import org.koin.core.scope.Scope
 
-internal data class IOSContext(
+data class IOSContext(
 	val hostCapabilities: IosHostCapabilities,
 	val appEnvironment: AppEnvironment,
 	val configValues: DefaultRemoteConfigValues,
@@ -15,13 +15,13 @@ internal data class IOSContext(
 
 private const val IOS_CONTEXT_PROPERTY = "ios_context"
 
-internal fun KoinApplication.iOSContext(context: IOSContext) {
+fun KoinApplication.iOSContext(context: IOSContext) {
 	properties(
 		mapOf(IOS_CONTEXT_PROPERTY to context)
 	)
 }
 
-internal fun Scope.iOSContext(): IOSContext {
+fun Scope.iOSContext(): IOSContext {
 	return getKoin().getProperty(IOS_CONTEXT_PROPERTY)
 		?: error("iOSContext is not registered. Configure it before loading iosPlatformModule.")
 }

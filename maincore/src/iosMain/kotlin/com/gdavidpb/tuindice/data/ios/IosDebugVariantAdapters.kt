@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
+import com.gdavidpb.tuindice.base.logging.appLogger
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -14,7 +14,11 @@ import kotlinx.serialization.Serializable
 internal class IosDebugAttestationDataRepository(
 	private val identityHttpClient: HttpClient
 ) : AttestationRepository {
+	private val logger = appLogger(tag = "Attestation")
+
 	override suspend fun getAttestation(payload: AttestationPayload): Attestation {
+		logger.i { "[ios-debug] getAttestation(): returning debug attestation instead of App Attest." }
+
 		val challengeId = runCatching {
 			identityHttpClient
 				.get("auth/challenge")
@@ -31,12 +35,6 @@ internal class IosDebugAttestationDataRepository(
 	}
 }
 
-internal class IosDebugPushTokenDataSource : PushTokenDataSource {
-	override suspend fun getToken(): String {
-		return IOS_DEBUG_PUSH_TOKEN
-	}
-}
-
 @Serializable
 private data class IosDebugChallengeResponse(
 	@SerialName("id") val id: String
@@ -45,4 +43,3 @@ private data class IosDebugChallengeResponse(
 private const val IOS_DEBUG_ATTESTATION_ID_FALLBACK = "ios-debug-attestation-id"
 private const val IOS_DEBUG_ATTESTATION_TOKEN = "ios-debug-attestation-token"
 private const val IOS_DEBUG_ATTESTATION_KEY_ID = "ios-debug-attestation-key-id"
-private const val IOS_DEBUG_PUSH_TOKEN = "ios-debug-push-token"

@@ -11,7 +11,7 @@ data class IosAppHostConfig(
 	val buildVariant: IosBuildVariant
 )
 
-internal fun IosAppHostConfig.toIOSContext(): IOSContext {
+fun IosAppHostConfig.toIOSContext(): IOSContext {
 	return IOSContext(
 		hostCapabilities = bridge.toHostCapabilities(),
 		appEnvironment = AppEnvironment(

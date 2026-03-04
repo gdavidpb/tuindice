@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.di
 import org.koin.core.KoinApplication
 import org.koin.core.module.Module
 
-internal class IosKoinBootstrap(
+class IosKoinBootstrap(
 	private val iOSContext: IOSContext,
 	private val platformVariantModules: List<Module> = emptyList()
 ) : PlatformKoinBootstrap {

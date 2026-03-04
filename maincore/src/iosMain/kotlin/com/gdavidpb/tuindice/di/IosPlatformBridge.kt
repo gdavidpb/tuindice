@@ -62,7 +62,7 @@ interface IosPlatformBridge :
 	IosDeviceCapability,
 	IosObservabilityCapability
 
-internal data class IosHostCapabilities(
+data class IosHostCapabilities(
 	val remoteConfig: IosRemoteConfigCapability,
 	val attestation: IosAttestationCapability,
 	val push: IosPushCapability,
@@ -73,7 +73,7 @@ internal data class IosHostCapabilities(
 	val observability: IosObservabilityCapability
 )
 
-internal fun IosPlatformBridge.toHostCapabilities(): IosHostCapabilities {
+fun IosPlatformBridge.toHostCapabilities(): IosHostCapabilities {
 	return IosHostCapabilities(
 		remoteConfig = this,
 		attestation = this,

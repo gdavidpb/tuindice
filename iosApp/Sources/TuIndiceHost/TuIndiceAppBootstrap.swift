@@ -37,6 +37,10 @@ enum TuIndiceAppBootstrap {
     private static let appBootstrap = IosAppHostBootstrap(
         hostConfig: hostConfig
     )
+
+    static var shouldUseFirebaseServices: Bool {
+        buildVariant == .production
+    }
     #endif
 
     static func makeRootViewController() -> UIViewController {

@@ -43,6 +43,11 @@ final class TuIndiceAppDelegate: NSObject, UIApplicationDelegate {
 
     private func configureFirebaseIfNeeded() {
         #if canImport(FirebaseCore)
+        guard TuIndiceAppBootstrap.shouldUseFirebaseServices else {
+            NSLog("Firebase disabled for debug build: using debug platform mocks.")
+            return
+        }
+
         guard TuIndiceFirebaseRuntimeState.isConfigured == false else { return }
 
         guard let optionsPath = Bundle.main.path(
@@ -61,6 +66,11 @@ final class TuIndiceAppDelegate: NSObject, UIApplicationDelegate {
     }
 
     private func configureRemoteNotifications(application: UIApplication) {
+        guard TuIndiceAppBootstrap.shouldUseFirebaseServices else {
+            TuIndiceAppBootstrap.updatePushToken(nil)
+            return
+        }
+
         #if canImport(FirebaseMessaging)
         if TuIndiceFirebaseRuntimeState.isConfigured {
             Messaging.messaging().delegate = self

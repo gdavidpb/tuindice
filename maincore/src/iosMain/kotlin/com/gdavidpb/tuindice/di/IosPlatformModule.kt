@@ -8,13 +8,13 @@ import com.gdavidpb.tuindice.about.data.source.IosEnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.source.IosShareTextHandler
 import com.gdavidpb.tuindice.about.data.source.IosStoreUrlDataSource
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
-import com.gdavidpb.tuindice.base.data.source.*
-import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
+import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
+import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
-import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
 import com.gdavidpb.tuindice.data.ios.*
+import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
 import com.gdavidpb.tuindice.login.data.repository.LoginAuthApiDataSource
 import com.gdavidpb.tuindice.login.data.source.KtorLoginAuthApiDataSource
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
@@ -34,7 +34,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-internal val iosPlatformModule: Module = module {
+val iosPlatformModule = module {
 	registerIosPlatformStorage()
 	registerIosPlatformPrimitives()
 	registerIosPlatformServices()
