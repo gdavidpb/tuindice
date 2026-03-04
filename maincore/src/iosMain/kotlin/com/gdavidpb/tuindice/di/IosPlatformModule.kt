@@ -20,6 +20,17 @@ import com.gdavidpb.tuindice.login.data.source.KtorLoginAuthApiDataSource
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.di.createIosDatabase
+import com.gdavidpb.tuindice.platform.ios.IOS_IDENTITY_HTTP_CLIENT_QUALIFIER
+import com.gdavidpb.tuindice.platform.ios.IosAttestationCapability
+import com.gdavidpb.tuindice.platform.ios.IosDeviceCapability
+import com.gdavidpb.tuindice.platform.ios.IosExternalActionsCapability
+import com.gdavidpb.tuindice.platform.ios.IosObservabilityCapability
+import com.gdavidpb.tuindice.platform.ios.IosPushCapability
+import com.gdavidpb.tuindice.platform.ios.IosRemoteConfigCapability
+import com.gdavidpb.tuindice.platform.ios.IosReviewCapability
+import com.gdavidpb.tuindice.platform.ios.IosUpdateCapability
+import com.gdavidpb.tuindice.platform.ios.createIosIdentityHttpClient
+import com.gdavidpb.tuindice.platform.ios.createIosUserAgent
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.IosBrowserScreenRenderer
 import com.russhwolf.settings.NSUserDefaultsSettings

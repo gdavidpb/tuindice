@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.data.ios.IosDebugAttestationDataRepository
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.DebugPushTokenDataSource
+import com.gdavidpb.tuindice.platform.ios.IOS_IDENTITY_HTTP_CLIENT_QUALIFIER
 import io.ktor.client.*
 import org.koin.core.qualifier.named
 import org.koin.dsl.module

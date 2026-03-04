@@ -1,0 +1,12 @@
+package com.gdavidpb.tuindice.domain.model
+
+import com.gdavidpb.tuindice.platform.ios.IosPlatformBridge
+
+data class IosAppHostConfig(
+	val bridge: IosPlatformBridge,
+	val apiBaseUrl: String,
+	val privacyPolicyUrl: String,
+	val termsAndConditionsUrl: String,
+	val debug: Boolean,
+	val buildVariant: IosBuildVariant
+)

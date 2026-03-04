@@ -12,13 +12,13 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
-import com.gdavidpb.tuindice.di.IosDeviceCapability
-import com.gdavidpb.tuindice.di.IosExternalActionsCapability
-import com.gdavidpb.tuindice.di.IosObservabilityCapability
-import com.gdavidpb.tuindice.di.IosPushCapability
-import com.gdavidpb.tuindice.di.IosRemoteConfigCapability
-import com.gdavidpb.tuindice.di.IosReviewCapability
-import com.gdavidpb.tuindice.di.IosUpdateCapability
+import com.gdavidpb.tuindice.platform.ios.IosDeviceCapability
+import com.gdavidpb.tuindice.platform.ios.IosExternalActionsCapability
+import com.gdavidpb.tuindice.platform.ios.IosObservabilityCapability
+import com.gdavidpb.tuindice.platform.ios.IosPushCapability
+import com.gdavidpb.tuindice.platform.ios.IosRemoteConfigCapability
+import com.gdavidpb.tuindice.platform.ios.IosReviewCapability
+import com.gdavidpb.tuindice.platform.ios.IosUpdateCapability
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
 

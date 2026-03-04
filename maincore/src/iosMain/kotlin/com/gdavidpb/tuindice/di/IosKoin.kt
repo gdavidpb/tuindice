@@ -1,13 +1,11 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.domain.model.IosAppHostConfig
+import com.gdavidpb.tuindice.domain.model.IosBuildVariant
+import com.gdavidpb.tuindice.platform.ios.toIOSContext
 import org.koin.core.Koin
 import org.koin.core.module.Module
 import platform.Foundation.NSLock
-
-enum class IosBuildVariant {
-	DEBUG,
-	PRODUCTION
-}
 
 private val iosKoinLock = NSLock()
 

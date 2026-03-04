@@ -1,15 +1,8 @@
-package com.gdavidpb.tuindice.di
+package com.gdavidpb.tuindice.platform.ios
 
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-
-data class IosAppHostConfig(
-	val bridge: IosPlatformBridge,
-	val apiBaseUrl: String,
-	val privacyPolicyUrl: String,
-	val termsAndConditionsUrl: String,
-	val debug: Boolean,
-	val buildVariant: IosBuildVariant
-)
+import com.gdavidpb.tuindice.di.IOSContext
+import com.gdavidpb.tuindice.domain.model.IosAppHostConfig
 
 fun IosAppHostConfig.toIOSContext(): IOSContext {
 	return IOSContext(

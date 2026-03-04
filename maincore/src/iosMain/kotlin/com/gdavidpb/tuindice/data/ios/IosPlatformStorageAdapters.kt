@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.data.ios
 
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.di.IosExternalActionsCapability
-import com.gdavidpb.tuindice.di.temporaryStorageRoot
+import com.gdavidpb.tuindice.platform.ios.IosExternalActionsCapability
+import com.gdavidpb.tuindice.platform.ios.temporaryStorageRoot
 import eu.anifantakis.lib.ksafe.KSafe
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path

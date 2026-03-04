@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.di
+package com.gdavidpb.tuindice.platform.ios
 
 import okio.Path
 import okio.Path.Companion.toPath
