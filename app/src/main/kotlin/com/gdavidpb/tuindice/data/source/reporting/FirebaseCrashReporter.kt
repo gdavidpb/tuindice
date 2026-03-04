@@ -4,7 +4,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class FirebaseCrashReporter(
 	private val crashlytics: FirebaseCrashlytics
-) : CrashReporter {
+) : CrashReporterDataSource {
 	override fun setUserId(identifier: String) {
 		crashlytics.setUserId(identifier)
 	}

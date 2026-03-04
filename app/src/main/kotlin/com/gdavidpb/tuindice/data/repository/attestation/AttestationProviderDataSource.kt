@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.repository.attestation
 
-import com.gdavidpb.tuindice.data.repository.attestation.model.ProviderAttestation
+import com.gdavidpb.tuindice.platform.android.model.ProviderAttestation
 
-interface ProviderDataSource {
+interface AttestationProviderDataSource {
 	suspend fun getAttestation(nonce: String): ProviderAttestation?
 }

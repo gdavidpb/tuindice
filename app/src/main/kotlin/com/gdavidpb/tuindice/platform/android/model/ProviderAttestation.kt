@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.repository.attestation.model
+package com.gdavidpb.tuindice.platform.android.model
 
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 

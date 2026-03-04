@@ -53,7 +53,7 @@ class CrashlyticsReportingDataSourceTest {
 	}
 }
 
-private class FakeCrashReporter : CrashReporter {
+private class FakeCrashReporter : CrashReporterDataSource {
 	var recordedUserId: String? = null
 	val messages = mutableListOf<String>()
 	val exceptions = mutableListOf<Throwable>()

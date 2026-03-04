@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.reporting
 
-interface CrashReporter {
+interface CrashReporterDataSource {
 	fun setUserId(identifier: String)
 	fun recordException(throwable: Throwable)
 	fun log(message: String)

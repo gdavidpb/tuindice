@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.data.source.reporting
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 
 class CrashlyticsReportingDataSource(
-	private val crashReporter: CrashReporter
+	private val crashReporter: CrashReporterDataSource
 ) : ReportingRepository {
 	override fun setIdentifier(identifier: String) {
 		crashReporter.setUserId(identifier)

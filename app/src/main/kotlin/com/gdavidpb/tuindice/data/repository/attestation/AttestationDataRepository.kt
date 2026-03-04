@@ -5,8 +5,8 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationPayload
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 
 class AttestationDataRepository(
-	private val remoteDataSource: RemoteDataSource,
-	private val providerDataSource: ProviderDataSource,
+	private val remoteDataSource: AttestationRemoteDataSource,
+	private val providerDataSource: AttestationProviderDataSource,
 	private val payloadDigestDataSource: PayloadDigestDataSource
 ) : AttestationRepository {
 	override suspend fun getAttestation(payload: AttestationPayload): Attestation {

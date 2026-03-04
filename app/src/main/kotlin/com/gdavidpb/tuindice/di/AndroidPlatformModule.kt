@@ -20,6 +20,8 @@ import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfig
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.extension.toFirebaseDefaultsMap
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
+import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.AttestationRemoteDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.PayloadDigestDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.ChallengeApiDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.source.PlayIntegrityDataSource
@@ -35,15 +37,16 @@ import com.gdavidpb.tuindice.data.source.config.AndroidRemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.device.AndroidDeviceInfoDataSource
 import com.gdavidpb.tuindice.data.source.environment.BuildConfigEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
-import com.gdavidpb.tuindice.data.source.reporting.CrashReporter
+import com.gdavidpb.tuindice.data.source.reporting.CrashReporterDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.reporting.FirebaseCrashReporter
 import com.gdavidpb.tuindice.data.source.review.PlayReviewDataSource
 import com.gdavidpb.tuindice.data.source.update.PlayUpdateDataSource
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.platform.android.UserAgent
+import com.gdavidpb.tuindice.platform.android.androidDefaultConfigValues
 import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
-import com.gdavidpb.tuindice.utils.UserAgent
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.review.ReviewManagerFactory
@@ -61,8 +64,6 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository as BaseExternalActionsRepository
-import com.gdavidpb.tuindice.data.repository.attestation.ProviderDataSource as AttestationProvider
-import com.gdavidpb.tuindice.data.repository.attestation.RemoteDataSource as AttestationRemote
 
 val androidPlatformModule = module {
 	registerAndroidPlatformStorage()
@@ -114,11 +115,7 @@ private fun Module.registerAndroidPlatformPrimitives() {
 	}
 
 	single<DefaultRemoteConfigValues> {
-		if (BuildConfig.DEBUG) {
-			DefaultRemoteConfig.values(com.gdavidpb.tuindice.base.utils.RemoteConfigDefaultsProfile.DEBUG)
-		} else {
-			DefaultRemoteConfig.values(com.gdavidpb.tuindice.base.utils.RemoteConfigDefaultsProfile.PRODUCTION)
-		}
+		androidDefaultConfigValues(isDebug = BuildConfig.DEBUG)
 	}
 
 	single {
@@ -162,7 +159,7 @@ private fun Module.registerAndroidPlatformServices() {
 		bind<ApplicationRepository>()
 		bind<FileRepository>()
 	}
-	singleOf(::FirebaseCrashReporter) { bind<CrashReporter>() }
+	singleOf(::FirebaseCrashReporter) { bind<CrashReporterDataSource>() }
 	singleOf(::CrashlyticsReportingDataSource) {
 		bind<ReportingRepository>()
 	}
@@ -182,8 +179,8 @@ private fun Module.registerAndroidFeaturePlatformBindings() {
 }
 
 private fun Module.registerAndroidPlatformNetworking() {
-	singleOf(::PlayIntegrityDataSource) { bind<AttestationProvider>() }
-	singleOf(::ChallengeApiDataSource) { bind<AttestationRemote>() }
+	singleOf(::PlayIntegrityDataSource) { bind<AttestationProviderDataSource>() }
+	singleOf(::ChallengeApiDataSource) { bind<AttestationRemoteDataSource>() }
 	singleOf(::SHA256PayloadDigestDataSource) { bind<PayloadDigestDataSource>() }
 
 	factoryOf(::AttestationDataRepository) {

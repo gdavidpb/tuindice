@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.utils
+package com.gdavidpb.tuindice.platform.android
 
 import android.content.Context
 import android.os.Build
