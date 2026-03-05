@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.di
 
 import android.net.ConnectivityManager
-import androidx.room.Room
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.about.data.repository.AppInfoDataSource
@@ -43,6 +42,7 @@ import com.gdavidpb.tuindice.data.source.reporting.FirebaseCrashReporter
 import com.gdavidpb.tuindice.data.source.review.PlayReviewDataSource
 import com.gdavidpb.tuindice.data.source.update.PlayUpdateDataSource
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.di.createDefaultAndroidDatabase
 import com.gdavidpb.tuindice.platform.android.UserAgent
 import com.gdavidpb.tuindice.platform.android.androidDefaultConfigValues
 import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
@@ -86,10 +86,7 @@ private fun Module.registerAndroidPlatformStorage() {
 	}
 
 	single {
-		val name = androidContext().packageName
-
-		Room.databaseBuilder(androidContext(), TuIndiceDatabase::class.java, name)
-			.build()
+		createDefaultAndroidDatabase(context = androidContext())
 	}
 }
 
