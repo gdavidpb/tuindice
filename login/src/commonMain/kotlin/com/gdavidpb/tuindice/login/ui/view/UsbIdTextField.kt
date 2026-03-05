@@ -11,10 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import com.gdavidpb.tuindice.login.ui.LoginUiTags
 
 @Composable
 fun UsbIdTextField(
@@ -30,7 +32,7 @@ fun UsbIdTextField(
 	val digitsOnlyRegex = remember { "\\D+".toRegex() }
 
 	OutlinedTextField(
-		modifier = modifier,
+		modifier = modifier.testTag(LoginUiTags.UsbIdTextField),
 		value = textField.value,
 		onValueChange = { newValue ->
 			val s = newValue.text

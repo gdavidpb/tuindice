@@ -16,7 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 
 @Composable
 fun ConfirmationDialogEntry(
@@ -28,6 +30,7 @@ fun ConfirmationDialogEntry(
 ) {
 	Box(
 		modifier = Modifier
+			.testTag(BaseUiTags.ConfirmationDialogEntry)
 			.fillMaxWidth()
 			.clickable { onClick() }
 	) {

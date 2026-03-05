@@ -1,0 +1,109 @@
+package com.gdavidpb.tuindice.record.ui.view
+
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.semantics.SemanticsActions
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
+import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_SUBJECT
+import com.gdavidpb.tuindice.record.testing.recordContentState
+import com.gdavidpb.tuindice.record.testing.recordMapperTexts
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
+import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
+import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
+import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlin.test.Test
+import kotlin.test.assertTrue
+
+@OptIn(ExperimentalTestApi::class)
+class RecordContentViewUiTest {
+	private data class GradeChangeEvent(
+		val quarterId: String,
+		val subjectId: String,
+		val grade: Int,
+		val isSelected: Boolean
+	)
+
+	@Test
+	fun when_contentViewIsRendered_then_displaysQuartersList() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RecordContentView(
+				state = recordContentState(),
+				onSubjectGradeChange = { _, _, _, _ -> }
+			)
+		}
+
+		assertNodeVisible(RecordUiTags.ContentContainer)
+		assertNodeVisible(RecordUiTags.quarterItem(0))
+	}
+
+	@Test
+	fun when_contentViewUsesCustomTexts_then_displaysMappedQuarterData() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RecordContentView(
+				state = recordContentState(),
+				texts = recordMapperTexts(),
+				highlightColor = Color(0xFFB8860B),
+				onSubjectGradeChange = { _, _, _, _ -> }
+			)
+		}
+
+		assertNodeVisible(RecordUiTags.ContentContainer)
+	}
+
+	@Test
+	fun when_contentStateHasNoQuarters_then_showsContainerWithoutQuarterRows() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RecordContentView(
+				state = recordContentState(quarters = emptyList()),
+				onSubjectGradeChange = { _, _, _, _ -> }
+			)
+		}
+
+		assertNodeHidden(RecordUiTags.quarterItem(0))
+	}
+
+	@Test
+	fun when_subjectGradeSliderChanges_then_forwardsGradeChangeToCallback() = runTuIndiceUiTest {
+		val events = mutableListOf<GradeChangeEvent>()
+		val state = recordContentState(
+			quarters = listOf(
+				DEFAULT_RECORD_QUARTER.copy(
+					grade = 4.0,
+					gradeSum = 4.0,
+					subjects = listOf(
+						DEFAULT_RECORD_SUBJECT.copy(grade = 4)
+					)
+				)
+			)
+		)
+
+		setTuIndiceTestContent {
+			RecordContentView(
+				state = state,
+				onSubjectGradeChange = { quarterId, subjectId, newGrade, isSelected ->
+					events += GradeChangeEvent(quarterId, subjectId, newGrade, isSelected)
+				}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.subjectGradeSlider("subject-1"))
+			.performSemanticsAction(SemanticsActions.SetProgress) { setProgress ->
+				assertTrue(setProgress(5f))
+			}
+
+		waitForIdle()
+
+		assertTrue(events.isNotEmpty())
+		assertTrue(
+			events.any { event ->
+					event.quarterId == "quarter-1" &&
+					event.subjectId == "subject-1" &&
+					event.grade == 5 &&
+					!event.isSelected
+			}
+		)
+	}
+}

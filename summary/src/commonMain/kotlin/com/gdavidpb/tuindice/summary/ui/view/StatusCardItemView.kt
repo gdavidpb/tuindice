@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryEntry
 
 @Composable
 fun StatusCardItemView(
+	modifier: Modifier = Modifier,
 	header: String,
 	entries: List<SummaryEntry>,
 	lineWidth: Dp = 8.dp
@@ -31,7 +32,7 @@ fun StatusCardItemView(
 	val lineWidthPx = with(LocalDensity.current) { lineWidth.toPx() }
 
 	ElevatedCard(
-		modifier = Modifier
+		modifier = modifier
 			.fillMaxWidth()
 			.padding(
 				horizontal = 16.dp,

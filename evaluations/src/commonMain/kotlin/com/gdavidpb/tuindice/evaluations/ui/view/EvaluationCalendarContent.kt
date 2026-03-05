@@ -14,12 +14,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.presentation.extension.currentEvaluationLocalDate
 import com.gdavidpb.tuindice.evaluations.presentation.extension.formatMonthYear
 import com.gdavidpb.tuindice.evaluations.presentation.extension.toCalendarGrid
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import kotlinx.datetime.LocalDate
 
 @Composable
@@ -31,13 +33,17 @@ fun EvaluationCalendarContent(
 	onDateSelected: (LocalDate) -> Unit
 ) {
 	Column(
+		modifier = Modifier.testTag(EvaluationsUiTags.EvaluationCalendarContainer),
 		verticalArrangement = Arrangement.spacedBy(8.dp)
 	) {
 		Row(
 			modifier = Modifier.fillMaxWidth(),
 			verticalAlignment = Alignment.CenterVertically
 		) {
-			IconButton(onClick = onPreviousMonthClick) {
+			IconButton(
+				modifier = Modifier.testTag(EvaluationsUiTags.EvaluationCalendarPreviousMonthButton),
+				onClick = onPreviousMonthClick
+			) {
 				Icon(
 					imageVector = Icons.Outlined.ChevronLeft,
 					contentDescription = null
@@ -45,14 +51,19 @@ fun EvaluationCalendarContent(
 			}
 
 			Text(
-				modifier = Modifier.weight(1f),
+				modifier = Modifier
+					.testTag(EvaluationsUiTags.EvaluationCalendarMonthLabel)
+					.weight(1f),
 				text = displayedMonth.formatMonthYear(),
 				style = MaterialTheme.typography.titleMedium,
 				fontWeight = FontWeight.SemiBold,
 				textAlign = TextAlign.Center
 			)
 
-			IconButton(onClick = onNextMonthClick) {
+			IconButton(
+				modifier = Modifier.testTag(EvaluationsUiTags.EvaluationCalendarNextMonthButton),
+				onClick = onNextMonthClick
+			) {
 				Icon(
 					imageVector = Icons.Outlined.ChevronRight,
 					contentDescription = null

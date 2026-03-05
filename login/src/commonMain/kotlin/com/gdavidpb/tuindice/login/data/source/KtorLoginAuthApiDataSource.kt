@@ -27,7 +27,7 @@ class KtorLoginAuthApiDataSource(
 		password: String,
 		attestation: Attestation
 	): IssueTokens {
-		val credentials = Base64.Default.encode("$usbId:$password".encodeToByteArray())
+		val credentials = Base64.encode("$usbId:$password".encodeToByteArray())
 
 		val response = ktorClient.post("auth/token") {
 			basicAuth(usbId, password)

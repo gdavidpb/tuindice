@@ -5,6 +5,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.view.getAnnotatedUrl
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,10 +33,12 @@ fun ExternalResourceDialog(
 		onDismissRequest = onDismissRequest
 	) {
 		Text(
+			modifier = Modifier.testTag(BaseUiTags.ExternalResourceMessage),
 			text = messageText,
 			style = MaterialTheme.typography.bodyLarge
 		)
 		Text(
+			modifier = Modifier.testTag(BaseUiTags.ExternalResourceUrl),
 			text = getAnnotatedUrl(
 				url = url,
 				primary = MaterialTheme.colorScheme.primary,

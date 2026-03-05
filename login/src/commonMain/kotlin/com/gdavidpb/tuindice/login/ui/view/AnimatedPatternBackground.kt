@@ -15,8 +15,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import com.gdavidpb.tuindice.login.ui.LoginUiTags
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.imageResource
 import tuindice.login.generated.resources.Res
@@ -53,6 +55,7 @@ fun AnimatedPatternBackground(
 
 	Canvas(
 		modifier = Modifier
+			.testTag(LoginUiTags.AnimatedPatternBackground)
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
 			.alpha(alpha)

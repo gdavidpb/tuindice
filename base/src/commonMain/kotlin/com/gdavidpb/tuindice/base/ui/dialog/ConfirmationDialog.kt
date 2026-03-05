@@ -22,8 +22,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,6 +57,7 @@ fun ConfirmationDialog(
 	}
 
 	ModalBottomSheet(
+		modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogSheet),
 		sheetState = sheetState,
 		onDismissRequest = onDismissRequest,
 		properties = properties
@@ -67,6 +70,7 @@ fun ConfirmationDialog(
 			if (titleText != null)
 				Text(
 					modifier = Modifier
+						.testTag(BaseUiTags.ConfirmationDialogTitle)
 						.padding(bottom = 16.dp),
 					text = titleText,
 					style = MaterialTheme.typography.titleLarge,
@@ -84,6 +88,7 @@ fun ConfirmationDialog(
 				) {
 					if (negativeText != null)
 						OutlinedButton(
+							modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogNegativeButton),
 							onClick = { dismiss(onNegativeClick) },
 							border = null,
 							enabled = negativeEnabled
@@ -93,13 +98,14 @@ fun ConfirmationDialog(
 
 					if (positiveText != null)
 						Button(
+							modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogPositiveButton),
 							onClick = {
 								if (dismissOnPositive)
 									dismiss(onPositiveClick)
 								else
 									onPositiveClick()
 							},
-							enabled = positiveEnabled || !positiveLoading
+							enabled = positiveEnabled && !positiveLoading
 						) {
 							Box(
 								contentAlignment = Alignment.Center
@@ -115,6 +121,7 @@ fun ConfirmationDialog(
 								if (positiveLoading)
 									CircularProgressIndicator(
 										modifier = Modifier
+											.testTag(BaseUiTags.ConfirmationDialogPositiveLoading)
 											.size(18.dp),
 										color = Color.White
 									)

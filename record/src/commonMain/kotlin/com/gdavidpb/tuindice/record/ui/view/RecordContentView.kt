@@ -3,12 +3,15 @@ package com.gdavidpb.tuindice.record.ui.view
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.mapper.toQuarterItemList
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.quarter_credits_pattern
@@ -41,6 +44,7 @@ fun RecordContentView(
 		)
 
 	QuartersView(
+		modifier = Modifier.testTag(RecordUiTags.ContentContainer),
 		lazyListState = lazyColumState,
 		quarters = quarters,
 		onSubjectGradeChange = onSubjectGradeChange

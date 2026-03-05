@@ -9,6 +9,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 
 @Composable
 fun TopAppBarActionsView(
@@ -27,9 +30,12 @@ fun TopAppBarActionsView(
 		label = "TopAppBarActionsViewAnimatedContent",
 	) { targetState ->
 		if (targetState != null) {
-			Row {
+			Row(modifier = Modifier.testTag(BaseUiTags.TopAppBarActionsContainer)) {
 				targetState.actions.forEach { action ->
-					IconButton(onClick = { onAction(action) }) {
+					IconButton(
+						modifier = Modifier.testTag(BaseUiTags.topBarActionButton(action)),
+						onClick = { onAction(action) }
+					) {
 						actionIconContent(action)
 					}
 				}

@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -20,6 +21,7 @@ import com.gdavidpb.tuindice.base.ui.view.WheelPicker
 import com.gdavidpb.tuindice.base.ui.view.WheelPickerDefaults
 import com.gdavidpb.tuindice.base.utils.extension.MeasureUnconstrainedViewSize
 import com.gdavidpb.tuindice.base.utils.extension.fadingEdge
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.evaluations.ui.model.*
 
 private val fadingBrush = Brush.verticalGradient(
@@ -89,9 +91,13 @@ fun EvaluationGradeWheelPicker(
 					separatorSize.width +
 					(EvaluationGradeWheelPickerDefaults.ItemSeparatorWidth * 2)
 
-			Box(modifier = modifier) {
+			Box(
+				modifier = modifier
+					.testTag(EvaluationsUiTags.EvaluationGradeWheelPicker)
+			) {
 				Box(
 					modifier = Modifier
+						.testTag(EvaluationsUiTags.EvaluationGradeWheelSelectedFrame)
 						.align(Alignment.Center)
 						.width(selectedFrameWidth)
 						.height(itemSize.height * 1.25f)

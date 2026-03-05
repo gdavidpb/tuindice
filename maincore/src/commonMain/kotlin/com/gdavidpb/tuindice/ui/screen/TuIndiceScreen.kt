@@ -34,6 +34,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -47,6 +48,7 @@ import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.BottomBarConfig
+import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +71,9 @@ fun TuIndiceScreen(
 		is Main.State.Starting -> {
 			Box(modifier = Modifier.fillMaxSize()) {
 				CircularProgressIndicator(
-					modifier = Modifier.align(Alignment.Center)
+					modifier = Modifier
+						.testTag(MaincoreUiTags.TuIndiceStartingIndicator)
+						.align(Alignment.Center)
 				)
 			}
 			return
@@ -138,7 +142,10 @@ fun TuIndiceScreen(
 						val hasPreviousBackStackEntry = (navController.previousBackStackEntry != null)
 
 						if (hasPreviousBackStackEntry)
-							IconButton(onClick = onNavigateBack) {
+							IconButton(
+								modifier = Modifier.testTag(MaincoreUiTags.TuIndiceTopBarBackButton),
+								onClick = onNavigateBack
+							) {
 								Icon(
 									imageVector = Icons.AutoMirrored.Filled.ArrowBack,
 									contentDescription = null
@@ -151,7 +158,9 @@ fun TuIndiceScreen(
 		bottomBar = {
 			if (contentState.isBottomBarVisible) {
 				NavigationBar(
-					modifier = Modifier.height(64.dp),
+					modifier = Modifier
+						.testTag(MaincoreUiTags.TuIndiceBottomBar)
+						.height(64.dp),
 					containerColor = MaterialTheme.colorScheme.onSecondary
 				) {
 					bottomBarConfigs.forEach { bottomBarConfig ->
@@ -165,6 +174,7 @@ fun TuIndiceScreen(
 							)
 
 						NavigationBarItem(
+							modifier = Modifier.testTag(bottomBarItemTag(bottomBarConfig)),
 							icon = {
 								Icon(
 									imageVector = navigationBarItemIcon,
@@ -217,4 +227,11 @@ private fun bottomBarIcon(
 		if (selected) Icons.Filled.DateRange else Icons.Outlined.DateRange
 	BottomBarConfig.About ->
 		if (selected) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
+}
+
+private fun bottomBarItemTag(config: BottomBarConfig): String = when (config) {
+	BottomBarConfig.Summary -> MaincoreUiTags.TuIndiceBottomBarSummaryItem
+	BottomBarConfig.Record -> MaincoreUiTags.TuIndiceBottomBarRecordItem
+	BottomBarConfig.Evaluations -> MaincoreUiTags.TuIndiceBottomBarEvaluationsItem
+	BottomBarConfig.About -> MaincoreUiTags.TuIndiceBottomBarAboutItem
 }

@@ -74,6 +74,61 @@ tasks.register("verifySharedTests") {
 	)
 }
 
+private val commonUiModules = listOf(
+	"about",
+	"base",
+	"enrollmentproof",
+	"evaluations",
+	"login",
+	"maincore",
+	"record",
+	"summary",
+	"testkit"
+)
+
+tasks.register<Exec>("refreshCommonUiMatrix") {
+	group = "verification"
+	description = "Regenerates docs/testing/common-ui-matrix.md from commonMain composable inventory."
+	commandLine("bash", "${rootDir}/scripts/generate-common-ui-matrix.sh")
+}
+
+tasks.register<Exec>("verifyCommonUiTestDensity") {
+	group = "verification"
+	description = "Fails when a UiTest is below the configured when_ threshold for its module."
+	commandLine("bash", "${rootDir}/scripts/verify-common-ui-test-density.sh", "2")
+}
+
+tasks.register("verifyCommonUiCompilationGate") {
+	group = "verification"
+	description = "Compiles common UI tests for iOS x64 in all shared modules."
+	dependsOn(
+		commonUiModules.map { moduleName ->
+			":$moduleName:compileTestKotlinIosX64"
+		}
+	)
+}
+
+tasks.register("verifyCommonUiTests") {
+	group = "verification"
+	description = "Runs common UI tests on iOS simulator arm64 for all shared modules."
+	dependsOn(
+		commonUiModules.map { moduleName ->
+			":$moduleName:iosSimulatorArm64Test"
+		}
+	)
+}
+
+tasks.register("verifyCommonUiGate") {
+	group = "verification"
+	description = "Runs the complete common UI validation gate (matrix + compilation + execution)."
+	dependsOn(
+		"refreshCommonUiMatrix",
+		"verifyCommonUiTestDensity",
+		"verifyCommonUiCompilationGate",
+		"verifyCommonUiTests"
+	)
+}
+
 tasks.register<Exec>("verifyIosHostTypecheck") {
 	group = "verification"
 	description = "Type-checks iOS host Swift sources against linked maincore.framework."
@@ -168,10 +223,10 @@ tasks.register<Exec>("verifyIosHostBuildDeviceRelease") {
 	commandLine("bash", "${rootDir}/iosApp/scripts/ci-build-ios-host.sh")
 }
 
-	tasks.register<Exec>("reportWorktreeHealth") {
-		group = "help"
-		description = "Generates a worktree health report with suggested atomic commit batches."
-		val reportScript = file("${rootDir}/scripts/report-worktree-health.sh")
+tasks.register<Exec>("reportWorktreeHealth") {
+	group = "help"
+	description = "Generates a worktree health report with suggested atomic commit batches."
+	val reportScript = file("${rootDir}/scripts/report-worktree-health.sh")
 
 	onlyIf {
 		reportScript.exists()

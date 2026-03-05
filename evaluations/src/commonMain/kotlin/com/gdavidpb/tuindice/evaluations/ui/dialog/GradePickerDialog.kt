@@ -9,6 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationGradeWheelPicker
 import com.gdavidpb.tuindice.evaluations.ui.model.MIN_EVALUATION_GRADE
 
@@ -28,11 +30,16 @@ fun GradePickerDialog(
 
 	AlertDialog(
 		title = {
-			Text(text = title)
+			Text(
+				modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDialogTitle),
+				text = title
+			)
 		},
 		text = {
 			EvaluationGradeWheelPicker(
-				modifier = Modifier.fillMaxWidth(),
+				modifier = Modifier
+					.fillMaxWidth()
+					.testTag(EvaluationsUiTags.EvaluationGradeWheelPicker),
 				grade = selectedGrade ?: MIN_EVALUATION_GRADE,
 				gradeRange = gradeRange,
 				onGradeChange = { grade ->
@@ -46,6 +53,7 @@ fun GradePickerDialog(
 		},
 		confirmButton = {
 			TextButton(
+				modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDialogConfirmButton),
 				onClick = {
 					onGradeChange(selectedGradeState.doubleValue)
 					onDismissRequest()
@@ -56,6 +64,7 @@ fun GradePickerDialog(
 		},
 		dismissButton = {
 			TextButton(
+				modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDialogDismissButton),
 				onClick = {
 					onDismissRequest()
 				}

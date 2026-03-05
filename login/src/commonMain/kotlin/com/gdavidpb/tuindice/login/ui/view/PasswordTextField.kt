@@ -14,11 +14,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import com.gdavidpb.tuindice.login.ui.LoginUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.login.generated.resources.Res
 import tuindice.login.generated.resources.a11y_hide_password
@@ -39,7 +41,7 @@ fun PasswordTextField(
 	val passwordVisible = remember { mutableStateOf(false) }
 
 	OutlinedTextField(
-		modifier = modifier,
+		modifier = modifier.testTag(LoginUiTags.PasswordTextField),
 		value = passwordField.value,
 		onValueChange = { newValue ->
 			supportingText.value = null
@@ -62,7 +64,10 @@ fun PasswordTextField(
 			)
 		},
 		trailingIcon = {
-			IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+			IconButton(
+				modifier = Modifier.testTag(LoginUiTags.PasswordToggle),
+				onClick = { passwordVisible.value = !passwordVisible.value }
+			) {
 				Icon(
 					imageVector = if (passwordVisible.value)
 						Icons.Filled.VisibilityOff

@@ -12,7 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import kotlinx.datetime.LocalDate
 
 @Composable
@@ -38,6 +40,13 @@ fun CalendarDayCell(
 
 	Box(
 		modifier = modifier
+			.testTag(
+				if (date != null) {
+					EvaluationsUiTags.calendarDayCell(date.day)
+				} else {
+					"evaluation_calendar_day_placeholder"
+				}
+			)
 			.aspectRatio(1f)
 			.clip(CircleShape)
 			.background(containerColor)

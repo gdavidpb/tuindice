@@ -1,0 +1,163 @@
+# Common UI Coverage Matrix
+
+_Generado automaticamente el 2026-03-05 20:11:41 -03_
+
+## Resumen por modulo
+
+| Modulo | Umbral when_ | Archivos con @Composable (commonMain) | Ocurrencias @Composable | UI tests en commonTest | Archivos con test nominal | UiTest que cumplen umbral |
+|---|---:|---:|---:|---:|---:|---:|
+| `about` | 2 | 7 | 8 | 7 | 7 | 7 |
+| `base` | 2 | 13 | 25 | 13 | 13 | 13 |
+| `enrollmentproof` | 2 | 5 | 6 | 5 | 5 | 5 |
+| `evaluations` | 2 | 30 | 45 | 30 | 30 | 30 |
+| `login` | 2 | 17 | 17 | 17 | 17 | 17 |
+| `maincore` | 3 | 8 | 11 | 8 | 8 | 8 |
+| `record` | 2 | 11 | 17 | 11 | 11 | 11 |
+| `summary` | 2 | 13 | 16 | 13 | 13 | 13 |
+
+## Detalle por archivo composable (commonMain)
+
+### `about`
+
+| Archivo | @Composable | Test esperado | Casos when_ | Estado |
+|---|---:|---|---:|---|
+| `about/src/commonMain/kotlin/com/gdavidpb/tuindice/about/presentation/route/AboutRoute.kt` | 1 | `about/src/commonTest/kotlin/com/gdavidpb/tuindice/about/presentation/route/AboutRouteUiTest.kt` | 15 | 🟩 Cumple umbral (2) |
+| `about/src/commonMain/kotlin/com/gdavidpb/tuindice/about/ui/custom/AboutHeader.kt` | 2 | `about/src/commonTest/kotlin/com/gdavidpb/tuindice/about/ui/custom/AboutHeaderUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `about/src/commonMain/kotlin/com/gdavidpb/tuindice/about/ui/custom/AboutItem.kt` | 1 | `about/src/commonTest/kotlin/com/gdavidpb/tuindice/about/ui/custom/AboutItemUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `about/src/commonMain/kotlin/com/gdavidpb/tuindice/about/ui/custom/AboutSpanText.kt` | 1 | `about/src/commonTest/kotlin/com/gdavidpb/tuindice/about/ui/custom/AboutSpanTextUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `about/src/commonMain/kotlin/com/gdavidpb/tuindice/about/ui/screen/AboutScreen.kt` | 1 | `about/src/commonTest/kotlin/com/gdavidpb/tuindice/about/ui/screen/AboutScreenUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `about/src/commonMain/kotlin/com/gdavidpb/tuindice/about/ui/view/AboutContentView.kt` | 1 | `about/src/commonTest/kotlin/com/gdavidpb/tuindice/about/ui/view/AboutContentViewUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `about/src/commonMain/kotlin/com/gdavidpb/tuindice/about/ui/view/AboutIdleView.kt` | 1 | `about/src/commonTest/kotlin/com/gdavidpb/tuindice/about/ui/view/AboutIdleViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+
+### `base`
+
+| Archivo | @Composable | Test esperado | Casos when_ | Estado |
+|---|---:|---|---:|---|
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/dialog/ConfirmationDialog.kt` | 2 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/dialog/ConfirmationDialogUiTest.kt` | 4 | 🟩 Cumple umbral (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/dialog/ConfirmationDialogEntry.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/dialog/ConfirmationDialogEntryUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/dialog/ExternalResourceDialog.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/dialog/ExternalResourceDialogUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/DropdownMenuTextField.kt` | 3 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/DropdownMenuTextFieldUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/EmptyView.kt` | 2 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/EmptyViewUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/ErrorView.kt` | 2 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/ErrorViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/SealedCrossfade.kt` | 2 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/SealedCrossfadeUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/StateAnimationView.kt` | 3 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/StateAnimationViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/TopAppBarActionsView.kt` | 2 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/TopAppBarActionsViewUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/TopAppBarAnimatedTitleView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/TopAppBarAnimatedTitleViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/WheelPicker.kt` | 2 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/WheelPickerUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/utils/extension/Compose.kt` | 3 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/utils/extension/ComposeUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/utils/extension/Flow.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/utils/extension/FlowUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+
+### `enrollmentproof`
+
+| Archivo | @Composable | Test esperado | Casos when_ | Estado |
+|---|---:|---|---:|---|
+| `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/presentation/route/EnrollmentProofRoute.kt` | 1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/presentation/route/EnrollmentProofRouteUiTest.kt` | 10 | 🟩 Cumple umbral (2) |
+| `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/dialog/EnrollmentProofFetchingSheet.kt` | 2 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/dialog/EnrollmentProofFetchingSheetUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/screen/EnrollmentProofScreen.kt` | 1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/screen/EnrollmentProofScreenUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofFetchingView.kt` | 1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofFetchingViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofLottieLoadingContent.kt` | 1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofLottieLoadingContentUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+
+### `evaluations`
+
+| Archivo | @Composable | Test esperado | Casos when_ | Estado |
+|---|---:|---|---:|---|
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/presentation/mapper/EvaluationDateTextMapping.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/presentation/mapper/EvaluationDateTextMappingUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/presentation/mapper/EvaluationItemMapping.kt` | 2 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/presentation/mapper/EvaluationItemMappingUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/presentation/route/EvaluationRoute.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/presentation/route/EvaluationRouteUiTest.kt` | 10 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/presentation/route/EvaluationsRoute.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/presentation/route/EvaluationsRouteUiTest.kt` | 9 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/dialog/GradePickerDialog.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/dialog/GradePickerDialogUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationDialogScreen.kt` | 3 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationDialogScreenUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationScreen.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationScreenUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationsScreen.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationsScreenUiTest.kt` | 5 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayCell.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayCellUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationCalendarContent.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationCalendarContentUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationContentView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationContentViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDatePicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationDatePickerUiTest.kt` | 5 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationFailedView.kt` | 2 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationFailedViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeWheelPicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationGradeWheelPickerUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationHeaderView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationHeaderViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationItemViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationLoadingView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationLoadingViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationSubjectPicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationSubjectPickerUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationSwipeToDismiss.kt` | 3 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationSwipeToDismissUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationTypePicker.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationTypePickerUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsContentView.kt` | 6 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsContentViewUiTest.kt` | 4 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsEmptyMatchView.kt` | 2 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsEmptyMatchViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsEmptyView.kt` | 2 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsEmptyViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsFailedView.kt` | 2 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsFailedViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsFilterView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsFilterViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsLoadingView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsLoadingViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsNoSubjectsView.kt` | 2 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsNoSubjectsViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationsViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/FilterView.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/FilterViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/WeekdayHeaderRow.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/WeekdayHeaderRowUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+
+### `login`
+
+| Archivo | @Composable | Test esperado | Casos when_ | Estado |
+|---|---:|---|---:|---|
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/presentation/route/SignInRoute.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/presentation/route/SignInRouteUiTest.kt` | 6 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/presentation/route/SignOutRoute.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/presentation/route/SignOutRouteUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/presentation/route/UpdatePasswordRoute.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/presentation/route/UpdatePasswordRouteUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/dialog/SignOutDialog.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/dialog/SignOutDialogUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/dialog/UpdatePasswordDialog.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/dialog/UpdatePasswordDialogUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/screen/SignInScreen.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/screen/SignInScreenUiTest.kt` | 4 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/screen/SignOutScreen.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/screen/SignOutScreenUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/screen/UpdatePasswordScreen.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/screen/UpdatePasswordScreenUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/view/AnimatedPatternBackground.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/view/AnimatedPatternBackgroundUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/view/LinkText.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/view/LinkTextUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/view/PasswordTextField.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/view/PasswordTextFieldUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/view/RandomFlipperText.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/view/RandomFlipperTextUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/view/SignInIdleView.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/view/SignInIdleViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/view/SignInLoggingInView.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/view/SignInLoggingInViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/view/UpdatePasswordIdleView.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/view/UpdatePasswordIdleViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/view/UpdatePasswordUpdatingView.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/view/UpdatePasswordUpdatingViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `login/src/commonMain/kotlin/com/gdavidpb/tuindice/login/ui/view/UsbIdTextField.kt` | 1 | `login/src/commonTest/kotlin/com/gdavidpb/tuindice/login/ui/view/UsbIdTextFieldUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+
+### `maincore`
+
+| Archivo | @Composable | Test esperado | Casos when_ | Estado |
+|---|---:|---|---:|---|
+| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/route/BrowserRoute.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/route/BrowserRouteUiTest.kt` | 6 | 🟩 Cumple umbral (3) |
+| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/route/MainRoute.kt` | 2 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/route/MainRouteUiTest.kt` | 4 | 🟩 Cumple umbral (3) |
+| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/route/TuIndiceAppHostRoute.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/route/TuIndiceAppHostRouteUiTest.kt` | 3 | 🟩 Cumple umbral (3) |
+| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/dialog/GooglePlayServicesDialog.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/dialog/GooglePlayServicesDialogUiTest.kt` | 3 | 🟩 Cumple umbral (3) |
+| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/screen/BrowserScreen.kt` | 2 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/screen/BrowserScreenUiTest.kt` | 5 | 🟩 Cumple umbral (3) |
+| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceNavHost.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceNavHostUiTest.kt` | 3 | 🟩 Cumple umbral (3) |
+| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceScreen.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceScreenUiTest.kt` | 9 | 🟩 Cumple umbral (3) |
+| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/theme/TuIndiceSharedTheme.kt` | 2 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/theme/TuIndiceSharedThemeUiTest.kt` | 3 | 🟩 Cumple umbral (3) |
+
+### `record`
+
+| Archivo | @Composable | Test esperado | Casos when_ | Estado |
+|---|---:|---|---:|---|
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/mapper/QuarterItem.kt` | 4 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/presentation/mapper/QuarterItemUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/mapper/SubjectItem.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/presentation/mapper/SubjectItemUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/route/RecordRoute.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/presentation/route/RecordRouteUiTest.kt` | 6 | 🟩 Cumple umbral (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/screen/RecordScreen.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/screen/RecordScreenUiTest.kt` | 5 | 🟩 Cumple umbral (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/QuarterItemView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/QuarterItemViewUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/QuartersView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/QuartersViewUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/RecordContentView.kt` | 2 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/RecordContentViewUiTest.kt` | 4 | 🟩 Cumple umbral (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/RecordEmptyView.kt` | 2 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/RecordEmptyViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/RecordFailedView.kt` | 2 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/RecordFailedViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/RecordLoadingView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/RecordLoadingViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/SubjectItemView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/SubjectItemViewUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+
+### `summary`
+
+| Archivo | @Composable | Test esperado | Casos when_ | Estado |
+|---|---:|---|---:|---|
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/presentation/route/SummaryRoute.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/presentation/route/SummaryRouteUiTest.kt` | 10 | 🟩 Cumple umbral (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/dialog/ProfilePictureSettingsDialog.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/dialog/ProfilePictureSettingsDialogUiTest.kt` | 5 | 🟩 Cumple umbral (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/dialog/RemoveProfilePictureConfirmationDialog.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/dialog/RemoveProfilePictureConfirmationDialogUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/screen/SummaryDialogScreen.kt` | 2 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/screen/SummaryDialogScreenUiTest.kt` | 8 | 🟩 Cumple umbral (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/screen/SummaryScreen.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/screen/SummaryScreenUiTest.kt` | 4 | 🟩 Cumple umbral (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/GradeTextView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/GradeTextViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/ProfilePictureState.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/ProfilePictureStateUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/ProfilePictureView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/ProfilePictureViewUiTest.kt` | 4 | 🟩 Cumple umbral (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/StatusCardItemView.kt` | 2 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/StatusCardItemViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryContentView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryContentViewUiTest.kt` | 3 | 🟩 Cumple umbral (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryFailedView.kt` | 2 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryFailedViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryItems.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryItemsUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+| `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryLoadingView.kt` | 1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryLoadingViewUiTest.kt` | 2 | 🟩 Cumple umbral (2) |
+

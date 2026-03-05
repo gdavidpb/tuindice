@@ -7,7 +7,9 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.presentation.contract.Browser
+import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import org.koin.compose.koinInject
+import androidx.compose.ui.platform.testTag
 
 interface BrowserScreenRenderer {
 	@Composable
@@ -31,11 +33,15 @@ fun BrowserScreen(
 	if (state !is Browser.State.Content) return
 
 	Column(
-		modifier = Modifier.fillMaxSize()
+		modifier = Modifier
+			.testTag(MaincoreUiTags.BrowserContainer)
+			.fillMaxSize()
 	) {
 		if (state.isLoading) {
 			LinearProgressIndicator(
-				modifier = Modifier.fillMaxWidth()
+				modifier = Modifier
+					.testTag(MaincoreUiTags.BrowserLoadingIndicator)
+					.fillMaxWidth()
 			)
 		}
 

@@ -19,12 +19,14 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.rememberEvaluationItemMapping
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItemList
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.message_empty_match_evaluations
@@ -53,6 +55,7 @@ fun EvaluationsContentView(
 
 	Box(
 		modifier = Modifier
+			.testTag(EvaluationsUiTags.EvaluationsContentContainer)
 			.fillMaxSize()
 	) {
 		Column(
@@ -92,6 +95,7 @@ fun EvaluationsContentView(
 				if (state.activeFilters.isNotEmpty())
 					SmallFloatingActionButton(
 						modifier = Modifier
+							.testTag(EvaluationsUiTags.EvaluationsClearFiltersFab)
 							.padding(bottom = 16.dp),
 						containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
 						contentColor = MaterialTheme.colorScheme.primaryContainer,
@@ -101,6 +105,7 @@ fun EvaluationsContentView(
 					}
 
 				FloatingActionButton(
+					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationsAddFab),
 					containerColor = MaterialTheme.colorScheme.primary,
 					onClick = onAddEvaluationClick
 				) {

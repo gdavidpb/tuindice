@@ -15,10 +15,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.login.ui.LoginUiTags
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 
@@ -51,6 +53,7 @@ fun RandomFlipperText(items: List<String>) {
 		) {
 			Text(
 				modifier = Modifier
+					.testTag(LoginUiTags.RandomFlipperText)
 					.padding(horizontal = 16.dp)
 					.align(alignment = Alignment.Center),
 				text = text,

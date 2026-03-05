@@ -17,9 +17,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.about.generated.AboutDependencyTexts
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.about.ui.custom.AboutHeader
 import com.gdavidpb.tuindice.about.ui.custom.AboutItem
 import org.jetbrains.compose.resources.painterResource
@@ -72,6 +74,7 @@ fun AboutContentView(
 ) {
 	Column(
 		modifier = Modifier
+			.testTag(AboutUiTags.ContentContainer)
 			.verticalScroll(rememberScrollState())
 	) {
 		AboutHeader(text = stringResource(Res.string.app_name)) {
@@ -84,36 +87,42 @@ fun AboutContentView(
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_cc),
 				text = stringResource(Res.string.about_license),
+				testTag = AboutUiTags.OpenCreativeCommons,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			) { onCreativeCommonsClick() }
 
 			AboutItem(
 				icon = rememberVectorPainter(Icons.AutoMirrored.Outlined.Subject),
 				text = stringResource(Res.string.about_terms_and_conditions),
+				testTag = AboutUiTags.OpenTerms,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			) { onTermsAndConditionsClick() }
 
 			AboutItem(
 				icon = rememberVectorPainter(Icons.Outlined.Lock),
 				text = stringResource(Res.string.about_privacy_policy),
+				testTag = AboutUiTags.OpenPrivacy,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			) { onPrivacyPolicyClick() }
 
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_x),
 				text = stringResource(Res.string.about_x),
+				testTag = AboutUiTags.OpenX,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			) { onXClick() }
 
 			AboutItem(
 				icon = rememberVectorPainter(Icons.Outlined.Share),
 				text = stringResource(Res.string.about_share),
+				testTag = AboutUiTags.ShareApp,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			) { onShareAppClick() }
 
 			AboutItem(
 				icon = rememberVectorPainter(Icons.Outlined.StarBorder),
 				text = stringResource(Res.string.about_rate),
+				testTag = AboutUiTags.RateOnStore,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			) { onRateOnPlayStoreClick() }
 		}
@@ -128,18 +137,21 @@ fun AboutContentView(
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_github),
 				text = stringResource(Res.string.about_source_code),
+				testTag = AboutUiTags.OpenGithub,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			) { onGithubClick() }
 
 			AboutItem(
 				icon = rememberVectorPainter(Icons.Outlined.Email),
 				text = stringResource(Res.string.about_dev_contact),
+				testTag = AboutUiTags.ContactDeveloper,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			) { onContactDeveloperClick() }
 
 			AboutItem(
 				icon = rememberVectorPainter(Icons.Outlined.BugReport),
 				text = stringResource(Res.string.about_dev_report),
+				testTag = AboutUiTags.ReportBug,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			) { onReportBugClick() }
 		}
@@ -148,30 +160,35 @@ fun AboutContentView(
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_kotlin),
 				text = AboutDependencyTexts.kotlinDescription,
+				testTag = AboutUiTags.OpenKotlin,
 				size = 48.dp
 			) { onKotlinClick() }
 
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_compose),
 				text = AboutDependencyTexts.composeDescription,
+				testTag = AboutUiTags.OpenCompose,
 				size = 48.dp
 			) { onComposeClick() }
 
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_firebase),
 				text = AboutDependencyTexts.firebaseDescription,
+				testTag = AboutUiTags.OpenFirebase,
 				size = 48.dp
 			) { onFirebaseClick() }
 
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_koin),
 				text = AboutDependencyTexts.koinDescription,
+				testTag = AboutUiTags.OpenKoin,
 				size = 48.dp
 			) { onKoinClick() }
 
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_ktor),
 				text = AboutDependencyTexts.ktorDescription,
+				testTag = AboutUiTags.OpenKtor,
 				size = 48.dp,
 				tint = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onBackground else null
 			) { onKtorClick() }
@@ -181,6 +198,7 @@ fun AboutContentView(
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_usb),
 				text = stringResource(Res.string.about_dst),
+				testTag = AboutUiTags.OpenDst,
 				size = 48.dp,
 				tint = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onBackground else null
 			) { onDstClick() }

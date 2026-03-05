@@ -9,7 +9,9 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
 import kotlinx.coroutines.launch
 
@@ -22,6 +24,7 @@ fun EvaluationsView(
 	onEvaluationDelete: (evaluationId: String) -> Unit
 ) {
 	LazyColumn(
+		modifier = Modifier.testTag(EvaluationsUiTags.EvaluationsList),
 		state = lazyListState
 	) {
 		evaluations.forEach { (title, items) ->

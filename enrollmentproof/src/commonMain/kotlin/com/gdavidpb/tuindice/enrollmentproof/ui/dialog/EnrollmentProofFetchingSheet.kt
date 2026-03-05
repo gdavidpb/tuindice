@@ -13,7 +13,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,12 +31,15 @@ fun EnrollmentProofFetchingSheet(
 	)
 
 	ModalBottomSheet(
+		modifier = Modifier.testTag(EnrollmentProofUiTags.FetchingSheet),
 		sheetState = nonDismissSheetState,
 		onDismissRequest = onDismissRequest,
 		properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false)
 	) {
 		Box(
-			modifier = Modifier.fillMaxWidth(),
+			modifier = Modifier
+				.testTag(EnrollmentProofUiTags.FetchingLoadingContainer)
+				.fillMaxWidth(),
 			contentAlignment = Alignment.Center
 		) {
 			loadingContent()
@@ -42,6 +47,7 @@ fun EnrollmentProofFetchingSheet(
 
 		Text(
 			modifier = Modifier
+				.testTag(EnrollmentProofUiTags.FetchingMessage)
 				.align(Alignment.CenterHorizontally)
 				.padding(bottom = 24.dp),
 			text = messageText,

@@ -9,11 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.presentation.extension.*
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsShortDayOfWeekAndDate
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.*
 
@@ -42,7 +44,10 @@ fun EvaluationDatePicker(
 				isPickerDialogOpen.value = false
 			},
 			title = {
-				Text(text = stringResource(Res.string.label_add_evaluation_date))
+				Text(
+					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDateDialogTitle),
+					text = stringResource(Res.string.label_add_evaluation_date)
+				)
 			},
 			text = {
 				EvaluationCalendarContent(
@@ -61,6 +66,7 @@ fun EvaluationDatePicker(
 			},
 			confirmButton = {
 				TextButton(
+					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDateDialogAcceptButton),
 					onClick = {
 						isPickerDialogOpen.value = false
 						onDateChange(draftSelectedDate.value?.toEvaluationEpochMillis())
@@ -72,6 +78,7 @@ fun EvaluationDatePicker(
 			},
 			dismissButton = {
 				TextButton(
+					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDateDialogCancelButton),
 					onClick = {
 						resetDialogState()
 						isPickerDialogOpen.value = false
@@ -85,9 +92,11 @@ fun EvaluationDatePicker(
 
 	Row(
 		modifier = modifier
+			.testTag(EvaluationsUiTags.EvaluationDatePicker)
 	) {
 		OutlinedButton(
 			modifier = Modifier
+				.testTag(EvaluationsUiTags.EvaluationDateSelectButton)
 				.offset(x = 0.5.dp)
 				.weight(0.5f)
 				.defaultMinSize(minHeight = 56.dp),
@@ -128,6 +137,7 @@ fun EvaluationDatePicker(
 
 		OutlinedButton(
 			modifier = Modifier
+				.testTag(EvaluationsUiTags.EvaluationDateNoDateButton)
 				.offset(x = (-0.5).dp)
 				.weight(0.5f)
 				.defaultMinSize(minHeight = 56.dp),

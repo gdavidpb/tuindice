@@ -1,0 +1,56 @@
+package com.gdavidpb.tuindice.evaluations.ui.view
+
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
+import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
+import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+@OptIn(ExperimentalTestApi::class)
+class FilterViewUiTest {
+	@Test
+	fun when_filterChipTapped_then_switchesSelectionState() = runTuIndiceUiTest {
+		val pendingFilter = EvaluationStateFilter(label = "Pendientes") { true }
+		val selectedEvents = mutableListOf<Pair<String, Boolean>>()
+
+		setTuIndiceTestContent {
+			FilterView(
+				entries = linkedMapOf(pendingFilter to true),
+				onCheckedChange = { filter, checked ->
+					selectedEvents += filter.getLabel() to checked
+				}
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.EvaluationsFilterRow)
+		assertNodeVisible(EvaluationsUiTags.filterChip("Pendientes"))
+
+		onNodeWithTag(EvaluationsUiTags.filterChip("Pendientes")).performClick()
+
+		assertEquals(listOf("Pendientes" to false), selectedEvents)
+	}
+
+	@Test
+	fun when_unselectedFilterChipTapped_then_emitsCheckedState() = runTuIndiceUiTest {
+		val completedFilter = EvaluationStateFilter(label = "Completadas") { true }
+		val selectedEvents = mutableListOf<Pair<String, Boolean>>()
+
+		setTuIndiceTestContent {
+			FilterView(
+				entries = linkedMapOf(completedFilter to false),
+				onCheckedChange = { filter, checked ->
+					selectedEvents += filter.getLabel() to checked
+				}
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.filterChip("Completadas")).performClick()
+
+		assertEquals(listOf("Completadas" to true), selectedEvents)
+	}
+}

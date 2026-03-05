@@ -8,7 +8,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.login.ui.LoginUiTags
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import org.jetbrains.compose.resources.painterResource
 import tuindice.login.generated.resources.Res
@@ -17,7 +19,9 @@ import tuindice.login.generated.resources.ic_launcher
 @Composable
 fun SignInLoggingInView(state: SignIn.State.LoggingIn) {
 	Column(
-		modifier = Modifier.fillMaxSize(),
+		modifier = Modifier
+			.testTag(LoginUiTags.SignInLoggingInContainer)
+			.fillMaxSize(),
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.Center
 	) {

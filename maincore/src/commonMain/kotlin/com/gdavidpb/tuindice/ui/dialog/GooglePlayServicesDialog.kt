@@ -7,7 +7,10 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
+import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,6 +36,7 @@ fun GooglePlayServicesDialog(
 		properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false)
 	) {
 		Text(
+			modifier = Modifier.testTag(MaincoreUiTags.GooglePlayServicesMessage),
 			text = messageText,
 			style = MaterialTheme.typography.bodyLarge
 		)

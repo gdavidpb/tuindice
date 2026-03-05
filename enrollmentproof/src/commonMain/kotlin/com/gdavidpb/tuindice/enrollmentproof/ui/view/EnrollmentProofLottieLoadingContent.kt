@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags
 import io.github.alexzhirkevich.compottie.Compottie
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
@@ -27,6 +29,7 @@ fun EnrollmentProofLottieLoadingContent(
 
 	Image(
 		modifier = modifier
+			.testTag(EnrollmentProofUiTags.FetchingLottie)
 			.width(256.dp)
 			.height(128.dp),
 		painter = rememberLottiePainter(

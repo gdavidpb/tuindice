@@ -10,12 +10,15 @@ import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
 import com.gdavidpb.tuindice.record.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.record.testing.RecordingQuarterRepository
 import com.gdavidpb.tuindice.record.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.fail
 
 class RecordUseCaseContractTest {
 	@Test
@@ -39,27 +42,43 @@ class RecordUseCaseContractTest {
 	@Test
 	fun setSubjectGradeUseCase_emitsLoadingThenData_andDelegatesSet() = runTest {
 		val repository = RecordingQuarterRepository()
+		val reportingRepository = RecordingReportingRepository()
 		val useCase = SetSubjectGradeUseCase(
 			quarterRepository = repository,
 			paramsValidator = SetSubjectGradeParamsValidator(),
 			exceptionHandler = SetSubjectGradeExceptionHandler(
-				reportingRepository = RecordingReportingRepository()
+				reportingRepository = reportingRepository
 			)
 		)
 		val params = SetSubjectGradeParams(
 			quarterId = DEFAULT_RECORD_QUARTER.id,
 			subjectId = DEFAULT_RECORD_QUARTER.subjects.single().id,
-			grade = 70,
+			grade = 4,
 			commit = true
 		)
 
 		useCase.execute(params).test {
-			assertEquals(Unit, awaitLoadingThenData(this))
+			assertIs<UseCaseState.Loading<*, *>>(awaitItem())
+
+			when (val state = awaitItem()) {
+				is UseCaseState.Data -> assertEquals(Unit, state.value)
+				is UseCaseState.Error -> {
+					val exceptions = reportingRepository.exceptions.joinToString(
+						separator = "\n"
+					) { exception ->
+						"${exception::class.simpleName}: ${exception.message}"
+					}
+
+					fail("Expected data state but received error=${state.error}. Exceptions:\n$exceptions")
+				}
+				else -> fail("Unexpected state: ${state::class.simpleName}")
+			}
+
 			awaitComplete()
 		}
 
-		assertEquals(1, repository.setGradeCalls.size)
-		assertEquals(true, repository.setGradeCalls.single().commit)
+		assertEquals(1, repository.setGradeCalls.value.size)
+		assertEquals(true, repository.setGradeCalls.value.single().commit)
 	}
 
 	@Test

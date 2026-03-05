@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import coil3.compose.AsyncImage
@@ -30,6 +31,7 @@ import coil3.compose.LocalPlatformContext
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
 @Composable
 fun ProfilePictureView(
@@ -55,6 +57,7 @@ fun ProfilePictureView(
 
 	Box(
 		modifier = modifier
+			.testTag(SummaryUiTags.ProfilePictureContainer)
 			.clickable { if (!state.isLoading) onClick() }
 	) {
 		Box(
@@ -66,6 +69,7 @@ fun ProfilePictureView(
 		) {
 			Icon(
 				modifier = Modifier
+					.testTag(SummaryUiTags.ProfilePicturePlaceholderIcon)
 					.size(48.dp),
 				imageVector = Icons.Outlined.Person,
 				contentDescription = null,
@@ -93,6 +97,7 @@ fun ProfilePictureView(
 
 		IconButton(
 			modifier = Modifier
+				.testTag(SummaryUiTags.ProfilePictureEditButton)
 				.size(42.dp)
 				.align(Alignment.BottomEnd),
 			enabled = !state.isLoading,
@@ -112,7 +117,9 @@ fun ProfilePictureView(
 			modifier = Modifier.align(Alignment.Center),
 			visible = state.isLoading
 		) {
-			CircularProgressIndicator()
+			CircularProgressIndicator(
+				modifier = Modifier.testTag(SummaryUiTags.ProfilePictureLoadingIndicator)
+			)
 		}
 	}
 }

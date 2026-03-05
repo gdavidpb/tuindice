@@ -19,12 +19,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.label_add_evaluation_date
@@ -52,6 +54,7 @@ fun EvaluationContentView(
 ) {
 	Box(
 		modifier = Modifier
+			.testTag(EvaluationsUiTags.EvaluationContentContainer)
 			.fillMaxSize()
 	) {
 		Column(
@@ -121,6 +124,7 @@ fun EvaluationContentView(
 
 			AnimatedVisibility(visible = !state.isOverdue) {
 				InputChip(
+					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationMaxGradeChip),
 					selected = false,
 					onClick = {
 						onMaxGradeClick(state.maxGrade)
@@ -139,6 +143,7 @@ fun EvaluationContentView(
 					verticalAlignment = Alignment.CenterVertically
 				) {
 					InputChip(
+						modifier = Modifier.testTag(EvaluationsUiTags.EvaluationGradeChip),
 						selected = false,
 						onClick = {
 							onGradeClick(state.grade, state.maxGrade)
@@ -159,6 +164,7 @@ fun EvaluationContentView(
 					)
 
 					InputChip(
+						modifier = Modifier.testTag(EvaluationsUiTags.EvaluationMaxGradeChip),
 						selected = false,
 						onClick = {
 							onMaxGradeClick(state.maxGrade)
@@ -176,6 +182,7 @@ fun EvaluationContentView(
 
 		FloatingActionButton(
 			modifier = Modifier
+				.testTag(EvaluationsUiTags.EvaluationDoneFab)
 				.align(Alignment.BottomEnd)
 				.padding(24.dp),
 			containerColor = MaterialTheme.colorScheme.primary,

@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.persistence.utils.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.utils.Ranges
 import kotlin.math.roundToInt
 
@@ -32,6 +33,7 @@ fun SubjectItemView(
 
 	Column(
 		modifier = modifier
+			.testTag(RecordUiTags.subjectItem(item.subjectId))
 			.fillMaxWidth()
 			.padding(
 				vertical = 8.dp,
@@ -82,7 +84,7 @@ fun SubjectItemView(
 		if (!item.isReadOnly) {
 			Slider(
 				modifier = Modifier
-					.testTag("subject_grade_slider_${item.subjectId}")
+					.testTag(RecordUiTags.subjectGradeSlider(item.subjectId))
 					.fillMaxWidth()
 					.padding(top = 8.dp),
 				value = item.grade.toFloat(),

@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import io.github.alexzhirkevich.compottie.Compottie
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
@@ -17,7 +19,8 @@ import tuindice.base.generated.resources.Res
 fun EmptyStateAnimationView() {
 	SharedLottieAnimation(
 		filePath = EMPTY_STATE_ANIMATION_PATH,
-		modifier = Modifier.size(256.dp)
+		modifier = Modifier.size(256.dp),
+		testTag = BaseUiTags.EmptyStateAnimation
 	)
 }
 
@@ -25,7 +28,8 @@ fun EmptyStateAnimationView() {
 fun ErrorStateAnimationView() {
 	SharedLottieAnimation(
 		filePath = ERROR_STATE_ANIMATION_PATH,
-		modifier = Modifier.size(256.dp)
+		modifier = Modifier.size(256.dp),
+		testTag = BaseUiTags.ErrorStateAnimation
 	)
 }
 
@@ -33,7 +37,8 @@ fun ErrorStateAnimationView() {
 @Composable
 private fun SharedLottieAnimation(
 	filePath: String,
-	modifier: Modifier
+	modifier: Modifier,
+	testTag: String
 ) {
 	val composition by rememberLottieComposition {
 		LottieCompositionSpec.JsonString(
@@ -42,7 +47,7 @@ private fun SharedLottieAnimation(
 	}
 
 	Image(
-		modifier = modifier,
+		modifier = modifier.testTag(testTag),
 		painter = rememberLottiePainter(
 			composition = composition,
 			iterations = Compottie.IterateForever

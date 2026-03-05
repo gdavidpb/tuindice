@@ -11,11 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
 
 @Composable
 fun RecordEmptyView(
@@ -45,15 +47,22 @@ fun RecordEmptyView(
 
 	Column(
 		modifier = Modifier
+			.testTag(RecordUiTags.EmptyContainer)
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background),
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.Center
 	) {
-		illustrationContent()
+		Column(
+			modifier = Modifier.testTag(RecordUiTags.EmptyIllustration)
+		) {
+			illustrationContent()
+		}
 
 		Text(
-			modifier = Modifier.padding(24.dp),
+			modifier = Modifier
+				.testTag(RecordUiTags.EmptyMessage)
+				.padding(24.dp),
 			text = annotatedString,
 			textAlign = TextAlign.Center,
 			fontSize = MaterialTheme.typography.titleMedium.fontSize

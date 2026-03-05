@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.update
 
 private const val DEFAULT_RECORD_START_DATE = 1_767_225_600_000L
 private const val DEFAULT_RECORD_END_DATE = 1_777_420_800_000L
@@ -100,19 +101,19 @@ val UPDATED_RECORD_LOCAL_QUARTER = DEFAULT_RECORD_LOCAL_QUARTER.copy(
 class RecordingQuarterRepository(
 	private val quarters: Flow<List<Quarter>> = flowOf(listOf(DEFAULT_RECORD_QUARTER))
 ) : QuarterRepository {
-	val removeCalls = mutableListOf<QuarterRemove>()
-	val setGradeCalls = mutableListOf<SubjectGradeSet>()
+	val removeCalls = MutableStateFlow<List<QuarterRemove>>(emptyList())
+	val setGradeCalls = MutableStateFlow<List<SubjectGradeSet>>(emptyList())
 
 	override suspend fun getQuartersFlow(): Flow<List<Quarter>> = quarters
 
 	override suspend fun getQuarters(): List<Quarter> = quarters.replayCacheOrEmpty()
 
 	override suspend fun removeQuarter(remove: QuarterRemove) {
-		removeCalls += remove
+		removeCalls.update { calls -> calls + remove }
 	}
 
 	override suspend fun setSubjectGrade(set: SubjectGradeSet) {
-		setGradeCalls += set
+		setGradeCalls.update { calls -> calls + set }
 	}
 
 	private fun Flow<List<Quarter>>.replayCacheOrEmpty(): List<Quarter> {

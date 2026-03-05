@@ -1,6 +1,8 @@
 plugins {
 	kotlin("multiplatform")
 	id("com.android.kotlin.multiplatform.library")
+	alias(libs.plugins.compose.multiplatform)
+	alias(libs.plugins.compose.compiler)
 }
 
 kotlin {
@@ -22,6 +24,7 @@ kotlin {
 				api(libs.koin.core)
 				api(libs.kotlinx.coroutines.test)
 				api(libs.turbine)
+				api(libs.jetbrains.compose.ui.test)
 				implementation(libs.ktor.client.mock)
 			}
 		}

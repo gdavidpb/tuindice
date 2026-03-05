@@ -13,12 +13,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.login.ui.LoginUiTags
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.utils.extension.isUsbId
 import org.jetbrains.compose.resources.painterResource
@@ -48,7 +50,9 @@ fun SignInIdleView(
 	)
 
 	Column(
-		modifier = Modifier.fillMaxSize(),
+		modifier = Modifier
+			.testTag(LoginUiTags.SignInIdleContainer)
+			.fillMaxSize(),
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.Center
 	) {
@@ -85,6 +89,7 @@ fun SignInIdleView(
 
 		Button(
 			modifier = Modifier
+				.testTag(LoginUiTags.SignInButton)
 				.fillMaxWidth()
 				.padding(
 					vertical = 16.dp,

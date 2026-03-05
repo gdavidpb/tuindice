@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.ui.screen
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -21,6 +22,7 @@ import com.gdavidpb.tuindice.presentation.navigation.mainNavigation
 import com.gdavidpb.tuindice.record.presentation.navigation.recordNavigation
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryNavigation
+import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.ui.navigation.edgeSwipeBackNavigation
 
 @Composable
@@ -44,7 +46,7 @@ fun TuIndiceNavHost(
 		modifier = modifier.edgeSwipeBackNavigation(
 			enabled = isSwipeBackNavigationEnabled && canNavigateBack,
 			onBack = { navController.navigateUp() }
-		)
+		).testTag(MaincoreUiTags.TuIndiceNavHost)
 	) {
 		mainNavigation(
 			onConfirmExitClick = onConfirmExitClick,

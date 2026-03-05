@@ -6,6 +6,9 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 
 @Composable
 fun TopAppBarAnimatedTitleView(title: String) {
@@ -18,6 +21,9 @@ fun TopAppBarAnimatedTitleView(title: String) {
 			enter togetherWith exit
 		}, label = "TopAppBarAnimatedTitleViewAnimatedContent"
 	) { targetTitle ->
-		Text(text = targetTitle)
+		Text(
+			modifier = Modifier.testTag(BaseUiTags.TopAppBarTitle),
+			text = targetTitle
+		)
 	}
 }

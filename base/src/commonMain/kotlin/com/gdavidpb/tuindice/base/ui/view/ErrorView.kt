@@ -9,9 +9,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 
 @Composable
 fun ErrorView(
@@ -23,6 +25,7 @@ fun ErrorView(
 ) {
 	Column(
 		modifier = Modifier
+			.testTag(BaseUiTags.ErrorViewContainer)
 			.padding(horizontal = 24.dp)
 			.fillMaxSize(),
 		horizontalAlignment = Alignment.CenterHorizontally
@@ -30,19 +33,25 @@ fun ErrorView(
 		headerContent()
 
 		Text(
+			modifier = Modifier.testTag(BaseUiTags.ErrorViewTitle),
 			text = title,
 			style = MaterialTheme.typography.titleLarge,
 			fontWeight = FontWeight.Medium
 		)
 
 		Text(
-			modifier = Modifier.padding(vertical = 16.dp),
+			modifier = Modifier
+				.testTag(BaseUiTags.ErrorViewMessage)
+				.padding(vertical = 16.dp),
 			text = message,
 			textAlign = TextAlign.Center,
 			style = MaterialTheme.typography.bodyMedium
 		)
 
-		Button(onClick = onRetryClick) {
+		Button(
+			modifier = Modifier.testTag(BaseUiTags.ErrorViewRetryButton),
+			onClick = onRetryClick
+		) {
 			Text(text = retryText)
 		}
 	}

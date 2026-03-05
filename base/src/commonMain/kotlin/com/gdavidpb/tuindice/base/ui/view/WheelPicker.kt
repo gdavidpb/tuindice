@@ -17,7 +17,9 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
@@ -72,6 +74,7 @@ fun WheelPicker(
 
 	LazyColumn(
 		modifier = modifier
+			.testTag(BaseUiTags.WheelPickerList)
 			.height(
 				height = (itemHeight * (additionalItemCount * 2 + 1))
 			),
@@ -84,6 +87,7 @@ fun WheelPicker(
 		) { counter ->
 			Box(
 				modifier = Modifier
+					.testTag(BaseUiTags.wheelPickerItem(counter))
 					.height(height = itemHeight)
 					.clickable {
 						if (enabled)

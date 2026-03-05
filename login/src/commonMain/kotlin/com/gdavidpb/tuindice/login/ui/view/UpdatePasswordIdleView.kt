@@ -9,11 +9,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.login.ui.LoginUiTags
 import com.gdavidpb.tuindice.login.presentation.contract.UpdatePassword
 
 @Composable
@@ -41,7 +43,9 @@ fun UpdatePasswordIdleView(
 	}
 
 	Column(
-		modifier = Modifier.fillMaxWidth()
+		modifier = Modifier
+			.testTag(LoginUiTags.UpdatePasswordIdleContainer)
+			.fillMaxWidth()
 	) {
 		Text(
 			text = annotatedString,

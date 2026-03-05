@@ -27,8 +27,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.evaluations.utils.THRESHOLD_EVALUATION_SWIPE
 import kotlin.math.abs
 import org.jetbrains.compose.resources.stringResource
@@ -56,6 +58,7 @@ fun EvaluationSwipeToDismiss(
 	)
 
 	SwipeToDismissBox(
+		modifier = Modifier.testTag(EvaluationsUiTags.EvaluationSwipeToDismissContainer),
 		state = state,
 		onDismiss = onDismiss,
 		backgroundContent = {

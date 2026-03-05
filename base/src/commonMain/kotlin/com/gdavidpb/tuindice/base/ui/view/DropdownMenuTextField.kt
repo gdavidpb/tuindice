@@ -2,17 +2,19 @@ package com.gdavidpb.tuindice.base.ui.view
 
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 
 interface DropdownMenuItem {
 	val text: String
@@ -41,13 +43,19 @@ fun <T : DropdownMenuItem> DropdownMenuTextField(
 	) {
 		OutlinedTextField(
 			modifier = modifier
-				.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+				.testTag(BaseUiTags.DropdownMenuTextField)
+				.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
 			readOnly = true,
 			value = selectedItemText.value,
 			onValueChange = { },
 			isError = error != null,
 			supportingText = {
-				if (error != null) Text(error)
+				if (error != null) {
+					Text(
+						modifier = Modifier.testTag(BaseUiTags.DropdownMenuError),
+						text = error
+					)
+				}
 			},
 			trailingIcon = {
 				ExposedDropdownMenuDefaults.TrailingIcon(
@@ -68,8 +76,9 @@ fun <T : DropdownMenuItem> DropdownMenuTextField(
 				expanded.value = false
 			}
 		) {
-			items.forEach { item ->
+			items.forEachIndexed { index, item ->
 				DropdownMenuItem(
+					modifier = Modifier.testTag(BaseUiTags.dropdownItem(index)),
 					text = {
 						Text(
 							text = item.text,

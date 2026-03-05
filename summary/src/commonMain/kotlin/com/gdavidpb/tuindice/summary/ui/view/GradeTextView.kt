@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -16,6 +17,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.utils.extension.DecelerateEasing
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
+import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
 private const val DECIMALS_GRADE = 4
 private const val DECIMALS_MAX_GRADE = 1
@@ -67,6 +69,7 @@ fun GradeTextView(
 
 	Text(
 		modifier = modifier
+			.testTag(SummaryUiTags.GradeText)
 			.padding(vertical = 8.dp),
 		text = annotatedString,
 		style = MaterialTheme.typography.headlineLarge
