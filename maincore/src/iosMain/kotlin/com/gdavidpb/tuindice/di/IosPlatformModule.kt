@@ -103,12 +103,11 @@ private fun Module.registerIosPlatformServices() {
 			ktorClient = get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
 		)
 	}
-	factory<AttestationRepository> {
-		IosAttestationDataRepository(
+	factory<RiskAttestationRepository> {
+		IosRiskAttestationDataRepository(
 			httpClientProvider = {
 				get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
 			},
-			json = get<Json>(),
 			attestationCapability = get<IosAttestationCapability>()
 		)
 	}
@@ -137,7 +136,7 @@ private fun Module.registerIosPlatformNetworking() {
 			appEnvironmentRepository = get<AppEnvironmentRepository>(),
 			configRepository = get<ConfigRepository>(),
 			sessionRepository = get<SessionRepository>(),
-			attestationRepositoryProvider = { get<AttestationRepository>() },
+			riskAttestationRepositoryProvider = { get<RiskAttestationRepository>() },
 			loginRepositoryProvider = { get<LoginRepository>() },
 			logger = createAppKtorLogger(),
 			json = get<Json>(),

@@ -1,0 +1,34 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/attestation/v1/tokens",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.session_id == 'mock-attestation-session-ios')]"
+      },
+      {
+        "matchesJsonPath": "$.operation_code"
+      },
+      {
+        "matchesJsonPath": "$.request_hash"
+      },
+      {
+        "matchesJsonPath": "$[?(@.token =~ /ios-debug-attestation:.+/)]"
+      },
+      {
+        "matchesJsonPath": "$[?(@.key_id == 'ios-debug-attestation-key-id')]"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "token": "risk.mock.proof.ios",
+      "expires_at": 2524608000000
+    },
+    "fixedDelayMilliseconds": 250
+  }
+}

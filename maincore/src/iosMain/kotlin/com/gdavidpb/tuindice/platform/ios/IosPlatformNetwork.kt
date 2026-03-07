@@ -81,7 +81,9 @@ fun createIosIdentityHttpClient(
 			level = LogLevel.ALL
 
 			sanitizeHeader { header ->
-				header == HttpHeaders.Authorization
+				header == HttpHeaders.Authorization ||
+					header == "X-Forwarded-Authorization" ||
+					header == "X-Risk-Attestation"
 			}
 		}
 	}

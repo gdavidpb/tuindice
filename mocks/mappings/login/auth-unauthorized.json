@@ -5,6 +5,12 @@
     "headers": {
       "Authorization": {
         "doesNotMatch": "Basic MTEtMTExMTE6MTIzNDU2"
+      },
+      "X-Risk-Attestation": {
+        "matches": "risk\\.mock\\.proof\\.(android|ios)"
+      },
+      "X-Auth-Flow": {
+        "matches": "(issue|reissue)_tokens"
       }
     }
   },

@@ -1,7 +1,20 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/auth/token/refresh"
+    "urlPath": "/auth/token/refresh",
+    "headers": {
+      "X-Risk-Attestation": {
+        "matches": "risk\\.mock\\.proof\\.(android|ios)"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.access_token"
+      },
+      {
+        "matchesJsonPath": "$.refresh_token"
+      }
+    ]
   },
   "response": {
     "status": 200,

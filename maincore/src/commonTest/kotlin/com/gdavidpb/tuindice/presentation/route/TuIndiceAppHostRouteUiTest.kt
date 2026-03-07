@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.presentation.route
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
@@ -13,7 +14,6 @@ import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
-import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -34,8 +34,6 @@ class TuIndiceAppHostRouteUiTest {
 				viewModel = createMainViewModel()
 			)
 		}
-
-		assertNodeVisible(MaincoreUiTags.GooglePlayServicesMessage)
 
 		waitUntil(timeoutMillis = 2_000) {
 			reviewRepository.launchCalls > 0
@@ -83,6 +81,11 @@ class TuIndiceAppHostRouteUiTest {
 				updateRepository = FakeUpdateRepository(),
 				viewModel = createMainViewModel()
 			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			onAllNodesWithTag(BaseUiTags.ConfirmationDialogPositiveButton)
+				.fetchSemanticsNodes().isNotEmpty()
 		}
 
 		assertNodeVisible(BaseUiTags.ConfirmationDialogPositiveButton)

@@ -6,6 +6,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.login.domain.model.IssueTokensFlow
 import com.gdavidpb.tuindice.login.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.validator.SignInParamsValidator
@@ -123,13 +124,14 @@ class SignInRouteUiTest {
 		onNodeWithTag(LoginUiTags.SignInButton).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			summaryNavigations > 0 && fixture.loginRepository.signInCalls.isNotEmpty()
+			summaryNavigations > 0 && fixture.loginRepository.issueTokensCalls.isNotEmpty()
 		}
 
-		val (usbId, password, _) = fixture.loginRepository.signInCalls.first()
+		val call = fixture.loginRepository.issueTokensCalls.first()
 		assertEquals(1, summaryNavigations)
-		assertEquals("12-34567", usbId)
-		assertEquals("1234", password)
+		assertEquals("12-34567", call.usbId)
+		assertEquals("1234", call.password)
+		assertEquals(IssueTokensFlow.IssueTokens, call.flow)
 		assertTrue(shownSnackBars.isEmpty())
 	}
 
@@ -233,17 +235,17 @@ class SignInRouteUiTest {
 		val retryAction = retrySnackBar.onAction
 		assertNotNull(retryAction)
 		assertTrue(retrySnackBar.actionLabel.isNullOrBlank().not())
-		assertEquals(1, fixture.loginRepository.signInCalls.size)
+		assertEquals(1, fixture.loginRepository.issueTokensCalls.size)
 
 		runOnIdle {
 			retryAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			fixture.loginRepository.signInCalls.size >= 2
+			fixture.loginRepository.issueTokensCalls.size >= 2
 		}
 
-		assertEquals(2, fixture.loginRepository.signInCalls.size)
+		assertEquals(2, fixture.loginRepository.issueTokensCalls.size)
 	}
 
 	private fun createSignInViewModel(
@@ -256,7 +258,7 @@ class SignInRouteUiTest {
 		val signInUseCase = SignInUseCase(
 			loginRepository = loginRepository,
 			messagingRepository = RecordingMessagingRepository(),
-			attestationRepository = FakeAttestationRepository(),
+			riskAttestationRepository = FakeAttestationRepository(),
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
 				networkRepository = FakeNetworkRepository(isAvailable = networkAvailable),

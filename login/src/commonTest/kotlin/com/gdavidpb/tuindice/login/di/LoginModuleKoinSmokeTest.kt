@@ -2,11 +2,11 @@ package com.gdavidpb.tuindice.login.di
 
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
@@ -33,7 +33,7 @@ class LoginModuleKoinSmokeTest {
 		module {
 			single<LoginRepository> { RecordingLoginRepository() }
 			single<MessagingRepository> { RecordingMessagingRepository() }
-			single<AttestationRepository> { FakeAttestationRepository() }
+			single<RiskAttestationRepository> { FakeAttestationRepository() }
 			single<SessionRepository> { FakeSessionRepository() }
 			single<ApplicationRepository> { RecordingApplicationRepository() }
 			single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }

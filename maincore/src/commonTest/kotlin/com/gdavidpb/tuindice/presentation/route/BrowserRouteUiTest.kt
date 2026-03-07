@@ -210,10 +210,10 @@ class BrowserRouteUiTest {
 				)
 			}
 
-			onNodeWithText("Iniciar carga").performClick()
+			onNodeWithText("Iniciar carga", useUnmergedTree = true).performClick()
 			assertNodeVisible(MaincoreUiTags.BrowserLoadingIndicator)
 
-			onNodeWithText("Finalizar carga").performClick()
+			onNodeWithText("Finalizar carga", useUnmergedTree = true).performClick()
 			assertNodeHidden(MaincoreUiTags.BrowserLoadingIndicator)
 		} finally {
 			stopKoin()

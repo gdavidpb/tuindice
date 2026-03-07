@@ -1,0 +1,31 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/attestation/v1/tokens",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.session_id == 'mock-attestation-session-android')]"
+      },
+      {
+        "matchesJsonPath": "$.operation_code"
+      },
+      {
+        "matchesJsonPath": "$.request_hash"
+      },
+      {
+        "matchesJsonPath": "$[?(@.token =~ /android-debug-attestation:.+/)]"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "token": "risk.mock.proof.android",
+      "expires_at": 2524608000000
+    },
+    "fixedDelayMilliseconds": 250
+  }
+}

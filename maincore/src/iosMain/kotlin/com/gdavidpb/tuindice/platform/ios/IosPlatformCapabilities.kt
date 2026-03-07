@@ -10,6 +10,8 @@ interface IosRemoteConfigCapability {
 }
 
 interface IosAttestationCapability {
+	fun sha256Base64Url(value: String): String?
+	fun markAttestationKeyRegistered(keyId: String)
 	suspend fun requestAttestation(attestationInput: String): IosPlatformAttestation?
 }
 

@@ -36,7 +36,7 @@ class SignInViewModelContractTest {
 				signInUseCase = SignInUseCase(
 					loginRepository = RecordingLoginRepository(),
 					messagingRepository = RecordingMessagingRepository(),
-					attestationRepository = FakeAttestationRepository(),
+					riskAttestationRepository = FakeAttestationRepository(),
 					paramsValidator = SignInParamsValidator(),
 					exceptionHandler = SignInExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true),

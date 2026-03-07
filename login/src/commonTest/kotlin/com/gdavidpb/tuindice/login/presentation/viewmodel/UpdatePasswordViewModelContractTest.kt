@@ -31,7 +31,7 @@ class UpdatePasswordViewModelContractTest {
 				updatePasswordUseCase = UpdatePasswordUseCase(
 					loginRepository = RecordingLoginRepository(),
 					sessionRepository = FakeSessionRepository(usbId = "20261234"),
-					attestationRepository = FakeAttestationRepository(),
+					riskAttestationRepository = FakeAttestationRepository(),
 					paramsValidator = UpdatePasswordParamsValidator(),
 					exceptionHandler = UpdatePasswordExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true),

@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import org.koin.compose.koinInject
 
 @Composable
@@ -62,8 +63,11 @@ fun TuIndiceAppHostRoute(
 	}
 
 	LaunchedEffect(Unit) {
+		yield()
 		viewModel.requestReviewAction()
+	}
 
+	LaunchedEffect(lifecycleOwner) {
 		lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
 			viewModel.checkUpdateAction()
 		}

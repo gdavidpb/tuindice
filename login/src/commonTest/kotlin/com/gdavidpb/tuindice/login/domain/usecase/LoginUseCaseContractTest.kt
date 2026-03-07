@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.login.domain.usecase
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.domain.model.RiskOperation
+import com.gdavidpb.tuindice.login.domain.model.IssueTokensFlow
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.param.SignInParams
@@ -31,7 +33,7 @@ class LoginUseCaseContractTest {
 		val useCase = SignInUseCase(
 			loginRepository = repository,
 			messagingRepository = messagingRepository,
-			attestationRepository = attestationRepository,
+			riskAttestationRepository = attestationRepository,
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
 				networkRepository = FakeNetworkRepository(isAvailable = true),
@@ -44,7 +46,9 @@ class LoginUseCaseContractTest {
 			awaitComplete()
 		}
 
-		assertEquals(1, repository.signInCalls.size)
+		assertEquals(1, repository.issueTokensCalls.size)
+		assertEquals(IssueTokensFlow.IssueTokens, repository.issueTokensCalls.single().flow)
+		assertEquals(RiskOperation.IssueTokens, attestationRepository.lastRequest?.operation)
 		assertEquals(1, messagingRepository.subscribeCalls)
 	}
 
@@ -55,7 +59,7 @@ class LoginUseCaseContractTest {
 		val useCase = UpdatePasswordUseCase(
 			loginRepository = repository,
 			sessionRepository = sessionRepository,
-			attestationRepository = FakeAttestationRepository(),
+			riskAttestationRepository = FakeAttestationRepository(),
 			paramsValidator = UpdatePasswordParamsValidator(),
 			exceptionHandler = UpdatePasswordExceptionHandler(
 				networkRepository = FakeNetworkRepository(isAvailable = true),
@@ -68,7 +72,9 @@ class LoginUseCaseContractTest {
 			awaitComplete()
 		}
 
-		assertEquals("20261234", repository.updatePasswordCalls.single().first)
+		val call = repository.issueTokensCalls.single()
+		assertEquals("20261234", call.usbId)
+		assertEquals(IssueTokensFlow.ReissueTokens, call.flow)
 	}
 
 	@Test

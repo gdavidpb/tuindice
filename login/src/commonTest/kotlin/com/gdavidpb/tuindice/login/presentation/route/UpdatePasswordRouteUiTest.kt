@@ -4,8 +4,9 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.login.domain.model.IssueTokensFlow
 import com.gdavidpb.tuindice.login.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.login.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.login.domain.usecase.validator.UpdatePasswordParamsValidator
@@ -77,12 +78,13 @@ class UpdatePasswordRouteUiTest {
 		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			snackBarMessages.isNotEmpty() && dismissCalls > 0 && fixture.loginRepository.updatePasswordCalls.isNotEmpty()
+			snackBarMessages.isNotEmpty() && dismissCalls > 0 && fixture.loginRepository.issueTokensCalls.isNotEmpty()
 		}
 
-		val (usbId, password, _) = fixture.loginRepository.updatePasswordCalls.first()
-		assertEquals("12-34567", usbId)
-		assertEquals("nueva-clave-segura", password)
+		val call = fixture.loginRepository.issueTokensCalls.first()
+		assertEquals("12-34567", call.usbId)
+		assertEquals("nueva-clave-segura", call.password)
+		assertEquals(IssueTokensFlow.ReissueTokens, call.flow)
 		assertEquals(1, dismissCalls)
 		assertEquals(1, snackBarMessages.size)
 	}
@@ -127,7 +129,7 @@ class UpdatePasswordRouteUiTest {
 		val updatePasswordUseCase = UpdatePasswordUseCase(
 			loginRepository = loginRepository,
 			sessionRepository = FakeSessionRepository(usbId = "12-34567"),
-			attestationRepository = FakeAttestationRepository(),
+			riskAttestationRepository = FakeAttestationRepository(),
 			paramsValidator = UpdatePasswordParamsValidator(),
 			exceptionHandler = UpdatePasswordExceptionHandler(
 				networkRepository = FakeNetworkRepository(),

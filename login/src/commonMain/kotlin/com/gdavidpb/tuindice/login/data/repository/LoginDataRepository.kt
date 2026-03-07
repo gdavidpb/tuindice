@@ -1,8 +1,9 @@
 package com.gdavidpb.tuindice.login.data.repository
 
-import com.gdavidpb.tuindice.base.domain.model.Attestation
+import com.gdavidpb.tuindice.base.domain.model.RiskAttestation
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
+import com.gdavidpb.tuindice.login.domain.model.IssueTokensFlow
 import com.gdavidpb.tuindice.login.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
 
@@ -11,47 +12,37 @@ class LoginDataRepository(
 	private val sessionRepository: SessionRepository,
 	private val reportingRepository: ReportingRepository
 ) : LoginRepository {
-	override suspend fun signIn(
+	override suspend fun issueTokens(
 		usbId: String,
 		password: String,
-		attestation: Attestation
+		flow: IssueTokensFlow,
+		riskAttestation: RiskAttestation
 	) {
 		val tokens = authApiDataSource.issueTokens(
 			usbId = usbId,
 			password = password,
-			attestation = attestation
-		)
-
-		sessionRepository.setUsbId(tokens.usbId)
-		sessionRepository.setAccessToken(tokens.accessToken)
-		sessionRepository.setRefreshToken(tokens.refreshToken)
-		reportingRepository.setIdentifier(tokens.uid)
-	}
-
-	override suspend fun updatePassword(
-		usbId: String,
-		password: String,
-		attestation: Attestation
-	) {
-		val tokens = authApiDataSource.issueTokens(
-			usbId = usbId,
-			password = password,
-			attestation = attestation
+			flow = flow,
+			riskAttestation = riskAttestation
 		)
 
 		sessionRepository.setAccessToken(tokens.accessToken)
 		sessionRepository.setRefreshToken(tokens.refreshToken)
+
+		if (flow == IssueTokensFlow.IssueTokens) {
+			sessionRepository.setUsbId(tokens.usbId)
+			reportingRepository.setIdentifier(tokens.uid)
+		}
 	}
 
 	override suspend fun refreshTokens(
 		accessToken: String,
 		refreshToken: String,
-		attestation: Attestation
+		riskAttestation: RiskAttestation
 	): RefreshTokens {
 		return authApiDataSource.refreshTokens(
 			accessToken = accessToken,
 			refreshToken = refreshToken,
-			attestation = attestation
+			riskAttestation = riskAttestation
 		).also { tokens ->
 			sessionRepository.setAccessToken(tokens.accessToken)
 			sessionRepository.setRefreshToken(tokens.refreshToken)

@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.login.testing.DEFAULT_LOGIN_ATTESTATION
 import com.gdavidpb.tuindice.login.testing.DEFAULT_REFRESH_TOKENS
 import com.gdavidpb.tuindice.login.testing.FakeLoginAuthApiDataSource
 import com.gdavidpb.tuindice.login.testing.FakeSessionRepository
+import com.gdavidpb.tuindice.login.domain.model.IssueTokensFlow
 import com.gdavidpb.tuindice.login.testing.RecordingReportingRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -21,10 +22,11 @@ class LoginRepositoryContractTest {
 			reportingRepository = reportingRepository
 		)
 
-		repository.signIn(
+		repository.issueTokens(
 			usbId = "20261234",
 			password = "secret123",
-			attestation = DEFAULT_LOGIN_ATTESTATION
+			flow = IssueTokensFlow.IssueTokens,
+			riskAttestation = DEFAULT_LOGIN_ATTESTATION
 		)
 
 		assertEquals("20261234", sessionRepository.getUsbId())
@@ -32,25 +34,29 @@ class LoginRepositoryContractTest {
 		assertEquals("refresh-token", sessionRepository.getRefreshToken())
 		assertEquals("uid-123", reportingRepository.identifier)
 		assertEquals(1, authDataSource.issueCalls.size)
+		assertEquals(IssueTokensFlow.IssueTokens, authDataSource.issueCalls.single().flow)
 	}
 
 	@Test
 	fun updatePassword_refreshesSessionTokens() = runTest {
 		val sessionRepository = FakeSessionRepository(accessToken = "old-access", refreshToken = "old-refresh")
+		val authDataSource = FakeLoginAuthApiDataSource()
 		val repository = LoginDataRepository(
-			authApiDataSource = FakeLoginAuthApiDataSource(),
+			authApiDataSource = authDataSource,
 			sessionRepository = sessionRepository,
 			reportingRepository = RecordingReportingRepository()
 		)
 
-		repository.updatePassword(
+		repository.issueTokens(
 			usbId = "20261234",
 			password = "new-secret",
-			attestation = DEFAULT_LOGIN_ATTESTATION
+			flow = IssueTokensFlow.ReissueTokens,
+			riskAttestation = DEFAULT_LOGIN_ATTESTATION
 		)
 
 		assertEquals("access-token", sessionRepository.getAccessToken())
 		assertEquals("refresh-token", sessionRepository.getRefreshToken())
+		assertEquals(IssueTokensFlow.ReissueTokens, authDataSource.issueCalls.single().flow)
 	}
 
 	@Test
@@ -65,7 +71,7 @@ class LoginRepositoryContractTest {
 		val tokens = repository.refreshTokens(
 			accessToken = "old-access",
 			refreshToken = "old-refresh",
-			attestation = DEFAULT_LOGIN_ATTESTATION
+			riskAttestation = DEFAULT_LOGIN_ATTESTATION
 		)
 
 		assertEquals(DEFAULT_REFRESH_TOKENS, tokens)

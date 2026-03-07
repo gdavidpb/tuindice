@@ -161,13 +161,12 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
                         return
                     }
 
-                    self.secureStore.write(Self.appAttestRegisteredKey, value: "1")
-
                     completionHandler(
                         IosPlatformAttestation(
                             token: attestation.base64EncodedString(),
                             keyId: keyId,
-                            provider: BaseAttestationProvider.appAttest
+                            provider: BaseAttestationProvider.appAttest,
+                            isInitialKeyAttestation: true
                         ),
                         nil
                     )
@@ -188,13 +187,34 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
                         IosPlatformAttestation(
                             token: assertion.base64EncodedString(),
                             keyId: keyId,
-                            provider: BaseAttestationProvider.appAttest
+                            provider: BaseAttestationProvider.appAttest,
+                            isInitialKeyAttestation: false
                         ),
                         nil
                     )
                 }
             }
         }
+    }
+
+    func sha256Base64Url(value: String) -> String? {
+        guard let data = value.data(using: .utf8) else {
+            return nil
+        }
+
+        let digest = Data(SHA256.hash(data: data))
+        return digest.base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
+    }
+
+    func markAttestationKeyRegistered(keyId: String) {
+        guard secureStore.read(Self.appAttestKeyIdKey) == keyId else {
+            return
+        }
+
+        secureStore.write(Self.appAttestRegisteredKey, value: "1")
     }
 
     func pushToken(completionHandler: @escaping (String?, Error?) -> Void) {

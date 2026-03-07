@@ -18,13 +18,9 @@ import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfig
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.extension.toFirebaseDefaultsMap
-import com.gdavidpb.tuindice.data.repository.attestation.AttestationDataRepository
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataSource
-import com.gdavidpb.tuindice.data.repository.attestation.AttestationRemoteDataSource
-import com.gdavidpb.tuindice.data.repository.attestation.PayloadDigestDataSource
-import com.gdavidpb.tuindice.data.repository.attestation.source.ChallengeApiDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.RiskAttestationDataRepository
 import com.gdavidpb.tuindice.data.repository.attestation.source.PlayIntegrityDataSource
-import com.gdavidpb.tuindice.data.repository.attestation.source.SHA256PayloadDigestDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.FirebasePushTokenDataSource
 import com.gdavidpb.tuindice.data.source.actions.AndroidFileOpenerDataSource
@@ -177,19 +173,14 @@ private fun Module.registerAndroidFeaturePlatformBindings() {
 
 private fun Module.registerAndroidPlatformNetworking() {
 	singleOf(::PlayIntegrityDataSource) { bind<AttestationProviderDataSource>() }
-	singleOf(::ChallengeApiDataSource) { bind<AttestationRemoteDataSource>() }
-	singleOf(::SHA256PayloadDigestDataSource) { bind<PayloadDigestDataSource>() }
-
-	factoryOf(::AttestationDataRepository) {
-		bind<AttestationRepository>()
-	}
+	factoryOf(::RiskAttestationDataRepository) { bind<RiskAttestationRepository>() }
 
 	single {
 		createSharedHttpClient(
 			appEnvironmentRepository = get(),
 			configRepository = get(),
 			sessionRepository = get(),
-			attestationRepositoryProvider = { get() },
+			riskAttestationRepositoryProvider = { get() },
 			loginRepositoryProvider = { get() },
 			logger = createAppKtorLogger(),
 			json = get(),
