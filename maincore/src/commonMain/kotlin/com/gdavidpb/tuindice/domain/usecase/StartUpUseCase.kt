@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
-import com.gdavidpb.tuindice.login.presentation.navigation.LoginDestination
+import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -26,7 +26,7 @@ class StartUpUseCase(
 		val startDestination = if (hasActiveTokens)
 			settingsRepository.getLastDestination()
 		else
-			LoginDestination.NavGraph
+			AuthDestination.NavGraph
 
 		val startUpResult = StartUpResult(
 			startDestination = startDestination

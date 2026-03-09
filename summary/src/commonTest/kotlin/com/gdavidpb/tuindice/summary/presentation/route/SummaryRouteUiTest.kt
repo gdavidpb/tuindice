@@ -205,7 +205,7 @@ class SummaryRouteUiTest {
 					emit(DEFAULT_SUMMARY_USER)
 					throw clientRequestException(
 						statusCode = HttpStatusCode.Conflict,
-						path = "/user"
+						path = "/users"
 					)
 				}
 			)

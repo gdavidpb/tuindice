@@ -8,7 +8,7 @@ include(
 	":base",
 	":testkit",
 	":persistence",
-	":login",
+	":auth",
 	":about",
 	":summary",
 	":record",

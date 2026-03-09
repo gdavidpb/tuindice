@@ -18,7 +18,7 @@ class SummaryExceptionHandlerTest {
 	@Test
 	fun getUserExceptionHandler_mapsConflictToOutdatedPassword() {
 		val reportingRepository = RecordingReportingRepository()
-		val throwable = clientRequestException(HttpStatusCode.Conflict, path = "/user")
+		val throwable = clientRequestException(HttpStatusCode.Conflict, path = "/users")
 
 		val actual = GetUserExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true),

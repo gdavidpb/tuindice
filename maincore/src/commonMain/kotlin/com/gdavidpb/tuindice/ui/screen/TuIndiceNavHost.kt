@@ -14,8 +14,8 @@ import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofNavigation
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsNavigation
-import com.gdavidpb.tuindice.login.presentation.navigation.LoginDestination
-import com.gdavidpb.tuindice.login.presentation.navigation.loginNavigation
+import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
+import com.gdavidpb.tuindice.auth.presentation.navigation.authNavigation
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.browserNavigation
 import com.gdavidpb.tuindice.presentation.navigation.mainNavigation
@@ -53,9 +53,9 @@ fun TuIndiceNavHost(
 			onDismissRequest = { navController.navigateUp() }
 		)
 
-		loginNavigation(
+		authNavigation(
 			onNavigateToSignIn = {
-				navController.navigate(LoginDestination.NavGraph) {
+				navController.navigate(AuthDestination.NavGraph) {
 					launchSingleTop = true
 
 					popUpTo(SummaryDestination.NavGraph) {
@@ -65,7 +65,7 @@ fun TuIndiceNavHost(
 			},
 			onNavigateToSummary = {
 				navController.navigate(SummaryDestination.NavGraph) {
-					popUpTo<LoginDestination.NavGraph> {
+					popUpTo<AuthDestination.NavGraph> {
 						inclusive = true
 					}
 				}
@@ -85,7 +85,7 @@ fun TuIndiceNavHost(
 				navController.navigate(SummaryDestination.ProfilePictureSettingsDialog(showRemove = showRemove))
 			},
 			onNavigateToUpdatePassword = {
-				navController.navigate(LoginDestination.UpdatePasswordDialog)
+				navController.navigate(AuthDestination.UpdatePasswordDialog)
 			},
 			onNavigateToRemoveProfilePictureConfirmationDialog = {
 				navController.navigate(SummaryDestination.RemoveProfilePictureConfirmationDialog)
@@ -97,7 +97,7 @@ fun TuIndiceNavHost(
 
 		recordNavigation(
 			onNavigateToUpdatePassword = {
-				navController.navigate(LoginDestination.UpdatePasswordDialog)
+				navController.navigate(AuthDestination.UpdatePasswordDialog)
 			},
 			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar
@@ -146,7 +146,7 @@ fun TuIndiceNavHost(
 
 		enrollmentProofNavigation(
 			navigateToUpdatePassword = {
-				navController.navigate(LoginDestination.UpdatePasswordDialog)
+				navController.navigate(AuthDestination.UpdatePasswordDialog)
 			},
 			onDismissRequest = { navController.popBackStack() },
 			showSnackBar = showSnackBar

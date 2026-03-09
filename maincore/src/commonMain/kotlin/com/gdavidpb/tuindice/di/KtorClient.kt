@@ -7,8 +7,8 @@ import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
 import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.utils.canonicalRiskPayloadJson
-import com.gdavidpb.tuindice.login.domain.model.RefreshTokensRiskPayload
-import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
+import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensRiskPayload
+import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
@@ -38,7 +38,7 @@ fun createSharedHttpClient(
 	configRepository: ConfigRepository,
 	sessionRepository: SessionRepository,
 	riskAttestationRepositoryProvider: () -> RiskAttestationRepository,
-	loginRepositoryProvider: () -> LoginRepository,
+	authRepositoryProvider: () -> AuthRepository,
 	logger: Logger,
 	json: Json,
 	userAgentValue: String? = null
@@ -99,7 +99,7 @@ fun createSharedHttpClient(
 					val oldAccessToken = oldTokens?.accessToken ?: sessionRepository.getAccessToken()
 					val oldRefreshToken = oldTokens?.refreshToken ?: sessionRepository.getRefreshToken()
 					val riskAttestationRepository = riskAttestationRepositoryProvider()
-					val loginRepository = loginRepositoryProvider()
+					val authRepository = authRepositoryProvider()
 
 					val riskPayload = RefreshTokensRiskPayload(
 						accessToken = oldAccessToken,
@@ -116,7 +116,7 @@ fun createSharedHttpClient(
 						)
 					)
 
-					val response = loginRepository.refreshTokens(
+					val response = authRepository.refreshTokens(
 						accessToken = oldAccessToken,
 						refreshToken = oldRefreshToken,
 						riskAttestation = riskAttestation

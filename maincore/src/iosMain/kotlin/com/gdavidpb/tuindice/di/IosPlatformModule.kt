@@ -15,9 +15,9 @@ import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.data.ios.*
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
-import com.gdavidpb.tuindice.login.data.repository.LoginAuthApiDataSource
-import com.gdavidpb.tuindice.login.data.source.KtorLoginAuthApiDataSource
-import com.gdavidpb.tuindice.login.domain.repository.LoginRepository
+import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataSource
+import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
+import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.di.createIosDatabase
 import com.gdavidpb.tuindice.platform.ios.IOS_IDENTITY_HTTP_CLIENT_QUALIFIER
@@ -98,8 +98,8 @@ private fun Module.registerIosPlatformServices() {
 	single<FileRepository> { get<ApplicationRepository>() }
 	single<ReportingRepository> { IosReportingDataSource(get<IosObservabilityCapability>()) }
 	factory<PushTokenDataSource> { IosPushTokenDataSource(get<IosPushCapability>()) }
-	factory<LoginAuthApiDataSource> {
-		KtorLoginAuthApiDataSource(
+	factory<AuthApiDataSource> {
+		KtorAuthApiDataSource(
 			ktorClient = get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
 		)
 	}
@@ -137,7 +137,7 @@ private fun Module.registerIosPlatformNetworking() {
 			configRepository = get<ConfigRepository>(),
 			sessionRepository = get<SessionRepository>(),
 			riskAttestationRepositoryProvider = { get<RiskAttestationRepository>() },
-			loginRepositoryProvider = { get<LoginRepository>() },
+			authRepositoryProvider = { get<AuthRepository>() },
 			logger = createAppKtorLogger(),
 			json = get<Json>(),
 			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())

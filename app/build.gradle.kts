@@ -129,7 +129,7 @@ dependencies {
 	implementation(project(":base"))
 	implementation(project(":maincore"))
 	implementation(project(":persistence"))
-	implementation(project(":login"))
+	implementation(project(":auth"))
 	implementation(project(":about"))
 	implementation(project(":summary"))
 	implementation(project(":record"))

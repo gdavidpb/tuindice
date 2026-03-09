@@ -181,7 +181,7 @@ private fun Module.registerAndroidPlatformNetworking() {
 			configRepository = get(),
 			sessionRepository = get(),
 			riskAttestationRepositoryProvider = { get() },
-			loginRepositoryProvider = { get() },
+			authRepositoryProvider = { get() },
 			logger = createAppKtorLogger(),
 			json = get(),
 			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()
