@@ -1,0 +1,59 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/quarters/Q2025A"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "Q2025A",
+      "name": "Abril - Julio 2025",
+      "start_date": 1743476400000,
+      "end_date": 1753934400000,
+      "grade": 4.4615,
+      "grade_sum": 4.4615,
+      "credits": 13,
+      "credits_sum": 13,
+      "is_current": false,
+      "is_read_only": true,
+      "subjects": [
+        {
+          "id": "MA1111Q2025A",
+          "qid": "Q2025A",
+          "code": "MA1111",
+          "name": "MATEMATICAS I",
+          "credits": 4,
+          "grade": 4
+        },
+        {
+          "id": "ID1111Q2025A",
+          "qid": "Q2025A",
+          "code": "ID1111",
+          "name": "INGLES I",
+          "credits": 3,
+          "grade": 5
+        },
+        {
+          "id": "LLA111Q2025A",
+          "qid": "Q2025A",
+          "code": "LLA111",
+          "name": "LENGUAJE I",
+          "credits": 3,
+          "grade": 4
+        },
+        {
+          "id": "CSA211Q2025A",
+          "qid": "Q2025A",
+          "code": "CSA211",
+          "name": "VENEZUELA ANTE EL SIGLO XXI-I",
+          "credits": 3,
+          "grade": 5
+        }
+      ]
+    },
+    "fixedDelayMilliseconds": 3000
+  }
+}

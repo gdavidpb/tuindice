@@ -1,0 +1,67 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/quarters/Q2025B"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "Q2025B",
+      "name": "Septiembre - Diciembre 2025",
+      "start_date": 1756699200000,
+      "end_date": 1767150000000,
+      "grade": 4.375,
+      "grade_sum": 4.4138,
+      "credits": 16,
+      "credits_sum": 29,
+      "is_current": false,
+      "is_read_only": true,
+      "subjects": [
+        {
+          "id": "MA1112Q2025B",
+          "qid": "Q2025B",
+          "code": "MA1112",
+          "name": "MATEMATICAS II",
+          "credits": 4,
+          "grade": 4
+        },
+        {
+          "id": "FS1111Q2025B",
+          "qid": "Q2025B",
+          "code": "FS1111",
+          "name": "FISICA I",
+          "credits": 3,
+          "grade": 4
+        },
+        {
+          "id": "ID1112Q2025B",
+          "qid": "Q2025B",
+          "code": "ID1112",
+          "name": "INGLES II",
+          "credits": 3,
+          "grade": 5
+        },
+        {
+          "id": "LLA112Q2025B",
+          "qid": "Q2025B",
+          "code": "LLA112",
+          "name": "LENGUAJE II",
+          "credits": 3,
+          "grade": 4
+        },
+        {
+          "id": "CSA212Q2025B",
+          "qid": "Q2025B",
+          "code": "CSA212",
+          "name": "VENEZUELA ANTE EL SIGLO XXI-II",
+          "credits": 3,
+          "grade": 5
+        }
+      ]
+    },
+    "fixedDelayMilliseconds": 3000
+  }
+}

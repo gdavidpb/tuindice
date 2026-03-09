@@ -1,0 +1,59 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/quarters/Q2026B"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "Q2026B",
+      "name": "Abril - Julio 2026",
+      "start_date": 1775012400000,
+      "end_date": 1785470400000,
+      "grade": 4.2,
+      "grade_sum": 4.3,
+      "credits": 15,
+      "credits_sum": 60,
+      "is_current": false,
+      "is_read_only": false,
+      "subjects": [
+        {
+          "id": "MA2115Q2026B",
+          "qid": "Q2026B",
+          "code": "MA2115",
+          "name": "MATEMATICAS IV",
+          "credits": 4,
+          "grade": 5
+        },
+        {
+          "id": "CI2511Q2026B",
+          "qid": "Q2026B",
+          "code": "CI2511",
+          "name": "LOGICA SIMBOLICA",
+          "credits": 4,
+          "grade": 4
+        },
+        {
+          "id": "CI2525Q2026B",
+          "qid": "Q2026B",
+          "code": "CI2525",
+          "name": "ESTRUCTURAS DISCRETAS I",
+          "credits": 4,
+          "grade": 3
+        },
+        {
+          "id": "EG0001Q2026B",
+          "qid": "Q2026B",
+          "code": "EG0001",
+          "name": "ESTUDIOS GENERALES",
+          "credits": 3,
+          "grade": 5
+        }
+      ]
+    },
+    "fixedDelayMilliseconds": 3000
+  }
+}
