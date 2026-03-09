@@ -43,6 +43,8 @@ kotlin {
 				implementation(project(":enrollmentproof"))
 				implementation(libs.koin.compose)
 				implementation(libs.koin.core)
+				implementation(libs.koin.core.viewmodel)
+				implementation(libs.koin.compose.viewmodel)
 				implementation(libs.components.resources)
 				implementation(libs.kotlinx.serialization.json)
 				implementation(libs.material.icons.extended)

@@ -15,7 +15,7 @@ import com.gdavidpb.tuindice.summary.presentation.route.SummaryRoute
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.screen.ProfilePictureSettingsContentDialog
 import com.gdavidpb.tuindice.summary.ui.screen.RemoveProfilePictureConfirmationContentDialog
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 private const val PROFILE_PICTURE_DIALOG_ACTION_KEY = "profile_picture_dialog_action"
 private const val CONFIRM_REMOVE_PROFILE_PICTURE_KEY = "confirm_remove_profile_picture"
@@ -35,7 +35,7 @@ fun NavGraphBuilder.summaryNavigation(
 ) {
 	navigation<SummaryDestination.NavGraph>(startDestination = SummaryDestination.Summary) {
 		composable<SummaryDestination.Summary> { backStackEntry ->
-			val viewModel = koinInject<SummaryViewModel>()
+			val viewModel = koinViewModel<SummaryViewModel>(viewModelStoreOwner = backStackEntry)
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 			LaunchedEffect(viewState) {

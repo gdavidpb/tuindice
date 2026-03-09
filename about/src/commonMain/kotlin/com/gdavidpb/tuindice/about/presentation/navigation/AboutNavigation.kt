@@ -13,14 +13,15 @@ import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 fun NavGraphBuilder.aboutNavigation(
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit
 ) {
 	navigation<AboutDestination.NavGraph>(startDestination = AboutDestination.About) {
-		composable<AboutDestination.About> {
-			val viewModel = koinInject<AboutViewModel>()
+		composable<AboutDestination.About> { backStackEntry ->
+			val viewModel = koinViewModel<AboutViewModel>(viewModelStoreOwner = backStackEntry)
 			val shareTextHandler = koinInject<ShareTextHandler>()
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 

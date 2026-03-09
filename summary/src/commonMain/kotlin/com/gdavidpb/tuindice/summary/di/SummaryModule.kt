@@ -28,12 +28,13 @@ import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val summaryModule = module {
 	/* View models */
 
-	factoryOf(::SummaryViewModel)
+	viewModelOf(::SummaryViewModel)
 
 	/* Action processor */
 

@@ -18,7 +18,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewM
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationGradePickerContentDialog
 import com.gdavidpb.tuindice.evaluations.ui.screen.GradePickerContentDialog
 import com.gdavidpb.tuindice.evaluations.ui.screen.MaxGradePickerContentDialog
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 private const val GRADE_PICKER_RESULT_KEY = "grade_picker_result"
 private const val MAX_GRADE_PICKER_RESULT_KEY = "max_grade_picker_result"
@@ -38,7 +38,7 @@ fun NavGraphBuilder.evaluationsNavigation(
 ) {
 	navigation<EvaluationsDestination.NavGraph>(startDestination = EvaluationsDestination.Evaluations) {
 		composable<EvaluationsDestination.Evaluations> { backStackEntry ->
-			val viewModel = koinInject<EvaluationsViewModel>()
+			val viewModel = koinViewModel<EvaluationsViewModel>(viewModelStoreOwner = backStackEntry)
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 			LaunchedEffect(viewState) {
@@ -81,7 +81,7 @@ fun NavGraphBuilder.evaluationsNavigation(
 
 		composable<EvaluationsDestination.Evaluation> { backStackEntry ->
 			val args = backStackEntry.toRoute<EvaluationsDestination.Evaluation>()
-			val viewModel = koinInject<EvaluationViewModel>()
+			val viewModel = koinViewModel<EvaluationViewModel>(viewModelStoreOwner = backStackEntry)
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 			LaunchedEffect(viewState) {

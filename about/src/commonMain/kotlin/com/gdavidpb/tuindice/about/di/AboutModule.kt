@@ -10,12 +10,13 @@ import com.gdavidpb.tuindice.about.presentation.action.*
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val aboutModule = module {
 	/* View models */
 
-	factoryOf(::AboutViewModel)
+	viewModelOf(::AboutViewModel)
 
 	/* Use cases */
 

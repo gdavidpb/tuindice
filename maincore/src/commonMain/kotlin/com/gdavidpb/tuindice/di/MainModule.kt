@@ -16,13 +16,14 @@ import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val mainModule = module {
 	/* View models */
 
-	factoryOf(::MainViewModel)
-	factoryOf(::BrowserViewModel)
+	viewModelOf(::MainViewModel)
+	viewModelOf(::BrowserViewModel)
 
 	/* Action processor */
 

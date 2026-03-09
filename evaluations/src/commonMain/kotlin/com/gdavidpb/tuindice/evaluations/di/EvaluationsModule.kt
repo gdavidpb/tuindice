@@ -43,13 +43,14 @@ import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewM
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val evaluationsModule = module {
 	/* View models */
 
-	factoryOf(::EvaluationsViewModel)
-	factoryOf(::EvaluationViewModel)
+	viewModelOf(::EvaluationsViewModel)
+	viewModelOf(::EvaluationViewModel)
 
 	/* Action processor */
 

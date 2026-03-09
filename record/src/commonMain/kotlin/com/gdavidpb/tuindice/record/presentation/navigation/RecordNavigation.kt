@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.record.presentation.route.RecordRoute
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 fun NavGraphBuilder.recordNavigation(
 	onNavigateToUpdatePassword: () -> Unit,
@@ -18,8 +18,8 @@ fun NavGraphBuilder.recordNavigation(
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	navigation<RecordDestination.NavGraph>(startDestination = RecordDestination.Record) {
-		composable<RecordDestination.Record> {
-			val viewModel = koinInject<RecordViewModel>()
+		composable<RecordDestination.Record> { backStackEntry ->
+			val viewModel = koinViewModel<RecordViewModel>(viewModelStoreOwner = backStackEntry)
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 			LaunchedEffect(viewState) {

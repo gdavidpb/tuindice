@@ -13,7 +13,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.presentation.route.BrowserRoute
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.cancel
 import tuindice.maincore.generated.resources.dialog_message_warning_external
@@ -36,7 +36,7 @@ fun NavGraphBuilder.browserNavigation(
 		sizeTransform = null
 	) { backStackEntry ->
 		val args = backStackEntry.toRoute<BrowserDestination.Browser>()
-		val viewModel = koinInject<BrowserViewModel>()
+		val viewModel = koinViewModel<BrowserViewModel>(viewModelStoreOwner = backStackEntry)
 		val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 		LaunchedEffect(viewState) {

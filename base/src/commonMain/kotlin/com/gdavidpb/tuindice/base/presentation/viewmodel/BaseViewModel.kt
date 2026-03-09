@@ -11,9 +11,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalAtomicApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 	initialState: S,
 	initialAction: A? = null

@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun TuIndiceAppHostRoute(
@@ -35,7 +36,7 @@ fun TuIndiceAppHostRoute(
 	deviceInfoRepository: DeviceInfoRepository = koinInject(),
 	reviewRepository: ReviewRepository = koinInject(),
 	updateRepository: UpdateRepository = koinInject(),
-	viewModel: MainViewModel = koinInject()
+	viewModel: MainViewModel = koinViewModel<MainViewModel>()
 ) {
 	val lifecycleOwner = LocalLifecycleOwner.current
 	val navController = rememberNavController()

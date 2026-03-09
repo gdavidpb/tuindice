@@ -16,12 +16,13 @@ import com.gdavidpb.tuindice.enrollmentproof.presentation.resource.EnrollmentPro
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val enrollmentProofModule = module {
 	/* View models */
 
-	factoryOf(::EnrollmentProofViewModel)
+	viewModelOf(::EnrollmentProofViewModel)
 
 	/* Action processors */
 

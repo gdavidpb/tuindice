@@ -15,7 +15,7 @@ import com.gdavidpb.tuindice.login.presentation.route.UpdatePasswordRoute
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.UpdatePasswordViewModel
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 fun NavGraphBuilder.loginNavigation(
 	onNavigateToSignIn: () -> Unit,
@@ -26,8 +26,8 @@ fun NavGraphBuilder.loginNavigation(
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	navigation<LoginDestination.NavGraph>(startDestination = LoginDestination.SignIn) {
-		composable<LoginDestination.SignIn> {
-			val viewModel = koinInject<SignInViewModel>()
+		composable<LoginDestination.SignIn> { backStackEntry ->
+			val viewModel = koinViewModel<SignInViewModel>(viewModelStoreOwner = backStackEntry)
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 			LaunchedEffect(viewState) {
@@ -42,8 +42,8 @@ fun NavGraphBuilder.loginNavigation(
 			)
 		}
 
-		dialog<LoginDestination.SignOutDialog> {
-			val viewModel = koinInject<SignOutViewModel>()
+		dialog<LoginDestination.SignOutDialog> { backStackEntry ->
+			val viewModel = koinViewModel<SignOutViewModel>(viewModelStoreOwner = backStackEntry)
 
 			SignOutRoute(
 				onNavigateToSignIn = onNavigateToSignIn,
@@ -53,8 +53,8 @@ fun NavGraphBuilder.loginNavigation(
 			)
 		}
 
-		dialog<LoginDestination.UpdatePasswordDialog> {
-			val viewModel = koinInject<UpdatePasswordViewModel>()
+		dialog<LoginDestination.UpdatePasswordDialog> { backStackEntry ->
+			val viewModel = koinViewModel<UpdatePasswordViewModel>(viewModelStoreOwner = backStackEntry)
 
 			UpdatePasswordRoute(
 				onDismissRequest = onDismissRequest,

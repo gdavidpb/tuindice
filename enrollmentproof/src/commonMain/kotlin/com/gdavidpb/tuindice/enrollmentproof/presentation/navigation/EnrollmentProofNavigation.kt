@@ -7,15 +7,16 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.enrollmentproof.presentation.route.EnrollmentProofRoute
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
 import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 fun NavGraphBuilder.enrollmentProofNavigation(
 	navigateToUpdatePassword: () -> Unit,
 	onDismissRequest: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
-	dialog<EnrollmentProofDestination.EnrollmentProofDialog> {
+	dialog<EnrollmentProofDestination.EnrollmentProofDialog> { backStackEntry ->
 		val externalActions = koinInject<FileOpenerRepository>()
-		val viewModel = koinInject<EnrollmentProofViewModel>()
+		val viewModel = koinViewModel<EnrollmentProofViewModel>(viewModelStoreOwner = backStackEntry)
 
 		EnrollmentProofRoute(
 			onNavigateToUpdatePassword = navigateToUpdatePassword,

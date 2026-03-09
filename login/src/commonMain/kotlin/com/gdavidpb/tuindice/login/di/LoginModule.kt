@@ -24,14 +24,15 @@ import com.gdavidpb.tuindice.login.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.UpdatePasswordViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val loginModule = module {
 	/* View models */
 
-	factoryOf(::SignInViewModel)
-	factoryOf(::SignOutViewModel)
-	factoryOf(::UpdatePasswordViewModel)
+	viewModelOf(::SignInViewModel)
+	viewModelOf(::SignOutViewModel)
+	viewModelOf(::UpdatePasswordViewModel)
 
 	/* Action Processors */
 

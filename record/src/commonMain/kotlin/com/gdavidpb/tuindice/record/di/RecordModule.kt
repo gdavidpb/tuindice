@@ -22,12 +22,13 @@ import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val recordModule = module {
 	/* View models */
 
-	factoryOf(::RecordViewModel)
+	viewModelOf(::RecordViewModel)
 
 	/* Action processor */
 
