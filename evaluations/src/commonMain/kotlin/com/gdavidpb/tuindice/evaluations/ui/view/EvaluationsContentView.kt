@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -35,23 +34,18 @@ import tuindice.evaluations.generated.resources.title_empty_match_evaluations
 @Composable
 fun EvaluationsContentView(
 	state: Evaluations.State.Content,
-	hasEvaluations: Boolean,
-	emptyMatchTitle: String,
-	emptyMatchMessage: String,
 	onAddEvaluationClick: () -> Unit,
 	onClearFiltersClick: () -> Unit,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
 	onEvaluationClick: (evaluationId: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
-	onEvaluationDelete: (evaluationId: String) -> Unit,
-	addFabContent: @Composable () -> Unit,
-	clearFiltersFabContent: @Composable () -> Unit,
-	emptyMatchHeaderContent: @Composable () -> Unit,
-	evaluationsContent: @Composable (
-		lazyListState: LazyListState
-	) -> Unit
+	onEvaluationDelete: (evaluationId: String) -> Unit
 ) {
+	val mapping = rememberEvaluationItemMapping()
 	val lazyColumState = rememberLazyListState()
+	val evaluations = state
+		.filteredEvaluations
+		.toEvaluationItemList(mapping = mapping)
 
 	Box(
 		modifier = Modifier
@@ -68,15 +62,21 @@ fun EvaluationsContentView(
 				onFilterCheckedChange = onFilterCheckedChange
 			)
 
-			if (hasEvaluations) {
-				evaluationsContent(
-					lazyColumState
+			if (evaluations.isNotEmpty()) {
+				EvaluationsView(
+					lazyListState = lazyColumState,
+					evaluations = evaluations,
+					onEvaluationClick = onEvaluationClick,
+					onEvaluationEdit = onEvaluationEdit,
+					onEvaluationDelete = onEvaluationDelete
 				)
 			} else {
 				EvaluationsEmptyMatchView(
-					title = emptyMatchTitle,
-					message = emptyMatchMessage,
-					headerContent = emptyMatchHeaderContent
+					title = stringResource(Res.string.title_empty_match_evaluations),
+					message = stringResource(Res.string.message_empty_match_evaluations),
+					headerContent = {
+						EmptyStateAnimationView()
+					}
 				)
 			}
 		}
@@ -101,7 +101,10 @@ fun EvaluationsContentView(
 						contentColor = MaterialTheme.colorScheme.primaryContainer,
 						onClick = onClearFiltersClick
 					) {
-						clearFiltersFabContent()
+						Icon(
+							imageVector = Icons.Outlined.FilterAltOff,
+							contentDescription = null
+						)
 					}
 
 				FloatingActionButton(
@@ -109,62 +112,12 @@ fun EvaluationsContentView(
 					containerColor = MaterialTheme.colorScheme.primary,
 					onClick = onAddEvaluationClick
 				) {
-					addFabContent()
+					Icon(
+						imageVector = Icons.Outlined.Add,
+						contentDescription = null
+					)
 				}
 			}
 		}
 	}
-}
-
-@Composable
-fun EvaluationsContentView(
-	state: Evaluations.State.Content,
-	onAddEvaluationClick: () -> Unit,
-	onClearFiltersClick: () -> Unit,
-	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
-	onEvaluationClick: (evaluationId: String) -> Unit,
-	onEvaluationEdit: (evaluationId: String) -> Unit,
-	onEvaluationDelete: (evaluationId: String) -> Unit
-) {
-	val mapping = rememberEvaluationItemMapping()
-	val evaluations = state
-		.filteredEvaluations
-		.toEvaluationItemList(mapping = mapping)
-
-	EvaluationsContentView(
-		state = state,
-		hasEvaluations = evaluations.isNotEmpty(),
-		emptyMatchTitle = stringResource(Res.string.title_empty_match_evaluations),
-		emptyMatchMessage = stringResource(Res.string.message_empty_match_evaluations),
-		onAddEvaluationClick = onAddEvaluationClick,
-		onClearFiltersClick = onClearFiltersClick,
-		onFilterCheckedChange = onFilterCheckedChange,
-		onEvaluationClick = onEvaluationClick,
-		onEvaluationEdit = onEvaluationEdit,
-		onEvaluationDelete = onEvaluationDelete,
-		addFabContent = {
-			Icon(
-				imageVector = Icons.Outlined.Add,
-				contentDescription = null
-			)
-		},
-		clearFiltersFabContent = {
-			Icon(
-				imageVector = Icons.Outlined.FilterAltOff,
-				contentDescription = null
-			)
-		},
-		emptyMatchHeaderContent = {
-			EmptyStateAnimationView()
-		},
-		evaluationsContent = { lazyListState ->
-			EvaluationsView(
-				lazyListState = lazyListState,
-				evaluations = evaluations,
-				onEvaluationClick = onEvaluationClick,
-				onEvaluationEdit = onEvaluationEdit,
-				onEvaluationDelete = onEvaluationDelete
-			)
-		}
-	)
 }

@@ -1,11 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.material3.Text
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
@@ -35,9 +31,6 @@ class EvaluationsContentViewUiTest {
 		setTuIndiceTestContent {
 			EvaluationsContentView(
 				state = state,
-				hasEvaluations = true,
-				emptyMatchTitle = "Sin coincidencias",
-				emptyMatchMessage = "No hay evaluaciones para los filtros aplicados",
 				onAddEvaluationClick = { addClicks++ },
 				onClearFiltersClick = { clearClicks++ },
 				onFilterCheckedChange = { filter, checked ->
@@ -45,18 +38,13 @@ class EvaluationsContentViewUiTest {
 				},
 				onEvaluationClick = {},
 				onEvaluationEdit = {},
-				onEvaluationDelete = {},
-				addFabContent = { Text("+") },
-				clearFiltersFabContent = { Text("X") },
-				emptyMatchHeaderContent = {},
-				evaluationsContent = { _: LazyListState ->
-					Text("Contenido evaluaciones")
-				}
+				onEvaluationDelete = {}
 			)
 		}
 
 		assertNodeVisible(EvaluationsUiTags.EvaluationsContentContainer)
 		assertNodeVisible(EvaluationsUiTags.EvaluationsFiltersContainer)
+		assertNodeVisible(EvaluationsUiTags.EvaluationsList)
 		assertNodeVisible(EvaluationsUiTags.EvaluationsClearFiltersFab)
 		assertNodeVisible(EvaluationsUiTags.EvaluationsAddFab)
 
@@ -78,51 +66,36 @@ class EvaluationsContentViewUiTest {
 		setTuIndiceTestContent {
 			EvaluationsContentView(
 				state = state,
-				hasEvaluations = true,
-				emptyMatchTitle = "Sin coincidencias",
-				emptyMatchMessage = "No hay evaluaciones para los filtros aplicados",
 				onAddEvaluationClick = {},
 				onClearFiltersClick = {},
 				onFilterCheckedChange = { _, _ -> },
 				onEvaluationClick = {},
 				onEvaluationEdit = {},
-				onEvaluationDelete = {},
-				addFabContent = { Text("+") },
-				clearFiltersFabContent = { Text("X") },
-				emptyMatchHeaderContent = {},
-				evaluationsContent = { _: LazyListState ->
-					Text("Contenido evaluaciones")
-				}
+				onEvaluationDelete = {}
 			)
 		}
 
+		assertNodeVisible(EvaluationsUiTags.EvaluationsList)
 		assertNodeVisible(EvaluationsUiTags.EvaluationsAddFab)
 		assertNodeHidden(EvaluationsUiTags.EvaluationsClearFiltersFab)
 	}
 
 	@Test
 	fun when_hasNoEvaluations_then_displaysEmptyMatchAndHidesClearFab() = runTuIndiceUiTest {
-		val state = evaluationsContentState(activeFilters = emptyList())
-		var evaluationsContentCalls = 0
+		val state = evaluationsContentState(
+			originalEvaluations = emptyList(),
+			activeFilters = emptyList()
+		)
 
 		setTuIndiceTestContent {
 			EvaluationsContentView(
 				state = state,
-				hasEvaluations = false,
-				emptyMatchTitle = "Sin coincidencias",
-				emptyMatchMessage = "No hay evaluaciones para los filtros aplicados",
 				onAddEvaluationClick = {},
 				onClearFiltersClick = {},
 				onFilterCheckedChange = { _, _ -> },
 				onEvaluationClick = {},
 				onEvaluationEdit = {},
-				onEvaluationDelete = {},
-				addFabContent = { Text("+") },
-				clearFiltersFabContent = { Text("X") },
-				emptyMatchHeaderContent = { Text("Header vacio") },
-				evaluationsContent = { _: LazyListState ->
-					evaluationsContentCalls++
-				}
+				onEvaluationDelete = {}
 			)
 		}
 
@@ -130,12 +103,11 @@ class EvaluationsContentViewUiTest {
 		assertNodeVisible(BaseUiTags.EmptyViewContainer)
 		assertNodeVisible(EvaluationsUiTags.EvaluationsAddFab)
 		assertNodeHidden(EvaluationsUiTags.EvaluationsClearFiltersFab)
-		onNodeWithText("Header vacio").assertIsDisplayed()
-		assertEquals(0, evaluationsContentCalls)
+		assertNodeHidden(EvaluationsUiTags.EvaluationsList)
 	}
 
 	@Test
-	fun when_usingDefaultOverload_then_forwardsAddAndClearFilterCallbacks() = runTuIndiceUiTest {
+	fun when_addAndClearFilterActionsTapped_then_forwardsCallbacks() = runTuIndiceUiTest {
 		val state = evaluationsContentState(
 			activeFilters = listOf(uiAvailableFilters().first())
 		)
