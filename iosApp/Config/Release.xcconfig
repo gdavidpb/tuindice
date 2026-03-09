@@ -1,6 +1,6 @@
 #include? "../Pods/Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost.release.xcconfig"
 
-PRODUCT_BUNDLE_IDENTIFIER = com.gdavidpb.tuindice.ios
+PRODUCT_BUNDLE_IDENTIFIER = com.gdavidpb.tuindice
 PRODUCT_NAME = TuIndiceHost
 INFOPLIST_FILE = Resources/Info.plist
 CODE_SIGN_ENTITLEMENTS = Resources/TuIndiceHost.entitlements

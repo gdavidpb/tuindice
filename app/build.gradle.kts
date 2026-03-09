@@ -65,6 +65,7 @@ extensions.configure<ApplicationExtension> {
 		getByName("debug") {
 			isDebuggable = true
 			isMinifyEnabled = false
+			applicationIdSuffix = ".debug"
 
 			buildConfigField("String", "URL_API", "\"http://0.0.0.0:8080/\"")
 			buildConfigField(
