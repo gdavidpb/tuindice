@@ -4,6 +4,6 @@ import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataSource
 
 class IosStoreUrlDataSource : StoreUrlDataSource {
 	override fun getStoreUrl(): String {
-		return "itms-apps://apps.apple.com"
+		return "itms-apps://apps.apple.com/app/id6760307454"
 	}
 }
