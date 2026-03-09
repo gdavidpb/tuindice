@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.presentation.contract.Record
@@ -21,35 +20,6 @@ import tuindice.record.generated.resources.subject_credits_pattern
 import tuindice.record.generated.resources.subject_grade_pattern
 import tuindice.record.generated.resources.subject_retired
 import tuindice.record.generated.resources.subject_status_pattern
-
-@Composable
-fun RecordContentView(
-	state: Record.State.Content,
-	texts: RecordMapperTexts,
-	highlightColor: Color,
-	onSubjectGradeChange: (
-		quarterId: String,
-		subjectId: String,
-		newGrade: Int,
-		isSelected: Boolean
-	) -> Unit
-) {
-	val lazyColumState = rememberLazyListState()
-
-	val quarters = state
-		.quarters
-		.toQuarterItemList(
-			texts = texts,
-			highlightColor = highlightColor
-		)
-
-	QuartersView(
-		modifier = Modifier.testTag(RecordUiTags.ContentContainer),
-		lazyListState = lazyColumState,
-		quarters = quarters,
-		onSubjectGradeChange = onSubjectGradeChange
-	)
-}
 
 @Composable
 fun RecordContentView(
@@ -101,10 +71,18 @@ fun RecordContentView(
 		)
 	}
 
-	RecordContentView(
-		state = state,
-		texts = texts,
-		highlightColor = MaterialTheme.colorScheme.primary,
+	val lazyColumState = rememberLazyListState()
+	val quarters = state
+		.quarters
+		.toQuarterItemList(
+			texts = texts,
+			highlightColor = MaterialTheme.colorScheme.primary
+		)
+
+	QuartersView(
+		modifier = Modifier.testTag(RecordUiTags.ContentContainer),
+		lazyListState = lazyColumState,
+		quarters = quarters,
 		onSubjectGradeChange = onSubjectGradeChange
 	)
 }

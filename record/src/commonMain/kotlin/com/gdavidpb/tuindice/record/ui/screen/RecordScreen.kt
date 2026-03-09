@@ -1,12 +1,6 @@
 package com.gdavidpb.tuindice.record.ui.screen
 
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.Image
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.record.presentation.contract.Record
@@ -64,14 +58,7 @@ fun RecordScreen(
 					highlightedParts = listOf(
 						stringResource(Res.string.record_app_name),
 						stringResource(Res.string.record_app_uni)
-					),
-					illustrationContent = {
-						Image(
-							painter = rememberVectorPainter(Icons.Outlined.Info),
-							contentDescription = null,
-							colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
-						)
-					}
+					)
 				)
 		}
 	}

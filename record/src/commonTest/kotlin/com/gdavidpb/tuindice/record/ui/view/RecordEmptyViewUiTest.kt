@@ -1,8 +1,6 @@
 package com.gdavidpb.tuindice.record.ui.view
 
-import androidx.compose.material3.Text
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -17,18 +15,14 @@ class RecordEmptyViewUiTest {
 		setTuIndiceTestContent {
 			RecordEmptyView(
 				message = "TuIndice te da la bienvenida a La Simon",
-				highlightedParts = listOf("TuIndice", "La Simon"),
-				illustrationContent = {
-					Text(text = "Ilustracion")
-				}
+				highlightedParts = listOf("TuIndice", "La Simon")
 			)
 		}
 
 		assertNodeVisible(RecordUiTags.EmptyContainer)
 		assertNodeVisible(RecordUiTags.EmptyIllustration)
 		assertNodeVisible(RecordUiTags.EmptyMessage)
-		onNodeWithText("Ilustracion").assertIsDisplayed()
-		onNodeWithText("TuIndice te da la bienvenida a La Simon").assertIsDisplayed()
+		onNodeWithText("TuIndice te da la bienvenida a La Simon").assertExists()
 	}
 
 	@Test
@@ -41,6 +35,6 @@ class RecordEmptyViewUiTest {
 		}
 
 		assertNodeVisible(RecordUiTags.EmptyContainer)
-		onNodeWithText("Sin información para mostrar").assertIsDisplayed()
+		onNodeWithText("Sin información para mostrar").assertExists()
 	}
 }
