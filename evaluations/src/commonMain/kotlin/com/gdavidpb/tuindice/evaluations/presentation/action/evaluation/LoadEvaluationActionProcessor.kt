@@ -28,7 +28,7 @@ class LoadEvaluationActionProcessor(
 					is UseCaseState.Data -> suspend { _ ->
 						with(useCaseState.value) {
 							val selectedSubject = availableSubjects.find { subject ->
-								subject.code == evaluation?.subjectCode
+								subject.id == evaluation?.subjectId
 							}
 
 							Evaluation.State.Content(

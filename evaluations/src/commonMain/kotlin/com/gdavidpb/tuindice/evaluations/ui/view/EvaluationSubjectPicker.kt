@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -23,8 +21,6 @@ fun EvaluationSubjectPicker(
 	selectedSubject: Subject? = subjects.firstOrNull(),
 	onSubjectChange: (subject: Subject) -> Unit
 ) {
-	val selectedSubjectState = remember { mutableStateOf(selectedSubject) }
-
 	FlowRow(
 		modifier = modifier
 			.testTag(EvaluationsUiTags.EvaluationSubjectPickerRow)
@@ -41,10 +37,9 @@ fun EvaluationSubjectPicker(
 					modifier = Modifier.testTag(
 						EvaluationsUiTags.evaluationSubjectChip(subject.id)
 					),
-					selected = (subject == selectedSubjectState.value),
+					selected = (subject == selectedSubject),
 					enabled = enabled,
 					onClick = {
-						selectedSubjectState.value = subject
 						onSubjectChange(subject)
 					},
 					label = {

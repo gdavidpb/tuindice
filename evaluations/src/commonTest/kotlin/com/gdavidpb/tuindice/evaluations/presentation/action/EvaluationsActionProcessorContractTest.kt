@@ -93,4 +93,29 @@ class EvaluationsActionProcessorContractTest {
 
 		assertTrue(effects.isEmpty())
 	}
+
+	@Test
+	fun loadEvaluationActionProcessor_selectsSubjectById_whenSubjectCodeDiffers() = runTest {
+		val availableSubject = DEFAULT_EVALUATION_SUBJECT.copy(code = "INF-101-A")
+		val processor = LoadEvaluationActionProcessor(
+			getEvaluationAndAvailableSubjectsUseCase = GetEvaluationAndAvailableSubjectsUseCase(
+				RecordingEvaluationRepository(
+					initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
+					availableSubjects = listOf(availableSubject, SECOND_EVALUATION_SUBJECT)
+				)
+			)
+		)
+
+		processor.process(
+			action = Evaluation.Action.LoadEvaluation(DEFAULT_PENDING_EVALUATION.id),
+			sideEffect = {}
+		).test {
+			assertEquals(Evaluation.State.Loading, awaitItem()(Evaluation.State.Failed))
+
+			val content = assertIs<Evaluation.State.Content>(awaitItem()(Evaluation.State.Loading))
+			assertEquals(availableSubject, content.selectedSubject)
+
+			awaitComplete()
+		}
+	}
 }
