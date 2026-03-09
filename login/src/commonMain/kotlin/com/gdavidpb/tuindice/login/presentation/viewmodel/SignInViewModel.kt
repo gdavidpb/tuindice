@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.login.presentation.action.OpenTermsAndConditionsAct
 import com.gdavidpb.tuindice.login.presentation.action.SetPasswordActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.SetUsbIdActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.SignInActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.TogglePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import kotlinx.coroutines.flow.Flow
 
@@ -14,6 +15,7 @@ class SignInViewModel(
 	private val signInActionProcessor: SignInActionProcessor,
 	private val setUsbIdActionProcessor: SetUsbIdActionProcessor,
 	private val setPasswordActionProcessor: SetPasswordActionProcessor,
+	private val togglePasswordVisibilityActionProcessor: TogglePasswordVisibilityActionProcessor,
 	private val openTermsAndConditionsActionProcessor: OpenTermsAndConditionsActionProcessor,
 	private val privacyPolicyActionProcessor: OpenPrivacyPolicyActionProcessor
 ) : BaseViewModel<SignIn.State, SignIn.Action, SignIn.Effect>(initialState = SignIn.State.Idle()) {
@@ -31,6 +33,9 @@ class SignInViewModel(
 				password = password
 			)
 		)
+
+	fun togglePasswordVisibilityAction() =
+		sendAction(SignIn.Action.TogglePasswordVisibility)
 
 	fun signInAction(usbId: String, password: String) =
 		sendAction(
@@ -56,6 +61,9 @@ class SignInViewModel(
 
 			is SignIn.Action.SetPassword ->
 				setPasswordActionProcessor.process(action, sideEffect)
+
+			is SignIn.Action.TogglePasswordVisibility ->
+				togglePasswordVisibilityActionProcessor.process(action, sideEffect)
 
 			is SignIn.Action.ClickSignIn ->
 				signInActionProcessor.process(action, sideEffect)

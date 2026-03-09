@@ -22,6 +22,7 @@ class SignInIdleViewUiTest {
 				state = SignIn.State.Idle(usbId = "12-34", password = ""),
 				onUsbIdChange = {},
 				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
 				onSignInClick = { _, _ -> },
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {},
@@ -48,6 +49,7 @@ class SignInIdleViewUiTest {
 				state = SignIn.State.Idle(usbId = "12-34567", password = "1234"),
 				onUsbIdChange = {},
 				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
 				onSignInClick = { usbId, password ->
 					receivedUsbId = usbId
 					receivedPassword = password
@@ -70,4 +72,3 @@ class SignInIdleViewUiTest {
 		assertEquals("1234", receivedPassword)
 	}
 }
-

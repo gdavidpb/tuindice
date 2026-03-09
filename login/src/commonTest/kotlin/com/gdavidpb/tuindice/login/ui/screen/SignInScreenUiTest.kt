@@ -21,6 +21,7 @@ class SignInScreenUiTest {
 				state = SignIn.State.Idle(),
 				onUsbIdChange = {},
 				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
 				onSignInClick = { _, _ -> },
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {}
@@ -42,6 +43,7 @@ class SignInScreenUiTest {
 				),
 				onUsbIdChange = {},
 				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
 				onSignInClick = { _, _ -> },
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {}
@@ -65,6 +67,7 @@ class SignInScreenUiTest {
 				),
 				onUsbIdChange = {},
 				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
 				onSignInClick = { usbId, password ->
 					receivedUsbId = usbId
 					receivedPassword = password
@@ -90,6 +93,7 @@ class SignInScreenUiTest {
 				state = SignIn.State.Idle(),
 				onUsbIdChange = { usbId -> latestUsbId = usbId },
 				onPasswordChange = { password -> latestPassword = password },
+				onPasswordVisibilityToggle = {},
 				onSignInClick = { _, _ -> },
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {}

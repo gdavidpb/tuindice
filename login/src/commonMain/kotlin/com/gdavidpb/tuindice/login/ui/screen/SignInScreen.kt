@@ -27,6 +27,7 @@ fun SignInScreen(
 	state: SignIn.State,
 	onUsbIdChange: (usbId: String) -> Unit,
 	onPasswordChange: (password: String) -> Unit,
+	onPasswordVisibilityToggle: () -> Unit,
 	onSignInClick: (usbId: String, password: String) -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit
@@ -51,6 +52,7 @@ fun SignInScreen(
 						state = targetState,
 						onUsbIdChange = onUsbIdChange,
 						onPasswordChange = onPasswordChange,
+						onPasswordVisibilityToggle = onPasswordVisibilityToggle,
 						onSignInClick = onSignInClick,
 						onTermsAndConditionsClick = onTermsAndConditionsClick,
 						onPrivacyPolicyClick = onPrivacyPolicyClick,

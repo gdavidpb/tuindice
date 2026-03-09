@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.login.presentation.action.SetUpdatePasswordActionPr
 import com.gdavidpb.tuindice.login.presentation.action.SetUsbIdActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.SignInActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.SignOutActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.TogglePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.UpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignOutViewModel
@@ -39,6 +40,7 @@ val loginModule = module {
 	factoryOf(::SignInActionProcessor)
 	factoryOf(::SetUsbIdActionProcessor)
 	factoryOf(::SetPasswordActionProcessor)
+	factoryOf(::TogglePasswordVisibilityActionProcessor)
 	factoryOf(::OpenTermsAndConditionsActionProcessor)
 	factoryOf(::OpenPrivacyPolicyActionProcessor)
 	factoryOf(::SignOutActionProcessor)

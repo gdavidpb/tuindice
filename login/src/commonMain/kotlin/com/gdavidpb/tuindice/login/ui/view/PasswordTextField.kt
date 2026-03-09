@@ -31,14 +31,15 @@ fun PasswordTextField(
 	modifier: Modifier = Modifier,
 	labelText: String,
 	password: String,
+	isPasswordVisible: Boolean = false,
 	onPasswordChange: (password: String) -> Unit,
+	onPasswordVisibilityToggle: () -> Unit = {},
 	error: String? = null,
 	imeAction: ImeAction = ImeAction.Default,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
 	val passwordField = remember { mutableStateOf(TextFieldValue(password)) }
 	val supportingText = remember { mutableStateOf(error) }
-	val passwordVisible = remember { mutableStateOf(false) }
 
 	OutlinedTextField(
 		modifier = modifier.testTag(LoginUiTags.PasswordTextField),
@@ -66,21 +67,21 @@ fun PasswordTextField(
 		trailingIcon = {
 			IconButton(
 				modifier = Modifier.testTag(LoginUiTags.PasswordToggle),
-				onClick = { passwordVisible.value = !passwordVisible.value }
+				onClick = onPasswordVisibilityToggle
 			) {
 				Icon(
-					imageVector = if (passwordVisible.value)
+					imageVector = if (isPasswordVisible)
 						Icons.Filled.VisibilityOff
 					else
 						Icons.Filled.Visibility,
-					contentDescription = if (passwordVisible.value)
+					contentDescription = if (isPasswordVisible)
 						stringResource(Res.string.a11y_hide_password)
 					else
 						stringResource(Res.string.a11y_show_password)
 				)
 			}
 		},
-		visualTransformation = if (passwordVisible.value) {
+		visualTransformation = if (isPasswordVisible) {
 			VisualTransformation.None
 		} else {
 			PasswordVisualTransformation()

@@ -6,6 +6,9 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.gdavidpb.tuindice.login.ui.LoginUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -23,7 +26,9 @@ class PasswordTextFieldUiTest {
 			PasswordTextField(
 				labelText = "Clave",
 				password = "",
-				onPasswordChange = { value -> latestPassword = value }
+				isPasswordVisible = false,
+				onPasswordChange = { value -> latestPassword = value },
+				onPasswordVisibilityToggle = {}
 			)
 		}
 
@@ -35,11 +40,17 @@ class PasswordTextFieldUiTest {
 
 	@Test
 	fun when_togglePasswordVisibilityTapped_then_keepsFieldVisible() = runTuIndiceUiTest {
+		var isPasswordVisible by mutableStateOf(false)
+
 		setTuIndiceTestContent {
 			PasswordTextField(
 				labelText = "Clave",
 				password = "secreto",
-				onPasswordChange = {}
+				isPasswordVisible = isPasswordVisible,
+				onPasswordChange = {},
+				onPasswordVisibilityToggle = {
+					isPasswordVisible = !isPasswordVisible
+				}
 			)
 		}
 

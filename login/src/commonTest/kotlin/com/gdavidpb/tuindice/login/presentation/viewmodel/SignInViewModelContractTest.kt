@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.login.presentation.action.OpenTermsAndConditionsAct
 import com.gdavidpb.tuindice.login.presentation.action.SetPasswordActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.SetUsbIdActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.SignInActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.TogglePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.login.presentation.contract.SignIn
 import com.gdavidpb.tuindice.login.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.login.testing.FakeNetworkRepository
@@ -47,6 +48,7 @@ class SignInViewModelContractTest {
 			),
 			setUsbIdActionProcessor = SetUsbIdActionProcessor(),
 			setPasswordActionProcessor = SetPasswordActionProcessor(),
+			togglePasswordVisibilityActionProcessor = TogglePasswordVisibilityActionProcessor(),
 			openTermsAndConditionsActionProcessor = OpenTermsAndConditionsActionProcessor(
 				appEnvironmentRepository = FakeAppEnvironmentRepository()
 			),
@@ -64,14 +66,24 @@ class SignInViewModelContractTest {
 			viewModel.state.test {
 				assertEquals(SignIn.State.Idle(), awaitItem())
 
+				viewModel.togglePasswordVisibilityAction()
+				assertEquals(SignIn.State.Idle(isPasswordVisible = true), awaitItem())
+
 				viewModel.setUsbIdAction(VALID_USB_ID)
-				assertEquals(SignIn.State.Idle(usbId = VALID_USB_ID), awaitItem())
+				assertEquals(
+					SignIn.State.Idle(
+						usbId = VALID_USB_ID,
+						isPasswordVisible = true
+					),
+					awaitItem()
+				)
 
 				viewModel.setPasswordAction("secret123")
 				assertEquals(
 					SignIn.State.Idle(
 						usbId = VALID_USB_ID,
-						password = "secret123"
+						password = "secret123",
+						isPasswordVisible = true
 					),
 					awaitItem()
 				)

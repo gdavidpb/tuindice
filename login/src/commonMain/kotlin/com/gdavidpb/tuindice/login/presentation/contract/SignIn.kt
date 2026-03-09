@@ -12,7 +12,8 @@ object SignIn {
 	) : ViewState() {
 		data class Idle(
 			val usbId: String = "",
-			val password: String = ""
+			val password: String = "",
+			val isPasswordVisible: Boolean = false
 		) : State()
 
 		data class LoggingIn(
@@ -30,6 +31,8 @@ object SignIn {
 		class SetPassword(
 			val password: String
 		) : Action()
+
+		data object TogglePasswordVisibility : Action()
 
 		class ClickSignIn(
 			val usbId: String,

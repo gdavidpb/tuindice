@@ -32,6 +32,7 @@ fun SignInIdleView(
 	state: SignIn.State.Idle,
 	onUsbIdChange: (usbId: String) -> Unit,
 	onPasswordChange: (password: String) -> Unit,
+	onPasswordVisibilityToggle: () -> Unit,
 	onSignInClick: (usbId: String, password: String) -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit,
@@ -80,7 +81,9 @@ fun SignInIdleView(
 				.padding(horizontal = 32.dp),
 			labelText = passwordLabelText,
 			password = state.password,
+			isPasswordVisible = state.isPasswordVisible,
 			onPasswordChange = onPasswordChange,
+			onPasswordVisibilityToggle = onPasswordVisibilityToggle,
 			imeAction = ImeAction.Done,
 			keyboardActions = KeyboardActions(onDone = {
 				if (isSignInEnabled) onSignInClick(state.usbId, state.password)

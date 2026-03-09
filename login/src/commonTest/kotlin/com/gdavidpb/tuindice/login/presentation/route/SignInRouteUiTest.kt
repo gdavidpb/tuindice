@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.login.presentation.action.OpenTermsAndConditionsAct
 import com.gdavidpb.tuindice.login.presentation.action.SetPasswordActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.SetUsbIdActionProcessor
 import com.gdavidpb.tuindice.login.presentation.action.SignInActionProcessor
+import com.gdavidpb.tuindice.login.presentation.action.TogglePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.login.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.login.ui.LoginUiTags
 import com.gdavidpb.tuindice.login.testing.FakeAttestationRepository
@@ -274,6 +275,7 @@ class SignInRouteUiTest {
 				),
 				setUsbIdActionProcessor = SetUsbIdActionProcessor(),
 				setPasswordActionProcessor = SetPasswordActionProcessor(),
+				togglePasswordVisibilityActionProcessor = TogglePasswordVisibilityActionProcessor(),
 				openTermsAndConditionsActionProcessor = OpenTermsAndConditionsActionProcessor(
 					appEnvironmentRepository = FakeAppEnvironmentRepository(
 						appEnvironment = AppEnvironment(
