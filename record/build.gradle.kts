@@ -16,8 +16,6 @@ kotlin {
 		androidResources {
 			enable = true
 		}
-
-		withHostTest {}
 		withDeviceTest {
 			instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 		}
@@ -45,13 +43,6 @@ kotlin {
 			dependencies {
 				implementation(kotlin("test"))
 				implementation(project(":testkit"))
-			}
-		}
-
-		val androidHostTest by getting {
-			dependencies {
-				implementation(libs.bundles.testing)
-				implementation(libs.ktor.client.cio)
 			}
 		}
 
