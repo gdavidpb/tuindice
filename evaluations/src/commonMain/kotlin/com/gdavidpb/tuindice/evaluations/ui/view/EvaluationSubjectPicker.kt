@@ -26,10 +26,7 @@ fun EvaluationSubjectPicker(
 			.testTag(EvaluationsUiTags.EvaluationSubjectPickerRow)
 			.padding(top = 8.dp)
 			.fillMaxWidth(),
-		horizontalArrangement = Arrangement
-			.spacedBy(
-				space = 8.dp
-			)
+		horizontalArrangement = Arrangement.spacedBy(6.dp)
 	) {
 		subjects
 			.forEach { subject ->
