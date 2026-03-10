@@ -15,11 +15,11 @@
         "subject_id": "MA1116Q2026A",
         "subject_code": "MA1116",
         "type": 0,
+        "schedule_mode": "dated",
         "grade": 18.0,
         "max_grade": 20.0,
         "date": 1770692400000,
-        "is_done": true,
-        "notes": ""
+        "is_done": true
       },
       {
         "id": "EVFS1112A1",
@@ -27,11 +27,11 @@
         "subject_id": "FS1112Q2026A",
         "subject_code": "FS1112",
         "type": 10,
+        "schedule_mode": "dated",
         "grade": 16.0,
         "max_grade": 20.0,
         "date": 1772247600000,
-        "is_done": true,
-        "notes": ""
+        "is_done": true
       },
       {
         "id": "EVID1113A1",
@@ -39,11 +39,11 @@
         "subject_id": "ID1113Q2026A",
         "subject_code": "ID1113",
         "type": 12,
+        "schedule_mode": "dated",
         "grade": null,
         "max_grade": 10.0,
         "date": 1772679600000,
-        "is_done": false,
-        "notes": ""
+        "is_done": false
       },
       {
         "id": "EVLLA113A1",
@@ -51,11 +51,11 @@
         "subject_id": "LLA113Q2026A",
         "subject_code": "LLA113",
         "type": 0,
+        "schedule_mode": "dated",
         "grade": null,
         "max_grade": 15.0,
         "date": 1773975600000,
-        "is_done": false,
-        "notes": ""
+        "is_done": false
       },
       {
         "id": "EVCSA213A1",
@@ -63,11 +63,11 @@
         "subject_id": "CSA213Q2026A",
         "subject_code": "CSA213",
         "type": 0,
+        "schedule_mode": "dated",
         "grade": null,
         "max_grade": 15.0,
         "date": 1774580400000,
-        "is_done": false,
-        "notes": ""
+        "is_done": false
       }
     ],
     "fixedDelayMilliseconds": 3000

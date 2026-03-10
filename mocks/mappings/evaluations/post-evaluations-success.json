@@ -1,7 +1,24 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/evaluations"
+    "urlPath": "/evaluations",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.subject_id"
+      },
+      {
+        "matchesJsonPath": "$.type"
+      },
+      {
+        "matchesJsonPath": "$.schedule_mode"
+      },
+      {
+        "matchesJsonPath": "$.max_grade"
+      },
+      {
+        "matchesJsonPath": "$.is_done"
+      }
+    ]
   },
   "response": {
     "status": 200,
@@ -14,11 +31,11 @@
       "subject_id": "MA1116Q2026A",
       "subject_code": "MA1116",
       "type": 0,
+      "schedule_mode": "dated",
       "grade": 18.0,
       "max_grade": 20.0,
       "date": 1770692400000,
-      "is_done": true,
-      "notes": ""
+      "is_done": true
     },
     "fixedDelayMilliseconds": 1500
   }

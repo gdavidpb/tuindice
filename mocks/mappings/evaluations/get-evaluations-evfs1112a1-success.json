@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPathPattern": "/evaluations/[A-Za-z0-9]+"
+    "urlPath": "/evaluations/EVFS1112A1"
   },
   "response": {
     "status": 200,
@@ -9,16 +9,16 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "id": "EVMA1116A1",
+      "id": "EVFS1112A1",
       "quarter_id": "Q2026A",
-      "subject_id": "MA1116Q2026A",
-      "subject_code": "MA1116",
-      "type": 0,
-      "grade": 18.0,
+      "subject_id": "FS1112Q2026A",
+      "subject_code": "FS1112",
+      "type": 10,
+      "schedule_mode": "dated",
+      "grade": 16.0,
       "max_grade": 20.0,
-      "date": 1770692400000,
-      "is_done": true,
-      "notes": ""
+      "date": 1772247600000,
+      "is_done": true
     },
     "fixedDelayMilliseconds": 2000
   }

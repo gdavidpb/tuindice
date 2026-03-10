@@ -1,7 +1,7 @@
 {
   "request": {
-    "method": "PATCH",
-    "urlPathPattern": "/evaluations/[A-Za-z0-9]+"
+    "method": "GET",
+    "urlPath": "/evaluations/EVMA1116A1"
   },
   "response": {
     "status": 200,
@@ -20,6 +20,6 @@
       "date": 1770692400000,
       "is_done": true
     },
-    "fixedDelayMilliseconds": 1500
+    "fixedDelayMilliseconds": 2000
   }
 }
