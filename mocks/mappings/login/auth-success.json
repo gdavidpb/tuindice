@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/auth/token",
+    "urlPath": "/auth/v1/token",
     "headers": {
       "Authorization": {
         "equalTo": "Basic MTEtMTExMTE6MTIzNDU2"

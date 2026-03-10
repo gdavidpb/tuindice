@@ -11,7 +11,7 @@ class MessagingApiDataSource(
 	private val ktorClient: HttpClient
 ) : MessagingRemoteDataSource {
 	override suspend fun subscribe(messagingToken: String) {
-		ktorClient.post("messaging") {
+		ktorClient.post("messaging/v1") {
 			setBody(
 				SubscribeRequest(
 					token = messagingToken
@@ -21,6 +21,6 @@ class MessagingApiDataSource(
 	}
 
 	override suspend fun unsubscribe() {
-		ktorClient.delete("messaging")
+		ktorClient.delete("messaging/v1")
 	}
 }

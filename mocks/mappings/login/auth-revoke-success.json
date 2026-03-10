@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/auth/token/revoke"
+    "urlPath": "/auth/v1/token/revoke"
   },
   "response": {
     "status": 200,

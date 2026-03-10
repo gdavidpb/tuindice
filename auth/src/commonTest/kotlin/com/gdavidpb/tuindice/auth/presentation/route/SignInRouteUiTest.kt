@@ -171,7 +171,7 @@ class SignInRouteUiTest {
 	fun when_signInFailsWithInvalidCredentials_then_showsSnackBarWithoutSummaryNavigation() = runTuIndiceUiTest {
 		val fixture = createSignInViewModel(
 			termsAndConditionsUrl = "https://tuindice.test/terms",
-			signInThrowable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/token")
+			signInThrowable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v1/token")
 		)
 		var summaryNavigations = 0
 		val shownSnackBars = mutableListOf<SnackBarMessage>()

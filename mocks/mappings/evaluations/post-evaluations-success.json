@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/evaluations",
+    "urlPath": "/evaluations/v1",
     "bodyPatterns": [
       {
         "matchesJsonPath": "$.subject_id"

@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.auth.data.source
 
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestation
 import com.gdavidpb.tuindice.auth.data.model.IssueTokensResponse
 import com.gdavidpb.tuindice.auth.data.model.RefreshTokensRequest
 import com.gdavidpb.tuindice.auth.data.model.RefreshTokensResponse
@@ -8,16 +7,11 @@ import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.HttpRequestBuilder
-import io.ktor.client.request.basicAuth
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import kotlin.io.encoding.Base64
+import com.gdavidpb.tuindice.base.domain.model.RiskAttestation
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 
 class KtorAuthApiDataSource(
 	private val ktorClient: HttpClient
@@ -46,7 +40,7 @@ class KtorAuthApiDataSource(
 			refreshToken = refreshToken
 		)
 
-		val response = ktorClient.post("auth/token/refresh") {
+		val response = ktorClient.post("auth/v1/token/refresh") {
 			setRiskAttestationHeaders(riskAttestation)
 			header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
 			setBody(request)
@@ -60,7 +54,7 @@ class KtorAuthApiDataSource(
 	}
 
 	override suspend fun revokeTokens() {
-		ktorClient.post("auth/token/revoke")
+		ktorClient.post("auth/v1/token/revoke")
 	}
 
 	private suspend fun postIssueTokens(
@@ -69,11 +63,8 @@ class KtorAuthApiDataSource(
 		flow: IssueTokensFlow,
 		riskAttestation: RiskAttestation
 	): IssueTokens {
-		val credentials = Base64.encode("$usbId:$password".encodeToByteArray())
-
-		val response = ktorClient.post("auth/token") {
+		val response = ktorClient.post("auth/v1/token") {
 			basicAuth(usbId, password)
-			header(AuthHeaders.FORWARDED_AUTHORIZATION, "Basic $credentials")
 			setRiskAttestationHeaders(riskAttestation)
 			header(AuthHeaders.AUTH_FLOW, flow.headerValue)
 		}.body<IssueTokensResponse>()
@@ -92,7 +83,6 @@ class KtorAuthApiDataSource(
 	}
 
 	private object AuthHeaders {
-		const val FORWARDED_AUTHORIZATION = "X-Forwarded-Authorization"
 		const val RISK_ATTESTATION = "X-Risk-Attestation"
 		const val AUTH_FLOW = "X-Auth-Flow"
 	}

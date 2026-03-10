@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/auth/token/refresh",
+    "urlPath": "/auth/v1/token/refresh",
     "headers": {
       "X-Risk-Attestation": {
         "matches": "risk\\.mock\\.proof\\.(android|ios)"

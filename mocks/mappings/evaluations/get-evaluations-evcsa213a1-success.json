@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/evaluations/EVCSA213A1"
+    "urlPath": "/evaluations/v1/EVCSA213A1"
   },
   "response": {
     "status": 200,

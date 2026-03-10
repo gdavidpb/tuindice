@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "DELETE",
-    "urlPath": "/messaging"
+    "urlPath": "/messaging/v1"
   },
   "response": {
     "status": 200,

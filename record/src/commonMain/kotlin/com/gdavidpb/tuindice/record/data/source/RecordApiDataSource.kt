@@ -16,25 +16,25 @@ class RecordApiDataSource(
 	private val ktorClient: HttpClient
 ) : QuarterRemoteDataSource {
 	override suspend fun getQuarters(): List<RemoteQuarter> {
-		return ktorClient.get("quarters")
+		return ktorClient.get("quarters/v1")
 			.body<List<QuarterResponse>>()
 			.map { quarterResponse -> quarterResponse.toRemoteQuarter() }
 	}
 
 	override suspend fun getQuarter(qid: String): RemoteQuarter {
-		return ktorClient.get("quarters/$qid")
+		return ktorClient.get("quarters/v1/$qid")
 			.body<QuarterResponse>()
 			.toRemoteQuarter()
 	}
 
 	override suspend fun removeQuarter(qid: String) {
-		ktorClient.delete("quarters/$qid")
+		ktorClient.delete("quarters/v1/$qid")
 	}
 
 	override suspend fun addQuarter(quarter: RemoteQuarter): List<RemoteQuarter> {
 		val request = quarter.toAddQuarterRequest()
 
-		return ktorClient.post("quarters") {
+		return ktorClient.post("quarters/v1") {
 			setBody(request)
 		}
 			.body<List<QuarterResponse>>()

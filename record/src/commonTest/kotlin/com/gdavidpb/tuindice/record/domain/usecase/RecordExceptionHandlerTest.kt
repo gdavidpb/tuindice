@@ -35,7 +35,7 @@ class RecordExceptionHandlerTest {
 	@Test
 	fun getQuartersExceptionHandler_mapsConflictToOutdatedPassword() {
 		val reportingRepository = RecordingReportingRepository()
-		val throwable = clientRequestException(HttpStatusCode.Conflict, path = "/quarters")
+		val throwable = clientRequestException(HttpStatusCode.Conflict, path = "/quarters/v1")
 
 		val actual = GetQuartersExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true),

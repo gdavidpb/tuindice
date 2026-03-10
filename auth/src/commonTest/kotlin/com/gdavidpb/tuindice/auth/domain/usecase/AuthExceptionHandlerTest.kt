@@ -16,7 +16,7 @@ class AuthExceptionHandlerTest {
 	@Test
 	fun signInExceptionHandler_mapsUnauthorized_andReportsHandled() {
 		val reportingRepository = RecordingReportingRepository()
-		val throwable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/token")
+		val throwable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v1/token")
 
 		val actual = SignInExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true),

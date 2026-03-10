@@ -147,7 +147,7 @@ class FakeEnrollmentProofTextProvider : EnrollmentProofTextProvider {
 fun clientRequestException(statusCode: HttpStatusCode): ClientRequestException {
 	val client = HttpClient(MockEngine { respondOk() })
 	val requestData = HttpRequestBuilder().apply {
-		url.takeFrom("https://tuindice.test/enrollment-proof")
+		url.takeFrom("https://tuindice.test/enrollment-proof/v1")
 	}.build()
 	val responseData = HttpResponseData(
 		statusCode = statusCode,

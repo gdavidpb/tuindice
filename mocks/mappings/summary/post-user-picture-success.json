@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/users/picture"
+    "urlPath": "/users/v1/picture"
   },
   "response": {
     "status": 200,

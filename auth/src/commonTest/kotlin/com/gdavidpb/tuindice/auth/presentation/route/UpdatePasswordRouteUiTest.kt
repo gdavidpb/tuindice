@@ -92,7 +92,7 @@ class UpdatePasswordRouteUiTest {
 	@Test
 	fun when_updatePasswordActionFails_then_showsSnackBarAndDismisses() = runTuIndiceUiTest {
 		val fixture = createUpdatePasswordViewModel(
-			throwable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/token")
+			throwable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v1/token")
 		)
 		var dismissCalls = 0
 		val snackBarMessages = mutableListOf<SnackBarMessage>()

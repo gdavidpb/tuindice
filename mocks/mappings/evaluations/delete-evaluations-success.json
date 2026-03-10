@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "DELETE",
-    "urlPathPattern": "/evaluations/[A-Za-z0-9]+"
+    "urlPathPattern": "/evaluations/v1/[A-Za-z0-9]+"
   },
   "response": {
     "status": 200,

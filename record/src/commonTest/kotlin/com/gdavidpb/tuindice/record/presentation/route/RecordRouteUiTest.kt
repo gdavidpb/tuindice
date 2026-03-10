@@ -77,7 +77,7 @@ class RecordRouteUiTest {
 				quarters = flow {
 					throw clientRequestException(
 						statusCode = HttpStatusCode.Conflict,
-						path = "/quarters"
+						path = "/quarters/v1"
 					)
 				}
 			)

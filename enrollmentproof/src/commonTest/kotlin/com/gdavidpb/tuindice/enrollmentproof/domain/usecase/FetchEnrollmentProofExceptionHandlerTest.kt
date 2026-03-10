@@ -33,7 +33,7 @@ class FetchEnrollmentProofExceptionHandlerTest {
 	@Test
 	fun fetchEnrollmentProofExceptionHandler_mapsNotFoundStatus() {
 		val reportingRepository = RecordingReportingRepository()
-		val throwable = clientRequestException(HttpStatusCode.NotFound, path = "/enrollment-proof")
+		val throwable = clientRequestException(HttpStatusCode.NotFound, path = "/enrollment-proof/v1")
 
 		val actual = FetchEnrollmentProofExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true),

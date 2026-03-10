@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/enrollment-proof"
+    "urlPath": "/enrollment-proof/v1"
   },
   "response": {
     "status": 200,

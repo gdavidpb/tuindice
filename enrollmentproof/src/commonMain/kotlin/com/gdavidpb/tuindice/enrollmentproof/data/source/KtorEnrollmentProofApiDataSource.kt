@@ -11,7 +11,7 @@ class KtorEnrollmentProofApiDataSource(
 	private val ktorClient: HttpClient
 ) : EnrollmentProofApiDataSource {
 	override suspend fun getEnrollmentProof(): EnrollmentProof {
-		val response = ktorClient.get("enrollment-proof")
+		val response = ktorClient.get("enrollment-proof/v1")
 			.body<EnrollmentProofResponse>()
 
 		return EnrollmentProof(

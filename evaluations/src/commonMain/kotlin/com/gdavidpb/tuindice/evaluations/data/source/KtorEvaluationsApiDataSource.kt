@@ -20,14 +20,14 @@ class KtorEvaluationsApiDataSource(
 	private val ktorClient: HttpClient
 ) : EvaluationsApiDataSource {
 	override suspend fun getEvaluations(): List<RemoteEvaluation> {
-		return ktorClient.get("evaluations")
+		return ktorClient.get("evaluations/v1")
 			.body<List<EvaluationResponse>>()
 			.map { evaluationResponse -> evaluationResponse.toRemoteEvaluation() }
 	}
 
 	override suspend fun getEvaluation(eid: String): RemoteEvaluation? {
 		return runCatching {
-			ktorClient.get("evaluations") {
+			ktorClient.get("evaluations/v1") {
 				url { appendPathSegments(eid) }
 			}
 				.body<EvaluationResponse>()
@@ -43,7 +43,7 @@ class KtorEvaluationsApiDataSource(
 	override suspend fun addEvaluation(evaluation: RemoteEvaluation): RemoteEvaluation {
 		val request = evaluation.toAddEvaluationRequest()
 
-		return ktorClient.post("evaluations") {
+		return ktorClient.post("evaluations/v1") {
 			setBody(request)
 		}
 			.body<EvaluationResponse>()
@@ -53,7 +53,7 @@ class KtorEvaluationsApiDataSource(
 	override suspend fun updateEvaluation(evaluation: RemoteEvaluation): RemoteEvaluation {
 		val request = evaluation.toUpdateEvaluationRequest()
 
-		return ktorClient.patch("evaluations/${evaluation.id}") {
+		return ktorClient.patch("evaluations/v1/${evaluation.id}") {
 			setBody(request)
 		}
 			.body<EvaluationResponse>()
@@ -61,6 +61,6 @@ class KtorEvaluationsApiDataSource(
 	}
 
 	override suspend fun removeEvaluation(eid: String) {
-		ktorClient.delete("evaluations/$eid")
+		ktorClient.delete("evaluations/v1/$eid")
 	}
 }

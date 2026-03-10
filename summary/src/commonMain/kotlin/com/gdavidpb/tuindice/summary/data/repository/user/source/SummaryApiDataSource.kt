@@ -20,13 +20,13 @@ class SummaryApiDataSource(
 	private val ktorClient: HttpClient
 ) : RemoteDataSource {
 	override suspend fun getUser(): User {
-		return ktorClient.get("users")
+		return ktorClient.get("users/v1")
 			.body<UserResponse>()
 			.toUser()
 	}
 
 	override suspend fun uploadProfilePicture(content: ByteArray, mimeType: String): ProfilePicture {
-		return ktorClient.post("users/picture") {
+		return ktorClient.post("users/v1/picture") {
 			contentType(ContentType.parse(mimeType))
 			setBody(content)
 		}
@@ -35,6 +35,6 @@ class SummaryApiDataSource(
 	}
 
 	override suspend fun removeProfilePicture() {
-		ktorClient.delete("users/picture")
+		ktorClient.delete("users/v1/picture")
 	}
 }
