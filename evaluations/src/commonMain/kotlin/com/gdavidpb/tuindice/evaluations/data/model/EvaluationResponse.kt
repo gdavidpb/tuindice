@@ -15,6 +15,5 @@ data class EvaluationResponse(
 	@SerialName("grade") val grade: Double?,
 	@SerialName("max_grade") val maxGrade: Double,
 	@SerialName("date") val date: Long?,
-	@SerialName("is_done") val isDone: Boolean,
-	@SerialName("notes") val notes: String
+	@SerialName("is_done") val isDone: Boolean
 )

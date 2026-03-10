@@ -18,4 +18,6 @@ interface AuthApiDataSource {
 		refreshToken: String,
 		riskAttestation: RiskAttestation
 	): RefreshTokens
+
+	suspend fun revokeTokens()
 }

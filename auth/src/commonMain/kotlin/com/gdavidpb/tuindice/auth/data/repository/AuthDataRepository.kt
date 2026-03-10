@@ -48,4 +48,8 @@ class AuthDataRepository(
 			sessionRepository.setRefreshToken(tokens.refreshToken)
 		}
 	}
+
+	override suspend fun revokeTokens() {
+		authApiDataSource.revokeTokens()
+	}
 }

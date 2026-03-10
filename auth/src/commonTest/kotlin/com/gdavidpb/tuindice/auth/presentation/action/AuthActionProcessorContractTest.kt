@@ -103,6 +103,7 @@ class AuthActionProcessorContractTest {
 	fun signOutActionProcessor_emitsLoggingOutMutation_thenNavigatesToSignIn() = runTest {
 		val processor = SignOutActionProcessor(
 			signOutUseCase = SignOutUseCase(
+				authRepository = RecordingAuthRepository(),
 				sessionRepository = FakeSessionRepository(),
 				messagingRepository = RecordingMessagingRepository(),
 				applicationRepository = RecordingApplicationRepository()

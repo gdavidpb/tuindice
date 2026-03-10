@@ -59,6 +59,10 @@ class KtorAuthApiDataSource(
 		)
 	}
 
+	override suspend fun revokeTokens() {
+		ktorClient.post("auth/token/revoke")
+	}
+
 	private suspend fun postIssueTokens(
 		usbId: String,
 		password: String,

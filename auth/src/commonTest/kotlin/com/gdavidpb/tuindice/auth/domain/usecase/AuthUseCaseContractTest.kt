@@ -79,10 +79,12 @@ class AuthUseCaseContractTest {
 
 	@Test
 	fun signOutUseCase_emitsLoadingThenData_andClearsSessionData() = runTest {
+		val authRepository = RecordingAuthRepository()
 		val messagingRepository = RecordingMessagingRepository()
 		val sessionRepository = FakeSessionRepository()
 		val applicationRepository = RecordingApplicationRepository()
 		val useCase = SignOutUseCase(
+			authRepository = authRepository,
 			sessionRepository = sessionRepository,
 			messagingRepository = messagingRepository,
 			applicationRepository = applicationRepository
@@ -93,6 +95,7 @@ class AuthUseCaseContractTest {
 			awaitComplete()
 		}
 
+		assertEquals(1, authRepository.revokeTokensCalls)
 		assertEquals(true, sessionRepository.cleared)
 		assertEquals(1, messagingRepository.unsubscribeCalls)
 		assertEquals(true, applicationRepository.cleared)

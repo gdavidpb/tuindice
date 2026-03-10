@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.auth.presentation.action.SignOutActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.contract.SignOut
+import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.FakeSessionRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingApplicationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
@@ -20,6 +21,7 @@ class SignOutViewModelContractTest {
 		val viewModel = SignOutViewModel(
 			signOutActionProcessor = SignOutActionProcessor(
 				signOutUseCase = SignOutUseCase(
+					authRepository = RecordingAuthRepository(),
 					sessionRepository = FakeSessionRepository(),
 					messagingRepository = RecordingMessagingRepository(),
 					applicationRepository = RecordingApplicationRepository()

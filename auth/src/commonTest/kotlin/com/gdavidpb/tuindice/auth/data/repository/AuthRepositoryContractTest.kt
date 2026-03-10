@@ -78,4 +78,18 @@ class AuthRepositoryContractTest {
 		assertEquals(DEFAULT_REFRESH_TOKENS.accessToken, sessionRepository.getAccessToken())
 		assertEquals(DEFAULT_REFRESH_TOKENS.refreshToken, sessionRepository.getRefreshToken())
 	}
+
+	@Test
+	fun revokeTokens_delegatesToApiDataSource() = runTest {
+		val authDataSource = FakeAuthApiDataSource()
+		val repository = AuthDataRepository(
+			authApiDataSource = authDataSource,
+			sessionRepository = FakeSessionRepository(),
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		repository.revokeTokens()
+
+		assertEquals(1, authDataSource.revokeCalls)
+	}
 }
