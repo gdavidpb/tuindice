@@ -6,6 +6,7 @@ import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.ui.graphics.Color
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
@@ -45,6 +46,7 @@ fun evaluationContentState(
 		availableSubjects = uiSubjects(),
 		selectedSubject = DEFAULT_EVALUATION_SUBJECT,
 		type = EvaluationType.QUIZ,
+		scheduleMode = EvaluationScheduleMode.DATED,
 		date = if (isOverdue) COMPLETED_DATE else PENDING_DATE,
 		isOverdue = isOverdue,
 		grade = if (isOverdue) 18.5 else null,

@@ -19,7 +19,7 @@ data class EvaluationItemMapping(
 	val dateIcon: (state: EvaluationState) -> ImageVector,
 	val gradesIcon: (state: EvaluationState) -> ImageVector,
 	val dateGroupTitle: (group: EvaluationDateGroup) -> String,
-	val dateText: (date: Long?) -> String,
+	val dateText: (evaluation: Evaluation) -> String,
 	val highlightIconColor: (state: EvaluationState) -> Color,
 	val highlightTextColor: (state: EvaluationState) -> Color
 )
@@ -37,7 +37,7 @@ fun List<Evaluation>.toEvaluationItemList(
 					}
 			}.toMap()
 
-	return groupBy { evaluation -> evaluation.date.toEvaluationDateGroup() }
+	return groupBy { evaluation -> evaluation.toEvaluationDateGroup() }
 		.map { (group, evaluations) ->
 			EvaluationsGroupItem(
 				title = mapping.dateGroupTitle(group),
@@ -64,7 +64,7 @@ fun Evaluation.toEvaluationItem(
 	highlightTextColor = mapping.highlightTextColor(state),
 	typeAndSubjectCodeText = mapping.evaluationTitle(type, subjectCode),
 	typeIcon = mapping.typeIcon(type),
-	dateText = mapping.dateText(date),
+	dateText = mapping.dateText(this),
 	dateIcon = mapping.dateIcon(state),
 	gradesText = when (state) {
 		EvaluationState.COMPLETED, EvaluationState.CONTINUOUS ->

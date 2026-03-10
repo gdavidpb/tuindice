@@ -25,7 +25,7 @@ class EvaluationScreenUiTest {
 				onDateChange = {},
 				onGradeClick = { _, _ -> },
 				onMaxGradeClick = {},
-				onDoneClick = { _, _, _, _, _ -> },
+				onDoneClick = { _, _, _, _, _, _ -> },
 				onRetryClick = {}
 			)
 		}
@@ -43,7 +43,7 @@ class EvaluationScreenUiTest {
 				onDateChange = {},
 				onGradeClick = { _, _ -> },
 				onMaxGradeClick = {},
-				onDoneClick = { _, _, _, _, _ -> },
+				onDoneClick = { _, _, _, _, _, _ -> },
 				onRetryClick = {}
 			)
 		}
@@ -63,7 +63,7 @@ class EvaluationScreenUiTest {
 				onDateChange = {},
 				onGradeClick = { _, _ -> },
 				onMaxGradeClick = {},
-				onDoneClick = { _, _, _, _, _ -> },
+				onDoneClick = { _, _, _, _, _, _ -> },
 				onRetryClick = { retryClicks++ }
 			)
 		}

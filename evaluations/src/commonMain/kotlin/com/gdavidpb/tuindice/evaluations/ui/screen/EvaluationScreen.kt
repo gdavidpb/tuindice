@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.ui.screen
 
 import androidx.compose.runtime.Composable
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
@@ -26,6 +27,7 @@ fun EvaluationScreen(
 	onDoneClick: (
 		subject: Subject?,
 		type: EvaluationType?,
+		scheduleMode: EvaluationScheduleMode,
 		date: Long?,
 		grade: Double?,
 		maxGrade: Double?

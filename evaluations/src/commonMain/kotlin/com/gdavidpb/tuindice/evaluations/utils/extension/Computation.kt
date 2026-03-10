@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.utils.extension
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateFilter
@@ -20,11 +21,15 @@ fun Double.toSubjectGrade() = when (roundToInt()) {
 	else -> 1
 }
 
-fun computeEvaluationState(grade: Double?, date: Long?): EvaluationState {
+fun computeEvaluationState(
+	scheduleMode: EvaluationScheduleMode,
+	grade: Double?,
+	date: Long?
+): EvaluationState {
 	val hasDatePassed = date != null && date < currentTimeMillis()
 
 	return when {
-		date == null -> EvaluationState.CONTINUOUS
+		scheduleMode == EvaluationScheduleMode.CONTINUOUS -> EvaluationState.CONTINUOUS
 		grade == null && hasDatePassed -> EvaluationState.OVERDUE
 		grade != null && hasDatePassed -> EvaluationState.COMPLETED
 		else -> EvaluationState.PENDING
@@ -55,14 +60,14 @@ fun List<Evaluation>.computeAvailableFilters(
 			.map { subject -> EvaluationSubjectFilter(subject) }
 
 	val datesFilters =
-		map { evaluation -> evaluation.date.toEvaluationDateGroup() }
+		map { evaluation -> evaluation.toEvaluationDateGroup() }
 			.distinct()
 			.map { group ->
 				EvaluationDateFilter(
 					group = group,
 					label = group.getLabel(dateTextMapping)
 				) { evaluation ->
-					evaluation.date.toEvaluationDateGroup() == group
+					evaluation.toEvaluationDateGroup() == group
 				}
 			}
 

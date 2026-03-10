@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.data.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.data.model.AddEvaluationRequest
@@ -15,6 +16,7 @@ fun EvaluationResponse.toRemoteEvaluation() = RemoteEvaluation(
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
+	scheduleMode = scheduleMode,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
@@ -24,6 +26,7 @@ fun EvaluationResponse.toRemoteEvaluation() = RemoteEvaluation(
 
 fun RemoteEvaluation.toAddEvaluationRequest() = AddEvaluationRequest(
 	subjectId = subjectId,
+	scheduleMode = scheduleMode,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
@@ -32,6 +35,7 @@ fun RemoteEvaluation.toAddEvaluationRequest() = AddEvaluationRequest(
 )
 
 fun RemoteEvaluation.toUpdateEvaluationRequest() = UpdateEvaluationRequest(
+	scheduleMode = scheduleMode,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
@@ -44,6 +48,7 @@ fun Evaluation.toRemoteEvaluation() = RemoteEvaluation(
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
+	scheduleMode = scheduleMode,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
@@ -56,6 +61,7 @@ fun RemoteEvaluation.toLocalEvaluation() = LocalEvaluation(
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
+	scheduleMode = scheduleMode,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
@@ -68,11 +74,16 @@ fun LocalEvaluation.toEvaluation() = Evaluation(
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
+	scheduleMode = scheduleMode,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
 	type = EvaluationType.entries[type],
-	state = computeEvaluationState(grade = grade, date = date)
+	state = computeEvaluationState(
+		scheduleMode = scheduleMode,
+		grade = grade,
+		date = date
+	)
 )
 
 fun Evaluation.toLocalEvaluation() = LocalEvaluation(
@@ -80,6 +91,7 @@ fun Evaluation.toLocalEvaluation() = LocalEvaluation(
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
+	scheduleMode = scheduleMode,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,

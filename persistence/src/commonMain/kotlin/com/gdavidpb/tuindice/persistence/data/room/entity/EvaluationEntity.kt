@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.persistence.data.room.schema.EvaluationTable
 import com.gdavidpb.tuindice.persistence.data.room.schema.QuarterTable
 import com.gdavidpb.tuindice.persistence.data.room.schema.SubjectTable
@@ -37,6 +38,7 @@ data class EvaluationEntity(
 	@ColumnInfo(name = EvaluationTable.SUBJECT_ID) val subjectId: String,
 	@ColumnInfo(name = EvaluationTable.SUBJECT_CODE) val subjectCode: String,
 	@ColumnInfo(name = EvaluationTable.QUARTER_ID) val quarterId: String,
+	@ColumnInfo(name = EvaluationTable.SCHEDULE_MODE) val scheduleMode: EvaluationScheduleMode,
 	@ColumnInfo(name = EvaluationTable.GRADE) val grade: Double?,
 	@ColumnInfo(name = EvaluationTable.MAX_GRADE) val maxGrade: Double,
 	@ColumnInfo(name = EvaluationTable.DATE) val date: Long?,

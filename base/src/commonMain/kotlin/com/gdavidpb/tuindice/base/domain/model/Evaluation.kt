@@ -5,6 +5,7 @@ data class Evaluation(
 	val subjectId: String,
 	val subjectCode: String,
 	val quarterId: String,
+	val scheduleMode: EvaluationScheduleMode,
 	val grade: Double?,
 	val maxGrade: Double,
 	val date: Long?,

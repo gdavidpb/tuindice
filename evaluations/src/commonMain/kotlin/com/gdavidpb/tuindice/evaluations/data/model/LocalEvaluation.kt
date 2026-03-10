@@ -1,10 +1,13 @@
 package com.gdavidpb.tuindice.evaluations.data.model
 
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+
 data class LocalEvaluation(
 	val id: String,
 	val subjectId: String,
 	val subjectCode: String,
 	val quarterId: String,
+	val scheduleMode: EvaluationScheduleMode,
 	val grade: Double?,
 	val maxGrade: Double,
 	val date: Long?,

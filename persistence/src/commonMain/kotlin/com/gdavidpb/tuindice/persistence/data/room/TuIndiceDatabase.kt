@@ -22,7 +22,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
 		SubjectEntity::class,
 		EvaluationEntity::class
 	],
-	version = 2,
+	version = 3,
 	exportSchema = false
 )
 @ConstructedBy(TuIndiceDatabaseConstructor::class)

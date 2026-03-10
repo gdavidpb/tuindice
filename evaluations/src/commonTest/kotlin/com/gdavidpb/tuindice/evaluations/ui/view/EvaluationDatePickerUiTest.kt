@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.ui.view
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.evaluations.presentation.extension.toEvaluationLocalDate
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
@@ -22,6 +23,7 @@ class EvaluationDatePickerUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationDatePicker(
+				selectedScheduleMode = EvaluationScheduleMode.DATED,
 				selectedDate = selectedDate,
 				onDateChange = { date -> selectedDate = date }
 			)
@@ -40,6 +42,7 @@ class EvaluationDatePickerUiTest {
 	fun when_selectDateTapped_then_opensAndClosesDialog() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationDatePicker(
+				selectedScheduleMode = EvaluationScheduleMode.DATED,
 				selectedDate = 1_900_000_000_000L,
 				onDateChange = {}
 			)
@@ -59,6 +62,7 @@ class EvaluationDatePickerUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationDatePicker(
+				selectedScheduleMode = EvaluationScheduleMode.CONTINUOUS,
 				selectedDate = null,
 				onDateChange = { date ->
 					selectedDate = date
@@ -86,6 +90,7 @@ class EvaluationDatePickerUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationDatePicker(
+				selectedScheduleMode = EvaluationScheduleMode.CONTINUOUS,
 				selectedDate = null,
 				onDateChange = { date ->
 					dateChangeCalls++
@@ -113,6 +118,7 @@ class EvaluationDatePickerUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationDatePicker(
+				selectedScheduleMode = EvaluationScheduleMode.DATED,
 				selectedDate = committedDate,
 				onDateChange = { date ->
 					selectedDate = date

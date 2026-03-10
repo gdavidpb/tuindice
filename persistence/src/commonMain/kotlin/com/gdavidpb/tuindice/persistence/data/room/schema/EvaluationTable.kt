@@ -7,6 +7,7 @@ object EvaluationTable {
 	const val SUBJECT_ID = "evaluation_subject_id"
 	const val SUBJECT_CODE = "evaluation_subject_code"
 	const val QUARTER_ID = "evaluation_quarter_id"
+	const val SCHEDULE_MODE = "evaluation_schedule_mode"
 	const val GRADE = "evaluation_grade"
 	const val MAX_GRADE = "evaluation_max_grade"
 	const val DATE = "evaluation_date"

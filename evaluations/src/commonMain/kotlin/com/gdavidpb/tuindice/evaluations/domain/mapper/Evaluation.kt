@@ -14,12 +14,14 @@ fun AddEvaluationParams.toEvaluationAdd(reference: String) = EvaluationAdd(
 	quarterId = quarterId!!,
 	grade = grade,
 	maxGrade = maxGrade!!,
+	scheduleMode = scheduleMode,
 	date = date,
 	type = type!!
 )
 
 fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(
 	id = evaluationId,
+	scheduleMode = scheduleMode,
 	grade = grade,
 	maxGrade = maxGrade,
 	date = date,
@@ -31,9 +33,14 @@ fun EvaluationAdd.toEvaluation() = Evaluation(
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
+	scheduleMode = scheduleMode,
 	type = type,
 	date = date,
 	grade = grade,
 	maxGrade = maxGrade,
-	state = computeEvaluationState(grade, date)
+	state = computeEvaluationState(
+		scheduleMode = scheduleMode,
+		grade = grade,
+		date = date
+	)
 )

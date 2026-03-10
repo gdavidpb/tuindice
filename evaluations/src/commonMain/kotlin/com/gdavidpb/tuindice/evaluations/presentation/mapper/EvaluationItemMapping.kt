@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
@@ -147,8 +148,8 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 		dateGroupTitle = { bucket ->
 			bucket.getLabel(dateTextMapping)
 		},
-		dateText = { date ->
-			date.formatAsDayOfWeekAndDate(noDateLabel = dateTextMapping.noDateLabel)
+		dateText = { evaluation: Evaluation ->
+			evaluation.formatAsDayOfWeekAndDate(noDateLabel = dateTextMapping.noDateLabel)
 		},
 		highlightIconColor = { state ->
 			when (state) {

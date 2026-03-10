@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.domain.model
 
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 
 data class EvaluationAdd(
@@ -8,6 +9,7 @@ data class EvaluationAdd(
 	val subjectCode: String,
 	val quarterId: String,
 	val type: EvaluationType,
+	val scheduleMode: EvaluationScheduleMode,
 	val date: Long?,
 	val grade: Double?,
 	val maxGrade: Double

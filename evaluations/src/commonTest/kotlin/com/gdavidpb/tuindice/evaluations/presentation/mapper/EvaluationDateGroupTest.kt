@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateFilter
@@ -63,6 +64,7 @@ class EvaluationDateGroupTest {
 		subjectId = "subject-1",
 		subjectCode = "INF-101",
 		quarterId = "quarter-1",
+		scheduleMode = EvaluationScheduleMode.DATED,
 		grade = null,
 		maxGrade = 100.0,
 		date = date,

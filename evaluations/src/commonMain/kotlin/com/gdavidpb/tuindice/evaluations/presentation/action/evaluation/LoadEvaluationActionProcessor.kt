@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.action.evaluation
 
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
@@ -30,14 +31,19 @@ class LoadEvaluationActionProcessor(
 							val selectedSubject = availableSubjects.find { subject ->
 								subject.id == evaluation?.subjectId
 							}
+							val isOverdue = evaluation?.let { loadedEvaluation ->
+								loadedEvaluation.scheduleMode == EvaluationScheduleMode.DATED &&
+									loadedEvaluation.date.isDateInPast()
+							} ?: false
 
 							Evaluation.State.Content(
 								evaluationId = action.evaluationId,
 								availableSubjects = availableSubjects,
 								selectedSubject = selectedSubject,
 								type = evaluation?.type,
+								scheduleMode = evaluation?.scheduleMode ?: EvaluationScheduleMode.CONTINUOUS,
 								date = evaluation?.date,
-								isOverdue = evaluation?.date.isDateInPast(),
+								isOverdue = isOverdue,
 								grade = evaluation?.grade,
 								maxGrade = evaluation?.maxGrade
 							)

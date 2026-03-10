@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.presentation.Mutation
@@ -56,6 +57,7 @@ class EvaluationViewModel(
 	fun clickAddEvaluationAction(
 		subject: Subject?,
 		type: EvaluationType?,
+		scheduleMode: EvaluationScheduleMode,
 		date: Long?,
 		grade: Double?,
 		maxGrade: Double?
@@ -63,6 +65,7 @@ class EvaluationViewModel(
 		Evaluation.Action.ClickAddEvaluation(
 			subject = subject,
 			type = type,
+			scheduleMode = scheduleMode,
 			date = date,
 			grade = grade,
 			maxGrade = maxGrade
@@ -73,6 +76,7 @@ class EvaluationViewModel(
 		evaluationId: String,
 		subject: Subject?,
 		type: EvaluationType?,
+		scheduleMode: EvaluationScheduleMode,
 		date: Long?,
 		grade: Double?,
 		maxGrade: Double?
@@ -81,6 +85,7 @@ class EvaluationViewModel(
 			evaluationId = evaluationId,
 			subject = subject,
 			type = type,
+			scheduleMode = scheduleMode,
 			date = date,
 			grade = grade,
 			maxGrade = maxGrade

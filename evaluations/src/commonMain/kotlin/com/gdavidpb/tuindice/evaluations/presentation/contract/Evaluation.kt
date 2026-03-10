@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.contract
 
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.presentation.ViewAction
@@ -21,6 +22,7 @@ object Evaluation {
 			val availableSubjects: List<Subject>,
 			val selectedSubject: Subject? = null,
 			val type: EvaluationType? = null,
+			val scheduleMode: EvaluationScheduleMode = EvaluationScheduleMode.CONTINUOUS,
 			val date: Long? = null,
 			val isOverdue: Boolean = false,
 			val grade: Double? = null,
@@ -69,6 +71,7 @@ object Evaluation {
 		class ClickAddEvaluation(
 			val subject: Subject?,
 			val type: EvaluationType?,
+			val scheduleMode: EvaluationScheduleMode,
 			val date: Long?,
 			val grade: Double?,
 			val maxGrade: Double?
@@ -78,6 +81,7 @@ object Evaluation {
 			val evaluationId: String,
 			val subject: Subject?,
 			val type: EvaluationType?,
+			val scheduleMode: EvaluationScheduleMode,
 			val date: Long?,
 			val grade: Double?,
 			val maxGrade: Double?

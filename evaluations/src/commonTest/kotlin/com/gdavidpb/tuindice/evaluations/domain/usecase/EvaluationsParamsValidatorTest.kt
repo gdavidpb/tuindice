@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.domain.exception.AddEvaluationIllegalArgumentException
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.AddEvaluationUseCaseError
@@ -52,6 +53,7 @@ class EvaluationsParamsValidatorTest {
 			subjectCode = "MA1111",
 			quarterId = "quarter-1",
 			type = type,
+			scheduleMode = EvaluationScheduleMode.DATED,
 			date = 1_700_000_000_000,
 			grade = 80.0,
 			maxGrade = maxGrade

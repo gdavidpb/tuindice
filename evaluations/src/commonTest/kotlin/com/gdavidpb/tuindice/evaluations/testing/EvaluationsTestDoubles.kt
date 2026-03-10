@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.testing
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
@@ -18,6 +19,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
+import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -65,6 +67,7 @@ val DEFAULT_PENDING_EVALUATION = Evaluation(
 	subjectId = DEFAULT_EVALUATION_SUBJECT.id,
 	subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
 	quarterId = DEFAULT_EVALUATION_SUBJECT.quarterId,
+	scheduleMode = EvaluationScheduleMode.DATED,
 	grade = null,
 	maxGrade = 100.0,
 	date = FUTURE_EVALUATION_DATE,
@@ -77,6 +80,7 @@ val DEFAULT_COMPLETED_EVALUATION = Evaluation(
 	subjectId = SECOND_EVALUATION_SUBJECT.id,
 	subjectCode = SECOND_EVALUATION_SUBJECT.code,
 	quarterId = SECOND_EVALUATION_SUBJECT.quarterId,
+	scheduleMode = EvaluationScheduleMode.DATED,
 	grade = 82.0,
 	maxGrade = 100.0,
 	date = PAST_EVALUATION_DATE,
@@ -89,6 +93,7 @@ val DEFAULT_LOCAL_PENDING_EVALUATION = LocalEvaluation(
 	subjectId = DEFAULT_PENDING_EVALUATION.subjectId,
 	subjectCode = DEFAULT_PENDING_EVALUATION.subjectCode,
 	quarterId = DEFAULT_PENDING_EVALUATION.quarterId,
+	scheduleMode = DEFAULT_PENDING_EVALUATION.scheduleMode,
 	grade = DEFAULT_PENDING_EVALUATION.grade,
 	maxGrade = DEFAULT_PENDING_EVALUATION.maxGrade,
 	date = DEFAULT_PENDING_EVALUATION.date,
@@ -101,6 +106,7 @@ val DEFAULT_LOCAL_COMPLETED_EVALUATION = LocalEvaluation(
 	subjectId = DEFAULT_COMPLETED_EVALUATION.subjectId,
 	subjectCode = DEFAULT_COMPLETED_EVALUATION.subjectCode,
 	quarterId = DEFAULT_COMPLETED_EVALUATION.quarterId,
+	scheduleMode = DEFAULT_COMPLETED_EVALUATION.scheduleMode,
 	grade = DEFAULT_COMPLETED_EVALUATION.grade,
 	maxGrade = DEFAULT_COMPLETED_EVALUATION.maxGrade,
 	date = DEFAULT_COMPLETED_EVALUATION.date,
@@ -113,6 +119,7 @@ val DEFAULT_REMOTE_PENDING_EVALUATION = RemoteEvaluation(
 	subjectId = DEFAULT_PENDING_EVALUATION.subjectId,
 	subjectCode = DEFAULT_PENDING_EVALUATION.subjectCode,
 	quarterId = DEFAULT_PENDING_EVALUATION.quarterId,
+	scheduleMode = DEFAULT_PENDING_EVALUATION.scheduleMode,
 	grade = DEFAULT_PENDING_EVALUATION.grade,
 	maxGrade = DEFAULT_PENDING_EVALUATION.maxGrade,
 	date = DEFAULT_PENDING_EVALUATION.date,
@@ -125,6 +132,7 @@ val DEFAULT_REMOTE_COMPLETED_EVALUATION = RemoteEvaluation(
 	subjectId = DEFAULT_COMPLETED_EVALUATION.subjectId,
 	subjectCode = DEFAULT_COMPLETED_EVALUATION.subjectCode,
 	quarterId = DEFAULT_COMPLETED_EVALUATION.quarterId,
+	scheduleMode = DEFAULT_COMPLETED_EVALUATION.scheduleMode,
 	grade = DEFAULT_COMPLETED_EVALUATION.grade,
 	maxGrade = DEFAULT_COMPLETED_EVALUATION.maxGrade,
 	date = DEFAULT_COMPLETED_EVALUATION.date,
@@ -163,14 +171,30 @@ class RecordingEvaluationRepository(
 	override suspend fun updateEvaluation(update: EvaluationUpdate) {
 		updateCalls += update
 		evaluationsState.value = evaluationsState.value.map { evaluation ->
-			if (evaluation.id == update.id)
+			if (evaluation.id == update.id) {
+				val resolvedScheduleMode = update.scheduleMode ?: if (update.date != null) {
+					EvaluationScheduleMode.DATED
+				} else {
+					evaluation.scheduleMode
+				}
+				val resolvedDate = when (resolvedScheduleMode) {
+					EvaluationScheduleMode.CONTINUOUS -> null
+					EvaluationScheduleMode.DATED -> update.date ?: evaluation.date
+				}
+
 				evaluation.copy(
+					scheduleMode = resolvedScheduleMode,
 					grade = update.grade,
 					maxGrade = update.maxGrade ?: evaluation.maxGrade,
-					date = update.date ?: evaluation.date,
-					type = update.type ?: evaluation.type
+					date = resolvedDate,
+					type = update.type ?: evaluation.type,
+					state = computeEvaluationState(
+						scheduleMode = resolvedScheduleMode,
+						grade = update.grade,
+						date = resolvedDate
+					)
 				)
-			else
+			} else
 				evaluation
 		}
 	}

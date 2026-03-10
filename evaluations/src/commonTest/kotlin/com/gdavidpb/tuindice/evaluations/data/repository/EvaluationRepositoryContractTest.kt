@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.data.repository
 
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
@@ -53,6 +54,7 @@ class EvaluationRepositoryContractTest {
 			subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
 			quarterId = DEFAULT_EVALUATION_SUBJECT.quarterId,
 			type = EvaluationType.QUIZ,
+			scheduleMode = EvaluationScheduleMode.DATED,
 			date = DEFAULT_PENDING_EVALUATION.date,
 			grade = null,
 			maxGrade = 100.0

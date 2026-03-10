@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.evaluations.presentation.extension.*
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsShortDayOfWeekAndDate
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -22,6 +23,7 @@ import tuindice.evaluations.generated.resources.*
 @Composable
 fun EvaluationDatePicker(
 	modifier: Modifier = Modifier,
+	selectedScheduleMode: EvaluationScheduleMode,
 	selectedDate: Long?,
 	onDateChange: (date: Long?) -> Unit
 ) {
@@ -94,13 +96,13 @@ fun EvaluationDatePicker(
 		modifier = modifier
 			.testTag(EvaluationsUiTags.EvaluationDatePicker)
 	) {
-		OutlinedButton(
+			OutlinedButton(
 			modifier = Modifier
 				.testTag(EvaluationsUiTags.EvaluationDateSelectButton)
 				.offset(x = 0.5.dp)
 				.weight(0.5f)
 				.defaultMinSize(minHeight = 56.dp),
-			colors = if (committedDate != null) {
+			colors = if (selectedScheduleMode == EvaluationScheduleMode.DATED) {
 				ButtonDefaults.filledTonalButtonColors()
 			} else {
 				ButtonDefaults.outlinedButtonColors()
@@ -141,7 +143,7 @@ fun EvaluationDatePicker(
 				.offset(x = (-0.5).dp)
 				.weight(0.5f)
 				.defaultMinSize(minHeight = 56.dp),
-			colors = if (committedDate == null) {
+			colors = if (selectedScheduleMode == EvaluationScheduleMode.CONTINUOUS) {
 				ButtonDefaults.filledTonalButtonColors()
 			} else {
 				ButtonDefaults.outlinedButtonColors()

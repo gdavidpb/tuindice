@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.model
 
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -10,6 +11,7 @@ data class EvaluationResponse(
 	@SerialName("subject_id") val subjectId: String,
 	@SerialName("subject_code") val subjectCode: String,
 	@SerialName("type") val type: Int,
+	@SerialName("schedule_mode") val scheduleMode: EvaluationScheduleMode,
 	@SerialName("grade") val grade: Double?,
 	@SerialName("max_grade") val maxGrade: Double,
 	@SerialName("date") val date: Long?,

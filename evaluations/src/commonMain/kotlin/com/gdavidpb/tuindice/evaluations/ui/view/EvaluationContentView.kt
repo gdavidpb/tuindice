@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
@@ -47,6 +48,7 @@ fun EvaluationContentView(
 	onDoneClick: (
 		subject: Subject?,
 		type: EvaluationType?,
+		scheduleMode: EvaluationScheduleMode,
 		date: Long?,
 		grade: Double?,
 		maxGrade: Double?
@@ -104,6 +106,7 @@ fun EvaluationContentView(
 
 			EvaluationDatePicker(
 				modifier = Modifier.fillMaxWidth(),
+				selectedScheduleMode = state.scheduleMode,
 				selectedDate = state.date,
 				onDateChange = onDateChange
 			)
@@ -190,6 +193,7 @@ fun EvaluationContentView(
 				onDoneClick(
 					state.selectedSubject,
 					state.type,
+					state.scheduleMode,
 					state.date,
 					state.grade,
 					state.maxGrade

@@ -56,11 +56,12 @@ fun EvaluationRoute(
 		onDateChange = viewModel::setDateAction,
 		onGradeClick = viewModel::clickGradeAction,
 		onMaxGradeClick = viewModel::clickMaxGradeAction,
-		onDoneClick = { subject, type, date, grade, maxGrade ->
+		onDoneClick = { subject, type, scheduleMode, date, grade, maxGrade ->
 			if (evaluationId == null) {
 				viewModel.clickAddEvaluationAction(
 					subject = subject,
 					type = type,
+					scheduleMode = scheduleMode,
 					date = date,
 					grade = grade,
 					maxGrade = maxGrade
@@ -70,6 +71,7 @@ fun EvaluationRoute(
 					evaluationId = evaluationId,
 					subject = subject,
 					type = type,
+					scheduleMode = scheduleMode,
 					date = date,
 					grade = grade,
 					maxGrade = maxGrade

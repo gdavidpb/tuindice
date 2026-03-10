@@ -159,6 +159,7 @@ class EvaluationRouteUiTest {
 			viewModel.clickAddEvaluationAction(
 				subject = DEFAULT_EVALUATION_SUBJECT,
 				type = DEFAULT_PENDING_EVALUATION.type,
+				scheduleMode = DEFAULT_PENDING_EVALUATION.scheduleMode,
 				date = DEFAULT_PENDING_EVALUATION.date,
 				grade = DEFAULT_PENDING_EVALUATION.grade,
 				maxGrade = DEFAULT_PENDING_EVALUATION.maxGrade
@@ -227,6 +228,7 @@ class EvaluationRouteUiTest {
 				evaluationId = DEFAULT_PENDING_EVALUATION.id,
 				subject = DEFAULT_EVALUATION_SUBJECT,
 				type = DEFAULT_PENDING_EVALUATION.type,
+				scheduleMode = DEFAULT_PENDING_EVALUATION.scheduleMode,
 				date = DEFAULT_PENDING_EVALUATION.date,
 				grade = DEFAULT_PENDING_EVALUATION.grade,
 				maxGrade = DEFAULT_PENDING_EVALUATION.maxGrade
@@ -365,6 +367,7 @@ class EvaluationRouteUiTest {
 			viewModel.clickAddEvaluationAction(
 				subject = DEFAULT_EVALUATION_SUBJECT,
 				type = DEFAULT_PENDING_EVALUATION.type,
+				scheduleMode = DEFAULT_PENDING_EVALUATION.scheduleMode,
 				date = DEFAULT_PENDING_EVALUATION.date,
 				grade = DEFAULT_PENDING_EVALUATION.grade,
 				maxGrade = null
