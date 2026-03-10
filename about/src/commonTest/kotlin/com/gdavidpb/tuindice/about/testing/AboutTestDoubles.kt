@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 
 const val CURRENT_APP_VERSION_NAME = "5.8"
 const val CURRENT_APP_VERSION_CODE = 36L
-val CURRENT_PRODUCTION_VERSION_TEXT = "Producción v$CURRENT_APP_VERSION_NAME ($CURRENT_APP_VERSION_CODE)"
+const val CURRENT_PRODUCTION_VERSION_TEXT = "Producción v$CURRENT_APP_VERSION_NAME ($CURRENT_APP_VERSION_CODE)"
 
 class FakeAboutRepository(
 	private val versionDescription: String = CURRENT_PRODUCTION_VERSION_TEXT

@@ -6,6 +6,7 @@ INFOPLIST_FILE = Resources/Info.plist
 CODE_SIGN_ENTITLEMENTS = Resources/TuIndiceHost.Debug.entitlements
 SWIFT_VERSION = 5.9
 IPHONEOS_DEPLOYMENT_TARGET = 16.0
+DEBUG_INFORMATION_FORMAT[sdk=iphonesimulator*] = dwarf
 TARGETED_DEVICE_FAMILY = 1,2
 OTHER_LDFLAGS = $(inherited) -framework maincore
 FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*] = $(inherited) $(SRCROOT)/../maincore/build/bin/iosArm64/debugFramework

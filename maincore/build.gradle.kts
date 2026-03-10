@@ -25,6 +25,7 @@ kotlin {
 		iosTarget.binaries.framework {
 			baseName = "maincore"
 			isStatic = true
+			binaryOption("bundleId", "com.gdavidpb.tuindice.maincore")
 		}
 	}
 
