@@ -71,7 +71,7 @@ class RecordRouteUiTest {
 	}
 
 	@Test
-	fun when_initialLoadFailsWithOutdatedPassword_then_routeNavigatesToUpdatePassword() = runTuIndiceUiTest {
+	fun when_initialLoadFailsWithConflict_then_routeShowsGenericError() = runTuIndiceUiTest {
 		val viewModel = createRecordViewModel(
 			quarterRepository = RecordingQuarterRepository(
 				quarters = flow {
@@ -98,11 +98,11 @@ class RecordRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			navigatedToUpdatePassword
+			snackBars.isNotEmpty()
 		}
 
-		assertTrue(navigatedToUpdatePassword)
-		assertEquals(0, snackBars.size)
+		assertFalse(navigatedToUpdatePassword)
+		assertEquals("¡Ha ocurrido un error!", snackBars.first().message)
 	}
 
 	@Test

@@ -81,19 +81,6 @@ class LoadSummaryActionProcessor(
 							Summary.State.Failed
 						}
 
-						is GetUserUseCaseError.OutdatedPassword -> suspend { state: Summary.State ->
-							if (state is Summary.State.Content) {
-								sideEffect(
-									Summary.Effect.NavigateToOutdatedPassword
-								)
-
-								state.copy(
-									isUpdating = false
-								)
-							} else
-								Summary.State.Failed
-						}
-
 						is GetUserUseCaseError.Timeout -> suspend { _: Summary.State ->
 							val message = getString(Res.string.snack_timeout)
 

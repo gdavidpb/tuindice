@@ -42,7 +42,7 @@ fun SummaryRoute(
 					}.getOrNull()?.let(viewModel::uploadProfilePictureAction)
 				}
 
-			is Summary.Effect.NavigateToOutdatedPassword ->
+			is Summary.Effect.NavigateToOutdatedCredentials ->
 				onNavigateToUpdatePassword()
 
 			is Summary.Effect.ShowSnackBar ->

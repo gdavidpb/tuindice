@@ -60,9 +60,9 @@ class FetchEnrollmentProofActionProcessor(
 									)
 								)
 
-							is FetchEnrollmentProofUseCaseError.OutdatedPassword ->
+							is FetchEnrollmentProofUseCaseError.OutdatedCredentials ->
 								sideEffect(
-									Enrollment.Effect.NavigateToOutdatedPassword
+									Enrollment.Effect.NavigateToOutdatedCredentials
 								)
 
 							is FetchEnrollmentProofUseCaseError.Timeout ->

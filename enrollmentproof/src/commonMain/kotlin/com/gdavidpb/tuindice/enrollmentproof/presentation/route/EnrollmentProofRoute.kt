@@ -22,7 +22,7 @@ fun EnrollmentProofRoute(
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
-			is Enrollment.Effect.NavigateToOutdatedPassword ->
+			is Enrollment.Effect.NavigateToOutdatedCredentials ->
 				onNavigateToUpdatePassword()
 
 			is Enrollment.Effect.OpenEnrollmentProof -> {

@@ -21,7 +21,7 @@ class FetchEnrollmentProofExceptionHandler(
 			throwable is UnsupportedOperationException -> FetchEnrollmentProofUseCaseError.UnsupportedFile
 			throwable.isNotFound() -> FetchEnrollmentProofUseCaseError.NotFound
 			throwable.isUnavailable() -> FetchEnrollmentProofUseCaseError.Unavailable
-			throwable.isConflict() -> FetchEnrollmentProofUseCaseError.OutdatedPassword
+			throwable.isConflict() -> FetchEnrollmentProofUseCaseError.OutdatedCredentials
 			throwable.isTimeout() -> FetchEnrollmentProofUseCaseError.Timeout
 			throwable.isConnection() -> FetchEnrollmentProofUseCaseError.NoConnection(networkRepository.isAvailable())
 			else -> null

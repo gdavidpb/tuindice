@@ -94,7 +94,7 @@ class FetchEnrollmentProofUseCaseContractTest {
 	}
 
 	@Test
-	fun execute_emitsOutdatedPasswordErrorWhenRepositoryFailsWithConflictResponse() = runTest {
+	fun execute_emitsOutdatedCredentialsErrorWhenRepositoryFailsWithConflictResponse() = runTest {
 		val useCase = createUseCase(
 			enrollmentProofRepository = FakeEnrollmentProofRepository(
 				throwable = clientRequestException(HttpStatusCode.Conflict)
@@ -103,7 +103,7 @@ class FetchEnrollmentProofUseCaseContractTest {
 
 		useCase.execute(Unit).test {
 			val error = awaitLoadingThenError(this)
-			assertEquals(FetchEnrollmentProofUseCaseError.OutdatedPassword, error.error)
+			assertEquals(FetchEnrollmentProofUseCaseError.OutdatedCredentials, error.error)
 
 			awaitComplete()
 		}

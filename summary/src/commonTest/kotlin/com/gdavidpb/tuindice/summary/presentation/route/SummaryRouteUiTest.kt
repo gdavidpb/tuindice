@@ -198,7 +198,7 @@ class SummaryRouteUiTest {
 	}
 
 	@Test
-	fun when_loadFailsWithOutdatedPasswordAfterContent_then_routeNavigatesToUpdatePassword() = runTuIndiceUiTest {
+	fun when_loadFailsWithConflictAfterContent_then_routeShowsGenericError() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel(
 			userRepository = RecordingUserRepository(
 				users = flow {
@@ -228,11 +228,11 @@ class SummaryRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			outdatedPasswordNavigations > 0
+			shownSnackBars.isNotEmpty()
 		}
 
-		assertEquals(1, outdatedPasswordNavigations)
-		assertTrue(shownSnackBars.isEmpty())
+		assertEquals(0, outdatedPasswordNavigations)
+		assertEquals("¡Ha ocurrido un error!", shownSnackBars.first().message)
 	}
 
 	@Test

@@ -36,7 +36,7 @@ object Record {
 	}
 
 	sealed class Effect : ViewEffect() {
-		data object NavigateToOutdatedPassword : Effect()
+		data object NavigateToOutdatedCredentials : Effect()
 		class ShowSnackBar(val message: String) : Effect()
 	}
 }

@@ -125,7 +125,7 @@ class FetchEnrollmentProofActionProcessorContractTest {
 	}
 
 	@Test
-	fun process_emitsNavigateToOutdatedPasswordWhenPasswordIsOutdated() = runTest {
+	fun process_emitsNavigateToOutdatedCredentialsWhenCredentialsAreOutdated() = runTest {
 		val processor = createProcessor(
 			enrollmentProofRepository = FakeEnrollmentProofRepository(
 				throwable = clientRequestException(HttpStatusCode.Conflict)
@@ -139,7 +139,7 @@ class FetchEnrollmentProofActionProcessorContractTest {
 		).toList().reduceMutations(Enrollment.State.Fetching)
 
 		assertEquals(Enrollment.State.Fetching, finalState)
-		assertIs<Enrollment.Effect.NavigateToOutdatedPassword>(effects.single())
+		assertIs<Enrollment.Effect.NavigateToOutdatedCredentials>(effects.single())
 	}
 
 	@Test

@@ -20,7 +20,7 @@ fun RecordRoute(
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
-			is Record.Effect.NavigateToOutdatedPassword ->
+			is Record.Effect.NavigateToOutdatedCredentials ->
 				onNavigateToUpdatePassword()
 
 			is Record.Effect.ShowSnackBar ->

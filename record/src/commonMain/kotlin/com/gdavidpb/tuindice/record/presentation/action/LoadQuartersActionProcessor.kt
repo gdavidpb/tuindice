@@ -55,14 +55,6 @@ class LoadQuartersActionProcessor(
 							Record.State.Failed
 						}
 
-						is GetQuartersUseCaseError.OutdatedPassword -> suspend { _: Record.State ->
-							sideEffect(
-								Record.Effect.NavigateToOutdatedPassword
-							)
-
-							Record.State.Failed
-						}
-
 						is GetQuartersUseCaseError.Timeout -> suspend { _: Record.State ->
 							val message = getString(Res.string.snack_timeout)
 

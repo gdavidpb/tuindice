@@ -33,7 +33,7 @@ class RecordExceptionHandlerTest {
 	}
 
 	@Test
-	fun getQuartersExceptionHandler_mapsConflictToOutdatedPassword() {
+	fun getQuartersExceptionHandler_leavesConflictUnhandled() {
 		val reportingRepository = RecordingReportingRepository()
 		val throwable = clientRequestException(HttpStatusCode.Conflict, path = "/quarters/v1")
 
@@ -42,12 +42,12 @@ class RecordExceptionHandlerTest {
 			reportingRepository = reportingRepository
 		).reportException(throwable)
 
-		assertEquals(GetQuartersUseCaseError.OutdatedPassword, actual)
+		assertEquals(null, actual)
 		assertReported(
 			reportingRepository = reportingRepository,
 			handlerName = "GetQuartersExceptionHandler",
 			throwable = throwable,
-			isHandled = true
+			isHandled = false
 		)
 	}
 

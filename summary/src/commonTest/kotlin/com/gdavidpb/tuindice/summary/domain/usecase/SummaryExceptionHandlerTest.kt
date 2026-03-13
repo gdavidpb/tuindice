@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.summary.domain.usecase
 
 import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
-import com.gdavidpb.tuindice.summary.domain.usecase.error.GetUserUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
@@ -16,7 +15,7 @@ import kotlin.test.assertIs
 
 class SummaryExceptionHandlerTest {
 	@Test
-	fun getUserExceptionHandler_mapsConflictToOutdatedPassword() {
+	fun getUserExceptionHandler_leavesConflictUnhandled() {
 		val reportingRepository = RecordingReportingRepository()
 		val throwable = clientRequestException(HttpStatusCode.Conflict, path = "/users/v1")
 
@@ -25,12 +24,12 @@ class SummaryExceptionHandlerTest {
 			reportingRepository = reportingRepository
 		).reportException(throwable)
 
-		assertEquals(GetUserUseCaseError.OutdatedPassword, actual)
+		assertEquals(null, actual)
 		assertReported(
 			reportingRepository = reportingRepository,
 			handlerName = "GetUserExceptionHandler",
 			throwable = throwable,
-			isHandled = true
+			isHandled = false
 		)
 	}
 
