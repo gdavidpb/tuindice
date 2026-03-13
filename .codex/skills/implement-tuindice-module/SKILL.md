@@ -1,0 +1,78 @@
+---
+name: implement-tuindice-module
+description: Create or modify Kotlin Multiplatform modules in this `tuindice` app repository. Use when adding a new feature or shared module, changing an existing module's architecture, Gradle setup, Koin wiring, navigation, platform bindings, root verification tasks, or smoke tests for modules such as `base`, `persistence`, `maincore`, `app`, `auth`, `about`, `summary`, `record`, `evaluations`, `enrollmentproof`, and `testkit`.
+---
+
+# Implement TuIndice Module
+
+## Overview
+
+Implement module work by copying the nearest existing module pattern instead of inventing a new architecture. This repo is a Kotlin Multiplatform app with shared feature modules, shared infrastructure, a shared assembler in `maincore`, an Android host in `app`, and an iOS host in `iosApp`.
+
+## Start Here
+
+- Load [references/project-map.md](references/project-map.md) when you need the current architecture, module roles, integration points, or configuration rules.
+- Load [references/module-recipes.md](references/module-recipes.md) when you need the concrete checklist for creating or modifying a module.
+- Load [references/scaffolding.md](references/scaffolding.md) when you want to bootstrap a new module or render boilerplate for individual architecture components.
+- Use the closest existing module as a template:
+  - `summary` or `record` for a straightforward feature
+  - `evaluations` for a feature with multiple screens, dialogs, and navigation results
+  - `about` for a lighter feature with platform adapters
+  - `persistence` for shared data storage and KSP/Room wiring
+  - `base` for shared contracts, MVI primitives, reusable UI, and cross-feature infrastructure
+  - `maincore` for shared assembly, navigation host, and Koin bootstrap
+- If you need a fast starting point, use `scripts/scaffold_feature_module.py` before hand-writing boilerplate. It can scaffold a baseline feature module, integrate that feature into the repo wiring, and render templates for `ViewModel`, `Route`, `ActionProcessor`, `UseCase`, `Repository`, `Navigation`, `Screen`, and smoke tests.
+
+## Workflow
+
+1. Classify the change first: existing feature, new feature, shared infrastructure, or host/bootstrap change.
+2. Inspect the nearest existing module and mirror its package layout, Gradle plugins, and DI style.
+3. For new work, prefer scaffolding from `scripts/scaffold_feature_module.py` or `assets/templates/` and then adapt the result instead of rewriting the same boilerplate by hand.
+4. Default to `commonMain`; move code to `androidMain` or `iosMain` only for real platform needs.
+5. Wire Koin in the owner module only:
+   - shared infra in `maincore/.../CommonModule.kt`
+   - feature dependencies in `<feature>/.../<Feature>Module.kt`
+   - Android platform bindings in `app/.../AndroidPlatformModule.kt`
+   - iOS platform bindings in `maincore/src/iosMain/.../IosPlatformModule.kt`
+6. Keep the UI boundary explicit:
+   - `Navigation` resolves the `ViewModel`
+   - `Route` bridges `state/effect` and lifecycle to the pure `Screen`
+   - `Screen` stays free of Koin and business wiring
+7. Update smoke tests and focused contract/UI tests when constructor wiring or public entry points change.
+8. Run the smallest truthful verification set and report anything left unverified.
+
+## Non-Negotiable Project Rules
+
+- Keep the dependency flow pointed inward. Do not add new feature-to-feature dependencies without explicit approval. Current legacy exception: `evaluations -> record`.
+- Preserve `presentation -> domain -> data -> di` separation. Interfaces live in `domain`; implementations live in `data`; `di` only wires them.
+- `ViewModel` classes extend `BaseViewModel` and delegate work to `ActionProcessor` classes.
+- Preserve the composable boundary:
+  - `Navigation` injects or resolves `ViewModel` instances with `koinViewModel(...)`
+  - `Route` observes `state` and `effect`, triggers initial actions with `LaunchedEffect`, and passes plain state/callbacks to `Screen`
+  - `Screen` stays stateless with respect to DI
+- Keep `commonMain` portable:
+  - no `android.*`
+  - no `BuildConfig`
+  - no Java IO types in shared code
+  - no Android-specific Koin ViewModel DSL in KMP source sets
+- Feature modules expose a single public Koin module named `<feature>Module`.
+- Platform wiring stays centralized in `androidPlatformModule` and `iosPlatformModule`; do not create per-feature platform modules.
+- New user-facing text goes through `composeResources`.
+- If the change alters architectural boundaries, update `README.md` in the same change.
+
+## Validation
+
+- Start with targeted compilation:
+  - `./gradlew --continue --console=plain :<module>:compileAndroidMain`
+  - `./gradlew --continue --console=plain :<module>:compileKotlinIosSimulatorArm64`
+- For feature DI changes, run the module smoke test.
+- For shared bootstrap changes, run the relevant `maincore` smoke tests and the iOS bootstrap smoke test when applicable.
+- For navigation or shared UI work, run focused module tests or the shared UI gate if the change is broad.
+- When a new shared module is added, also update and run the relevant root verification tasks listed in [references/project-map.md](references/project-map.md).
+- Never claim checks you did not run.
+
+## References
+
+- [references/project-map.md](references/project-map.md): architecture, dependency rules, integration points, and root file map.
+- [references/module-recipes.md](references/module-recipes.md): concrete recipes for feature, infrastructure, and host-module changes.
+- [references/scaffolding.md](references/scaffolding.md): scaffolding workflow, template catalog, and explicit `ViewModel` plus `Route` patterns.

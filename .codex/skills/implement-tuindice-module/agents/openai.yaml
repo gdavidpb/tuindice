@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement TuIndice Module"
+  short_description: "Crea módulos KMP y scaffold de arquitectura"
+  default_prompt: "Use $implement-tuindice-module to create or modify a module in this tuindice repository, including scaffolding ViewModel, Route, navigation, Koin, and testing boilerplate when needed."
