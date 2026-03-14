@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
+import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.canonicalRiskPayloadJson
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
@@ -17,6 +19,8 @@ import kotlinx.coroutines.flow.flowOf
 class UpdatePasswordUseCase(
 	private val authRepository: AuthRepository,
 	private val sessionRepository: SessionRepository,
+	private val syncRepository: SyncRepository,
+	private val credentialsRepository: CredentialsRepository,
 	private val riskAttestationRepository: RiskAttestationRepository,
 	override val paramsValidator: UpdatePasswordParamsValidator,
 	override val exceptionHandler: UpdatePasswordExceptionHandler
@@ -45,6 +49,14 @@ class UpdatePasswordUseCase(
 			password = params,
 			flow = flow,
 			riskAttestation = riskAttestation
+		)
+
+		credentialsRepository.setPassword(
+			password = params
+		)
+
+		syncRepository.scheduleSync(
+			password = params
 		)
 
 		return flowOf(Unit)

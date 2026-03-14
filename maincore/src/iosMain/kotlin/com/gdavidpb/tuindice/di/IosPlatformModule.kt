@@ -138,6 +138,8 @@ private fun Module.registerIosPlatformNetworking() {
 			sessionRepository = get<SessionRepository>(),
 			riskAttestationRepositoryProvider = { get<RiskAttestationRepository>() },
 			authRepositoryProvider = { get<AuthRepository>() },
+			credentialsRepositoryProvider = { get<CredentialsRepository>() },
+			syncRepositoryProvider = { get<SyncRepository>() },
 			logger = createAppKtorLogger(),
 			json = get<Json>(),
 			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())

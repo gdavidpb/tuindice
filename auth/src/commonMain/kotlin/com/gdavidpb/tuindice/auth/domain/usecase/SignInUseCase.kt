@@ -1,10 +1,5 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
-import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
-import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
-import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.base.utils.canonicalRiskPayloadJson
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokensRiskPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
@@ -12,12 +7,21 @@ import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
+import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
+import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
+import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.base.utils.canonicalRiskPayloadJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class SignInUseCase(
 	private val authRepository: AuthRepository,
 	private val messagingRepository: MessagingRepository,
+	private val syncRepository: SyncRepository,
+	private val credentialsRepository: CredentialsRepository,
 	private val riskAttestationRepository: RiskAttestationRepository,
 	override val paramsValidator: SignInParamsValidator,
 	override val exceptionHandler: SignInExceptionHandler
@@ -46,6 +50,15 @@ class SignInUseCase(
 			flow = flow,
 			riskAttestation = riskAttestation
 		)
+
+		credentialsRepository.setPassword(
+			password = params.password
+		)
+
+		syncRepository.scheduleSync(
+			password = params.password
+		)
+
 		messagingRepository.subscribe()
 
 		return flowOf(Unit)

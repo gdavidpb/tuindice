@@ -49,8 +49,8 @@ fun createMainViewModel(
 				sessionRepository = sessionRepository,
 				settingsRepository = settingsRepository,
 				configRepository = configRepository,
+				applicationRepository = applicationRepository,
 				exceptionHandler = StartUpExceptionHandler(
-					applicationRepository = applicationRepository,
 					reportingRepository = reportingRepository
 				)
 			)

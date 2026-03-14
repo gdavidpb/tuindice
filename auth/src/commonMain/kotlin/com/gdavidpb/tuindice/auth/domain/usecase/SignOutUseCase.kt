@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.auth.domain.usecase
 
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
+import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -14,7 +15,8 @@ class SignOutUseCase(
 	private val authRepository: AuthRepository,
 	private val sessionRepository: SessionRepository,
 	private val messagingRepository: MessagingRepository,
-	private val applicationRepository: ApplicationRepository
+	private val applicationRepository: ApplicationRepository,
+	private val credentialsRepository: CredentialsRepository
 ) : FlowUseCase<Unit, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		coroutineScope {
@@ -30,6 +32,7 @@ class SignOutUseCase(
 		}
 
 		sessionRepository.clear()
+		credentialsRepository.clearPassword()
 		applicationRepository.clearData()
 
 		return flowOf(Unit)

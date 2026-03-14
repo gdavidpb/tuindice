@@ -13,6 +13,8 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
+import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import io.github.vinceglb.filekit.PlatformFile
@@ -204,5 +206,36 @@ class FakeUpdateRepository(
 
 	override suspend fun launchUpdate(action: UpdateAction) {
 		launchedActions += action
+	}
+}
+
+class FakeSyncRepository : SyncRepository {
+	val scheduledSyncCalls = mutableListOf<String>()
+
+	override fun scheduleSync(password: String) {
+		scheduledSyncCalls += password
+	}
+}
+
+class FakeCredentialsRepository(
+	password: String? = null
+) : CredentialsRepository {
+	var password: String? = password
+	val storedPasswords = mutableListOf<String>()
+	var clearCalls = 0
+		private set
+
+	override suspend fun hasPassword(): Boolean = password != null
+
+	override suspend fun getPassword(): String = password ?: throw IllegalStateException()
+
+	override suspend fun setPassword(password: String) {
+		this.password = password
+		storedPasswords += password
+	}
+
+	override suspend fun clearPassword() {
+		password = null
+		clearCalls++
 	}
 }

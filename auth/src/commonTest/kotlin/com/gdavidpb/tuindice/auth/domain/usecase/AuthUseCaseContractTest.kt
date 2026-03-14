@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.auth.domain.usecase
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.RiskOperation
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
+import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
@@ -16,6 +17,8 @@ import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
+import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,9 +33,13 @@ class AuthUseCaseContractTest {
 		val repository = RecordingAuthRepository()
 		val attestationRepository = FakeAttestationRepository()
 		val messagingRepository = RecordingMessagingRepository()
+		val syncRepository = FakeSyncRepository()
+		val credentialsRepository = FakeCredentialsRepository()
 		val useCase = SignInUseCase(
 			authRepository = repository,
 			messagingRepository = messagingRepository,
+			syncRepository = syncRepository,
+			credentialsRepository = credentialsRepository,
 			riskAttestationRepository = attestationRepository,
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
@@ -42,7 +49,7 @@ class AuthUseCaseContractTest {
 		)
 
 		useCase.execute(SignInParams(usbId = VALID_USB_ID, password = "secret123")).test {
-			assertEquals(Unit, awaitLoadingThenData(this))
+			assertEquals(Unit, awaitLoadingThenData<Unit, SignInUseCaseError>(this))
 			awaitComplete()
 		}
 
@@ -50,15 +57,21 @@ class AuthUseCaseContractTest {
 		assertEquals(IssueTokensFlow.IssueTokens, repository.issueTokensCalls.single().flow)
 		assertEquals(RiskOperation.IssueTokens, attestationRepository.lastRequest?.operation)
 		assertEquals(1, messagingRepository.subscribeCalls)
+		assertEquals(listOf("secret123"), credentialsRepository.storedPasswords)
+		assertEquals(listOf("secret123"), syncRepository.scheduledSyncCalls)
 	}
 
 	@Test
 	fun updatePasswordUseCase_emitsLoadingThenData_andUsesStoredUsbId() = runTest {
 		val repository = RecordingAuthRepository()
 		val sessionRepository = FakeSessionRepository(usbId = "20261234")
+		val syncRepository = FakeSyncRepository()
+		val credentialsRepository = FakeCredentialsRepository()
 		val useCase = UpdatePasswordUseCase(
 			authRepository = repository,
 			sessionRepository = sessionRepository,
+			syncRepository = syncRepository,
+			credentialsRepository = credentialsRepository,
 			riskAttestationRepository = FakeAttestationRepository(),
 			paramsValidator = UpdatePasswordParamsValidator(),
 			exceptionHandler = UpdatePasswordExceptionHandler(
@@ -68,13 +81,15 @@ class AuthUseCaseContractTest {
 		)
 
 		useCase.execute("new-secret").test {
-			assertEquals(Unit, awaitLoadingThenData(this))
+			assertEquals(Unit, awaitLoadingThenData<Unit, SignInUseCaseError>(this))
 			awaitComplete()
 		}
 
 		val call = repository.issueTokensCalls.single()
 		assertEquals("20261234", call.usbId)
 		assertEquals(IssueTokensFlow.ReissueTokens, call.flow)
+		assertEquals(listOf("new-secret"), credentialsRepository.storedPasswords)
+		assertEquals(listOf("new-secret"), syncRepository.scheduledSyncCalls)
 	}
 
 	@Test
@@ -83,21 +98,25 @@ class AuthUseCaseContractTest {
 		val messagingRepository = RecordingMessagingRepository()
 		val sessionRepository = FakeSessionRepository()
 		val applicationRepository = RecordingApplicationRepository()
+		val credentialsRepository = FakeCredentialsRepository(password = "secret123")
 		val useCase = SignOutUseCase(
 			authRepository = authRepository,
 			sessionRepository = sessionRepository,
 			messagingRepository = messagingRepository,
-			applicationRepository = applicationRepository
+			applicationRepository = applicationRepository,
+			credentialsRepository = credentialsRepository
 		)
 
 		useCase.execute(Unit).test {
-			assertEquals(Unit, awaitLoadingThenData(this))
+			assertEquals(Unit, awaitLoadingThenData<Unit, Nothing>(this))
 			awaitComplete()
 		}
 
 		assertEquals(1, authRepository.revokeTokensCalls)
 		assertEquals(true, sessionRepository.cleared)
 		assertEquals(1, messagingRepository.unsubscribeCalls)
+		assertEquals(null, credentialsRepository.password)
+		assertEquals(1, credentialsRepository.clearCalls)
 		assertEquals(true, applicationRepository.cleared)
 	}
 }

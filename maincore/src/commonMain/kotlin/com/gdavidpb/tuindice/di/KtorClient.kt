@@ -4,8 +4,10 @@ import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
+import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.utils.canonicalRiskPayloadJson
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensRiskPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
@@ -39,6 +41,8 @@ fun createSharedHttpClient(
 	sessionRepository: SessionRepository,
 	riskAttestationRepositoryProvider: () -> RiskAttestationRepository,
 	authRepositoryProvider: () -> AuthRepository,
+	credentialsRepositoryProvider: () -> CredentialsRepository,
+	syncRepositoryProvider: () -> SyncRepository,
 	logger: Logger,
 	json: Json,
 	userAgentValue: String? = null
@@ -75,8 +79,8 @@ fun createSharedHttpClient(
 
 			sanitizeHeader { header ->
 				header == HttpHeaders.Authorization ||
-					header == "X-Forwarded-Authorization" ||
-					header == "X-Risk-Attestation"
+						header == "X-Forwarded-Authorization" ||
+						header == "X-Risk-Attestation"
 			}
 		}
 
@@ -100,6 +104,8 @@ fun createSharedHttpClient(
 					val oldRefreshToken = oldTokens?.refreshToken ?: sessionRepository.getRefreshToken()
 					val riskAttestationRepository = riskAttestationRepositoryProvider()
 					val authRepository = authRepositoryProvider()
+					val credentialsRepository = credentialsRepositoryProvider()
+					val syncRepository = syncRepositoryProvider()
 
 					val riskPayload = RefreshTokensRiskPayload(
 						accessToken = oldAccessToken,
@@ -121,6 +127,12 @@ fun createSharedHttpClient(
 						refreshToken = oldRefreshToken,
 						riskAttestation = riskAttestation
 					)
+
+					if (credentialsRepository.hasPassword()) {
+						syncRepository.scheduleSync(
+							password = credentialsRepository.getPassword()
+						)
+					}
 
 					BearerTokens(
 						accessToken = response.accessToken,
