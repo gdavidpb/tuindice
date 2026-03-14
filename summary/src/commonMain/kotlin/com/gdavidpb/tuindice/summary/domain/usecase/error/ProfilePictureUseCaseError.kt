@@ -5,5 +5,8 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseError
 sealed interface ProfilePictureUseCaseError : UseCaseError {
 	data object Timeout : ProfilePictureUseCaseError
 	data object InvalidSource : ProfilePictureUseCaseError
+	data object NotFound : ProfilePictureUseCaseError
+	data object NotImage : ProfilePictureUseCaseError
+	data object SizeExceeded : ProfilePictureUseCaseError
 	class NoConnection(val isNetworkAvailable: Boolean) : ProfilePictureUseCaseError
 }

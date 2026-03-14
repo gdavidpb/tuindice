@@ -73,6 +73,44 @@ class SummaryExceptionHandlerTest {
 	}
 
 	@Test
+	fun uploadProfilePictureExceptionHandler_mapsUnsupportedMediaType() {
+		val reportingRepository = RecordingReportingRepository()
+		val throwable = clientRequestException(HttpStatusCode.UnsupportedMediaType, path = "/users/v1/picture")
+
+		val actual = UploadProfilePictureExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true),
+			reportingRepository = reportingRepository
+		).reportException(throwable)
+
+		assertEquals(ProfilePictureUseCaseError.NotImage, actual)
+		assertReported(
+			reportingRepository = reportingRepository,
+			handlerName = "UploadProfilePictureExceptionHandler",
+			throwable = throwable,
+			isHandled = true
+		)
+	}
+
+	@Test
+	fun uploadProfilePictureExceptionHandler_mapsPayloadTooLarge() {
+		val reportingRepository = RecordingReportingRepository()
+		val throwable = clientRequestException(HttpStatusCode.PayloadTooLarge, path = "/users/v1/picture")
+
+		val actual = UploadProfilePictureExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true),
+			reportingRepository = reportingRepository
+		).reportException(throwable)
+
+		assertEquals(ProfilePictureUseCaseError.SizeExceeded, actual)
+		assertReported(
+			reportingRepository = reportingRepository,
+			handlerName = "UploadProfilePictureExceptionHandler",
+			throwable = throwable,
+			isHandled = true
+		)
+	}
+
+	@Test
 	fun removeProfilePictureExceptionHandler_mapsConnectionToNoConnection() {
 		val reportingRepository = RecordingReportingRepository()
 		val throwable = IllegalStateException("network is unreachable")
@@ -84,6 +122,25 @@ class SummaryExceptionHandlerTest {
 
 		val error = assertIs<ProfilePictureUseCaseError.NoConnection>(actual)
 		assertEquals(false, error.isNetworkAvailable)
+		assertReported(
+			reportingRepository = reportingRepository,
+			handlerName = "RemoveProfilePictureExceptionHandler",
+			throwable = throwable,
+			isHandled = true
+		)
+	}
+
+	@Test
+	fun removeProfilePictureExceptionHandler_mapsNotFound() {
+		val reportingRepository = RecordingReportingRepository()
+		val throwable = clientRequestException(HttpStatusCode.NotFound, path = "/users/v1/picture")
+
+		val actual = RemoveProfilePictureExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true),
+			reportingRepository = reportingRepository
+		).reportException(throwable)
+
+		assertEquals(ProfilePictureUseCaseError.NotFound, actual)
 		assertReported(
 			reportingRepository = reportingRepository,
 			handlerName = "RemoveProfilePictureExceptionHandler",

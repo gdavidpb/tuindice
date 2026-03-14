@@ -15,6 +15,8 @@
 	<string name="menu_remove_profile_picture">Remover foto</string>
 	<string name="snack_profile_picture_updated">Foto de perfil actualizada</string>
 	<string name="snack_profile_picture_removed">Foto de perfil removida</string>
+	<string name="snack_profile_picture_not_image">El archivo debe ser una imagen.</string>
+	<string name="snack_profile_picture_size_exceeded">La imagen es demasiado grande.</string>
 	<string name="text_last_update">Última actualización: %1$s</string>
 	<string name="text_sync_failed">No pudimos sincronizar tus datos. %1$s</string>
 	<string name="text_sync_outdated_credentials">Actualiza tu contraseña para volver a sincronizar tus datos.</string>

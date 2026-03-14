@@ -12,6 +12,8 @@ import org.jetbrains.compose.resources.getString
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.snack_default_error
 import tuindice.summary.generated.resources.snack_network_unavailable
+import tuindice.summary.generated.resources.snack_profile_picture_not_image
+import tuindice.summary.generated.resources.snack_profile_picture_size_exceeded
 import tuindice.summary.generated.resources.snack_profile_picture_updated
 import tuindice.summary.generated.resources.snack_service_unavailable
 import tuindice.summary.generated.resources.snack_timeout
@@ -65,6 +67,12 @@ class UploadProfilePictureActionProcessor(
 									getString(Res.string.snack_service_unavailable)
 								else
 									getString(Res.string.snack_network_unavailable)
+
+							ProfilePictureUseCaseError.NotImage ->
+								getString(Res.string.snack_profile_picture_not_image)
+
+							ProfilePictureUseCaseError.SizeExceeded ->
+								getString(Res.string.snack_profile_picture_size_exceeded)
 
 							else ->
 								getString(Res.string.snack_default_error)

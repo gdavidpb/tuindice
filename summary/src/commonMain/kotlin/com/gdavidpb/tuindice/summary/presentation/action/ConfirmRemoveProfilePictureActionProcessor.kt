@@ -56,6 +56,9 @@ class ConfirmRemoveProfilePictureActionProcessor(
 
 					is UseCaseState.Error -> suspend { state: Summary.State ->
 						val message = when (val error = useCaseState.error) {
+							ProfilePictureUseCaseError.NotFound ->
+								getString(Res.string.snack_profile_picture_removed)
+
 							is ProfilePictureUseCaseError.Timeout ->
 								getString(Res.string.snack_timeout)
 
@@ -76,9 +79,15 @@ class ConfirmRemoveProfilePictureActionProcessor(
 								)
 							)
 
-							state.copy(
-								isProfilePictureLoading = false
-							)
+							if (useCaseState.error == ProfilePictureUseCaseError.NotFound)
+								state.copy(
+									profilePictureUrl = "",
+									isProfilePictureLoading = false
+								)
+							else
+								state.copy(
+									isProfilePictureLoading = false
+								)
 						} else
 							state
 					}

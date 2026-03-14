@@ -4,7 +4,7 @@
     "urlPath": "/users/v1/picture"
   },
   "response": {
-    "status": 200,
+    "status": 201,
     "headers": {
       "Content-Type": "application/json"
     },

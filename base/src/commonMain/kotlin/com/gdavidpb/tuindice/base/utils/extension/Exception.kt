@@ -95,6 +95,16 @@ fun Throwable.isPreconditionFailed() = when (this) {
 	else -> false
 }
 
+fun Throwable.isPayloadTooLarge() = when (this) {
+	is ClientRequestException -> response.status == HttpStatusCode.PayloadTooLarge
+	else -> false
+}
+
+fun Throwable.isUnsupportedMediaType() = when (this) {
+	is ClientRequestException -> response.status == HttpStatusCode.UnsupportedMediaType
+	else -> false
+}
+
 fun Throwable.isTimeout(): Boolean {
 	return errorChain().any { throwable ->
 		throwable is TimeoutCancellationException ||
