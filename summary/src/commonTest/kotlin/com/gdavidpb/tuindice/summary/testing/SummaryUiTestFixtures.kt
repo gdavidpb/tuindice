@@ -27,7 +27,6 @@ fun summaryContentState(
 	profilePictureUrl = profilePictureUrl,
 	isGradeVisible = true,
 	isProfilePictureLoading = isProfilePictureLoading,
-	isLoading = false,
 	isUpdated = isUpdated,
 	isUpdating = isUpdating
 )

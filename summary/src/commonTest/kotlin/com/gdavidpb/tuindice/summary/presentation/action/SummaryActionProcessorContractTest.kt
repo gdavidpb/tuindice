@@ -93,7 +93,6 @@ class SummaryActionProcessorContractTest {
 			profilePictureUrl = DEFAULT_SUMMARY_USER.pictureUrl,
 			isGradeVisible = true,
 			isProfilePictureLoading = false,
-			isLoading = false,
 			isUpdated = true,
 			isUpdating = false
 		)

@@ -31,7 +31,6 @@ object Summary {
 			val profilePictureUrl: String,
 			val isGradeVisible: Boolean,
 			val isProfilePictureLoading: Boolean,
-			val isLoading: Boolean,
 			val isUpdated: Boolean,
 			val isUpdating: Boolean
 		) : State()

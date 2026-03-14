@@ -58,7 +58,6 @@ class LoadSummaryActionProcessor(
 								profilePictureUrl = pictureUrl,
 								isGradeVisible = (grade > 0.0),
 								isProfilePictureLoading = false,
-								isLoading = false,
 								isUpdated = true,
 								isUpdating = false
 							)
