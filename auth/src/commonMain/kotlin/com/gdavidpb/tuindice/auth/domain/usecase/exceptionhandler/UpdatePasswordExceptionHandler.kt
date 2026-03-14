@@ -4,6 +4,8 @@ import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
+import com.gdavidpb.tuindice.base.utils.extension.isForbidden
+import com.gdavidpb.tuindice.base.utils.extension.isLocked
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
@@ -17,6 +19,8 @@ class UpdatePasswordExceptionHandler(
 	override fun parseException(throwable: Throwable): SignInUseCaseError? {
 		return when {
 			throwable is SignInIllegalArgumentException -> throwable.error
+			throwable.isLocked() -> SignInUseCaseError.AccountDisabled
+			throwable.isForbidden() -> SignInUseCaseError.Untrusted
 			throwable.isUnauthorized() -> SignInUseCaseError.InvalidCredentials
 			throwable.isUnavailable() -> SignInUseCaseError.Unavailable
 			throwable.isTimeout() -> SignInUseCaseError.Timeout

@@ -8,8 +8,7 @@ import com.gdavidpb.tuindice.summary.ui.view.buildSummaryItems
 
 fun summaryContentState(
 	profilePictureUrl: String = "https://cdn.tuindice.app/profile.jpg",
-	isProfilePictureLoading: Boolean = false,
-	isUpdated: Boolean = true
+	isProfilePictureLoading: Boolean = false
 ): Summary.State.Content = Summary.State.Content(
 	name = "Ana Diaz",
 	lastUpdate = "Ultima actualizacion: Hoy",
@@ -25,8 +24,7 @@ fun summaryContentState(
 	failedCredits = 1,
 	profilePictureUrl = profilePictureUrl,
 	isGradeVisible = true,
-	isProfilePictureLoading = isProfilePictureLoading,
-	isUpdated = isUpdated
+	isProfilePictureLoading = isProfilePictureLoading
 )
 
 fun summaryItemsFor(

@@ -21,7 +21,8 @@
 	<string name="title_terms_and_conditions">TuIndice - Términos y condiciones</string>
 	<string name="title_privacy_policy">TuIndice - Política de privacidad</string>
 	<string name="error_invalid_credentials">USBID o contraseña inválida</string>
-	<string name="error_user_disabled">Cuenta inhabilitada</string>
+	<string name="error_account_disabled">Cuenta inhabilitada</string>
+	<string name="error_untrusted">No pudimos verificar la seguridad del dispositivo</string>
 	<string name="error_invalid_password">Contraseña inválida</string>
 	<string name="label_retry">Reintentar</string>
 	<string name="snack_service_unavailable">Servicio no disponible</string>

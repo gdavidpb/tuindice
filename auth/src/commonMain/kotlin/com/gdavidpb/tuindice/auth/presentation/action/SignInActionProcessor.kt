@@ -12,8 +12,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.jetbrains.compose.resources.getString
 import tuindice.auth.generated.resources.Res
+import tuindice.auth.generated.resources.error_account_disabled
 import tuindice.auth.generated.resources.error_invalid_credentials
-import tuindice.auth.generated.resources.error_user_disabled
+import tuindice.auth.generated.resources.error_untrusted
 import tuindice.auth.generated.resources.label_retry
 import tuindice.auth.generated.resources.snack_default_error
 import tuindice.auth.generated.resources.snack_network_unavailable
@@ -64,8 +65,11 @@ class SignInActionProcessor(
 							is SignInUseCaseError.InvalidCredentials ->
 								getString(Res.string.error_invalid_credentials)
 
-							is SignInUseCaseError.UserDisabled ->
-								getString(Res.string.error_user_disabled)
+							is SignInUseCaseError.AccountDisabled ->
+								getString(Res.string.error_account_disabled)
+
+							is SignInUseCaseError.Untrusted ->
+								getString(Res.string.error_untrusted)
 
 							is SignInUseCaseError.NoConnection ->
 								if (error.isNetworkAvailable)
@@ -86,7 +90,8 @@ class SignInActionProcessor(
 						if (state is SignIn.State.LoggingIn) {
 							when (error) {
 								is SignInUseCaseError.InvalidCredentials,
-								is SignInUseCaseError.UserDisabled ->
+								is SignInUseCaseError.AccountDisabled,
+								is SignInUseCaseError.Untrusted ->
 									sideEffect(
 										SignIn.Effect.ShowSnackBar(
 											message = errorMessage

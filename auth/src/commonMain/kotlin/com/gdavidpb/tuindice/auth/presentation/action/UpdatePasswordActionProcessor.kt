@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.jetbrains.compose.resources.getString
 import tuindice.auth.generated.resources.Res
+import tuindice.auth.generated.resources.error_account_disabled
 import tuindice.auth.generated.resources.error_invalid_password
+import tuindice.auth.generated.resources.error_untrusted
 import tuindice.auth.generated.resources.snack_default_error
 import tuindice.auth.generated.resources.snack_network_unavailable
 import tuindice.auth.generated.resources.snack_password_updated
@@ -53,6 +55,12 @@ class UpdatePasswordActionProcessor(
 						val error = when (val useCaseError = useCaseState.error) {
 							is SignInUseCaseError.InvalidCredentials ->
 								getString(Res.string.error_invalid_password)
+
+							is SignInUseCaseError.AccountDisabled ->
+								getString(Res.string.error_account_disabled)
+
+							is SignInUseCaseError.Untrusted ->
+								getString(Res.string.error_untrusted)
 
 							is SignInUseCaseError.NoConnection ->
 								if (useCaseError.isNetworkAvailable)

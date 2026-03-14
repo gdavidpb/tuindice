@@ -70,6 +70,11 @@ fun Throwable.isForbidden() = when (this) {
 	else -> false
 }
 
+fun Throwable.isLocked() = when (this) {
+	is ClientRequestException -> response.status == HttpStatusCode.Locked
+	else -> false
+}
+
 fun Throwable.isConflict() = when (this) {
 	is ClientRequestException -> response.status == HttpStatusCode.Conflict
 	else -> false

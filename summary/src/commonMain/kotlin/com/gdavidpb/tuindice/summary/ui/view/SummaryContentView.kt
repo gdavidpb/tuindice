@@ -8,9 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Sync
-import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -77,8 +75,8 @@ fun SummaryContentView(
 					modifier = Modifier
 						.testTag(SummaryUiTags.StatusIcon)
 						.padding(horizontal = 4.dp),
-					imageVector = if (state.isUpdated) Icons.Outlined.Sync else Icons.Outlined.SyncProblem,
-					tint = if (state.isUpdated) LocalContentColor.current else MaterialTheme.colorScheme.error,
+					imageVector = Icons.Outlined.Sync,
+					tint = MaterialTheme.colorScheme.onSurfaceVariant,
 					contentDescription = null
 			)
 

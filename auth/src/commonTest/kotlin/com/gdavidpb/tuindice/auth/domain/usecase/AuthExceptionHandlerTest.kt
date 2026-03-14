@@ -33,6 +33,30 @@ class AuthExceptionHandlerTest {
 	}
 
 	@Test
+	fun signInExceptionHandler_mapsAccountDisabled_fromLocked() {
+		val actual = SignInExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true),
+			reportingRepository = RecordingReportingRepository()
+		).reportException(
+			clientRequestException(HttpStatusCode.Locked, path = "/auth/v1/token")
+		)
+
+		assertEquals(SignInUseCaseError.AccountDisabled, actual)
+	}
+
+	@Test
+	fun signInExceptionHandler_mapsUntrusted_fromForbidden() {
+		val actual = SignInExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true),
+			reportingRepository = RecordingReportingRepository()
+		).reportException(
+			clientRequestException(HttpStatusCode.Forbidden, path = "/auth/v1/token")
+		)
+
+		assertEquals(SignInUseCaseError.Untrusted, actual)
+	}
+
+	@Test
 	fun signInExceptionHandler_mapsConnectionState_usingNetworkAvailability() {
 		val reportingRepository = RecordingReportingRepository()
 		val throwable = IllegalStateException("network is unreachable")
@@ -50,6 +74,18 @@ class AuthExceptionHandlerTest {
 			throwable = throwable,
 			isHandled = true
 		)
+	}
+
+	@Test
+	fun updatePasswordExceptionHandler_mapsAccountDisabled_fromLocked() {
+		val actual = UpdatePasswordExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true),
+			reportingRepository = RecordingReportingRepository()
+		).reportException(
+			clientRequestException(HttpStatusCode.Locked, path = "/auth/v1/token")
+		)
+
+		assertEquals(SignInUseCaseError.AccountDisabled, actual)
 	}
 
 	@Test

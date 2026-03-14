@@ -54,12 +54,11 @@ class LoadSummaryActionProcessor(
 								retiredSubjects = retiredSubjects,
 								retiredCredits = retiredCredits,
 								failedSubjects = failedSubjects,
-									failedCredits = failedCredits,
-									profilePictureUrl = pictureUrl,
-									isGradeVisible = (grade > 0.0),
-									isProfilePictureLoading = false,
-									isUpdated = true
-								)
+								failedCredits = failedCredits,
+								profilePictureUrl = pictureUrl,
+								isGradeVisible = (grade > 0.0),
+								isProfilePictureLoading = false
+							)
 							}
 						}
 
@@ -102,9 +101,7 @@ class LoadSummaryActionProcessor(
 							)
 
 							if (state is Summary.State.Content)
-								state.copy(
-									isUpdated = false
-								)
+								state
 							else
 								Summary.State.Failed
 						}

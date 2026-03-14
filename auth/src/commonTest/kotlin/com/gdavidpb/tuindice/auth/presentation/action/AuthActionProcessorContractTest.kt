@@ -22,9 +22,12 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeOutdatedCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
+import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.compose.resources.getString
 import tuindice.auth.generated.resources.Res
+import tuindice.auth.generated.resources.error_account_disabled
 import tuindice.auth.generated.resources.snack_password_updated
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -131,5 +134,44 @@ class AuthActionProcessorContractTest {
 		}
 
 		assertIs<SignOut.Effect.NavigateToSignIn>(effects.single())
+	}
+
+	@Test
+	fun signInActionProcessor_showsNonRetrySnackBar_forDisabledAccount() = runTest {
+		val processor = SignInActionProcessor(
+			signInUseCase = SignInUseCase(
+				authRepository = RecordingAuthRepository(
+					throwable = clientRequestException(HttpStatusCode.Locked, path = "/auth/v1/token")
+				),
+				messagingRepository = RecordingMessagingRepository(),
+				syncRepository = FakeSyncRepository(),
+				credentialsRepository = FakeCredentialsRepository(),
+				outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
+				riskAttestationRepository = FakeAttestationRepository(),
+				paramsValidator = SignInParamsValidator(),
+				exceptionHandler = SignInExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true),
+					reportingRepository = RecordingReportingRepository()
+				)
+			),
+			configRepository = FakeConfigRepository()
+		)
+		val effects = mutableListOf<SignIn.Effect>()
+
+		processor.process(
+			action = SignIn.Action.ClickSignIn(
+				usbId = VALID_USB_ID,
+				password = "secret123"
+			),
+			sideEffect = effects::add
+		).test {
+			val logging = assertIs<SignIn.State.LoggingIn>(awaitItem()(SignIn.State.Idle()))
+			val idle = assertIs<SignIn.State.Idle>(awaitItem()(logging))
+			assertEquals(VALID_USB_ID, idle.usbId)
+			awaitComplete()
+		}
+
+		val effect = assertIs<SignIn.Effect.ShowSnackBar>(effects.single())
+		assertEquals(getString(Res.string.error_account_disabled), effect.message)
 	}
 }
