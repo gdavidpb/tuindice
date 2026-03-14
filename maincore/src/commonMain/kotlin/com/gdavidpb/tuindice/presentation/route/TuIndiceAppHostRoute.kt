@@ -13,10 +13,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
-import com.gdavidpb.tuindice.base.domain.repository.OutdatedCredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
@@ -38,7 +39,7 @@ fun TuIndiceAppHostRoute(
 	isSwipeBackNavigationEnabled: Boolean = false,
 	browserRepository: BrowserRepository = koinInject(),
 	deviceInfoRepository: DeviceInfoRepository = koinInject(),
-	outdatedCredentialsRepository: OutdatedCredentialsRepository = koinInject(),
+	syncStatusRepository: SyncStatusRepository = koinInject(),
 	reviewRepository: ReviewRepository = koinInject(),
 	updateRepository: UpdateRepository = koinInject(),
 	viewModel: MainViewModel = koinViewModel<MainViewModel>()
@@ -91,13 +92,13 @@ fun TuIndiceAppHostRoute(
 		},
 		viewModel = viewModel
 	) { state, updateState ->
-		val hasOutdatedCredentials by outdatedCredentialsRepository
-			.observeOutdatedCredentials()
-			.collectAsStateWithLifecycle(initialValue = false)
+		val syncStatus by syncStatusRepository
+			.observeSyncStatus()
+			.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
 
-		LaunchedEffect(hasOutdatedCredentials, state) {
+		LaunchedEffect(syncStatus, state) {
 			if (state !is com.gdavidpb.tuindice.presentation.contract.Main.State.Content) return@LaunchedEffect
-			if (!hasOutdatedCredentials) return@LaunchedEffect
+			if (syncStatus != SyncStatus.OutdatedCredentials) return@LaunchedEffect
 			if (state.startDestination == AuthDestination.NavGraph) return@LaunchedEffect
 
 			yield()

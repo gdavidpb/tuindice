@@ -16,6 +16,8 @@
 	<string name="snack_profile_picture_updated">Foto de perfil actualizada</string>
 	<string name="snack_profile_picture_removed">Foto de perfil removida</string>
 	<string name="text_last_update">Última actualización: %1$s</string>
+	<string name="text_sync_failed">No pudimos sincronizar tus datos. %1$s</string>
+	<string name="text_sync_outdated_credentials">Actualiza tu contraseña para volver a sincronizar tus datos.</string>
 	<string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
 	<string name="snack_service_unavailable">Servicio no disponible</string>
 	<string name="snack_network_unavailable">Comprueba tu conexión</string>

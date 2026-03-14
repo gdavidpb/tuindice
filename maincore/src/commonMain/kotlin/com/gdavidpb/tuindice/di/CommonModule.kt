@@ -7,13 +7,13 @@ import com.gdavidpb.tuindice.base.data.source.MemorySessionDataSource
 import com.gdavidpb.tuindice.base.data.source.PreferencesSessionDataSource
 import com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSource
 import com.gdavidpb.tuindice.base.data.source.settings.APP_STORE_NAME
+import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.base.domain.repository.OutdatedCredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
-import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingDataRepository
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingLocalDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingRemoteDataSource
@@ -55,13 +55,13 @@ val commonModule = module {
 	singleOf(::CredentialsDataRepository) { bind<CredentialsRepository>() }
 	singleOf(::SyncSettingsDataSource) {
 		bind<SyncSettingsLocalDataSource>()
-		bind<OutdatedCredentialsRepository>()
+		bind<SyncStatusRepository>()
 	}
 	singleOf(::SyncApiDataSource) { bind<SyncRemoteDataSource>() }
 	single<SyncRepository> {
 		SyncDataRepository(
 			settingsDataSource = get(),
-			outdatedCredentialsRepository = get(),
+			syncStatusRepository = get(),
 			remoteDataSource = get()
 		)
 	}

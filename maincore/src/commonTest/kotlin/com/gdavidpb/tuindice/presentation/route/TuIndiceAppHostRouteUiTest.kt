@@ -7,6 +7,7 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.auth.di.authModule
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.domain.model.RiskAttestation
@@ -14,18 +15,18 @@ import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.base.domain.repository.OutdatedCredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeOutdatedCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
@@ -54,7 +55,7 @@ class TuIndiceAppHostRouteUiTest {
 				isSwipeBackNavigationEnabled = false,
 				browserRepository = RecordingBrowserRepository(),
 				deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-				outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
+				syncStatusRepository = FakeSyncStatusRepository(),
 				reviewRepository = reviewRepository,
 				updateRepository = FakeUpdateRepository(),
 				viewModel = createMainViewModel()
@@ -79,7 +80,7 @@ class TuIndiceAppHostRouteUiTest {
 				isSwipeBackNavigationEnabled = false,
 				browserRepository = RecordingBrowserRepository(),
 				deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-				outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
+				syncStatusRepository = FakeSyncStatusRepository(),
 				reviewRepository = RecordingReviewRepository(),
 				updateRepository = updateRepository,
 				viewModel = viewModel
@@ -104,7 +105,7 @@ class TuIndiceAppHostRouteUiTest {
 				isSwipeBackNavigationEnabled = false,
 				browserRepository = RecordingBrowserRepository(),
 				deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-				outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
+				syncStatusRepository = FakeSyncStatusRepository(),
 				reviewRepository = RecordingReviewRepository(),
 				updateRepository = FakeUpdateRepository(),
 				viewModel = createMainViewModel()
@@ -127,8 +128,8 @@ class TuIndiceAppHostRouteUiTest {
 	}
 
 	@Test
-	fun when_credentialsAreMarkedAsOutdated_then_hostRouteNavigatesToUpdatePasswordDialog() = runTuIndiceUiTest {
-		val outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(initialValue = true)
+	fun when_syncStatusIsOutdatedCredentials_then_hostRouteNavigatesToUpdatePasswordDialog() = runTuIndiceUiTest {
+		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
 
 		stopKoin()
 
@@ -157,7 +158,7 @@ class TuIndiceAppHostRouteUiTest {
 					single<SessionRepository> { FakeSessionRepository() }
 					single<SyncRepository> { FakeSyncRepository() }
 					single<CredentialsRepository> { FakeCredentialsRepository() }
-					single<OutdatedCredentialsRepository> { outdatedCredentialsRepository }
+					single<SyncStatusRepository> { syncStatusRepository }
 					single<RiskAttestationRepository> {
 						object : RiskAttestationRepository {
 							override suspend fun issueProof(request: RiskAttestationRequest): RiskAttestation {
@@ -178,7 +179,7 @@ class TuIndiceAppHostRouteUiTest {
 					isSwipeBackNavigationEnabled = false,
 					browserRepository = RecordingBrowserRepository(),
 					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-					outdatedCredentialsRepository = outdatedCredentialsRepository,
+					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
 					viewModel = createMainViewModel(

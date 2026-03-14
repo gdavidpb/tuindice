@@ -19,7 +19,7 @@ import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeOutdatedCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.runTest
@@ -42,7 +42,7 @@ class SignInViewModelContractTest {
 					messagingRepository = RecordingMessagingRepository(),
 					syncRepository = FakeSyncRepository(),
 					credentialsRepository = FakeCredentialsRepository(),
-					outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
+					syncStatusRepository = FakeSyncStatusRepository(),
 					riskAttestationRepository = FakeAttestationRepository(),
 					paramsValidator = SignInParamsValidator(),
 					exceptionHandler = SignInExceptionHandler(

@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.presentation.route
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
@@ -43,6 +44,10 @@ class MainRouteUiTest {
 				latestState = state
 				Text(text = state::class.simpleName ?: "State")
 			}
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			onAllNodesWithText("Content").fetchSemanticsNodes().isNotEmpty()
 		}
 
 		onNodeWithText("Content").assertIsDisplayed()
@@ -86,6 +91,10 @@ class MainRouteUiTest {
 				latestState = state
 				Text(text = state::class.simpleName ?: "State")
 			}
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			onAllNodesWithText("Content").fetchSemanticsNodes().isNotEmpty()
 		}
 
 		onNodeWithText("Content").assertIsDisplayed()

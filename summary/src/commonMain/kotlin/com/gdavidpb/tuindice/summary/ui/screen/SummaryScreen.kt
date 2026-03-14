@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.summary.ui.screen
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
@@ -18,6 +19,7 @@ import tuindice.summary.generated.resources.summary_failed_title
 @Composable
 fun SummaryScreen(
 	state: Summary.State,
+	syncStatus: SyncStatus,
 	onRetryClick: () -> Unit,
 	onEditProfilePictureClick: () -> Unit
 ) {
@@ -40,6 +42,7 @@ fun SummaryScreen(
 			is Summary.State.Content ->
 				SummaryContentView(
 					state = targetState,
+					syncStatus = syncStatus,
 					summaryItems = rememberSummaryItems(
 						state = targetState
 					),

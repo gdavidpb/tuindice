@@ -18,8 +18,8 @@ import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeOutdatedCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
@@ -134,7 +134,7 @@ class UpdatePasswordRouteUiTest {
 			sessionRepository = FakeSessionRepository(usbId = "12-34567"),
 			syncRepository = FakeSyncRepository(),
 			credentialsRepository = FakeCredentialsRepository(),
-			outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
+			syncStatusRepository = FakeSyncStatusRepository(),
 			riskAttestationRepository = FakeAttestationRepository(),
 			paramsValidator = UpdatePasswordParamsValidator(),
 			exceptionHandler = UpdatePasswordExceptionHandler(

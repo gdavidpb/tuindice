@@ -20,7 +20,7 @@ import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeOutdatedCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.http.HttpStatusCode
@@ -46,7 +46,7 @@ class AuthActionProcessorContractTest {
 				messagingRepository = RecordingMessagingRepository(),
 				syncRepository = FakeSyncRepository(),
 				credentialsRepository = FakeCredentialsRepository(),
-				outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
+				syncStatusRepository = FakeSyncStatusRepository(),
 				riskAttestationRepository = FakeAttestationRepository(),
 				paramsValidator = SignInParamsValidator(),
 				exceptionHandler = SignInExceptionHandler(
@@ -85,7 +85,7 @@ class AuthActionProcessorContractTest {
 				sessionRepository = FakeSessionRepository(usbId = "20261234"),
 				syncRepository = FakeSyncRepository(),
 				credentialsRepository = FakeCredentialsRepository(),
-				outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
+				syncStatusRepository = FakeSyncStatusRepository(),
 				riskAttestationRepository = FakeAttestationRepository(),
 				paramsValidator = UpdatePasswordParamsValidator(),
 				exceptionHandler = UpdatePasswordExceptionHandler(
@@ -118,7 +118,8 @@ class AuthActionProcessorContractTest {
 				authRepository = RecordingAuthRepository(),
 				sessionRepository = FakeSessionRepository(),
 				messagingRepository = RecordingMessagingRepository(),
-				applicationRepository = RecordingApplicationRepository()
+				applicationRepository = RecordingApplicationRepository(),
+				syncStatusRepository = FakeSyncStatusRepository()
 			)
 		)
 		val effects = mutableListOf<SignOut.Effect>()
@@ -146,7 +147,7 @@ class AuthActionProcessorContractTest {
 				messagingRepository = RecordingMessagingRepository(),
 				syncRepository = FakeSyncRepository(),
 				credentialsRepository = FakeCredentialsRepository(),
-				outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
+				syncStatusRepository = FakeSyncStatusRepository(),
 				riskAttestationRepository = FakeAttestationRepository(),
 				paramsValidator = SignInParamsValidator(),
 				exceptionHandler = SignInExceptionHandler(

@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.summary.ui.screen
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -20,6 +21,7 @@ class SummaryScreenUiTest {
 		setTuIndiceTestContent {
 			SummaryScreen(
 				state = Summary.State.Loading,
+				syncStatus = SyncStatus.Healthy,
 				onRetryClick = {},
 				onEditProfilePictureClick = {}
 			)
@@ -35,6 +37,7 @@ class SummaryScreenUiTest {
 		setTuIndiceTestContent {
 			SummaryScreen(
 				state = Summary.State.Failed,
+				syncStatus = SyncStatus.Healthy,
 				onRetryClick = { retryClicks++ },
 				onEditProfilePictureClick = {}
 			)
@@ -53,6 +56,7 @@ class SummaryScreenUiTest {
 		setTuIndiceTestContent {
 			SummaryScreen(
 				state = summaryContentState(),
+				syncStatus = SyncStatus.Healthy,
 				onRetryClick = {},
 				onEditProfilePictureClick = {}
 			)
@@ -68,6 +72,7 @@ class SummaryScreenUiTest {
 		setTuIndiceTestContent {
 			SummaryScreen(
 				state = summaryContentState(),
+				syncStatus = SyncStatus.Healthy,
 				onRetryClick = {},
 				onEditProfilePictureClick = { editClicks++ }
 			)

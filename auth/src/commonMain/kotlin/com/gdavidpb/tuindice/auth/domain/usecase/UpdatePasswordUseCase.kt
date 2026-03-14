@@ -1,11 +1,12 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
-import com.gdavidpb.tuindice.base.domain.repository.OutdatedCredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.canonicalRiskPayloadJson
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
@@ -22,7 +23,7 @@ class UpdatePasswordUseCase(
 	private val sessionRepository: SessionRepository,
 	private val syncRepository: SyncRepository,
 	private val credentialsRepository: CredentialsRepository,
-	private val outdatedCredentialsRepository: OutdatedCredentialsRepository,
+	private val syncStatusRepository: SyncStatusRepository,
 	private val riskAttestationRepository: RiskAttestationRepository,
 	override val paramsValidator: UpdatePasswordParamsValidator,
 	override val exceptionHandler: UpdatePasswordExceptionHandler
@@ -56,7 +57,10 @@ class UpdatePasswordUseCase(
 		credentialsRepository.setPassword(
 			password = params
 		)
-		outdatedCredentialsRepository.clearOutdatedCredentials()
+
+		if (syncStatusRepository.getSyncStatus() == SyncStatus.OutdatedCredentials) {
+			syncStatusRepository.setSyncStatus(SyncStatus.Failed)
+		}
 
 		syncRepository.scheduleSync(
 			password = params

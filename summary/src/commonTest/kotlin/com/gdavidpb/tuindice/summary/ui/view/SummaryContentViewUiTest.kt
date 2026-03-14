@@ -1,8 +1,11 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.summary.testing.summaryContentState
@@ -24,6 +27,7 @@ class SummaryContentViewUiTest {
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
+				syncStatus = SyncStatus.Healthy,
 				summaryItems = items,
 				onEditProfilePictureClick = { editClicks++ }
 			)
@@ -50,6 +54,7 @@ class SummaryContentViewUiTest {
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
+				syncStatus = SyncStatus.Healthy,
 				summaryItems = emptyList(),
 				onEditProfilePictureClick = {}
 			)
@@ -67,6 +72,7 @@ class SummaryContentViewUiTest {
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
+				syncStatus = SyncStatus.Healthy,
 				summaryItems = summaryItemsFor(contentState),
 				onEditProfilePictureClick = {}
 			)
@@ -75,5 +81,44 @@ class SummaryContentViewUiTest {
 		assertNodeVisible(SummaryUiTags.StatusRow)
 		assertNodeVisible(SummaryUiTags.StatusIcon)
 		assertNodeVisible(SummaryUiTags.StatusText)
+		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_syncHasFailed_then_displaysPermanentSyncErrorMessage() = runTuIndiceUiTest {
+		val contentState = summaryContentState()
+
+		setTuIndiceTestContent {
+			SummaryContentView(
+				state = contentState,
+				syncStatus = SyncStatus.Failed,
+				summaryItems = summaryItemsFor(contentState),
+				onEditProfilePictureClick = {}
+			)
+		}
+
+		assertNodeVisible(SummaryUiTags.StatusRow)
+		onNodeWithText(
+			"No pudimos sincronizar tus datos. ${contentState.lastUpdate}"
+		).assertIsDisplayed()
+	}
+
+	@Test
+	fun when_syncStatusIsOutdatedCredentials_then_displaysUpdatePasswordMessage() = runTuIndiceUiTest {
+		val contentState = summaryContentState()
+
+		setTuIndiceTestContent {
+			SummaryContentView(
+				state = contentState,
+				syncStatus = SyncStatus.OutdatedCredentials,
+				summaryItems = summaryItemsFor(contentState),
+				onEditProfilePictureClick = {}
+			)
+		}
+
+		assertNodeVisible(SummaryUiTags.StatusRow)
+		onNodeWithText(
+			"Actualiza tu contraseña para volver a sincronizar tus datos."
+		).assertIsDisplayed()
 	}
 }

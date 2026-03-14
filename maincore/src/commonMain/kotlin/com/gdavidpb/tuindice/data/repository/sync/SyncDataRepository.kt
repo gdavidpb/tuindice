@@ -1,7 +1,8 @@
 package com.gdavidpb.tuindice.data.repository.sync
 
-import com.gdavidpb.tuindice.base.domain.repository.OutdatedCredentialsRepository
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -13,7 +14,7 @@ import kotlinx.coroutines.sync.withLock
 
 class SyncDataRepository(
 	private val settingsDataSource: SyncSettingsLocalDataSource,
-	private val outdatedCredentialsRepository: OutdatedCredentialsRepository,
+	private val syncStatusRepository: SyncStatusRepository,
 	private val remoteDataSource: SyncRemoteDataSource,
 	syncDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : SyncRepository {
@@ -24,23 +25,26 @@ class SyncDataRepository(
 		syncScope.launch {
 			runCatching {
 				syncMutex.withLock {
-					if (outdatedCredentialsRepository.hasOutdatedCredentials()) return@withLock
+					if (syncStatusRepository.getSyncStatus() == SyncStatus.OutdatedCredentials)
+						return@withLock
 
 					val isOnCooldown = settingsDataSource.isSyncOnCooldown()
 
 					if (isOnCooldown) return@withLock
 
-					runCatching {
-						remoteDataSource.sync(password)
-					}.onSuccess {
-						outdatedCredentialsRepository.clearOutdatedCredentials()
-						settingsDataSource.setSyncOnCooldown()
-						settingsDataSource.clearFeatureCooldowns()
-					}.onFailure { throwable ->
-						if (throwable.isConflict()) {
-							outdatedCredentialsRepository.setOutdatedCredentials()
-						}
-					}
+					remoteDataSource.sync(password)
+					syncStatusRepository.setSyncStatus(SyncStatus.Healthy)
+					settingsDataSource.setSyncOnCooldown()
+					settingsDataSource.clearFeatureCooldowns()
+				}
+			}.onFailure { throwable ->
+				val syncStatus = if (throwable.isConflict())
+					SyncStatus.OutdatedCredentials
+				else
+					SyncStatus.Failed
+
+				runCatching {
+					syncStatusRepository.setSyncStatus(syncStatus)
 				}
 			}
 		}

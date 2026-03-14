@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.repository.sync.source
 
-import com.gdavidpb.tuindice.base.domain.repository.OutdatedCredentialsRepository
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataSource
 import com.russhwolf.settings.Settings
@@ -13,12 +14,11 @@ import com.gdavidpb.tuindice.summary.utils.PreferencesKeys as SummaryPreferences
 
 class SyncSettingsDataSource(
 	private val settings: Settings
-) : SyncSettingsLocalDataSource, OutdatedCredentialsRepository {
-	private val outdatedCredentials = MutableStateFlow(
-		settings.getBoolean(
-			key = PreferencesKeys.OUTDATED_CREDENTIALS,
-			defaultValue = false
-		)
+) : SyncSettingsLocalDataSource, SyncStatusRepository {
+	private val syncStatus = MutableStateFlow(
+		SyncStatus.entries.firstOrNull { status ->
+			status.name == settings.getStringOrNull(PreferencesKeys.SYNC_STATUS)
+		} ?: SyncStatus.Healthy
 	)
 
 	override suspend fun isSyncOnCooldown(): Boolean {
@@ -39,33 +39,25 @@ class SyncSettingsDataSource(
 		settings.remove(EvaluationsPreferencesKeys.COOLDOWN_GET_EVALUATIONS)
 	}
 
-	override fun observeOutdatedCredentials(): Flow<Boolean> {
-		return outdatedCredentials
+	override fun observeSyncStatus(): Flow<SyncStatus> {
+		return syncStatus
 	}
 
-	override suspend fun hasOutdatedCredentials(): Boolean {
-		return outdatedCredentials.value
+	override suspend fun getSyncStatus(): SyncStatus {
+		return syncStatus.value
 	}
 
-	override suspend fun setOutdatedCredentials() {
-		settings.putBoolean(
-			key = PreferencesKeys.OUTDATED_CREDENTIALS,
-			value = true
+	override suspend fun setSyncStatus(status: SyncStatus) {
+		settings.putString(
+			key = PreferencesKeys.SYNC_STATUS,
+			value = status.name
 		)
-		outdatedCredentials.value = true
-	}
-
-	override suspend fun clearOutdatedCredentials() {
-		settings.putBoolean(
-			key = PreferencesKeys.OUTDATED_CREDENTIALS,
-			value = false
-		)
-		outdatedCredentials.value = false
+		syncStatus.value = status
 	}
 
 	private object PreferencesKeys {
 		const val COOLDOWN_SYNC = "cooldownSync"
-		const val OUTDATED_CREDENTIALS = "outdatedCredentials"
+		const val SYNC_STATUS = "syncStatus"
 	}
 
 	private object CooldownTimes {

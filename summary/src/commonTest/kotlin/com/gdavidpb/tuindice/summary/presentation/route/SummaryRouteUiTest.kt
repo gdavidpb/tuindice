@@ -30,6 +30,7 @@ import com.gdavidpb.tuindice.summary.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.github.vinceglb.filekit.PlatformFile
@@ -44,6 +45,7 @@ class SummaryRouteUiTest {
 	@Test
 	fun when_initialLoadSucceeds_then_routeRendersContentWithoutNavigationOrSnackBar() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
+		val syncStatusRepository = FakeSyncStatusRepository()
 		var outdatedPasswordNavigations = 0
 		var profilePictureSettingsNavigations = 0
 		var removeConfirmationNavigations = 0
@@ -57,7 +59,8 @@ class SummaryRouteUiTest {
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel
+				viewModel = viewModel,
+				syncStatusRepository = syncStatusRepository
 			)
 		}
 
@@ -74,6 +77,7 @@ class SummaryRouteUiTest {
 	@Test
 	fun when_profilePictureSettingsActionTriggered_then_navigatesWithShowRemove() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
+		val syncStatusRepository = FakeSyncStatusRepository()
 		var showRemove: Boolean? = null
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
@@ -87,7 +91,8 @@ class SummaryRouteUiTest {
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel
+				viewModel = viewModel,
+				syncStatusRepository = syncStatusRepository
 			)
 		}
 
@@ -106,6 +111,7 @@ class SummaryRouteUiTest {
 	@Test
 	fun when_profilePictureEditTappedFromUi_then_navigatesWithShowRemove() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
+		val syncStatusRepository = FakeSyncStatusRepository()
 		var showRemove: Boolean? = null
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
@@ -119,7 +125,8 @@ class SummaryRouteUiTest {
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel
+				viewModel = viewModel,
+				syncStatusRepository = syncStatusRepository
 			)
 		}
 
@@ -140,6 +147,7 @@ class SummaryRouteUiTest {
 	@Test
 	fun when_removeProfilePictureActionTriggered_then_navigatesToRemoveConfirmationDialog() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
+		val syncStatusRepository = FakeSyncStatusRepository()
 		var navigateCalls = 0
 
 		setTuIndiceTestContent {
@@ -150,7 +158,8 @@ class SummaryRouteUiTest {
 					navigateCalls++
 				},
 				showSnackBar = {},
-				viewModel = viewModel
+				viewModel = viewModel,
+				syncStatusRepository = syncStatusRepository
 			)
 		}
 
@@ -172,6 +181,7 @@ class SummaryRouteUiTest {
 				users = flow { throw IllegalStateException("boom") }
 			)
 		)
+		val syncStatusRepository = FakeSyncStatusRepository()
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 		var outdatedPasswordNavigations = 0
 
@@ -185,7 +195,8 @@ class SummaryRouteUiTest {
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel
+				viewModel = viewModel,
+				syncStatusRepository = syncStatusRepository
 			)
 		}
 
@@ -210,6 +221,7 @@ class SummaryRouteUiTest {
 				}
 			)
 		)
+		val syncStatusRepository = FakeSyncStatusRepository()
 		var outdatedPasswordNavigations = 0
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
@@ -223,7 +235,8 @@ class SummaryRouteUiTest {
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel
+				viewModel = viewModel,
+				syncStatusRepository = syncStatusRepository
 			)
 		}
 
@@ -244,6 +257,7 @@ class SummaryRouteUiTest {
 				}
 			)
 		)
+		val syncStatusRepository = FakeSyncStatusRepository()
 		var showRemove: Boolean? = null
 
 		setTuIndiceTestContent {
@@ -254,7 +268,8 @@ class SummaryRouteUiTest {
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				viewModel = viewModel
+				viewModel = viewModel,
+				syncStatusRepository = syncStatusRepository
 			)
 		}
 
@@ -282,6 +297,7 @@ class SummaryRouteUiTest {
 				}
 			)
 		)
+		val syncStatusRepository = FakeSyncStatusRepository()
 		var showRemove: Boolean? = null
 
 		setTuIndiceTestContent {
@@ -292,7 +308,8 @@ class SummaryRouteUiTest {
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				viewModel = viewModel
+				viewModel = viewModel,
+				syncStatusRepository = syncStatusRepository
 			)
 		}
 
@@ -312,6 +329,7 @@ class SummaryRouteUiTest {
 	@Test
 	fun when_confirmRemoveProfilePictureActionTriggered_then_showsSnackBarWithoutRouteNavigation() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
+		val syncStatusRepository = FakeSyncStatusRepository()
 		var navigateOutdatedCalls = 0
 		var openSettingsCalls = 0
 		var openRemoveDialogCalls = 0
@@ -325,7 +343,8 @@ class SummaryRouteUiTest {
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel
+				viewModel = viewModel,
+				syncStatusRepository = syncStatusRepository
 			)
 		}
 
@@ -351,6 +370,7 @@ class SummaryRouteUiTest {
 	fun when_retryTappedAfterFailure_then_routeRequestsLoadAgain() = runTuIndiceUiTest {
 		val userRepository = CountingFailingUserRepository()
 		val viewModel = createSummaryViewModel(userRepository = userRepository)
+		val syncStatusRepository = FakeSyncStatusRepository()
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
@@ -361,7 +381,8 @@ class SummaryRouteUiTest {
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
-				viewModel = viewModel
+				viewModel = viewModel,
+				syncStatusRepository = syncStatusRepository
 			)
 		}
 

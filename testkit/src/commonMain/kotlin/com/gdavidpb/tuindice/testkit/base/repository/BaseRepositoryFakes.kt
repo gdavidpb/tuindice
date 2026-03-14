@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.testkit.base.repository
 
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
@@ -9,13 +10,13 @@ import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.base.domain.repository.OutdatedCredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import io.github.vinceglb.filekit.PlatformFile
@@ -243,26 +244,18 @@ class FakeCredentialsRepository(
 	}
 }
 
-class FakeOutdatedCredentialsRepository(
-	initialValue: Boolean = false
-) : OutdatedCredentialsRepository {
-	private val outdatedCredentials = MutableStateFlow(initialValue)
-	var setCalls = 0
-		private set
-	var clearCalls = 0
-		private set
+class FakeSyncStatusRepository(
+	initialValue: SyncStatus = SyncStatus.Healthy
+) : SyncStatusRepository {
+	private val syncStatus = MutableStateFlow(initialValue)
+	val setStatuses = mutableListOf<SyncStatus>()
 
-	override fun observeOutdatedCredentials(): Flow<Boolean> = outdatedCredentials
+	override fun observeSyncStatus(): Flow<SyncStatus> = syncStatus
 
-	override suspend fun hasOutdatedCredentials(): Boolean = outdatedCredentials.value
+	override suspend fun getSyncStatus(): SyncStatus = syncStatus.value
 
-	override suspend fun setOutdatedCredentials() {
-		outdatedCredentials.value = true
-		setCalls++
-	}
-
-	override suspend fun clearOutdatedCredentials() {
-		outdatedCredentials.value = false
-		clearCalls++
+	override suspend fun setSyncStatus(status: SyncStatus) {
+		syncStatus.value = status
+		setStatuses += status
 	}
 }

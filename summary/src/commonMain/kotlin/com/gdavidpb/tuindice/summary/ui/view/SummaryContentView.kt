@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,13 +18,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import org.jetbrains.compose.resources.stringResource
+import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.text_sync_failed
+import tuindice.summary.generated.resources.text_sync_outdated_credentials
 
 @Composable
 fun SummaryContentView(
 	state: Summary.State.Content,
+	syncStatus: SyncStatus,
 	summaryItems: List<SummaryItem>,
 	onEditProfilePictureClick: () -> Unit
 ) {
@@ -31,6 +38,21 @@ fun SummaryContentView(
 		url = state.profilePictureUrl,
 		isLoading = state.isProfilePictureLoading
 	)
+	val statusIcon = when (syncStatus) {
+		SyncStatus.Healthy -> Icons.Outlined.Sync
+		SyncStatus.Failed,
+		SyncStatus.OutdatedCredentials -> Icons.Outlined.SyncProblem
+	}
+	val statusTint = when (syncStatus) {
+		SyncStatus.Healthy -> MaterialTheme.colorScheme.onSurfaceVariant
+		SyncStatus.Failed,
+		SyncStatus.OutdatedCredentials -> MaterialTheme.colorScheme.error
+	}
+	val statusText = when (syncStatus) {
+		SyncStatus.Healthy -> state.lastUpdate
+		SyncStatus.Failed -> stringResource(Res.string.text_sync_failed, state.lastUpdate)
+		SyncStatus.OutdatedCredentials -> stringResource(Res.string.text_sync_outdated_credentials)
+	}
 
 	Column(
 		modifier = Modifier
@@ -71,18 +93,18 @@ fun SummaryContentView(
 				.padding(vertical = 8.dp),
 			verticalAlignment = Alignment.CenterVertically
 		) {
-				Icon(
-					modifier = Modifier
-						.testTag(SummaryUiTags.StatusIcon)
-						.padding(horizontal = 4.dp),
-					imageVector = Icons.Outlined.Sync,
-					tint = MaterialTheme.colorScheme.onSurfaceVariant,
-					contentDescription = null
+			Icon(
+				modifier = Modifier
+					.testTag(SummaryUiTags.StatusIcon)
+					.padding(horizontal = 4.dp),
+				imageVector = statusIcon,
+				tint = statusTint,
+				contentDescription = null
 			)
 
 			Text(
 				modifier = Modifier.testTag(SummaryUiTags.StatusText),
-				text = state.lastUpdate,
+				text = statusText,
 				style = MaterialTheme.typography.bodyMedium
 			)
 		}

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.auth.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.RiskOperation
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
@@ -17,7 +18,7 @@ import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
-import com.gdavidpb.tuindice.testkit.base.repository.FakeOutdatedCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import kotlinx.coroutines.test.runTest
@@ -36,13 +37,13 @@ class AuthUseCaseContractTest {
 		val messagingRepository = RecordingMessagingRepository()
 		val syncRepository = FakeSyncRepository()
 		val credentialsRepository = FakeCredentialsRepository()
-		val outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(initialValue = true)
+		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
 		val useCase = SignInUseCase(
 			authRepository = repository,
 			messagingRepository = messagingRepository,
 			syncRepository = syncRepository,
 			credentialsRepository = credentialsRepository,
-			outdatedCredentialsRepository = outdatedCredentialsRepository,
+			syncStatusRepository = syncStatusRepository,
 			riskAttestationRepository = attestationRepository,
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
@@ -61,8 +62,8 @@ class AuthUseCaseContractTest {
 		assertEquals(RiskOperation.IssueTokens, attestationRepository.lastRequest?.operation)
 		assertEquals(1, messagingRepository.subscribeCalls)
 		assertEquals(listOf("secret123"), credentialsRepository.storedPasswords)
-		assertEquals(false, outdatedCredentialsRepository.hasOutdatedCredentials())
-		assertEquals(1, outdatedCredentialsRepository.clearCalls)
+		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
+		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)
 		assertEquals(listOf("secret123"), syncRepository.scheduledSyncCalls)
 	}
 
@@ -72,13 +73,13 @@ class AuthUseCaseContractTest {
 		val sessionRepository = FakeSessionRepository(usbId = "20261234")
 		val syncRepository = FakeSyncRepository()
 		val credentialsRepository = FakeCredentialsRepository()
-		val outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(initialValue = true)
+		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
 		val useCase = UpdatePasswordUseCase(
 			authRepository = repository,
 			sessionRepository = sessionRepository,
 			syncRepository = syncRepository,
 			credentialsRepository = credentialsRepository,
-			outdatedCredentialsRepository = outdatedCredentialsRepository,
+			syncStatusRepository = syncStatusRepository,
 			riskAttestationRepository = FakeAttestationRepository(),
 			paramsValidator = UpdatePasswordParamsValidator(),
 			exceptionHandler = UpdatePasswordExceptionHandler(
@@ -96,8 +97,8 @@ class AuthUseCaseContractTest {
 		assertEquals("20261234", call.usbId)
 		assertEquals(IssueTokensFlow.ReissueTokens, call.flow)
 		assertEquals(listOf("new-secret"), credentialsRepository.storedPasswords)
-		assertEquals(false, outdatedCredentialsRepository.hasOutdatedCredentials())
-		assertEquals(1, outdatedCredentialsRepository.clearCalls)
+		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
+		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)
 		assertEquals(listOf("new-secret"), syncRepository.scheduledSyncCalls)
 	}
 
@@ -107,11 +108,13 @@ class AuthUseCaseContractTest {
 		val messagingRepository = RecordingMessagingRepository()
 		val sessionRepository = FakeSessionRepository()
 		val applicationRepository = RecordingApplicationRepository()
+		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
 		val useCase = SignOutUseCase(
 			authRepository = authRepository,
 			sessionRepository = sessionRepository,
 			messagingRepository = messagingRepository,
-			applicationRepository = applicationRepository
+			applicationRepository = applicationRepository,
+			syncStatusRepository = syncStatusRepository
 		)
 
 		useCase.execute(Unit).test {
@@ -122,6 +125,8 @@ class AuthUseCaseContractTest {
 		assertEquals(1, authRepository.revokeTokensCalls)
 		assertEquals(true, sessionRepository.cleared)
 		assertEquals(1, messagingRepository.unsubscribeCalls)
+		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
+		assertEquals(listOf(SyncStatus.Healthy), syncStatusRepository.setStatuses)
 		assertEquals(true, applicationRepository.cleared)
 	}
 }
