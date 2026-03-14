@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.data.repository
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.mapper.toSubject
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
@@ -42,11 +43,10 @@ class EvaluationDataRepository(
 
 	override suspend fun addEvaluation(add: EvaluationAdd) {
 		val evaluation = add.toEvaluation()
-		val localEvaluation = evaluation.toLocalEvaluation()
 		val remoteEvaluation = evaluation.toRemoteEvaluation()
+		val createdEvaluation = evaluationsApiDataSource.addEvaluation(remoteEvaluation)
 
-		databaseDataSource.addEvaluation(localEvaluation)
-		evaluationsApiDataSource.addEvaluation(remoteEvaluation)
+		databaseDataSource.addEvaluation(createdEvaluation.toLocalEvaluation())
 	}
 
 	override suspend fun updateEvaluation(update: EvaluationUpdate) {
@@ -74,16 +74,30 @@ class EvaluationDataRepository(
 			)
 		)
 
-		val localEvaluation = updatedEvaluation.toLocalEvaluation()
 		val remoteEvaluation = updatedEvaluation.toRemoteEvaluation()
+		runCatching {
+			evaluationsApiDataSource.updateEvaluation(remoteEvaluation)
+		}.onSuccess { savedEvaluation ->
+			databaseDataSource.updateEvaluation(savedEvaluation.toLocalEvaluation())
+		}.onFailure { throwable ->
+			if (throwable.isNotFound())
+				databaseDataSource.removeEvaluation(update.id)
 
-		databaseDataSource.updateEvaluation(localEvaluation)
-		evaluationsApiDataSource.updateEvaluation(remoteEvaluation)
+			throw throwable
+		}
 	}
 
 	override suspend fun removeEvaluation(remove: EvaluationRemove) {
-		databaseDataSource.removeEvaluation(remove.id)
-		evaluationsApiDataSource.removeEvaluation(remove.id)
+		runCatching {
+			evaluationsApiDataSource.removeEvaluation(remove.id)
+		}.onSuccess {
+			databaseDataSource.removeEvaluation(remove.id)
+		}.onFailure { throwable ->
+			if (throwable.isNotFound())
+				databaseDataSource.removeEvaluation(remove.id)
+
+			throw throwable
+		}
 	}
 
 	override suspend fun getAvailableSubjects(): List<Subject> {

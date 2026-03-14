@@ -15,6 +15,7 @@ import tuindice.evaluations.generated.resources.error_evaluation_max_grade_misse
 import tuindice.evaluations.generated.resources.error_evaluation_subject_missed
 import tuindice.evaluations.generated.resources.error_evaluation_type_missed
 import tuindice.evaluations.generated.resources.snack_default_error
+import tuindice.evaluations.generated.resources.snack_evaluation_already_exists
 import tuindice.evaluations.generated.resources.snack_evaluation_added
 
 class AddEvaluationActionProcessor(
@@ -28,8 +29,8 @@ class AddEvaluationActionProcessor(
 		return addEvaluationUseCase.execute(params = action.toAddEvaluationParams())
 			.map { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> suspend { _ ->
-						Evaluation.State.Loading
+					is UseCaseState.Loading -> suspend { state ->
+						state
 					}
 
 					is UseCaseState.Data -> suspend { state ->
@@ -48,6 +49,9 @@ class AddEvaluationActionProcessor(
 
 					is UseCaseState.Error -> suspend { state: Evaluation.State ->
 						val errorMessage = when (useCaseState.error) {
+							is AddEvaluationUseCaseError.AlreadyExists ->
+								getString(Res.string.snack_evaluation_already_exists)
+
 							is AddEvaluationUseCaseError.SubjectMissed ->
 								getString(Res.string.error_evaluation_subject_missed)
 

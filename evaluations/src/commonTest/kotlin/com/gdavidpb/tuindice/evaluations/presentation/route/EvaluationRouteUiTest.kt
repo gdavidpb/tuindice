@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseC
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableSubjectsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
+import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.AddEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.EditEvaluationActionProcessor
@@ -407,7 +408,12 @@ class EvaluationRouteUiTest {
 				)
 			),
 			editEvaluationActionProcessor = EditEvaluationActionProcessor(
-				updateEvaluationUseCase = UpdateEvaluationUseCase(repository)
+				updateEvaluationUseCase = UpdateEvaluationUseCase(
+					evaluationRepository = repository,
+					exceptionHandler = UpdateEvaluationExceptionHandler(
+						reportingRepository = RecordingReportingRepository()
+					)
+				)
 			),
 			pickGradeActionProcessor = PickGradeActionProcessor(),
 			pickMaxGradeActionProcessor = PickMaxGradeActionProcessor(),

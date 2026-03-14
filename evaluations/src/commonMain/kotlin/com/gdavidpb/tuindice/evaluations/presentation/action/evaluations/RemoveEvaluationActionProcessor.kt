@@ -4,12 +4,14 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.error.RemoveEvaluationUseCaseError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.snack_default_error
+import tuindice.evaluations.generated.resources.snack_evaluation_not_found
 import tuindice.evaluations.generated.resources.snack_evaluation_removed
 
 class RemoveEvaluationActionProcessor(
@@ -40,7 +42,13 @@ class RemoveEvaluationActionProcessor(
 					}
 
 					is UseCaseState.Error -> suspend { state: Evaluations.State ->
-						val errorMessage = getString(Res.string.snack_default_error)
+						val errorMessage = when (useCaseState.error) {
+							is RemoveEvaluationUseCaseError.NotFound ->
+								getString(Res.string.snack_evaluation_not_found)
+
+							else ->
+								getString(Res.string.snack_default_error)
+						}
 
 						sideEffect(
 							Evaluations.Effect.ShowSnackBar(

@@ -69,6 +69,8 @@
 
 	<string name="snack_evaluation_set_grade">Nota actualizada</string>
 	<string name="snack_evaluation_added">Evaluación agregada</string>
+	<string name="snack_evaluation_already_exists">Ya existe una evaluación igual</string>
+	<string name="snack_evaluation_not_found">La evaluación ya no está disponible</string>
 	<string name="snack_evaluation_updated">Evaluación actualizada</string>
 	<string name="snack_evaluation_removed">Evaluación removida</string>
 	<string name="snack_default_error">¡Ha ocurrido un error!</string>

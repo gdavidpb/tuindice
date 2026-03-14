@@ -1,7 +1,12 @@
 {
   "request": {
-    "method": "GET",
-    "urlPath": "/enrollment-proof/v1"
+    "method": "POST",
+    "urlPath": "/enrollment-proof/v1",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.password"
+      }
+    ]
   },
   "response": {
     "status": 200,

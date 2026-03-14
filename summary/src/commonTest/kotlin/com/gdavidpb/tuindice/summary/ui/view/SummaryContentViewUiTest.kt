@@ -46,8 +46,7 @@ class SummaryContentViewUiTest {
 	@Test
 	fun when_summaryHasNoItems_then_rendersHeaderSectionWithoutStatusCards() = runTuIndiceUiTest {
 		val contentState = summaryContentState(
-			isUpdated = false,
-			isUpdating = true
+			isUpdated = false
 		)
 
 		setTuIndiceTestContent {
@@ -66,8 +65,7 @@ class SummaryContentViewUiTest {
 	@Test
 	fun when_summaryIsOutdated_then_displaysStatusIconAndText() = runTuIndiceUiTest {
 		val contentState = summaryContentState(
-			isUpdated = false,
-			isUpdating = false
+			isUpdated = false
 		)
 
 		setTuIndiceTestContent {

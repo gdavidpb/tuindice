@@ -4,9 +4,15 @@ import com.gdavidpb.tuindice.evaluations.domain.exception.AddEvaluationIllegalAr
 import com.gdavidpb.tuindice.evaluations.domain.exception.NoSubjectsException
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.AddEvaluationUseCaseError
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
+import com.gdavidpb.tuindice.evaluations.domain.usecase.error.RemoveEvaluationUseCaseError
+import com.gdavidpb.tuindice.evaluations.domain.usecase.error.UpdateEvaluationUseCaseError
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.GetEvaluationsExceptionHandler
+import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveEvaluationExceptionHandler
+import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -42,6 +48,60 @@ class EvaluationsExceptionHandlerTest {
 		assertReported(
 			reportingRepository = reportingRepository,
 			handlerName = "AddEvaluationExceptionHandler",
+			throwable = throwable,
+			isHandled = true
+		)
+	}
+
+	@Test
+	fun addEvaluationExceptionHandler_mapsAlreadyExists() {
+		val reportingRepository = RecordingReportingRepository()
+		val throwable = clientRequestException(HttpStatusCode.PreconditionFailed, path = "/evaluations/v1")
+
+		val actual = AddEvaluationExceptionHandler(
+			reportingRepository = reportingRepository
+		).reportException(throwable)
+
+		assertEquals(AddEvaluationUseCaseError.AlreadyExists, actual)
+		assertReported(
+			reportingRepository = reportingRepository,
+			handlerName = "AddEvaluationExceptionHandler",
+			throwable = throwable,
+			isHandled = true
+		)
+	}
+
+	@Test
+	fun updateEvaluationExceptionHandler_mapsNotFound() {
+		val reportingRepository = RecordingReportingRepository()
+		val throwable = clientRequestException(HttpStatusCode.NotFound, path = "/evaluations/v1/eid")
+
+		val actual = UpdateEvaluationExceptionHandler(
+			reportingRepository = reportingRepository
+		).reportException(throwable)
+
+		assertEquals(UpdateEvaluationUseCaseError.NotFound, actual)
+		assertReported(
+			reportingRepository = reportingRepository,
+			handlerName = "UpdateEvaluationExceptionHandler",
+			throwable = throwable,
+			isHandled = true
+		)
+	}
+
+	@Test
+	fun removeEvaluationExceptionHandler_mapsNotFound() {
+		val reportingRepository = RecordingReportingRepository()
+		val throwable = clientRequestException(HttpStatusCode.NotFound, path = "/evaluations/v1/eid")
+
+		val actual = RemoveEvaluationExceptionHandler(
+			reportingRepository = reportingRepository
+		).reportException(throwable)
+
+		assertEquals(RemoveEvaluationUseCaseError.NotFound, actual)
+		assertReported(
+			reportingRepository = reportingRepository,
+			handlerName = "RemoveEvaluationExceptionHandler",
 			throwable = throwable,
 			isHandled = true
 		)

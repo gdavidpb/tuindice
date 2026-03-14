@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
+import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.summary.domain.usecase.error.GetUserUseCaseError
@@ -14,6 +15,7 @@ class GetUserExceptionHandler(
 ) : ExceptionHandler<GetUserUseCaseError>() {
 	override fun parseException(throwable: Throwable): GetUserUseCaseError? {
 		return when {
+			throwable.isNotFound() -> GetUserUseCaseError.NotFound
 			throwable.isUnavailable() -> GetUserUseCaseError.Unavailable
 			throwable.isTimeout() -> GetUserUseCaseError.Timeout
 			throwable.isConnection() -> GetUserUseCaseError.NoConnection(networkRepository.isAvailable())

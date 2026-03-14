@@ -106,7 +106,18 @@ class RoomDataSource(
 					)
 				}
 
-			removePreviewOverrides { key -> key.subjectId in updatedSubjectIds }
+				removePreviewOverrides { key -> key.subjectId in updatedSubjectIds }
+			}
+	}
+
+	override suspend fun clearSubjectGradePreview(qid: String, sid: String) {
+		writeMutex.withLock {
+			removePreviewOverride(
+				key = SubjectPreviewKey(
+					quarterId = qid,
+					subjectId = sid
+				)
+			)
 		}
 	}
 

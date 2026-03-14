@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.domain.usecase
 
 import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
+import com.gdavidpb.tuindice.summary.domain.usecase.error.GetUserUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
@@ -14,6 +15,25 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class SummaryExceptionHandlerTest {
+	@Test
+	fun getUserExceptionHandler_mapsNotFound() {
+		val reportingRepository = RecordingReportingRepository()
+		val throwable = clientRequestException(HttpStatusCode.NotFound, path = "/users/v1")
+
+		val actual = GetUserExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true),
+			reportingRepository = reportingRepository
+		).reportException(throwable)
+
+		assertEquals(GetUserUseCaseError.NotFound, actual)
+		assertReported(
+			reportingRepository = reportingRepository,
+			handlerName = "GetUserExceptionHandler",
+			throwable = throwable,
+			isHandled = true
+		)
+	}
+
 	@Test
 	fun getUserExceptionHandler_leavesConflictUnhandled() {
 		val reportingRepository = RecordingReportingRepository()

@@ -7,6 +7,8 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.GetEvaluationsExceptionHandler
+import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveEvaluationExceptionHandler
+import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.*
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
@@ -85,11 +87,21 @@ class EvaluationsViewModelContractTest {
 				getEvaluationUseCase = GetEvaluationUseCase(repository)
 			),
 			setEvaluationGradeActionProcessor = SetEvaluationGradeActionProcessor(
-				updateEvaluationUseCase = UpdateEvaluationUseCase(repository)
+				updateEvaluationUseCase = UpdateEvaluationUseCase(
+					evaluationRepository = repository,
+					exceptionHandler = UpdateEvaluationExceptionHandler(
+						reportingRepository = RecordingReportingRepository()
+					)
+				)
 			),
 			openEvaluationActionProcessor = OpenEvaluationActionProcessor(),
 			removeEvaluationActionProcessor = RemoveEvaluationActionProcessor(
-				removeEvaluationUseCase = RemoveEvaluationUseCase(repository)
+				removeEvaluationUseCase = RemoveEvaluationUseCase(
+					evaluationRepository = repository,
+					exceptionHandler = RemoveEvaluationExceptionHandler(
+						reportingRepository = RecordingReportingRepository()
+					)
+				)
 			)
 		)
 	}

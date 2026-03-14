@@ -4,11 +4,13 @@ import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toAddQuarterRequest
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toRemoteQuarter
+import com.gdavidpb.tuindice.record.data.source.api.response.SetSubjectGradeRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.QuarterResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 
@@ -36,6 +38,16 @@ class RecordApiDataSource(
 
 		return ktorClient.post("quarters/v1") {
 			setBody(request)
+		}
+			.body<List<QuarterResponse>>()
+			.map { quarterResponse -> quarterResponse.toRemoteQuarter() }
+	}
+
+	override suspend fun setSubjectGrade(qid: String, sid: String, grade: Int): List<RemoteQuarter> {
+		return ktorClient.patch("quarters/v1/$qid/subjects/$sid") {
+			setBody(
+				SetSubjectGradeRequest(grade = grade)
+			)
 		}
 			.body<List<QuarterResponse>>()
 			.map { quarterResponse -> quarterResponse.toRemoteQuarter() }

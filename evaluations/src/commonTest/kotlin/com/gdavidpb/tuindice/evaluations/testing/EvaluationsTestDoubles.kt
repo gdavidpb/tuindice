@@ -146,6 +146,9 @@ class RecordingEvaluationRepository(
 		DEFAULT_COMPLETED_EVALUATION
 	),
 	private val evaluationsFlow: Flow<List<Evaluation>>? = null,
+	private val addThrowable: Throwable? = null,
+	private val updateThrowable: Throwable? = null,
+	private val removeThrowable: Throwable? = null,
 	private val availableSubjects: List<Subject> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
 		SECOND_EVALUATION_SUBJECT
@@ -165,11 +168,13 @@ class RecordingEvaluationRepository(
 
 	override suspend fun addEvaluation(add: EvaluationAdd) {
 		addCalls += add
+		addThrowable?.let { throw it }
 		evaluationsState.value = evaluationsState.value + add.toEvaluation()
 	}
 
 	override suspend fun updateEvaluation(update: EvaluationUpdate) {
 		updateCalls += update
+		updateThrowable?.let { throw it }
 		evaluationsState.value = evaluationsState.value.map { evaluation ->
 			if (evaluation.id == update.id) {
 				val resolvedScheduleMode = update.scheduleMode ?: if (update.date != null) {
@@ -201,6 +206,7 @@ class RecordingEvaluationRepository(
 
 	override suspend fun removeEvaluation(remove: EvaluationRemove) {
 		removeCalls += remove
+		removeThrowable?.let { throw it }
 		evaluationsState.value = evaluationsState.value.filterNot { evaluation ->
 			evaluation.id == remove.id
 		}
@@ -265,7 +271,12 @@ class FakeEvaluationsApiDataSource(
 	private val evaluations: List<RemoteEvaluation> = listOf(
 		DEFAULT_REMOTE_PENDING_EVALUATION,
 		DEFAULT_REMOTE_COMPLETED_EVALUATION
-	)
+	),
+	private val addResult: RemoteEvaluation? = null,
+	private val updateResult: RemoteEvaluation? = null,
+	private val addThrowable: Throwable? = null,
+	private val updateThrowable: Throwable? = null,
+	private val removeThrowable: Throwable? = null
 ) : EvaluationsApiDataSource {
 	var getEvaluationsCalls = 0
 	val addedEvaluations = mutableListOf<RemoteEvaluation>()
@@ -282,16 +293,19 @@ class FakeEvaluationsApiDataSource(
 	}
 
 	override suspend fun addEvaluation(evaluation: RemoteEvaluation): RemoteEvaluation {
+		addThrowable?.let { throw it }
 		addedEvaluations += evaluation
-		return evaluation
+		return addResult ?: evaluation
 	}
 
 	override suspend fun updateEvaluation(evaluation: RemoteEvaluation): RemoteEvaluation {
+		updateThrowable?.let { throw it }
 		updatedEvaluations += evaluation
-		return evaluation
+		return updateResult ?: evaluation
 	}
 
 	override suspend fun removeEvaluation(eid: String) {
+		removeThrowable?.let { throw it }
 		removedEvaluationIds += eid
 	}
 }

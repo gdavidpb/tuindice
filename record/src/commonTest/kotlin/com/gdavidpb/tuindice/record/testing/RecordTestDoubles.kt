@@ -99,7 +99,8 @@ val UPDATED_RECORD_LOCAL_QUARTER = DEFAULT_RECORD_LOCAL_QUARTER.copy(
 )
 
 class RecordingQuarterRepository(
-	private val quarters: Flow<List<Quarter>> = flowOf(listOf(DEFAULT_RECORD_QUARTER))
+	private val quarters: Flow<List<Quarter>> = flowOf(listOf(DEFAULT_RECORD_QUARTER)),
+	private val setSubjectGradeThrowable: Throwable? = null
 ) : QuarterRepository {
 	val removeCalls = MutableStateFlow<List<QuarterRemove>>(emptyList())
 	val setGradeCalls = MutableStateFlow<List<SubjectGradeSet>>(emptyList())
@@ -114,6 +115,7 @@ class RecordingQuarterRepository(
 
 	override suspend fun setSubjectGrade(set: SubjectGradeSet) {
 		setGradeCalls.update { calls -> calls + set }
+		setSubjectGradeThrowable?.let { throw it }
 	}
 
 	private fun Flow<List<Quarter>>.replayCacheOrEmpty(): List<Quarter> {
@@ -134,6 +136,7 @@ class FakeQuarterLocalDataSource(
 
 	val savedQuarters = mutableListOf<List<LocalQuarter>>()
 	val removedQuarterIds = mutableListOf<String>()
+	val clearedPreviewArgs = mutableListOf<Pair<String, String>>()
 	var lastSetSubjectGradeArgs: SetSubjectGradeCall? = null
 
 	override fun getQuartersFlow(): Flow<List<LocalQuarter>> = quarterState
@@ -153,6 +156,10 @@ class FakeQuarterLocalDataSource(
 	}
 
 	override suspend fun saveSubjects(subjects: List<LocalSubject>) = Unit
+
+	override suspend fun clearSubjectGradePreview(qid: String, sid: String) {
+		clearedPreviewArgs += qid to sid
+	}
 
 	override suspend fun setSubjectGradeAndRecompute(
 		qid: String,
@@ -179,11 +186,14 @@ data class SetSubjectGradeCall(
 )
 
 class FakeQuarterRemoteDataSource(
-	private val quarters: List<RemoteQuarter> = listOf(DEFAULT_RECORD_REMOTE_QUARTER)
+	private val quarters: List<RemoteQuarter> = listOf(DEFAULT_RECORD_REMOTE_QUARTER),
+	private val removeQuarterThrowable: Throwable? = null,
+	private val setSubjectGradeThrowable: Throwable? = null
 ) : QuarterRemoteDataSource {
 	var getQuartersCalls = 0
 	val removedQuarterIds = mutableListOf<String>()
 	val addedQuarters = mutableListOf<RemoteQuarter>()
+	val setSubjectGradeCalls = mutableListOf<SetSubjectGradeCall>()
 
 	override suspend fun getQuarters(): List<RemoteQuarter> {
 		getQuartersCalls++
@@ -195,11 +205,23 @@ class FakeQuarterRemoteDataSource(
 	}
 
 	override suspend fun removeQuarter(qid: String) {
+		removeQuarterThrowable?.let { throw it }
 		removedQuarterIds += qid
 	}
 
 	override suspend fun addQuarter(quarter: RemoteQuarter): List<RemoteQuarter> {
 		addedQuarters += quarter
+		return quarters
+	}
+
+	override suspend fun setSubjectGrade(qid: String, sid: String, grade: Int): List<RemoteQuarter> {
+		setSubjectGradeThrowable?.let { throw it }
+		setSubjectGradeCalls += SetSubjectGradeCall(
+			quarterId = qid,
+			subjectId = sid,
+			grade = grade,
+			commit = true
+		)
 		return quarters
 	}
 }

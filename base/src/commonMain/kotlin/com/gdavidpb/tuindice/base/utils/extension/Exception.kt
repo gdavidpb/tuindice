@@ -85,6 +85,11 @@ fun Throwable.isNotFound() = when (this) {
 	else -> false
 }
 
+fun Throwable.isPreconditionFailed() = when (this) {
+	is ClientRequestException -> response.status == HttpStatusCode.PreconditionFailed
+	else -> false
+}
+
 fun Throwable.isTimeout(): Boolean {
 	return errorChain().any { throwable ->
 		throwable is TimeoutCancellationException ||

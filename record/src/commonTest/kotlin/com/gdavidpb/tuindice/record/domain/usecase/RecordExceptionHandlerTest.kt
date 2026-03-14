@@ -15,6 +15,42 @@ import kotlin.test.assertIs
 
 class RecordExceptionHandlerTest {
 	@Test
+	fun setSubjectGradeExceptionHandler_mapsNotFound_andReportsHandled() {
+		val reportingRepository = RecordingReportingRepository()
+		val throwable = clientRequestException(HttpStatusCode.NotFound, path = "/quarters/v1/qid/subjects/sid")
+
+		val actual = SetSubjectGradeExceptionHandler(
+			reportingRepository = reportingRepository
+		).reportException(throwable)
+
+		assertEquals(SubjectUseCaseError.NotFound, actual)
+		assertReported(
+			reportingRepository = reportingRepository,
+			handlerName = "SetSubjectGradeExceptionHandler",
+			throwable = throwable,
+			isHandled = true
+		)
+	}
+
+	@Test
+	fun setSubjectGradeExceptionHandler_mapsReadOnly_andReportsHandled() {
+		val reportingRepository = RecordingReportingRepository()
+		val throwable = clientRequestException(HttpStatusCode.PreconditionFailed, path = "/quarters/v1/qid/subjects/sid")
+
+		val actual = SetSubjectGradeExceptionHandler(
+			reportingRepository = reportingRepository
+		).reportException(throwable)
+
+		assertEquals(SubjectUseCaseError.ReadOnly, actual)
+		assertReported(
+			reportingRepository = reportingRepository,
+			handlerName = "SetSubjectGradeExceptionHandler",
+			throwable = throwable,
+			isHandled = true
+		)
+	}
+
+	@Test
 	fun setSubjectGradeExceptionHandler_mapsValidationErrors_andReportsHandled() {
 		val reportingRepository = RecordingReportingRepository()
 		val throwable = SubjectIllegalArgumentException(SubjectUseCaseError.OutOfRangeGrade)

@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.error.SubjectUseCaseError
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.toSetSubjectGradeParams
 import kotlinx.coroutines.flow.Flow
@@ -11,6 +12,8 @@ import kotlinx.coroutines.flow.map
 import org.jetbrains.compose.resources.getString
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.snack_default_error
+import tuindice.record.generated.resources.snack_record_not_found
+import tuindice.record.generated.resources.snack_record_read_only
 
 class SetSubjectGradeActionProcessor(
 	private val setSubjectGradeUseCase: SetSubjectGradeUseCase
@@ -32,7 +35,16 @@ class SetSubjectGradeActionProcessor(
 					}
 
 					is UseCaseState.Error -> suspend { state: Record.State ->
-						val message = getString(Res.string.snack_default_error)
+						val message = when (useCaseState.error) {
+							is SubjectUseCaseError.NotFound ->
+								getString(Res.string.snack_record_not_found)
+
+							is SubjectUseCaseError.ReadOnly ->
+								getString(Res.string.snack_record_read_only)
+
+							else ->
+								getString(Res.string.snack_default_error)
+						}
 
 						sideEffect(
 							Record.Effect.ShowSnackBar(

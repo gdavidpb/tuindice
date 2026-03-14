@@ -90,12 +90,11 @@ class SummaryActionProcessorContractTest {
 			retiredCredits = DEFAULT_SUMMARY_USER.retiredCredits,
 			failedSubjects = DEFAULT_SUMMARY_USER.failedSubjects,
 			failedCredits = DEFAULT_SUMMARY_USER.failedCredits,
-			profilePictureUrl = DEFAULT_SUMMARY_USER.pictureUrl,
-			isGradeVisible = true,
-			isProfilePictureLoading = false,
-			isUpdated = true,
-			isUpdating = false
-		)
+				profilePictureUrl = DEFAULT_SUMMARY_USER.pictureUrl,
+				isGradeVisible = true,
+				isProfilePictureLoading = false,
+				isUpdated = true
+			)
 		val effects = mutableListOf<Summary.Effect>()
 
 		processor.process(

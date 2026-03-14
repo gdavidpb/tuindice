@@ -1,7 +1,12 @@
 {
   "request": {
-    "method": "POST",
-    "urlPath": "/quarters/v1"
+    "method": "PATCH",
+    "urlPathPattern": "/quarters/v1/[^/]+/subjects/[^/]+",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.grade"
+      }
+    ]
   },
   "response": {
     "status": 200,

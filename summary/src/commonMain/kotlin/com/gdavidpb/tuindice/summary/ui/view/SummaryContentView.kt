@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,22 +32,6 @@ fun SummaryContentView(
 	val profilePictureState = rememberProfilePictureState(
 		url = state.profilePictureUrl,
 		isLoading = state.isProfilePictureLoading
-	)
-
-	val updatingTransition = rememberInfiniteTransition(
-		label = "SummaryContentView_rememberInfiniteTransition"
-	)
-
-	val updatingAnimation = updatingTransition.animateFloat(
-		initialValue = 0f,
-		targetValue = -180f,
-		animationSpec = infiniteRepeatable(
-			animation = tween(
-				durationMillis = 500,
-				easing = LinearEasing
-			)
-		),
-		label = "SummaryContentView_animateFloat"
 	)
 
 	Column(
@@ -91,14 +73,13 @@ fun SummaryContentView(
 				.padding(vertical = 8.dp),
 			verticalAlignment = Alignment.CenterVertically
 		) {
-			Icon(
-				modifier = Modifier
-					.testTag(SummaryUiTags.StatusIcon)
-					.padding(horizontal = 4.dp)
-					.rotate(if (state.isUpdating) updatingAnimation.value else 0f),
-				imageVector = if (state.isUpdated) Icons.Outlined.Sync else Icons.Outlined.SyncProblem,
-				tint = if (state.isUpdated) LocalContentColor.current else MaterialTheme.colorScheme.error,
-				contentDescription = null
+				Icon(
+					modifier = Modifier
+						.testTag(SummaryUiTags.StatusIcon)
+						.padding(horizontal = 4.dp),
+					imageVector = if (state.isUpdated) Icons.Outlined.Sync else Icons.Outlined.SyncProblem,
+					tint = if (state.isUpdated) LocalContentColor.current else MaterialTheme.colorScheme.error,
+					contentDescription = null
 			)
 
 			Text(

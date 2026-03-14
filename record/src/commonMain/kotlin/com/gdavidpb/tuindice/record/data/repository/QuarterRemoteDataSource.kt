@@ -7,4 +7,5 @@ interface QuarterRemoteDataSource {
 	suspend fun getQuarter(qid: String): RemoteQuarter
 	suspend fun removeQuarter(qid: String)
 	suspend fun addQuarter(quarter: RemoteQuarter): List<RemoteQuarter>
+	suspend fun setSubjectGrade(qid: String, sid: String, grade: Int): List<RemoteQuarter>
 }

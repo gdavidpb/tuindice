@@ -54,15 +54,14 @@ class LoadSummaryActionProcessor(
 								retiredSubjects = retiredSubjects,
 								retiredCredits = retiredCredits,
 								failedSubjects = failedSubjects,
-								failedCredits = failedCredits,
-								profilePictureUrl = pictureUrl,
-								isGradeVisible = (grade > 0.0),
-								isProfilePictureLoading = false,
-								isUpdated = true,
-								isUpdating = false
-							)
+									failedCredits = failedCredits,
+									profilePictureUrl = pictureUrl,
+									isGradeVisible = (grade > 0.0),
+									isProfilePictureLoading = false,
+									isUpdated = true
+								)
+							}
 						}
-					}
 
 					is UseCaseState.Error -> when (val error = useCaseState.error) {
 						is GetUserUseCaseError.NoConnection -> suspend { _: Summary.State ->
@@ -92,7 +91,8 @@ class LoadSummaryActionProcessor(
 							Summary.State.Failed
 						}
 
-						is GetUserUseCaseError.Unavailable -> suspend { state: Summary.State ->
+						is GetUserUseCaseError.Unavailable,
+						GetUserUseCaseError.NotFound -> suspend { state: Summary.State ->
 							val message = getString(Res.string.snack_no_service)
 
 							sideEffect(
