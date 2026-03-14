@@ -48,9 +48,12 @@ class FakeEnrollmentProofApiDataSource(
 ) : EnrollmentProofApiDataSource {
 	var invocationCount = 0
 		private set
+	var lastPassword: String? = null
+		private set
 
-	override suspend fun getEnrollmentProof(): EnrollmentProof {
+	override suspend fun getEnrollmentProof(password: String): EnrollmentProof {
 		invocationCount++
+		lastPassword = password
 		throwable?.let { throw it }
 		return enrollmentProof
 	}

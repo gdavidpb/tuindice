@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.enrollmentproof.testing.FakeDatabaseDataSource
 import com.gdavidpb.tuindice.enrollmentproof.testing.FakeEnrollmentProofApiDataSource
 import com.gdavidpb.tuindice.enrollmentproof.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.enrollmentproof.testing.RecordingStorageDataSource
+import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -18,18 +19,21 @@ class EnrollmentProofRepositoryContractTest {
 		val apiDataSource = FakeEnrollmentProofApiDataSource(
 			enrollmentProof = DEFAULT_ENROLLMENT_PROOF
 		)
+		val credentialsRepository = FakeCredentialsRepository(password = "secret123")
 		val storageDataSource = RecordingStorageDataSource()
 		val repository = EnrollmentProofDataRepository(
 			databaseDataSource = FakeDatabaseDataSource(),
 			enrollmentProofApiDataSource = apiDataSource,
 			storageDataSource = storageDataSource,
-			networkRepository = FakeNetworkRepository(isAvailable = true)
+			networkRepository = FakeNetworkRepository(isAvailable = true),
+			credentialsRepository = credentialsRepository
 		)
 
 		val enrollmentProof = repository.getEnrollmentProof()
 
 		assertEquals(DEFAULT_ENROLLMENT_PROOF, enrollmentProof)
 		assertEquals(1, apiDataSource.invocationCount)
+		assertEquals("secret123", apiDataSource.lastPassword)
 		assertEquals(
 			listOf(CURRENT_QUARTER_NAME to DEFAULT_ENROLLMENT_PROOF),
 			storageDataSource.savedProofs
@@ -46,7 +50,8 @@ class EnrollmentProofRepositoryContractTest {
 			databaseDataSource = FakeDatabaseDataSource(),
 			enrollmentProofApiDataSource = apiDataSource,
 			storageDataSource = storageDataSource,
-			networkRepository = FakeNetworkRepository(isAvailable = true)
+			networkRepository = FakeNetworkRepository(isAvailable = true),
+			credentialsRepository = FakeCredentialsRepository(password = "secret123")
 		)
 
 		val enrollmentProof = repository.getEnrollmentProof()
@@ -66,7 +71,8 @@ class EnrollmentProofRepositoryContractTest {
 			databaseDataSource = FakeDatabaseDataSource(),
 			enrollmentProofApiDataSource = apiDataSource,
 			storageDataSource = storageDataSource,
-			networkRepository = FakeNetworkRepository(isAvailable = false)
+			networkRepository = FakeNetworkRepository(isAvailable = false),
+			credentialsRepository = FakeCredentialsRepository(password = "secret123")
 		)
 
 		val enrollmentProof = repository.getEnrollmentProof()
@@ -81,7 +87,8 @@ class EnrollmentProofRepositoryContractTest {
 			databaseDataSource = FakeDatabaseDataSource(currentQuarterName = null),
 			enrollmentProofApiDataSource = FakeEnrollmentProofApiDataSource(),
 			storageDataSource = RecordingStorageDataSource(),
-			networkRepository = FakeNetworkRepository(isAvailable = true)
+			networkRepository = FakeNetworkRepository(isAvailable = true),
+			credentialsRepository = FakeCredentialsRepository(password = "secret123")
 		)
 
 		assertFailsWith<EnrollmentProofNotFoundException> {
