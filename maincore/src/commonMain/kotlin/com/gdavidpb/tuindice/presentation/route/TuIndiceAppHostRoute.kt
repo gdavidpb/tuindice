@@ -4,15 +4,18 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
+import com.gdavidpb.tuindice.base.domain.repository.OutdatedCredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -23,6 +26,7 @@ import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.koin.compose.koinInject
@@ -34,6 +38,7 @@ fun TuIndiceAppHostRoute(
 	isSwipeBackNavigationEnabled: Boolean = false,
 	browserRepository: BrowserRepository = koinInject(),
 	deviceInfoRepository: DeviceInfoRepository = koinInject(),
+	outdatedCredentialsRepository: OutdatedCredentialsRepository = koinInject(),
 	reviewRepository: ReviewRepository = koinInject(),
 	updateRepository: UpdateRepository = koinInject(),
 	viewModel: MainViewModel = koinViewModel<MainViewModel>()
@@ -86,6 +91,30 @@ fun TuIndiceAppHostRoute(
 		},
 		viewModel = viewModel
 	) { state, updateState ->
+		val hasOutdatedCredentials by outdatedCredentialsRepository
+			.observeOutdatedCredentials()
+			.collectAsStateWithLifecycle(initialValue = false)
+
+		LaunchedEffect(hasOutdatedCredentials, state) {
+			if (state !is com.gdavidpb.tuindice.presentation.contract.Main.State.Content) return@LaunchedEffect
+			if (!hasOutdatedCredentials) return@LaunchedEffect
+			if (state.startDestination == AuthDestination.NavGraph) return@LaunchedEffect
+
+			yield()
+
+			val currentRoute = navController.currentBackStackEntryFlow
+				.first()
+				.destination
+				.route
+
+			if (currentRoute == AuthDestination.UpdatePasswordDialog::class.qualifiedName)
+				return@LaunchedEffect
+
+			navController.navigate(AuthDestination.UpdatePasswordDialog) {
+				launchSingleTop = true
+			}
+		}
+
 		TuIndiceScreen(
 			state = state,
 			updateState = updateState,

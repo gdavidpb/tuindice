@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeOutdatedCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.compose.resources.getString
@@ -42,6 +43,7 @@ class AuthActionProcessorContractTest {
 				messagingRepository = RecordingMessagingRepository(),
 				syncRepository = FakeSyncRepository(),
 				credentialsRepository = FakeCredentialsRepository(),
+				outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
 				riskAttestationRepository = FakeAttestationRepository(),
 				paramsValidator = SignInParamsValidator(),
 				exceptionHandler = SignInExceptionHandler(
@@ -80,6 +82,7 @@ class AuthActionProcessorContractTest {
 				sessionRepository = FakeSessionRepository(usbId = "20261234"),
 				syncRepository = FakeSyncRepository(),
 				credentialsRepository = FakeCredentialsRepository(),
+				outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
 				riskAttestationRepository = FakeAttestationRepository(),
 				paramsValidator = UpdatePasswordParamsValidator(),
 				exceptionHandler = UpdatePasswordExceptionHandler(
@@ -112,8 +115,7 @@ class AuthActionProcessorContractTest {
 				authRepository = RecordingAuthRepository(),
 				sessionRepository = FakeSessionRepository(),
 				messagingRepository = RecordingMessagingRepository(),
-				applicationRepository = RecordingApplicationRepository(),
-				credentialsRepository = FakeCredentialsRepository()
+				applicationRepository = RecordingApplicationRepository()
 			)
 		)
 		val effects = mutableListOf<SignOut.Effect>()

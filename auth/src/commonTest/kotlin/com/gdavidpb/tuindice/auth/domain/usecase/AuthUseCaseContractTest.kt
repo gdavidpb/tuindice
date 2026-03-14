@@ -17,8 +17,9 @@ import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
-import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeOutdatedCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -35,11 +36,13 @@ class AuthUseCaseContractTest {
 		val messagingRepository = RecordingMessagingRepository()
 		val syncRepository = FakeSyncRepository()
 		val credentialsRepository = FakeCredentialsRepository()
+		val outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(initialValue = true)
 		val useCase = SignInUseCase(
 			authRepository = repository,
 			messagingRepository = messagingRepository,
 			syncRepository = syncRepository,
 			credentialsRepository = credentialsRepository,
+			outdatedCredentialsRepository = outdatedCredentialsRepository,
 			riskAttestationRepository = attestationRepository,
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
@@ -58,6 +61,8 @@ class AuthUseCaseContractTest {
 		assertEquals(RiskOperation.IssueTokens, attestationRepository.lastRequest?.operation)
 		assertEquals(1, messagingRepository.subscribeCalls)
 		assertEquals(listOf("secret123"), credentialsRepository.storedPasswords)
+		assertEquals(false, outdatedCredentialsRepository.hasOutdatedCredentials())
+		assertEquals(1, outdatedCredentialsRepository.clearCalls)
 		assertEquals(listOf("secret123"), syncRepository.scheduledSyncCalls)
 	}
 
@@ -67,11 +72,13 @@ class AuthUseCaseContractTest {
 		val sessionRepository = FakeSessionRepository(usbId = "20261234")
 		val syncRepository = FakeSyncRepository()
 		val credentialsRepository = FakeCredentialsRepository()
+		val outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(initialValue = true)
 		val useCase = UpdatePasswordUseCase(
 			authRepository = repository,
 			sessionRepository = sessionRepository,
 			syncRepository = syncRepository,
 			credentialsRepository = credentialsRepository,
+			outdatedCredentialsRepository = outdatedCredentialsRepository,
 			riskAttestationRepository = FakeAttestationRepository(),
 			paramsValidator = UpdatePasswordParamsValidator(),
 			exceptionHandler = UpdatePasswordExceptionHandler(
@@ -89,6 +96,8 @@ class AuthUseCaseContractTest {
 		assertEquals("20261234", call.usbId)
 		assertEquals(IssueTokensFlow.ReissueTokens, call.flow)
 		assertEquals(listOf("new-secret"), credentialsRepository.storedPasswords)
+		assertEquals(false, outdatedCredentialsRepository.hasOutdatedCredentials())
+		assertEquals(1, outdatedCredentialsRepository.clearCalls)
 		assertEquals(listOf("new-secret"), syncRepository.scheduledSyncCalls)
 	}
 
@@ -98,13 +107,11 @@ class AuthUseCaseContractTest {
 		val messagingRepository = RecordingMessagingRepository()
 		val sessionRepository = FakeSessionRepository()
 		val applicationRepository = RecordingApplicationRepository()
-		val credentialsRepository = FakeCredentialsRepository(password = "secret123")
 		val useCase = SignOutUseCase(
 			authRepository = authRepository,
 			sessionRepository = sessionRepository,
 			messagingRepository = messagingRepository,
-			applicationRepository = applicationRepository,
-			credentialsRepository = credentialsRepository
+			applicationRepository = applicationRepository
 		)
 
 		useCase.execute(Unit).test {
@@ -115,8 +122,6 @@ class AuthUseCaseContractTest {
 		assertEquals(1, authRepository.revokeTokensCalls)
 		assertEquals(true, sessionRepository.cleared)
 		assertEquals(1, messagingRepository.unsubscribeCalls)
-		assertEquals(null, credentialsRepository.password)
-		assertEquals(1, credentialsRepository.clearCalls)
 		assertEquals(true, applicationRepository.cleared)
 	}
 }

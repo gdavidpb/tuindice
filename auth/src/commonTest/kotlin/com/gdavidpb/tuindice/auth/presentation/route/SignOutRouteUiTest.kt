@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.auth.presentation.action.SignOutActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -94,8 +93,7 @@ class SignOutRouteUiTest {
 			authRepository = RecordingAuthRepository(),
 			sessionRepository = FakeSessionRepository(),
 			messagingRepository = RecordingMessagingRepository(),
-			applicationRepository = applicationRepository,
-			credentialsRepository = FakeCredentialsRepository()
+			applicationRepository = applicationRepository
 		)
 
 		return SignOutViewModel(

@@ -78,26 +78,22 @@ private fun Module.registerIosPlatformPrimitives() {
 }
 
 private fun Module.registerIosPlatformServices() {
-	single<IdentifierRepository> { UUIDIdentifierDataSource() }
+	singleOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	single<AppEnvironmentRepository> { IosAppEnvironmentDataSource(iOSContext().appEnvironment) }
-	single<RemoteConfigDataSource> { IosRemoteConfigDataSource(get<IosRemoteConfigCapability>()) }
-	single<NetworkRepository> { IosNetworkDataSource(get<IosDeviceCapability>()) }
-	single<DeviceInfoRepository> { IosDeviceInfoGateway(get<IosDeviceCapability>()) }
-	single<BrowserRepository> { IosBrowserGateway(get<IosExternalActionsCapability>()) }
-	single<BrowserScreenRenderer> { IosBrowserScreenRenderer() }
+	singleOf(::IosRemoteConfigDataSource) { bind<RemoteConfigDataSource>() }
+	singleOf(::IosNetworkDataSource) { bind<NetworkRepository>() }
+	singleOf(::IosDeviceInfoGateway) { bind<DeviceInfoRepository>() }
+	singleOf(::IosBrowserGateway) { bind<BrowserRepository>() }
+	singleOf(::IosBrowserScreenRenderer) { bind<BrowserScreenRenderer>() }
 	singleOf(::IosFileOpener) { bind<FileOpenerRepository>() }
-	single<ReviewRepository> { IosReviewGateway(get<IosReviewCapability>()) }
-	single<UpdateRepository> { IosUpdateGateway(get<IosUpdateCapability>()) }
-	single<ApplicationRepository> {
-		IosApplicationDataSource(
-			settingsRepository = get<SettingsRepository>(),
-			kSafe = get<KSafe>(),
-			externalActionsCapability = get<IosExternalActionsCapability>()
-		)
+	singleOf(::IosReviewGateway) { bind<ReviewRepository>() }
+	singleOf(::IosUpdateGateway) { bind<UpdateRepository>() }
+	singleOf(::IosApplicationDataSource) {
+		bind<ApplicationRepository>()
+		bind<FileRepository>()
 	}
-	single<FileRepository> { get<ApplicationRepository>() }
-	single<ReportingRepository> { IosReportingDataSource(get<IosObservabilityCapability>()) }
-	factory<PushTokenDataSource> { IosPushTokenDataSource(get<IosPushCapability>()) }
+	singleOf(::IosReportingDataSource) { bind<ReportingRepository>() }
+	factoryOf(::IosPushTokenDataSource) { bind<PushTokenDataSource>() }
 	factory<AuthApiDataSource> {
 		KtorAuthApiDataSource(
 			ktorClient = get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))

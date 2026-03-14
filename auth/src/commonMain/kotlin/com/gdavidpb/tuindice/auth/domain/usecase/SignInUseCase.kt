@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.base.domain.repository.OutdatedCredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -22,6 +23,7 @@ class SignInUseCase(
 	private val messagingRepository: MessagingRepository,
 	private val syncRepository: SyncRepository,
 	private val credentialsRepository: CredentialsRepository,
+	private val outdatedCredentialsRepository: OutdatedCredentialsRepository,
 	private val riskAttestationRepository: RiskAttestationRepository,
 	override val paramsValidator: SignInParamsValidator,
 	override val exceptionHandler: SignInExceptionHandler
@@ -54,6 +56,7 @@ class SignInUseCase(
 		credentialsRepository.setPassword(
 			password = params.password
 		)
+		outdatedCredentialsRepository.clearOutdatedCredentials()
 
 		syncRepository.scheduleSync(
 			password = params.password

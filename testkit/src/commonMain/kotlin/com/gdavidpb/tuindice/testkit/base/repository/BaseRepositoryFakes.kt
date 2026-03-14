@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.OutdatedCredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
@@ -18,6 +19,8 @@ import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import io.github.vinceglb.filekit.PlatformFile
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 
 data object FakeDestination : Destination()
 
@@ -236,6 +239,30 @@ class FakeCredentialsRepository(
 
 	override suspend fun clearPassword() {
 		password = null
+		clearCalls++
+	}
+}
+
+class FakeOutdatedCredentialsRepository(
+	initialValue: Boolean = false
+) : OutdatedCredentialsRepository {
+	private val outdatedCredentials = MutableStateFlow(initialValue)
+	var setCalls = 0
+		private set
+	var clearCalls = 0
+		private set
+
+	override fun observeOutdatedCredentials(): Flow<Boolean> = outdatedCredentials
+
+	override suspend fun hasOutdatedCredentials(): Boolean = outdatedCredentials.value
+
+	override suspend fun setOutdatedCredentials() {
+		outdatedCredentials.value = true
+		setCalls++
+	}
+
+	override suspend fun clearOutdatedCredentials() {
+		outdatedCredentials.value = false
 		clearCalls++
 	}
 }

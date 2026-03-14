@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.auth.testing.FakeSessionRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeOutdatedCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.runTest
@@ -35,6 +36,7 @@ class UpdatePasswordViewModelContractTest {
 					sessionRepository = FakeSessionRepository(usbId = "20261234"),
 					syncRepository = FakeSyncRepository(),
 					credentialsRepository = FakeCredentialsRepository(),
+					outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
 					riskAttestationRepository = FakeAttestationRepository(),
 					paramsValidator = UpdatePasswordParamsValidator(),
 					exceptionHandler = UpdatePasswordExceptionHandler(

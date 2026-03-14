@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.auth.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.OutdatedCredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
@@ -21,6 +22,7 @@ class UpdatePasswordUseCase(
 	private val sessionRepository: SessionRepository,
 	private val syncRepository: SyncRepository,
 	private val credentialsRepository: CredentialsRepository,
+	private val outdatedCredentialsRepository: OutdatedCredentialsRepository,
 	private val riskAttestationRepository: RiskAttestationRepository,
 	override val paramsValidator: UpdatePasswordParamsValidator,
 	override val exceptionHandler: UpdatePasswordExceptionHandler
@@ -54,6 +56,7 @@ class UpdatePasswordUseCase(
 		credentialsRepository.setPassword(
 			password = params
 		)
+		outdatedCredentialsRepository.clearOutdatedCredentials()
 
 		syncRepository.scheduleSync(
 			password = params

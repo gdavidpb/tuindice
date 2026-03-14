@@ -4,10 +4,32 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.auth.di.authModule
+import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
+import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
+import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.domain.model.RiskAttestation
+import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.OutdatedCredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.presentation.navigation.MainDestination
+import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeOutdatedCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReviewRepository
 import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testing.createMainViewModel
@@ -16,6 +38,9 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 
 @OptIn(ExperimentalTestApi::class)
 class TuIndiceAppHostRouteUiTest {
@@ -29,6 +54,7 @@ class TuIndiceAppHostRouteUiTest {
 				isSwipeBackNavigationEnabled = false,
 				browserRepository = RecordingBrowserRepository(),
 				deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+				outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
 				reviewRepository = reviewRepository,
 				updateRepository = FakeUpdateRepository(),
 				viewModel = createMainViewModel()
@@ -53,6 +79,7 @@ class TuIndiceAppHostRouteUiTest {
 				isSwipeBackNavigationEnabled = false,
 				browserRepository = RecordingBrowserRepository(),
 				deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+				outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
 				reviewRepository = RecordingReviewRepository(),
 				updateRepository = updateRepository,
 				viewModel = viewModel
@@ -77,6 +104,7 @@ class TuIndiceAppHostRouteUiTest {
 				isSwipeBackNavigationEnabled = false,
 				browserRepository = RecordingBrowserRepository(),
 				deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+				outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(),
 				reviewRepository = RecordingReviewRepository(),
 				updateRepository = FakeUpdateRepository(),
 				viewModel = createMainViewModel()
@@ -98,4 +126,77 @@ class TuIndiceAppHostRouteUiTest {
 		assertTrue(confirmExitCalls > 0)
 	}
 
+	@Test
+	fun when_credentialsAreMarkedAsOutdated_then_hostRouteNavigatesToUpdatePasswordDialog() = runTuIndiceUiTest {
+		val outdatedCredentialsRepository = FakeOutdatedCredentialsRepository(initialValue = true)
+
+		stopKoin()
+
+		startKoin {
+			modules(
+				authModule,
+				module {
+					single<AuthRepository> {
+						object : AuthRepository {
+							override suspend fun issueTokens(
+								usbId: String,
+								password: String,
+								flow: IssueTokensFlow,
+								riskAttestation: RiskAttestation
+							) = Unit
+
+							override suspend fun refreshTokens(
+								accessToken: String,
+								refreshToken: String,
+								riskAttestation: RiskAttestation
+							): RefreshTokens = error("refreshTokens should not be called in this test")
+
+							override suspend fun revokeTokens() = Unit
+						}
+					}
+					single<SessionRepository> { FakeSessionRepository() }
+					single<SyncRepository> { FakeSyncRepository() }
+					single<CredentialsRepository> { FakeCredentialsRepository() }
+					single<OutdatedCredentialsRepository> { outdatedCredentialsRepository }
+					single<RiskAttestationRepository> {
+						object : RiskAttestationRepository {
+							override suspend fun issueProof(request: RiskAttestationRequest): RiskAttestation {
+								return RiskAttestation(token = "token")
+							}
+						}
+					}
+					single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
+					single<ReportingRepository> { RecordingReportingRepository() }
+				}
+			)
+		}
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					isSwipeBackNavigationEnabled = false,
+					browserRepository = RecordingBrowserRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+					outdatedCredentialsRepository = outdatedCredentialsRepository,
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = createMainViewModel(
+						settingsRepository = FakeSettingsRepository(
+							reviewSuggested = true,
+							lastDestination = MainDestination.GooglePlayServicesUnavailableDialog
+						)
+					)
+				)
+			}
+
+			waitUntil(timeoutMillis = 2_000) {
+				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
+			}
+
+			assertNodeVisible(AuthUiTags.PasswordTextField)
+		} finally {
+			stopKoin()
+		}
+	}
 }
