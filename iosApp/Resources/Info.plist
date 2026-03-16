@@ -28,8 +28,6 @@
 	<string>TuIndice usa la camara para tomar la foto de perfil.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>TuIndice usa la galeria para seleccionar la foto de perfil.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>TuIndice puede guardar imagenes generadas para compartir.</string>
 	<key>TUINDICE_API_BASE_URL</key>
 	<string>$(TUINDICE_API_BASE_URL)</string>
 	<key>TUINDICE_DEBUG</key>
