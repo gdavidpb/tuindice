@@ -1,15 +1,13 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,17 +20,14 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
-import org.jetbrains.compose.resources.stringResource
-import tuindice.summary.generated.resources.Res
-import tuindice.summary.generated.resources.text_sync_failed
-import tuindice.summary.generated.resources.text_sync_outdated_credentials
 
 @Composable
 fun SummaryContentView(
 	state: Summary.State.Content,
 	syncStatus: SyncStatus,
 	summaryItems: List<SummaryItem>,
-	onEditProfilePictureClick: () -> Unit
+	onEditProfilePictureClick: () -> Unit,
+	onStatusIconClick: () -> Unit
 ) {
 	val profilePictureState = rememberProfilePictureState(
 		url = state.profilePictureUrl,
@@ -48,11 +43,7 @@ fun SummaryContentView(
 		SyncStatus.Failed,
 		SyncStatus.OutdatedCredentials -> MaterialTheme.colorScheme.error
 	}
-	val statusText = when (syncStatus) {
-		SyncStatus.Healthy -> state.lastUpdate
-		SyncStatus.Failed -> stringResource(Res.string.text_sync_failed, state.lastUpdate)
-		SyncStatus.OutdatedCredentials -> stringResource(Res.string.text_sync_outdated_credentials)
-	}
+	val canOpenStatusDetails = syncStatus != SyncStatus.Healthy
 
 	Column(
 		modifier = Modifier
@@ -90,21 +81,36 @@ fun SummaryContentView(
 		Row(
 			modifier = Modifier
 				.testTag(SummaryUiTags.StatusRow)
-				.padding(vertical = 8.dp),
+				.fillMaxWidth(),
+			horizontalArrangement = Arrangement.Center,
 			verticalAlignment = Alignment.CenterVertically
 		) {
-			Icon(
-				modifier = Modifier
-					.testTag(SummaryUiTags.StatusIcon)
-					.padding(horizontal = 4.dp),
-				imageVector = statusIcon,
-				tint = statusTint,
-				contentDescription = null
-			)
+			if (canOpenStatusDetails)
+				IconButton(
+					modifier = Modifier
+						.testTag(SummaryUiTags.StatusIconButton),
+					onClick = onStatusIconClick
+				) {
+					Icon(
+						modifier = Modifier.testTag(SummaryUiTags.StatusIcon),
+						imageVector = statusIcon,
+						tint = statusTint,
+						contentDescription = null
+					)
+				}
+			else
+				Icon(
+					modifier = Modifier
+						.testTag(SummaryUiTags.StatusIcon)
+						.padding(horizontal = 4.dp),
+					imageVector = statusIcon,
+					tint = statusTint,
+					contentDescription = null
+				)
 
 			Text(
 				modifier = Modifier.testTag(SummaryUiTags.StatusText),
-				text = statusText,
+				text = state.lastUpdate,
 				style = MaterialTheme.typography.bodyMedium
 			)
 		}

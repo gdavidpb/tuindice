@@ -1,7 +1,10 @@
 package com.gdavidpb.tuindice.summary.ui.screen
 
-import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
@@ -21,8 +24,11 @@ fun SummaryScreen(
 	state: Summary.State,
 	syncStatus: SyncStatus,
 	onRetryClick: () -> Unit,
-	onEditProfilePictureClick: () -> Unit
+	onEditProfilePictureClick: () -> Unit,
+	onUpdatePasswordClick: () -> Unit
 ) {
+	var displayedSyncStatusDetails by remember { mutableStateOf<SyncStatus?>(null) }
+
 	SealedCrossfade(targetState = state) { targetState ->
 		when (targetState) {
 			is Summary.State.Loading ->
@@ -46,8 +52,20 @@ fun SummaryScreen(
 					summaryItems = rememberSummaryItems(
 						state = targetState
 					),
-					onEditProfilePictureClick = onEditProfilePictureClick
+					onEditProfilePictureClick = onEditProfilePictureClick,
+					onStatusIconClick = {
+						if (syncStatus != SyncStatus.Healthy)
+							displayedSyncStatusDetails = syncStatus
+					}
 				)
 		}
+	}
+
+	displayedSyncStatusDetails?.let { currentSyncStatus ->
+		SyncStatusInfoContentDialog(
+			syncStatus = currentSyncStatus,
+			onUpdatePasswordClick = onUpdatePasswordClick,
+			onDismissRequest = { displayedSyncStatusDetails = null }
+		)
 	}
 }

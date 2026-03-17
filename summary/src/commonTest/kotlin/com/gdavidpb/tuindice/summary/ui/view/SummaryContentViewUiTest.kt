@@ -29,7 +29,8 @@ class SummaryContentViewUiTest {
 				state = contentState,
 				syncStatus = SyncStatus.Healthy,
 				summaryItems = items,
-				onEditProfilePictureClick = { editClicks++ }
+				onEditProfilePictureClick = { editClicks++ },
+				onStatusIconClick = {}
 			)
 		}
 
@@ -56,7 +57,8 @@ class SummaryContentViewUiTest {
 				state = contentState,
 				syncStatus = SyncStatus.Healthy,
 				summaryItems = emptyList(),
-				onEditProfilePictureClick = {}
+				onEditProfilePictureClick = {},
+				onStatusIconClick = {}
 			)
 		}
 
@@ -74,51 +76,59 @@ class SummaryContentViewUiTest {
 				state = contentState,
 				syncStatus = SyncStatus.Healthy,
 				summaryItems = summaryItemsFor(contentState),
-				onEditProfilePictureClick = {}
+				onEditProfilePictureClick = {},
+				onStatusIconClick = {}
 			)
 		}
 
 		assertNodeVisible(SummaryUiTags.StatusRow)
 		assertNodeVisible(SummaryUiTags.StatusIcon)
 		assertNodeVisible(SummaryUiTags.StatusText)
+		assertNodeHidden(SummaryUiTags.StatusIconButton)
 		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
 	}
 
 	@Test
-	fun when_syncHasFailed_then_displaysPermanentSyncErrorMessage() = runTuIndiceUiTest {
+	fun when_syncHasFailed_then_statusIconTapInvokesCallbackAndLastUpdateRemainsVisible() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
+		var statusIconClicks = 0
 
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
 				syncStatus = SyncStatus.Failed,
 				summaryItems = summaryItemsFor(contentState),
-				onEditProfilePictureClick = {}
+				onEditProfilePictureClick = {},
+				onStatusIconClick = { statusIconClicks++ }
 			)
 		}
 
 		assertNodeVisible(SummaryUiTags.StatusRow)
-		onNodeWithText(
-			"No pudimos sincronizar tus datos. ${contentState.lastUpdate}"
-		).assertIsDisplayed()
+		assertNodeVisible(SummaryUiTags.StatusIconButton)
+		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		assertEquals(1, statusIconClicks)
 	}
 
 	@Test
-	fun when_syncStatusIsOutdatedCredentials_then_displaysUpdatePasswordMessage() = runTuIndiceUiTest {
+	fun when_syncStatusIsOutdatedCredentials_then_statusIconTapInvokesCallbackAndLastUpdateRemainsVisible() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
+		var statusIconClicks = 0
 
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
 				syncStatus = SyncStatus.OutdatedCredentials,
 				summaryItems = summaryItemsFor(contentState),
-				onEditProfilePictureClick = {}
+				onEditProfilePictureClick = {},
+				onStatusIconClick = { statusIconClicks++ }
 			)
 		}
 
 		assertNodeVisible(SummaryUiTags.StatusRow)
-		onNodeWithText(
-			"Actualiza tu contraseña para volver a sincronizar tus datos."
-		).assertIsDisplayed()
+		assertNodeVisible(SummaryUiTags.StatusIconButton)
+		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		assertEquals(1, statusIconClicks)
 	}
 }

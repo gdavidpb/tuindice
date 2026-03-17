@@ -11,7 +11,7 @@ fun summaryContentState(
 	isProfilePictureLoading: Boolean = false
 ): Summary.State.Content = Summary.State.Content(
 	name = "Ana Diaz",
-	lastUpdate = "Ultima actualizacion: Hoy",
+	lastUpdate = "Última actualización: Hoy",
 	careerName = "Ingenieria Informatica",
 	grade = 4.25f,
 	enrolledSubjects = 5,

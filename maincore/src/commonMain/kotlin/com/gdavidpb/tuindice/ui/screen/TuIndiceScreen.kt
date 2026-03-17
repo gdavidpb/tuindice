@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
@@ -95,6 +96,8 @@ fun TuIndiceScreen(
 
 	val contentState = state
 	val latestContentState = rememberUpdatedState(contentState)
+	val currentBackStackEntry = navController.currentBackStackEntryAsState().value
+	val canNavigateBack = currentBackStackEntry != null && navController.previousBackStackEntry != null
 
 	val onViewStateChanged: (ViewState) -> Unit = { currentViewState ->
 		updateState(
@@ -137,14 +140,12 @@ fun TuIndiceScreen(
 								)
 							}
 						)
-					},
-					navigationIcon = {
-						val hasPreviousBackStackEntry = (navController.previousBackStackEntry != null)
-
-						if (hasPreviousBackStackEntry)
-							IconButton(
-								modifier = Modifier.testTag(MaincoreUiTags.TuIndiceTopBarBackButton),
-								onClick = onNavigateBack
+						},
+						navigationIcon = {
+							if (canNavigateBack)
+								IconButton(
+									modifier = Modifier.testTag(MaincoreUiTags.TuIndiceTopBarBackButton),
+									onClick = onNavigateBack
 							) {
 								Icon(
 									imageVector = Icons.AutoMirrored.Filled.ArrowBack,

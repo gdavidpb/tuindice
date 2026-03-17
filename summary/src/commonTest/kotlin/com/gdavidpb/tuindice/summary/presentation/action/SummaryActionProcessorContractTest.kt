@@ -24,7 +24,7 @@ import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.snack_profile_picture_not_image
 import tuindice.summary.generated.resources.snack_profile_picture_removed
 import tuindice.summary.generated.resources.snack_profile_picture_updated
-import tuindice.summary.generated.resources.text_last_update
+import tuindice.summary.generated.resources.text_sync_healthy
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -55,7 +55,7 @@ class SummaryActionProcessorContractTest {
 			assertEquals("Ana Diaz", content.name)
 			assertEquals(
 				getString(
-					Res.string.text_last_update,
+					Res.string.text_sync_healthy,
 					DEFAULT_SUMMARY_USER.lastUpdate.formatLastUpdate()
 				),
 				content.lastUpdate
@@ -66,6 +66,33 @@ class SummaryActionProcessorContractTest {
 		}
 
 		assertTrue(effects.isEmpty())
+	}
+
+	@Test
+	fun loadSummaryActionProcessor_formatsZeroLastUpdateAsNunca() = runTest {
+		val processor = LoadSummaryActionProcessor(
+			getUserUseCase = GetUserUseCase(
+				userRepository = RecordingUserRepository(
+					users = flowOf(DEFAULT_SUMMARY_USER.copy(lastUpdate = 0L))
+				),
+				exceptionHandler = GetUserExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true),
+					reportingRepository = RecordingReportingRepository()
+				)
+			)
+		)
+
+		processor.process(
+			action = Summary.Action.LoadSummary,
+			sideEffect = {}
+		).test {
+			awaitItem()(Summary.State.Failed)
+
+			val content = assertIs<Summary.State.Content>(awaitItem()(Summary.State.Loading))
+			assertEquals("Última actualización: Nunca", content.lastUpdate)
+
+			awaitComplete()
+		}
 	}
 
 	@Test
@@ -83,7 +110,7 @@ class SummaryActionProcessorContractTest {
 		val initialState = Summary.State.Content(
 			name = "Ana Diaz",
 			lastUpdate = getString(
-				Res.string.text_last_update,
+				Res.string.text_sync_healthy,
 				DEFAULT_SUMMARY_USER.lastUpdate.formatLastUpdate()
 			),
 			careerName = DEFAULT_SUMMARY_USER.careerName,
@@ -140,7 +167,7 @@ class SummaryActionProcessorContractTest {
 		val initialState = Summary.State.Content(
 			name = "Ana Diaz",
 			lastUpdate = getString(
-				Res.string.text_last_update,
+				Res.string.text_sync_healthy,
 				DEFAULT_SUMMARY_USER.lastUpdate.formatLastUpdate()
 			),
 			careerName = DEFAULT_SUMMARY_USER.careerName,
@@ -196,7 +223,7 @@ class SummaryActionProcessorContractTest {
 		val initialState = Summary.State.Content(
 			name = "Ana Diaz",
 			lastUpdate = getString(
-				Res.string.text_last_update,
+				Res.string.text_sync_healthy,
 				DEFAULT_SUMMARY_USER.lastUpdate.formatLastUpdate()
 			),
 			careerName = DEFAULT_SUMMARY_USER.careerName,

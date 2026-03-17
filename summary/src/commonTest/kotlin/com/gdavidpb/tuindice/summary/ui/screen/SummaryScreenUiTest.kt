@@ -23,7 +23,8 @@ class SummaryScreenUiTest {
 				state = Summary.State.Loading,
 				syncStatus = SyncStatus.Healthy,
 				onRetryClick = {},
-				onEditProfilePictureClick = {}
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
 			)
 		}
 
@@ -39,7 +40,8 @@ class SummaryScreenUiTest {
 				state = Summary.State.Failed,
 				syncStatus = SyncStatus.Healthy,
 				onRetryClick = { retryClicks++ },
-				onEditProfilePictureClick = {}
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
 			)
 		}
 
@@ -58,7 +60,8 @@ class SummaryScreenUiTest {
 				state = summaryContentState(),
 				syncStatus = SyncStatus.Healthy,
 				onRetryClick = {},
-				onEditProfilePictureClick = {}
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
 			)
 		}
 
@@ -74,7 +77,8 @@ class SummaryScreenUiTest {
 				state = summaryContentState(),
 				syncStatus = SyncStatus.Healthy,
 				onRetryClick = {},
-				onEditProfilePictureClick = { editClicks++ }
+				onEditProfilePictureClick = { editClicks++ },
+				onUpdatePasswordClick = {}
 			)
 		}
 
@@ -82,5 +86,49 @@ class SummaryScreenUiTest {
 		onNodeWithTag(SummaryUiTags.ProfilePictureEditButton).performClick()
 
 		assertEquals(1, editClicks)
+	}
+
+	@Test
+	fun when_failedStatusIconTapped_then_displaysSyncStatusBottomSheet() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryScreen(
+				state = summaryContentState(),
+				syncStatus = SyncStatus.Failed,
+				onRetryClick = {},
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+
+		assertNodeVisible(BaseUiTags.ConfirmationDialogSheet)
+		assertNodeVisible(BaseUiTags.ConfirmationDialogTitle)
+		assertNodeVisible(SummaryUiTags.SyncStatusMessage)
+		assertNodeVisible(BaseUiTags.ConfirmationDialogPositiveButton)
+	}
+
+	@Test
+	fun when_outdatedCredentialsBottomSheetConfirmed_then_invokesUpdatePasswordCallback() = runTuIndiceUiTest {
+		var updatePasswordClicks = 0
+
+		setTuIndiceTestContent {
+			SummaryScreen(
+				state = summaryContentState(),
+				syncStatus = SyncStatus.OutdatedCredentials,
+				onRetryClick = {},
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = { updatePasswordClicks++ }
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
+
+		waitUntil(timeoutMillis = 2_000) {
+			updatePasswordClicks == 1
+		}
+
+		assertEquals(1, updatePasswordClicks)
 	}
 }

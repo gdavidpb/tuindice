@@ -17,7 +17,7 @@ import tuindice.summary.generated.resources.snack_network_unavailable
 import tuindice.summary.generated.resources.snack_no_service
 import tuindice.summary.generated.resources.snack_service_unavailable
 import tuindice.summary.generated.resources.snack_timeout
-import tuindice.summary.generated.resources.text_last_update
+import tuindice.summary.generated.resources.text_sync_healthy
 
 class LoadSummaryActionProcessor(
 	private val getUserUseCase: GetUserUseCase
@@ -37,7 +37,7 @@ class LoadSummaryActionProcessor(
 					is UseCaseState.Data -> suspend { _: Summary.State ->
 						val user = useCaseState.value
 						val lastUpdateText = getString(
-							Res.string.text_last_update,
+							Res.string.text_sync_healthy,
 							user.lastUpdate.formatLastUpdate()
 						)
 

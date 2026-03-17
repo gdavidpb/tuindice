@@ -1,42 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="summary_loading_title">Resumen</string>
-	<string name="summary_loading_message">Cargando…</string>
-	<string name="summary_failed_title">Resumen</string>
-	<string name="summary_failed_message">No se pudo cargar la información.</string>
-	<string name="summary_failed_retry">Reintentar</string>
-	<string name="dialog_title_remove_profile_picture">Atención</string>
-	<string name="dialog_message_remove_profile_picture">¿Estás seguro que deseas remover tu foto de perfil?</string>
-	<string name="dialog_button_remove">Remover</string>
-	<string name="dialog_button_cancel">Cancelar</string>
-	<string name="title_menu_profile_picture">Mi foto de perfil</string>
-	<string name="menu_pick_profile_picture">Subir foto</string>
-	<string name="menu_take_profile_picture">Tomar foto</string>
-	<string name="menu_remove_profile_picture">Remover foto</string>
-	<string name="snack_profile_picture_updated">Foto de perfil actualizada</string>
-	<string name="snack_profile_picture_removed">Foto de perfil removida</string>
-	<string name="snack_profile_picture_not_image">El archivo debe ser una imagen.</string>
-	<string name="snack_profile_picture_size_exceeded">La imagen es demasiado grande.</string>
-	<string name="text_last_update">Última actualización: %1$s</string>
-	<string name="text_sync_failed">No pudimos sincronizar tus datos. %1$s</string>
-	<string name="text_sync_outdated_credentials">Actualiza tu contraseña para volver a sincronizar tus datos.</string>
-	<string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
-	<string name="snack_service_unavailable">Servicio no disponible</string>
-	<string name="snack_network_unavailable">Comprueba tu conexión</string>
-	<string name="snack_timeout">Tiempo de espera agotado</string>
-	<string name="snack_default_error">¡Ha ocurrido un error!</string>
-	<string name="summary_subjects_approved">Aprobadas</string>
-	<string name="summary_subjects_failed">Reprobadas</string>
-	<string name="summary_subjects_retired">Retiradas</string>
-	<string name="summary_credits_approved">Aprobados</string>
-	<string name="summary_credits_failed">Reprobados</string>
-	<string name="summary_credits_retired">Retirados</string>
-	<plurals name="summary_subjects_header">
-		<item quantity="one">%1$d materia inscrita</item>
-		<item quantity="other">%1$d materias inscritas</item>
-	</plurals>
-	<plurals name="summary_credits_header">
-		<item quantity="one">%1$d crédito inscrito</item>
-		<item quantity="other">%1$d créditos inscritos</item>
-	</plurals>
+    <string name="summary_loading_title">Resumen</string>
+    <string name="summary_loading_message">Cargando…</string>
+    <string name="summary_failed_title">Resumen</string>
+    <string name="summary_failed_message">No se pudo cargar la información.</string>
+    <string name="summary_failed_retry">Reintentar</string>
+    <string name="dialog_title_remove_profile_picture">Atención</string>
+    <string name="dialog_message_remove_profile_picture">¿Estás seguro que deseas remover tu foto de perfil?</string>
+    <string name="dialog_button_remove">Remover</string>
+    <string name="dialog_button_cancel">Cancelar</string>
+    <string name="title_menu_profile_picture">Mi foto de perfil</string>
+    <string name="menu_pick_profile_picture">Subir foto</string>
+    <string name="menu_take_profile_picture">Tomar foto</string>
+    <string name="menu_remove_profile_picture">Remover foto</string>
+    <string name="snack_profile_picture_updated">Foto de perfil actualizada</string>
+    <string name="snack_profile_picture_removed">Foto de perfil removida</string>
+    <string name="snack_profile_picture_not_image">El archivo debe ser una imagen.</string>
+    <string name="snack_profile_picture_size_exceeded">La imagen es demasiado grande.</string>
+    <string name="text_sync_healthy">Última actualización: %1$s</string>
+    <string name="dialog_title_sync_failed">Sincronización pendiente</string>
+    <string name="dialog_message_sync_failed">No pudimos sincronizar tus datos. Intentaremos sincronizar de nuevo más tarde.</string>
+    <string name="dialog_title_sync_outdated_credentials">Actualiza tu contraseña</string>
+    <string name="dialog_message_sync_outdated_credentials">No pudimos sincronizar tus datos porque tu contraseña está desactualizada. Actualízala para volver a sincronizar.</string>
+    <string name="dialog_button_understood">Entendido</string>
+    <string name="dialog_button_close">Cerrar</string>
+    <string name="dialog_button_update_password">Actualizar contraseña</string>
+    <string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
+    <string name="snack_service_unavailable">Servicio no disponible</string>
+    <string name="snack_network_unavailable">Comprueba tu conexión</string>
+    <string name="snack_timeout">Tiempo de espera agotado</string>
+    <string name="snack_default_error">¡Ha ocurrido un error!</string>
+    <string name="summary_subjects_approved">Aprobadas</string>
+    <string name="summary_subjects_failed">Reprobadas</string>
+    <string name="summary_subjects_retired">Retiradas</string>
+    <string name="summary_credits_approved">Aprobados</string>
+    <string name="summary_credits_failed">Reprobados</string>
+    <string name="summary_credits_retired">Retirados</string>
+    <plurals name="summary_subjects_header">
+        <item quantity="one">%1$d materia inscrita</item>
+        <item quantity="other">%1$d materias inscritas</item>
+    </plurals>
+    <plurals name="summary_credits_header">
+        <item quantity="one">%1$d crédito inscrito</item>
+        <item quantity="other">%1$d créditos inscritos</item>
+    </plurals>
 </resources>

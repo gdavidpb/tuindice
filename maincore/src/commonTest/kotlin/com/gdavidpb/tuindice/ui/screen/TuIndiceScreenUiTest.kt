@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
@@ -357,6 +358,58 @@ class TuIndiceScreenUiTest {
 				),
 				actual = destinations
 			)
+		} finally {
+			stopKoin()
+		}
+	}
+
+	@Test
+	fun when_browserRouteIsPopped_then_backButtonIsHiddenAgain() = runTuIndiceUiTest {
+		lateinit var navController: NavHostController
+
+		stopKoin()
+		startKoin {
+			modules(testBrowserModule())
+		}
+
+		try {
+			setTuIndiceTestContent {
+				navController = rememberNavController()
+
+				TuIndiceScreen(
+					state = Main.State.Content(
+						startDestination = browserStartDestination(),
+						topBarTitle = "Privacidad",
+						isTopBarVisible = true,
+						isBottomBarVisible = false
+					),
+					updateState = {},
+					onRetryStartUp = {},
+					navController = navController,
+					snackbarHostState = remember { SnackbarHostState() },
+					onAction = {},
+					onNavigateTo = {},
+					onNavigateBack = { navController.navigateUp() },
+					onConfirmExitClick = {},
+					isCameraAvailable = false,
+					onNavigateToExternalResource = {},
+					showSnackBar = {}
+				)
+			}
+
+			assertNodeHidden(MaincoreUiTags.TuIndiceTopBarBackButton)
+
+			runOnIdle {
+				navController.navigate(browserStartDestination())
+			}
+
+			assertNodeVisible(MaincoreUiTags.TuIndiceTopBarBackButton)
+
+			runOnIdle {
+				navController.navigateUp()
+			}
+
+			assertNodeHidden(MaincoreUiTags.TuIndiceTopBarBackButton)
 		} finally {
 			stopKoin()
 		}

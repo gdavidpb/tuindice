@@ -69,6 +69,7 @@ fun SummaryRoute(
 		state = viewState,
 		syncStatus = syncStatus,
 		onRetryClick = viewModel::loadSummaryAction,
-		onEditProfilePictureClick = viewModel::openProfilePictureSettingsAction
+		onEditProfilePictureClick = viewModel::openProfilePictureSettingsAction,
+		onUpdatePasswordClick = onNavigateToUpdatePassword
 	)
 }

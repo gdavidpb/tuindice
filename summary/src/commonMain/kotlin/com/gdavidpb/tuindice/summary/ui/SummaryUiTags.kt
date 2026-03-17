@@ -9,7 +9,9 @@ object SummaryUiTags {
 	const val CareerText = "summary_career_text"
 	const val StatusRow = "summary_status_row"
 	const val StatusIcon = "summary_status_icon"
+	const val StatusIconButton = "summary_status_icon_button"
 	const val StatusText = "summary_status_text"
+	const val SyncStatusMessage = "summary_sync_status_message"
 	const val ItemsList = "summary_items_list"
 
 	const val ProfilePictureContainer = "summary_profile_picture_container"
