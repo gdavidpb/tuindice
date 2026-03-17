@@ -8,8 +8,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextRange
@@ -27,9 +28,29 @@ fun UsbIdTextField(
 	usbId: String,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
-	val textField = remember { mutableStateOf(TextFieldValue(usbId)) }
+	val textField = remember {
+		mutableStateOf(
+			TextFieldValue(
+				text = usbId,
+				selection = TextRange(usbId.length)
+			)
+		)
+	}
 	val supportingText = remember { mutableStateOf(error) }
 	val digitsOnlyRegex = remember { "\\D+".toRegex() }
+
+	LaunchedEffect(usbId) {
+		if (textField.value.text != usbId) {
+			textField.value = TextFieldValue(
+				text = usbId,
+				selection = TextRange(usbId.length)
+			)
+		}
+	}
+
+	LaunchedEffect(error) {
+		supportingText.value = error
+	}
 
 	OutlinedTextField(
 		modifier = modifier.testTag(AuthUiTags.UsbIdTextField),

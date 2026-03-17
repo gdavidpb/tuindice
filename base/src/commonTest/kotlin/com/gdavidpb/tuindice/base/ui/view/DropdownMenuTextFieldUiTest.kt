@@ -2,9 +2,11 @@ package com.gdavidpb.tuindice.base.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.runtime.mutableStateOf
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -51,6 +53,29 @@ class DropdownMenuTextFieldUiTest {
 			tag = BaseUiTags.DropdownMenuError,
 			useUnmergedTree = true
 		)
+	}
+
+	@Test
+	fun when_selectedItemChangesExternally_then_updatesDisplayedValue() = runTuIndiceUiTest {
+		val itemA = TestDropdownItem("Opcion A")
+		val itemB = TestDropdownItem("Opcion B")
+		val selectedItem = mutableStateOf<DropdownMenuItem?>(itemA)
+
+		setTuIndiceTestContent {
+			DropdownMenuTextField(
+				items = listOf(itemA, itemB),
+				selectedItem = selectedItem.value as TestDropdownItem?,
+				onItemSelected = { item -> selectedItem.value = item }
+			)
+		}
+
+		onNodeWithTag(BaseUiTags.DropdownMenuTextField).assertTextContains("Opcion A")
+
+		runOnIdle {
+			selectedItem.value = itemB
+		}
+
+		onNodeWithTag(BaseUiTags.DropdownMenuTextField).assertTextContains("Opcion B")
 	}
 
 	private data class TestDropdownItem(

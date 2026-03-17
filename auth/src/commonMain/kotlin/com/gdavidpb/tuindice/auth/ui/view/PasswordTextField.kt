@@ -10,11 +10,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -38,8 +40,28 @@ fun PasswordTextField(
 	imeAction: ImeAction = ImeAction.Default,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
-	val passwordField = remember { mutableStateOf(TextFieldValue(password)) }
+	val passwordField = remember {
+		mutableStateOf(
+			TextFieldValue(
+				text = password,
+				selection = TextRange(password.length)
+			)
+		)
+	}
 	val supportingText = remember { mutableStateOf(error) }
+
+	LaunchedEffect(password) {
+		if (passwordField.value.text != password) {
+			passwordField.value = TextFieldValue(
+				text = password,
+				selection = TextRange(password.length)
+			)
+		}
+	}
+
+	LaunchedEffect(error) {
+		supportingText.value = error
+	}
 
 	OutlinedTextField(
 		modifier = modifier.testTag(AuthUiTags.PasswordTextField),

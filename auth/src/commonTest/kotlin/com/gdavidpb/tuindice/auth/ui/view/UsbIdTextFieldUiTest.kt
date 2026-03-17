@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.auth.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.runtime.mutableStateOf
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -63,5 +65,26 @@ class UsbIdTextFieldUiTest {
 		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("89")
 
 		assertEquals("12-34567", latestUsbId)
+	}
+
+	@Test
+	fun when_usbIdChangesExternally_then_updatesDisplayedValue() = runTuIndiceUiTest {
+		val usbId = mutableStateOf("12-34567")
+
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				labelText = "USB ID",
+				usbId = usbId.value,
+				onUsbIdChange = { value -> usbId.value = value }
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).assertTextContains("12-34567")
+
+		runOnIdle {
+			usbId.value = "20-26123"
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).assertTextContains("20-26123")
 	}
 }

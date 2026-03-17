@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.auth.presentation.route
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
@@ -15,7 +16,9 @@ fun UpdatePasswordRoute(
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: UpdatePasswordViewModel
 ) {
-	val viewState by viewModel.state.collectAsStateWithLifecycle()
+	val viewState by viewModel.state.collectAsStateWithLifecycle(
+		minActiveState = Lifecycle.State.CREATED
+	)
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {

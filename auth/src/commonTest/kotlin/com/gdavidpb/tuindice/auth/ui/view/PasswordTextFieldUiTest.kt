@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.auth.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
@@ -59,5 +60,28 @@ class PasswordTextFieldUiTest {
 		onNodeWithTag(AuthUiTags.PasswordToggle).performClick()
 		onNodeWithContentDescription("Ocultar contraseña").assertIsDisplayed()
 		assertNodeVisible(AuthUiTags.PasswordTextField)
+	}
+
+	@Test
+	fun when_passwordChangesExternally_then_updatesDisplayedValue() = runTuIndiceUiTest {
+		val password = mutableStateOf("secreto")
+
+		setTuIndiceTestContent {
+			PasswordTextField(
+				labelText = "Clave",
+				password = password.value,
+				isPasswordVisible = true,
+				onPasswordChange = { value -> password.value = value },
+				onPasswordVisibilityToggle = {}
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.PasswordTextField).assertTextContains("secreto")
+
+		runOnIdle {
+			password.value = "nueva-clave"
+		}
+
+		onNodeWithTag(AuthUiTags.PasswordTextField).assertTextContains("nueva-clave")
 	}
 }
