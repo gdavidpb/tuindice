@@ -6,6 +6,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
 import com.gdavidpb.tuindice.auth.presentation.contract.UpdatePassword
@@ -26,6 +28,7 @@ class UpdatePasswordIdleViewUiTest {
 			UpdatePasswordIdleView(
 				state = UpdatePassword.State.Idle(),
 				onPasswordChange = { value -> latestPassword = value },
+				onPasswordVisibilityToggle = {},
 				onConfirmClick = {},
 				appNameText = "TuIndice",
 				messageText = "Debes actualizar la clave de TuIndice",
@@ -49,6 +52,7 @@ class UpdatePasswordIdleViewUiTest {
 			UpdatePasswordIdleView(
 				state = state,
 				onPasswordChange = { value -> state = state.copy(password = value) },
+				onPasswordVisibilityToggle = {},
 				onConfirmClick = { password -> confirmedPassword = password },
 				appNameText = "TuIndice",
 				messageText = "Debes actualizar la clave de TuIndice",
@@ -60,5 +64,34 @@ class UpdatePasswordIdleViewUiTest {
 		onNodeWithTag(AuthUiTags.PasswordTextField).performImeAction()
 
 		assertEquals("clave-ime", confirmedPassword)
+	}
+
+	@Test
+	fun when_passwordToggleTapped_then_dispatchesVisibilityToggle() = runTuIndiceUiTest {
+		var isPasswordVisible by mutableStateOf(false)
+
+		setTuIndiceTestContent {
+			var state by remember {
+				mutableStateOf(UpdatePassword.State.Idle(isPasswordVisible = isPasswordVisible))
+			}
+
+			UpdatePasswordIdleView(
+				state = state,
+				onPasswordChange = {},
+				onPasswordVisibilityToggle = {
+					isPasswordVisible = !isPasswordVisible
+					state = state.copy(isPasswordVisible = isPasswordVisible)
+				},
+				onConfirmClick = {},
+				appNameText = "TuIndice",
+				messageText = "Debes actualizar la clave de TuIndice",
+				passwordLabelText = "Clave"
+			)
+		}
+
+		onNodeWithContentDescription("Mostrar contraseña")
+			.performClick()
+		onNodeWithContentDescription("Ocultar contraseña")
+			.assertExists()
 	}
 }

@@ -17,6 +17,7 @@ import tuindice.auth.generated.resources.hint_password
 fun UpdatePasswordScreen(
 	state: UpdatePassword.State,
 	onPasswordChange: (String) -> Unit,
+	onPasswordVisibilityToggle: () -> Unit,
 	onConfirmClick: (password: String) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
@@ -30,6 +31,7 @@ fun UpdatePasswordScreen(
 		messageText = stringResource(Res.string.dialog_message_update_password),
 		passwordLabelText = stringResource(Res.string.hint_password),
 		onPasswordChange = onPasswordChange,
+		onPasswordVisibilityToggle = onPasswordVisibilityToggle,
 		onConfirmClick = onConfirmClick,
 		onDismissRequest = onDismissRequest
 	)

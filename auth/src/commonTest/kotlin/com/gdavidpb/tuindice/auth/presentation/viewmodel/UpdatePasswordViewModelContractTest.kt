@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.auth.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsValidator
 import com.gdavidpb.tuindice.auth.presentation.action.SetUpdatePasswordActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.action.ToggleUpdatePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.UpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
@@ -30,6 +31,7 @@ class UpdatePasswordViewModelContractTest {
 	fun publicActions_updatePasswordState_andEmitSuccessSnackBar() = runTest {
 		val viewModel = UpdatePasswordViewModel(
 			setUpdatePasswordActionProcessor = SetUpdatePasswordActionProcessor(),
+			toggleUpdatePasswordVisibilityActionProcessor = ToggleUpdatePasswordVisibilityActionProcessor(),
 			updatePasswordActionProcessor = UpdatePasswordActionProcessor(
 				updatePasswordUseCase = UpdatePasswordUseCase(
 					authRepository = RecordingAuthRepository(),
@@ -55,8 +57,17 @@ class UpdatePasswordViewModelContractTest {
 			viewModel.state.test {
 				assertEquals(UpdatePassword.State.Idle(), awaitItem())
 
+				viewModel.togglePasswordVisibilityAction()
+				assertEquals(UpdatePassword.State.Idle(isPasswordVisible = true), awaitItem())
+
 				viewModel.setPasswordAction("new-secret")
-				assertEquals(UpdatePassword.State.Idle(password = "new-secret"), awaitItem())
+				assertEquals(
+					UpdatePassword.State.Idle(
+						password = "new-secret",
+						isPasswordVisible = true
+					),
+					awaitItem()
+				)
 
 				viewModel.signInAction("new-secret")
 				val updating = assertIs<UpdatePassword.State.Updating>(awaitItem())

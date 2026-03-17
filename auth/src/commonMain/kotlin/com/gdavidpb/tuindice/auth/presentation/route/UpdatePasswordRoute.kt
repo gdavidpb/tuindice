@@ -29,6 +29,7 @@ fun UpdatePasswordRoute(
 	UpdatePasswordScreen(
 		state = viewState,
 		onPasswordChange = viewModel::setPasswordAction,
+		onPasswordVisibilityToggle = viewModel::togglePasswordVisibilityAction,
 		onConfirmClick = viewModel::signInAction,
 		onDismissRequest = onDismissRequest
 	)

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.auth.presentation.route
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
@@ -11,6 +12,7 @@ import com.gdavidpb.tuindice.auth.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsValidator
 import com.gdavidpb.tuindice.auth.presentation.action.SetUpdatePasswordActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.action.ToggleUpdatePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.UpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.UpdatePasswordViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
@@ -93,6 +95,23 @@ class UpdatePasswordRouteUiTest {
 	}
 
 	@Test
+	fun when_passwordToggleTapped_then_updatesPasswordVisibility() = runTuIndiceUiTest {
+		val fixture = createUpdatePasswordViewModel()
+
+		setTuIndiceTestContent {
+			UpdatePasswordRoute(
+				onDismissRequest = {},
+				showSnackBar = {},
+				viewModel = fixture.viewModel
+			)
+		}
+
+		onNodeWithContentDescription("Mostrar contraseña").performClick()
+
+		onNodeWithContentDescription("Ocultar contraseña").assertExists()
+	}
+
+	@Test
 	fun when_updatePasswordActionFails_then_showsSnackBarAndDismisses() = runTuIndiceUiTest {
 		val fixture = createUpdatePasswordViewModel(
 			throwable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v1/token")
@@ -146,6 +165,7 @@ class UpdatePasswordRouteUiTest {
 		return UpdatePasswordRouteFixture(
 			viewModel = UpdatePasswordViewModel(
 				setUpdatePasswordActionProcessor = SetUpdatePasswordActionProcessor(),
+				toggleUpdatePasswordVisibilityActionProcessor = ToggleUpdatePasswordVisibilityActionProcessor(),
 				updatePasswordActionProcessor = UpdatePasswordActionProcessor(updatePasswordUseCase)
 			),
 			authRepository = authRepository

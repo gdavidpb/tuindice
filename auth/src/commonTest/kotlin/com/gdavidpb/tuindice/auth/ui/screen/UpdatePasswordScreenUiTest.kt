@@ -22,6 +22,7 @@ class UpdatePasswordScreenUiTest {
 			UpdatePasswordScreen(
 				state = UpdatePassword.State.Idle(password = "abcd"),
 				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
 				onConfirmClick = { password -> confirmedPassword = password },
 				onDismissRequest = {}
 			)
@@ -37,6 +38,7 @@ class UpdatePasswordScreenUiTest {
 			UpdatePasswordScreen(
 				state = UpdatePassword.State.Updating(password = "abcd"),
 				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
 				onConfirmClick = {},
 				onDismissRequest = {}
 			)
@@ -53,6 +55,7 @@ class UpdatePasswordScreenUiTest {
 			UpdatePasswordScreen(
 				state = UpdatePassword.State.Idle(password = "abcd"),
 				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
 				onConfirmClick = {},
 				onDismissRequest = { dismissCalls++ }
 			)

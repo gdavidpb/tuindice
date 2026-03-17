@@ -26,6 +26,7 @@ fun UpdatePasswordDialog(
 	messageText: String,
 	passwordLabelText: String,
 	onPasswordChange: (password: String) -> Unit,
+	onPasswordVisibilityToggle: () -> Unit,
 	onConfirmClick: (password: String) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
@@ -73,6 +74,7 @@ fun UpdatePasswordDialog(
 				UpdatePasswordIdleView(
 					state = currentIdleState,
 					onPasswordChange = onPasswordChange,
+					onPasswordVisibilityToggle = onPasswordVisibilityToggle,
 					onConfirmClick = onConfirmClick,
 					appNameText = appNameText,
 					messageText = messageText,

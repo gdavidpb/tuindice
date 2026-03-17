@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.auth.presentation.contract.UpdatePassword
 fun UpdatePasswordIdleView(
 	state: UpdatePassword.State.Idle,
 	onPasswordChange: (password: String) -> Unit,
+	onPasswordVisibilityToggle: () -> Unit,
 	onConfirmClick: (password: String) -> Unit,
 	appNameText: String,
 	messageText: String,
@@ -58,7 +59,9 @@ fun UpdatePasswordIdleView(
 				.padding(top = 16.dp),
 			labelText = passwordLabelText,
 			password = state.password,
+			isPasswordVisible = state.isPasswordVisible,
 			onPasswordChange = onPasswordChange,
+			onPasswordVisibilityToggle = onPasswordVisibilityToggle,
 			error = state.error,
 			imeAction = ImeAction.Done,
 			keyboardActions = KeyboardActions(onDone = {

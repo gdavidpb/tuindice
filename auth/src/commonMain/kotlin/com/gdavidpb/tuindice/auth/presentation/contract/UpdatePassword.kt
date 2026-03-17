@@ -8,6 +8,7 @@ object UpdatePassword {
 	sealed class State : ViewState() {
 		data class Idle(
 			val password: String = "",
+			val isPasswordVisible: Boolean = false,
 			val error: String? = null,
 		) : State()
 
@@ -16,6 +17,7 @@ object UpdatePassword {
 
 	sealed class Action : ViewAction() {
 		class SetPassword(val password: String) : Action()
+		data object TogglePasswordVisibility : Action()
 		class ClickSignIn(val password: String) : Action()
 	}
 

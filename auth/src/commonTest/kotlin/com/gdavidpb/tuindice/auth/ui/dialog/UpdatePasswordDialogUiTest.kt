@@ -29,6 +29,7 @@ class UpdatePasswordDialogUiTest {
 				messageText = "Debes actualizar la clave de TuIndice",
 				passwordLabelText = "Clave",
 				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
 				onConfirmClick = {},
 				onDismissRequest = {}
 			)
@@ -52,6 +53,7 @@ class UpdatePasswordDialogUiTest {
 				messageText = "Debes actualizar la clave de TuIndice",
 				passwordLabelText = "Clave",
 				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
 				onConfirmClick = { password -> confirmedPassword = password },
 				onDismissRequest = {}
 			)
@@ -76,6 +78,7 @@ class UpdatePasswordDialogUiTest {
 				messageText = "Debes actualizar la clave de TuIndice",
 				passwordLabelText = "Clave",
 				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
 				onConfirmClick = {},
 				onDismissRequest = {}
 			)
