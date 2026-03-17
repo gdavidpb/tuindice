@@ -9,7 +9,7 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
 import okio.FileSystem
 
-internal class IosApplicationDataSource(
+class IosApplicationDataSource(
 	private val settingsRepository: SettingsRepository,
 	private val kSafe: KSafe,
 	private val externalActionsCapability: IosExternalActionsCapability

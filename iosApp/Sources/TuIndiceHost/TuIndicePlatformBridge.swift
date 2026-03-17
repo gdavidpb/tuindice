@@ -115,8 +115,14 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         return list
     }
 
+    func resolveAttestationKeyId(completionHandler: @escaping (String?, Error?) -> Void) {
+        resolveAppAttestKeyId(completionHandler: completionHandler)
+    }
+
     func requestAttestation(
         attestationInput: String,
+        keyId: String,
+        evidenceMode: String,
         completionHandler: @escaping (IosPlatformAttestation?, Error?) -> Void
     ) {
         let appAttestService = DCAppAttestService.shared
@@ -131,90 +137,54 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
             return
         }
 
-        resolveAppAttestKeyId { [weak self] keyId, error in
-            guard let self else {
-                completionHandler(nil, nil)
-                return
-            }
-
-            if let error {
-                completionHandler(nil, error)
-                return
-            }
-
-            guard let keyId else {
-                completionHandler(nil, nil)
-                return
-            }
-
-            let shouldAttestKey = self.secureStore.read(Self.appAttestRegisteredKey) != "1"
-
-            if shouldAttestKey {
-                appAttestService.attestKey(keyId, clientDataHash: clientDataHash) { attestation, error in
-                    if let error {
-                        completionHandler(nil, error)
-                        return
-                    }
-
-                    guard let attestation else {
-                        completionHandler(nil, nil)
-                        return
-                    }
-
-                    completionHandler(
-                        IosPlatformAttestation(
-                            token: attestation.base64EncodedString(),
-                            keyId: keyId,
-                            provider: BaseAttestationProvider.appAttest,
-                            isInitialKeyAttestation: true
-                        ),
-                        nil
-                    )
+        switch evidenceMode {
+        case Self.appAttestAttestationEvidenceMode:
+            appAttestService.attestKey(keyId, clientDataHash: clientDataHash) { attestation, error in
+                if let error {
+                    completionHandler(nil, error)
+                    return
                 }
-            } else {
-                appAttestService.generateAssertion(keyId, clientDataHash: clientDataHash) { assertion, error in
-                    if let error {
-                        completionHandler(nil, error)
-                        return
-                    }
 
-                    guard let assertion else {
-                        completionHandler(nil, nil)
-                        return
-                    }
-
-                    completionHandler(
-                        IosPlatformAttestation(
-                            token: assertion.base64EncodedString(),
-                            keyId: keyId,
-                            provider: BaseAttestationProvider.appAttest,
-                            isInitialKeyAttestation: false
-                        ),
-                        nil
-                    )
+                guard let attestation else {
+                    completionHandler(nil, nil)
+                    return
                 }
+
+                completionHandler(
+                    IosPlatformAttestation(
+                        token: attestation.base64EncodedString(),
+                        keyId: keyId,
+                        provider: BaseAttestationProvider.appAttest
+                    ),
+                    nil
+                )
             }
+
+        case Self.appAttestAssertionEvidenceMode:
+            appAttestService.generateAssertion(keyId, clientDataHash: clientDataHash) { assertion, error in
+                if let error {
+                    completionHandler(nil, error)
+                    return
+                }
+
+                guard let assertion else {
+                    completionHandler(nil, nil)
+                    return
+                }
+
+                completionHandler(
+                    IosPlatformAttestation(
+                        token: assertion.base64EncodedString(),
+                        keyId: keyId,
+                        provider: BaseAttestationProvider.appAttest
+                    ),
+                    nil
+                )
+            }
+
+        default:
+            completionHandler(nil, nil)
         }
-    }
-
-    func sha256Base64Url(value: String) -> String? {
-        guard let data = value.data(using: .utf8) else {
-            return nil
-        }
-
-        let digest = Data(SHA256.hash(data: data))
-        return digest.base64EncodedString()
-            .replacingOccurrences(of: "+", with: "-")
-            .replacingOccurrences(of: "/", with: "_")
-            .replacingOccurrences(of: "=", with: "")
-    }
-
-    func markAttestationKeyRegistered(keyId: String) {
-        guard secureStore.read(Self.appAttestKeyIdKey) == keyId else {
-            return
-        }
-
-        secureStore.write(Self.appAttestRegisteredKey, value: "1")
     }
 
     func pushToken(completionHandler: @escaping (String?, Error?) -> Void) {
@@ -226,9 +196,14 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
             return
         }
 
-        Messaging.messaging().token { [weak self] token, _ in
+        Messaging.messaging().token { [weak self] token, error in
             guard let self else {
                 completionHandler(nil, nil)
+                return
+            }
+
+            if let error {
+                completionHandler(nil, error)
                 return
             }
 
@@ -247,6 +222,18 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
             completionHandler(self.latestPushToken, nil)
         }
         #endif
+    }
+
+    func sha256Base64Url(value: String) -> String? {
+        guard let data = value.data(using: .utf8) else {
+            return nil
+        }
+
+        let digest = Data(SHA256.hash(data: data))
+        return digest.base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
     }
 
     func launchReview(completionHandler: @escaping (Error?) -> Void) {
@@ -528,7 +515,8 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
     }
 
     private static let appAttestKeyIdKey = "tuindice.app_attest.key_id"
-    private static let appAttestRegisteredKey = "tuindice.app_attest.registered"
+    private static let appAttestAttestationEvidenceMode = "app_attest_attestation"
+    private static let appAttestAssertionEvidenceMode = "app_attest_assertion"
 }
 #else
 final class TuIndicePlatformBridge {}

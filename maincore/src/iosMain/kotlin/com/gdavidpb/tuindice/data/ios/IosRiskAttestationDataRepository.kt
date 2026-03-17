@@ -9,12 +9,11 @@ import com.gdavidpb.tuindice.base.domain.model.RiskAttestation
 import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
 import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
 import com.gdavidpb.tuindice.platform.ios.IosAttestationCapability
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
 
-internal class IosRiskAttestationDataRepository(
+class IosRiskAttestationDataRepository(
 	private val httpClientProvider: () -> HttpClient,
 	private val attestationCapability: IosAttestationCapability
 ) : RiskAttestationRepository {
@@ -22,11 +21,15 @@ internal class IosRiskAttestationDataRepository(
 		val httpClient = httpClientProvider()
 		val requestHash = attestationCapability.sha256Base64Url(request.payloadJson)
 			?: throw IllegalStateException("Unable to hash risk attestation payload on iOS.")
+		val keyId = attestationCapability.resolveAttestationKeyId()
+			?.takeIf { value -> value.isNotBlank() }
+			?: throw IllegalStateException("Attestation keyId unavailable for iOS APP_ATTEST provider.")
 		val session = httpClient
-			.post("attestation/v1/sessions") {
+			.post("attestation/v2/sessions") {
 				setBody(
 					CreateRiskAttestationSessionRequest(
-						platform = PLATFORM_IOS
+						platform = PLATFORM_IOS,
+						keyId = keyId
 					)
 				)
 			}
@@ -35,32 +38,33 @@ internal class IosRiskAttestationDataRepository(
 		val bindingInput = "${session.sessionId}:${session.challenge}:${request.operation.code}:$requestHash"
 		val bindingValue = attestationCapability.sha256Base64Url(bindingInput)
 			?: throw IllegalStateException("Unable to hash risk attestation binding on iOS.")
-		val providerAttestation = attestationCapability.requestAttestation(bindingValue)
+		val providerAttestation = attestationCapability.requestAttestation(
+			attestationInput = bindingValue,
+			keyId = keyId,
+			evidenceMode = session.evidenceMode.value
+		)
 			?: throw IllegalStateException("App Attest evidence unavailable on iOS bridge.")
 		check(providerAttestation.provider == AttestationProvider.APP_ATTEST) {
 			"Unsupported iOS attestation provider: ${providerAttestation.provider}."
 		}
-		val keyId = providerAttestation.keyId
-			?.takeIf { value -> value.isNotBlank() }
-			?: throw IllegalStateException("Attestation keyId unavailable for iOS APP_ATTEST provider.")
+		check(providerAttestation.keyId == keyId) {
+			"Unexpected iOS attestation keyId returned by bridge."
+		}
 
 		val response = httpClient
-			.post("attestation/v1/tokens") {
+			.post("attestation/v2/tokens") {
 				setBody(
 					IssueRiskAttestationTokenRequest(
 						sessionId = session.sessionId,
 						operationCode = request.operation.code,
 						requestHash = requestHash,
+						evidenceMode = session.evidenceMode,
 						token = providerAttestation.token,
 						keyId = keyId
 					)
 				)
 			}
 			.body<IssueRiskAttestationTokenResponse>()
-
-		if (providerAttestation.isInitialKeyAttestation) {
-			attestationCapability.markAttestationKeyRegistered(keyId)
-		}
 
 		return RiskAttestation(token = response.token)
 	}

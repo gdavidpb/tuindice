@@ -21,7 +21,7 @@ class RiskAttestationDataRepository(
 ) : RiskAttestationRepository {
 	override suspend fun issueProof(request: RiskAttestationRequest): RiskAttestation {
 		val requestHash = sha256Base64Url(request.payloadJson)
-		val session = ktorClient.post("attestation/v1/sessions") {
+		val session = ktorClient.post("attestation/v2/sessions") {
 			setBody(
 				CreateRiskAttestationSessionRequest(
 					platform = PLATFORM_ANDROID
@@ -38,12 +38,13 @@ class RiskAttestationDataRepository(
 			"Unsupported Android attestation provider: ${providerAttestation.provider}."
 		}
 
-		val response = ktorClient.post("attestation/v1/tokens") {
+		val response = ktorClient.post("attestation/v2/tokens") {
 			setBody(
 				IssueRiskAttestationTokenRequest(
 					sessionId = session.sessionId,
 					operationCode = request.operation.code,
 					requestHash = requestHash,
+					evidenceMode = session.evidenceMode,
 					token = providerAttestation.token,
 					keyId = providerAttestation.keyId
 				)

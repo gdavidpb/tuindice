@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/attestation/v1/sessions",
+    "urlPath": "/attestation/v2/sessions",
     "bodyPatterns": [
       {
         "matchesJsonPath": "$[?(@.platform == 'Android')]"
@@ -16,7 +16,8 @@
     "jsonBody": {
       "session_id": "mock-attestation-session-android",
       "challenge": "mock-attestation-challenge-android",
-      "expires_at": 2524608000000
+      "expires_at": 2524608000000,
+      "evidence_mode": "play_integrity"
     },
     "fixedDelayMilliseconds": 250
   }

@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/attestation/v1/tokens",
+    "urlPath": "/attestation/v2/tokens",
     "bodyPatterns": [
       {
         "matchesJsonPath": "$[?(@.session_id == 'mock-attestation-session-android')]"
@@ -11,6 +11,9 @@
       },
       {
         "matchesJsonPath": "$.request_hash"
+      },
+      {
+        "matchesJsonPath": "$[?(@.evidence_mode == 'play_integrity')]"
       },
       {
         "matchesJsonPath": "$[?(@.token =~ /android-debug-attestation:.+/)]"
