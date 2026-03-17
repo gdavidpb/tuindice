@@ -81,32 +81,29 @@ fun SummaryContentView(
 		Row(
 			modifier = Modifier
 				.testTag(SummaryUiTags.StatusRow)
+				.padding(bottom = 8.dp)
 				.fillMaxWidth(),
 			horizontalArrangement = Arrangement.Center,
 			verticalAlignment = Alignment.CenterVertically
 		) {
-			if (canOpenStatusDetails)
-				IconButton(
-					modifier = Modifier
-						.testTag(SummaryUiTags.StatusIconButton),
-					onClick = onStatusIconClick
-				) {
-					Icon(
-						modifier = Modifier.testTag(SummaryUiTags.StatusIcon),
-						imageVector = statusIcon,
-						tint = statusTint,
-						contentDescription = null
-					)
-				}
-			else
+			IconButton(
+				modifier = Modifier
+					.size(28.dp)
+					.testTag(SummaryUiTags.StatusIconButton),
+				enabled = canOpenStatusDetails,
+				onClick = onStatusIconClick
+			) {
 				Icon(
 					modifier = Modifier
-						.testTag(SummaryUiTags.StatusIcon)
-						.padding(horizontal = 4.dp),
+						.size(20.dp)
+						.testTag(SummaryUiTags.StatusIcon),
 					imageVector = statusIcon,
 					tint = statusTint,
 					contentDescription = null
 				)
+			}
+
+			Spacer(modifier = Modifier.width(4.dp))
 
 			Text(
 				modifier = Modifier.testTag(SummaryUiTags.StatusText),

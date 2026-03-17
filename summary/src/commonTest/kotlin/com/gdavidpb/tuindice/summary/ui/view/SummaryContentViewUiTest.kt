@@ -2,14 +2,16 @@ package com.gdavidpb.tuindice.summary.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
-import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.summary.testing.summaryContentState
 import com.gdavidpb.tuindice.summary.testing.summaryItemsFor
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -82,9 +84,13 @@ class SummaryContentViewUiTest {
 		}
 
 		assertNodeVisible(SummaryUiTags.StatusRow)
-		assertNodeVisible(SummaryUiTags.StatusIcon)
+		onNodeWithTag(
+			SummaryUiTags.StatusIcon,
+			useUnmergedTree = true
+		).assertIsDisplayed()
 		assertNodeVisible(SummaryUiTags.StatusText)
-		assertNodeHidden(SummaryUiTags.StatusIconButton)
+		assertNodeVisible(SummaryUiTags.StatusIconButton)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
 		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
 	}
 
@@ -105,6 +111,7 @@ class SummaryContentViewUiTest {
 
 		assertNodeVisible(SummaryUiTags.StatusRow)
 		assertNodeVisible(SummaryUiTags.StatusIconButton)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
 		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
 		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
 		assertEquals(1, statusIconClicks)
@@ -127,6 +134,7 @@ class SummaryContentViewUiTest {
 
 		assertNodeVisible(SummaryUiTags.StatusRow)
 		assertNodeVisible(SummaryUiTags.StatusIconButton)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
 		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
 		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
 		assertEquals(1, statusIconClicks)
