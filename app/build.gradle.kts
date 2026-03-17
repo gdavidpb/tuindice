@@ -137,3 +137,12 @@ dependencies {
 	implementation(project(":enrollmentproof"))
 	implementation(project(":evaluations"))
 }
+
+tasks.configureEach {
+	val isDebugGoogleServicesTask = name.contains("GoogleServices") && name.contains("Debug")
+	val isDebugCrashlyticsTask = name.contains("Crashlytics") && name.contains("Debug")
+
+	if (isDebugGoogleServicesTask || isDebugCrashlyticsTask) {
+		enabled = false
+	}
+}
