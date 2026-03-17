@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.platform.ios
+package com.gdavidpb.tuindice.platform
 
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfig
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues

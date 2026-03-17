@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.platform.ios
+package com.gdavidpb.tuindice.platform
 
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository

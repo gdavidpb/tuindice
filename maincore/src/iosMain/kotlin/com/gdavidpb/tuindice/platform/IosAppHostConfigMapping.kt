@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.platform.ios
+package com.gdavidpb.tuindice.platform
 
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.di.IOSContext

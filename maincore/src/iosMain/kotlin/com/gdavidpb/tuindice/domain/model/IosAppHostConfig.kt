@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.model
 
-import com.gdavidpb.tuindice.platform.ios.IosPlatformBridge
+import com.gdavidpb.tuindice.platform.IosPlatformBridge
 
 data class IosAppHostConfig(
 	val bridge: IosPlatformBridge,

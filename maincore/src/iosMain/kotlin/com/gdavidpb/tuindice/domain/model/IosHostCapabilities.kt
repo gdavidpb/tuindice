@@ -1,13 +1,13 @@
 package com.gdavidpb.tuindice.domain.model
 
-import com.gdavidpb.tuindice.platform.ios.IosAttestationCapability
-import com.gdavidpb.tuindice.platform.ios.IosDeviceCapability
-import com.gdavidpb.tuindice.platform.ios.IosExternalActionsCapability
-import com.gdavidpb.tuindice.platform.ios.IosObservabilityCapability
-import com.gdavidpb.tuindice.platform.ios.IosPushCapability
-import com.gdavidpb.tuindice.platform.ios.IosRemoteConfigCapability
-import com.gdavidpb.tuindice.platform.ios.IosReviewCapability
-import com.gdavidpb.tuindice.platform.ios.IosUpdateCapability
+import com.gdavidpb.tuindice.platform.IosAttestationCapability
+import com.gdavidpb.tuindice.platform.IosDeviceCapability
+import com.gdavidpb.tuindice.platform.IosExternalActionsCapability
+import com.gdavidpb.tuindice.platform.IosObservabilityCapability
+import com.gdavidpb.tuindice.platform.IosPushCapability
+import com.gdavidpb.tuindice.platform.IosRemoteConfigCapability
+import com.gdavidpb.tuindice.platform.IosReviewCapability
+import com.gdavidpb.tuindice.platform.IosUpdateCapability
 
 data class IosHostCapabilities(
 	val remoteConfig: IosRemoteConfigCapability,

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.ios
+package com.gdavidpb.tuindice.data.repository.attestation
 
 import com.gdavidpb.tuindice.base.data.model.CreateRiskAttestationSessionRequest
 import com.gdavidpb.tuindice.base.data.model.CreateRiskAttestationSessionResponse
@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.RiskAttestation
 import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
 import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
-import com.gdavidpb.tuindice.platform.ios.IosAttestationCapability
+import com.gdavidpb.tuindice.platform.IosAttestationCapability
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*

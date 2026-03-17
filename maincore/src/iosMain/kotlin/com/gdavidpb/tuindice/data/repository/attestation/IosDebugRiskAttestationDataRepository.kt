@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.ios
+package com.gdavidpb.tuindice.data.repository.attestation
 
 import com.gdavidpb.tuindice.base.domain.model.RiskAttestation
 import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest

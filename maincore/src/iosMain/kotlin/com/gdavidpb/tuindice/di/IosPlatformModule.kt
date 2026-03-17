@@ -13,24 +13,35 @@ import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
-import com.gdavidpb.tuindice.data.ios.*
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.IosRiskAttestationDataRepository
+import com.gdavidpb.tuindice.data.repository.messaging.source.IosPushTokenDataSource
+import com.gdavidpb.tuindice.data.source.actions.IosFileOpenerDataSource
+import com.gdavidpb.tuindice.data.source.application.IosApplicationDataSource
+import com.gdavidpb.tuindice.data.source.browser.IosBrowserDataSource
+import com.gdavidpb.tuindice.data.source.config.IosRemoteConfigDataSource
+import com.gdavidpb.tuindice.data.source.device.IosDeviceInfoDataSource
+import com.gdavidpb.tuindice.data.source.environment.IosAppEnvironmentDataSource
+import com.gdavidpb.tuindice.data.source.network.IosNetworkDataSource
+import com.gdavidpb.tuindice.data.source.reporting.IosReportingDataSource
+import com.gdavidpb.tuindice.data.source.review.IosReviewDataSource
+import com.gdavidpb.tuindice.data.source.update.IosUpdateDataSource
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataSource
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.di.createIosDatabase
-import com.gdavidpb.tuindice.platform.ios.IOS_IDENTITY_HTTP_CLIENT_QUALIFIER
-import com.gdavidpb.tuindice.platform.ios.IosAttestationCapability
-import com.gdavidpb.tuindice.platform.ios.IosDeviceCapability
-import com.gdavidpb.tuindice.platform.ios.IosExternalActionsCapability
-import com.gdavidpb.tuindice.platform.ios.IosObservabilityCapability
-import com.gdavidpb.tuindice.platform.ios.IosPushCapability
-import com.gdavidpb.tuindice.platform.ios.IosRemoteConfigCapability
-import com.gdavidpb.tuindice.platform.ios.IosReviewCapability
-import com.gdavidpb.tuindice.platform.ios.IosUpdateCapability
-import com.gdavidpb.tuindice.platform.ios.createIosIdentityHttpClient
-import com.gdavidpb.tuindice.platform.ios.createIosUserAgent
+import com.gdavidpb.tuindice.platform.IOS_IDENTITY_HTTP_CLIENT_QUALIFIER
+import com.gdavidpb.tuindice.platform.IosAttestationCapability
+import com.gdavidpb.tuindice.platform.IosDeviceCapability
+import com.gdavidpb.tuindice.platform.IosExternalActionsCapability
+import com.gdavidpb.tuindice.platform.IosObservabilityCapability
+import com.gdavidpb.tuindice.platform.IosPushCapability
+import com.gdavidpb.tuindice.platform.IosRemoteConfigCapability
+import com.gdavidpb.tuindice.platform.IosReviewCapability
+import com.gdavidpb.tuindice.platform.IosUpdateCapability
+import com.gdavidpb.tuindice.platform.createIosIdentityHttpClient
+import com.gdavidpb.tuindice.platform.createIosUserAgent
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.IosBrowserScreenRenderer
 import com.russhwolf.settings.NSUserDefaultsSettings
@@ -82,12 +93,12 @@ private fun Module.registerIosPlatformServices() {
 	single<AppEnvironmentRepository> { IosAppEnvironmentDataSource(iOSContext().appEnvironment) }
 	singleOf(::IosRemoteConfigDataSource) { bind<RemoteConfigDataSource>() }
 	singleOf(::IosNetworkDataSource) { bind<NetworkRepository>() }
-	singleOf(::IosDeviceInfoGateway) { bind<DeviceInfoRepository>() }
-	singleOf(::IosBrowserGateway) { bind<BrowserRepository>() }
+	singleOf(::IosDeviceInfoDataSource) { bind<DeviceInfoRepository>() }
+	singleOf(::IosBrowserDataSource) { bind<BrowserRepository>() }
 	singleOf(::IosBrowserScreenRenderer) { bind<BrowserScreenRenderer>() }
-	singleOf(::IosFileOpener) { bind<FileOpenerRepository>() }
-	singleOf(::IosReviewGateway) { bind<ReviewRepository>() }
-	singleOf(::IosUpdateGateway) { bind<UpdateRepository>() }
+	singleOf(::IosFileOpenerDataSource) { bind<FileOpenerRepository>() }
+	singleOf(::IosReviewDataSource) { bind<ReviewRepository>() }
+	singleOf(::IosUpdateDataSource) { bind<UpdateRepository>() }
 	singleOf(::IosApplicationDataSource) {
 		bind<ApplicationRepository>()
 		bind<FileRepository>()
