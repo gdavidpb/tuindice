@@ -50,6 +50,7 @@ Implement module work by copying the nearest existing module pattern instead of 
   - `Navigation` injects or resolves `ViewModel` instances with `koinViewModel(...)`
   - `Route` observes `state` and `effect`, triggers initial actions with `LaunchedEffect`, and passes plain state/callbacks to `Screen`
   - `Screen` stays stateless with respect to DI
+- Match the repo's Compose local-state style: when using `remember { mutableStateOf(...) }`, prefer `val state = ...` plus `.value` reads/writes instead of delegated `var ... by remember { ... }`, unless the file already follows a different established pattern.
 - Keep `commonMain` portable:
   - no `android.*`
   - no `BuildConfig`
