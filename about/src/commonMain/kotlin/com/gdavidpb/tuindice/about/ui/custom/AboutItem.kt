@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
@@ -24,7 +25,8 @@ fun AboutItem(
 	icon: Painter,
 	text: String,
 	tint: Color? = null,
-	size: Dp = 18.dp,
+	size: Dp = 24.dp,
+	scale: Float = 1f,
 	testTag: String = AboutUiTags.ItemContainer,
 	onClick: () -> Unit = {}
 ) {
@@ -47,7 +49,9 @@ fun AboutItem(
 				painter = icon,
 				colorFilter = tint?.let(ColorFilter::tint),
 				contentDescription = text.substringBefore('\n'),
-				modifier = Modifier.size(size)
+				modifier = Modifier
+					.size(size)
+					.scale(scale)
 			)
 
 			AboutSpanText(text = text)

@@ -161,7 +161,8 @@ fun AboutContentView(
 				icon = painterResource(Res.drawable.ic_kotlin),
 				text = AboutDependencyTexts.kotlinDescription,
 				testTag = AboutUiTags.OpenKotlin,
-				size = 48.dp
+				size = 48.dp,
+				scale = 0.85f
 			) { onKotlinClick() }
 
 			AboutItem(
@@ -189,8 +190,7 @@ fun AboutContentView(
 				icon = painterResource(Res.drawable.ic_ktor),
 				text = AboutDependencyTexts.ktorDescription,
 				testTag = AboutUiTags.OpenKtor,
-				size = 48.dp,
-				tint = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onBackground else null
+				size = 48.dp
 			) { onKtorClick() }
 		}
 
