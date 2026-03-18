@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.data.repository.ConfigDataRepository
+import com.gdavidpb.tuindice.base.data.repository.SessionInvalidationDataRepository
 import com.gdavidpb.tuindice.base.data.repository.SessionDataRepository
 import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
 import com.gdavidpb.tuindice.base.data.source.MemorySessionDataSource
@@ -10,6 +11,7 @@ import com.gdavidpb.tuindice.base.data.source.settings.APP_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
@@ -47,6 +49,7 @@ val commonModule = module {
 	singleOf(::InMemorySessionDataSource) { bind<MemorySessionDataSource>() }
 	singleOf(::SecureStoreSessionDataSource) { bind<PreferencesSessionDataSource>() }
 	factoryOf(::SessionDataRepository) { bind<SessionRepository>() }
+	singleOf(::SessionInvalidationDataRepository) { bind<SessionInvalidationRepository>() }
 
 	singleOf(::MessagingApiDataSource) { bind<MessagingRemoteDataSource>() }
 	singleOf(::MessagingSettingsDataSource) { bind<MessagingLocalDataSource>() }

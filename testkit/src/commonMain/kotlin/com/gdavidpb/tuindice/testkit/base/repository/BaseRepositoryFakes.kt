@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
@@ -21,6 +22,7 @@ import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 data object FakeDestination : Destination()
@@ -146,6 +148,19 @@ class FakeSessionRepository(
 		accessToken = ""
 		refreshToken = ""
 		cleared = true
+	}
+}
+
+class FakeSessionInvalidationRepository : SessionInvalidationRepository {
+	private val invalidations = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+	var invalidationCalls = 0
+		private set
+
+	override fun observeSessionInvalidation(): Flow<Unit> = invalidations
+
+	override fun notifySessionInvalidated() {
+		invalidationCalls++
+		invalidations.tryEmit(Unit)
 	}
 }
 

@@ -2,13 +2,18 @@ package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
+import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
 import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
@@ -40,6 +45,9 @@ fun createSharedHttpClient(
 	appEnvironmentRepository: AppEnvironmentRepository,
 	configRepository: ConfigRepository,
 	sessionRepository: SessionRepository,
+	applicationRepository: ApplicationRepository,
+	sessionInvalidationRepository: SessionInvalidationRepository,
+	syncStatusRepository: SyncStatusRepository,
 	attestationRepositoryProvider: () -> AttestationRepository,
 	authRepositoryProvider: () -> AuthRepository,
 	credentialsRepositoryProvider: () -> CredentialsRepository,
@@ -123,11 +131,24 @@ fun createSharedHttpClient(
 						)
 					)
 
-					val response = authRepository.refreshTokens(
-						accessToken = oldAccessToken,
-						refreshToken = oldRefreshToken,
-						attestation = attestation
-					)
+					val refreshedTokens = runCatching {
+						authRepository.refreshTokens(
+							accessToken = oldAccessToken,
+							refreshToken = oldRefreshToken,
+							attestation = attestation
+						)
+					}.getOrElse { throwable ->
+						if (!throwable.isUnauthorized()) throw throwable
+
+						handleUnauthorizedTokenRefresh(
+							sessionRepository = sessionRepository,
+							syncStatusRepository = syncStatusRepository,
+							applicationRepository = applicationRepository,
+							sessionInvalidationRepository = sessionInvalidationRepository
+						)
+
+						return@refreshTokens null
+					}
 
 					if (credentialsRepository.hasPassword()) {
 						syncRepository.scheduleSync(
@@ -136,11 +157,23 @@ fun createSharedHttpClient(
 					}
 
 					BearerTokens(
-						accessToken = response.accessToken,
-						refreshToken = response.refreshToken
+						accessToken = refreshedTokens.accessToken,
+						refreshToken = refreshedTokens.refreshToken
 					)
 				}
 			}
 		}
 	}
+}
+
+internal suspend fun handleUnauthorizedTokenRefresh(
+	sessionRepository: SessionRepository,
+	syncStatusRepository: SyncStatusRepository,
+	applicationRepository: ApplicationRepository,
+	sessionInvalidationRepository: SessionInvalidationRepository
+) {
+	runCatching { sessionRepository.clear() }
+	runCatching { syncStatusRepository.setSyncStatus(SyncStatus.Healthy) }
+	runCatching { applicationRepository.clearData() }
+	runCatching { sessionInvalidationRepository.notifySessionInvalidated() }
 }

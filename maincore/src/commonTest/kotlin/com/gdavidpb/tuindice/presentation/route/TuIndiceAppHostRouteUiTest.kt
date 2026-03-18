@@ -9,21 +9,28 @@ import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
@@ -55,6 +62,7 @@ class TuIndiceAppHostRouteUiTest {
 				isSwipeBackNavigationEnabled = false,
 				browserRepository = RecordingBrowserRepository(),
 				deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 				syncStatusRepository = FakeSyncStatusRepository(),
 				reviewRepository = reviewRepository,
 				updateRepository = FakeUpdateRepository(),
@@ -80,6 +88,7 @@ class TuIndiceAppHostRouteUiTest {
 				isSwipeBackNavigationEnabled = false,
 				browserRepository = RecordingBrowserRepository(),
 				deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 				syncStatusRepository = FakeSyncStatusRepository(),
 				reviewRepository = RecordingReviewRepository(),
 				updateRepository = updateRepository,
@@ -105,6 +114,7 @@ class TuIndiceAppHostRouteUiTest {
 				isSwipeBackNavigationEnabled = false,
 				browserRepository = RecordingBrowserRepository(),
 				deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 				syncStatusRepository = FakeSyncStatusRepository(),
 				reviewRepository = RecordingReviewRepository(),
 				updateRepository = FakeUpdateRepository(),
@@ -130,6 +140,7 @@ class TuIndiceAppHostRouteUiTest {
 	@Test
 	fun when_syncStatusIsOutdatedCredentials_then_hostRouteNavigatesToUpdatePasswordDialog() = runTuIndiceUiTest {
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 
 		stopKoin()
 
@@ -155,8 +166,18 @@ class TuIndiceAppHostRouteUiTest {
 							override suspend fun revokeTokens() = Unit
 						}
 					}
+					single<SessionInvalidationRepository> { sessionInvalidationRepository }
 					single<SessionRepository> { FakeSessionRepository() }
 					single<SyncRepository> { FakeSyncRepository() }
+					single<MessagingRepository> {
+						object : MessagingRepository {
+							override suspend fun subscribe() = Unit
+
+							override suspend fun unsubscribe() = Unit
+						}
+					}
+					single<ConfigRepository> { FakeConfigRepository() }
+					single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
 					single<CredentialsRepository> { FakeCredentialsRepository() }
 					single<SyncStatusRepository> { syncStatusRepository }
 					single<AttestationRepository> {
@@ -179,6 +200,7 @@ class TuIndiceAppHostRouteUiTest {
 					isSwipeBackNavigationEnabled = false,
 					browserRepository = RecordingBrowserRepository(),
 					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+					sessionInvalidationRepository = sessionInvalidationRepository,
 					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
@@ -189,6 +211,96 @@ class TuIndiceAppHostRouteUiTest {
 						)
 					)
 				)
+			}
+
+			waitUntil(timeoutMillis = 2_000) {
+				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
+			}
+
+			assertNodeVisible(AuthUiTags.PasswordTextField)
+		} finally {
+			stopKoin()
+		}
+	}
+
+	@Test
+	fun when_sessionIsInvalidated_then_hostRouteNavigatesToSignIn() = runTuIndiceUiTest {
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+
+		stopKoin()
+
+		startKoin {
+			modules(
+				authModule,
+				module {
+					single<AuthRepository> {
+						object : AuthRepository {
+							override suspend fun issueTokens(
+								usbId: String,
+								password: String,
+								attestedFlow: AttestedTokenFlow,
+								attestation: Attestation
+							) = Unit
+
+							override suspend fun refreshTokens(
+								accessToken: String,
+								refreshToken: String,
+								attestation: Attestation
+							): RefreshTokens = error("refreshTokens should not be called in this test")
+
+							override suspend fun revokeTokens() = Unit
+						}
+					}
+					single<SessionInvalidationRepository> { sessionInvalidationRepository }
+					single<SessionRepository> { FakeSessionRepository() }
+					single<SyncRepository> { FakeSyncRepository() }
+					single<MessagingRepository> {
+						object : MessagingRepository {
+							override suspend fun subscribe() = Unit
+
+							override suspend fun unsubscribe() = Unit
+						}
+					}
+					single<ConfigRepository> { FakeConfigRepository() }
+					single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
+					single<CredentialsRepository> { FakeCredentialsRepository() }
+					single<SyncStatusRepository> { syncStatusRepository }
+					single<AttestationRepository> {
+						object : AttestationRepository {
+							override suspend fun attest(request: AttestationRequest): Attestation {
+								return Attestation(token = "token")
+							}
+						}
+					}
+					single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
+					single<ReportingRepository> { RecordingReportingRepository() }
+				}
+			)
+		}
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					isSwipeBackNavigationEnabled = false,
+					browserRepository = RecordingBrowserRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+					sessionInvalidationRepository = sessionInvalidationRepository,
+					syncStatusRepository = syncStatusRepository,
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = createMainViewModel(
+						settingsRepository = FakeSettingsRepository(
+							reviewSuggested = true,
+							lastDestination = MainDestination.GooglePlayServicesUnavailableDialog
+						)
+					)
+				)
+			}
+
+			runOnIdle {
+				sessionInvalidationRepository.notifySessionInvalidated()
 			}
 
 			waitUntil(timeoutMillis = 2_000) {

@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -39,6 +40,7 @@ fun TuIndiceAppHostRoute(
 	isSwipeBackNavigationEnabled: Boolean = false,
 	browserRepository: BrowserRepository = koinInject(),
 	deviceInfoRepository: DeviceInfoRepository = koinInject(),
+	sessionInvalidationRepository: SessionInvalidationRepository = koinInject(),
 	syncStatusRepository: SyncStatusRepository = koinInject(),
 	reviewRepository: ReviewRepository = koinInject(),
 	updateRepository: UpdateRepository = koinInject(),
@@ -77,6 +79,21 @@ fun TuIndiceAppHostRoute(
 	LaunchedEffect(lifecycleOwner) {
 		lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
 			viewModel.checkUpdateAction()
+		}
+	}
+
+	LaunchedEffect(lifecycleOwner, sessionInvalidationRepository) {
+		lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+			sessionInvalidationRepository.observeSessionInvalidation().collect {
+				yield()
+
+				navController.navigate(AuthDestination.NavGraph) {
+					launchSingleTop = true
+					popUpTo(navController.graph.id) {
+						inclusive = true
+					}
+				}
+			}
 		}
 	}
 
