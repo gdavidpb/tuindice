@@ -6,14 +6,12 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
@@ -42,6 +40,9 @@ fun AnimatedPatternBackground(
 	val tileHeight = remember(backgroundBitmap, density, tileScale) {
 		(backgroundBitmap.height.toFloat() * density * tileScale).coerceAtLeast(1f)
 	}
+	val tileWidthPx = remember(tileWidth) { (tileWidth + 0.5f).toInt().coerceAtLeast(1) }
+	val tileHeightPx = remember(tileHeight) { (tileHeight + 0.5f).toInt().coerceAtLeast(1) }
+	val backgroundColor = MaterialTheme.colorScheme.background.copy(alpha = alpha)
 
 	val transition = rememberInfiniteTransition(label = "AnimatedPatternBackground")
 	val animatedProgress by transition.animateFloat(
@@ -57,28 +58,28 @@ fun AnimatedPatternBackground(
 		modifier = Modifier
 			.testTag(AuthUiTags.AnimatedPatternBackground)
 			.fillMaxSize()
-			.background(MaterialTheme.colorScheme.background)
-			.alpha(alpha)
 	) {
+		drawRect(
+			color = backgroundColor
+		)
+
 		val viewportWidth = size.width
 		val viewportHeight = size.height
-		val animatedX = animatedProgress * tileWidth
+		val animatedX = (animatedProgress * tileWidthPx).toInt()
 
-		val tileWidthInt = tileWidth.toInt().coerceAtLeast(1)
-		val tileHeightInt = tileHeight.toInt().coerceAtLeast(1)
-
-		var drawX = animatedX - tileWidth
-		while (drawX < viewportWidth + tileWidth) {
-			var drawY = -tileHeight
-			while (drawY < viewportHeight + tileHeight) {
+		var drawX = animatedX - tileWidthPx
+		while (drawX < viewportWidth + tileWidthPx) {
+			var drawY = -tileHeightPx
+			while (drawY < viewportHeight + tileHeightPx) {
 				drawImage(
 					image = backgroundBitmap,
-					dstOffset = IntOffset(drawX.toInt(), drawY.toInt()),
-					dstSize = IntSize(width = tileWidthInt, height = tileHeightInt)
+					dstOffset = IntOffset(drawX, drawY),
+					dstSize = IntSize(width = tileWidthPx, height = tileHeightPx),
+					alpha = alpha
 				)
-				drawY += tileHeight
+				drawY += tileHeightPx
 			}
-			drawX += tileWidth
+			drawX += tileWidthPx
 		}
 	}
 }
