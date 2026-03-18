@@ -39,8 +39,8 @@ extensions.configure<ApplicationExtension> {
 		applicationId = "com.gdavidpb.tuindice"
 		minSdk = 24
 		targetSdk = 36
-		versionCode = 36
-		versionName = "5.8"
+		versionCode = 38
+		versionName = "6.0"
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 	}
 
