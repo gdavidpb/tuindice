@@ -103,7 +103,14 @@ class AboutActionProcessorContractTest {
 
 		val effect = assertIs<About.Effect.ShareText>(effects.single())
 		assertEquals("TuIndice", effect.subject)
-		assertEquals("TuIndice: Una nueva forma de administrar tus notas", effect.text)
+		assertEquals(
+			"""
+			Descarga TuIndice y administra tus notas de forma simple.
+			Google Play: https://play.google.com/store/apps/details?id=com.gdavidpb.tuindice
+			App Store: https://apps.apple.com/app/id6760307454
+			""".trimIndent(),
+			effect.text
+		)
 	}
 
 	@Test

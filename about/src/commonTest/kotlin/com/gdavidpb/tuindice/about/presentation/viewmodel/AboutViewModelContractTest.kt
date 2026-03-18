@@ -64,6 +64,14 @@ class AboutViewModelContractTest {
 				viewModel.shareAppAction()
 				val shareEffect = assertIs<About.Effect.ShareText>(awaitItem())
 				assertEquals("TuIndice", shareEffect.subject)
+				assertEquals(
+					"""
+					Descarga TuIndice y administra tus notas de forma simple.
+					Google Play: https://play.google.com/store/apps/details?id=com.gdavidpb.tuindice
+					App Store: https://apps.apple.com/app/id6760307454
+					""".trimIndent(),
+					shareEffect.text
+				)
 
 				viewModel.contactDeveloperAction()
 				val contactEffect = assertIs<About.Effect.OpenUri>(awaitItem())
