@@ -28,6 +28,12 @@ if [[ "$CONFIGURATION_NAME" == "Release" ]]; then
 	BUILD_TYPE="Release"
 fi
 
+DEFAULT_GRADLE_JVM_ARGS="-Xmx4g -XX:MaxMetaspaceSize=1536m -Dfile.encoding=UTF-8"
+if [[ "$BUILD_TYPE" == "Release" ]]; then
+	DEFAULT_GRADLE_JVM_ARGS="-Xmx6g -XX:MaxMetaspaceSize=1536m -Dfile.encoding=UTF-8"
+fi
+GRADLE_JVM_ARGS="${TUINDICE_IOS_GRADLE_JVM_ARGS:-$DEFAULT_GRADLE_JVM_ARGS}"
+
 TARGET_SUFFIX="IosSimulatorArm64"
 if [[ "$PLATFORM" == "iphoneos" ]]; then
 	TARGET_SUFFIX="IosArm64"
@@ -44,7 +50,7 @@ echo "Building maincore framework and syncing Compose resources for iOS"
 	":maincore:syncComposeResourcesForIos" \
 	--stacktrace \
 	--no-daemon \
-	-Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1536m -Dfile.encoding=UTF-8" \
+	-Dorg.gradle.jvmargs="$GRADLE_JVM_ARGS" \
 	-Pkotlin.native.cacheKind=none
 
 if [[ -n "${SCRIPT_OUTPUT_FILE_0:-}" ]]; then
