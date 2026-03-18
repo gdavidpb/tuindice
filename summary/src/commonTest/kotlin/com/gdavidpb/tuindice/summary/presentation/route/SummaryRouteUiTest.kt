@@ -1,11 +1,13 @@
 package com.gdavidpb.tuindice.summary.presentation.route
 
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.domain.model.User
-import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.GetUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
@@ -22,15 +24,17 @@ import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureAct
 import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
-import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
-import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
+import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
+import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.github.vinceglb.filekit.PlatformFile
@@ -43,19 +47,16 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class SummaryRouteUiTest {
 	@Test
-	fun when_initialLoadSucceeds_then_routeRendersContentWithoutNavigationOrSnackBar() = runTuIndiceUiTest {
+	fun when_initialLoadSucceeds_then_routeRendersContentWithoutDialogsOrSnackBar() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
 		val syncStatusRepository = FakeSyncStatusRepository()
 		var outdatedPasswordNavigations = 0
-		var profilePictureSettingsNavigations = 0
-		var removeConfirmationNavigations = 0
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
 			SummaryRoute(
+				isCameraAvailable = true,
 				onNavigateToUpdatePassword = { outdatedPasswordNavigations++ },
-				onNavigateToProfilePictureSettingsDialog = { profilePictureSettingsNavigations++ },
-				onNavigateToRemoveProfilePictureConfirmationDialog = { removeConfirmationNavigations++ },
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
@@ -69,25 +70,21 @@ class SummaryRouteUiTest {
 		}
 
 		assertEquals(0, outdatedPasswordNavigations)
-		assertEquals(0, profilePictureSettingsNavigations)
-		assertEquals(0, removeConfirmationNavigations)
 		assertTrue(shownSnackBars.isEmpty())
+		assertNodeHidden(SummaryUiTags.ProfilePicturePickAction)
+		assertNodeHidden(SummaryUiTags.RemoveProfilePictureMessage)
 	}
 
 	@Test
-	fun when_profilePictureSettingsActionTriggered_then_navigatesWithShowRemove() = runTuIndiceUiTest {
+	fun when_profilePictureSettingsActionTriggered_then_showsDialogWithRemoveOption() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
 		val syncStatusRepository = FakeSyncStatusRepository()
-		var showRemove: Boolean? = null
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
 			SummaryRoute(
+				isCameraAvailable = true,
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { shouldShowRemove ->
-					showRemove = shouldShowRemove
-				},
-				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
@@ -100,28 +97,23 @@ class SummaryRouteUiTest {
 			viewModel.openProfilePictureSettingsAction()
 		}
 
-		waitUntil(timeoutMillis = 2_000) {
-			showRemove != null
-		}
-
-		assertEquals(true, showRemove)
+		waitUntilNodeExists(SummaryUiTags.ProfilePicturePickAction)
+		assertNodeVisible(SummaryUiTags.ProfilePicturePickAction)
+		assertNodeVisible(SummaryUiTags.ProfilePictureTakeAction)
+		assertNodeVisible(SummaryUiTags.ProfilePictureRemoveAction)
 		assertTrue(shownSnackBars.isEmpty())
 	}
 
 	@Test
-	fun when_profilePictureEditTappedFromUi_then_navigatesWithShowRemove() = runTuIndiceUiTest {
+	fun when_profilePictureEditTappedFromUi_then_showsDialogWithRemoveOption() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
 		val syncStatusRepository = FakeSyncStatusRepository()
-		var showRemove: Boolean? = null
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
 			SummaryRoute(
+				isCameraAvailable = true,
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { shouldShowRemove ->
-					showRemove = shouldShowRemove
-				},
-				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
@@ -136,27 +128,22 @@ class SummaryRouteUiTest {
 
 		onNodeWithTag(SummaryUiTags.ProfilePictureEditButton).performClick()
 
-		waitUntil(timeoutMillis = 2_000) {
-			showRemove != null
-		}
-
-		assertEquals(true, showRemove)
+		waitUntilNodeExists(SummaryUiTags.ProfilePicturePickAction)
+		assertNodeVisible(SummaryUiTags.ProfilePicturePickAction)
+		assertNodeVisible(SummaryUiTags.ProfilePictureTakeAction)
+		assertNodeVisible(SummaryUiTags.ProfilePictureRemoveAction)
 		assertTrue(shownSnackBars.isEmpty())
 	}
 
 	@Test
-	fun when_removeProfilePictureActionTriggered_then_navigatesToRemoveConfirmationDialog() = runTuIndiceUiTest {
+	fun when_removeProfilePictureActionTriggered_then_showsRemoveConfirmationDialog() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
 		val syncStatusRepository = FakeSyncStatusRepository()
-		var navigateCalls = 0
 
 		setTuIndiceTestContent {
 			SummaryRoute(
+				isCameraAvailable = true,
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = {},
-				onNavigateToRemoveProfilePictureConfirmationDialog = {
-					navigateCalls++
-				},
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository
@@ -167,11 +154,35 @@ class SummaryRouteUiTest {
 			viewModel.removeProfilePictureAction()
 		}
 
-		waitUntil(timeoutMillis = 2_000) {
-			navigateCalls > 0
+		waitUntilNodeExists(SummaryUiTags.RemoveProfilePictureMessage)
+		assertNodeVisible(SummaryUiTags.RemoveProfilePictureMessage)
+	}
+
+	@Test
+	fun when_removeTappedFromSettingsDialog_then_showsRemoveConfirmationDialog() = runTuIndiceUiTest {
+		val viewModel = createSummaryViewModel()
+		val syncStatusRepository = FakeSyncStatusRepository()
+
+		setTuIndiceTestContent {
+			SummaryRoute(
+				isCameraAvailable = true,
+				onNavigateToUpdatePassword = {},
+				showSnackBar = {},
+				viewModel = viewModel,
+				syncStatusRepository = syncStatusRepository
+			)
 		}
 
-		assertEquals(1, navigateCalls)
+		runOnIdle {
+			viewModel.openProfilePictureSettingsAction()
+		}
+
+		waitUntilNodeExists(SummaryUiTags.ProfilePictureRemoveAction)
+		onNodeWithText("Remover foto").performClick()
+
+		waitUntilNodeExists(SummaryUiTags.RemoveProfilePictureMessage)
+		assertNodeVisible(SummaryUiTags.RemoveProfilePictureMessage)
+		assertNodeHidden(SummaryUiTags.ProfilePicturePickAction)
 	}
 
 	@Test
@@ -187,11 +198,10 @@ class SummaryRouteUiTest {
 
 		setTuIndiceTestContent {
 			SummaryRoute(
+				isCameraAvailable = true,
 				onNavigateToUpdatePassword = {
 					outdatedPasswordNavigations++
 				},
-				onNavigateToProfilePictureSettingsDialog = {},
-				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
@@ -227,11 +237,10 @@ class SummaryRouteUiTest {
 
 		setTuIndiceTestContent {
 			SummaryRoute(
+				isCameraAvailable = true,
 				onNavigateToUpdatePassword = {
 					outdatedPasswordNavigations++
 				},
-				onNavigateToProfilePictureSettingsDialog = {},
-				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
@@ -249,7 +258,7 @@ class SummaryRouteUiTest {
 	}
 
 	@Test
-	fun when_profilePictureSettingsActionTriggeredWithoutProfilePicture_then_navigatesWithoutRemoveOption() = runTuIndiceUiTest {
+	fun when_profilePictureSettingsActionTriggeredWithoutProfilePicture_then_showsDialogWithoutRemoveOption() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel(
 			userRepository = RecordingUserRepository(
 				users = flow {
@@ -258,15 +267,11 @@ class SummaryRouteUiTest {
 			)
 		)
 		val syncStatusRepository = FakeSyncStatusRepository()
-		var showRemove: Boolean? = null
 
 		setTuIndiceTestContent {
 			SummaryRoute(
+				isCameraAvailable = true,
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { shouldShowRemove ->
-					showRemove = shouldShowRemove
-				},
-				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository
@@ -281,15 +286,14 @@ class SummaryRouteUiTest {
 			viewModel.openProfilePictureSettingsAction()
 		}
 
-		waitUntil(timeoutMillis = 2_000) {
-			showRemove != null
-		}
-
-		assertEquals(false, showRemove)
+		waitUntilNodeExists(SummaryUiTags.ProfilePicturePickAction)
+		assertNodeVisible(SummaryUiTags.ProfilePicturePickAction)
+		assertNodeVisible(SummaryUiTags.ProfilePictureTakeAction)
+		assertNodeHidden(SummaryUiTags.ProfilePictureRemoveAction)
 	}
 
 	@Test
-	fun when_profilePictureEditTappedFromUiWithoutProfilePicture_then_navigatesWithoutRemoveOption() = runTuIndiceUiTest {
+	fun when_profilePictureEditTappedFromUiWithoutProfilePicture_then_showsDialogWithoutRemoveOption() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel(
 			userRepository = RecordingUserRepository(
 				users = flow {
@@ -298,15 +302,11 @@ class SummaryRouteUiTest {
 			)
 		)
 		val syncStatusRepository = FakeSyncStatusRepository()
-		var showRemove: Boolean? = null
 
 		setTuIndiceTestContent {
 			SummaryRoute(
+				isCameraAvailable = true,
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { shouldShowRemove ->
-					showRemove = shouldShowRemove
-				},
-				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository
@@ -319,27 +319,23 @@ class SummaryRouteUiTest {
 
 		onNodeWithTag(SummaryUiTags.ProfilePictureEditButton).performClick()
 
-		waitUntil(timeoutMillis = 2_000) {
-			showRemove != null
-		}
-
-		assertEquals(false, showRemove)
+		waitUntilNodeExists(SummaryUiTags.ProfilePicturePickAction)
+		assertNodeVisible(SummaryUiTags.ProfilePicturePickAction)
+		assertNodeVisible(SummaryUiTags.ProfilePictureTakeAction)
+		assertNodeHidden(SummaryUiTags.ProfilePictureRemoveAction)
 	}
 
 	@Test
-	fun when_confirmRemoveProfilePictureActionTriggered_then_showsSnackBarWithoutRouteNavigation() = runTuIndiceUiTest {
+	fun when_confirmRemoveProfilePictureActionTriggered_then_showsSnackBarWithoutOutdatedNavigation() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
 		val syncStatusRepository = FakeSyncStatusRepository()
 		var navigateOutdatedCalls = 0
-		var openSettingsCalls = 0
-		var openRemoveDialogCalls = 0
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
 			SummaryRoute(
+				isCameraAvailable = true,
 				onNavigateToUpdatePassword = { navigateOutdatedCalls++ },
-				onNavigateToProfilePictureSettingsDialog = { openSettingsCalls++ },
-				onNavigateToRemoveProfilePictureConfirmationDialog = { openRemoveDialogCalls++ },
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
@@ -361,8 +357,6 @@ class SummaryRouteUiTest {
 		}
 
 		assertEquals(0, navigateOutdatedCalls)
-		assertEquals(0, openSettingsCalls)
-		assertEquals(0, openRemoveDialogCalls)
 		assertTrue(shownSnackBars.first().message.isNotBlank())
 	}
 
@@ -375,9 +369,8 @@ class SummaryRouteUiTest {
 
 		setTuIndiceTestContent {
 			SummaryRoute(
+				isCameraAvailable = true,
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = {},
-				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
 				},
@@ -402,7 +395,6 @@ class SummaryRouteUiTest {
 	private fun createSummaryViewModel(
 		userRepository: UserRepository = RecordingUserRepository()
 	): SummaryViewModel {
-
 		return SummaryViewModel(
 			loadSummaryActionProcessor = LoadSummaryActionProcessor(
 				getUserUseCase = GetUserUseCase(
@@ -451,5 +443,11 @@ class SummaryRouteUiTest {
 		override suspend fun uploadProfilePicture(file: PlatformFile) = DEFAULT_SUMMARY_PROFILE_PICTURE
 
 		override suspend fun removeProfilePicture() = Unit
+	}
+
+	private fun ComposeUiTest.waitUntilNodeExists(tag: String) {
+		waitUntil(timeoutMillis = 2_000) {
+			runCatching { onNodeWithTag(tag).fetchSemanticsNode() }.isSuccess
+		}
 	}
 }

@@ -13,7 +13,7 @@ class RemoveProfilePictureActionProcessor
 		sideEffect: (Summary.Effect) -> Unit
 	): Flow<Mutation<Summary.State>> {
 		sideEffect(
-			Summary.Effect.NavigateToRemoveProfilePictureConfirmationDialog
+			Summary.Effect.ShowRemoveProfilePictureConfirmationDialog
 		)
 
 		return super.process(action, sideEffect)

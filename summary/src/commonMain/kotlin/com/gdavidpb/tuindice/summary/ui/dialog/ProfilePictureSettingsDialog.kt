@@ -40,7 +40,6 @@ fun ProfilePictureSettingsDialog(
 	val dismissAndRun = fun(action: () -> Unit) {
 		coroutineScope.launch {
 			sheetState.hide()
-		}.invokeOnCompletion {
 			onDismissRequest()
 			action()
 		}

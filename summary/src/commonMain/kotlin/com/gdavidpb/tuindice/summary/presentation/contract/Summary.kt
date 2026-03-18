@@ -47,9 +47,9 @@ object Summary {
 	}
 
 	sealed class Effect : ViewEffect() {
-		class NavigateToProfilePictureSettingsDialog(val showRemove: Boolean) : Effect()
+		class ShowProfilePictureSettingsDialog(val showRemove: Boolean) : Effect()
 		data object NavigateToOutdatedCredentials : Effect()
-		data object NavigateToRemoveProfilePictureConfirmationDialog : Effect()
+		data object ShowRemoveProfilePictureConfirmationDialog : Effect()
 		data object OpenCamera : Effect()
 		data object OpenPicker : Effect()
 		class ShowSnackBar(val message: String) : Effect()

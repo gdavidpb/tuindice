@@ -78,18 +78,10 @@ fun TuIndiceNavHost(
 		)
 
 		summaryNavigation(
-			navController = navController,
 			isCameraAvailable = isCameraAvailable,
-			onNavigateToProfilePictureSettingsDialog = { showRemove ->
-				navController.navigate(SummaryDestination.ProfilePictureSettingsDialog(showRemove = showRemove))
-			},
 			onNavigateToUpdatePassword = {
 				navController.navigate(AuthDestination.UpdatePasswordDialog)
 			},
-			onNavigateToRemoveProfilePictureConfirmationDialog = {
-				navController.navigate(SummaryDestination.RemoveProfilePictureConfirmationDialog)
-			},
-			onDismissRequest = { navController.navigateUp() },
 			showSnackBar = showSnackBar,
 			onViewStateChanged = onViewStateChanged
 		)

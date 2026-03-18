@@ -46,6 +46,34 @@ class ProfilePictureSettingsDialogUiTest {
 	}
 
 	@Test
+	fun when_pickActionTapped_then_dismissesBeforeInvokingPickCallback() = runTuIndiceUiTest {
+		val callbackOrder = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			ProfilePictureSettingsDialog(
+				showRemove = true,
+				isCameraAvailable = true,
+				titleText = "Mi foto de perfil",
+				pickPictureLabel = "Subir foto",
+				takePictureLabel = "Tomar foto",
+				removePictureLabel = "Remover foto",
+				onPickPictureClick = { callbackOrder += "pick" },
+				onTakePictureClick = {},
+				onRemovePictureClick = {},
+				onDismissRequest = { callbackOrder += "dismiss" }
+			)
+		}
+
+		onNodeWithText("Subir foto").performClick()
+
+		waitUntil(timeoutMillis = 2_000) {
+			callbackOrder.size == 2
+		}
+
+		assertEquals(listOf("dismiss", "pick"), callbackOrder)
+	}
+
+	@Test
 	fun when_cameraIsUnavailable_then_hidesTakeAction() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			ProfilePictureSettingsDialog(
