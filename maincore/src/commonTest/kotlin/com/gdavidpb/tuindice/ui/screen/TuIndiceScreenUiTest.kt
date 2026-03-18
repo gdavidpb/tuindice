@@ -415,10 +415,67 @@ class TuIndiceScreenUiTest {
 		}
 	}
 
+	@Test
+	fun when_dialogIsDisplayed_then_backButtonIsHidden() = runTuIndiceUiTest {
+		lateinit var navController: NavHostController
+
+		stopKoin()
+		startKoin {
+			modules(testBrowserModule())
+		}
+
+		try {
+			setTuIndiceTestContent {
+				navController = rememberNavController()
+
+				TuIndiceScreen(
+					state = Main.State.Content(
+						startDestination = browserStartDestination(),
+						topBarTitle = "Privacidad",
+						isTopBarVisible = true,
+						isBottomBarVisible = false
+					),
+					updateState = {},
+					onRetryStartUp = {},
+					navController = navController,
+					snackbarHostState = remember { SnackbarHostState() },
+					onAction = {},
+					onNavigateTo = {},
+					onNavigateBack = { navController.navigateUp() },
+					onConfirmExitClick = {},
+					isCameraAvailable = false,
+					onNavigateToExternalResource = {},
+					showSnackBar = {}
+				)
+			}
+
+			runOnIdle {
+				navController.navigate(browserDetailDestination())
+			}
+
+			assertNodeVisible(MaincoreUiTags.TuIndiceTopBarBackButton)
+
+			runOnIdle {
+				navController.navigate(MainDestination.GooglePlayServicesUnavailableDialog)
+			}
+
+			assertNodeHidden(MaincoreUiTags.TuIndiceTopBarBackButton)
+		} finally {
+			stopKoin()
+		}
+	}
+
 	private fun browserStartDestination(): Destination {
 		return BrowserDestination.Browser(
 			title = "Privacidad",
 			url = "https://tuindice.app/privacy"
+		)
+	}
+
+	private fun browserDetailDestination(): Destination {
+		return BrowserDestination.Browser(
+			title = "Términos",
+			url = "https://tuindice.app/terms"
 		)
 	}
 

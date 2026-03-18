@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.data.model.AddEvaluationRequest

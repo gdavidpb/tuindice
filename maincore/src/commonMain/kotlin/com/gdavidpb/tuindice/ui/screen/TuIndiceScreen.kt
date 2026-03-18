@@ -37,7 +37,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
@@ -46,6 +45,7 @@ import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
+import com.gdavidpb.tuindice.base.utils.extension.canNavigateBackFromCurrentDestination
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.BottomBarConfig
@@ -96,8 +96,7 @@ fun TuIndiceScreen(
 
 	val contentState = state
 	val latestContentState = rememberUpdatedState(contentState)
-	val currentBackStackEntry = navController.currentBackStackEntryAsState().value
-	val canNavigateBack = currentBackStackEntry != null && navController.previousBackStackEntry != null
+	val canNavigateBack = navController.canNavigateBackFromCurrentDestination()
 
 	val onViewStateChanged: (ViewState) -> Unit = { currentViewState ->
 		updateState(

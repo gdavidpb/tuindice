@@ -6,11 +6,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.gdavidpb.tuindice.about.presentation.navigation.aboutNavigation
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.base.utils.extension.canNavigateBackFromCurrentDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofNavigation
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsNavigation
@@ -37,8 +37,7 @@ fun TuIndiceNavHost(
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
-	val currentBackStackEntry = navController.currentBackStackEntryAsState().value
-	val canNavigateBack = currentBackStackEntry != null && navController.previousBackStackEntry != null
+	val canNavigateBack = navController.canNavigateBackFromCurrentDestination()
 
 	NavHost(
 		navController = navController,
