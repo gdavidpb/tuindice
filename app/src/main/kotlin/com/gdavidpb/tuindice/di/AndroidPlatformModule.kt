@@ -19,7 +19,7 @@ import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfig
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.extension.toFirebaseDefaultsMap
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataSource
-import com.gdavidpb.tuindice.data.repository.attestation.RiskAttestationDataRepository
+import com.gdavidpb.tuindice.data.repository.attestation.AndroidAttestationRepository
 import com.gdavidpb.tuindice.data.repository.attestation.source.PlayIntegrityDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.source.FirebasePushTokenDataSource
@@ -173,14 +173,14 @@ private fun Module.registerAndroidFeaturePlatformBindings() {
 
 private fun Module.registerAndroidPlatformNetworking() {
 	singleOf(::PlayIntegrityDataSource) { bind<AttestationProviderDataSource>() }
-	factoryOf(::RiskAttestationDataRepository) { bind<RiskAttestationRepository>() }
+	factoryOf(::AndroidAttestationRepository) { bind<AttestationRepository>() }
 
 	single {
 		createSharedHttpClient(
 			appEnvironmentRepository = get(),
 			configRepository = get(),
 			sessionRepository = get(),
-			riskAttestationRepositoryProvider = { get() },
+			attestationRepositoryProvider = { get() },
 			authRepositoryProvider = { get() },
 			credentialsRepositoryProvider = { get() },
 			syncRepositoryProvider = { get() },

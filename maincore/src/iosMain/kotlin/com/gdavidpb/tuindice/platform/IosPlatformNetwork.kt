@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.platform
 
+import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
@@ -83,7 +84,7 @@ fun createIosIdentityHttpClient(
 			sanitizeHeader { header ->
 				header == HttpHeaders.Authorization ||
 					header == "X-Forwarded-Authorization" ||
-					header == "X-Risk-Attestation"
+					header == AttestationHeaders.ATTESTATION_TOKEN
 			}
 		}
 	}

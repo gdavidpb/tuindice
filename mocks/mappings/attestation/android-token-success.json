@@ -26,7 +26,7 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "token": "risk.mock.proof.android",
+      "token": "attestation.mock.proof.android",
       "expires_at": 2524608000000
     },
     "fixedDelayMilliseconds": 250

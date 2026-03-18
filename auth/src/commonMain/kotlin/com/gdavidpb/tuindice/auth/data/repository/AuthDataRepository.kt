@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.auth.data.repository
 
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestation
+import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
+import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 
@@ -15,20 +15,20 @@ class AuthDataRepository(
 	override suspend fun issueTokens(
 		usbId: String,
 		password: String,
-		flow: IssueTokensFlow,
-		riskAttestation: RiskAttestation
+		attestedFlow: AttestedTokenFlow,
+		attestation: Attestation
 	) {
 		val tokens = authApiDataSource.issueTokens(
 			usbId = usbId,
 			password = password,
-			flow = flow,
-			riskAttestation = riskAttestation
+			attestedFlow = attestedFlow,
+			attestation = attestation
 		)
 
 		sessionRepository.setAccessToken(tokens.accessToken)
 		sessionRepository.setRefreshToken(tokens.refreshToken)
 
-		if (flow == IssueTokensFlow.IssueTokens) {
+		if (attestedFlow == AttestedTokenFlow.IssueTokens) {
 			sessionRepository.setUsbId(tokens.usbId)
 			reportingRepository.setIdentifier(tokens.uid)
 		}
@@ -37,12 +37,12 @@ class AuthDataRepository(
 	override suspend fun refreshTokens(
 		accessToken: String,
 		refreshToken: String,
-		riskAttestation: RiskAttestation
+		attestation: Attestation
 	): RefreshTokens {
 		return authApiDataSource.refreshTokens(
 			accessToken = accessToken,
 			refreshToken = refreshToken,
-			riskAttestation = riskAttestation
+			attestation = attestation
 		).also { tokens ->
 			sessionRepository.setAccessToken(tokens.accessToken)
 			sessionRepository.setRefreshToken(tokens.refreshToken)

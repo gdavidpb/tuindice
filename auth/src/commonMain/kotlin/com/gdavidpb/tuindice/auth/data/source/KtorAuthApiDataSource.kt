@@ -5,9 +5,10 @@ import com.gdavidpb.tuindice.auth.data.model.RefreshTokensRequest
 import com.gdavidpb.tuindice.auth.data.model.RefreshTokensResponse
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
+import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestation
+import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
+import com.gdavidpb.tuindice.base.domain.model.Attestation
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -19,21 +20,21 @@ class KtorAuthApiDataSource(
 	override suspend fun issueTokens(
 		usbId: String,
 		password: String,
-		flow: IssueTokensFlow,
-		riskAttestation: RiskAttestation
+		attestedFlow: AttestedTokenFlow,
+		attestation: Attestation
 	): IssueTokens {
-		return postIssueTokens(
+		return postTokens(
 			usbId = usbId,
 			password = password,
-			flow = flow,
-			riskAttestation = riskAttestation
+			attestedFlow = attestedFlow,
+			attestation = attestation
 		)
 	}
 
 	override suspend fun refreshTokens(
 		accessToken: String,
 		refreshToken: String,
-		riskAttestation: RiskAttestation
+		attestation: Attestation
 	): RefreshTokens {
 		val request = RefreshTokensRequest(
 			accessToken = accessToken,
@@ -41,7 +42,7 @@ class KtorAuthApiDataSource(
 		)
 
 		val response = ktorClient.post("auth/v1/token/refresh") {
-			setRiskAttestationHeaders(riskAttestation)
+			setAttestationTokenHeader(attestation)
 			header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
 			setBody(request)
 		}.body<RefreshTokensResponse>()
@@ -57,16 +58,16 @@ class KtorAuthApiDataSource(
 		ktorClient.post("auth/v1/token/revoke")
 	}
 
-	private suspend fun postIssueTokens(
+	private suspend fun postTokens(
 		usbId: String,
 		password: String,
-		flow: IssueTokensFlow,
-		riskAttestation: RiskAttestation
+		attestedFlow: AttestedTokenFlow,
+		attestation: Attestation
 	): IssueTokens {
 		val response = ktorClient.post("auth/v1/token") {
 			basicAuth(usbId, password)
-			setRiskAttestationHeaders(riskAttestation)
-			header(AuthHeaders.AUTH_FLOW, flow.headerValue)
+			setAttestationTokenHeader(attestation)
+			header(AttestationHeaders.ATTESTED_FLOW, attestedFlow.headerValue)
 		}.body<IssueTokensResponse>()
 
 		return IssueTokens(
@@ -78,12 +79,7 @@ class KtorAuthApiDataSource(
 		)
 	}
 
-	private fun HttpRequestBuilder.setRiskAttestationHeaders(riskAttestation: RiskAttestation) {
-		header(AuthHeaders.RISK_ATTESTATION, riskAttestation.token)
-	}
-
-	private object AuthHeaders {
-		const val RISK_ATTESTATION = "X-Risk-Attestation"
-		const val AUTH_FLOW = "X-Auth-Flow"
+	private fun HttpRequestBuilder.setAttestationTokenHeader(attestation: Attestation) {
+		header(AttestationHeaders.ATTESTATION_TOKEN, attestation.token)
 	}
 }

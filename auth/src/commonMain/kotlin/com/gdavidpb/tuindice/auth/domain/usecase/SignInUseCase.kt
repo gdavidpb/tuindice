@@ -1,21 +1,21 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensRiskPayload
+import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
+import com.gdavidpb.tuindice.auth.domain.model.IssueTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
+import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
-import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.base.utils.canonicalRiskPayloadJson
+import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -25,24 +25,24 @@ class SignInUseCase(
 	private val syncRepository: SyncRepository,
 	private val credentialsRepository: CredentialsRepository,
 	private val syncStatusRepository: SyncStatusRepository,
-	private val riskAttestationRepository: RiskAttestationRepository,
+	private val attestationRepository: AttestationRepository,
 	override val paramsValidator: SignInParamsValidator,
 	override val exceptionHandler: SignInExceptionHandler
 ) : FlowUseCase<SignInParams, Unit, SignInUseCaseError>() {
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
-		val flow = IssueTokensFlow.IssueTokens
-		val riskPayload = IssueTokensRiskPayload(
+		val flow = AttestedTokenFlow.IssueTokens
+		val attestationPayload = IssueTokensAttestationPayload(
 			usbId = params.usbId,
 			password = params.password,
-			authFlow = flow.headerValue
+			attestedFlow = flow.headerValue
 		)
 
-		val riskAttestation = riskAttestationRepository.issueProof(
-			request = RiskAttestationRequest(
+		val attestation = attestationRepository.attest(
+			request = AttestationRequest(
 				operation = flow.operation,
-				payloadJson = canonicalRiskPayloadJson(
-					serializer = IssueTokensRiskPayload.serializer(),
-					value = riskPayload
+				payloadJson = canonicalAttestationPayloadJson(
+					serializer = IssueTokensAttestationPayload.serializer(),
+					value = attestationPayload
 				)
 			)
 		)
@@ -50,8 +50,8 @@ class SignInUseCase(
 		authRepository.issueTokens(
 			usbId = params.usbId,
 			password = params.password,
-			flow = flow,
-			riskAttestation = riskAttestation
+			attestedFlow = flow,
+			attestation = attestation
 		)
 
 		credentialsRepository.setPassword(

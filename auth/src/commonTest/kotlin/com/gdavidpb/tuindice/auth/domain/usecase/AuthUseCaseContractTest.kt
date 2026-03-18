@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.base.domain.model.RiskOperation
+import com.gdavidpb.tuindice.base.domain.model.AttestedOperation
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
+import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
@@ -44,7 +44,7 @@ class AuthUseCaseContractTest {
 			syncRepository = syncRepository,
 			credentialsRepository = credentialsRepository,
 			syncStatusRepository = syncStatusRepository,
-			riskAttestationRepository = attestationRepository,
+			attestationRepository = attestationRepository,
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
 				networkRepository = FakeNetworkRepository(isAvailable = true),
@@ -58,8 +58,8 @@ class AuthUseCaseContractTest {
 		}
 
 		assertEquals(1, repository.issueTokensCalls.size)
-		assertEquals(IssueTokensFlow.IssueTokens, repository.issueTokensCalls.single().flow)
-		assertEquals(RiskOperation.IssueTokens, attestationRepository.lastRequest?.operation)
+		assertEquals(AttestedTokenFlow.IssueTokens, repository.issueTokensCalls.single().flow)
+		assertEquals(AttestedOperation.IssueTokens, attestationRepository.lastRequest?.operation)
 		assertEquals(1, messagingRepository.subscribeCalls)
 		assertEquals(listOf("secret123"), credentialsRepository.storedPasswords)
 		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
@@ -80,7 +80,7 @@ class AuthUseCaseContractTest {
 			syncRepository = syncRepository,
 			credentialsRepository = credentialsRepository,
 			syncStatusRepository = syncStatusRepository,
-			riskAttestationRepository = FakeAttestationRepository(),
+			attestationRepository = FakeAttestationRepository(),
 			paramsValidator = UpdatePasswordParamsValidator(),
 			exceptionHandler = UpdatePasswordExceptionHandler(
 				networkRepository = FakeNetworkRepository(isAvailable = true),
@@ -95,7 +95,7 @@ class AuthUseCaseContractTest {
 
 		val call = repository.issueTokensCalls.single()
 		assertEquals("20261234", call.usbId)
-		assertEquals(IssueTokensFlow.ReissueTokens, call.flow)
+		assertEquals(AttestedTokenFlow.ReissueTokens, call.flow)
 		assertEquals(listOf("new-secret"), credentialsRepository.storedPasswords)
 		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
 		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)

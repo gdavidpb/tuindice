@@ -4,18 +4,18 @@ import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestation
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
+import com.gdavidpb.tuindice.base.domain.model.Attestation
+import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
+import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import io.github.vinceglb.filekit.PlatformFile
 
-val DEFAULT_AUTH_ATTESTATION = RiskAttestation(
+val DEFAULT_AUTH_ATTESTATION = Attestation(
 	token = "attestation-token"
 )
 
@@ -36,8 +36,8 @@ val DEFAULT_REFRESH_TOKENS = RefreshTokens(
 data class IssueTokensCall(
 	val usbId: String,
 	val password: String,
-	val flow: IssueTokensFlow,
-	val riskAttestation: RiskAttestation
+	val flow: AttestedTokenFlow,
+	val attestation: Attestation
 )
 
 class RecordingAuthRepository(
@@ -46,20 +46,20 @@ class RecordingAuthRepository(
 	private val throwable: Throwable? = null
 ) : AuthRepository {
 	var issueTokensCalls = mutableListOf<IssueTokensCall>()
-	var refreshTokenCalls = mutableListOf<Triple<String, String, RiskAttestation>>()
+	var refreshTokenCalls = mutableListOf<Triple<String, String, Attestation>>()
 	var revokeTokensCalls = 0
 
 	override suspend fun issueTokens(
 		usbId: String,
 		password: String,
-		flow: IssueTokensFlow,
-		riskAttestation: RiskAttestation
+		attestedFlow: AttestedTokenFlow,
+		attestation: Attestation
 	) {
 		issueTokensCalls += IssueTokensCall(
 			usbId = usbId,
 			password = password,
-			flow = flow,
-			riskAttestation = riskAttestation
+			flow = attestedFlow,
+			attestation = attestation
 		)
 		throwable?.let { throw it }
 	}
@@ -67,9 +67,9 @@ class RecordingAuthRepository(
 	override suspend fun refreshTokens(
 		accessToken: String,
 		refreshToken: String,
-		riskAttestation: RiskAttestation
+		attestation: Attestation
 	): RefreshTokens {
-		refreshTokenCalls += Triple(accessToken, refreshToken, riskAttestation)
+		refreshTokenCalls += Triple(accessToken, refreshToken, attestation)
 		throwable?.let { throw it }
 		return this.refreshTokens
 	}
@@ -81,11 +81,11 @@ class RecordingAuthRepository(
 }
 
 class FakeAttestationRepository(
-	private val attestation: RiskAttestation = DEFAULT_AUTH_ATTESTATION
-) : RiskAttestationRepository {
-	var lastRequest: RiskAttestationRequest? = null
+	private val attestation: Attestation = DEFAULT_AUTH_ATTESTATION
+) : AttestationRepository {
+	var lastRequest: AttestationRequest? = null
 
-	override suspend fun issueProof(request: RiskAttestationRequest): RiskAttestation {
+	override suspend fun attest(request: AttestationRequest): Attestation {
 		lastRequest = request
 		return attestation
 	}
@@ -186,20 +186,20 @@ class FakeAuthApiDataSource(
 	private val throwable: Throwable? = null
 ) : AuthApiDataSource {
 	var issueCalls = mutableListOf<IssueTokensCall>()
-	var refreshCalls = mutableListOf<Triple<String, String, RiskAttestation>>()
+	var refreshCalls = mutableListOf<Triple<String, String, Attestation>>()
 	var revokeCalls = 0
 
 	override suspend fun issueTokens(
 		usbId: String,
 		password: String,
-		flow: IssueTokensFlow,
-		riskAttestation: RiskAttestation
+		attestedFlow: AttestedTokenFlow,
+		attestation: Attestation
 	): IssueTokens {
 		issueCalls += IssueTokensCall(
 			usbId = usbId,
 			password = password,
-			flow = flow,
-			riskAttestation = riskAttestation
+			flow = attestedFlow,
+			attestation = attestation
 		)
 		throwable?.let { throw it }
 		return issueTokens
@@ -208,9 +208,9 @@ class FakeAuthApiDataSource(
 	override suspend fun refreshTokens(
 		accessToken: String,
 		refreshToken: String,
-		riskAttestation: RiskAttestation
+		attestation: Attestation
 	): RefreshTokens {
-		refreshCalls += Triple(accessToken, refreshToken, riskAttestation)
+		refreshCalls += Triple(accessToken, refreshToken, attestation)
 		throwable?.let { throw it }
 		return refreshTokens
 	}

@@ -3,8 +3,8 @@
     "method": "POST",
     "urlPath": "/auth/v1/token/refresh",
     "headers": {
-      "X-Risk-Attestation": {
-        "matches": "risk\\.mock\\.proof\\.(android|ios)"
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
       }
     },
     "bodyPatterns": [

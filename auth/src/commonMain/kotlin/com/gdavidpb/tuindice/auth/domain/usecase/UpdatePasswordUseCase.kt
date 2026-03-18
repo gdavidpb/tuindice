@@ -1,16 +1,16 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
+import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
-import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.base.utils.canonicalRiskPayloadJson
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensRiskPayload
+import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
+import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
+import com.gdavidpb.tuindice.auth.domain.model.IssueTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
@@ -24,25 +24,25 @@ class UpdatePasswordUseCase(
 	private val syncRepository: SyncRepository,
 	private val credentialsRepository: CredentialsRepository,
 	private val syncStatusRepository: SyncStatusRepository,
-	private val riskAttestationRepository: RiskAttestationRepository,
+	private val attestationRepository: AttestationRepository,
 	override val paramsValidator: UpdatePasswordParamsValidator,
 	override val exceptionHandler: UpdatePasswordExceptionHandler
 ) : FlowUseCase<String, Unit, SignInUseCaseError>() {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val usbId = sessionRepository.getUsbId()
-		val flow = IssueTokensFlow.ReissueTokens
-		val riskPayload = IssueTokensRiskPayload(
+		val flow = AttestedTokenFlow.ReissueTokens
+		val attestationPayload = IssueTokensAttestationPayload(
 			usbId = usbId,
 			password = params,
-			authFlow = flow.headerValue
+			attestedFlow = flow.headerValue
 		)
 
-		val riskAttestation = riskAttestationRepository.issueProof(
-			request = RiskAttestationRequest(
+		val attestation = attestationRepository.attest(
+			request = AttestationRequest(
 				operation = flow.operation,
-				payloadJson = canonicalRiskPayloadJson(
-					serializer = IssueTokensRiskPayload.serializer(),
-					value = riskPayload
+				payloadJson = canonicalAttestationPayloadJson(
+					serializer = IssueTokensAttestationPayload.serializer(),
+					value = attestationPayload
 				)
 			)
 		)
@@ -50,8 +50,8 @@ class UpdatePasswordUseCase(
 		authRepository.issueTokens(
 			usbId = usbId,
 			password = params,
-			flow = flow,
-			riskAttestation = riskAttestation
+			attestedFlow = flow,
+			attestation = attestation
 		)
 
 		credentialsRepository.setPassword(

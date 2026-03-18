@@ -1,15 +1,15 @@
 package com.gdavidpb.tuindice.base.data.model
 
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestationEvidenceMode
+import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class IssueRiskAttestationTokenRequest(
+data class IssueAttestationTokenRequest(
 	@SerialName("session_id") val sessionId: String,
 	@SerialName("operation_code") val operationCode: String,
 	@SerialName("request_hash") val requestHash: String,
-	@SerialName("evidence_mode") val evidenceMode: RiskAttestationEvidenceMode,
+	@SerialName("evidence_mode") val evidenceMode: AttestationEvidenceMode,
 	@SerialName("token") val token: String,
 	@SerialName("key_id") val keyId: String? = null
 )

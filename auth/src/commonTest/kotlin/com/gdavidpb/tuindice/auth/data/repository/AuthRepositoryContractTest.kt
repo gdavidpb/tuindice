@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.auth.testing.DEFAULT_AUTH_ATTESTATION
 import com.gdavidpb.tuindice.auth.testing.DEFAULT_REFRESH_TOKENS
 import com.gdavidpb.tuindice.auth.testing.FakeAuthApiDataSource
 import com.gdavidpb.tuindice.auth.testing.FakeSessionRepository
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
+import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -25,8 +25,8 @@ class AuthRepositoryContractTest {
 		repository.issueTokens(
 			usbId = "20261234",
 			password = "secret123",
-			flow = IssueTokensFlow.IssueTokens,
-			riskAttestation = DEFAULT_AUTH_ATTESTATION
+			attestedFlow = AttestedTokenFlow.IssueTokens,
+			attestation = DEFAULT_AUTH_ATTESTATION
 		)
 
 		assertEquals("20261234", sessionRepository.getUsbId())
@@ -34,7 +34,7 @@ class AuthRepositoryContractTest {
 		assertEquals("refresh-token", sessionRepository.getRefreshToken())
 		assertEquals("uid-123", reportingRepository.identifier)
 		assertEquals(1, authDataSource.issueCalls.size)
-		assertEquals(IssueTokensFlow.IssueTokens, authDataSource.issueCalls.single().flow)
+		assertEquals(AttestedTokenFlow.IssueTokens, authDataSource.issueCalls.single().flow)
 	}
 
 	@Test
@@ -50,13 +50,13 @@ class AuthRepositoryContractTest {
 		repository.issueTokens(
 			usbId = "20261234",
 			password = "new-secret",
-			flow = IssueTokensFlow.ReissueTokens,
-			riskAttestation = DEFAULT_AUTH_ATTESTATION
+			attestedFlow = AttestedTokenFlow.ReissueTokens,
+			attestation = DEFAULT_AUTH_ATTESTATION
 		)
 
 		assertEquals("access-token", sessionRepository.getAccessToken())
 		assertEquals("refresh-token", sessionRepository.getRefreshToken())
-		assertEquals(IssueTokensFlow.ReissueTokens, authDataSource.issueCalls.single().flow)
+		assertEquals(AttestedTokenFlow.ReissueTokens, authDataSource.issueCalls.single().flow)
 	}
 
 	@Test
@@ -71,7 +71,7 @@ class AuthRepositoryContractTest {
 		val tokens = repository.refreshTokens(
 			accessToken = "old-access",
 			refreshToken = "old-refresh",
-			riskAttestation = DEFAULT_AUTH_ATTESTATION
+			attestation = DEFAULT_AUTH_ATTESTATION
 		)
 
 		assertEquals(DEFAULT_REFRESH_TOKENS, tokens)

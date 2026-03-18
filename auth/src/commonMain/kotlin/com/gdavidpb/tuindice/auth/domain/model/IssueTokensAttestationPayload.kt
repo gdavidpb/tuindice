@@ -4,8 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class IssueTokensRiskPayload(
+data class IssueTokensAttestationPayload(
     @SerialName("usb_id") val usbId: String,
     @SerialName("password") val password: String,
-    @SerialName("auth_flow") val authFlow: String
+    @SerialName("attested_flow") val attestedFlow: String
 )

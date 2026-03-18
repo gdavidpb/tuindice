@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CreateRiskAttestationSessionRequest(
+data class CreateAttestationSessionRequest(
 	@SerialName("platform") val platform: String,
 	@SerialName("key_id") val keyId: String? = null
 )

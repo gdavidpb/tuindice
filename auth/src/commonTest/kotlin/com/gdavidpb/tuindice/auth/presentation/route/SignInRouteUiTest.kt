@@ -6,7 +6,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
+import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
@@ -135,7 +135,7 @@ class SignInRouteUiTest {
 		assertEquals(1, summaryNavigations)
 		assertEquals("12-34567", call.usbId)
 		assertEquals("1234", call.password)
-		assertEquals(IssueTokensFlow.IssueTokens, call.flow)
+		assertEquals(AttestedTokenFlow.IssueTokens, call.flow)
 		assertTrue(shownSnackBars.isEmpty())
 	}
 
@@ -265,7 +265,7 @@ class SignInRouteUiTest {
 			syncRepository = FakeSyncRepository(),
 			credentialsRepository = FakeCredentialsRepository(),
 			syncStatusRepository = FakeSyncStatusRepository(),
-			riskAttestationRepository = FakeAttestationRepository(),
+			attestationRepository = FakeAttestationRepository(),
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
 				networkRepository = FakeNetworkRepository(isAvailable = networkAvailable),

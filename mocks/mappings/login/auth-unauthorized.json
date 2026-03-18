@@ -6,10 +6,10 @@
       "Authorization": {
         "doesNotMatch": "Basic MTEtMTExMTE6MTIzNDU2"
       },
-      "X-Risk-Attestation": {
-        "matches": "risk\\.mock\\.proof\\.(android|ios)"
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
       },
-      "X-Auth-Flow": {
+      "X-Attested-Flow": {
         "matches": "(issue|reissue)_tokens"
       }
     }

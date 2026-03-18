@@ -5,18 +5,18 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.auth.di.authModule
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
+import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestation
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
+import com.gdavidpb.tuindice.base.domain.model.Attestation
+import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
@@ -142,14 +142,14 @@ class TuIndiceAppHostRouteUiTest {
 							override suspend fun issueTokens(
 								usbId: String,
 								password: String,
-								flow: IssueTokensFlow,
-								riskAttestation: RiskAttestation
+								attestedFlow: AttestedTokenFlow,
+								attestation: Attestation
 							) = Unit
 
 							override suspend fun refreshTokens(
 								accessToken: String,
 								refreshToken: String,
-								riskAttestation: RiskAttestation
+								attestation: Attestation
 							): RefreshTokens = error("refreshTokens should not be called in this test")
 
 							override suspend fun revokeTokens() = Unit
@@ -159,10 +159,10 @@ class TuIndiceAppHostRouteUiTest {
 					single<SyncRepository> { FakeSyncRepository() }
 					single<CredentialsRepository> { FakeCredentialsRepository() }
 					single<SyncStatusRepository> { syncStatusRepository }
-					single<RiskAttestationRepository> {
-						object : RiskAttestationRepository {
-							override suspend fun issueProof(request: RiskAttestationRequest): RiskAttestation {
-								return RiskAttestation(token = "token")
+					single<AttestationRepository> {
+						object : AttestationRepository {
+							override suspend fun attest(request: AttestationRequest): Attestation {
+								return Attestation(token = "token")
 							}
 						}
 					}

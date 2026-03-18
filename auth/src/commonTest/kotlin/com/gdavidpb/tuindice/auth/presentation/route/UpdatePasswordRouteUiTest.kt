@@ -7,7 +7,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensFlow
+import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsValidator
@@ -89,7 +89,7 @@ class UpdatePasswordRouteUiTest {
 		val call = fixture.authRepository.issueTokensCalls.first()
 		assertEquals("12-34567", call.usbId)
 		assertEquals("nueva-clave-segura", call.password)
-		assertEquals(IssueTokensFlow.ReissueTokens, call.flow)
+		assertEquals(AttestedTokenFlow.ReissueTokens, call.flow)
 		assertEquals(1, dismissCalls)
 		assertEquals(1, snackBarMessages.size)
 	}
@@ -154,7 +154,7 @@ class UpdatePasswordRouteUiTest {
 			syncRepository = FakeSyncRepository(),
 			credentialsRepository = FakeCredentialsRepository(),
 			syncStatusRepository = FakeSyncStatusRepository(),
-			riskAttestationRepository = FakeAttestationRepository(),
+			attestationRepository = FakeAttestationRepository(),
 			paramsValidator = UpdatePasswordParamsValidator(),
 			exceptionHandler = UpdatePasswordExceptionHandler(
 				networkRepository = FakeNetworkRepository(),

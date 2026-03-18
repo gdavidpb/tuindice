@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
@@ -39,7 +39,7 @@ class AuthModuleKoinSmokeTest {
 		module {
 			single<AuthRepository> { RecordingAuthRepository() }
 			single<MessagingRepository> { RecordingMessagingRepository() }
-			single<RiskAttestationRepository> { FakeAttestationRepository() }
+			single<AttestationRepository> { FakeAttestationRepository() }
 			single<SessionRepository> { FakeSessionRepository() }
 			single<SyncRepository> { FakeSyncRepository() }
 			single<CredentialsRepository> { FakeCredentialsRepository() }

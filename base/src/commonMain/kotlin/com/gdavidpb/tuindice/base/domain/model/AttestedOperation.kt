@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.base.domain.model
 
-enum class RiskOperation(
+enum class AttestedOperation(
     val code: String
 ) {
     IssueTokens("auth.issue_tokens"),

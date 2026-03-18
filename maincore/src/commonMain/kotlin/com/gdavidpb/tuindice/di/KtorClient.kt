@@ -1,15 +1,16 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
+import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
-import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
-import com.gdavidpb.tuindice.base.utils.canonicalRiskPayloadJson
-import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensRiskPayload
+import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
+import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
@@ -39,7 +40,7 @@ fun createSharedHttpClient(
 	appEnvironmentRepository: AppEnvironmentRepository,
 	configRepository: ConfigRepository,
 	sessionRepository: SessionRepository,
-	riskAttestationRepositoryProvider: () -> RiskAttestationRepository,
+	attestationRepositoryProvider: () -> AttestationRepository,
 	authRepositoryProvider: () -> AuthRepository,
 	credentialsRepositoryProvider: () -> CredentialsRepository,
 	syncRepositoryProvider: () -> SyncRepository,
@@ -80,7 +81,7 @@ fun createSharedHttpClient(
 			sanitizeHeader { header ->
 				header == HttpHeaders.Authorization ||
 						header == "X-Forwarded-Authorization" ||
-						header == "X-Risk-Attestation"
+						header == AttestationHeaders.ATTESTATION_TOKEN
 			}
 		}
 
@@ -102,22 +103,22 @@ fun createSharedHttpClient(
 				refreshTokens {
 					val oldAccessToken = oldTokens?.accessToken ?: sessionRepository.getAccessToken()
 					val oldRefreshToken = oldTokens?.refreshToken ?: sessionRepository.getRefreshToken()
-					val riskAttestationRepository = riskAttestationRepositoryProvider()
+					val attestationRepository = attestationRepositoryProvider()
 					val authRepository = authRepositoryProvider()
 					val credentialsRepository = credentialsRepositoryProvider()
 					val syncRepository = syncRepositoryProvider()
 
-					val riskPayload = RefreshTokensRiskPayload(
+					val attestationPayload = RefreshTokensAttestationPayload(
 						accessToken = oldAccessToken,
 						refreshToken = oldRefreshToken
 					)
 
-					val riskAttestation = riskAttestationRepository.issueProof(
-						request = RiskAttestationRequest(
-							operation = com.gdavidpb.tuindice.base.domain.model.RiskOperation.RefreshTokens,
-							payloadJson = canonicalRiskPayloadJson(
-								serializer = RefreshTokensRiskPayload.serializer(),
-								value = riskPayload
+					val attestation = attestationRepository.attest(
+						request = AttestationRequest(
+							operation = com.gdavidpb.tuindice.base.domain.model.AttestedOperation.RefreshTokens,
+							payloadJson = canonicalAttestationPayloadJson(
+								serializer = RefreshTokensAttestationPayload.serializer(),
+								value = attestationPayload
 							)
 						)
 					)
@@ -125,7 +126,7 @@ fun createSharedHttpClient(
 					val response = authRepository.refreshTokens(
 						accessToken = oldAccessToken,
 						refreshToken = oldRefreshToken,
-						riskAttestation = riskAttestation
+						attestation = attestation
 					)
 
 					if (credentialsRepository.hasPassword()) {

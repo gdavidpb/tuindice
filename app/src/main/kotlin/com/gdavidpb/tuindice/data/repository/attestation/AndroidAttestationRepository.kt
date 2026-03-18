@@ -1,13 +1,13 @@
 package com.gdavidpb.tuindice.data.repository.attestation
 
-import com.gdavidpb.tuindice.base.data.model.CreateRiskAttestationSessionRequest
-import com.gdavidpb.tuindice.base.data.model.CreateRiskAttestationSessionResponse
-import com.gdavidpb.tuindice.base.data.model.IssueRiskAttestationTokenRequest
-import com.gdavidpb.tuindice.base.data.model.IssueRiskAttestationTokenResponse
+import com.gdavidpb.tuindice.base.data.model.CreateAttestationSessionRequest
+import com.gdavidpb.tuindice.base.data.model.CreateAttestationSessionResponse
+import com.gdavidpb.tuindice.base.data.model.IssueAttestationTokenRequest
+import com.gdavidpb.tuindice.base.data.model.IssueAttestationTokenResponse
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestation
-import com.gdavidpb.tuindice.base.domain.model.RiskAttestationRequest
-import com.gdavidpb.tuindice.base.domain.repository.RiskAttestationRepository
+import com.gdavidpb.tuindice.base.domain.model.Attestation
+import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
@@ -15,19 +15,19 @@ import io.ktor.client.request.setBody
 import java.security.MessageDigest
 import kotlin.io.encoding.Base64
 
-class RiskAttestationDataRepository(
+class AndroidAttestationRepository(
 	private val ktorClient: HttpClient,
 	private val providerDataSource: AttestationProviderDataSource
-) : RiskAttestationRepository {
-	override suspend fun issueProof(request: RiskAttestationRequest): RiskAttestation {
+) : AttestationRepository {
+	override suspend fun attest(request: AttestationRequest): Attestation {
 		val requestHash = sha256Base64Url(request.payloadJson)
 		val session = ktorClient.post("attestation/v2/sessions") {
 			setBody(
-				CreateRiskAttestationSessionRequest(
+				CreateAttestationSessionRequest(
 					platform = PLATFORM_ANDROID
 				)
 			)
-		}.body<CreateRiskAttestationSessionResponse>()
+		}.body<CreateAttestationSessionResponse>()
 
 		val bindingValue = sha256Base64Url(
 			"${session.sessionId}:${session.challenge}:${request.operation.code}:$requestHash"
@@ -40,7 +40,7 @@ class RiskAttestationDataRepository(
 
 		val response = ktorClient.post("attestation/v2/tokens") {
 			setBody(
-				IssueRiskAttestationTokenRequest(
+				IssueAttestationTokenRequest(
 					sessionId = session.sessionId,
 					operationCode = request.operation.code,
 					requestHash = requestHash,
@@ -49,9 +49,9 @@ class RiskAttestationDataRepository(
 					keyId = providerAttestation.keyId
 				)
 			)
-		}.body<IssueRiskAttestationTokenResponse>()
+		}.body<IssueAttestationTokenResponse>()
 
-		return RiskAttestation(token = response.token)
+		return Attestation(token = response.token)
 	}
 
 	private fun sha256Base64Url(value: String): String {

@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class RiskAttestationEvidenceMode(val value: String) {
+enum class AttestationEvidenceMode(val value: String) {
 	@SerialName("play_integrity")
 	PLAY_INTEGRITY("play_integrity"),
 

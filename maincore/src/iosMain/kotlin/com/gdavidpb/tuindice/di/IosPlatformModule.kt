@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
-import com.gdavidpb.tuindice.data.repository.attestation.IosRiskAttestationDataRepository
+import com.gdavidpb.tuindice.data.repository.attestation.IosAttestationDataRepository
 import com.gdavidpb.tuindice.data.repository.messaging.source.IosPushTokenDataSource
 import com.gdavidpb.tuindice.data.source.actions.IosFileOpenerDataSource
 import com.gdavidpb.tuindice.data.source.application.IosApplicationDataSource
@@ -110,8 +110,8 @@ private fun Module.registerIosPlatformServices() {
 			ktorClient = get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
 		)
 	}
-	factory<RiskAttestationRepository> {
-		IosRiskAttestationDataRepository(
+	factory<AttestationRepository> {
+		IosAttestationDataRepository(
 			httpClientProvider = {
 				get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
 			},
@@ -143,7 +143,7 @@ private fun Module.registerIosPlatformNetworking() {
 			appEnvironmentRepository = get<AppEnvironmentRepository>(),
 			configRepository = get<ConfigRepository>(),
 			sessionRepository = get<SessionRepository>(),
-			riskAttestationRepositoryProvider = { get<RiskAttestationRepository>() },
+			attestationRepositoryProvider = { get<AttestationRepository>() },
 			authRepositoryProvider = { get<AuthRepository>() },
 			credentialsRepositoryProvider = { get<CredentialsRepository>() },
 			syncRepositoryProvider = { get<SyncRepository>() },
