@@ -432,7 +432,7 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         #endif
     }
 
-    func setCustomKey(key: String, value: String) {
+    func setCustomKey(key: String, value_ value: String) {
         #if canImport(FirebaseCrashlytics)
         guard isFirebaseConfigured else { return }
         Crashlytics.crashlytics().setCustomValue(value, forKey: key)
