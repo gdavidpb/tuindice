@@ -84,6 +84,27 @@ class ProfilePictureViewUiTest {
 	}
 
 	@Test
+	fun when_pictureInteractionIsDisabled_then_disablesContainerAndEditButtonWithoutLoader() = runTuIndiceUiTest {
+		var pictureClicks = 0
+
+		setTuIndiceTestContent {
+			ProfilePictureView(
+				isEnabled = false,
+				state = ProfilePictureState(
+					url = "https://tuindice.test/profile.jpg",
+					isLoading = false
+				),
+				onLoading = {},
+				onClick = { pictureClicks++ }
+			)
+		}
+
+		assertNodeDisabled(SummaryUiTags.ProfilePictureContainer)
+		assertNodeDisabled(SummaryUiTags.ProfilePictureEditButton)
+		assertEquals(0, pictureClicks)
+	}
+
+	@Test
 	fun when_pictureUrlIsBlank_then_notifiesLoadingAsFalse() = runTuIndiceUiTest {
 		val loadingEvents = mutableListOf<Boolean>()
 

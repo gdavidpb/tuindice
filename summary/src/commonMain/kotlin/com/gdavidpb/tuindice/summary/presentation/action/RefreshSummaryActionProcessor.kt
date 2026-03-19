@@ -28,11 +28,12 @@ class RefreshSummaryActionProcessor(
 		return updateUserUseCase.execute(Unit)
 			.mapNotNull { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading,
-					is UseCaseState.Data -> null
+					is UseCaseState.Loading -> null
+
+					is UseCaseState.Data -> ::stopRefreshing
 
 					is UseCaseState.Error -> when (val error = useCaseState.error) {
-						is UpdateUserUseCaseError.NoConnection -> {
+						is UpdateUserUseCaseError.NoConnection ->
 							suspend { _: Summary.State ->
 								val message = if (error.isNetworkAvailable)
 									getString(Res.string.snack_service_unavailable)
@@ -45,11 +46,10 @@ class RefreshSummaryActionProcessor(
 									)
 								)
 
-								Summary.State.Failed
+								Summary.State.Failed()
 							}
-						}
 
-						is UpdateUserUseCaseError.Timeout -> {
+						is UpdateUserUseCaseError.Timeout ->
 							suspend { _: Summary.State ->
 								val message = getString(Res.string.snack_timeout)
 
@@ -59,12 +59,11 @@ class RefreshSummaryActionProcessor(
 									)
 								)
 
-								Summary.State.Failed
+								Summary.State.Failed()
 							}
-						}
 
 						is UpdateUserUseCaseError.Unavailable,
-						UpdateUserUseCaseError.NotFound -> {
+						UpdateUserUseCaseError.NotFound ->
 							suspend { state: Summary.State ->
 								val message = getString(Res.string.snack_no_service)
 
@@ -75,13 +74,12 @@ class RefreshSummaryActionProcessor(
 								)
 
 								if (state is Summary.State.Content)
-									state
+									state.copy(isUserRefreshing = false)
 								else
-									Summary.State.Failed
+									Summary.State.Failed()
 							}
-						}
 
-						else -> {
+						else ->
 							suspend { _: Summary.State ->
 								val message = getString(Res.string.snack_default_error)
 
@@ -91,19 +89,39 @@ class RefreshSummaryActionProcessor(
 									)
 								)
 
-								Summary.State.Failed
+								Summary.State.Failed()
 							}
-						}
 					}
 				}
 			}
 			.onStart {
-				emit { state ->
-					if (state is Summary.State.Content)
-						state
-					else
-						Summary.State.Loading
-				}
+				emit(::startRefreshing)
 			}
+	}
+
+	private suspend fun startRefreshing(state: Summary.State): Summary.State {
+		return when (state) {
+			is Summary.State.Content ->
+				state.copy(isUserRefreshing = true)
+
+			is Summary.State.Loading ->
+				state.copy(isUserRefreshing = true)
+
+			is Summary.State.Failed ->
+				Summary.State.Loading(isUserRefreshing = true)
+		}
+	}
+
+	private suspend fun stopRefreshing(state: Summary.State): Summary.State {
+		return when (state) {
+			is Summary.State.Content ->
+				state.copy(isUserRefreshing = false)
+
+			is Summary.State.Loading ->
+				state.copy(isUserRefreshing = false)
+
+			is Summary.State.Failed ->
+				state.copy(isUserRefreshing = false)
+		}
 	}
 }

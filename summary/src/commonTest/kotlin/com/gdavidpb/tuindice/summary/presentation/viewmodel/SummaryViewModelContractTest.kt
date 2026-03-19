@@ -41,7 +41,7 @@ class SummaryViewModelContractTest {
 
 		try {
 			viewModel.state.test {
-				assertEquals(Summary.State.Loading, awaitItem())
+				assertEquals(Summary.State.Loading(), awaitItem())
 
 				val content = assertIs<Summary.State.Content>(awaitItem())
 				assertEquals("Ana Diaz", content.name)

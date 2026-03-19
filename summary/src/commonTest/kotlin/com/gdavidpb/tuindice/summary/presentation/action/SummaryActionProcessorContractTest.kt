@@ -44,7 +44,7 @@ class SummaryActionProcessorContractTest {
 			action = Summary.Action.ObserveSummary,
 			sideEffect = effects::add
 		).test {
-			val content = assertIs<Summary.State.Content>(awaitItem()(Summary.State.Loading))
+			val content = assertIs<Summary.State.Content>(awaitItem()(Summary.State.Loading()))
 			assertEquals("Ana Diaz", content.name)
 			assertEquals(
 				getString(
@@ -73,7 +73,7 @@ class SummaryActionProcessorContractTest {
 			action = Summary.Action.ObserveSummary,
 			sideEffect = {}
 		).test {
-			val content = assertIs<Summary.State.Content>(awaitItem()(Summary.State.Loading))
+			val content = assertIs<Summary.State.Content>(awaitItem()(Summary.State.Loading()))
 			assertEquals("Última actualización: Nunca", content.lastUpdate)
 
 			awaitComplete()
@@ -90,8 +90,11 @@ class SummaryActionProcessorContractTest {
 			action = Summary.Action.RefreshSummary,
 			sideEffect = {}
 		).test {
-			val loading = awaitItem()(Summary.State.Failed)
-			assertEquals(Summary.State.Loading, loading)
+			val loading = awaitItem()(Summary.State.Failed())
+			assertEquals(Summary.State.Loading(isUserRefreshing = true), loading)
+
+			val idleLoading = awaitItem()(loading)
+			assertEquals(Summary.State.Loading(isUserRefreshing = false), idleLoading)
 
 			awaitComplete()
 		}
@@ -126,8 +129,8 @@ class SummaryActionProcessorContractTest {
 			failedSubjects = DEFAULT_SUMMARY_USER.failedSubjects,
 			failedCredits = DEFAULT_SUMMARY_USER.failedCredits,
 			profilePictureUrl = DEFAULT_SUMMARY_USER.pictureUrl,
-			isGradeVisible = true,
-			isProfilePictureLoading = false
+			isProfilePictureLoading = false,
+			isUserRefreshing = false
 		)
 		val effects = mutableListOf<Summary.Effect>()
 
@@ -139,7 +142,7 @@ class SummaryActionProcessorContractTest {
 			assertTrue(loading.isProfilePictureLoading)
 
 			val content = assertIs<Summary.State.Content>(awaitItem()(loading))
-			assertEquals("https://cdn.tuindice.app/profile/updated.jpg", content.profilePictureUrl)
+			assertEquals(DEFAULT_SUMMARY_USER.pictureUrl, content.profilePictureUrl)
 			assertEquals(false, content.isProfilePictureLoading)
 
 			awaitComplete()
@@ -183,8 +186,8 @@ class SummaryActionProcessorContractTest {
 			failedSubjects = DEFAULT_SUMMARY_USER.failedSubjects,
 			failedCredits = DEFAULT_SUMMARY_USER.failedCredits,
 			profilePictureUrl = DEFAULT_SUMMARY_USER.pictureUrl,
-			isGradeVisible = true,
-			isProfilePictureLoading = false
+			isProfilePictureLoading = false,
+			isUserRefreshing = false
 		)
 		val effects = mutableListOf<Summary.Effect>()
 
@@ -207,7 +210,7 @@ class SummaryActionProcessorContractTest {
 	}
 
 	@Test
-	fun confirmRemoveProfilePictureActionProcessor_treatsNotFoundAsSuccessAndClearsPicture() = runTest {
+	fun confirmRemoveProfilePictureActionProcessor_treatsNotFoundAsSuccessAndStopsLoading() = runTest {
 		val processor = ConfirmRemoveProfilePictureActionProcessor(
 			removeProfilePictureUseCase = RemoveProfilePictureUseCase(
 				userRepository = RecordingUserRepository(
@@ -239,8 +242,8 @@ class SummaryActionProcessorContractTest {
 			failedSubjects = DEFAULT_SUMMARY_USER.failedSubjects,
 			failedCredits = DEFAULT_SUMMARY_USER.failedCredits,
 			profilePictureUrl = DEFAULT_SUMMARY_USER.pictureUrl,
-			isGradeVisible = true,
-			isProfilePictureLoading = false
+			isProfilePictureLoading = false,
+			isUserRefreshing = false
 		)
 		val effects = mutableListOf<Summary.Effect>()
 
@@ -252,7 +255,7 @@ class SummaryActionProcessorContractTest {
 			assertTrue(loading.isProfilePictureLoading)
 
 			val content = assertIs<Summary.State.Content>(awaitItem()(loading))
-			assertEquals("", content.profilePictureUrl)
+			assertEquals(DEFAULT_SUMMARY_USER.pictureUrl, content.profilePictureUrl)
 			assertEquals(false, content.isProfilePictureLoading)
 
 			awaitComplete()
@@ -260,6 +263,24 @@ class SummaryActionProcessorContractTest {
 
 		val effect = assertIs<Summary.Effect.ShowSnackBar>(effects.single())
 		assertEquals(getString(Res.string.snack_profile_picture_removed), effect.message)
+	}
+
+	@Test
+	fun openProfilePictureSettingsActionProcessor_ignoresActionWhileUserIsRefreshing() = runTest {
+		val processor = OpenProfilePictureSettingsActionProcessor()
+		val effects = mutableListOf<Summary.Effect>()
+
+		processor.process(
+			action = Summary.Action.OpenProfilePictureSettings,
+			sideEffect = effects::add
+		).test {
+			val state = summaryStateContent(isUserRefreshing = true)
+
+			assertEquals(state, awaitItem()(state))
+			awaitComplete()
+		}
+
+		assertTrue(effects.isEmpty())
 	}
 
 	private fun createObserveSummaryActionProcessor(
@@ -283,6 +304,31 @@ class SummaryActionProcessorContractTest {
 					reportingRepository = RecordingReportingRepository()
 				)
 			)
+		)
+	}
+
+	private suspend fun summaryStateContent(
+		isUserRefreshing: Boolean = false
+	): Summary.State.Content {
+		return Summary.State.Content(
+			name = "Ana Diaz",
+			lastUpdate = getString(
+				Res.string.text_sync_healthy,
+				DEFAULT_SUMMARY_USER.lastUpdate.formatLastUpdate()
+			),
+			careerName = DEFAULT_SUMMARY_USER.careerName,
+			grade = DEFAULT_SUMMARY_USER.grade.toFloat(),
+			enrolledSubjects = DEFAULT_SUMMARY_USER.enrolledSubjects,
+			enrolledCredits = DEFAULT_SUMMARY_USER.enrolledCredits,
+			approvedSubjects = DEFAULT_SUMMARY_USER.approvedSubjects,
+			approvedCredits = DEFAULT_SUMMARY_USER.approvedCredits,
+			retiredSubjects = DEFAULT_SUMMARY_USER.retiredSubjects,
+			retiredCredits = DEFAULT_SUMMARY_USER.retiredCredits,
+			failedSubjects = DEFAULT_SUMMARY_USER.failedSubjects,
+			failedCredits = DEFAULT_SUMMARY_USER.failedCredits,
+			profilePictureUrl = DEFAULT_SUMMARY_USER.pictureUrl,
+			isProfilePictureLoading = false,
+			isUserRefreshing = isUserRefreshing
 		)
 	}
 }

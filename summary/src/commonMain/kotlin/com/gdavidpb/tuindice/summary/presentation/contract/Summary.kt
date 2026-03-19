@@ -11,9 +11,12 @@ object Summary {
 		override val topBarTitle: String = "Resumen",
 		override val topBarConfig: TopBarConfig = TopBarConfig.Summary,
 		override val isTopBarVisible: Boolean = true,
-		override val isBottomBarVisible: Boolean = true
+		override val isBottomBarVisible: Boolean = true,
+		open val isUserRefreshing: Boolean = false
 	) : ViewState() {
-		data object Loading : State()
+		data class Loading(
+			override val isUserRefreshing: Boolean = false
+		) : State(isUserRefreshing = isUserRefreshing)
 
 		data class Content(
 			val name: String,
@@ -29,11 +32,13 @@ object Summary {
 			val failedSubjects: Int,
 			val failedCredits: Int,
 			val profilePictureUrl: String,
-			val isGradeVisible: Boolean,
-			val isProfilePictureLoading: Boolean
-		) : State()
+			val isProfilePictureLoading: Boolean,
+			override val isUserRefreshing: Boolean
+		) : State(isUserRefreshing = isUserRefreshing)
 
-		data object Failed : State()
+		data class Failed(
+			override val isUserRefreshing: Boolean = false
+		) : State(isUserRefreshing = isUserRefreshing)
 	}
 
 	sealed class Action : ViewAction() {

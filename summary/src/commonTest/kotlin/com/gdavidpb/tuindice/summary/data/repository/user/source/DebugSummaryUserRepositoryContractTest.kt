@@ -42,7 +42,7 @@ class DebugSummaryUserRepositoryContractTest {
 		val picture = repository.uploadProfilePicture(file)
 
 		assertEquals(file.path, picture.url)
-		assertEquals(file.path, localDataSource.savedProfilePictureUrls.single())
+		assertEquals(file.path, localDataSource.savedUsers.last().pictureUrl)
 	}
 
 	@Test
@@ -57,6 +57,6 @@ class DebugSummaryUserRepositoryContractTest {
 
 		repository.removeProfilePicture()
 
-		assertEquals("", localDataSource.savedProfilePictureUrls.single())
+		assertEquals("", localDataSource.savedUsers.last().pictureUrl)
 	}
 }

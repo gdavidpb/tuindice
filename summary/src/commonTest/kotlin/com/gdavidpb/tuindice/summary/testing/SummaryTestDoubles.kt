@@ -83,24 +83,19 @@ class FakeLocalDataSource(
 	private val userState = MutableStateFlow(initialUser)
 
 	val savedUsers = mutableListOf<User>()
-	val savedProfilePictureUrls = mutableListOf<String>()
 
 	override fun getUserFlow(): Flow<User?> = userState
 
-	override suspend fun saveUser(user: User) {
+	override suspend fun updateUser(user: User) {
 		savedUsers += user
 		userState.value = user
-	}
-
-	override suspend fun saveProfilePicture(url: String) {
-		savedProfilePictureUrls += url
-		userState.value = userState.value?.copy(pictureUrl = url)
 	}
 }
 
 class FakeRemoteDataSource(
 	private val user: User = DEFAULT_SUMMARY_USER,
-	private val profilePicture: ProfilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE
+	private val profilePicture: ProfilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE,
+	private val removeThrowable: Throwable? = null
 ) : RemoteDataSource {
 	var getUserCalls = 0
 	val uploadCalls = mutableListOf<Pair<ByteArray, String>>()
@@ -118,6 +113,7 @@ class FakeRemoteDataSource(
 
 	override suspend fun removeProfilePicture() {
 		removeCalls++
+		removeThrowable?.let { throw it }
 	}
 }
 

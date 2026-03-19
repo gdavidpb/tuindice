@@ -20,7 +20,7 @@ class SummaryScreenUiTest {
 	fun when_stateIsLoading_then_displaysLoadingView() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryScreen(
-				state = Summary.State.Loading,
+				state = Summary.State.Loading(),
 				syncStatus = SyncStatus.Healthy,
 				onRetryClick = {},
 				onEditProfilePictureClick = {},
@@ -37,7 +37,7 @@ class SummaryScreenUiTest {
 
 		setTuIndiceTestContent {
 			SummaryScreen(
-				state = Summary.State.Failed,
+				state = Summary.State.Failed(),
 				syncStatus = SyncStatus.Healthy,
 				onRetryClick = { retryClicks++ },
 				onEditProfilePictureClick = {},

@@ -7,9 +7,10 @@ import com.gdavidpb.tuindice.summary.testing.FakeLocalDataSource
 import com.gdavidpb.tuindice.summary.testing.FakePictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.testing.FakeRemoteDataSource
 import com.gdavidpb.tuindice.summary.testing.FakeSettingsDataSource
+import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.github.vinceglb.filekit.PlatformFile
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -95,7 +96,10 @@ class UserRepositoryContractTest {
 
 		assertEquals(DEFAULT_SUMMARY_PROFILE_PICTURE, picture)
 		assertEquals(file, encoderDataSource.lastFile)
-		assertEquals(DEFAULT_SUMMARY_PROFILE_PICTURE.url, localDataSource.savedProfilePictureUrls.single())
+		assertEquals(
+			DEFAULT_SUMMARY_PROFILE_PICTURE.url,
+			localDataSource.savedUsers.single().pictureUrl
+		)
 		assertEquals("image/jpeg", remoteDataSource.uploadCalls.single().second)
 	}
 
@@ -112,7 +116,29 @@ class UserRepositoryContractTest {
 
 		repository.removeProfilePicture()
 
-		assertEquals(listOf(""), localDataSource.savedProfilePictureUrls)
+		assertEquals("", localDataSource.savedUsers.single().pictureUrl)
+		assertEquals(1, remoteDataSource.removeCalls)
+	}
+
+	@Test
+	fun removeProfilePicture_clearsLocalPicture_whenRemoteReturnsNotFound() = runTest {
+		val localDataSource = FakeLocalDataSource()
+		val remoteDataSource = FakeRemoteDataSource(
+			removeThrowable = clientRequestException(
+				statusCode = HttpStatusCode.NotFound,
+				path = "/users/v1/picture"
+			)
+		)
+		val repository = UserDataRepository(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			pictureEncoderDataSource = FakePictureEncoderDataSource()
+		)
+
+		repository.removeProfilePicture()
+
+		assertEquals("", localDataSource.savedUsers.single().pictureUrl)
 		assertEquals(1, remoteDataSource.removeCalls)
 	}
 }

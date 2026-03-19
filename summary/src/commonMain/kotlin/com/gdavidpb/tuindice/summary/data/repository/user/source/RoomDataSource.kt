@@ -16,13 +16,9 @@ class RoomDataSource(
 			.map { userEntity -> userEntity?.toUser() }
 	}
 
-	override suspend fun saveUser(user: User) {
+	override suspend fun updateUser(user: User) {
 		val userEntity = user.toUserEntity()
 
 		room.users.upsertEntities(listOf(userEntity))
-	}
-
-	override suspend fun saveProfilePicture(url: String) {
-		room.users.updateProfilePicture(url)
 	}
 }

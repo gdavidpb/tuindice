@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.summary.presentation.route
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.domain.model.User
@@ -37,8 +39,10 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -72,7 +76,7 @@ class SummaryRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			viewModel.state.value is Summary.State.Content
+			(viewModel.state.value as? Summary.State.Content)?.isUserRefreshing == false
 		}
 
 		assertEquals(0, outdatedPasswordNavigations)
@@ -104,7 +108,7 @@ class SummaryRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			viewModel.state.value is Summary.State.Content
+			(viewModel.state.value as? Summary.State.Content)?.isUserRefreshing == false
 		}
 
 		runOnIdle {
@@ -142,7 +146,7 @@ class SummaryRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			viewModel.state.value is Summary.State.Content
+			(viewModel.state.value as? Summary.State.Content)?.isUserRefreshing == false
 		}
 
 		onNodeWithTag(SummaryUiTags.ProfilePictureEditButton).performClick()
@@ -153,6 +157,45 @@ class SummaryRouteUiTest {
 
 		assertEquals(listOf(true), profilePictureSettingsNavigations)
 		assertTrue(shownSnackBars.isEmpty())
+	}
+
+	@Test
+	fun when_userRefreshIsRunning_then_profilePictureEditRemainsDisabledUntilRefreshCompletes() = runTuIndiceUiTest {
+		val userRepository = BlockingRefreshUserRepository()
+		val viewModel = createSummaryViewModel(userRepository = userRepository)
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val profilePictureSettingsNavigations = mutableListOf<Boolean>()
+
+		setTuIndiceTestContent {
+			SummaryRoute(
+				onNavigateToUpdatePassword = {},
+				onNavigateToProfilePictureSettingsDialog = { showRemove ->
+					profilePictureSettingsNavigations += showRemove
+				},
+				onNavigateToRemoveProfilePictureConfirmationDialog = {},
+				showSnackBar = {},
+				viewModel = viewModel,
+				syncStatusRepository = syncStatusRepository
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			(viewModel.state.value as? Summary.State.Content)?.isUserRefreshing == true
+		}
+
+		onNodeWithTag(SummaryUiTags.ProfilePictureEditButton).assertIsNotEnabled()
+		assertTrue(profilePictureSettingsNavigations.isEmpty())
+
+		runOnIdle {
+			userRepository.completeRefresh()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			(viewModel.state.value as? Summary.State.Content)?.isUserRefreshing == false
+		}
+
+		onNodeWithTag(SummaryUiTags.ProfilePictureEditButton).assertIsEnabled()
+		assertTrue(profilePictureSettingsNavigations.isEmpty())
 	}
 
 	@Test
@@ -285,7 +328,7 @@ class SummaryRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			viewModel.state.value is Summary.State.Content
+			(viewModel.state.value as? Summary.State.Content)?.isUserRefreshing == false
 		}
 
 		runOnIdle {
@@ -464,5 +507,23 @@ class SummaryRouteUiTest {
 		override suspend fun uploadProfilePicture(file: PlatformFile) = DEFAULT_SUMMARY_PROFILE_PICTURE
 
 		override suspend fun removeProfilePicture() = Unit
+	}
+
+	private class BlockingRefreshUserRepository : UserRepository {
+		private val releaseRefresh = CompletableDeferred<Unit>()
+
+		override suspend fun observeUserFlow() = flowOf(DEFAULT_SUMMARY_USER)
+
+		override suspend fun updateUser() {
+			releaseRefresh.await()
+		}
+
+		override suspend fun uploadProfilePicture(file: PlatformFile) = DEFAULT_SUMMARY_PROFILE_PICTURE
+
+		override suspend fun removeProfilePicture() = Unit
+
+		fun completeRefresh() {
+			releaseRefresh.complete(Unit)
+		}
 	}
 }

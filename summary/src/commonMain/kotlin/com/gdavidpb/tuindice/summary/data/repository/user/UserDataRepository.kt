@@ -1,11 +1,13 @@
 package com.gdavidpb.tuindice.summary.data.repository.user
 
 import com.gdavidpb.tuindice.base.domain.model.User
+import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
 
 class UserDataRepository(
@@ -25,7 +27,7 @@ class UserDataRepository(
 
 		val remoteUser = remoteDataSource.getUser()
 
-		localDataSource.saveUser(user = remoteUser)
+		localDataSource.updateUser(user = remoteUser)
 		settingsDataSource.setGetUserOnCooldown()
 	}
 
@@ -36,12 +38,25 @@ class UserDataRepository(
 			content = encodedImage.content,
 			mimeType = encodedImage.mimeType
 		).also { profilePicture ->
-			localDataSource.saveProfilePicture(url = profilePicture.url)
+			updateLocalProfilePicture(url = profilePicture.url)
 		}
 	}
 
 	override suspend fun removeProfilePicture() {
-		remoteDataSource.removeProfilePicture()
-		localDataSource.saveProfilePicture(url = "")
+		runCatching { remoteDataSource.removeProfilePicture() }
+			.onFailure { throwable ->
+				if (!throwable.isNotFound())
+					throw throwable
+			}
+
+		updateLocalProfilePicture(url = "")
+	}
+
+	private suspend fun updateLocalProfilePicture(url: String) {
+		val currentUser = checkNotNull(localDataSource.getUserFlow().first()) {
+			"Expected a local user before updating the profile picture."
+		}
+
+		localDataSource.updateUser(user = currentUser.copy(pictureUrl = url))
 	}
 }

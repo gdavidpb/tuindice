@@ -34,6 +34,7 @@ import tuindice.summary.generated.resources.il_profile_picture_placeholder_owl
 @Composable
 fun ProfilePictureView(
 	modifier: Modifier = Modifier,
+	isEnabled: Boolean = true,
 	state: ProfilePictureState,
 	onLoading: (isLoading: Boolean) -> Unit,
 	onClick: () -> Unit
@@ -58,7 +59,7 @@ fun ProfilePictureView(
 		modifier = modifier
 			.testTag(SummaryUiTags.ProfilePictureContainer)
 			.clickable(
-				enabled = !state.isLoading,
+				enabled = isEnabled && !state.isLoading,
 				onClick = onClick
 			)
 	) {
@@ -94,7 +95,7 @@ fun ProfilePictureView(
 				.testTag(SummaryUiTags.ProfilePictureEditButton)
 				.size(42.dp)
 				.align(Alignment.BottomEnd),
-			enabled = !state.isLoading,
+			enabled = isEnabled && !state.isLoading,
 			colors = IconButtonDefaults.filledIconButtonColors(),
 			onClick = onClick
 		) {

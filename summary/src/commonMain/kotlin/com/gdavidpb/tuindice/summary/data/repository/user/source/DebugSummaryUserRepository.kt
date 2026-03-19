@@ -73,7 +73,7 @@ class DebugSummaryUserRepository(
 		}
 
 		delay(pictureOperationDelayMillis)
-		localDataSource.saveProfilePicture(url = localPicturePath)
+		updateLocalProfilePicture(url = localPicturePath)
 
 		return ProfilePicture(url = localPicturePath)
 	}
@@ -84,7 +84,7 @@ class DebugSummaryUserRepository(
 		logger.i { "[$sourceName] removeProfilePicture(): clearing mocked profile picture." }
 
 		delay(pictureOperationDelayMillis)
-		localDataSource.saveProfilePicture(url = "")
+		updateLocalProfilePicture(url = "")
 	}
 
 	private suspend fun ensureInitialized() {
@@ -101,8 +101,16 @@ class DebugSummaryUserRepository(
 			logger.i { "[$sourceName] updateUser(): seeding debug summary user." }
 
 			delay(loadDelayMillis)
-			localDataSource.saveUser(user = seededUser)
+			localDataSource.updateUser(user = seededUser)
 			isInitialized = true
 		}
+	}
+
+	private suspend fun updateLocalProfilePicture(url: String) {
+		val currentUser = checkNotNull(localDataSource.getUserFlow().first()) {
+			"Expected a local user before updating the debug profile picture."
+		}
+
+		localDataSource.updateUser(user = currentUser.copy(pictureUrl = url))
 	}
 }

@@ -40,7 +40,6 @@ class UploadProfilePictureActionProcessor(
 
 					is UseCaseState.Data -> suspend { state: Summary.State ->
 						val successMessage = getString(Res.string.snack_profile_picture_updated)
-						val pictureUrl = useCaseState.value
 
 						if (state is Summary.State.Content) {
 							sideEffect(
@@ -50,7 +49,6 @@ class UploadProfilePictureActionProcessor(
 							)
 
 							state.copy(
-								profilePictureUrl = pictureUrl,
 								isProfilePictureLoading = false
 							)
 						} else

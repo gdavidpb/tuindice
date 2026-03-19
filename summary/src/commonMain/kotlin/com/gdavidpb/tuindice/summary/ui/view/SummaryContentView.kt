@@ -33,6 +33,7 @@ fun SummaryContentView(
 		url = state.profilePictureUrl,
 		isLoading = state.isProfilePictureLoading
 	)
+	val isProfilePictureInteractionEnabled = !state.isUserRefreshing
 	val statusIcon = when (syncStatus) {
 		SyncStatus.Healthy -> Icons.Outlined.Sync
 		SyncStatus.Failed,
@@ -52,6 +53,7 @@ fun SummaryContentView(
 		horizontalAlignment = Alignment.CenterHorizontally
 	) {
 		ProfilePictureView(
+			isEnabled = isProfilePictureInteractionEnabled,
 			state = profilePictureState.value,
 			onLoading = { isLoading ->
 				profilePictureState.value = profilePictureState.value.copy(

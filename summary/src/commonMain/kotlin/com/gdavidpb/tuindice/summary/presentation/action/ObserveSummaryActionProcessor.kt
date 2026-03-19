@@ -26,12 +26,14 @@ class ObserveSummaryActionProcessor(
 			when (useCaseState) {
 				is UseCaseState.Loading -> null
 
-				is UseCaseState.Data -> suspend { _: Summary.State ->
+				is UseCaseState.Data -> suspend { state: Summary.State ->
 					val user = useCaseState.value
 					val lastUpdateText = getString(
 						Res.string.text_sync_healthy,
 						user.lastUpdate.formatLastUpdate()
 					)
+					val currentProfilePictureLoading =
+						(state as? Summary.State.Content)?.isProfilePictureLoading ?: false
 
 					with(user) {
 						Summary.State.Content(
@@ -48,13 +50,13 @@ class ObserveSummaryActionProcessor(
 							failedSubjects = failedSubjects,
 							failedCredits = failedCredits,
 							profilePictureUrl = pictureUrl,
-							isGradeVisible = (grade > 0.0),
-							isProfilePictureLoading = false
+							isProfilePictureLoading = currentProfilePictureLoading,
+							isUserRefreshing = state.isUserRefreshing
 						)
 					}
 				}
 
-				is UseCaseState.Error -> suspend { _: Summary.State ->
+				is UseCaseState.Error -> suspend { state: Summary.State ->
 					val message = getString(Res.string.snack_default_error)
 
 					sideEffect(
@@ -63,7 +65,7 @@ class ObserveSummaryActionProcessor(
 						)
 					)
 
-					Summary.State.Failed
+					Summary.State.Failed(isUserRefreshing = state.isUserRefreshing)
 				}
 			}
 		}

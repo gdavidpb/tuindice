@@ -51,6 +51,25 @@ class SummaryContentViewUiTest {
 	}
 
 	@Test
+	fun when_userRefreshIsRunning_then_profilePictureEditIsDisabled() = runTuIndiceUiTest {
+		var editClicks = 0
+		val contentState = summaryContentState(isUserRefreshing = true)
+
+		setTuIndiceTestContent {
+			SummaryContentView(
+				state = contentState,
+				syncStatus = SyncStatus.Healthy,
+				summaryItems = summaryItemsFor(contentState),
+				onEditProfilePictureClick = { editClicks++ },
+				onStatusIconClick = {}
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.ProfilePictureEditButton).assertIsNotEnabled()
+		assertEquals(0, editClicks)
+	}
+
+	@Test
 	fun when_summaryHasNoItems_then_rendersHeaderSectionWithoutStatusCards() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 
