@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 
 class DebugSummaryUserRepositoryContractTest {
 	@Test
-	fun getUserFlow_seedsDebugUser_whenLocalStoreIsEmpty() = runTest {
+	fun updateUser_seedsDebugUser_whenLocalStoreIsEmpty() = runTest {
 		val localDataSource = FakeLocalDataSource(initialUser = null)
 		val repository = DebugSummaryUserRepository(
 			localDataSource = localDataSource,
@@ -19,7 +19,9 @@ class DebugSummaryUserRepositoryContractTest {
 			pictureOperationDelayMillis = 0L
 		)
 
-		val user = repository.getUserFlow().first()
+		repository.updateUser()
+
+		val user = repository.observeUserFlow().first()
 
 		assertEquals(DEFAULT_DEBUG_SUMMARY_USER.fullName, user.fullName)
 		assertEquals(DEFAULT_DEBUG_SUMMARY_USER.email, user.email)

@@ -7,17 +7,19 @@ import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
-import com.gdavidpb.tuindice.summary.domain.usecase.GetUserUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
+import com.gdavidpb.tuindice.summary.presentation.action.ObserveSummaryActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.LoadSummaryActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.OpenProfilePictureSettingsActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.PickProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.RefreshSummaryActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
@@ -35,6 +37,7 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -98,6 +101,10 @@ class SummaryRouteUiTest {
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository
 			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewModel.state.value is Summary.State.Content
 		}
 
 		runOnIdle {
@@ -218,11 +225,11 @@ class SummaryRouteUiTest {
 			userRepository = RecordingUserRepository(
 				users = flow {
 					emit(DEFAULT_SUMMARY_USER)
-					throw clientRequestException(
-						statusCode = HttpStatusCode.Conflict,
-						path = "/users/v1"
-					)
-				}
+				},
+				updateThrowable = clientRequestException(
+					statusCode = HttpStatusCode.Conflict,
+					path = "/users/v1"
+				)
 			)
 		)
 		val syncStatusRepository = FakeSyncStatusRepository()
@@ -367,8 +374,8 @@ class SummaryRouteUiTest {
 	}
 
 	@Test
-	fun when_retryTappedAfterFailure_then_routeRequestsLoadAgain() = runTuIndiceUiTest {
-		val userRepository = CountingFailingUserRepository()
+	fun when_retryTappedAfterFailure_then_routeRequestsRefreshAgain() = runTuIndiceUiTest {
+		val userRepository = CountingFailingRefreshUserRepository()
 		val viewModel = createSummaryViewModel(userRepository = userRepository)
 		val syncStatusRepository = FakeSyncStatusRepository()
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
@@ -387,26 +394,31 @@ class SummaryRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			userRepository.getUserFlowCalls > 0 && shownSnackBars.isNotEmpty()
+			userRepository.updateUserCalls > 0 && shownSnackBars.isNotEmpty()
 		}
 
 		onNodeWithTag(BaseUiTags.ErrorViewRetryButton).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			userRepository.getUserFlowCalls >= 2
+			userRepository.updateUserCalls >= 2
 		}
 
-		assertTrue(userRepository.getUserFlowCalls >= 2)
+		assertTrue(userRepository.updateUserCalls >= 2)
 	}
 
 	private fun createSummaryViewModel(
 		userRepository: UserRepository = RecordingUserRepository()
 	): SummaryViewModel {
 		return SummaryViewModel(
-			loadSummaryActionProcessor = LoadSummaryActionProcessor(
-				getUserUseCase = GetUserUseCase(
+			observeSummaryActionProcessor = ObserveSummaryActionProcessor(
+				observeUserUseCase = ObserveUserUseCase(
+					userRepository = userRepository
+				)
+			),
+			refreshSummaryActionProcessor = RefreshSummaryActionProcessor(
+				updateUserUseCase = UpdateUserUseCase(
 					userRepository = userRepository,
-					exceptionHandler = GetUserExceptionHandler(
+					exceptionHandler = UpdateUserExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true),
 						reportingRepository = RecordingReportingRepository()
 					)
@@ -438,12 +450,14 @@ class SummaryRouteUiTest {
 		)
 	}
 
-	private class CountingFailingUserRepository : UserRepository {
-		var getUserFlowCalls = 0
+	private class CountingFailingRefreshUserRepository : UserRepository {
+		var updateUserCalls = 0
 			private set
 
-		override suspend fun getUserFlow() = flow<User> {
-			getUserFlowCalls++
+		override suspend fun observeUserFlow() = emptyFlow<User>()
+
+		override suspend fun updateUser() {
+			updateUserCalls++
 			throw IllegalStateException("summary-route-retry")
 		}
 

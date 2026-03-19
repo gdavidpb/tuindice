@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.mapNotNull
 
 class UserDataRepository(
 	private val localDataSource: LocalDataSource,
@@ -14,25 +14,19 @@ class UserDataRepository(
 	private val settingsDataSource: SettingsDataSource,
 	private val pictureEncoderDataSource: PictureEncoderDataSource
 ) : UserRepository {
-	override suspend fun getUserFlow(): Flow<User> {
+	override suspend fun observeUserFlow(): Flow<User> {
 		return localDataSource.getUserFlow()
+			.mapNotNull { localUser -> localUser }
 			.distinctUntilChanged()
-			.transform { localUser ->
-				val isOnCooldown = settingsDataSource.isGetUserOnCooldown()
+	}
 
-				if (localUser != null)
-					emit(localUser)
+	override suspend fun updateUser() {
+		if (settingsDataSource.isGetUserOnCooldown()) return
 
-				if (!isOnCooldown) {
-					val remoteUser = remoteDataSource.getUser()
+		val remoteUser = remoteDataSource.getUser()
 
-					localDataSource.saveUser(user = remoteUser)
-
-					settingsDataSource.setGetUserOnCooldown()
-
-					emit(remoteUser)
-				}
-			}
+		localDataSource.saveUser(user = remoteUser)
+		settingsDataSource.setGetUserOnCooldown()
 	}
 
 	override suspend fun uploadProfilePicture(file: PlatformFile): ProfilePicture {

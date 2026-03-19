@@ -6,7 +6,8 @@ import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
-	suspend fun getUserFlow(): Flow<User>
+	suspend fun observeUserFlow(): Flow<User>
+	suspend fun updateUser()
 
 	suspend fun uploadProfilePicture(file: PlatformFile): ProfilePicture
 	suspend fun removeProfilePicture()

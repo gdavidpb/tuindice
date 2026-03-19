@@ -37,7 +37,8 @@ object Summary {
 	}
 
 	sealed class Action : ViewAction() {
-		data object LoadSummary : Action()
+		data object ObserveSummary : Action()
+		data object RefreshSummary : Action()
 		data object TakeProfilePicture : Action()
 		data object PickProfilePicture : Action()
 		class UploadProfilePicture(val file: PlatformFile) : Action()

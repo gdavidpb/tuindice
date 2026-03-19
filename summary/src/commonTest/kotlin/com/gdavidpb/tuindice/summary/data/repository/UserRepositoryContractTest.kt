@@ -8,16 +8,17 @@ import com.gdavidpb.tuindice.summary.testing.FakePictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.testing.FakeRemoteDataSource
 import com.gdavidpb.tuindice.summary.testing.FakeSettingsDataSource
 import io.github.vinceglb.filekit.PlatformFile
-import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class UserRepositoryContractTest {
 	@Test
-	fun getUserFlow_emitsLocalThenRemote_andMarksCooldown() = runTest {
+	fun observeUserFlow_emitsLocalUser_withoutRefreshing() = runTest {
 		val staleUser = DEFAULT_SUMMARY_USER.copy(
 			pictureUrl = "https://cdn.tuindice.app/profile/stale.jpg"
 		)
@@ -31,14 +32,50 @@ class UserRepositoryContractTest {
 			pictureEncoderDataSource = FakePictureEncoderDataSource()
 		)
 
-		val emissions = repository.getUserFlow()
-			.take(2)
-			.toList()
+		val emission = repository.observeUserFlow().first()
 
-		assertEquals(listOf(staleUser, DEFAULT_SUMMARY_USER), emissions)
+		assertEquals(staleUser, emission)
+		assertTrue(localDataSource.savedUsers.isEmpty())
+		assertEquals(0, remoteDataSource.getUserCalls)
+		assertFalse(settingsDataSource.cooldownMarked)
+	}
+
+	@Test
+	fun updateUser_savesRemoteUser_andMarksCooldown_whenNotOnCooldown() = runTest {
+		val localDataSource = FakeLocalDataSource(initialUser = null)
+		val remoteDataSource = FakeRemoteDataSource(user = DEFAULT_SUMMARY_USER)
+		val settingsDataSource = FakeSettingsDataSource(onCooldown = false)
+		val repository = UserDataRepository(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = settingsDataSource,
+			pictureEncoderDataSource = FakePictureEncoderDataSource()
+		)
+
+		repository.updateUser()
+
 		assertEquals(listOf(DEFAULT_SUMMARY_USER), localDataSource.savedUsers)
 		assertEquals(1, remoteDataSource.getUserCalls)
 		assertTrue(settingsDataSource.cooldownMarked)
+	}
+
+	@Test
+	fun updateUser_doesNothing_whenCooldownIsActive() = runTest {
+		val localDataSource = FakeLocalDataSource(initialUser = DEFAULT_SUMMARY_USER)
+		val remoteDataSource = FakeRemoteDataSource()
+		val settingsDataSource = FakeSettingsDataSource(onCooldown = true)
+		val repository = UserDataRepository(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = settingsDataSource,
+			pictureEncoderDataSource = FakePictureEncoderDataSource()
+		)
+
+		repository.updateUser()
+
+		assertTrue(localDataSource.savedUsers.isEmpty())
+		assertEquals(0, remoteDataSource.getUserCalls)
+		assertFalse(settingsDataSource.cooldownMarked)
 	}
 
 	@Test

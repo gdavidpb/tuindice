@@ -10,17 +10,19 @@ import com.gdavidpb.tuindice.summary.data.repository.user.source.LocalSettingsDa
 import com.gdavidpb.tuindice.summary.data.repository.user.source.RoomDataSource
 import com.gdavidpb.tuindice.summary.data.repository.user.source.SummaryApiDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
-import com.gdavidpb.tuindice.summary.domain.usecase.GetUserUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
+import com.gdavidpb.tuindice.summary.presentation.action.ObserveSummaryActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.LoadSummaryActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.OpenProfilePictureSettingsActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.PickProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.RefreshSummaryActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
@@ -38,7 +40,8 @@ val summaryModule = module {
 
 	/* Action processor */
 
-	factoryOf(::LoadSummaryActionProcessor)
+	factoryOf(::ObserveSummaryActionProcessor)
+	factoryOf(::RefreshSummaryActionProcessor)
 	factoryOf(::TakeProfilePictureActionProcessor)
 	factoryOf(::UploadProfilePictureActionProcessor)
 	factoryOf(::ConfirmRemoveProfilePictureActionProcessor)
@@ -48,7 +51,8 @@ val summaryModule = module {
 
 	/* Use cases */
 
-	factoryOf(::GetUserUseCase)
+	factoryOf(::ObserveUserUseCase)
+	factoryOf(::UpdateUserUseCase)
 	factoryOf(::UploadProfilePictureUseCase)
 	factoryOf(::RemoveProfilePictureUseCase)
 
@@ -71,7 +75,7 @@ val summaryModule = module {
 
 	/* Exception handlers */
 
-	factoryOf(::GetUserExceptionHandler)
+	factoryOf(::UpdateUserExceptionHandler)
 	factoryOf(::RemoveProfilePictureExceptionHandler)
 	factoryOf(::UploadProfilePictureExceptionHandler)
 }

@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.summary.domain.usecase
 
 import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
-import com.gdavidpb.tuindice.summary.domain.usecase.error.GetUserUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
-import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetUserExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.error.UpdateUserUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -16,30 +16,30 @@ import kotlin.test.assertIs
 
 class SummaryExceptionHandlerTest {
 	@Test
-	fun getUserExceptionHandler_mapsNotFound() {
+	fun updateUserExceptionHandler_mapsNotFound() {
 		val reportingRepository = RecordingReportingRepository()
 		val throwable = clientRequestException(HttpStatusCode.NotFound, path = "/users/v1")
 
-		val actual = GetUserExceptionHandler(
+		val actual = UpdateUserExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true),
 			reportingRepository = reportingRepository
 		).reportException(throwable)
 
-		assertEquals(GetUserUseCaseError.NotFound, actual)
+		assertEquals(UpdateUserUseCaseError.NotFound, actual)
 		assertReported(
 			reportingRepository = reportingRepository,
-			handlerName = "GetUserExceptionHandler",
+			handlerName = "UpdateUserExceptionHandler",
 			throwable = throwable,
 			isHandled = true
 		)
 	}
 
 	@Test
-	fun getUserExceptionHandler_leavesConflictUnhandled() {
+	fun updateUserExceptionHandler_leavesConflictUnhandled() {
 		val reportingRepository = RecordingReportingRepository()
 		val throwable = clientRequestException(HttpStatusCode.Conflict, path = "/users/v1")
 
-		val actual = GetUserExceptionHandler(
+		val actual = UpdateUserExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true),
 			reportingRepository = reportingRepository
 		).reportException(throwable)
@@ -47,7 +47,7 @@ class SummaryExceptionHandlerTest {
 		assertEquals(null, actual)
 		assertReported(
 			reportingRepository = reportingRepository,
-			handlerName = "GetUserExceptionHandler",
+			handlerName = "UpdateUserExceptionHandler",
 			throwable = throwable,
 			isHandled = false
 		)

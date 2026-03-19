@@ -1,17 +1,19 @@
 package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.summary.domain.usecase.GetUserUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
 import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.LoadSummaryActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.ObserveSummaryActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.OpenProfilePictureSettingsActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.PickProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.action.RefreshSummaryActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
@@ -30,7 +32,7 @@ import kotlin.test.assertIs
 class SummaryViewModelContractTest {
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun initialAction_loadsSummary_andUserActionEmitsPickerEffect() = runTest {
+	fun initialAction_observesSummary_andUserActionEmitsPickerEffect() = runTest {
 		val viewModel = createViewModel()
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,
@@ -63,10 +65,15 @@ class SummaryViewModelContractTest {
 		val userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER))
 
 		return SummaryViewModel(
-			loadSummaryActionProcessor = LoadSummaryActionProcessor(
-				getUserUseCase = GetUserUseCase(
+			observeSummaryActionProcessor = ObserveSummaryActionProcessor(
+				observeUserUseCase = ObserveUserUseCase(
+					userRepository = userRepository
+				)
+			),
+			refreshSummaryActionProcessor = RefreshSummaryActionProcessor(
+				updateUserUseCase = UpdateUserUseCase(
 					userRepository = userRepository,
-					exceptionHandler = GetUserExceptionHandler(
+					exceptionHandler = UpdateUserExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true),
 						reportingRepository = RecordingReportingRepository()
 					)

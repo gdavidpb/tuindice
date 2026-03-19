@@ -51,12 +51,19 @@ val DEFAULT_ENCODED_IMAGE = EncodedImage(
 class RecordingUserRepository(
 	private val users: Flow<User> = flowOf(DEFAULT_SUMMARY_USER),
 	private val profilePicture: ProfilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE,
-	private val throwable: Throwable? = null
+	private val throwable: Throwable? = null,
+	private val updateThrowable: Throwable? = null
 ) : UserRepository {
+	var updateCalls = 0
 	val uploadCalls = mutableListOf<PlatformFile>()
 	var removeCalls = 0
 
-	override suspend fun getUserFlow(): Flow<User> = users
+	override suspend fun observeUserFlow(): Flow<User> = users
+
+	override suspend fun updateUser() {
+		updateCalls++
+		updateThrowable?.let { throw it }
+	}
 
 	override suspend fun uploadProfilePicture(file: PlatformFile): ProfilePicture {
 		uploadCalls += file

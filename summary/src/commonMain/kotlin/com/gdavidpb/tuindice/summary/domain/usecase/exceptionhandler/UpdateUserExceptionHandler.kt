@@ -7,18 +7,18 @@ import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
-import com.gdavidpb.tuindice.summary.domain.usecase.error.GetUserUseCaseError
+import com.gdavidpb.tuindice.summary.domain.usecase.error.UpdateUserUseCaseError
 
-class GetUserExceptionHandler(
+class UpdateUserExceptionHandler(
 	private val networkRepository: NetworkRepository,
 	override val reportingRepository: ReportingRepository
-) : ExceptionHandler<GetUserUseCaseError>() {
-	override fun parseException(throwable: Throwable): GetUserUseCaseError? {
+) : ExceptionHandler<UpdateUserUseCaseError>() {
+	override fun parseException(throwable: Throwable): UpdateUserUseCaseError? {
 		return when {
-			throwable.isNotFound() -> GetUserUseCaseError.NotFound
-			throwable.isUnavailable() -> GetUserUseCaseError.Unavailable
-			throwable.isTimeout() -> GetUserUseCaseError.Timeout
-			throwable.isConnection() -> GetUserUseCaseError.NoConnection(networkRepository.isAvailable())
+			throwable.isNotFound() -> UpdateUserUseCaseError.NotFound
+			throwable.isUnavailable() -> UpdateUserUseCaseError.Unavailable
+			throwable.isTimeout() -> UpdateUserUseCaseError.Timeout
+			throwable.isConnection() -> UpdateUserUseCaseError.NoConnection(networkRepository.isAvailable())
 			else -> null
 		}
 	}

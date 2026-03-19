@@ -1,13 +1,15 @@
 package com.gdavidpb.tuindice.summary.presentation.action
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.summary.domain.usecase.GetUserUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
+import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
-import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
+import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.mapper.formatLastUpdate
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
@@ -32,25 +34,16 @@ import kotlin.test.assertTrue
 
 class SummaryActionProcessorContractTest {
 	@Test
-	fun loadSummaryActionProcessor_reducesStateToContent() = runTest {
-		val processor = LoadSummaryActionProcessor(
-			getUserUseCase = GetUserUseCase(
-				userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER)),
-				exceptionHandler = GetUserExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true),
-					reportingRepository = RecordingReportingRepository()
-				)
-			)
+	fun observeSummaryActionProcessor_reducesStateToContent() = runTest {
+		val processor = createObserveSummaryActionProcessor(
+			userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER))
 		)
 		val effects = mutableListOf<Summary.Effect>()
 
 		processor.process(
-			action = Summary.Action.LoadSummary,
+			action = Summary.Action.ObserveSummary,
 			sideEffect = effects::add
 		).test {
-			val loading = awaitItem()(Summary.State.Failed)
-			assertEquals(Summary.State.Loading, loading)
-
 			val content = assertIs<Summary.State.Content>(awaitItem()(Summary.State.Loading))
 			assertEquals("Ana Diaz", content.name)
 			assertEquals(
@@ -69,27 +62,36 @@ class SummaryActionProcessorContractTest {
 	}
 
 	@Test
-	fun loadSummaryActionProcessor_formatsZeroLastUpdateAsNunca() = runTest {
-		val processor = LoadSummaryActionProcessor(
-			getUserUseCase = GetUserUseCase(
-				userRepository = RecordingUserRepository(
-					users = flowOf(DEFAULT_SUMMARY_USER.copy(lastUpdate = 0L))
-				),
-				exceptionHandler = GetUserExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true),
-					reportingRepository = RecordingReportingRepository()
-				)
+	fun observeSummaryActionProcessor_formatsZeroLastUpdateAsNunca() = runTest {
+		val processor = createObserveSummaryActionProcessor(
+			userRepository = RecordingUserRepository(
+				users = flowOf(DEFAULT_SUMMARY_USER.copy(lastUpdate = 0L))
 			)
 		)
 
 		processor.process(
-			action = Summary.Action.LoadSummary,
+			action = Summary.Action.ObserveSummary,
 			sideEffect = {}
 		).test {
-			awaitItem()(Summary.State.Failed)
-
 			val content = assertIs<Summary.State.Content>(awaitItem()(Summary.State.Loading))
 			assertEquals("Última actualización: Nunca", content.lastUpdate)
+
+			awaitComplete()
+		}
+	}
+
+	@Test
+	fun refreshSummaryActionProcessor_setsLoadingFromFailedState() = runTest {
+		val processor = createRefreshSummaryActionProcessor(
+			userRepository = RecordingUserRepository()
+		)
+
+		processor.process(
+			action = Summary.Action.RefreshSummary,
+			sideEffect = {}
+		).test {
+			val loading = awaitItem()(Summary.State.Failed)
+			assertEquals(Summary.State.Loading, loading)
 
 			awaitComplete()
 		}
@@ -258,5 +260,29 @@ class SummaryActionProcessorContractTest {
 
 		val effect = assertIs<Summary.Effect.ShowSnackBar>(effects.single())
 		assertEquals(getString(Res.string.snack_profile_picture_removed), effect.message)
+	}
+
+	private fun createObserveSummaryActionProcessor(
+		userRepository: UserRepository = RecordingUserRepository()
+	): ObserveSummaryActionProcessor {
+		return ObserveSummaryActionProcessor(
+			observeUserUseCase = ObserveUserUseCase(
+				userRepository = userRepository
+			)
+		)
+	}
+
+	private fun createRefreshSummaryActionProcessor(
+		userRepository: UserRepository = RecordingUserRepository()
+	): RefreshSummaryActionProcessor {
+		return RefreshSummaryActionProcessor(
+			updateUserUseCase = UpdateUserUseCase(
+				userRepository = userRepository,
+				exceptionHandler = UpdateUserExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true),
+					reportingRepository = RecordingReportingRepository()
+				)
+			)
+		)
 	}
 }

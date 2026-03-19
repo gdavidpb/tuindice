@@ -54,12 +54,14 @@ class DebugSummaryUserRepository(
 	private val initializationMutex = Mutex()
 	private var isInitialized = false
 
-	override suspend fun getUserFlow(): Flow<User> {
-		ensureInitialized()
-
+	override suspend fun observeUserFlow(): Flow<User> {
 		return localDataSource.getUserFlow()
 			.mapNotNull { user -> user }
 			.distinctUntilChanged()
+	}
+
+	override suspend fun updateUser() {
+		ensureInitialized()
 	}
 
 	override suspend fun uploadProfilePicture(file: PlatformFile): ProfilePicture {
@@ -96,7 +98,7 @@ class DebugSummaryUserRepository(
 				pictureUrl = existingUser?.pictureUrl.orEmpty()
 			)
 
-			logger.i { "[$sourceName] getUserFlow(): seeding debug summary user." }
+			logger.i { "[$sourceName] updateUser(): seeding debug summary user." }
 
 			delay(loadDelayMillis)
 			localDataSource.saveUser(user = seededUser)

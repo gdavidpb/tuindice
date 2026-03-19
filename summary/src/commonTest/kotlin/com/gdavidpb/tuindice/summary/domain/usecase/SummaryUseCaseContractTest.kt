@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.summary.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
-import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.GetUserExceptionHandler
+import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
@@ -20,19 +20,34 @@ import kotlin.test.assertEquals
 
 class SummaryUseCaseContractTest {
 	@Test
-	fun getUserUseCase_emitsLoadingThenData_fromRepositoryFlow() = runTest {
-		val useCase = GetUserUseCase(
-			userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER)),
-			exceptionHandler = GetUserExceptionHandler(
-				networkRepository = FakeNetworkRepository(isAvailable = true),
-				reportingRepository = RecordingReportingRepository()
-			)
+	fun observeUserUseCase_emitsLoadingThenData_fromRepositoryFlow() = runTest {
+		val useCase = ObserveUserUseCase(
+			userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER))
 		)
 
 		useCase.execute(Unit).test {
 			assertEquals(DEFAULT_SUMMARY_USER, awaitLoadingThenData(this))
 			awaitComplete()
 		}
+	}
+
+	@Test
+	fun updateUserUseCase_emitsLoadingThenData_andDelegatesRefresh() = runTest {
+		val repository = RecordingUserRepository()
+		val useCase = UpdateUserUseCase(
+			userRepository = repository,
+			exceptionHandler = UpdateUserExceptionHandler(
+				networkRepository = FakeNetworkRepository(isAvailable = true),
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+
+		useCase.execute(Unit).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals(1, repository.updateCalls)
 	}
 
 	@Test

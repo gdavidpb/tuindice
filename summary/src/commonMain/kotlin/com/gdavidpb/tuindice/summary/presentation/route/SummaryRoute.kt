@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.presentation.route
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -56,10 +57,14 @@ fun SummaryRoute(
 		}
 	}
 
+	LaunchedEffect(Unit) {
+		viewModel.refreshSummaryAction()
+	}
+
 	SummaryScreen(
 		state = viewState,
 		syncStatus = syncStatus,
-		onRetryClick = viewModel::loadSummaryAction,
+		onRetryClick = viewModel::refreshSummaryAction,
 		onEditProfilePictureClick = viewModel::openProfilePictureSettingsAction,
 		onUpdatePasswordClick = onNavigateToUpdatePassword
 	)
