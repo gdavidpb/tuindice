@@ -10,12 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -32,6 +27,9 @@ import coil3.network.ktor3.KtorNetworkFetcherFactory
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import org.jetbrains.compose.resources.painterResource
+import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.il_profile_picture_placeholder_owl
 
 @Composable
 fun ProfilePictureView(
@@ -41,6 +39,7 @@ fun ProfilePictureView(
 	onClick: () -> Unit
 ) {
 	val platformContext = LocalPlatformContext.current
+	val placeholderPainter = painterResource(Res.drawable.il_profile_picture_placeholder_owl)
 	val imageLoader = remember(platformContext) {
 		ImageLoader.Builder(platformContext)
 			.components {
@@ -70,32 +69,24 @@ fun ProfilePictureView(
 				.background(MaterialTheme.colorScheme.surfaceVariant),
 			contentAlignment = Alignment.Center
 		) {
-			Icon(
+			AsyncImage(
 				modifier = Modifier
 					.testTag(SummaryUiTags.ProfilePicturePlaceholderIcon)
-					.size(48.dp),
-				imageVector = Icons.Outlined.Person,
+					.fillMaxSize(),
+				model = ImageRequest.Builder(platformContext)
+					.data(state.url.takeIf { it.isNotBlank() })
+					.crossfade(true)
+					.build(),
+				imageLoader = imageLoader,
+				placeholder = placeholderPainter,
+				error = placeholderPainter,
+				fallback = placeholderPainter,
 				contentDescription = null,
-				tint = if (state.url.isBlank())
-					MaterialTheme.colorScheme.onSurfaceVariant
-				else
-					MaterialTheme.colorScheme.primary
+				contentScale = ContentScale.Crop,
+				onLoading = { onLoading(true) },
+				onSuccess = { onLoading(false) },
+				onError = { onLoading(false) },
 			)
-
-			if (state.url.isNotBlank())
-				AsyncImage(
-					modifier = Modifier.fillMaxSize(),
-					model = ImageRequest.Builder(platformContext)
-						.data(state.url)
-						.crossfade(true)
-						.build(),
-					imageLoader = imageLoader,
-					contentDescription = null,
-					contentScale = ContentScale.Crop,
-					onLoading = { onLoading(true) },
-					onSuccess = { onLoading(false) },
-					onError = { onLoading(false) },
-				)
 		}
 
 		IconButton(
