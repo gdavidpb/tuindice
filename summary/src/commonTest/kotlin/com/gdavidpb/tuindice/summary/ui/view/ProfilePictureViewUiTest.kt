@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class ProfilePictureViewUiTest {
@@ -20,11 +19,8 @@ class ProfilePictureViewUiTest {
 
 		setTuIndiceTestContent {
 			ProfilePictureView(
-				state = ProfilePictureState(
-					url = "",
-					isLoading = false
-				),
-				onLoading = {},
+				url = "",
+				isLoading = false,
 				onClick = { pictureClicks++ }
 			)
 		}
@@ -47,11 +43,8 @@ class ProfilePictureViewUiTest {
 
 		setTuIndiceTestContent {
 			ProfilePictureView(
-				state = ProfilePictureState(
-					url = "",
-					isLoading = false
-				),
-				onLoading = {},
+				url = "",
+				isLoading = false,
 				onClick = { pictureClicks++ }
 			)
 		}
@@ -67,11 +60,8 @@ class ProfilePictureViewUiTest {
 
 		setTuIndiceTestContent {
 			ProfilePictureView(
-				state = ProfilePictureState(
-					url = "https://tuindice.test/profile.jpg",
-					isLoading = true
-				),
-				onLoading = {},
+				url = "https://tuindice.test/profile.jpg",
+				isLoading = true,
 				onClick = { pictureClicks++ }
 			)
 		}
@@ -90,11 +80,8 @@ class ProfilePictureViewUiTest {
 		setTuIndiceTestContent {
 			ProfilePictureView(
 				isEnabled = false,
-				state = ProfilePictureState(
-					url = "https://tuindice.test/profile.jpg",
-					isLoading = false
-				),
-				onLoading = {},
+				url = "https://tuindice.test/profile.jpg",
+				isLoading = false,
 				onClick = { pictureClicks++ }
 			)
 		}
@@ -102,27 +89,5 @@ class ProfilePictureViewUiTest {
 		assertNodeDisabled(SummaryUiTags.ProfilePictureContainer)
 		assertNodeDisabled(SummaryUiTags.ProfilePictureEditButton)
 		assertEquals(0, pictureClicks)
-	}
-
-	@Test
-	fun when_pictureUrlIsBlank_then_notifiesLoadingAsFalse() = runTuIndiceUiTest {
-		val loadingEvents = mutableListOf<Boolean>()
-
-		setTuIndiceTestContent {
-			ProfilePictureView(
-				state = ProfilePictureState(
-					url = "",
-					isLoading = true
-				),
-				onLoading = { isLoading -> loadingEvents += isLoading },
-				onClick = {}
-			)
-		}
-
-		waitUntil(timeoutMillis = 2_000) {
-			loadingEvents.isNotEmpty()
-		}
-
-		assertTrue(loadingEvents.contains(false))
 	}
 }

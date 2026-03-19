@@ -12,7 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,12 +36,13 @@ import tuindice.summary.generated.resources.il_profile_picture_placeholder_owl
 fun ProfilePictureView(
 	modifier: Modifier = Modifier,
 	isEnabled: Boolean = true,
-	state: ProfilePictureState,
-	onLoading: (isLoading: Boolean) -> Unit,
+	url: String,
+	isLoading: Boolean,
 	onClick: () -> Unit
 ) {
 	val platformContext = LocalPlatformContext.current
 	val placeholderPainter = painterResource(Res.drawable.il_profile_picture_placeholder_owl)
+	val imageData = url.takeIf { it.isNotBlank() }
 	val imageLoader = remember(platformContext) {
 		ImageLoader.Builder(platformContext)
 			.components {
@@ -48,18 +50,22 @@ fun ProfilePictureView(
 			}
 			.build()
 	}
-
-	LaunchedEffect(state.url) {
-		if (state.url.isBlank()) {
-			onLoading(false)
-		}
+	val imageRequest = remember(platformContext, imageData) {
+		ImageRequest.Builder(platformContext)
+			.data(imageData)
+			.crossfade(true)
+			.build()
 	}
+	val imageLoadingState = remember(url) {
+		mutableStateOf(false)
+	}
+	val isCurrentlyLoading = isLoading || imageLoadingState.value
 
 	Box(
 		modifier = modifier
 			.testTag(SummaryUiTags.ProfilePictureContainer)
 			.clickable(
-				enabled = isEnabled && !state.isLoading,
+				enabled = isEnabled && !isCurrentlyLoading,
 				onClick = onClick
 			)
 	) {
@@ -70,24 +76,29 @@ fun ProfilePictureView(
 				.background(MaterialTheme.colorScheme.surfaceVariant),
 			contentAlignment = Alignment.Center
 		) {
-			AsyncImage(
-				modifier = Modifier
-					.testTag(SummaryUiTags.ProfilePicturePlaceholderIcon)
-					.fillMaxSize(),
-				model = ImageRequest.Builder(platformContext)
-					.data(state.url.takeIf { it.isNotBlank() })
-					.crossfade(true)
-					.build(),
-				imageLoader = imageLoader,
-				placeholder = placeholderPainter,
-				error = placeholderPainter,
-				fallback = placeholderPainter,
-				contentDescription = null,
-				contentScale = ContentScale.Crop,
-				onLoading = { onLoading(true) },
-				onSuccess = { onLoading(false) },
-				onError = { onLoading(false) },
-			)
+			key(url) {
+				AsyncImage(
+					modifier = Modifier
+						.testTag(SummaryUiTags.ProfilePicturePlaceholderIcon)
+						.fillMaxSize(),
+					model = imageRequest,
+					imageLoader = imageLoader,
+					placeholder = placeholderPainter,
+					error = placeholderPainter,
+					fallback = placeholderPainter,
+					contentDescription = null,
+					contentScale = ContentScale.Crop,
+					onLoading = {
+						imageLoadingState.value = true
+					},
+					onSuccess = {
+						imageLoadingState.value = false
+					},
+					onError = {
+						imageLoadingState.value = false
+					},
+				)
+			}
 		}
 
 		IconButton(
@@ -95,7 +106,7 @@ fun ProfilePictureView(
 				.testTag(SummaryUiTags.ProfilePictureEditButton)
 				.size(42.dp)
 				.align(Alignment.BottomEnd),
-			enabled = isEnabled && !state.isLoading,
+			enabled = isEnabled && !isCurrentlyLoading,
 			colors = IconButtonDefaults.filledIconButtonColors(),
 			onClick = onClick
 		) {
@@ -110,7 +121,7 @@ fun ProfilePictureView(
 
 		AnimatedVisibility(
 			modifier = Modifier.align(Alignment.Center),
-			visible = state.isLoading
+			visible = isCurrentlyLoading
 		) {
 			CircularProgressIndicator(
 				modifier = Modifier.testTag(SummaryUiTags.ProfilePictureLoadingIndicator)
