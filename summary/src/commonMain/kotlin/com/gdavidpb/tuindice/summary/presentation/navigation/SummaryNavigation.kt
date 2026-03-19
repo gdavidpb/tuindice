@@ -19,13 +19,6 @@ import com.gdavidpb.tuindice.summary.ui.screen.ProfilePictureSettingsContentDial
 import com.gdavidpb.tuindice.summary.ui.screen.RemoveProfilePictureConfirmationContentDialog
 import org.koin.compose.viewmodel.koinViewModel
 
-private const val PROFILE_PICTURE_SETTINGS_RESULT_KEY = "profile_picture_settings_result"
-private const val REMOVE_PROFILE_PICTURE_CONFIRMATION_RESULT_KEY = "remove_profile_picture_confirmation_result"
-
-private const val PROFILE_PICTURE_SETTINGS_RESULT_PICK = "pick"
-private const val PROFILE_PICTURE_SETTINGS_RESULT_TAKE = "take"
-private const val PROFILE_PICTURE_SETTINGS_RESULT_REMOVE = "remove"
-
 fun NavGraphBuilder.summaryNavigation(
 	navController: NavHostController,
 	isCameraAvailable: Boolean,
@@ -42,29 +35,26 @@ fun NavGraphBuilder.summaryNavigation(
 				onViewStateChanged(viewState)
 			}
 
-			navController.CollectBackResultWithLifecycle<String>(
+			navController.CollectBackResultWithLifecycle<ProfilePictureSettingsResult>(
 				backStackEntry = backStackEntry,
-				key = PROFILE_PICTURE_SETTINGS_RESULT_KEY,
 				awaitFrame = true
 			) { result ->
 				when (result) {
-					PROFILE_PICTURE_SETTINGS_RESULT_PICK ->
+					ProfilePictureSettingsResult.Pick ->
 						viewModel.pickProfilePictureAction()
 
-					PROFILE_PICTURE_SETTINGS_RESULT_TAKE ->
+					ProfilePictureSettingsResult.Take ->
 						viewModel.takeProfilePictureAction()
 
-					PROFILE_PICTURE_SETTINGS_RESULT_REMOVE ->
+					ProfilePictureSettingsResult.Remove ->
 						viewModel.removeProfilePictureAction()
 				}
 			}
 
-			navController.CollectBackResultWithLifecycle<Boolean>(
-				backStackEntry = backStackEntry,
-				key = REMOVE_PROFILE_PICTURE_CONFIRMATION_RESULT_KEY
-			) { confirmed ->
-				if (confirmed)
-					viewModel.confirmRemoveProfilePictureAction()
+			navController.CollectBackResultWithLifecycle<RemoveProfilePictureConfirmationResult>(
+				backStackEntry = backStackEntry
+			) {
+				viewModel.confirmRemoveProfilePictureAction()
 			}
 
 			SummaryRoute(
@@ -89,21 +79,18 @@ fun NavGraphBuilder.summaryNavigation(
 				showRemove = args.showRemove,
 				isCameraAvailable = isCameraAvailable,
 				onPickPictureClick = {
-					navController.navigateBackWithResult(
-						key = PROFILE_PICTURE_SETTINGS_RESULT_KEY,
-						result = PROFILE_PICTURE_SETTINGS_RESULT_PICK
+					navController.navigateBackWithResult<ProfilePictureSettingsResult>(
+						ProfilePictureSettingsResult.Pick
 					)
 				},
 				onTakePictureClick = {
-					navController.navigateBackWithResult(
-						key = PROFILE_PICTURE_SETTINGS_RESULT_KEY,
-						result = PROFILE_PICTURE_SETTINGS_RESULT_TAKE
+					navController.navigateBackWithResult<ProfilePictureSettingsResult>(
+						ProfilePictureSettingsResult.Take
 					)
 				},
 				onRemovePictureClick = {
-					navController.navigateBackWithResult(
-						key = PROFILE_PICTURE_SETTINGS_RESULT_KEY,
-						result = PROFILE_PICTURE_SETTINGS_RESULT_REMOVE
+					navController.navigateBackWithResult<ProfilePictureSettingsResult>(
+						ProfilePictureSettingsResult.Remove
 					)
 				},
 				onDismissRequest = { navController.navigateUp() }
@@ -113,9 +100,8 @@ fun NavGraphBuilder.summaryNavigation(
 		dialog<SummaryDestination.RemoveProfilePictureConfirmationDialog> {
 			RemoveProfilePictureConfirmationContentDialog(
 				onConfirmClick = {
-					navController.navigateBackWithResult(
-						key = REMOVE_PROFILE_PICTURE_CONFIRMATION_RESULT_KEY,
-						result = true
+					navController.navigateBackWithResult<RemoveProfilePictureConfirmationResult>(
+						RemoveProfilePictureConfirmationResult.Confirmed
 					)
 				},
 				onDismissRequest = { navController.navigateUp() }

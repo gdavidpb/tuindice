@@ -10,29 +10,47 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 
-fun <T> NavController.setBackResult(key: String, result: T): Boolean {
+@PublishedApi
+internal val navigationResultJson = Json {
+	ignoreUnknownKeys = true
+}
+
+@PublishedApi
+internal inline fun <reified T : Any> backResultKey(): String =
+	requireNotNull(T::class.qualifiedName) {
+		"Back result type ${T::class.simpleName} must have a qualified name"
+	}
+
+inline fun <reified T : Any> NavController.setBackResult(result: T): Boolean {
 	val previousBackStackEntry = previousBackStackEntry ?: return false
+	val key = backResultKey<T>()
+	val serializedResult = runCatching {
+		navigationResultJson.encodeToString<T>(result)
+	}.getOrElse {
+		return false
+	}
 
-	previousBackStackEntry.savedStateHandle[key] = result
+	previousBackStackEntry.savedStateHandle[key] = serializedResult
 
 	return true
 }
 
-fun <T> NavController.navigateBackWithResult(key: String, result: T): Boolean {
-	if (!setBackResult(key = key, result = result)) return false
+inline fun <reified T : Any> NavController.navigateBackWithResult(result: T): Boolean {
+	if (!setBackResult(result = result)) return false
 
 	return navigateUp()
 }
 
 @Composable
-inline fun <reified T> NavController.CollectBackResultWithLifecycle(
+inline fun <reified T : Any> NavController.CollectBackResultWithLifecycle(
 	backStackEntry: NavBackStackEntry,
-	key: String,
 	minActiveState: Lifecycle.State = Lifecycle.State.RESUMED,
 	awaitFrame: Boolean = false,
 	crossinline onResult: (T) -> Unit
 ) {
+	val key = backResultKey<T>()
 	val currentBackStackEntry = currentBackStackEntryAsState().value
 
 	LaunchedEffect(backStackEntry, key, currentBackStackEntry, minActiveState, awaitFrame) {
@@ -40,10 +58,17 @@ inline fun <reified T> NavController.CollectBackResultWithLifecycle(
 
 		withContext(Dispatchers.Main.immediate) {
 			backStackEntry.savedStateHandle
-				.getStateFlow<T?>(key, null)
+				.getStateFlow<String?>(key, null)
 				.flowWithLifecycle(backStackEntry.lifecycle, minActiveState)
-				.collect { result ->
-					if (result == null) return@collect
+				.collect { serializedResult ->
+					if (serializedResult == null) return@collect
+
+					val result = runCatching {
+						navigationResultJson.decodeFromString<T>(serializedResult)
+					}.getOrElse {
+						backStackEntry.savedStateHandle[key] = null
+						return@collect
+					}
 
 					if (awaitFrame) withFrameNanos { }
 
