@@ -10,4 +10,12 @@ sealed class SummaryDestination : Destination() {
 
 	@Serializable
 	data object Summary : SummaryDestination()
+
+	@Serializable
+	data class ProfilePictureSettingsDialog(
+		val showRemove: Boolean
+	) : SummaryDestination()
+
+	@Serializable
+	data object RemoveProfilePictureConfirmationDialog : SummaryDestination()
 }

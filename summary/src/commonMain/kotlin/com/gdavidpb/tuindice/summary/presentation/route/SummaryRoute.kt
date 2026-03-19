@@ -2,8 +2,6 @@ package com.gdavidpb.tuindice.summary.presentation.route
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -12,8 +10,6 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
-import com.gdavidpb.tuindice.summary.ui.screen.ProfilePictureSettingsContentDialog
-import com.gdavidpb.tuindice.summary.ui.screen.RemoveProfilePictureConfirmationContentDialog
 import com.gdavidpb.tuindice.summary.ui.screen.SummaryScreen
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitType
@@ -24,8 +20,9 @@ import org.koin.compose.koinInject
 
 @Composable
 fun SummaryRoute(
-	isCameraAvailable: Boolean,
 	onNavigateToUpdatePassword: () -> Unit,
+	onNavigateToProfilePictureSettingsDialog: (showRemove: Boolean) -> Unit,
+	onNavigateToRemoveProfilePictureConfirmationDialog: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: SummaryViewModel,
 	syncStatusRepository: SyncStatusRepository = koinInject()
@@ -35,8 +32,6 @@ fun SummaryRoute(
 		.observeSyncStatus()
 		.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
 	val coroutineScope = rememberCoroutineScope()
-	val displayedProfilePictureSettings = remember { mutableStateOf<Boolean?>(null) }
-	val isRemoveProfilePictureConfirmationVisible = remember { mutableStateOf(false) }
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
@@ -49,9 +44,9 @@ fun SummaryRoute(
 
 			is Summary.Effect.OpenPicker ->
 				coroutineScope.launch {
-					runCatching {
-						FileKit.openFilePicker(type = FileKitType.Image)
-					}.getOrNull()?.let(viewModel::uploadProfilePictureAction)
+					runCatching { FileKit.openFilePicker(type = FileKitType.Image) }
+						.getOrNull()
+						?.let(viewModel::uploadProfilePictureAction)
 				}
 
 			is Summary.Effect.NavigateToOutdatedCredentials ->
@@ -60,15 +55,11 @@ fun SummaryRoute(
 			is Summary.Effect.ShowSnackBar ->
 				showSnackBar(SnackBarMessage(message = effect.message))
 
-			is Summary.Effect.ShowProfilePictureSettingsDialog -> {
-				isRemoveProfilePictureConfirmationVisible.value = false
-				displayedProfilePictureSettings.value = effect.showRemove
-			}
+			is Summary.Effect.ShowProfilePictureSettingsDialog ->
+				onNavigateToProfilePictureSettingsDialog(effect.showRemove)
 
-			is Summary.Effect.ShowRemoveProfilePictureConfirmationDialog -> {
-				displayedProfilePictureSettings.value = null
-				isRemoveProfilePictureConfirmationVisible.value = true
-			}
+			is Summary.Effect.ShowRemoveProfilePictureConfirmationDialog ->
+				onNavigateToRemoveProfilePictureConfirmationDialog()
 		}
 	}
 
@@ -79,21 +70,4 @@ fun SummaryRoute(
 		onEditProfilePictureClick = viewModel::openProfilePictureSettingsAction,
 		onUpdatePasswordClick = onNavigateToUpdatePassword
 	)
-
-	displayedProfilePictureSettings.value?.let { showRemove ->
-		ProfilePictureSettingsContentDialog(
-			showRemove = showRemove,
-			isCameraAvailable = isCameraAvailable,
-			onPickPictureClick = viewModel::pickProfilePictureAction,
-			onTakePictureClick = viewModel::takeProfilePictureAction,
-			onRemovePictureClick = viewModel::removeProfilePictureAction,
-			onDismissRequest = { displayedProfilePictureSettings.value = null }
-		)
-	}
-
-	if (isRemoveProfilePictureConfirmationVisible.value)
-		RemoveProfilePictureConfirmationContentDialog(
-			onConfirmClick = viewModel::confirmRemoveProfilePictureAction,
-			onDismissRequest = { isRemoveProfilePictureConfirmationVisible.value = false }
-		)
 }

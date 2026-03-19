@@ -1,12 +1,14 @@
 package com.gdavidpb.tuindice.ui.screen
 
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.gdavidpb.tuindice.about.presentation.navigation.aboutNavigation
+import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
+import com.gdavidpb.tuindice.auth.presentation.navigation.authNavigation
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
@@ -14,8 +16,6 @@ import com.gdavidpb.tuindice.base.utils.extension.canNavigateBackFromCurrentDest
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofNavigation
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsNavigation
-import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
-import com.gdavidpb.tuindice.auth.presentation.navigation.authNavigation
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.browserNavigation
 import com.gdavidpb.tuindice.presentation.navigation.mainNavigation
@@ -78,6 +78,7 @@ fun TuIndiceNavHost(
 		)
 
 		summaryNavigation(
+			navController = navController,
 			isCameraAvailable = isCameraAvailable,
 			onNavigateToUpdatePassword = {
 				navController.navigate(AuthDestination.UpdatePasswordDialog)

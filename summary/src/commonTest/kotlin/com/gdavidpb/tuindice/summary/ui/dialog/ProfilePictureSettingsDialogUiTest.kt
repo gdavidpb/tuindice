@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 class ProfilePictureSettingsDialogUiTest {
 	@Test
-	fun when_pickActionTapped_then_invokesPickCallbackAndDismiss() = runTuIndiceUiTest {
+	fun when_pickActionTapped_then_invokesPickCallbackWithoutDismissCallback() = runTuIndiceUiTest {
 		var pickClicks = 0
 		var dismissClicks = 0
 
@@ -38,16 +38,17 @@ class ProfilePictureSettingsDialogUiTest {
 		onNodeWithText("Subir foto").performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			pickClicks == 1 && dismissClicks == 1
+			pickClicks == 1
 		}
 
 		assertEquals(1, pickClicks)
-		assertEquals(1, dismissClicks)
+		assertEquals(0, dismissClicks)
 	}
 
 	@Test
-	fun when_pickActionTapped_then_dismissesBeforeInvokingPickCallback() = runTuIndiceUiTest {
-		val callbackOrder = mutableListOf<String>()
+	fun when_takeActionTapped_then_invokesTakeCallbackWithoutDismissCallback() = runTuIndiceUiTest {
+		var takeClicks = 0
+		var dismissClicks = 0
 
 		setTuIndiceTestContent {
 			ProfilePictureSettingsDialog(
@@ -57,20 +58,21 @@ class ProfilePictureSettingsDialogUiTest {
 				pickPictureLabel = "Subir foto",
 				takePictureLabel = "Tomar foto",
 				removePictureLabel = "Remover foto",
-				onPickPictureClick = { callbackOrder += "pick" },
-				onTakePictureClick = {},
+				onPickPictureClick = {},
+				onTakePictureClick = { takeClicks++ },
 				onRemovePictureClick = {},
-				onDismissRequest = { callbackOrder += "dismiss" }
+				onDismissRequest = { dismissClicks++ }
 			)
 		}
 
-		onNodeWithText("Subir foto").performClick()
+		onNodeWithText("Tomar foto").performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			callbackOrder.size == 2
+			takeClicks == 1
 		}
 
-		assertEquals(listOf("dismiss", "pick"), callbackOrder)
+		assertEquals(1, takeClicks)
+		assertEquals(0, dismissClicks)
 	}
 
 	@Test
@@ -96,38 +98,7 @@ class ProfilePictureSettingsDialogUiTest {
 	}
 
 	@Test
-	fun when_takeActionTapped_then_invokesTakeCallbackAndDismiss() = runTuIndiceUiTest {
-		var takeClicks = 0
-		var dismissClicks = 0
-
-		setTuIndiceTestContent {
-			ProfilePictureSettingsDialog(
-				showRemove = true,
-				isCameraAvailable = true,
-				titleText = "Mi foto de perfil",
-				pickPictureLabel = "Subir foto",
-				takePictureLabel = "Tomar foto",
-				removePictureLabel = "Remover foto",
-				onPickPictureClick = {},
-				onTakePictureClick = { takeClicks++ },
-				onRemovePictureClick = {},
-				onDismissRequest = { dismissClicks++ }
-			)
-		}
-
-		assertNodeVisible(SummaryUiTags.ProfilePictureTakeAction)
-		onNodeWithText("Tomar foto").performClick()
-
-		waitUntil(timeoutMillis = 2_000) {
-			takeClicks == 1 && dismissClicks == 1
-		}
-
-		assertEquals(1, takeClicks)
-		assertEquals(1, dismissClicks)
-	}
-
-	@Test
-	fun when_removeActionTapped_then_invokesRemoveCallbackAndDismiss() = runTuIndiceUiTest {
+	fun when_removeActionTapped_then_invokesRemoveCallbackWithoutDismissCallback() = runTuIndiceUiTest {
 		var removeClicks = 0
 		var dismissClicks = 0
 
@@ -150,11 +121,11 @@ class ProfilePictureSettingsDialogUiTest {
 		onNodeWithText("Remover foto").performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			removeClicks == 1 && dismissClicks == 1
+			removeClicks == 1
 		}
 
 		assertEquals(1, removeClicks)
-		assertEquals(1, dismissClicks)
+		assertEquals(0, dismissClicks)
 	}
 
 	@Test

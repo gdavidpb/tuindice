@@ -79,7 +79,7 @@ class SummaryDialogScreenUiTest {
 	}
 
 	@Test
-	fun when_pickActionTappedFromContentDialog_then_invokesPickCallback() = runTuIndiceUiTest {
+	fun when_pickActionTappedFromContentDialog_then_invokesPickCallbackWithoutDismissCallback() = runTuIndiceUiTest {
 		var pickClicks = 0
 		var dismissClicks = 0
 
@@ -97,15 +97,15 @@ class SummaryDialogScreenUiTest {
 		onNodeWithText("Subir foto").performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			pickClicks == 1 && dismissClicks == 1
+			pickClicks == 1
 		}
 
 		assertEquals(1, pickClicks)
-		assertEquals(1, dismissClicks)
+		assertEquals(0, dismissClicks)
 	}
 
 	@Test
-	fun when_removeActionTappedFromContentDialog_then_invokesRemoveCallback() = runTuIndiceUiTest {
+	fun when_removeActionTappedFromContentDialog_then_invokesRemoveCallbackWithoutDismissCallback() = runTuIndiceUiTest {
 		var removeClicks = 0
 		var dismissClicks = 0
 
@@ -123,15 +123,15 @@ class SummaryDialogScreenUiTest {
 		onNodeWithText("Remover foto").performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			removeClicks == 1 && dismissClicks == 1
+			removeClicks == 1
 		}
 
 		assertEquals(1, removeClicks)
-		assertEquals(1, dismissClicks)
+		assertEquals(0, dismissClicks)
 	}
 
 	@Test
-	fun when_takeActionTappedFromContentDialog_then_invokesTakeCallback() = runTuIndiceUiTest {
+	fun when_takeActionTappedFromContentDialog_then_invokesTakeCallbackWithoutDismissCallback() = runTuIndiceUiTest {
 		var takeClicks = 0
 		var dismissClicks = 0
 
@@ -149,11 +149,11 @@ class SummaryDialogScreenUiTest {
 		onNodeWithText("Tomar foto").performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			takeClicks == 1 && dismissClicks == 1
+			takeClicks == 1
 		}
 
 		assertEquals(1, takeClicks)
-		assertEquals(1, dismissClicks)
+		assertEquals(0, dismissClicks)
 	}
 
 	@Test

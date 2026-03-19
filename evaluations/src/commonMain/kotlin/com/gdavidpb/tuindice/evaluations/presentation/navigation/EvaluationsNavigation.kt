@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.evaluations.presentation.navigation
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
@@ -19,10 +19,6 @@ import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationGradePickerContentD
 import com.gdavidpb.tuindice.evaluations.ui.screen.GradePickerContentDialog
 import com.gdavidpb.tuindice.evaluations.ui.screen.MaxGradePickerContentDialog
 import org.koin.compose.viewmodel.koinViewModel
-
-private const val GRADE_PICKER_RESULT_KEY = "grade_picker_result"
-private const val MAX_GRADE_PICKER_RESULT_KEY = "max_grade_picker_result"
-private const val EVALUATION_GRADE_PICKER_RESULT_KEY = "evaluation_grade_picker_result"
 
 fun NavGraphBuilder.evaluationsNavigation(
 	navController: NavHostController,
@@ -45,31 +41,6 @@ fun NavGraphBuilder.evaluationsNavigation(
 				onViewStateChanged(viewState)
 			}
 
-			LaunchedEffect(backStackEntry, viewModel) {
-				backStackEntry.savedStateHandle
-					.getStateFlow<String?>(EVALUATION_GRADE_PICKER_RESULT_KEY, null)
-					.collect { result ->
-						if (result == null)
-							return@collect
-
-						val separatorIndex = result.indexOf('|')
-
-						if (separatorIndex != -1) {
-							val evaluationId = result.substring(0, separatorIndex)
-							val grade = result.substring(separatorIndex + 1).toDoubleOrNull()
-
-							if (grade != null) {
-								viewModel.setEvaluationGradeAction(
-									evaluationId = evaluationId,
-									grade = grade
-								)
-							}
-						}
-
-						backStackEntry.savedStateHandle[EVALUATION_GRADE_PICKER_RESULT_KEY] = null
-					}
-			}
-
 			EvaluationsRoute(
 				onNavigateToAddEvaluation = onNavigateToAddEvaluation,
 				onNavigateToEvaluation = onNavigateToEvaluation,
@@ -88,30 +59,6 @@ fun NavGraphBuilder.evaluationsNavigation(
 				onViewStateChanged(viewState)
 			}
 
-			LaunchedEffect(backStackEntry, viewModel) {
-				backStackEntry.savedStateHandle
-					.getStateFlow<Double?>(GRADE_PICKER_RESULT_KEY, null)
-					.collect { grade ->
-						if (grade == null)
-							return@collect
-
-						viewModel.setGradeAction(grade = grade)
-						backStackEntry.savedStateHandle[GRADE_PICKER_RESULT_KEY] = null
-					}
-			}
-
-			LaunchedEffect(backStackEntry, viewModel) {
-				backStackEntry.savedStateHandle
-					.getStateFlow<Double?>(MAX_GRADE_PICKER_RESULT_KEY, null)
-					.collect { grade ->
-						if (grade == null)
-							return@collect
-
-						viewModel.setMaxGradeAction(grade = grade)
-						backStackEntry.savedStateHandle[MAX_GRADE_PICKER_RESULT_KEY] = null
-					}
-			}
-
 			EvaluationRoute(
 				evaluationId = args.evaluationId,
 				onNavigateToEvaluations = onNavigateToEvaluations,
@@ -124,42 +71,41 @@ fun NavGraphBuilder.evaluationsNavigation(
 
 		dialog<EvaluationsDestination.GradePickerDialog> { backStackEntry ->
 			val args = backStackEntry.toRoute<EvaluationsDestination.GradePickerDialog>()
-			val resultHandle = navController.previousBackStackEntry?.savedStateHandle
+			val parentEntry = navController.previousBackStackEntry ?: return@dialog
+			val viewModel = koinViewModel<EvaluationViewModel>(viewModelStoreOwner = parentEntry)
 
 			GradePickerContentDialog(
 				selectedGrade = args.grade,
 				maxGrade = args.maxGrade,
-				onGradeChange = { grade ->
-					resultHandle?.set(GRADE_PICKER_RESULT_KEY, grade)
-				},
+				onGradeChange = viewModel::setGradeAction,
 				onDismissRequest = onDismissRequest
 			)
 		}
 
 		dialog<EvaluationsDestination.MaxGradePickerDialog> { backStackEntry ->
 			val args = backStackEntry.toRoute<EvaluationsDestination.MaxGradePickerDialog>()
-			val resultHandle = navController.previousBackStackEntry?.savedStateHandle
+			val parentEntry = navController.previousBackStackEntry ?: return@dialog
+			val viewModel = koinViewModel<EvaluationViewModel>(viewModelStoreOwner = parentEntry)
 
 			MaxGradePickerContentDialog(
 				selectedGrade = args.grade,
-				onGradeChange = { grade ->
-					resultHandle?.set(MAX_GRADE_PICKER_RESULT_KEY, grade)
-				},
+				onGradeChange = viewModel::setMaxGradeAction,
 				onDismissRequest = onDismissRequest
 			)
 		}
 
 		dialog<EvaluationsDestination.EvaluationGradePickerDialog> { backStackEntry ->
 			val args = backStackEntry.toRoute<EvaluationsDestination.EvaluationGradePickerDialog>()
-			val resultHandle = navController.previousBackStackEntry?.savedStateHandle
+			val parentEntry = navController.previousBackStackEntry ?: return@dialog
+			val viewModel = koinViewModel<EvaluationsViewModel>(viewModelStoreOwner = parentEntry)
 
 			EvaluationGradePickerContentDialog(
 				selectedGrade = args.grade,
 				maxGrade = args.maxGrade,
 				onGradeChange = { grade ->
-					resultHandle?.set(
-						EVALUATION_GRADE_PICKER_RESULT_KEY,
-						"${args.evaluationId}|$grade"
+					viewModel.setEvaluationGradeAction(
+						evaluationId = args.evaluationId,
+						grade = grade
 					)
 				},
 				onDismissRequest = onDismissRequest
