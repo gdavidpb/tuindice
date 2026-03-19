@@ -15,8 +15,9 @@ Implement module work by copying the nearest existing module pattern instead of 
 - Load [references/module-recipes.md](references/module-recipes.md) when you need the concrete checklist for creating or modifying a module.
 - Load [references/scaffolding.md](references/scaffolding.md) when you want to bootstrap a new module or render boilerplate for individual architecture components.
 - Use the closest existing module as a template:
-  - `summary` or `record` for a straightforward feature
-  - `evaluations` for a feature with multiple screens, dialogs, and navigation results
+  - `summary` for a feature with dialog destinations plus typed back results for lifecycle-sensitive platform effects
+  - `evaluations` for a feature with multiple screens and dialog destinations that dispatch directly into the parent `ViewModel`
+  - `record` for a straightforward feature
   - `about` for a lighter feature with platform adapters
   - `persistence` for shared data storage and KSP/Room wiring
   - `base` for shared contracts, MVI primitives, reusable UI, and cross-feature infrastructure
@@ -50,6 +51,12 @@ Implement module work by copying the nearest existing module pattern instead of 
   - `Navigation` injects or resolves `ViewModel` instances with `koinViewModel(...)`
   - `Route` observes `state` and `effect`, triggers initial actions with `LaunchedEffect`, and passes plain state/callbacks to `Screen`
   - `Screen` stays stateless with respect to DI
+- Prefer feature dialogs as navigation destinations instead of rendering them from feature state. Keep state-driven dialogs only for small widget-local popups when promoting them to navigation would add unnecessary ceremony.
+- Choose one dialog-result pattern deliberately:
+  - If the dialog only needs to mutate the parent screen state, resolve the parent/shared `ViewModel` from the dialog destination and dispatch the action directly, as in `evaluations`.
+  - If the dialog needs to hand an intent back to the previous destination and the parent must execute a lifecycle-sensitive side effect after the dialog is gone, use `base/.../NavigationResult.kt` with `CollectBackResultWithLifecycle`, as in `summary`.
+- For navigation back results, use dedicated `@Serializable` result types instead of raw `String` or `Boolean` values. The shared helper derives the key from the result base type and serializes the payload into `savedStateHandle`.
+- When sending a sealed back result, call `navigateBackWithResult<BaseResult>(SubResult)` with the base type explicit so the writer and collector use the same key and serializer.
 - Match the repo's Compose local-state style: when using `remember { mutableStateOf(...) }`, prefer `val state = ...` plus `.value` reads/writes instead of delegated `var ... by remember { ... }`, unless the file already follows a different established pattern.
 - Keep `commonMain` portable:
   - no `android.*`

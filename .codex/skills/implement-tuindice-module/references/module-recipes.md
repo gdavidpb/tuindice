@@ -28,6 +28,11 @@ If the request does not fit one of those buckets, pause and explain why before i
 5. If the change adds or changes destinations:
    - update the feature `*Navigation.kt`
    - update `maincore/.../TuIndiceNavHost.kt` if the host must navigate to it
+   - if the destination is a feature dialog, prefer `dialog<Destination>` in navigation over rendering the dialog from feature state
+   - for dialog destinations, pick one result pattern explicitly:
+     - resolve the parent/shared `ViewModel` from the dialog destination and dispatch actions directly when the dialog only edits parent state
+     - use `base/.../NavigationResult.kt` when the dialog must return an intent to the previous destination and that destination must run a lifecycle-sensitive side effect after the dialog closes
+   - when using `NavigationResult`, create a dedicated `@Serializable` result type per flow instead of raw primitives; for sealed results, send them with the base generic type so the writer and collector share the same key
 6. Validate with targeted compilation plus the feature smoke test and the smallest relevant contract/UI tests.
 
 ## 3. Create A New KMP Feature Module
