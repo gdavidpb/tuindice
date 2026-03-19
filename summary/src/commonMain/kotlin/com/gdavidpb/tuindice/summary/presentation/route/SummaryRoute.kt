@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.summary.presentation.route
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
@@ -15,7 +14,6 @@ import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.openCameraPicker
 import io.github.vinceglb.filekit.dialogs.openFilePicker
-import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
@@ -31,23 +29,18 @@ fun SummaryRoute(
 	val syncStatus by syncStatusRepository
 		.observeSyncStatus()
 		.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
-	val coroutineScope = rememberCoroutineScope()
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
 			is Summary.Effect.OpenCamera ->
-				coroutineScope.launch {
-					runCatching { FileKit.openCameraPicker() }
-						.getOrNull()
-						?.let(viewModel::uploadProfilePictureAction)
-				}
+				runCatching { FileKit.openCameraPicker() }
+					.getOrNull()
+					?.let(viewModel::uploadProfilePictureAction)
 
 			is Summary.Effect.OpenPicker ->
-				coroutineScope.launch {
-					runCatching { FileKit.openFilePicker(type = FileKitType.Image) }
-						.getOrNull()
-						?.let(viewModel::uploadProfilePictureAction)
-				}
+				runCatching { FileKit.openFilePicker(type = FileKitType.Image) }
+					.getOrNull()
+					?.let(viewModel::uploadProfilePictureAction)
 
 			is Summary.Effect.NavigateToOutdatedCredentials ->
 				onNavigateToUpdatePassword()

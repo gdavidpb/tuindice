@@ -58,7 +58,10 @@ fun ProfilePictureView(
 	Box(
 		modifier = modifier
 			.testTag(SummaryUiTags.ProfilePictureContainer)
-			.clickable { if (!state.isLoading) onClick() }
+			.clickable(
+				enabled = !state.isLoading,
+				onClick = onClick
+			)
 	) {
 		Box(
 			modifier = Modifier

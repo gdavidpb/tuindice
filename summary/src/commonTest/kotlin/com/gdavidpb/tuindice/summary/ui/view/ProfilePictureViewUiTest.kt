@@ -77,9 +77,8 @@ class ProfilePictureViewUiTest {
 		}
 
 		assertNodeVisible(SummaryUiTags.ProfilePictureLoadingIndicator)
+		assertNodeDisabled(SummaryUiTags.ProfilePictureContainer)
 		assertNodeDisabled(SummaryUiTags.ProfilePictureEditButton)
-
-		onNodeWithTag(SummaryUiTags.ProfilePictureContainer).performClick()
 
 		assertEquals(0, pictureClicks)
 	}
