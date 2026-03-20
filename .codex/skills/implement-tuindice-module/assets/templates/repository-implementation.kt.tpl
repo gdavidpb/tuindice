@@ -5,7 +5,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class $DATA_REPOSITORY_NAME : $REPOSITORY_INTERFACE_NAME {
-	override suspend fun getMessageFlow(): Flow<String> {
+	override suspend fun observeMessageFlow(): Flow<String> {
 		return flowOf($READY_MESSAGE_LITERAL)
 	}
+
+	override suspend fun updateMessage() = Unit
 }

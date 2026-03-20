@@ -25,11 +25,11 @@ fun $ROUTE_NAME(
 	}
 
 	LaunchedEffect(Unit) {
-		viewModel.$LOAD_METHOD_NAME()
+		viewModel.$REFRESH_METHOD_NAME()
 	}
 
 	$SCREEN_NAME(
 		state = viewState,
-		onRetryClick = viewModel::$LOAD_METHOD_NAME
+		onRetryClick = viewModel::$REFRESH_METHOD_NAME
 	)
 }

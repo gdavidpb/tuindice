@@ -24,8 +24,14 @@ If the request does not fit one of those buckets, pause and explain why before i
    - the Koin smoke test overrides
    - any route or screen entry points that resolve the changed view model
 3. If the module already uses validators and exception handlers for similar use cases, keep that pattern for new use cases too.
-4. Add visible strings to `src/commonMain/composeResources/values/`.
-5. If the change adds or changes destinations:
+4. For repository-backed screen state, prefer the split already used in `summary` and `record`:
+   - repository exposes `observe*Flow()` and `update*()`
+   - observe use case reads local state only
+   - update use case refreshes remote or recomputes, then persists local state
+   - `ViewModel` starts observation as `initialAction`
+   - `Route` triggers the first refresh and retries with `LaunchedEffect` or retry callbacks
+5. Add visible strings to `src/commonMain/composeResources/values/`.
+6. If the change adds or changes destinations:
    - update the feature `*Navigation.kt`
    - update `maincore/.../TuIndiceNavHost.kt` if the host must navigate to it
    - if the destination is a feature dialog, prefer `dialog<Destination>` in navigation over rendering the dialog from feature state
@@ -33,7 +39,7 @@ If the request does not fit one of those buckets, pause and explain why before i
      - resolve the parent/shared `ViewModel` from the dialog destination and dispatch actions directly when the dialog only edits parent state
      - use `base/.../NavigationResult.kt` when the dialog must return an intent to the previous destination and that destination must run a lifecycle-sensitive side effect after the dialog closes
    - when using `NavigationResult`, create a dedicated `@Serializable` result type per flow instead of raw primitives; for sealed results, send them with the base generic type so the writer and collector share the same key
-6. Validate with targeted compilation plus the feature smoke test and the smallest relevant contract/UI tests.
+7. Validate with targeted compilation plus the feature smoke test and the smallest relevant contract/UI tests.
 
 ## 3. Create A New KMP Feature Module
 

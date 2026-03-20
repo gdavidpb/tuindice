@@ -41,20 +41,23 @@ Important flags:
 - `src/commonMain/kotlin/.../di/<Feature>Module.kt`
 - `src/commonMain/kotlin/.../presentation/contract/<Feature>.kt`
 - `src/commonMain/kotlin/.../presentation/viewmodel/<Feature>ViewModel.kt`
-- `src/commonMain/kotlin/.../presentation/action/Load<Feature>ActionProcessor.kt`
+- `src/commonMain/kotlin/.../presentation/action/Observe<Feature>ActionProcessor.kt`
+- `src/commonMain/kotlin/.../presentation/action/Refresh<Feature>ActionProcessor.kt`
 - `src/commonMain/kotlin/.../presentation/navigation/<Feature>Destination.kt`
 - `src/commonMain/kotlin/.../presentation/navigation/<Feature>Navigation.kt`
 - `src/commonMain/kotlin/.../presentation/route/<Feature>Route.kt`
 - `src/commonMain/kotlin/.../ui/screen/<Feature>Screen.kt`
 - `src/commonMain/kotlin/.../domain/repository/<Feature>Repository.kt`
-- `src/commonMain/kotlin/.../domain/usecase/Load<Feature>UseCase.kt`
-- `src/commonMain/kotlin/.../domain/usecase/error/Load<Feature>UseCaseError.kt`
-- `src/commonMain/kotlin/.../domain/usecase/exceptionhandler/Load<Feature>ExceptionHandler.kt`
+- `src/commonMain/kotlin/.../domain/usecase/Observe<Feature>UseCase.kt`
+- `src/commonMain/kotlin/.../domain/usecase/error/Observe<Feature>UseCaseError.kt`
+- `src/commonMain/kotlin/.../domain/usecase/Update<Feature>UseCase.kt`
+- `src/commonMain/kotlin/.../domain/usecase/error/Update<Feature>UseCaseError.kt`
+- `src/commonMain/kotlin/.../domain/usecase/exceptionhandler/Update<Feature>ExceptionHandler.kt`
 - `src/commonMain/kotlin/.../data/repository/<Feature>DataRepository.kt`
 - `src/commonTest/kotlin/.../di/<Feature>ModuleKoinSmokeTest.kt`
 - `src/commonTest/kotlin/.../testing/<Feature>TestDoubles.kt`
 
-The baseline uses a trivial `String` content flow so the domain/data path and smoke test are easy to replace incrementally.
+The baseline uses a trivial `String` content flow, but it follows the repo's current split between local observation and explicit refresh so the domain/data path is easy to replace incrementally.
 
 ## Integration Mode
 
@@ -92,12 +95,15 @@ The component templates live in `assets/templates/` and can be rendered individu
 - `module`
 - `contract`
 - `viewmodel`
-- `action-processor`
+- `observe-action-processor`
+- `refresh-action-processor`
 - `repository-interface`
 - `repository-implementation`
-- `use-case`
-- `use-case-error`
-- `exception-handler`
+- `observe-use-case`
+- `observe-use-case-error`
+- `update-use-case`
+- `update-use-case-error`
+- `update-exception-handler`
 - `validator`
 - `destination`
 - `navigation`
@@ -118,8 +124,13 @@ The repo pattern is:
 - it does not talk to repositories directly
 - it delegates each action branch to a dedicated `ActionProcessor`
 - `initialState` and `initialAction` are declared at the `BaseViewModel(...)` call site
+- for repository-backed screen data, prefer:
+  - `initialAction = Observe<Feature>`
+  - a public `refresh<Feature>Action()` that sends `Refresh<Feature>`
+  - observe processors reducing the local flow into screen state
+  - refresh processors handling startup or retry refresh and remote error messaging
 
-Generated `ViewModel` templates intentionally start with a single action processor so the shape stays simple and easy to expand.
+Generated `ViewModel` templates intentionally start with the observe-plus-refresh split so new modules match the current repo pattern instead of collapsing both responsibilities into `Load*`.
 
 ## Route Pattern
 
@@ -131,7 +142,7 @@ The repo split is:
 - `Route`:
   - collects `state` with lifecycle
   - collects `effect`
-  - triggers startup work with `LaunchedEffect`
+  - triggers explicit refresh work with `LaunchedEffect`
   - maps effects to navigation or snackbars
   - passes plain state and callbacks to `Screen`
 - `Screen`:

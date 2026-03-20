@@ -22,7 +22,8 @@ object $FEATURE_NAME {
 	}
 
 	sealed class Action : ViewAction() {
-		data object $LOAD_ACTION_NAME : Action()
+		data object $OBSERVE_ACTION_NAME : Action()
+		data object $REFRESH_ACTION_NAME : Action()
 	}
 
 	sealed class Effect : ViewEffect() {

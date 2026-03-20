@@ -2,9 +2,11 @@ package $PACKAGE.di
 
 import $PACKAGE.data.repository.$DATA_REPOSITORY_NAME
 import $PACKAGE.domain.repository.$REPOSITORY_INTERFACE_NAME
-import $PACKAGE.domain.usecase.$LOAD_USE_CASE_NAME
-import $PACKAGE.domain.usecase.exceptionhandler.$EXCEPTION_HANDLER_NAME
-import $PACKAGE.presentation.action.$ACTION_PROCESSOR_NAME
+import $PACKAGE.domain.usecase.$OBSERVE_USE_CASE_NAME
+import $PACKAGE.domain.usecase.$UPDATE_USE_CASE_NAME
+import $PACKAGE.domain.usecase.exceptionhandler.$UPDATE_EXCEPTION_HANDLER_NAME
+import $PACKAGE.presentation.action.$OBSERVE_ACTION_PROCESSOR_NAME
+import $PACKAGE.presentation.action.$REFRESH_ACTION_PROCESSOR_NAME
 import $PACKAGE.presentation.viewmodel.$VIEWMODEL_NAME
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -18,11 +20,13 @@ val $MODULE_VAR_NAME = module {
 
 	/* Action processor */
 
-	factoryOf(::$ACTION_PROCESSOR_NAME)
+	factoryOf(::$OBSERVE_ACTION_PROCESSOR_NAME)
+	factoryOf(::$REFRESH_ACTION_PROCESSOR_NAME)
 
 	/* Use cases */
 
-	factoryOf(::$LOAD_USE_CASE_NAME)
+	factoryOf(::$OBSERVE_USE_CASE_NAME)
+	factoryOf(::$UPDATE_USE_CASE_NAME)
 
 	/* Repositories */
 
@@ -30,5 +34,5 @@ val $MODULE_VAR_NAME = module {
 
 	/* Exception handlers */
 
-	factoryOf(::$EXCEPTION_HANDLER_NAME)
+	factoryOf(::$UPDATE_EXCEPTION_HANDLER_NAME)
 }

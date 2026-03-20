@@ -35,18 +35,28 @@ Implement module work by copying the nearest existing module pattern instead of 
    - feature dependencies in `<feature>/.../<Feature>Module.kt`
    - Android platform bindings in `app/.../AndroidPlatformModule.kt`
    - iOS platform bindings in `maincore/src/iosMain/.../IosPlatformModule.kt`
-6. Keep the UI boundary explicit:
+6. When a feature exposes repository-backed screen data, separate local observation from remote refresh:
+   - repository interfaces should expose an `observe*Flow()` read path and an explicit `update*()` refresh path
+   - observe use cases should read local flows only
+   - update use cases should fetch or recompute and then persist back into local state
+   - `ViewModel` initial actions should usually start observation, while `Route` triggers the first refresh with `LaunchedEffect`
+7. Keep the UI boundary explicit:
    - `Navigation` resolves the `ViewModel`
    - `Route` bridges `state/effect` and lifecycle to the pure `Screen`
    - `Screen` stays free of Koin and business wiring
-7. Update smoke tests and focused contract/UI tests when constructor wiring or public entry points change.
-8. Run the smallest truthful verification set and report anything left unverified.
+8. Update smoke tests and focused contract/UI tests when constructor wiring or public entry points change.
+9. Run the smallest truthful verification set and report anything left unverified.
 
 ## Non-Negotiable Project Rules
 
 - Keep the dependency flow pointed inward. Do not add new feature-to-feature dependencies without explicit approval. Current legacy exception: `evaluations -> record`.
 - Preserve `presentation -> domain -> data -> di` separation. Interfaces live in `domain`; implementations live in `data`; `di` only wires them.
 - `ViewModel` classes extend `BaseViewModel` and delegate work to `ActionProcessor` classes.
+- For repository-backed feature state, prefer the `summary` and `record` split:
+  - `Observe*UseCase` reads local state only
+  - `Update*UseCase` refreshes and persists explicitly
+  - `Observe*ActionProcessor` owns screen state reduction from the observed flow
+  - `Refresh*ActionProcessor` owns startup/retry refresh and error messaging
 - Preserve the composable boundary:
   - `Navigation` injects or resolves `ViewModel` instances with `koinViewModel(...)`
   - `Route` observes `state` and `effect`, triggers initial actions with `LaunchedEffect`, and passes plain state/callbacks to `Screen`
