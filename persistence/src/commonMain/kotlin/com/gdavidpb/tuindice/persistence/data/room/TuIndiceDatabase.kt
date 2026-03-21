@@ -1,28 +1,19 @@
 package com.gdavidpb.tuindice.persistence.data.room
 
-import androidx.room.Database
-import androidx.room.ConstructedBy
-import androidx.room.RoomDatabase
-import androidx.room.RoomDatabaseConstructor
-import androidx.room.TypeConverters
+import androidx.room.*
 import com.gdavidpb.tuindice.persistence.data.room.converter.DatabaseConverters
-import com.gdavidpb.tuindice.persistence.data.room.daos.UserDao
-import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
-import com.gdavidpb.tuindice.persistence.data.room.daos.QuarterDao
-import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDao
-import com.gdavidpb.tuindice.persistence.data.room.entity.UserEntity
-import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
-import com.gdavidpb.tuindice.persistence.data.room.entity.QuarterEntity
-import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
+import com.gdavidpb.tuindice.persistence.data.room.daos.*
+import com.gdavidpb.tuindice.persistence.data.room.entity.*
 
 @Database(
 	entities = [
 		UserEntity::class,
 		QuarterEntity::class,
 		SubjectEntity::class,
-		EvaluationEntity::class
+		EvaluationEntity::class,
+		PendingMutationEntity::class
 	],
-	version = 3,
+	version = 4,
 	exportSchema = false
 )
 @ConstructedBy(TuIndiceDatabaseConstructor::class)
@@ -32,9 +23,9 @@ abstract class TuIndiceDatabase : RoomDatabase() {
 	abstract val quarters: QuarterDao
 	abstract val subjects: SubjectDao
 	abstract val evaluations: EvaluationDao
+	abstract val pendingMutations: PendingMutationDao
 }
 
-@Suppress("KotlinNoActualForExpect")
 expect object TuIndiceDatabaseConstructor : RoomDatabaseConstructor<TuIndiceDatabase> {
 	override fun initialize(): TuIndiceDatabase
 }

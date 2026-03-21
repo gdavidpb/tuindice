@@ -18,6 +18,7 @@ fun RemoteQuarter.toLocalQuarter() = LocalQuarter(
 	creditsSum = creditsSum,
 	isCurrent = isCurrent,
 	isReadOnly = isReadOnly,
+	revision = revision,
 	subjects = subjects.map { subject -> subject.toLocalSubject() }
 )
 
@@ -46,6 +47,7 @@ fun Quarter.toLocalQuarter() = LocalQuarter(
 	creditsSum = creditsSum,
 	isCurrent = isCurrent,
 	isReadOnly = isReadOnly,
+	revision = 0L,
 	subjects = subjects.map { subject -> subject.toLocalSubject() }
 )
 
@@ -55,7 +57,8 @@ fun Subject.toRemoteSubject() = RemoteSubject(
 	code = code,
 	name = name,
 	credits = credits,
-	grade = grade
+	grade = grade,
+	revision = 0L
 )
 
 fun RemoteSubject.toLocalSubject() = LocalSubject(
@@ -64,7 +67,8 @@ fun RemoteSubject.toLocalSubject() = LocalSubject(
 	code = code,
 	name = name,
 	credits = credits,
-	grade = grade
+	grade = grade,
+	revision = revision
 )
 
 fun LocalSubject.toSubject() = Subject(
@@ -82,5 +86,6 @@ fun Subject.toLocalSubject() = LocalSubject(
 	code = code,
 	name = name,
 	credits = credits,
-	grade = grade
+	grade = grade,
+	revision = 0L
 )

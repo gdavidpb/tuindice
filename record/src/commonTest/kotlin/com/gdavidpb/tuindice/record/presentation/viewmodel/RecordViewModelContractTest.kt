@@ -1,12 +1,14 @@
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.GetQuartersExceptionHandler
+import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
+import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateQuartersExceptionHandler
 import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
-import com.gdavidpb.tuindice.record.presentation.action.LoadQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.ObserveQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.RefreshQuartersActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
@@ -26,7 +28,7 @@ import kotlin.test.assertIs
 class RecordViewModelContractTest {
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun publicActions_loadContent_andEmitSnackBarOnInvalidGrade() = runTest {
+	fun initialAction_observesContent_andInvalidGradeEmitsSnackBar() = runTest {
 		val viewModel = createViewModel()
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,
@@ -37,7 +39,6 @@ class RecordViewModelContractTest {
 			viewModel.state.test {
 				assertEquals(Record.State.Loading, awaitItem())
 
-				viewModel.loadQuartersAction()
 				val content = assertIs<Record.State.Content>(awaitItem())
 				assertEquals(listOf(DEFAULT_RECORD_QUARTER), content.quarters)
 
@@ -64,12 +65,17 @@ class RecordViewModelContractTest {
 
 	private fun createViewModel(): RecordViewModel {
 		return RecordViewModel(
-			loadQuartersActionProcessor = LoadQuartersActionProcessor(
-				getQuartersUseCase = GetQuartersUseCase(
+			observeQuartersActionProcessor = ObserveQuartersActionProcessor(
+				observeQuartersUseCase = ObserveQuartersUseCase(
 					quarterRepository = RecordingQuarterRepository(
 						quarters = flowOf(listOf(DEFAULT_RECORD_QUARTER))
-					),
-					exceptionHandler = GetQuartersExceptionHandler(
+					)
+				)
+			),
+			refreshQuartersActionProcessor = RefreshQuartersActionProcessor(
+				updateQuartersUseCase = UpdateQuartersUseCase(
+					quarterRepository = RecordingQuarterRepository(),
+					exceptionHandler = UpdateQuartersExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true),
 						reportingRepository = RecordingReportingRepository()
 					)

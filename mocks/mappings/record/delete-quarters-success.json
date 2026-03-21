@@ -1,13 +1,252 @@
 {
   "request": {
     "method": "DELETE",
-    "urlPathPattern": "/quarters/v1/[A-Za-z0-9]+"
+    "urlPathPattern": "/quarters/v1/[A-Za-z0-9]+",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.mutation_id"
+      },
+      {
+        "matchesJsonPath": "$.expected_revision"
+      }
+    ]
   },
   "response": {
     "status": 200,
     "headers": {
       "Content-Type": "application/json"
     },
+    "jsonBody": {
+      "mutation_id": "{{jsonPath request.body '$.mutation_id'}}",
+      "removed_quarter_id": "{{request.pathSegments.[2]}}",
+      "affected_quarters": [
+        {
+          "id": "Q2026B",
+          "name": "Abril - Julio 2026",
+          "start_date": 1775012400000,
+          "end_date": 1785470400000,
+          "grade": 4.2,
+          "grade_sum": 4.3,
+          "credits": 15,
+          "credits_sum": 60,
+          "is_current": false,
+          "is_read_only": false,
+          "revision": 10,
+          "subjects": [
+            {
+              "id": "MA2115Q2026B",
+              "qid": "Q2026B",
+              "code": "MA2115",
+              "name": "MATEMATICAS IV",
+              "credits": 4,
+              "grade": 5,
+              "revision": 1
+            },
+            {
+              "id": "CI2511Q2026B",
+              "qid": "Q2026B",
+              "code": "CI2511",
+              "name": "LOGICA SIMBOLICA",
+              "credits": 4,
+              "grade": 4,
+              "revision": 1
+            },
+            {
+              "id": "CI2525Q2026B",
+              "qid": "Q2026B",
+              "code": "CI2525",
+              "name": "ESTRUCTURAS DISCRETAS I",
+              "credits": 4,
+              "grade": 3,
+              "revision": 1
+            },
+            {
+              "id": "EG0001Q2026B",
+              "qid": "Q2026B",
+              "code": "EG0001",
+              "name": "ESTUDIOS GENERALES",
+              "credits": 3,
+              "grade": 5,
+              "revision": 1
+            }
+          ]
+        },
+        {
+          "id": "Q2026A",
+          "name": "Enero - Marzo 2026",
+          "start_date": 1767236400000,
+          "end_date": 1774926000000,
+          "grade": 4.1875,
+          "grade_sum": 4.3333,
+          "credits": 16,
+          "credits_sum": 45,
+          "is_current": true,
+          "is_read_only": false,
+          "revision": 9,
+          "subjects": [
+            {
+              "id": "MA1116Q2026A",
+              "qid": "Q2026A",
+              "code": "MA1116",
+              "name": "MATEMATICAS III",
+              "credits": 4,
+              "grade": 4,
+              "revision": 1
+            },
+            {
+              "id": "FS1112Q2026A",
+              "qid": "Q2026A",
+              "code": "FS1112",
+              "name": "FISICA II",
+              "credits": 3,
+              "grade": 5,
+              "revision": 1
+            },
+            {
+              "id": "ID1113Q2026A",
+              "qid": "Q2026A",
+              "code": "ID1113",
+              "name": "INGLES III",
+              "credits": 3,
+              "grade": 4,
+              "revision": 1
+            },
+            {
+              "id": "LLA113Q2026A",
+              "qid": "Q2026A",
+              "code": "LLA113",
+              "name": "LENGUAJE III",
+              "credits": 3,
+              "grade": 3,
+              "revision": 1
+            },
+            {
+              "id": "CSA213Q2026A",
+              "qid": "Q2026A",
+              "code": "CSA213",
+              "name": "VENEZUELA ANTE EL SIGLO XXI-III",
+              "credits": 3,
+              "grade": 5,
+              "revision": 1
+            }
+          ]
+        },
+        {
+          "id": "Q2025B",
+          "name": "Septiembre - Diciembre 2025",
+          "start_date": 1756699200000,
+          "end_date": 1767150000000,
+          "grade": 4.375,
+          "grade_sum": 4.4138,
+          "credits": 16,
+          "credits_sum": 29,
+          "is_current": false,
+          "is_read_only": true,
+          "revision": 5,
+          "subjects": [
+            {
+              "id": "MA1112Q2025B",
+              "qid": "Q2025B",
+              "code": "MA1112",
+              "name": "MATEMATICAS II",
+              "credits": 4,
+              "grade": 4,
+              "revision": 1
+            },
+            {
+              "id": "FS1111Q2025B",
+              "qid": "Q2025B",
+              "code": "FS1111",
+              "name": "FISICA I",
+              "credits": 3,
+              "grade": 4,
+              "revision": 1
+            },
+            {
+              "id": "ID1112Q2025B",
+              "qid": "Q2025B",
+              "code": "ID1112",
+              "name": "INGLES II",
+              "credits": 3,
+              "grade": 5,
+              "revision": 1
+            },
+            {
+              "id": "LLA112Q2025B",
+              "qid": "Q2025B",
+              "code": "LLA112",
+              "name": "LENGUAJE II",
+              "credits": 3,
+              "grade": 4,
+              "revision": 1
+            },
+            {
+              "id": "CSA212Q2025B",
+              "qid": "Q2025B",
+              "code": "CSA212",
+              "name": "VENEZUELA ANTE EL SIGLO XXI-II",
+              "credits": 3,
+              "grade": 5,
+              "revision": 1
+            }
+          ]
+        },
+        {
+          "id": "Q2025A",
+          "name": "Abril - Julio 2025",
+          "start_date": 1743476400000,
+          "end_date": 1753934400000,
+          "grade": 4.4615,
+          "grade_sum": 4.4615,
+          "credits": 13,
+          "credits_sum": 13,
+          "is_current": false,
+          "is_read_only": true,
+          "revision": 4,
+          "subjects": [
+            {
+              "id": "MA1111Q2025A",
+              "qid": "Q2025A",
+              "code": "MA1111",
+              "name": "MATEMATICAS I",
+              "credits": 4,
+              "grade": 4,
+              "revision": 1
+            },
+            {
+              "id": "ID1111Q2025A",
+              "qid": "Q2025A",
+              "code": "ID1111",
+              "name": "INGLES I",
+              "credits": 3,
+              "grade": 5,
+              "revision": 1
+            },
+            {
+              "id": "LLA111Q2025A",
+              "qid": "Q2025A",
+              "code": "LLA111",
+              "name": "LENGUAJE I",
+              "credits": 3,
+              "grade": 4,
+              "revision": 1
+            },
+            {
+              "id": "CSA211Q2025A",
+              "qid": "Q2025A",
+              "code": "CSA211",
+              "name": "VENEZUELA ANTE EL SIGLO XXI-I",
+              "credits": 3,
+              "grade": 5,
+              "revision": 1
+            }
+          ]
+        }
+      ]
+    },
+    "transformers": [
+      "response-template"
+    ],
     "fixedDelayMilliseconds": 1000
   }
 }

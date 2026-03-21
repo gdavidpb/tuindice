@@ -29,12 +29,12 @@ fun RecordRoute(
 	}
 
 	LaunchedEffect(Unit) {
-		viewModel.loadQuartersAction()
+		viewModel.refreshQuartersAction()
 	}
 
 	RecordScreen(
 		state = viewState,
-		onRetryClick = viewModel::loadQuartersAction,
+		onRetryClick = viewModel::refreshQuartersAction,
 		onSubjectGradeChange = viewModel::updateSubjectAction
 	)
 }

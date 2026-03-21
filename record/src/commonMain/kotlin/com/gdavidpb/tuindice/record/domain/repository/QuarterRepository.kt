@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.record.domain.model.SubjectGradeSet
 import kotlinx.coroutines.flow.Flow
 
 interface QuarterRepository {
-	suspend fun getQuartersFlow(): Flow<List<Quarter>>
-	suspend fun getQuarters(): List<Quarter>
+	suspend fun observeQuartersFlow(): Flow<List<Quarter>>
+	suspend fun updateQuarters()
 	suspend fun removeQuarter(remove: QuarterRemove)
 	suspend fun setSubjectGrade(set: SubjectGradeSet)
 }

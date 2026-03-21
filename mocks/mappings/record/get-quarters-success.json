@@ -20,6 +20,7 @@
         "credits_sum": 60,
         "is_current": false,
         "is_read_only": false,
+        "revision": 10,
         "subjects": [
           {
             "id": "MA2115Q2026B",
@@ -27,7 +28,8 @@
             "code": "MA2115",
             "name": "MATEMATICAS IV",
             "credits": 4,
-            "grade": 5
+            "grade": 5,
+            "revision": 1
           },
           {
             "id": "CI2511Q2026B",
@@ -35,7 +37,8 @@
             "code": "CI2511",
             "name": "LOGICA SIMBOLICA",
             "credits": 4,
-            "grade": 4
+            "grade": 4,
+            "revision": 1
           },
           {
             "id": "CI2525Q2026B",
@@ -43,7 +46,8 @@
             "code": "CI2525",
             "name": "ESTRUCTURAS DISCRETAS I",
             "credits": 4,
-            "grade": 3
+            "grade": 3,
+            "revision": 1
           },
           {
             "id": "EG0001Q2026B",
@@ -51,7 +55,8 @@
             "code": "EG0001",
             "name": "ESTUDIOS GENERALES",
             "credits": 3,
-            "grade": 5
+            "grade": 5,
+            "revision": 1
           }
         ]
       },
@@ -66,6 +71,7 @@
         "credits_sum": 45,
         "is_current": true,
         "is_read_only": false,
+        "revision": 9,
         "subjects": [
           {
             "id": "MA1116Q2026A",
@@ -73,7 +79,8 @@
             "code": "MA1116",
             "name": "MATEMATICAS III",
             "credits": 4,
-            "grade": 4
+            "grade": 4,
+            "revision": 1
           },
           {
             "id": "FS1112Q2026A",
@@ -81,7 +88,8 @@
             "code": "FS1112",
             "name": "FISICA II",
             "credits": 3,
-            "grade": 5
+            "grade": 5,
+            "revision": 1
           },
           {
             "id": "ID1113Q2026A",
@@ -89,7 +97,8 @@
             "code": "ID1113",
             "name": "INGLES III",
             "credits": 3,
-            "grade": 4
+            "grade": 4,
+            "revision": 1
           },
           {
             "id": "LLA113Q2026A",
@@ -97,7 +106,8 @@
             "code": "LLA113",
             "name": "LENGUAJE III",
             "credits": 3,
-            "grade": 3
+            "grade": 3,
+            "revision": 1
           },
           {
             "id": "CSA213Q2026A",
@@ -105,7 +115,8 @@
             "code": "CSA213",
             "name": "VENEZUELA ANTE EL SIGLO XXI-III",
             "credits": 3,
-            "grade": 5
+            "grade": 5,
+            "revision": 1
           }
         ]
       },
@@ -120,6 +131,7 @@
         "credits_sum": 29,
         "is_current": false,
         "is_read_only": true,
+        "revision": 5,
         "subjects": [
           {
             "id": "MA1112Q2025B",
@@ -127,7 +139,8 @@
             "code": "MA1112",
             "name": "MATEMATICAS II",
             "credits": 4,
-            "grade": 4
+            "grade": 4,
+            "revision": 1
           },
           {
             "id": "FS1111Q2025B",
@@ -135,7 +148,8 @@
             "code": "FS1111",
             "name": "FISICA I",
             "credits": 3,
-            "grade": 4
+            "grade": 4,
+            "revision": 1
           },
           {
             "id": "ID1112Q2025B",
@@ -143,7 +157,8 @@
             "code": "ID1112",
             "name": "INGLES II",
             "credits": 3,
-            "grade": 5
+            "grade": 5,
+            "revision": 1
           },
           {
             "id": "LLA112Q2025B",
@@ -151,7 +166,8 @@
             "code": "LLA112",
             "name": "LENGUAJE II",
             "credits": 3,
-            "grade": 4
+            "grade": 4,
+            "revision": 1
           },
           {
             "id": "CSA212Q2025B",
@@ -159,7 +175,8 @@
             "code": "CSA212",
             "name": "VENEZUELA ANTE EL SIGLO XXI-II",
             "credits": 3,
-            "grade": 5
+            "grade": 5,
+            "revision": 1
           }
         ]
       },
@@ -174,6 +191,7 @@
         "credits_sum": 13,
         "is_current": false,
         "is_read_only": true,
+        "revision": 4,
         "subjects": [
           {
             "id": "MA1111Q2025A",
@@ -181,7 +199,8 @@
             "code": "MA1111",
             "name": "MATEMATICAS I",
             "credits": 4,
-            "grade": 4
+            "grade": 4,
+            "revision": 1
           },
           {
             "id": "ID1111Q2025A",
@@ -189,7 +208,8 @@
             "code": "ID1111",
             "name": "INGLES I",
             "credits": 3,
-            "grade": 5
+            "grade": 5,
+            "revision": 1
           },
           {
             "id": "LLA111Q2025A",
@@ -197,7 +217,8 @@
             "code": "LLA111",
             "name": "LENGUAJE I",
             "credits": 3,
-            "grade": 4
+            "grade": 4,
+            "revision": 1
           },
           {
             "id": "CSA211Q2025A",
@@ -205,7 +226,8 @@
             "code": "CSA211",
             "name": "VENEZUELA ANTE EL SIGLO XXI-I",
             "credits": 3,
-            "grade": 5
+            "grade": 5,
+            "revision": 1
           }
         ]
       }

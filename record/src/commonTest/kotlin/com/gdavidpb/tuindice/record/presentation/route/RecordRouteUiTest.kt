@@ -9,12 +9,14 @@ import androidx.compose.ui.semantics.SemanticsActions
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
-import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.GetQuartersExceptionHandler
+import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
+import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateQuartersExceptionHandler
 import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
-import com.gdavidpb.tuindice.record.presentation.action.LoadQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.ObserveQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.RefreshQuartersActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
@@ -28,6 +30,7 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -71,15 +74,14 @@ class RecordRouteUiTest {
 	}
 
 	@Test
-	fun when_initialLoadFailsWithConflict_then_routeShowsGenericError() = runTuIndiceUiTest {
+	fun when_initialRefreshFailsWithConflict_then_routeShowsGenericError() = runTuIndiceUiTest {
 		val viewModel = createRecordViewModel(
 			quarterRepository = RecordingQuarterRepository(
-				quarters = flow {
-					throw clientRequestException(
-						statusCode = HttpStatusCode.Conflict,
-						path = "/quarters/v1"
-					)
-				}
+				quarters = flowOf(emptyList()),
+				updateThrowable = clientRequestException(
+					statusCode = HttpStatusCode.Conflict,
+					path = "/quarters/v1"
+				)
 			)
 		)
 		val snackBars = mutableListOf<SnackBarMessage>()
@@ -106,12 +108,11 @@ class RecordRouteUiTest {
 	}
 
 	@Test
-	fun when_initialLoadFailsWithGenericError_then_routeShowsSnackBarWithoutNavigation() = runTuIndiceUiTest {
+	fun when_initialRefreshFailsWithGenericError_then_routeShowsSnackBarWithoutNavigation() = runTuIndiceUiTest {
 		val viewModel = createRecordViewModel(
 			quarterRepository = RecordingQuarterRepository(
-				quarters = flow {
-					throw IllegalStateException("boom")
-				}
+				quarters = flowOf(emptyList()),
+				updateThrowable = IllegalStateException("boom")
 			)
 		)
 		val snackBars = mutableListOf<SnackBarMessage>()
@@ -233,12 +234,9 @@ class RecordRouteUiTest {
 
 	@Test
 	fun when_retryTappedAfterFailedLoad_then_routeRequestsLoadAgain() = runTuIndiceUiTest {
-		var getQuartersFlowCalls = 0
 		val quarterRepository = RecordingQuarterRepository(
-			quarters = flow {
-				getQuartersFlowCalls++
-				throw IllegalStateException("boom")
-			}
+			quarters = flowOf(emptyList()),
+			updateThrowable = IllegalStateException("boom")
 		)
 		val viewModel = createRecordViewModel(quarterRepository = quarterRepository)
 		val snackBars = mutableListOf<SnackBarMessage>()
@@ -254,16 +252,16 @@ class RecordRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			getQuartersFlowCalls > 0 && snackBars.isNotEmpty()
+			quarterRepository.updateQuartersCalls.value > 0 && snackBars.isNotEmpty()
 		}
 
 		onNodeWithTag(BaseUiTags.ErrorViewRetryButton).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			getQuartersFlowCalls >= 2
+			quarterRepository.updateQuartersCalls.value >= 2
 		}
 
-		assertTrue(getQuartersFlowCalls >= 2)
+		assertTrue(quarterRepository.updateQuartersCalls.value >= 2)
 	}
 
 	private fun createRecordViewModel(
@@ -271,10 +269,15 @@ class RecordRouteUiTest {
 	): RecordViewModel {
 
 		return RecordViewModel(
-			loadQuartersActionProcessor = LoadQuartersActionProcessor(
-				getQuartersUseCase = GetQuartersUseCase(
+			observeQuartersActionProcessor = ObserveQuartersActionProcessor(
+				observeQuartersUseCase = ObserveQuartersUseCase(
 					quarterRepository = quarterRepository,
-					exceptionHandler = GetQuartersExceptionHandler(
+				)
+			),
+			refreshQuartersActionProcessor = RefreshQuartersActionProcessor(
+				updateQuartersUseCase = UpdateQuartersUseCase(
+					quarterRepository = quarterRepository,
+					exceptionHandler = UpdateQuartersExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true),
 						reportingRepository = RecordingReportingRepository()
 					)

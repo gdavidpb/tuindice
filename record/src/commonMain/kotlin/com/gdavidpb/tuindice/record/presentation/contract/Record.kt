@@ -25,7 +25,8 @@ object Record {
 	}
 
 	sealed class Action : ViewAction() {
-		data object LoadQuarters : Action()
+		data object ObserveQuarters : Action()
+		data object RefreshQuarters : Action()
 
 		class SetSubjectGrade(
 			val quarterId: String,

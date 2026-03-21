@@ -11,7 +11,8 @@ fun SubjectResponse.toRemoteSubject() = RemoteSubject(
 	code = code,
 	name = name,
 	credits = credits,
-	grade = grade
+	grade = grade,
+	revision = revision
 )
 
 fun RemoteSubject.toAddSubjectRequest() = AddSubjectRequest(
@@ -25,5 +26,6 @@ fun Subject.toRemoteSubject() = RemoteSubject(
 	code = code,
 	name = name,
 	credits = credits,
-	grade = grade
+	grade = grade,
+	revision = 0L
 )

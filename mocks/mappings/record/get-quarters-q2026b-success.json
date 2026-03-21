@@ -19,6 +19,7 @@
       "credits_sum": 60,
       "is_current": false,
       "is_read_only": false,
+      "revision": 10,
       "subjects": [
         {
           "id": "MA2115Q2026B",
@@ -26,7 +27,8 @@
           "code": "MA2115",
           "name": "MATEMATICAS IV",
           "credits": 4,
-          "grade": 5
+          "grade": 5,
+          "revision": 1
         },
         {
           "id": "CI2511Q2026B",
@@ -34,7 +36,8 @@
           "code": "CI2511",
           "name": "LOGICA SIMBOLICA",
           "credits": 4,
-          "grade": 4
+          "grade": 4,
+          "revision": 1
         },
         {
           "id": "CI2525Q2026B",
@@ -42,7 +45,8 @@
           "code": "CI2525",
           "name": "ESTRUCTURAS DISCRETAS I",
           "credits": 4,
-          "grade": 3
+          "grade": 3,
+          "revision": 1
         },
         {
           "id": "EG0001Q2026B",
@@ -50,7 +54,8 @@
           "code": "EG0001",
           "name": "ESTUDIOS GENERALES",
           "credits": 3,
-          "grade": 5
+          "grade": 5,
+          "revision": 1
         }
       ]
     },

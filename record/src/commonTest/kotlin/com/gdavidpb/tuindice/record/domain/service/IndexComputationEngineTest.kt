@@ -196,6 +196,7 @@ class IndexComputationEngineTest {
 		creditsSum = 0,
 		isCurrent = isCurrent,
 		isReadOnly = isReadOnly,
+		revision = 0L,
 		subjects = subjects
 	)
 
@@ -212,7 +213,8 @@ class IndexComputationEngineTest {
 		code = code,
 		name = name,
 		credits = credits,
-		grade = grade
+		grade = grade,
+		revision = 0L
 	)
 
 	private fun recompute(vararg quarters: LocalQuarter): List<LocalQuarter> {

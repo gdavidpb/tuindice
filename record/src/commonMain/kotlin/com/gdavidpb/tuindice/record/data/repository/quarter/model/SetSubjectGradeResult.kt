@@ -1,6 +1,11 @@
 package com.gdavidpb.tuindice.record.data.repository.quarter.model
 
-data class SetSubjectGradeResult(
-	val updatedQuarters: List<LocalQuarter>,
-	val updatedTargetQuarter: LocalQuarter?
-)
+sealed interface SetSubjectGradeResult {
+	data class Applied(
+		val updatedQuarters: List<LocalQuarter>,
+		val updatedTargetQuarter: LocalQuarter,
+		val expectedRevision: Long
+	) : SetSubjectGradeResult
+
+	data object TargetNotFound : SetSubjectGradeResult
+}

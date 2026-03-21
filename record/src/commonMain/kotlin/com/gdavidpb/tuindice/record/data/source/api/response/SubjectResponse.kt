@@ -10,5 +10,6 @@ data class SubjectResponse(
 	@SerialName("code") val code: String,
 	@SerialName("name") val name: String,
 	@SerialName("credits") val credits: Int,
-	@SerialName("grade") val grade: Int
+	@SerialName("grade") val grade: Int,
+	@SerialName("revision") val revision: Long
 )

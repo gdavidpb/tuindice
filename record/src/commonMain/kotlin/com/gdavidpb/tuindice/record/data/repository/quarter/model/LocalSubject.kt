@@ -6,5 +6,6 @@ data class LocalSubject(
 	val code: String,
 	val name: String,
 	val credits: Int,
-	val grade: Int
+	val grade: Int,
+	val revision: Long
 )

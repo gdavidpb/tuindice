@@ -1,10 +1,11 @@
 package com.gdavidpb.tuindice.record.presentation.action
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.record.domain.usecase.GetQuartersUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.GetQuartersExceptionHandler
+import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
+import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateQuartersExceptionHandler
 import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
@@ -18,6 +19,7 @@ import kotlinx.coroutines.test.runTest
 import org.jetbrains.compose.resources.getString
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.snack_default_error
+import tuindice.record.generated.resources.snack_network_unavailable
 import tuindice.record.generated.resources.snack_record_read_only
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -26,26 +28,20 @@ import kotlin.test.assertTrue
 
 class RecordActionProcessorContractTest {
 	@Test
-	fun loadQuartersActionProcessor_reducesStateToContent() = runTest {
-		val processor = LoadQuartersActionProcessor(
-			getQuartersUseCase = GetQuartersUseCase(
+	fun observeQuartersActionProcessor_reducesStateToContent() = runTest {
+		val processor = ObserveQuartersActionProcessor(
+			observeQuartersUseCase = ObserveQuartersUseCase(
 				quarterRepository = RecordingQuarterRepository(
 					quarters = flowOf(listOf(DEFAULT_RECORD_QUARTER))
-				),
-				exceptionHandler = GetQuartersExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true),
-					reportingRepository = RecordingReportingRepository()
 				)
 			)
 		)
 		val effects = mutableListOf<Record.Effect>()
 
 		processor.process(
-			action = Record.Action.LoadQuarters,
+			action = Record.Action.ObserveQuarters,
 			sideEffect = effects::add
 		).test {
-			assertEquals(Record.State.Loading, awaitItem()(Record.State.Empty))
-
 			val content = assertIs<Record.State.Content>(awaitItem()(Record.State.Loading))
 			assertEquals(listOf(DEFAULT_RECORD_QUARTER), content.quarters)
 
@@ -53,6 +49,55 @@ class RecordActionProcessorContractTest {
 		}
 
 		assertTrue(effects.isEmpty())
+	}
+
+	@Test
+	fun refreshQuartersActionProcessor_setsLoadingFromFailedState() = runTest {
+		val processor = RefreshQuartersActionProcessor(
+			updateQuartersUseCase = UpdateQuartersUseCase(
+				quarterRepository = RecordingQuarterRepository(),
+				exceptionHandler = UpdateQuartersExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true),
+					reportingRepository = RecordingReportingRepository()
+				)
+			)
+		)
+
+		processor.process(
+			action = Record.Action.RefreshQuarters,
+			sideEffect = {}
+		).test {
+			assertEquals(Record.State.Loading, awaitItem()(Record.State.Failed))
+			awaitComplete()
+		}
+	}
+
+	@Test
+	fun refreshQuartersActionProcessor_showsNetworkMessage_andFailsWithoutCachedData() = runTest {
+		val processor = RefreshQuartersActionProcessor(
+			updateQuartersUseCase = UpdateQuartersUseCase(
+				quarterRepository = RecordingQuarterRepository(
+					updateThrowable = IllegalStateException("network is unreachable")
+				),
+				exceptionHandler = UpdateQuartersExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = false),
+					reportingRepository = RecordingReportingRepository()
+				)
+			)
+		)
+		val effects = mutableListOf<Record.Effect>()
+
+		processor.process(
+			action = Record.Action.RefreshQuarters,
+			sideEffect = effects::add
+		).test {
+			assertEquals(Record.State.Loading, awaitItem()(Record.State.Empty))
+			assertEquals(Record.State.Failed, awaitItem()(Record.State.Loading))
+			awaitComplete()
+		}
+
+		val effect = assertIs<Record.Effect.ShowSnackBar>(effects.single())
+		assertEquals(getString(Res.string.snack_network_unavailable), effect.message)
 	}
 
 	@Test

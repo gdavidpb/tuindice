@@ -1,16 +1,16 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.record.domain.usecase.error.SubjectUseCaseError
-import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.GetQuartersExceptionHandler
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
+import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateQuartersExceptionHandler
 import com.gdavidpb.tuindice.record.domain.usecase.param.SetSubjectGradeParams
 import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
 import com.gdavidpb.tuindice.record.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.record.testing.RecordingQuarterRepository
 import com.gdavidpb.tuindice.record.testing.RecordingReportingRepository
-import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
 import kotlinx.coroutines.flow.flowOf
@@ -22,14 +22,10 @@ import kotlin.test.fail
 
 class RecordUseCaseContractTest {
 	@Test
-	fun getQuartersUseCase_emitsLoadingThenData() = runTest {
-		val useCase = GetQuartersUseCase(
+	fun observeQuartersUseCase_emitsLoadingThenData() = runTest {
+		val useCase = ObserveQuartersUseCase(
 			quarterRepository = RecordingQuarterRepository(
 				quarters = flowOf(listOf(DEFAULT_RECORD_QUARTER))
-			),
-			exceptionHandler = GetQuartersExceptionHandler(
-				networkRepository = FakeNetworkRepository(isAvailable = true),
-				reportingRepository = RecordingReportingRepository()
 			)
 		)
 
@@ -37,6 +33,25 @@ class RecordUseCaseContractTest {
 			assertEquals(listOf(DEFAULT_RECORD_QUARTER), awaitLoadingThenData(this))
 			awaitComplete()
 		}
+	}
+
+	@Test
+	fun updateQuartersUseCase_emitsLoadingThenData_andDelegatesRefresh() = runTest {
+		val repository = RecordingQuarterRepository()
+		val useCase = UpdateQuartersUseCase(
+			quarterRepository = repository,
+			exceptionHandler = UpdateQuartersExceptionHandler(
+				networkRepository = FakeNetworkRepository(isAvailable = true),
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+
+		useCase.execute(Unit).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals(1, repository.updateQuartersCalls.value)
 	}
 
 	@Test

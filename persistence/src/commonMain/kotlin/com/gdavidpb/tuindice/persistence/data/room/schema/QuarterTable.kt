@@ -13,4 +13,5 @@ object QuarterTable {
 	const val END_DATE = "quarter_end_date"
 	const val IS_CURRENT = "quarter_is_current"
 	const val IS_READ_ONLY = "quarter_is_read_only"
+	const val REVISION = "quarter_revision"
 }

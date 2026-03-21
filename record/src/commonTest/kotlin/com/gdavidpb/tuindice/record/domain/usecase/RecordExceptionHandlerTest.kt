@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.record.domain.exception.SubjectIllegalArgumentException
-import com.gdavidpb.tuindice.record.domain.usecase.error.GetQuartersUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.error.SubjectUseCaseError
-import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.GetQuartersExceptionHandler
+import com.gdavidpb.tuindice.record.domain.usecase.error.UpdateQuartersUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
+import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateQuartersExceptionHandler
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
@@ -69,11 +69,11 @@ class RecordExceptionHandlerTest {
 	}
 
 	@Test
-	fun getQuartersExceptionHandler_leavesConflictUnhandled() {
+	fun updateQuartersExceptionHandler_leavesConflictUnhandled() {
 		val reportingRepository = RecordingReportingRepository()
 		val throwable = clientRequestException(HttpStatusCode.Conflict, path = "/quarters/v1")
 
-		val actual = GetQuartersExceptionHandler(
+		val actual = UpdateQuartersExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true),
 			reportingRepository = reportingRepository
 		).reportException(throwable)
@@ -81,27 +81,27 @@ class RecordExceptionHandlerTest {
 		assertEquals(null, actual)
 		assertReported(
 			reportingRepository = reportingRepository,
-			handlerName = "GetQuartersExceptionHandler",
+			handlerName = "UpdateQuartersExceptionHandler",
 			throwable = throwable,
 			isHandled = false
 		)
 	}
 
 	@Test
-	fun getQuartersExceptionHandler_mapsConnectionToNoConnection() {
+	fun updateQuartersExceptionHandler_mapsConnectionToNoConnection() {
 		val reportingRepository = RecordingReportingRepository()
 		val throwable = IllegalStateException("network is unreachable")
 
-		val actual = GetQuartersExceptionHandler(
+		val actual = UpdateQuartersExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = false),
 			reportingRepository = reportingRepository
 		).reportException(throwable)
 
-		val error = assertIs<GetQuartersUseCaseError.NoConnection>(actual)
+		val error = assertIs<UpdateQuartersUseCaseError.NoConnection>(actual)
 		assertEquals(false, error.isNetworkAvailable)
 		assertReported(
 			reportingRepository = reportingRepository,
-			handlerName = "GetQuartersExceptionHandler",
+			handlerName = "UpdateQuartersExceptionHandler",
 			throwable = throwable,
 			isHandled = true
 		)

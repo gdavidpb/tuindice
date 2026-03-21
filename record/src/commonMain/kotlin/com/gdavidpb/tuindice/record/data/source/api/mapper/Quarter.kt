@@ -24,6 +24,7 @@ fun QuarterResponse.toRemoteQuarter(): RemoteQuarter {
 		creditsSum = creditsSum,
 		isCurrent = isCurrent,
 		isReadOnly = isReadOnly,
+		revision = revision,
 		subjects = subjects.map { subjectResponse -> subjectResponse.toRemoteSubject() }
 	)
 }
@@ -59,5 +60,6 @@ fun Quarter.toRemoteQuarter() = RemoteQuarter(
 	creditsSum = creditsSum,
 	isCurrent = isCurrent,
 	isReadOnly = isReadOnly,
+	revision = 0L,
 	subjects = subjects.map { subject -> subject.toRemoteSubject() }
 )

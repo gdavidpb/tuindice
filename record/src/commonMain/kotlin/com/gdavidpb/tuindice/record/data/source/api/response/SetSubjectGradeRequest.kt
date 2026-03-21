@@ -5,5 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SetSubjectGradeRequest(
-	@SerialName("grade") val grade: Int
+	@SerialName("grade") val grade: Int,
+	@SerialName("mutation_id") val mutationId: String,
+	@SerialName("expected_revision") val expectedRevision: Long
 )

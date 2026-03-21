@@ -11,5 +11,6 @@ data class RemoteQuarter(
 	val creditsSum: Int,
 	val isCurrent: Boolean,
 	val isReadOnly: Boolean,
+	val revision: Long,
 	val subjects: List<RemoteSubject>
 )

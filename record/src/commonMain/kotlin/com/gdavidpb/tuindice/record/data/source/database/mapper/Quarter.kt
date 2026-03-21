@@ -17,6 +17,7 @@ fun RemoteQuarter.toLocalQuarter() = LocalQuarter(
 	creditsSum = creditsSum,
 	isCurrent = isCurrent,
 	isReadOnly = isReadOnly,
+	revision = revision,
 	subjects = subjects.map { subject -> subject.toLocalSubject() }
 )
 
@@ -30,7 +31,8 @@ fun LocalQuarter.toQuarterEntity() = QuarterEntity(
 	credits = credits,
 	creditsSum = creditsSum,
 	isCurrent = isCurrent,
-	isReadOnly = isReadOnly
+	isReadOnly = isReadOnly,
+	revision = revision
 )
 
 fun QuarterWithSubjects.toLocalQuarter(): LocalQuarter {
@@ -45,6 +47,7 @@ fun QuarterWithSubjects.toLocalQuarter(): LocalQuarter {
 		creditsSum = quarter.creditsSum,
 		isCurrent = quarter.isCurrent,
 		isReadOnly = quarter.isReadOnly,
+		revision = quarter.revision,
 		subjects = subjects.map { subject -> subject.toLocalSubject() }
 	)
 }
@@ -74,5 +77,6 @@ fun Quarter.toLocalQuarter() = LocalQuarter(
 	creditsSum = creditsSum,
 	isCurrent = isCurrent,
 	isReadOnly = isReadOnly,
+	revision = 0L,
 	subjects = subjects.map { subject -> subject.toLocalSubject() }
 )

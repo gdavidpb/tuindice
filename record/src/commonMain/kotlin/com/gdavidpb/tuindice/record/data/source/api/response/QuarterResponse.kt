@@ -15,5 +15,6 @@ data class QuarterResponse(
 	@SerialName("credits_sum") val creditsSum: Int,
 	@SerialName("is_current") val isCurrent: Boolean,
 	@SerialName("is_read_only") val isReadOnly: Boolean,
+	@SerialName("revision") val revision: Long,
 	@SerialName("subjects") val subjects: List<SubjectResponse>
 )

@@ -2,18 +2,23 @@ package com.gdavidpb.tuindice.record.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.record.presentation.action.LoadQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.ObserveQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.RefreshQuartersActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import kotlinx.coroutines.flow.Flow
 
 class RecordViewModel(
-	private val loadQuartersActionProcessor: LoadQuartersActionProcessor,
+	private val observeQuartersActionProcessor: ObserveQuartersActionProcessor,
+	private val refreshQuartersActionProcessor: RefreshQuartersActionProcessor,
 	private val setSubjectGradeActionProcessor: SetSubjectGradeActionProcessor
-) : BaseViewModel<Record.State, Record.Action, Record.Effect>(initialState = Record.State.Loading) {
+) : BaseViewModel<Record.State, Record.Action, Record.Effect>(
+	initialState = Record.State.Loading,
+	initialAction = Record.Action.ObserveQuarters
+) {
 
-	fun loadQuartersAction() =
-		sendAction(Record.Action.LoadQuarters)
+	fun refreshQuartersAction() =
+		sendAction(Record.Action.RefreshQuarters)
 
 	fun updateSubjectAction(
 		quarterId: String,
@@ -35,8 +40,11 @@ class RecordViewModel(
 		sideEffect: (Record.Effect) -> Unit
 	): Flow<Mutation<Record.State>> {
 		return when (action) {
-			is Record.Action.LoadQuarters ->
-				loadQuartersActionProcessor.process(action, sideEffect)
+			is Record.Action.ObserveQuarters ->
+				observeQuartersActionProcessor.process(action, sideEffect)
+
+			is Record.Action.RefreshQuarters ->
+				refreshQuartersActionProcessor.process(action, sideEffect)
 
 			is Record.Action.SetSubjectGrade ->
 				setSubjectGradeActionProcessor.process(action, sideEffect)

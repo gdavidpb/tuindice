@@ -11,7 +11,8 @@ fun SubjectEntity.toLocalSubject() = LocalSubject(
 	code = code,
 	name = name,
 	credits = credits,
-	grade = grade
+	grade = grade,
+	revision = revision
 )
 
 fun LocalSubject.toSubjectEntity() = SubjectEntity(
@@ -20,7 +21,8 @@ fun LocalSubject.toSubjectEntity() = SubjectEntity(
 	code = code,
 	name = name,
 	credits = credits,
-	grade = grade
+	grade = grade,
+	revision = revision
 )
 
 fun RemoteSubject.toLocalSubject() = LocalSubject(
@@ -29,7 +31,8 @@ fun RemoteSubject.toLocalSubject() = LocalSubject(
 	code = code,
 	name = name,
 	credits = credits,
-	grade = grade
+	grade = grade,
+	revision = revision
 )
 
 fun LocalSubject.toSubject() = Subject(
@@ -47,5 +50,6 @@ fun Subject.toLocalSubject() = LocalSubject(
 	code = code,
 	name = name,
 	credits = credits,
-	grade = grade
+	grade = grade,
+	revision = 0L
 )
