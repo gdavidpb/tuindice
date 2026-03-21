@@ -31,7 +31,11 @@ If the request does not fit one of those buckets, pause and explain why before i
    - `ViewModel` starts observation as `initialAction`
    - `Route` triggers the first refresh and retries with `LaunchedEffect` or retry callbacks
 5. Add visible strings to `src/commonMain/composeResources/values/`.
-6. If the change adds or changes destinations:
+6. If the change updates an HTTP contract consumed by the app, update the mock environment in the same change:
+   - WireMock mappings live under `mocks/mappings/<feature-or-domain>/`
+   - referenced JSON bodies live under `mocks/__files/<feature-or-domain>/`
+   - check both request matchers and response payloads, not just the happy-path body
+7. If the change adds or changes destinations:
    - update the feature `*Navigation.kt`
    - update `maincore/.../TuIndiceNavHost.kt` if the host must navigate to it
    - if the destination is a feature dialog, prefer `dialog<Destination>` in navigation over rendering the dialog from feature state
@@ -39,7 +43,7 @@ If the request does not fit one of those buckets, pause and explain why before i
      - resolve the parent/shared `ViewModel` from the dialog destination and dispatch actions directly when the dialog only edits parent state
      - use `base/.../NavigationResult.kt` when the dialog must return an intent to the previous destination and that destination must run a lifecycle-sensitive side effect after the dialog closes
    - when using `NavigationResult`, create a dedicated `@Serializable` result type per flow instead of raw primitives; for sealed results, send them with the base generic type so the writer and collector share the same key
-7. Validate with targeted compilation plus the feature smoke test and the smallest relevant contract/UI tests.
+8. Validate with targeted compilation plus the feature smoke test and the smallest relevant contract/UI tests.
 
 ## 3. Create A New KMP Feature Module
 

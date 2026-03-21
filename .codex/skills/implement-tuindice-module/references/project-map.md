@@ -44,6 +44,17 @@ Default rule: features should point to shared infrastructure, not to each other.
 
 If you create a new shared module, inspect `build.gradle.kts` and extend any root task lists that should include it.
 
+## Mock Environment Map
+
+- `mocks/mappings/<feature-or-domain>/`
+  - WireMock request matchers and inline stub responses grouped by backend area
+- `mocks/__files/<feature-or-domain>/`
+  - larger JSON bodies referenced from mappings via `bodyFileName`
+- `mocks/start-mock-enviroment.sh`
+  - starts the local WireMock server used by the app mock environment
+
+If an app-facing HTTP contract changes, update the relevant mock mappings and referenced JSON bodies in the same change so the mock environment does not drift from the real client contract.
+
 ## KMP Build Conventions
 
 Typical shared UI feature module pattern:

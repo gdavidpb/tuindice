@@ -40,12 +40,16 @@ Implement module work by copying the nearest existing module pattern instead of 
    - observe use cases should read local flows only
    - update use cases should fetch or recompute and then persist back into local state
    - `ViewModel` initial actions should usually start observation, while `Route` triggers the first refresh with `LaunchedEffect`
-7. Keep the UI boundary explicit:
+7. When a change alters an HTTP contract consumed by the app, update the local WireMock fixtures in the same change:
+   - request and response mappings live under `mocks/mappings/<feature-or-domain>/`
+   - referenced response bodies live under `mocks/__files/<feature-or-domain>/`
+   - keep fixture payloads aligned with the current request shape, response shape, and status codes
+8. Keep the UI boundary explicit:
    - `Navigation` resolves the `ViewModel`
    - `Route` bridges `state/effect` and lifecycle to the pure `Screen`
    - `Screen` stays free of Koin and business wiring
-8. Update smoke tests and focused contract/UI tests when constructor wiring or public entry points change.
-9. Run the smallest truthful verification set and report anything left unverified.
+9. Update smoke tests and focused contract/UI tests when constructor wiring or public entry points change.
+10. Run the smallest truthful verification set and report anything left unverified.
 
 ## Non-Negotiable Project Rules
 
