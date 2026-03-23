@@ -1,12 +1,13 @@
 package com.gdavidpb.tuindice.data.repository.sync
 
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -16,7 +17,8 @@ class SyncRepositoryContractTest {
 	@Test
 	fun scheduleSync_callsApi_marksCooldown_and_clearsFeatureCooldowns() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
-		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.Failed)
+		val syncStatusLocalDataSource = FakeSyncStatusLocalDataSource(initialValue = SyncStatus.Failed)
+		val syncStatusRepository = SyncStatusDataRepository(localDataSource = syncStatusLocalDataSource)
 		val remoteDataSource = FakeSyncRemoteDataSource()
 		val repository = SyncDataRepository(
 			settingsDataSource = settingsDataSource,
@@ -32,13 +34,15 @@ class SyncRepositoryContractTest {
 		assertEquals(true, settingsDataSource.cooldownMarked)
 		assertEquals(true, settingsDataSource.featureCooldownsCleared)
 		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
-		assertEquals(listOf(SyncStatus.Healthy), syncStatusRepository.setStatuses)
+		assertEquals(listOf(SyncStatus.Healthy), syncStatusLocalDataSource.setStatuses)
 	}
 
 	@Test
 	fun scheduleSync_skipsApiWhenOnCooldown() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = true)
-		val syncStatusRepository = FakeSyncStatusRepository()
+		val syncStatusRepository = SyncStatusDataRepository(
+			localDataSource = FakeSyncStatusLocalDataSource()
+		)
 		val remoteDataSource = FakeSyncRemoteDataSource()
 		val repository = SyncDataRepository(
 			settingsDataSource = settingsDataSource,
@@ -57,7 +61,8 @@ class SyncRepositoryContractTest {
 	@Test
 	fun scheduleSync_ignoresConflictAndKeepsCooldownUntouched() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
-		val syncStatusRepository = FakeSyncStatusRepository()
+		val syncStatusLocalDataSource = FakeSyncStatusLocalDataSource()
+		val syncStatusRepository = SyncStatusDataRepository(localDataSource = syncStatusLocalDataSource)
 		val remoteDataSource = FakeSyncRemoteDataSource(
 			throwable = clientRequestException(
 				statusCode = HttpStatusCode.Conflict,
@@ -78,13 +83,14 @@ class SyncRepositoryContractTest {
 		assertEquals(false, settingsDataSource.cooldownMarked)
 		assertEquals(false, settingsDataSource.featureCooldownsCleared)
 		assertEquals(SyncStatus.OutdatedCredentials, syncStatusRepository.getSyncStatus())
-		assertEquals(listOf(SyncStatus.OutdatedCredentials), syncStatusRepository.setStatuses)
+		assertEquals(listOf(SyncStatus.OutdatedCredentials), syncStatusLocalDataSource.setStatuses)
 	}
 
 	@Test
 	fun scheduleSync_marksFailed_whenSyncFailsWithNonConflictError() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
-		val syncStatusRepository = FakeSyncStatusRepository()
+		val syncStatusLocalDataSource = FakeSyncStatusLocalDataSource()
+		val syncStatusRepository = SyncStatusDataRepository(localDataSource = syncStatusLocalDataSource)
 		val remoteDataSource = FakeSyncRemoteDataSource(
 			throwable = clientRequestException(
 				statusCode = HttpStatusCode.ServiceUnavailable,
@@ -103,13 +109,15 @@ class SyncRepositoryContractTest {
 
 		assertEquals(listOf("new-secret"), remoteDataSource.syncPasswords)
 		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
-		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)
+		assertEquals(listOf(SyncStatus.Failed), syncStatusLocalDataSource.setStatuses)
 	}
 
 	@Test
 	fun scheduleSync_skipsApiWhenSyncStatusIsOutdatedCredentials() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
-		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
+		val syncStatusRepository = SyncStatusDataRepository(
+			localDataSource = FakeSyncStatusLocalDataSource(initialValue = SyncStatus.OutdatedCredentials)
+		)
 		val remoteDataSource = FakeSyncRemoteDataSource()
 		val repository = SyncDataRepository(
 			settingsDataSource = settingsDataSource,
@@ -140,6 +148,22 @@ private class FakeSyncSettingsLocalDataSource(
 
 	override suspend fun clearFeatureCooldowns() {
 		featureCooldownsCleared = true
+	}
+}
+
+private class FakeSyncStatusLocalDataSource(
+	initialValue: SyncStatus = SyncStatus.Healthy
+) : SyncStatusLocalDataSource {
+	private val syncStatus = MutableStateFlow(initialValue)
+	val setStatuses = mutableListOf<SyncStatus>()
+
+	override fun observeSyncStatus(): Flow<SyncStatus> = syncStatus
+
+	override suspend fun getSyncStatus(): SyncStatus = syncStatus.value
+
+	override suspend fun setSyncStatus(status: SyncStatus) {
+		syncStatus.value = status
+		setStatuses += status
 	}
 }
 

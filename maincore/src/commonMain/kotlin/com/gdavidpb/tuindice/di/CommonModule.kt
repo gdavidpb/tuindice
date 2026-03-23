@@ -25,8 +25,11 @@ import com.gdavidpb.tuindice.data.repository.credentials.CredentialsDataReposito
 import com.gdavidpb.tuindice.data.repository.sync.SyncDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataSource
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataSource
+import com.gdavidpb.tuindice.data.repository.sync.SyncStatusDataRepository
+import com.gdavidpb.tuindice.data.repository.sync.SyncStatusLocalDataSource
 import com.gdavidpb.tuindice.data.repository.sync.source.SyncApiDataSource
 import com.gdavidpb.tuindice.data.repository.sync.source.SyncSettingsDataSource
+import com.gdavidpb.tuindice.data.repository.sync.source.SyncStatusSettingsDataSource
 import com.gdavidpb.tuindice.data.source.settings.MultiplatformSettingsDataSource
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
@@ -44,28 +47,21 @@ val commonModule = module {
 	}
 
 	singleOf(::MultiplatformSettingsDataSource) { bind<SettingsRepository>() }
-	factoryOf(::ConfigDataRepository) { bind<ConfigRepository>() }
+	singleOf(::ConfigDataRepository) { bind<ConfigRepository>() }
 
 	singleOf(::InMemorySessionDataSource) { bind<MemorySessionDataSource>() }
 	singleOf(::SecureStoreSessionDataSource) { bind<PreferencesSessionDataSource>() }
-	factoryOf(::SessionDataRepository) { bind<SessionRepository>() }
+	singleOf(::SessionDataRepository) { bind<SessionRepository>() }
 	singleOf(::SessionInvalidationDataRepository) { bind<SessionInvalidationRepository>() }
 
 	singleOf(::MessagingApiDataSource) { bind<MessagingRemoteDataSource>() }
 	singleOf(::MessagingSettingsDataSource) { bind<MessagingLocalDataSource>() }
-	factoryOf(::MessagingDataRepository) { bind<MessagingRepository>() }
+	singleOf(::MessagingDataRepository) { bind<MessagingRepository>() }
 
 	singleOf(::CredentialsDataRepository) { bind<CredentialsRepository>() }
-	singleOf(::SyncSettingsDataSource) {
-		bind<SyncSettingsLocalDataSource>()
-		bind<SyncStatusRepository>()
-	}
+	singleOf(::SyncSettingsDataSource) { bind<SyncSettingsLocalDataSource>() }
+	singleOf(::SyncStatusSettingsDataSource) { bind<SyncStatusLocalDataSource>() }
+	singleOf(::SyncStatusDataRepository) { bind<SyncStatusRepository>() }
 	singleOf(::SyncApiDataSource) { bind<SyncRemoteDataSource>() }
-	single<SyncRepository> {
-		SyncDataRepository(
-			settingsDataSource = get(),
-			syncStatusRepository = get(),
-			remoteDataSource = get()
-		)
-	}
+	singleOf(::SyncDataRepository) { bind<SyncRepository>() }
 }
