@@ -55,6 +55,9 @@ Implement module work by copying the nearest existing module pattern instead of 
 
 - Keep the dependency flow pointed inward. Do not add new feature-to-feature dependencies without explicit approval. Current legacy exception: `evaluations -> record`.
 - Preserve `presentation -> domain -> data -> di` separation. Interfaces live in `domain`; implementations live in `data`; `di` only wires them.
+- If a `domain` contract represents shared business state or coordinates internal origins, implement it in `data/repository` and keep `data/source` behind local `*DataSource` contracts.
+- Do not bind a `*DataSource` directly as a `domain` repository for business/stateful flows. Allowed exception: leaf platform adapters or gateways that do not orchestrate other data sources.
+- In `commonModule`, default shared runtime services and infrastructure repositories to `single`; use `factory` only when the object is intentionally transient or has no shared identity/state.
 - `ViewModel` classes extend `BaseViewModel` and delegate work to `ActionProcessor` classes.
 - For repository-backed feature state, prefer the `summary` and `record` split:
   - `Observe*UseCase` reads local state only

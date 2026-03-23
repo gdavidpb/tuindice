@@ -113,6 +113,7 @@ Reglas:
 - Validaciones en `ParamsValidator`.
 - Traduccion de errores en `ExceptionHandler`.
 - Cada feature expone una interfaz de fachada de negocio en `domain/repository`.
+- Cuando un contrato de `domain` representa estado de negocio compartido o coordina origenes internos, su implementacion debe vivir en `data/repository`, no en `data/source`.
 
 ### Data
 
@@ -128,8 +129,11 @@ Reglas:
 
 - `domain` nunca importa clases de `data`.
 - La implementacion de una interfaz de dominio se define como `<Feature>DataRepository`.
+- Un `*DataSource` no debe bindearse directamente como interfaz de `domain` cuando el contrato representa negocio, estado compartido o coordinacion entre origenes.
+- En esos casos, el `*DataSource` queda como origen interno y un `*DataRepository` expone la interfaz de `domain`.
 - Si un `DataRepository` necesita origenes internos, esos contratos se definen como `*DataSource`.
 - Las concreciones de `*DataSource` viven en `data/source`.
+- Los adapters hoja de plataforma o gateways simples pueden implementar su contrato de `domain` directamente desde `data/source` si no estan modelando un repositorio de negocio ni coordinando otros origenes.
 - Si una feature necesita leer contratos compartidos de otro modulo, debe hacerlo mediante adapters propios de esa feature.
 
 ### DI
@@ -147,6 +151,7 @@ Reglas:
 
 - `di` solo registra dependencias.
 - `di` no implementa adaptadores concretos.
+- En `commonModule`, preferir `single` para servicios compartidos de runtime, repositorios de infraestructura y dependencias con estado/memoria/flows/mutexes; reservar `factory` para objetos transientes o sin identidad compartida.
 - `featureModules()` agrega solo modulos de feature.
 - `commonModules()` agrega `commonModule` mas los modulos de feature.
 - El bootstrap comun entra por `startAppKoin(...)`.
