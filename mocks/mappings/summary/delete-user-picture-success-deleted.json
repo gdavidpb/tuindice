@@ -1,6 +1,6 @@
 {
   "scenarioName": "summary-user-picture-lifecycle",
-  "requiredScenarioState": "Started",
+  "requiredScenarioState": "PictureDeleted",
   "newScenarioState": "PictureDeleted",
   "request": {
     "method": "DELETE",

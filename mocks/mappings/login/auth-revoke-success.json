@@ -1,4 +1,7 @@
 {
+  "scenarioName": "login-token-lifecycle",
+  "requiredScenarioState": "TokensIssued",
+  "newScenarioState": "TokensRevoked",
   "request": {
     "method": "POST",
     "urlPath": "/auth/v1/token/revoke"

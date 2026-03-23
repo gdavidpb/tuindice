@@ -1,7 +1,6 @@
 {
   "scenarioName": "login-token-lifecycle",
-  "requiredScenarioState": "TokensIssued",
-  "newScenarioState": "TokensIssued",
+  "requiredScenarioState": "TokensRevoked",
   "request": {
     "method": "POST",
     "urlPath": "/auth/v1/token/refresh",
@@ -20,14 +19,9 @@
     ]
   },
   "response": {
-    "status": 200,
+    "status": 401,
     "headers": {
       "Content-Type": "application/json"
-    },
-    "jsonBody": {
-      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh.mock.access",
-      "refresh_token": "refresh.mock.token.value",
-      "expires_in": 3600
     },
     "fixedDelayMilliseconds": 1000
   }

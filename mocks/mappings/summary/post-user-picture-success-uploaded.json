@@ -1,6 +1,6 @@
 {
   "scenarioName": "summary-user-picture-lifecycle",
-  "requiredScenarioState": "Started",
+  "requiredScenarioState": "PictureUploaded",
   "newScenarioState": "PictureUploaded",
   "request": {
     "method": "POST",

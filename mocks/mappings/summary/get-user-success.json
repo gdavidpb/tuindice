@@ -1,4 +1,6 @@
 {
+  "scenarioName": "summary-user-picture-lifecycle",
+  "requiredScenarioState": "Started",
   "request": {
     "method": "GET",
     "urlPath": "/users/v1"
@@ -8,32 +10,7 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "jsonBody": {
-      "id": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
-      "c_id": 12345678,
-      "usb_id": "11-11111",
-      "email": "11-11111@usb.ve",
-      "full_name": "Luis Pérez",
-      "first_names": "Luis",
-      "last_names": "Pérez",
-      "picture_url": "https://picsum.photos/200",
-      "career_name": "Ingeniería de Computación",
-      "career_code": 800,
-      "scholarship": false,
-      "grade": 4.4138,
-      "enrolled_subjects": 70,
-      "enrolled_credits": 223,
-      "approved_subjects": 62,
-      "approved_credits": 196,
-      "approved_relation": 0.88,
-      "retired_subjects": 2,
-      "retired_credits": 6,
-      "retired_relation": 0.03,
-      "failed_subjects": 6,
-      "failed_credits": 21,
-      "failed_relation": 0.09,
-      "last_update": 1674101643920
-    },
+    "bodyFileName": "summary/get-user-started.json",
     "fixedDelayMilliseconds": 1000
   }
 }
