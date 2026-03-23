@@ -7,9 +7,8 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
-import platform.Foundation.NSSearchPathDomainMask
-import platform.Foundation.NSUserDomainMask
 import platform.Foundation.NSTemporaryDirectory
+import platform.Foundation.NSUserDomainMask
 
 fun createIosDatabase(
 	path: String
@@ -24,14 +23,6 @@ fun createIosDatabase(
 		.setDriver(BundledSQLiteDriver())
 		.setQueryCoroutineContext(Dispatchers.Default)
 		.build()
-}
-
-fun createDefaultIosDatabase(
-	fileName: String = "tuindice.db"
-): TuIndiceDatabase {
-	return createIosDatabase(
-		path = defaultIosDatabasePath(fileName)
-	)
 }
 
 @OptIn(ExperimentalForeignApi::class)
