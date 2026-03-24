@@ -1,14 +1,17 @@
 package com.gdavidpb.tuindice.record.data.source
 
 import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataSource
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteAddQuarterAck
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteDeleteQuarterAck
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSetSubjectGradeAck
+import com.gdavidpb.tuindice.record.data.source.api.mapper.toRemoteAddQuarterAck
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toRemoteDeleteQuarterAck
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toAddQuarterRequest
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toRemoteQuarter
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toRemoteSetSubjectGradeAck
 import com.gdavidpb.tuindice.record.data.source.api.response.DeleteQuarterRequest
+import com.gdavidpb.tuindice.record.data.source.api.response.AddQuarterResponse
 import com.gdavidpb.tuindice.record.data.source.api.response.SetSubjectGradeRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.DeleteQuarterResponse
 import com.gdavidpb.tuindice.record.data.source.api.response.QuarterResponse
@@ -53,14 +56,21 @@ class RecordApiDataSource(
 			.toRemoteDeleteQuarterAck()
 	}
 
-	override suspend fun addQuarter(quarter: RemoteQuarter): List<RemoteQuarter> {
-		val request = quarter.toAddQuarterRequest()
+	override suspend fun addQuarter(
+		quarter: RemoteQuarter,
+		mutationId: String,
+		expectedRevision: Long
+	): RemoteAddQuarterAck {
+		val request = quarter.toAddQuarterRequest(
+			mutationId = mutationId,
+			expectedRevision = expectedRevision
+		)
 
 		return ktorClient.post("quarters/v1") {
 			setBody(request)
 		}
-			.body<List<QuarterResponse>>()
-			.map { quarterResponse -> quarterResponse.toRemoteQuarter() }
+			.body<AddQuarterResponse>()
+			.toRemoteAddQuarterAck()
 	}
 
 	override suspend fun setSubjectGrade(

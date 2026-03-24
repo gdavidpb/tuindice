@@ -1,0 +1,34 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/quarters/v1",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.quarter"
+      },
+      {
+        "matchesJsonPath": "$.year"
+      },
+      {
+        "matchesJsonPath": "$.subjects"
+      },
+      {
+        "matchesJsonPath": "$.mutation_id"
+      },
+      {
+        "matchesJsonPath": "$.expected_revision"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "record/post-quarters-success-body.json",
+    "transformers": [
+      "response-template"
+    ],
+    "fixedDelayMilliseconds": 1200
+  }
+}

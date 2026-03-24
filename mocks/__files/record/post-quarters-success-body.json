@@ -1,0 +1,113 @@
+{
+  "mutation_id": "{{jsonPath request.body '$.mutation_id'}}",
+  "quarter_patch": {
+    "id": "MOCK-ADDED-QUARTER",
+    "name": "Quarter Added",
+    "start_date": 1785560400000,
+    "end_date": 1793422800000,
+    "grade": 0.0,
+    "grade_sum": 0.0,
+    "credits": 0,
+    "credits_sum": 45,
+    "is_current": false,
+    "is_read_only": false,
+    "revision": 1,
+    "subjects": [
+      {
+        "id": "MOCK101-MOCK-ADDED-QUARTER",
+        "qid": "MOCK-ADDED-QUARTER",
+        "code": "MOCK101",
+        "name": "MOCK SUBJECT",
+        "credits": 4,
+        "grade": 0,
+        "revision": 1
+      }
+    ]
+  },
+  "affected_quarters": [
+    {
+      "id": "MOCK-ADDED-QUARTER",
+      "name": "Quarter Added",
+      "start_date": 1785560400000,
+      "end_date": 1793422800000,
+      "grade": 0.0,
+      "grade_sum": 0.0,
+      "credits": 0,
+      "credits_sum": 45,
+      "is_current": false,
+      "is_read_only": false,
+      "revision": 1,
+      "subjects": [
+        {
+          "id": "MOCK101-MOCK-ADDED-QUARTER",
+          "qid": "MOCK-ADDED-QUARTER",
+          "code": "MOCK101",
+          "name": "MOCK SUBJECT",
+          "credits": 4,
+          "grade": 0,
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "id": "Q2026A",
+      "name": "Enero - Marzo 2026",
+      "start_date": 1767236400000,
+      "end_date": 1774926000000,
+      "grade": 4.1875,
+      "grade_sum": 4.3333,
+      "credits": 16,
+      "credits_sum": 45,
+      "is_current": true,
+      "is_read_only": false,
+      "revision": 10,
+      "subjects": [
+        {
+          "id": "MA1116Q2026A",
+          "qid": "Q2026A",
+          "code": "MA1116",
+          "name": "MATEMATICAS III",
+          "credits": 4,
+          "grade": 4,
+          "revision": 1
+        },
+        {
+          "id": "FS1112Q2026A",
+          "qid": "Q2026A",
+          "code": "FS1112",
+          "name": "FISICA II",
+          "credits": 3,
+          "grade": 5,
+          "revision": 1
+        },
+        {
+          "id": "ID1113Q2026A",
+          "qid": "Q2026A",
+          "code": "ID1113",
+          "name": "INGLES III",
+          "credits": 3,
+          "grade": 4,
+          "revision": 1
+        },
+        {
+          "id": "LLA113Q2026A",
+          "qid": "Q2026A",
+          "code": "LLA113",
+          "name": "LENGUAJE III",
+          "credits": 3,
+          "grade": 3,
+          "revision": 1
+        },
+        {
+          "id": "CSA213Q2026A",
+          "qid": "Q2026A",
+          "code": "CSA213",
+          "name": "VENEZUELA ANTE EL SIGLO XXI-III",
+          "credits": 3,
+          "grade": 5,
+          "revision": 1
+        }
+      ]
+    }
+  ]
+}

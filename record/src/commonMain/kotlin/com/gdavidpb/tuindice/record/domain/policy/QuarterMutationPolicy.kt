@@ -38,7 +38,7 @@ object QuarterMutationPolicy {
 		mutationType: QuarterMutationType
 	): Boolean {
 		return when (mutationType) {
-			QuarterMutationType.AddQuarter -> true
+			QuarterMutationType.AddQuarter -> canEditGrades(quarter)
 			QuarterMutationType.SetSubjectGrade -> canEditGrades(quarter)
 			QuarterMutationType.RemoveQuarter -> canDelete(quarter)
 		}

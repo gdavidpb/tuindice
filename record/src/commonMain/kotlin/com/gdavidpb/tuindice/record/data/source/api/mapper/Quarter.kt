@@ -29,7 +29,10 @@ fun QuarterResponse.toRemoteQuarter(): RemoteQuarter {
 	)
 }
 
-fun RemoteQuarter.toAddQuarterRequest(): AddQuarterRequest {
+fun RemoteQuarter.toAddQuarterRequest(
+	mutationId: String,
+	expectedRevision: Long
+): AddQuarterRequest {
 	val localTime = Instant.fromEpochMilliseconds(startDate)
 		.toLocalDateTime(TimeZone.currentSystemDefault())
 
@@ -45,7 +48,9 @@ fun RemoteQuarter.toAddQuarterRequest(): AddQuarterRequest {
 	return AddQuarterRequest(
 		quarter = quarter,
 		year = year,
-		subjects = subjects.map { remoteSubject -> remoteSubject.toAddSubjectRequest() }
+		subjects = subjects.map { remoteSubject -> remoteSubject.toAddSubjectRequest() },
+		mutationId = mutationId,
+		expectedRevision = expectedRevision
 	)
 }
 

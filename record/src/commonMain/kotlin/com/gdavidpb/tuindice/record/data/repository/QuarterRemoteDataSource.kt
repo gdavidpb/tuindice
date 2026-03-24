@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.data.repository
 
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteAddQuarterAck
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteDeleteQuarterAck
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSetSubjectGradeAck
@@ -12,7 +13,11 @@ interface QuarterRemoteDataSource {
 		mutationId: String,
 		expectedRevision: Long
 	): RemoteDeleteQuarterAck
-	suspend fun addQuarter(quarter: RemoteQuarter): List<RemoteQuarter>
+	suspend fun addQuarter(
+		quarter: RemoteQuarter,
+		mutationId: String,
+		expectedRevision: Long
+	): RemoteAddQuarterAck
 	suspend fun setSubjectGrade(
 		qid: String,
 		sid: String,

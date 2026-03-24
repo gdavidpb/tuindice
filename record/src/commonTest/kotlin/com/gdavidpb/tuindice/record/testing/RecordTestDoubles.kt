@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataSource
 import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataSource
 import com.gdavidpb.tuindice.record.data.repository.QuarterSettingsDataSource
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteAddQuarterAck
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteDeleteQuarterAck
@@ -253,10 +254,21 @@ data class RemoveQuarterRemoteCall(
 	val expectedRevision: Long
 )
 
+data class AddQuarterRemoteCall(
+	val quarterId: String,
+	val mutationId: String,
+	val expectedRevision: Long
+)
+
 class FakeQuarterRemoteDataSource(
 	private val quarters: List<RemoteQuarter> = listOf(DEFAULT_RECORD_REMOTE_QUARTER),
 	private val removeQuarterThrowable: Throwable? = null,
 	private val setSubjectGradeThrowable: Throwable? = null,
+	private val addQuarterAck: RemoteAddQuarterAck = RemoteAddQuarterAck(
+		mutationId = "mutation-add-1",
+		quarter = DEFAULT_RECORD_REMOTE_QUARTER,
+		affectedQuarters = listOf(DEFAULT_RECORD_REMOTE_QUARTER)
+	),
 	private val removeQuarterAck: RemoteDeleteQuarterAck = RemoteDeleteQuarterAck(
 		mutationId = "mutation-remove-1",
 		removedQuarterId = DEFAULT_RECORD_QUARTER.id,
@@ -274,6 +286,7 @@ class FakeQuarterRemoteDataSource(
 ) : QuarterRemoteDataSource {
 	var getQuartersCalls = 0
 	val removeQuarterCalls = mutableListOf<RemoveQuarterRemoteCall>()
+	val addQuarterCalls = mutableListOf<AddQuarterRemoteCall>()
 	val addedQuarters = mutableListOf<RemoteQuarter>()
 	val setSubjectGradeCalls = mutableListOf<SetSubjectGradeCall>()
 
@@ -300,9 +313,18 @@ class FakeQuarterRemoteDataSource(
 		return removeQuarterAck.copy(mutationId = mutationId)
 	}
 
-	override suspend fun addQuarter(quarter: RemoteQuarter): List<RemoteQuarter> {
+	override suspend fun addQuarter(
+		quarter: RemoteQuarter,
+		mutationId: String,
+		expectedRevision: Long
+	): RemoteAddQuarterAck {
 		addedQuarters += quarter
-		return quarters
+		addQuarterCalls += AddQuarterRemoteCall(
+			quarterId = quarter.id,
+			mutationId = mutationId,
+			expectedRevision = expectedRevision
+		)
+		return addQuarterAck.copy(mutationId = mutationId, quarter = quarter)
 	}
 
 	override suspend fun setSubjectGrade(

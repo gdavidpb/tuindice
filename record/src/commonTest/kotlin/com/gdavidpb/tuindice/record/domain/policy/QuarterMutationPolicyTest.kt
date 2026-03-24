@@ -43,4 +43,19 @@ class QuarterMutationPolicyTest {
 		assertFalse(QuarterMutationPolicy.canDelete(quarter))
 		assertFalse(QuarterMutationPolicy.canEditGrades(quarter))
 	}
+
+	@Test
+	fun canApplyPendingMutation_rejectsAddQuarterWhenAnchorIsReadOnly() {
+		val quarter = DEFAULT_RECORD_LOCAL_QUARTER.copy(
+			isCurrent = true,
+			isReadOnly = true
+		)
+
+		assertFalse(
+			QuarterMutationPolicy.canApplyPendingMutation(
+				quarter = quarter,
+				mutationType = QuarterMutationType.AddQuarter
+			)
+		)
+	}
 }
