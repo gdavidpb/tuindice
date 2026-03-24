@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.persistence.data.room.converter
 
 import androidx.room.TypeConverter
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 
 class DatabaseConverters {
 	@TypeConverter
@@ -10,12 +9,6 @@ class DatabaseConverters {
 
 	@TypeConverter
 	fun booleanToInt(value: Boolean): Int = value.compareTo(false)
-
-	@TypeConverter
-	fun evaluationTypeToInt(value: EvaluationType): Int = value.ordinal
-
-	@TypeConverter
-	fun intToEvaluationType(value: Int): EvaluationType = EvaluationType.entries[value]
 
 	@TypeConverter
 	fun evaluationScheduleModeToString(value: EvaluationScheduleMode): String = value.name
