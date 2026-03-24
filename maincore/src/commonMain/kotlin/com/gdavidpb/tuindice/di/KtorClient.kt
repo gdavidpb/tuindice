@@ -1,22 +1,24 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensAttestationPayload
+import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
+import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
-import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
 import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
-import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensAttestationPayload
-import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.utils.extension.isForbidden
+import com.gdavidpb.tuindice.base.utils.extension.isLocked
+import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
@@ -138,7 +140,7 @@ fun createSharedHttpClient(
 							attestation = attestation
 						)
 					}.getOrElse { throwable ->
-						if (!throwable.isUnauthorized()) throw throwable
+						if (!throwable.isSessionInvalidatingRefreshFailure()) throw throwable
 
 						handleUnauthorizedTokenRefresh(
 							sessionRepository = sessionRepository,
@@ -164,6 +166,10 @@ fun createSharedHttpClient(
 			}
 		}
 	}
+}
+
+internal fun Throwable.isSessionInvalidatingRefreshFailure(): Boolean {
+	return isUnauthorized() || isForbidden() || isLocked()
 }
 
 internal suspend fun handleUnauthorizedTokenRefresh(

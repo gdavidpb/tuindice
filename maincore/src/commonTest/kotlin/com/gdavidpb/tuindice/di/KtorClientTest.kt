@@ -5,12 +5,23 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepo
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
+import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 
 class KtorClientTest {
+	@Test
+	fun isSessionInvalidatingRefreshFailure_matchesUnauthorizedForbiddenAndLocked() {
+		assertTrue(clientRequestException(HttpStatusCode.Unauthorized).isSessionInvalidatingRefreshFailure())
+		assertTrue(clientRequestException(HttpStatusCode.Forbidden).isSessionInvalidatingRefreshFailure())
+		assertTrue(clientRequestException(HttpStatusCode.Locked).isSessionInvalidatingRefreshFailure())
+		assertFalse(clientRequestException(HttpStatusCode.ServiceUnavailable).isSessionInvalidatingRefreshFailure())
+	}
+
 	@Test
 	fun handleUnauthorizedTokenRefresh_clearsLocalSessionState_andEmitsInvalidation() = runTest {
 		val sessionRepository = FakeSessionRepository()
