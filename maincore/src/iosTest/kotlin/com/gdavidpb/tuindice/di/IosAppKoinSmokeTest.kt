@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.platform.IosPushCapability
 import com.gdavidpb.tuindice.platform.IosRemoteConfigCapability
 import com.gdavidpb.tuindice.platform.IosReviewCapability
 import com.gdavidpb.tuindice.platform.IosUpdateCapability
+import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.platform.iosDefaultConfigValues
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
@@ -90,11 +91,12 @@ class IosAppKoinSmokeTest {
 				)
 			)
 		}
-	) {
-		assertResolves(
-			SignInViewModel::class,
-			MainViewModel::class,
-			BrowserViewModel::class
-		)
-	}
+		) {
+			assertResolves(
+				SignInViewModel::class,
+				MainViewModel::class,
+				BrowserViewModel::class,
+				RecordViewModel::class
+			)
+		}
 }

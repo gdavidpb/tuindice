@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.di
 
 import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.record.data.repository.QuarterDataRepository
 import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataSource
@@ -66,7 +67,7 @@ val recordModule = module {
 	/* Repositories */
 
 	singleOf(::QuarterDataRepository) { bind<QuarterRepository>() }
-	single {
+	single<MutationEnvelopeStore<String, RecordMutation>> {
 		RoomMutationEnvelopeStore(
 			room = get(),
 			storeId = RECORD_MUTATION_STORE_ID,
