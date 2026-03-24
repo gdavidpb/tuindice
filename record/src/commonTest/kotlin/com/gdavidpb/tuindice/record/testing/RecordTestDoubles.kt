@@ -1,16 +1,20 @@
 package com.gdavidpb.tuindice.record.testing
 
-import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.base.domain.repository.MutationOutboxRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
+import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataSource
 import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataSource
 import com.gdavidpb.tuindice.record.data.repository.QuarterSettingsDataSource
+import com.gdavidpb.tuindice.record.data.repository.mutation.RECORD_MUTATION_STORE_ID
+import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutationAck
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteAddQuarterAck
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
@@ -20,6 +24,7 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSetSubjectGradeAck
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSubject
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.SetSubjectGradeResult
+import com.gdavidpb.tuindice.record.domain.model.QuarterAdd
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import com.gdavidpb.tuindice.record.domain.model.SubjectGradeSet
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
@@ -117,6 +122,7 @@ class RecordingQuarterRepository(
 	private val updateThrowable: Throwable? = null,
 	private val setSubjectGradeThrowable: Throwable? = null
 ) : QuarterRepository {
+	val addCalls = MutableStateFlow<List<QuarterAdd>>(emptyList())
 	val removeCalls = MutableStateFlow<List<QuarterRemove>>(emptyList())
 	val setGradeCalls = MutableStateFlow<List<SubjectGradeSet>>(emptyList())
 	val updateQuartersCalls = MutableStateFlow(0)
@@ -126,6 +132,10 @@ class RecordingQuarterRepository(
 	override suspend fun updateQuarters() {
 		updateQuartersCalls.value += 1
 		updateThrowable?.let { throw it }
+	}
+
+	override suspend fun addQuarter(add: QuarterAdd) {
+		addCalls.update { calls -> calls + add }
 	}
 
 	override suspend fun removeQuarter(remove: QuarterRemove) {
@@ -149,6 +159,7 @@ class FakeQuarterLocalDataSource(
 	val savedQuarters = mutableListOf<List<LocalQuarter>>()
 	val removedQuarterIds = mutableListOf<String>()
 	val confirmedRemovedQuarterIds = mutableListOf<String>()
+	val confirmedAddedQuarters = mutableListOf<LocalQuarter>()
 	val confirmedSubjectGradeMutations = mutableListOf<List<LocalQuarter>>()
 	val clearedPreviewArgs = mutableListOf<Pair<String, String>>()
 	val setSubjectGradeCalls = mutableListOf<SetSubjectGradeCall>()
@@ -156,8 +167,52 @@ class FakeQuarterLocalDataSource(
 
 	override fun getQuartersFlow(): Flow<List<LocalQuarter>> = quarterState
 
+	override suspend fun getConfirmedQuarters(): List<LocalQuarter> = quarterState.value
+
 	override suspend fun getQuarter(qid: String): LocalQuarter? {
 		return quarterState.value.firstOrNull { quarter -> quarter.id == qid }
+	}
+
+	override suspend fun confirmQuarterAddition(
+		addedQuarter: LocalQuarter,
+		affectedQuarters: List<LocalQuarter>
+	) {
+		confirmedAddedQuarters += addedQuarter
+		val currentByQuarterId = quarterState.value.associateBy { quarter -> quarter.id }
+		val mergedAffectedById = buildMap {
+			put(addedQuarter.id, addedQuarter)
+			affectedQuarters.forEach { quarter ->
+				val currentQuarter = currentByQuarterId[quarter.id]
+				put(
+					quarter.id,
+					if (currentQuarter == null) {
+						quarter
+					} else {
+						quarter.copy(
+							revision = maxOf(currentQuarter.revision, quarter.revision),
+							subjects = mergeSubjectsKeepingLatestRevision(
+								currentSubjects = currentQuarter.subjects,
+								incomingSubjects = quarter.subjects
+							)
+						)
+					}
+				)
+			}
+		}
+		val patchedSnapshot = quarterState.value
+			.map { quarter -> mergedAffectedById[quarter.id] ?: quarter }
+			.toMutableList()
+
+		mergedAffectedById.values.forEach { mergedQuarter ->
+			if (patchedSnapshot.none { quarter -> quarter.id == mergedQuarter.id }) {
+				patchedSnapshot += mergedQuarter
+			}
+		}
+
+		quarterState.value = indexComputationEngine.recompute(
+			quarters = patchedSnapshot,
+			affectedStartDate = mergedAffectedById.values.minOf { quarter -> quarter.startDate }
+		).quarters
 	}
 
 	override suspend fun removeQuarter(qid: String) {
@@ -183,28 +238,12 @@ class FakeQuarterLocalDataSource(
 				val currentQuarter = currentByQuarterId[incomingQuarter.id]
 					?: return@map incomingQuarter
 				val incomingSubjectsById = incomingQuarter.subjects.associateBy { subject -> subject.id }
-				val mergedSubjects = currentQuarter.subjects
-					.map { currentSubject ->
-						val incomingSubject = incomingSubjectsById[currentSubject.id]
-							?: return@map currentSubject
-
-						if (currentSubject.revision > incomingSubject.revision) {
-							currentSubject
-						} else {
-							incomingSubject
-						}
-					}
-					.toMutableList()
-
-				incomingQuarter.subjects.forEach { incomingSubject ->
-					if (mergedSubjects.none { subject -> subject.id == incomingSubject.id }) {
-						mergedSubjects += incomingSubject
-					}
-				}
-
 				incomingQuarter.copy(
 					revision = maxOf(currentQuarter.revision, incomingQuarter.revision),
-					subjects = mergedSubjects
+					subjects = mergeSubjectsKeepingLatestRevision(
+						currentSubjects = currentQuarter.subjects,
+						incomingSubjects = incomingQuarter.subjects
+					)
 				)
 			}
 			.associateBy { quarter -> quarter.id }
@@ -293,6 +332,33 @@ class FakeQuarterLocalDataSource(
 			expectedRevision = expectedRevision ?: DEFAULT_RECORD_REVISION
 		)
 	}
+
+	private fun mergeSubjectsKeepingLatestRevision(
+		currentSubjects: List<LocalSubject>,
+		incomingSubjects: List<LocalSubject>
+	): List<LocalSubject> {
+		val incomingById = incomingSubjects.associateBy { subject -> subject.id }
+		val mergedSubjects = currentSubjects
+			.map { currentSubject ->
+				val incomingSubject = incomingById[currentSubject.id]
+					?: return@map currentSubject
+
+				if (currentSubject.revision > incomingSubject.revision) {
+					currentSubject
+				} else {
+					incomingSubject
+				}
+			}
+			.toMutableList()
+
+		incomingSubjects.forEach { incomingSubject ->
+			if (mergedSubjects.none { subject -> subject.id == incomingSubject.id }) {
+				mergedSubjects += incomingSubject
+			}
+		}
+
+		return mergedSubjects
+	}
 }
 
 data class SetSubjectGradeCall(
@@ -311,13 +377,16 @@ data class RemoveQuarterRemoteCall(
 )
 
 data class AddQuarterRemoteCall(
-	val quarterId: String,
+	val quarter: Int,
+	val year: Int,
+	val subjects: List<RecordMutation.AddQuarter.SubjectSeed>,
 	val mutationId: String,
 	val expectedRevision: Long
 )
 
 class FakeQuarterRemoteDataSource(
 	private val quarters: List<RemoteQuarter> = listOf(DEFAULT_RECORD_REMOTE_QUARTER),
+	private val addQuarterThrowable: Throwable? = null,
 	private val removeQuarterThrowable: Throwable? = null,
 	private val setSubjectGradeThrowable: Throwable? = null,
 	private val addQuarterAck: RemoteAddQuarterAck = RemoteAddQuarterAck(
@@ -343,7 +412,6 @@ class FakeQuarterRemoteDataSource(
 	var getQuartersCalls = 0
 	val removeQuarterCalls = mutableListOf<RemoveQuarterRemoteCall>()
 	val addQuarterCalls = mutableListOf<AddQuarterRemoteCall>()
-	val addedQuarters = mutableListOf<RemoteQuarter>()
 	val setSubjectGradeCalls = mutableListOf<SetSubjectGradeCall>()
 
 	override suspend fun getQuarters(): List<RemoteQuarter> {
@@ -370,17 +438,19 @@ class FakeQuarterRemoteDataSource(
 	}
 
 	override suspend fun addQuarter(
-		quarter: RemoteQuarter,
+		add: RecordMutation.AddQuarter,
 		mutationId: String,
 		expectedRevision: Long
 	): RemoteAddQuarterAck {
-		addedQuarters += quarter
+		addQuarterThrowable?.let { throw it }
 		addQuarterCalls += AddQuarterRemoteCall(
-			quarterId = quarter.id,
+			quarter = add.quarter,
+			year = add.year,
+			subjects = add.subjects,
 			mutationId = mutationId,
 			expectedRevision = expectedRevision
 		)
-		return addQuarterAck.copy(mutationId = mutationId, quarter = quarter)
+		return addQuarterAck.copy(mutationId = mutationId)
 	}
 
 	override suspend fun setSubjectGrade(
@@ -415,34 +485,50 @@ class FakeQuarterSettingsDataSource(
 	}
 }
 
-class FakeMutationOutboxRepository<T : OutboxMutation>(
-	initialPendingMutations: List<PendingMutation<T>> = emptyList()
-) : MutationOutboxRepository<T> {
+class FakeMutationEnvelopeStore<ScopeKey : Any, T : OutboxMutation>(
+	initialPendingMutations: List<MutationEnvelope<ScopeKey, T>> = emptyList()
+) : MutationEnvelopeStore<ScopeKey, T> {
 	private val state = MutableStateFlow(initialPendingMutations)
 
-	override fun observePendingMutations(): Flow<List<PendingMutation<T>>> = state
+	override fun observePendingMutations(scopeKey: ScopeKey): Flow<List<MutationEnvelope<ScopeKey, T>>> = state
 
-	override suspend fun getPendingMutations(): List<PendingMutation<T>> = state.value
+	override suspend fun getPendingMutations(scopeKey: ScopeKey): List<MutationEnvelope<ScopeKey, T>> = state.value
 
-	override suspend fun getPendingMutation(mutationId: String): PendingMutation<T>? {
-		return state.value.firstOrNull { mutation -> mutation.mutationId == mutationId }
+	override suspend fun getPendingMutation(
+		scopeKey: ScopeKey,
+		mutationId: String
+	): MutationEnvelope<ScopeKey, T>? {
+		return state.value.firstOrNull { mutation ->
+			mutation.scopeKey == scopeKey && mutation.mutationId == mutationId
+		}
 	}
 
-	override suspend fun replacePendingMutation(mutation: PendingMutation<T>) {
+	override suspend fun replacePendingMutation(mutation: MutationEnvelope<ScopeKey, T>) {
 		state.value = state.value
-			.filterNot { pending -> pending.mutation.replaceKey == mutation.mutation.replaceKey }
+			.filterNot { pending -> pending.replaceKey == mutation.replaceKey }
 			.plus(mutation)
 	}
 
-	override suspend fun savePendingMutation(mutation: PendingMutation<T>) {
+	override suspend fun savePendingMutation(mutation: MutationEnvelope<ScopeKey, T>) {
 		state.value = state.value
 			.filterNot { pending -> pending.mutationId == mutation.mutationId }
 			.plus(mutation)
 	}
 
-	override suspend fun deletePendingMutation(mutationId: String) {
-		state.value = state.value.filterNot { mutation -> mutation.mutationId == mutationId }
+	override suspend fun deletePendingMutation(scopeKey: ScopeKey, mutationId: String) {
+		state.value = state.value.filterNot { mutation ->
+			mutation.scopeKey == scopeKey && mutation.mutationId == mutationId
+		}
 	}
+}
+
+fun createRecordMutationEngine(
+	store: MutationEnvelopeStore<String, RecordMutation> = FakeMutationEnvelopeStore()
+): StoreBackedMutationEngine<String, RecordMutation, List<LocalQuarter>, List<LocalQuarter>, RecordMutationAck> {
+	return StoreBackedMutationEngine(
+		storeId = RECORD_MUTATION_STORE_ID,
+		outboxStore = store
+	)
 }
 
 class FakeNetworkRepository(

@@ -7,7 +7,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface QuarterLocalDataSource {
 	fun getQuartersFlow(): Flow<List<LocalQuarter>>
+	suspend fun getConfirmedQuarters(): List<LocalQuarter>
 	suspend fun getQuarter(qid: String): LocalQuarter?
+	suspend fun confirmQuarterAddition(addedQuarter: LocalQuarter, affectedQuarters: List<LocalQuarter>)
 	suspend fun removeQuarter(qid: String)
 	suspend fun confirmQuarterRemoval(qid: String, affectedQuarters: List<LocalQuarter>)
 	suspend fun confirmSubjectGradeMutation(affectedQuarters: List<LocalQuarter>)

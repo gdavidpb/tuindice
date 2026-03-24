@@ -1,12 +1,14 @@
 package com.gdavidpb.tuindice.record.data.source
 
-import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutation
-import com.gdavidpb.tuindice.base.domain.repository.MutationOutboxRepository
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.withImmediateTransaction
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
+import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.record.data.model.SubjectGradePreview
 import com.gdavidpb.tuindice.record.data.model.SubjectPreviewKey
 import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataSource
+import com.gdavidpb.tuindice.record.data.repository.mutation.RECORD_MUTATION_SCOPE
+import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutationAck
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
@@ -22,14 +24,14 @@ import kotlinx.coroutines.sync.withLock
 class RoomDataSource(
 	private val room: TuIndiceDatabase,
 	private val indexComputationEngine: IndexComputationEngine,
-	private val mutationOutboxRepository: MutationOutboxRepository<RecordMutation>,
+	private val mutationEngine: StoreBackedMutationEngine<String, RecordMutation, List<LocalQuarter>, List<LocalQuarter>, RecordMutationAck>,
 	private val visibleRecordStateResolver: VisibleRecordStateResolver
 ) : QuarterLocalDataSource {
 	private val writeMutex = Mutex()
 	private val previewQuartersFlow = MutableStateFlow(0L)
 
 	private var inMemoryQuartersSnapshot: List<LocalQuarter>? = null
-	private var pendingMutationsSnapshot: List<PendingMutation<RecordMutation>> = emptyList()
+	private var pendingMutationsSnapshot: List<MutationEnvelope<String, RecordMutation>> = emptyList()
 	private var gradePreviewSnapshot: Map<SubjectPreviewKey, SubjectGradePreview> = emptyMap()
 
 	override fun getQuartersFlow(): Flow<List<LocalQuarter>> {
@@ -43,7 +45,7 @@ class RoomDataSource(
 				inMemoryQuartersSnapshot = quarters
 			}
 
-		val pendingFlow = mutationOutboxRepository.observePendingMutations()
+		val pendingFlow = mutationEngine.observePendingMutations(RECORD_MUTATION_SCOPE)
 			.onEach { pendingMutations ->
 				pendingMutationsSnapshot = pendingMutations
 			}
@@ -57,6 +59,10 @@ class RoomDataSource(
 		}
 	}
 
+	override suspend fun getConfirmedQuarters(): List<LocalQuarter> {
+		return inMemoryQuartersSnapshot ?: loadSnapshotFromRoom()
+	}
+
 	override suspend fun getQuarter(qid: String): LocalQuarter? {
 		val confirmedSnapshot = inMemoryQuartersSnapshot ?: loadSnapshotFromRoom()
 		val pendingMutations = currentPendingMutations()
@@ -67,6 +73,31 @@ class RoomDataSource(
 		)
 
 		return visibleSnapshot.firstOrNull { quarter -> quarter.id == qid }
+	}
+
+	override suspend fun confirmQuarterAddition(
+		addedQuarter: LocalQuarter,
+		affectedQuarters: List<LocalQuarter>
+	) {
+		writeMutex.withLock {
+			val currentSnapshot = inMemoryQuartersSnapshot ?: loadSnapshotFromRoom()
+			val mergedSnapshot = mergeSubjectGradeAckIntoSnapshot(
+				currentSnapshot = currentSnapshot,
+				affectedQuarters = buildList {
+					add(addedQuarter)
+					affectedQuarters.forEach { quarter ->
+						if (none { current -> current.id == quarter.id }) {
+							add(quarter)
+						}
+					}
+				}.toCanonicalOrder()
+			)
+
+			persistConfirmedQuarters(
+				confirmedQuarters = mergedSnapshot,
+				currentSnapshot = currentSnapshot
+			)
+		}
 	}
 
 	override suspend fun removeQuarter(qid: String) {
@@ -253,8 +284,10 @@ class RoomDataSource(
 		return loaded
 	}
 
-	private suspend fun currentPendingMutations(): List<PendingMutation<RecordMutation>> {
-		return pendingMutationsSnapshot.ifEmpty { mutationOutboxRepository.getPendingMutations() }
+	private suspend fun currentPendingMutations(): List<MutationEnvelope<String, RecordMutation>> {
+		return pendingMutationsSnapshot.ifEmpty {
+			mutationEngine.getPendingMutations(RECORD_MUTATION_SCOPE)
+		}
 	}
 
 	private suspend fun persistConfirmedQuarters(
@@ -262,8 +295,8 @@ class RoomDataSource(
 		currentSnapshot: List<LocalQuarter>
 	) {
 		val pendingMutations = currentPendingMutations()
-		val syncResolution = visibleRecordStateResolver.resolveIncomingSnapshot(
-			incomingQuarters = confirmedQuarters,
+		val syncResolution = visibleRecordStateResolver.resolveIncomingState(
+			incomingConfirmedState = confirmedQuarters,
 			pendingMutations = pendingMutations
 		)
 		val incomingQuarterIds = confirmedQuarters
@@ -287,7 +320,7 @@ class RoomDataSource(
 
 		pendingMutationsSnapshot = syncResolution.compatiblePendingMutations
 		syncResolution.invalidatedMutationIds.forEach { mutationId ->
-			mutationOutboxRepository.deletePendingMutation(mutationId)
+			mutationEngine.deletePendingMutation(RECORD_MUTATION_SCOPE, mutationId)
 		}
 		removeGradePreviews { key, _ -> key.quarterId in syncResolution.invalidatedQuarterIds }
 

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.data.source
 
 import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataSource
+import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteAddQuarterAck
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteDeleteQuarterAck
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
@@ -57,11 +58,11 @@ class RecordApiDataSource(
 	}
 
 	override suspend fun addQuarter(
-		quarter: RemoteQuarter,
+		add: RecordMutation.AddQuarter,
 		mutationId: String,
 		expectedRevision: Long
 	): RemoteAddQuarterAck {
-		val request = quarter.toAddQuarterRequest(
+		val request = add.toAddQuarterRequest(
 			mutationId = mutationId,
 			expectedRevision = expectedRevision
 		)

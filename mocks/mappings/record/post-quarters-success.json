@@ -13,10 +13,16 @@
         "matchesJsonPath": "$.subjects"
       },
       {
+        "matchesJsonPath": "$.subjects[0].code"
+      },
+      {
+        "matchesJsonPath": "$.subjects[0].grade"
+      },
+      {
         "matchesJsonPath": "$.mutation_id"
       },
       {
-        "matchesJsonPath": "$.expected_revision"
+        "matchesJsonPath": "$[?(@.expected_revision == 10)]"
       }
     ]
   },

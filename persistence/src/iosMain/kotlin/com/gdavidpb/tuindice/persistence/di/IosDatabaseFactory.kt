@@ -20,6 +20,7 @@ fun createIosDatabase(
 	return Room.databaseBuilder<TuIndiceDatabase>(
 		name = path
 	)
+		.fallbackToDestructiveMigrationFrom(true, 1, 2, 3, 4, 5)
 		.setDriver(BundledSQLiteDriver())
 		.setQueryCoroutineContext(Dispatchers.Default)
 		.build()

@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.record.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.record.domain.usecase.param.AddQuarterParams
+import com.gdavidpb.tuindice.record.domain.usecase.param.AddQuarterSubjectParams
 import com.gdavidpb.tuindice.record.domain.usecase.error.SubjectUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateQuartersExceptionHandler
@@ -52,6 +54,34 @@ class RecordUseCaseContractTest {
 		}
 
 		assertEquals(1, repository.updateQuartersCalls.value)
+	}
+
+	@Test
+	fun addQuarterUseCase_emitsLoadingThenData_andDelegatesAdd() = runTest {
+		val repository = RecordingQuarterRepository()
+		val useCase = AddQuarterUseCase(
+			quarterRepository = repository
+		)
+		val params = AddQuarterParams(
+			quarter = 1,
+			year = 2027,
+			subjects = listOf(
+				AddQuarterSubjectParams(
+					code = "INF-201",
+					grade = 65
+				)
+			)
+		)
+
+		useCase.execute(params).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals(1, repository.addCalls.value.size)
+		assertEquals(1, repository.addCalls.value.single().quarter)
+		assertEquals(2027, repository.addCalls.value.single().year)
+		assertEquals(1, repository.addCalls.value.single().subjects.size)
 	}
 
 	@Test

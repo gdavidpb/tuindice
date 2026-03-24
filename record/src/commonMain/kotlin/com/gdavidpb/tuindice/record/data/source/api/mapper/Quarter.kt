@@ -1,16 +1,10 @@
-@file:OptIn(ExperimentalTime::class)
-
 package com.gdavidpb.tuindice.record.data.source.api.mapper
 
-import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
+import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
+import com.gdavidpb.tuindice.record.data.source.api.response.AddSubjectRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.AddQuarterRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.QuarterResponse
-import kotlinx.datetime.Month
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 fun QuarterResponse.toRemoteQuarter(): RemoteQuarter {
 	return RemoteQuarter(
@@ -29,42 +23,20 @@ fun QuarterResponse.toRemoteQuarter(): RemoteQuarter {
 	)
 }
 
-fun RemoteQuarter.toAddQuarterRequest(
+fun RecordMutation.AddQuarter.toAddQuarterRequest(
 	mutationId: String,
 	expectedRevision: Long
 ): AddQuarterRequest {
-	val localTime = Instant.fromEpochMilliseconds(startDate)
-		.toLocalDateTime(TimeZone.currentSystemDefault())
-
-	val year = localTime.year
-	val quarter = when (localTime.month) {
-		Month.JANUARY -> 1
-		Month.APRIL -> 2
-		Month.JUNE -> 3
-		Month.SEPTEMBER -> 4
-		else -> throw IllegalArgumentException()
-	}
-
 	return AddQuarterRequest(
 		quarter = quarter,
 		year = year,
-		subjects = subjects.map { remoteSubject -> remoteSubject.toAddSubjectRequest() },
+		subjects = subjects.map { subject ->
+			AddSubjectRequest(
+				code = subject.code,
+				grade = subject.grade
+			)
+		},
 		mutationId = mutationId,
 		expectedRevision = expectedRevision
 	)
 }
-
-fun Quarter.toRemoteQuarter() = RemoteQuarter(
-	id = id,
-	name = name,
-	startDate = startDate,
-	endDate = endDate,
-	grade = grade,
-	gradeSum = gradeSum,
-	credits = credits,
-	creditsSum = creditsSum,
-	isCurrent = isCurrent,
-	isReadOnly = isReadOnly,
-	revision = 0L,
-	subjects = subjects.map { subject -> subject.toRemoteSubject() }
-)

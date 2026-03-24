@@ -100,6 +100,10 @@ def matches_number(path: str, value: int) -> dict:
     return {"matchesJsonPath": f"$[?(@.{path} == {value})]"}
 
 
+def max_quarter_revision(base_state: dict) -> int:
+    return max((quarter["revision"] for quarter in base_state["quarters"]), default=0)
+
+
 def build_get_mappings(target_dir: Path, base_state: dict) -> None:
     write_mapping(
         target_dir,
@@ -433,7 +437,8 @@ def build_delete_mappings(target_dir: Path) -> None:
     )
 
 
-def build_post_mappings(target_dir: Path) -> None:
+def build_post_mappings(target_dir: Path, base_state: dict) -> None:
+    expected_revision = max_quarter_revision(base_state)
     shared_request = {
         "method": "POST",
         "urlPath": "/quarters/v1",
@@ -441,8 +446,10 @@ def build_post_mappings(target_dir: Path) -> None:
             matches_json_path_exists("$.quarter"),
             matches_json_path_exists("$.year"),
             matches_json_path_exists("$.subjects"),
+            matches_json_path_exists("$.subjects[0].code"),
+            matches_json_path_exists("$.subjects[0].grade"),
             matches_json_path_exists("$.mutation_id"),
-            matches_json_path_exists("$.expected_revision")
+            matches_number("expected_revision", expected_revision)
         ]
     }
 
@@ -501,7 +508,7 @@ def main() -> None:
     build_get_mappings(record_mappings_dir, base_state)
     build_patch_mappings(record_mappings_dir, base_state, max_revision=max(args.max_revision, 2))
     build_delete_mappings(record_mappings_dir)
-    build_post_mappings(record_mappings_dir)
+    build_post_mappings(record_mappings_dir, base_state)
 
 
 if __name__ == "__main__":

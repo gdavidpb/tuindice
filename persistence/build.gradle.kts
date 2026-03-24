@@ -3,6 +3,7 @@ plugins {
 	id("com.android.kotlin.multiplatform.library")
 
 	alias(libs.plugins.ksp)
+	alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -30,7 +31,11 @@ kotlin {
 			dependencies {
 				implementation(project(":base"))
 				implementation(libs.koin.core)
+				implementation(libs.kermit)
+				implementation(libs.kotlinx.datetime)
 				api(libs.room.runtime)
+				implementation(libs.kotlinx.serialization.json)
+				implementation(libs.store5)
 			}
 		}
 

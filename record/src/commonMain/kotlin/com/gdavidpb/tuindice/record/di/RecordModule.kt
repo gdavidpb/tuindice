@@ -1,18 +1,22 @@
 package com.gdavidpb.tuindice.record.di
 
-import com.gdavidpb.tuindice.base.domain.repository.MutationOutboxRepository
-import com.gdavidpb.tuindice.persistence.data.room.RoomMutationOutboxRepository
+import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
+import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.record.data.repository.QuarterDataRepository
 import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataSource
 import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataSource
 import com.gdavidpb.tuindice.record.data.repository.QuarterSettingsDataSource
+import com.gdavidpb.tuindice.record.data.repository.mutation.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
+import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutationAck
+import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.record.data.source.RecordApiDataSource
 import com.gdavidpb.tuindice.record.data.source.RoomDataSource
 import com.gdavidpb.tuindice.record.data.source.VisibleRecordStateResolver
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
+import com.gdavidpb.tuindice.record.domain.usecase.AddQuarterUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
@@ -29,6 +33,7 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import kotlinx.serialization.builtins.serializer
 
 val recordModule = module {
 	/* View models */
@@ -43,6 +48,7 @@ val recordModule = module {
 
 	/* Use cases */
 
+	factoryOf(::AddQuarterUseCase)
 	factoryOf(::ObserveQuartersUseCase)
 	factoryOf(::UpdateQuartersUseCase)
 	factoryOf(::RemoveQuarterUseCase)
@@ -60,10 +66,18 @@ val recordModule = module {
 	/* Repositories */
 
 	singleOf(::QuarterDataRepository) { bind<QuarterRepository>() }
-	single<MutationOutboxRepository<RecordMutation>> {
-		RoomMutationOutboxRepository(
+	single {
+		RoomMutationEnvelopeStore(
 			room = get(),
-			serializer = RecordMutation.serializer()
+			storeId = RECORD_MUTATION_STORE_ID,
+			scopeKeySerializer = String.serializer(),
+			commandSerializer = RecordMutation.serializer()
+		)
+	}
+	single {
+		StoreBackedMutationEngine<String, RecordMutation, List<LocalQuarter>, List<LocalQuarter>, RecordMutationAck>(
+			storeId = RECORD_MUTATION_STORE_ID,
+			outboxStore = get()
 		)
 	}
 

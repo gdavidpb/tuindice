@@ -13,7 +13,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.*
 		EvaluationEntity::class,
 		PendingMutationEntity::class
 	],
-	version = 4,
+	version = 6,
 	exportSchema = false
 )
 @ConstructedBy(TuIndiceDatabaseConstructor::class)

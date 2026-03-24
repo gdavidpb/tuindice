@@ -24,15 +24,26 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 
 	private class RecordTemplateModelProvider(services: WireMockServices) : TemplateModelDataProviderExtension {
 		private val admin: Admin = services.admin
+		private val objectMapper = ObjectMapper()
 		private val baseState: BaseState = readBaseState(services.files)
+		@Volatile
+		private var latestRequestedAddedQuarter: QuarterModel? = null
 
 		override fun getName(): String = "record-template-model-provider"
 
 		override fun provideTemplateModelData(serveEvent: ServeEvent): Map<String, Any> {
 			val scenarioStates = currentScenarioStates().toMutableMap()
 			applyPreviewTransition(scenarioStates, serveEvent.stubMapping)
+			requestAddedQuarter(serveEvent.request, scenarioStates)?.let { requestedQuarter ->
+				latestRequestedAddedQuarter = requestedQuarter
+			}
 
-			val quarters = recompute(resolveVisibleQuarters(scenarioStates)).sortedWith(DESCENDING_QUARTER_ORDER)
+			val quarters = recompute(
+				resolveVisibleQuarters(
+					scenarioStates = scenarioStates,
+					addedQuarterOverride = latestRequestedAddedQuarter
+				)
+			).sortedWith(DESCENDING_QUARTER_ORDER)
 			val pathSegments = pathSegments(serveEvent.request)
 			val currentQuarter = findQuarter(quarters, currentQuarterId(pathSegments))
 			val currentSubject = findSubject(currentQuarter, currentSubjectId(pathSegments))
@@ -51,8 +62,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		private fun readBaseState(fileSource: FileSource): BaseState {
 			try {
 				val configFile: TextFile = fileSource.child(CONFIG_DIRECTORY).getTextFileNamed(CONFIG_FILENAME)
-				val mapper = ObjectMapper()
-				val root = mapper.readTree(configFile.readContentsAsString())
+				val root = objectMapper.readTree(configFile.readContentsAsString())
 				val quarters = root.get("quarters").map(::parseQuarter)
 				val addedQuarter = parseQuarter(root.get("added_quarter"))
 				return BaseState(quarters, addedQuarter)
@@ -108,7 +118,10 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			scenarioStates[scenarioName] = nextState
 		}
 
-		private fun resolveVisibleQuarters(scenarioStates: Map<String, String>): List<QuarterModel> {
+		private fun resolveVisibleQuarters(
+			scenarioStates: Map<String, String>,
+			addedQuarterOverride: QuarterModel? = null
+		): List<QuarterModel> {
 			val quarters = mutableListOf<QuarterModel>()
 
 			for (baseQuarter in baseState.quarters) {
@@ -116,8 +129,8 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				quarters += resolveQuarter(baseQuarter, scenarioStates)
 			}
 
-			val addedQuarter = baseState.addedQuarter
-			if (isAddedQuarterVisible(addedQuarter, scenarioStates)) {
+			val addedQuarter = addedQuarterOverride ?: baseState.addedQuarter
+			if (isAddedQuarterVisible(baseState.addedQuarter, scenarioStates)) {
 				quarters += resolveAddedQuarter(addedQuarter, scenarioStates)
 			}
 
@@ -150,7 +163,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		}
 
 		private fun resolveAddedQuarter(addedQuarter: QuarterModel, scenarioStates: Map<String, String>): QuarterModel {
-			val presenceScenario = addedQuarter.presenceScenario ?: return addedQuarter
+			val presenceScenario = baseState.addedQuarter.presenceScenario ?: return addedQuarter
 			val state = scenarioStates[presenceScenario] ?: Scenario.STARTED
 			return addedQuarter.copyWith(
 				grade = addedQuarter.grade,
@@ -159,6 +172,47 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				creditsSum = addedQuarter.creditsSum,
 				revision = parseQuarterRevision(state, addedQuarter.revision),
 				subjects = addedQuarter.subjects.toList(),
+			)
+		}
+
+		private fun requestAddedQuarter(
+			request: Request,
+			scenarioStates: Map<String, String>
+		): QuarterModel? {
+			val pathSegments = pathSegments(request)
+			if (pathSegments != listOf("quarters", "v1")) return null
+
+			val requestBody = request.bodyAsString
+				.takeIf { body -> body.isNotBlank() }
+				?: return null
+			val root = runCatching { objectMapper.readTree(requestBody) }
+				.getOrNull()
+				?: return null
+			if (!root.hasNonNull("quarter") || !root.hasNonNull("year")) return null
+
+			val subjectsNode = root.get("subjects")
+				?: return null
+			if (!subjectsNode.isArray || subjectsNode.size() == 0) return null
+
+			val resolvedQuarter = resolveAddedQuarter(baseState.addedQuarter, scenarioStates)
+			val subjects = subjectsNode.mapIndexed { index, node ->
+				val code = node.path("code").asText(baseState.addedQuarter.subjects.firstOrNull()?.code ?: "MOCK101")
+				SubjectModel(
+					id = "$code-${resolvedQuarter.id}-${index + 1}",
+					quarterId = resolvedQuarter.id,
+					code = code,
+					name = "MOCK $code",
+					credits = node.path("credits").asInt(DEFAULT_ADDED_SUBJECT_CREDITS),
+					grade = node.path("grade").asInt(0),
+					revision = 1L,
+					mutable = false,
+					scenario = null,
+				)
+			}
+
+			return resolvedQuarter.copy(
+				name = "${root.get("year").asInt()}-${root.get("quarter").asInt()}",
+				subjects = subjects,
 			)
 		}
 
@@ -410,6 +464,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		private const val CONFIG_DIRECTORY = "config"
 		private const val CONFIG_FILENAME = "record-base-state.json"
 		private const val ADDED_QUARTER_ID = "MOCK-ADDED-QUARTER"
+		private const val DEFAULT_ADDED_SUBJECT_CREDITS = 4
 		private val SUBJECT_STATE_PATTERN = Pattern.compile("^REV_(\\d+)_GRADE_(\\d+)$")
 		private val PRESENT_STATE_PATTERN = Pattern.compile("^ADDED_R(\\d+)$")
 		private val DELETED_STATE_PATTERN = Pattern.compile("^DELETED_R(\\d+)$")

@@ -2,24 +2,24 @@
   "mutation_id": "{{jsonPath request.body '$.mutation_id'}}",
   "quarter_patch": {
     "id": "MOCK-ADDED-QUARTER",
-    "name": "Quarter Added",
+    "name": "{{jsonPath request.body '$.year'}}-{{jsonPath request.body '$.quarter'}}",
     "start_date": 1785560400000,
     "end_date": 1793422800000,
-    "grade": 0.0,
-    "grade_sum": 0.0,
-    "credits": 0,
-    "credits_sum": 45,
+    "grade": {{jsonPath request.body '$.subjects[0].grade'}},
+    "grade_sum": {{jsonPath request.body '$.subjects[0].grade'}},
+    "credits": 4,
+    "credits_sum": 4,
     "is_current": false,
     "is_read_only": false,
     "revision": 1,
     "subjects": [
       {
-        "id": "MOCK101-MOCK-ADDED-QUARTER",
+        "id": "{{jsonPath request.body '$.subjects[0].code'}}-MOCK-ADDED-QUARTER-1",
         "qid": "MOCK-ADDED-QUARTER",
-        "code": "MOCK101",
-        "name": "MOCK SUBJECT",
+        "code": "{{jsonPath request.body '$.subjects[0].code'}}",
+        "name": "MOCK {{jsonPath request.body '$.subjects[0].code'}}",
         "credits": 4,
-        "grade": 0,
+        "grade": {{jsonPath request.body '$.subjects[0].grade'}},
         "revision": 1
       }
     ]
@@ -27,24 +27,24 @@
   "affected_quarters": [
     {
       "id": "MOCK-ADDED-QUARTER",
-      "name": "Quarter Added",
+      "name": "{{jsonPath request.body '$.year'}}-{{jsonPath request.body '$.quarter'}}",
       "start_date": 1785560400000,
       "end_date": 1793422800000,
-      "grade": 0.0,
-      "grade_sum": 0.0,
-      "credits": 0,
-      "credits_sum": 45,
+      "grade": {{jsonPath request.body '$.subjects[0].grade'}},
+      "grade_sum": {{jsonPath request.body '$.subjects[0].grade'}},
+      "credits": 4,
+      "credits_sum": 4,
       "is_current": false,
       "is_read_only": false,
       "revision": 1,
       "subjects": [
         {
-          "id": "MOCK101-MOCK-ADDED-QUARTER",
+          "id": "{{jsonPath request.body '$.subjects[0].code'}}-MOCK-ADDED-QUARTER-1",
           "qid": "MOCK-ADDED-QUARTER",
-          "code": "MOCK101",
-          "name": "MOCK SUBJECT",
+          "code": "{{jsonPath request.body '$.subjects[0].code'}}",
+          "name": "MOCK {{jsonPath request.body '$.subjects[0].code'}}",
           "credits": 4,
-          "grade": 0,
+          "grade": {{jsonPath request.body '$.subjects[0].grade'}},
           "revision": 1
         }
       ]

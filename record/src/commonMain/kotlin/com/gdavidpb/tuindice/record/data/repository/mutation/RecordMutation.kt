@@ -9,13 +9,19 @@ sealed interface RecordMutation : OutboxMutation {
 	@Serializable
 	@SerialName("add_quarter")
 	data class AddQuarter(
-		val quarterId: String,
-		val startDate: Long,
-		val endDate: Long
+		val quarter: Int,
+		val year: Int,
+		val subjects: List<SubjectSeed>
 	) : RecordMutation {
+		@Serializable
+		data class SubjectSeed(
+			val code: String,
+			val grade: Int
+		)
+
 		override val entityType: String = "record:add_quarter"
-		override val entityId: String = quarterId
-		override val replaceKey: String = "quarter:$quarterId"
+		override val entityId: String = "$year-$quarter"
+		override val replaceKey: String = "quarter:$year:$quarter"
 	}
 
 	@Serializable

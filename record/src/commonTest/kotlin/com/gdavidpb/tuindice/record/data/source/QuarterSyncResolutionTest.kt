@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.record.data.source
 
-import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
+import com.gdavidpb.tuindice.record.data.repository.mutation.RECORD_MUTATION_SCOPE
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_LOCAL_QUARTER
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
@@ -59,8 +61,8 @@ class QuarterSyncResolutionTest {
 			)
 		)
 
-		val result = resolver.resolveIncomingSnapshot(
-			incomingQuarters = listOf(closedQuarter, openQuarter),
+		val result = resolver.resolveIncomingState(
+			incomingConfirmedState = listOf(closedQuarter, openQuarter),
 			pendingMutations = pendingMutations
 		)
 
@@ -86,8 +88,8 @@ class QuarterSyncResolutionTest {
 			)
 		)
 
-		val result = resolver.resolveIncomingSnapshot(
-			incomingQuarters = listOf(openQuarter),
+		val result = resolver.resolveIncomingState(
+			incomingConfirmedState = listOf(openQuarter),
 			pendingMutations = pendingMutations
 		)
 
@@ -112,8 +114,8 @@ class QuarterSyncResolutionTest {
 			)
 		)
 
-		val result = resolver.resolveIncomingSnapshot(
-			incomingQuarters = listOf(currentQuarter),
+		val result = resolver.resolveIncomingState(
+			incomingConfirmedState = listOf(currentQuarter),
 			pendingMutations = pendingMutations
 		)
 
@@ -150,15 +152,17 @@ class QuarterSyncResolutionTest {
 	private fun pendingMutation(
 		mutationId: String,
 		mutation: RecordMutation
-	): PendingMutation<RecordMutation> {
-		return PendingMutation(
+	): MutationEnvelope<String, RecordMutation> {
+		return MutationEnvelope(
 			mutationId = mutationId,
-			mutation = mutation,
-			expectedRevision = 1L,
+			scopeKey = RECORD_MUTATION_SCOPE,
+			command = mutation,
+			precondition = MutationPrecondition.Revision(1L),
 			status = PendingMutationStatus.Pending,
 			createdAt = baseTimestamp,
 			updatedAt = baseTimestamp,
-			lastError = null
+			lastError = null,
+			replaceKey = mutation.replaceKey
 		)
 	}
 }

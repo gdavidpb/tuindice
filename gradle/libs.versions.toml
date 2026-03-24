@@ -4,6 +4,7 @@ kotlin = "2.3.10"
 ksp = "2.3.4"
 material-icons-extended = "1.7.3"
 room = "2.8.4"
+store5 = "5.1.0-alpha08"
 sqlite = "2.6.2"
 koin = "4.1.1"
 lifecycle = "2.10.0"
@@ -48,11 +49,10 @@ ksafe = "1.7.0"
 
 [libraries]
 # Room
-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "components-resources" }
-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "material-icons-extended" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+store5 = { module = "org.mobilenativefoundation.store:store5", version.ref = "store5" }
 
 # Testing
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -110,6 +110,8 @@ compose-activity = { module = "androidx.activity:activity-compose", version.ref 
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 compose-constraintlayout = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayout-compose" }
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "components-resources" }
+material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "material-icons-extended" }
 jetbrains-compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-mpp" }
 jetbrains-compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-mpp" }
 jetbrains-compose-animation = { module = "org.jetbrains.compose.animation:animation", version.ref = "compose-mpp" }

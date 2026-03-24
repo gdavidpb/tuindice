@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.data.source
 
-import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutation
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationProjectionSpec
 import com.gdavidpb.tuindice.record.data.model.QuarterSyncResolution
 import com.gdavidpb.tuindice.record.data.model.SubjectGradePreview
 import com.gdavidpb.tuindice.record.data.model.SubjectPreviewKey
@@ -12,42 +13,52 @@ import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
 
 class VisibleRecordStateResolver(
 	private val indexComputationEngine: IndexComputationEngine
-) {
-	fun resolveVisibleState(
-		confirmedSnapshot: List<LocalQuarter>,
-		pendingMutations: List<PendingMutation<RecordMutation>>,
-		gradePreviewSnapshot: Map<SubjectPreviewKey, SubjectGradePreview>
+) : MutationProjectionSpec<String, RecordMutation, List<LocalQuarter>, List<LocalQuarter>, QuarterSyncResolution> {
+	override fun projectVisibleState(
+		confirmedState: List<LocalQuarter>,
+		pendingMutations: List<MutationEnvelope<String, RecordMutation>>
 	): List<LocalQuarter> {
-		val withoutDeletedQuarters = confirmedSnapshot.filterNot { quarter ->
+		val withoutDeletedQuarters = confirmedState.filterNot { quarter ->
 			quarter.id in pendingDeletedQuarterIds(
-				confirmedSnapshot = confirmedSnapshot,
+				confirmedSnapshot = confirmedState,
 				pendingMutations = pendingMutations
 			)
 		}
-		val snapshotWithPendingMutations = applyPendingSubjectMutationsToSnapshot(
+
+		return applyPendingSubjectMutationsToSnapshot(
 			confirmedSnapshot = withoutDeletedQuarters,
 			pendingMutations = pendingMutations
 		)
+	}
 
+	fun resolveVisibleState(
+		confirmedSnapshot: List<LocalQuarter>,
+		pendingMutations: List<MutationEnvelope<String, RecordMutation>>,
+		gradePreviewSnapshot: Map<SubjectPreviewKey, SubjectGradePreview>
+	): List<LocalQuarter> {
+		val snapshotWithPendingMutations = projectVisibleState(
+			confirmedState = confirmedSnapshot,
+			pendingMutations = pendingMutations
+		)
 		return applyPreviewGradesToSnapshot(
 			snapshot = snapshotWithPendingMutations,
 			gradePreviewSnapshot = gradePreviewSnapshot
 		)
 	}
 
-	fun resolveIncomingSnapshot(
-		incomingQuarters: List<LocalQuarter>,
-		pendingMutations: List<PendingMutation<RecordMutation>>
+	override fun resolveIncomingState(
+		incomingConfirmedState: List<LocalQuarter>,
+		pendingMutations: List<MutationEnvelope<String, RecordMutation>>
 	): QuarterSyncResolution {
-		val incomingQuartersById = incomingQuarters.associateBy { quarter -> quarter.id }
-		val replacedClosedQuarterIds = incomingQuarters
+		val incomingQuartersById = incomingConfirmedState.associateBy { quarter -> quarter.id }
+		val replacedClosedQuarterIds = incomingConfirmedState
 			.asSequence()
 			.filter { quarter -> quarter.isReadOnly }
 			.mapTo(linkedSetOf()) { quarter -> quarter.id }
 		val invalidatedQuarterIds = linkedSetOf<String>()
 		val invalidatedMutationIds = pendingMutations
 			.mapNotNullTo(linkedSetOf()) { mutation ->
-				when (val payload = mutation.mutation) {
+				when (val payload = mutation.command) {
 					is RecordMutation.AddQuarter -> null
 
 					is RecordMutation.SetSubjectGrade -> {
@@ -106,7 +117,7 @@ class VisibleRecordStateResolver(
 
 	private fun applyPendingSubjectMutationsToSnapshot(
 		confirmedSnapshot: List<LocalQuarter>,
-		pendingMutations: List<PendingMutation<RecordMutation>>
+		pendingMutations: List<MutationEnvelope<String, RecordMutation>>
 	): List<LocalQuarter> {
 		val pendingGradesBySubject = pendingSubjectGrades(
 			confirmedSnapshot = confirmedSnapshot,
@@ -193,12 +204,12 @@ class VisibleRecordStateResolver(
 
 	private fun pendingDeletedQuarterIds(
 		confirmedSnapshot: List<LocalQuarter>,
-		pendingMutations: List<PendingMutation<RecordMutation>>
+		pendingMutations: List<MutationEnvelope<String, RecordMutation>>
 	): Set<String> {
 		val quartersById = confirmedSnapshot.associateBy { quarter -> quarter.id }
 
 		return pendingMutations.mapNotNullTo(hashSetOf()) { mutation ->
-			val payload = mutation.mutation as? RecordMutation.RemoveQuarter
+			val payload = mutation.command as? RecordMutation.RemoveQuarter
 				?: return@mapNotNullTo null
 			val quarter = quartersById[payload.quarterId]
 				?: return@mapNotNullTo null
@@ -215,12 +226,12 @@ class VisibleRecordStateResolver(
 
 	private fun pendingSubjectGrades(
 		confirmedSnapshot: List<LocalQuarter>,
-		pendingMutations: List<PendingMutation<RecordMutation>>
+		pendingMutations: List<MutationEnvelope<String, RecordMutation>>
 	): Map<String, Int> {
 		val quartersById = confirmedSnapshot.associateBy { quarter -> quarter.id }
 
 		return pendingMutations.mapNotNull { mutation ->
-			val payload = mutation.mutation as? RecordMutation.SetSubjectGrade
+			val payload = mutation.command as? RecordMutation.SetSubjectGrade
 				?: return@mapNotNull null
 			val quarter = quartersById[payload.quarterId]
 				?: return@mapNotNull null
