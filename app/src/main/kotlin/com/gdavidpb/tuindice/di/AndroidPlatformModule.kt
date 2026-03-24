@@ -15,7 +15,6 @@ import com.gdavidpb.tuindice.base.data.source.*
 import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.*
-import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfig
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.extension.toFirebaseDefaultsMap
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataSource
@@ -37,8 +36,7 @@ import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSourc
 import com.gdavidpb.tuindice.data.source.reporting.FirebaseCrashReporter
 import com.gdavidpb.tuindice.data.source.review.PlayReviewDataSource
 import com.gdavidpb.tuindice.data.source.update.PlayUpdateDataSource
-import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.persistence.di.createDefaultAndroidDatabase
+import com.gdavidpb.tuindice.persistence.di.registerAndroidPersistencePlatformStorage
 import com.gdavidpb.tuindice.platform.android.UserAgent
 import com.gdavidpb.tuindice.platform.android.androidDefaultConfigValues
 import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
@@ -81,9 +79,7 @@ private fun Module.registerAndroidPlatformStorage() {
 		)
 	}
 
-	single {
-		createDefaultAndroidDatabase(context = androidContext())
-	}
+	registerAndroidPersistencePlatformStorage()
 }
 
 private fun Module.registerAndroidPlatformPrimitives() {

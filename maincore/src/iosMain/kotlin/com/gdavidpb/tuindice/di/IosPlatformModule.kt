@@ -29,8 +29,7 @@ import com.gdavidpb.tuindice.data.source.update.IosUpdateDataSource
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataSource
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.persistence.di.createIosDatabase
+import com.gdavidpb.tuindice.persistence.di.registerIosPersistencePlatformStorage
 import com.gdavidpb.tuindice.platform.IOS_IDENTITY_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.platform.IosAttestationCapability
 import com.gdavidpb.tuindice.platform.IosDeviceCapability
@@ -71,8 +70,8 @@ private fun Module.registerIosPlatformStorage() {
 	single {
 		KSafe(fileName = APP_SECURE_STORE_NAME)
 	}
-	single<TuIndiceDatabase> {
-		createIosDatabase(path = iOSContext().databasePath)
+	registerIosPersistencePlatformStorage {
+		iOSContext().databasePath
 	}
 }
 
