@@ -52,6 +52,25 @@ class RecordActionProcessorContractTest {
 	}
 
 	@Test
+	fun observeQuartersActionProcessor_keepsLoading_whenInitialSnapshotIsEmpty() = runTest {
+		val processor = ObserveQuartersActionProcessor(
+			observeQuartersUseCase = ObserveQuartersUseCase(
+				quarterRepository = RecordingQuarterRepository(
+					quarters = flowOf(emptyList())
+				)
+			)
+		)
+
+		processor.process(
+			action = Record.Action.ObserveQuarters,
+			sideEffect = {}
+		).test {
+			assertEquals(Record.State.Loading, awaitItem()(Record.State.Loading))
+			awaitComplete()
+		}
+	}
+
+	@Test
 	fun refreshQuartersActionProcessor_setsLoadingFromFailedState() = runTest {
 		val processor = RefreshQuartersActionProcessor(
 			updateQuartersUseCase = UpdateQuartersUseCase(

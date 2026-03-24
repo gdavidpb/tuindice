@@ -10,6 +10,7 @@ interface QuarterLocalDataSource {
 	suspend fun getQuarter(qid: String): LocalQuarter?
 	suspend fun removeQuarter(qid: String)
 	suspend fun confirmQuarterRemoval(qid: String, affectedQuarters: List<LocalQuarter>)
+	suspend fun confirmSubjectGradeMutation(affectedQuarters: List<LocalQuarter>)
 	suspend fun saveQuarters(quarters: List<LocalQuarter>)
 	suspend fun saveSubjects(subjects: List<LocalSubject>)
 	suspend fun clearSubjectGradePreview(qid: String, sid: String)

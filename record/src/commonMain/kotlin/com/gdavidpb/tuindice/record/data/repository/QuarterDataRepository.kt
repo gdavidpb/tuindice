@@ -14,9 +14,9 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.mapper.toLocalQuarte
 import com.gdavidpb.tuindice.record.data.repository.quarter.mapper.toQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.SetSubjectGradeResult
-import com.gdavidpb.tuindice.record.domain.policy.QuarterMutationPolicy
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import com.gdavidpb.tuindice.record.domain.model.SubjectGradeSet
+import com.gdavidpb.tuindice.record.domain.policy.QuarterMutationPolicy
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -30,9 +30,15 @@ class QuarterDataRepository(
 	private val mutationOutboxRepository: MutationOutboxRepository<RecordMutation>,
 	private val identifierRepository: IdentifierRepository
 ) : QuarterRepository {
+	private companion object {
+		const val MAX_SUBJECT_MUTATION_REBASE_ATTEMPTS = 3
+	}
+
 	private val drainMutex = Mutex()
 	private val snapshotVersionMutex = Mutex()
 	private var latestMutationVersion = 0L
+	private val latestMutationVersionByReplaceKey = mutableMapOf<String, Long>()
+	private val mutationVersionById = mutableMapOf<String, Long>()
 
 	override suspend fun observeQuartersFlow(): Flow<List<Quarter>> {
 		return localDataSource.getQuartersFlow()
@@ -75,8 +81,10 @@ class QuarterDataRepository(
 		val quarter = localDataSource.getQuarter(set.quarterId)
 			?: return
 		if (!QuarterMutationPolicy.canEditGrades(isReadOnly = quarter.isReadOnly)) return
-		if (set.commit) {
-			markMutationVersion()
+		val mutationVersion = if (set.commit) {
+			markMutationVersion(replaceKey = "subject:${set.id}")
+		} else {
+			null
 		}
 
 		val localResult = localDataSource.setSubjectGradeAndRecompute(
@@ -101,6 +109,10 @@ class QuarterDataRepository(
 			expectedRevision = expectedRevision
 		)
 
+		rememberMutationVersion(
+			mutationId = mutation.mutationId,
+			version = mutationVersion ?: return
+		)
 		mutationOutboxRepository.replacePendingMutation(mutation)
 		drainPendingMutations(
 			propagateTerminalErrors = true,
@@ -143,47 +155,98 @@ class QuarterDataRepository(
 	) {
 		val payload = mutation.mutation as? RecordMutation.SetSubjectGrade
 			?: return
+		var currentMutation = mutation
+		var rebaseAttempts = 0
 
-		runCatching {
-			remoteDataSource.setSubjectGrade(
-				qid = payload.quarterId,
-				sid = payload.subjectId,
-				grade = payload.grade,
-				mutationId = mutation.mutationId,
-				expectedRevision = mutation.expectedRevision
-			)
-		}.onSuccess { ack ->
-			if (ack.mutationId != mutation.mutationId) return
+		while (true) {
+			try {
+				val ack = remoteDataSource.setSubjectGrade(
+					qid = payload.quarterId,
+					sid = payload.subjectId,
+					grade = payload.grade,
+					mutationId = currentMutation.mutationId,
+					expectedRevision = currentMutation.expectedRevision
+				)
 
-			mutationOutboxRepository.deletePendingMutation(mutation.mutationId)
-			localDataSource.saveQuarters(
-				ack.affectedQuarters.map { quarter -> quarter.toLocalQuarter() }
-			)
-		}.onFailure { throwable ->
-			when {
-				throwable.isConflict() ->
-					rebaseSetSubjectGradeMutation(
-						mutation = mutation,
-						payload = payload
-					)
-
-				throwable.isNotFound() || throwable.isPreconditionFailed() -> {
-					mutationOutboxRepository.deletePendingMutation(mutation.mutationId)
-					refreshRemoteSnapshot()
-
-					if (propagateTerminalErrors) throw throwable
+				if (ack.mutationId != currentMutation.mutationId) return
+				if (!shouldApplySetSubjectGradeResult(mutation = currentMutation, payload = payload)) {
+					forgetMutationVersion(currentMutation.mutationId)
+					return
 				}
 
-				else -> {
-					mutationOutboxRepository.savePendingMutation(
-						mutation.copy(
-							status = PendingMutationStatus.Failed,
-							updatedAt = currentTimeMillis(),
-							lastError = throwable.message
-						)
-					)
+				mutationOutboxRepository.deletePendingMutation(currentMutation.mutationId)
+				forgetMutationVersion(currentMutation.mutationId)
+				localDataSource.confirmSubjectGradeMutation(
+					ack.affectedQuarters.map { quarter -> quarter.toLocalQuarter() }
+				)
+				return
+			} catch (throwable: Throwable) {
+				if (!shouldApplySetSubjectGradeResult(mutation = currentMutation, payload = payload)) {
+					forgetMutationVersion(currentMutation.mutationId)
+					return
+				}
 
-					if (propagateTerminalErrors) throw throwable
+				when {
+					throwable.isConflict() || throwable.isPreconditionFailed() -> {
+						val rebasedMutation = rebaseSetSubjectGradeMutation(
+							mutation = currentMutation,
+							payload = payload
+						)
+
+						if (rebasedMutation == null) {
+							forgetMutationVersion(currentMutation.mutationId)
+							return
+						}
+						if (rebasedMutation.expectedRevision == currentMutation.expectedRevision) {
+							mutationOutboxRepository.savePendingMutation(
+								rebasedMutation.copy(
+									status = PendingMutationStatus.Failed,
+									updatedAt = currentTimeMillis(),
+									lastError = throwable.message
+								)
+							)
+
+							if (propagateTerminalErrors) throw throwable
+							return
+						}
+						if (rebaseAttempts >= MAX_SUBJECT_MUTATION_REBASE_ATTEMPTS) {
+							mutationOutboxRepository.savePendingMutation(
+								rebasedMutation.copy(
+									status = PendingMutationStatus.Failed,
+									updatedAt = currentTimeMillis(),
+									lastError = throwable.message
+								)
+							)
+
+							if (propagateTerminalErrors) throw throwable
+							return
+						}
+
+						rebaseAttempts += 1
+						currentMutation = rebasedMutation
+					}
+
+					throwable.isNotFound() -> {
+						mutationOutboxRepository.deletePendingMutation(currentMutation.mutationId)
+						forgetMutationVersion(currentMutation.mutationId)
+						refreshRemoteSnapshot()
+
+						if (propagateTerminalErrors) throw throwable
+						return
+					}
+
+					else -> {
+						mutationOutboxRepository.savePendingMutation(
+							currentMutation.copy(
+								status = PendingMutationStatus.Failed,
+								updatedAt = currentTimeMillis(),
+								lastError = throwable.message
+							)
+						)
+
+						if (propagateTerminalErrors) throw throwable
+						return
+					}
 				}
 			}
 		}
@@ -249,7 +312,7 @@ class QuarterDataRepository(
 	private suspend fun rebaseSetSubjectGradeMutation(
 		mutation: PendingMutation<RecordMutation>,
 		payload: RecordMutation.SetSubjectGrade
-	) {
+	): PendingMutation<RecordMutation>? {
 		val remoteQuarters = refreshRemoteSnapshot()
 		val remoteSubject = remoteQuarters
 			.firstOrNull { quarter -> quarter.id == payload.quarterId }
@@ -258,22 +321,23 @@ class QuarterDataRepository(
 
 		if (remoteSubject == null) {
 			mutationOutboxRepository.deletePendingMutation(mutation.mutationId)
-			return
+			return null
 		}
 
 		if (remoteSubject.grade == payload.grade) {
 			mutationOutboxRepository.deletePendingMutation(mutation.mutationId)
-			return
+			return null
 		}
 
-		mutationOutboxRepository.savePendingMutation(
-			mutation.copy(
-				expectedRevision = remoteSubject.revision,
-				status = PendingMutationStatus.Pending,
-				updatedAt = currentTimeMillis(),
-				lastError = null
-			)
+		val rebasedMutation = mutation.copy(
+			expectedRevision = remoteSubject.revision,
+			status = PendingMutationStatus.Pending,
+			updatedAt = currentTimeMillis(),
+			lastError = null
 		)
+		mutationOutboxRepository.savePendingMutation(rebasedMutation)
+
+		return rebasedMutation
 	}
 
 	private suspend fun rebaseRemoveQuarterMutation(
@@ -316,15 +380,51 @@ class QuarterDataRepository(
 		return remoteQuarters
 	}
 
-	private suspend fun markMutationVersion() {
-		snapshotVersionMutex.withLock {
+	private suspend fun isMutationStillPending(mutationId: String): Boolean {
+		return mutationOutboxRepository.getPendingMutation(mutationId) != null
+	}
+
+	private suspend fun shouldApplySetSubjectGradeResult(
+		mutation: PendingMutation<RecordMutation>,
+		payload: RecordMutation.SetSubjectGrade
+	): Boolean {
+		if (!isMutationStillPending(mutation.mutationId)) return false
+
+		return snapshotVersionMutex.withLock {
+			val mutationVersion = mutationVersionById[mutation.mutationId]
+				?: return@withLock false
+			latestMutationVersionByReplaceKey[payload.replaceKey] == mutationVersion
+		}
+	}
+
+	private suspend fun markMutationVersion(replaceKey: String? = null): Long {
+		return snapshotVersionMutex.withLock {
 			latestMutationVersion += 1
+			replaceKey?.let { key ->
+				latestMutationVersionByReplaceKey[key] = latestMutationVersion
+			}
+			latestMutationVersion
 		}
 	}
 
 	private suspend fun currentMutationVersion(): Long {
 		return snapshotVersionMutex.withLock {
 			latestMutationVersion
+		}
+	}
+
+	private suspend fun rememberMutationVersion(
+		mutationId: String,
+		version: Long
+	) {
+		snapshotVersionMutex.withLock {
+			mutationVersionById[mutationId] = version
+		}
+	}
+
+	private suspend fun forgetMutationVersion(mutationId: String) {
+		snapshotVersionMutex.withLock {
+			mutationVersionById.remove(mutationId)
 		}
 	}
 

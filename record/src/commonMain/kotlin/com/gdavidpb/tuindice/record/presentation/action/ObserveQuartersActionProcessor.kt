@@ -24,11 +24,13 @@ class ObserveQuartersActionProcessor(
 				when (useCaseState) {
 					is UseCaseState.Loading -> null
 
-					is UseCaseState.Data -> suspend { _: Record.State ->
+					is UseCaseState.Data -> suspend { state: Record.State ->
 						val quarters = useCaseState.value
 
 						if (quarters.isNotEmpty())
 							Record.State.Content(quarters)
+						else if (state is Record.State.Loading)
+							state
 						else
 							Record.State.Empty
 					}

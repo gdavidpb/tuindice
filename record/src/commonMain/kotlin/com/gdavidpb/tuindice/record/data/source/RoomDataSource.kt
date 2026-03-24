@@ -103,41 +103,29 @@ class RoomDataSource(
 		}
 	}
 
+	override suspend fun confirmSubjectGradeMutation(affectedQuarters: List<LocalQuarter>) {
+		writeMutex.withLock {
+			if (affectedQuarters.isEmpty()) return@withLock
+
+			val currentSnapshot = inMemoryQuartersSnapshot ?: loadSnapshotFromRoom()
+			val mergedSnapshot = mergeSubjectGradeAckIntoSnapshot(
+				currentSnapshot = currentSnapshot,
+				affectedQuarters = affectedQuarters.toCanonicalOrder()
+			)
+
+			persistConfirmedQuarters(
+				confirmedQuarters = mergedSnapshot,
+				currentSnapshot = currentSnapshot
+			)
+		}
+	}
+
 	override suspend fun saveQuarters(quarters: List<LocalQuarter>) {
 		writeMutex.withLock {
-			val confirmedQuarters = quarters.toCanonicalOrder()
-			val pendingMutations = currentPendingMutations()
-			val currentSnapshot = inMemoryQuartersSnapshot ?: loadSnapshotFromRoom()
-			val syncResolution = visibleRecordStateResolver.resolveIncomingSnapshot(
-				incomingQuarters = confirmedQuarters,
-				pendingMutations = pendingMutations
+			persistConfirmedQuarters(
+				confirmedQuarters = quarters.toCanonicalOrder(),
+				currentSnapshot = inMemoryQuartersSnapshot ?: loadSnapshotFromRoom()
 			)
-			val incomingQuarterIds = confirmedQuarters
-				.mapTo(linkedSetOf()) { quarter -> quarter.id }
-			val staleQuarterIds = currentSnapshot
-				.mapTo(linkedSetOf()) { quarter -> quarter.id }
-				.apply { removeAll(incomingQuarterIds) }
-			val quarterEntities = confirmedQuarters
-				.map { quarter -> quarter.toQuarterEntity() }
-			val subjectEntities = confirmedQuarters
-				.flatMap { quarter -> quarter.subjects }
-				.map { subject -> subject.toSubjectEntity() }
-
-			room.withImmediateTransaction {
-				(staleQuarterIds + syncResolution.replacedClosedQuarterIds).forEach { qid ->
-					room.quarters.deleteQuarter(qid = qid)
-				}
-				room.quarters.upsertEntities(quarterEntities)
-				room.subjects.upsertEntities(subjectEntities)
-			}
-
-			pendingMutationsSnapshot = syncResolution.compatiblePendingMutations
-			syncResolution.invalidatedMutationIds.forEach { mutationId ->
-				mutationOutboxRepository.deletePendingMutation(mutationId)
-			}
-			removeGradePreviews { key, _ -> key.quarterId in syncResolution.invalidatedQuarterIds }
-
-			inMemoryQuartersSnapshot = confirmedQuarters
 		}
 	}
 
@@ -267,6 +255,106 @@ class RoomDataSource(
 
 	private suspend fun currentPendingMutations(): List<PendingMutation<RecordMutation>> {
 		return pendingMutationsSnapshot.ifEmpty { mutationOutboxRepository.getPendingMutations() }
+	}
+
+	private suspend fun persistConfirmedQuarters(
+		confirmedQuarters: List<LocalQuarter>,
+		currentSnapshot: List<LocalQuarter>
+	) {
+		val pendingMutations = currentPendingMutations()
+		val syncResolution = visibleRecordStateResolver.resolveIncomingSnapshot(
+			incomingQuarters = confirmedQuarters,
+			pendingMutations = pendingMutations
+		)
+		val incomingQuarterIds = confirmedQuarters
+			.mapTo(linkedSetOf()) { quarter -> quarter.id }
+		val staleQuarterIds = currentSnapshot
+			.mapTo(linkedSetOf()) { quarter -> quarter.id }
+			.apply { removeAll(incomingQuarterIds) }
+		val quarterEntities = confirmedQuarters
+			.map { quarter -> quarter.toQuarterEntity() }
+		val subjectEntities = confirmedQuarters
+			.flatMap { quarter -> quarter.subjects }
+			.map { subject -> subject.toSubjectEntity() }
+
+		room.withImmediateTransaction {
+			(staleQuarterIds + syncResolution.replacedClosedQuarterIds).forEach { qid ->
+				room.quarters.deleteQuarter(qid = qid)
+			}
+			room.quarters.upsertEntities(quarterEntities)
+			room.subjects.upsertEntities(subjectEntities)
+		}
+
+		pendingMutationsSnapshot = syncResolution.compatiblePendingMutations
+		syncResolution.invalidatedMutationIds.forEach { mutationId ->
+			mutationOutboxRepository.deletePendingMutation(mutationId)
+		}
+		removeGradePreviews { key, _ -> key.quarterId in syncResolution.invalidatedQuarterIds }
+
+		inMemoryQuartersSnapshot = confirmedQuarters
+	}
+
+	private fun mergeSubjectGradeAckIntoSnapshot(
+		currentSnapshot: List<LocalQuarter>,
+		affectedQuarters: List<LocalQuarter>
+	): List<LocalQuarter> {
+		val currentByQuarterId = currentSnapshot.associateBy { quarter -> quarter.id }
+		val mergedAffectedById = affectedQuarters
+			.map { incomingQuarter ->
+				mergeQuarterKeepingLatestSubjects(
+					currentQuarter = currentByQuarterId[incomingQuarter.id],
+					incomingQuarter = incomingQuarter
+				)
+			}
+			.associateBy { quarter -> quarter.id }
+		val earliestAffectedStartDate = mergedAffectedById.values.minOfOrNull { quarter -> quarter.startDate }
+			?: return currentSnapshot
+		val patchedSnapshot = currentSnapshot
+			.map { quarter -> mergedAffectedById[quarter.id] ?: quarter }
+			.toMutableList()
+
+		mergedAffectedById.values.forEach { mergedQuarter ->
+			if (patchedSnapshot.none { quarter -> quarter.id == mergedQuarter.id }) {
+				patchedSnapshot += mergedQuarter
+			}
+		}
+
+		return indexComputationEngine.recompute(
+			quarters = patchedSnapshot.toCanonicalOrder(),
+			affectedStartDate = earliestAffectedStartDate
+		).quarters.toCanonicalOrder()
+	}
+
+	private fun mergeQuarterKeepingLatestSubjects(
+		currentQuarter: LocalQuarter?,
+		incomingQuarter: LocalQuarter
+	): LocalQuarter {
+		if (currentQuarter == null) return incomingQuarter
+
+		val incomingSubjectsById = incomingQuarter.subjects.associateBy { subject -> subject.id }
+		val mergedSubjects = currentQuarter.subjects
+			.map { currentSubject ->
+				val incomingSubject = incomingSubjectsById[currentSubject.id]
+					?: return@map currentSubject
+
+				if (currentSubject.revision > incomingSubject.revision) {
+					currentSubject
+				} else {
+					incomingSubject
+				}
+			}
+			.toMutableList()
+
+		incomingQuarter.subjects.forEach { incomingSubject ->
+			if (mergedSubjects.none { subject -> subject.id == incomingSubject.id }) {
+				mergedSubjects += incomingSubject
+			}
+		}
+
+		return incomingQuarter.copy(
+			revision = maxOf(currentQuarter.revision, incomingQuarter.revision),
+			subjects = mergedSubjects
+		)
 	}
 
 	private fun recomputeSubjectGrade(

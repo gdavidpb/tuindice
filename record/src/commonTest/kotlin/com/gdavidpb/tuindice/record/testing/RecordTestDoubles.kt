@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.model.SetSubjectGrad
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import com.gdavidpb.tuindice.record.domain.model.SubjectGradeSet
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
+import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -141,12 +142,14 @@ class FakeQuarterLocalDataSource(
 	initialQuarters: List<LocalQuarter> = listOf(DEFAULT_RECORD_LOCAL_QUARTER),
 	setSubjectGradeResults: List<SetSubjectGradeResult> = emptyList()
 ) : QuarterLocalDataSource {
+	private val indexComputationEngine = IndexComputationEngine()
 	private val quarterState = MutableStateFlow(initialQuarters)
 	private val queuedSetSubjectGradeResults = ArrayDeque(setSubjectGradeResults)
 
 	val savedQuarters = mutableListOf<List<LocalQuarter>>()
 	val removedQuarterIds = mutableListOf<String>()
 	val confirmedRemovedQuarterIds = mutableListOf<String>()
+	val confirmedSubjectGradeMutations = mutableListOf<List<LocalQuarter>>()
 	val clearedPreviewArgs = mutableListOf<Pair<String, String>>()
 	val setSubjectGradeCalls = mutableListOf<SetSubjectGradeCall>()
 	var lastSetSubjectGradeArgs: SetSubjectGradeCall? = null
@@ -168,6 +171,59 @@ class FakeQuarterLocalDataSource(
 		quarterState.value = quarterState.value
 			.filterNot { quarter -> quarter.id == qid }
 			.map { quarter -> updatesById[quarter.id] ?: quarter }
+	}
+
+	override suspend fun confirmSubjectGradeMutation(affectedQuarters: List<LocalQuarter>) {
+		confirmedSubjectGradeMutations += affectedQuarters
+		if (affectedQuarters.isEmpty()) return
+
+		val currentByQuarterId = quarterState.value.associateBy { quarter -> quarter.id }
+		val mergedAffectedById = affectedQuarters
+			.map { incomingQuarter ->
+				val currentQuarter = currentByQuarterId[incomingQuarter.id]
+					?: return@map incomingQuarter
+				val incomingSubjectsById = incomingQuarter.subjects.associateBy { subject -> subject.id }
+				val mergedSubjects = currentQuarter.subjects
+					.map { currentSubject ->
+						val incomingSubject = incomingSubjectsById[currentSubject.id]
+							?: return@map currentSubject
+
+						if (currentSubject.revision > incomingSubject.revision) {
+							currentSubject
+						} else {
+							incomingSubject
+						}
+					}
+					.toMutableList()
+
+				incomingQuarter.subjects.forEach { incomingSubject ->
+					if (mergedSubjects.none { subject -> subject.id == incomingSubject.id }) {
+						mergedSubjects += incomingSubject
+					}
+				}
+
+				incomingQuarter.copy(
+					revision = maxOf(currentQuarter.revision, incomingQuarter.revision),
+					subjects = mergedSubjects
+				)
+			}
+			.associateBy { quarter -> quarter.id }
+		val patchedSnapshot = quarterState.value
+			.map { quarter -> mergedAffectedById[quarter.id] ?: quarter }
+			.toMutableList()
+
+		mergedAffectedById.values.forEach { mergedQuarter ->
+			if (patchedSnapshot.none { quarter -> quarter.id == mergedQuarter.id }) {
+				patchedSnapshot += mergedQuarter
+			}
+		}
+
+		val recomputed = indexComputationEngine.recompute(
+			quarters = patchedSnapshot,
+			affectedStartDate = mergedAffectedById.values.minOf { quarter -> quarter.startDate }
+		)
+
+		quarterState.value = recomputed.quarters
 	}
 
 	override suspend fun saveQuarters(quarters: List<LocalQuarter>) {

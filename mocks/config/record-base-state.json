@@ -1,15 +1,30 @@
 {
-  "mutation_id": "{{jsonPath request.body '$.mutation_id'}}",
-  "subject_patch": {
-    "id": "{{request.pathSegments.[4]}}",
-    "qid": "{{request.pathSegments.[2]}}",
-    "code": "{{#if (eq request.pathSegments.[4] 'MA2115Q2026B')}}MA2115{{else}}{{#if (eq request.pathSegments.[4] 'CI2511Q2026B')}}CI2511{{else}}{{#if (eq request.pathSegments.[4] 'CI2525Q2026B')}}CI2525{{else}}{{#if (eq request.pathSegments.[4] 'EG0001Q2026B')}}EG0001{{else}}{{#if (eq request.pathSegments.[4] 'MA1116Q2026A')}}MA1116{{else}}{{#if (eq request.pathSegments.[4] 'FS1112Q2026A')}}FS1112{{else}}{{#if (eq request.pathSegments.[4] 'ID1113Q2026A')}}ID1113{{else}}{{#if (eq request.pathSegments.[4] 'LLA113Q2026A')}}LLA113{{else}}{{#if (eq request.pathSegments.[4] 'CSA213Q2026A')}}CSA213{{else}}UNKNOWN{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}",
-    "name": "{{#if (eq request.pathSegments.[4] 'MA2115Q2026B')}}MATEMATICAS IV{{else}}{{#if (eq request.pathSegments.[4] 'CI2511Q2026B')}}LOGICA SIMBOLICA{{else}}{{#if (eq request.pathSegments.[4] 'CI2525Q2026B')}}ESTRUCTURAS DISCRETAS I{{else}}{{#if (eq request.pathSegments.[4] 'EG0001Q2026B')}}ESTUDIOS GENERALES{{else}}{{#if (eq request.pathSegments.[4] 'MA1116Q2026A')}}MATEMATICAS III{{else}}{{#if (eq request.pathSegments.[4] 'FS1112Q2026A')}}FISICA II{{else}}{{#if (eq request.pathSegments.[4] 'ID1113Q2026A')}}INGLES III{{else}}{{#if (eq request.pathSegments.[4] 'LLA113Q2026A')}}LENGUAJE III{{else}}{{#if (eq request.pathSegments.[4] 'CSA213Q2026A')}}VENEZUELA ANTE EL SIGLO XXI-III{{else}}UNKNOWN{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}",
-    "credits": {{#if (eq request.pathSegments.[4] 'EG0001Q2026B')}}3{{else}}{{#if (eq request.pathSegments.[4] 'FS1112Q2026A')}}3{{else}}{{#if (eq request.pathSegments.[4] 'ID1113Q2026A')}}3{{else}}{{#if (eq request.pathSegments.[4] 'LLA113Q2026A')}}3{{else}}{{#if (eq request.pathSegments.[4] 'CSA213Q2026A')}}3{{else}}4{{/if}}{{/if}}{{/if}}{{/if}}{{/if}},
-    "grade": {{jsonPath request.body '$.grade'}},
-    "revision": 2
+  "added_quarter": {
+    "id": "MOCK-ADDED-QUARTER",
+    "name": "Quarter Added",
+    "start_date": 1785560400000,
+    "end_date": 1793422800000,
+    "grade": 0.0,
+    "grade_sum": 0.0,
+    "credits": 0,
+    "credits_sum": 45,
+    "is_current": false,
+    "is_read_only": false,
+    "revision": 1,
+    "presence_scenario": "record-quarter-MOCK-ADDED-QUARTER",
+    "subjects": [
+      {
+        "id": "MOCK101-MOCK-ADDED-QUARTER",
+        "qid": "MOCK-ADDED-QUARTER",
+        "code": "MOCK101",
+        "name": "MOCK SUBJECT",
+        "credits": 4,
+        "grade": 0,
+        "revision": 1
+      }
+    ]
   },
-  "affected_quarters": [
+  "quarters": [
     {
       "id": "Q2026B",
       "name": "Abril - Julio 2026",
@@ -22,6 +37,7 @@
       "is_current": false,
       "is_read_only": false,
       "revision": 10,
+      "presence_scenario": "record-quarter-Q2026B",
       "subjects": [
         {
           "id": "MA2115Q2026B",
@@ -29,8 +45,10 @@
           "code": "MA2115",
           "name": "MATEMATICAS IV",
           "credits": 4,
-          "grade": {{#if (eq request.pathSegments.[4] 'MA2115Q2026B')}}{{jsonPath request.body '$.grade'}}{{else}}5{{/if}},
-          "revision": {{#if (eq request.pathSegments.[4] 'MA2115Q2026B')}}2{{else}}1{{/if}}
+          "grade": 5,
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-MA2115Q2026B"
         },
         {
           "id": "CI2511Q2026B",
@@ -38,8 +56,10 @@
           "code": "CI2511",
           "name": "LOGICA SIMBOLICA",
           "credits": 4,
-          "grade": {{#if (eq request.pathSegments.[4] 'CI2511Q2026B')}}{{jsonPath request.body '$.grade'}}{{else}}4{{/if}},
-          "revision": {{#if (eq request.pathSegments.[4] 'CI2511Q2026B')}}2{{else}}1{{/if}}
+          "grade": 4,
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-CI2511Q2026B"
         },
         {
           "id": "CI2525Q2026B",
@@ -47,8 +67,10 @@
           "code": "CI2525",
           "name": "ESTRUCTURAS DISCRETAS I",
           "credits": 4,
-          "grade": {{#if (eq request.pathSegments.[4] 'CI2525Q2026B')}}{{jsonPath request.body '$.grade'}}{{else}}3{{/if}},
-          "revision": {{#if (eq request.pathSegments.[4] 'CI2525Q2026B')}}2{{else}}1{{/if}}
+          "grade": 3,
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-CI2525Q2026B"
         },
         {
           "id": "EG0001Q2026B",
@@ -56,8 +78,10 @@
           "code": "EG0001",
           "name": "ESTUDIOS GENERALES",
           "credits": 3,
-          "grade": {{#if (eq request.pathSegments.[4] 'EG0001Q2026B')}}{{jsonPath request.body '$.grade'}}{{else}}5{{/if}},
-          "revision": {{#if (eq request.pathSegments.[4] 'EG0001Q2026B')}}2{{else}}1{{/if}}
+          "grade": 5,
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-EG0001Q2026B"
         }
       ]
     },
@@ -80,8 +104,10 @@
           "code": "MA1116",
           "name": "MATEMATICAS III",
           "credits": 4,
-          "grade": {{#if (eq request.pathSegments.[4] 'MA1116Q2026A')}}{{jsonPath request.body '$.grade'}}{{else}}4{{/if}},
-          "revision": {{#if (eq request.pathSegments.[4] 'MA1116Q2026A')}}2{{else}}1{{/if}}
+          "grade": 4,
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-MA1116Q2026A"
         },
         {
           "id": "FS1112Q2026A",
@@ -89,8 +115,10 @@
           "code": "FS1112",
           "name": "FISICA II",
           "credits": 3,
-          "grade": {{#if (eq request.pathSegments.[4] 'FS1112Q2026A')}}{{jsonPath request.body '$.grade'}}{{else}}5{{/if}},
-          "revision": {{#if (eq request.pathSegments.[4] 'FS1112Q2026A')}}2{{else}}1{{/if}}
+          "grade": 5,
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-FS1112Q2026A"
         },
         {
           "id": "ID1113Q2026A",
@@ -98,8 +126,10 @@
           "code": "ID1113",
           "name": "INGLES III",
           "credits": 3,
-          "grade": {{#if (eq request.pathSegments.[4] 'ID1113Q2026A')}}{{jsonPath request.body '$.grade'}}{{else}}4{{/if}},
-          "revision": {{#if (eq request.pathSegments.[4] 'ID1113Q2026A')}}2{{else}}1{{/if}}
+          "grade": 4,
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-ID1113Q2026A"
         },
         {
           "id": "LLA113Q2026A",
@@ -107,8 +137,10 @@
           "code": "LLA113",
           "name": "LENGUAJE III",
           "credits": 3,
-          "grade": {{#if (eq request.pathSegments.[4] 'LLA113Q2026A')}}{{jsonPath request.body '$.grade'}}{{else}}3{{/if}},
-          "revision": {{#if (eq request.pathSegments.[4] 'LLA113Q2026A')}}2{{else}}1{{/if}}
+          "grade": 3,
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-LLA113Q2026A"
         },
         {
           "id": "CSA213Q2026A",
@@ -116,8 +148,10 @@
           "code": "CSA213",
           "name": "VENEZUELA ANTE EL SIGLO XXI-III",
           "credits": 3,
-          "grade": {{#if (eq request.pathSegments.[4] 'CSA213Q2026A')}}{{jsonPath request.body '$.grade'}}{{else}}5{{/if}},
-          "revision": {{#if (eq request.pathSegments.[4] 'CSA213Q2026A')}}2{{else}}1{{/if}}
+          "grade": 5,
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-CSA213Q2026A"
         }
       ]
     },
