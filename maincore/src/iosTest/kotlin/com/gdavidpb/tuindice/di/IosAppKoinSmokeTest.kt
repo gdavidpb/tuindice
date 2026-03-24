@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
@@ -91,6 +92,7 @@ class IosAppKoinSmokeTest {
 		}
 	) {
 		assertResolves(
+			SignInViewModel::class,
 			MainViewModel::class,
 			BrowserViewModel::class
 		)

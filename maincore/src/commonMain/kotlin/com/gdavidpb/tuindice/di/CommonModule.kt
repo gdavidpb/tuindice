@@ -33,7 +33,6 @@ import com.gdavidpb.tuindice.data.repository.sync.source.SyncStatusSettingsDataS
 import com.gdavidpb.tuindice.data.source.settings.MultiplatformSettingsDataSource
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
-import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
@@ -63,5 +62,11 @@ val commonModule = module {
 	singleOf(::SyncStatusSettingsDataSource) { bind<SyncStatusLocalDataSource>() }
 	singleOf(::SyncStatusDataRepository) { bind<SyncStatusRepository>() }
 	singleOf(::SyncApiDataSource) { bind<SyncRemoteDataSource>() }
-	singleOf(::SyncDataRepository) { bind<SyncRepository>() }
+	single<SyncRepository> {
+		SyncDataRepository(
+			settingsDataSource = get(),
+			syncStatusRepository = get(),
+			remoteDataSource = get()
+		)
+	}
 }
