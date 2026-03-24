@@ -27,6 +27,7 @@ import tuindice.evaluations.generated.resources.snack_evaluation_not_found
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 
 class EvaluationActionProcessorContractTest {
 	@Test
@@ -108,5 +109,40 @@ class EvaluationActionProcessorContractTest {
 		val snackBar = assertIs<Evaluation.Effect.ShowSnackBar>(effects.first())
 		assertEquals(getString(Res.string.snack_evaluation_not_found), snackBar.message)
 		assertIs<Evaluation.Effect.NavigateToEvaluations>(effects.last())
+	}
+
+	@Test
+	fun editEvaluationActionProcessor_preservesNullGradeWhenEditingPendingEvaluation() = runTest {
+		val repository = RecordingEvaluationRepository(
+			initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION)
+		)
+		val processor = EditEvaluationActionProcessor(
+			updateEvaluationUseCase = UpdateEvaluationUseCase(
+				evaluationRepository = repository,
+				exceptionHandler = UpdateEvaluationExceptionHandler(
+					reportingRepository = RecordingReportingRepository()
+				)
+			)
+		)
+		val initialState = evaluationContentState()
+
+		processor.process(
+			action = Evaluation.Action.ClickEditEvaluation(
+				evaluationId = DEFAULT_PENDING_EVALUATION.id,
+				subject = DEFAULT_EVALUATION_SUBJECT,
+				type = EvaluationType.QUIZ,
+				scheduleMode = EvaluationScheduleMode.DATED,
+				date = initialState.date,
+				grade = initialState.grade,
+				maxGrade = initialState.maxGrade
+			),
+			sideEffect = {}
+		).test {
+			assertEquals(initialState, awaitItem()(initialState))
+			assertEquals(initialState, awaitItem()(initialState))
+			awaitComplete()
+		}
+
+		assertNull(repository.updateCalls.single().grade)
 	}
 }

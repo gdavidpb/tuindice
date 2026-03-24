@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.ui.dialog
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -96,5 +97,33 @@ class GradePickerDialogUiTest {
 
 		assertEquals(MIN_EVALUATION_GRADE, changedGrade)
 		assertEquals(1, dismissCalls)
+	}
+
+	@Test
+	fun when_selectedGradeChangesBeforeConfirm_then_emitsUpdatedGrade() = runTuIndiceUiTest {
+		val selectedGradeState = mutableStateOf<Double?>(10.0)
+		var changedGrade: Double? = null
+
+		setTuIndiceTestContent {
+			GradePickerDialog(
+				title = "Nota maxima",
+				acceptText = "Aceptar",
+				cancelText = "Cancelar",
+				selectedGrade = selectedGradeState.value,
+				gradeRange = 0.0..20.0,
+				onGradeChange = { grade ->
+					changedGrade = grade
+				},
+				onDismissRequest = {}
+			)
+		}
+
+		runOnIdle {
+			selectedGradeState.value = 17.25
+		}
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationDialogConfirmButton).performClick()
+
+		assertEquals(17.25, changedGrade)
 	}
 }

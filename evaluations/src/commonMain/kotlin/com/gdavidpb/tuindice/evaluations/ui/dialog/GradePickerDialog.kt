@@ -24,7 +24,7 @@ fun GradePickerDialog(
 	onGradeChange: (grade: Double) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
-	val selectedGradeState = remember {
+	val selectedGradeState = remember(selectedGrade, gradeRange.start, gradeRange.endInclusive) {
 		mutableDoubleStateOf(selectedGrade ?: MIN_EVALUATION_GRADE)
 	}
 
