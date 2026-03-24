@@ -109,6 +109,26 @@ class SummaryScreenUiTest {
 	}
 
 	@Test
+	fun when_unavailableStatusIconTapped_then_displaysSyncStatusBottomSheet() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryScreen(
+				state = summaryContentState(),
+				syncStatus = SyncStatus.Unavailable,
+				onRetryClick = {},
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+
+		assertNodeVisible(BaseUiTags.ConfirmationDialogSheet)
+		assertNodeVisible(BaseUiTags.ConfirmationDialogTitle)
+		assertNodeVisible(SummaryUiTags.SyncStatusMessage)
+		assertNodeVisible(BaseUiTags.ConfirmationDialogPositiveButton)
+	}
+
+	@Test
 	fun when_outdatedCredentialsBottomSheetConfirmed_then_invokesUpdatePasswordCallback() = runTuIndiceUiTest {
 		var updatePasswordClicks = 0
 

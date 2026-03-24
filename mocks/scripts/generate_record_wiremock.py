@@ -476,7 +476,7 @@ def build_post_mappings(target_dir: Path) -> None:
             "requiredScenarioState": ADDED_QUARTER_PRESENT_STATE,
             "request": shared_request,
             "response": response(
-                status=409,
+                status=412,
                 body="{\"error\":\"quarter_already_exists\"}",
                 delay_ms=POST_DELAY_MS
             )

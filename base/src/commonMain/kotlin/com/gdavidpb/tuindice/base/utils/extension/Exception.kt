@@ -65,6 +65,16 @@ fun Throwable.isUnavailable() = when (this) {
 	else -> false
 }
 
+fun Throwable.isFailedDependency() = when (this) {
+	is ClientRequestException -> response.status == HttpStatusCode.FailedDependency
+	else -> false
+}
+
+fun Throwable.isTooManyRequests() = when (this) {
+	is ClientRequestException -> response.status == HttpStatusCode.TooManyRequests
+	else -> false
+}
+
 fun Throwable.isForbidden() = when (this) {
 	is ClientRequestException -> response.status == HttpStatusCode.Forbidden
 	else -> false

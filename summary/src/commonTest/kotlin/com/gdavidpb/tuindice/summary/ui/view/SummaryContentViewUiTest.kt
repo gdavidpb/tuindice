@@ -137,6 +137,29 @@ class SummaryContentViewUiTest {
 	}
 
 	@Test
+	fun when_syncIsUnavailable_then_statusIconTapInvokesCallbackAndLastUpdateRemainsVisible() = runTuIndiceUiTest {
+		val contentState = summaryContentState()
+		var statusIconClicks = 0
+
+		setTuIndiceTestContent {
+			SummaryContentView(
+				state = contentState,
+				syncStatus = SyncStatus.Unavailable,
+				summaryItems = summaryItemsFor(contentState),
+				onEditProfilePictureClick = {},
+				onStatusIconClick = { statusIconClicks++ }
+			)
+		}
+
+		assertNodeVisible(SummaryUiTags.StatusRow)
+		assertNodeVisible(SummaryUiTags.StatusIconButton)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		assertEquals(1, statusIconClicks)
+	}
+
+	@Test
 	fun when_syncStatusIsOutdatedCredentials_then_statusIconTapInvokesCallbackAndLastUpdateRemainsVisible() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 		var statusIconClicks = 0

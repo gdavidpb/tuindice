@@ -57,6 +57,18 @@ class AuthExceptionHandlerTest {
 	}
 
 	@Test
+	fun signInExceptionHandler_mapsUnavailable_fromTooManyRequests() {
+		val actual = SignInExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true),
+			reportingRepository = RecordingReportingRepository()
+		).reportException(
+			clientRequestException(HttpStatusCode.TooManyRequests, path = "/auth/v1/token")
+		)
+
+		assertEquals(SignInUseCaseError.Unavailable, actual)
+	}
+
+	@Test
 	fun signInExceptionHandler_mapsConnectionState_usingNetworkAvailability() {
 		val reportingRepository = RecordingReportingRepository()
 		val throwable = IllegalStateException("network is unreachable")
@@ -86,6 +98,18 @@ class AuthExceptionHandlerTest {
 		)
 
 		assertEquals(SignInUseCaseError.AccountDisabled, actual)
+	}
+
+	@Test
+	fun updatePasswordExceptionHandler_mapsUnavailable_fromTooManyRequests() {
+		val actual = UpdatePasswordExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true),
+			reportingRepository = RecordingReportingRepository()
+		).reportException(
+			clientRequestException(HttpStatusCode.TooManyRequests, path = "/auth/v1/token")
+		)
+
+		assertEquals(SignInUseCaseError.Unavailable, actual)
 	}
 
 	@Test

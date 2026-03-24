@@ -4,6 +4,8 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
+import com.gdavidpb.tuindice.base.utils.extension.isFailedDependency
+import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,11 +39,17 @@ class SyncDataRepository(
 					settingsDataSource.setSyncOnCooldown()
 					settingsDataSource.clearFeatureCooldowns()
 				}
-			}.onFailure { throwable ->
-				val syncStatus = if (throwable.isConflict())
-					SyncStatus.OutdatedCredentials
-				else
-					SyncStatus.Failed
+				}.onFailure { throwable ->
+				val syncStatus = when {
+					throwable.isConflict() ->
+						SyncStatus.OutdatedCredentials
+
+					throwable.isUnavailable() || throwable.isFailedDependency() ->
+						SyncStatus.Unavailable
+
+					else ->
+						SyncStatus.Failed
+				}
 
 				runCatching {
 					syncStatusRepository.setSyncStatus(syncStatus)

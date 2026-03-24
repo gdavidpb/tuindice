@@ -87,13 +87,65 @@ class SyncRepositoryContractTest {
 	}
 
 	@Test
-	fun scheduleSync_marksFailed_whenSyncFailsWithNonConflictError() = runTest {
+	fun scheduleSync_marksUnavailable_whenSyncFailsWithServiceUnavailable() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
 		val syncStatusLocalDataSource = FakeSyncStatusLocalDataSource()
 		val syncStatusRepository = SyncStatusDataRepository(localDataSource = syncStatusLocalDataSource)
 		val remoteDataSource = FakeSyncRemoteDataSource(
 			throwable = clientRequestException(
 				statusCode = HttpStatusCode.ServiceUnavailable,
+				path = "/sync/v1"
+			)
+		)
+		val repository = SyncDataRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = syncStatusRepository,
+			remoteDataSource = remoteDataSource,
+			syncDispatcher = StandardTestDispatcher(testScheduler)
+		)
+
+		repository.scheduleSync(password = "new-secret")
+		advanceUntilIdle()
+
+		assertEquals(listOf("new-secret"), remoteDataSource.syncPasswords)
+		assertEquals(SyncStatus.Unavailable, syncStatusRepository.getSyncStatus())
+		assertEquals(listOf(SyncStatus.Unavailable), syncStatusLocalDataSource.setStatuses)
+	}
+
+	@Test
+	fun scheduleSync_marksUnavailable_whenSyncFailsWithFailedDependency() = runTest {
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
+		val syncStatusLocalDataSource = FakeSyncStatusLocalDataSource()
+		val syncStatusRepository = SyncStatusDataRepository(localDataSource = syncStatusLocalDataSource)
+		val remoteDataSource = FakeSyncRemoteDataSource(
+			throwable = clientRequestException(
+				statusCode = HttpStatusCode.FailedDependency,
+				path = "/sync/v1"
+			)
+		)
+		val repository = SyncDataRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = syncStatusRepository,
+			remoteDataSource = remoteDataSource,
+			syncDispatcher = StandardTestDispatcher(testScheduler)
+		)
+
+		repository.scheduleSync(password = "new-secret")
+		advanceUntilIdle()
+
+		assertEquals(listOf("new-secret"), remoteDataSource.syncPasswords)
+		assertEquals(SyncStatus.Unavailable, syncStatusRepository.getSyncStatus())
+		assertEquals(listOf(SyncStatus.Unavailable), syncStatusLocalDataSource.setStatuses)
+	}
+
+	@Test
+	fun scheduleSync_marksFailed_whenSyncFailsWithUnhandledError() = runTest {
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
+		val syncStatusLocalDataSource = FakeSyncStatusLocalDataSource()
+		val syncStatusRepository = SyncStatusDataRepository(localDataSource = syncStatusLocalDataSource)
+		val remoteDataSource = FakeSyncRemoteDataSource(
+			throwable = clientRequestException(
+				statusCode = HttpStatusCode.InternalServerError,
 				path = "/sync/v1"
 			)
 		)

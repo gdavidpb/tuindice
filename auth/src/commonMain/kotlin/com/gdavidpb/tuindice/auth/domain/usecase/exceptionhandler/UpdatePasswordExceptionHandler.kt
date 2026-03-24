@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isForbidden
 import com.gdavidpb.tuindice.base.utils.extension.isLocked
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
+import com.gdavidpb.tuindice.base.utils.extension.isTooManyRequests
 import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.auth.domain.exception.SignInIllegalArgumentException
@@ -22,7 +23,7 @@ class UpdatePasswordExceptionHandler(
 			throwable.isLocked() -> SignInUseCaseError.AccountDisabled
 			throwable.isForbidden() -> SignInUseCaseError.Untrusted
 			throwable.isUnauthorized() -> SignInUseCaseError.InvalidCredentials
-			throwable.isUnavailable() -> SignInUseCaseError.Unavailable
+			throwable.isUnavailable() || throwable.isTooManyRequests() -> SignInUseCaseError.Unavailable
 			throwable.isTimeout() -> SignInUseCaseError.Timeout
 			throwable.isConnection() -> SignInUseCaseError.NoConnection(networkRepository.isAvailable())
 			else -> null

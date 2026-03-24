@@ -32,11 +32,13 @@ fun SummaryContentView(
 	val isProfilePictureInteractionEnabled = !state.isUserRefreshing
 	val statusIcon = when (syncStatus) {
 		SyncStatus.Healthy -> Icons.Outlined.Sync
+		SyncStatus.Unavailable,
 		SyncStatus.Failed,
 		SyncStatus.OutdatedCredentials -> Icons.Outlined.SyncProblem
 	}
 	val statusTint = when (syncStatus) {
 		SyncStatus.Healthy -> MaterialTheme.colorScheme.onSurfaceVariant
+		SyncStatus.Unavailable,
 		SyncStatus.Failed,
 		SyncStatus.OutdatedCredentials -> MaterialTheme.colorScheme.error
 	}
