@@ -22,7 +22,7 @@ El proyecto esta organizado como KMP con una sola base comun para arquitectura, 
 ## Estado actual del proyecto
 
 - La UI y los recursos de texto se mantienen en `commonMain` con `composeResources`.
-- La DI usa `commonModule`, `persistenceModule`, un solo modulo por feature y un solo modulo de plataforma por SO.
+- La DI usa `commonModule`, un solo modulo por feature y un solo modulo de plataforma por SO.
 - El arranque de Koin es simetrico entre plataformas usando `startAppKoin(...)`.
 - iOS inyecta capacidades/runtime host a traves de `iOSContext(...)`.
 - Los settings no sensibles usan `multiplatform-settings`.
@@ -143,7 +143,6 @@ Responsable del wiring.
 Superficie publica actual:
 
 - `commonModule`
-- `persistenceModule`
 - `<feature>Module`
 - `androidPlatformModule`
 - `iosPlatformModule`
@@ -154,26 +153,24 @@ Reglas:
 - `di` no implementa adaptadores concretos.
 - En `commonModule`, preferir `single` para servicios compartidos de runtime, repositorios de infraestructura y dependencias con estado/memoria/flows/mutexes; reservar `factory` para objetos transientes o sin identidad compartida.
 - `featureModules()` agrega solo modulos de feature.
-- `commonModules()` agrega `commonModule`, `persistenceModule` y los modulos de feature.
+- `commonModules()` agrega `commonModule` mas los modulos de feature.
 - El bootstrap comun entra por `startAppKoin(...)`.
 - Cada plataforma aporta un `PlatformKoinBootstrap`.
 - No crear `*AndroidModule` o `*IosModule` por feature.
 - Los bindings especificos de plataforma de una feature viven en el modulo de plataforma correspondiente.
-- `persistence` define sus bindings Koin propios; el registro de storage por plataforma se invoca desde `androidPlatformModule` e `iosPlatformModule`.
+- `persistence` expone helpers/factories; el registro de storage por plataforma se invoca desde `androidPlatformModule` e `iosPlatformModule`.
 
 ## Convenciones de Koin
 
 ### Naming
 
 - Infra compartida en `commonMain`: `commonModule`.
-- Infra de persistencia en `commonMain`: `persistenceModule`.
 - Modulos de feature: `mainModule`, `loginModule`, `aboutModule`, etc.
 - Wiring de plataforma: `androidPlatformModule` e `iosPlatformModule`.
 
 ### Archivos
 
 - Infra compartida: `CommonModule.kt`.
-- Infra de persistencia: `PersistenceModule.kt`.
 - Modulo de feature: `FeatureModule.kt`.
 - Wiring de plataforma: `AndroidPlatformModule.kt`, `IosPlatformModule.kt`.
 
