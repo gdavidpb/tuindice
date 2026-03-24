@@ -7,6 +7,18 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface RecordMutation : OutboxMutation {
 	@Serializable
+	@SerialName("add_quarter")
+	data class AddQuarter(
+		val quarterId: String,
+		val startDate: Long,
+		val endDate: Long
+	) : RecordMutation {
+		override val entityType: String = "record:add_quarter"
+		override val entityId: String = quarterId
+		override val replaceKey: String = "quarter:$quarterId"
+	}
+
+	@Serializable
 	@SerialName("set_subject_grade")
 	data class SetSubjectGrade(
 		val quarterId: String,

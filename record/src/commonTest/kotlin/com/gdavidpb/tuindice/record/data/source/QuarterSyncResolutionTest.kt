@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_LOCAL_QUARTER
-import com.gdavidpb.tuindice.record.utils.resolveQuarterSyncResolution
+import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -12,6 +12,9 @@ import kotlin.test.assertTrue
 
 class QuarterSyncResolutionTest {
 	private val baseTimestamp = 1_767_225_600_000L
+	private val resolver = VisibleRecordStateResolver(
+		indexComputationEngine = IndexComputationEngine()
+	)
 
 	@Test
 	fun resolveQuarterSyncResolution_invalidatesMutationsForClosedQuarter() = runTest {
@@ -56,12 +59,13 @@ class QuarterSyncResolutionTest {
 			)
 		)
 
-		val result = resolveQuarterSyncResolution(
+		val result = resolver.resolveIncomingSnapshot(
 			incomingQuarters = listOf(closedQuarter, openQuarter),
 			pendingMutations = pendingMutations
 		)
 
 		assertEquals(setOf(closedQuarter.id), result.replacedClosedQuarterIds)
+		assertEquals(setOf(closedQuarter.id), result.invalidatedQuarterIds)
 		assertEquals(setOf("grade-closed", "remove-closed"), result.invalidatedMutationIds)
 		assertEquals(listOf("grade-open"), result.compatiblePendingMutations.map { mutation -> mutation.mutationId })
 	}
@@ -82,14 +86,65 @@ class QuarterSyncResolutionTest {
 			)
 		)
 
-		val result = resolveQuarterSyncResolution(
+		val result = resolver.resolveIncomingSnapshot(
 			incomingQuarters = listOf(openQuarter),
 			pendingMutations = pendingMutations
 		)
 
 		assertTrue(result.replacedClosedQuarterIds.isEmpty())
+		assertTrue(result.invalidatedQuarterIds.isEmpty())
 		assertTrue(result.invalidatedMutationIds.isEmpty())
 		assertEquals(pendingMutations, result.compatiblePendingMutations)
+	}
+
+	@Test
+	fun resolveIncomingSnapshot_invalidatesDeleteMutationForInstitutionalCurrentQuarter() = runTest {
+		val currentQuarter = DEFAULT_RECORD_LOCAL_QUARTER.copy(
+			isCurrent = true,
+			isReadOnly = false
+		)
+		val pendingMutations = listOf(
+			pendingMutation(
+				mutationId = "remove-current",
+				mutation = RecordMutation.RemoveQuarter(
+					quarterId = currentQuarter.id
+				)
+			)
+		)
+
+		val result = resolver.resolveIncomingSnapshot(
+			incomingQuarters = listOf(currentQuarter),
+			pendingMutations = pendingMutations
+		)
+
+		assertTrue(result.replacedClosedQuarterIds.isEmpty())
+		assertEquals(setOf(currentQuarter.id), result.invalidatedQuarterIds)
+		assertEquals(setOf("remove-current"), result.invalidatedMutationIds)
+		assertTrue(result.compatiblePendingMutations.isEmpty())
+	}
+
+	@Test
+	fun resolveVisibleState_keepsInstitutionalCurrentQuarterVisible_whenPendingDeleteExists() = runTest {
+		val currentQuarter = DEFAULT_RECORD_LOCAL_QUARTER.copy(
+			isCurrent = true,
+			isReadOnly = false
+		)
+		val pendingMutations = listOf(
+			pendingMutation(
+				mutationId = "remove-current",
+				mutation = RecordMutation.RemoveQuarter(
+					quarterId = currentQuarter.id
+				)
+			)
+		)
+
+		val visibleState = resolver.resolveVisibleState(
+			confirmedSnapshot = listOf(currentQuarter),
+			pendingMutations = pendingMutations,
+			gradePreviewSnapshot = emptyMap()
+		)
+
+		assertEquals(listOf(currentQuarter), visibleState)
 	}
 
 	private fun pendingMutation(

@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.mapper.toLocalQuarte
 import com.gdavidpb.tuindice.record.data.repository.quarter.mapper.toQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.SetSubjectGradeResult
+import com.gdavidpb.tuindice.record.domain.policy.QuarterMutationPolicy
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import com.gdavidpb.tuindice.record.domain.model.SubjectGradeSet
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
@@ -51,6 +52,7 @@ class QuarterDataRepository(
 	override suspend fun removeQuarter(remove: QuarterRemove) {
 		val quarter = localDataSource.getQuarter(remove.id)
 			?: return
+		if (!QuarterMutationPolicy.canDelete(quarter)) return
 		val mutation = buildPendingRemoveQuarterMutation(
 			quarterId = remove.id,
 			expectedRevision = quarter.revision
@@ -64,6 +66,10 @@ class QuarterDataRepository(
 	}
 
 	override suspend fun setSubjectGrade(set: SubjectGradeSet) {
+		val quarter = localDataSource.getQuarter(set.quarterId)
+			?: return
+		if (!QuarterMutationPolicy.canEditGrades(quarter)) return
+
 		val localResult = localDataSource.setSubjectGradeAndRecompute(
 			qid = set.quarterId,
 			sid = set.id,
@@ -104,6 +110,8 @@ class QuarterDataRepository(
 				if (targetMutationId != null && mutation.mutationId != targetMutationId) return@forEach
 
 				when (mutation.mutation) {
+					is RecordMutation.AddQuarter -> Unit
+
 					is RecordMutation.SetSubjectGrade ->
 						drainSetSubjectGradeMutation(
 							mutation = mutation,
@@ -268,6 +276,10 @@ class QuarterDataRepository(
 
 		if (remoteQuarter == null) {
 			localDataSource.removeQuarter(payload.quarterId)
+			mutationOutboxRepository.deletePendingMutation(mutation.mutationId)
+			return
+		}
+		if (!QuarterMutationPolicy.canDelete(remoteQuarter)) {
 			mutationOutboxRepository.deletePendingMutation(mutation.mutationId)
 			return
 		}

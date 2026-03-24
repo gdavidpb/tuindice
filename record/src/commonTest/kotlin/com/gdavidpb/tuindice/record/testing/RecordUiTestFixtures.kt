@@ -41,6 +41,7 @@ fun sampleSubjectItem(
 
 fun sampleQuarterItem(
 	quarterId: String = "quarter-1",
+	canDelete: Boolean = false,
 	subjects: List<SubjectItem> = listOf(sampleSubjectItem())
 ): QuarterItem = QuarterItem(
 	quarterId = quarterId,
@@ -48,6 +49,7 @@ fun sampleQuarterItem(
 	gradeText = AnnotatedString("Δx 4.2500"),
 	gradeSumText = AnnotatedString("∑x 4.2500"),
 	creditsText = AnnotatedString("⦿ 6 UC"),
+	canDelete = canDelete,
 	subjects = subjects,
 	states = hashMapOf(
 		subjects.first().subjectId to mutableIntStateOf(subjects.first().grade)

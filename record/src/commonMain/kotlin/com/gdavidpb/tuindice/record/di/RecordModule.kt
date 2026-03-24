@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.record.data.source.RecordApiDataSource
 import com.gdavidpb.tuindice.record.data.source.RoomDataSource
+import com.gdavidpb.tuindice.record.data.source.VisibleRecordStateResolver
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveQuartersUseCase
@@ -50,6 +51,7 @@ val recordModule = module {
 	/* Computation */
 
 	singleOf(::IndexComputationEngine)
+	singleOf(::VisibleRecordStateResolver)
 
 	/* Validators */
 

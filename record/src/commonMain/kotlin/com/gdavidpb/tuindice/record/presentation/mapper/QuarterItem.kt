@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.record.domain.policy.QuarterMutationPolicy
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 
 data class RecordMapperTexts(
@@ -68,9 +69,10 @@ fun Quarter.toQuarterItem(
 		creditsText = texts
 			.quarterCredits(animatedCredits.value)
 			.annotatedQuarterValue(highlightColor),
+		canDelete = QuarterMutationPolicy.canDelete(this),
 		subjects = subjects.map { subject ->
 			subject.toSubjectItem(
-				isReadOnly = isReadOnly,
+				isReadOnly = !QuarterMutationPolicy.canEditGrades(this),
 				texts = texts
 			)
 		},

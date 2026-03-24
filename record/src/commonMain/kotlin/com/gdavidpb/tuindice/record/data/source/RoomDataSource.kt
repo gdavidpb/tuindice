@@ -13,24 +13,15 @@ import com.gdavidpb.tuindice.record.data.source.database.mapper.toLocalQuarter
 import com.gdavidpb.tuindice.record.data.source.database.mapper.toQuarterEntity
 import com.gdavidpb.tuindice.record.data.source.database.mapper.toSubjectEntity
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
-import com.gdavidpb.tuindice.record.utils.resolveQuarterSyncResolution
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-private data class SubjectPreviewKey(
-	val quarterId: String,
-	val subjectId: String
-)
-
-private data class SubjectGradePreview(
-	val requestedGrade: Int
-)
-
 class RoomDataSource(
 	private val room: TuIndiceDatabase,
 	private val indexComputationEngine: IndexComputationEngine,
-	private val mutationOutboxRepository: MutationOutboxRepository<RecordMutation>
+	private val mutationOutboxRepository: MutationOutboxRepository<RecordMutation>,
+	private val visibleRecordStateResolver: VisibleRecordStateResolver
 ) : QuarterLocalDataSource {
 	private val writeMutex = Mutex()
 	private val previewQuartersFlow = MutableStateFlow(0L)
@@ -56,9 +47,10 @@ class RoomDataSource(
 			}
 
 		return combine(quartersFlow, pendingFlow, previewQuartersFlow) { confirmedQuarters, pendingMutations, _ ->
-			applyVisibleState(
+			visibleRecordStateResolver.resolveVisibleState(
 				confirmedSnapshot = confirmedQuarters,
-				pendingMutations = pendingMutations
+				pendingMutations = pendingMutations,
+				gradePreviewSnapshot = gradePreviewSnapshot
 			)
 		}
 	}
@@ -66,9 +58,10 @@ class RoomDataSource(
 	override suspend fun getQuarter(qid: String): LocalQuarter? {
 		val confirmedSnapshot = inMemoryQuartersSnapshot ?: loadSnapshotFromRoom()
 		val pendingMutations = currentPendingMutations()
-		val visibleSnapshot = applyVisibleState(
+		val visibleSnapshot = visibleRecordStateResolver.resolveVisibleState(
 			confirmedSnapshot = confirmedSnapshot,
-			pendingMutations = pendingMutations
+			pendingMutations = pendingMutations,
+			gradePreviewSnapshot = gradePreviewSnapshot
 		)
 
 		return visibleSnapshot.firstOrNull { quarter -> quarter.id == qid }
@@ -112,22 +105,24 @@ class RoomDataSource(
 		writeMutex.withLock {
 			val confirmedQuarters = quarters.toCanonicalOrder()
 			val pendingMutations = currentPendingMutations()
-			val syncResolution = resolveQuarterSyncResolution(
+			val currentSnapshot = inMemoryQuartersSnapshot ?: loadSnapshotFromRoom()
+			val syncResolution = visibleRecordStateResolver.resolveIncomingSnapshot(
 				incomingQuarters = confirmedQuarters,
 				pendingMutations = pendingMutations
 			)
-			val persistedQuarters = applyPendingSubjectMutationsToSnapshot(
-				confirmedSnapshot = confirmedQuarters,
-				pendingMutations = syncResolution.compatiblePendingMutations
-			)
-			val quarterEntities = persistedQuarters
+			val incomingQuarterIds = confirmedQuarters
+				.mapTo(linkedSetOf()) { quarter -> quarter.id }
+			val staleQuarterIds = currentSnapshot
+				.mapTo(linkedSetOf()) { quarter -> quarter.id }
+				.apply { removeAll(incomingQuarterIds) }
+			val quarterEntities = confirmedQuarters
 				.map { quarter -> quarter.toQuarterEntity() }
-			val subjectEntities = persistedQuarters
+			val subjectEntities = confirmedQuarters
 				.flatMap { quarter -> quarter.subjects }
 				.map { subject -> subject.toSubjectEntity() }
 
 			room.withImmediateTransaction {
-				syncResolution.replacedClosedQuarterIds.forEach { qid ->
+				(staleQuarterIds + syncResolution.replacedClosedQuarterIds).forEach { qid ->
 					room.quarters.deleteQuarter(qid = qid)
 				}
 				room.quarters.upsertEntities(quarterEntities)
@@ -138,12 +133,9 @@ class RoomDataSource(
 			syncResolution.invalidatedMutationIds.forEach { mutationId ->
 				mutationOutboxRepository.deletePendingMutation(mutationId)
 			}
-			removeGradePreviews { key, _ -> key.quarterId in syncResolution.replacedClosedQuarterIds }
+			removeGradePreviews { key, _ -> key.quarterId in syncResolution.invalidatedQuarterIds }
 
-			inMemoryQuartersSnapshot = mergePersistedQuarters(
-				current = inMemoryQuartersSnapshot.orEmpty(),
-				updates = persistedQuarters
-			)
+			inMemoryQuartersSnapshot = confirmedQuarters
 		}
 	}
 
@@ -205,9 +197,10 @@ class RoomDataSource(
 					requestedGrade = grade
 				)
 
-				val previewSnapshot = applyVisibleState(
+				val previewSnapshot = visibleRecordStateResolver.resolveVisibleState(
 					confirmedSnapshot = confirmedSnapshot,
-					pendingMutations = pendingMutationsSnapshot
+					pendingMutations = currentPendingMutations(),
+					gradePreviewSnapshot = gradePreviewSnapshot
 				)
 
 				return@withLock SetSubjectGradeResult.Applied(
@@ -274,98 +267,6 @@ class RoomDataSource(
 		return pendingMutationsSnapshot.ifEmpty { mutationOutboxRepository.getPendingMutations() }
 	}
 
-	private fun applyVisibleState(
-		confirmedSnapshot: List<LocalQuarter>,
-		pendingMutations: List<PendingMutation<RecordMutation>>
-	): List<LocalQuarter> {
-		val withoutDeletedQuarters = confirmedSnapshot.filterNot { quarter ->
-			quarter.id in pendingDeletedQuarterIds(pendingMutations)
-		}
-
-		return applyPreviewGradesToSnapshot(withoutDeletedQuarters)
-	}
-
-	private fun applyPendingSubjectMutationsToSnapshot(
-		confirmedSnapshot: List<LocalQuarter>,
-		pendingMutations: List<PendingMutation<RecordMutation>>
-	): List<LocalQuarter> {
-		val pendingGradesBySubject = pendingSubjectGrades(pendingMutations)
-
-		if (pendingGradesBySubject.isEmpty()) return confirmedSnapshot
-
-		var affectedStartDate = Long.MAX_VALUE
-		var hasChanges = false
-
-		val patchedSnapshot = confirmedSnapshot.map { quarter ->
-			if (quarter.isReadOnly) return@map quarter
-
-			var quarterChanged = false
-
-			val patchedSubjects = quarter.subjects.map { subject ->
-				val pendingGrade = pendingGradesBySubject[subject.id]
-					?: return@map subject
-
-				if (pendingGrade == subject.grade) return@map subject
-
-				hasChanges = true
-				quarterChanged = true
-				affectedStartDate = minOf(affectedStartDate, quarter.startDate)
-
-				subject.copy(grade = pendingGrade)
-			}
-
-			if (quarterChanged)
-				quarter.copy(subjects = patchedSubjects)
-			else
-				quarter
-		}
-
-		if (!hasChanges) return confirmedSnapshot
-
-		return indexComputationEngine.recompute(
-			quarters = patchedSnapshot,
-			affectedStartDate = affectedStartDate
-		).quarters.toCanonicalOrder()
-	}
-
-	private fun applyPreviewGradesToSnapshot(snapshot: List<LocalQuarter>): List<LocalQuarter> {
-		if (gradePreviewSnapshot.isEmpty()) return snapshot
-
-		var affectedStartDate = Long.MAX_VALUE
-		var hasChanges = false
-
-		val patchedSnapshot = snapshot.map { quarter ->
-			if (quarter.isReadOnly) return@map quarter
-
-			var quarterChanged = false
-
-			val patchedSubjects = quarter.subjects.map { subject ->
-				val preview = gradePreviewSnapshot[SubjectPreviewKey(quarter.id, subject.id)]
-					?: return@map subject
-
-				if (preview.requestedGrade == subject.grade) return@map subject
-
-				hasChanges = true
-				quarterChanged = true
-				affectedStartDate = minOf(affectedStartDate, quarter.startDate)
-
-				subject.copy(grade = preview.requestedGrade)
-			}
-
-			if (quarterChanged)
-				quarter.copy(subjects = patchedSubjects)
-			else
-				quarter
-		}
-
-		if (!hasChanges) return snapshot
-
-		return indexComputationEngine.recompute(
-			quarters = patchedSnapshot,
-			affectedStartDate = affectedStartDate
-		).quarters.toCanonicalOrder()
-	}
-
 	private fun recomputeSubjectGrade(
 		snapshot: List<LocalQuarter>,
 		qid: String,
@@ -386,20 +287,6 @@ class RoomDataSource(
 			quarters = patchedSnapshot,
 			affectedStartDate = sourceQuarter.startDate
 		)
-	}
-
-	private fun pendingDeletedQuarterIds(pendingMutations: List<PendingMutation<RecordMutation>>): Set<String> {
-		return pendingMutations.mapNotNullTo(hashSetOf()) { mutation ->
-			(mutation.mutation as? RecordMutation.RemoveQuarter)?.quarterId
-		}
-	}
-
-	private fun pendingSubjectGrades(pendingMutations: List<PendingMutation<RecordMutation>>): Map<String, Int> {
-		return pendingMutations.mapNotNull { mutation ->
-			(mutation.mutation as? RecordMutation.SetSubjectGrade)?.let { payload ->
-				payload.subjectId to payload.grade
-			}
-		}.toMap()
 	}
 
 	private fun upsertGradePreview(

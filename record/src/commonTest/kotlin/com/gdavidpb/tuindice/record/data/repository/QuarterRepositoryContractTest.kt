@@ -22,6 +22,15 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class QuarterRepositoryContractTest {
+	private val deletableQuarter = DEFAULT_RECORD_QUARTER.copy(
+		isCurrent = false,
+		isReadOnly = false
+	)
+	private val deletableLocalQuarter = DEFAULT_RECORD_LOCAL_QUARTER.copy(
+		isCurrent = false,
+		isReadOnly = false
+	)
+
 	@Test
 	fun observeQuartersFlow_emitsLocalQuarters_withoutRefreshing() = runTest {
 		val localDataSource = FakeQuarterLocalDataSource(
@@ -163,7 +172,9 @@ class QuarterRepositoryContractTest {
 
 	@Test
 	fun removeQuarter_whenRemoteSucceeds_confirmsLocalRemovalAndClearsPending() = runTest {
-		val localDataSource = FakeQuarterLocalDataSource()
+		val localDataSource = FakeQuarterLocalDataSource(
+			initialQuarters = listOf(deletableLocalQuarter)
+		)
 		val remoteDataSource = FakeQuarterRemoteDataSource()
 		val outboxRepository = FakeMutationOutboxRepository<RecordMutation>()
 		val repository = repository(
@@ -172,17 +183,19 @@ class QuarterRepositoryContractTest {
 			outboxRepository = outboxRepository
 		)
 
-		repository.removeQuarter(QuarterRemove(id = DEFAULT_RECORD_QUARTER.id))
+		repository.removeQuarter(QuarterRemove(id = deletableQuarter.id))
 
 		assertEquals(1, remoteDataSource.removeQuarterCalls.size)
-		assertEquals(DEFAULT_RECORD_QUARTER.id, remoteDataSource.removeQuarterCalls.single().quarterId)
-		assertEquals(listOf(DEFAULT_RECORD_QUARTER.id), localDataSource.confirmedRemovedQuarterIds)
+		assertEquals(deletableQuarter.id, remoteDataSource.removeQuarterCalls.single().quarterId)
+		assertEquals(listOf(deletableQuarter.id), localDataSource.confirmedRemovedQuarterIds)
 		assertTrue(outboxRepository.getPendingMutations().isEmpty())
 	}
 
 	@Test
 	fun removeQuarter_whenRemoteFails_keepsPendingDeletionAndRethrows() = runTest {
-		val localDataSource = FakeQuarterLocalDataSource()
+		val localDataSource = FakeQuarterLocalDataSource(
+			initialQuarters = listOf(deletableLocalQuarter)
+		)
 		val remoteDataSource = FakeQuarterRemoteDataSource(
 			removeQuarterThrowable = IllegalStateException("boom")
 		)
@@ -194,11 +207,31 @@ class QuarterRepositoryContractTest {
 		)
 
 		assertFailsWith<IllegalStateException> {
-			repository.removeQuarter(QuarterRemove(id = DEFAULT_RECORD_QUARTER.id))
+			repository.removeQuarter(QuarterRemove(id = deletableQuarter.id))
 		}
 
 		assertTrue(localDataSource.confirmedRemovedQuarterIds.isEmpty())
 		assertEquals(1, outboxRepository.getPendingMutations().size)
+	}
+
+	@Test
+	fun removeQuarter_whenQuarterIsInstitutionalCurrent_doesNotEnqueueOrCallRemote() = runTest {
+		val localDataSource = FakeQuarterLocalDataSource(
+			initialQuarters = listOf(DEFAULT_RECORD_LOCAL_QUARTER)
+		)
+		val remoteDataSource = FakeQuarterRemoteDataSource()
+		val outboxRepository = FakeMutationOutboxRepository<RecordMutation>()
+		val repository = repository(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			outboxRepository = outboxRepository
+		)
+
+		repository.removeQuarter(QuarterRemove(id = DEFAULT_RECORD_QUARTER.id))
+
+		assertTrue(remoteDataSource.removeQuarterCalls.isEmpty())
+		assertTrue(localDataSource.confirmedRemovedQuarterIds.isEmpty())
+		assertTrue(outboxRepository.getPendingMutations().isEmpty())
 	}
 
 	private fun repository(
