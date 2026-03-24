@@ -13,8 +13,8 @@ class QuarterMutationPolicyTest {
 			isReadOnly = false
 		)
 
-		assertTrue(QuarterMutationPolicy.canEditGrades(quarter))
-		assertTrue(QuarterMutationPolicy.isInstitutionalCurrentQuarter(quarter))
+		assertTrue(QuarterMutationPolicy.canEditGrades(isReadOnly = quarter.isReadOnly))
+		assertTrue(QuarterMutationPolicy.isCurrent(quarter.isCurrent))
 	}
 
 	@Test
@@ -24,10 +24,16 @@ class QuarterMutationPolicyTest {
 			isReadOnly = false
 		)
 
-		assertFalse(QuarterMutationPolicy.canDelete(quarter))
+		assertFalse(
+			QuarterMutationPolicy.canDelete(
+				isCurrent = quarter.isCurrent,
+				isReadOnly = quarter.isReadOnly
+			)
+		)
 		assertFalse(
 			QuarterMutationPolicy.canApplyPendingMutation(
-				quarter = quarter,
+				isCurrent = quarter.isCurrent,
+				isReadOnly = quarter.isReadOnly,
 				mutationType = QuarterMutationType.RemoveQuarter
 			)
 		)
@@ -40,8 +46,13 @@ class QuarterMutationPolicyTest {
 			isReadOnly = true
 		)
 
-		assertFalse(QuarterMutationPolicy.canDelete(quarter))
-		assertFalse(QuarterMutationPolicy.canEditGrades(quarter))
+		assertFalse(
+			QuarterMutationPolicy.canDelete(
+				isCurrent = quarter.isCurrent,
+				isReadOnly = quarter.isReadOnly
+			)
+		)
+		assertFalse(QuarterMutationPolicy.canEditGrades(isReadOnly = quarter.isReadOnly))
 	}
 
 	@Test
@@ -53,7 +64,8 @@ class QuarterMutationPolicyTest {
 
 		assertFalse(
 			QuarterMutationPolicy.canApplyPendingMutation(
-				quarter = quarter,
+				isCurrent = quarter.isCurrent,
+				isReadOnly = quarter.isReadOnly,
 				mutationType = QuarterMutationType.AddQuarter
 			)
 		)

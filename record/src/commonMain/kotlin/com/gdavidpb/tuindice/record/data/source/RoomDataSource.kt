@@ -4,6 +4,8 @@ import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutation
 import com.gdavidpb.tuindice.base.domain.repository.MutationOutboxRepository
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.withImmediateTransaction
+import com.gdavidpb.tuindice.record.data.model.SubjectGradePreview
+import com.gdavidpb.tuindice.record.data.model.SubjectPreviewKey
 import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataSource
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter

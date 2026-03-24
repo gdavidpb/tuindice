@@ -7,6 +7,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
+import com.gdavidpb.tuindice.record.presentation.model.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 
 @Composable

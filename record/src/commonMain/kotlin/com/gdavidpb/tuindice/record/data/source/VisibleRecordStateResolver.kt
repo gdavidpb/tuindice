@@ -2,20 +2,13 @@ package com.gdavidpb.tuindice.record.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutation
 import com.gdavidpb.tuindice.record.data.model.QuarterSyncResolution
+import com.gdavidpb.tuindice.record.data.model.SubjectGradePreview
+import com.gdavidpb.tuindice.record.data.model.SubjectPreviewKey
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.domain.policy.QuarterMutationPolicy
 import com.gdavidpb.tuindice.record.domain.policy.toQuarterMutationType
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
-
-data class SubjectPreviewKey(
-	val quarterId: String,
-	val subjectId: String
-)
-
-data class SubjectGradePreview(
-	val requestedGrade: Int
-)
 
 class VisibleRecordStateResolver(
 	private val indexComputationEngine: IndexComputationEngine
@@ -66,7 +59,8 @@ class VisibleRecordStateResolver(
 							}
 
 							!QuarterMutationPolicy.canApplyPendingMutation(
-								quarter = quarter,
+								isCurrent = quarter.isCurrent,
+								isReadOnly = quarter.isReadOnly,
 								mutationType = payload.toQuarterMutationType()
 							) -> {
 								invalidatedQuarterIds += payload.quarterId
@@ -86,7 +80,8 @@ class VisibleRecordStateResolver(
 							}
 
 							!QuarterMutationPolicy.canApplyPendingMutation(
-								quarter = quarter,
+								isCurrent = quarter.isCurrent,
+								isReadOnly = quarter.isReadOnly,
 								mutationType = payload.toQuarterMutationType()
 							) -> {
 								invalidatedQuarterIds += payload.quarterId
@@ -124,7 +119,7 @@ class VisibleRecordStateResolver(
 		var hasChanges = false
 
 		val patchedSnapshot = confirmedSnapshot.map { quarter ->
-			if (!QuarterMutationPolicy.canEditGrades(quarter)) return@map quarter
+			if (!QuarterMutationPolicy.canEditGrades(isReadOnly = quarter.isReadOnly)) return@map quarter
 
 			var quarterChanged = false
 
@@ -165,7 +160,7 @@ class VisibleRecordStateResolver(
 		var hasChanges = false
 
 		val patchedSnapshot = snapshot.map { quarter ->
-			if (!QuarterMutationPolicy.canEditGrades(quarter)) return@map quarter
+			if (!QuarterMutationPolicy.canEditGrades(isReadOnly = quarter.isReadOnly)) return@map quarter
 
 			var quarterChanged = false
 
@@ -210,7 +205,8 @@ class VisibleRecordStateResolver(
 
 			payload.quarterId.takeIf {
 				QuarterMutationPolicy.canApplyPendingMutation(
-					quarter = quarter,
+					isCurrent = quarter.isCurrent,
+					isReadOnly = quarter.isReadOnly,
 					mutationType = payload.toQuarterMutationType()
 				)
 			}
@@ -231,7 +227,8 @@ class VisibleRecordStateResolver(
 
 			if (
 				!QuarterMutationPolicy.canApplyPendingMutation(
-					quarter = quarter,
+					isCurrent = quarter.isCurrent,
+					isReadOnly = quarter.isReadOnly,
 					mutationType = payload.toQuarterMutationType()
 				)
 			) {

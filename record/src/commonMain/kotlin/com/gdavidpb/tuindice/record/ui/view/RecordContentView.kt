@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.presentation.contract.Record
-import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.mapper.toQuarterItemList
+import com.gdavidpb.tuindice.record.presentation.model.RecordMapperTexts
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res

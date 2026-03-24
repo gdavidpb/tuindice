@@ -15,16 +15,7 @@ import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.record.domain.policy.QuarterMutationPolicy
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
-
-data class RecordMapperTexts(
-	val quarterGradeDiff: (Float) -> String,
-	val quarterGradeSum: (Float) -> String,
-	val quarterCredits: (Int) -> String,
-	val subjectRetired: String,
-	val subjectStatus: (String) -> String,
-	val subjectGrade: (Int) -> String,
-	val subjectCredits: (Int) -> String
-)
+import com.gdavidpb.tuindice.record.presentation.model.RecordMapperTexts
 
 @Composable
 fun List<Quarter>.toQuarterItemList(
@@ -69,10 +60,13 @@ fun Quarter.toQuarterItem(
 		creditsText = texts
 			.quarterCredits(animatedCredits.value)
 			.annotatedQuarterValue(highlightColor),
-		canDelete = QuarterMutationPolicy.canDelete(this),
+		canDelete = QuarterMutationPolicy.canDelete(
+			isCurrent = isCurrent,
+			isReadOnly = isReadOnly
+		),
 		subjects = subjects.map { subject ->
 			subject.toSubjectItem(
-				isReadOnly = !QuarterMutationPolicy.canEditGrades(this),
+				isReadOnly = !QuarterMutationPolicy.canEditGrades(isReadOnly),
 				texts = texts
 			)
 		},

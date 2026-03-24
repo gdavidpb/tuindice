@@ -4,8 +4,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.record.presentation.contract.Record
-import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
+import com.gdavidpb.tuindice.record.presentation.model.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 
 fun recordContentState(

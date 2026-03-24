@@ -52,7 +52,7 @@ class QuarterDataRepository(
 	override suspend fun removeQuarter(remove: QuarterRemove) {
 		val quarter = localDataSource.getQuarter(remove.id)
 			?: return
-		if (!QuarterMutationPolicy.canDelete(quarter)) return
+		if (!QuarterMutationPolicy.canDelete(isCurrent = quarter.isCurrent, isReadOnly = quarter.isReadOnly)) return
 		val mutation = buildPendingRemoveQuarterMutation(
 			quarterId = remove.id,
 			expectedRevision = quarter.revision
@@ -68,7 +68,7 @@ class QuarterDataRepository(
 	override suspend fun setSubjectGrade(set: SubjectGradeSet) {
 		val quarter = localDataSource.getQuarter(set.quarterId)
 			?: return
-		if (!QuarterMutationPolicy.canEditGrades(quarter)) return
+		if (!QuarterMutationPolicy.canEditGrades(isReadOnly = quarter.isReadOnly)) return
 
 		val localResult = localDataSource.setSubjectGradeAndRecompute(
 			qid = set.quarterId,
@@ -279,7 +279,11 @@ class QuarterDataRepository(
 			mutationOutboxRepository.deletePendingMutation(mutation.mutationId)
 			return
 		}
-		if (!QuarterMutationPolicy.canDelete(remoteQuarter)) {
+		if (!QuarterMutationPolicy.canDelete(
+				isCurrent = remoteQuarter.isCurrent,
+				isReadOnly = remoteQuarter.isReadOnly
+			)
+		) {
 			mutationOutboxRepository.deletePendingMutation(mutation.mutationId)
 			return
 		}
