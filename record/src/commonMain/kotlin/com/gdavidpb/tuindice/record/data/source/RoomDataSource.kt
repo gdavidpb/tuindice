@@ -13,11 +13,8 @@ import com.gdavidpb.tuindice.record.data.source.database.mapper.toLocalQuarter
 import com.gdavidpb.tuindice.record.data.source.database.mapper.toQuarterEntity
 import com.gdavidpb.tuindice.record.data.source.database.mapper.toSubjectEntity
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
+import com.gdavidpb.tuindice.record.utils.resolveQuarterSyncResolution
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -113,11 +110,15 @@ class RoomDataSource(
 
 	override suspend fun saveQuarters(quarters: List<LocalQuarter>) {
 		writeMutex.withLock {
-			val pendingMutations = currentPendingMutations()
 			val confirmedQuarters = quarters.toCanonicalOrder()
+			val pendingMutations = currentPendingMutations()
+			val syncResolution = resolveQuarterSyncResolution(
+				incomingQuarters = confirmedQuarters,
+				pendingMutations = pendingMutations
+			)
 			val persistedQuarters = applyPendingSubjectMutationsToSnapshot(
 				confirmedSnapshot = confirmedQuarters,
-				pendingMutations = pendingMutations
+				pendingMutations = syncResolution.compatiblePendingMutations
 			)
 			val quarterEntities = persistedQuarters
 				.map { quarter -> quarter.toQuarterEntity() }
@@ -126,9 +127,18 @@ class RoomDataSource(
 				.map { subject -> subject.toSubjectEntity() }
 
 			room.withImmediateTransaction {
+				syncResolution.replacedClosedQuarterIds.forEach { qid ->
+					room.quarters.deleteQuarter(qid = qid)
+				}
 				room.quarters.upsertEntities(quarterEntities)
 				room.subjects.upsertEntities(subjectEntities)
 			}
+
+			pendingMutationsSnapshot = syncResolution.compatiblePendingMutations
+			syncResolution.invalidatedMutationIds.forEach { mutationId ->
+				mutationOutboxRepository.deletePendingMutation(mutationId)
+			}
+			removeGradePreviews { key, _ -> key.quarterId in syncResolution.replacedClosedQuarterIds }
 
 			inMemoryQuartersSnapshot = mergePersistedQuarters(
 				current = inMemoryQuartersSnapshot.orEmpty(),
@@ -287,6 +297,8 @@ class RoomDataSource(
 		var hasChanges = false
 
 		val patchedSnapshot = confirmedSnapshot.map { quarter ->
+			if (quarter.isReadOnly) return@map quarter
+
 			var quarterChanged = false
 
 			val patchedSubjects = quarter.subjects.map { subject ->
@@ -323,6 +335,8 @@ class RoomDataSource(
 		var hasChanges = false
 
 		val patchedSnapshot = snapshot.map { quarter ->
+			if (quarter.isReadOnly) return@map quarter
+
 			var quarterChanged = false
 
 			val patchedSubjects = quarter.subjects.map { subject ->
