@@ -4,15 +4,12 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.record.domain.policy.QuarterMutationPolicy
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.RecordMapperTexts
@@ -69,16 +66,7 @@ fun Quarter.toQuarterItem(
 				isReadOnly = !QuarterMutationPolicy.canEditGrades(isReadOnly),
 				texts = texts
 			)
-		},
-		states = rememberSubjectsStates(subjects)
-	)
-}
-
-@Composable
-fun rememberSubjectsStates(subjects: List<Subject>) = remember {
-	HashMap(
-		subjects
-			.associate { subject -> subject.id to mutableIntStateOf(subject.grade) }
+		}
 	)
 }
 

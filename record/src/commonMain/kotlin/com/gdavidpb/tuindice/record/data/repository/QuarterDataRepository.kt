@@ -31,6 +31,8 @@ class QuarterDataRepository(
 	private val identifierRepository: IdentifierRepository
 ) : QuarterRepository {
 	private val drainMutex = Mutex()
+	private val snapshotVersionMutex = Mutex()
+	private var latestMutationVersion = 0L
 
 	override suspend fun observeQuartersFlow(): Flow<List<Quarter>> {
 		return localDataSource.getQuartersFlow()
@@ -41,9 +43,12 @@ class QuarterDataRepository(
 		val isOnCooldown = settingsDataSource.isGetQuartersOnCooldown()
 
 		if (!isOnCooldown) {
+			val snapshotVersion = currentMutationVersion()
 			val remoteQuarters = remoteDataSource.getQuarters()
-			localDataSource.saveQuarters(remoteQuarters.map { quarter -> quarter.toLocalQuarter() })
-			settingsDataSource.setGetQuartersOnCooldown()
+			if (snapshotVersion == currentMutationVersion()) {
+				localDataSource.saveQuarters(remoteQuarters.map { quarter -> quarter.toLocalQuarter() })
+				settingsDataSource.setGetQuartersOnCooldown()
+			}
 		}
 
 		drainPendingMutations(propagateTerminalErrors = false)
@@ -53,6 +58,7 @@ class QuarterDataRepository(
 		val quarter = localDataSource.getQuarter(remove.id)
 			?: return
 		if (!QuarterMutationPolicy.canDelete(isCurrent = quarter.isCurrent, isReadOnly = quarter.isReadOnly)) return
+		markMutationVersion()
 		val mutation = buildPendingRemoveQuarterMutation(
 			quarterId = remove.id,
 			expectedRevision = quarter.revision
@@ -69,6 +75,9 @@ class QuarterDataRepository(
 		val quarter = localDataSource.getQuarter(set.quarterId)
 			?: return
 		if (!QuarterMutationPolicy.canEditGrades(isReadOnly = quarter.isReadOnly)) return
+		if (set.commit) {
+			markMutationVersion()
+		}
 
 		val localResult = localDataSource.setSubjectGradeAndRecompute(
 			qid = set.quarterId,
@@ -299,9 +308,24 @@ class QuarterDataRepository(
 	}
 
 	private suspend fun refreshRemoteSnapshot(): List<RemoteQuarter> {
+		val snapshotVersion = currentMutationVersion()
 		val remoteQuarters = remoteDataSource.getQuarters()
-		localDataSource.saveQuarters(remoteQuarters.map { quarter -> quarter.toLocalQuarter() })
+		if (snapshotVersion == currentMutationVersion()) {
+			localDataSource.saveQuarters(remoteQuarters.map { quarter -> quarter.toLocalQuarter() })
+		}
 		return remoteQuarters
+	}
+
+	private suspend fun markMutationVersion() {
+		snapshotVersionMutex.withLock {
+			latestMutationVersion += 1
+		}
+	}
+
+	private suspend fun currentMutationVersion(): Long {
+		return snapshotVersionMutex.withLock {
+			latestMutationVersion
+		}
 	}
 
 	private fun buildPendingSetSubjectGradeMutation(

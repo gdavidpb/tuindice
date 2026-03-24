@@ -29,7 +29,6 @@ class QuarterItemUiTest {
 				Text(text = item.gradeSumText.text)
 				Text(text = item.creditsText.text)
 				Text(text = item.subjects.first().nameText)
-				Text(text = "states:${item.states.size}")
 			}
 		}
 
@@ -38,7 +37,6 @@ class QuarterItemUiTest {
 		onNodeWithText("∑x 70.0").assertIsDisplayed()
 		onNodeWithText("⦿ 6 UC").assertIsDisplayed()
 		onNodeWithText("Programacion").assertIsDisplayed()
-		onNodeWithText("states:1").assertIsDisplayed()
 	}
 
 	@Test

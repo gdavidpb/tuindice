@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_LOCAL_QUARTER
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_LOCAL_SUBJECT
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
+import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_REMOTE_SUBJECT
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_REMOTE_QUARTER
 import com.gdavidpb.tuindice.record.testing.FakeMutationOutboxRepository
 import com.gdavidpb.tuindice.record.testing.FakeQuarterLocalDataSource
@@ -14,7 +15,9 @@ import com.gdavidpb.tuindice.record.testing.FakeQuarterRemoteDataSource
 import com.gdavidpb.tuindice.record.testing.FakeQuarterSettingsDataSource
 import com.gdavidpb.tuindice.record.testing.SetSubjectGradeCall
 import com.gdavidpb.tuindice.testkit.base.repository.FakeIdentifierRepository
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -171,6 +174,77 @@ class QuarterRepositoryContractTest {
 	}
 
 	@Test
+	fun updateQuarters_doesNotOverwriteCommittedGrade_whenEarlierRefreshReturnsStaleSnapshot() = runTest {
+		val refreshStarted = CompletableDeferred<Unit>()
+		val releaseStaleRefresh = CompletableDeferred<Unit>()
+		val localDataSource = FakeQuarterLocalDataSource()
+		val staleRemoteQuarter = DEFAULT_RECORD_REMOTE_QUARTER
+		val updatedRemoteQuarter = DEFAULT_RECORD_REMOTE_QUARTER.copy(
+			grade = 85.0,
+			gradeSum = 85.0,
+			subjects = listOf(DEFAULT_RECORD_REMOTE_SUBJECT.copy(grade = 85))
+		)
+		val remoteDataSource = object : QuarterRemoteDataSource {
+			override suspend fun getQuarters() = buildList {
+				refreshStarted.complete(Unit)
+				releaseStaleRefresh.await()
+				add(staleRemoteQuarter)
+			}
+
+			override suspend fun getQuarter(qid: String) = staleRemoteQuarter
+
+			override suspend fun removeQuarter(
+				qid: String,
+				mutationId: String,
+				expectedRevision: Long
+			) = error("unused")
+
+			override suspend fun addQuarter(
+				quarter: com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter,
+				mutationId: String,
+				expectedRevision: Long
+			) = error("unused")
+
+			override suspend fun setSubjectGrade(
+				qid: String,
+				sid: String,
+				grade: Int,
+				mutationId: String,
+				expectedRevision: Long
+			) = com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSetSubjectGradeAck(
+				mutationId = mutationId,
+				subject = DEFAULT_RECORD_REMOTE_SUBJECT.copy(grade = grade),
+				affectedQuarters = listOf(updatedRemoteQuarter)
+			)
+		}
+		val repository = repository(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = FakeQuarterSettingsDataSource(onCooldown = false)
+		)
+
+		val refreshJob = launch {
+			repository.updateQuarters()
+		}
+
+		refreshStarted.await()
+
+		repository.setSubjectGrade(
+			SubjectGradeSet(
+				quarterId = DEFAULT_RECORD_QUARTER.id,
+				id = DEFAULT_RECORD_QUARTER.subjects.single().id,
+				grade = 85,
+				commit = true
+			)
+		)
+
+		releaseStaleRefresh.complete(Unit)
+		refreshJob.join()
+
+		assertEquals(85, localDataSource.getQuarter(DEFAULT_RECORD_QUARTER.id)?.subjects?.single()?.grade)
+	}
+
+	@Test
 	fun removeQuarter_whenRemoteSucceeds_confirmsLocalRemovalAndClearsPending() = runTest {
 		val localDataSource = FakeQuarterLocalDataSource(
 			initialQuarters = listOf(deletableLocalQuarter)
@@ -236,7 +310,7 @@ class QuarterRepositoryContractTest {
 
 	private fun repository(
 		localDataSource: FakeQuarterLocalDataSource,
-		remoteDataSource: FakeQuarterRemoteDataSource,
+		remoteDataSource: QuarterRemoteDataSource,
 		settingsDataSource: FakeQuarterSettingsDataSource = FakeQuarterSettingsDataSource(onCooldown = true),
 		outboxRepository: FakeMutationOutboxRepository<RecordMutation> = FakeMutationOutboxRepository()
 	): QuarterDataRepository {

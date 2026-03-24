@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.ui.view
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
@@ -92,5 +93,54 @@ class QuarterItemViewUiTest {
 		}
 
 		assertNodeHidden(RecordUiTags.subjectGradeSlider("subject-read-only"))
+	}
+
+	@Test
+	fun when_subjectGradeChangesRemotely_then_resyncsDisplayedSliderValue() = runTuIndiceUiTest {
+		val itemState = mutableStateOf(
+			sampleQuarterItem(
+				quarterId = "quarter-sync",
+				subjects = listOf(
+					sampleSubjectItem(
+						subjectId = "subject-sync",
+						quarterId = "quarter-sync",
+						grade = 4,
+						isReadOnly = false
+					)
+				)
+			)
+		)
+
+		setTuIndiceTestContent {
+			QuarterItemView(
+				item = itemState.value,
+				onSubjectGradeChange = { _, _, _, _ -> }
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.subjectGradeSlider("subject-sync"))
+			.performSemanticsAction(SemanticsActions.SetProgress) { setProgress ->
+				assertTrue(setProgress(2f))
+			}
+
+		waitForIdle()
+		onNodeWithText("2 / 5").assertIsDisplayed()
+
+		runOnIdle {
+			itemState.value = sampleQuarterItem(
+				quarterId = "quarter-sync",
+				subjects = listOf(
+					sampleSubjectItem(
+						subjectId = "subject-sync",
+						quarterId = "quarter-sync",
+						grade = 5,
+						isReadOnly = false
+					)
+				)
+			)
+		}
+
+		waitForIdle()
+		onNodeWithText("5 / 5").assertIsDisplayed()
 	}
 }

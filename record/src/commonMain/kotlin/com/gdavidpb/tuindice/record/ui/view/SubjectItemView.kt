@@ -8,13 +8,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.persistence.utils.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -25,11 +25,10 @@ import kotlin.math.roundToInt
 fun SubjectItemView(
 	modifier: Modifier = Modifier,
 	item: SubjectItem,
+	gradeState: MutableIntState? = null,
 	onGradeChange: (newGrade: Int, isSelected: Boolean) -> Unit
 ) {
-	val grade = remember {
-		mutableIntStateOf(item.grade)
-	}
+	val currentGrade = gradeState?.intValue ?: item.grade
 
 	Column(
 		modifier = modifier
@@ -54,7 +53,7 @@ fun SubjectItemView(
 			)
 
 			Text(
-				text = item.gradeText,
+				text = item.displayGradeText(currentGrade),
 				fontWeight = FontWeight.Medium
 			)
 		}
@@ -87,22 +86,31 @@ fun SubjectItemView(
 					.testTag(RecordUiTags.subjectGradeSlider(item.subjectId))
 					.fillMaxWidth()
 					.padding(top = 8.dp),
-				value = item.grade.toFloat(),
+				value = currentGrade.toFloat(),
 				steps = MAX_SUBJECT_GRADE - 1,
 				valueRange = Ranges.subjectGrade,
 				onValueChange = { value ->
 					val newGrade = value.roundToInt()
-					val oldGrade = grade.intValue
 
-					if (newGrade != oldGrade) {
-						grade.intValue = newGrade
+					if (newGrade != currentGrade) {
+						gradeState?.intValue = newGrade
 						onGradeChange(newGrade, false)
 					}
 				},
 				onValueChangeFinished = {
-					onGradeChange(grade.intValue, true)
+					onGradeChange(gradeState?.intValue ?: currentGrade, true)
 				}
 			)
 		}
+	}
+}
+
+private fun SubjectItem.displayGradeText(currentGrade: Int): String {
+	if (currentGrade == grade) return gradeText
+
+	return if (currentGrade == MIN_SUBJECT_GRADE) {
+		"—"
+	} else {
+		"$currentGrade / $MAX_SUBJECT_GRADE"
 	}
 }

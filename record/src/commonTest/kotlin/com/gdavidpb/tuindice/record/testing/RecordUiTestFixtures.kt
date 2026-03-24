@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.record.testing
 
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.record.presentation.contract.Record
@@ -50,8 +49,5 @@ fun sampleQuarterItem(
 	gradeSumText = AnnotatedString("∑x 4.2500"),
 	creditsText = AnnotatedString("⦿ 6 UC"),
 	canDelete = canDelete,
-	subjects = subjects,
-	states = hashMapOf(
-		subjects.first().subjectId to mutableIntStateOf(subjects.first().grade)
-	)
+	subjects = subjects
 )

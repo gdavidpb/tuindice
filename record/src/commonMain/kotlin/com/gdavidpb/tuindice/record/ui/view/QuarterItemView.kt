@@ -9,6 +9,9 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -25,6 +28,17 @@ fun QuarterItemView(
 		isSelected: Boolean
 	) -> Unit
 ) {
+	val gradeStates = remember(
+		item.quarterId,
+		item.subjects.map { subject -> subject.subjectId to subject.grade }
+	) {
+		HashMap(
+			item.subjects.associate { subject ->
+				subject.subjectId to mutableIntStateOf(subject.grade)
+			}
+		)
+	}
+
 	ElevatedCard(
 		modifier = modifier
 			.fillMaxWidth()
@@ -67,19 +81,24 @@ fun QuarterItemView(
 			}
 
 			item.subjects.forEach { subject ->
-				SubjectItemView(
-					item = subject,
-					onGradeChange = { newGrade, isSelected ->
-						item.states[subject.subjectId]?.intValue = newGrade
-
-						onSubjectGradeChange(
-							subject.quarterId,
-							subject.subjectId,
-							newGrade,
-							isSelected
-						)
+				key(subject.subjectId) {
+					val gradeState = gradeStates.getOrPut(subject.subjectId) {
+						mutableIntStateOf(subject.grade)
 					}
-				)
+
+					SubjectItemView(
+						item = subject,
+						gradeState = gradeState,
+						onGradeChange = { newGrade, isSelected ->
+							onSubjectGradeChange(
+								subject.quarterId,
+								subject.subjectId,
+								newGrade,
+								isSelected
+							)
+						}
+					)
+				}
 			}
 		}
 	}

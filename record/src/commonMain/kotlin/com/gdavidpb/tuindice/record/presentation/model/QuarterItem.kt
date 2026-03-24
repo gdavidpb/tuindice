@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.record.presentation.model
 
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.ui.text.AnnotatedString
 
 data class QuarterItem(
@@ -10,6 +9,5 @@ data class QuarterItem(
 	val gradeSumText: AnnotatedString,
 	val creditsText: AnnotatedString,
 	val canDelete: Boolean,
-	val subjects: List<SubjectItem>,
-	val states: HashMap<String, MutableIntState>
+	val subjects: List<SubjectItem>
 )
