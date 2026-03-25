@@ -1,21 +1,15 @@
 package com.gdavidpb.tuindice.evaluations.data.repository
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_LOCAL_PENDING_EVALUATION
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_REMOTE_PENDING_EVALUATION
-import com.gdavidpb.tuindice.evaluations.testing.FakeDatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.testing.FakeEvaluationsApiDataSource
-import com.gdavidpb.tuindice.evaluations.testing.FakeSettingsDataSource
+import com.gdavidpb.tuindice.evaluations.testing.*
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -218,7 +212,7 @@ class EvaluationRepositoryContractTest {
 		val availableSubjects = repository.getAvailableSubjects()
 
 		assertEquals(
-			listOf<Subject>(DEFAULT_EVALUATION_SUBJECT, com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT),
+			listOf<Subject>(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT),
 			availableSubjects
 		)
 	}

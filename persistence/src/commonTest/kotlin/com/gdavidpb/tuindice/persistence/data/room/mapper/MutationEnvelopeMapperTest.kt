@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.persistence.data.room.mapper
 
+import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
@@ -83,6 +84,6 @@ private data class TestMutation(
 	override val entityId: String,
 	val grade: Int,
 	override val replaceKey: String
-) : com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation {
+) : OutboxMutation {
 	override val entityType: String = "test:set_subject_grade"
 }

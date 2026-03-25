@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.record.data.repository
 
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
-import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
@@ -839,7 +838,7 @@ class QuarterRepositoryContractTest {
 				grade: Int,
 				mutationId: String,
 				expectedRevision: Long
-			) = com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSetSubjectGradeAck(
+			) = RemoteSetSubjectGradeAck(
 				mutationId = mutationId,
 				subject = DEFAULT_RECORD_REMOTE_SUBJECT.copy(grade = grade),
 				affectedQuarters = listOf(updatedRemoteQuarter)

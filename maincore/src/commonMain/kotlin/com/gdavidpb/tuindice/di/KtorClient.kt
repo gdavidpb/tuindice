@@ -5,35 +5,21 @@ import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.base.domain.model.AttestedOperation
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
-import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
-import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
-import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
-import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
-import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
 import com.gdavidpb.tuindice.base.utils.extension.isForbidden
 import com.gdavidpb.tuindice.base.utils.extension.isLocked
 import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.DefaultRequest
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.BearerTokens
-import io.ktor.client.plugins.auth.providers.bearer
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.contentType
-import io.ktor.http.userAgent
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.client.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.auth.providers.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
 fun createSharedJson(): Json {
@@ -125,7 +111,7 @@ fun createSharedHttpClient(
 
 					val attestation = attestationRepository.attest(
 						request = AttestationRequest(
-							operation = com.gdavidpb.tuindice.base.domain.model.AttestedOperation.RefreshTokens,
+							operation = AttestedOperation.RefreshTokens,
 							payloadJson = canonicalAttestationPayloadJson(
 								serializer = RefreshTokensAttestationPayload.serializer(),
 								value = attestationPayload

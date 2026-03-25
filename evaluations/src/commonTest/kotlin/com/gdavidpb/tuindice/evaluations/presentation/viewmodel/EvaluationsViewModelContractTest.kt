@@ -11,10 +11,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveE
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.*
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
-import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
-import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
-import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
+import com.gdavidpb.tuindice.evaluations.testing.*
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
@@ -63,8 +60,8 @@ class EvaluationsViewModelContractTest {
 		val repository = RecordingEvaluationRepository(
 			evaluationsFlow = kotlinx.coroutines.flow.flowOf(
 				listOf(
-					com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION,
-					com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
+					DEFAULT_PENDING_EVALUATION,
+					DEFAULT_COMPLETED_EVALUATION
 				)
 			),
 			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)

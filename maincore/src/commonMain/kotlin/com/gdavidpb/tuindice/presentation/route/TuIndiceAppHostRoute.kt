@@ -25,6 +25,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
+import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
@@ -114,7 +115,7 @@ fun TuIndiceAppHostRoute(
 			.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
 
 		LaunchedEffect(syncStatus, state) {
-			if (state !is com.gdavidpb.tuindice.presentation.contract.Main.State.Content) return@LaunchedEffect
+			if (state !is Main.State.Content) return@LaunchedEffect
 			if (syncStatus != SyncStatus.OutdatedCredentials) return@LaunchedEffect
 			if (state.startDestination == AuthDestination.NavGraph) return@LaunchedEffect
 

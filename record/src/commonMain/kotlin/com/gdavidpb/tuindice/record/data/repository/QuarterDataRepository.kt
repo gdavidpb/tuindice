@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.record.data.repository
 
+import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
+import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
@@ -35,7 +37,7 @@ class QuarterDataRepository(
 		refreshRemoteSnapshot = ::refreshRemoteSnapshot
 	)
 
-	override suspend fun observeQuartersFlow(): Flow<List<com.gdavidpb.tuindice.base.domain.model.quarter.Quarter>> {
+	override suspend fun observeQuartersFlow(): Flow<List<Quarter>> {
 		return localDataSource.getQuartersFlow()
 			.map { localQuarters -> localQuarters.map { it.toQuarter() } }
 	}
@@ -168,7 +170,7 @@ class QuarterDataRepository(
 				grade = grade
 			),
 			precondition = MutationPrecondition.Revision(expectedRevision),
-			status = com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus.Pending,
+			status = PendingMutationStatus.Pending,
 			createdAt = now,
 			updatedAt = now,
 			lastError = null
@@ -194,7 +196,7 @@ class QuarterDataRepository(
 				}
 			),
 			precondition = MutationPrecondition.Revision(expectedRevision),
-			status = com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus.Pending,
+			status = PendingMutationStatus.Pending,
 			createdAt = now,
 			updatedAt = now,
 			lastError = null
@@ -211,7 +213,7 @@ class QuarterDataRepository(
 			scopeKey = RECORD_MUTATION_SCOPE,
 			command = RecordMutation.RemoveQuarter(quarterId = quarterId),
 			precondition = MutationPrecondition.Revision(expectedRevision),
-			status = com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus.Pending,
+			status = PendingMutationStatus.Pending,
 			createdAt = now,
 			updatedAt = now,
 			lastError = null
