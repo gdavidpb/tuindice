@@ -17,7 +17,7 @@ class StatusCardItemViewUiTest {
 	fun when_entriesContainZeroValue_then_hidesZeroDistributionText() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			StatusCardItemView(
-				header = "Materias inscritas",
+				header = "Materias cursadas",
 				entries = listOf(
 					SummaryEntry(label = "Aprobadas", value = 3, color = Color.Green),
 					SummaryEntry(label = "Reprobadas", value = 0, color = Color.Red),
@@ -26,7 +26,7 @@ class StatusCardItemViewUiTest {
 			)
 		}
 
-		onNodeWithText("Materias inscritas").assertIsDisplayed()
+		onNodeWithText("Materias cursadas").assertIsDisplayed()
 		onNodeWithText("Aprobadas").assertIsDisplayed()
 		onNodeWithText("Reprobadas").assertIsDisplayed()
 		onNodeWithText("Retiradas").assertIsDisplayed()
@@ -39,7 +39,7 @@ class StatusCardItemViewUiTest {
 	fun when_allEntriesAreZero_then_keepsHeaderAndLabelsWithoutDistributionValues() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			StatusCardItemView(
-				header = "Creditos inscritos",
+				header = "Creditos cursados",
 				entries = listOf(
 					SummaryEntry(label = "Aprobados", value = 0, color = Color.Green),
 					SummaryEntry(label = "Reprobados", value = 0, color = Color.Red),
@@ -48,7 +48,7 @@ class StatusCardItemViewUiTest {
 			)
 		}
 
-		onNodeWithText("Creditos inscritos").assertIsDisplayed()
+		onNodeWithText("Creditos cursados").assertIsDisplayed()
 		onNodeWithText("Aprobados").assertIsDisplayed()
 		onNodeWithText("Reprobados").assertIsDisplayed()
 		onNodeWithText("Retirados").assertIsDisplayed()

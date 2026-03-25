@@ -34,8 +34,8 @@ class SummaryItemsUiTest {
 			}
 		}
 
-		onNodeWithText("1 materia inscrita").assertIsDisplayed()
-		onNodeWithText("2 créditos inscritos").assertIsDisplayed()
+		onNodeWithText("1 materia cursada").assertIsDisplayed()
+		onNodeWithText("2 créditos cursados").assertIsDisplayed()
 		onNodeWithText("Aprobadas:3").assertIsDisplayed()
 		onNodeWithText("Reprobadas:1").assertIsDisplayed()
 		onNodeWithText("Retiradas:1").assertIsDisplayed()

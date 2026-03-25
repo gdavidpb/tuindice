@@ -33,11 +33,11 @@ fun summaryItemsFor(
 ) = buildSummaryItems(
 	state = state,
 	labels = SummaryItemsLabels(
-		subjectsHeader = "${state.enrolledSubjects} materias inscritas",
+		subjectsHeader = "${state.enrolledSubjects} materias cursadas",
 		subjectsApprovedLabel = "Aprobadas",
 		subjectsFailedLabel = "Reprobadas",
 		subjectsRetiredLabel = "Retiradas",
-		creditsHeader = "${state.enrolledCredits} creditos inscritos",
+		creditsHeader = "${state.enrolledCredits} creditos cursados",
 		creditsApprovedLabel = "Aprobados",
 		creditsFailedLabel = "Reprobados",
 		creditsRetiredLabel = "Retirados"

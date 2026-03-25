@@ -39,11 +39,11 @@
     <string name="summary_credits_failed">Reprobados</string>
     <string name="summary_credits_retired">Retirados</string>
     <plurals name="summary_subjects_header">
-        <item quantity="one">%1$d materia inscrita</item>
-        <item quantity="other">%1$d materias inscritas</item>
+        <item quantity="one">%1$d materia cursada</item>
+        <item quantity="other">%1$d materias cursadas</item>
     </plurals>
     <plurals name="summary_credits_header">
-        <item quantity="one">%1$d crédito inscrito</item>
-        <item quantity="other">%1$d créditos inscritos</item>
+        <item quantity="one">%1$d crédito cursado</item>
+        <item quantity="other">%1$d créditos cursados</item>
     </plurals>
 </resources>
