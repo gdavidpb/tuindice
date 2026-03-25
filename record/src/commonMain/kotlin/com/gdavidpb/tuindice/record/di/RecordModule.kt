@@ -33,8 +33,12 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import kotlinx.serialization.builtins.serializer
+
+private const val RECORD_MUTATION_STORE_QUALIFIER = "recordMutationStore"
+private const val RECORD_MUTATION_ENGINE_QUALIFIER = "recordMutationEngine"
 
 val recordModule = module {
 	/* View models */
@@ -66,8 +70,7 @@ val recordModule = module {
 
 	/* Repositories */
 
-	singleOf(::QuarterDataRepository) { bind<QuarterRepository>() }
-	single<MutationEnvelopeStore<String, RecordMutation>> {
+	single<MutationEnvelopeStore<String, RecordMutation>>(named(RECORD_MUTATION_STORE_QUALIFIER)) {
 		RoomMutationEnvelopeStore(
 			room = get(),
 			storeId = RECORD_MUTATION_STORE_ID,
@@ -75,16 +78,34 @@ val recordModule = module {
 			commandSerializer = RecordMutation.serializer()
 		)
 	}
-	single {
-		StoreBackedMutationEngine<String, RecordMutation, List<LocalQuarter>, List<LocalQuarter>, RecordMutationAck>(
+	single<StoreBackedMutationEngine<String, RecordMutation, List<LocalQuarter>, List<LocalQuarter>, RecordMutationAck>>(
+		named(RECORD_MUTATION_ENGINE_QUALIFIER)
+	) {
+		StoreBackedMutationEngine(
 			storeId = RECORD_MUTATION_STORE_ID,
-			outboxStore = get()
+			outboxStore = get(named(RECORD_MUTATION_STORE_QUALIFIER))
+		)
+	}
+	single<QuarterRepository> {
+		QuarterDataRepository(
+			localDataSource = get(),
+			remoteDataSource = get(),
+			settingsDataSource = get(),
+			mutationEngine = get(named(RECORD_MUTATION_ENGINE_QUALIFIER)),
+			identifierRepository = get()
 		)
 	}
 
 	/* Data sources */
 
-	singleOf(::RoomDataSource) { bind<QuarterLocalDataSource>() }
+	single<QuarterLocalDataSource> {
+		RoomDataSource(
+			room = get(),
+			indexComputationEngine = get(),
+			mutationEngine = get(named(RECORD_MUTATION_ENGINE_QUALIFIER)),
+			visibleRecordStateResolver = get()
+		)
+	}
 	factoryOf(::RecordApiDataSource) { bind<QuarterRemoteDataSource>() }
 	singleOf(::LocalSettingsDataSource) { bind<QuarterSettingsDataSource>() }
 

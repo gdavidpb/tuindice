@@ -35,7 +35,7 @@ class LoadEvaluationsActionProcessor(
 						Evaluations.State.Loading
 					}
 
-					is UseCaseState.Data -> suspend { _: Evaluations.State ->
+					is UseCaseState.Data -> suspend { current: Evaluations.State ->
 						val evaluations = useCaseState.value
 						val pendingLabel = getString(Res.string.label_state_pending)
 						val completedLabel = getString(Res.string.label_state_completed)
@@ -55,6 +55,8 @@ class LoadEvaluationsActionProcessor(
 								availableFilters = availableFilters,
 								activeFilters = evaluations.activeFilters
 							)
+						else if (current is Evaluations.State.Loading)
+							current
 						else
 							Evaluations.State.Empty
 					}

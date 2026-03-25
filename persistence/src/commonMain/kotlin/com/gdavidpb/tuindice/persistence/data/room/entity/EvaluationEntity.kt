@@ -35,9 +35,11 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.SubjectTable
 )
 data class EvaluationEntity(
 	@PrimaryKey @ColumnInfo(name = EvaluationTable.ID) val id: String,
+	@ColumnInfo(name = EvaluationTable.REFERENCE_ID) val referenceId: String,
 	@ColumnInfo(name = EvaluationTable.SUBJECT_ID) val subjectId: String,
 	@ColumnInfo(name = EvaluationTable.SUBJECT_CODE) val subjectCode: String,
 	@ColumnInfo(name = EvaluationTable.QUARTER_ID) val quarterId: String,
+	@ColumnInfo(name = EvaluationTable.REVISION) val revision: Long,
 	@ColumnInfo(name = EvaluationTable.SCHEDULE_MODE) val scheduleMode: EvaluationScheduleMode,
 	@ColumnInfo(name = EvaluationTable.GRADE) val grade: Double?,
 	@ColumnInfo(name = EvaluationTable.MAX_GRADE) val maxGrade: Double,

@@ -5,9 +5,11 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.GetEvaluationsExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveEvaluationExceptionHandler
+import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationsExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.*
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
@@ -72,6 +74,14 @@ class EvaluationsViewModelContractTest {
 				getEvaluationsUseCase = GetEvaluationsUseCase(
 					evaluationRepository = repository,
 					exceptionHandler = GetEvaluationsExceptionHandler(
+						reportingRepository = RecordingReportingRepository()
+					)
+				)
+			),
+			refreshEvaluationsActionProcessor = RefreshEvaluationsActionProcessor(
+				updateEvaluationsUseCase = UpdateEvaluationsUseCase(
+					evaluationRepository = repository,
+					exceptionHandler = UpdateEvaluationsExceptionHandler(
 						reportingRepository = RecordingReportingRepository()
 					)
 				)

@@ -1,27 +1,74 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
-import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalSubject
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalSubject
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EVALUATIONS_MUTATION_SCOPE
+import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutation
+import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEntity
 import com.gdavidpb.tuindice.persistence.data.room.withImmediateTransaction
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
+import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class RoomDatabaseDataSource(
-	private val room: TuIndiceDatabase
+	private val room: TuIndiceDatabase,
+	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck>,
+	private val visibleEvaluationsStateResolver: VisibleEvaluationsStateResolver
 ) : DatabaseDataSource {
-	override fun getEvaluationsFlow(): Flow<List<LocalEvaluation>> {
-		return room.evaluations.getEvaluationsWithSubjectFlow()
-			.map { evaluations -> evaluations.map { evaluation -> evaluation.toLocalEvaluation() } }
+	private val writeMutex = Mutex()
+
+	private var inMemoryConfirmedSnapshot: LocalEvaluationsSnapshot? = null
+	private var pendingMutationsSnapshot: List<MutationEnvelope<String, EvaluationMutation>> = emptyList()
+
+	override fun observeEvaluationsFlow(): Flow<List<LocalEvaluation>> {
+		val confirmedFlow = combine(
+			room.evaluations.getEvaluationsWithSubjectFlow(),
+			room.evaluationSyncState.observeSyncState()
+		) { evaluations, syncState ->
+			LocalEvaluationsSnapshot(
+				anchorRevision = syncState?.anchorRevision ?: 0L,
+				evaluations = evaluations.map { evaluation -> evaluation.toLocalEvaluation() }
+			)
+		}.onEach { snapshot ->
+			inMemoryConfirmedSnapshot = snapshot
+		}
+
+		val pendingFlow = mutationEngine.observePendingMutations(EVALUATIONS_MUTATION_SCOPE)
+			.onEach { mutations ->
+				pendingMutationsSnapshot = mutations
+			}
+
+		return combine(confirmedFlow, pendingFlow) { confirmedSnapshot, pendingMutations ->
+			visibleEvaluationsStateResolver.resolveVisibleState(
+				confirmedSnapshot = confirmedSnapshot,
+				pendingMutations = pendingMutations
+			)
+		}
 	}
 
 	override suspend fun getEvaluation(eid: String): LocalEvaluation? {
-		return room.evaluations.getEvaluationWithSubject(eid)
-			?.toLocalEvaluation()
+		val confirmedSnapshot = getConfirmedSnapshot()
+		return visibleEvaluationsStateResolver.resolveVisibleState(
+			confirmedSnapshot = confirmedSnapshot,
+			pendingMutations = currentPendingMutations()
+		).firstOrNull { evaluation -> evaluation.id == eid }
+	}
+
+	override suspend fun getConfirmedSnapshot(): LocalEvaluationsSnapshot {
+		return inMemoryConfirmedSnapshot ?: loadSnapshotFromRoom()
 	}
 
 	override suspend fun getAvailableSubjects(): List<LocalSubject> {
@@ -30,35 +77,129 @@ class RoomDatabaseDataSource(
 			.map { subject -> subject.toLocalSubject() }
 	}
 
-	override suspend fun addEvaluation(evaluation: LocalEvaluation): LocalEvaluation {
-		val evaluationEntity = evaluation.toEvaluationEntity()
+	override suspend fun confirmAddedEvaluation(
+		evaluation: LocalEvaluation,
+		anchorRevision: Long
+	): LocalEvaluation {
+		writeMutex.withLock {
+			val currentSnapshot = getConfirmedSnapshot()
+			val mergedEvaluations = currentSnapshot.evaluations
+				.filterNot { current ->
+					current.id == evaluation.id || current.referenceId == evaluation.referenceId
+				} + evaluation
 
-		room.evaluations.upsertEntity(entity = evaluationEntity)
+			persistConfirmedSnapshot(
+				snapshot = currentSnapshot.copy(
+					anchorRevision = anchorRevision,
+					evaluations = mergedEvaluations
+				),
+				replaceAll = false
+			)
+		}
 
 		return evaluation
 	}
 
-	override suspend fun updateEvaluation(evaluation: LocalEvaluation): LocalEvaluation {
-		val evaluationEntity = evaluation.toEvaluationEntity()
+	override suspend fun confirmUpdatedEvaluation(
+		evaluation: LocalEvaluation,
+		anchorRevision: Long
+	): LocalEvaluation {
+		writeMutex.withLock {
+			val currentSnapshot = getConfirmedSnapshot()
+			val mergedEvaluations = if (
+				currentSnapshot.evaluations.any { current -> current.id == evaluation.id }
+			) {
+				currentSnapshot.evaluations.map { current ->
+					if (current.id == evaluation.id) evaluation else current
+				}
+			} else {
+				currentSnapshot.evaluations + evaluation
+			}
 
-		room.evaluations.upsertEntity(entity = evaluationEntity)
+			persistConfirmedSnapshot(
+				snapshot = currentSnapshot.copy(
+					anchorRevision = anchorRevision,
+					evaluations = mergedEvaluations
+				),
+				replaceAll = false
+			)
+		}
 
 		return evaluation
 	}
 
-	override suspend fun removeEvaluation(eid: String) {
-		room.evaluations.deleteEvaluation(eid)
-	}
-
-	override suspend fun saveEvaluations(evaluations: List<LocalEvaluation>) {
-		room.withImmediateTransaction {
-			evaluations.forEach { evaluation ->
-				val evaluationEntity = evaluation.toEvaluationEntity()
-
-				room.evaluations.upsertEntity(
-					entity = evaluationEntity
+	override suspend fun confirmRemovedEvaluation(eid: String, anchorRevision: Long) {
+		writeMutex.withLock {
+			val currentSnapshot = getConfirmedSnapshot()
+			room.withImmediateTransaction {
+				room.evaluations.deleteEvaluation(eid)
+				room.evaluationSyncState.upsertEntity(
+					EvaluationSyncStateEntity(anchorRevision = anchorRevision)
 				)
 			}
+
+			inMemoryConfirmedSnapshot = currentSnapshot.copy(
+				anchorRevision = anchorRevision,
+				evaluations = currentSnapshot.evaluations.filterNot { evaluation -> evaluation.id == eid }
+			)
+		}
+	}
+
+	override suspend fun removeConfirmedEvaluation(eid: String) {
+		writeMutex.withLock {
+			val currentSnapshot = getConfirmedSnapshot()
+			room.evaluations.deleteEvaluation(eid)
+			inMemoryConfirmedSnapshot = currentSnapshot.copy(
+				evaluations = currentSnapshot.evaluations.filterNot { evaluation -> evaluation.id == eid }
+			)
+		}
+	}
+
+	override suspend fun saveConfirmedSnapshot(snapshot: LocalEvaluationsSnapshot) {
+		writeMutex.withLock {
+			persistConfirmedSnapshot(
+				snapshot = snapshot,
+				replaceAll = true
+			)
+		}
+	}
+
+	private suspend fun loadSnapshotFromRoom(): LocalEvaluationsSnapshot {
+		val evaluations = room.evaluations.getEvaluationsWithSubjectFlow()
+			// `first()` on a Room flow is enough to bootstrap the in-memory confirmed snapshot.
+			.map { items -> items.map { item -> item.toLocalEvaluation() } }
+		return LocalEvaluationsSnapshot(
+			anchorRevision = room.evaluationSyncState.getSyncState()?.anchorRevision ?: 0L,
+			evaluations = evaluations.first()
+		).also { snapshot ->
+			inMemoryConfirmedSnapshot = snapshot
+		}
+	}
+
+	private suspend fun persistConfirmedSnapshot(
+		snapshot: LocalEvaluationsSnapshot,
+		replaceAll: Boolean
+	) {
+		val entities = snapshot.evaluations.map { evaluation -> evaluation.toEvaluationEntity() }
+
+		room.withImmediateTransaction {
+			if (replaceAll) {
+				room.evaluations.deleteAll()
+			}
+			room.evaluations.upsertEntities(entities)
+			room.evaluationSyncState.upsertEntity(
+				EvaluationSyncStateEntity(anchorRevision = snapshot.anchorRevision)
+			)
+		}
+
+		inMemoryConfirmedSnapshot = snapshot.copy(
+			evaluations = snapshot.evaluations.sortedBy { evaluation -> evaluation.date ?: Long.MAX_VALUE }
+		)
+	}
+
+	private suspend fun currentPendingMutations(): List<MutationEnvelope<String, EvaluationMutation>> {
+		return pendingMutationsSnapshot.ifEmpty {
+			mutationEngine.getPendingMutations(EVALUATIONS_MUTATION_SCOPE)
 		}
 	}
 }

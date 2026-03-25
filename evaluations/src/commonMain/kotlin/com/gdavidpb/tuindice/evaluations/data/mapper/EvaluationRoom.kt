@@ -6,9 +6,11 @@ import com.gdavidpb.tuindice.persistence.data.room.otm.EvaluationWithSubject
 
 fun LocalEvaluation.toEvaluationEntity() = EvaluationEntity(
 	id = id,
+	referenceId = referenceId,
 	subjectId = subjectId,
 	subjectCode = subjectCode,
 	quarterId = quarterId,
+	revision = revision,
 	scheduleMode = scheduleMode,
 	grade = grade,
 	maxGrade = maxGrade,
@@ -19,9 +21,11 @@ fun LocalEvaluation.toEvaluationEntity() = EvaluationEntity(
 
 fun EvaluationWithSubject.toLocalEvaluation() = LocalEvaluation(
 	id = evaluation.id,
+	referenceId = evaluation.referenceId,
 	subjectId = evaluation.subjectId,
 	subjectCode = subject.code,
 	quarterId = evaluation.quarterId,
+	revision = evaluation.revision,
 	scheduleMode = evaluation.scheduleMode,
 	grade = evaluation.grade,
 	maxGrade = evaluation.maxGrade,

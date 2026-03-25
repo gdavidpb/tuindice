@@ -6,7 +6,7 @@ wiremock_version="3.13.2"
 wiremock_jar="${script_dir}/wiremock-standalone-${wiremock_version}.jar"
 generated_root="${WIREMOCK_GENERATED_ROOT:-/tmp/tuindice-wiremock}"
 runtime_dir="${WIREMOCK_RUNTIME_DIR:-${generated_root}/runtime}"
-extension_build_dir="${WIREMOCK_EXTENSION_BUILD_DIR:-${generated_root}/build/record-extension}"
+extension_build_dir="${WIREMOCK_EXTENSION_BUILD_DIR:-${generated_root}/build/mocks-extension}"
 extension_source_dir="${script_dir}/extensions/src"
 generator_script="${script_dir}/scripts/generate_record_wiremock.py"
 kotlinc_bin="${KOTLINC_BIN:-kotlinc}"
@@ -14,7 +14,10 @@ kotlin_bin="${KOTLIN_BIN:-kotlin}"
 port="${PORT:-8080}"
 max_revision="${WIREMOCK_RECORD_MAX_REVISION:-20}"
 wiremock_main_class="wiremock.Run"
-extension_factory_class="com.gdavidpb.tuindice.mocks.RecordScenarioExtensionFactory"
+extension_factory_classes=(
+	"com.gdavidpb.tuindice.mocks.RecordScenarioExtensionFactory"
+	"com.gdavidpb.tuindice.mocks.EvaluationsResponseTransformerFactory"
+)
 
 if [ ! -f "${wiremock_jar}" ]; then
 	echo "Missing ${wiremock_jar} in ${script_dir}." >&2
@@ -62,7 +65,11 @@ fi
 "${kotlinc_bin}" -cp "${wiremock_jar}" -d "${extension_build_dir}" "${extension_sources[@]}"
 
 mkdir -p "${extension_build_dir}/META-INF/services"
-printf "%s\n" "${extension_factory_class}" > "${extension_build_dir}/META-INF/services/com.github.tomakehurst.wiremock.extension.ExtensionFactory"
+{
+	for extension_factory_class in "${extension_factory_classes[@]}"; do
+		printf "%s\n" "${extension_factory_class}"
+	done
+} > "${extension_build_dir}/META-INF/services/com.github.tomakehurst.wiremock.extension.ExtensionFactory"
 
 "${kotlin_bin}" \
 	-cp "${wiremock_jar}:${extension_build_dir}" \

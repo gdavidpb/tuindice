@@ -37,7 +37,7 @@ class GetEvaluationsUseCase(
 		if (availableSubjects.isEmpty()) throw NoSubjectsException()
 
 		return params.flatMapLatest { activeFilters ->
-			evaluationRepository.getEvaluationsFlow().map { evaluations ->
+			evaluationRepository.observeEvaluationsFlow().map { evaluations ->
 				val sortedEvaluations = evaluations.sortedWith(evaluationComparator)
 
 				val filteredEvaluations = if (activeFilters.isEmpty())

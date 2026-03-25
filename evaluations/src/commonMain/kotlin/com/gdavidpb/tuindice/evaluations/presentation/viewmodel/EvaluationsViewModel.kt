@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEva
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenAddEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.PickEvaluationGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RefreshEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.stateIn
 
 class EvaluationsViewModel(
 	private val loadEvaluationsActionProcessor: LoadEvaluationsActionProcessor,
+	private val refreshEvaluationsActionProcessor: RefreshEvaluationsActionProcessor,
 	private val checkEvaluationFilterActionProcessor: CheckEvaluationFilterActionProcessor,
 	private val uncheckEvaluationFilterActionProcessor: UncheckEvaluationFilterActionProcessor,
 	private val clearEvaluationFiltersActionProcessor: ClearEvaluationFiltersActionProcessor,
@@ -45,6 +47,9 @@ class EvaluationsViewModel(
 
 	fun loadEvaluationsAction() =
 		sendAction(Evaluations.Action.LoadEvaluations(activeFilters))
+
+	fun refreshEvaluationsAction() =
+		sendAction(Evaluations.Action.RefreshEvaluations)
 
 	fun toggleFilterAction(filter: EvaluationFilter, isChecked: Boolean) =
 		if (isChecked)
@@ -77,6 +82,9 @@ class EvaluationsViewModel(
 		return when (action) {
 			is Evaluations.Action.LoadEvaluations ->
 				loadEvaluationsActionProcessor.process(action, sideEffect)
+
+			is Evaluations.Action.RefreshEvaluations ->
+				refreshEvaluationsActionProcessor.process(action, sideEffect)
 
 			is Evaluations.Action.CheckEvaluationFilter ->
 				checkEvaluationFilterActionProcessor.process(action, sideEffect)

@@ -3,38 +3,64 @@ package com.gdavidpb.tuindice.evaluations.data.repository
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.base.utils.extension.isNotFound
+import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
+import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
+import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluation
-import com.gdavidpb.tuindice.evaluations.data.mapper.toSubject
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.mapper.toRemoteEvaluation
-import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
+import com.gdavidpb.tuindice.evaluations.data.mapper.toSubject
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
+import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
+import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EVALUATIONS_MUTATION_SCOPE
+import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutation
+import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationAck
+import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationSyncSpec
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
-import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
+import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class EvaluationDataRepository(
 	private val databaseDataSource: DatabaseDataSource,
 	private val evaluationsApiDataSource: EvaluationsApiDataSource,
-	private val settingsDataSource: SettingsDataSource
+	private val settingsDataSource: SettingsDataSource,
+	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck>,
+	private val identifierRepository: IdentifierRepository
 ) : EvaluationRepository {
-	override suspend fun getEvaluationsFlow(): Flow<List<Evaluation>> {
+	private val mutationSyncSpec = EvaluationMutationSyncSpec(
+		databaseDataSource = databaseDataSource,
+		evaluationsApiDataSource = evaluationsApiDataSource,
+		refreshRemoteSnapshot = ::refreshRemoteSnapshot
+	)
+
+	override suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>> {
+		return databaseDataSource.observeEvaluationsFlow()
+			.map { evaluations -> evaluations.map { evaluation -> evaluation.toEvaluation() } }
+	}
+
+	override suspend fun updateEvaluations() {
 		val isOnCooldown = settingsDataSource.isGetEvaluationsOnCooldown()
 
 		if (!isOnCooldown) {
-			val remoteEvaluations = evaluationsApiDataSource.getEvaluations()
-			val localEvaluations = remoteEvaluations.map { it.toLocalEvaluation() }
-
-			databaseDataSource.saveEvaluations(localEvaluations)
-			settingsDataSource.setGetEvaluationsOnCooldown()
+			val snapshotVersion = mutationEngine.currentMutationVersion()
+			val remoteSnapshot = evaluationsApiDataSource.getEvaluations()
+			if (snapshotVersion == mutationEngine.currentMutationVersion()) {
+				databaseDataSource.saveConfirmedSnapshot(remoteSnapshot.toLocalSnapshot())
+				settingsDataSource.setGetEvaluationsOnCooldown()
+			}
 		}
 
-		return databaseDataSource.getEvaluationsFlow()
-			.map { localEvaluations -> localEvaluations.map { it.toEvaluation() } }
+		mutationEngine.drain(
+			scopeKey = EVALUATIONS_MUTATION_SCOPE,
+			syncSpec = mutationSyncSpec,
+			propagateTerminalErrors = false
+		)
 	}
 
 	override suspend fun getEvaluation(eid: String): Evaluation? {
@@ -42,66 +68,195 @@ class EvaluationDataRepository(
 	}
 
 	override suspend fun addEvaluation(add: EvaluationAdd) {
-		val evaluation = add.toEvaluation()
-		val remoteEvaluation = evaluation.toRemoteEvaluation()
-		val createdEvaluation = evaluationsApiDataSource.addEvaluation(remoteEvaluation)
-
-		databaseDataSource.addEvaluation(createdEvaluation.toLocalEvaluation())
+		val mutation = buildPendingAddMutation(
+			command = EvaluationMutation.Add(
+				referenceId = add.reference,
+				subjectId = add.subjectId,
+				subjectCode = add.subjectCode,
+				quarterId = add.quarterId,
+				scheduleMode = add.scheduleMode,
+				grade = add.grade,
+				maxGrade = add.maxGrade,
+				date = add.date,
+				type = add.type.ordinal
+			),
+			expectedRevision = databaseDataSource.getConfirmedSnapshot().anchorRevision
+		)
+		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
+		mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
+		mutationEngine.submit(
+			mutation = mutation,
+			syncSpec = mutationSyncSpec,
+			propagateTerminalErrors = true
+		)
 	}
 
 	override suspend fun updateEvaluation(update: EvaluationUpdate) {
-		val evaluation = getEvaluation(update.id) ?: return
-		val resolvedScheduleMode = update.scheduleMode ?: if (update.date != null) {
-			EvaluationScheduleMode.DATED
-		} else {
-			evaluation.scheduleMode
-		}
-		val resolvedDate = when (resolvedScheduleMode) {
-			EvaluationScheduleMode.CONTINUOUS -> null
-			EvaluationScheduleMode.DATED -> update.date ?: evaluation.date
-		}
-
-		val updatedEvaluation = evaluation.copy(
-			scheduleMode = resolvedScheduleMode,
-			grade = update.grade,
-			maxGrade = update.maxGrade ?: evaluation.maxGrade,
-			date = resolvedDate,
-			type = update.type ?: evaluation.type,
-			state = computeEvaluationState(
-				scheduleMode = resolvedScheduleMode,
-				grade = update.grade,
-				date = resolvedDate
+		val pendingAdd = pendingAddForReference(update.id)
+		if (pendingAdd != null) {
+			val rewrittenAdd = (pendingAdd.command as EvaluationMutation.Add).apply(update)
+			val mutation = buildPendingAddMutation(
+				command = rewrittenAdd,
+				expectedRevision = databaseDataSource.getConfirmedSnapshot().anchorRevision
 			)
-		)
-
-		val remoteEvaluation = updatedEvaluation.toRemoteEvaluation()
-		runCatching {
-			evaluationsApiDataSource.updateEvaluation(remoteEvaluation)
-		}.onSuccess { savedEvaluation ->
-			databaseDataSource.updateEvaluation(savedEvaluation.toLocalEvaluation())
-		}.onFailure { throwable ->
-			if (throwable.isNotFound())
-				databaseDataSource.removeEvaluation(update.id)
-
-			throw throwable
+			val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
+			mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
+			mutationEngine.submit(
+				mutation = mutation,
+				syncSpec = mutationSyncSpec,
+				propagateTerminalErrors = true
+			)
+			return
 		}
+
+		val evaluation = databaseDataSource.getEvaluation(update.id)
+			?: return
+		val mutation = buildPendingUpdateMutation(
+			evaluationId = evaluation.id,
+			update = update,
+			expectedRevision = evaluation.revision
+		)
+		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
+		mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
+		mutationEngine.submit(
+			mutation = mutation,
+			syncSpec = mutationSyncSpec,
+			propagateTerminalErrors = true
+		)
 	}
 
 	override suspend fun removeEvaluation(remove: EvaluationRemove) {
-		runCatching {
-			evaluationsApiDataSource.removeEvaluation(remove.id)
-		}.onSuccess {
-			databaseDataSource.removeEvaluation(remove.id)
-		}.onFailure { throwable ->
-			if (throwable.isNotFound())
-				databaseDataSource.removeEvaluation(remove.id)
-
-			throw throwable
+		val pendingAdd = pendingAddForReference(remove.id)
+		if (pendingAdd != null) {
+			mutationEngine.deletePendingMutation(
+				scopeKey = EVALUATIONS_MUTATION_SCOPE,
+				mutationId = pendingAdd.mutationId
+			)
+			return
 		}
+
+		val evaluation = databaseDataSource.getEvaluation(remove.id)
+			?: return
+		val mutation = buildPendingRemoveMutation(
+			evaluationId = evaluation.id,
+			expectedRevision = databaseDataSource.getConfirmedSnapshot().anchorRevision
+		)
+		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
+		mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
+		mutationEngine.submit(
+			mutation = mutation,
+			syncSpec = mutationSyncSpec,
+			propagateTerminalErrors = true
+		)
 	}
 
 	override suspend fun getAvailableSubjects(): List<Subject> {
 		return databaseDataSource.getAvailableSubjects()
-			.map { localSubject -> localSubject.toSubject() }
+			.map { subject -> subject.toSubject() }
 	}
+
+	private suspend fun refreshRemoteSnapshot(): RemoteEvaluationsSnapshot {
+		val snapshotVersion = mutationEngine.currentMutationVersion()
+		val remoteSnapshot = evaluationsApiDataSource.getEvaluations()
+		if (snapshotVersion == mutationEngine.currentMutationVersion()) {
+			databaseDataSource.saveConfirmedSnapshot(remoteSnapshot.toLocalSnapshot())
+		}
+		return remoteSnapshot
+	}
+
+	private suspend fun pendingAddForReference(
+		referenceId: String
+	): MutationEnvelope<String, EvaluationMutation>? {
+		return mutationEngine.getPendingMutations(EVALUATIONS_MUTATION_SCOPE)
+			.firstOrNull { mutation ->
+				val command = mutation.command
+				command is EvaluationMutation.Add && command.referenceId == referenceId
+			}
+	}
+
+	private fun buildPendingAddMutation(
+		command: EvaluationMutation.Add,
+		expectedRevision: Long
+	): MutationEnvelope<String, EvaluationMutation> {
+		val now = currentTimeMillis()
+		return MutationEnvelope(
+			mutationId = identifierRepository.generateRandomIdentifier(),
+			scopeKey = EVALUATIONS_MUTATION_SCOPE,
+			command = command,
+			precondition = MutationPrecondition.Revision(expectedRevision),
+			status = PendingMutationStatus.Pending,
+			createdAt = now,
+			updatedAt = now,
+			lastError = null
+		)
+	}
+
+	private fun buildPendingUpdateMutation(
+		evaluationId: String,
+		update: EvaluationUpdate,
+		expectedRevision: Long
+	): MutationEnvelope<String, EvaluationMutation> {
+		val now = currentTimeMillis()
+		return MutationEnvelope(
+			mutationId = identifierRepository.generateRandomIdentifier(),
+			scopeKey = EVALUATIONS_MUTATION_SCOPE,
+			command = EvaluationMutation.Update(
+				evaluationId = evaluationId,
+				scheduleMode = update.scheduleMode,
+				grade = update.grade,
+				maxGrade = update.maxGrade,
+				date = update.date,
+				type = update.type?.ordinal
+			),
+			precondition = MutationPrecondition.Revision(expectedRevision),
+			status = PendingMutationStatus.Pending,
+			createdAt = now,
+			updatedAt = now,
+			lastError = null
+		)
+	}
+
+	private fun buildPendingRemoveMutation(
+		evaluationId: String,
+		expectedRevision: Long
+	): MutationEnvelope<String, EvaluationMutation> {
+		val now = currentTimeMillis()
+		return MutationEnvelope(
+			mutationId = identifierRepository.generateRandomIdentifier(),
+			scopeKey = EVALUATIONS_MUTATION_SCOPE,
+			command = EvaluationMutation.Remove(evaluationId = evaluationId),
+			precondition = MutationPrecondition.Revision(expectedRevision),
+			status = PendingMutationStatus.Pending,
+			createdAt = now,
+			updatedAt = now,
+			lastError = null
+		)
+	}
+
+	private fun RemoteEvaluationsSnapshot.toLocalSnapshot() = LocalEvaluationsSnapshot(
+		anchorRevision = anchorRevision,
+		evaluations = evaluations.map { evaluation -> evaluation.toLocalEvaluation() }
+	)
+
+	private fun EvaluationMutation.Add.apply(update: EvaluationUpdate): EvaluationMutation.Add {
+		val resolvedScheduleMode = update.scheduleMode ?: if (update.date != null) {
+			EvaluationScheduleMode.DATED
+		} else {
+			scheduleMode
+		}
+		val resolvedDate = when (resolvedScheduleMode) {
+			EvaluationScheduleMode.CONTINUOUS -> null
+			EvaluationScheduleMode.DATED -> update.date ?: date
+		}
+		val resolvedGrade = update.grade
+
+		return copy(
+			scheduleMode = resolvedScheduleMode,
+			grade = resolvedGrade,
+			maxGrade = update.maxGrade ?: maxGrade,
+			date = resolvedDate,
+			type = update.type?.ordinal ?: type
+		)
+	}
+
 }

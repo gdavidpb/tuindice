@@ -4,15 +4,21 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EVALUATIONS_MUTATION_STORE_ID
+import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutation
+import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
@@ -20,11 +26,16 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
+import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 
 private const val PAST_EVALUATION_DATE = 1_700_000_000_000L
 private const val FUTURE_EVALUATION_DATE = 1_900_000_000_000L
+const val DEFAULT_EVALUATIONS_ANCHOR_REVISION = 10L
 
 val DEFAULT_EVALUATION_SUBJECT = Subject(
 	id = "subject-1",
@@ -90,9 +101,11 @@ val DEFAULT_COMPLETED_EVALUATION = Evaluation(
 
 val DEFAULT_LOCAL_PENDING_EVALUATION = LocalEvaluation(
 	id = DEFAULT_PENDING_EVALUATION.id,
+	referenceId = DEFAULT_PENDING_EVALUATION.id,
 	subjectId = DEFAULT_PENDING_EVALUATION.subjectId,
 	subjectCode = DEFAULT_PENDING_EVALUATION.subjectCode,
 	quarterId = DEFAULT_PENDING_EVALUATION.quarterId,
+	revision = 3L,
 	scheduleMode = DEFAULT_PENDING_EVALUATION.scheduleMode,
 	grade = DEFAULT_PENDING_EVALUATION.grade,
 	maxGrade = DEFAULT_PENDING_EVALUATION.maxGrade,
@@ -103,9 +116,11 @@ val DEFAULT_LOCAL_PENDING_EVALUATION = LocalEvaluation(
 
 val DEFAULT_LOCAL_COMPLETED_EVALUATION = LocalEvaluation(
 	id = DEFAULT_COMPLETED_EVALUATION.id,
+	referenceId = DEFAULT_COMPLETED_EVALUATION.id,
 	subjectId = DEFAULT_COMPLETED_EVALUATION.subjectId,
 	subjectCode = DEFAULT_COMPLETED_EVALUATION.subjectCode,
 	quarterId = DEFAULT_COMPLETED_EVALUATION.quarterId,
+	revision = 4L,
 	scheduleMode = DEFAULT_COMPLETED_EVALUATION.scheduleMode,
 	grade = DEFAULT_COMPLETED_EVALUATION.grade,
 	maxGrade = DEFAULT_COMPLETED_EVALUATION.maxGrade,
@@ -116,9 +131,11 @@ val DEFAULT_LOCAL_COMPLETED_EVALUATION = LocalEvaluation(
 
 val DEFAULT_REMOTE_PENDING_EVALUATION = RemoteEvaluation(
 	id = DEFAULT_PENDING_EVALUATION.id,
+	referenceId = DEFAULT_PENDING_EVALUATION.id,
 	subjectId = DEFAULT_PENDING_EVALUATION.subjectId,
 	subjectCode = DEFAULT_PENDING_EVALUATION.subjectCode,
 	quarterId = DEFAULT_PENDING_EVALUATION.quarterId,
+	revision = DEFAULT_LOCAL_PENDING_EVALUATION.revision,
 	scheduleMode = DEFAULT_PENDING_EVALUATION.scheduleMode,
 	grade = DEFAULT_PENDING_EVALUATION.grade,
 	maxGrade = DEFAULT_PENDING_EVALUATION.maxGrade,
@@ -129,9 +146,11 @@ val DEFAULT_REMOTE_PENDING_EVALUATION = RemoteEvaluation(
 
 val DEFAULT_REMOTE_COMPLETED_EVALUATION = RemoteEvaluation(
 	id = DEFAULT_COMPLETED_EVALUATION.id,
+	referenceId = DEFAULT_COMPLETED_EVALUATION.id,
 	subjectId = DEFAULT_COMPLETED_EVALUATION.subjectId,
 	subjectCode = DEFAULT_COMPLETED_EVALUATION.subjectCode,
 	quarterId = DEFAULT_COMPLETED_EVALUATION.quarterId,
+	revision = DEFAULT_LOCAL_COMPLETED_EVALUATION.revision,
 	scheduleMode = DEFAULT_COMPLETED_EVALUATION.scheduleMode,
 	grade = DEFAULT_COMPLETED_EVALUATION.grade,
 	maxGrade = DEFAULT_COMPLETED_EVALUATION.maxGrade,
@@ -149,6 +168,7 @@ class RecordingEvaluationRepository(
 	private val addThrowable: Throwable? = null,
 	private val updateThrowable: Throwable? = null,
 	private val removeThrowable: Throwable? = null,
+	private val refreshThrowable: Throwable? = null,
 	private val availableSubjects: List<Subject> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
 		SECOND_EVALUATION_SUBJECT
@@ -159,8 +179,14 @@ class RecordingEvaluationRepository(
 	val addCalls = mutableListOf<EvaluationAdd>()
 	val updateCalls = mutableListOf<EvaluationUpdate>()
 	val removeCalls = mutableListOf<EvaluationRemove>()
+	var updateEvaluationsCalls = 0
 
-	override suspend fun getEvaluationsFlow(): Flow<List<Evaluation>> = evaluationsFlow ?: evaluationsState
+	override suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>> = evaluationsFlow ?: evaluationsState
+
+	override suspend fun updateEvaluations() {
+		updateEvaluationsCalls++
+		refreshThrowable?.let { throw it }
+	}
 
 	override suspend fun getEvaluation(eid: String): Evaluation? {
 		return evaluationsState.value.firstOrNull { evaluation -> evaluation.id == eid }
@@ -199,8 +225,9 @@ class RecordingEvaluationRepository(
 						date = resolvedDate
 					)
 				)
-			} else
+			} else {
 				evaluation
+			}
 		}
 	}
 
@@ -216,61 +243,106 @@ class RecordingEvaluationRepository(
 }
 
 class FakeDatabaseDataSource(
-	initialEvaluations: List<LocalEvaluation> = listOf(
-		DEFAULT_LOCAL_PENDING_EVALUATION,
-		DEFAULT_LOCAL_COMPLETED_EVALUATION
+	initialSnapshot: LocalEvaluationsSnapshot = LocalEvaluationsSnapshot(
+		anchorRevision = DEFAULT_EVALUATIONS_ANCHOR_REVISION,
+		evaluations = listOf(
+			DEFAULT_LOCAL_PENDING_EVALUATION,
+			DEFAULT_LOCAL_COMPLETED_EVALUATION
+		)
 	),
 	private val availableSubjects: List<LocalSubject> = listOf(
 		DEFAULT_LOCAL_EVALUATION_SUBJECT,
 		SECOND_LOCAL_EVALUATION_SUBJECT
 	)
 ) : DatabaseDataSource {
-	private val evaluationsState = MutableStateFlow(initialEvaluations)
+	private val snapshotState = MutableStateFlow(initialSnapshot)
 
-	val savedEvaluations = mutableListOf<List<LocalEvaluation>>()
-	val addedEvaluations = mutableListOf<LocalEvaluation>()
-	val updatedEvaluations = mutableListOf<LocalEvaluation>()
-	val removedEvaluationIds = mutableListOf<String>()
+	val savedSnapshots = mutableListOf<LocalEvaluationsSnapshot>()
+	val addedEvaluations = mutableListOf<Pair<Long, LocalEvaluation>>()
+	val updatedEvaluations = mutableListOf<Pair<Long, LocalEvaluation>>()
+	val removedEvaluations = mutableListOf<Pair<Long?, String>>()
 
-	override fun getEvaluationsFlow(): Flow<List<LocalEvaluation>> = evaluationsState
+	override fun observeEvaluationsFlow(): Flow<List<LocalEvaluation>> {
+		return snapshotState.map { snapshot -> snapshot.evaluations }
+	}
 
 	override suspend fun getEvaluation(eid: String): LocalEvaluation? {
-		return evaluationsState.value.firstOrNull { evaluation -> evaluation.id == eid }
+		return snapshotState.value.evaluations.firstOrNull { evaluation -> evaluation.id == eid }
 	}
+
+	override suspend fun getConfirmedSnapshot(): LocalEvaluationsSnapshot = snapshotState.value
 
 	override suspend fun getAvailableSubjects(): List<LocalSubject> = availableSubjects
 
-	override suspend fun addEvaluation(evaluation: LocalEvaluation): LocalEvaluation {
-		addedEvaluations += evaluation
-		evaluationsState.value = evaluationsState.value + evaluation
+	override suspend fun confirmAddedEvaluation(evaluation: LocalEvaluation, anchorRevision: Long): LocalEvaluation {
+		addedEvaluations += anchorRevision to evaluation
+		snapshotState.value = snapshotState.value.copy(
+			anchorRevision = anchorRevision,
+			evaluations = snapshotState.value.evaluations
+				.filterNot { current ->
+					current.id == evaluation.id || current.referenceId == evaluation.referenceId
+				} + evaluation
+		)
 		return evaluation
 	}
 
-	override suspend fun updateEvaluation(evaluation: LocalEvaluation): LocalEvaluation {
-		updatedEvaluations += evaluation
-		evaluationsState.value = evaluationsState.value.map { current ->
-			if (current.id == evaluation.id) evaluation else current
-		}
+	override suspend fun confirmUpdatedEvaluation(evaluation: LocalEvaluation, anchorRevision: Long): LocalEvaluation {
+		updatedEvaluations += anchorRevision to evaluation
+		snapshotState.value = snapshotState.value.copy(
+			anchorRevision = anchorRevision,
+			evaluations = snapshotState.value.evaluations.map { current ->
+				if (current.id == evaluation.id) evaluation else current
+			}
+		)
 		return evaluation
 	}
 
-	override suspend fun removeEvaluation(eid: String) {
-		removedEvaluationIds += eid
-		evaluationsState.value = evaluationsState.value.filterNot { evaluation ->
-			evaluation.id == eid
-		}
+	override suspend fun confirmRemovedEvaluation(eid: String, anchorRevision: Long) {
+		removedEvaluations += anchorRevision to eid
+		snapshotState.value = snapshotState.value.copy(
+			anchorRevision = anchorRevision,
+			evaluations = snapshotState.value.evaluations.filterNot { evaluation -> evaluation.id == eid }
+		)
 	}
 
-	override suspend fun saveEvaluations(evaluations: List<LocalEvaluation>) {
-		savedEvaluations += evaluations
-		evaluationsState.value = evaluations
+	override suspend fun removeConfirmedEvaluation(eid: String) {
+		removedEvaluations += null to eid
+		snapshotState.value = snapshotState.value.copy(
+			evaluations = snapshotState.value.evaluations.filterNot { evaluation -> evaluation.id == eid }
+		)
+	}
+
+	override suspend fun saveConfirmedSnapshot(snapshot: LocalEvaluationsSnapshot) {
+		savedSnapshots += snapshot
+		snapshotState.value = snapshot
 	}
 }
 
+data class AddEvaluationRemoteCall(
+	val add: EvaluationMutation.Add,
+	val mutationId: String,
+	val expectedRevision: Long
+)
+
+data class UpdateEvaluationRemoteCall(
+	val update: EvaluationMutation.Update,
+	val mutationId: String,
+	val expectedRevision: Long
+)
+
+data class RemoveEvaluationRemoteCall(
+	val evaluationId: String,
+	val mutationId: String,
+	val expectedRevision: Long
+)
+
 class FakeEvaluationsApiDataSource(
-	private val evaluations: List<RemoteEvaluation> = listOf(
-		DEFAULT_REMOTE_PENDING_EVALUATION,
-		DEFAULT_REMOTE_COMPLETED_EVALUATION
+	private val snapshot: RemoteEvaluationsSnapshot = RemoteEvaluationsSnapshot(
+		anchorRevision = DEFAULT_EVALUATIONS_ANCHOR_REVISION,
+		evaluations = listOf(
+			DEFAULT_REMOTE_PENDING_EVALUATION,
+			DEFAULT_REMOTE_COMPLETED_EVALUATION
+		)
 	),
 	private val addResult: RemoteEvaluation? = null,
 	private val updateResult: RemoteEvaluation? = null,
@@ -279,34 +351,83 @@ class FakeEvaluationsApiDataSource(
 	private val removeThrowable: Throwable? = null
 ) : EvaluationsApiDataSource {
 	var getEvaluationsCalls = 0
-	val addedEvaluations = mutableListOf<RemoteEvaluation>()
-	val updatedEvaluations = mutableListOf<RemoteEvaluation>()
-	val removedEvaluationIds = mutableListOf<String>()
+	val addCalls = mutableListOf<AddEvaluationRemoteCall>()
+	val updateCalls = mutableListOf<UpdateEvaluationRemoteCall>()
+	val removeCalls = mutableListOf<RemoveEvaluationRemoteCall>()
 
-	override suspend fun getEvaluations(): List<RemoteEvaluation> {
+	override suspend fun getEvaluations(): RemoteEvaluationsSnapshot {
 		getEvaluationsCalls++
-		return evaluations
+		return snapshot
 	}
 
 	override suspend fun getEvaluation(eid: String): RemoteEvaluation? {
-		return evaluations.firstOrNull { evaluation -> evaluation.id == eid }
+		return snapshot.evaluations.firstOrNull { evaluation -> evaluation.id == eid }
 	}
 
-	override suspend fun addEvaluation(evaluation: RemoteEvaluation): RemoteEvaluation {
+	override suspend fun addEvaluation(
+		add: EvaluationMutation.Add,
+		mutationId: String,
+		expectedRevision: Long
+	): EvaluationMutationAck.Add {
 		addThrowable?.let { throw it }
-		addedEvaluations += evaluation
-		return addResult ?: evaluation
+		addCalls += AddEvaluationRemoteCall(add, mutationId, expectedRevision)
+		val created = addResult ?: RemoteEvaluation(
+			id = "real-${add.referenceId}",
+			referenceId = add.referenceId,
+			subjectId = add.subjectId,
+			subjectCode = add.subjectCode,
+			quarterId = add.quarterId,
+			revision = 1L,
+			scheduleMode = add.scheduleMode,
+			grade = add.grade,
+			maxGrade = add.maxGrade,
+			date = add.date,
+			type = add.type,
+			isDone = add.grade != null
+		)
+		return EvaluationMutationAck.Add(
+			mutationId = mutationId,
+			anchorRevision = snapshot.anchorRevision + 1L,
+			evaluation = created
+		)
 	}
 
-	override suspend fun updateEvaluation(evaluation: RemoteEvaluation): RemoteEvaluation {
+	override suspend fun updateEvaluation(
+		update: EvaluationMutation.Update,
+		mutationId: String,
+		expectedRevision: Long
+	): EvaluationMutationAck.Update {
 		updateThrowable?.let { throw it }
-		updatedEvaluations += evaluation
-		return updateResult ?: evaluation
+		updateCalls += UpdateEvaluationRemoteCall(update, mutationId, expectedRevision)
+		val saved = updateResult ?: DEFAULT_REMOTE_PENDING_EVALUATION.copy(
+			id = update.evaluationId,
+			revision = DEFAULT_REMOTE_PENDING_EVALUATION.revision + 1L,
+			scheduleMode = update.scheduleMode ?: DEFAULT_REMOTE_PENDING_EVALUATION.scheduleMode,
+			grade = update.grade,
+			maxGrade = update.maxGrade ?: DEFAULT_REMOTE_PENDING_EVALUATION.maxGrade,
+			date = update.date ?: DEFAULT_REMOTE_PENDING_EVALUATION.date,
+			type = update.type ?: DEFAULT_REMOTE_PENDING_EVALUATION.type,
+			isDone = update.grade != null
+		)
+		return EvaluationMutationAck.Update(
+			mutationId = mutationId,
+			anchorRevision = snapshot.anchorRevision + 1L,
+			evaluation = saved
+		)
 	}
 
-	override suspend fun removeEvaluation(eid: String) {
+	override suspend fun removeEvaluation(
+		eid: String,
+		mutationId: String,
+		expectedRevision: Long
+	): EvaluationMutationAck.Remove {
 		removeThrowable?.let { throw it }
-		removedEvaluationIds += eid
+		removeCalls += RemoveEvaluationRemoteCall(eid, mutationId, expectedRevision)
+		return EvaluationMutationAck.Remove(
+			mutationId = mutationId,
+			anchorRevision = snapshot.anchorRevision + 1L,
+			removedEvaluationId = eid
+		)
 	}
 }
 
@@ -349,4 +470,50 @@ class FakeEvaluationFilter(
 	override fun getLabel(): String = label
 
 	override fun match(evaluation: Evaluation): Boolean = predicate(evaluation)
+}
+
+class FakeMutationEnvelopeStore<ScopeKey : Any, T : OutboxMutation>(
+	initialPendingMutations: List<MutationEnvelope<ScopeKey, T>> = emptyList()
+) : MutationEnvelopeStore<ScopeKey, T> {
+	private val state = MutableStateFlow(initialPendingMutations)
+
+	override fun observePendingMutations(scopeKey: ScopeKey): Flow<List<MutationEnvelope<ScopeKey, T>>> = state
+
+	override suspend fun getPendingMutations(scopeKey: ScopeKey): List<MutationEnvelope<ScopeKey, T>> = state.value
+
+	override suspend fun getPendingMutation(
+		scopeKey: ScopeKey,
+		mutationId: String
+	): MutationEnvelope<ScopeKey, T>? {
+		return state.value.firstOrNull { mutation ->
+			mutation.scopeKey == scopeKey && mutation.mutationId == mutationId
+		}
+	}
+
+	override suspend fun replacePendingMutation(mutation: MutationEnvelope<ScopeKey, T>) {
+		state.value = state.value
+			.filterNot { pending -> pending.replaceKey == mutation.replaceKey }
+			.plus(mutation)
+	}
+
+	override suspend fun savePendingMutation(mutation: MutationEnvelope<ScopeKey, T>) {
+		state.value = state.value
+			.filterNot { pending -> pending.mutationId == mutation.mutationId }
+			.plus(mutation)
+	}
+
+	override suspend fun deletePendingMutation(scopeKey: ScopeKey, mutationId: String) {
+		state.value = state.value.filterNot { mutation ->
+			mutation.scopeKey == scopeKey && mutation.mutationId == mutationId
+		}
+	}
+}
+
+fun createEvaluationsMutationEngine(
+	store: MutationEnvelopeStore<String, EvaluationMutation> = FakeMutationEnvelopeStore()
+): StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck> {
+	return StoreBackedMutationEngine(
+		storeId = EVALUATIONS_MUTATION_STORE_ID,
+		outboxStore = store
+	)
 }

@@ -1,6 +1,6 @@
 {
   "request": {
-    "method": "DELETE",
+    "method": "GET",
     "urlPathPattern": "/evaluations/v2/[A-Za-z0-9]+"
   },
   "response": {

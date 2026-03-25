@@ -11,5 +11,7 @@ data class UpdateEvaluationRequest(
 	@SerialName("max_grade") val maxGrade: Double? = null,
 	@SerialName("date") val date: Long? = null,
 	@SerialName("type") val type: Int? = null,
-	@SerialName("is_done") val isDone: Boolean? = null
+	@SerialName("is_done") val isDone: Boolean? = null,
+	@SerialName("mutation_id") val mutationId: String,
+	@SerialName("expected_revision") val expectedRevision: Long
 )

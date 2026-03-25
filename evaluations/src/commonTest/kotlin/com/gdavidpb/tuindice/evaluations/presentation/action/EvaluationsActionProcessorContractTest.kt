@@ -66,6 +66,31 @@ class EvaluationsActionProcessorContractTest {
 	}
 
 	@Test
+	fun loadEvaluationsActionProcessor_keepsLoading_whenInitialSnapshotIsEmpty() = runTest {
+		val processor = LoadEvaluationsActionProcessor(
+			getEvaluationsUseCase = GetEvaluationsUseCase(
+				evaluationRepository = RecordingEvaluationRepository(
+					evaluationsFlow = flowOf(emptyList()),
+					availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
+				),
+				exceptionHandler = GetEvaluationsExceptionHandler(
+					reportingRepository = RecordingReportingRepository()
+				)
+			)
+		)
+
+		processor.process(
+			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			sideEffect = {}
+		).test {
+			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Empty))
+			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Loading))
+
+			awaitComplete()
+		}
+	}
+
+	@Test
 	fun loadEvaluationActionProcessor_reducesStateToEditableContent() = runTest {
 		val processor = LoadEvaluationActionProcessor(
 			getEvaluationAndAvailableSubjectsUseCase = GetEvaluationAndAvailableSubjectsUseCase(

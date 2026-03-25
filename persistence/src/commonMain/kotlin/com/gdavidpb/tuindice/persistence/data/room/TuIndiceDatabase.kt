@@ -11,9 +11,10 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.*
 		QuarterEntity::class,
 		SubjectEntity::class,
 		EvaluationEntity::class,
+		EvaluationSyncStateEntity::class,
 		PendingMutationEntity::class
 	],
-	version = 6,
+	version = 7,
 	exportSchema = false
 )
 @ConstructedBy(TuIndiceDatabaseConstructor::class)
@@ -23,6 +24,7 @@ abstract class TuIndiceDatabase : RoomDatabase() {
 	abstract val quarters: QuarterDao
 	abstract val subjects: SubjectDao
 	abstract val evaluations: EvaluationDao
+	abstract val evaluationSyncState: EvaluationSyncStateDao
 	abstract val pendingMutations: PendingMutationDao
 }
 

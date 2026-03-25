@@ -34,6 +34,8 @@ object Evaluations {
 			val activeFilters: Flow<List<EvaluationFilter>>
 		) : Action()
 
+		data object RefreshEvaluations : Action()
+
 		class CheckEvaluationFilter(
 			val filter: EvaluationFilter
 		) : Action()

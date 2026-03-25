@@ -50,4 +50,7 @@ abstract class EvaluationDao : UpsertDao<EvaluationEntity>() {
 	abstract suspend fun deleteEvaluation(
 		eid: String
 	): Int
+
+	@Query("DELETE FROM ${EvaluationTable.TABLE_NAME}")
+	abstract suspend fun deleteAll(): Int
 }

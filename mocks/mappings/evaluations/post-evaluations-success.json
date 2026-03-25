@@ -1,42 +1,15 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/evaluations/v1",
-    "bodyPatterns": [
-      {
-        "matchesJsonPath": "$.subject_id"
-      },
-      {
-        "matchesJsonPath": "$.type"
-      },
-      {
-        "matchesJsonPath": "$.schedule_mode"
-      },
-      {
-        "matchesJsonPath": "$.max_grade"
-      },
-      {
-        "matchesJsonPath": "$.is_done"
-      }
-    ]
+    "urlPath": "/evaluations/v2"
   },
   "response": {
     "status": 200,
     "headers": {
       "Content-Type": "application/json"
     },
-    "jsonBody": {
-      "id": "EVMA1116A1",
-      "quarter_id": "Q2026A",
-      "subject_id": "MA1116Q2026A",
-      "subject_code": "MA1116",
-      "type": 0,
-      "schedule_mode": "dated",
-      "grade": 18.0,
-      "max_grade": 20.0,
-      "date": 1770692400000,
-      "is_done": true
-    },
-    "fixedDelayMilliseconds": 1500
+    "transformers": [
+      "evaluations-response-transformer"
+    ]
   }
 }

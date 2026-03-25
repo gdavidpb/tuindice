@@ -48,6 +48,7 @@ fun EvaluationsRoute(
 
 	LaunchedEffect(Unit) {
 		viewModel.loadEvaluationsAction()
+		viewModel.refreshEvaluationsAction()
 	}
 
 	EvaluationsScreen(
@@ -58,6 +59,9 @@ fun EvaluationsRoute(
 		onEvaluationDelete = viewModel::removeEvaluationAction,
 		onFilterCheckedChange = viewModel::toggleFilterAction,
 		onClearFiltersClick = viewModel::clearFiltersAction,
-		onRetryClick = viewModel::loadEvaluationsAction
+		onRetryClick = {
+			viewModel.loadEvaluationsAction()
+			viewModel.refreshEvaluationsAction()
+		}
 	)
 }
