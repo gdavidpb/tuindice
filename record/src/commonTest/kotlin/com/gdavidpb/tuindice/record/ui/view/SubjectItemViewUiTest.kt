@@ -84,4 +84,21 @@ class SubjectItemViewUiTest {
 			}
 		)
 	}
+
+	@Test
+	fun when_subjectItemIsRetired_then_displaysRetiredChip() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectItemView(
+				item = sampleSubjectItem(
+					subjectId = "subject-retired",
+					grade = 0,
+					isReadOnly = true
+				),
+				onGradeChange = { _, _ -> }
+			)
+		}
+
+		onNodeWithText("FS1113").assertIsDisplayed()
+		onNodeWithText("Retirada").assertIsDisplayed()
+	}
 }

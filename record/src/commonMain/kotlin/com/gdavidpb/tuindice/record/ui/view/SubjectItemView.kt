@@ -1,24 +1,31 @@
 package com.gdavidpb.tuindice.record.ui.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.persistence.utils.MAX_SUBJECT_GRADE
+import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.utils.Ranges
+import org.jetbrains.compose.resources.stringResource
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.subject_retired
 import kotlin.math.roundToInt
 
 @Composable
@@ -29,6 +36,7 @@ fun SubjectItemView(
 	onGradeChange: (newGrade: Int, isSelected: Boolean) -> Unit
 ) {
 	val currentGrade = gradeState?.intValue ?: item.grade
+	val isRetired = (currentGrade == MIN_SUBJECT_GRADE)
 
 	Column(
 		modifier = modifier
@@ -40,43 +48,68 @@ fun SubjectItemView(
 			)
 	) {
 		Row(
-			modifier = Modifier.fillMaxWidth(),
-			horizontalArrangement = Arrangement.SpaceBetween
+			modifier = Modifier
+				.fillMaxWidth(),
+			verticalAlignment = Alignment.CenterVertically
 		) {
 			Text(
 				modifier = Modifier
-					.weight(1f)
-					.padding(end = 12.dp),
-				text = item.codeAndStatusText,
+					.padding(end = 12.dp)
+					.weight(1f),
+				text = item.nameText,
 				maxLines = 1,
+				fontWeight = FontWeight.SemiBold,
+				style = MaterialTheme.typography.titleMedium,
 				overflow = TextOverflow.Ellipsis
 			)
 
-			Text(
-				text = item.displayGradeText(currentGrade),
-				fontWeight = FontWeight.Medium
-			)
+			if (isRetired) {
+				Text(
+					modifier = Modifier
+						.padding(start = 8.dp)
+						.background(
+							color = MaterialTheme.colorScheme.surfaceVariant,
+							shape = RoundedCornerShape(8.dp)
+						)
+						.padding(vertical = 4.dp, horizontal = 10.dp),
+					text = stringResource(Res.string.subject_retired),
+					fontWeight = FontWeight.SemiBold,
+					style = MaterialTheme.typography.labelMedium,
+					maxLines = 1
+				)
+			} else {
+				Text(
+					text = item.displayGradeText(currentGrade),
+					fontWeight = FontWeight.SemiBold,
+					style = MaterialTheme.typography.titleMedium
+				)
+			}
 		}
 
 		Row(
 			modifier = Modifier
-				.fillMaxWidth()
-				.padding(top = 4.dp),
-			horizontalArrangement = Arrangement.SpaceBetween
+				.padding(top = 8.dp)
+				.fillMaxWidth(),
+			horizontalArrangement = Arrangement.SpaceBetween,
+			verticalAlignment = Alignment.CenterVertically
 		) {
 			Text(
 				modifier = Modifier
-					.weight(1f)
-					.padding(end = 12.dp),
-				text = item.nameText,
-				maxLines = 1,
-				fontWeight = FontWeight.Light,
-				overflow = TextOverflow.Ellipsis
+					.background(
+						color = item.codeContainerColor,
+						shape = RoundedCornerShape(8.dp)
+					)
+					.padding(vertical = 5.dp, horizontal = 10.dp),
+				text = item.codeText,
+				color = item.codeColor,
+				fontWeight = FontWeight.SemiBold,
+				style = MaterialTheme.typography.labelLarge
 			)
 
 			Text(
 				text = item.creditsText,
-				fontWeight = FontWeight.Light
+				color = MaterialTheme.colorScheme.onSurfaceVariant,
+				style = MaterialTheme.typography.bodyMedium
 			)
 		}
 
@@ -106,11 +139,7 @@ fun SubjectItemView(
 }
 
 private fun SubjectItem.displayGradeText(currentGrade: Int): String {
-	if (currentGrade == grade) return gradeText
+	if ((currentGrade == grade) && !isRetired) return gradeText
 
-	return if (currentGrade == MIN_SUBJECT_GRADE) {
-		"—"
-	} else {
-		"$currentGrade / $MAX_SUBJECT_GRADE"
-	}
+	return "$currentGrade / $MAX_SUBJECT_GRADE"
 }

@@ -79,7 +79,7 @@ fun String.annotatedQuarterValue(highlightColor: Color) = buildAnnotatedString {
 	withStyle(
 		SpanStyle(
 			color = highlightColor,
-			fontWeight = FontWeight.Medium
+			fontWeight = FontWeight.Bold
 		)
 	) {
 		append(before)

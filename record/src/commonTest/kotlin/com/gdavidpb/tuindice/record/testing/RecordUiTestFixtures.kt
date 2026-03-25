@@ -2,10 +2,12 @@ package com.gdavidpb.tuindice.record.testing
 
 import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
+import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
+import com.gdavidpb.tuindice.record.ui.style.SubjectColorGenerator
 
 fun recordContentState(
 	quarters: List<Quarter> = listOf(DEFAULT_RECORD_QUARTER)
@@ -15,8 +17,6 @@ fun recordMapperTexts(): RecordMapperTexts = RecordMapperTexts(
 	quarterGradeDiff = { grade -> "Δx $grade" },
 	quarterGradeSum = { grade -> "∑x $grade" },
 	quarterCredits = { credits -> "⦿ $credits UC" },
-	subjectRetired = "Retirada",
-	subjectStatus = { status -> "($status)" },
 	subjectGrade = { grade -> "$grade / 5" },
 	subjectCredits = { credits -> "$credits UC" }
 )
@@ -26,17 +26,21 @@ fun sampleSubjectItem(
 	quarterId: String = "quarter-1",
 	grade: Int = 4,
 	isReadOnly: Boolean = true
-): SubjectItem = SubjectItem(
-	subjectId = subjectId,
-	quarterId = quarterId,
-	grade = grade,
-	codeAndStatusText = AnnotatedString("FS1113"),
-	nameText = "FISICA III",
-	gradeText = "$grade / 5",
-	creditsText = "3 UC",
-	isReadOnly = isReadOnly,
-	isRetired = false
-)
+): SubjectItem = SubjectColorGenerator.fromCode("FS1113").let { subjectColors ->
+	SubjectItem(
+		subjectId = subjectId,
+		quarterId = quarterId,
+		grade = grade,
+		codeText = "FS1113",
+		nameText = "FISICA III",
+		gradeText = if (grade == MIN_SUBJECT_GRADE) "" else "$grade / 5",
+		creditsText = "3 UC",
+		codeColor = subjectColors.color,
+		codeContainerColor = subjectColors.containerColor,
+		isReadOnly = isReadOnly,
+		isRetired = (grade == MIN_SUBJECT_GRADE)
+	)
+}
 
 fun sampleQuarterItem(
 	quarterId: String = "quarter-1",

@@ -1,7 +1,10 @@
 package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.semantics.SemanticsActions
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -25,7 +28,7 @@ class RecordContentViewUiTest {
 	)
 
 	@Test
-	fun when_contentViewIsRendered_then_displaysQuartersList() = runTuIndiceUiTest {
+	fun when_contentViewIsRendered_then_displaysQuarterSelectorAndSelectedQuarter() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			RecordContentView(
 				state = recordContentState(),
@@ -34,11 +37,15 @@ class RecordContentViewUiTest {
 		}
 
 		assertNodeVisible(RecordUiTags.ContentContainer)
-		assertNodeVisible(RecordUiTags.quarterItem(0))
+		assertNodeVisible(RecordUiTags.QuarterSelectorRow)
+		assertNodeVisible(RecordUiTags.quarterChip("quarter-1"))
+		assertNodeVisible(RecordUiTags.SelectedQuarterSummary)
+		assertNodeVisible(RecordUiTags.subjectItem("subject-1"))
+		onAllNodesWithText("2026-1").assertCountEquals(1)
 	}
 
 	@Test
-	fun when_contentStateHasNoQuarters_then_showsContainerWithoutQuarterRows() = runTuIndiceUiTest {
+	fun when_contentStateHasNoQuarters_then_showsContainerWithoutQuarterSelectorOrSubjects() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			RecordContentView(
 				state = recordContentState(quarters = emptyList()),
@@ -46,7 +53,9 @@ class RecordContentViewUiTest {
 			)
 		}
 
-		assertNodeHidden(RecordUiTags.quarterItem(0))
+		assertNodeHidden(RecordUiTags.QuarterSelectorRow)
+		assertNodeHidden(RecordUiTags.SelectedQuarterSummary)
+		assertNodeHidden(RecordUiTags.subjectItem("subject-1"))
 	}
 
 	@Test
@@ -83,11 +92,50 @@ class RecordContentViewUiTest {
 		assertTrue(events.isNotEmpty())
 		assertTrue(
 			events.any { event ->
-					event.quarterId == "quarter-1" &&
+				event.quarterId == "quarter-1" &&
 					event.subjectId == "subject-1" &&
 					event.grade == 5 &&
 					!event.isSelected
 			}
 		)
+	}
+
+	@Test
+	fun when_quarterChipIsTapped_then_displaysSubjectsForThatQuarter() = runTuIndiceUiTest {
+		val olderQuarter = DEFAULT_RECORD_QUARTER.copy(
+			id = "quarter-2",
+			name = "2025-3",
+			startDate = DEFAULT_RECORD_QUARTER.startDate - 100_000L,
+			endDate = DEFAULT_RECORD_QUARTER.endDate - 100_000L,
+			isCurrent = false,
+			subjects = listOf(
+				DEFAULT_RECORD_SUBJECT.copy(
+					id = "subject-2",
+					quarterId = "quarter-2",
+					name = "Calculo"
+				)
+			)
+		)
+
+		setTuIndiceTestContent {
+			RecordContentView(
+				state = recordContentState(
+					quarters = listOf(
+						DEFAULT_RECORD_QUARTER,
+						olderQuarter
+					)
+				),
+				onSubjectGradeChange = { _, _, _, _ -> }
+			)
+		}
+
+		assertNodeVisible(RecordUiTags.subjectItem("subject-1"))
+		assertNodeHidden(RecordUiTags.subjectItem("subject-2"))
+
+		onNodeWithTag(RecordUiTags.quarterChip("quarter-2")).performClick()
+		waitForIdle()
+
+		assertNodeHidden(RecordUiTags.subjectItem("subject-1"))
+		assertNodeVisible(RecordUiTags.subjectItem("subject-2"))
 	}
 }
