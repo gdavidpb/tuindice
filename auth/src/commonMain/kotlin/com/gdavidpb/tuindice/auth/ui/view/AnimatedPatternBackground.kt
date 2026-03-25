@@ -33,7 +33,7 @@ fun AnimatedPatternBackground(
 	val backgroundBitmap = imageResource(background)
 
 	// Compose resources can expose density-normalized image sizes on iOS.
-	// Multiplying by current density keeps visual tile size aligned with Android.
+	// Multiplying by current density keeps the visual tile size aligned with Android.
 	val tileWidth = remember(backgroundBitmap, density, tileScale) {
 		(backgroundBitmap.width.toFloat() * density * tileScale).coerceAtLeast(1f)
 	}

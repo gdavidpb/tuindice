@@ -26,7 +26,7 @@
             "id": "MA2115Q2026B",
             "qid": "Q2026B",
             "code": "MA2115",
-            "name": "MATEMATICAS IV",
+            "name": "MATEMÁTICAS IV",
             "credits": 4,
             "grade": 5,
             "revision": 1
@@ -35,7 +35,7 @@
             "id": "CI2511Q2026B",
             "qid": "Q2026B",
             "code": "CI2511",
-            "name": "LOGICA SIMBOLICA",
+            "name": "LÓGICA SIMBÓLICA",
             "credits": 4,
             "grade": 4,
             "revision": 1
@@ -77,7 +77,7 @@
             "id": "MA1116Q2026A",
             "qid": "Q2026A",
             "code": "MA1116",
-            "name": "MATEMATICAS III",
+            "name": "MATEMÁTICAS III",
             "credits": 4,
             "grade": 4,
             "revision": 1
@@ -86,7 +86,7 @@
             "id": "FS1112Q2026A",
             "qid": "Q2026A",
             "code": "FS1112",
-            "name": "FISICA II",
+            "name": "FÍSICA II",
             "credits": 3,
             "grade": 5,
             "revision": 1
@@ -137,7 +137,7 @@
             "id": "MA1112Q2025B",
             "qid": "Q2025B",
             "code": "MA1112",
-            "name": "MATEMATICAS II",
+            "name": "MATEMÁTICAS II",
             "credits": 4,
             "grade": 4,
             "revision": 1
@@ -146,7 +146,7 @@
             "id": "FS1111Q2025B",
             "qid": "Q2025B",
             "code": "FS1111",
-            "name": "FISICA I",
+            "name": "FÍSICA I",
             "credits": 3,
             "grade": 4,
             "revision": 1
@@ -197,7 +197,7 @@
             "id": "MA1111Q2025A",
             "qid": "Q2025A",
             "code": "MA1111",
-            "name": "MATEMATICAS I",
+            "name": "MATEMÁTICAS I",
             "credits": 4,
             "grade": 4,
             "revision": 1

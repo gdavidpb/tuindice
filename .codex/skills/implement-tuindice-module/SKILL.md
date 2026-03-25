@@ -38,7 +38,7 @@ Implement module work by copying the nearest existing module pattern instead of 
 6. When a feature exposes repository-backed screen data, separate local observation from remote refresh:
    - repository interfaces should expose an `observe*Flow()` read path and an explicit `update*()` refresh path
    - observe use cases should read local flows only
-   - update use cases should fetch or recompute and then persist back into local state
+   - update use cases should fetch or recompute and then persist back into the local state
    - `ViewModel` initial actions should usually start observation, while `Route` triggers the first refresh with `LaunchedEffect`
 7. When a change alters an HTTP contract consumed by the app, update the local WireMock fixtures in the same change:
    - request and response mappings live under `mocks/mappings/<feature-or-domain>/`
@@ -68,10 +68,10 @@ Implement module work by copying the nearest existing module pattern instead of 
   - `Navigation` injects or resolves `ViewModel` instances with `koinViewModel(...)`
   - `Route` observes `state` and `effect`, triggers initial actions with `LaunchedEffect`, and passes plain state/callbacks to `Screen`
   - `Screen` stays stateless with respect to DI
-- Prefer feature dialogs as navigation destinations instead of rendering them from feature state. Keep state-driven dialogs only for small widget-local popups when promoting them to navigation would add unnecessary ceremony.
+- Prefer feature dialogs as navigation destinations instead of rendering them from the feature state. Keep state-driven dialogs only for small widget-local popups when promoting them to navigation would add unnecessary ceremony.
 - Choose one dialog-result pattern deliberately:
   - If the dialog only needs to mutate the parent screen state, resolve the parent/shared `ViewModel` from the dialog destination and dispatch the action directly, as in `evaluations`.
-  - If the dialog needs to hand an intent back to the previous destination and the parent must execute a lifecycle-sensitive side effect after the dialog is gone, use `base/.../NavigationResult.kt` with `CollectBackResultWithLifecycle`, as in `summary`.
+  - If the dialog needs to hand intent back to the previous destination and the parent must execute a lifecycle-sensitive side effect after the dialog is gone, use `base/.../NavigationResult.kt` with `CollectBackResultWithLifecycle`, as in `summary`.
 - For navigation back results, use dedicated `@Serializable` result types instead of raw `String` or `Boolean` values. The shared helper derives the key from the result base type and serializes the payload into `savedStateHandle`.
 - When sending a sealed back result, call `navigateBackWithResult<BaseResult>(SubResult)` with the base type explicit so the writer and collector use the same key and serializer.
 - Match the repo's Compose local-state style: when using `remember { mutableStateOf(...) }`, prefer `val state = ...` plus `.value` reads/writes instead of delegated `var ... by remember { ... }`, unless the file already follows a different established pattern.

@@ -204,7 +204,7 @@ Shared bootstrap smoke tests:
 - `maincore/src/commonTest/.../MainModuleKoinSmokeTest.kt`
 - `maincore/src/iosTest/.../IosAppKoinSmokeTest.kt`
 
-Useful checks already present in the repo:
+Useful checks are already present in the repo:
 
 - `./gradlew --continue --console=plain :<module>:compileAndroidMain`
 - `./gradlew --continue --console=plain :<module>:compileKotlinIosSimulatorArm64`

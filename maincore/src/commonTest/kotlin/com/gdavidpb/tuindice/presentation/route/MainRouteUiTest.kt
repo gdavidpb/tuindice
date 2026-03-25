@@ -168,7 +168,7 @@ class MainRouteUiTest {
 
 				val text = when (state) {
 					is Main.State.Content ->
-						if (state.topBarTitle.isBlank()) "Sin titulo" else state.topBarTitle
+						state.topBarTitle.ifBlank { "Sin titulo" }
 
 					else ->
 						state::class.simpleName ?: "State"

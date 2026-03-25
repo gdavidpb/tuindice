@@ -10,7 +10,7 @@ import kotlinx.coroutines.tasks.await
 class PlayIntegrityDataSource(
 	private val integrityManager: IntegrityManager
 ) : AttestationProviderDataSource {
-	override suspend fun getAttestation(nonce: String): ProviderAttestation? {
+	override suspend fun getAttestation(nonce: String): ProviderAttestation {
 		val request = IntegrityTokenRequest.builder()
 			.setNonce(nonce)
 			.build()

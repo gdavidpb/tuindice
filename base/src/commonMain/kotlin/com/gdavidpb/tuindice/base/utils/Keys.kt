@@ -9,8 +9,3 @@ object PreferencesKeys {
 	const val USER_REFRESH_TOKEN = "refreshToken"
 	const val USER_USB_ID = "usbId"
 }
-
-object ReportKeys {
-	const val USE_CASE = "useCase"
-	const val IS_HANDLED = "isHandled"
-}

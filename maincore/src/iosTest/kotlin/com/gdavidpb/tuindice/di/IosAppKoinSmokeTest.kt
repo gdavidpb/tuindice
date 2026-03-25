@@ -36,13 +36,13 @@ class IosAppKoinSmokeTest {
 									override fun remoteConfigString(key: String): String? = null
 								},
 								attestation = object : IosAttestationCapability {
-									override fun sha256Base64Url(value: String): String? = value
-									override suspend fun resolveAttestationKeyId(): String? = "key"
+									override fun sha256Base64Url(value: String): String = value
+									override suspend fun resolveAttestationKeyId(): String = "key"
 									override suspend fun requestAttestation(
 										attestationInput: String,
 										keyId: String,
 										evidenceMode: String
-									): IosPlatformAttestation? {
+									): IosPlatformAttestation {
 										return IosPlatformAttestation(
 											token = "token",
 											keyId = "key",
@@ -51,7 +51,7 @@ class IosAppKoinSmokeTest {
 									}
 								},
 								push = object : IosPushCapability {
-									override suspend fun pushToken(): String? = "push-token"
+									override suspend fun pushToken(): String = "push-token"
 								},
 								review = object : IosReviewCapability {
 									override suspend fun launchReview() = Unit

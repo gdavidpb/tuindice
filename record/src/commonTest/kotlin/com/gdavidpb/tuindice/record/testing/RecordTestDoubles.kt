@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.record.testing
 
-import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
@@ -8,7 +7,6 @@ import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
-import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataSource
 import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataSource
@@ -109,12 +107,6 @@ val DEFAULT_RECORD_REMOTE_QUARTER = RemoteQuarter(
 	isReadOnly = DEFAULT_RECORD_QUARTER.isReadOnly,
 	revision = DEFAULT_RECORD_REVISION,
 	subjects = listOf(DEFAULT_RECORD_REMOTE_SUBJECT)
-)
-
-val UPDATED_RECORD_LOCAL_QUARTER = DEFAULT_RECORD_LOCAL_QUARTER.copy(
-	grade = 85.0,
-	gradeSum = 85.0,
-	subjects = listOf(DEFAULT_RECORD_LOCAL_SUBJECT.copy(grade = 85))
 )
 
 class RecordingQuarterRepository(
@@ -237,7 +229,6 @@ class FakeQuarterLocalDataSource(
 			.map { incomingQuarter ->
 				val currentQuarter = currentByQuarterId[incomingQuarter.id]
 					?: return@map incomingQuarter
-				val incomingSubjectsById = incomingQuarter.subjects.associateBy { subject -> subject.id }
 				incomingQuarter.copy(
 					revision = maxOf(currentQuarter.revision, incomingQuarter.revision),
 					subjects = mergeSubjectsKeepingLatestRevision(

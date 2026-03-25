@@ -74,8 +74,8 @@ class IndexComputationEngine {
 		}
 
 		/*
-		 * Ascending traversal to build cumulative state once.
-		 * For same start date, reverse id order to preserve deterministic recency rule:
+		 * Ascending traversal to build a cumulative state once.
+		 * For the same start date, reverse id order to preserve deterministic recency rule:
 		 * (startDate DESC, quarterId, subjectId).
 		 */
 		val quartersAscending = quarters.sortedWith(

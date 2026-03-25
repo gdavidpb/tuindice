@@ -30,7 +30,18 @@ class RefreshSummaryActionProcessor(
 				when (useCaseState) {
 					is UseCaseState.Loading -> null
 
-					is UseCaseState.Data -> ::stopRefreshing
+					is UseCaseState.Data -> suspend { state: Summary.State ->
+						when (state) {
+							is Summary.State.Content ->
+								state.copy(isUserRefreshing = false)
+
+							is Summary.State.Loading ->
+								state.copy(isUserRefreshing = false)
+
+							is Summary.State.Failed ->
+								state.copy(isUserRefreshing = false)
+						}
+					}
 
 					is UseCaseState.Error -> when (val error = useCaseState.error) {
 						is UpdateUserUseCaseError.NoConnection ->
@@ -95,33 +106,20 @@ class RefreshSummaryActionProcessor(
 				}
 			}
 			.onStart {
-				emit(::startRefreshing)
+				emit(
+					suspend { state: Summary.State ->
+						when (state) {
+							is Summary.State.Content ->
+								state.copy(isUserRefreshing = true)
+
+							is Summary.State.Loading ->
+								state.copy(isUserRefreshing = true)
+
+							is Summary.State.Failed ->
+								Summary.State.Loading(isUserRefreshing = true)
+						}
+					}
+				)
 			}
-	}
-
-	private suspend fun startRefreshing(state: Summary.State): Summary.State {
-		return when (state) {
-			is Summary.State.Content ->
-				state.copy(isUserRefreshing = true)
-
-			is Summary.State.Loading ->
-				state.copy(isUserRefreshing = true)
-
-			is Summary.State.Failed ->
-				Summary.State.Loading(isUserRefreshing = true)
-		}
-	}
-
-	private suspend fun stopRefreshing(state: Summary.State): Summary.State {
-		return when (state) {
-			is Summary.State.Content ->
-				state.copy(isUserRefreshing = false)
-
-			is Summary.State.Loading ->
-				state.copy(isUserRefreshing = false)
-
-			is Summary.State.Failed ->
-				state.copy(isUserRefreshing = false)
-		}
 	}
 }

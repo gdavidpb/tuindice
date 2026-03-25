@@ -26,7 +26,7 @@ If the request does not fit one of those buckets, pause and explain why before i
 3. If the module already uses validators and exception handlers for similar use cases, keep that pattern for new use cases too.
 4. For repository-backed screen state, prefer the split already used in `summary` and `record`:
    - repository exposes `observe*Flow()` and `update*()`
-   - observe use case reads local state only
+   - observe a use case reads local state only
    - update use case refreshes remote or recomputes, then persists local state
    - `ViewModel` starts observation as `initialAction`
    - `Route` triggers the first refresh and retries with `LaunchedEffect` or retry callbacks
@@ -58,7 +58,7 @@ If the request does not fit one of those buckets, pause and explain why before i
 5. Create `<module>/build.gradle.kts` from the closest feature:
    - keep namespace, `compileSdk = 36`, and `minSdk = 24`
    - add iOS targets
-   - use Compose Multiplatform only if the module has shared UI
+   - use Compose Multiplatform only if the module has a shared UI
    - add `implementation(project(":base"))` by default
    - add `implementation(project(":persistence"))` only if the feature truly needs persistence
    - add `implementation(project(":testkit"))` in `commonTest`
@@ -81,7 +81,7 @@ If the request does not fit one of those buckets, pause and explain why before i
    - `ui`: screens, views, dialogs
 9. Keep the UI boundary intact:
    - `Navigation` resolves the `ViewModel`
-   - `Route` owns lifecycle collection and side-effect bridging
+   - `Route` owns lifecycle collection and side effect bridging
    - `Screen` receives plain state and callbacks only
 10. If the feature is part of the app runtime:
    - add it to `maincore/build.gradle.kts`

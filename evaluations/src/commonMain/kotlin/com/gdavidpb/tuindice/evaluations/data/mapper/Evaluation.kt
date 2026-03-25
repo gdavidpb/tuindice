@@ -1,13 +1,11 @@
 package com.gdavidpb.tuindice.evaluations.data.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.data.model.AddEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.model.AddEvaluationResponse
 import com.gdavidpb.tuindice.evaluations.data.model.DeleteEvaluationResponse
 import com.gdavidpb.tuindice.evaluations.data.model.EvaluationResponse
-import com.gdavidpb.tuindice.evaluations.data.model.GetEvaluationResponse
 import com.gdavidpb.tuindice.evaluations.data.model.GetEvaluationsResponse
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
@@ -36,11 +34,6 @@ fun EvaluationResponse.toRemoteEvaluation() = RemoteEvaluation(
 fun GetEvaluationsResponse.toRemoteEvaluationsSnapshot() = RemoteEvaluationsSnapshot(
 	anchorRevision = anchorRevision,
 	evaluations = evaluations.map { evaluation -> evaluation.toRemoteEvaluation() }
-)
-
-fun GetEvaluationResponse.toRemoteEvaluationsSnapshot() = RemoteEvaluationsSnapshot(
-	anchorRevision = anchorRevision,
-	evaluations = listOf(evaluation.toRemoteEvaluation())
 )
 
 fun EvaluationMutation.Add.toAddEvaluationRequest(
@@ -91,21 +84,6 @@ fun DeleteEvaluationResponse.toMutationAck() = EvaluationMutationAck.Remove(
 	removedEvaluationId = removedEvaluationId
 )
 
-fun Evaluation.toRemoteEvaluation() = RemoteEvaluation(
-	id = id,
-	referenceId = id,
-	subjectId = subjectId,
-	subjectCode = subjectCode,
-	quarterId = quarterId,
-	revision = 0L,
-	scheduleMode = scheduleMode,
-	grade = grade,
-	maxGrade = maxGrade,
-	date = date,
-	type = type.ordinal,
-	isDone = (state == EvaluationState.COMPLETED)
-)
-
 fun RemoteEvaluation.toLocalEvaluation() = LocalEvaluation(
 	id = id,
 	referenceId = referenceId,
@@ -136,19 +114,4 @@ fun LocalEvaluation.toEvaluation() = Evaluation(
 		grade = grade,
 		date = date
 	)
-)
-
-fun Evaluation.toLocalEvaluation() = LocalEvaluation(
-	id = id,
-	referenceId = id,
-	subjectId = subjectId,
-	subjectCode = subjectCode,
-	quarterId = quarterId,
-	revision = 0L,
-	scheduleMode = scheduleMode,
-	grade = grade,
-	maxGrade = maxGrade,
-	date = date,
-	type = type.ordinal,
-	isDone = (state == EvaluationState.COMPLETED)
 )

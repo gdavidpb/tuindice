@@ -5,7 +5,7 @@
 	<string name="state_message_loading">Cargando…</string>
 
 	<string name="title_empty_evaluations">¡Aún no hay nada por acá!</string>
-	<string name="message_empty_evaluations">Agrega tu primera evalución.\nRecuerda que la organización es el secreto del éxito.</string>
+	<string name="message_empty_evaluations">Agrega tu primera evaluación.\nRecuerda que la organización es el secreto del éxito.</string>
 	<string name="title_no_subjects_evaluations">¡No hay nada por acá!</string>
 	<string name="message_no_subjects_evaluations">No hay trimestres proyectados o en curso a los que agregar evaluaciones.</string>
 	<string name="title_empty_match_evaluations">No hay resultados</string>

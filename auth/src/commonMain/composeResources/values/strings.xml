@@ -8,7 +8,7 @@
 	<string name="link_terms_and_conditions">Términos y condiciones</string>
 	<string name="link_privacy_policy">Política de privacidad</string>
 	<string name="dialog_title_sign_out">Atención</string>
-	<string name="dialog_message_sign_out">¿Estás seguro que deseas cerrar sesión?</string>
+	<string name="dialog_message_sign_out">¿Estás seguro de que deseas cerrar sesión?</string>
 	<string name="dialog_button_sign_out">Cerrar sesión</string>
 	<string name="dialog_button_cancel">Cancelar</string>
 	<string name="dialog_title_update_password">Tu contraseña ha cambiado</string>

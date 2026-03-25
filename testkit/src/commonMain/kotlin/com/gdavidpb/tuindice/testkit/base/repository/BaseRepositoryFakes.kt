@@ -82,7 +82,6 @@ class RecordingReportingRepository : ReportingRepository {
 }
 
 class FakeFileRepository(
-	private val output: PlatformFile = PlatformFile("/tmp/test-file"),
 	private val canOpenResult: Boolean = true
 ) : FileRepository {
 	var lastCanOpenFile: PlatformFile? = null

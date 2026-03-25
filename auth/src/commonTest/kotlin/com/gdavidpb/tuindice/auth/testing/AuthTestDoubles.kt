@@ -41,7 +41,6 @@ data class IssueTokensCall(
 )
 
 class RecordingAuthRepository(
-	private val issueTokens: IssueTokens = DEFAULT_ISSUE_TOKENS,
 	private val refreshTokens: RefreshTokens = DEFAULT_REFRESH_TOKENS,
 	private val throwable: Throwable? = null
 ) : AuthRepository {

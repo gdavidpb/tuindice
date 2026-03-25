@@ -21,7 +21,6 @@ import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMuta
 import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
@@ -195,7 +194,7 @@ class RecordingEvaluationRepository(
 	override suspend fun addEvaluation(add: EvaluationAdd) {
 		addCalls += add
 		addThrowable?.let { throw it }
-		evaluationsState.value = evaluationsState.value + add.toEvaluation()
+		evaluationsState.value += add.toEvaluation()
 	}
 
 	override suspend fun updateEvaluation(update: EvaluationUpdate) {
@@ -461,15 +460,6 @@ class RecordingReportingRepository : ReportingRepository {
 	override fun logMessage(message: String) = Unit
 
 	override fun <T : Any> setCustomKey(key: String, value: T) = Unit
-}
-
-class FakeEvaluationFilter(
-	private val label: String,
-	private val predicate: (Evaluation) -> Boolean
-) : EvaluationFilter {
-	override fun getLabel(): String = label
-
-	override fun match(evaluation: Evaluation): Boolean = predicate(evaluation)
 }
 
 class FakeMutationEnvelopeStore<ScopeKey : Any, T : OutboxMutation>(

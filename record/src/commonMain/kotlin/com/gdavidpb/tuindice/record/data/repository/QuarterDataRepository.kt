@@ -11,11 +11,11 @@ import com.gdavidpb.tuindice.record.data.repository.mutation.RECORD_MUTATION_SCO
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutationAck
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutationSyncSpec
-import com.gdavidpb.tuindice.record.data.repository.quarter.mapper.toLocalQuarter
-import com.gdavidpb.tuindice.record.data.repository.quarter.mapper.toQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.SetSubjectGradeResult
+import com.gdavidpb.tuindice.record.data.source.database.mapper.toLocalQuarter
+import com.gdavidpb.tuindice.record.data.source.database.mapper.toQuarter
 import com.gdavidpb.tuindice.record.domain.model.QuarterAdd
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import com.gdavidpb.tuindice.record.domain.model.SubjectGradeSet

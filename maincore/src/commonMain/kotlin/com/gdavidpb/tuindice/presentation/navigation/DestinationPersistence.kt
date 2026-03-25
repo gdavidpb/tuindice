@@ -21,11 +21,3 @@ fun String.toDestinationOrThrow(): Destination = when (this) {
 	"about" -> AboutDestination.NavGraph
 	else -> throw IllegalArgumentException("Unknown destination name: $this")
 }
-
-fun String?.toDestinationOrDefault(
-	default: Destination = SummaryDestination.NavGraph
-): Destination {
-	return this
-		?.let { value -> runCatching { value.toDestinationOrThrow() }.getOrDefault(default) }
-		?: default
-}

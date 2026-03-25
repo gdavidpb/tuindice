@@ -1,20 +1,22 @@
 # TuIndice
 
-Aplicacion multiplataforma Kotlin para Android e iOS.
+Aplicación multiplataforma Kotlin para Android e iOS.
 
-El proyecto esta organizado como KMP con una sola base comun para arquitectura, recursos, DI y tests compartidos, mas un host Android en `app` y un host iOS en `iosApp`.
+El proyecto está organizado como KMP con una sola base común para arquitectura, recursos, DI y tests compartidos, más un
+host Android en `app` y un host iOS en `iosApp`.
 
-## Modulos del workspace
+## Módulos del workspace
 
-- `base`: contratos compartidos, helpers base, logging, errores, repositorios de infraestructura y piezas UI reutilizables.
+- `base`: contratos compartidos, helpers base, logging, errores, repositorios de infraestructura y piezas UI
+  reutilizables.
 - `persistence`: Room KMP y acceso a base de datos compartida.
-- `about`: informacion de app, enlaces y soporte.
-- `login`: autenticacion, sesion y actualizacion de credenciales.
+- `about`: información de app, enlaces y soporte.
+- `login`: autenticación, sesión y actualización de credenciales.
 - `summary`: resumen del perfil y foto de perfil.
-- `record`: historial academico y calculos de indice.
+- `record`: historial académico y cálculos de índice.
 - `evaluations`: evaluaciones, filtros, picker de fecha y picker de nota.
-- `enrollmentproof`: constancia de inscripcion y apertura de archivos.
-- `maincore`: navegacion compartida, bootstrap comun de Koin y superficie principal de la app.
+- `enrollmentproof`: constancia de inscripción y apertura de archivos.
+- `maincore`: navegación compartida, bootstrap común de Koin y superficie principal de la app.
 - `app`: host Android.
 - `iosApp`: host iOS.
 - `testkit`: helpers y dobles compartidos para pruebas.
@@ -22,13 +24,13 @@ El proyecto esta organizado como KMP con una sola base comun para arquitectura, 
 ## Estado actual del proyecto
 
 - La UI y los recursos de texto se mantienen en `commonMain` con `composeResources`.
-- La DI usa `commonModule`, un solo modulo por feature y un solo modulo de plataforma por SO.
-- El arranque de Koin es simetrico entre plataformas usando `startAppKoin(...)`.
+- La DI usa `commonModule`, un solo módulo por feature y un solo módulo de plataforma por SO.
+- El arranque de Koin es simétrico entre plataformas usando `startAppKoin(...)`.
 - iOS inyecta capacidades/runtime host a traves de `iOSContext(...)`.
 - Los settings no sensibles usan `multiplatform-settings`.
 - Lo sensible usa `KSafe`.
-- `RemoteConfig` se mantiene como configuracion remota directa, sin cache local en settings.
-- Existe un patron de smoke tests de Koin por modulo para validar wiring y entry points publicos.
+- `RemoteConfig` se mantiene como configuración remota directa, sin cache local en settings.
+- Existe un patron de smoke tests de Koin por modulo para validar wiring y entry points públicos.
 
 ## Arquitectura
 
@@ -39,11 +41,11 @@ La regla base es simple:
 - `data` implementa acceso a datos.
 - `di` conecta dependencias sin mezclar responsabilidades.
 
-## Dependencias entre modulos
+## Dependencias entre módulos
 
 Regla general:
 
-- Las dependencias deben apuntar hacia modulos base o infraestructura compartida.
+- Las dependencias deben apuntar hacia módulos base o infraestructura compartida.
 - Evitar dependencias cruzadas entre features.
 
 Dependencias actuales:
@@ -59,11 +61,11 @@ Dependencias actuales:
 - `maincore`: depende de `:base`, `:persistence` y todas las features.
 - `app`: host Android; ensambla `maincore`.
 
-Acuerdo de limites:
+Acuerdo de límites:
 
 - No agregar nuevas dependencias feature -> feature.
-- La excepcion `evaluations -> record` se considera legado controlado.
-- Cualquier nueva excepcion requiere acuerdo explicito antes de implementarse.
+- La excepción `evaluations -> record` se considera legado controlado.
+- Cualquier nueva excepción requiere acuerdo explícito antes de implementarse.
 
 ## Capas por feature
 
@@ -79,19 +81,19 @@ Cada feature en `commonMain` debe conservar esta estructura:
 
 Responsable de estado, acciones de UI y efectos.
 
-Ubicacion tipica:
+Ubicación típica:
 
 - `contract/*`: `State`, `Action`, `Effect`.
 - `viewmodel/*`: clases que extienden `BaseViewModel`.
-- `action/*`: `ActionProcessor` por accion relevante.
-- `route/*`: traduccion de `Effect` a navegacion o side effects UI.
+- `action/*`: `ActionProcessor` por acción relevante.
+- `route/*`: traducción de `Effect` a navegación o side effects UI.
 - `navigation/*`: builders de `NavGraphBuilder`.
 - `composeResources/values/*`: strings y recursos de UI del feature.
 
 Reglas:
 
 - `ViewModel` no llama infraestructura directamente; delega en processors y use cases.
-- `Route` no contiene logica de negocio.
+- `Route` no contiene lógica de negocio.
 - `Screen` y `View` no acceden a repositorios.
 - No hardcodear textos visibles en `presentation`; usar recursos.
 
@@ -99,7 +101,7 @@ Reglas:
 
 Responsable de negocio puro.
 
-Ubicacion tipica:
+Ubicación típica:
 
 - `model/*`
 - `repository/*`
@@ -111,15 +113,16 @@ Reglas:
 
 - `UseCase` depende de interfaces, no de implementaciones.
 - Validaciones en `ParamsValidator`.
-- Traduccion de errores en `ExceptionHandler`.
+- Traducción de errores en `ExceptionHandler`.
 - Cada feature expone una interfaz de fachada de negocio en `domain/repository`.
-- Cuando un contrato de `domain` representa estado de negocio compartido o coordina origenes internos, su implementacion debe vivir en `data/repository`, no en `data/source`.
+- Cuando un contrato de `domain` representa estado de negocio compartido o coordina orígenes internos, su implementación
+  debe vivir en `data/repository`, no en `data/source`.
 
 ### Data
 
 Responsable de integraciones y persistencia.
 
-Ubicacion tipica:
+Ubicación típica:
 
 - `data/repository/*`: implementaciones de interfaces de `domain`.
 - `data/source/*`: API, DB, settings, gateways y bridges de plataforma.
@@ -128,13 +131,16 @@ Ubicacion tipica:
 Reglas:
 
 - `domain` nunca importa clases de `data`.
-- La implementacion de una interfaz de dominio se define como `<Feature>DataRepository`.
-- Un `*DataSource` no debe bindearse directamente como interfaz de `domain` cuando el contrato representa negocio, estado compartido o coordinacion entre origenes.
+- La implementación de una interfaz de dominio se define como `<Feature>DataRepository`.
+- Un `*DataSource` no debe bindearse directamente como interfaz de `domain` cuando el contrato representa negocio,
+  estado compartido o coordinación entre orígenes.
 - En esos casos, el `*DataSource` queda como origen interno y un `*DataRepository` expone la interfaz de `domain`.
-- Si un `DataRepository` necesita origenes internos, esos contratos se definen como `*DataSource`.
+- Si un `DataRepository` necesita orígenes internos, esos contratos se definen como `*DataSource`.
 - Las concreciones de `*DataSource` viven en `data/source`.
-- Los adapters hoja de plataforma o gateways simples pueden implementar su contrato de `domain` directamente desde `data/source` si no estan modelando un repositorio de negocio ni coordinando otros origenes.
-- Si una feature necesita leer contratos compartidos de otro modulo, debe hacerlo mediante adapters propios de esa feature.
+- Los adapters hoja de plataforma o gateways simples pueden implementar su contrato de `domain` directamente desde
+  `data/source` si no están modelando un repositorio de negocio ni coordinando otros orígenes.
+- Si una feature necesita leer contratos compartidos de otro módulo, debe hacerlo mediante adapters propios de esa
+  feature.
 
 ### DI
 
@@ -151,21 +157,24 @@ Reglas:
 
 - `di` solo registra dependencias.
 - `di` no implementa adaptadores concretos.
-- En `commonModule`, preferir `single` para servicios compartidos de runtime, repositorios de infraestructura y dependencias con estado/memoria/flows/mutexes; reservar `factory` para objetos transientes o sin identidad compartida.
-- `featureModules()` agrega solo modulos de feature.
-- `commonModules()` agrega `commonModule` mas los modulos de feature.
-- El bootstrap comun entra por `startAppKoin(...)`.
+- En `commonModule`, preferir `single` para servicios compartidos de runtime, repositorios de infraestructura y
+  dependencias con estado/memoria/flows/mutexes; reservar `factory` para objetos de vida corta o sin identidad
+  compartida.
+- `featureModules()` agrega solo módulos de feature.
+- `commonModules()` agrega `commonModule` más los módulos de feature.
+- El bootstrap común entra por `startAppKoin(...)`.
 - Cada plataforma aporta un `PlatformKoinBootstrap`.
 - No crear `*AndroidModule` o `*IosModule` por feature.
-- Los bindings especificos de plataforma de una feature viven en el modulo de plataforma correspondiente.
-- `persistence` expone helpers/factories; el registro de storage por plataforma se invoca desde `androidPlatformModule` e `iosPlatformModule`.
+- Los bindings específicos de plataforma de una feature viven en el módulo de plataforma correspondiente.
+- `persistence` expone helpers/factories; el registro de storage por plataforma se invoca desde `androidPlatformModule`
+  e `iosPlatformModule`.
 
 ## Convenciones de Koin
 
 ### Naming
 
 - Infra compartida en `commonMain`: `commonModule`.
-- Modulos de feature: `mainModule`, `loginModule`, `aboutModule`, etc.
+- Módulos de feature: `mainModule`, `loginModule`, `aboutModule`, etc.
 - Wiring de plataforma: `androidPlatformModule` e `iosPlatformModule`.
 
 ### Archivos
@@ -174,10 +183,10 @@ Reglas:
 - Modulo de feature: `FeatureModule.kt`.
 - Wiring de plataforma: `AndroidPlatformModule.kt`, `IosPlatformModule.kt`.
 
-### Declaracion
+### Declaración
 
 - Usar `val ... = module { ... }` por defecto.
-- Usar `fun ...(...): Module = module { ... }` solo si realmente necesita parametros runtime.
+- Usar `fun ...(...): Module = module { ... }` solo si realmente necesita parámetros runtime.
 
 ### Bootstrap
 
@@ -189,8 +198,8 @@ Reglas:
 ### Patrones no permitidos
 
 - `*CoreModule`.
-- Modulos vacios `module {}`.
-- Modulos de plataforma por feature.
+- Módulos vacíos `module {}`.
+- Módulos de plataforma por feature.
 
 ## Limites KMP
 
@@ -199,36 +208,36 @@ Reglas:
 No permitido en `commonMain`:
 
 - imports `android.*`.
-- imports `java.*` salvo donde el source set lo permita y no sea comun.
+- imports `java.*` salvo donde el source set lo permita y no sea común.
 - `BuildConfig`.
 - `InputStream`, `OutputStream`, `Reader`, `Writer`.
 - `koinViewModel` o `koinNavViewModel`.
 
 Reglas adicionales:
 
-- La navegacion compartida vive en `commonMain`.
+- La navegación compartida vive en `commonMain`.
 - No usar DSL Android de ViewModel dentro de source sets KMP.
 - Usar `composeResources` para recursos visibles de UI.
 - Evitar `expect/actual` salvo casos muy justificados.
 
-## Flujo estandar
+## Flujo estándar
 
-1. `Screen` dispara una accion en `ViewModel`.
+1. `Screen` dispara una acción en `ViewModel`.
 2. `ViewModel` delega en `ActionProcessor`.
 3. `ActionProcessor` ejecuta un `UseCase`.
 4. `UseCase` usa interfaces de repositorio de `domain`.
 5. `ActionProcessor` mapea el resultado a `Mutation<State>` y `Effect`.
-6. `Route` consume `Effect` y lo traduce a navegacion o side effects UI.
+6. `Route` consume `Effect` y lo traduce a navegación o side effects UI.
 
 ## Patron de smoke tests de Koin
 
-Cada modulo Koin publico debe tener una prueba de inicializacion que valide su wiring minimo.
+Cada módulo Koin público debe tener una prueba de inicialización que valide su wiring mínimo.
 
-### Modulos de feature
+### Módulos de feature
 
 - Cada `<feature>Module` debe tener un `<Feature>ModuleKoinSmokeTest` en `commonTest`.
-- La prueba debe iniciar Koin con el modulo del feature y los overrides minimos de contratos externos.
-- La prueba debe resolver los entry points publicos del feature, normalmente sus `ViewModel`.
+- La prueba debe iniciar Koin con el módulo del feature y los overrides mínimos de contratos externos.
+- La prueba debe resolver los entry points públicos del feature, normalmente sus `ViewModel`.
 
 ### Bootstrap de plataforma
 
@@ -246,23 +255,23 @@ En `testkit`:
 Objetivo:
 
 - detectar dependencias faltantes al cambiar constructores,
-- validar el wiring minimo de cada modulo,
+- validar el wiring mínimo de cada módulo,
 - y cubrir el arranque real de iOS para detectar regresiones host/plataforma.
 
 ## Checklist para cambios nuevos
 
-- Se respeta separacion `presentation/domain/data/di`.
+- Se respeta separación `presentation/domain/data/di`.
 - No se introducen nuevas dependencias cruzadas entre features.
-- La navegacion del feature vive en `commonMain`.
+- La navegación del feature vive en `commonMain`.
 - `ViewModel` usa `ActionProcessor`.
 - Los casos de uso tienen validator y exception handler cuando aplica.
 - Las interfaces viven en `domain` y las implementaciones en `data`.
-- Koin se registra en el modulo correcto.
+- Koin se registra en el módulo correcto.
 - Los textos visibles van a recursos comunes.
 - Si agregas o cambias wiring de Koin, agregas o actualizas el smoke test del modulo afectado.
 - Ejecutas las verificaciones necesarias antes de cerrar el cambio.
 
-## Verificaciones utiles
+## Verificaciones útiles
 
 Ejemplos de comandos usados habitualmente:
 
@@ -273,10 +282,10 @@ Ejemplos de comandos usados habitualmente:
 ./gradlew --continue --console=plain :maincore:iosSimulatorArm64Test --tests '*IosAppKoinSmokeTest*'
 ```
 
-## Politica de evolucion
+## Política de evolución
 
 Si una necesidad de producto rompe estas reglas:
 
-- pausar la implementacion,
-- acordar el cambio de limite,
-- y actualizar este README en el mismo cambio tecnico.
+- pausar la implementación,
+- acordar el cambio de límite,
+- y actualizar este README en el mismo cambio técnico.

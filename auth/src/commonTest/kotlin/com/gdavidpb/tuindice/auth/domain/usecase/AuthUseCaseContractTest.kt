@@ -4,7 +4,6 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.AttestedOperation
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
-import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
@@ -53,7 +52,7 @@ class AuthUseCaseContractTest {
 		)
 
 		useCase.execute(SignInParams(usbId = VALID_USB_ID, password = "secret123")).test {
-			assertEquals(Unit, awaitLoadingThenData<Unit, SignInUseCaseError>(this))
+			assertEquals(Unit, awaitLoadingThenData(this))
 			awaitComplete()
 		}
 
@@ -89,7 +88,7 @@ class AuthUseCaseContractTest {
 		)
 
 		useCase.execute("new-secret").test {
-			assertEquals(Unit, awaitLoadingThenData<Unit, SignInUseCaseError>(this))
+			assertEquals(Unit, awaitLoadingThenData(this))
 			awaitComplete()
 		}
 
@@ -118,7 +117,7 @@ class AuthUseCaseContractTest {
 		)
 
 		useCase.execute(Unit).test {
-			assertEquals(Unit, awaitLoadingThenData<Unit, Nothing>(this))
+			assertEquals(Unit, awaitLoadingThenData(this))
 			awaitComplete()
 		}
 

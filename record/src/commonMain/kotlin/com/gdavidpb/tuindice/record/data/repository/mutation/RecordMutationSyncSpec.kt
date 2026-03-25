@@ -10,12 +10,12 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationSyncSpec
 import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataSource
 import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataSource
-import com.gdavidpb.tuindice.record.data.repository.quarter.mapper.toLocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteAddQuarterAck
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteDeleteQuarterAck
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSetSubjectGradeAck
+import com.gdavidpb.tuindice.record.data.source.database.mapper.toLocalQuarter
 import com.gdavidpb.tuindice.record.domain.policy.QuarterMutationPolicy
 
 class RecordMutationSyncSpec(
