@@ -20,7 +20,7 @@ import org.jetbrains.compose.resources.getString
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.snack_default_error
 import tuindice.record.generated.resources.snack_network_unavailable
-import tuindice.record.generated.resources.snack_record_read_only
+import tuindice.record.generated.resources.snack_record_not_found
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -154,7 +154,7 @@ class RecordActionProcessorContractTest {
 	}
 
 	@Test
-	fun setSubjectGradeActionProcessor_showsReadOnlyMessage_whenBackendRejectsCommit() = runTest {
+	fun setSubjectGradeActionProcessor_showsRecordChangedMessage_whenBackendRejectsCommit() = runTest {
 		val processor = SetSubjectGradeActionProcessor(
 			setSubjectGradeUseCase = SetSubjectGradeUseCase(
 				quarterRepository = RecordingQuarterRepository(
@@ -189,6 +189,6 @@ class RecordActionProcessorContractTest {
 		}
 
 		val effect = assertIs<Record.Effect.ShowSnackBar>(effects.single())
-		assertEquals(getString(Res.string.snack_record_read_only), effect.message)
+		assertEquals(getString(Res.string.snack_record_not_found), effect.message)
 	}
 }

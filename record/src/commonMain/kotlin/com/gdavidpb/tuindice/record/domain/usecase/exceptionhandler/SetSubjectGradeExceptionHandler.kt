@@ -10,14 +10,14 @@ import com.gdavidpb.tuindice.record.domain.usecase.error.SubjectUseCaseError
 class SetSubjectGradeExceptionHandler(
 	override val reportingRepository: ReportingRepository
 ) : ExceptionHandler<SubjectUseCaseError>() {
-	override fun parseException(throwable: Throwable): SubjectUseCaseError? {
-		return when (throwable) {
-			is SubjectIllegalArgumentException -> throwable.error
-			else -> when {
-				throwable.isNotFound() -> SubjectUseCaseError.NotFound
-				throwable.isPreconditionFailed() -> SubjectUseCaseError.ReadOnly
-				else -> null
+		override fun parseException(throwable: Throwable): SubjectUseCaseError? {
+			return when (throwable) {
+				is SubjectIllegalArgumentException -> throwable.error
+				else -> when {
+					throwable.isNotFound() -> SubjectUseCaseError.NotFound
+					throwable.isPreconditionFailed() -> SubjectUseCaseError.Conflict
+					else -> null
+				}
 			}
 		}
-	}
 }

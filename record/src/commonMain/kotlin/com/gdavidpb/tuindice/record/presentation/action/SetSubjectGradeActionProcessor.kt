@@ -34,13 +34,16 @@ class SetSubjectGradeActionProcessor(
 						state
 					}
 
-					is UseCaseState.Error -> suspend { state: Record.State ->
-						val message = when (useCaseState.error) {
-							is SubjectUseCaseError.NotFound ->
-								getString(Res.string.snack_record_not_found)
+						is UseCaseState.Error -> suspend { state: Record.State ->
+							val message = when (useCaseState.error) {
+								is SubjectUseCaseError.NotFound ->
+									getString(Res.string.snack_record_not_found)
 
-							is SubjectUseCaseError.ReadOnly ->
-								getString(Res.string.snack_record_read_only)
+								is SubjectUseCaseError.Conflict ->
+									getString(Res.string.snack_record_not_found)
+
+								is SubjectUseCaseError.ReadOnly ->
+									getString(Res.string.snack_record_read_only)
 
 							else ->
 								getString(Res.string.snack_default_error)

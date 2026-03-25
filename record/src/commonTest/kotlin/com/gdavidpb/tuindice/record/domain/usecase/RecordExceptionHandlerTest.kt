@@ -33,7 +33,7 @@ class RecordExceptionHandlerTest {
 	}
 
 	@Test
-	fun setSubjectGradeExceptionHandler_mapsReadOnly_andReportsHandled() {
+	fun setSubjectGradeExceptionHandler_mapsConflict_andReportsHandled() {
 		val reportingRepository = RecordingReportingRepository()
 		val throwable = clientRequestException(HttpStatusCode.PreconditionFailed, path = "/quarters/v1/qid/subjects/sid")
 
@@ -41,7 +41,7 @@ class RecordExceptionHandlerTest {
 			reportingRepository = reportingRepository
 		).reportException(throwable)
 
-		assertEquals(SubjectUseCaseError.ReadOnly, actual)
+		assertEquals(SubjectUseCaseError.Conflict, actual)
 		assertReported(
 			reportingRepository = reportingRepository,
 			handlerName = "SetSubjectGradeExceptionHandler",
