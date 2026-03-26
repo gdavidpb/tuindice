@@ -25,6 +25,8 @@ class RecordScreenUiTest {
 		setTuIndiceTestContent {
 			RecordScreen(
 				state = Record.State.Loading,
+				selectedQuarterId = null,
+				onSelectedQuarterChange = {},
 				onRetryClick = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
 			)
@@ -40,6 +42,8 @@ class RecordScreenUiTest {
 		setTuIndiceTestContent {
 			RecordScreen(
 				state = Record.State.Failed,
+				selectedQuarterId = null,
+				onSelectedQuarterChange = {},
 				onRetryClick = { retryClicks++ },
 				onSubjectGradeChange = { _, _, _, _ -> }
 			)
@@ -55,6 +59,8 @@ class RecordScreenUiTest {
 		setTuIndiceTestContent {
 			RecordScreen(
 				state = Record.State.Empty,
+				selectedQuarterId = null,
+				onSelectedQuarterChange = {},
 				onRetryClick = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
 			)
@@ -68,6 +74,8 @@ class RecordScreenUiTest {
 		setTuIndiceTestContent {
 			RecordScreen(
 				state = recordContentState(),
+				selectedQuarterId = null,
+				onSelectedQuarterChange = {},
 				onRetryClick = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
 			)
@@ -94,6 +102,8 @@ class RecordScreenUiTest {
 		setTuIndiceTestContent {
 			RecordScreen(
 				state = state,
+				selectedQuarterId = "quarter-1",
+				onSelectedQuarterChange = {},
 				onRetryClick = {},
 				onSubjectGradeChange = { quarterId, subjectId, newGrade, isSelected ->
 					events += listOf(quarterId, subjectId, newGrade, isSelected)

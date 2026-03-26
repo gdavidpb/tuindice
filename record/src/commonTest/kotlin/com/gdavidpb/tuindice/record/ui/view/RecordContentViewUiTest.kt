@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.record.ui.view
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.onAllNodesWithText
@@ -32,6 +34,8 @@ class RecordContentViewUiTest {
 		setTuIndiceTestContent {
 			RecordContentView(
 				state = recordContentState(),
+				selectedQuarterId = null,
+				onSelectedQuarterChange = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
 			)
 		}
@@ -54,6 +58,8 @@ class RecordContentViewUiTest {
 		setTuIndiceTestContent {
 			RecordContentView(
 				state = recordContentState(quarters = emptyList()),
+				selectedQuarterId = null,
+				onSelectedQuarterChange = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
 			)
 		}
@@ -81,6 +87,8 @@ class RecordContentViewUiTest {
 		setTuIndiceTestContent {
 			RecordContentView(
 				state = state,
+				selectedQuarterId = "quarter-1",
+				onSelectedQuarterChange = {},
 				onSubjectGradeChange = { quarterId, subjectId, newGrade, isSelected ->
 					events += GradeChangeEvent(quarterId, subjectId, newGrade, isSelected)
 				}
@@ -123,6 +131,10 @@ class RecordContentViewUiTest {
 		)
 
 		setTuIndiceTestContent {
+			val selectedQuarterIdState = remember {
+				mutableStateOf<String?>(DEFAULT_RECORD_QUARTER.id)
+			}
+
 			RecordContentView(
 				state = recordContentState(
 					quarters = listOf(
@@ -130,6 +142,10 @@ class RecordContentViewUiTest {
 						olderQuarter
 					)
 				),
+				selectedQuarterId = selectedQuarterIdState.value,
+				onSelectedQuarterChange = { quarterId ->
+					selectedQuarterIdState.value = quarterId
+				},
 				onSubjectGradeChange = { _, _, _, _ -> }
 			)
 		}

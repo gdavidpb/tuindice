@@ -20,6 +20,8 @@ import tuindice.record.generated.resources.record_failed_title
 @Composable
 fun RecordScreen(
 	state: Record.State,
+	selectedQuarterId: String?,
+	onSelectedQuarterChange: (quarterId: String) -> Unit,
 	onRetryClick: () -> Unit,
 	onSubjectGradeChange: (
 		quarterId: String,
@@ -38,6 +40,8 @@ fun RecordScreen(
 			is Record.State.Content ->
 				RecordContentView(
 					state = targetState,
+					selectedQuarterId = selectedQuarterId,
+					onSelectedQuarterChange = onSelectedQuarterChange,
 					onSubjectGradeChange = onSubjectGradeChange
 				)
 

@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -26,6 +24,8 @@ import tuindice.record.generated.resources.subject_grade_pattern
 @Composable
 fun RecordContentView(
 	state: Record.State.Content,
+	selectedQuarterId: String?,
+	onSelectedQuarterChange: (quarterId: String) -> Unit,
 	onSubjectGradeChange: (
 		quarterId: String,
 		subjectId: String,
@@ -72,21 +72,9 @@ fun RecordContentView(
 			highlightColor = MaterialTheme.colorScheme.primary
 		)
 	val chronologicalQuarters = quarters.asReversed()
-	val selectedQuarterIdState = remember {
-		mutableStateOf(quarters.firstOrNull()?.quarterId)
-	}
-
-	LaunchedEffect(quarters.map { quarter -> quarter.quarterId }) {
-		selectedQuarterIdState.value = when {
-			quarters.isEmpty() -> null
-			quarters.any { quarter -> quarter.quarterId == selectedQuarterIdState.value } ->
-				selectedQuarterIdState.value
-			else -> quarters.first().quarterId
-		}
-	}
 
 	val selectedQuarter = quarters.firstOrNull { quarter ->
-		quarter.quarterId == selectedQuarterIdState.value
+		quarter.quarterId == (selectedQuarterId ?: quarters.firstOrNull()?.quarterId)
 	}
 
 	Column(
@@ -100,7 +88,7 @@ fun RecordContentView(
 				quarters = chronologicalQuarters,
 				selectedQuarterId = selectedQuarter?.quarterId,
 				onQuarterSelected = { quarterId ->
-					selectedQuarterIdState.value = quarterId
+					onSelectedQuarterChange(quarterId)
 				}
 			)
 		}

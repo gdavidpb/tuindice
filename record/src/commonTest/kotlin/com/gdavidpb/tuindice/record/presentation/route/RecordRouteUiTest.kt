@@ -2,9 +2,11 @@ package com.gdavidpb.tuindice.record.presentation.route
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
+import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import androidx.compose.ui.semantics.SemanticsActions
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -49,6 +51,7 @@ class RecordRouteUiTest {
 				onNavigateToUpdatePassword = {
 					navigatedToUpdatePassword = true
 				},
+				onViewStateChanged = {},
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -92,6 +95,7 @@ class RecordRouteUiTest {
 				onNavigateToUpdatePassword = {
 					navigatedToUpdatePassword = true
 				},
+				onViewStateChanged = {},
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -123,6 +127,7 @@ class RecordRouteUiTest {
 				onNavigateToUpdatePassword = {
 					navigatedToUpdatePassword = true
 				},
+				onViewStateChanged = {},
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -150,6 +155,7 @@ class RecordRouteUiTest {
 				onNavigateToUpdatePassword = {
 					navigatedToUpdatePassword = true
 				},
+				onViewStateChanged = {},
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -200,6 +206,7 @@ class RecordRouteUiTest {
 				onNavigateToUpdatePassword = {
 					navigatedToUpdatePassword = true
 				},
+				onViewStateChanged = {},
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -244,6 +251,7 @@ class RecordRouteUiTest {
 		setTuIndiceTestContent {
 			RecordRoute(
 				onNavigateToUpdatePassword = {},
+				onViewStateChanged = {},
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -262,6 +270,61 @@ class RecordRouteUiTest {
 		}
 
 		assertTrue(quarterRepository.updateQuartersCalls.value >= 2)
+	}
+
+	@Test
+	fun when_selectedQuarterIsCurrent_then_topBarActionIsVisibleOtherwiseHidden() = runTuIndiceUiTest {
+		val olderQuarter = DEFAULT_RECORD_QUARTER.copy(
+			id = "quarter-2",
+			name = "2025-3",
+			startDate = DEFAULT_RECORD_QUARTER.startDate - 100_000L,
+			endDate = DEFAULT_RECORD_QUARTER.endDate - 100_000L,
+			isCurrent = false,
+			subjects = listOf(
+				DEFAULT_RECORD_SUBJECT.copy(
+					id = "subject-2",
+					quarterId = "quarter-2"
+				)
+			)
+		)
+		val viewModel = createRecordViewModel(
+			quarterRepository = RecordingQuarterRepository(
+				quarters = flowOf(
+					listOf(
+						DEFAULT_RECORD_QUARTER,
+						olderQuarter
+					)
+				)
+			)
+		)
+		val viewStates = mutableListOf<ViewState>()
+
+		setTuIndiceTestContent {
+			RecordRoute(
+				onNavigateToUpdatePassword = {},
+				onViewStateChanged = { state ->
+					viewStates += state
+				},
+				showSnackBar = {},
+				viewModel = viewModel
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewStates.lastOrNull()?.topBarConfig == TopBarConfig.Record
+		}
+
+		onNodeWithTag(RecordUiTags.quarterChip("quarter-2")).performClick()
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewStates.lastOrNull()?.topBarConfig == null
+		}
+
+		onNodeWithTag(RecordUiTags.quarterChip("quarter-1")).performClick()
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewStates.lastOrNull()?.topBarConfig == TopBarConfig.Record
+		}
 	}
 
 	private fun createRecordViewModel(
