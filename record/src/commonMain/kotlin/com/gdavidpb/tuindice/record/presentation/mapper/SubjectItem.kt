@@ -25,7 +25,6 @@ fun Subject.toSubjectItem(
 		creditsText = texts.subjectCredits(credits),
 		codeColor = subjectColors.color,
 		codeContainerColor = subjectColors.containerColor,
-		isRetired = (grade == MIN_SUBJECT_GRADE),
 		isReadOnly = isReadOnly
 	)
 }

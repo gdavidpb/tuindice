@@ -170,7 +170,7 @@ fun SubjectItemView(
 }
 
 private fun SubjectItem.displayGradeText(currentGrade: Int): String {
-	if ((currentGrade == grade) && !isRetired) return gradeText
+	if ((currentGrade == grade) && (currentGrade != MIN_SUBJECT_GRADE)) return gradeText
 
 	return "$currentGrade / $MAX_SUBJECT_GRADE"
 }

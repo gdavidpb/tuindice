@@ -37,8 +37,7 @@ fun sampleSubjectItem(
 		creditsText = "3 UC",
 		codeColor = subjectColors.color,
 		codeContainerColor = subjectColors.containerColor,
-		isReadOnly = isReadOnly,
-		isRetired = (grade == MIN_SUBJECT_GRADE)
+		isReadOnly = isReadOnly
 	)
 }
 

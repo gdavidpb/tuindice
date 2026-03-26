@@ -9,9 +9,7 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class SubjectItemUiTest {
@@ -43,7 +41,6 @@ class SubjectItemUiTest {
 		assertEquals("3 UC", mappedSubject.creditsText)
 		assertEquals(expectedColors.color, mappedSubject.codeColor)
 		assertEquals(expectedColors.containerColor, mappedSubject.codeContainerColor)
-		assertTrue(mappedSubject.isRetired)
 	}
 
 	@Test
@@ -74,6 +71,5 @@ class SubjectItemUiTest {
 		assertEquals("4 UC", mappedSubject.creditsText)
 		assertEquals(expectedColors.color, mappedSubject.codeColor)
 		assertEquals(expectedColors.containerColor, mappedSubject.codeContainerColor)
-		assertFalse(mappedSubject.isRetired)
 	}
 }

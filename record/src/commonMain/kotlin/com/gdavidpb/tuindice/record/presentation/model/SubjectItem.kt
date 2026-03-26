@@ -12,6 +12,5 @@ data class SubjectItem(
 	val creditsText: String,
 	val codeColor: Color,
 	val codeContainerColor: Color,
-	val isReadOnly: Boolean,
-	val isRetired: Boolean
+	val isReadOnly: Boolean
 )
