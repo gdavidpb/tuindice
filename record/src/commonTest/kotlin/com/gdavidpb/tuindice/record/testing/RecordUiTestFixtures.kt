@@ -53,6 +53,7 @@ fun sampleQuarterItem(
 	gradeText = AnnotatedString("Δx 4.2500"),
 	gradeSumText = AnnotatedString("∑x 4.2500"),
 	creditsText = AnnotatedString("⦿ 6"),
+	isCurrent = isCurrent,
 	canDelete = canDelete,
 	subjects = subjects
 )

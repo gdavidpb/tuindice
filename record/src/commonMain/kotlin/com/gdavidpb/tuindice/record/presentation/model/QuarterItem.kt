@@ -8,6 +8,7 @@ data class QuarterItem(
 	val gradeText: AnnotatedString,
 	val gradeSumText: AnnotatedString,
 	val creditsText: AnnotatedString,
+	val isCurrent: Boolean,
 	val canDelete: Boolean,
 	val subjects: List<SubjectItem>
 )

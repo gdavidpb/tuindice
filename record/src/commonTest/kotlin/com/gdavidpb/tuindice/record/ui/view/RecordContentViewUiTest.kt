@@ -39,9 +39,14 @@ class RecordContentViewUiTest {
 		assertNodeVisible(RecordUiTags.ContentContainer)
 		assertNodeVisible(RecordUiTags.QuarterSelectorRow)
 		assertNodeVisible(RecordUiTags.quarterChip("quarter-1"))
+		assertNodeVisible(
+			tag = RecordUiTags.quarterCurrentChip("quarter-1"),
+			useUnmergedTree = true
+		)
 		assertNodeVisible(RecordUiTags.SelectedQuarterSummary)
 		assertNodeVisible(RecordUiTags.subjectItem("subject-1"))
 		onAllNodesWithText("2026-1").assertCountEquals(1)
+		onAllNodesWithText("Actual").assertCountEquals(0)
 	}
 
 	@Test
@@ -137,5 +142,10 @@ class RecordContentViewUiTest {
 
 		assertNodeHidden(RecordUiTags.subjectItem("subject-1"))
 		assertNodeVisible(RecordUiTags.subjectItem("subject-2"))
+		onAllNodesWithText("Actual").assertCountEquals(0)
+		assertNodeHidden(
+			tag = RecordUiTags.quarterCurrentChip("quarter-2"),
+			useUnmergedTree = true
+		)
 	}
 }

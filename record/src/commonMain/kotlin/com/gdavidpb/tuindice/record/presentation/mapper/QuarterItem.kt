@@ -56,6 +56,7 @@ fun Quarter.toQuarterItem(
 		creditsText = texts
 			.quarterCredits(animatedCredits.value)
 			.annotatedQuarterValue(highlightColor),
+		isCurrent = isCurrent,
 		canDelete = QuarterMutationPolicy.canDelete(
 			isCurrent = isCurrent,
 			isReadOnly = isReadOnly

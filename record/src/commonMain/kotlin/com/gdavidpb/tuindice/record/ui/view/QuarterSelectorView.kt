@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
@@ -9,11 +10,13 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.selected
@@ -128,11 +132,11 @@ fun QuarterSelectorView(
 						.padding(vertical = 10.dp),
 					contentAlignment = Alignment.Center
 				) {
-					Column(
-						horizontalAlignment = Alignment.CenterHorizontally,
-						verticalArrangement = Arrangement.spacedBy(6.dp)
+					Box(
+						contentAlignment = Alignment.Center
 					) {
 						Text(
+							modifier = Modifier.padding(end = if (quarter.isCurrent) 14.dp else 0.dp),
 							text = quarter.shortNameText,
 							style = MaterialTheme.typography.titleLarge,
 							fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
@@ -145,11 +149,18 @@ fun QuarterSelectorView(
 							maxLines = 1,
 							overflow = TextOverflow.Ellipsis
 						)
-						CurrentQuarterChipSlot(
-							quarter = quarter,
-							label = currentQuarterChipLabel,
-							height = 28.dp
-						)
+
+						if (quarter.isCurrent) {
+							Box(
+								modifier = Modifier
+									.align(Alignment.CenterEnd)
+									.padding(start = 8.dp)
+									.size(8.dp)
+									.clip(CircleShape)
+									.background(MaterialTheme.colorScheme.primary)
+									.testTag(RecordUiTags.quarterCurrentChip(quarter.quarterId))
+							)
+						}
 					}
 				}
 			}

@@ -14,6 +14,7 @@ object RecordUiTags {
 
 	fun quarterItem(index: Int): String = "record_quarter_item_$index"
 	fun quarterChip(quarterId: String): String = "record_quarter_chip_$quarterId"
+	fun quarterCurrentChip(quarterId: String): String = "record_quarter_current_chip_$quarterId"
 	fun subjectItem(subjectId: String): String = "record_subject_item_$subjectId"
 	fun subjectCard(subjectId: String): String = "record_subject_card_$subjectId"
 	fun subjectGradeSlider(subjectId: String): String = "record_subject_grade_slider_$subjectId"
