@@ -73,9 +73,7 @@ fun SubjectItemView(
 						)
 						.padding(vertical = 4.dp, horizontal = 10.dp),
 					text = stringResource(Res.string.subject_retired),
-					fontWeight = FontWeight.SemiBold,
-					style = MaterialTheme.typography.labelMedium,
-					maxLines = 1
+					style = MaterialTheme.typography.labelLarge
 				)
 			} else {
 				Text(
@@ -109,7 +107,7 @@ fun SubjectItemView(
 			Text(
 				text = item.creditsText,
 				color = MaterialTheme.colorScheme.onSurfaceVariant,
-				style = MaterialTheme.typography.bodyMedium
+				style = MaterialTheme.typography.labelLarge
 			)
 		}
 

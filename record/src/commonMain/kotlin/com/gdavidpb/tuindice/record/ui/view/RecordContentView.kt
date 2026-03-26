@@ -110,9 +110,7 @@ fun RecordContentView(
 				modifier = Modifier
 					.fillMaxWidth()
 					.testTag(RecordUiTags.SelectedQuarterSummary),
-				item = selectedQuarter,
-				showTitle = false,
-				elevated = false
+				item = selectedQuarter
 			)
 
 			SelectedQuarterView(

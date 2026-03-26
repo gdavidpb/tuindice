@@ -12,7 +12,10 @@
 	<string name="record_app_uni">La Simón</string>
 	<string name="quarter_grade_diff_pattern">Δx %1$.4f</string>
 	<string name="quarter_grade_sum_pattern">∑x %1$.4f</string>
-	<string name="quarter_credits_pattern">⦿ %1$d UC</string>
+	<string name="quarter_credits_pattern">⦿ %1$d</string>
+	<string name="quarter_grade_label">Trimestre</string>
+	<string name="quarter_grade_sum_label">Acumulado</string>
+	<string name="quarter_credits_sum_label">UC inscritas</string>
 	<string name="subject_grade_pattern">%1$d / 5</string>
 	<string name="subject_credits_pattern">%1$d UC</string>
 	<string name="subject_retired">Retirada</string>

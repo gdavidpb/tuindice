@@ -19,7 +19,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class QuarterItemViewUiTest {
 	@Test
-	fun when_quarterItemIsRendered_then_displaysHeaderAndMetrics() = runTuIndiceUiTest {
+	fun when_quarterItemIsRendered_then_displaysMetrics() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			QuarterItemView(
 				item = sampleQuarterItem(),
@@ -27,10 +27,9 @@ class QuarterItemViewUiTest {
 			)
 		}
 
-		onNodeWithText("Abril - Julio 2023").assertIsDisplayed()
 		onNodeWithText("Δx 4.2500").assertIsDisplayed()
 		onNodeWithText("∑x 4.2500").assertIsDisplayed()
-		onNodeWithText("⦿ 6 UC").assertIsDisplayed()
+		onNodeWithText("⦿ 6").assertIsDisplayed()
 	}
 
 	@Test

@@ -35,7 +35,7 @@ class QuarterItemUiTest {
 		onNodeWithText("2026-1").assertIsDisplayed()
 		onNodeWithText("Δx 70.0").assertIsDisplayed()
 		onNodeWithText("∑x 70.0").assertIsDisplayed()
-		onNodeWithText("⦿ 6 UC").assertIsDisplayed()
+		onNodeWithText("⦿ 6").assertIsDisplayed()
 		onNodeWithText("Programacion").assertIsDisplayed()
 	}
 

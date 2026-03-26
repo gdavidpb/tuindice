@@ -1,91 +1,127 @@
 package com.gdavidpb.tuindice.record.ui.view
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
+import org.jetbrains.compose.resources.stringResource
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.quarter_credits_sum_label
+import tuindice.record.generated.resources.quarter_grade_label
+import tuindice.record.generated.resources.quarter_grade_sum_label
 
 @Composable
 fun QuarterSummaryView(
 	modifier: Modifier = Modifier,
-	item: QuarterItem,
-	showTitle: Boolean = true,
-	elevated: Boolean = true
+	item: QuarterItem
 ) {
-	val paddedModifier = modifier
-		.fillMaxWidth()
-		.padding(
-			horizontal = 16.dp,
-			vertical = 8.dp
-		)
-
-	if (elevated) {
-		ElevatedCard(
-			modifier = paddedModifier
-		) {
-			QuarterSummaryContent(
-				modifier = Modifier.padding(8.dp),
-				item = item,
-				showTitle = showTitle
-			)
-		}
-	} else {
-		QuarterSummaryContent(
-			modifier = paddedModifier,
-			item = item,
-			showTitle = showTitle
-		)
-	}
+	QuarterSummaryContent(
+		modifier = modifier
+			.fillMaxWidth()
+			.padding(
+				horizontal = 16.dp,
+				vertical = 8.dp
+			),
+		item = item
+	)
 }
 
 @Composable
 internal fun QuarterSummaryContent(
 	modifier: Modifier = Modifier,
-	item: QuarterItem,
-	showTitle: Boolean = true
+	item: QuarterItem
 ) {
-	Column(modifier = modifier) {
-		if (showTitle) {
-			Text(
-				modifier = Modifier
-					.fillMaxWidth()
-					.padding(8.dp),
-				text = item.nameText,
-				style = MaterialTheme.typography.titleLarge,
-				fontWeight = FontWeight.Black
-			)
-		}
+	val quarterGradeLabel = stringResource(Res.string.quarter_grade_label)
+	val quarterGradeSumLabel = stringResource(Res.string.quarter_grade_sum_label)
+	val quarterCreditsSumLabel = stringResource(Res.string.quarter_credits_sum_label)
 
+	Column(modifier = modifier) {
 		Row(
 			modifier = Modifier
 				.fillMaxWidth()
+				.height(IntrinsicSize.Min)
 				.padding(vertical = 4.dp),
-			horizontalArrangement = Arrangement.SpaceAround
+			verticalAlignment = Alignment.CenterVertically
 		) {
-			Text(
-				text = item.gradeText,
-				style = MaterialTheme.typography.titleMedium,
-				fontWeight = FontWeight.Medium
+			QuarterMetricItem(
+				modifier = Modifier.weight(1f),
+				value = item.gradeText,
+				subtitle = quarterGradeLabel
 			)
-			Text(
-				text = item.gradeSumText,
-				style = MaterialTheme.typography.titleMedium,
-				fontWeight = FontWeight.Medium
+
+			QuarterMetricDivider()
+
+			QuarterMetricItem(
+				modifier = Modifier.weight(1f),
+				value = item.gradeSumText,
+				subtitle = quarterGradeSumLabel
 			)
-			Text(
-				text = item.creditsText,
-				style = MaterialTheme.typography.titleMedium,
-				fontWeight = FontWeight.Medium
+
+			QuarterMetricDivider()
+
+			QuarterMetricItem(
+				modifier = Modifier.weight(1f),
+				value = item.creditsText,
+				subtitle = quarterCreditsSumLabel
 			)
 		}
 	}
+}
+
+@Composable
+private fun QuarterMetricItem(
+	modifier: Modifier = Modifier,
+	value: AnnotatedString,
+	subtitle: String
+) {
+	Column(
+		modifier = modifier,
+		horizontalAlignment = Alignment.CenterHorizontally,
+		verticalArrangement = Arrangement.Center
+	) {
+		Text(
+			modifier = Modifier.fillMaxWidth(),
+			text = value,
+			style = MaterialTheme.typography.titleMedium,
+			fontWeight = FontWeight.Medium,
+			textAlign = TextAlign.Center
+		)
+		Text(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(top = 4.dp),
+			text = subtitle,
+			style = MaterialTheme.typography.bodyMedium,
+			color = MaterialTheme.colorScheme.onSurfaceVariant,
+			textAlign = TextAlign.Center
+		)
+	}
+}
+
+@Composable
+private fun QuarterMetricDivider() {
+	Box(
+		modifier = Modifier
+			.padding(vertical = 8.dp)
+			.fillMaxHeight()
+			.width(1.dp)
+			.background(MaterialTheme.colorScheme.outlineVariant)
+	)
 }

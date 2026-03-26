@@ -16,7 +16,7 @@ fun recordContentState(
 fun recordMapperTexts(): RecordMapperTexts = RecordMapperTexts(
 	quarterGradeDiff = { grade -> "Δx $grade" },
 	quarterGradeSum = { grade -> "∑x $grade" },
-	quarterCredits = { credits -> "⦿ $credits UC" },
+	quarterCredits = { credits -> "⦿ $credits" },
 	subjectGrade = { grade -> "$grade / 5" },
 	subjectCredits = { credits -> "$credits UC" }
 )
@@ -51,7 +51,7 @@ fun sampleQuarterItem(
 	nameText = "Abril - Julio 2023",
 	gradeText = AnnotatedString("Δx 4.2500"),
 	gradeSumText = AnnotatedString("∑x 4.2500"),
-	creditsText = AnnotatedString("⦿ 6 UC"),
+	creditsText = AnnotatedString("⦿ 6"),
 	canDelete = canDelete,
 	subjects = subjects
 )
