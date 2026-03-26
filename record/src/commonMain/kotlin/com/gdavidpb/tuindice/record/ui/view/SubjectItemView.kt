@@ -8,18 +8,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -127,8 +122,6 @@ fun SubjectItemView(
 		}
 
 		if (!item.isReadOnly) {
-			val interactionSource = remember { MutableInteractionSource() }
-
 			Slider(
 				modifier = Modifier
 					.testTag(RecordUiTags.subjectGradeSlider(item.subjectId))
@@ -137,22 +130,6 @@ fun SubjectItemView(
 				value = currentGrade.toFloat(),
 				steps = MAX_SUBJECT_GRADE - 1,
 				valueRange = Ranges.subjectGrade,
-				interactionSource = interactionSource,
-				thumb = {
-					Box(
-						modifier = Modifier
-							.size(24.dp)
-							.background(
-								color = MaterialTheme.colorScheme.primary,
-								shape = CircleShape
-							)
-					)
-				},
-				track = { sliderState ->
-					SliderDefaults.Track(
-						sliderState = sliderState
-					)
-				},
 				onValueChange = { value ->
 					val newGrade = value.roundToInt()
 
