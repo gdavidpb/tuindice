@@ -75,6 +75,9 @@ Implement module work by copying the nearest existing module pattern instead of 
 - For navigation back results, use dedicated `@Serializable` result types instead of raw `String` or `Boolean` values. The shared helper derives the key from the result base type and serializes the payload into `savedStateHandle`.
 - When sending a sealed back result, call `navigateBackWithResult<BaseResult>(SubResult)` with the base type explicit so the writer and collector use the same key and serializer.
 - Match the repo's Compose local-state style: when using `remember { mutableStateOf(...) }`, prefer `val state = ...` plus `.value` reads/writes instead of delegated `var ... by remember { ... }`, unless the file already follows a different established pattern.
+- Keep presentation models in `presentation/model`. Each presentation `data class` should live in its own file named after the class.
+- Keep presentation mappers in `presentation/mapper`. If a file's primary purpose is mapping UI or presentation state, it belongs there.
+- Prefer precomputing UI-ready fields in presentation mappers instead of recomputing them inside composables when the source inputs are already available at mapping time. Leave only truly UI-local, theme-local, or resource-local work in the composable layer.
 - Keep `commonMain` portable:
   - no `android.*`
   - no `BuildConfig`

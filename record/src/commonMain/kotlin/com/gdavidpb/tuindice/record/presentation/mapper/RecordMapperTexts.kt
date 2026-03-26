@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.presentation.model
+package com.gdavidpb.tuindice.record.presentation.mapper
 
 data class RecordMapperTexts(
 	val quarterGradeDiff: (Float) -> String,

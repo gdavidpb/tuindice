@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -43,9 +44,11 @@ fun EvaluationsContentView(
 ) {
 	val mapping = rememberEvaluationItemMapping()
 	val lazyColumState = rememberLazyListState()
-	val evaluations = state
-		.filteredEvaluations
-		.toEvaluationItemList(mapping = mapping)
+	val evaluations = remember(state.filteredEvaluations, mapping) {
+		state
+			.filteredEvaluations
+			.toEvaluationItemList(mapping = mapping)
+	}
 
 	Box(
 		modifier = Modifier

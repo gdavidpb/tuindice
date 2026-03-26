@@ -12,7 +12,6 @@ import androidx.compose.ui.text.withStyle
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.record.domain.policy.QuarterMutationPolicy
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
-import com.gdavidpb.tuindice.record.presentation.model.RecordMapperTexts
 
 @Composable
 fun List<Quarter>.toQuarterItemList(

@@ -4,8 +4,8 @@ import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
-import com.gdavidpb.tuindice.record.presentation.model.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.ui.style.SubjectColorGenerator
 

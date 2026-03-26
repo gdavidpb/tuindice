@@ -24,10 +24,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.evaluation_attendance
@@ -48,6 +50,21 @@ import tuindice.evaluations.generated.resources.evaluation_test
 import tuindice.evaluations.generated.resources.evaluation_title
 import tuindice.evaluations.generated.resources.evaluation_workshop
 import tuindice.evaluations.generated.resources.evaluation_written_work
+
+data class EvaluationItemMapping(
+	val evaluationName: (type: EvaluationType, ordinal: Int) -> String,
+	val evaluationTitle: (type: EvaluationType, subjectCode: String) -> String,
+	val gradesCompleted: (grade: Double?, maxGrade: Double) -> String,
+	val gradesPending: (maxGrade: Double) -> String,
+	val gradesOverdue: (maxGrade: Double) -> String,
+	val typeIcon: (type: EvaluationType) -> ImageVector,
+	val dateIcon: (state: EvaluationState) -> ImageVector,
+	val gradesIcon: (state: EvaluationState) -> ImageVector,
+	val dateGroupTitle: (group: EvaluationDateGroup) -> String,
+	val dateText: (evaluation: Evaluation) -> String,
+	val highlightIconColor: (state: EvaluationState) -> Color,
+	val highlightTextColor: (state: EvaluationState) -> Color
+)
 
 @Composable
 fun rememberEvaluationItemMapping(): EvaluationItemMapping {
@@ -106,65 +123,78 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 		)
 	}
 
-	return EvaluationItemMapping(
-		evaluationName = { type, ordinal ->
-			evaluationNamePattern
-				.replace("%1${'$'}s", type.asString(typeLabels))
-				.replace("%2${'$'}d", ordinal.toString())
-		},
-		evaluationTitle = { type, subjectCode ->
-			evaluationTitlePattern
-				.replace("%1${'$'}s", type.asString(typeLabels))
-				.replace("%2${'$'}s", subjectCode)
-		},
-		gradesCompleted = { grade, maxGrade ->
-			evaluationGradePattern
-				.replace("%1${'$'}.2f", (grade ?: 0.0).formatGrade(decimals = 2))
-				.replace("%2${'$'}.2f", maxGrade.formatGrade(decimals = 2))
-		},
-		gradesPending = { maxGrade ->
-			evaluationPendingGradePattern
-				.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
-		},
-		gradesOverdue = { maxGrade ->
-			evaluationNotGradePattern
-				.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
-		},
-		typeIcon = { type -> type.asIcon() },
-		dateIcon = { state ->
-			when (state) {
-				EvaluationState.COMPLETED -> Icons.Outlined.EventAvailable
-				EvaluationState.CONTINUOUS -> Icons.Outlined.EventRepeat
-				else -> Icons.Outlined.Event
+	return remember(
+		dateTextMapping,
+		evaluationNamePattern,
+		evaluationTitlePattern,
+		evaluationGradePattern,
+		evaluationPendingGradePattern,
+		evaluationNotGradePattern,
+		typeLabels,
+		colorScheme.primary,
+		colorScheme.error,
+		colorScheme.outline
+	) {
+		EvaluationItemMapping(
+			evaluationName = { type, ordinal ->
+				evaluationNamePattern
+					.replace("%1${'$'}s", type.asString(typeLabels))
+					.replace("%2${'$'}d", ordinal.toString())
+			},
+			evaluationTitle = { type, subjectCode ->
+				evaluationTitlePattern
+					.replace("%1${'$'}s", type.asString(typeLabels))
+					.replace("%2${'$'}s", subjectCode)
+			},
+			gradesCompleted = { grade, maxGrade ->
+				evaluationGradePattern
+					.replace("%1${'$'}.2f", (grade ?: 0.0).formatGrade(decimals = 2))
+					.replace("%2${'$'}.2f", maxGrade.formatGrade(decimals = 2))
+			},
+			gradesPending = { maxGrade ->
+				evaluationPendingGradePattern
+					.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
+			},
+			gradesOverdue = { maxGrade ->
+				evaluationNotGradePattern
+					.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
+			},
+			typeIcon = { type -> type.asIcon() },
+			dateIcon = { state ->
+				when (state) {
+					EvaluationState.COMPLETED -> Icons.Outlined.EventAvailable
+					EvaluationState.CONTINUOUS -> Icons.Outlined.EventRepeat
+					else -> Icons.Outlined.Event
+				}
+			},
+			gradesIcon = { state ->
+				when (state) {
+					EvaluationState.COMPLETED, EvaluationState.CONTINUOUS -> Icons.Outlined.AssignmentTurnedIn
+					EvaluationState.PENDING -> Icons.Outlined.AssignmentReturned
+					EvaluationState.OVERDUE -> Icons.Outlined.AssignmentLate
+				}
+			},
+			dateGroupTitle = { bucket ->
+				bucket.getLabel(dateTextMapping)
+			},
+			dateText = { evaluation: Evaluation ->
+				evaluation.formatAsDayOfWeekAndDate(noDateLabel = dateTextMapping.noDateLabel)
+			},
+			highlightIconColor = { state ->
+				when (state) {
+					EvaluationState.COMPLETED -> colorScheme.primary
+					EvaluationState.OVERDUE -> colorScheme.error
+					else -> colorScheme.outline
+				}
+			},
+			highlightTextColor = { state ->
+				when (state) {
+					EvaluationState.OVERDUE -> colorScheme.error
+					else -> Color.Unspecified
+				}
 			}
-		},
-		gradesIcon = { state ->
-			when (state) {
-				EvaluationState.COMPLETED, EvaluationState.CONTINUOUS -> Icons.Outlined.AssignmentTurnedIn
-				EvaluationState.PENDING -> Icons.Outlined.AssignmentReturned
-				EvaluationState.OVERDUE -> Icons.Outlined.AssignmentLate
-			}
-		},
-		dateGroupTitle = { bucket ->
-			bucket.getLabel(dateTextMapping)
-		},
-		dateText = { evaluation: Evaluation ->
-			evaluation.formatAsDayOfWeekAndDate(noDateLabel = dateTextMapping.noDateLabel)
-		},
-		highlightIconColor = { state ->
-			when (state) {
-				EvaluationState.COMPLETED -> colorScheme.primary
-				EvaluationState.OVERDUE -> colorScheme.error
-				else -> colorScheme.outline
-			}
-		},
-		highlightTextColor = { state ->
-			when (state) {
-				EvaluationState.OVERDUE -> colorScheme.error
-				else -> Color.Unspecified
-			}
-		}
-	)
+		)
+	}
 }
 
 fun EvaluationType.asIcon() = when (this) {

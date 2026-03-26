@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.summary.testing
 
 import androidx.compose.ui.graphics.Color
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.ui.view.SummaryItemsColors
-import com.gdavidpb.tuindice.summary.ui.view.SummaryItemsLabels
-import com.gdavidpb.tuindice.summary.ui.view.buildSummaryItems
+import com.gdavidpb.tuindice.summary.presentation.mapper.toSummaryItemList
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryItemsColors
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryItemsLabels
 
 fun summaryContentState(
 	profilePictureUrl: String = "https://cdn.tuindice.app/profile.jpg",
@@ -30,8 +30,7 @@ fun summaryContentState(
 
 fun summaryItemsFor(
 	state: Summary.State.Content = summaryContentState()
-) = buildSummaryItems(
-	state = state,
+) = state.toSummaryItemList(
 	labels = SummaryItemsLabels(
 		subjectsHeader = "${state.enrolledSubjects} materias cursadas",
 		subjectsApprovedLabel = "Aprobadas",

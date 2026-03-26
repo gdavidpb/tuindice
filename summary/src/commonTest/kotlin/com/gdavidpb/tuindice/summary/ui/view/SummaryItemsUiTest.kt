@@ -6,6 +6,9 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.summary.presentation.mapper.toSummaryItemList
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryItemsColors
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryItemsLabels
 import com.gdavidpb.tuindice.summary.testing.summaryContentState
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -45,7 +48,7 @@ class SummaryItemsUiTest {
 	}
 
 	@Test
-	fun when_buildSummaryItemsCalled_then_mapsHeadersValuesAndColors() {
+	fun when_summaryStateMappedToItems_then_mapsHeadersValuesAndColors() {
 		val state = summaryContentState().copy(
 			approvedSubjects = 7,
 			failedSubjects = 2,
@@ -58,8 +61,7 @@ class SummaryItemsUiTest {
 		val failedColor = Color(0xFFC62828)
 		val retiredColor = Color(0xFF616161)
 
-		val items = buildSummaryItems(
-			state = state,
+		val items = state.toSummaryItemList(
 			labels = SummaryItemsLabels(
 				subjectsHeader = "Materias",
 				subjectsApprovedLabel = "Aprobadas",
