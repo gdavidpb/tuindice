@@ -4,7 +4,7 @@ import androidx.compose.ui.text.AnnotatedString
 
 data class QuarterItem(
 	val quarterId: String,
-	val nameText: String,
+	val shortNameText: String,
 	val gradeText: AnnotatedString,
 	val gradeSumText: AnnotatedString,
 	val creditsText: AnnotatedString,

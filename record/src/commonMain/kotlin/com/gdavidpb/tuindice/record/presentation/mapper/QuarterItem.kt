@@ -46,7 +46,7 @@ fun Quarter.toQuarterItem(
 
 	return QuarterItem(
 		quarterId = id,
-		nameText = name,
+		shortNameText = name.toQuarterShortName(),
 		gradeText = texts
 			.quarterGradeDiff(animatedGrade.value)
 			.annotatedQuarterValue(highlightColor),
@@ -85,4 +85,23 @@ fun String.annotatedQuarterValue(highlightColor: Color) = buildAnnotatedString {
 	}
 
 	append(" $after")
+}
+
+private fun String.toQuarterShortName(): String {
+	return listOf(
+		"Enero" to "Ene.",
+		"Febrero" to "Feb.",
+		"Marzo" to "Mar.",
+		"Abril" to "Abr.",
+		"Mayo" to "May.",
+		"Junio" to "Jun.",
+		"Julio" to "Jul.",
+		"Agosto" to "Ago.",
+		"Septiembre" to "Sep.",
+		"Octubre" to "Oct.",
+		"Noviembre" to "Nov.",
+		"Diciembre" to "Dic."
+	).fold(this) { label, (fullMonth, shortMonth) ->
+		label.replace(fullMonth, shortMonth)
+	}
 }

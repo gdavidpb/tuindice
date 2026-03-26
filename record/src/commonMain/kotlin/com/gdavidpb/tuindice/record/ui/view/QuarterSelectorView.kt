@@ -128,19 +128,29 @@ fun QuarterSelectorView(
 						.padding(vertical = 10.dp),
 					contentAlignment = Alignment.Center
 				) {
-					Text(
-						text = quarter.nameText.quarterSelectorLabel(),
-						style = MaterialTheme.typography.titleLarge,
-						fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
-						color = if (isSelected) {
-							MaterialTheme.colorScheme.onSurface
-						} else {
-							MaterialTheme.colorScheme.onSurfaceVariant
-						},
-						textAlign = TextAlign.Center,
-						maxLines = 1,
-						overflow = TextOverflow.Ellipsis
-					)
+					Column(
+						horizontalAlignment = Alignment.CenterHorizontally,
+						verticalArrangement = Arrangement.spacedBy(6.dp)
+					) {
+						Text(
+							text = quarter.shortNameText,
+							style = MaterialTheme.typography.titleLarge,
+							fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
+							color = if (isSelected) {
+								MaterialTheme.colorScheme.onSurface
+							} else {
+								MaterialTheme.colorScheme.onSurfaceVariant
+							},
+							textAlign = TextAlign.Center,
+							maxLines = 1,
+							overflow = TextOverflow.Ellipsis
+						)
+						CurrentQuarterChipSlot(
+							quarter = quarter,
+							label = currentQuarterChipLabel,
+							height = 28.dp
+						)
+					}
 				}
 			}
 		}
@@ -162,23 +172,4 @@ private fun centeredQuarterId(
 	} ?: return null
 
 	return quarters.getOrNull(centeredItem.index)?.quarterId
-}
-
-private fun String.quarterSelectorLabel(): String {
-	return listOf(
-		"Enero" to "Ene.",
-		"Febrero" to "Feb.",
-		"Marzo" to "Mar.",
-		"Abril" to "Abr.",
-		"Mayo" to "May.",
-		"Junio" to "Jun.",
-		"Julio" to "Jul.",
-		"Agosto" to "Ago.",
-		"Septiembre" to "Sep.",
-		"Octubre" to "Oct.",
-		"Noviembre" to "Nov.",
-		"Diciembre" to "Dic."
-	).fold(this) { label, (fullMonth, shortMonth) ->
-		label.replace(fullMonth, shortMonth)
-	}
 }

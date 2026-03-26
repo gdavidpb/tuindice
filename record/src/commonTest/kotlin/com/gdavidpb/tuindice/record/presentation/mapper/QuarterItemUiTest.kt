@@ -24,7 +24,7 @@ class QuarterItemUiTest {
 			val item = items.first()
 
 			Column {
-				Text(text = item.nameText)
+				Text(text = item.shortNameText)
 				Text(text = item.gradeText.text)
 				Text(text = item.gradeSumText.text)
 				Text(text = item.creditsText.text)

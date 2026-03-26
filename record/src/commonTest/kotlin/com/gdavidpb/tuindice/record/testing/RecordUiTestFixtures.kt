@@ -43,11 +43,13 @@ fun sampleSubjectItem(
 
 fun sampleQuarterItem(
 	quarterId: String = "quarter-1",
+	shortNameText: String = "Abr. - Jul. 2023",
+	isCurrent: Boolean = false,
 	canDelete: Boolean = false,
 	subjects: List<SubjectItem> = listOf(sampleSubjectItem())
 ): QuarterItem = QuarterItem(
 	quarterId = quarterId,
-	nameText = "Abril - Julio 2023",
+	shortNameText = shortNameText,
 	gradeText = AnnotatedString("Δx 4.2500"),
 	gradeSumText = AnnotatedString("∑x 4.2500"),
 	creditsText = AnnotatedString("⦿ 6"),
