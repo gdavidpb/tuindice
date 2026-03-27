@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.base.domain.usecase.base
 
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.utils.reportingMessage
+import com.gdavidpb.tuindice.base.domain.utils.reportingName
+import com.gdavidpb.tuindice.base.domain.utils.rootCause
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -36,12 +39,15 @@ abstract class FlowUseCase<P, T, E : UseCaseError>(
 				if (throwable is CancellationException) throw throwable
 
 				val error = exceptionHandler?.parseException(throwable)
+				val rootCause = throwable.rootCause()
 
-				val useCase = this@FlowUseCase::class.simpleName ?: "Unknown"
-				val isHandled = error != null
-
-				reportingRepository.setCustomKey("use-case", useCase)
-				reportingRepository.setCustomKey("is-handled", isHandled)
+				reportingRepository.setCustomKey("use-case", this@FlowUseCase::class.reportingName())
+				reportingRepository.setCustomKey("is-handled", error != null)
+				reportingRepository.setCustomKey("throwable-class", throwable.reportingName())
+				reportingRepository.setCustomKey("throwable-message", throwable.reportingMessage())
+				reportingRepository.setCustomKey("root-cause-class", rootCause.reportingName())
+				reportingRepository.setCustomKey("root-cause-message", rootCause.reportingMessage())
+				reportingRepository.setCustomKey("error-class", error.reportingName())
 				reportingRepository.logException(throwable)
 
 				emit(UseCaseState.Error(error))

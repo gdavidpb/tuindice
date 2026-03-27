@@ -14,7 +14,10 @@ class FlowUseCaseTest {
 	@Test
 	fun when_exceptionHandlerIsMissing_then_flowUseCaseStillReports() = runTest {
 		val reportingRepository = RecordingReportingRepository()
-		val throwable = IllegalStateException("boom")
+		val throwable = IllegalStateException(
+			message = "boom",
+			cause = IllegalArgumentException("root")
+		)
 		val useCase = TestFallbackUseCase(
 			reportingRepository = reportingRepository,
 			throwable = throwable
@@ -24,8 +27,13 @@ class FlowUseCaseTest {
 
 		assertEquals(2, states.size)
 		assertEquals(throwable, reportingRepository.loggedExceptions.single())
-		assertEquals("TestFallbackUseCase", reportingRepository.customKeys["useCase"])
-		assertEquals(false, reportingRepository.customKeys["isHandled"])
+		assertEquals("TestFallbackUseCase", reportingRepository.customKeys["use-case"])
+		assertEquals(false, reportingRepository.customKeys["is-handled"])
+		assertEquals("IllegalStateException", reportingRepository.customKeys["throwable-class"])
+		assertEquals("boom", reportingRepository.customKeys["throwable-message"])
+		assertEquals("IllegalArgumentException", reportingRepository.customKeys["root-cause-class"])
+		assertEquals("root", reportingRepository.customKeys["root-cause-message"])
+		assertEquals("none", reportingRepository.customKeys["error-class"])
 	}
 
 	@Test
@@ -42,8 +50,13 @@ class FlowUseCaseTest {
 
 		assertEquals(2, states.size)
 		assertEquals(throwable, reportingRepository.loggedExceptions.single())
-		assertEquals("TestHandledUseCase", reportingRepository.customKeys["useCase"])
-		assertEquals(true, reportingRepository.customKeys["isHandled"])
+		assertEquals("TestHandledUseCase", reportingRepository.customKeys["use-case"])
+		assertEquals(true, reportingRepository.customKeys["is-handled"])
+		assertEquals("IllegalStateException", reportingRepository.customKeys["throwable-class"])
+		assertEquals("boom", reportingRepository.customKeys["throwable-message"])
+		assertEquals("IllegalStateException", reportingRepository.customKeys["root-cause-class"])
+		assertEquals("boom", reportingRepository.customKeys["root-cause-message"])
+		assertEquals("Handled", reportingRepository.customKeys["error-class"])
 		assertEquals(TestUseCaseError.Handled, (states.last() as UseCaseState.Error).error)
 	}
 

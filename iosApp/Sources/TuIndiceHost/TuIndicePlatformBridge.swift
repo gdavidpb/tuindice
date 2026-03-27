@@ -418,17 +418,28 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
     }
 
     func logException(throwable: KotlinThrowable) {
-        NSLog("%@", throwable.description())
+        let description = throwable.description()
+        NSLog("%@", description)
 
         #if canImport(FirebaseCrashlytics)
         guard isFirebaseConfigured else { return }
-        let message = throwable.message ?? throwable.description()
+        let message = throwable.message ?? description
+        let crashlytics = Crashlytics.crashlytics()
+        crashlytics.log("Kotlin throwable: \(description)")
+
+        if message != description {
+            crashlytics.log("Kotlin throwable message: \(message)")
+        }
+
         let error = NSError(
             domain: "com.gdavidpb.tuindice.kotlin",
             code: 1,
-            userInfo: [NSLocalizedDescriptionKey: message]
+            userInfo: [
+                NSLocalizedDescriptionKey: message,
+                NSDebugDescriptionErrorKey: description
+            ]
         )
-        Crashlytics.crashlytics().record(error: error)
+        crashlytics.record(error: error)
         #endif
     }
 

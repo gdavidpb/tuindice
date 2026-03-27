@@ -127,8 +127,8 @@ class FetchEnrollmentProofUseCaseContractTest {
 		}
 
 		assertEquals(1, reportingRepository.loggedExceptions.size)
-		assertEquals(true, reportingRepository.customKeys["isHandled"])
-		assertTrue(reportingRepository.customKeys.containsKey("useCase"))
+		assertEquals(true, reportingRepository.customKeys["is-handled"])
+		assertTrue(reportingRepository.customKeys.containsKey("use-case"))
 	}
 
 	@Test
