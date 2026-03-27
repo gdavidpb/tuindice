@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.domain.usecase
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -18,8 +19,9 @@ class StartUpUseCase(
 	private val settingsRepository: SettingsRepository,
 	private val configRepository: ConfigRepository,
 	private val applicationRepository: ApplicationRepository,
+	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: StartUpExceptionHandler
-) : FlowUseCase<Unit, StartUpResult, StartUpUseCaseError>() {
+) : FlowUseCase<Unit, StartUpResult, StartUpUseCaseError>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: Unit): Flow<StartUpResult> {
 		noAwait { configRepository.tryFetch() }
 

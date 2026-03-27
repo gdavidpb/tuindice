@@ -266,10 +266,10 @@ class SignInRouteUiTest {
 			credentialsRepository = FakeCredentialsRepository(),
 			syncStatusRepository = FakeSyncStatusRepository(),
 			attestationRepository = FakeAttestationRepository(),
+			reportingRepository = RecordingReportingRepository(),
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
-				networkRepository = FakeNetworkRepository(isAvailable = networkAvailable),
-				reportingRepository = RecordingReportingRepository()
+				networkRepository = FakeNetworkRepository(isAvailable = networkAvailable)
 			)
 		)
 

@@ -455,15 +455,16 @@ class SummaryRouteUiTest {
 		return SummaryViewModel(
 			observeSummaryActionProcessor = ObserveSummaryActionProcessor(
 				observeUserUseCase = ObserveUserUseCase(
-					userRepository = userRepository
+					userRepository = userRepository,
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			refreshSummaryActionProcessor = RefreshSummaryActionProcessor(
 				updateUserUseCase = UpdateUserUseCase(
 					userRepository = userRepository,
+					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateUserExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true),
-						reportingRepository = RecordingReportingRepository()
+						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
 				)
 			),
@@ -472,19 +473,19 @@ class SummaryRouteUiTest {
 			uploadProfilePictureActionProcessor = UploadProfilePictureActionProcessor(
 				uploadProfilePictureUseCase = UploadProfilePictureUseCase(
 					userRepository = userRepository,
+					reportingRepository = RecordingReportingRepository(),
 					paramsValidator = UploadProfilePictureParamsValidator(),
 					exceptionHandler = UploadProfilePictureExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true),
-						reportingRepository = RecordingReportingRepository()
+						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
 				)
 			),
 			confirmRemoveProfilePictureActionProcessor = ConfirmRemoveProfilePictureActionProcessor(
 				removeProfilePictureUseCase = RemoveProfilePictureUseCase(
 					userRepository = userRepository,
+					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = RemoveProfilePictureExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true),
-						reportingRepository = RecordingReportingRepository()
+						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
 				)
 			),

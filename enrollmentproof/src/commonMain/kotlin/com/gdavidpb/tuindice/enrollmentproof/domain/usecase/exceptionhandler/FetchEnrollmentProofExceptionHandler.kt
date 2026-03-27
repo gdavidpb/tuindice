@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler
 
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
@@ -12,8 +11,7 @@ import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNot
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
 
 class FetchEnrollmentProofExceptionHandler(
-	private val networkRepository: NetworkRepository,
-	override val reportingRepository: ReportingRepository
+	private val networkRepository: NetworkRepository
 ) : ExceptionHandler<FetchEnrollmentProofUseCaseError>() {
 	override fun parseException(throwable: Throwable): FetchEnrollmentProofUseCaseError? {
 		return when {

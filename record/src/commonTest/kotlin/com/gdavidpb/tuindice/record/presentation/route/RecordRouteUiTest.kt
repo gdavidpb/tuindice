@@ -335,24 +335,24 @@ class RecordRouteUiTest {
 			observeQuartersActionProcessor = ObserveQuartersActionProcessor(
 				observeQuartersUseCase = ObserveQuartersUseCase(
 					quarterRepository = quarterRepository,
+					reportingRepository = RecordingReportingRepository(),
 				)
 			),
 			refreshQuartersActionProcessor = RefreshQuartersActionProcessor(
 				updateQuartersUseCase = UpdateQuartersUseCase(
 					quarterRepository = quarterRepository,
+					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateQuartersExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true),
-						reportingRepository = RecordingReportingRepository()
+						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
 				)
 			),
 			setSubjectGradeActionProcessor = SetSubjectGradeActionProcessor(
 				setSubjectGradeUseCase = SetSubjectGradeUseCase(
 					quarterRepository = quarterRepository,
+					reportingRepository = RecordingReportingRepository(),
 					paramsValidator = SetSubjectGradeParamsValidator(),
-					exceptionHandler = SetSubjectGradeExceptionHandler(
-						reportingRepository = RecordingReportingRepository()
-					)
+					exceptionHandler = SetSubjectGradeExceptionHandler()
 				)
 			)
 		)

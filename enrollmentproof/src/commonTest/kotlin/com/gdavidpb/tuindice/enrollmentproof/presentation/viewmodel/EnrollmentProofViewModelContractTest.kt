@@ -31,9 +31,9 @@ class EnrollmentProofViewModelContractTest {
 					enrollmentProofRepository = FakeEnrollmentProofRepository(
 						enrollmentProof = DEFAULT_ENROLLMENT_PROOF
 					),
+					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = FetchEnrollmentProofExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true),
-						reportingRepository = RecordingReportingRepository()
+						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
 				),
 				textProvider = FakeEnrollmentProofTextProvider()

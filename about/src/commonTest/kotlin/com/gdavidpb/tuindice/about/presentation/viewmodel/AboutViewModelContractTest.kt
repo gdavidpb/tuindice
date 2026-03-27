@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -97,12 +98,14 @@ class AboutViewModelContractTest {
 		return AboutViewModel(
 			loadVersionActionProcessor = LoadVersionActionProcessor(
 				loadVersionUseCase = LoadVersionUseCase(
-					aboutRepository = FakeAboutRepository()
+					aboutRepository = FakeAboutRepository(),
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			contactDeveloperActionProcessor = ContactDeveloperActionProcessor(
 				sendSupportEmailUseCase = SendSupportEmailUseCase(
-					configRepository = FakeConfigRepository()
+					configRepository = FakeConfigRepository(),
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			openTermsAndConditionsActionProcessor = OpenTermsAndConditionsActionProcessor(
@@ -114,17 +117,20 @@ class AboutViewModelContractTest {
 			shareAppActionProcessor = ShareAppActionProcessor(),
 			rateOnStoreActionProcessor = RateOnStoreActionProcessor(
 				openStoreUseCase = OpenStoreUseCase(
-					storeUrlDataSource = FakeStoreUrlDataSource()
+					storeUrlDataSource = FakeStoreUrlDataSource(),
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			reportBugActionProcessor = ReportBugActionProcessor(
 				sendSupportEmailUseCase = SendSupportEmailUseCase(
-					configRepository = FakeConfigRepository()
+					configRepository = FakeConfigRepository(),
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			openUrlActionProcessor = OpenUrlActionProcessor(
 				openExternalUrlUseCase = OpenExternalUrlUseCase(
-					browserRepository = browserRepository
+					browserRepository = browserRepository,
+					reportingRepository = RecordingReportingRepository()
 				)
 			)
 		)

@@ -41,10 +41,9 @@ class EvaluationActionProcessorContractTest {
 					)
 				),
 				identifierRepository = FakeIdentifierRepository(),
+				reportingRepository = RecordingReportingRepository(),
 				paramsValidator = AddEvaluationParamsValidator(),
-				exceptionHandler = AddEvaluationExceptionHandler(
-					reportingRepository = RecordingReportingRepository()
-				)
+				exceptionHandler = AddEvaluationExceptionHandler()
 			)
 		)
 		val initialState = evaluationContentState()
@@ -81,9 +80,8 @@ class EvaluationActionProcessorContractTest {
 						path = "/evaluations/v1/${DEFAULT_PENDING_EVALUATION.id}"
 					)
 				),
-				exceptionHandler = UpdateEvaluationExceptionHandler(
-					reportingRepository = RecordingReportingRepository()
-				)
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = UpdateEvaluationExceptionHandler()
 			)
 		)
 		val initialState = evaluationContentState()
@@ -119,9 +117,8 @@ class EvaluationActionProcessorContractTest {
 		val processor = EditEvaluationActionProcessor(
 			updateEvaluationUseCase = UpdateEvaluationUseCase(
 				evaluationRepository = repository,
-				exceptionHandler = UpdateEvaluationExceptionHandler(
-					reportingRepository = RecordingReportingRepository()
-				)
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = UpdateEvaluationExceptionHandler()
 			)
 		)
 		val initialState = evaluationContentState()

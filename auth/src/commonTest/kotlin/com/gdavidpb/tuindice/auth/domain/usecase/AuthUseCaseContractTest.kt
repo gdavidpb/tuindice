@@ -44,10 +44,10 @@ class AuthUseCaseContractTest {
 			credentialsRepository = credentialsRepository,
 			syncStatusRepository = syncStatusRepository,
 			attestationRepository = attestationRepository,
+			reportingRepository = RecordingReportingRepository(),
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
-				networkRepository = FakeNetworkRepository(isAvailable = true),
-				reportingRepository = RecordingReportingRepository()
+				networkRepository = FakeNetworkRepository(isAvailable = true)
 			)
 		)
 
@@ -80,10 +80,10 @@ class AuthUseCaseContractTest {
 			credentialsRepository = credentialsRepository,
 			syncStatusRepository = syncStatusRepository,
 			attestationRepository = FakeAttestationRepository(),
+			reportingRepository = RecordingReportingRepository(),
 			paramsValidator = UpdatePasswordParamsValidator(),
 			exceptionHandler = UpdatePasswordExceptionHandler(
-				networkRepository = FakeNetworkRepository(isAvailable = true),
-				reportingRepository = RecordingReportingRepository()
+				networkRepository = FakeNetworkRepository(isAvailable = true)
 			)
 		)
 
@@ -113,7 +113,8 @@ class AuthUseCaseContractTest {
 			sessionRepository = sessionRepository,
 			messagingRepository = messagingRepository,
 			applicationRepository = applicationRepository,
-			syncStatusRepository = syncStatusRepository
+			syncStatusRepository = syncStatusRepository,
+			reportingRepository = RecordingReportingRepository()
 		)
 
 		useCase.execute(Unit).test {

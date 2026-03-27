@@ -50,26 +50,28 @@ fun createMainViewModel(
 				settingsRepository = settingsRepository,
 				configRepository = configRepository,
 				applicationRepository = applicationRepository,
-				exceptionHandler = StartUpExceptionHandler(
-					reportingRepository = reportingRepository
-				)
+				reportingRepository = reportingRepository,
+				exceptionHandler = StartUpExceptionHandler()
 			)
 		),
 		requestReviewActionProcessor = RequestReviewActionProcessor(
 			requestReviewUseCase = RequestReviewUseCase(
 				settingsRepository = settingsRepository,
-				configRepository = configRepository
+				configRepository = configRepository,
+				reportingRepository = reportingRepository
 			)
 		),
 		requestUpdateActionProcessor = RequestUpdateActionProcessor(
 			getUpdateInfoUseCase = GetUpdateInfoUseCase(
 				configRepository = configRepository,
-				updateGateway = updateRepository
+				updateGateway = updateRepository,
+				reportingRepository = reportingRepository
 			)
 		),
 		setLastDestinationActionProcessor = SetLastDestinationActionProcessor(
 			setLastDestinationUseCase = SetLastDestinationUseCase(
-				settingsRepository = settingsRepository
+				settingsRepository = settingsRepository,
+				reportingRepository = reportingRepository
 			)
 		)
 	)

@@ -191,9 +191,9 @@ class FetchEnrollmentProofActionProcessorContractTest {
 			enrollmentProofUseCase = FetchEnrollmentProofUseCase(
 				applicationRepository = fileRepository,
 				enrollmentProofRepository = enrollmentProofRepository,
+				reportingRepository = RecordingReportingRepository(),
 				exceptionHandler = FetchEnrollmentProofExceptionHandler(
-					networkRepository = networkRepository,
-					reportingRepository = RecordingReportingRepository()
+					networkRepository = networkRepository
 				)
 			),
 			textProvider = FakeEnrollmentProofTextProvider()

@@ -44,10 +44,10 @@ class SignInViewModelContractTest {
 					credentialsRepository = FakeCredentialsRepository(),
 					syncStatusRepository = FakeSyncStatusRepository(),
 					attestationRepository = FakeAttestationRepository(),
+					reportingRepository = RecordingReportingRepository(),
 					paramsValidator = SignInParamsValidator(),
 					exceptionHandler = SignInExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true),
-						reportingRepository = RecordingReportingRepository()
+						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
 				),
 				configRepository = FakeConfigRepository()

@@ -28,7 +28,8 @@ class RecordUseCaseContractTest {
 		val useCase = ObserveQuartersUseCase(
 			quarterRepository = RecordingQuarterRepository(
 				quarters = flowOf(listOf(DEFAULT_RECORD_QUARTER))
-			)
+			),
+			reportingRepository = RecordingReportingRepository()
 		)
 
 		useCase.execute(Unit).test {
@@ -42,9 +43,9 @@ class RecordUseCaseContractTest {
 		val repository = RecordingQuarterRepository()
 		val useCase = UpdateQuartersUseCase(
 			quarterRepository = repository,
+			reportingRepository = RecordingReportingRepository(),
 			exceptionHandler = UpdateQuartersExceptionHandler(
-				networkRepository = FakeNetworkRepository(isAvailable = true),
-				reportingRepository = RecordingReportingRepository()
+				networkRepository = FakeNetworkRepository(isAvailable = true)
 			)
 		)
 
@@ -60,7 +61,8 @@ class RecordUseCaseContractTest {
 	fun addQuarterUseCase_emitsLoadingThenData_andDelegatesAdd() = runTest {
 		val repository = RecordingQuarterRepository()
 		val useCase = AddQuarterUseCase(
-			quarterRepository = repository
+			quarterRepository = repository,
+			reportingRepository = RecordingReportingRepository()
 		)
 		val params = AddQuarterParams(
 			quarter = 1,
@@ -90,10 +92,9 @@ class RecordUseCaseContractTest {
 		val reportingRepository = RecordingReportingRepository()
 		val useCase = SetSubjectGradeUseCase(
 			quarterRepository = repository,
+			reportingRepository = reportingRepository,
 			paramsValidator = SetSubjectGradeParamsValidator(),
-			exceptionHandler = SetSubjectGradeExceptionHandler(
-				reportingRepository = reportingRepository
-			)
+			exceptionHandler = SetSubjectGradeExceptionHandler()
 		)
 		val params = SetSubjectGradeParams(
 			quarterId = DEFAULT_RECORD_QUARTER.id,
@@ -130,10 +131,9 @@ class RecordUseCaseContractTest {
 	fun setSubjectGradeUseCase_rejectsGradeOutsideRange() = runTest {
 		val useCase = SetSubjectGradeUseCase(
 			quarterRepository = RecordingQuarterRepository(),
+			reportingRepository = RecordingReportingRepository(),
 			paramsValidator = SetSubjectGradeParamsValidator(),
-			exceptionHandler = SetSubjectGradeExceptionHandler(
-				reportingRepository = RecordingReportingRepository()
-			)
+			exceptionHandler = SetSubjectGradeExceptionHandler()
 		)
 
 		useCase.execute(

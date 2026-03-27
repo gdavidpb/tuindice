@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler
 
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isForbidden
@@ -14,8 +13,7 @@ import com.gdavidpb.tuindice.auth.domain.exception.SignInIllegalArgumentExceptio
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 
 class UpdatePasswordExceptionHandler(
-	private val networkRepository: NetworkRepository,
-	override val reportingRepository: ReportingRepository
+	private val networkRepository: NetworkRepository
 ) : ExceptionHandler<SignInUseCaseError>() {
 	override fun parseException(throwable: Throwable): SignInUseCaseError? {
 		return when {

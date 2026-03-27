@@ -22,7 +22,8 @@ class SummaryUseCaseContractTest {
 	@Test
 	fun observeUserUseCase_emitsLoadingThenData_fromRepositoryFlow() = runTest {
 		val useCase = ObserveUserUseCase(
-			userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER))
+			userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER)),
+			reportingRepository = RecordingReportingRepository()
 		)
 
 		useCase.execute(Unit).test {
@@ -36,9 +37,9 @@ class SummaryUseCaseContractTest {
 		val repository = RecordingUserRepository()
 		val useCase = UpdateUserUseCase(
 			userRepository = repository,
+			reportingRepository = RecordingReportingRepository(),
 			exceptionHandler = UpdateUserExceptionHandler(
-				networkRepository = FakeNetworkRepository(isAvailable = true),
-				reportingRepository = RecordingReportingRepository()
+				networkRepository = FakeNetworkRepository(isAvailable = true)
 			)
 		)
 
@@ -55,10 +56,10 @@ class SummaryUseCaseContractTest {
 		val repository = RecordingUserRepository(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE)
 		val useCase = UploadProfilePictureUseCase(
 			userRepository = repository,
+			reportingRepository = RecordingReportingRepository(),
 			paramsValidator = UploadProfilePictureParamsValidator(),
 			exceptionHandler = UploadProfilePictureExceptionHandler(
-				networkRepository = FakeNetworkRepository(isAvailable = true),
-				reportingRepository = RecordingReportingRepository()
+				networkRepository = FakeNetworkRepository(isAvailable = true)
 			)
 		)
 		val file = PlatformFile("content://profile/new.jpg")
@@ -75,10 +76,10 @@ class SummaryUseCaseContractTest {
 	fun uploadProfilePictureUseCase_rejectsInvalidFileSource_withInvalidSourceError() = runTest {
 		val useCase = UploadProfilePictureUseCase(
 			userRepository = RecordingUserRepository(),
+			reportingRepository = RecordingReportingRepository(),
 			paramsValidator = UploadProfilePictureParamsValidator(),
 			exceptionHandler = UploadProfilePictureExceptionHandler(
-				networkRepository = FakeNetworkRepository(isAvailable = true),
-				reportingRepository = RecordingReportingRepository()
+				networkRepository = FakeNetworkRepository(isAvailable = true)
 			)
 		)
 

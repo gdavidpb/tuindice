@@ -352,9 +352,9 @@ class EnrollmentProofRouteUiTest {
 		val useCase = FetchEnrollmentProofUseCase(
 			applicationRepository = FakeFileRepository(canOpenResult = canOpenFile),
 			enrollmentProofRepository = enrollmentProofRepository,
+			reportingRepository = RecordingReportingRepository(),
 			exceptionHandler = FetchEnrollmentProofExceptionHandler(
-				networkRepository = FakeNetworkRepository(isAvailable = networkAvailable),
-				reportingRepository = RecordingReportingRepository()
+				networkRepository = FakeNetworkRepository(isAvailable = networkAvailable)
 			)
 		)
 

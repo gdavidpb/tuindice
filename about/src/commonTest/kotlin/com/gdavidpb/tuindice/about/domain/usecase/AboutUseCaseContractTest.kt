@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
 import com.gdavidpb.tuindice.about.testing.CURRENT_PRODUCTION_VERSION_TEXT
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -17,7 +18,8 @@ class AboutUseCaseContractTest {
 		val useCase = LoadVersionUseCase(
 			aboutRepository = FakeAboutRepository(
 				versionDescription = CURRENT_PRODUCTION_VERSION_TEXT
-			)
+			),
+			reportingRepository = RecordingReportingRepository()
 		)
 
 		useCase.execute(Unit).test {
@@ -33,7 +35,8 @@ class AboutUseCaseContractTest {
 			configRepository = FakeConfigRepository(
 				email = "info@tuindice.app",
 				subject = "TuIndice Soporte"
-			)
+			),
+			reportingRepository = RecordingReportingRepository()
 		)
 
 		useCase.execute(Unit).test {
@@ -52,7 +55,8 @@ class AboutUseCaseContractTest {
 		val useCase = OpenStoreUseCase(
 			storeUrlDataSource = FakeStoreUrlDataSource(
 				storeUrl = "itms-apps://apps.apple.com/app/id123"
-			)
+			),
+			reportingRepository = RecordingReportingRepository()
 		)
 
 		useCase.execute(Unit).test {
@@ -67,7 +71,8 @@ class AboutUseCaseContractTest {
 	fun openExternalUrlUseCase_opensBrowserAndEmitsUnitData() = runTest {
 		val browserRepository = RecordingBrowserRepository()
 		val useCase = OpenExternalUrlUseCase(
-			browserRepository = browserRepository
+			browserRepository = browserRepository,
+			reportingRepository = RecordingReportingRepository()
 		)
 
 		useCase.execute("https://tuindice.app/about").test {

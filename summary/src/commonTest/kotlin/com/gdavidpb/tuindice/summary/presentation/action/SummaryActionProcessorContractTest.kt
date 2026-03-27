@@ -105,10 +105,10 @@ class SummaryActionProcessorContractTest {
 		val processor = UploadProfilePictureActionProcessor(
 			uploadProfilePictureUseCase = UploadProfilePictureUseCase(
 				userRepository = RecordingUserRepository(),
+				reportingRepository = RecordingReportingRepository(),
 				paramsValidator = UploadProfilePictureParamsValidator(),
 				exceptionHandler = UploadProfilePictureExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true),
-					reportingRepository = RecordingReportingRepository()
+					networkRepository = FakeNetworkRepository(isAvailable = true)
 				)
 			)
 		)
@@ -162,10 +162,10 @@ class SummaryActionProcessorContractTest {
 						path = "/users/v1/picture"
 					)
 				),
+				reportingRepository = RecordingReportingRepository(),
 				paramsValidator = UploadProfilePictureParamsValidator(),
 				exceptionHandler = UploadProfilePictureExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true),
-					reportingRepository = RecordingReportingRepository()
+					networkRepository = FakeNetworkRepository(isAvailable = true)
 				)
 			)
 		)
@@ -219,9 +219,9 @@ class SummaryActionProcessorContractTest {
 						path = "/users/v1/picture"
 					)
 				),
+				reportingRepository = RecordingReportingRepository(),
 				exceptionHandler = RemoveProfilePictureExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true),
-					reportingRepository = RecordingReportingRepository()
+					networkRepository = FakeNetworkRepository(isAvailable = true)
 				)
 			)
 		)
@@ -288,7 +288,8 @@ class SummaryActionProcessorContractTest {
 	): ObserveSummaryActionProcessor {
 		return ObserveSummaryActionProcessor(
 			observeUserUseCase = ObserveUserUseCase(
-				userRepository = userRepository
+				userRepository = userRepository,
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 	}
@@ -299,9 +300,9 @@ class SummaryActionProcessorContractTest {
 		return RefreshSummaryActionProcessor(
 			updateUserUseCase = UpdateUserUseCase(
 				userRepository = userRepository,
+				reportingRepository = RecordingReportingRepository(),
 				exceptionHandler = UpdateUserExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true),
-					reportingRepository = RecordingReportingRepository()
+					networkRepository = FakeNetworkRepository(isAvailable = true)
 				)
 			)
 		)

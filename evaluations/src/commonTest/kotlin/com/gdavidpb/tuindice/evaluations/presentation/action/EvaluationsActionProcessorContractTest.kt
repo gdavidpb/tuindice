@@ -38,9 +38,8 @@ class EvaluationsActionProcessorContractTest {
 						DEFAULT_COMPLETED_EVALUATION
 					)
 				),
-				exceptionHandler = GetEvaluationsExceptionHandler(
-					reportingRepository = RecordingReportingRepository()
-				)
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = GetEvaluationsExceptionHandler()
 			)
 		)
 		val effects = mutableListOf<Evaluations.Effect>()
@@ -73,9 +72,8 @@ class EvaluationsActionProcessorContractTest {
 					evaluationsFlow = flowOf(emptyList()),
 					availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
 				),
-				exceptionHandler = GetEvaluationsExceptionHandler(
-					reportingRepository = RecordingReportingRepository()
-				)
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = GetEvaluationsExceptionHandler()
 			)
 		)
 
@@ -97,7 +95,8 @@ class EvaluationsActionProcessorContractTest {
 				RecordingEvaluationRepository(
 					initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
 					availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
-				)
+				),
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 		val effects = mutableListOf<Evaluation.Effect>()
@@ -127,7 +126,8 @@ class EvaluationsActionProcessorContractTest {
 				RecordingEvaluationRepository(
 					initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
 					availableSubjects = listOf(availableSubject, SECOND_EVALUATION_SUBJECT)
-				)
+				),
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 

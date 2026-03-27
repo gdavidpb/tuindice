@@ -32,6 +32,7 @@ import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -588,11 +589,23 @@ class AboutRouteUiTest {
 			override fun getStoreUrl(): String = "https://store.tuindice.test"
 		}
 
-		val loadVersionUseCase = LoadVersionUseCase(aboutRepository)
-		val sendSupportEmailUseCase = SendSupportEmailUseCase(FakeConfigRepository())
-		val openStoreUseCase = OpenStoreUseCase(storeUrlDataSource)
+		val loadVersionUseCase = LoadVersionUseCase(
+			aboutRepository = aboutRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+		val sendSupportEmailUseCase = SendSupportEmailUseCase(
+			configRepository = FakeConfigRepository(),
+			reportingRepository = RecordingReportingRepository()
+		)
+		val openStoreUseCase = OpenStoreUseCase(
+			storeUrlDataSource = storeUrlDataSource,
+			reportingRepository = RecordingReportingRepository()
+		)
 		val browserRepository = RecordingBrowserRepository()
-		val openExternalUrlUseCase = OpenExternalUrlUseCase(browserRepository)
+		val openExternalUrlUseCase = OpenExternalUrlUseCase(
+			browserRepository = browserRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
 
 		return AboutRouteFixture(
 			viewModel = AboutViewModel(

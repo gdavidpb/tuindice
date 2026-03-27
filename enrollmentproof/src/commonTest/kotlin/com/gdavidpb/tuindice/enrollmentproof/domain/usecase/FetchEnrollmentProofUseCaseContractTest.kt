@@ -156,9 +156,9 @@ class FetchEnrollmentProofUseCaseContractTest {
 		return FetchEnrollmentProofUseCase(
 			applicationRepository = fileRepository,
 			enrollmentProofRepository = enrollmentProofRepository,
+			reportingRepository = reportingRepository,
 			exceptionHandler = FetchEnrollmentProofExceptionHandler(
-				networkRepository = networkRepository,
-				reportingRepository = reportingRepository
+				networkRepository = networkRepository
 			)
 		)
 	}

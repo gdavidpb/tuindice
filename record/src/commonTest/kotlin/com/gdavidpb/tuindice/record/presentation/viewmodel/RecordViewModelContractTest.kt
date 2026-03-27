@@ -69,25 +69,25 @@ class RecordViewModelContractTest {
 				observeQuartersUseCase = ObserveQuartersUseCase(
 					quarterRepository = RecordingQuarterRepository(
 						quarters = flowOf(listOf(DEFAULT_RECORD_QUARTER))
-					)
+					),
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			refreshQuartersActionProcessor = RefreshQuartersActionProcessor(
 				updateQuartersUseCase = UpdateQuartersUseCase(
 					quarterRepository = RecordingQuarterRepository(),
+					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateQuartersExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true),
-						reportingRepository = RecordingReportingRepository()
+						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
 				)
 			),
 			setSubjectGradeActionProcessor = SetSubjectGradeActionProcessor(
 				setSubjectGradeUseCase = SetSubjectGradeUseCase(
 					quarterRepository = RecordingQuarterRepository(),
+					reportingRepository = RecordingReportingRepository(),
 					paramsValidator = SetSubjectGradeParamsValidator(),
-					exceptionHandler = SetSubjectGradeExceptionHandler(
-						reportingRepository = RecordingReportingRepository()
-					)
+					exceptionHandler = SetSubjectGradeExceptionHandler()
 				)
 			)
 		)

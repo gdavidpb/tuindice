@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.reduceMutations
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -26,7 +27,8 @@ class AboutActionProcessorContractTest {
 	fun loadVersionActionProcessor_reducesStateToContent() = runTest {
 		val processor = LoadVersionActionProcessor(
 			loadVersionUseCase = LoadVersionUseCase(
-				aboutRepository = FakeAboutRepository(CURRENT_PRODUCTION_VERSION_TEXT)
+				aboutRepository = FakeAboutRepository(CURRENT_PRODUCTION_VERSION_TEXT),
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 		val effects = mutableListOf<About.Effect>()
@@ -119,7 +121,8 @@ class AboutActionProcessorContractTest {
 			openStoreUseCase = OpenStoreUseCase(
 				storeUrlDataSource = FakeStoreUrlDataSource(
 					storeUrl = "market://details?id=com.gdavidpb.tuindice"
-				)
+				),
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 		val effects = mutableListOf<About.Effect>()
@@ -140,7 +143,8 @@ class AboutActionProcessorContractTest {
 	fun reportBugActionProcessor_emitsMailtoEffect() = runTest {
 		val processor = ReportBugActionProcessor(
 			sendSupportEmailUseCase = SendSupportEmailUseCase(
-				configRepository = FakeConfigRepository()
+				configRepository = FakeConfigRepository(),
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 		val effects = mutableListOf<About.Effect>()
@@ -161,7 +165,8 @@ class AboutActionProcessorContractTest {
 	fun contactDeveloperActionProcessor_emitsMailtoEffect() = runTest {
 		val processor = ContactDeveloperActionProcessor(
 			sendSupportEmailUseCase = SendSupportEmailUseCase(
-				configRepository = FakeConfigRepository()
+				configRepository = FakeConfigRepository(),
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 		val effects = mutableListOf<About.Effect>()
@@ -183,7 +188,8 @@ class AboutActionProcessorContractTest {
 		val browserRepository = RecordingBrowserRepository()
 		val processor = OpenUrlActionProcessor(
 			openExternalUrlUseCase = OpenExternalUrlUseCase(
-				browserRepository = browserRepository
+				browserRepository = browserRepository,
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 		val effects = mutableListOf<About.Effect>()

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.usecase.error.UpdateQuartersUseCaseError
@@ -9,8 +10,9 @@ import kotlinx.coroutines.flow.flowOf
 
 class UpdateQuartersUseCase(
 	private val quarterRepository: QuarterRepository,
+	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: UpdateQuartersExceptionHandler
-) : FlowUseCase<Unit, Unit, UpdateQuartersUseCaseError>() {
+) : FlowUseCase<Unit, Unit, UpdateQuartersUseCaseError>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		quarterRepository.updateQuarters()
 

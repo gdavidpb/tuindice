@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -26,9 +27,10 @@ class SignInUseCase(
 	private val credentialsRepository: CredentialsRepository,
 	private val syncStatusRepository: SyncStatusRepository,
 	private val attestationRepository: AttestationRepository,
+	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: SignInParamsValidator,
 	override val exceptionHandler: SignInExceptionHandler
-) : FlowUseCase<SignInParams, Unit, SignInUseCaseError>() {
+) : FlowUseCase<SignInParams, Unit, SignInUseCaseError>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
 		val flow = AttestedTokenFlow.IssueTokens
 		val attestationPayload = IssueTokensAttestationPayload(

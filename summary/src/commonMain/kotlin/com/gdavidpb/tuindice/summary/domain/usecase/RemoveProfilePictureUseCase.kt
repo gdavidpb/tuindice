@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
@@ -9,8 +10,9 @@ import kotlinx.coroutines.flow.flowOf
 
 class RemoveProfilePictureUseCase(
 	private val userRepository: UserRepository,
+	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: RemoveProfilePictureExceptionHandler
-) : FlowUseCase<Unit, Unit, ProfilePictureUseCaseError>() {
+) : FlowUseCase<Unit, Unit, ProfilePictureUseCaseError>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		userRepository.removeProfilePicture()
 

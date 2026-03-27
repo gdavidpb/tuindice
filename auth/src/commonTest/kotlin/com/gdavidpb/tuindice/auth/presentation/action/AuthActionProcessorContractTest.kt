@@ -48,10 +48,10 @@ class AuthActionProcessorContractTest {
 				credentialsRepository = FakeCredentialsRepository(),
 				syncStatusRepository = FakeSyncStatusRepository(),
 				attestationRepository = FakeAttestationRepository(),
+				reportingRepository = RecordingReportingRepository(),
 				paramsValidator = SignInParamsValidator(),
 				exceptionHandler = SignInExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true),
-					reportingRepository = RecordingReportingRepository()
+					networkRepository = FakeNetworkRepository(isAvailable = true)
 				)
 			),
 			configRepository = FakeConfigRepository()
@@ -87,10 +87,10 @@ class AuthActionProcessorContractTest {
 				credentialsRepository = FakeCredentialsRepository(),
 				syncStatusRepository = FakeSyncStatusRepository(),
 				attestationRepository = FakeAttestationRepository(),
+				reportingRepository = RecordingReportingRepository(),
 				paramsValidator = UpdatePasswordParamsValidator(),
 				exceptionHandler = UpdatePasswordExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true),
-					reportingRepository = RecordingReportingRepository()
+					networkRepository = FakeNetworkRepository(isAvailable = true)
 				)
 			)
 		)
@@ -119,7 +119,8 @@ class AuthActionProcessorContractTest {
 				sessionRepository = FakeSessionRepository(),
 				messagingRepository = RecordingMessagingRepository(),
 				applicationRepository = RecordingApplicationRepository(),
-				syncStatusRepository = FakeSyncStatusRepository()
+				syncStatusRepository = FakeSyncStatusRepository(),
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 		val effects = mutableListOf<SignOut.Effect>()
@@ -149,10 +150,10 @@ class AuthActionProcessorContractTest {
 				credentialsRepository = FakeCredentialsRepository(),
 				syncStatusRepository = FakeSyncStatusRepository(),
 				attestationRepository = FakeAttestationRepository(),
+				reportingRepository = RecordingReportingRepository(),
 				paramsValidator = SignInParamsValidator(),
 				exceptionHandler = SignInExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true),
-					reportingRepository = RecordingReportingRepository()
+					networkRepository = FakeNetworkRepository(isAvailable = true)
 				)
 			),
 			configRepository = FakeConfigRepository()

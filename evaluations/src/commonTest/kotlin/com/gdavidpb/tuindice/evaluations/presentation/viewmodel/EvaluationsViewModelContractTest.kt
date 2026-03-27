@@ -73,17 +73,15 @@ class EvaluationsViewModelContractTest {
 			loadEvaluationsActionProcessor = LoadEvaluationsActionProcessor(
 				getEvaluationsUseCase = GetEvaluationsUseCase(
 					evaluationRepository = repository,
-					exceptionHandler = GetEvaluationsExceptionHandler(
-						reportingRepository = RecordingReportingRepository()
-					)
+					reportingRepository = RecordingReportingRepository(),
+					exceptionHandler = GetEvaluationsExceptionHandler()
 				)
 			),
 			refreshEvaluationsActionProcessor = RefreshEvaluationsActionProcessor(
 				updateEvaluationsUseCase = UpdateEvaluationsUseCase(
 					evaluationRepository = repository,
-					exceptionHandler = UpdateEvaluationsExceptionHandler(
-						reportingRepository = RecordingReportingRepository()
-					)
+					reportingRepository = RecordingReportingRepository(),
+					exceptionHandler = UpdateEvaluationsExceptionHandler()
 				)
 			),
 			checkEvaluationFilterActionProcessor = CheckEvaluationFilterActionProcessor(),
@@ -91,23 +89,24 @@ class EvaluationsViewModelContractTest {
 			clearEvaluationFiltersActionProcessor = ClearEvaluationFiltersActionProcessor(),
 			openAddEvaluationActionProcessor = OpenAddEvaluationActionProcessor(),
 			pickEvaluationGradeActionProcessor = PickEvaluationGradeActionProcessor(
-				getEvaluationUseCase = GetEvaluationUseCase(repository)
+				getEvaluationUseCase = GetEvaluationUseCase(
+					evaluationRepository = repository,
+					reportingRepository = RecordingReportingRepository()
+				)
 			),
 			setEvaluationGradeActionProcessor = SetEvaluationGradeActionProcessor(
 				updateEvaluationUseCase = UpdateEvaluationUseCase(
 					evaluationRepository = repository,
-					exceptionHandler = UpdateEvaluationExceptionHandler(
-						reportingRepository = RecordingReportingRepository()
-					)
+					reportingRepository = RecordingReportingRepository(),
+					exceptionHandler = UpdateEvaluationExceptionHandler()
 				)
 			),
 			openEvaluationActionProcessor = OpenEvaluationActionProcessor(),
 			removeEvaluationActionProcessor = RemoveEvaluationActionProcessor(
 				removeEvaluationUseCase = RemoveEvaluationUseCase(
 					evaluationRepository = repository,
-					exceptionHandler = RemoveEvaluationExceptionHandler(
-						reportingRepository = RecordingReportingRepository()
-					)
+					reportingRepository = RecordingReportingRepository(),
+					exceptionHandler = RemoveEvaluationExceptionHandler()
 				)
 			)
 		)

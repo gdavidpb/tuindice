@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler
 
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
@@ -9,8 +8,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.record.domain.usecase.error.UpdateQuartersUseCaseError
 
 class UpdateQuartersExceptionHandler(
-	private val networkRepository: NetworkRepository,
-	override val reportingRepository: ReportingRepository
+	private val networkRepository: NetworkRepository
 ) : ExceptionHandler<UpdateQuartersUseCaseError>() {
 	override fun parseException(throwable: Throwable): UpdateQuartersUseCaseError? {
 		return when {

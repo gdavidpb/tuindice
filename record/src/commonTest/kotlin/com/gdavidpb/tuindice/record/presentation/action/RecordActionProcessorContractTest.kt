@@ -33,7 +33,8 @@ class RecordActionProcessorContractTest {
 			observeQuartersUseCase = ObserveQuartersUseCase(
 				quarterRepository = RecordingQuarterRepository(
 					quarters = flowOf(listOf(DEFAULT_RECORD_QUARTER))
-				)
+				),
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 		val effects = mutableListOf<Record.Effect>()
@@ -57,7 +58,8 @@ class RecordActionProcessorContractTest {
 			observeQuartersUseCase = ObserveQuartersUseCase(
 				quarterRepository = RecordingQuarterRepository(
 					quarters = flowOf(emptyList())
-				)
+				),
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 
@@ -75,9 +77,9 @@ class RecordActionProcessorContractTest {
 		val processor = RefreshQuartersActionProcessor(
 			updateQuartersUseCase = UpdateQuartersUseCase(
 				quarterRepository = RecordingQuarterRepository(),
+				reportingRepository = RecordingReportingRepository(),
 				exceptionHandler = UpdateQuartersExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true),
-					reportingRepository = RecordingReportingRepository()
+					networkRepository = FakeNetworkRepository(isAvailable = true)
 				)
 			)
 		)
@@ -98,9 +100,9 @@ class RecordActionProcessorContractTest {
 				quarterRepository = RecordingQuarterRepository(
 					updateThrowable = IllegalStateException("network is unreachable")
 				),
+				reportingRepository = RecordingReportingRepository(),
 				exceptionHandler = UpdateQuartersExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = false),
-					reportingRepository = RecordingReportingRepository()
+					networkRepository = FakeNetworkRepository(isAvailable = false)
 				)
 			)
 		)
@@ -124,10 +126,9 @@ class RecordActionProcessorContractTest {
 		val processor = SetSubjectGradeActionProcessor(
 			setSubjectGradeUseCase = SetSubjectGradeUseCase(
 				quarterRepository = RecordingQuarterRepository(),
+				reportingRepository = RecordingReportingRepository(),
 				paramsValidator = SetSubjectGradeParamsValidator(),
-				exceptionHandler = SetSubjectGradeExceptionHandler(
-					reportingRepository = RecordingReportingRepository()
-				)
+				exceptionHandler = SetSubjectGradeExceptionHandler()
 			)
 		)
 		val initialState = Record.State.Content(
@@ -163,10 +164,9 @@ class RecordActionProcessorContractTest {
 						path = "/quarters/v1/qid/subjects/sid"
 					)
 				),
+				reportingRepository = RecordingReportingRepository(),
 				paramsValidator = SetSubjectGradeParamsValidator(),
-				exceptionHandler = SetSubjectGradeExceptionHandler(
-					reportingRepository = RecordingReportingRepository()
-				)
+				exceptionHandler = SetSubjectGradeExceptionHandler()
 			)
 		)
 		val initialState = Record.State.Content(

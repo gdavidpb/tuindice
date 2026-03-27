@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.FakeSessionRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingApplicationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
+import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.runTest
@@ -26,7 +27,8 @@ class SignOutViewModelContractTest {
 					sessionRepository = FakeSessionRepository(),
 					messagingRepository = RecordingMessagingRepository(),
 					applicationRepository = RecordingApplicationRepository(),
-					syncStatusRepository = FakeSyncStatusRepository()
+					syncStatusRepository = FakeSyncStatusRepository(),
+					reportingRepository = RecordingReportingRepository()
 				)
 			)
 		)

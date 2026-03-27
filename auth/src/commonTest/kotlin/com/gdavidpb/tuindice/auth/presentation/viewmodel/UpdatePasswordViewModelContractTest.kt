@@ -40,10 +40,10 @@ class UpdatePasswordViewModelContractTest {
 					credentialsRepository = FakeCredentialsRepository(),
 					syncStatusRepository = FakeSyncStatusRepository(),
 					attestationRepository = FakeAttestationRepository(),
+					reportingRepository = RecordingReportingRepository(),
 					paramsValidator = UpdatePasswordParamsValidator(),
 					exceptionHandler = UpdatePasswordExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true),
-						reportingRepository = RecordingReportingRepository()
+						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
 				)
 			)

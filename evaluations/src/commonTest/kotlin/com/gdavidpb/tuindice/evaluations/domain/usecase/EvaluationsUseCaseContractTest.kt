@@ -30,9 +30,8 @@ class EvaluationsUseCaseContractTest {
 					DEFAULT_COMPLETED_EVALUATION
 				)
 			),
-			exceptionHandler = GetEvaluationsExceptionHandler(
-				reportingRepository = RecordingReportingRepository()
-			)
+			reportingRepository = RecordingReportingRepository(),
+			exceptionHandler = GetEvaluationsExceptionHandler()
 		)
 
 		useCase.execute(flowOf(listOf(filter))).test {
@@ -55,9 +54,8 @@ class EvaluationsUseCaseContractTest {
 				initialEvaluations = emptyList(),
 				availableSubjects = emptyList()
 			),
-			exceptionHandler = GetEvaluationsExceptionHandler(
-				reportingRepository = RecordingReportingRepository()
-			)
+			reportingRepository = RecordingReportingRepository(),
+			exceptionHandler = GetEvaluationsExceptionHandler()
 		)
 
 		useCase.execute(flowOf(emptyList())).test {
@@ -73,7 +71,10 @@ class EvaluationsUseCaseContractTest {
 			initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
 			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
 		)
-		val useCase = GetEvaluationAndAvailableSubjectsUseCase(repository)
+		val useCase = GetEvaluationAndAvailableSubjectsUseCase(
+			evaluationRepository = repository,
+			reportingRepository = RecordingReportingRepository()
+		)
 
 		useCase.execute(GetEvaluationParams(DEFAULT_PENDING_EVALUATION.id)).test {
 			val result = awaitLoadingThenData(this)

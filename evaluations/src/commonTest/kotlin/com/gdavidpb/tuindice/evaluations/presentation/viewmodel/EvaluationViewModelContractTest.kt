@@ -79,29 +79,31 @@ class EvaluationViewModelContractTest {
 
 		return EvaluationViewModel(
 			loadAvailableSubjectsActionProcessor = LoadAvailableSubjectsActionProcessor(
-				getAvailableSubjectsUseCase = GetAvailableSubjectsUseCase(repository)
+				getAvailableSubjectsUseCase = GetAvailableSubjectsUseCase(
+					evaluationRepository = repository,
+					reportingRepository = RecordingReportingRepository()
+				)
 			),
 			loadEvaluationActionProcessor = LoadEvaluationActionProcessor(
 				getEvaluationAndAvailableSubjectsUseCase = GetEvaluationAndAvailableSubjectsUseCase(
-					repository
+					evaluationRepository = repository,
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			addEvaluationActionProcessor = AddEvaluationActionProcessor(
 				addEvaluationUseCase = AddEvaluationUseCase(
 					evaluationRepository = repository,
 					identifierRepository = FakeIdentifierRepository(),
+					reportingRepository = RecordingReportingRepository(),
 					paramsValidator = AddEvaluationParamsValidator(),
-					exceptionHandler = AddEvaluationExceptionHandler(
-						reportingRepository = RecordingReportingRepository()
-					)
+					exceptionHandler = AddEvaluationExceptionHandler()
 				)
 			),
 			editEvaluationActionProcessor = EditEvaluationActionProcessor(
 				updateEvaluationUseCase = UpdateEvaluationUseCase(
 					evaluationRepository = repository,
-					exceptionHandler = UpdateEvaluationExceptionHandler(
-						reportingRepository = RecordingReportingRepository()
-					)
+					reportingRepository = RecordingReportingRepository(),
+					exceptionHandler = UpdateEvaluationExceptionHandler()
 				)
 			),
 			pickGradeActionProcessor = PickGradeActionProcessor(),

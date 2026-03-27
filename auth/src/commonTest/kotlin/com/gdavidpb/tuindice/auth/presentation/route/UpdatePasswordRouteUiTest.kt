@@ -155,10 +155,10 @@ class UpdatePasswordRouteUiTest {
 			credentialsRepository = FakeCredentialsRepository(),
 			syncStatusRepository = FakeSyncStatusRepository(),
 			attestationRepository = FakeAttestationRepository(),
+			reportingRepository = RecordingReportingRepository(),
 			paramsValidator = UpdatePasswordParamsValidator(),
 			exceptionHandler = UpdatePasswordExceptionHandler(
-				networkRepository = FakeNetworkRepository(),
-				reportingRepository = RecordingReportingRepository()
+				networkRepository = FakeNetworkRepository()
 			)
 		)
 
