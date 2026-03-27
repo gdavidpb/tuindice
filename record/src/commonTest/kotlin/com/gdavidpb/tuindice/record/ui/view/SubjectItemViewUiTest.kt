@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.semantics.SemanticsActions
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.testing.sampleSubjectItem
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -100,5 +101,22 @@ class SubjectItemViewUiTest {
 
 		onNodeWithText("FS1113").assertIsDisplayed()
 		onNodeWithText("Retirada").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_subjectItemHasWithoutEffectStatus_then_displaysWithoutEffectChip() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectItemView(
+				item = sampleSubjectItem(
+					subjectId = "subject-without-effect",
+					status = SubjectStatus.WITHOUT_EFFECT,
+					isReadOnly = true
+				),
+				onGradeChange = { _, _ -> }
+			)
+		}
+
+		onNodeWithText("FS1113").assertIsDisplayed()
+		onNodeWithText("Sin efecto").assertIsDisplayed()
 	}
 }

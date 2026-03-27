@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.presentation.mapper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.ui.style.SubjectColorGenerator
@@ -16,9 +17,10 @@ fun Subject.toSubjectItem(
 		subjectId = id,
 		quarterId = quarterId,
 		grade = grade,
+		status = status,
 		codeText = code,
 		nameText = name,
-		gradeText = if (grade != MIN_SUBJECT_GRADE)
+		gradeText = if ((grade != MIN_SUBJECT_GRADE) && (status !in setOf(SubjectStatus.RETIRED, SubjectStatus.WITHOUT_EFFECT)))
 			texts.subjectGrade(grade)
 		else
 			"",

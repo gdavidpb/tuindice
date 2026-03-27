@@ -7,6 +7,7 @@
     "name": "{{#if (eq request.pathSegments.[4] 'MA2115Q2026B')}}MATEMÁTICAS IV{{else}}{{#if (eq request.pathSegments.[4] 'CI2511Q2026B')}}LÓGICA SIMBÓLICA{{else}}{{#if (eq request.pathSegments.[4] 'CI2525Q2026B')}}ESTRUCTURAS DISCRETAS I{{else}}{{#if (eq request.pathSegments.[4] 'EG0001Q2026B')}}ESTUDIOS GENERALES{{else}}{{#if (eq request.pathSegments.[4] 'MA1116Q2026A')}}MATEMÁTICAS III{{else}}{{#if (eq request.pathSegments.[4] 'FS1112Q2026A')}}FÍSICA II{{else}}{{#if (eq request.pathSegments.[4] 'ID1113Q2026A')}}INGLES III{{else}}{{#if (eq request.pathSegments.[4] 'LLA113Q2026A')}}LENGUAJE III{{else}}{{#if (eq request.pathSegments.[4] 'CSA213Q2026A')}}VENEZUELA ANTE EL SIGLO XXI-III{{else}}UNKNOWN{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}",
     "credits": {{#if (eq request.pathSegments.[4] 'EG0001Q2026B')}}3{{else}}{{#if (eq request.pathSegments.[4] 'FS1112Q2026A')}}3{{else}}{{#if (eq request.pathSegments.[4] 'ID1113Q2026A')}}3{{else}}{{#if (eq request.pathSegments.[4] 'LLA113Q2026A')}}3{{else}}{{#if (eq request.pathSegments.[4] 'CSA213Q2026A')}}3{{else}}4{{/if}}{{/if}}{{/if}}{{/if}}{{/if}},
     "grade": {{jsonPath request.body '$.grade'}},
+    "status": {{#if (eq request.pathSegments.[4] 'ID1111Q2025A')}}"retired"{{else}}{{#if (eq request.pathSegments.[4] 'LLA111Q2025A')}}"without_effect"{{else}}null{{/if}}{{/if}},
     "revision": 2
   },
   "affected_quarters": [
@@ -210,6 +211,7 @@
           "name": "INGLES I",
           "credits": 3,
           "grade": 5,
+          "status": "retired",
           "revision": 1
         },
         {
@@ -219,6 +221,7 @@
           "name": "LENGUAJE I",
           "credits": 3,
           "grade": 4,
+          "status": "without_effect",
           "revision": 1
         },
         {

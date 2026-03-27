@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.persistence.utils.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
@@ -29,6 +30,7 @@ import com.gdavidpb.tuindice.record.utils.Ranges
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.subject_retired
+import tuindice.record.generated.resources.subject_without_effect
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +42,9 @@ fun SubjectItemView(
 	onGradeChange: (newGrade: Int, isSelected: Boolean) -> Unit
 ) {
 	val currentGrade = gradeState?.intValue ?: item.grade
-	val isRetired = (currentGrade == MIN_SUBJECT_GRADE)
+	val explicitStatus = item.status
+		?.takeUnless { status -> status == SubjectStatus.NORMAL }
+	val subjectStatus = explicitStatus ?: if (currentGrade == MIN_SUBJECT_GRADE) SubjectStatus.RETIRED else null
 
 	Column(
 		modifier = modifier
@@ -72,7 +76,7 @@ fun SubjectItemView(
 					.heightIn(min = 28.dp),
 				contentAlignment = Alignment.CenterEnd
 			) {
-				if (isRetired) {
+				if (subjectStatus != null) {
 					Text(
 						modifier = Modifier
 							.padding(start = 8.dp)
@@ -81,7 +85,11 @@ fun SubjectItemView(
 								shape = RoundedCornerShape(8.dp)
 							)
 							.padding(vertical = 4.dp, horizontal = 10.dp),
-						text = stringResource(Res.string.subject_retired),
+						text = when (subjectStatus) {
+							SubjectStatus.NORMAL -> item.displayGradeText(currentGrade)
+							SubjectStatus.RETIRED -> stringResource(Res.string.subject_retired)
+							SubjectStatus.WITHOUT_EFFECT -> stringResource(Res.string.subject_without_effect)
+						},
 						style = MaterialTheme.typography.labelLarge
 					)
 				} else {

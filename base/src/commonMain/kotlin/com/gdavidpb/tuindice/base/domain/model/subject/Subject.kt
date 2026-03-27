@@ -6,5 +6,6 @@ data class Subject(
 	val code: String,
 	val name: String,
 	val credits: Int,
-	val grade: Int
+	val grade: Int,
+	val status: SubjectStatus? = null
 )

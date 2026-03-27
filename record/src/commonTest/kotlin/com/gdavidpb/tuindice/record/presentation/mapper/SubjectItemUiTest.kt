@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.presentation.mapper
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.testing.recordMapperTexts
 import com.gdavidpb.tuindice.record.ui.style.SubjectColorGenerator
@@ -37,6 +38,7 @@ class SubjectItemUiTest {
 		val mappedSubject = assertNotNull(mapped)
 		val expectedColors = SubjectColorGenerator.fromCode("FS1113")
 		assertEquals("FS1113", mappedSubject.codeText)
+		assertEquals(null, mappedSubject.status)
 		assertEquals("", mappedSubject.gradeText)
 		assertEquals("3 UC", mappedSubject.creditsText)
 		assertEquals(expectedColors.color, mappedSubject.codeColor)
@@ -44,14 +46,15 @@ class SubjectItemUiTest {
 	}
 
 	@Test
-	fun when_subjectIsActive_then_mapsCodeWithoutStatusAndNumericGrade() = runTuIndiceUiTest {
+	fun when_subjectHasWithoutEffectStatus_then_mapsStatusAndHidesGradeText() = runTuIndiceUiTest {
 		val subject = Subject(
 			id = "subject-2",
 			quarterId = "quarter-1",
 			code = "MA1112",
 			name = "MATEMATICAS II",
 			credits = 4,
-			grade = 5
+			grade = 5,
+			status = SubjectStatus.WITHOUT_EFFECT
 		)
 		var mapped: SubjectItem? = null
 
@@ -67,7 +70,8 @@ class SubjectItemUiTest {
 		val mappedSubject = assertNotNull(mapped)
 		val expectedColors = SubjectColorGenerator.fromCode("MA1112")
 		assertEquals("MA1112", mappedSubject.codeText)
-		assertEquals("5 / 5", mappedSubject.gradeText)
+		assertEquals(SubjectStatus.WITHOUT_EFFECT, mappedSubject.status)
+		assertEquals("", mappedSubject.gradeText)
 		assertEquals("4 UC", mappedSubject.creditsText)
 		assertEquals(expectedColors.color, mappedSubject.codeColor)
 		assertEquals(expectedColors.containerColor, mappedSubject.codeContainerColor)

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.data.source.api.response
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -11,5 +12,6 @@ data class SubjectResponse(
 	@SerialName("name") val name: String,
 	@SerialName("credits") val credits: Int,
 	@SerialName("grade") val grade: Int,
+	@SerialName("status") val status: SubjectStatus? = null,
 	@SerialName("revision") val revision: Long
 )

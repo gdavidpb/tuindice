@@ -37,6 +37,7 @@
           "name": "INGLES I",
           "credits": 3,
           "grade": 5,
+          "status": "retired",
           "revision": 1
         },
         {
@@ -46,6 +47,7 @@
           "name": "LENGUAJE I",
           "credits": 3,
           "grade": 4,
+          "status": "without_effect",
           "revision": 1
         },
         {

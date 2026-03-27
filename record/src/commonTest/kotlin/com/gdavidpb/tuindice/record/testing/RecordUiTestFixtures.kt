@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.testing
 
 import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
@@ -25,15 +26,17 @@ fun sampleSubjectItem(
 	subjectId: String = "subject-1",
 	quarterId: String = "quarter-1",
 	grade: Int = 4,
+	status: SubjectStatus? = null,
 	isReadOnly: Boolean = true
 ): SubjectItem = SubjectColorGenerator.fromCode("FS1113").let { subjectColors ->
 	SubjectItem(
 		subjectId = subjectId,
 		quarterId = quarterId,
 		grade = grade,
+		status = status,
 		codeText = "FS1113",
 		nameText = "FISICA III",
-		gradeText = if (grade == MIN_SUBJECT_GRADE) "" else "$grade / 5",
+		gradeText = if ((grade == MIN_SUBJECT_GRADE) || (status != null)) "" else "$grade / 5",
 		creditsText = "3 UC",
 		codeColor = subjectColors.color,
 		codeContainerColor = subjectColors.containerColor,

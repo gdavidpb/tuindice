@@ -1,11 +1,13 @@
 package com.gdavidpb.tuindice.record.presentation.model
 
 import androidx.compose.ui.graphics.Color
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 
 data class SubjectItem(
 	val subjectId: String,
 	val quarterId: String,
 	val grade: Int,
+	val status: SubjectStatus? = null,
 	val codeText: String,
 	val nameText: String,
 	val gradeText: String,
