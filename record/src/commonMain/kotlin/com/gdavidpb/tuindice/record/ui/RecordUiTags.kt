@@ -5,6 +5,7 @@ object RecordUiTags {
 	const val QuartersList = "record_quarters_list"
 	const val ContentContainer = "record_content_container"
 	const val QuarterSelectorRow = "record_quarter_selector_row"
+	const val QuarterPager = "record_quarter_pager"
 	const val SelectedQuarterSummary = "record_selected_quarter_summary"
 	const val SubjectsList = "record_subjects_list"
 
