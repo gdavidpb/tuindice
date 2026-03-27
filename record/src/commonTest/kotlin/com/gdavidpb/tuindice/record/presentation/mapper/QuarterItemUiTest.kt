@@ -51,4 +51,43 @@ class QuarterItemUiTest {
 
 		onNodeWithText("Δx 4.2104").assertIsDisplayed()
 	}
+
+	@Test
+	fun when_previousQuarterExists_then_mapsQuarterDeltasAgainstIt() = runTuIndiceUiTest {
+		val previousQuarter = DEFAULT_RECORD_QUARTER.copy(
+			id = "quarter-0",
+			name = "2025-3",
+			startDate = DEFAULT_RECORD_QUARTER.startDate - 100_000L,
+			endDate = DEFAULT_RECORD_QUARTER.endDate - 100_000L,
+			grade = 70.0,
+			gradeSum = 69.5,
+			isCurrent = false
+		)
+		val currentQuarter = DEFAULT_RECORD_QUARTER.copy(
+			grade = 69.75,
+			gradeSum = 70.0
+		)
+
+		setTuIndiceTestContent {
+			val items = listOf(
+				currentQuarter,
+				previousQuarter
+			).toQuarterItemList(
+				texts = recordMapperTexts(),
+				highlightColor = Color(0xFFB8860B)
+			)
+			val currentItem = items.first()
+			val previousItem = items.last()
+
+			Column {
+				Text(text = currentItem.gradeDelta?.text ?: "")
+				Text(text = currentItem.gradeSumDelta?.text ?: "")
+				Text(text = previousItem.gradeDelta?.text ?: "Sin diff")
+			}
+		}
+
+		onNodeWithText("-0.25").assertIsDisplayed()
+		onNodeWithText("+0.50").assertIsDisplayed()
+		onNodeWithText("Sin diff").assertIsDisplayed()
+	}
 }

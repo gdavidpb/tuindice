@@ -7,6 +7,8 @@ import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
+import com.gdavidpb.tuindice.record.presentation.model.QuarterMetricDelta
+import com.gdavidpb.tuindice.record.presentation.model.QuarterMetricDeltaTone
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.ui.style.SubjectColorGenerator
 
@@ -47,6 +49,8 @@ fun sampleSubjectItem(
 fun sampleQuarterItem(
 	quarterId: String = "quarter-1",
 	shortNameText: String = "Abr. - Jul. 2023",
+	gradeDelta: QuarterMetricDelta? = null,
+	gradeSumDelta: QuarterMetricDelta? = null,
 	isCurrent: Boolean = false,
 	canDelete: Boolean = false,
 	subjects: List<SubjectItem> = listOf(sampleSubjectItem())
@@ -54,9 +58,19 @@ fun sampleQuarterItem(
 	quarterId = quarterId,
 	shortNameText = shortNameText,
 	gradeText = AnnotatedString("Δx 4.2500"),
+	gradeDelta = gradeDelta,
 	gradeSumText = AnnotatedString("∑x 4.2500"),
+	gradeSumDelta = gradeSumDelta,
 	creditsText = AnnotatedString("⦿ 6"),
 	isCurrent = isCurrent,
 	canDelete = canDelete,
 	subjects = subjects
+)
+
+fun sampleQuarterMetricDelta(
+	text: String = "+0.50",
+	tone: QuarterMetricDeltaTone = QuarterMetricDeltaTone.Positive
+): QuarterMetricDelta = QuarterMetricDelta(
+	text = text,
+	tone = tone
 )

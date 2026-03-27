@@ -16,16 +16,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
+import com.gdavidpb.tuindice.record.presentation.model.QuarterMetricDelta
+import com.gdavidpb.tuindice.record.presentation.model.QuarterMetricDeltaTone
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.quarter_credits_sum_label
 import tuindice.record.generated.resources.quarter_grade_label
 import tuindice.record.generated.resources.quarter_grade_sum_label
+
+private val PositiveQuarterDeltaColor = Color(0xFF2E7D32)
 
 @Composable
 fun QuarterSummaryView(
@@ -63,6 +68,7 @@ internal fun QuarterSummaryContent(
 			QuarterMetricItem(
 				modifier = Modifier.weight(1f),
 				value = item.gradeText,
+				delta = item.gradeDelta,
 				subtitle = quarterGradeLabel
 			)
 
@@ -71,6 +77,7 @@ internal fun QuarterSummaryContent(
 			QuarterMetricItem(
 				modifier = Modifier.weight(1f),
 				value = item.gradeSumText,
+				delta = item.gradeSumDelta,
 				subtitle = quarterGradeSumLabel
 			)
 
@@ -89,6 +96,7 @@ internal fun QuarterSummaryContent(
 private fun QuarterMetricItem(
 	modifier: Modifier = Modifier,
 	value: AnnotatedString,
+	delta: QuarterMetricDelta? = null,
 	subtitle: String
 ) {
 	Column(
@@ -112,6 +120,23 @@ private fun QuarterMetricItem(
 			color = MaterialTheme.colorScheme.onSurfaceVariant,
 			textAlign = TextAlign.Center
 		)
+
+		if (delta != null) {
+			Text(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(top = 2.dp),
+				text = delta.text,
+				style = MaterialTheme.typography.bodySmall,
+				fontWeight = FontWeight.Medium,
+				color = when (delta.tone) {
+					QuarterMetricDeltaTone.Positive -> PositiveQuarterDeltaColor
+					QuarterMetricDeltaTone.Negative -> MaterialTheme.colorScheme.error
+					QuarterMetricDeltaTone.Neutral -> MaterialTheme.colorScheme.onSurfaceVariant
+				},
+				textAlign = TextAlign.Center
+			)
+		}
 	}
 }
 

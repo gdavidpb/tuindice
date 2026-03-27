@@ -98,9 +98,10 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				name = node.get("name").asText(),
 				credits = node.get("credits").asInt(),
 				grade = node.get("grade").asInt(),
-				revision = node.get("revision").asLong(),
 				mutable = node.path("mutable").asBoolean(false),
 				scenario = if (node.hasNonNull("scenario")) node.get("scenario").asText() else null,
+				status = if (node.hasNonNull("status")) node.get("status").asText() else null,
+				revision = node.get("revision").asLong(),
 			)
 
 		private fun currentScenarioStates(): Map<String, String> {
@@ -204,9 +205,10 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 					name = "MOCK $code",
 					credits = node.path("credits").asInt(DEFAULT_ADDED_SUBJECT_CREDITS),
 					grade = node.path("grade").asInt(0),
-					revision = 1L,
 					mutable = false,
 					scenario = null,
+					status = if (node.hasNonNull("status")) node.get("status").asText() else null,
+					revision = 1L,
 				)
 			}
 
@@ -360,9 +362,9 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		val creditsSum: Int,
 		val current: Boolean,
 		val readOnly: Boolean,
-		val revision: Long,
 		val presenceScenario: String?,
 		val subjects: List<SubjectModel>,
+		val revision: Long,
 	) {
 		fun copyWith(
 			grade: Double,
@@ -405,9 +407,10 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		val name: String,
 		val credits: Int,
 		val grade: Int,
-		val revision: Long,
 		val mutable: Boolean,
 		val scenario: String?,
+		val status: String?,
+		val revision: Long,
 	) {
 		fun copyWith(grade: Int, revision: Long): SubjectModel =
 			copy(
@@ -416,15 +419,17 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			)
 
 		fun toTemplateModel(): Map<String, Any> =
-			linkedMapOf(
+			linkedMapOf<String, Any>(
 				"id" to id,
 				"qid" to quarterId,
 				"code" to code,
 				"name" to name,
 				"credits" to credits,
 				"grade" to grade,
-				"revision" to revision,
-			)
+			).also { model ->
+				status?.let { model["status"] = it }
+				model["revision"] = revision
+			}
 	}
 
 	private data class CodeAttempt(
