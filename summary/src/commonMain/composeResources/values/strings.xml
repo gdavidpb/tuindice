@@ -18,8 +18,8 @@
     <string name="snack_profile_picture_not_image">El archivo debe ser una imagen.</string>
     <string name="snack_profile_picture_size_exceeded">La imagen es demasiado grande.</string>
     <string name="text_sync_healthy">Última actualización: %1$s</string>
-    <string name="dialog_title_sync_unavailable">Servicio no disponible</string>
-    <string name="dialog_message_sync_unavailable">No pudimos sincronizar tus datos porque el servicio no está disponible en este momento. Intentaremos sincronizar de nuevo más tarde.</string>
+    <string name="dialog_title_sync_unavailable">Servicios de la universidad no disponibles</string>
+    <string name="dialog_message_sync_unavailable">No pudimos sincronizar tus datos porque los servicios de la universidad no están disponibles en este momento. Intentaremos sincronizar de nuevo más tarde.</string>
     <string name="dialog_title_sync_failed">Sincronización pendiente</string>
     <string name="dialog_message_sync_failed">No pudimos sincronizar tus datos. Intentaremos sincronizar de nuevo más tarde.</string>
     <string name="dialog_title_sync_outdated_credentials">Actualiza tu contraseña</string>
