@@ -146,27 +146,11 @@ private fun QuarterDeltaChip(
 	modifier: Modifier = Modifier,
 	delta: QuarterMetricDelta
 ) {
-	val chipColors = when (delta.tone) {
-		QuarterMetricDeltaTone.Positive -> QuarterDeltaChipColors(
-			containerColor = PositiveQuarterDeltaContainerColor,
-			contentColor = PositiveQuarterDeltaContentColor
-		)
-
-		QuarterMetricDeltaTone.Negative -> QuarterDeltaChipColors(
-			containerColor = NegativeQuarterDeltaContainerColor,
-			contentColor = NegativeQuarterDeltaContentColor
-		)
-
-		QuarterMetricDeltaTone.Neutral -> QuarterDeltaChipColors(
-			containerColor = MaterialTheme.colorScheme.surfaceVariant,
-			contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-		)
-
-		QuarterMetricDeltaTone.Informational -> QuarterDeltaChipColors(
-			containerColor = MaterialTheme.colorScheme.primaryContainer,
-			contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-		)
-	}
+	val chipColors = quarterDeltaChipColors(
+		tone = delta.tone,
+		primaryContainer = MaterialTheme.colorScheme.primaryContainer,
+		onPrimaryContainer = MaterialTheme.colorScheme.onPrimaryContainer
+	)
 
 	Box(
 		modifier = modifier
@@ -189,7 +173,33 @@ private fun QuarterDeltaChip(
 	}
 }
 
-private data class QuarterDeltaChipColors(
+internal fun quarterDeltaChipColors(
+	tone: QuarterMetricDeltaTone,
+	primaryContainer: Color,
+	onPrimaryContainer: Color
+): QuarterDeltaChipColors = when (tone) {
+	QuarterMetricDeltaTone.Positive -> QuarterDeltaChipColors(
+		containerColor = PositiveQuarterDeltaContainerColor,
+		contentColor = PositiveQuarterDeltaContentColor
+	)
+
+	QuarterMetricDeltaTone.Negative -> QuarterDeltaChipColors(
+		containerColor = NegativeQuarterDeltaContainerColor,
+		contentColor = NegativeQuarterDeltaContentColor
+	)
+
+	QuarterMetricDeltaTone.Neutral -> QuarterDeltaChipColors(
+		containerColor = primaryContainer,
+		contentColor = onPrimaryContainer
+	)
+
+	QuarterMetricDeltaTone.Informational -> QuarterDeltaChipColors(
+		containerColor = primaryContainer,
+		contentColor = onPrimaryContainer
+	)
+}
+
+internal data class QuarterDeltaChipColors(
 	val containerColor: Color,
 	val contentColor: Color
 )

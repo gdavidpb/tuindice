@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.ui.view
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
@@ -11,9 +12,29 @@ import com.gdavidpb.tuindice.record.testing.sampleQuarterItem
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
 class QuarterSummaryViewUiTest {
+	@Test
+	fun when_deltaToneIsNeutral_then_usesInformationalChipColors() {
+		val primaryContainer = Color(0xFF333333)
+		val onPrimaryContainer = Color(0xFF444444)
+
+		val neutralColors = quarterDeltaChipColors(
+			tone = QuarterMetricDeltaTone.Neutral,
+			primaryContainer = primaryContainer,
+			onPrimaryContainer = onPrimaryContainer
+		)
+		val informationalColors = quarterDeltaChipColors(
+			tone = QuarterMetricDeltaTone.Informational,
+			primaryContainer = primaryContainer,
+			onPrimaryContainer = onPrimaryContainer
+		)
+
+		assertEquals(informationalColors, neutralColors)
+	}
+
 	@Test
 	fun when_summaryIsRendered_then_displaysMetricsAndLabels() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
