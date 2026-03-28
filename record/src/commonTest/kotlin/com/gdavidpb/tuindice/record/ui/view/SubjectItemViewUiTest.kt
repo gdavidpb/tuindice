@@ -118,5 +118,6 @@ class SubjectItemViewUiTest {
 
 		onNodeWithText("FS1113").assertIsDisplayed()
 		onNodeWithText("Sin efecto").assertIsDisplayed()
+		onNodeWithText("4 / 5").assertIsDisplayed()
 	}
 }

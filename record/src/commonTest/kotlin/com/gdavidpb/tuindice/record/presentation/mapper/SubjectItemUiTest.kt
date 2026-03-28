@@ -46,7 +46,7 @@ class SubjectItemUiTest {
 	}
 
 	@Test
-	fun when_subjectHasWithoutEffectStatus_then_mapsStatusAndHidesGradeText() = runTuIndiceUiTest {
+	fun when_subjectHasWithoutEffectStatus_then_mapsStatusAndPreservesGradeText() = runTuIndiceUiTest {
 		val subject = Subject(
 			id = "subject-2",
 			quarterId = "quarter-1",
@@ -71,7 +71,7 @@ class SubjectItemUiTest {
 		val expectedColors = SubjectColorGenerator.fromCode("MA1112")
 		assertEquals("MA1112", mappedSubject.codeText)
 		assertEquals(SubjectStatus.WITHOUT_EFFECT, mappedSubject.status)
-		assertEquals("", mappedSubject.gradeText)
+		assertEquals("5 / 5", mappedSubject.gradeText)
 		assertEquals("4 UC", mappedSubject.creditsText)
 		assertEquals(expectedColors.color, mappedSubject.codeColor)
 		assertEquals(expectedColors.containerColor, mappedSubject.codeContainerColor)

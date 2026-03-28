@@ -76,28 +76,36 @@ fun SubjectItemView(
 					.heightIn(min = 28.dp),
 				contentAlignment = Alignment.CenterEnd
 			) {
-				if (subjectStatus != null) {
-					Text(
-						modifier = Modifier
-							.padding(start = 8.dp)
-							.background(
-								color = MaterialTheme.colorScheme.surfaceVariant,
-								shape = RoundedCornerShape(8.dp)
+				when (subjectStatus) {
+					SubjectStatus.RETIRED -> {
+						SubjectStatusChip(
+							modifier = Modifier.padding(start = 8.dp),
+							text = stringResource(Res.string.subject_retired)
+						)
+					}
+					SubjectStatus.WITHOUT_EFFECT -> {
+						Row(
+							modifier = Modifier.padding(start = 8.dp),
+							horizontalArrangement = Arrangement.spacedBy(8.dp),
+							verticalAlignment = Alignment.CenterVertically
+						) {
+							SubjectStatusChip(
+								text = stringResource(Res.string.subject_without_effect)
 							)
-							.padding(vertical = 4.dp, horizontal = 10.dp),
-						text = when (subjectStatus) {
-							SubjectStatus.NORMAL -> item.displayGradeText(currentGrade)
-							SubjectStatus.RETIRED -> stringResource(Res.string.subject_retired)
-							SubjectStatus.WITHOUT_EFFECT -> stringResource(Res.string.subject_without_effect)
-						},
-						style = MaterialTheme.typography.labelLarge
-					)
-				} else {
-					Text(
-						text = item.displayGradeText(currentGrade),
-						fontWeight = FontWeight.SemiBold,
-						style = MaterialTheme.typography.titleMedium
-					)
+							Text(
+								text = item.displayGradeText(currentGrade),
+								fontWeight = FontWeight.SemiBold,
+								style = MaterialTheme.typography.titleMedium
+							)
+						}
+					}
+					else -> {
+						Text(
+							text = item.displayGradeText(currentGrade),
+							fontWeight = FontWeight.SemiBold,
+							style = MaterialTheme.typography.titleMedium
+						)
+					}
 				}
 			}
 		}
@@ -152,6 +160,23 @@ fun SubjectItemView(
 			)
 		}
 	}
+}
+
+@Composable
+private fun SubjectStatusChip(
+	modifier: Modifier = Modifier,
+	text: String
+) {
+	Text(
+		modifier = modifier
+			.background(
+				color = MaterialTheme.colorScheme.surfaceVariant,
+				shape = RoundedCornerShape(8.dp)
+			)
+			.padding(vertical = 4.dp, horizontal = 10.dp),
+		text = text,
+		style = MaterialTheme.typography.labelLarge
+	)
 }
 
 private fun SubjectItem.displayGradeText(currentGrade: Int): String {

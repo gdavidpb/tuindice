@@ -11,6 +11,8 @@ import com.gdavidpb.tuindice.record.testing.recordMapperTexts
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 @OptIn(ExperimentalTestApi::class)
 class QuarterItemUiTest {
@@ -61,6 +63,7 @@ class QuarterItemUiTest {
 			endDate = DEFAULT_RECORD_QUARTER.endDate - 100_000L,
 			grade = 70.0,
 			gradeSum = 69.5,
+			credits = 5,
 			isCurrent = false
 		)
 		val currentQuarter = DEFAULT_RECORD_QUARTER.copy(
@@ -82,12 +85,66 @@ class QuarterItemUiTest {
 			Column {
 				Text(text = currentItem.gradeDelta?.text ?: "")
 				Text(text = currentItem.gradeSumDelta?.text ?: "")
+				Text(text = currentItem.creditsDelta?.text ?: "")
 				Text(text = previousItem.gradeDelta?.text ?: "Sin diff")
 			}
 		}
 
-		onNodeWithText("-0.25").assertIsDisplayed()
-		onNodeWithText("+0.50").assertIsDisplayed()
+		onNodeWithText("▼ 0.2500").assertIsDisplayed()
+		onNodeWithText("▲ 0.5000").assertIsDisplayed()
+		onNodeWithText("▲ 1").assertIsDisplayed()
 		onNodeWithText("Sin diff").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_quarterHasNoSubjects_then_hidesQuarterDeltas() = runTuIndiceUiTest {
+		val previousQuarter = DEFAULT_RECORD_QUARTER.copy(
+			id = "quarter-0",
+			name = "2025-3",
+			startDate = DEFAULT_RECORD_QUARTER.startDate - 100_000L,
+			endDate = DEFAULT_RECORD_QUARTER.endDate - 100_000L,
+			isCurrent = true
+		)
+		val futureQuarter = DEFAULT_RECORD_QUARTER.copy(
+			id = "quarter-future",
+			name = "2026-1",
+			startDate = DEFAULT_RECORD_QUARTER.startDate + 100_000L,
+			endDate = DEFAULT_RECORD_QUARTER.endDate + 100_000L,
+			grade = 0.0,
+			gradeSum = 70.0,
+			credits = 0,
+			isCurrent = false,
+			subjects = emptyList()
+		)
+		var futureItemTextGrade = ""
+		var futureItemTextGradeSum = ""
+		var futureItemTextCredits = ""
+		var futureGradeDeltaText: String? = null
+		var futureGradeSumDeltaText: String? = null
+		var futureCreditsDeltaText: String? = null
+
+		setTuIndiceTestContent {
+			val items = listOf(
+				futureQuarter,
+				previousQuarter
+			).toQuarterItemList(
+				texts = recordMapperTexts(),
+				highlightColor = Color(0xFFB8860B)
+			)
+			val futureItem = items.first()
+			futureItemTextGrade = futureItem.gradeText.text
+			futureItemTextGradeSum = futureItem.gradeSumText.text
+			futureItemTextCredits = futureItem.creditsText.text
+			futureGradeDeltaText = futureItem.gradeDelta?.text
+			futureGradeSumDeltaText = futureItem.gradeSumDelta?.text
+			futureCreditsDeltaText = futureItem.creditsDelta?.text
+		}
+
+		assertEquals("Δx 0.0", futureItemTextGrade)
+		assertEquals("∑x 70.0", futureItemTextGradeSum)
+		assertEquals("⦿ 0", futureItemTextCredits)
+		assertNull(futureGradeDeltaText)
+		assertNull(futureGradeSumDeltaText)
+		assertNull(futureCreditsDeltaText)
 	}
 }

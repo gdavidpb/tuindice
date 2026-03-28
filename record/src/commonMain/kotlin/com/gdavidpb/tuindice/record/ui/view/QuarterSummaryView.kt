@@ -21,6 +21,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.QuarterMetricDelta
 import com.gdavidpb.tuindice.record.presentation.model.QuarterMetricDeltaTone
@@ -30,7 +31,13 @@ import tuindice.record.generated.resources.quarter_credits_sum_label
 import tuindice.record.generated.resources.quarter_grade_label
 import tuindice.record.generated.resources.quarter_grade_sum_label
 
-private val PositiveQuarterDeltaColor = Color(0xFF2E7D32)
+private val PositiveQuarterDeltaContainerColor = Color(0xFFC6F0B7)
+private val PositiveQuarterDeltaContentColor = Color(0xFF479A21)
+private val NegativeQuarterDeltaContainerColor = Color(0xFFF2B8BF)
+private val NegativeQuarterDeltaContentColor = Color(0xFF9A212D)
+private val QuarterDeltaChipShape = RoundedCornerShape(8.dp)
+private val QuarterDeltaChipHorizontalPadding = 8.dp
+private val QuarterDeltaChipVerticalPadding = 3.dp
 
 @Composable
 fun QuarterSummaryView(
@@ -86,6 +93,7 @@ internal fun QuarterSummaryContent(
 			QuarterMetricItem(
 				modifier = Modifier.weight(1f),
 				value = item.creditsText,
+				delta = item.creditsDelta,
 				subtitle = quarterCreditsSumLabel
 			)
 		}
@@ -108,37 +116,83 @@ private fun QuarterMetricItem(
 			modifier = Modifier.fillMaxWidth(),
 			text = value,
 			style = MaterialTheme.typography.titleMedium,
-			fontWeight = FontWeight.Medium,
-			textAlign = TextAlign.Center
-		)
-		Text(
-			modifier = Modifier
-				.fillMaxWidth()
-				.padding(top = 4.dp),
-			text = subtitle,
-			style = MaterialTheme.typography.bodyMedium,
-			color = MaterialTheme.colorScheme.onSurfaceVariant,
+			fontWeight = FontWeight.SemiBold,
 			textAlign = TextAlign.Center
 		)
 
 		if (delta != null) {
-			Text(
+			QuarterDeltaChip(
 				modifier = Modifier
-					.fillMaxWidth()
-					.padding(top = 2.dp),
-				text = delta.text,
-				style = MaterialTheme.typography.bodySmall,
-				fontWeight = FontWeight.Medium,
-				color = when (delta.tone) {
-					QuarterMetricDeltaTone.Positive -> PositiveQuarterDeltaColor
-					QuarterMetricDeltaTone.Negative -> MaterialTheme.colorScheme.error
-					QuarterMetricDeltaTone.Neutral -> MaterialTheme.colorScheme.onSurfaceVariant
-				},
-				textAlign = TextAlign.Center
+					.padding(top = 6.dp),
+				delta = delta
 			)
 		}
+
+		Text(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(top = if (delta != null) 6.dp else 4.dp),
+			text = subtitle,
+			style = MaterialTheme.typography.bodyMedium,
+			color = MaterialTheme.colorScheme.onSurfaceVariant,
+			fontWeight = FontWeight.Medium,
+			textAlign = TextAlign.Center
+		)
 	}
 }
+
+@Composable
+private fun QuarterDeltaChip(
+	modifier: Modifier = Modifier,
+	delta: QuarterMetricDelta
+) {
+	val chipColors = when (delta.tone) {
+		QuarterMetricDeltaTone.Positive -> QuarterDeltaChipColors(
+			containerColor = PositiveQuarterDeltaContainerColor,
+			contentColor = PositiveQuarterDeltaContentColor
+		)
+
+		QuarterMetricDeltaTone.Negative -> QuarterDeltaChipColors(
+			containerColor = NegativeQuarterDeltaContainerColor,
+			contentColor = NegativeQuarterDeltaContentColor
+		)
+
+		QuarterMetricDeltaTone.Neutral -> QuarterDeltaChipColors(
+			containerColor = MaterialTheme.colorScheme.surfaceVariant,
+			contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+		)
+
+		QuarterMetricDeltaTone.Informational -> QuarterDeltaChipColors(
+			containerColor = MaterialTheme.colorScheme.primaryContainer,
+			contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+		)
+	}
+
+	Box(
+		modifier = modifier
+			.background(
+				color = chipColors.containerColor,
+				shape = QuarterDeltaChipShape
+			)
+			.padding(
+				horizontal = QuarterDeltaChipHorizontalPadding,
+				vertical = QuarterDeltaChipVerticalPadding
+			)
+	) {
+		Text(
+			text = delta.text,
+			style = MaterialTheme.typography.labelSmall,
+			fontWeight = FontWeight.SemiBold,
+			color = chipColors.contentColor,
+			textAlign = TextAlign.Center
+		)
+	}
+}
+
+private data class QuarterDeltaChipColors(
+	val containerColor: Color,
+	val contentColor: Color
+)
 
 @Composable
 private fun QuarterMetricDivider() {

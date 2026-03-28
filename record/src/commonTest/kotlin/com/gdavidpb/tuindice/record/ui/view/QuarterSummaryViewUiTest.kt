@@ -19,10 +19,14 @@ class QuarterSummaryViewUiTest {
 		setTuIndiceTestContent {
 			QuarterSummaryView(
 				item = sampleQuarterItem(
-					gradeDelta = sampleQuarterMetricDelta(text = "+0.50"),
+					gradeDelta = sampleQuarterMetricDelta(text = "▲ 0.5000"),
 					gradeSumDelta = sampleQuarterMetricDelta(
-						text = "-0.25",
+						text = "▼ 0.2500",
 						tone = QuarterMetricDeltaTone.Negative
+					),
+					creditsDelta = sampleQuarterMetricDelta(
+						text = "▲ 2",
+						tone = QuarterMetricDeltaTone.Informational
 					)
 				)
 			)
@@ -31,8 +35,9 @@ class QuarterSummaryViewUiTest {
 		onNodeWithText("Δx 4.2500").assertIsDisplayed()
 		onNodeWithText("∑x 4.2500").assertIsDisplayed()
 		onNodeWithText("⦿ 6").assertIsDisplayed()
-		onNodeWithText("+0.50").assertIsDisplayed()
-		onNodeWithText("-0.25").assertIsDisplayed()
+		onNodeWithText("▲ 0.5000").assertIsDisplayed()
+		onNodeWithText("▼ 0.2500").assertIsDisplayed()
+		onNodeWithText("▲ 2").assertIsDisplayed()
 		onNodeWithText("Trimestre").assertIsDisplayed()
 		onNodeWithText("Acumulado").assertIsDisplayed()
 		onNodeWithText("UC inscritas").assertIsDisplayed()

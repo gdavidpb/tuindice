@@ -17,8 +17,10 @@ import com.gdavidpb.tuindice.record.presentation.model.QuarterMetricDelta
 import com.gdavidpb.tuindice.record.presentation.model.QuarterMetricDeltaTone
 import kotlin.math.abs
 
-private const val QUARTER_DELTA_DECIMALS = 2
-private const val ZERO_DELTA_TEXT = "0.00"
+private const val QUARTER_DELTA_DECIMALS = 4
+private const val ZERO_DELTA_TEXT = "0.0000"
+private const val UP_DELTA_SYMBOL = "▲"
+private const val DOWN_DELTA_SYMBOL = "▼"
 
 @Composable
 fun List<Quarter>.toQuarterItemList(
@@ -38,6 +40,7 @@ fun Quarter.toQuarterItem(
 	highlightColor: Color,
 	previousQuarter: Quarter? = null
 ): QuarterItem {
+	val shouldShowDeltas = subjects.isNotEmpty()
 	val animatedGrade = animateFloatAsState(
 		targetValue = grade.toFloat(),
 		label = "animatedGrade_animateFloatAsState"
@@ -59,18 +62,21 @@ fun Quarter.toQuarterItem(
 		gradeText = texts
 			.quarterGradeDiff(animatedGrade.value)
 			.annotatedQuarterValue(highlightColor),
-		gradeDelta = previousQuarter?.let { quarter ->
+		gradeDelta = previousQuarter?.takeIf { shouldShowDeltas }?.let { quarter ->
 			(animatedGrade.value - quarter.grade.toFloat()).toQuarterMetricDelta()
 		},
 		gradeSumText = texts
 			.quarterGradeSum(animatedGradeSum.value)
 			.annotatedQuarterValue(highlightColor),
-		gradeSumDelta = previousQuarter?.let { quarter ->
+		gradeSumDelta = previousQuarter?.takeIf { shouldShowDeltas }?.let { quarter ->
 			(animatedGradeSum.value - quarter.gradeSum.toFloat()).toQuarterMetricDelta()
 		},
 		creditsText = texts
 			.quarterCredits(animatedCredits.value)
 			.annotatedQuarterValue(highlightColor),
+		creditsDelta = previousQuarter?.takeIf { shouldShowDeltas }?.let { quarter ->
+			(animatedCredits.value - quarter.credits).toCreditsQuarterMetricDelta()
+		},
 		isCurrent = isCurrent,
 		canDelete = QuarterMutationPolicy.canDelete(
 			isCurrent = isCurrent,
@@ -87,19 +93,48 @@ fun Quarter.toQuarterItem(
 
 private fun Float.toQuarterMetricDelta(): QuarterMetricDelta {
 	val magnitudeText = abs(toDouble()).formatGrade(decimals = QUARTER_DELTA_DECIMALS)
-	val tone = when {
-		magnitudeText == ZERO_DELTA_TEXT -> QuarterMetricDeltaTone.Neutral
-		this > 0f -> QuarterMetricDeltaTone.Positive
-		else -> QuarterMetricDeltaTone.Negative
+	return buildQuarterMetricDelta(
+		magnitudeText = magnitudeText,
+		tone = when {
+			magnitudeText == ZERO_DELTA_TEXT -> QuarterMetricDeltaTone.Neutral
+			this > 0f -> QuarterMetricDeltaTone.Positive
+			else -> QuarterMetricDeltaTone.Negative
+		},
+		isPositive = this > 0f,
+		isZero = magnitudeText == ZERO_DELTA_TEXT
+	)
+}
+
+private fun Int.toCreditsQuarterMetricDelta(): QuarterMetricDelta {
+	val magnitude = abs(this)
+
+	return buildQuarterMetricDelta(
+		magnitudeText = magnitude.toString(),
+		tone = QuarterMetricDeltaTone.Informational,
+		isPositive = this > 0,
+		isZero = magnitude == 0
+	)
+}
+
+private fun buildQuarterMetricDelta(
+	magnitudeText: String,
+	tone: QuarterMetricDeltaTone,
+	isPositive: Boolean,
+	isZero: Boolean
+): QuarterMetricDelta {
+	val prefix = when {
+		isZero -> ""
+		isPositive -> UP_DELTA_SYMBOL
+		else -> DOWN_DELTA_SYMBOL
 	}
-	val prefix = when (tone) {
-		QuarterMetricDeltaTone.Positive -> "+"
-		QuarterMetricDeltaTone.Negative -> "-"
-		QuarterMetricDeltaTone.Neutral -> ""
+	val text = if (prefix.isEmpty()) {
+		magnitudeText
+	} else {
+		"$prefix $magnitudeText"
 	}
 
 	return QuarterMetricDelta(
-		text = "$prefix$magnitudeText",
+		text = text,
 		tone = tone
 	)
 }

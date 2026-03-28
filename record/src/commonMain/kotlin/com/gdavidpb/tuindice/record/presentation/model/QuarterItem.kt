@@ -10,6 +10,7 @@ data class QuarterItem(
 	val gradeSumText: AnnotatedString,
 	val gradeSumDelta: QuarterMetricDelta?,
 	val creditsText: AnnotatedString,
+	val creditsDelta: QuarterMetricDelta?,
 	val isCurrent: Boolean,
 	val canDelete: Boolean,
 	val subjects: List<SubjectItem>
@@ -23,5 +24,6 @@ data class QuarterMetricDelta(
 enum class QuarterMetricDeltaTone {
 	Positive,
 	Negative,
-	Neutral
+	Neutral,
+	Informational
 }

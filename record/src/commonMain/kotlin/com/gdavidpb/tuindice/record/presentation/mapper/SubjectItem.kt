@@ -20,7 +20,7 @@ fun Subject.toSubjectItem(
 		status = status,
 		codeText = code,
 		nameText = name,
-		gradeText = if ((grade != MIN_SUBJECT_GRADE) && (status !in setOf(SubjectStatus.RETIRED, SubjectStatus.WITHOUT_EFFECT)))
+		gradeText = if ((grade != MIN_SUBJECT_GRADE) && (status != SubjectStatus.RETIRED))
 			texts.subjectGrade(grade)
 		else
 			"",
