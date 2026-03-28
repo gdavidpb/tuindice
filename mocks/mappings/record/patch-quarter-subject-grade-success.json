@@ -19,7 +19,7 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "record/patch-quarter-subject-grade-success-body.json",
+    "body": "{\"mutation_id\":\"{{jsonPath request.body '$.mutation_id'}}\",\"subject_patch\":{{{toJson record.currentSubject}}},\"affected_quarters\":{{{toJson record.quarters}}} }",
     "transformers": [
       "response-template"
     ],

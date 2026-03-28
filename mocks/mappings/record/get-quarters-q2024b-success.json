@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/quarters/v1/Q2025B"
+    "urlPath": "/quarters/v1/Q2024B"
   },
   "response": {
     "status": 200,

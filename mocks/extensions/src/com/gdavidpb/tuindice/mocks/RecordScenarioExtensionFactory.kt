@@ -259,17 +259,17 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				var quarterWeighted = 0L
 
 				for (subject in quarter.subjects) {
-					if (subject.grade != 0) {
+					if (subject.countsTowardIndex()) {
 						quarterCredits += subject.credits.toLong()
+						quarterWeighted += subject.grade.toLong() * subject.credits.toLong()
 					}
-					quarterWeighted += subject.grade.toLong() * subject.credits.toLong()
 				}
 
 				val quarterGrade = computeAverage(quarterWeighted, quarterCredits)
 				val sortedSubjects = quarter.subjects.sortedByDescending(SubjectModel::id)
 
 				for (subject in sortedSubjects) {
-					if (subject.grade <= 0) continue
+					if (!subject.countsTowardIndex()) continue
 
 					val state = codeStates.getOrPut(subject.code) { CodeState() }
 					val previousWeighted = state.effectiveWeighted()
@@ -430,6 +430,11 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				status?.let { model["status"] = it }
 				model["revision"] = revision
 			}
+
+		fun countsTowardIndex(): Boolean =
+			(grade > 0) &&
+				(status != "retired") &&
+				(status != "without_effect")
 	}
 
 	private data class CodeAttempt(

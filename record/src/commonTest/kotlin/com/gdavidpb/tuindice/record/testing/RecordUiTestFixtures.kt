@@ -38,7 +38,7 @@ fun sampleSubjectItem(
 		status = status,
 		codeText = "FS1113",
 		nameText = "FISICA III",
-		gradeText = if ((grade == MIN_SUBJECT_GRADE) || (status != null)) "" else "$grade / 5",
+		gradeText = if ((grade == MIN_SUBJECT_GRADE) || (status == SubjectStatus.RETIRED)) "" else "$grade / 5",
 		creditsText = "3 UC",
 		codeColor = subjectColors.color,
 		codeContainerColor = subjectColors.containerColor,
@@ -51,6 +51,7 @@ fun sampleQuarterItem(
 	shortNameText: String = "Abr. - Jul. 2023",
 	gradeDelta: QuarterMetricDelta? = null,
 	gradeSumDelta: QuarterMetricDelta? = null,
+	creditsDelta: QuarterMetricDelta? = null,
 	isCurrent: Boolean = false,
 	canDelete: Boolean = false,
 	subjects: List<SubjectItem> = listOf(sampleSubjectItem())
@@ -62,13 +63,14 @@ fun sampleQuarterItem(
 	gradeSumText = AnnotatedString("∑x 4.2500"),
 	gradeSumDelta = gradeSumDelta,
 	creditsText = AnnotatedString("⦿ 6"),
+	creditsDelta = creditsDelta,
 	isCurrent = isCurrent,
 	canDelete = canDelete,
 	subjects = subjects
 )
 
 fun sampleQuarterMetricDelta(
-	text: String = "+0.50",
+	text: String = "▲ 0.5000",
 	tone: QuarterMetricDeltaTone = QuarterMetricDeltaTone.Positive
 ): QuarterMetricDelta = QuarterMetricDelta(
 	text = text,

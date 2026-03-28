@@ -22,7 +22,7 @@
         "matchesJsonPath": "$.mutation_id"
       },
       {
-        "matchesJsonPath": "$[?(@.expected_revision == 10)]"
+        "matchesJsonPath": "$[?(@.expected_revision == 11)]"
       }
     ]
   },
@@ -31,7 +31,7 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "record/post-quarters-success-body.json",
+    "body": "{\"mutation_id\":\"{{jsonPath request.body '$.mutation_id'}}\",\"quarter_patch\":{{{toJson record.addedQuarter}}},\"affected_quarters\":{{{toJson record.quarters}}} }",
     "transformers": [
       "response-template"
     ],

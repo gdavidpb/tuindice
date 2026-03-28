@@ -2,12 +2,12 @@
   "added_quarter": {
     "id": "MOCK-ADDED-QUARTER",
     "name": "Quarter Added",
-    "start_date": 1785560400000,
-    "end_date": 1793422800000,
+    "start_date": 1809140400000,
+    "end_date": 1817002800000,
     "grade": 0.0,
-    "grade_sum": 4.2778,
+    "grade_sum": 4.2381,
     "credits": 0,
-    "credits_sum": 54,
+    "credits_sum": 63,
     "is_current": false,
     "is_read_only": false,
     "revision": 1,
@@ -26,15 +26,66 @@
   },
   "quarters": [
     {
+      "id": "Q2026C",
+      "name": "Septiembre - Diciembre 2026",
+      "start_date": 1788235200000,
+      "end_date": 1798686000000,
+      "grade": 0.0,
+      "grade_sum": 4.2381,
+      "credits": 0,
+      "credits_sum": 63,
+      "is_current": false,
+      "is_read_only": false,
+      "revision": 11,
+      "subjects": [
+        {
+          "id": "CI2691Q2026C",
+          "qid": "Q2026C",
+          "code": "CI2691",
+          "name": "PROGRAMACIÓN I",
+          "credits": 4,
+          "grade": 0,
+          "revision": 1
+        },
+        {
+          "id": "CI2692Q2026C",
+          "qid": "Q2026C",
+          "code": "CI2692",
+          "name": "LABORATORIO DE PROGRAMACIÓN I",
+          "credits": 4,
+          "grade": 0,
+          "revision": 1
+        },
+        {
+          "id": "MA2116Q2026C",
+          "qid": "Q2026C",
+          "code": "MA2116",
+          "name": "MATEMÁTICAS V",
+          "credits": 4,
+          "grade": 0,
+          "revision": 1
+        },
+        {
+          "id": "ID1114Q2026C",
+          "qid": "Q2026C",
+          "code": "ID1114",
+          "name": "INGLES IV",
+          "credits": 3,
+          "grade": 0,
+          "revision": 1
+        }
+      ]
+    },
+    {
       "id": "Q2026B",
       "name": "Abril - Julio 2026",
       "start_date": 1775012400000,
       "end_date": 1785470400000,
       "grade": 4.2,
-      "grade_sum": 4.2778,
+      "grade_sum": 4.2381,
       "credits": 15,
-      "credits_sum": 54,
-      "is_current": false,
+      "credits_sum": 63,
+      "is_current": true,
       "is_read_only": false,
       "revision": 10,
       "presence_scenario": "record-quarter-Q2026B",
@@ -91,11 +142,11 @@
       "start_date": 1767236400000,
       "end_date": 1774926000000,
       "grade": 4.1875,
-      "grade_sum": 4.3077,
+      "grade_sum": 4.25,
       "credits": 16,
-      "credits_sum": 39,
-      "is_current": true,
-      "is_read_only": false,
+      "credits_sum": 48,
+      "is_current": false,
+      "is_read_only": true,
       "revision": 9,
       "subjects": [
         {
@@ -105,9 +156,7 @@
           "name": "MATEMÁTICAS III",
           "credits": 4,
           "grade": 4,
-          "revision": 1,
-          "mutable": true,
-          "scenario": "record-subject-MA1116Q2026A"
+          "revision": 1
         },
         {
           "id": "FS1112Q2026A",
@@ -116,9 +165,7 @@
           "name": "FÍSICA II",
           "credits": 3,
           "grade": 5,
-          "revision": 1,
-          "mutable": true,
-          "scenario": "record-subject-FS1112Q2026A"
+          "revision": 1
         },
         {
           "id": "ID1113Q2026A",
@@ -127,9 +174,7 @@
           "name": "INGLES III",
           "credits": 3,
           "grade": 4,
-          "revision": 1,
-          "mutable": true,
-          "scenario": "record-subject-ID1113Q2026A"
+          "revision": 1
         },
         {
           "id": "LLA113Q2026A",
@@ -138,9 +183,7 @@
           "name": "LENGUAJE III",
           "credits": 3,
           "grade": 3,
-          "revision": 1,
-          "mutable": true,
-          "scenario": "record-subject-LLA113Q2026A"
+          "revision": 1
         },
         {
           "id": "CSA213Q2026A",
@@ -149,9 +192,7 @@
           "name": "VENEZUELA ANTE EL SIGLO XXI-III",
           "credits": 3,
           "grade": 5,
-          "revision": 1,
-          "mutable": true,
-          "scenario": "record-subject-CSA213Q2026A"
+          "revision": 1
         }
       ]
     },
@@ -161,9 +202,9 @@
       "start_date": 1756699200000,
       "end_date": 1767150000000,
       "grade": 4.375,
-      "grade_sum": 4.3913,
+      "grade_sum": 4.2813,
       "credits": 16,
-      "credits_sum": 23,
+      "credits_sum": 32,
       "is_current": false,
       "is_read_only": true,
       "revision": 5,
@@ -220,10 +261,10 @@
       "name": "Abril - Julio 2025",
       "start_date": 1743476400000,
       "end_date": 1753934400000,
-      "grade": 4.4286,
-      "grade_sum": 4.4286,
-      "credits": 7,
-      "credits_sum": 7,
+      "grade": 4.4615,
+      "grade_sum": 4.1875,
+      "credits": 13,
+      "credits_sum": 16,
       "is_current": false,
       "is_read_only": true,
       "revision": 4,
@@ -243,8 +284,7 @@
           "code": "ID1111",
           "name": "INGLES I",
           "credits": 3,
-          "grade": 0,
-          "status": "retired",
+          "grade": 5,
           "revision": 1
         },
         {
@@ -253,8 +293,7 @@
           "code": "LLA111",
           "name": "LENGUAJE I",
           "credits": 3,
-          "grade": 0,
-          "status": "without_effect",
+          "grade": 4,
           "revision": 1
         },
         {
@@ -264,6 +303,59 @@
           "name": "VENEZUELA ANTE EL SIGLO XXI-I",
           "credits": 3,
           "grade": 5,
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "id": "Q2024B",
+      "name": "Septiembre - Diciembre 2024",
+      "start_date": 1725163200000,
+      "end_date": 1735614000000,
+      "grade": 2.5,
+      "grade_sum": 2.5,
+      "credits": 6,
+      "credits_sum": 6,
+      "is_current": false,
+      "is_read_only": true,
+      "revision": 2,
+      "subjects": [
+        {
+          "id": "MA1111Q2024B",
+          "qid": "Q2024B",
+          "code": "MA1111",
+          "name": "MATEMÁTICAS I",
+          "credits": 4,
+          "grade": 2,
+          "status": "without_effect",
+          "revision": 1
+        },
+        {
+          "id": "ID1111Q2024B",
+          "qid": "Q2024B",
+          "code": "ID1111",
+          "name": "INGLES I",
+          "credits": 3,
+          "grade": 0,
+          "status": "retired",
+          "revision": 1
+        },
+        {
+          "id": "LLA111Q2024B",
+          "qid": "Q2024B",
+          "code": "LLA111",
+          "name": "LENGUAJE I",
+          "credits": 3,
+          "grade": 2,
+          "revision": 1
+        },
+        {
+          "id": "SOC101Q2024B",
+          "qid": "Q2024B",
+          "code": "SOC101",
+          "name": "INTRODUCCIÓN A LAS CIENCIAS SOCIALES",
+          "credits": 3,
+          "grade": 3,
           "revision": 1
         }
       ]
