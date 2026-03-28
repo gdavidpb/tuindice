@@ -1,0 +1,16 @@
+{
+  "scenarioName": "login-token-lifecycle",
+  "requiredScenarioState": "TokensRevoked",
+  "newScenarioState": "TokensRevoked",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v1/token/revoke"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}
