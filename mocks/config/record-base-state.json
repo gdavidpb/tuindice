@@ -5,9 +5,9 @@
     "start_date": 1809140400000,
     "end_date": 1817002800000,
     "grade": 0.0,
-    "grade_sum": 4.2381,
+    "grade_sum": 4.2308,
     "credits": 0,
-    "credits_sum": 63,
+    "credits_sum": 78,
     "is_current": false,
     "is_read_only": false,
     "revision": 1,
@@ -30,10 +30,10 @@
       "name": "Septiembre - Diciembre 2026",
       "start_date": 1788235200000,
       "end_date": 1798686000000,
-      "grade": 0.0,
-      "grade_sum": 4.2381,
-      "credits": 0,
-      "credits_sum": 63,
+      "grade": 4.2,
+      "grade_sum": 4.2308,
+      "credits": 15,
+      "credits_sum": 78,
       "is_current": false,
       "is_read_only": false,
       "revision": 11,
@@ -44,8 +44,10 @@
           "code": "CI2691",
           "name": "PROGRAMACIÓN I",
           "credits": 4,
-          "grade": 0,
-          "revision": 1
+          "grade": 5,
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-CI2691Q2026C"
         },
         {
           "id": "CI2692Q2026C",
@@ -53,8 +55,10 @@
           "code": "CI2692",
           "name": "LABORATORIO DE PROGRAMACIÓN I",
           "credits": 4,
-          "grade": 0,
-          "revision": 1
+          "grade": 4,
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-CI2692Q2026C"
         },
         {
           "id": "MA2116Q2026C",
@@ -62,8 +66,10 @@
           "code": "MA2116",
           "name": "MATEMÁTICAS V",
           "credits": 4,
-          "grade": 0,
-          "revision": 1
+          "grade": 3,
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-MA2116Q2026C"
         },
         {
           "id": "ID1114Q2026C",
@@ -71,8 +77,10 @@
           "code": "ID1114",
           "name": "INGLES IV",
           "credits": 3,
-          "grade": 0,
-          "revision": 1
+          "grade": 5,
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-ID1114Q2026C"
         }
       ]
     },
@@ -85,7 +93,7 @@
       "grade_sum": 4.2381,
       "credits": 15,
       "credits_sum": 63,
-      "is_current": true,
+      "is_current": false,
       "is_read_only": false,
       "revision": 10,
       "presence_scenario": "record-quarter-Q2026B",
@@ -145,8 +153,8 @@
       "grade_sum": 4.25,
       "credits": 16,
       "credits_sum": 48,
-      "is_current": false,
-      "is_read_only": true,
+      "is_current": true,
+      "is_read_only": false,
       "revision": 9,
       "subjects": [
         {
@@ -156,7 +164,9 @@
           "name": "MATEMÁTICAS III",
           "credits": 4,
           "grade": 4,
-          "revision": 1
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-MA1116Q2026A"
         },
         {
           "id": "FS1112Q2026A",
@@ -165,7 +175,9 @@
           "name": "FÍSICA II",
           "credits": 3,
           "grade": 5,
-          "revision": 1
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-FS1112Q2026A"
         },
         {
           "id": "ID1113Q2026A",
@@ -174,7 +186,9 @@
           "name": "INGLES III",
           "credits": 3,
           "grade": 4,
-          "revision": 1
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-ID1113Q2026A"
         },
         {
           "id": "LLA113Q2026A",
@@ -183,7 +197,9 @@
           "name": "LENGUAJE III",
           "credits": 3,
           "grade": 3,
-          "revision": 1
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-LLA113Q2026A"
         },
         {
           "id": "CSA213Q2026A",
@@ -192,7 +208,9 @@
           "name": "VENEZUELA ANTE EL SIGLO XXI-III",
           "credits": 3,
           "grade": 5,
-          "revision": 1
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-CSA213Q2026A"
         }
       ]
     },
