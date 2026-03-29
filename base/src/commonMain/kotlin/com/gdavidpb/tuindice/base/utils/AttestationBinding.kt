@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.base.utils
 
-import com.gdavidpb.tuindice.base.domain.model.AttestedOperation
+import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCode
 
 fun attestationBindingInput(
 	sessionId: String,
 	challenge: String,
-	operation: AttestedOperation,
+	operationCode: ProtectedOperationCode,
 	requestHash: String
 ): String {
-	return "$sessionId:$challenge:${operation.code}:$requestHash"
+	return "$sessionId:$challenge:${operationCode.value}:$requestHash"
 }

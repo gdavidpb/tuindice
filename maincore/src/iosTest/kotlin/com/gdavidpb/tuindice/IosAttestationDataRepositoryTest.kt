@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice
 import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.base.domain.model.AttestedOperation
+import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.data.repository.attestation.IosAttestationDataRepository
 import com.gdavidpb.tuindice.di.createSharedJson
 import com.gdavidpb.tuindice.domain.model.IosPlatformAttestation
@@ -47,7 +47,7 @@ class IosAttestationDataRepositoryTest {
 
 		val response = repository.attest(
 			AttestationRequest(
-				operation = AttestedOperation.RefreshTokens,
+				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 				payloadJson = """{"refresh_token":"token"}"""
 			)
 		)
@@ -88,7 +88,7 @@ class IosAttestationDataRepositoryTest {
 
 		val response = repository.attest(
 			AttestationRequest(
-				operation = AttestedOperation.RefreshTokens,
+				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 				payloadJson = """{"refresh_token":"token"}"""
 			)
 		)

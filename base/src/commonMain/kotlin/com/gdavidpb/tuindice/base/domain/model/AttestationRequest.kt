@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.base.domain.model
 
 data class AttestationRequest(
-    val operation: AttestedOperation,
+    val operationCode: ProtectedOperationCode,
     val payloadJson: String
 )

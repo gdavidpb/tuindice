@@ -41,7 +41,7 @@ class UpdatePasswordUseCase(
 
 		val attestation = attestationRepository.attest(
 			request = AttestationRequest(
-				operation = flow.operation,
+				operationCode = flow.operationCode,
 				payloadJson = canonicalAttestationPayloadJson(
 					serializer = IssueTokensAttestationPayload.serializer(),
 					value = attestationPayload

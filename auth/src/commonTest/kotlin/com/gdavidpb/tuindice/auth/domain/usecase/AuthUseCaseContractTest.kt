@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.base.domain.model.AttestedOperation
+import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
@@ -58,7 +58,7 @@ class AuthUseCaseContractTest {
 
 		assertEquals(1, repository.issueTokensCalls.size)
 		assertEquals(AttestedTokenFlow.IssueTokens, repository.issueTokensCalls.single().flow)
-		assertEquals(AttestedOperation.IssueTokens, attestationRepository.lastRequest?.operation)
+		assertEquals(ProtectedOperationCodes.AuthIssueTokens, attestationRepository.lastRequest?.operationCode)
 		assertEquals(1, messagingRepository.subscribeCalls)
 		assertEquals(listOf("secret123"), credentialsRepository.storedPasswords)
 		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())

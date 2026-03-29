@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.base.data.model.IssueAttestationTokenResponse
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.base.domain.model.AttestedOperation
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.utils.attestationBindingInput
 import com.gdavidpb.tuindice.base.utils.extension.isForbidden
@@ -53,12 +52,12 @@ class AndroidAttestationRepository(
 		request: AttestationRequest,
 		requestHash: String
 	): Attestation {
-		val keyId = resolveKeyIdIfNeeded(request.operation)
+		val keyId = resolveKeyId()
 		val session = ktorClient.post("attestation/v2/sessions") {
 			setBody(
 				CreateAttestationSessionRequest(
 					platform = PLATFORM_ANDROID,
-					operationCode = request.operation.code,
+					operationCode = request.operationCode.value,
 					keyId = keyId
 				)
 			)
@@ -68,7 +67,7 @@ class AndroidAttestationRepository(
 			attestationBindingInput(
 				sessionId = session.sessionId,
 				challenge = session.challenge,
-				operation = request.operation,
+				operationCode = request.operationCode,
 				requestHash = requestHash
 			)
 		)
@@ -102,7 +101,7 @@ class AndroidAttestationRepository(
 				setBody(
 					IssueAttestationTokenRequest(
 						sessionId = session.sessionId,
-						operationCode = request.operation.code,
+						operationCode = request.operationCode.value,
 						requestHash = requestHash,
 						evidenceMode = session.evidenceMode,
 						token = providerAttestation.token,
@@ -125,7 +124,7 @@ class AndroidAttestationRepository(
 		return Attestation(token = response.token)
 	}
 
-	private suspend fun resolveKeyIdIfNeeded(operation: AttestedOperation): String? {
+	private suspend fun resolveKeyId(): String? {
 		return runCatching {
 			proofOfPossessionCapability.resolveProofOfPossessionKeyId()
 		}.getOrElse { throwable ->

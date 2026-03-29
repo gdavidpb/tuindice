@@ -9,7 +9,7 @@ class IosDebugAttestationDataRepository : AttestationRepository {
 	private val logger = appLogger(tag = "Attestation")
 
 	override suspend fun attest(request: AttestationRequest): Attestation {
-		logger.i { "[ios-debug] attest(): returning mocked attestation token for ${request.operation.code}." }
+		logger.i { "[ios-debug] attest(): returning mocked attestation token for ${request.operationCode.value}." }
 		return Attestation(token = "attestation.mock.proof.ios")
 	}
 }

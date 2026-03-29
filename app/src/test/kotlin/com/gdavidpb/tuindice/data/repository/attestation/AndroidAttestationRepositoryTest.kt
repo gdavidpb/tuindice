@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.AttestationProofOfPossessionMode
-import com.gdavidpb.tuindice.base.domain.model.AttestedOperation
+import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.di.createSharedJson
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.platform.android.model.ProviderAttestation
@@ -46,7 +46,7 @@ class AndroidAttestationRepositoryTest {
 
 		val response = repository.attest(
 			AttestationRequest(
-				operation = AttestedOperation.IssueTokens,
+				operationCode = ProtectedOperationCodes.AuthIssueTokens,
 				payloadJson = """{"usb_id":"12345678-9"}"""
 			)
 		)
@@ -93,7 +93,7 @@ class AndroidAttestationRepositoryTest {
 
 		val response = repository.attest(
 			AttestationRequest(
-				operation = AttestedOperation.RefreshTokens,
+				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 				payloadJson = """{"refresh_token":"token"}"""
 			)
 		)
@@ -143,7 +143,7 @@ class AndroidAttestationRepositoryTest {
 
 		val response = repository.attest(
 			AttestationRequest(
-				operation = AttestedOperation.RefreshTokens,
+				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 				payloadJson = """{"refresh_token":"token"}"""
 			)
 		)

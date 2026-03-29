@@ -59,7 +59,7 @@ class IosAttestationDataRepository(
 				setBody(
 					CreateAttestationSessionRequest(
 						platform = PLATFORM_IOS,
-						operationCode = request.operation.code,
+						operationCode = request.operationCode.value,
 						keyId = keyId
 					)
 				)
@@ -69,7 +69,7 @@ class IosAttestationDataRepository(
 		val bindingInput = attestationBindingInput(
 			sessionId = session.sessionId,
 			challenge = session.challenge,
-			operation = request.operation,
+			operationCode = request.operationCode,
 			requestHash = requestHash
 		)
 		val bindingHash = attestationCapability.sha256Base64Url(bindingInput)
@@ -100,7 +100,7 @@ class IosAttestationDataRepository(
 					setBody(
 						IssueAttestationTokenRequest(
 							sessionId = session.sessionId,
-							operationCode = request.operation.code,
+							operationCode = request.operationCode.value,
 							requestHash = requestHash,
 							evidenceMode = session.evidenceMode,
 							token = providerAttestation.token,

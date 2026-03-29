@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.base.domain.model.AttestedOperation
+import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
@@ -111,7 +111,7 @@ fun createSharedHttpClient(
 
 					val attestation = attestationRepository.attest(
 						request = AttestationRequest(
-							operation = AttestedOperation.RefreshTokens,
+							operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 							payloadJson = canonicalAttestationPayloadJson(
 								serializer = RefreshTokensAttestationPayload.serializer(),
 								value = attestationPayload
