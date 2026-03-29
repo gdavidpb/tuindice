@@ -7,7 +7,7 @@
         "matchesJsonPath": "$[?(@.platform == 'Android')]"
       },
       {
-        "matchesJsonPath": "$[?(@.operation_code == 'auth.refresh_tokens')]"
+        "matchesJsonPath": "$[?(@.operation_code == 'auth.issue_tokens')]"
       }
     ]
   },
@@ -20,7 +20,7 @@
       "session_id": "mock-attestation-session-android",
       "challenge": "mock-attestation-challenge-android",
       "expires_at": 2524608000000,
-      "evidence_mode": "play_integrity_standard"
+      "evidence_mode": "play_integrity_classic"
     },
     "fixedDelayMilliseconds": 250
   }

@@ -41,6 +41,7 @@ extensions.configure<ApplicationExtension> {
 		versionCode = 38
 		versionName = "6.0"
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+		buildConfigField("long", "PLAY_INTEGRITY_CLOUD_PROJECT_NUMBER", "375954751920L")
 	}
 
 	signingConfigs {

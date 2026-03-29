@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.utils.attestationBindingInput
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
@@ -24,15 +25,24 @@ class AndroidAttestationRepository(
 		val session = ktorClient.post("attestation/v2/sessions") {
 			setBody(
 				CreateAttestationSessionRequest(
-					platform = PLATFORM_ANDROID
+					platform = PLATFORM_ANDROID,
+					operationCode = request.operation.code
 				)
 			)
 		}.body<CreateAttestationSessionResponse>()
 
-		val bindingValue = sha256Base64Url(
-			"${session.sessionId}:${session.challenge}:${request.operation.code}:$requestHash"
+		val bindingHash = sha256Base64Url(
+			attestationBindingInput(
+				sessionId = session.sessionId,
+				challenge = session.challenge,
+				operation = request.operation,
+				requestHash = requestHash
+			)
 		)
-		val providerAttestation = providerDataSource.getAttestation(bindingValue)
+		val providerAttestation = providerDataSource.getAttestation(
+			bindingHash = bindingHash,
+			evidenceMode = session.evidenceMode
+		)
 			?: throw IllegalStateException("Play Integrity attestation unavailable.")
 		check(providerAttestation.provider == AttestationProvider.PLAY_INTEGRITY) {
 			"Unsupported Android attestation provider: ${providerAttestation.provider}."

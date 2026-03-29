@@ -13,7 +13,7 @@
         "matchesJsonPath": "$.request_hash"
       },
       {
-        "matchesJsonPath": "$[?(@.evidence_mode == 'play_integrity')]"
+        "matchesJsonPath": "$[?(@.evidence_mode =~ /play_integrity_(classic|standard)/)]"
       },
       {
         "matchesJsonPath": "$[?(@.token =~ /android-debug-attestation:.+/)]"

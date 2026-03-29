@@ -43,6 +43,7 @@ import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.integrity.IntegrityManagerFactory
+import com.google.android.play.core.integrity.StandardIntegrityManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
@@ -130,6 +131,10 @@ private fun Module.registerAndroidPlatformPrimitives() {
 
 	single {
 		IntegrityManagerFactory.create(androidContext())
+	}
+
+	single<StandardIntegrityManager> {
+		IntegrityManagerFactory.createStandard(androidContext())
 	}
 }
 
