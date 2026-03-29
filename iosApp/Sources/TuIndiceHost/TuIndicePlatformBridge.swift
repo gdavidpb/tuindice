@@ -119,6 +119,11 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         resolveAppAttestKeyId(completionHandler: completionHandler)
     }
 
+    func invalidateAttestationKeyId(completionHandler: @escaping (Error?) -> Void) {
+        secureStore.delete(Self.appAttestKeyIdKey)
+        completionHandler(nil)
+    }
+
     func requestAttestation(
         attestationInput: String,
         keyId: String,
@@ -577,6 +582,11 @@ private struct KeychainSecureStore {
             kSecAttrService as String: service
         ]
 
+        SecItemDelete(query as CFDictionary)
+    }
+
+    func delete(_ key: String) {
+        let query = baseQuery(for: key)
         SecItemDelete(query as CFDictionary)
     }
 

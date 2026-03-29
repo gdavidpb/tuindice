@@ -38,6 +38,7 @@ class IosAppKoinSmokeTest {
 								attestation = object : IosAttestationCapability {
 									override fun sha256Base64Url(value: String): String = value
 									override suspend fun resolveAttestationKeyId(): String = "key"
+									override suspend fun invalidateAttestationKeyId() = Unit
 									override suspend fun requestAttestation(
 										attestationInput: String,
 										keyId: String,
