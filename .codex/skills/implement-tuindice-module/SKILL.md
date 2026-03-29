@@ -55,6 +55,12 @@ Implement module work by copying the nearest existing module pattern instead of 
 
 - Keep the dependency flow pointed inward. Do not add new feature-to-feature dependencies without explicit approval. Current legacy exception: `evaluations -> record`.
 - Preserve `presentation -> domain -> data -> di` separation. Interfaces live in `domain`; implementations live in `data`; `di` only wires them.
+- Within that separation, use this finer layering order when a module needs multiple data origins: `presentation -> domain -> data/repository -> data/source -> di`.
+- `domain/repository` contains business-facing contracts used by action processors, use cases, or view models. These interfaces should end with `Repository`.
+- `data/repository` contains internal data-layer orchestrators that implement `domain/repository` contracts and coordinate one or more lower-level data sources. These classes should end with `DataRepository`.
+- `data/source` contains concrete technical adapters and leaf origins such as SQLDelight or Room storage, HTTP clients, platform capabilities, secure storage, filesystem access, clocks, or SDK bridges. These classes should end with `DataSource`.
+- If a `domain` contract needs to coordinate multiple internal origins or preserve shared business/stateful behavior, implement it in `data/repository` and keep the lower-level details behind `data/source`.
+- Only bind a `data/source` directly to a `domain` repository when it is a true leaf adapter with no orchestration logic. If it starts composing multiple origins, promote that composition to `data/repository`.
 - If a `domain` contract represents shared business state or coordinates internal origins, implement it in `data/repository` and keep `data/source` behind local `*DataSource` contracts.
 - Do not bind a `*DataSource` directly as a `domain` repository for business/stateful flows. Allowed exception: leaf platform adapters or gateways that do not orchestrate other data sources.
 - In `commonModule`, default shared runtime services and infrastructure repositories to `single`; use `factory` only when the object is intentionally transient or has no shared identity/state.

@@ -37,6 +37,8 @@ import com.gdavidpb.tuindice.data.source.reporting.FirebaseCrashReporter
 import com.gdavidpb.tuindice.data.source.review.PlayReviewDataSource
 import com.gdavidpb.tuindice.data.source.update.PlayUpdateDataSource
 import com.gdavidpb.tuindice.persistence.di.registerAndroidPersistencePlatformStorage
+import com.gdavidpb.tuindice.platform.android.AndroidKeystoreProofOfPossessionCapability
+import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.platform.android.UserAgent
 import com.gdavidpb.tuindice.platform.android.androidDefaultConfigValues
 import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
@@ -140,6 +142,7 @@ private fun Module.registerAndroidPlatformPrimitives() {
 
 private fun Module.registerAndroidPlatformServices() {
 	singleOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
+	singleOf(::AndroidKeystoreProofOfPossessionCapability) { bind<AndroidProofOfPossessionCapability>() }
 	singleOf(::AndroidRemoteConfigDataSource) { bind<RemoteConfigDataSource>() }
 	singleOf(::FirebasePushTokenDataSource) { bind<PushTokenDataSource>() }
 	singleOf(::InMemoryCurrentActivityProvider) { bind<CurrentActivityProvider>() }

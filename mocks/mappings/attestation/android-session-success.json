@@ -8,6 +8,9 @@
       },
       {
         "matchesJsonPath": "$[?(@.operation_code == 'auth.refresh_tokens')]"
+      },
+      {
+        "matchesJsonPath": "$.key_id"
       }
     ]
   },
@@ -17,10 +20,11 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "session_id": "mock-attestation-session-android",
+      "session_id": "mock-attestation-session-android-refresh",
       "challenge": "mock-attestation-challenge-android",
       "expires_at": 2524608000000,
-      "evidence_mode": "play_integrity_standard"
+      "evidence_mode": "play_integrity_standard",
+      "proof_of_possession_mode": "android_keystore"
     },
     "fixedDelayMilliseconds": 250
   }

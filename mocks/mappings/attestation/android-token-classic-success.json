@@ -4,7 +4,7 @@
     "urlPath": "/attestation/v2/tokens",
     "bodyPatterns": [
       {
-        "matchesJsonPath": "$[?(@.session_id == 'mock-attestation-session-android-refresh')]"
+        "matchesJsonPath": "$[?(@.session_id =~ /mock-attestation-session-android-(issue|reissue)/)]"
       },
       {
         "matchesJsonPath": "$.operation_code"
@@ -13,19 +13,10 @@
         "matchesJsonPath": "$.request_hash"
       },
       {
-        "matchesJsonPath": "$[?(@.evidence_mode == 'play_integrity_standard')]"
+        "matchesJsonPath": "$[?(@.evidence_mode == 'play_integrity_classic')]"
       },
       {
         "matchesJsonPath": "$[?(@.token =~ /android-debug-attestation:.+/)]"
-      },
-      {
-        "matchesJsonPath": "$.key_id"
-      },
-      {
-        "matchesJsonPath": "$.proof_of_possession.signature"
-      },
-      {
-        "matchesJsonPath": "$.proof_of_possession.public_key"
       }
     ]
   },

@@ -17,7 +17,7 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "session_id": "mock-attestation-session-android",
+      "session_id": "mock-attestation-session-android-issue",
       "challenge": "mock-attestation-challenge-android",
       "expires_at": 2524608000000,
       "evidence_mode": "play_integrity_classic"
