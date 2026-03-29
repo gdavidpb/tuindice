@@ -8,6 +8,9 @@
       },
       {
         "matchesJsonPath": "$[?(@.operation_code == 'auth.issue_tokens')]"
+      },
+      {
+        "matchesJsonPath": "$.key_id"
       }
     ]
   },
@@ -20,7 +23,8 @@
       "session_id": "mock-attestation-session-android-issue",
       "challenge": "mock-attestation-challenge-android",
       "expires_at": 2524608000000,
-      "evidence_mode": "play_integrity_classic"
+      "evidence_mode": "play_integrity_classic",
+      "proof_of_possession_mode": "android_keystore"
     },
     "fixedDelayMilliseconds": 250
   }

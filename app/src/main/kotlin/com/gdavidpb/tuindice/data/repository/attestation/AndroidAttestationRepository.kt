@@ -126,10 +126,6 @@ class AndroidAttestationRepository(
 	}
 
 	private suspend fun resolveKeyIdIfNeeded(operation: AttestedOperation): String? {
-		if (operation != AttestedOperation.RefreshTokens) {
-			return null
-		}
-
 		return runCatching {
 			proofOfPossessionCapability.resolveProofOfPossessionKeyId()
 		}.getOrElse { throwable ->

@@ -25,6 +25,43 @@ import org.junit.Test
 
 class AndroidAttestationRepositoryTest {
 	@Test
+	fun `attest includes proof of possession for the classic Android attestation flow`() = runTest {
+		val proofCapability = RecordingAndroidProofOfPossessionCapability(
+			resolvedKeyIds = ArrayDeque(listOf("classic-key")),
+			proofFailures = ArrayDeque(listOf(null)),
+			issuedSignatures = ArrayDeque(listOf("classic-signature"))
+		)
+		val providerDataSource = RecordingAttestationProviderDataSource()
+		val httpClient = androidAttestationHttpClient(
+			sessionModes = ArrayDeque(listOf(AttestationEvidenceMode.PLAY_INTEGRITY_CLASSIC)),
+			proofModes = ArrayDeque(listOf(AttestationProofOfPossessionMode.ANDROID_KEYSTORE)),
+			tokenStatuses = ArrayDeque(listOf(HttpStatusCode.OK)),
+			tokenValues = ArrayDeque(listOf("issued-token"))
+		)
+		val repository = AndroidAttestationRepository(
+			ktorClient = httpClient,
+			providerDataSource = providerDataSource,
+			proofOfPossessionCapability = proofCapability
+		)
+
+		val response = repository.attest(
+			AttestationRequest(
+				operation = AttestedOperation.IssueTokens,
+				payloadJson = """{"usb_id":"12345678-9"}"""
+			)
+		)
+
+		assertEquals("issued-token", response.token)
+		assertEquals(listOf("classic-key"), proofCapability.resolveCalls)
+		assertEquals(listOf("classic-key"), proofCapability.proofCalls)
+		assertEquals(0, proofCapability.invalidateCalls)
+		assertEquals(
+			listOf(AttestationEvidenceMode.PLAY_INTEGRITY_CLASSIC),
+			providerDataSource.calls.map { call -> call.evidenceMode }
+		)
+	}
+
+	@Test
 	fun `attest rotates the key and retries when proof generation fails`() = runTest {
 		val proofCapability = RecordingAndroidProofOfPossessionCapability(
 			resolvedKeyIds = ArrayDeque(listOf("stale-key", "fresh-key")),
