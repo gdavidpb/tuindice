@@ -14,6 +14,9 @@ import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutationSyncS
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.SetSubjectGradeResult
+import com.gdavidpb.tuindice.record.data.source.QuarterLocalDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterRemoteDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterSettingsDataSource
 import com.gdavidpb.tuindice.record.data.source.database.mapper.toLocalQuarter
 import com.gdavidpb.tuindice.record.data.source.database.mapper.toQuarter
 import com.gdavidpb.tuindice.record.domain.model.QuarterAdd

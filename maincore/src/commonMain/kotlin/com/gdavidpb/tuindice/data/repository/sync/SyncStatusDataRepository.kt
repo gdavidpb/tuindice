@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.data.repository.sync
 
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.data.source.sync.SyncStatusLocalDataSource
 import kotlinx.coroutines.flow.Flow
 
 class SyncStatusDataRepository(

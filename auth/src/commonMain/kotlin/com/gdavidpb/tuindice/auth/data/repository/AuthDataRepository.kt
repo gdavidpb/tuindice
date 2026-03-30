@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.auth.data.repository
 
+import com.gdavidpb.tuindice.auth.data.source.AuthApiDataSource
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository

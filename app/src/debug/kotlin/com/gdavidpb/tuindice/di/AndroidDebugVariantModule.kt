@@ -5,11 +5,11 @@ import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.reporting.DebugReportingDataSource
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.data.MockAttestationProviderDataSource
-import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.source.DebugPushTokenDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.source.DebugSummaryUserRepository
+import com.gdavidpb.tuindice.data.source.attestation.AttestationProviderDataSource
+import com.gdavidpb.tuindice.data.source.messaging.PushTokenDataSource
+import com.gdavidpb.tuindice.data.source.messaging.DebugPushTokenDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.LocalDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.DebugSummaryUserDataRepository
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -22,7 +22,7 @@ val androidDebugVariantModule = module {
 	factoryOf(::MockAttestationProviderDataSource) { bind<AttestationProviderDataSource>() }
 
 	factory<UserRepository> {
-		DebugSummaryUserRepository(
+		DebugSummaryUserDataRepository(
 			localDataSource = get<LocalDataSource>(),
 			sourceName = ANDROID_DEBUG_SUMMARY_SOURCE
 		)

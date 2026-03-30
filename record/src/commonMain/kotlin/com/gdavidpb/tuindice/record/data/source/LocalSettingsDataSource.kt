@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.data.source
 
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
-import com.gdavidpb.tuindice.record.data.repository.QuarterSettingsDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterSettingsDataSource
 import com.gdavidpb.tuindice.record.utils.CooldownTimes
 import com.gdavidpb.tuindice.record.utils.PreferencesKeys
 import com.russhwolf.settings.Settings

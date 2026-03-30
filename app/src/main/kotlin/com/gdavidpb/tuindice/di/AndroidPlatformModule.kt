@@ -3,9 +3,9 @@ package com.gdavidpb.tuindice.di
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.about.data.repository.AppInfoDataSource
-import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataSource
-import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataSource
+import com.gdavidpb.tuindice.about.data.source.AppInfoDataSource
+import com.gdavidpb.tuindice.about.data.source.EnvironmentDataSource
+import com.gdavidpb.tuindice.about.data.source.StoreUrlDataSource
 import com.gdavidpb.tuindice.about.data.source.AndroidAppInfoDataSource
 import com.gdavidpb.tuindice.about.data.source.AndroidEnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.source.AndroidShareTextHandler
@@ -17,11 +17,11 @@ import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.extension.toFirebaseDefaultsMap
-import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataSource
-import com.gdavidpb.tuindice.data.repository.attestation.AndroidAttestationRepository
-import com.gdavidpb.tuindice.data.repository.attestation.source.PlayIntegrityDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.source.FirebasePushTokenDataSource
+import com.gdavidpb.tuindice.data.source.attestation.AttestationProviderDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.AndroidAttestationDataRepository
+import com.gdavidpb.tuindice.data.source.attestation.PlayIntegrityDataSource
+import com.gdavidpb.tuindice.data.source.messaging.PushTokenDataSource
+import com.gdavidpb.tuindice.data.source.messaging.FirebasePushTokenDataSource
 import com.gdavidpb.tuindice.data.source.actions.AndroidFileOpenerDataSource
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityProvider
 import com.gdavidpb.tuindice.data.source.activity.InMemoryCurrentActivityProvider
@@ -177,7 +177,7 @@ private fun Module.registerAndroidFeaturePlatformBindings() {
 
 private fun Module.registerAndroidPlatformNetworking() {
 	singleOf(::PlayIntegrityDataSource) { bind<AttestationProviderDataSource>() }
-	factoryOf(::AndroidAttestationRepository) { bind<AttestationRepository>() }
+	factoryOf(::AndroidAttestationDataRepository) { bind<AttestationRepository>() }
 
 	single {
 		createSharedHttpClient(

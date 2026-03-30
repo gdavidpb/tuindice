@@ -8,8 +8,8 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResolution
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationSyncSpec
-import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataSource
-import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterLocalDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterRemoteDataSource
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteAddQuarterAck
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteDeleteQuarterAck

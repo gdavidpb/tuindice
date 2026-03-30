@@ -13,9 +13,9 @@ import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
-import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.DatabaseDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.EvaluationsApiDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.SettingsDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EVALUATIONS_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationAck

@@ -23,7 +23,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class AndroidAttestationRepositoryTest {
+class AndroidAttestationDataRepositoryTest {
 	@Test
 	fun `attest includes proof of possession for the classic Android attestation flow`() = runTest {
 		val proofCapability = RecordingAndroidProofOfPossessionCapability(
@@ -38,7 +38,7 @@ class AndroidAttestationRepositoryTest {
 			tokenStatuses = ArrayDeque(listOf(HttpStatusCode.OK)),
 			tokenValues = ArrayDeque(listOf("issued-token"))
 		)
-		val repository = AndroidAttestationRepository(
+		val repository = AndroidAttestationDataRepository(
 			ktorClient = httpClient,
 			providerDataSource = providerDataSource,
 			proofOfPossessionCapability = proofCapability
@@ -85,7 +85,7 @@ class AndroidAttestationRepositoryTest {
 			tokenStatuses = ArrayDeque(listOf(HttpStatusCode.OK)),
 			tokenValues = ArrayDeque(listOf("issued-token"))
 		)
-		val repository = AndroidAttestationRepository(
+		val repository = AndroidAttestationDataRepository(
 			ktorClient = httpClient,
 			providerDataSource = providerDataSource,
 			proofOfPossessionCapability = proofCapability
@@ -135,7 +135,7 @@ class AndroidAttestationRepositoryTest {
 			tokenStatuses = ArrayDeque(listOf(HttpStatusCode.Forbidden, HttpStatusCode.OK)),
 			tokenValues = ArrayDeque(listOf("ignored", "issued-token"))
 		)
-		val repository = AndroidAttestationRepository(
+		val repository = AndroidAttestationDataRepository(
 			ktorClient = httpClient,
 			providerDataSource = providerDataSource,
 			proofOfPossessionCapability = proofCapability
@@ -164,7 +164,7 @@ class AndroidAttestationRepositoryTest {
 		)
 		val providerDataSource = RecordingAttestationProviderDataSource()
 		val httpClient = androidPreparationHttpClient()
-		val repository = AndroidAttestationRepository(
+		val repository = AndroidAttestationDataRepository(
 			ktorClient = httpClient,
 			providerDataSource = providerDataSource,
 			proofOfPossessionCapability = proofCapability

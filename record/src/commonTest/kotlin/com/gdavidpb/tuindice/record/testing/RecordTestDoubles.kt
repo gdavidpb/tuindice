@@ -8,9 +8,9 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
-import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataSource
-import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataSource
-import com.gdavidpb.tuindice.record.data.repository.QuarterSettingsDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterLocalDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterRemoteDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterSettingsDataSource
 import com.gdavidpb.tuindice.record.data.repository.mutation.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutationAck
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation

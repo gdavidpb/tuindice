@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.about.testing
 
-import com.gdavidpb.tuindice.about.data.repository.AppInfoDataSource
-import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataSource
-import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataSource
+import com.gdavidpb.tuindice.about.data.source.AppInfoDataSource
+import com.gdavidpb.tuindice.about.data.source.EnvironmentDataSource
+import com.gdavidpb.tuindice.about.data.source.StoreUrlDataSource
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 
 const val CURRENT_APP_VERSION_NAME = "5.8"

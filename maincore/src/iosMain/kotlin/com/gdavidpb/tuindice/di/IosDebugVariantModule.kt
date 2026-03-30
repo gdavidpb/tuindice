@@ -6,10 +6,10 @@ import com.gdavidpb.tuindice.base.data.source.reporting.DebugReportingDataSource
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.data.repository.attestation.IosDebugAttestationDataRepository
-import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.source.DebugPushTokenDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.source.DebugSummaryUserRepository
+import com.gdavidpb.tuindice.data.source.messaging.PushTokenDataSource
+import com.gdavidpb.tuindice.data.source.messaging.DebugPushTokenDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.LocalDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.DebugSummaryUserDataRepository
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import org.koin.dsl.module
 
@@ -21,7 +21,7 @@ val iosDebugVariantModule = module {
 	}
 
 	factory<UserRepository> {
-		DebugSummaryUserRepository(
+		DebugSummaryUserDataRepository(
 			localDataSource = get<LocalDataSource>(),
 			sourceName = IOS_DEBUG_SUMMARY_SOURCE
 		)

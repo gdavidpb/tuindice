@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.di
 
-import com.gdavidpb.tuindice.about.data.repository.AppInfoDataSource
-import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataSource
-import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataSource
+import com.gdavidpb.tuindice.about.data.source.AppInfoDataSource
+import com.gdavidpb.tuindice.about.data.source.EnvironmentDataSource
+import com.gdavidpb.tuindice.about.data.source.StoreUrlDataSource
 import com.gdavidpb.tuindice.about.data.source.IosAppInfoDataSource
 import com.gdavidpb.tuindice.about.data.source.IosEnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.source.IosShareTextHandler
@@ -13,9 +13,9 @@ import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
-import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataSource
+import com.gdavidpb.tuindice.data.source.messaging.PushTokenDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.IosAttestationDataRepository
-import com.gdavidpb.tuindice.data.repository.messaging.source.IosPushTokenDataSource
+import com.gdavidpb.tuindice.data.source.messaging.IosPushTokenDataSource
 import com.gdavidpb.tuindice.data.source.actions.IosFileOpenerDataSource
 import com.gdavidpb.tuindice.data.source.application.IosApplicationDataSource
 import com.gdavidpb.tuindice.data.source.browser.IosBrowserDataSource
@@ -26,7 +26,7 @@ import com.gdavidpb.tuindice.data.source.network.IosNetworkDataSource
 import com.gdavidpb.tuindice.data.source.reporting.IosReportingDataSource
 import com.gdavidpb.tuindice.data.source.review.IosReviewDataSource
 import com.gdavidpb.tuindice.data.source.update.IosUpdateDataSource
-import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataSource
+import com.gdavidpb.tuindice.auth.data.source.AuthApiDataSource
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.persistence.di.registerIosPersistencePlatformStorage

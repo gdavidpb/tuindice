@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.about.data.source
 
-import com.gdavidpb.tuindice.about.data.repository.AppInfoDataSource
+import com.gdavidpb.tuindice.about.data.source.AppInfoDataSource
 import platform.Foundation.NSBundle
 
 class IosAppInfoDataSource : AppInfoDataSource {

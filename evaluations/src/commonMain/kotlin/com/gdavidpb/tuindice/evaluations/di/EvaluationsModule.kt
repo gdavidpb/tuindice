@@ -1,16 +1,16 @@
 package com.gdavidpb.tuindice.evaluations.di
 
-import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.DatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationDataRepository
-import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.EvaluationsApiDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.SettingsDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EVALUATIONS_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.data.source.KtorEvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.RoomDatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.data.source.VisibleEvaluationsStateResolver
+import com.gdavidpb.tuindice.evaluations.data.repository.VisibleEvaluationsStateResolver
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase

@@ -6,6 +6,8 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isFailedDependency
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
+import com.gdavidpb.tuindice.data.source.sync.SyncRemoteDataSource
+import com.gdavidpb.tuindice.data.source.sync.SyncSettingsLocalDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

@@ -4,9 +4,9 @@ import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.record.data.repository.QuarterDataRepository
-import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataSource
-import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataSource
-import com.gdavidpb.tuindice.record.data.repository.QuarterSettingsDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterLocalDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterRemoteDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterSettingsDataSource
 import com.gdavidpb.tuindice.record.data.repository.mutation.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutationAck
@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
 import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.record.data.source.RecordApiDataSource
 import com.gdavidpb.tuindice.record.data.source.RoomDataSource
-import com.gdavidpb.tuindice.record.data.source.VisibleRecordStateResolver
+import com.gdavidpb.tuindice.record.data.repository.VisibleRecordStateResolver
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
 import com.gdavidpb.tuindice.record.domain.usecase.AddQuarterUseCase

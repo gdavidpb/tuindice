@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.auth.di
 
-import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataSource
+import com.gdavidpb.tuindice.auth.data.source.AuthApiDataSource
 import com.gdavidpb.tuindice.auth.data.repository.AuthDataRepository
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository

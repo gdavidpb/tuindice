@@ -16,6 +16,9 @@ import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EVALUATIONS_MU
 import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationSyncSpec
+import com.gdavidpb.tuindice.evaluations.data.source.DatabaseDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.EvaluationsApiDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.SettingsDataSource
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate

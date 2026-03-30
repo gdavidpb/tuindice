@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalSubject
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
-import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.VisibleEvaluationsStateResolver
 import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationAck

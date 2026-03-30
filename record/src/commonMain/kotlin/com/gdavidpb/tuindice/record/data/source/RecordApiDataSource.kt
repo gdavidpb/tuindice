@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.record.data.source
 
-import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterRemoteDataSource
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteAddQuarterAck
 import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteDeleteQuarterAck

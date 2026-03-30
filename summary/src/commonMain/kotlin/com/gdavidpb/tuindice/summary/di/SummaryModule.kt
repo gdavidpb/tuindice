@@ -1,14 +1,14 @@
 package com.gdavidpb.tuindice.summary.di
 
-import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.LocalDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.PictureEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.SettingsDataSource
 import com.gdavidpb.tuindice.summary.data.repository.user.UserDataRepository
-import com.gdavidpb.tuindice.summary.data.repository.user.source.FileKitPictureEncoderDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.source.LocalSettingsDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.source.RoomDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.source.SummaryApiDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.FileKitPictureEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.LocalSettingsDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.RoomDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.SummaryApiDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase

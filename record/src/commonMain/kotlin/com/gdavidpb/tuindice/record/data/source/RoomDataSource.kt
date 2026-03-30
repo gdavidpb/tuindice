@@ -6,7 +6,8 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.record.data.model.SubjectGradePreview
 import com.gdavidpb.tuindice.record.data.model.SubjectPreviewKey
-import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterLocalDataSource
+import com.gdavidpb.tuindice.record.data.repository.VisibleRecordStateResolver
 import com.gdavidpb.tuindice.record.data.repository.mutation.RECORD_MUTATION_SCOPE
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutationAck
 import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation

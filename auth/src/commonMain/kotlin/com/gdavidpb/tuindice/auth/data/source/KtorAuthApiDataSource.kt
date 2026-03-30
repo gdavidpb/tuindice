@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.auth.data.source
 import com.gdavidpb.tuindice.auth.data.model.IssueTokensResponse
 import com.gdavidpb.tuindice.auth.data.model.RefreshTokensRequest
 import com.gdavidpb.tuindice.auth.data.model.RefreshTokensResponse
-import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataSource
+import com.gdavidpb.tuindice.auth.data.source.AuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens

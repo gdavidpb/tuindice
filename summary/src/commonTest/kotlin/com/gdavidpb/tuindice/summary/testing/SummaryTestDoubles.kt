@@ -4,10 +4,10 @@ import com.gdavidpb.tuindice.base.domain.model.EncodedImage
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.LocalDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.PictureEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.SettingsDataSource
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import io.github.vinceglb.filekit.PlatformFile

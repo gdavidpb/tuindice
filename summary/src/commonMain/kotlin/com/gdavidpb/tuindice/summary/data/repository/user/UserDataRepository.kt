@@ -2,6 +2,10 @@ package com.gdavidpb.tuindice.summary.data.repository.user
 
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
+import com.gdavidpb.tuindice.summary.data.source.user.LocalDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.PictureEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.SettingsDataSource
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import io.github.vinceglb.filekit.PlatformFile

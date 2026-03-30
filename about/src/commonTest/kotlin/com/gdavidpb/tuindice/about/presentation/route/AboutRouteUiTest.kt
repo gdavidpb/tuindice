@@ -10,7 +10,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
-import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataSource
+import com.gdavidpb.tuindice.about.data.source.StoreUrlDataSource
 import com.gdavidpb.tuindice.about.domain.model.AboutLinks
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase

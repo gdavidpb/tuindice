@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
-import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.DatabaseDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.EvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
