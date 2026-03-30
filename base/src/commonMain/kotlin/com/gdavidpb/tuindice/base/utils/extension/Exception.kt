@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
+import com.gdavidpb.tuindice.base.domain.model.AttestationTemporarilyUnavailableException
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.TimeoutCancellationException
@@ -108,6 +109,12 @@ fun Throwable.isPreconditionFailed() = when (this) {
 fun Throwable.isPreconditionRequired() = when (this) {
 	is ClientRequestException -> response.status.value == 428
 	else -> false
+}
+
+fun Throwable.isAttestationTemporarilyUnavailable(): Boolean {
+	return errorChain().any { throwable ->
+		throwable is AttestationTemporarilyUnavailableException
+	}
 }
 
 fun Throwable.isPayloadTooLarge() = when (this) {

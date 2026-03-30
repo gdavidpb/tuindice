@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationPreparationCode
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.base.domain.model.AttestationTemporarilyUnavailableException
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.utils.attestationBindingInput
 import com.gdavidpb.tuindice.base.utils.extension.isForbidden
@@ -41,7 +42,19 @@ class IosAttestationDataRepository(
 				if (throwable !is RecoverableAppAttestException) throw throwable
 
 				attestationCapability.invalidateAttestationKeyId()
-				attestOnce(request = request, requestHash = requestHash)
+				runCatching {
+					attestOnce(request = request, requestHash = requestHash)
+				}.getOrElse { retryThrowable ->
+					if (retryThrowable is RecoverableAppAttestException) {
+						throw AttestationTemporarilyUnavailableException(
+							platform = PLATFORM_IOS,
+							operationCode = request.operationCode.value,
+							cause = retryThrowable
+						)
+					}
+
+					throw retryThrowable
+				}
 			}.getOrThrow()
 		}
 	}

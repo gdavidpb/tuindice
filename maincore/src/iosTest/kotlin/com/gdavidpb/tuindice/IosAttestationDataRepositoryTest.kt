@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice
 import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.base.domain.model.AttestationTemporarilyUnavailableException
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.data.repository.attestation.IosAttestationDataRepository
 import com.gdavidpb.tuindice.di.createSharedJson
@@ -20,6 +21,7 @@ import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest
 
 class IosAttestationDataRepositoryTest {
@@ -135,6 +137,83 @@ class IosAttestationDataRepositoryTest {
 			),
 			capability.requestCalls
 		)
+	}
+
+	@Test
+	fun `attest throws a typed temporary unavailable error when app attest recovery is exhausted locally`() = runTest {
+		val capability = RecordingIosAttestationCapability(
+			resolvedKeyIds = ArrayDeque(listOf("stale-key", "fresh-key")),
+			requestFailures = ArrayDeque(
+				listOf(
+					IllegalStateException("stale assertion failed"),
+					IllegalStateException("fresh attestation failed")
+				)
+			),
+			issuedTokens = ArrayDeque()
+		)
+		val httpClient = appAttestHttpClient(
+			sessionModes = ArrayDeque(
+				listOf(
+					AttestationEvidenceMode.APP_ATTEST_ASSERTION,
+					AttestationEvidenceMode.APP_ATTEST_ATTESTATION
+				)
+			),
+			tokenStatuses = ArrayDeque(),
+			tokenValues = ArrayDeque()
+		)
+		val repository = IosAttestationDataRepository(
+			httpClientProvider = { httpClient },
+			attestationCapability = capability
+		)
+
+		val error = assertFailsWith<AttestationTemporarilyUnavailableException> {
+			repository.attest(
+				AttestationRequest(
+					operationCode = ProtectedOperationCodes.AuthRefreshTokens,
+					payloadJson = """{"refresh_token":"token"}"""
+				)
+			)
+		}
+
+		assertEquals("iOS", error.platform)
+		assertEquals(ProtectedOperationCodes.AuthRefreshTokens.value, error.operationCode)
+		assertEquals(1, capability.invalidateCalls)
+	}
+
+	@Test
+	fun `attest throws a typed temporary unavailable error when backend keeps rejecting app attest after recovery`() = runTest {
+		val capability = RecordingIosAttestationCapability(
+			resolvedKeyIds = ArrayDeque(listOf("stale-key", "fresh-key")),
+			requestFailures = ArrayDeque(listOf(null, null)),
+			issuedTokens = ArrayDeque(listOf("stale-proof", "fresh-proof"))
+		)
+		val httpClient = appAttestHttpClient(
+			sessionModes = ArrayDeque(
+				listOf(
+					AttestationEvidenceMode.APP_ATTEST_ASSERTION,
+					AttestationEvidenceMode.APP_ATTEST_ATTESTATION
+				)
+			),
+			tokenStatuses = ArrayDeque(listOf(HttpStatusCode.Forbidden, HttpStatusCode.Forbidden)),
+			tokenValues = ArrayDeque(listOf("ignored", "ignored-again"))
+		)
+		val repository = IosAttestationDataRepository(
+			httpClientProvider = { httpClient },
+			attestationCapability = capability
+		)
+
+		val error = assertFailsWith<AttestationTemporarilyUnavailableException> {
+			repository.attest(
+				AttestationRequest(
+					operationCode = ProtectedOperationCodes.AuthRefreshTokens,
+					payloadJson = """{"refresh_token":"token"}"""
+				)
+			)
+		}
+
+		assertEquals("iOS", error.platform)
+		assertEquals(ProtectedOperationCodes.AuthRefreshTokens.value, error.operationCode)
+		assertEquals(1, capability.invalidateCalls)
 	}
 }
 
