@@ -154,6 +154,41 @@ class AndroidAttestationRepositoryTest {
 		assertEquals(listOf("stale-key", "fresh-key"), proofCapability.proofCalls)
 		assertEquals(2, providerDataSource.calls.size)
 	}
+
+	@Test
+	fun `attest bootstraps Android attestation when the business session requires preparation`() = runTest {
+		val proofCapability = RecordingAndroidProofOfPossessionCapability(
+			resolvedKeyIds = ArrayDeque(listOf("bootstrap-key")),
+			proofFailures = ArrayDeque(listOf(null, null)),
+			issuedSignatures = ArrayDeque(listOf("bootstrap-signature", "business-signature"))
+		)
+		val providerDataSource = RecordingAttestationProviderDataSource()
+		val httpClient = androidPreparationHttpClient()
+		val repository = AndroidAttestationRepository(
+			ktorClient = httpClient,
+			providerDataSource = providerDataSource,
+			proofOfPossessionCapability = proofCapability
+		)
+
+		val response = repository.attest(
+			AttestationRequest(
+				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
+				payloadJson = """{"refresh_token":"token"}"""
+			)
+		)
+
+		assertEquals("issued-token", response.token)
+		assertEquals(listOf("bootstrap-key"), proofCapability.resolveCalls)
+		assertEquals(listOf("bootstrap-key", "bootstrap-key"), proofCapability.proofCalls)
+		assertEquals(0, proofCapability.invalidateCalls)
+		assertEquals(
+			listOf(
+				AttestationEvidenceMode.PLAY_INTEGRITY_CLASSIC,
+				AttestationEvidenceMode.PLAY_INTEGRITY_STANDARD
+			),
+			providerDataSource.calls.map { call -> call.evidenceMode }
+		)
+	}
 }
 
 private fun androidAttestationHttpClient(
@@ -194,6 +229,93 @@ private fun androidAttestationHttpClient(
 							}
 						""".trimIndent(),
 						status = status,
+						headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+					)
+				}
+
+				else -> error("Unexpected path: ${request.url.encodedPath}")
+			}
+		}
+	) {
+		expectSuccess = true
+		install(DefaultRequest) {
+			headers.append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+		}
+		install(ContentNegotiation) {
+			json(createSharedJson())
+		}
+	}
+}
+
+private fun androidPreparationHttpClient(): HttpClient {
+	var sessionAttempts = 0
+
+	return HttpClient(
+		MockEngine { request ->
+			when (request.url.encodedPath) {
+				"/attestation/v2/sessions" -> {
+					sessionAttempts += 1
+					if (sessionAttempts == 1) {
+						respond(
+							content = """
+								{
+								  "code": "attestation_not_prepared",
+								  "required_preparation_code": "bootstrap"
+								}
+							""".trimIndent(),
+							status = HttpStatusCode(428, "Precondition Required"),
+							headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+						)
+					} else {
+						respond(
+							content = """
+								{
+								  "session_id": "business-session",
+								  "challenge": "business-challenge",
+								  "expires_at": 1735689600000,
+								  "evidence_mode": "play_integrity_standard",
+								  "proof_of_possession_mode": "android_keystore"
+								}
+							""".trimIndent(),
+							status = HttpStatusCode.OK,
+							headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+						)
+					}
+				}
+
+				"/attestation/v2/preparations/sessions" -> {
+					respond(
+						content = """
+							{
+							  "session_id": "preparation-session",
+							  "challenge": "preparation-challenge",
+							  "expires_at": 1735689600000,
+							  "evidence_mode": "play_integrity_classic",
+							  "proof_of_possession_mode": "android_keystore"
+							}
+						""".trimIndent(),
+						status = HttpStatusCode.OK,
+						headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+					)
+				}
+
+				"/attestation/v2/preparations/complete" -> {
+					respond(
+						content = "",
+						status = HttpStatusCode.NoContent,
+						headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+					)
+				}
+
+				"/attestation/v2/tokens" -> {
+					respond(
+						content = """
+							{
+							  "token": "issued-token",
+							  "expires_at": 1735689600000
+							}
+						""".trimIndent(),
+						status = HttpStatusCode.OK,
 						headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
 					)
 				}

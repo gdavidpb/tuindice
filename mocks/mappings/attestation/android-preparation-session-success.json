@@ -1,0 +1,31 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/attestation/v2/preparations/sessions",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.platform == 'Android')]"
+      },
+      {
+        "matchesJsonPath": "$[?(@.preparation_code == 'bootstrap')]"
+      },
+      {
+        "matchesJsonPath": "$.key_id"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "session_id": "mock-attestation-session-android-bootstrap",
+      "challenge": "mock-attestation-challenge-android-bootstrap",
+      "expires_at": 2524608000000,
+      "evidence_mode": "play_integrity_classic",
+      "proof_of_possession_mode": "android_keystore"
+    },
+    "fixedDelayMilliseconds": 250
+  }
+}

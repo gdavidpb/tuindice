@@ -105,6 +105,11 @@ fun Throwable.isPreconditionFailed() = when (this) {
 	else -> false
 }
 
+fun Throwable.isPreconditionRequired() = when (this) {
+	is ClientRequestException -> response.status.value == 428
+	else -> false
+}
+
 fun Throwable.isPayloadTooLarge() = when (this) {
 	is ClientRequestException -> response.status == HttpStatusCode.PayloadTooLarge
 	else -> false
