@@ -26,6 +26,9 @@
       },
       {
         "matchesJsonPath": "$.proof_of_possession.public_key"
+      },
+      {
+        "matchesJsonPath": "$.proof_of_possession.attestation_certificate_chain[0]"
       }
     ]
   },

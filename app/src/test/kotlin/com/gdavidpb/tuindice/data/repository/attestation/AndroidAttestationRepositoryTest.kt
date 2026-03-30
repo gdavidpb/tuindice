@@ -337,7 +337,8 @@ private fun androidPreparationHttpClient(): HttpClient {
 private class RecordingAndroidProofOfPossessionCapability(
 	private val resolvedKeyIds: ArrayDeque<String>,
 	private val proofFailures: ArrayDeque<Throwable?>,
-	private val issuedSignatures: ArrayDeque<String>
+	private val issuedSignatures: ArrayDeque<String>,
+	private val issuedAttestationCertificateChains: ArrayDeque<List<String>?> = ArrayDeque()
 ) : AndroidProofOfPossessionCapability {
 	val resolveCalls = mutableListOf<String>()
 	val proofCalls = mutableListOf<String>()
@@ -355,14 +356,20 @@ private class RecordingAndroidProofOfPossessionCapability(
 
 	override suspend fun createProofOfPossession(
 		attestationInput: String,
-		keyId: String
+		keyId: String,
+		requireKeyAttestation: Boolean
 	): AttestationProofOfPossessionRequest {
 		proofCalls += keyId
 		proofFailures.removeFirstOrNull()?.let { throw it }
 
 		return AttestationProofOfPossessionRequest(
 			signature = issuedSignatures.removeFirst(),
-			publicKey = "public-$keyId"
+			publicKey = "public-$keyId",
+			attestationCertificateChain = if (requireKeyAttestation) {
+				issuedAttestationCertificateChains.removeFirstOrNull() ?: listOf("chain-$keyId")
+			} else {
+				null
+			}
 		)
 	}
 }

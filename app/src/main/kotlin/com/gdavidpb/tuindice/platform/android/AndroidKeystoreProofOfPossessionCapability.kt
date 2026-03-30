@@ -22,7 +22,6 @@ class AndroidKeystoreProofOfPossessionCapability(
 		}
 
 		val keyId = UUID.randomUUID().toString()
-		generateKeyPair(keyId)
 		storeKeyId(keyId)
 		return keyId
 	}
@@ -38,8 +37,19 @@ class AndroidKeystoreProofOfPossessionCapability(
 
 	override suspend fun createProofOfPossession(
 		attestationInput: String,
-		keyId: String
+		keyId: String,
+		requireKeyAttestation: Boolean
 	): AttestationProofOfPossessionRequest {
+		if (requireKeyAttestation) {
+			runCatching {
+				keyStore().deleteEntry(aliasFor(keyId))
+			}
+			generateKeyPair(
+				keyId = keyId,
+				attestationChallenge = attestationInput.encodeToByteArray()
+			)
+		}
+
 		val entry = keyStore()
 			.getEntry(aliasFor(keyId), null) as? KeyStore.PrivateKeyEntry
 			?: throw IllegalStateException("Android Keystore entry not found for attestation key.")
@@ -50,11 +60,20 @@ class AndroidKeystoreProofOfPossessionCapability(
 
 		return AttestationProofOfPossessionRequest(
 			signature = encodeBase64Url(signature),
-			publicKey = encodeBase64Url(entry.certificate.publicKey.encoded)
+			publicKey = encodeBase64Url(entry.certificate.publicKey.encoded),
+			attestationCertificateChain = if (requireKeyAttestation) {
+				(keyStore().getCertificateChain(aliasFor(keyId)) ?: emptyArray())
+					.map { certificate -> encodeBase64Url(certificate.encoded) }
+			} else {
+				null
+			}
 		)
 	}
 
-	private fun generateKeyPair(keyId: String) {
+	private fun generateKeyPair(
+		keyId: String,
+		attestationChallenge: ByteArray
+	) {
 		val generator = KeyPairGenerator.getInstance(
 			KeyProperties.KEY_ALGORITHM_EC,
 			ANDROID_KEYSTORE_PROVIDER
@@ -65,6 +84,7 @@ class AndroidKeystoreProofOfPossessionCapability(
 		)
 			.setDigests(KeyProperties.DIGEST_SHA256)
 			.setAlgorithmParameterSpec(ECGenParameterSpec(EC_CURVE))
+			.setAttestationChallenge(attestationChallenge)
 			.build()
 
 		generator.initialize(spec)

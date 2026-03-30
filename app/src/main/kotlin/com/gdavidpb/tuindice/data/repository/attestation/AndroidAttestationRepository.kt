@@ -78,7 +78,8 @@ class AndroidAttestationRepository(
 		val proofOfPossession = requireProofOfPossession(
 			session = session,
 			bindingHash = bindingHash,
-			keyId = keyId
+			keyId = keyId,
+			requireKeyAttestation = false
 		)
 
 		val response = runCatching {
@@ -175,7 +176,8 @@ class AndroidAttestationRepository(
 		val proofOfPossession = requireProofOfPossession(
 			session = session,
 			bindingHash = bindingHash,
-			keyId = keyId
+			keyId = keyId,
+			requireKeyAttestation = true
 		)
 
 		runCatching {
@@ -223,13 +225,15 @@ class AndroidAttestationRepository(
 	private suspend fun requireProofOfPossession(
 		session: CreateAttestationSessionResponse,
 		bindingHash: String,
-		keyId: String
+		keyId: String,
+		requireKeyAttestation: Boolean
 	): com.gdavidpb.tuindice.base.data.model.AttestationProofOfPossessionRequest? {
 		return session.proofOfPossessionMode?.let {
 			runCatching {
 				proofOfPossessionCapability.createProofOfPossession(
 					attestationInput = bindingHash,
-					keyId = keyId
+					keyId = keyId,
+					requireKeyAttestation = requireKeyAttestation
 				)
 			}.getOrElse { throwable ->
 				throw RecoverableAndroidKeystoreException(

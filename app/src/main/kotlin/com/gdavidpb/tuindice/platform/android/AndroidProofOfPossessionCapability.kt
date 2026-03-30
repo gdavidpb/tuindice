@@ -7,6 +7,7 @@ interface AndroidProofOfPossessionCapability {
 	suspend fun invalidateProofOfPossessionKeyId()
 	suspend fun createProofOfPossession(
 		attestationInput: String,
-		keyId: String
+		keyId: String,
+		requireKeyAttestation: Boolean
 	): AttestationProofOfPossessionRequest
 }

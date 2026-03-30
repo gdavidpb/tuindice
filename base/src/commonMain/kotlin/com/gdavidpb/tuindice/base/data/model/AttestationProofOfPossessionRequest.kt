@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AttestationProofOfPossessionRequest(
 	@SerialName("signature") val signature: String,
-	@SerialName("public_key") val publicKey: String
+	@SerialName("public_key") val publicKey: String,
+	@SerialName("attestation_certificate_chain") val attestationCertificateChain: List<String>? = null
 )
