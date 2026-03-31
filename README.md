@@ -116,8 +116,8 @@ Reglas:
 - Validaciones en `ParamsValidator`.
 - Traducción de errores en `ExceptionHandler`.
 - Cada feature expone una interfaz de fachada de negocio en `domain/repository`.
-- Si la capa `data` necesita coordinar múltiples orígenes internos, ese contrato se modela como interfaz en
-  `data/repository` con sufijo `DataRepository`.
+- Si la capa `data` necesita una abstracción interna real para coordinar múltiples orígenes, ese contrato puede
+  modelarse como interfaz en `data/repository` con sufijo `DataRepository`.
 - Si la capa `data` necesita abstraer un origen hoja interno como API, DB, settings o bridge de plataforma,
   ese contrato vive en `data/contract` y la implementación concreta queda en `data/source`.
 
@@ -138,13 +138,15 @@ Reglas:
 - Los modelos de dominio viven en `domain/model`.
 - Los mapeos puramente de dominio pueden vivir en `domain/mapper`.
 - Las interfaces de dominio viven en `domain/repository` y usan sufijo `Repository`.
-- Los contratos internos de la capa `data` viven en `data/repository` y usan sufijo `DataRepository`.
+- Los contratos internos de la capa `data` viven en `data/repository` y usan sufijo `DataRepository` sólo cuando
+  representan una abstracción interna real.
 - Los modelos internos de la capa `data` viven en `data/model`.
 - Los mapeos de persistencia, red y adaptación interna viven en `data/mapper`.
 - Los contratos internos de orígenes hoja viven en `data/contract` y pueden conservar nombres orientados al origen,
   por ejemplo `RemoteDataSource`, `DatabaseDataSource` o `PushTokenDataSource`.
 - Las implementaciones concretas viven en `data/source` y usan sufijo `DataSource`.
 - Un `*DataSource` puede implementar directamente un contrato de `domain/repository`, `data/repository` o `data/contract`.
+- No crear `*DataRepository` triviales que sólo extienden un `*Repository` de dominio sin agregar una abstracción interna.
 - `data/repository` no debe contener DTOs, modelos remotos, mutaciones, resolvers ni clases concretas.
 - `data/contract` no debe contener implementaciones concretas, DTOs ni helpers de mapping.
 - Los helpers y modelos auxiliares deben vivir en paquetes explícitos como `data/model`, `data/mutation`,

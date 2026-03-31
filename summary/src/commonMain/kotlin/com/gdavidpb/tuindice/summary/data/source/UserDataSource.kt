@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.summary.data.contract.user.RemoteDataSource
 import com.gdavidpb.tuindice.summary.data.contract.user.SettingsDataSource
 import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
-import com.gdavidpb.tuindice.summary.data.repository.user.UserDataRepository
+import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +21,7 @@ class UserDataSource(
 	private val remoteDataSource: RemoteDataSource,
 	private val settingsDataSource: SettingsDataSource,
 	private val pictureEncoderDataSource: PictureEncoderDataSource
-) : UserDataRepository {
+) : UserRepository {
 	private companion object {
 		const val MAX_PROFILE_PICTURE_UPLOAD_BYTES = 1_048_576
 	}

@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.enrollmentproof.data.contract.EnrollmentProofApiDat
 import com.gdavidpb.tuindice.enrollmentproof.data.contract.StorageDataSource
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
-import com.gdavidpb.tuindice.enrollmentproof.data.repository.EnrollmentProofDataRepository
+import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 
 class EnrollmentProofDataSource(
 	private val databaseDataSource: DatabaseDataSource,
@@ -15,7 +15,7 @@ class EnrollmentProofDataSource(
 	private val storageDataSource: StorageDataSource,
 	private val networkRepository: NetworkRepository,
 	private val credentialsRepository: CredentialsRepository
-) : EnrollmentProofDataRepository {
+) : EnrollmentProofRepository {
 	override suspend fun getEnrollmentProof(): EnrollmentProof {
 		val currentQuarterName = databaseDataSource.getCurrentQuarterName()
 			?: throw EnrollmentProofNotFoundException()

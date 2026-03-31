@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.base.data.source
 
 import com.gdavidpb.tuindice.base.data.contract.config.RemoteConfigDataSource
-import com.gdavidpb.tuindice.base.data.repository.ConfigDataRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.RemoteConfigKeys
 import kotlinx.serialization.json.Json
@@ -11,7 +11,7 @@ import kotlinx.serialization.json.jsonPrimitive
 class ConfigDataSource(
 	private val remoteConfigDataSource: RemoteConfigDataSource,
 	private val defaults: DefaultRemoteConfigValues
-) : ConfigDataRepository {
+) : ConfigRepository {
 	override suspend fun tryFetch() {
 		runCatching {
 			remoteConfigDataSource.fetch()

@@ -1,5 +1,0 @@
-package com.gdavidpb.tuindice.enrollmentproof.data.repository
-
-import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
-
-interface EnrollmentProofDataRepository : EnrollmentProofRepository

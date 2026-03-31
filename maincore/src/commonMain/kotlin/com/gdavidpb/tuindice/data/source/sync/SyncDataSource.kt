@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.sync
 
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.data.repository.sync.SyncDataRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isFailedDependency
@@ -21,7 +21,7 @@ class SyncDataSource(
 	private val syncStatusRepository: SyncStatusRepository,
 	private val remoteDataSource: SyncRemoteDataSource,
 	syncDispatcher: CoroutineDispatcher = Dispatchers.Default
-) : SyncDataRepository {
+) : SyncRepository {
 	private val syncScope = CoroutineScope(SupervisorJob() + syncDispatcher)
 	private val syncMutex = Mutex()
 

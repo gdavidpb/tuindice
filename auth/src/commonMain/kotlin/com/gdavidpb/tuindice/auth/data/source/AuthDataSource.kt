@@ -1,18 +1,18 @@
 package com.gdavidpb.tuindice.auth.data.source
 
 import com.gdavidpb.tuindice.auth.data.contract.AuthApiDataSource
+import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
-import com.gdavidpb.tuindice.auth.data.repository.AuthDataRepository
 
 class AuthDataSource(
 	private val authApiDataSource: AuthApiDataSource,
 	private val sessionRepository: SessionRepository,
 	private val reportingRepository: ReportingRepository
-) : AuthDataRepository {
+) : AuthRepository {
 	override suspend fun issueTokens(
 		usbId: String,
 		password: String,

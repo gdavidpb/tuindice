@@ -2,12 +2,12 @@ package com.gdavidpb.tuindice.base.data.source
 
 import com.gdavidpb.tuindice.base.data.contract.MemorySessionDataSource
 import com.gdavidpb.tuindice.base.data.contract.PreferencesSessionDataSource
-import com.gdavidpb.tuindice.base.data.repository.SessionDataRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 
 class SessionDataSource(
 	private val memorySessionDataSource: MemorySessionDataSource,
 	private val preferencesSessionDataSource: PreferencesSessionDataSource
-) : SessionDataRepository {
+) : SessionRepository {
 	override suspend fun hasActiveSession(): Boolean {
 		return memorySessionDataSource.hasActiveSession() ||
 				preferencesSessionDataSource.hasActiveSession()

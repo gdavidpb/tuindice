@@ -22,7 +22,7 @@ import com.gdavidpb.tuindice.evaluations.data.contract.SettingsDataSource
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
-import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationDataRepository
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
@@ -35,7 +35,7 @@ class EvaluationDataSource(
 	private val settingsDataSource: SettingsDataSource,
 	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck>,
 	private val identifierRepository: IdentifierRepository
-) : EvaluationDataRepository {
+) : EvaluationRepository {
 	private val mutationSyncSpec = EvaluationMutationSyncSpec(
 		databaseDataSource = databaseDataSource,
 		evaluationsApiDataSource = evaluationsApiDataSource,
