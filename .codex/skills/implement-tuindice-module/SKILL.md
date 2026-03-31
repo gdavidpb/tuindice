@@ -57,12 +57,12 @@ Implement module work by copying the nearest existing module pattern instead of 
 - Preserve `presentation -> domain -> data -> di` separation. Interfaces live in `domain`; implementations live in `data`; `di` only wires them.
 - Within that separation, use this finer layering order when a module needs multiple data origins: `presentation -> domain -> data/repository -> data/source -> di`.
 - `domain/repository` contains business-facing contracts used by action processors, use cases, or view models. These interfaces should end with `Repository`.
-- `data/repository` contains internal data-layer orchestrators that implement `domain/repository` contracts and coordinate one or more lower-level data sources. These classes should end with `DataRepository`.
-- `data/source` contains concrete technical adapters and leaf origins such as SQLDelight or Room storage, HTTP clients, platform capabilities, secure storage, filesystem access, clocks, or SDK bridges. These classes should end with `DataSource`.
-- If a `domain` contract needs to coordinate multiple internal origins or preserve shared business/stateful behavior, implement it in `data/repository` and keep the lower-level details behind `data/source`.
-- Only bind a `data/source` directly to a `domain` repository when it is a true leaf adapter with no orchestration logic. If it starts composing multiple origins, promote that composition to `data/repository`.
-- If a `domain` contract represents shared business state or coordinates internal origins, implement it in `data/repository` and keep `data/source` behind local `*DataSource` contracts.
-- Do not bind a `*DataSource` directly as a `domain` repository for business/stateful flows. Allowed exception: leaf platform adapters or gateways that do not orchestrate other data sources.
+- `data/repository` contains internal data-layer interfaces for compositions over multiple origins. These interfaces should end with `DataRepository`.
+- `data/source` contains concrete implementations, whether they implement a `domain/repository` contract directly or a `data/repository` contract. These classes should end with `DataSource`.
+- If a `domain` contract needs multiple internal origins or shared coordination, define an internal `*DataRepository` interface in `data/repository` and keep all concrete implementations in `data/source`.
+- A `*DataSource` may implement a `domain/repository` contract directly when the domain contract maps cleanly to a single concrete origin.
+- A `*DataSource` may also implement a `*DataRepository` contract when it is one concrete origin behind a multi-origin data flow.
+- Do not place concrete orchestrator classes in `data/repository`. `data/repository` is for interfaces; implementations stay in `data/source`.
 - In `commonModule`, default shared runtime services and infrastructure repositories to `single`; use `factory` only when the object is intentionally transient or has no shared identity/state.
 - `ViewModel` classes extend `BaseViewModel` and delegate work to `ActionProcessor` classes.
 - For repository-backed feature state, prefer the `summary` and `record` split:
