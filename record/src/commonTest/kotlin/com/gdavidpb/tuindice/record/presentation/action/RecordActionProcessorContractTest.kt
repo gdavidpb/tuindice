@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.record.presentation.action
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.record.domain.usecase.GetSelectedQuarterIdUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveQuartersUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedQuarterIdUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
@@ -11,6 +13,7 @@ import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
 import com.gdavidpb.tuindice.record.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.record.testing.RecordingQuarterRepository
+import com.gdavidpb.tuindice.record.testing.RecordingQuarterSelectionRepository
 import com.gdavidpb.tuindice.record.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.http.HttpStatusCode
@@ -29,11 +32,20 @@ import kotlin.test.assertTrue
 class RecordActionProcessorContractTest {
 	@Test
 	fun observeQuartersActionProcessor_reducesStateToContent() = runTest {
+		val quarterSelectionRepository = RecordingQuarterSelectionRepository()
 		val processor = ObserveQuartersActionProcessor(
 			observeQuartersUseCase = ObserveQuartersUseCase(
 				quarterRepository = RecordingQuarterRepository(
 					quarters = flowOf(listOf(DEFAULT_RECORD_QUARTER))
 				),
+				reportingRepository = RecordingReportingRepository()
+			),
+			getSelectedQuarterIdUseCase = GetSelectedQuarterIdUseCase(
+				quarterSelectionRepository = quarterSelectionRepository,
+				reportingRepository = RecordingReportingRepository()
+			),
+			setSelectedQuarterIdUseCase = SetSelectedQuarterIdUseCase(
+				quarterSelectionRepository = quarterSelectionRepository,
 				reportingRepository = RecordingReportingRepository()
 			)
 		)
@@ -45,6 +57,7 @@ class RecordActionProcessorContractTest {
 		).test {
 			val content = assertIs<Record.State.Content>(awaitItem()(Record.State.Loading))
 			assertEquals(listOf(DEFAULT_RECORD_QUARTER), content.quarters)
+			assertEquals(DEFAULT_RECORD_QUARTER.id, content.selectedQuarterId)
 
 			awaitComplete()
 		}
@@ -54,11 +67,20 @@ class RecordActionProcessorContractTest {
 
 	@Test
 	fun observeQuartersActionProcessor_keepsLoading_whenInitialSnapshotIsEmpty() = runTest {
+		val quarterSelectionRepository = RecordingQuarterSelectionRepository()
 		val processor = ObserveQuartersActionProcessor(
 			observeQuartersUseCase = ObserveQuartersUseCase(
 				quarterRepository = RecordingQuarterRepository(
 					quarters = flowOf(emptyList())
 				),
+				reportingRepository = RecordingReportingRepository()
+			),
+			getSelectedQuarterIdUseCase = GetSelectedQuarterIdUseCase(
+				quarterSelectionRepository = quarterSelectionRepository,
+				reportingRepository = RecordingReportingRepository()
+			),
+			setSelectedQuarterIdUseCase = SetSelectedQuarterIdUseCase(
+				quarterSelectionRepository = quarterSelectionRepository,
 				reportingRepository = RecordingReportingRepository()
 			)
 		)
@@ -132,7 +154,8 @@ class RecordActionProcessorContractTest {
 			)
 		)
 		val initialState = Record.State.Content(
-			quarters = listOf(DEFAULT_RECORD_QUARTER)
+			quarters = listOf(DEFAULT_RECORD_QUARTER),
+			selectedQuarterId = DEFAULT_RECORD_QUARTER.id
 		)
 		val effects = mutableListOf<Record.Effect>()
 
@@ -170,7 +193,8 @@ class RecordActionProcessorContractTest {
 			)
 		)
 		val initialState = Record.State.Content(
-			quarters = listOf(DEFAULT_RECORD_QUARTER)
+			quarters = listOf(DEFAULT_RECORD_QUARTER),
+			selectedQuarterId = DEFAULT_RECORD_QUARTER.id
 		)
 		val effects = mutableListOf<Record.Effect>()
 

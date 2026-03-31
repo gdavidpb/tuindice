@@ -16,7 +16,8 @@ object Record {
 		data object Loading : State()
 
 		data class Content(
-			val quarters: List<Quarter>
+			val quarters: List<Quarter>,
+			val selectedQuarterId: String
 		) : State()
 
 		data object Empty : State()
@@ -27,6 +28,7 @@ object Record {
 	sealed class Action : ViewAction() {
 		data object ObserveQuarters : Action()
 		data object RefreshQuarters : Action()
+		class SelectQuarter(val quarterId: String) : Action()
 
 		class SetSubjectGrade(
 			val quarterId: String,

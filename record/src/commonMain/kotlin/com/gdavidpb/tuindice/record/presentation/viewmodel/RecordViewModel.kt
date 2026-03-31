@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.record.presentation.action.ObserveQuartersActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.RefreshQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.SelectQuarterActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import kotlinx.coroutines.flow.Flow
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 class RecordViewModel(
 	private val observeQuartersActionProcessor: ObserveQuartersActionProcessor,
 	private val refreshQuartersActionProcessor: RefreshQuartersActionProcessor,
+	private val selectQuarterActionProcessor: SelectQuarterActionProcessor,
 	private val setSubjectGradeActionProcessor: SetSubjectGradeActionProcessor
 ) : BaseViewModel<Record.State, Record.Action, Record.Effect>(
 	initialState = Record.State.Loading,
@@ -19,6 +21,9 @@ class RecordViewModel(
 
 	fun refreshQuartersAction() =
 		sendAction(Record.Action.RefreshQuarters)
+
+	fun selectQuarterAction(quarterId: String) =
+		sendAction(Record.Action.SelectQuarter(quarterId = quarterId))
 
 	fun updateSubjectAction(
 		quarterId: String,
@@ -45,6 +50,9 @@ class RecordViewModel(
 
 			is Record.Action.RefreshQuarters ->
 				refreshQuartersActionProcessor.process(action, sideEffect)
+
+			is Record.Action.SelectQuarter ->
+				selectQuarterActionProcessor.process(action, sideEffect)
 
 			is Record.Action.SetSubjectGrade ->
 				setSubjectGradeActionProcessor.process(action, sideEffect)

@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.record.domain.usecase.GetSelectedQuarterIdUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveQuartersUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedQuarterIdUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
@@ -9,11 +11,13 @@ import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateQuarte
 import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
 import com.gdavidpb.tuindice.record.presentation.action.ObserveQuartersActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.RefreshQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.SelectQuarterActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
 import com.gdavidpb.tuindice.record.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.record.testing.RecordingQuarterRepository
+import com.gdavidpb.tuindice.record.testing.RecordingQuarterSelectionRepository
 import com.gdavidpb.tuindice.record.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.flow.flowOf
@@ -41,6 +45,7 @@ class RecordViewModelContractTest {
 
 				val content = assertIs<Record.State.Content>(awaitItem())
 				assertEquals(listOf(DEFAULT_RECORD_QUARTER), content.quarters)
+				assertEquals(DEFAULT_RECORD_QUARTER.id, content.selectedQuarterId)
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -64,12 +69,22 @@ class RecordViewModelContractTest {
 	}
 
 	private fun createViewModel(): RecordViewModel {
+		val quarterSelectionRepository = RecordingQuarterSelectionRepository()
+
 		return RecordViewModel(
 			observeQuartersActionProcessor = ObserveQuartersActionProcessor(
 				observeQuartersUseCase = ObserveQuartersUseCase(
 					quarterRepository = RecordingQuarterRepository(
 						quarters = flowOf(listOf(DEFAULT_RECORD_QUARTER))
 					),
+					reportingRepository = RecordingReportingRepository()
+				),
+				getSelectedQuarterIdUseCase = GetSelectedQuarterIdUseCase(
+					quarterSelectionRepository = quarterSelectionRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
+				setSelectedQuarterIdUseCase = SetSelectedQuarterIdUseCase(
+					quarterSelectionRepository = quarterSelectionRepository,
 					reportingRepository = RecordingReportingRepository()
 				)
 			),
@@ -80,6 +95,12 @@ class RecordViewModelContractTest {
 					exceptionHandler = UpdateQuartersExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
+				)
+			),
+			selectQuarterActionProcessor = SelectQuarterActionProcessor(
+				setSelectedQuarterIdUseCase = SetSelectedQuarterIdUseCase(
+					quarterSelectionRepository = quarterSelectionRepository,
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			setSubjectGradeActionProcessor = SetSubjectGradeActionProcessor(

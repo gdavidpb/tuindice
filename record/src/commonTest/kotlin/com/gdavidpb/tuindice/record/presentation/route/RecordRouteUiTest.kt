@@ -10,8 +10,11 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import androidx.compose.ui.semantics.SemanticsActions
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.record.domain.repository.QuarterSelectionRepository
+import com.gdavidpb.tuindice.record.domain.usecase.GetSelectedQuarterIdUseCase
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveQuartersUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedQuarterIdUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
@@ -19,6 +22,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateQuarte
 import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
 import com.gdavidpb.tuindice.record.presentation.action.ObserveQuartersActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.RefreshQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.SelectQuarterActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
@@ -26,6 +30,7 @@ import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_SUBJECT
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.record.testing.RecordingQuarterRepository
+import com.gdavidpb.tuindice.record.testing.RecordingQuarterSelectionRepository
 import com.gdavidpb.tuindice.record.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -287,16 +292,7 @@ class RecordRouteUiTest {
 				)
 			)
 		)
-		val viewModel = createRecordViewModel(
-			quarterRepository = RecordingQuarterRepository(
-				quarters = flowOf(
-					listOf(
-						DEFAULT_RECORD_QUARTER,
-						olderQuarter
-					)
-				)
-			)
-		)
+		val quarterSelectionRepository = RecordingQuarterSelectionRepository()
 		val viewStates = mutableListOf<ViewState>()
 
 		setTuIndiceTestContent {
@@ -306,7 +302,17 @@ class RecordRouteUiTest {
 					viewStates += state
 				},
 				showSnackBar = {},
-				viewModel = viewModel
+				viewModel = createRecordViewModel(
+					quarterRepository = RecordingQuarterRepository(
+						quarters = flowOf(
+							listOf(
+								DEFAULT_RECORD_QUARTER,
+								olderQuarter
+							)
+						)
+					),
+					quarterSelectionRepository = quarterSelectionRepository
+				)
 			)
 		}
 
@@ -325,10 +331,64 @@ class RecordRouteUiTest {
 		waitUntil(timeoutMillis = 2_000) {
 			viewStates.lastOrNull()?.topBarConfig == TopBarConfig.Record
 		}
+
+		assertEquals(
+			listOf("quarter-1", "quarter-2", "quarter-1"),
+			quarterSelectionRepository.setSelectedQuarterIdCalls
+		)
+	}
+
+	@Test
+	fun when_savedQuarterExists_then_routeRestoresItOnFirstRender() = runTuIndiceUiTest {
+		val olderQuarter = DEFAULT_RECORD_QUARTER.copy(
+			id = "quarter-2",
+			name = "2025-3",
+			startDate = DEFAULT_RECORD_QUARTER.startDate - 100_000L,
+			endDate = DEFAULT_RECORD_QUARTER.endDate - 100_000L,
+			isCurrent = false,
+			subjects = listOf(
+				DEFAULT_RECORD_SUBJECT.copy(
+					id = "subject-2",
+					quarterId = "quarter-2"
+				)
+			)
+		)
+		val quarterSelectionRepository = RecordingQuarterSelectionRepository(
+			initialSelectedQuarterId = "quarter-2"
+		)
+		val viewStates = mutableListOf<ViewState>()
+
+		setTuIndiceTestContent {
+			RecordRoute(
+				onNavigateToUpdatePassword = {},
+				onViewStateChanged = { state ->
+					viewStates += state
+				},
+				showSnackBar = {},
+				viewModel = createRecordViewModel(
+					quarterRepository = RecordingQuarterRepository(
+						quarters = flowOf(
+							listOf(
+								DEFAULT_RECORD_QUARTER,
+								olderQuarter
+							)
+						)
+					),
+					quarterSelectionRepository = quarterSelectionRepository
+				)
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewStates.lastOrNull()?.topBarConfig == null
+		}
+
+		assertTrue(quarterSelectionRepository.setSelectedQuarterIdCalls.isEmpty())
 	}
 
 	private fun createRecordViewModel(
-		quarterRepository: QuarterRepository = RecordingQuarterRepository()
+		quarterRepository: QuarterRepository = RecordingQuarterRepository(),
+		quarterSelectionRepository: QuarterSelectionRepository = RecordingQuarterSelectionRepository()
 	): RecordViewModel {
 
 		return RecordViewModel(
@@ -336,6 +396,14 @@ class RecordRouteUiTest {
 				observeQuartersUseCase = ObserveQuartersUseCase(
 					quarterRepository = quarterRepository,
 					reportingRepository = RecordingReportingRepository(),
+				),
+				getSelectedQuarterIdUseCase = GetSelectedQuarterIdUseCase(
+					quarterSelectionRepository = quarterSelectionRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
+				setSelectedQuarterIdUseCase = SetSelectedQuarterIdUseCase(
+					quarterSelectionRepository = quarterSelectionRepository,
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			refreshQuartersActionProcessor = RefreshQuartersActionProcessor(
@@ -345,6 +413,12 @@ class RecordRouteUiTest {
 					exceptionHandler = UpdateQuartersExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
+				)
+			),
+			selectQuarterActionProcessor = SelectQuarterActionProcessor(
+				setSelectedQuarterIdUseCase = SetSelectedQuarterIdUseCase(
+					quarterSelectionRepository = quarterSelectionRepository,
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			setSubjectGradeActionProcessor = SetSubjectGradeActionProcessor(

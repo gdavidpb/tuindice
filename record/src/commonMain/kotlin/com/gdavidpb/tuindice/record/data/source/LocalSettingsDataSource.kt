@@ -20,4 +20,12 @@ class LocalSettingsDataSource(
 
 		settings.putLong(PreferencesKeys.COOLDOWN_GET_QUARTERS, cooldownTime)
 	}
+
+	override fun getSelectedQuarterId(): String? {
+		return settings.getStringOrNull(PreferencesKeys.SELECTED_QUARTER_ID)
+	}
+
+	override fun setSelectedQuarterId(quarterId: String) {
+		settings.putString(PreferencesKeys.SELECTED_QUARTER_ID, quarterId)
+	}
 }

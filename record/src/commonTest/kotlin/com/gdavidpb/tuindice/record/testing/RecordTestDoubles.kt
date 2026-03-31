@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.record.domain.model.QuarterAdd
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import com.gdavidpb.tuindice.record.domain.model.SubjectGradeSet
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
+import com.gdavidpb.tuindice.record.domain.repository.QuarterSelectionRepository
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -137,6 +138,20 @@ class RecordingQuarterRepository(
 	override suspend fun setSubjectGrade(set: SubjectGradeSet) {
 		setGradeCalls.update { calls -> calls + set }
 		setSubjectGradeThrowable?.let { throw it }
+	}
+}
+
+class RecordingQuarterSelectionRepository(
+	initialSelectedQuarterId: String? = null
+) : QuarterSelectionRepository {
+	var selectedQuarterId: String? = initialSelectedQuarterId
+	val setSelectedQuarterIdCalls = mutableListOf<String>()
+
+	override suspend fun getSelectedQuarterId(): String? = selectedQuarterId
+
+	override suspend fun setSelectedQuarterId(quarterId: String) {
+		selectedQuarterId = quarterId
+		setSelectedQuarterIdCalls += quarterId
 	}
 }
 
@@ -465,14 +480,24 @@ class FakeQuarterRemoteDataSource(
 }
 
 class FakeQuarterSettingsDataSource(
-	private val onCooldown: Boolean
+	private val onCooldown: Boolean,
+	initialSelectedQuarterId: String? = null
 ) : QuarterSettingsDataSource {
 	var cooldownMarked = false
+	var selectedQuarterId: String? = initialSelectedQuarterId
+	val selectedQuarterIdWrites = mutableListOf<String?>()
 
 	override suspend fun isGetQuartersOnCooldown(): Boolean = onCooldown
 
 	override suspend fun setGetQuartersOnCooldown() {
 		cooldownMarked = true
+	}
+
+	override fun getSelectedQuarterId(): String? = selectedQuarterId
+
+	override fun setSelectedQuarterId(quarterId: String) {
+		selectedQuarterId = quarterId
+		selectedQuarterIdWrites += quarterId
 	}
 }
 

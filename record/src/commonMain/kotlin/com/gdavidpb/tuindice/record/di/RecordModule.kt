@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.record.data.repository.QuarterDataRepository
+import com.gdavidpb.tuindice.record.data.repository.QuarterSelectionDataRepository
 import com.gdavidpb.tuindice.record.data.source.QuarterLocalDataSource
 import com.gdavidpb.tuindice.record.data.source.QuarterRemoteDataSource
 import com.gdavidpb.tuindice.record.data.source.QuarterSettingsDataSource
@@ -16,10 +17,13 @@ import com.gdavidpb.tuindice.record.data.source.RecordApiDataSource
 import com.gdavidpb.tuindice.record.data.source.RoomDataSource
 import com.gdavidpb.tuindice.record.data.repository.VisibleRecordStateResolver
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
+import com.gdavidpb.tuindice.record.domain.repository.QuarterSelectionRepository
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
 import com.gdavidpb.tuindice.record.domain.usecase.AddQuarterUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.GetSelectedQuarterIdUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedQuarterIdUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
@@ -27,6 +31,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateQuarte
 import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
 import com.gdavidpb.tuindice.record.presentation.action.ObserveQuartersActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.RefreshQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.SelectQuarterActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import org.koin.core.module.dsl.bind
@@ -49,14 +54,17 @@ val recordModule = module {
 
 	factoryOf(::ObserveQuartersActionProcessor)
 	factoryOf(::RefreshQuartersActionProcessor)
+	factoryOf(::SelectQuarterActionProcessor)
 	factoryOf(::SetSubjectGradeActionProcessor)
 
 	/* Use cases */
 
 	factoryOf(::AddQuarterUseCase)
+	factoryOf(::GetSelectedQuarterIdUseCase)
 	factoryOf(::ObserveQuartersUseCase)
 	factoryOf(::UpdateQuartersUseCase)
 	factoryOf(::RemoveQuarterUseCase)
+	factoryOf(::SetSelectedQuarterIdUseCase)
 	factoryOf(::SetSubjectGradeUseCase)
 
 	/* Computation */
@@ -95,6 +103,7 @@ val recordModule = module {
 			identifierRepository = get()
 		)
 	}
+	singleOf(::QuarterSelectionDataRepository) { bind<QuarterSelectionRepository>() }
 
 	/* Data sources */
 

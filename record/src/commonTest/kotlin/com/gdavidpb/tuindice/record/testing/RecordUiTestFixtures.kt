@@ -14,7 +14,10 @@ import com.gdavidpb.tuindice.record.ui.style.SubjectColorGenerator
 
 fun recordContentState(
 	quarters: List<Quarter> = listOf(DEFAULT_RECORD_QUARTER)
-): Record.State.Content = Record.State.Content(quarters = quarters)
+): Record.State.Content = Record.State.Content(
+	quarters = quarters,
+	selectedQuarterId = quarters.first().id
+)
 
 fun recordMapperTexts(): RecordMapperTexts = RecordMapperTexts(
 	quarterGradeDiff = { grade -> "Δx $grade" },

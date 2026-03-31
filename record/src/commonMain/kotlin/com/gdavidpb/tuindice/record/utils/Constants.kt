@@ -10,6 +10,7 @@ object Ranges {
 
 object PreferencesKeys {
 	const val COOLDOWN_GET_QUARTERS = "cooldownGetQuarters"
+	const val SELECTED_QUARTER_ID = "selectedQuarterId"
 }
 
 object CooldownTimes {
