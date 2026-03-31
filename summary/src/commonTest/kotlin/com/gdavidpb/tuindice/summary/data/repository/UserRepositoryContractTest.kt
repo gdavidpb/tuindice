@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.summary.data.repository
 
+import com.gdavidpb.tuindice.base.domain.model.EncodedImage
 import com.gdavidpb.tuindice.summary.data.repository.user.UserDataRepository
+import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
+import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.FakeLocalDataSource
@@ -15,6 +18,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class UserRepositoryContractTest {
@@ -101,6 +105,32 @@ class UserRepositoryContractTest {
 			localDataSource.savedUsers.single().pictureUrl
 		)
 		assertEquals("image/jpeg", remoteDataSource.uploadCalls.single().second)
+	}
+
+	@Test
+	fun uploadProfilePicture_rejects_encoded_images_that_exceed_the_upload_limit() = runTest {
+		val localDataSource = FakeLocalDataSource()
+		val remoteDataSource = FakeRemoteDataSource(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE)
+		val encoderDataSource = FakePictureEncoderDataSource(
+			encodedImage = EncodedImage(
+				content = ByteArray(1_048_577),
+				mimeType = "image/jpeg"
+			)
+		)
+		val repository = UserDataRepository(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			pictureEncoderDataSource = encoderDataSource
+		)
+
+		val exception = assertFailsWith<ProfilePictureIllegalArgumentException> {
+			repository.uploadProfilePicture(PlatformFile("content://profile/too-large.jpg"))
+		}
+
+		assertEquals(ProfilePictureUseCaseError.SizeExceeded, exception.error)
+		assertTrue(remoteDataSource.uploadCalls.isEmpty())
+		assertTrue(localDataSource.savedUsers.isEmpty())
 	}
 
 	@Test

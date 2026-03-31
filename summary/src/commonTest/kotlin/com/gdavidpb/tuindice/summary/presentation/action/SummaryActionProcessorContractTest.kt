@@ -25,6 +25,7 @@ import org.jetbrains.compose.resources.getString
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.snack_profile_picture_not_image
 import tuindice.summary.generated.resources.snack_profile_picture_removed
+import tuindice.summary.generated.resources.snack_profile_picture_size_exceeded
 import tuindice.summary.generated.resources.snack_profile_picture_updated
 import tuindice.summary.generated.resources.text_sync_healthy
 import kotlin.test.Test
@@ -207,6 +208,63 @@ class SummaryActionProcessorContractTest {
 
 		val effect = assertIs<Summary.Effect.ShowSnackBar>(effects.single())
 		assertEquals(getString(Res.string.snack_profile_picture_not_image), effect.message)
+	}
+
+	@Test
+	fun uploadProfilePictureActionProcessor_showsSpecificMessageWhenFileSizeIsExceeded() = runTest {
+		val processor = UploadProfilePictureActionProcessor(
+			uploadProfilePictureUseCase = UploadProfilePictureUseCase(
+				userRepository = RecordingUserRepository(
+					throwable = clientRequestException(
+						statusCode = HttpStatusCode.PayloadTooLarge,
+						path = "/users/v1/picture"
+					)
+				),
+				reportingRepository = RecordingReportingRepository(),
+				paramsValidator = UploadProfilePictureParamsValidator(),
+				exceptionHandler = UploadProfilePictureExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true)
+				)
+			)
+		)
+		val initialState = Summary.State.Content(
+			name = "Ana Diaz",
+			lastUpdate = getString(
+				Res.string.text_sync_healthy,
+				DEFAULT_SUMMARY_USER.lastUpdate.formatLastUpdate()
+			),
+			careerName = DEFAULT_SUMMARY_USER.careerName,
+			grade = DEFAULT_SUMMARY_USER.grade.toFloat(),
+			enrolledSubjects = DEFAULT_SUMMARY_USER.enrolledSubjects,
+			enrolledCredits = DEFAULT_SUMMARY_USER.enrolledCredits,
+			approvedSubjects = DEFAULT_SUMMARY_USER.approvedSubjects,
+			approvedCredits = DEFAULT_SUMMARY_USER.approvedCredits,
+			retiredSubjects = DEFAULT_SUMMARY_USER.retiredSubjects,
+			retiredCredits = DEFAULT_SUMMARY_USER.retiredCredits,
+			failedSubjects = DEFAULT_SUMMARY_USER.failedSubjects,
+			failedCredits = DEFAULT_SUMMARY_USER.failedCredits,
+			profilePictureUrl = DEFAULT_SUMMARY_USER.pictureUrl,
+			isProfilePictureLoading = false,
+			isUserRefreshing = false
+		)
+		val effects = mutableListOf<Summary.Effect>()
+
+		processor.process(
+			action = Summary.Action.UploadProfilePicture(PlatformFile("content://profile/new.jpg")),
+			sideEffect = effects::add
+		).test {
+			val loading = assertIs<Summary.State.Content>(awaitItem()(initialState))
+			assertTrue(loading.isProfilePictureLoading)
+
+			val content = assertIs<Summary.State.Content>(awaitItem()(loading))
+			assertEquals(DEFAULT_SUMMARY_USER.pictureUrl, content.profilePictureUrl)
+			assertEquals(false, content.isProfilePictureLoading)
+
+			awaitComplete()
+		}
+
+		val effect = assertIs<Summary.Effect.ShowSnackBar>(effects.single())
+		assertEquals(getString(Res.string.snack_profile_picture_size_exceeded), effect.message)
 	}
 
 	@Test

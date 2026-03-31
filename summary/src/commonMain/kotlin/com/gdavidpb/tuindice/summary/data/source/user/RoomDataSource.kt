@@ -2,9 +2,8 @@ package com.gdavidpb.tuindice.summary.data.source.user
 
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.summary.data.source.user.LocalDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.database.mapper.toUserEntity
 import com.gdavidpb.tuindice.summary.data.source.user.database.mapper.toUser
+import com.gdavidpb.tuindice.summary.data.source.user.database.mapper.toUserEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -19,6 +18,6 @@ class RoomDataSource(
 	override suspend fun updateUser(user: User) {
 		val userEntity = user.toUserEntity()
 
-		room.users.upsertEntities(listOf(userEntity))
+		room.users.upsertEntity(userEntity)
 	}
 }
