@@ -1,7 +1,7 @@
-package com.gdavidpb.tuindice.summary.data.source.user.api.mapper
+package com.gdavidpb.tuindice.summary.data.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.User
-import com.gdavidpb.tuindice.summary.data.source.user.api.response.UserResponse
+import com.gdavidpb.tuindice.summary.data.model.UserResponse
 
 fun UserResponse.toUser() = User(
 	id = id,

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.data.source.settings
+package com.gdavidpb.tuindice.data.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 

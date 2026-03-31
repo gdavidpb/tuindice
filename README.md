@@ -104,6 +104,7 @@ Responsable de negocio puro.
 Ubicación típica:
 
 - `model/*`
+- `mapper/*`
 - `repository/*`
 - `usecase/*`
 - `usecase/validator/*`
@@ -134,8 +135,12 @@ Ubicación típica:
 Reglas:
 
 - `domain` nunca importa clases de `data`.
+- Los modelos de dominio viven en `domain/model`.
+- Los mapeos puramente de dominio pueden vivir en `domain/mapper`.
 - Las interfaces de dominio viven en `domain/repository` y usan sufijo `Repository`.
 - Los contratos internos de la capa `data` viven en `data/repository` y usan sufijo `DataRepository`.
+- Los modelos internos de la capa `data` viven en `data/model`.
+- Los mapeos de persistencia, red y adaptación interna viven en `data/mapper`.
 - Los contratos internos de orígenes hoja viven en `data/contract` y pueden conservar nombres orientados al origen,
   por ejemplo `RemoteDataSource`, `DatabaseDataSource` o `PushTokenDataSource`.
 - Las implementaciones concretas viven en `data/source` y usan sufijo `DataSource`.

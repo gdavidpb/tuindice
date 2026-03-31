@@ -1,10 +1,10 @@
-package com.gdavidpb.tuindice.summary.data.source.user
+package com.gdavidpb.tuindice.summary.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.summary.data.contract.user.LocalDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.database.mapper.toUser
-import com.gdavidpb.tuindice.summary.data.source.user.database.mapper.toUserEntity
+import com.gdavidpb.tuindice.summary.data.mapper.toUser
+import com.gdavidpb.tuindice.summary.data.mapper.toUserEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

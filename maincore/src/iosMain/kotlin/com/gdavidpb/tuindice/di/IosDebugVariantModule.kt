@@ -9,10 +9,10 @@ import com.gdavidpb.tuindice.data.source.attestation.IosDebugAttestationDataSour
 import com.gdavidpb.tuindice.data.contract.messaging.PushTokenDataSource
 import com.gdavidpb.tuindice.data.source.messaging.DebugPushTokenDataSource
 import com.gdavidpb.tuindice.summary.data.contract.user.DebugProfilePictureStorageDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.DebugSummaryRemoteDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.FileKitDebugProfilePictureStorageDataSource
 import com.gdavidpb.tuindice.summary.data.contract.user.RemoteDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.SummaryApiDataSource
+import com.gdavidpb.tuindice.summary.data.source.DebugSummaryRemoteDataSource
+import com.gdavidpb.tuindice.summary.data.source.FileKitDebugProfilePictureStorageDataSource
+import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
 import org.koin.dsl.module
 
 private const val IOS_DEBUG_SUMMARY_SOURCE = "ios-debug-summary"

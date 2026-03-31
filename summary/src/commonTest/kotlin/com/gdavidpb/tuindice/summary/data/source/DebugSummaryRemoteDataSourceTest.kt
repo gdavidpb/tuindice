@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.summary.data.source.user
+package com.gdavidpb.tuindice.summary.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.summary.data.contract.user.DebugProfilePictureStorageDataSource

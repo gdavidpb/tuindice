@@ -4,11 +4,11 @@ import com.gdavidpb.tuindice.summary.data.contract.user.LocalDataSource
 import com.gdavidpb.tuindice.summary.data.contract.user.PictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.contract.user.RemoteDataSource
 import com.gdavidpb.tuindice.summary.data.contract.user.SettingsDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.UserDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.FileKitSkiaPictureEncoderDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.LocalSettingsDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.RoomDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.SummaryApiDataSource
+import com.gdavidpb.tuindice.summary.data.source.UserDataSource
+import com.gdavidpb.tuindice.summary.data.source.FileKitSkiaPictureEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.source.LocalSettingsDataSource
+import com.gdavidpb.tuindice.summary.data.source.RoomDataSource
+import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase

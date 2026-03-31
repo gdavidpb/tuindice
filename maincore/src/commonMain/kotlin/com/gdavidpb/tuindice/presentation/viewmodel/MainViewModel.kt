@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.presentation.action.main.SetLastMainSectionActionPr
 import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
 import com.gdavidpb.tuindice.presentation.contract.Main
-import com.gdavidpb.tuindice.presentation.navigation.toMainSectionOrNull
+import com.gdavidpb.tuindice.presentation.mapper.toMainSectionOrNull
 import kotlinx.coroutines.flow.Flow
 
 class MainViewModel(

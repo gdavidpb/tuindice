@@ -60,6 +60,10 @@ Implement module work by copying the nearest existing module pattern instead of 
 - `data/repository` contains internal data-layer interfaces for compositions over multiple origins. These interfaces should end with `DataRepository`.
 - `data/contract` contains internal contracts for leaf origins such as API, DB, settings, or platform bridges.
 - `data/source` contains concrete implementations, whether they implement a `domain/repository`, `data/repository`, or `data/contract` contract directly. These classes should end with `DataSource`.
+- Keep domain models in `domain/model`.
+- Keep domain-only mappers in `domain/mapper`.
+- Keep data-layer models in `data/model`.
+- Keep data-layer mappers in `data/mapper`.
 - If a `domain` contract needs multiple internal origins or shared coordination, define an internal `*DataRepository` interface in `data/repository` and keep all concrete implementations in `data/source`.
 - If a module needs to abstract a single leaf origin internally, keep that contract in `data/contract` and the implementation in `data/source`.
 - A `*DataSource` may implement a `domain/repository` contract directly when the domain contract maps cleanly to a single concrete origin.

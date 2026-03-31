@@ -3,6 +3,8 @@ package com.gdavidpb.tuindice.data.source.settings
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
+import com.gdavidpb.tuindice.data.mapper.toMainSectionOrThrow
+import com.gdavidpb.tuindice.data.mapper.toPersistedName
 import com.russhwolf.settings.Settings
 
 class MultiplatformSettingsDataSource(

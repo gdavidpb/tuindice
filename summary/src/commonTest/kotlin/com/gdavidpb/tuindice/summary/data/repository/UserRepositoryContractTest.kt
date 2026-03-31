@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.data.repository
 
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
-import com.gdavidpb.tuindice.summary.data.source.user.UserDataSource
+import com.gdavidpb.tuindice.summary.data.source.UserDataSource
 import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE

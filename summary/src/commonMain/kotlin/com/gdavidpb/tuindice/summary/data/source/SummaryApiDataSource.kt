@@ -1,11 +1,11 @@
-package com.gdavidpb.tuindice.summary.data.source.user
+package com.gdavidpb.tuindice.summary.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.summary.data.contract.user.RemoteDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.api.mapper.toProfilePicture
-import com.gdavidpb.tuindice.summary.data.source.user.api.mapper.toUser
-import com.gdavidpb.tuindice.summary.data.source.user.api.response.UserResponse
-import com.gdavidpb.tuindice.summary.data.source.user.api.response.ProfilePictureResponse
+import com.gdavidpb.tuindice.summary.data.mapper.toProfilePicture
+import com.gdavidpb.tuindice.summary.data.mapper.toUser
+import com.gdavidpb.tuindice.summary.data.model.UserResponse
+import com.gdavidpb.tuindice.summary.data.model.ProfilePictureResponse
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body

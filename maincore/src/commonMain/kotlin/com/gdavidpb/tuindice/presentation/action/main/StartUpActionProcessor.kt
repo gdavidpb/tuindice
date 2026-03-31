@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.presentation.contract.Main
-import com.gdavidpb.tuindice.presentation.navigation.toDestination
+import com.gdavidpb.tuindice.presentation.mapper.toDestination
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

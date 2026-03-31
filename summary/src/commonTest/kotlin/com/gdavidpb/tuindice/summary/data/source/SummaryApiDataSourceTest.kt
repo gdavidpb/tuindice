@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.summary.data.source.user
+package com.gdavidpb.tuindice.summary.data.source
 
 
 import io.ktor.client.HttpClient

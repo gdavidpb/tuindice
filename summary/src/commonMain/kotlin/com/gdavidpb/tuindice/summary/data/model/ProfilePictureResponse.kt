@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.summary.data.source.user.api.response
+package com.gdavidpb.tuindice.summary.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

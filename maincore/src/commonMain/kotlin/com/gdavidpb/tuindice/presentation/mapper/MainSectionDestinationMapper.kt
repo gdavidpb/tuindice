@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.presentation.navigation
+package com.gdavidpb.tuindice.presentation.mapper
 
 import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
