@@ -1,7 +1,8 @@
 package com.gdavidpb.tuindice.summary.data.source.user
 
-
 import com.gdavidpb.tuindice.base.domain.model.User
+import com.gdavidpb.tuindice.summary.data.contract.user.DebugProfilePictureStorageDataSource
+import com.gdavidpb.tuindice.summary.data.contract.user.RemoteDataSource
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
