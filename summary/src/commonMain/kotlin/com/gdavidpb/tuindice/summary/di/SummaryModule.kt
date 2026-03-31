@@ -30,8 +30,11 @@ import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.qualifier.named
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+
+val summaryApiRemoteDataSourceQualifier = named("summaryApiRemoteDataSource")
 
 val summaryModule = module {
 	/* View models */
@@ -67,7 +70,13 @@ val summaryModule = module {
 	/* Data sources */
 
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
-	factoryOf(::SummaryApiDataSource) { bind<RemoteDataSource>() }
+	factoryOf(::SummaryApiDataSource)
+	factory<RemoteDataSource>(qualifier = summaryApiRemoteDataSourceQualifier) {
+		get<SummaryApiDataSource>()
+	}
+	factory<RemoteDataSource> {
+		get(qualifier = summaryApiRemoteDataSourceQualifier)
+	}
 	single<SettingsDataSource> {
 		LocalSettingsDataSource(get<Settings>())
 	}
