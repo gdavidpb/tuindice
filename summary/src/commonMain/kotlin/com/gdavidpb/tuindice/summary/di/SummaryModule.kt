@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.summary.data.source.user.PictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.user.RemoteDataSource
 import com.gdavidpb.tuindice.summary.data.source.user.SettingsDataSource
 import com.gdavidpb.tuindice.summary.data.repository.user.UserDataRepository
-import com.gdavidpb.tuindice.summary.data.source.user.FileKitPictureEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.FileKitSkiaPictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.user.LocalSettingsDataSource
 import com.gdavidpb.tuindice.summary.data.source.user.RoomDataSource
 import com.gdavidpb.tuindice.summary.data.source.user.SummaryApiDataSource
@@ -30,11 +30,8 @@ import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
-import org.koin.core.qualifier.named
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-
-val summaryApiRemoteDataSourceQualifier = named("summaryApiRemoteDataSource")
 
 val summaryModule = module {
 	/* View models */
@@ -71,16 +68,13 @@ val summaryModule = module {
 
 	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
 	factoryOf(::SummaryApiDataSource)
-	factory<RemoteDataSource>(qualifier = summaryApiRemoteDataSourceQualifier) {
-		get<SummaryApiDataSource>()
-	}
 	factory<RemoteDataSource> {
-		get(qualifier = summaryApiRemoteDataSourceQualifier)
+		get<SummaryApiDataSource>()
 	}
 	single<SettingsDataSource> {
 		LocalSettingsDataSource(get<Settings>())
 	}
-	factoryOf(::FileKitPictureEncoderDataSource) { bind<PictureEncoderDataSource>() }
+	factoryOf(::FileKitSkiaPictureEncoderDataSource) { bind<PictureEncoderDataSource>() }
 
 	/* Exception handlers */
 

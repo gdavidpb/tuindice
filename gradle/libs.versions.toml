@@ -20,8 +20,6 @@ browser = "1.10.0"
 preference-ktx = "1.2.1"
 espresso-core = "3.7.0"
 exifinterface = "1.4.2"
-customview-poolingcontainer = "1.1.0"
-emoji2 = "1.6.0"
 wiremock = "3.13.2"
 junit = "4.13.2"
 app-update-ktx = "2.1.0"
@@ -48,6 +46,7 @@ filekit = "0.13.0"
 kermit = "2.1.0"
 multiplatform-settings = "1.3.0"
 ksafe = "1.7.1"
+skiko = "0.9.37.4"
 
 [libraries]
 # Room
@@ -69,8 +68,6 @@ core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
 browser = { module = "androidx.browser:browser", version.ref = "browser" }
 preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preference-ktx" }
 exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exifinterface" }
-customview-poolingcontainer = { module = "androidx.customview:customview-poolingcontainer", version.ref = "customview-poolingcontainer" }
-emoji2 = { module = "androidx.emoji2:emoji2", version.ref = "emoji2" }
 android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "android-gradle-plugin" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
@@ -152,6 +149,7 @@ filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
 ksafe = { module = "eu.anifantakis:ksafe", version.ref = "ksafe" }
+skiko = { module = "org.jetbrains.skiko:skiko", version.ref = "skiko" }
 
 # Coil
 coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }

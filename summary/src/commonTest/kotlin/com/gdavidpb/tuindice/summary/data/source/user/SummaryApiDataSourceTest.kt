@@ -17,7 +17,7 @@ import kotlin.test.assertEquals
 
 class SummaryApiDataSourceTest {
 	@Test
-	fun getUser_maps_null_picture_url_to_blank() = runTest {
+	fun getUser_keeps_blank_picture_url_from_contract() = runTest {
 		val client = HttpClient(
 			engine = MockEngine {
 				respond(
@@ -30,7 +30,7 @@ class SummaryApiDataSourceTest {
 						  "full_name": "Luis Perez",
 						  "first_names": "Luis",
 						  "last_names": "Perez",
-						  "picture_url": null,
+						  "picture_url": "",
 						  "career_name": "Ingenieria de Computacion",
 						  "career_code": 800,
 						  "scholarship": false,
