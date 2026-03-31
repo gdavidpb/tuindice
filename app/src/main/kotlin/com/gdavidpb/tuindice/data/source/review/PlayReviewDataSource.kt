@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.review
 
-import com.gdavidpb.tuindice.data.source.activity.CurrentActivityProvider
+import com.gdavidpb.tuindice.data.contract.activity.CurrentActivityProvider
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.ktx.requestReview

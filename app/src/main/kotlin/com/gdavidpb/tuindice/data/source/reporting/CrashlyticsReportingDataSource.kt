@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.source.reporting
 
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.data.contract.reporting.CrashReporterDataSource
 
 class CrashlyticsReportingDataSource(
 	private val crashReporter: CrashReporterDataSource

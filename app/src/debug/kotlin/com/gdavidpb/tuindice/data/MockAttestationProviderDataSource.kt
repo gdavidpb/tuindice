@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.data
 import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.logging.appLogger
-import com.gdavidpb.tuindice.data.source.attestation.AttestationProviderDataSource
+import com.gdavidpb.tuindice.data.contract.attestation.AttestationProviderDataSource
 import com.gdavidpb.tuindice.platform.android.model.ProviderAttestation
 
 class MockAttestationProviderDataSource : AttestationProviderDataSource {

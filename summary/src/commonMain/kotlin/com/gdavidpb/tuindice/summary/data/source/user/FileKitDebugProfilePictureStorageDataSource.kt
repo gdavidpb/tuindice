@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.data.source.user
 
+import com.gdavidpb.tuindice.summary.data.contract.user.DebugProfilePictureStorageDataSource
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.createDirectories
 import io.github.vinceglb.filekit.delete

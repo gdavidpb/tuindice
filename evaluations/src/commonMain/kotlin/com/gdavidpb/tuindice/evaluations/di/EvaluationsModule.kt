@@ -1,16 +1,16 @@
 package com.gdavidpb.tuindice.evaluations.di
 
-import com.gdavidpb.tuindice.evaluations.data.source.DatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationDataRepository
-import com.gdavidpb.tuindice.evaluations.data.source.EvaluationsApiDataSource
-import com.gdavidpb.tuindice.evaluations.data.source.SettingsDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EVALUATIONS_MUTATION_STORE_ID
-import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutation
-import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationAck
+import com.gdavidpb.tuindice.evaluations.data.contract.DatabaseDataSource
+import com.gdavidpb.tuindice.evaluations.data.source.EvaluationDataSource
+import com.gdavidpb.tuindice.evaluations.data.contract.EvaluationsApiDataSource
+import com.gdavidpb.tuindice.evaluations.data.contract.SettingsDataSource
+import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STORE_ID
+import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
+import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.data.source.KtorEvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.RoomDatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.VisibleEvaluationsStateResolver
+import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateResolver
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
@@ -128,7 +128,7 @@ val evaluationsModule = module {
 		)
 	}
 	single<EvaluationRepository> {
-		EvaluationDataRepository(
+		EvaluationDataSource(
 			databaseDataSource = get(),
 			evaluationsApiDataSource = get(),
 			settingsDataSource = get(),

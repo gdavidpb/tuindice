@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.summary.di
 
-import com.gdavidpb.tuindice.summary.data.source.user.LocalDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.PictureEncoderDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.RemoteDataSource
-import com.gdavidpb.tuindice.summary.data.source.user.SettingsDataSource
-import com.gdavidpb.tuindice.summary.data.repository.user.UserDataRepository
+import com.gdavidpb.tuindice.summary.data.contract.user.LocalDataSource
+import com.gdavidpb.tuindice.summary.data.contract.user.PictureEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.contract.user.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.contract.user.SettingsDataSource
+import com.gdavidpb.tuindice.summary.data.source.user.UserDataSource
 import com.gdavidpb.tuindice.summary.data.source.user.FileKitSkiaPictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.user.LocalSettingsDataSource
 import com.gdavidpb.tuindice.summary.data.source.user.RoomDataSource
@@ -62,7 +62,7 @@ val summaryModule = module {
 
 	/* Repositories */
 
-	factoryOf(::UserDataRepository) { bind<UserRepository>() }
+	factoryOf(::UserDataSource) { bind<UserRepository>() }
 
 	/* Data sources */
 

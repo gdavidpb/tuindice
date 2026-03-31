@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.update
 
-import com.gdavidpb.tuindice.data.source.activity.CurrentActivityProvider
+import com.gdavidpb.tuindice.data.contract.activity.CurrentActivityProvider
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.google.android.play.core.appupdate.AppUpdateInfo

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.data.source.user
 
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
+import com.gdavidpb.tuindice.summary.data.contract.user.PictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import io.github.vinceglb.filekit.PlatformFile

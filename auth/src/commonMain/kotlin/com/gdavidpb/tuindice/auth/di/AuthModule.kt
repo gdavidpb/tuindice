@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.auth.di
 
-import com.gdavidpb.tuindice.auth.data.source.AuthApiDataSource
-import com.gdavidpb.tuindice.auth.data.repository.AuthDataRepository
+import com.gdavidpb.tuindice.auth.data.contract.AuthApiDataSource
+import com.gdavidpb.tuindice.auth.data.source.AuthDataSource
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
@@ -62,7 +62,7 @@ val authModule = module {
 
 	/* Repositories */
 
-	factoryOf(::AuthDataRepository) { bind<AuthRepository>() }
+	factoryOf(::AuthDataSource) { bind<AuthRepository>() }
 
 	/* Data sources */
 

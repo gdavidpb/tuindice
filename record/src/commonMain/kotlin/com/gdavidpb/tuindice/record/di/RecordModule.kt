@@ -3,19 +3,19 @@ package com.gdavidpb.tuindice.record.di
 import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
-import com.gdavidpb.tuindice.record.data.repository.QuarterDataRepository
-import com.gdavidpb.tuindice.record.data.repository.QuarterSelectionDataRepository
-import com.gdavidpb.tuindice.record.data.source.QuarterLocalDataSource
-import com.gdavidpb.tuindice.record.data.source.QuarterRemoteDataSource
-import com.gdavidpb.tuindice.record.data.source.QuarterSettingsDataSource
-import com.gdavidpb.tuindice.record.data.repository.mutation.RECORD_MUTATION_STORE_ID
-import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
-import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutationAck
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
+import com.gdavidpb.tuindice.record.data.source.QuarterDataSource
+import com.gdavidpb.tuindice.record.data.source.QuarterSelectionDataSource
+import com.gdavidpb.tuindice.record.data.contract.QuarterLocalDataSource
+import com.gdavidpb.tuindice.record.data.contract.QuarterRemoteDataSource
+import com.gdavidpb.tuindice.record.data.contract.QuarterSettingsDataSource
+import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_STORE_ID
+import com.gdavidpb.tuindice.record.data.mutation.RecordMutation
+import com.gdavidpb.tuindice.record.data.mutation.RecordMutationAck
+import com.gdavidpb.tuindice.record.data.model.quarter.LocalQuarter
 import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.record.data.source.RecordApiDataSource
 import com.gdavidpb.tuindice.record.data.source.RoomDataSource
-import com.gdavidpb.tuindice.record.data.repository.VisibleRecordStateResolver
+import com.gdavidpb.tuindice.record.data.resolver.VisibleRecordStateResolver
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.repository.QuarterSelectionRepository
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
@@ -95,7 +95,7 @@ val recordModule = module {
 		)
 	}
 	single<QuarterRepository> {
-		QuarterDataRepository(
+		QuarterDataSource(
 			localDataSource = get(),
 			remoteDataSource = get(),
 			settingsDataSource = get(),
@@ -103,7 +103,7 @@ val recordModule = module {
 			identifierRepository = get()
 		)
 	}
-	singleOf(::QuarterSelectionDataRepository) { bind<QuarterSelectionRepository>() }
+	singleOf(::QuarterSelectionDataSource) { bind<QuarterSelectionRepository>() }
 
 	/* Data sources */
 

@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.record.domain.service
 
 import com.gdavidpb.tuindice.base.utils.extension.round
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
+import com.gdavidpb.tuindice.record.data.model.quarter.LocalQuarter
+import com.gdavidpb.tuindice.record.data.model.quarter.LocalSubject
 
 class IndexComputationEngine {
 	data class RecomputeResult(

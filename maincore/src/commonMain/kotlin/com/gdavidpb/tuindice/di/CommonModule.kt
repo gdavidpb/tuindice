@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.di
 
-import com.gdavidpb.tuindice.base.data.repository.ConfigDataRepository
-import com.gdavidpb.tuindice.base.data.repository.SessionInvalidationDataRepository
-import com.gdavidpb.tuindice.base.data.repository.SessionDataRepository
+import com.gdavidpb.tuindice.base.data.source.ConfigDataSource
+import com.gdavidpb.tuindice.base.data.source.SessionInvalidationDataSource
+import com.gdavidpb.tuindice.base.data.source.SessionDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
-import com.gdavidpb.tuindice.base.data.source.MemorySessionDataSource
-import com.gdavidpb.tuindice.base.data.source.PreferencesSessionDataSource
+import com.gdavidpb.tuindice.base.data.contract.MemorySessionDataSource
+import com.gdavidpb.tuindice.base.data.contract.PreferencesSessionDataSource
 import com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSource
 import com.gdavidpb.tuindice.base.data.source.settings.APP_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
@@ -16,17 +16,17 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
-import com.gdavidpb.tuindice.data.repository.messaging.MessagingDataRepository
-import com.gdavidpb.tuindice.data.source.messaging.MessagingLocalDataSource
-import com.gdavidpb.tuindice.data.source.messaging.MessagingRemoteDataSource
+import com.gdavidpb.tuindice.data.source.messaging.MessagingDataSource
+import com.gdavidpb.tuindice.data.contract.messaging.MessagingLocalDataSource
+import com.gdavidpb.tuindice.data.contract.messaging.MessagingRemoteDataSource
 import com.gdavidpb.tuindice.data.source.messaging.MessagingApiDataSource
 import com.gdavidpb.tuindice.data.source.messaging.MessagingSettingsDataSource
-import com.gdavidpb.tuindice.data.repository.credentials.CredentialsDataRepository
-import com.gdavidpb.tuindice.data.repository.sync.SyncDataRepository
-import com.gdavidpb.tuindice.data.source.sync.SyncRemoteDataSource
-import com.gdavidpb.tuindice.data.source.sync.SyncSettingsLocalDataSource
-import com.gdavidpb.tuindice.data.repository.sync.SyncStatusDataRepository
-import com.gdavidpb.tuindice.data.source.sync.SyncStatusLocalDataSource
+import com.gdavidpb.tuindice.data.source.credentials.CredentialsDataSource
+import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
+import com.gdavidpb.tuindice.data.contract.sync.SyncRemoteDataSource
+import com.gdavidpb.tuindice.data.contract.sync.SyncSettingsLocalDataSource
+import com.gdavidpb.tuindice.data.source.sync.SyncStatusDataSource
+import com.gdavidpb.tuindice.data.contract.sync.SyncStatusLocalDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncApiDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncSettingsDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncStatusSettingsDataSource
@@ -46,24 +46,24 @@ val commonModule = module {
 	}
 
 	singleOf(::MultiplatformSettingsDataSource) { bind<SettingsRepository>() }
-	singleOf(::ConfigDataRepository) { bind<ConfigRepository>() }
+	singleOf(::ConfigDataSource) { bind<ConfigRepository>() }
 
 	singleOf(::InMemorySessionDataSource) { bind<MemorySessionDataSource>() }
 	singleOf(::SecureStoreSessionDataSource) { bind<PreferencesSessionDataSource>() }
-	singleOf(::SessionDataRepository) { bind<SessionRepository>() }
-	singleOf(::SessionInvalidationDataRepository) { bind<SessionInvalidationRepository>() }
+	singleOf(::SessionDataSource) { bind<SessionRepository>() }
+	singleOf(::SessionInvalidationDataSource) { bind<SessionInvalidationRepository>() }
 
 	singleOf(::MessagingApiDataSource) { bind<MessagingRemoteDataSource>() }
 	singleOf(::MessagingSettingsDataSource) { bind<MessagingLocalDataSource>() }
-	singleOf(::MessagingDataRepository) { bind<MessagingRepository>() }
+	singleOf(::MessagingDataSource) { bind<MessagingRepository>() }
 
-	singleOf(::CredentialsDataRepository) { bind<CredentialsRepository>() }
+	singleOf(::CredentialsDataSource) { bind<CredentialsRepository>() }
 	singleOf(::SyncSettingsDataSource) { bind<SyncSettingsLocalDataSource>() }
 	singleOf(::SyncStatusSettingsDataSource) { bind<SyncStatusLocalDataSource>() }
-	singleOf(::SyncStatusDataRepository) { bind<SyncStatusRepository>() }
+	singleOf(::SyncStatusDataSource) { bind<SyncStatusRepository>() }
 	singleOf(::SyncApiDataSource) { bind<SyncRemoteDataSource>() }
 	single<SyncRepository> {
-		SyncDataRepository(
+		SyncDataSource(
 			settingsDataSource = get(),
 			syncStatusRepository = get(),
 			remoteDataSource = get()

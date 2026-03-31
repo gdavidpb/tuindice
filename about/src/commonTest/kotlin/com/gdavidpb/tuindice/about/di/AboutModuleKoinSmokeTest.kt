@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.about.di
 
-import com.gdavidpb.tuindice.about.data.source.StoreUrlDataSource
+import com.gdavidpb.tuindice.about.data.contract.StoreUrlDataSource
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository

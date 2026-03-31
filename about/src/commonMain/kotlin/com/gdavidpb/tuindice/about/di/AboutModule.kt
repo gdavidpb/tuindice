@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.about.di
 
-import com.gdavidpb.tuindice.about.data.repository.AboutDataRepository
+import com.gdavidpb.tuindice.about.data.source.AboutDataSource
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
@@ -27,7 +27,7 @@ val aboutModule = module {
 
 	/* Repositories */
 
-	factoryOf(::AboutDataRepository) { bind<AboutRepository>() }
+	factoryOf(::AboutDataSource) { bind<AboutRepository>() }
 
 	/* Action processor */
 

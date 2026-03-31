@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.enrollmentproof.data.source
 
-import com.gdavidpb.tuindice.enrollmentproof.data.source.StorageDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.contract.StorageDataSource
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 import io.github.vinceglb.filekit.*
 import kotlin.io.encoding.Base64

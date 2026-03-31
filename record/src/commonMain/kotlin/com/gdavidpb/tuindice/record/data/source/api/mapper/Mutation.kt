@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.record.data.source.api.mapper
 
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteAddQuarterAck
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteDeleteQuarterAck
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSetSubjectGradeAck
+import com.gdavidpb.tuindice.record.data.model.quarter.RemoteAddQuarterAck
+import com.gdavidpb.tuindice.record.data.model.quarter.RemoteDeleteQuarterAck
+import com.gdavidpb.tuindice.record.data.model.quarter.RemoteSetSubjectGradeAck
 import com.gdavidpb.tuindice.record.data.source.api.response.AddQuarterResponse
 import com.gdavidpb.tuindice.record.data.source.api.response.DeleteQuarterResponse
 import com.gdavidpb.tuindice.record.data.source.api.response.SetSubjectGradeResponse

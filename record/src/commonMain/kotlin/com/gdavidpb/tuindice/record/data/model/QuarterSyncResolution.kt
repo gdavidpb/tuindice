@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.data.model
 
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
-import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
+import com.gdavidpb.tuindice.record.data.mutation.RecordMutation
 
 data class QuarterSyncResolution(
 	val replacedClosedQuarterIds: Set<String>,

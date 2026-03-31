@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.record.domain.policy
 
-import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
+import com.gdavidpb.tuindice.record.data.mutation.RecordMutation
 
 enum class QuarterMutationType {
 	AddQuarter,

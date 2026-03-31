@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.data.source.reporting
 
+import com.gdavidpb.tuindice.data.contract.reporting.CrashReporterDataSource
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class FirebaseCrashReporter(

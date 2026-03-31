@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.base.data.source
 
+import com.gdavidpb.tuindice.base.data.contract.PreferencesSessionDataSource
+
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
 import eu.anifantakis.lib.ksafe.KSafe
 

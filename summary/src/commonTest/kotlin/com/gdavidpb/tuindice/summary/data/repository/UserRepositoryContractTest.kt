@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.data.repository
 
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
-import com.gdavidpb.tuindice.summary.data.repository.user.UserDataRepository
+import com.gdavidpb.tuindice.summary.data.source.user.UserDataSource
 import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
@@ -30,7 +30,7 @@ class UserRepositoryContractTest {
 		val localDataSource = FakeLocalDataSource(initialUser = staleUser)
 		val remoteDataSource = FakeRemoteDataSource(user = DEFAULT_SUMMARY_USER)
 		val settingsDataSource = FakeSettingsDataSource(onCooldown = false)
-		val repository = UserDataRepository(
+		val repository = UserDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = settingsDataSource,
@@ -50,7 +50,7 @@ class UserRepositoryContractTest {
 		val localDataSource = FakeLocalDataSource(initialUser = null)
 		val remoteDataSource = FakeRemoteDataSource(user = DEFAULT_SUMMARY_USER)
 		val settingsDataSource = FakeSettingsDataSource(onCooldown = false)
-		val repository = UserDataRepository(
+		val repository = UserDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = settingsDataSource,
@@ -69,7 +69,7 @@ class UserRepositoryContractTest {
 		val localDataSource = FakeLocalDataSource(initialUser = DEFAULT_SUMMARY_USER)
 		val remoteDataSource = FakeRemoteDataSource()
 		val settingsDataSource = FakeSettingsDataSource(onCooldown = true)
-		val repository = UserDataRepository(
+		val repository = UserDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = settingsDataSource,
@@ -88,7 +88,7 @@ class UserRepositoryContractTest {
 		val localDataSource = FakeLocalDataSource()
 		val remoteDataSource = FakeRemoteDataSource(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE)
 		val encoderDataSource = FakePictureEncoderDataSource()
-		val repository = UserDataRepository(
+		val repository = UserDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
@@ -117,7 +117,7 @@ class UserRepositoryContractTest {
 				mimeType = "image/jpeg"
 			)
 		)
-		val repository = UserDataRepository(
+		val repository = UserDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
@@ -137,7 +137,7 @@ class UserRepositoryContractTest {
 	fun removeProfilePicture_clearsLocalPicture_andDelegatesRemoteRemoval() = runTest {
 		val localDataSource = FakeLocalDataSource()
 		val remoteDataSource = FakeRemoteDataSource()
-		val repository = UserDataRepository(
+		val repository = UserDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
@@ -159,7 +159,7 @@ class UserRepositoryContractTest {
 				path = "/users/v1/picture"
 			)
 		)
-		val repository = UserDataRepository(
+		val repository = UserDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),

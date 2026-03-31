@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.base.data.source.config
 
+import com.gdavidpb.tuindice.base.data.contract.config.RemoteConfigDataSource
+
 import com.gdavidpb.tuindice.base.logging.appLogger
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.RemoteConfigKeys

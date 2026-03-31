@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.data.source.user
 
 import com.gdavidpb.tuindice.base.domain.model.User
-import com.gdavidpb.tuindice.summary.data.source.user.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.contract.user.RemoteDataSource
 import com.gdavidpb.tuindice.summary.data.source.user.api.mapper.toProfilePicture
 import com.gdavidpb.tuindice.summary.data.source.user.api.mapper.toUser
 import com.gdavidpb.tuindice.summary.data.source.user.api.response.UserResponse

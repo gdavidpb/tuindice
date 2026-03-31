@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.data.repository.sync
 
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.data.source.sync.SyncStatusDataSource
+import com.gdavidpb.tuindice.data.contract.sync.SyncStatusLocalDataSource
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +13,7 @@ class SyncStatusDataRepositoryContractTest {
 	@Test
 	fun delegatesStatusOperationsToLocalDataSource() = runTest {
 		val localDataSource = RecordingSyncStatusLocalDataSource(initialValue = SyncStatus.Failed)
-		val repository = SyncStatusDataRepository(localDataSource = localDataSource)
+		val repository = SyncStatusDataSource(localDataSource = localDataSource)
 
 		assertEquals(SyncStatus.Failed, repository.getSyncStatus())
 

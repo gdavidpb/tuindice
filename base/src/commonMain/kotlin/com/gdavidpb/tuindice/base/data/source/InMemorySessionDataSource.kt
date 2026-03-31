@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.base.data.source
 
+import com.gdavidpb.tuindice.base.data.contract.MemorySessionDataSource
+
 class InMemorySessionDataSource : MemorySessionDataSource {
 	private var accessToken: String? = null
 	private var refreshToken: String? = null

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.data.source.reporting
 
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

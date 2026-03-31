@@ -12,7 +12,7 @@ class MessagingDataRepositoryTest {
 		val local = FakeMessagingLocalDataSource()
 		val remote = FakeMessagingRemoteDataSource()
 		val pushTokenDataSource = FakePushTokenDataSource(token = "token-1")
-		val repository = MessagingDataRepository(
+		val repository = MessagingDataSource(
 			localDataSource = local,
 			remoteDataSource = remote,
 			pushTokenDataSource = pushTokenDataSource
@@ -33,7 +33,7 @@ class MessagingDataRepositoryTest {
 		}
 		val remote = FakeMessagingRemoteDataSource()
 		val pushTokenDataSource = FakePushTokenDataSource(token = "token-1")
-		val repository = MessagingDataRepository(
+		val repository = MessagingDataSource(
 			localDataSource = local,
 			remoteDataSource = remote,
 			pushTokenDataSource = pushTokenDataSource
@@ -53,7 +53,7 @@ class MessagingDataRepositoryTest {
 		}
 		val remote = FakeMessagingRemoteDataSource()
 		val pushTokenDataSource = FakePushTokenDataSource(token = "token-2")
-		val repository = MessagingDataRepository(
+		val repository = MessagingDataSource(
 			localDataSource = local,
 			remoteDataSource = remote,
 			pushTokenDataSource = pushTokenDataSource
@@ -70,7 +70,7 @@ class MessagingDataRepositoryTest {
 		val local = FakeMessagingLocalDataSource()
 		val remote = FakeMessagingRemoteDataSource()
 		val pushTokenDataSource = FakePushTokenDataSource(token = "   ")
-		val repository = MessagingDataRepository(
+		val repository = MessagingDataSource(
 			localDataSource = local,
 			remoteDataSource = remote,
 			pushTokenDataSource = pushTokenDataSource
@@ -95,7 +95,7 @@ class MessagingDataRepositoryTest {
 			subscribedToken = "token-1"
 		}
 		val remote = FakeMessagingRemoteDataSource()
-		val repository = MessagingDataRepository(
+		val repository = MessagingDataSource(
 			localDataSource = local,
 			remoteDataSource = remote,
 			pushTokenDataSource = FakePushTokenDataSource(token = "token-1")
@@ -117,7 +117,7 @@ class MessagingDataRepositoryTest {
 		val remote = FakeMessagingRemoteDataSource().apply {
 			unsubscribeError = IllegalStateException("network-error")
 		}
-		val repository = MessagingDataRepository(
+		val repository = MessagingDataSource(
 			localDataSource = local,
 			remoteDataSource = remote,
 			pushTokenDataSource = FakePushTokenDataSource(token = "token-1")

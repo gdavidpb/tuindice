@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.data.source.user
 
+
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE

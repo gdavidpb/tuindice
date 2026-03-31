@@ -12,8 +12,8 @@ import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.model.UpdateEvaluationResponse
-import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutation
-import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationAck
+import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
+import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 
 fun EvaluationResponse.toRemoteEvaluation() = RemoteEvaluation(

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.about.data.repository
 
+import com.gdavidpb.tuindice.about.data.source.AboutDataSource
 import com.gdavidpb.tuindice.about.testing.FakeAppInfoDataSource
 import com.gdavidpb.tuindice.about.testing.FakeEnvironmentDataSource
 import com.gdavidpb.tuindice.about.testing.CURRENT_APP_VERSION_CODE
@@ -12,7 +13,7 @@ import kotlin.test.assertEquals
 class AboutRepositoryContractTest {
 	@Test
 	fun getVersionDescription_returnsDebugLabelWithVersionData() = runTest {
-		val repository = AboutDataRepository(
+		val repository = AboutDataSource(
 			environmentDataSource = FakeEnvironmentDataSource(isDebug = true),
 			appInfoDataSource = FakeAppInfoDataSource(
 				versionName = "9.9.9",
@@ -25,7 +26,7 @@ class AboutRepositoryContractTest {
 
 	@Test
 	fun getVersionDescription_returnsProductionLabelWithVersionData() = runTest {
-		val repository = AboutDataRepository(
+		val repository = AboutDataSource(
 			environmentDataSource = FakeEnvironmentDataSource(isDebug = false),
 			appInfoDataSource = FakeAppInfoDataSource(
 				versionName = CURRENT_APP_VERSION_NAME,

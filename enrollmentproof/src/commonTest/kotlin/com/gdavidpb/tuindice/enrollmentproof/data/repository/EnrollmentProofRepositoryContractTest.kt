@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.enrollmentproof.data.repository
 
+import com.gdavidpb.tuindice.enrollmentproof.data.source.EnrollmentProofDataSource
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.testing.CURRENT_QUARTER_NAME
 import com.gdavidpb.tuindice.enrollmentproof.testing.DEFAULT_ENROLLMENT_PROOF
@@ -21,7 +22,7 @@ class EnrollmentProofRepositoryContractTest {
 		)
 		val credentialsRepository = FakeCredentialsRepository(password = "secret123")
 		val storageDataSource = RecordingStorageDataSource()
-		val repository = EnrollmentProofDataRepository(
+		val repository = EnrollmentProofDataSource(
 			databaseDataSource = FakeDatabaseDataSource(),
 			enrollmentProofApiDataSource = apiDataSource,
 			storageDataSource = storageDataSource,
@@ -46,7 +47,7 @@ class EnrollmentProofRepositoryContractTest {
 		val storageDataSource = RecordingStorageDataSource(
 			initialFiles = mapOf(CURRENT_QUARTER_NAME to DEFAULT_ENROLLMENT_PROOF)
 		)
-		val repository = EnrollmentProofDataRepository(
+		val repository = EnrollmentProofDataSource(
 			databaseDataSource = FakeDatabaseDataSource(),
 			enrollmentProofApiDataSource = apiDataSource,
 			storageDataSource = storageDataSource,
@@ -67,7 +68,7 @@ class EnrollmentProofRepositoryContractTest {
 		val storageDataSource = RecordingStorageDataSource(
 			initialFiles = mapOf(CURRENT_QUARTER_NAME to DEFAULT_ENROLLMENT_PROOF)
 		)
-		val repository = EnrollmentProofDataRepository(
+		val repository = EnrollmentProofDataSource(
 			databaseDataSource = FakeDatabaseDataSource(),
 			enrollmentProofApiDataSource = apiDataSource,
 			storageDataSource = storageDataSource,
@@ -83,7 +84,7 @@ class EnrollmentProofRepositoryContractTest {
 
 	@Test
 	fun getEnrollmentProof_throwsNotFoundWhenCurrentQuarterIsMissing() = runTest {
-		val repository = EnrollmentProofDataRepository(
+		val repository = EnrollmentProofDataSource(
 			databaseDataSource = FakeDatabaseDataSource(currentQuarterName = null),
 			enrollmentProofApiDataSource = FakeEnrollmentProofApiDataSource(),
 			storageDataSource = RecordingStorageDataSource(),

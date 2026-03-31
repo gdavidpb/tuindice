@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.about.data.source
 
-import com.gdavidpb.tuindice.about.data.source.StoreUrlDataSource
+import com.gdavidpb.tuindice.about.data.contract.StoreUrlDataSource
 
 class IosStoreUrlDataSource : StoreUrlDataSource {
 	override fun getStoreUrl(): String {

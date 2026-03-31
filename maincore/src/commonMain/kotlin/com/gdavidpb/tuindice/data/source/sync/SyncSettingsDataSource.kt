@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.sync
 
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
-import com.gdavidpb.tuindice.data.source.sync.SyncSettingsLocalDataSource
+import com.gdavidpb.tuindice.data.contract.sync.SyncSettingsLocalDataSource
 import com.russhwolf.settings.Settings
 import kotlin.time.Duration.Companion.days
 import com.gdavidpb.tuindice.evaluations.utils.PreferencesKeys as EvaluationsPreferencesKeys

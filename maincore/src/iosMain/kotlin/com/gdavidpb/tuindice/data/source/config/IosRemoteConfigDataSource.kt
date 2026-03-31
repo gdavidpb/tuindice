@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.config
 
-import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
+import com.gdavidpb.tuindice.base.data.contract.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.platform.IosRemoteConfigCapability
 
 class IosRemoteConfigDataSource(

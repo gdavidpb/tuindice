@@ -1,20 +1,20 @@
 package com.gdavidpb.tuindice.di
 
-import com.gdavidpb.tuindice.about.data.source.AppInfoDataSource
-import com.gdavidpb.tuindice.about.data.source.EnvironmentDataSource
-import com.gdavidpb.tuindice.about.data.source.StoreUrlDataSource
+import com.gdavidpb.tuindice.about.data.contract.AppInfoDataSource
+import com.gdavidpb.tuindice.about.data.contract.EnvironmentDataSource
+import com.gdavidpb.tuindice.about.data.contract.StoreUrlDataSource
 import com.gdavidpb.tuindice.about.data.source.IosAppInfoDataSource
 import com.gdavidpb.tuindice.about.data.source.IosEnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.source.IosShareTextHandler
 import com.gdavidpb.tuindice.about.data.source.IosStoreUrlDataSource
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
-import com.gdavidpb.tuindice.base.data.source.config.RemoteConfigDataSource
+import com.gdavidpb.tuindice.base.data.contract.config.RemoteConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
-import com.gdavidpb.tuindice.data.source.messaging.PushTokenDataSource
-import com.gdavidpb.tuindice.data.repository.attestation.IosAttestationDataRepository
+import com.gdavidpb.tuindice.data.contract.messaging.PushTokenDataSource
+import com.gdavidpb.tuindice.data.source.attestation.IosAttestationDataSource
 import com.gdavidpb.tuindice.data.source.messaging.IosPushTokenDataSource
 import com.gdavidpb.tuindice.data.source.actions.IosFileOpenerDataSource
 import com.gdavidpb.tuindice.data.source.application.IosApplicationDataSource
@@ -26,7 +26,7 @@ import com.gdavidpb.tuindice.data.source.network.IosNetworkDataSource
 import com.gdavidpb.tuindice.data.source.reporting.IosReportingDataSource
 import com.gdavidpb.tuindice.data.source.review.IosReviewDataSource
 import com.gdavidpb.tuindice.data.source.update.IosUpdateDataSource
-import com.gdavidpb.tuindice.auth.data.source.AuthApiDataSource
+import com.gdavidpb.tuindice.auth.data.contract.AuthApiDataSource
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.persistence.di.registerIosPersistencePlatformStorage
@@ -110,7 +110,7 @@ private fun Module.registerIosPlatformServices() {
 		)
 	}
 	factory<AttestationRepository> {
-		IosAttestationDataRepository(
+		IosAttestationDataSource(
 			httpClientProvider = {
 				get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
 			},

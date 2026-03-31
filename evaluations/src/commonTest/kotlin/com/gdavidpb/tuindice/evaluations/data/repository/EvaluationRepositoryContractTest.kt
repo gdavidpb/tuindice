@@ -4,8 +4,9 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
-import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EVALUATIONS_MUTATION_SCOPE
-import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutation
+import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
+import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
+import com.gdavidpb.tuindice.evaluations.data.source.EvaluationDataSource
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
@@ -30,7 +31,7 @@ class EvaluationRepositoryContractTest {
 		val databaseDataSource = FakeDatabaseDataSource()
 		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
 		val settingsDataSource = FakeSettingsDataSource(onCooldown = false)
-		val repository = EvaluationDataRepository(
+		val repository = EvaluationDataSource(
 			databaseDataSource = databaseDataSource,
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = settingsDataSource,
@@ -49,7 +50,7 @@ class EvaluationRepositoryContractTest {
 	fun addEvaluation_sends_reference_id_with_anchor_revision_and_confirms_real_id() = runTest {
 		val databaseDataSource = FakeDatabaseDataSource()
 		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
-		val repository = EvaluationDataRepository(
+		val repository = EvaluationDataSource(
 			databaseDataSource = databaseDataSource,
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
@@ -104,7 +105,7 @@ class EvaluationRepositoryContractTest {
 			)
 		)
 		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
-		val repository = EvaluationDataRepository(
+		val repository = EvaluationDataSource(
 			databaseDataSource = FakeDatabaseDataSource(),
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
@@ -155,7 +156,7 @@ class EvaluationRepositoryContractTest {
 			)
 		)
 		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
-		val repository = EvaluationDataRepository(
+		val repository = EvaluationDataSource(
 			databaseDataSource = FakeDatabaseDataSource(),
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
@@ -172,7 +173,7 @@ class EvaluationRepositoryContractTest {
 	@Test
 	fun updateEvaluation_sends_confirmed_revision_for_remote_patch() = runTest {
 		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
-		val repository = EvaluationDataRepository(
+		val repository = EvaluationDataSource(
 			databaseDataSource = FakeDatabaseDataSource(),
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
@@ -197,7 +198,7 @@ class EvaluationRepositoryContractTest {
 	@Test
 	fun removeEvaluation_sends_anchor_revision_for_remote_delete() = runTest {
 		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
-		val repository = EvaluationDataRepository(
+		val repository = EvaluationDataSource(
 			databaseDataSource = FakeDatabaseDataSource(),
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),

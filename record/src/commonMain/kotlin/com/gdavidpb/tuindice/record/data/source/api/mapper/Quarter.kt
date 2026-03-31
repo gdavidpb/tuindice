@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.data.source.api.mapper
 
-import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
+import com.gdavidpb.tuindice.record.data.mutation.RecordMutation
+import com.gdavidpb.tuindice.record.data.model.quarter.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.source.api.response.AddSubjectRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.AddQuarterRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.QuarterResponse

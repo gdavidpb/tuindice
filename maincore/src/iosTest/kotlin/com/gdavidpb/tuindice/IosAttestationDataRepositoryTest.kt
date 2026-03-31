@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.AttestationTemporarilyUnavailableException
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
-import com.gdavidpb.tuindice.data.repository.attestation.IosAttestationDataRepository
+import com.gdavidpb.tuindice.data.source.attestation.IosAttestationDataSource
 import com.gdavidpb.tuindice.di.createSharedJson
 import com.gdavidpb.tuindice.domain.model.IosPlatformAttestation
 import com.gdavidpb.tuindice.platform.IosAttestationCapability
@@ -42,7 +42,7 @@ class IosAttestationDataRepositoryTest {
 			tokenStatuses = ArrayDeque(listOf(HttpStatusCode.OK)),
 			tokenValues = ArrayDeque(listOf("issued-token"))
 		)
-		val repository = IosAttestationDataRepository(
+		val repository = IosAttestationDataSource(
 			httpClientProvider = { httpClient },
 			attestationCapability = capability
 		)
@@ -83,7 +83,7 @@ class IosAttestationDataRepositoryTest {
 			tokenStatuses = ArrayDeque(listOf(HttpStatusCode.Forbidden, HttpStatusCode.OK)),
 			tokenValues = ArrayDeque(listOf("ignored", "issued-token"))
 		)
-		val repository = IosAttestationDataRepository(
+		val repository = IosAttestationDataSource(
 			httpClientProvider = { httpClient },
 			attestationCapability = capability
 		)
@@ -115,7 +115,7 @@ class IosAttestationDataRepositoryTest {
 			issuedTokens = ArrayDeque(listOf("bootstrap-proof", "business-proof"))
 		)
 		val httpClient = appAttestPreparationHttpClient()
-		val repository = IosAttestationDataRepository(
+		val repository = IosAttestationDataSource(
 			httpClientProvider = { httpClient },
 			attestationCapability = capability
 		)
@@ -161,7 +161,7 @@ class IosAttestationDataRepositoryTest {
 			tokenStatuses = ArrayDeque(),
 			tokenValues = ArrayDeque()
 		)
-		val repository = IosAttestationDataRepository(
+		val repository = IosAttestationDataSource(
 			httpClientProvider = { httpClient },
 			attestationCapability = capability
 		)
@@ -197,7 +197,7 @@ class IosAttestationDataRepositoryTest {
 			tokenStatuses = ArrayDeque(listOf(HttpStatusCode.Forbidden, HttpStatusCode.Forbidden)),
 			tokenValues = ArrayDeque(listOf("ignored", "ignored-again"))
 		)
-		val repository = IosAttestationDataRepository(
+		val repository = IosAttestationDataSource(
 			httpClientProvider = { httpClient },
 			attestationCapability = capability
 		)

@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.about.domain.usecase
 
-import com.gdavidpb.tuindice.about.data.source.StoreUrlDataSource
+import com.gdavidpb.tuindice.about.data.contract.StoreUrlDataSource
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import kotlinx.coroutines.flow.Flow

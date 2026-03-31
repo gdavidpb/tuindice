@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.record.data.source.api.mapper
 
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSubject
+import com.gdavidpb.tuindice.record.data.model.quarter.RemoteSubject
 import com.gdavidpb.tuindice.record.data.source.api.response.SubjectResponse
 
 fun SubjectResponse.toRemoteSubject() = RemoteSubject(

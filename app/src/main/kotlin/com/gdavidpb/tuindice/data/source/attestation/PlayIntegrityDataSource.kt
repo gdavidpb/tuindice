@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.data.source.attestation
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
-import com.gdavidpb.tuindice.data.source.attestation.AttestationProviderDataSource
+import com.gdavidpb.tuindice.data.contract.attestation.AttestationProviderDataSource
 import com.gdavidpb.tuindice.platform.android.model.ProviderAttestation
 import com.google.android.play.core.integrity.IntegrityManager
 import com.google.android.play.core.integrity.IntegrityTokenRequest

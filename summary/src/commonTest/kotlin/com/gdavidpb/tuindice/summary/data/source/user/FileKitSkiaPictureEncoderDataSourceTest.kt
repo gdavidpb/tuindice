@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.data.source.user
 
+
 import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import org.jetbrains.skia.EncodedImageFormat

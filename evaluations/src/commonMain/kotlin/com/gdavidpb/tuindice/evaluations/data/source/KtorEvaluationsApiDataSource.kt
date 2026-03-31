@@ -14,9 +14,9 @@ import com.gdavidpb.tuindice.evaluations.data.model.GetEvaluationsResponse
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.UpdateEvaluationResponse
-import com.gdavidpb.tuindice.evaluations.data.source.EvaluationsApiDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutation
-import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationAck
+import com.gdavidpb.tuindice.evaluations.data.contract.EvaluationsApiDataSource
+import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
+import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete

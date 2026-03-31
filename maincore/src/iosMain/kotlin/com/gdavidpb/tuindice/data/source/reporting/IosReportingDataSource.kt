@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.data.source.reporting
 
+
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.platform.IosObservabilityCapability
 

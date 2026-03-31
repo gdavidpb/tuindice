@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.record.data.source.database.mapper
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalSubject
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSubject
+import com.gdavidpb.tuindice.record.data.model.quarter.LocalSubject
+import com.gdavidpb.tuindice.record.data.model.quarter.RemoteSubject
 
 fun SubjectEntity.toLocalSubject() = LocalSubject(
 	id = id,

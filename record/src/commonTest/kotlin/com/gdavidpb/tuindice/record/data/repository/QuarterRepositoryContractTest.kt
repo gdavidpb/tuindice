@@ -8,12 +8,14 @@ import com.gdavidpb.tuindice.record.domain.model.QuarterAdd
 import com.gdavidpb.tuindice.record.domain.model.QuarterAddSubject
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
 import com.gdavidpb.tuindice.record.domain.model.SubjectGradeSet
-import com.gdavidpb.tuindice.record.data.repository.mutation.RECORD_MUTATION_SCOPE
-import com.gdavidpb.tuindice.record.data.repository.mutation.RecordMutation
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteAddQuarterAck
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSetSubjectGradeAck
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteSubject
+import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_SCOPE
+import com.gdavidpb.tuindice.record.data.mutation.RecordMutation
+import com.gdavidpb.tuindice.record.data.model.quarter.RemoteAddQuarterAck
+import com.gdavidpb.tuindice.record.data.model.quarter.RemoteQuarter
+import com.gdavidpb.tuindice.record.data.model.quarter.RemoteSetSubjectGradeAck
+import com.gdavidpb.tuindice.record.data.model.quarter.RemoteSubject
+import com.gdavidpb.tuindice.record.data.source.QuarterDataSource
+import com.gdavidpb.tuindice.record.data.contract.QuarterRemoteDataSource
 import com.gdavidpb.tuindice.record.testing.FakeMutationEnvelopeStore
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_LOCAL_QUARTER
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_LOCAL_SUBJECT
@@ -467,7 +469,7 @@ class QuarterRepositoryContractTest {
 				return "mutation-$nextId"
 			}
 		}
-		val repository = QuarterDataRepository(
+		val repository = QuarterDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeQuarterSettingsDataSource(onCooldown = true),
@@ -640,7 +642,7 @@ class QuarterRepositoryContractTest {
 			}
 		}
 		val outboxRepository = FakeMutationEnvelopeStore<String, RecordMutation>()
-		val repository = QuarterDataRepository(
+		val repository = QuarterDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeQuarterSettingsDataSource(onCooldown = true),
@@ -758,7 +760,7 @@ class QuarterRepositoryContractTest {
 				return "mutation-$nextId"
 			}
 		}
-		val repository = QuarterDataRepository(
+		val repository = QuarterDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeQuarterSettingsDataSource(onCooldown = true),
@@ -940,8 +942,8 @@ class QuarterRepositoryContractTest {
 		remoteDataSource: QuarterRemoteDataSource,
 		settingsDataSource: FakeQuarterSettingsDataSource = FakeQuarterSettingsDataSource(onCooldown = true),
 		outboxRepository: MutationEnvelopeStore<String, RecordMutation> = FakeMutationEnvelopeStore()
-	): QuarterDataRepository {
-		return QuarterDataRepository(
+	): QuarterDataSource {
+		return QuarterDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = settingsDataSource,

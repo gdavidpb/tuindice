@@ -1,15 +1,16 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
+import com.gdavidpb.tuindice.evaluations.data.contract.DatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalSubject
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
-import com.gdavidpb.tuindice.evaluations.data.repository.VisibleEvaluationsStateResolver
-import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EVALUATIONS_MUTATION_SCOPE
-import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutation
-import com.gdavidpb.tuindice.evaluations.data.repository.mutation.EvaluationMutationAck
+import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateResolver
+import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
+import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
+import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEntity
 import com.gdavidpb.tuindice.persistence.data.room.withImmediateTransaction

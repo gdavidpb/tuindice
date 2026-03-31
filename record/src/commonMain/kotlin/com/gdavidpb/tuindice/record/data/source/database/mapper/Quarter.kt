@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.record.data.source.database.mapper
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.persistence.data.room.entity.QuarterEntity
 import com.gdavidpb.tuindice.persistence.data.room.otm.QuarterWithSubjects
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.LocalQuarter
-import com.gdavidpb.tuindice.record.data.repository.quarter.model.RemoteQuarter
+import com.gdavidpb.tuindice.record.data.model.quarter.LocalQuarter
+import com.gdavidpb.tuindice.record.data.model.quarter.RemoteQuarter
 
 fun RemoteQuarter.toLocalQuarter() = LocalQuarter(
 	id = id,

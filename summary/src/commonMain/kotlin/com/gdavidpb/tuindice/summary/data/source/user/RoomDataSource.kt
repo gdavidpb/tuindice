@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.summary.data.source.user
 
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.summary.data.contract.user.LocalDataSource
 import com.gdavidpb.tuindice.summary.data.source.user.database.mapper.toUser
 import com.gdavidpb.tuindice.summary.data.source.user.database.mapper.toUserEntity
 import kotlinx.coroutines.flow.Flow

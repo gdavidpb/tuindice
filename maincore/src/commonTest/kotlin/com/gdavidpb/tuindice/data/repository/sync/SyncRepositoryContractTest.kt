@@ -1,6 +1,11 @@
 package com.gdavidpb.tuindice.data.repository.sync
 
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
+import com.gdavidpb.tuindice.data.contract.sync.SyncRemoteDataSource
+import com.gdavidpb.tuindice.data.contract.sync.SyncSettingsLocalDataSource
+import com.gdavidpb.tuindice.data.source.sync.SyncStatusDataSource
+import com.gdavidpb.tuindice.data.contract.sync.SyncStatusLocalDataSource
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
@@ -18,9 +23,9 @@ class SyncRepositoryContractTest {
 	fun scheduleSync_callsApi_marksCooldown_and_clearsFeatureCooldowns() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
 		val syncStatusLocalDataSource = FakeSyncStatusLocalDataSource(initialValue = SyncStatus.Failed)
-		val syncStatusRepository = SyncStatusDataRepository(localDataSource = syncStatusLocalDataSource)
+		val syncStatusRepository = SyncStatusDataSource(localDataSource = syncStatusLocalDataSource)
 		val remoteDataSource = FakeSyncRemoteDataSource()
-		val repository = SyncDataRepository(
+		val repository = SyncDataSource(
 			settingsDataSource = settingsDataSource,
 			syncStatusRepository = syncStatusRepository,
 			remoteDataSource = remoteDataSource,
@@ -40,11 +45,11 @@ class SyncRepositoryContractTest {
 	@Test
 	fun scheduleSync_skipsApiWhenOnCooldown() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = true)
-		val syncStatusRepository = SyncStatusDataRepository(
+		val syncStatusRepository = SyncStatusDataSource(
 			localDataSource = FakeSyncStatusLocalDataSource()
 		)
 		val remoteDataSource = FakeSyncRemoteDataSource()
-		val repository = SyncDataRepository(
+		val repository = SyncDataSource(
 			settingsDataSource = settingsDataSource,
 			syncStatusRepository = syncStatusRepository,
 			remoteDataSource = remoteDataSource,
@@ -62,14 +67,14 @@ class SyncRepositoryContractTest {
 	fun scheduleSync_ignoresConflictAndKeepsCooldownUntouched() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
 		val syncStatusLocalDataSource = FakeSyncStatusLocalDataSource()
-		val syncStatusRepository = SyncStatusDataRepository(localDataSource = syncStatusLocalDataSource)
+		val syncStatusRepository = SyncStatusDataSource(localDataSource = syncStatusLocalDataSource)
 		val remoteDataSource = FakeSyncRemoteDataSource(
 			throwable = clientRequestException(
 				statusCode = HttpStatusCode.Conflict,
 				path = "/sync/v1"
 			)
 		)
-		val repository = SyncDataRepository(
+		val repository = SyncDataSource(
 			settingsDataSource = settingsDataSource,
 			syncStatusRepository = syncStatusRepository,
 			remoteDataSource = remoteDataSource,
@@ -90,14 +95,14 @@ class SyncRepositoryContractTest {
 	fun scheduleSync_marksUnavailable_whenSyncFailsWithServiceUnavailable() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
 		val syncStatusLocalDataSource = FakeSyncStatusLocalDataSource()
-		val syncStatusRepository = SyncStatusDataRepository(localDataSource = syncStatusLocalDataSource)
+		val syncStatusRepository = SyncStatusDataSource(localDataSource = syncStatusLocalDataSource)
 		val remoteDataSource = FakeSyncRemoteDataSource(
 			throwable = clientRequestException(
 				statusCode = HttpStatusCode.ServiceUnavailable,
 				path = "/sync/v1"
 			)
 		)
-		val repository = SyncDataRepository(
+		val repository = SyncDataSource(
 			settingsDataSource = settingsDataSource,
 			syncStatusRepository = syncStatusRepository,
 			remoteDataSource = remoteDataSource,
@@ -116,14 +121,14 @@ class SyncRepositoryContractTest {
 	fun scheduleSync_marksUnavailable_whenSyncFailsWithFailedDependency() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
 		val syncStatusLocalDataSource = FakeSyncStatusLocalDataSource()
-		val syncStatusRepository = SyncStatusDataRepository(localDataSource = syncStatusLocalDataSource)
+		val syncStatusRepository = SyncStatusDataSource(localDataSource = syncStatusLocalDataSource)
 		val remoteDataSource = FakeSyncRemoteDataSource(
 			throwable = clientRequestException(
 				statusCode = HttpStatusCode.FailedDependency,
 				path = "/sync/v1"
 			)
 		)
-		val repository = SyncDataRepository(
+		val repository = SyncDataSource(
 			settingsDataSource = settingsDataSource,
 			syncStatusRepository = syncStatusRepository,
 			remoteDataSource = remoteDataSource,
@@ -142,14 +147,14 @@ class SyncRepositoryContractTest {
 	fun scheduleSync_marksFailed_whenSyncFailsWithUnhandledError() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
 		val syncStatusLocalDataSource = FakeSyncStatusLocalDataSource()
-		val syncStatusRepository = SyncStatusDataRepository(localDataSource = syncStatusLocalDataSource)
+		val syncStatusRepository = SyncStatusDataSource(localDataSource = syncStatusLocalDataSource)
 		val remoteDataSource = FakeSyncRemoteDataSource(
 			throwable = clientRequestException(
 				statusCode = HttpStatusCode.InternalServerError,
 				path = "/sync/v1"
 			)
 		)
-		val repository = SyncDataRepository(
+		val repository = SyncDataSource(
 			settingsDataSource = settingsDataSource,
 			syncStatusRepository = syncStatusRepository,
 			remoteDataSource = remoteDataSource,
@@ -167,11 +172,11 @@ class SyncRepositoryContractTest {
 	@Test
 	fun scheduleSync_skipsApiWhenSyncStatusIsOutdatedCredentials() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
-		val syncStatusRepository = SyncStatusDataRepository(
+		val syncStatusRepository = SyncStatusDataSource(
 			localDataSource = FakeSyncStatusLocalDataSource(initialValue = SyncStatus.OutdatedCredentials)
 		)
 		val remoteDataSource = FakeSyncRemoteDataSource()
-		val repository = SyncDataRepository(
+		val repository = SyncDataSource(
 			settingsDataSource = settingsDataSource,
 			syncStatusRepository = syncStatusRepository,
 			remoteDataSource = remoteDataSource,

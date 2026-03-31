@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.auth.data.repository
 
+import com.gdavidpb.tuindice.auth.data.source.AuthDataSource
 import com.gdavidpb.tuindice.auth.testing.DEFAULT_AUTH_ATTESTATION
 import com.gdavidpb.tuindice.auth.testing.DEFAULT_REFRESH_TOKENS
 import com.gdavidpb.tuindice.auth.testing.FakeAuthApiDataSource
@@ -16,7 +17,7 @@ class AuthRepositoryContractTest {
 		val authDataSource = FakeAuthApiDataSource()
 		val sessionRepository = FakeSessionRepository(usbId = "", accessToken = "", refreshToken = "")
 		val reportingRepository = RecordingReportingRepository()
-		val repository = AuthDataRepository(
+		val repository = AuthDataSource(
 			authApiDataSource = authDataSource,
 			sessionRepository = sessionRepository,
 			reportingRepository = reportingRepository
@@ -41,7 +42,7 @@ class AuthRepositoryContractTest {
 	fun updatePassword_refreshesSessionTokens() = runTest {
 		val sessionRepository = FakeSessionRepository(accessToken = "old-access", refreshToken = "old-refresh")
 		val authDataSource = FakeAuthApiDataSource()
-		val repository = AuthDataRepository(
+		val repository = AuthDataSource(
 			authApiDataSource = authDataSource,
 			sessionRepository = sessionRepository,
 			reportingRepository = RecordingReportingRepository()
@@ -62,7 +63,7 @@ class AuthRepositoryContractTest {
 	@Test
 	fun refreshTokens_updatesSessionAndReturnsTokens() = runTest {
 		val sessionRepository = FakeSessionRepository(accessToken = "old-access", refreshToken = "old-refresh")
-		val repository = AuthDataRepository(
+		val repository = AuthDataSource(
 			authApiDataSource = FakeAuthApiDataSource(refreshTokens = DEFAULT_REFRESH_TOKENS),
 			sessionRepository = sessionRepository,
 			reportingRepository = RecordingReportingRepository()
@@ -82,7 +83,7 @@ class AuthRepositoryContractTest {
 	@Test
 	fun revokeTokens_delegatesToApiDataSource() = runTest {
 		val authDataSource = FakeAuthApiDataSource()
-		val repository = AuthDataRepository(
+		val repository = AuthDataSource(
 			authApiDataSource = authDataSource,
 			sessionRepository = FakeSessionRepository(),
 			reportingRepository = RecordingReportingRepository()

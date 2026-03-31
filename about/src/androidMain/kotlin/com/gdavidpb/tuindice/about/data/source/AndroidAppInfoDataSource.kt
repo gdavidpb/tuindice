@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.about.data.source
 
 import android.content.Context
 import android.os.Build
-import com.gdavidpb.tuindice.about.data.source.AppInfoDataSource
+import com.gdavidpb.tuindice.about.data.contract.AppInfoDataSource
 
 class AndroidAppInfoDataSource(
 	private val context: Context

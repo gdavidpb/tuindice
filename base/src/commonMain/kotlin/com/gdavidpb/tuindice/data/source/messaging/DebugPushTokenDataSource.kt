@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.messaging
 
 import com.gdavidpb.tuindice.base.logging.appLogger
-import com.gdavidpb.tuindice.data.source.messaging.PushTokenDataSource
+import com.gdavidpb.tuindice.data.contract.messaging.PushTokenDataSource
 
 class DebugPushTokenDataSource(
 	private val token: String,

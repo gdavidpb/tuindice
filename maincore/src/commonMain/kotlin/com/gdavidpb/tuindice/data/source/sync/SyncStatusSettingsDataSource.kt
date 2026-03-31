@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.sync
 
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.data.source.sync.SyncStatusLocalDataSource
+import com.gdavidpb.tuindice.data.contract.sync.SyncStatusLocalDataSource
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

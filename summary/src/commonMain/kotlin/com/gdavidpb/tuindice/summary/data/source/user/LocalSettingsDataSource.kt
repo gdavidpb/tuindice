@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.data.source.user
 
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
-import com.gdavidpb.tuindice.summary.data.source.user.SettingsDataSource
+import com.gdavidpb.tuindice.summary.data.contract.user.SettingsDataSource
 import com.gdavidpb.tuindice.summary.utils.CooldownTimes
 import com.gdavidpb.tuindice.summary.utils.PreferencesKeys
 import com.russhwolf.settings.Settings

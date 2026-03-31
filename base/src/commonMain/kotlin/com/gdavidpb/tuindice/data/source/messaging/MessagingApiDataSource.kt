@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.messaging
 
-import com.gdavidpb.tuindice.data.source.messaging.MessagingRemoteDataSource
+import com.gdavidpb.tuindice.data.contract.messaging.MessagingRemoteDataSource
 import com.gdavidpb.tuindice.data.source.messaging.api.request.SubscribeRequest
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
