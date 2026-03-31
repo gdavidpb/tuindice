@@ -1,10 +1,11 @@
 package com.gdavidpb.tuindice.testing
 
+import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
-import com.gdavidpb.tuindice.domain.usecase.SetLastDestinationUseCase
+import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
@@ -12,10 +13,9 @@ import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceAct
 import com.gdavidpb.tuindice.presentation.action.browser.SetLoadingActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.SetLastDestinationActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.SetLastMainSectionActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
-import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
@@ -35,7 +35,7 @@ fun createMainViewModel(
 	sessionRepository: SessionRepository = FakeSessionRepository(),
 	settingsRepository: FakeSettingsRepository = FakeSettingsRepository(
 		reviewSuggested = true,
-		lastDestination = MainDestination.GooglePlayServicesUnavailableDialog
+		lastMainSection = MainSection.SUMMARY
 	),
 	configRepository: FakeConfigRepository = FakeConfigRepository(),
 	updateRepository: FakeUpdateRepository = FakeUpdateRepository(),
@@ -68,8 +68,8 @@ fun createMainViewModel(
 				reportingRepository = reportingRepository
 			)
 		),
-		setLastDestinationActionProcessor = SetLastDestinationActionProcessor(
-			setLastDestinationUseCase = SetLastDestinationUseCase(
+		setLastMainSectionActionProcessor = SetLastMainSectionActionProcessor(
+			setLastMainSectionUseCase = SetLastMainSectionUseCase(
 				settingsRepository = settingsRepository,
 				reportingRepository = reportingRepository
 			)

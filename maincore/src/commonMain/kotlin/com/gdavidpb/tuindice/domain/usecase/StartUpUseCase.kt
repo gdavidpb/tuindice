@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
+import com.gdavidpb.tuindice.domain.model.StartUpTarget
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -28,13 +28,13 @@ class StartUpUseCase(
 		val startUpResult = runCatching {
 			val hasActiveTokens = sessionRepository.hasActiveSession()
 
-			val startDestination = if (hasActiveTokens)
-				settingsRepository.getLastDestination()
+			val startTarget = if (hasActiveTokens)
+				StartUpTarget.Main(section = settingsRepository.getLastMainSection())
 			else
-				AuthDestination.NavGraph
+				StartUpTarget.Auth
 
 			StartUpResult(
-				startDestination = startDestination
+				startTarget = startTarget
 			)
 		}.onFailure {
 			applicationRepository.clearData()

@@ -5,10 +5,11 @@ import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.SetLastDestinationActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.SetLastMainSectionActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.navigation.toMainSectionOrNull
 import kotlinx.coroutines.flow.Flow
 
 class MainViewModel(
@@ -16,7 +17,7 @@ class MainViewModel(
 	private val startUpActionProcessor: StartUpActionProcessor,
 	private val requestReviewActionProcessor: RequestReviewActionProcessor,
 	private val requestUpdateActionProcessor: RequestUpdateActionProcessor,
-	private val setLastDestinationActionProcessor: SetLastDestinationActionProcessor
+	private val setLastMainSectionActionProcessor: SetLastMainSectionActionProcessor
 ) : BaseViewModel<Main.State, Main.Action, Main.Effect>(
 	initialState = Main.State.Starting,
 	initialAction = Main.Action.StartUp
@@ -31,8 +32,10 @@ class MainViewModel(
 	fun startUpAction() =
 		sendAction(Main.Action.StartUp)
 
-	fun setLastDestinationAction(destination: Destination) =
-		sendAction(Main.Action.SetLastDestination(destination))
+	fun setLastDestinationAction(destination: Destination) {
+		destination.toMainSectionOrNull()
+			?.let { sendAction(Main.Action.SetLastMainSection(section = it)) }
+	}
 
 	fun checkUpdateAction() =
 		sendAction(Main.Action.RequestUpdateCheck)
@@ -54,8 +57,8 @@ class MainViewModel(
 			is Main.Action.RequestUpdateCheck ->
 				requestUpdateActionProcessor.process(action, sideEffect)
 
-			is Main.Action.SetLastDestination ->
-				setLastDestinationActionProcessor.process(action, sideEffect)
+			is Main.Action.SetLastMainSection ->
+				setLastMainSectionActionProcessor.process(action, sideEffect)
 		}
 	}
 }

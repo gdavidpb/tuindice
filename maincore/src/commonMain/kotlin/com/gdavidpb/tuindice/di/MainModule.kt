@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
-import com.gdavidpb.tuindice.domain.usecase.SetLastDestinationUseCase
+import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
@@ -27,7 +27,7 @@ val mainModule = module {
 	factoryOf(::StartUpActionProcessor)
 	factoryOf(::RequestReviewActionProcessor)
 	factoryOf(::RequestUpdateActionProcessor)
-	factoryOf(::SetLastDestinationActionProcessor)
+	factoryOf(::SetLastMainSectionActionProcessor)
 
 	factoryOf(::NavigateToActionProcessor)
 	factoryOf(::SetLoadingActionProcessor)
@@ -37,7 +37,7 @@ val mainModule = module {
 
 	factoryOf(::StartUpUseCase)
 	factoryOf(::RequestReviewUseCase)
-	factoryOf(::SetLastDestinationUseCase)
+	factoryOf(::SetLastMainSectionUseCase)
 	factoryOf(::GetUpdateInfoUseCase)
 
 	/* Exception handlers */

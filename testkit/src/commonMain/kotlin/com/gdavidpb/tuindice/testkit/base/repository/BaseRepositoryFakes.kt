@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.testkit.base.repository
 
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
+import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
@@ -19,13 +20,10 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-
-data object FakeDestination : Destination()
 
 class FakeAppEnvironmentRepository(
 	private val appEnvironment: AppEnvironment = AppEnvironment(
@@ -165,17 +163,17 @@ class FakeSessionInvalidationRepository : SessionInvalidationRepository {
 
 class FakeSettingsRepository(
 	private val reviewSuggested: Boolean = false,
-	private var lastDestination: Destination = FakeDestination
+	private var lastMainSection: MainSection = MainSection.SUMMARY
 ) : SettingsRepository {
 	var cleared = false
 		private set
 
 	override suspend fun isReviewSuggested(value: Int): Boolean = reviewSuggested
 
-	override suspend fun getLastDestination(): Destination = lastDestination
+	override suspend fun getLastMainSection(): MainSection = lastMainSection
 
-	override suspend fun setLastDestination(destination: Destination) {
-		lastDestination = destination
+	override suspend fun setLastMainSection(section: MainSection) {
+		lastMainSection = section
 	}
 
 	override suspend fun clear() {

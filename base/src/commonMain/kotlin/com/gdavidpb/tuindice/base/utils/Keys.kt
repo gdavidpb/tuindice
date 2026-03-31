@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.base.utils
 
 object PreferencesKeys {
-	const val LAST_DESTINATION = "lastDestination"
 	const val SYNCS_COUNTER = "syncsCounter"
 	const val IS_SUBSCRIBED = "isSubscribed"
 	const val PUSH_TOKEN = "pushToken"

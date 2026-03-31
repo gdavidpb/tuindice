@@ -1,26 +1,23 @@
 package com.gdavidpb.tuindice.data.source.settings
 
+import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
-import com.gdavidpb.tuindice.presentation.navigation.toDestinationOrThrow
-import com.gdavidpb.tuindice.presentation.navigation.toPersistedName
-import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.russhwolf.settings.Settings
 
 class MultiplatformSettingsDataSource(
 	private val settings: Settings
 ) : SettingsRepository {
-	override suspend fun getLastDestination(): Destination {
-		return settings.getStringOrNull(PreferencesKeys.LAST_DESTINATION)
-			?.toDestinationOrThrow()
-			?: SummaryDestination.NavGraph
+	override suspend fun getLastMainSection(): MainSection {
+		return settings.getStringOrNull(LAST_MAIN_SECTION_KEY)
+			?.toMainSectionOrThrow()
+			?: MainSection.SUMMARY
 	}
 
-	override suspend fun setLastDestination(destination: Destination) {
+	override suspend fun setLastMainSection(section: MainSection) {
 		settings.putString(
-			key = PreferencesKeys.LAST_DESTINATION,
-			value = destination.toPersistedName()
+			key = LAST_MAIN_SECTION_KEY,
+			value = section.toPersistedName()
 		)
 	}
 
@@ -36,3 +33,5 @@ class MultiplatformSettingsDataSource(
 		settings.clear()
 	}
 }
+
+private const val LAST_MAIN_SECTION_KEY = "lastDestination"

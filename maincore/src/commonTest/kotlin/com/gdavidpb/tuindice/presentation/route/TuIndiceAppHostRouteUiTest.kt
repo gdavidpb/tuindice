@@ -7,6 +7,7 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.auth.di.authModule
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
+import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
@@ -25,7 +26,6 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
-import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
@@ -207,7 +207,7 @@ class TuIndiceAppHostRouteUiTest {
 					viewModel = createMainViewModel(
 						settingsRepository = FakeSettingsRepository(
 							reviewSuggested = true,
-							lastDestination = MainDestination.GooglePlayServicesUnavailableDialog
+							lastMainSection = MainSection.SUMMARY
 						)
 					)
 				)
@@ -293,7 +293,7 @@ class TuIndiceAppHostRouteUiTest {
 					viewModel = createMainViewModel(
 						settingsRepository = FakeSettingsRepository(
 							reviewSuggested = true,
-							lastDestination = MainDestination.GooglePlayServicesUnavailableDialog
+							lastMainSection = MainSection.SUMMARY
 						)
 					)
 				)

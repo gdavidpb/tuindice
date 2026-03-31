@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.navigation.toDestination
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -27,7 +28,7 @@ class StartUpActionProcessor(
 					is UseCaseState.Data -> suspend { _ ->
 						with(useCaseState.value) {
 							Main.State.Content(
-								startDestination = startDestination
+								startDestination = startTarget.toDestination()
 							)
 						}
 					}
