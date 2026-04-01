@@ -27,7 +27,7 @@ class FileKitSkiaPictureEncoderDataSource : PictureEncoderDataRepository {
 			val content = file.readBytes()
 
 			return Image.makeFromEncoded(content).useResource { decodedImage ->
-				check(decodedImage.width <= 0 || decodedImage.height <= 0) {
+				check(decodedImage.width > 0 && decodedImage.height > 0) {
 					"Decoded image dimensions must be positive."
 				}
 
