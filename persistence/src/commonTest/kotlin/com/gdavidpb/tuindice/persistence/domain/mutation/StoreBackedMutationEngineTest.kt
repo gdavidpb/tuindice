@@ -15,6 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class StoreBackedMutationEngineTest {
 	@Test
@@ -207,6 +208,53 @@ class StoreBackedMutationEngineTest {
 		assertEquals(listOf<MutationPrecondition>(MutationPrecondition.None), seenPreconditions)
 		assertEquals(listOf(40), confirmedValues)
 		assertNull(store.getPendingMutation("record", "mutation-1"))
+	}
+
+	@Test
+	fun submitInBackground_enqueuesImmediately_and_confirmsAfterAck() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val sendStarted = CompletableDeferred<Unit>()
+		val releaseAck = CompletableDeferred<Unit>()
+		val confirmedValues = mutableListOf<Int>()
+		val mutation = testMutationEnvelope(
+			mutationId = "mutation-1",
+			value = 50
+		)
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck {
+				sendStarted.complete(Unit)
+				releaseAck.await()
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) {
+				confirmedValues += ack.value
+			}
+		}
+
+		engine.submitInBackground(
+			mutation = mutation,
+			syncSpec = syncSpec,
+			propagateTerminalErrors = true
+		)
+
+		assertEquals(listOf(mutation), store.getPendingMutations("record"))
+		assertTrue(confirmedValues.isEmpty())
+
+		sendStarted.await()
+		assertEquals(listOf(mutation), store.getPendingMutations("record"))
+
+		releaseAck.complete(Unit)
+		yield()
+
+		assertEquals(listOf(50), confirmedValues)
+		assertEquals(emptyList(), store.getPendingMutations("record"))
 	}
 }
 

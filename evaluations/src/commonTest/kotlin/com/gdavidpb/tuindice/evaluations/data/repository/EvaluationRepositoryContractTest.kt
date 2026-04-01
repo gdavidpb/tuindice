@@ -47,14 +47,18 @@ class EvaluationRepositoryContractTest {
 	}
 
 	@Test
-	fun addEvaluation_sends_reference_id_with_anchor_revision_and_confirms_real_id() = runTest {
+	fun addEvaluation_enqueues_pending_add_locally_before_remote_ack() = runTest {
 		val databaseDataSource = FakeDatabaseDataSource()
 		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
+		val pendingMutationStore = FakeMutationEnvelopeStore<String, EvaluationMutation>()
 		val repository = EvaluationDataSource(
 			databaseDataSource = databaseDataSource,
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
-			mutationEngine = createEvaluationsMutationEngine(),
+			mutationEngine = createEvaluationsMutationEngine(
+				store = pendingMutationStore,
+				coroutineScope = backgroundScope
+			),
 			identifierRepository = FakeIdentifierRepository("mutation-1")
 		)
 
@@ -72,14 +76,13 @@ class EvaluationRepositoryContractTest {
 			)
 		)
 
-		assertEquals("reference-1", evaluationsApiDataSource.addCalls.single().add.referenceId)
-		assertEquals(DEFAULT_EVALUATIONS_ANCHOR_REVISION, evaluationsApiDataSource.addCalls.single().expectedRevision)
-		assertEquals("real-reference-1", databaseDataSource.addedEvaluations.single().second.id)
-		assertEquals("reference-1", databaseDataSource.addedEvaluations.single().second.referenceId)
+		assertEquals(1, pendingMutationStore.getPendingMutations(EVALUATIONS_MUTATION_SCOPE).size)
+		assertTrue(evaluationsApiDataSource.addCalls.isEmpty())
+		assertTrue(databaseDataSource.addedEvaluations.isEmpty())
 	}
 
 	@Test
-	fun updateEvaluation_rewrites_pending_add_instead_of_sending_remote_update() = runTest {
+	fun updateEvaluation_rewrites_pending_add_locally_before_remote_ack() = runTest {
 		val pendingMutationStore: FakeMutationEnvelopeStore<String, EvaluationMutation> = FakeMutationEnvelopeStore(
 			initialPendingMutations = listOf(
 				MutationEnvelope(
@@ -109,7 +112,10 @@ class EvaluationRepositoryContractTest {
 			databaseDataSource = FakeDatabaseDataSource(),
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
-			mutationEngine = createEvaluationsMutationEngine(pendingMutationStore),
+			mutationEngine = createEvaluationsMutationEngine(
+				store = pendingMutationStore,
+				coroutineScope = backgroundScope
+			),
 			identifierRepository = FakeIdentifierRepository("mutation-2")
 		)
 
@@ -124,9 +130,13 @@ class EvaluationRepositoryContractTest {
 			)
 		)
 
-		assertEquals(1, evaluationsApiDataSource.addCalls.size)
+		val rewrittenPendingAdd = pendingMutationStore
+			.getPendingMutations(EVALUATIONS_MUTATION_SCOPE)
+			.single()
+		assertTrue(rewrittenPendingAdd.command is EvaluationMutation.Add)
+		assertEquals(0, evaluationsApiDataSource.addCalls.size)
 		assertEquals(0, evaluationsApiDataSource.updateCalls.size)
-		assertEquals(4.0, evaluationsApiDataSource.addCalls.single().add.grade)
+		assertEquals(4.0, (rewrittenPendingAdd.command as EvaluationMutation.Add).grade)
 	}
 
 	@Test
@@ -171,13 +181,17 @@ class EvaluationRepositoryContractTest {
 	}
 
 	@Test
-	fun updateEvaluation_sends_confirmed_revision_for_remote_patch() = runTest {
+	fun updateEvaluation_enqueues_pending_update_locally_before_remote_ack() = runTest {
 		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
+		val pendingMutationStore = FakeMutationEnvelopeStore<String, EvaluationMutation>()
 		val repository = EvaluationDataSource(
 			databaseDataSource = FakeDatabaseDataSource(),
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
-			mutationEngine = createEvaluationsMutationEngine(),
+			mutationEngine = createEvaluationsMutationEngine(
+				store = pendingMutationStore,
+				coroutineScope = backgroundScope
+			),
 			identifierRepository = FakeIdentifierRepository("mutation-3")
 		)
 
@@ -192,22 +206,36 @@ class EvaluationRepositoryContractTest {
 			)
 		)
 
-		assertEquals(3L, evaluationsApiDataSource.updateCalls.single().expectedRevision)
+		val pendingUpdate = pendingMutationStore
+			.getPendingMutations(EVALUATIONS_MUTATION_SCOPE)
+			.single()
+		assertTrue(pendingUpdate.command is EvaluationMutation.Update)
+		assertEquals(MutationPrecondition.Revision(3L), pendingUpdate.precondition)
+		assertTrue(evaluationsApiDataSource.updateCalls.isEmpty())
 	}
 
 	@Test
-	fun removeEvaluation_sends_anchor_revision_for_remote_delete() = runTest {
+	fun removeEvaluation_enqueues_pending_remove_locally_before_remote_ack() = runTest {
 		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
+		val pendingMutationStore = FakeMutationEnvelopeStore<String, EvaluationMutation>()
 		val repository = EvaluationDataSource(
 			databaseDataSource = FakeDatabaseDataSource(),
 			evaluationsApiDataSource = evaluationsApiDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
-			mutationEngine = createEvaluationsMutationEngine(),
+			mutationEngine = createEvaluationsMutationEngine(
+				store = pendingMutationStore,
+				coroutineScope = backgroundScope
+			),
 			identifierRepository = FakeIdentifierRepository("mutation-4")
 		)
 
 		repository.removeEvaluation(EvaluationRemove(id = "evaluation-1"))
 
-		assertEquals(DEFAULT_EVALUATIONS_ANCHOR_REVISION, evaluationsApiDataSource.removeCalls.single().expectedRevision)
+		val pendingRemove = pendingMutationStore
+			.getPendingMutations(EVALUATIONS_MUTATION_SCOPE)
+			.single()
+		assertTrue(pendingRemove.command is EvaluationMutation.Remove)
+		assertEquals(MutationPrecondition.Revision(DEFAULT_EVALUATIONS_ANCHOR_REVISION), pendingRemove.precondition)
+		assertTrue(evaluationsApiDataSource.removeCalls.isEmpty())
 	}
 }

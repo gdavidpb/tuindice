@@ -87,10 +87,10 @@ class EvaluationDataSource(
 		)
 		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
 		mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
-		mutationEngine.submit(
+		mutationEngine.submitInBackground(
 			mutation = mutation,
 			syncSpec = mutationSyncSpec,
-			propagateTerminalErrors = true
+			propagateTerminalErrors = false
 		)
 	}
 
@@ -104,10 +104,10 @@ class EvaluationDataSource(
 			)
 			val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
 			mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
-			mutationEngine.submit(
+			mutationEngine.submitInBackground(
 				mutation = mutation,
 				syncSpec = mutationSyncSpec,
-				propagateTerminalErrors = true
+				propagateTerminalErrors = false
 			)
 			return
 		}
@@ -121,10 +121,10 @@ class EvaluationDataSource(
 		)
 		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
 		mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
-		mutationEngine.submit(
+		mutationEngine.submitInBackground(
 			mutation = mutation,
 			syncSpec = mutationSyncSpec,
-			propagateTerminalErrors = true
+			propagateTerminalErrors = false
 		)
 	}
 
@@ -146,10 +146,10 @@ class EvaluationDataSource(
 		)
 		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
 		mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
-		mutationEngine.submit(
+		mutationEngine.submitInBackground(
 			mutation = mutation,
 			syncSpec = mutationSyncSpec,
-			propagateTerminalErrors = true
+			propagateTerminalErrors = false
 		)
 	}
 

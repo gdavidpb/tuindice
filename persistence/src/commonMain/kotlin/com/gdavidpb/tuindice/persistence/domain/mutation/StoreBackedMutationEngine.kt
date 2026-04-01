@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.mobilenativefoundation.store.core5.ExperimentalStoreApi
@@ -17,7 +18,7 @@ import org.mobilenativefoundation.store.store5.*
 class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, ConfirmedState, VisibleState, Ack : Any>(
 	private val storeId: String,
 	private val outboxStore: MutationEnvelopeStore<ScopeKey, Command>,
-	coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+	private val coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 ) {
 	private val versionMutex = Mutex()
 	private val runtimeBookkeeperMutex = Mutex()
@@ -182,8 +183,25 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 				mutation = mutation,
 				syncSpec = syncSpec,
 				propagateTerminalErrors = propagateTerminalErrors
-			)
+				)
 		)
+	}
+
+	suspend fun submitInBackground(
+		mutation: MutationEnvelope<ScopeKey, Command>,
+		syncSpec: MutationSyncSpec<ScopeKey, Command, ConfirmedState, VisibleState, Ack>,
+		propagateTerminalErrors: Boolean = false
+	) {
+		outboxStore.replacePendingMutation(mutation)
+		coroutineScope.launch {
+			executeMutation(
+				MutationExecution.Execute(
+					mutation = mutation,
+					syncSpec = syncSpec,
+					propagateTerminalErrors = propagateTerminalErrors
+				)
+			)
+		}
 	}
 
 	suspend fun drain(

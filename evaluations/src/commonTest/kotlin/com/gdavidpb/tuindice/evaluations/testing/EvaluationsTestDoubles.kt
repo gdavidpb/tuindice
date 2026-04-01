@@ -28,6 +28,7 @@ import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -500,10 +501,12 @@ class FakeMutationEnvelopeStore<ScopeKey : Any, T : OutboxMutation>(
 }
 
 fun createEvaluationsMutationEngine(
-	store: MutationEnvelopeStore<String, EvaluationMutation> = FakeMutationEnvelopeStore()
+	store: MutationEnvelopeStore<String, EvaluationMutation> = FakeMutationEnvelopeStore(),
+	coroutineScope: CoroutineScope? = null
 ): StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck> {
 	return StoreBackedMutationEngine(
 		storeId = EVALUATIONS_MUTATION_STORE_ID,
-		outboxStore = store
+		outboxStore = store,
+		coroutineScope = coroutineScope ?: CoroutineScope(kotlinx.coroutines.Dispatchers.Default)
 	)
 }
