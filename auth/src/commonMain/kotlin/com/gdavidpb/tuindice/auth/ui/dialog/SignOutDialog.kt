@@ -31,7 +31,6 @@ fun SignOutDialog(
 		positiveEnabled = state is SignOut.State.Idle,
 		negativeEnabled = state is SignOut.State.Idle,
 		onPositiveClick = onConfirmClick,
-		onNegativeClick = onDismissRequest,
 		onDismissRequest = onDismissRequest
 	) {
 		Text(

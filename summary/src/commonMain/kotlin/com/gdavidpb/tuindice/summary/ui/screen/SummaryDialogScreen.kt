@@ -53,7 +53,7 @@ fun SyncStatusInfoContentDialog(
 			titleText = stringResource(Res.string.dialog_title_sync_unavailable),
 			messageText = stringResource(Res.string.dialog_message_sync_unavailable),
 			confirmText = stringResource(Res.string.dialog_button_understood),
-			onConfirmClick = onDismissRequest,
+			onConfirmClick = {},
 			onDismissRequest = onDismissRequest
 		)
 
@@ -61,7 +61,7 @@ fun SyncStatusInfoContentDialog(
 			titleText = stringResource(Res.string.dialog_title_sync_failed),
 			messageText = stringResource(Res.string.dialog_message_sync_failed),
 			confirmText = stringResource(Res.string.dialog_button_understood),
-			onConfirmClick = onDismissRequest,
+			onConfirmClick = {},
 			onDismissRequest = onDismissRequest
 		)
 

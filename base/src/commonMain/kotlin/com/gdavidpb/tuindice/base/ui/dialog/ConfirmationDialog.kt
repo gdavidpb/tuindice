@@ -34,6 +34,7 @@ fun ConfirmationDialog(
 	sheetState: SheetState,
 	titleText: String? = null,
 	dismissOnPositive: Boolean = true,
+	dismissOnNegative: Boolean = true,
 	positiveLoading: Boolean = false,
 	positiveEnabled: Boolean = true,
 	negativeEnabled: Boolean = true,
@@ -47,12 +48,11 @@ fun ConfirmationDialog(
 ) {
 	val coroutineScope = rememberCoroutineScope()
 
-	val dismiss = fun(onComplete: () -> Unit) {
+	val dismiss = fun() {
 		coroutineScope.launch {
 			sheetState.hide()
 		}.invokeOnCompletion {
 			onDismissRequest()
-			onComplete()
 		}
 	}
 
@@ -89,7 +89,12 @@ fun ConfirmationDialog(
 					if (negativeText != null)
 						OutlinedButton(
 							modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogNegativeButton),
-							onClick = { dismiss(onNegativeClick) },
+							onClick = {
+								onNegativeClick()
+
+								if (dismissOnNegative)
+									dismiss()
+							},
 							border = null,
 							enabled = negativeEnabled
 						) {
@@ -100,10 +105,10 @@ fun ConfirmationDialog(
 						Button(
 							modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogPositiveButton),
 							onClick = {
+								onPositiveClick()
+
 								if (dismissOnPositive)
-									dismiss(onPositiveClick)
-								else
-									onPositiveClick()
+									dismiss()
 							},
 							enabled = positiveEnabled && !positiveLoading
 						) {

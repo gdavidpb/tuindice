@@ -29,7 +29,6 @@ fun RemoveProfilePictureConfirmationDialog(
 		positiveText = confirmText,
 		negativeText = cancelText,
 		onPositiveClick = onConfirmClick,
-		onNegativeClick = onDismissRequest,
 		onDismissRequest = onDismissRequest
 	) {
 		Text(

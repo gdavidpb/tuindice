@@ -46,6 +46,38 @@ class ConfirmationDialogUiTest {
 	}
 
 	@Test
+	fun when_positiveButtonTappedWithDismiss_then_invokesPositiveAndDismissCallbacksOnce() = runTuIndiceUiTest {
+		var positiveClicks = 0
+		var dismissCalls = 0
+
+		setTuIndiceTestContent {
+			val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+			LaunchedEffect(Unit) {
+				sheetState.show()
+			}
+
+			ConfirmationDialog(
+				sheetState = sheetState,
+				titleText = "Eliminar evaluacion",
+				positiveText = "Aceptar",
+				negativeText = "Cancelar",
+				onPositiveClick = { positiveClicks++ },
+				onDismissRequest = { dismissCalls++ }
+			)
+		}
+
+		assertNodeVisible(BaseUiTags.ConfirmationDialogPositiveButton)
+		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
+
+		waitUntil(timeoutMillis = 2_000) {
+			positiveClicks > 0 && dismissCalls > 0
+		}
+
+		assertEquals(1, positiveClicks)
+		assertEquals(1, dismissCalls)
+	}
+
+	@Test
 	fun when_positiveIsLoading_then_showsLoaderAndDisablesPositiveButton() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -96,6 +128,35 @@ class ConfirmationDialogUiTest {
 
 		assertEquals(1, negativeClicks)
 		assertEquals(1, dismissCalls)
+	}
+
+	@Test
+	fun when_negativeButtonTappedWithoutDismiss_then_invokesNegativeCallbackOnly() = runTuIndiceUiTest {
+		var negativeClicks = 0
+		var dismissCalls = 0
+
+		setTuIndiceTestContent {
+			val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+			LaunchedEffect(Unit) {
+				sheetState.show()
+			}
+
+			ConfirmationDialog(
+				sheetState = sheetState,
+				titleText = "Eliminar evaluacion",
+				positiveText = "Aceptar",
+				negativeText = "Cancelar",
+				dismissOnNegative = false,
+				onNegativeClick = { negativeClicks++ },
+				onDismissRequest = { dismissCalls++ }
+			)
+		}
+
+		assertNodeVisible(BaseUiTags.ConfirmationDialogNegativeButton)
+		onNodeWithTag(BaseUiTags.ConfirmationDialogNegativeButton).performClick()
+
+		assertEquals(1, negativeClicks)
+		assertEquals(0, dismissCalls)
 	}
 
 	@Test

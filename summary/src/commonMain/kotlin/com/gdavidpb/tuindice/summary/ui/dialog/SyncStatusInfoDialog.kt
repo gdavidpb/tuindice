@@ -28,7 +28,6 @@ fun SyncStatusInfoDialog(
 		positiveText = confirmText,
 		negativeText = dismissText,
 		onPositiveClick = onConfirmClick,
-		onNegativeClick = onDismissRequest,
 		onDismissRequest = onDismissRequest
 	) {
 		Text(

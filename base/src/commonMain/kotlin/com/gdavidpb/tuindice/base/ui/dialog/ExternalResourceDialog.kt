@@ -29,7 +29,6 @@ fun ExternalResourceDialog(
 		positiveText = openText,
 		negativeText = cancelText,
 		onPositiveClick = { onConfirmClick(url) },
-		onNegativeClick = onDismissRequest,
 		onDismissRequest = onDismissRequest
 	) {
 		Text(
