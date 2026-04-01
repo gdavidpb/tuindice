@@ -25,41 +25,44 @@ class FileKitSkiaPictureEncoderDataSource : PictureEncoderDataRepository {
 		val accessGranted = file.startAccessingSecurityScopedResource()
 
 		try {
-			val content = file.readBytes()
-			val decodedImage = runCatching {
-				Image.makeFromEncoded(content)
-			}.getOrElse {
-				throw ProfilePictureIllegalArgumentException(ProfilePictureUseCaseError.NotImage)
-			}
-
-			try {
-				if (decodedImage.width <= 0 || decodedImage.height <= 0) {
-					throw ProfilePictureIllegalArgumentException(ProfilePictureUseCaseError.NotImage)
-				}
-
-				val normalizedImage = decodedImage.normalizeForProfilePicture()
-
-				try {
-					val encodedData = normalizedImage.encodeToData(
-						format = EncodedImageFormat.JPEG,
-						quality = Settings.JPEG_QUALITY
-					)
-						?: throw ProfilePictureIllegalArgumentException(ProfilePictureUseCaseError.NotImage)
-
-					return EncodedImage(
-						content = encodedData.bytes,
-						mimeType = Settings.JPEG_MIME_TYPE
-					)
-				} finally {
-					normalizedImage.close()
-				}
-			} finally {
-				decodedImage.close()
-			}
+			return encodeContent(content = file.readBytes())
 		} finally {
 			if (accessGranted) {
 				file.stopAccessingSecurityScopedResource()
 			}
+		}
+	}
+
+	internal fun encodeContent(content: ByteArray): EncodedImage {
+		val decodedImage = runCatching {
+			Image.makeFromEncoded(content)
+		}.getOrElse {
+			throw ProfilePictureIllegalArgumentException(ProfilePictureUseCaseError.NotImage)
+		}
+
+		try {
+			if (decodedImage.width <= 0 || decodedImage.height <= 0) {
+				throw ProfilePictureIllegalArgumentException(ProfilePictureUseCaseError.NotImage)
+			}
+
+			val normalizedImage = decodedImage.normalizeForProfilePicture()
+
+			try {
+				val encodedData = normalizedImage.encodeToData(
+					format = EncodedImageFormat.JPEG,
+					quality = Settings.JPEG_QUALITY
+				)
+					?: throw ProfilePictureIllegalArgumentException(ProfilePictureUseCaseError.NotImage)
+
+				return EncodedImage(
+					content = encodedData.bytes,
+					mimeType = Settings.JPEG_MIME_TYPE
+				)
+			} finally {
+				normalizedImage.close()
+			}
+		} finally {
+			decodedImage.close()
 		}
 	}
 

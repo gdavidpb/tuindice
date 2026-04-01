@@ -12,7 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -56,10 +56,31 @@ fun ProfilePictureView(
 			.crossfade(true)
 			.build()
 	}
+	val lastSuccessfulImageData = remember {
+		mutableStateOf<String?>(null)
+	}
+	val previousImageData = lastSuccessfulImageData.value
+	val previousImageRequest = remember(platformContext, previousImageData) {
+		previousImageData?.let { data ->
+			ImageRequest.Builder(platformContext)
+				.data(data)
+				.crossfade(false)
+				.build()
+		}
+	}
 	val imageLoadingState = remember(url) {
 		mutableStateOf(false)
 	}
+	val shouldKeepPreviousImageVisible = imageData != null &&
+		previousImageData != null &&
+		imageData != previousImageData
 	val isCurrentlyLoading = isLoading || imageLoadingState.value
+
+	LaunchedEffect(imageData) {
+		if (imageData == null) {
+			lastSuccessfulImageData.value = null
+		}
+	}
 
 	Box(
 		modifier = modifier
@@ -76,29 +97,38 @@ fun ProfilePictureView(
 				.background(MaterialTheme.colorScheme.surfaceVariant),
 			contentAlignment = Alignment.Center
 		) {
-			key(url) {
+			if (shouldKeepPreviousImageVisible && previousImageRequest != null) {
 				AsyncImage(
-					modifier = Modifier
-						.testTag(SummaryUiTags.ProfilePicturePlaceholderIcon)
-						.fillMaxSize(),
-					model = imageRequest,
+					modifier = Modifier.fillMaxSize(),
+					model = previousImageRequest,
 					imageLoader = imageLoader,
-					placeholder = placeholderPainter,
-					error = placeholderPainter,
-					fallback = placeholderPainter,
 					contentDescription = null,
-					contentScale = ContentScale.Crop,
-					onLoading = {
-						imageLoadingState.value = true
-					},
-					onSuccess = {
-						imageLoadingState.value = false
-					},
-					onError = {
-						imageLoadingState.value = false
-					},
+					contentScale = ContentScale.Crop
 				)
 			}
+
+			AsyncImage(
+				modifier = Modifier
+					.testTag(SummaryUiTags.ProfilePicturePlaceholderIcon)
+					.fillMaxSize(),
+				model = imageRequest,
+				imageLoader = imageLoader,
+				placeholder = if (shouldKeepPreviousImageVisible) null else placeholderPainter,
+				error = if (shouldKeepPreviousImageVisible) null else placeholderPainter,
+				fallback = placeholderPainter,
+				contentDescription = null,
+				contentScale = ContentScale.Crop,
+				onLoading = {
+					imageLoadingState.value = true
+				},
+				onSuccess = {
+					imageLoadingState.value = false
+					lastSuccessfulImageData.value = imageData
+				},
+				onError = {
+					imageLoadingState.value = false
+				},
+			)
 		}
 
 		IconButton(
