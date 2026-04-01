@@ -3,13 +3,12 @@ package com.gdavidpb.tuindice.data.source.activity
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import com.gdavidpb.tuindice.data.contract.activity.CurrentActivityProvider
 
 class CurrentActivityLifecycleCallbacks(
-	private val currentActivityProvider: CurrentActivityProvider
+	private val currentActivityDataSource: CurrentActivityDataSource
 ) : Application.ActivityLifecycleCallbacks {
 	override fun onActivityResumed(activity: Activity) {
-		currentActivityProvider.set(activity)
+		currentActivityDataSource.set(activity)
 	}
 
 	override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit

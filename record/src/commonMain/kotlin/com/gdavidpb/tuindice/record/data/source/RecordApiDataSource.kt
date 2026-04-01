@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.record.data.source
 
-import com.gdavidpb.tuindice.record.data.contract.QuarterRemoteDataSource
+import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.model.quarter.RemoteAddQuarterAck
 import com.gdavidpb.tuindice.record.data.model.quarter.RemoteDeleteQuarterAck
@@ -27,7 +27,7 @@ import io.ktor.client.request.setBody
 
 class RecordApiDataSource(
 	private val ktorClient: HttpClient
-) : QuarterRemoteDataSource {
+) : QuarterRemoteDataRepository {
 	override suspend fun getQuarters(): List<RemoteQuarter> {
 		return ktorClient.get("quarters/v1")
 			.body<List<QuarterResponse>>()

@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.record.data.source
 
-import com.gdavidpb.tuindice.record.data.contract.QuarterSettingsDataSource
+import com.gdavidpb.tuindice.record.data.repository.QuarterSettingsDataRepository
 import com.gdavidpb.tuindice.record.domain.repository.QuarterSelectionRepository
 
 class QuarterSelectionDataSource(
-	private val settingsDataSource: QuarterSettingsDataSource
+	private val settingsDataSource: QuarterSettingsDataRepository
 ) : QuarterSelectionRepository {
 	override suspend fun getSelectedQuarterId(): String? {
 		return settingsDataSource.getSelectedQuarterId()

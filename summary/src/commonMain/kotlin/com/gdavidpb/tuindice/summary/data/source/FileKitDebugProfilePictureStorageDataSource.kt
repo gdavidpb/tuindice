@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.summary.data.source
 
-import com.gdavidpb.tuindice.summary.data.contract.user.DebugProfilePictureStorageDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.DebugProfilePictureStorageDataRepository
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.createDirectories
 import io.github.vinceglb.filekit.delete
@@ -12,7 +12,7 @@ import io.github.vinceglb.filekit.write
 
 class FileKitDebugProfilePictureStorageDataSource(
 	private val sourceName: String
-) : DebugProfilePictureStorageDataSource {
+) : DebugProfilePictureStorageDataRepository {
 	private val debugProfilePictureDir = FileKit.filesDir / "summaryDebug"
 	private val debugProfilePictureFile = debugProfilePictureDir / "$sourceName-profile-picture.img"
 	private var storedRemoteUrl: String? = null

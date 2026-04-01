@@ -1,14 +1,14 @@
 package com.gdavidpb.tuindice.data.source.messaging
 
-import com.gdavidpb.tuindice.data.contract.messaging.MessagingLocalDataSource
-import com.gdavidpb.tuindice.data.contract.messaging.MessagingRemoteDataSource
-import com.gdavidpb.tuindice.data.contract.messaging.PushTokenDataSource
+import com.gdavidpb.tuindice.data.repository.messaging.MessagingLocalDataRepository
+import com.gdavidpb.tuindice.data.repository.messaging.MessagingRemoteDataRepository
+import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 
 class MessagingDataSource(
-	private val localDataSource: MessagingLocalDataSource,
-	private val remoteDataSource: MessagingRemoteDataSource,
-	private val pushTokenDataSource: PushTokenDataSource
+	private val localDataSource: MessagingLocalDataRepository,
+	private val remoteDataSource: MessagingRemoteDataRepository,
+	private val pushTokenDataSource: PushTokenDataRepository
 ) : MessagingRepository {
 	override suspend fun subscribe() {
 		val messagingToken = pushTokenDataSource.getToken()

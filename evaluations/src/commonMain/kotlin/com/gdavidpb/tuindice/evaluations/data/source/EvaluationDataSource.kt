@@ -16,9 +16,9 @@ import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOP
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationSyncSpec
-import com.gdavidpb.tuindice.evaluations.data.contract.DatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.data.contract.EvaluationsApiDataSource
-import com.gdavidpb.tuindice.evaluations.data.contract.SettingsDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
@@ -30,9 +30,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class EvaluationDataSource(
-	private val databaseDataSource: DatabaseDataSource,
-	private val evaluationsApiDataSource: EvaluationsApiDataSource,
-	private val settingsDataSource: SettingsDataSource,
+	private val databaseDataSource: DatabaseDataRepository,
+	private val evaluationsApiDataSource: EvaluationsApiDataRepository,
+	private val settingsDataSource: SettingsDataRepository,
 	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck>,
 	private val identifierRepository: IdentifierRepository
 ) : EvaluationRepository {

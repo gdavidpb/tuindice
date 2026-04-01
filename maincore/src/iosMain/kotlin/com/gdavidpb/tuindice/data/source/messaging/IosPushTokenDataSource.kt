@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.data.source.messaging
 
-import com.gdavidpb.tuindice.data.contract.messaging.PushTokenDataSource
+import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.platform.IosPushCapability
 
 class IosPushTokenDataSource(
 	private val pushCapability: IosPushCapability
-) : PushTokenDataSource {
+) : PushTokenDataRepository {
 	override suspend fun getToken(): String {
 		return pushCapability.pushToken()
 			?.takeIf { token -> token.isNotBlank() }

@@ -15,7 +15,7 @@ import com.gdavidpb.tuindice.record.data.model.quarter.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.model.quarter.RemoteSetSubjectGradeAck
 import com.gdavidpb.tuindice.record.data.model.quarter.RemoteSubject
 import com.gdavidpb.tuindice.record.data.source.QuarterDataSource
-import com.gdavidpb.tuindice.record.data.contract.QuarterRemoteDataSource
+import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataRepository
 import com.gdavidpb.tuindice.record.testing.FakeMutationEnvelopeStore
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_LOCAL_QUARTER
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_LOCAL_SUBJECT
@@ -144,7 +144,7 @@ class QuarterRepositoryContractTest {
 			initialQuarters = listOf(DEFAULT_RECORD_LOCAL_QUARTER, blockedQuarter)
 		)
 		val outboxRepository = FakeMutationEnvelopeStore<String, RecordMutation>()
-		val remoteDataSource = object : QuarterRemoteDataSource {
+		val remoteDataSource = object : QuarterRemoteDataRepository {
 			val addCalls = mutableListOf<Pair<RecordMutation.AddQuarter, Long>>()
 
 			override suspend fun getQuarters() = listOf(DEFAULT_RECORD_REMOTE_QUARTER)
@@ -407,7 +407,7 @@ class QuarterRepositoryContractTest {
 				}
 			}
 		}
-		val remoteDataSource = object : QuarterRemoteDataSource {
+		val remoteDataSource = object : QuarterRemoteDataRepository {
 			private var setCalls = 0
 
 			override suspend fun getQuarters() = listOf(DEFAULT_RECORD_REMOTE_QUARTER)
@@ -570,7 +570,7 @@ class QuarterRepositoryContractTest {
 		val localDataSource = FakeQuarterLocalDataSource(
 			initialQuarters = listOf(localQuarter)
 		)
-		val remoteDataSource = object : QuarterRemoteDataSource {
+		val remoteDataSource = object : QuarterRemoteDataRepository {
 			private var setCalls = 0
 
 			override suspend fun getQuarters() = listOf(initialRemoteQuarter)
@@ -683,7 +683,7 @@ class QuarterRepositoryContractTest {
 		val remoteCalls = mutableListOf<Pair<Int, Long>>()
 		val localDataSource = FakeQuarterLocalDataSource()
 		val outboxRepository = FakeMutationEnvelopeStore<String, RecordMutation>()
-		val remoteDataSource = object : QuarterRemoteDataSource {
+		val remoteDataSource = object : QuarterRemoteDataRepository {
 			override suspend fun getQuarters() = listOf(
 				DEFAULT_RECORD_REMOTE_QUARTER.copy(
 					grade = remoteSubject.grade.toDouble(),
@@ -813,7 +813,7 @@ class QuarterRepositoryContractTest {
 			gradeSum = 85.0,
 			subjects = listOf(DEFAULT_RECORD_REMOTE_SUBJECT.copy(grade = 85))
 		)
-		val remoteDataSource = object : QuarterRemoteDataSource {
+		val remoteDataSource = object : QuarterRemoteDataRepository {
 			override suspend fun getQuarters() = buildList {
 				refreshStarted.complete(Unit)
 				releaseStaleRefresh.await()
@@ -939,7 +939,7 @@ class QuarterRepositoryContractTest {
 
 	private fun repository(
 		localDataSource: FakeQuarterLocalDataSource,
-		remoteDataSource: QuarterRemoteDataSource,
+		remoteDataSource: QuarterRemoteDataRepository,
 		settingsDataSource: FakeQuarterSettingsDataSource = FakeQuarterSettingsDataSource(onCooldown = true),
 		outboxRepository: MutationEnvelopeStore<String, RecordMutation> = FakeMutationEnvelopeStore()
 	): QuarterDataSource {

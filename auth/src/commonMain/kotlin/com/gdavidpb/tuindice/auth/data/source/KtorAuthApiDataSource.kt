@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.auth.data.source
 import com.gdavidpb.tuindice.auth.data.model.IssueTokensResponse
 import com.gdavidpb.tuindice.auth.data.model.RefreshTokensRequest
 import com.gdavidpb.tuindice.auth.data.model.RefreshTokensResponse
-import com.gdavidpb.tuindice.auth.data.contract.AuthApiDataSource
+import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
@@ -16,7 +16,7 @@ import io.ktor.http.*
 
 class KtorAuthApiDataSource(
 	private val ktorClient: HttpClient
-) : AuthApiDataSource {
+) : AuthApiDataRepository {
 	override suspend fun issueTokens(
 		usbId: String,
 		password: String,

@@ -131,7 +131,7 @@ class MessagingDataRepositoryTest {
 	}
 }
 
-private class FakeMessagingLocalDataSource : MessagingLocalDataSource {
+private class FakeMessagingLocalDataSource : MessagingLocalDataRepository {
 	var subscribed: Boolean = false
 	var subscribedToken: String? = null
 
@@ -150,7 +150,7 @@ private class FakeMessagingLocalDataSource : MessagingLocalDataSource {
 	}
 }
 
-private class FakeMessagingRemoteDataSource : MessagingRemoteDataSource {
+private class FakeMessagingRemoteDataSource : MessagingRemoteDataRepository {
 	val subscribeCalls = mutableListOf<String>()
 	var unsubscribeCalls: Int = 0
 	var unsubscribeError: Throwable? = null
@@ -169,6 +169,6 @@ private class FakeMessagingRemoteDataSource : MessagingRemoteDataSource {
 
 private class FakePushTokenDataSource(
 	private val token: String?
-) : PushTokenDataSource {
+) : PushTokenDataRepository {
 	override suspend fun getToken(): String = token ?: throw IllegalStateException("Push token unavailable.")
 }

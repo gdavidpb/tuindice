@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.evaluations.di
 
-import com.gdavidpb.tuindice.evaluations.data.contract.DatabaseDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.source.EvaluationDataSource
-import com.gdavidpb.tuindice.evaluations.data.contract.EvaluationsApiDataSource
-import com.gdavidpb.tuindice.evaluations.data.contract.SettingsDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
@@ -139,17 +139,15 @@ val evaluationsModule = module {
 
 	/* Data sources */
 
-	factoryOf(::KtorEvaluationsApiDataSource) { bind<EvaluationsApiDataSource>() }
-	single<DatabaseDataSource> {
+	factoryOf(::KtorEvaluationsApiDataSource) { bind<EvaluationsApiDataRepository>() }
+	single<DatabaseDataRepository> {
 		RoomDatabaseDataSource(
 			room = get(),
 			mutationEngine = get(named(EVALUATIONS_MUTATION_ENGINE_QUALIFIER)),
 			visibleEvaluationsStateResolver = get()
 		)
 	}
-	single<SettingsDataSource> {
-		LocalSettingsDataSource(get<Settings>())
-	}
+	singleOf(::LocalSettingsDataSource) { bind<SettingsDataRepository>() }
 
 	/* Exception handlers */
 

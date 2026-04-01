@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.auth.di
 
-import com.gdavidpb.tuindice.auth.data.contract.AuthApiDataSource
+import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.auth.data.source.AuthDataSource
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
@@ -66,7 +66,7 @@ val authModule = module {
 
 	/* Data sources */
 
-	factoryOf(::KtorAuthApiDataSource) { bind<AuthApiDataSource>() }
+	factoryOf(::KtorAuthApiDataSource) { bind<AuthApiDataRepository>() }
 	/* Exception handlers */
 
 	factoryOf(::UpdatePasswordExceptionHandler)

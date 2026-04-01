@@ -3,10 +3,10 @@ package com.gdavidpb.tuindice.data
 import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.logging.appLogger
-import com.gdavidpb.tuindice.data.contract.attestation.AttestationProviderDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
 import com.gdavidpb.tuindice.platform.android.model.ProviderAttestation
 
-class MockAttestationProviderDataSource : AttestationProviderDataSource {
+class MockAttestationProviderDataSource : AttestationProviderDataRepository {
 	private val logger = appLogger(tag = "Attestation")
 
 	override suspend fun getAttestation(

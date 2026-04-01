@@ -4,10 +4,10 @@ import com.gdavidpb.tuindice.base.domain.model.EncodedImage
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.summary.data.contract.user.LocalDataSource
-import com.gdavidpb.tuindice.summary.data.contract.user.PictureEncoderDataSource
-import com.gdavidpb.tuindice.summary.data.contract.user.RemoteDataSource
-import com.gdavidpb.tuindice.summary.data.contract.user.SettingsDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import io.github.vinceglb.filekit.PlatformFile
@@ -79,7 +79,7 @@ class RecordingUserRepository(
 
 class FakeLocalDataSource(
 	initialUser: User? = DEFAULT_SUMMARY_USER
-) : LocalDataSource {
+) : LocalDataRepository {
 	private val userState = MutableStateFlow(initialUser)
 
 	val savedUsers = mutableListOf<User>()
@@ -96,7 +96,7 @@ class FakeRemoteDataSource(
 	private val user: User = DEFAULT_SUMMARY_USER,
 	private val profilePicture: ProfilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE,
 	private val removeThrowable: Throwable? = null
-) : RemoteDataSource {
+) : RemoteDataRepository {
 	var getUserCalls = 0
 	val uploadCalls = mutableListOf<Pair<ByteArray, String>>()
 	var removeCalls = 0
@@ -119,7 +119,7 @@ class FakeRemoteDataSource(
 
 class FakeSettingsDataSource(
 	private val onCooldown: Boolean
-) : SettingsDataSource {
+) : SettingsDataRepository {
 	var cooldownMarked = false
 
 	override suspend fun isGetUserOnCooldown(): Boolean = onCooldown
@@ -131,7 +131,7 @@ class FakeSettingsDataSource(
 
 class FakePictureEncoderDataSource(
 	private val encodedImage: EncodedImage = DEFAULT_ENCODED_IMAGE
-) : PictureEncoderDataSource {
+) : PictureEncoderDataRepository {
 	var lastFile: PlatformFile? = null
 
 	override suspend fun encodePicture(file: PlatformFile): EncodedImage {

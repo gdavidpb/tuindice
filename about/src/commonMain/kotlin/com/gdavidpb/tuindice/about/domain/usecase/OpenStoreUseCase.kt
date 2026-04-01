@@ -1,13 +1,13 @@
 package com.gdavidpb.tuindice.about.domain.usecase
 
-import com.gdavidpb.tuindice.about.data.contract.StoreUrlDataSource
+import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class OpenStoreUseCase(
-	private val storeUrlDataSource: StoreUrlDataSource,
+	private val storeUrlDataSource: StoreUrlDataRepository,
 	override val reportingRepository: ReportingRepository
 ) : FlowUseCase<Unit, String, Nothing>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: Unit): Flow<String> {

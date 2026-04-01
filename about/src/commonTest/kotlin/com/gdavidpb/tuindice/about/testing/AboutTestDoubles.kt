@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.about.testing
 
-import com.gdavidpb.tuindice.about.data.contract.AppInfoDataSource
-import com.gdavidpb.tuindice.about.data.contract.EnvironmentDataSource
-import com.gdavidpb.tuindice.about.data.contract.StoreUrlDataSource
+import com.gdavidpb.tuindice.about.data.repository.AppInfoDataRepository
+import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataRepository
+import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataRepository
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 
 const val CURRENT_APP_VERSION_NAME = "5.8"
@@ -17,14 +17,14 @@ class FakeAboutRepository(
 
 class FakeEnvironmentDataSource(
 	private val isDebug: Boolean
-) : EnvironmentDataSource {
+) : EnvironmentDataRepository {
 	override fun isDebugEnvironment(): Boolean = isDebug
 }
 
 class FakeAppInfoDataSource(
 	private val versionName: String = CURRENT_APP_VERSION_NAME,
 	private val versionCode: Long = CURRENT_APP_VERSION_CODE
-) : AppInfoDataSource {
+) : AppInfoDataRepository {
 	override fun appVersionName(): String = versionName
 
 	override fun appVersionCode(): Long = versionCode
@@ -32,6 +32,6 @@ class FakeAppInfoDataSource(
 
 class FakeStoreUrlDataSource(
 	private val storeUrl: String = "market://details?id=com.gdavidpb.tuindice"
-) : StoreUrlDataSource {
+) : StoreUrlDataRepository {
 	override fun getStoreUrl(): String = storeUrl
 }

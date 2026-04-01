@@ -8,8 +8,8 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResolution
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationSyncSpec
-import com.gdavidpb.tuindice.record.data.contract.QuarterLocalDataSource
-import com.gdavidpb.tuindice.record.data.contract.QuarterRemoteDataSource
+import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataRepository
+import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.model.quarter.LocalQuarter
 import com.gdavidpb.tuindice.record.data.model.quarter.RemoteAddQuarterAck
 import com.gdavidpb.tuindice.record.data.model.quarter.RemoteDeleteQuarterAck
@@ -19,8 +19,8 @@ import com.gdavidpb.tuindice.record.data.source.database.mapper.toLocalQuarter
 import com.gdavidpb.tuindice.record.domain.policy.QuarterMutationPolicy
 
 class RecordMutationSyncSpec(
-	private val localDataSource: QuarterLocalDataSource,
-	private val remoteDataSource: QuarterRemoteDataSource,
+	private val localDataSource: QuarterLocalDataRepository,
+	private val remoteDataSource: QuarterRemoteDataRepository,
 	private val refreshRemoteSnapshot: suspend () -> List<RemoteQuarter>
 ) : MutationSyncSpec<String, RecordMutation, List<LocalQuarter>, List<LocalQuarter>, RecordMutationAck> {
 	override val maxRebaseAttempts: Int = 3

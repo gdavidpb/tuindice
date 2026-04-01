@@ -8,9 +8,9 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
-import com.gdavidpb.tuindice.record.data.contract.QuarterLocalDataSource
-import com.gdavidpb.tuindice.record.data.contract.QuarterRemoteDataSource
-import com.gdavidpb.tuindice.record.data.contract.QuarterSettingsDataSource
+import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataRepository
+import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataRepository
+import com.gdavidpb.tuindice.record.data.repository.QuarterSettingsDataRepository
 import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.record.data.mutation.RecordMutationAck
 import com.gdavidpb.tuindice.record.data.mutation.RecordMutation
@@ -158,7 +158,7 @@ class RecordingQuarterSelectionRepository(
 class FakeQuarterLocalDataSource(
 	initialQuarters: List<LocalQuarter> = listOf(DEFAULT_RECORD_LOCAL_QUARTER),
 	setSubjectGradeResults: List<SetSubjectGradeResult> = emptyList()
-) : QuarterLocalDataSource {
+) : QuarterLocalDataRepository {
 	private val indexComputationEngine = IndexComputationEngine()
 	private val quarterState = MutableStateFlow(initialQuarters)
 	private val queuedSetSubjectGradeResults = ArrayDeque(setSubjectGradeResults)
@@ -414,7 +414,7 @@ class FakeQuarterRemoteDataSource(
 			subjects = listOf(DEFAULT_RECORD_REMOTE_SUBJECT.copy(grade = 85))
 		))
 	)
-) : QuarterRemoteDataSource {
+) : QuarterRemoteDataRepository {
 	var getQuartersCalls = 0
 	val removeQuarterCalls = mutableListOf<RemoveQuarterRemoteCall>()
 	val addQuarterCalls = mutableListOf<AddQuarterRemoteCall>()
@@ -482,7 +482,7 @@ class FakeQuarterRemoteDataSource(
 class FakeQuarterSettingsDataSource(
 	private val onCooldown: Boolean,
 	initialSelectedQuarterId: String? = null
-) : QuarterSettingsDataSource {
+) : QuarterSettingsDataRepository {
 	var cooldownMarked = false
 	var selectedQuarterId: String? = initialSelectedQuarterId
 	val selectedQuarterIdWrites = mutableListOf<String?>()

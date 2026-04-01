@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.summary.di
 
-import com.gdavidpb.tuindice.summary.data.contract.user.LocalDataSource
-import com.gdavidpb.tuindice.summary.data.contract.user.PictureEncoderDataSource
-import com.gdavidpb.tuindice.summary.data.contract.user.RemoteDataSource
-import com.gdavidpb.tuindice.summary.data.contract.user.SettingsDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.data.source.UserDataSource
 import com.gdavidpb.tuindice.summary.data.source.FileKitSkiaPictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.LocalSettingsDataSource
@@ -27,9 +27,9 @@ import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureAct
 import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
-import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -66,15 +66,10 @@ val summaryModule = module {
 
 	/* Data sources */
 
-	factoryOf(::RoomDataSource) { bind<LocalDataSource>() }
-	factoryOf(::SummaryApiDataSource)
-	factory<RemoteDataSource> {
-		get<SummaryApiDataSource>()
-	}
-	single<SettingsDataSource> {
-		LocalSettingsDataSource(get<Settings>())
-	}
-	factoryOf(::FileKitSkiaPictureEncoderDataSource) { bind<PictureEncoderDataSource>() }
+	factoryOf(::RoomDataSource) { bind<LocalDataRepository>() }
+	factoryOf(::SummaryApiDataSource) { bind<RemoteDataRepository>() }
+	singleOf(::LocalSettingsDataSource) { bind<SettingsDataRepository>() }
+	factoryOf(::FileKitSkiaPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
 
 	/* Exception handlers */
 

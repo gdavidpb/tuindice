@@ -2,17 +2,17 @@ package com.gdavidpb.tuindice.enrollmentproof.data.source
 
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.enrollmentproof.data.contract.DatabaseDataSource
-import com.gdavidpb.tuindice.enrollmentproof.data.contract.EnrollmentProofApiDataSource
-import com.gdavidpb.tuindice.enrollmentproof.data.contract.StorageDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.DatabaseDataRepository
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.EnrollmentProofApiDataRepository
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.StorageDataRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 
 class EnrollmentProofDataSource(
-	private val databaseDataSource: DatabaseDataSource,
-	private val enrollmentProofApiDataSource: EnrollmentProofApiDataSource,
-	private val storageDataSource: StorageDataSource,
+	private val databaseDataSource: DatabaseDataRepository,
+	private val enrollmentProofApiDataSource: EnrollmentProofApiDataRepository,
+	private val storageDataSource: StorageDataRepository,
 	private val networkRepository: NetworkRepository,
 	private val credentialsRepository: CredentialsRepository
 ) : EnrollmentProofRepository {

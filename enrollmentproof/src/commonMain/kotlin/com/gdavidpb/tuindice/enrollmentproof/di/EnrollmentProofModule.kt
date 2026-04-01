@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.enrollmentproof.di
 
-import com.gdavidpb.tuindice.enrollmentproof.data.contract.DatabaseDataSource
-import com.gdavidpb.tuindice.enrollmentproof.data.contract.EnrollmentProofApiDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.DatabaseDataRepository
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.EnrollmentProofApiDataRepository
 import com.gdavidpb.tuindice.enrollmentproof.data.source.EnrollmentProofDataSource
-import com.gdavidpb.tuindice.enrollmentproof.data.contract.StorageDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.StorageDataRepository
 import com.gdavidpb.tuindice.enrollmentproof.data.source.FileKitStorageDataSource
 import com.gdavidpb.tuindice.enrollmentproof.data.source.KtorEnrollmentProofApiDataSource
 import com.gdavidpb.tuindice.enrollmentproof.data.source.RoomDatabaseDataSource
@@ -38,9 +38,9 @@ val enrollmentProofModule = module {
 
 	/* Data sources */
 
-	factoryOf(::RoomDatabaseDataSource) { bind<DatabaseDataSource>() }
-	factoryOf(::KtorEnrollmentProofApiDataSource) { bind<EnrollmentProofApiDataSource>() }
-	factoryOf(::FileKitStorageDataSource) { bind<StorageDataSource>() }
+	factoryOf(::RoomDatabaseDataSource) { bind<DatabaseDataRepository>() }
+	factoryOf(::KtorEnrollmentProofApiDataSource) { bind<EnrollmentProofApiDataRepository>() }
+	factoryOf(::FileKitStorageDataSource) { bind<StorageDataRepository>() }
 
 	/* Exception handlers */
 

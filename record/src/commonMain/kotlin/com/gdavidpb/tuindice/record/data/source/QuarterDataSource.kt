@@ -14,9 +14,9 @@ import com.gdavidpb.tuindice.record.data.mutation.RecordMutationSyncSpec
 import com.gdavidpb.tuindice.record.data.model.quarter.LocalQuarter
 import com.gdavidpb.tuindice.record.data.model.quarter.RemoteQuarter
 import com.gdavidpb.tuindice.record.data.model.quarter.SetSubjectGradeResult
-import com.gdavidpb.tuindice.record.data.contract.QuarterLocalDataSource
-import com.gdavidpb.tuindice.record.data.contract.QuarterRemoteDataSource
-import com.gdavidpb.tuindice.record.data.contract.QuarterSettingsDataSource
+import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataRepository
+import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataRepository
+import com.gdavidpb.tuindice.record.data.repository.QuarterSettingsDataRepository
 import com.gdavidpb.tuindice.record.data.source.database.mapper.toLocalQuarter
 import com.gdavidpb.tuindice.record.data.source.database.mapper.toQuarter
 import com.gdavidpb.tuindice.record.domain.model.QuarterAdd
@@ -28,9 +28,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class QuarterDataSource(
-	private val localDataSource: QuarterLocalDataSource,
-	private val remoteDataSource: QuarterRemoteDataSource,
-	private val settingsDataSource: QuarterSettingsDataSource,
+	private val localDataSource: QuarterLocalDataRepository,
+	private val remoteDataSource: QuarterRemoteDataRepository,
+	private val settingsDataSource: QuarterSettingsDataRepository,
 	private val mutationEngine: StoreBackedMutationEngine<String, RecordMutation, List<LocalQuarter>, List<LocalQuarter>, RecordMutationAck>,
 	private val identifierRepository: IdentifierRepository
 ) : QuarterRepository {

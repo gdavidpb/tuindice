@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.summary.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
-import com.gdavidpb.tuindice.summary.data.contract.user.LocalDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.summary.data.mapper.toUser
 import com.gdavidpb.tuindice.summary.data.mapper.toUserEntity
 import kotlinx.coroutines.flow.Flow
@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 
 class RoomDataSource(
 	private val room: TuIndiceDatabase
-) : LocalDataSource {
+) : LocalDataRepository {
 	override fun getUserFlow(): Flow<User?> {
 		return room.users.getUserFlow()
 			.map { userEntity -> userEntity?.toUser() }

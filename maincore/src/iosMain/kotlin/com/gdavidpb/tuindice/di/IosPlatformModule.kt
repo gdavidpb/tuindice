@@ -1,19 +1,19 @@
 package com.gdavidpb.tuindice.di
 
-import com.gdavidpb.tuindice.about.data.contract.AppInfoDataSource
-import com.gdavidpb.tuindice.about.data.contract.EnvironmentDataSource
-import com.gdavidpb.tuindice.about.data.contract.StoreUrlDataSource
+import com.gdavidpb.tuindice.about.data.repository.AppInfoDataRepository
+import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataRepository
+import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataRepository
 import com.gdavidpb.tuindice.about.data.source.IosAppInfoDataSource
 import com.gdavidpb.tuindice.about.data.source.IosEnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.source.IosShareTextHandler
 import com.gdavidpb.tuindice.about.data.source.IosStoreUrlDataSource
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
-import com.gdavidpb.tuindice.base.data.contract.config.RemoteConfigDataSource
+import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
-import com.gdavidpb.tuindice.data.contract.messaging.PushTokenDataSource
+import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.data.source.attestation.IosAttestationDataSource
 import com.gdavidpb.tuindice.data.source.messaging.IosPushTokenDataSource
 import com.gdavidpb.tuindice.data.source.actions.IosFileOpenerDataSource
@@ -26,7 +26,7 @@ import com.gdavidpb.tuindice.data.source.network.IosNetworkDataSource
 import com.gdavidpb.tuindice.data.source.reporting.IosReportingDataSource
 import com.gdavidpb.tuindice.data.source.review.IosReviewDataSource
 import com.gdavidpb.tuindice.data.source.update.IosUpdateDataSource
-import com.gdavidpb.tuindice.auth.data.contract.AuthApiDataSource
+import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.persistence.di.registerIosPersistencePlatformStorage
@@ -90,7 +90,7 @@ private fun Module.registerIosPlatformPrimitives() {
 private fun Module.registerIosPlatformServices() {
 	singleOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	single<AppEnvironmentRepository> { IosAppEnvironmentDataSource(iOSContext().appEnvironment) }
-	singleOf(::IosRemoteConfigDataSource) { bind<RemoteConfigDataSource>() }
+	singleOf(::IosRemoteConfigDataSource) { bind<RemoteConfigDataRepository>() }
 	singleOf(::IosNetworkDataSource) { bind<NetworkRepository>() }
 	singleOf(::IosDeviceInfoDataSource) { bind<DeviceInfoRepository>() }
 	singleOf(::IosBrowserDataSource) { bind<BrowserRepository>() }
@@ -103,8 +103,8 @@ private fun Module.registerIosPlatformServices() {
 		bind<FileRepository>()
 	}
 	singleOf(::IosReportingDataSource) { bind<ReportingRepository>() }
-	factoryOf(::IosPushTokenDataSource) { bind<PushTokenDataSource>() }
-	factory<AuthApiDataSource> {
+	factoryOf(::IosPushTokenDataSource) { bind<PushTokenDataRepository>() }
+	factory<AuthApiDataRepository> {
 		KtorAuthApiDataSource(
 			ktorClient = get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
 		)
@@ -120,9 +120,9 @@ private fun Module.registerIosPlatformServices() {
 }
 
 private fun Module.registerIosFeaturePlatformBindings() {
-	factoryOf(::IosEnvironmentDataSource) { bind<EnvironmentDataSource>() }
-	factoryOf(::IosAppInfoDataSource) { bind<AppInfoDataSource>() }
-	factoryOf(::IosStoreUrlDataSource) { bind<StoreUrlDataSource>() }
+	factoryOf(::IosEnvironmentDataSource) { bind<EnvironmentDataRepository>() }
+	factoryOf(::IosAppInfoDataSource) { bind<AppInfoDataRepository>() }
+	factoryOf(::IosStoreUrlDataSource) { bind<StoreUrlDataRepository>() }
 	factoryOf(::IosShareTextHandler) { bind<ShareTextHandler>() }
 }
 

@@ -1,14 +1,14 @@
 package com.gdavidpb.tuindice.data.source.sync
 
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.data.contract.sync.SyncStatusLocalDataSource
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class SyncStatusSettingsDataSource(
 	private val settings: Settings
-) : SyncStatusLocalDataSource {
+) : SyncStatusRepository {
 	private val syncStatus = MutableStateFlow(
 		SyncStatus.entries.firstOrNull { status ->
 			status.name == settings.getStringOrNull(PreferencesKeys.SYNC_STATUS)

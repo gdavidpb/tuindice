@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
-import com.gdavidpb.tuindice.evaluations.data.contract.DatabaseDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalSubject
@@ -28,7 +28,7 @@ class RoomDatabaseDataSource(
 	private val room: TuIndiceDatabase,
 	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck>,
 	private val visibleEvaluationsStateResolver: VisibleEvaluationsStateResolver
-) : DatabaseDataSource {
+) : DatabaseDataRepository {
 	private val writeMutex = Mutex()
 
 	private var inMemoryConfirmedSnapshot: LocalEvaluationsSnapshot? = null

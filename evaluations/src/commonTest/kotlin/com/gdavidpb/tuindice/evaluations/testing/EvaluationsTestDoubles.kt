@@ -13,9 +13,9 @@ import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
-import com.gdavidpb.tuindice.evaluations.data.contract.DatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.data.contract.EvaluationsApiDataSource
-import com.gdavidpb.tuindice.evaluations.data.contract.SettingsDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
@@ -253,7 +253,7 @@ class FakeDatabaseDataSource(
 		DEFAULT_LOCAL_EVALUATION_SUBJECT,
 		SECOND_LOCAL_EVALUATION_SUBJECT
 	)
-) : DatabaseDataSource {
+) : DatabaseDataRepository {
 	private val snapshotState = MutableStateFlow(initialSnapshot)
 
 	val savedSnapshots = mutableListOf<LocalEvaluationsSnapshot>()
@@ -348,7 +348,7 @@ class FakeEvaluationsApiDataSource(
 	private val addThrowable: Throwable? = null,
 	private val updateThrowable: Throwable? = null,
 	private val removeThrowable: Throwable? = null
-) : EvaluationsApiDataSource {
+) : EvaluationsApiDataRepository {
 	var getEvaluationsCalls = 0
 	val addCalls = mutableListOf<AddEvaluationRemoteCall>()
 	val updateCalls = mutableListOf<UpdateEvaluationRemoteCall>()
@@ -432,7 +432,7 @@ class FakeEvaluationsApiDataSource(
 
 class FakeSettingsDataSource(
 	private val onCooldown: Boolean
-) : SettingsDataSource {
+) : SettingsDataRepository {
 	var cooldownMarked = false
 
 	override suspend fun isGetEvaluationsOnCooldown(): Boolean = onCooldown

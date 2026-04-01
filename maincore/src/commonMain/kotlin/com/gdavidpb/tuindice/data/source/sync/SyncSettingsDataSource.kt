@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.sync
 
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
-import com.gdavidpb.tuindice.data.contract.sync.SyncSettingsLocalDataSource
+import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
 import com.russhwolf.settings.Settings
 import kotlin.time.Duration.Companion.days
 import com.gdavidpb.tuindice.evaluations.utils.PreferencesKeys as EvaluationsPreferencesKeys
@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.summary.utils.PreferencesKeys as SummaryPreferences
 
 class SyncSettingsDataSource(
 	private val settings: Settings
-) : SyncSettingsLocalDataSource {
+) : SyncSettingsLocalDataRepository {
 	override suspend fun isSyncOnCooldown(): Boolean {
 		val cooldownTime = settings.getLongOrNull(PreferencesKeys.COOLDOWN_SYNC) ?: 0L
 

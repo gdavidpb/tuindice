@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.about.data.source
 
-import com.gdavidpb.tuindice.about.data.contract.AppInfoDataSource
-import com.gdavidpb.tuindice.about.data.contract.EnvironmentDataSource
+import com.gdavidpb.tuindice.about.data.repository.AppInfoDataRepository
+import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataRepository
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 
 class AboutDataSource(
-	private val environmentDataSource: EnvironmentDataSource,
-	private val appInfoDataSource: AppInfoDataSource,
+	private val environmentDataSource: EnvironmentDataRepository,
+	private val appInfoDataSource: AppInfoDataRepository,
 ) : AboutRepository {
 	override suspend fun getVersionDescription(): String {
 		val isDebug = environmentDataSource.isDebugEnvironment()

@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
-import com.gdavidpb.tuindice.evaluations.data.contract.DatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.data.contract.EvaluationsApiDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
@@ -16,8 +16,8 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationSyncSpec
 
 class EvaluationMutationSyncSpec(
-	private val databaseDataSource: DatabaseDataSource,
-	private val evaluationsApiDataSource: EvaluationsApiDataSource,
+	private val databaseDataSource: DatabaseDataRepository,
+	private val evaluationsApiDataSource: EvaluationsApiDataRepository,
 	private val refreshRemoteSnapshot: suspend () -> RemoteEvaluationsSnapshot
 ) : MutationSyncSpec<String, EvaluationMutation, LocalEvaluationsSnapshot, List<com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation>, EvaluationMutationAck> {
 	override val maxRebaseAttempts: Int = 3

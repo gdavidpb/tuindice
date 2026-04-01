@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.data.source.update
 
-import com.gdavidpb.tuindice.data.contract.activity.CurrentActivityProvider
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
+import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
@@ -12,7 +12,7 @@ import kotlinx.coroutines.tasks.await
 
 class PlayUpdateDataSource(
 	private val appUpdateManager: AppUpdateManager,
-	private val currentActivityProvider: CurrentActivityProvider
+	private val currentActivityDataSource: CurrentActivityDataSource
 ) : UpdateRepository {
 	private var pendingUpdateInfo: AppUpdateInfo? = null
 
@@ -40,7 +40,7 @@ class PlayUpdateDataSource(
 	}
 
 	override suspend fun launchUpdate(action: UpdateAction) {
-		val activity = currentActivityProvider.get() ?: return
+		val activity = currentActivityDataSource.get() ?: return
 		val updateInfo = pendingUpdateInfo ?: appUpdateManager.appUpdateInfo.await() ?: return
 
 		when (action) {

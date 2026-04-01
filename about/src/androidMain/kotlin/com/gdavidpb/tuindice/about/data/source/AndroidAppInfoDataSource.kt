@@ -2,11 +2,11 @@ package com.gdavidpb.tuindice.about.data.source
 
 import android.content.Context
 import android.os.Build
-import com.gdavidpb.tuindice.about.data.contract.AppInfoDataSource
+import com.gdavidpb.tuindice.about.data.repository.AppInfoDataRepository
 
 class AndroidAppInfoDataSource(
 	private val context: Context
-) : AppInfoDataSource {
+) : AppInfoDataRepository {
 	override fun appVersionName(): String {
 		val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
 

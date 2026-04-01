@@ -55,22 +55,21 @@ Implement module work by copying the nearest existing module pattern instead of 
 
 - Keep the dependency flow pointed inward. Do not add new feature-to-feature dependencies without explicit approval. Current legacy exception: `evaluations -> record`.
 - Preserve `presentation -> domain -> data -> di` separation. Interfaces live in `domain`; implementations live in `data`; `di` only wires them.
-- Within that separation, use this finer layering order when a module needs multiple data origins: `presentation -> domain -> data/repository -> data/contract -> data/source -> di`.
+- Within that separation, use this finer layering order when a module needs multiple data origins: `presentation -> domain -> data/repository -> data/source -> di`.
 - `domain/repository` contains business-facing contracts used by action processors, use cases, or view models. These interfaces should end with `Repository`.
 - `data/repository` contains internal data-layer interfaces for compositions over multiple origins only when a real internal abstraction is needed. These interfaces should end with `DataRepository`.
-- `data/contract` contains internal contracts for leaf origins such as API, DB, settings, or platform bridges.
-- `data/source` contains concrete implementations, whether they implement a `domain/repository`, `data/repository`, or `data/contract` contract directly. These classes should end with `DataSource`.
+- `data/source` contains concrete implementations, whether they implement a `domain/repository` or `data/repository` contract directly. These classes should end with `DataSource`.
 - Keep domain models in `domain/model`.
 - Keep domain-only mappers in `domain/mapper`.
 - Keep data-layer models in `data/model`.
 - Keep data-layer mappers in `data/mapper`.
 - If a `domain` contract needs multiple internal origins or shared coordination, define an internal `*DataRepository` interface in `data/repository` only when the data layer truly needs that extra abstraction, and keep all concrete implementations in `data/source`.
-- If a module needs to abstract a single leaf origin internally, keep that contract in `data/contract` and the implementation in `data/source`.
 - A `*DataSource` may implement a `domain/repository` contract directly when the domain contract maps cleanly to a single concrete origin.
 - A `*DataSource` may also implement a `*DataRepository` contract when it is one concrete origin behind a multi-origin data flow.
-- A `*DataSource` may also implement a `data/contract` interface when it is the concrete adapter for a leaf origin.
+- Do not create interface types with a `DataSource` suffix.
 - Do not place concrete orchestrator classes in `data/repository`. `data/repository` is for interfaces; implementations stay in `data/source`.
 - Do not create trivial `*DataRepository : *Repository` aliases. If a `DataSource` can implement the domain repository directly, prefer that.
+- Do not create `*DataRepository` for single-origin repositories. If there is only one concrete origin, keep that implementation in `data/source` and have it implement the domain `Repository` directly.
 - In `commonModule`, default shared runtime services and infrastructure repositories to `single`; use `factory` only when the object is intentionally transient or has no shared identity/state.
 - `ViewModel` classes extend `BaseViewModel` and delegate work to `ActionProcessor` classes.
 - For repository-backed feature state, prefer the `summary` and `record` split:

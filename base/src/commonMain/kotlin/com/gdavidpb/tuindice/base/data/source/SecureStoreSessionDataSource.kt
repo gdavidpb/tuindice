@@ -1,13 +1,13 @@
 package com.gdavidpb.tuindice.base.data.source
 
-import com.gdavidpb.tuindice.base.data.contract.PreferencesSessionDataSource
+import com.gdavidpb.tuindice.base.data.repository.PreferencesSessionDataRepository
 
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
 import eu.anifantakis.lib.ksafe.KSafe
 
 class SecureStoreSessionDataSource(
 	private val kSafe: KSafe
-) : PreferencesSessionDataSource {
+) : PreferencesSessionDataRepository {
 	override suspend fun hasActiveSession(): Boolean {
 		return kSafe.getDirect<String?>(key = PreferencesKeys.USER_ACCESS_TOKEN, defaultValue = null) != null ||
 					kSafe.getDirect<String?>(key = PreferencesKeys.USER_REFRESH_TOKEN, defaultValue = null) != null

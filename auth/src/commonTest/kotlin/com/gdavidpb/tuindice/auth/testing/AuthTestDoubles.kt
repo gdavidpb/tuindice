@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.auth.data.contract.AuthApiDataSource
+import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
@@ -183,7 +183,7 @@ class FakeAuthApiDataSource(
 	private val issueTokens: IssueTokens = DEFAULT_ISSUE_TOKENS,
 	private val refreshTokens: RefreshTokens = DEFAULT_REFRESH_TOKENS,
 	private val throwable: Throwable? = null
-) : AuthApiDataSource {
+) : AuthApiDataRepository {
 	var issueCalls = mutableListOf<IssueTokensCall>()
 	var refreshCalls = mutableListOf<Triple<String, String, Attestation>>()
 	var revokeCalls = 0

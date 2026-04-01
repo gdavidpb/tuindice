@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.summary.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.User
-import com.gdavidpb.tuindice.summary.data.contract.user.DebugProfilePictureStorageDataSource
-import com.gdavidpb.tuindice.summary.data.contract.user.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.DebugProfilePictureStorageDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
@@ -99,7 +99,7 @@ class DebugSummaryRemoteDataSourceTest {
 	private class RecordingRemoteDataSource(
 		private val user: User = DEFAULT_SUMMARY_USER,
 		private val profilePicture: ProfilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE
-	) : RemoteDataSource {
+	) : RemoteDataRepository {
 		val uploadCalls = mutableListOf<Pair<ByteArray, String>>()
 		var removeCalls = 0
 
@@ -118,7 +118,7 @@ class DebugSummaryRemoteDataSourceTest {
 	private class FakeDebugProfilePictureStorageDataSource(
 		localPictureUrl: String? = null,
 		storedRemoteUrl: String? = null
-	) : DebugProfilePictureStorageDataSource {
+	) : DebugProfilePictureStorageDataRepository {
 		var savedContent: ByteArray? = null
 		var savedRemoteUrl: String? = null
 		var clearCalls = 0

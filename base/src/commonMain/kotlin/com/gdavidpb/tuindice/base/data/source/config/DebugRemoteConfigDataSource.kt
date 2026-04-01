@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.base.data.source.config
 
-import com.gdavidpb.tuindice.base.data.contract.config.RemoteConfigDataSource
+import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 
 import com.gdavidpb.tuindice.base.logging.appLogger
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 class DebugRemoteConfigDataSource(
 	private val defaults: DefaultRemoteConfigValues,
 	private val sourceName: String
-) : RemoteConfigDataSource {
+) : RemoteConfigDataRepository {
 	private val logger = appLogger(tag = "RemoteConfig")
 
 	override suspend fun fetch() {

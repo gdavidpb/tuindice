@@ -2,10 +2,10 @@ package com.gdavidpb.tuindice.summary.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
-import com.gdavidpb.tuindice.summary.data.contract.user.LocalDataSource
-import com.gdavidpb.tuindice.summary.data.contract.user.PictureEncoderDataSource
-import com.gdavidpb.tuindice.summary.data.contract.user.RemoteDataSource
-import com.gdavidpb.tuindice.summary.data.contract.user.SettingsDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
@@ -17,10 +17,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
 
 class UserDataSource(
-	private val localDataSource: LocalDataSource,
-	private val remoteDataSource: RemoteDataSource,
-	private val settingsDataSource: SettingsDataSource,
-	private val pictureEncoderDataSource: PictureEncoderDataSource
+	private val localDataSource: LocalDataRepository,
+	private val remoteDataSource: RemoteDataRepository,
+	private val settingsDataSource: SettingsDataRepository,
+	private val pictureEncoderDataSource: PictureEncoderDataRepository
 ) : UserRepository {
 	private companion object {
 		const val MAX_PROFILE_PICTURE_UPLOAD_BYTES = 1_048_576

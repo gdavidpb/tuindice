@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
-import com.gdavidpb.tuindice.summary.data.contract.user.PictureEncoderDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import io.github.vinceglb.filekit.PlatformFile
@@ -13,7 +13,7 @@ import org.jetbrains.skia.Image
 import org.jetbrains.skia.Rect
 import org.jetbrains.skia.Surface
 
-class FileKitSkiaPictureEncoderDataSource : PictureEncoderDataSource {
+class FileKitSkiaPictureEncoderDataSource : PictureEncoderDataRepository {
 	private object Settings {
 		const val JPEG_MIME_TYPE = "image/jpeg"
 		const val JPEG_QUALITY = 85

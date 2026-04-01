@@ -3,9 +3,9 @@ package com.gdavidpb.tuindice.enrollmentproof.testing
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.enrollmentproof.data.contract.DatabaseDataSource
-import com.gdavidpb.tuindice.enrollmentproof.data.contract.EnrollmentProofApiDataSource
-import com.gdavidpb.tuindice.enrollmentproof.data.contract.StorageDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.DatabaseDataRepository
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.EnrollmentProofApiDataRepository
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.StorageDataRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
@@ -38,14 +38,14 @@ val DEFAULT_ENROLLMENT_PROOF = EnrollmentProof(
 
 class FakeDatabaseDataSource(
 	private val currentQuarterName: String? = CURRENT_QUARTER_NAME
-) : DatabaseDataSource {
+) : DatabaseDataRepository {
 	override suspend fun getCurrentQuarterName(): String? = currentQuarterName
 }
 
 class FakeEnrollmentProofApiDataSource(
 	private val enrollmentProof: EnrollmentProof = DEFAULT_ENROLLMENT_PROOF,
 	private val throwable: Throwable? = null
-) : EnrollmentProofApiDataSource {
+) : EnrollmentProofApiDataRepository {
 	var invocationCount = 0
 		private set
 	var lastPassword: String? = null
@@ -61,7 +61,7 @@ class FakeEnrollmentProofApiDataSource(
 
 class RecordingStorageDataSource(
 	initialFiles: Map<String, EnrollmentProof> = emptyMap()
-) : StorageDataSource {
+) : StorageDataRepository {
 	private val files = initialFiles.toMutableMap()
 
 	val savedProofs = mutableListOf<Pair<String, EnrollmentProof>>()

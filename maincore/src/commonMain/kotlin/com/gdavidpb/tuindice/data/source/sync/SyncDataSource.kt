@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isFailedDependency
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
-import com.gdavidpb.tuindice.data.contract.sync.SyncRemoteDataSource
-import com.gdavidpb.tuindice.data.contract.sync.SyncSettingsLocalDataSource
+import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
+import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,9 +17,9 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 class SyncDataSource(
-	private val settingsDataSource: SyncSettingsLocalDataSource,
+	private val settingsDataSource: SyncSettingsLocalDataRepository,
 	private val syncStatusRepository: SyncStatusRepository,
-	private val remoteDataSource: SyncRemoteDataSource,
+	private val remoteDataSource: SyncRemoteDataRepository,
 	syncDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : SyncRepository {
 	private val syncScope = CoroutineScope(SupervisorJob() + syncDispatcher)

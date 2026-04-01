@@ -374,7 +374,7 @@ private class RecordingAndroidProofOfPossessionCapability(
 	}
 }
 
-private class RecordingAttestationProviderDataSource : AttestationProviderDataSource {
+private class RecordingAttestationProviderDataSource : AttestationProviderDataRepository {
 	data class Call(
 		val bindingHash: String,
 		val evidenceMode: AttestationEvidenceMode

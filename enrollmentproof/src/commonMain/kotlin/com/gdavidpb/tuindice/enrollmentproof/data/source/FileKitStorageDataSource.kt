@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.enrollmentproof.data.source
 
-import com.gdavidpb.tuindice.enrollmentproof.data.contract.StorageDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.StorageDataRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 import io.github.vinceglb.filekit.*
 import kotlin.io.encoding.Base64
 
-class FileKitStorageDataSource : StorageDataSource {
+class FileKitStorageDataSource : StorageDataRepository {
 	private val enrollmentProofDir = FileKit.filesDir / "enrollmentProofs"
 
 	override suspend fun getEnrollmentProof(name: String): EnrollmentProof {

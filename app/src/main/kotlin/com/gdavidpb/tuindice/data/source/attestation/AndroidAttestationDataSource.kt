@@ -16,7 +16,7 @@ import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.utils.attestationBindingInput
 import com.gdavidpb.tuindice.base.utils.extension.isForbidden
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionRequired
-import com.gdavidpb.tuindice.data.contract.attestation.AttestationProviderDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -30,7 +30,7 @@ import kotlinx.coroutines.sync.withLock
 
 class AndroidAttestationDataSource(
 	private val ktorClient: HttpClient,
-	private val providerDataSource: AttestationProviderDataSource,
+	private val providerDataSource: AttestationProviderDataRepository,
 	private val proofOfPossessionCapability: AndroidProofOfPossessionCapability
 ) : AttestationRepository {
 	private val proofOfPossessionMutex = Mutex()

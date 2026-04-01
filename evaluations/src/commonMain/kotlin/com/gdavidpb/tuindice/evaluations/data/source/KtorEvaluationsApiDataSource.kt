@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.evaluations.data.model.GetEvaluationsResponse
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.UpdateEvaluationResponse
-import com.gdavidpb.tuindice.evaluations.data.contract.EvaluationsApiDataSource
+import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import io.ktor.client.HttpClient
@@ -28,7 +28,7 @@ import io.ktor.http.appendPathSegments
 
 class KtorEvaluationsApiDataSource(
 	private val ktorClient: HttpClient
-) : EvaluationsApiDataSource {
+) : EvaluationsApiDataRepository {
 	override suspend fun getEvaluations(): RemoteEvaluationsSnapshot {
 		return ktorClient.get("evaluations/v2")
 			.body<GetEvaluationsResponse>()

@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.record.data.model.SubjectGradePreview
 import com.gdavidpb.tuindice.record.data.model.SubjectPreviewKey
-import com.gdavidpb.tuindice.record.data.contract.QuarterLocalDataSource
+import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataRepository
 import com.gdavidpb.tuindice.record.data.resolver.VisibleRecordStateResolver
 import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_SCOPE
 import com.gdavidpb.tuindice.record.data.mutation.RecordMutationAck
@@ -27,7 +27,7 @@ class RoomDataSource(
 	private val indexComputationEngine: IndexComputationEngine,
 	private val mutationEngine: StoreBackedMutationEngine<String, RecordMutation, List<LocalQuarter>, List<LocalQuarter>, RecordMutationAck>,
 	private val visibleRecordStateResolver: VisibleRecordStateResolver
-) : QuarterLocalDataSource {
+) : QuarterLocalDataRepository {
 	private val writeMutex = Mutex()
 	private val previewQuartersFlow = MutableStateFlow(0L)
 

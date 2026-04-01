@@ -1,14 +1,14 @@
 package com.gdavidpb.tuindice.summary.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.User
-import com.gdavidpb.tuindice.summary.data.contract.user.DebugProfilePictureStorageDataSource
-import com.gdavidpb.tuindice.summary.data.contract.user.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.DebugProfilePictureStorageDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 
 class DebugSummaryRemoteDataSource(
-	private val apiRemoteDataSource: RemoteDataSource,
-	private val debugProfilePictureStorageDataSource: DebugProfilePictureStorageDataSource
-) : RemoteDataSource {
+	private val apiRemoteDataSource: RemoteDataRepository,
+	private val debugProfilePictureStorageDataSource: DebugProfilePictureStorageDataRepository
+) : RemoteDataRepository {
 	override suspend fun getUser(): User {
 		val remoteUser = apiRemoteDataSource.getUser()
 

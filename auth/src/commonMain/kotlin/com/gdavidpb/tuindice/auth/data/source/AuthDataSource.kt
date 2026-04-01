@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.auth.data.source
 
-import com.gdavidpb.tuindice.auth.data.contract.AuthApiDataSource
+import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 
 class AuthDataSource(
-	private val authApiDataSource: AuthApiDataSource,
+	private val authApiDataSource: AuthApiDataRepository,
 	private val sessionRepository: SessionRepository,
 	private val reportingRepository: ReportingRepository
 ) : AuthRepository {

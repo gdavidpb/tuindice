@@ -5,9 +5,9 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.record.data.source.QuarterDataSource
 import com.gdavidpb.tuindice.record.data.source.QuarterSelectionDataSource
-import com.gdavidpb.tuindice.record.data.contract.QuarterLocalDataSource
-import com.gdavidpb.tuindice.record.data.contract.QuarterRemoteDataSource
-import com.gdavidpb.tuindice.record.data.contract.QuarterSettingsDataSource
+import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataRepository
+import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataRepository
+import com.gdavidpb.tuindice.record.data.repository.QuarterSettingsDataRepository
 import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.record.data.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.mutation.RecordMutationAck
@@ -107,7 +107,7 @@ val recordModule = module {
 
 	/* Data sources */
 
-	single<QuarterLocalDataSource> {
+	single<QuarterLocalDataRepository> {
 		RoomDataSource(
 			room = get(),
 			indexComputationEngine = get(),
@@ -115,8 +115,8 @@ val recordModule = module {
 			visibleRecordStateResolver = get()
 		)
 	}
-	factoryOf(::RecordApiDataSource) { bind<QuarterRemoteDataSource>() }
-	singleOf(::LocalSettingsDataSource) { bind<QuarterSettingsDataSource>() }
+	factoryOf(::RecordApiDataSource) { bind<QuarterRemoteDataRepository>() }
+	singleOf(::LocalSettingsDataSource) { bind<QuarterSettingsDataRepository>() }
 
 	/* Exception handlers */
 

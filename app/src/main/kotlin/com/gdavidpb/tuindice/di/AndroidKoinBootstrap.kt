@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.di
 
 import android.app.Application
 import com.gdavidpb.tuindice.base.utils.ANDROID_LOCALE_LANGUAGE_TAG
-import com.gdavidpb.tuindice.data.contract.activity.CurrentActivityProvider
+import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityLifecycleCallbacks
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidFileProperties
@@ -59,7 +59,7 @@ class AndroidKoinBootstrap(
 	override fun afterStart(koin: Koin) {
 		application.registerActivityLifecycleCallbacks(
 			CurrentActivityLifecycleCallbacks(
-				currentActivityProvider = koin.get<CurrentActivityProvider>()
+				currentActivityDataSource = koin.get<CurrentActivityDataSource>()
 			)
 		)
 	}

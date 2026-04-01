@@ -118,8 +118,8 @@ Reglas:
 - Cada feature expone una interfaz de fachada de negocio en `domain/repository`.
 - Si la capa `data` necesita una abstracción interna real para coordinar múltiples orígenes, ese contrato puede
   modelarse como interfaz en `data/repository` con sufijo `DataRepository`.
-- Si la capa `data` necesita abstraer un origen hoja interno como API, DB, settings o bridge de plataforma,
-  ese contrato vive en `data/contract` y la implementación concreta queda en `data/source`.
+- Si un repositorio de dominio se resuelve con un único origen concreto, ese `DataSource` debe implementar
+  directamente la interfaz de `domain/repository`.
 
 ### Data
 
@@ -128,7 +128,6 @@ Responsable de integraciones y persistencia.
 Ubicación típica:
 
 - `data/repository/*`: interfaces internas de la capa `data` para coordinación multi-origen.
-- `data/contract/*`: contratos internos de orígenes hoja como API, DB, settings y bridges de plataforma.
 - `data/source/*`: implementaciones concretas de contratos de `domain/repository` y `data/repository`.
 - `data/mapper/*`: mapeos entre modelos remotos/locales y dominio.
 
@@ -139,16 +138,17 @@ Reglas:
 - Los mapeos puramente de dominio pueden vivir en `domain/mapper`.
 - Las interfaces de dominio viven en `domain/repository` y usan sufijo `Repository`.
 - Los contratos internos de la capa `data` viven en `data/repository` y usan sufijo `DataRepository` sólo cuando
-  representan una abstracción interna real.
+  representan una abstracción interna real sobre múltiples orígenes dentro de la capa `data`.
 - Los modelos internos de la capa `data` viven en `data/model`.
 - Los mapeos de persistencia, red y adaptación interna viven en `data/mapper`.
-- Los contratos internos de orígenes hoja viven en `data/contract` y pueden conservar nombres orientados al origen,
-  por ejemplo `RemoteDataSource`, `DatabaseDataSource` o `PushTokenDataSource`.
 - Las implementaciones concretas viven en `data/source` y usan sufijo `DataSource`.
-- Un `*DataSource` puede implementar directamente un contrato de `domain/repository`, `data/repository` o `data/contract`.
+- No deben existir interfaces `*DataSource`.
+- Un `*DataSource` puede implementar directamente un contrato de `domain/repository`.
+- Un `*DataSource` puede implementar un `*DataRepository` cuando es uno de los orígenes concretos detrás de una
+  coordinación multi-origen.
 - No crear `*DataRepository` triviales que sólo extienden un `*Repository` de dominio sin agregar una abstracción interna.
+- No crear `*DataRepository` para repositorios de un solo origen.
 - `data/repository` no debe contener DTOs, modelos remotos, mutaciones, resolvers ni clases concretas.
-- `data/contract` no debe contener implementaciones concretas, DTOs ni helpers de mapping.
 - Los helpers y modelos auxiliares deben vivir en paquetes explícitos como `data/model`, `data/mutation`,
   `data/resolver`, `data/source/api`, `data/source/database` o equivalentes.
 - Si una feature necesita leer contratos compartidos de otro módulo, debe hacerlo mediante adapters propios de esa

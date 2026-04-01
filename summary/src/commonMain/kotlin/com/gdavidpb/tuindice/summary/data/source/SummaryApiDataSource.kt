@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.User
-import com.gdavidpb.tuindice.summary.data.contract.user.RemoteDataSource
+import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.mapper.toProfilePicture
 import com.gdavidpb.tuindice.summary.data.mapper.toUser
 import com.gdavidpb.tuindice.summary.data.model.UserResponse
@@ -20,7 +20,7 @@ import io.ktor.http.contentType
 
 class SummaryApiDataSource(
 	private val ktorClient: HttpClient
-) : RemoteDataSource {
+) : RemoteDataRepository {
 	override suspend fun getUser(): User {
 		return ktorClient.get("users/v1")
 			.body<UserResponse>()

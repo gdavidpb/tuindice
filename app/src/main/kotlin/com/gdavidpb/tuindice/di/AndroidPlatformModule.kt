@@ -3,38 +3,36 @@ package com.gdavidpb.tuindice.di
 import android.net.ConnectivityManager
 import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.about.data.contract.AppInfoDataSource
-import com.gdavidpb.tuindice.about.data.contract.EnvironmentDataSource
-import com.gdavidpb.tuindice.about.data.contract.StoreUrlDataSource
+import com.gdavidpb.tuindice.about.data.repository.AppInfoDataRepository
+import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataRepository
+import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataRepository
 import com.gdavidpb.tuindice.about.data.source.AndroidAppInfoDataSource
 import com.gdavidpb.tuindice.about.data.source.AndroidEnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.source.AndroidShareTextHandler
 import com.gdavidpb.tuindice.about.data.source.AndroidStoreUrlDataSource
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
-import com.gdavidpb.tuindice.base.data.contract.*
-import com.gdavidpb.tuindice.base.data.contract.config.RemoteConfigDataSource
+import com.gdavidpb.tuindice.base.data.repository.*
+import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.extension.toFirebaseDefaultsMap
-import com.gdavidpb.tuindice.data.contract.attestation.AttestationProviderDataSource
+import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
 import com.gdavidpb.tuindice.data.source.attestation.AndroidAttestationDataSource
 import com.gdavidpb.tuindice.data.source.attestation.PlayIntegrityDataSource
-import com.gdavidpb.tuindice.data.contract.messaging.PushTokenDataSource
+import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.data.source.messaging.FirebasePushTokenDataSource
 import com.gdavidpb.tuindice.data.source.actions.AndroidFileOpenerDataSource
-import com.gdavidpb.tuindice.data.contract.activity.CurrentActivityProvider
-import com.gdavidpb.tuindice.data.source.activity.InMemoryCurrentActivityProvider
+import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
 import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.browser.AndroidBrowserDataSource
 import com.gdavidpb.tuindice.data.source.config.AndroidRemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.device.AndroidDeviceInfoDataSource
 import com.gdavidpb.tuindice.data.source.environment.BuildConfigEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
-import com.gdavidpb.tuindice.data.contract.reporting.CrashReporterDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
-import com.gdavidpb.tuindice.data.source.reporting.FirebaseCrashReporter
+import com.gdavidpb.tuindice.data.source.reporting.CrashReporterDataSource
 import com.gdavidpb.tuindice.data.source.review.PlayReviewDataSource
 import com.gdavidpb.tuindice.data.source.update.PlayUpdateDataSource
 import com.gdavidpb.tuindice.persistence.di.registerAndroidPersistencePlatformStorage
@@ -144,9 +142,9 @@ private fun Module.registerAndroidPlatformPrimitives() {
 private fun Module.registerAndroidPlatformServices() {
 	singleOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	singleOf(::AndroidKeystoreProofOfPossessionCapability) { bind<AndroidProofOfPossessionCapability>() }
-	singleOf(::AndroidRemoteConfigDataSource) { bind<RemoteConfigDataSource>() }
-	singleOf(::FirebasePushTokenDataSource) { bind<PushTokenDataSource>() }
-	singleOf(::InMemoryCurrentActivityProvider) { bind<CurrentActivityProvider>() }
+	singleOf(::AndroidRemoteConfigDataSource) { bind<RemoteConfigDataRepository>() }
+	singleOf(::FirebasePushTokenDataSource) { bind<PushTokenDataRepository>() }
+	singleOf(::CurrentActivityDataSource)
 	singleOf(::PlayReviewDataSource) { bind<ReviewRepository>() }
 	singleOf(::PlayUpdateDataSource) { bind<UpdateRepository>() }
 	singleOf(::AndroidBrowserDataSource) { bind<BrowserRepository>() }
@@ -157,7 +155,7 @@ private fun Module.registerAndroidPlatformServices() {
 		bind<ApplicationRepository>()
 		bind<FileRepository>()
 	}
-	singleOf(::FirebaseCrashReporter) { bind<CrashReporterDataSource>() }
+	singleOf(::createCrashReporterDataSource)
 	singleOf(::CrashlyticsReportingDataSource) {
 		bind<ReportingRepository>()
 	}
@@ -170,14 +168,14 @@ private fun Module.registerAndroidPlatformServices() {
 }
 
 private fun Module.registerAndroidFeaturePlatformBindings() {
-	factoryOf(::AndroidEnvironmentDataSource) { bind<EnvironmentDataSource>() }
-	factoryOf(::AndroidAppInfoDataSource) { bind<AppInfoDataSource>() }
-	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlDataSource>() }
+	factoryOf(::AndroidEnvironmentDataSource) { bind<EnvironmentDataRepository>() }
+	factoryOf(::AndroidAppInfoDataSource) { bind<AppInfoDataRepository>() }
+	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlDataRepository>() }
 	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
 }
 
 private fun Module.registerAndroidPlatformNetworking() {
-	singleOf(::PlayIntegrityDataSource) { bind<AttestationProviderDataSource>() }
+	singleOf(::PlayIntegrityDataSource) { bind<AttestationProviderDataRepository>() }
 	factoryOf(::AndroidAttestationDataSource) { bind<AttestationRepository>() }
 
 	single {
@@ -197,4 +195,20 @@ private fun Module.registerAndroidPlatformNetworking() {
 			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()
 		)
 	}
+}
+
+private fun createCrashReporterDataSource(
+	crashlytics: FirebaseCrashlytics
+): CrashReporterDataSource {
+	return CrashReporterDataSource(
+		setUserIdAction = crashlytics::setUserId,
+		recordExceptionAction = crashlytics::recordException,
+		logAction = crashlytics::log,
+		setIntKeyAction = crashlytics::setCustomKey,
+		setLongKeyAction = crashlytics::setCustomKey,
+		setFloatKeyAction = crashlytics::setCustomKey,
+		setDoubleKeyAction = crashlytics::setCustomKey,
+		setStringKeyAction = crashlytics::setCustomKey,
+		setBooleanKeyAction = crashlytics::setCustomKey
+	)
 }
