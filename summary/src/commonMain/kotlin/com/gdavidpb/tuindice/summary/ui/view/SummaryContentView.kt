@@ -51,6 +51,8 @@ fun SummaryContentView(
 		horizontalAlignment = Alignment.CenterHorizontally
 	) {
 		ProfilePictureView(
+			modifier = Modifier
+				.padding(top = 12.dp),
 			isEnabled = isProfilePictureInteractionEnabled,
 			url = state.profilePictureUrl,
 			isLoading = state.isProfilePictureLoading,

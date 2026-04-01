@@ -23,7 +23,7 @@ import com.gdavidpb.tuindice.base.ui.BaseUiTags
 @Composable
 fun ConfirmationDialogEntry(
 	icon: ImageVector,
-	iconColor: Color = MaterialTheme.colorScheme.outline,
+	iconColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
 	text: String,
 	textColor: Color = Color.Unspecified,
 	onClick: () -> Unit
