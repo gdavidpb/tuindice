@@ -74,6 +74,9 @@ fun TuIndiceAppHostRoute(
 			}
 		}
 	}
+	val dismissSnackBar: () -> Unit = {
+		snackbarHostState.currentSnackbarData?.dismiss()
+	}
 
 	LaunchedEffect(Unit) {
 		yield()
@@ -180,7 +183,8 @@ fun TuIndiceAppHostRoute(
 			onViewStateChanged = { viewState ->
 				shellState.value = viewState.toMainShellState()
 			},
-			showSnackBar = showSnackBar
+			showSnackBar = showSnackBar,
+			dismissSnackBar = dismissSnackBar
 		)
 	}
 }

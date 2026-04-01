@@ -67,7 +67,8 @@ fun TuIndiceScreen(
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
-	showSnackBar: (message: SnackBarMessage) -> Unit
+	showSnackBar: (message: SnackBarMessage) -> Unit,
+	dismissSnackBar: () -> Unit = {}
 ) {
 	when (state) {
 		is Main.State.Starting -> {
@@ -190,7 +191,8 @@ fun TuIndiceScreen(
 			isCameraAvailable = isCameraAvailable,
 			onNavigateToExternalResource = onNavigateToExternalResource,
 			onViewStateChanged = onViewStateChanged,
-			showSnackBar = showSnackBar
+			showSnackBar = showSnackBar,
+			dismissSnackBar = dismissSnackBar
 		)
 	}
 }

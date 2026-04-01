@@ -35,7 +35,8 @@ fun TuIndiceNavHost(
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
-	showSnackBar: (message: SnackBarMessage) -> Unit
+	showSnackBar: (message: SnackBarMessage) -> Unit,
+	dismissSnackBar: () -> Unit = {}
 ) {
 	val canNavigateBack = navController.canNavigateBackFromCurrentDestination()
 
@@ -74,7 +75,8 @@ fun TuIndiceNavHost(
 			},
 			onDismissRequest = { navController.navigateUp() },
 			onViewStateChanged = onViewStateChanged,
-			showSnackBar = showSnackBar
+			showSnackBar = showSnackBar,
+			dismissSnackBar = dismissSnackBar
 		)
 
 		summaryNavigation(

@@ -15,11 +15,20 @@ fun SignInRoute(
 	onNavigateToSummary: () -> Unit,
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
+	dismissSnackBar: () -> Unit = {},
 	viewModel: SignInViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle(
 		minActiveState = Lifecycle.State.CREATED
 	)
+
+	val onSignInClick: (String, String) -> Unit = { usbId, password ->
+		dismissSnackBar()
+		viewModel.signInAction(
+			usbId = usbId,
+			password = password
+		)
+	}
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
@@ -45,10 +54,7 @@ fun SignInRoute(
 						message = effect.message,
 						actionLabel = effect.actionLabel,
 						onAction = {
-							viewModel.signInAction(
-								usbId = effect.params.usbId,
-								password = effect.params.password
-							)
+							onSignInClick(effect.params.usbId, effect.params.password)
 						}
 					)
 				)
@@ -60,7 +66,7 @@ fun SignInRoute(
 		onUsbIdChange = viewModel::setUsbIdAction,
 		onPasswordChange = viewModel::setPasswordAction,
 		onPasswordVisibilityToggle = viewModel::togglePasswordVisibilityAction,
-		onSignInClick = viewModel::signInAction,
+		onSignInClick = onSignInClick,
 		onTermsAndConditionsClick = viewModel::openTermsAndConditionsAction,
 		onPrivacyPolicyClick = viewModel::openPrivacyPolicyAction
 	)

@@ -112,6 +112,7 @@ class SignInRouteUiTest {
 			termsAndConditionsUrl = "https://tuindice.test/terms"
 		)
 		var summaryNavigations = 0
+		var dismissSnackBarCalls = 0
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
@@ -119,6 +120,7 @@ class SignInRouteUiTest {
 				onNavigateToSummary = { summaryNavigations++ },
 				onNavigateToBrowser = { _, _ -> },
 				showSnackBar = { message -> shownSnackBars += message },
+				dismissSnackBar = { dismissSnackBarCalls++ },
 				viewModel = fixture.viewModel
 			)
 		}
@@ -133,6 +135,7 @@ class SignInRouteUiTest {
 
 		val call = fixture.authRepository.issueTokensCalls.first()
 		assertEquals(1, summaryNavigations)
+		assertEquals(1, dismissSnackBarCalls)
 		assertEquals("12-34567", call.usbId)
 		assertEquals("1234", call.password)
 		assertEquals(AttestedTokenFlow.IssueTokens, call.flow)

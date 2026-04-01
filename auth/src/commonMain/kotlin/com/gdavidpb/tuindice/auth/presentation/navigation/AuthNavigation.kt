@@ -23,7 +23,8 @@ fun NavGraphBuilder.authNavigation(
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
 	onDismissRequest: () -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
-	showSnackBar: (message: SnackBarMessage) -> Unit
+	showSnackBar: (message: SnackBarMessage) -> Unit,
+	dismissSnackBar: () -> Unit = {}
 ) {
 	navigation<AuthDestination.NavGraph>(startDestination = AuthDestination.SignIn) {
 		composable<AuthDestination.SignIn> { backStackEntry ->
@@ -38,6 +39,7 @@ fun NavGraphBuilder.authNavigation(
 				onNavigateToSummary = onNavigateToSummary,
 				onNavigateToBrowser = onNavigateToBrowser,
 				showSnackBar = showSnackBar,
+				dismissSnackBar = dismissSnackBar,
 				viewModel = viewModel
 			)
 		}
