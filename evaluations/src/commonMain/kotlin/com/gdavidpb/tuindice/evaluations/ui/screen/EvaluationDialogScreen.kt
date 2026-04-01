@@ -37,7 +37,7 @@ fun MaxGradePickerContentDialog(
 		title = stringResource(Res.string.dialog_title_add_evaluation_max_grade),
 		acceptText = stringResource(Res.string.accept),
 		cancelText = stringResource(Res.string.cancel),
-		selectedGrade = selectedGrade ?: MAX_EVALUATION_DIALOG_GRADE,
+		selectedGrade = selectedGrade ?: MIN_EVALUATION_DIALOG_GRADE,
 		gradeRange = EvaluationGradeWheelPickerDefaults.GradeRange,
 		onGradeChange = onGradeChange,
 		onDismissRequest = onDismissRequest,
