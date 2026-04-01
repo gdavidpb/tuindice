@@ -56,6 +56,10 @@ class EvaluationViewModelContractTest {
 				val selected = assertIs<Evaluation.State.Content>(awaitItem())
 				assertEquals(SECOND_EVALUATION_SUBJECT, selected.selectedSubject)
 
+				viewModel.setSubjectAction(null)
+				val cleared = assertIs<Evaluation.State.Content>(awaitItem())
+				assertEquals(null, cleared.selectedSubject)
+
 				cancelAndIgnoreRemainingEvents()
 			}
 

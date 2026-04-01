@@ -122,7 +122,10 @@ fun EvaluationDatePicker(
 				modifier = Modifier
 					.offset(x = (-8).dp),
 				imageVector = Icons.Outlined.Event,
-				tint = MaterialTheme.colorScheme.outline,
+				tint = if (selectedDate != null)
+					MaterialTheme.colorScheme.primary
+				else
+					MaterialTheme.colorScheme.outline,
 				contentDescription = null
 			)
 

@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.testing.uiSubjects
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -19,25 +20,52 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 class EvaluationSubjectPickerUiTest {
 	@Test
-	fun when_subjectChipTapped_then_invokesSelectionCallback() = runTuIndiceUiTest {
+	fun when_noSubjectIsSelected_then_subjectChipTapped_invokesSelectionCallback() = runTuIndiceUiTest {
 		val subjects = uiSubjects()
 		var selectedSubject: Subject? = null
 
 		setTuIndiceTestContent {
 			EvaluationSubjectPicker(
 				subjects = subjects,
-				selectedSubject = subjects.first(),
+				selectedSubject = null,
 				onSubjectChange = { subject -> selectedSubject = subject }
 			)
 		}
 
 		assertNodeVisible(EvaluationsUiTags.EvaluationSubjectPickerRow)
+		assertNodeVisible(EvaluationsUiTags.evaluationSubjectChip(subjects[0].id))
+		assertNodeVisible(EvaluationsUiTags.evaluationSubjectChip(subjects[1].id))
 
 		onNodeWithTag(
 			EvaluationsUiTags.evaluationSubjectChip(subjects[1].id)
 		).performClick()
 
 		assertEquals(subjects[1], selectedSubject)
+	}
+
+	@Test
+	fun when_selectedSubjectChipTapped_then_pickerClearsSelection_andShowsAllSubjects() = runTuIndiceUiTest {
+		val subjects = uiSubjects()
+		val selectedSubjectState = mutableStateOf<Subject?>(subjects.first())
+
+		setTuIndiceTestContent {
+			EvaluationSubjectPicker(
+				subjects = subjects,
+				selectedSubject = selectedSubjectState.value,
+				onSubjectChange = { subject -> selectedSubjectState.value = subject }
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.evaluationSubjectChip(subjects[0].id))
+		assertNodeHidden(EvaluationsUiTags.evaluationSubjectChip(subjects[1].id))
+
+		onNodeWithTag(
+			EvaluationsUiTags.evaluationSubjectChip(subjects[0].id)
+		).performClick()
+
+		assertEquals(null, selectedSubjectState.value)
+		assertNodeVisible(EvaluationsUiTags.evaluationSubjectChip(subjects[0].id))
+		assertNodeVisible(EvaluationsUiTags.evaluationSubjectChip(subjects[1].id))
 	}
 
 	@Test
@@ -49,7 +77,7 @@ class EvaluationSubjectPickerUiTest {
 			EvaluationSubjectPicker(
 				enabled = false,
 				subjects = subjects,
-				selectedSubject = subjects.first(),
+				selectedSubject = null,
 				onSubjectChange = { subject -> selectedSubject = subject }
 			)
 		}
@@ -62,9 +90,9 @@ class EvaluationSubjectPickerUiTest {
 	}
 
 	@Test
-	fun when_selectedSubjectChangesExternally_then_chipSelectionUpdates() = runTuIndiceUiTest {
+	fun when_selectedSubjectChangesExternally_then_pickerCollapsesToTheNewSelection() = runTuIndiceUiTest {
 		val subjects = uiSubjects()
-		val selectedSubjectState = mutableStateOf<Subject?>(subjects.first())
+		val selectedSubjectState = mutableStateOf<Subject?>(null)
 
 		setTuIndiceTestContent {
 			EvaluationSubjectPicker(
@@ -77,6 +105,9 @@ class EvaluationSubjectPickerUiTest {
 		runOnIdle {
 			selectedSubjectState.value = subjects[1]
 		}
+
+		assertNodeHidden(EvaluationsUiTags.evaluationSubjectChip(subjects[0].id))
+		assertNodeVisible(EvaluationsUiTags.evaluationSubjectChip(subjects[1].id))
 
 		onNodeWithTag(
 			EvaluationsUiTags.evaluationSubjectChip(subjects[1].id)

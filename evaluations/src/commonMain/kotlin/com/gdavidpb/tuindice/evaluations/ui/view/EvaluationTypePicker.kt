@@ -1,5 +1,12 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,8 +16,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -22,41 +27,55 @@ import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 @Composable
 fun EvaluationTypePicker(
 	selectedType: EvaluationType? = null,
-	onTypeChange: (EvaluationType) -> Unit
+	onTypeChange: (EvaluationType?) -> Unit
 ) {
-	val selectedTypeState = remember(selectedType) {
-		mutableStateOf(selectedType)
-	}
-
 	FlowRow(
 		modifier = Modifier
+			.animateContentSize(animationSpec = spring())
 			.testTag(EvaluationsUiTags.EvaluationTypePickerRow)
 			.padding(top = 8.dp)
 			.fillMaxWidth(),
-		horizontalArrangement = Arrangement.spacedBy(6.dp)
+		horizontalArrangement = Arrangement.spacedBy(6.dp),
+		verticalArrangement = Arrangement.spacedBy(6.dp)
 	) {
 		EvaluationType.entries.forEach { type ->
-			FilterChip(
-				modifier = Modifier.testTag(EvaluationsUiTags.evaluationTypeChip(type.name)),
-				selected = (type == selectedTypeState.value),
-				onClick = {
-					selectedTypeState.value = type
-					onTypeChange(type)
-				},
-				leadingIcon = {
-					Icon(
-						imageVector = type.asIcon(),
-						tint = MaterialTheme.colorScheme.outline,
-						contentDescription = null
-					)
-				},
-				label = {
-					Text(
-						text = type.asString(),
-						maxLines = 1
-					)
-				}
-			)
+			val isSelected = type == selectedType
+			val isVisible = (selectedType == null) || isSelected
+
+			AnimatedVisibility(
+				visible = isVisible,
+				enter = fadeIn() + expandHorizontally(animationSpec = spring()),
+				exit = fadeOut() + shrinkHorizontally(animationSpec = spring())
+			) {
+				FilterChip(
+					modifier = Modifier.testTag(EvaluationsUiTags.evaluationTypeChip(type.name)),
+					selected = isSelected,
+					onClick = {
+						if (isSelected) {
+							onTypeChange(null)
+						} else {
+							onTypeChange(type)
+						}
+					},
+					leadingIcon = {
+						Icon(
+							imageVector = type.asIcon(),
+							tint = if (isSelected) {
+								MaterialTheme.colorScheme.primary
+							} else {
+								MaterialTheme.colorScheme.outline
+							},
+							contentDescription = null
+						)
+					},
+					label = {
+						Text(
+							text = type.asString(),
+							maxLines = 1
+						)
+					}
+				)
+			}
 		}
 	}
 }

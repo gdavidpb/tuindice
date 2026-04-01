@@ -19,8 +19,8 @@ import tuindice.evaluations.generated.resources.view_error_title
 @Composable
 fun EvaluationScreen(
 	state: Evaluation.State,
-	onSubjectChange: (subject: Subject) -> Unit,
-	onTypeChange: (type: EvaluationType) -> Unit,
+	onSubjectChange: (subject: Subject?) -> Unit,
+	onTypeChange: (type: EvaluationType?) -> Unit,
 	onDateChange: (date: Long?) -> Unit,
 	onGradeClick: (grade: Double?, maxGrade: Double?) -> Unit,
 	onMaxGradeClick: (grade: Double?) -> Unit,

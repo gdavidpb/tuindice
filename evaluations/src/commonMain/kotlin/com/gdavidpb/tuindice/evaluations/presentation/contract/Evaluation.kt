@@ -40,11 +40,11 @@ object Evaluation {
 		) : Action()
 
 		class SetSubject(
-			val subject: Subject
+			val subject: Subject?
 		) : Action()
 
 		class SetType(
-			val type: EvaluationType
+			val type: EvaluationType?
 		) : Action()
 
 		class SetDate(

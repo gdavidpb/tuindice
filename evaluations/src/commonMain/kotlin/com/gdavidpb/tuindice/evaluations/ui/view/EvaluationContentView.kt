@@ -40,8 +40,8 @@ import tuindice.evaluations.generated.resources.label_add_evaluation_type
 fun EvaluationContentView(
 	modifier: Modifier = Modifier,
 	state: Evaluation.State.Content,
-	onSubjectChange: (subject: Subject) -> Unit,
-	onTypeChange: (type: EvaluationType) -> Unit,
+	onSubjectChange: (subject: Subject?) -> Unit,
+	onTypeChange: (type: EvaluationType?) -> Unit,
 	onDateChange: (date: Long?) -> Unit,
 	onGradeClick: (grade: Double?, maxGrade: Double?) -> Unit,
 	onMaxGradeClick: (grade: Double?) -> Unit,

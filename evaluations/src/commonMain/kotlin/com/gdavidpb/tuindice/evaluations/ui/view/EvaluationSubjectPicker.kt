@@ -1,5 +1,12 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,51 +29,68 @@ fun EvaluationSubjectPicker(
 	modifier: Modifier = Modifier,
 	enabled: Boolean = true,
 	subjects: List<Subject>,
-	selectedSubject: Subject? = subjects.firstOrNull(),
-	onSubjectChange: (subject: Subject) -> Unit
+	selectedSubject: Subject? = null,
+	onSubjectChange: (subject: Subject?) -> Unit
 ) {
 	FlowRow(
 		modifier = modifier
+			.animateContentSize(animationSpec = spring())
 			.testTag(EvaluationsUiTags.EvaluationSubjectPickerRow)
 			.padding(top = 8.dp)
 			.fillMaxWidth(),
-		horizontalArrangement = Arrangement.spacedBy(6.dp)
+		horizontalArrangement = Arrangement.spacedBy(6.dp),
+		verticalArrangement = Arrangement.spacedBy(6.dp)
 	) {
 		subjects
 			.forEach { subject ->
 				val subjectColors = remember(subject.code) {
 					SubjectColorGenerator.fromCode(subject.code)
 				}
+				val isSelected = subject == selectedSubject
+				val isVisible = (selectedSubject == null) || isSelected
+				val baseContainerColor = subjectColors.containerColor.copy(alpha = 0.34f)
+				val disabledContainerColor = subjectColors.containerColor.copy(alpha = 0.18f)
+				val disabledLabelColor = subjectColors.color.copy(alpha = 0.38f)
 
-				FilterChip(
-					modifier = Modifier.testTag(
-						EvaluationsUiTags.evaluationSubjectChip(subject.id)
-					),
-					selected = (subject == selectedSubject),
-					enabled = enabled,
-					colors = FilterChipDefaults.filterChipColors(
-						containerColor = subjectColors.containerColor.copy(alpha = 0.42f),
-						labelColor = subjectColors.color,
-						disabledContainerColor = subjectColors.containerColor.copy(alpha = 0.22f),
-						disabledLabelColor = subjectColors.color.copy(alpha = 0.38f),
-						selectedContainerColor = subjectColors.containerColor,
-						selectedLabelColor = subjectColors.color
-					),
-					onClick = {
-						onSubjectChange(subject)
-					},
-					label = {
-						Text(
-							text = subject.code,
-							fontWeight = if (subject == selectedSubject) {
-								FontWeight.SemiBold
+				AnimatedVisibility(
+					visible = isVisible,
+					enter = fadeIn() + expandHorizontally(animationSpec = spring()),
+					exit = fadeOut() + shrinkHorizontally(animationSpec = spring())
+				) {
+					FilterChip(
+						modifier = Modifier.testTag(
+							EvaluationsUiTags.evaluationSubjectChip(subject.id)
+						),
+						selected = isSelected,
+						enabled = enabled,
+						colors = FilterChipDefaults.filterChipColors(
+							containerColor = baseContainerColor,
+							labelColor = subjectColors.color,
+							disabledContainerColor = disabledContainerColor,
+							disabledLabelColor = disabledLabelColor,
+							selectedContainerColor = baseContainerColor,
+							selectedLabelColor = subjectColors.color
+						),
+						onClick = {
+							if (isSelected) {
+								onSubjectChange(null)
 							} else {
-								FontWeight.Medium
-							},
-							maxLines = 1
-						)
-					}
-				)
+								onSubjectChange(subject)
+							}
+						},
+						label = {
+							Text(
+								text = subject.code,
+								fontWeight = if (isSelected) {
+									FontWeight.SemiBold
+								} else {
+									FontWeight.Medium
+								},
+								maxLines = 1
+							)
+						}
+					)
+				}
 			}
 	}
 }

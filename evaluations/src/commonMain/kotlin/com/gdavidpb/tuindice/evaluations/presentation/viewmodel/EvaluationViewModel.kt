@@ -33,10 +33,10 @@ class EvaluationViewModel(
 	private val setMaxGradeActionProcessor: SetMaxGradeActionProcessor
 ) : BaseViewModel<Evaluation.State, Evaluation.Action, Evaluation.Effect>(initialState = Evaluation.State.Loading) {
 
-	fun setSubjectAction(subject: Subject) =
+	fun setSubjectAction(subject: Subject?) =
 		sendAction(Evaluation.Action.SetSubject(subject))
 
-	fun setTypeAction(type: EvaluationType) =
+	fun setTypeAction(type: EvaluationType?) =
 		sendAction(Evaluation.Action.SetType(type))
 
 	fun setDateAction(date: Long?) =
