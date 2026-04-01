@@ -47,13 +47,12 @@ import tuindice.evaluations.generated.resources.evaluation_project
 import tuindice.evaluations.generated.resources.evaluation_quiz
 import tuindice.evaluations.generated.resources.evaluation_report
 import tuindice.evaluations.generated.resources.evaluation_test
-import tuindice.evaluations.generated.resources.evaluation_title
 import tuindice.evaluations.generated.resources.evaluation_workshop
 import tuindice.evaluations.generated.resources.evaluation_written_work
 
 data class EvaluationItemMapping(
 	val evaluationName: (type: EvaluationType, ordinal: Int) -> String,
-	val evaluationTitle: (type: EvaluationType, subjectCode: String) -> String,
+	val typeLabel: (type: EvaluationType) -> String,
 	val gradesCompleted: (grade: Double?, maxGrade: Double) -> String,
 	val gradesPending: (maxGrade: Double) -> String,
 	val gradesOverdue: (maxGrade: Double) -> String,
@@ -72,7 +71,6 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 	val dateTextMapping = rememberEvaluationDateTextMapping()
 
 	val evaluationNamePattern = stringResource(Res.string.evaluation_name)
-	val evaluationTitlePattern = stringResource(Res.string.evaluation_title)
 	val evaluationGradePattern = stringResource(Res.string.evaluation_grade)
 	val evaluationPendingGradePattern = stringResource(Res.string.evaluation_pending_grade)
 	val evaluationNotGradePattern = stringResource(Res.string.evaluation_not_grade)
@@ -126,7 +124,6 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 	return remember(
 		dateTextMapping,
 		evaluationNamePattern,
-		evaluationTitlePattern,
 		evaluationGradePattern,
 		evaluationPendingGradePattern,
 		evaluationNotGradePattern,
@@ -141,11 +138,7 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 					.replace("%1${'$'}s", type.asString(typeLabels))
 					.replace("%2${'$'}d", ordinal.toString())
 			},
-			evaluationTitle = { type, subjectCode ->
-				evaluationTitlePattern
-					.replace("%1${'$'}s", type.asString(typeLabels))
-					.replace("%2${'$'}s", subjectCode)
-			},
+			typeLabel = { type -> type.asString(typeLabels) },
 			gradesCompleted = { grade, maxGrade ->
 				evaluationGradePattern
 					.replace("%1${'$'}.2f", (grade ?: 0.0).formatGrade(decimals = 2))

@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.base.ui.style.SubjectColorGenerator
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation as EvaluationContract
@@ -79,15 +80,19 @@ fun evaluationItemFixture(
 	isClickable: Boolean = true,
 	isOverdue: Boolean = false
 ): EvaluationItem {
+	val subjectColors = SubjectColorGenerator.fromCode(DEFAULT_EVALUATION_SUBJECT.code)
+
 	return EvaluationItem(
 		evaluationId = evaluationId,
 		grade = if (isOverdue) null else 17.5,
 		maxGrade = 20.0,
 		nameText = "Quiz #1",
 		subjectCodeText = DEFAULT_EVALUATION_SUBJECT.code,
+		subjectCodeColor = subjectColors.color,
+		subjectCodeContainerColor = subjectColors.containerColor,
 		highlightIconColor = if (isOverdue) Color.Red else Color.Unspecified,
 		highlightTextColor = if (isOverdue) Color.Red else Color.Unspecified,
-		typeAndSubjectCodeText = "Quiz ${DEFAULT_EVALUATION_SUBJECT.code}",
+		typeText = "Quiz",
 		typeIcon = Icons.Outlined.Quiz,
 		dateText = if (isOverdue) "Vencida" else "Manana",
 		dateIcon = Icons.Outlined.Event,

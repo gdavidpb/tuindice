@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -52,5 +53,29 @@ class FilterViewUiTest {
 		onNodeWithTag(EvaluationsUiTags.filterChip("Completadas")).performClick()
 
 		assertEquals(listOf("Completadas" to true), selectedEvents)
+	}
+
+	@Test
+	fun when_subjectFilterChipTapped_then_emitsUncheckedState() = runTuIndiceUiTest {
+		val subjectFilter = EvaluationSubjectFilter(subjectCode = "INF-101")
+		val selectedEvents = mutableListOf<Pair<String, Boolean>>()
+
+		setTuIndiceTestContent {
+			FilterView(
+				entries = linkedMapOf(subjectFilter to true),
+				onCheckedChange = { filter, checked ->
+					selectedEvents += filter.getLabel() to checked
+				}
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.filterChip("INF-101"))
+		assertNodeVisible(
+			EvaluationsUiTags.filterChipCheck("INF-101"),
+			useUnmergedTree = true
+		)
+		onNodeWithTag(EvaluationsUiTags.filterChip("INF-101")).performClick()
+
+		assertEquals(listOf("INF-101" to false), selectedEvents)
 	}
 }

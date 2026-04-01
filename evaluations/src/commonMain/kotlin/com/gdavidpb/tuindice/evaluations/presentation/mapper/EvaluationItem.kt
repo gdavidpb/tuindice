@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
+import com.gdavidpb.tuindice.base.ui.style.SubjectColorGenerator
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 
@@ -35,29 +36,33 @@ fun List<Evaluation>.toEvaluationItemList(
 fun Evaluation.toEvaluationItem(
 	ordinal: Int,
 	mapping: EvaluationItemMapping
-) = EvaluationItem(
-	evaluationId = id,
-	grade = grade,
-	maxGrade = maxGrade,
-	nameText = mapping.evaluationName(type, ordinal),
-	subjectCodeText = subjectCode,
-	highlightIconColor = mapping.highlightIconColor(state),
-	highlightTextColor = mapping.highlightTextColor(state),
-	typeAndSubjectCodeText = mapping.evaluationTitle(type, subjectCode),
-	typeIcon = mapping.typeIcon(type),
-	dateText = mapping.dateText(this),
-	dateIcon = mapping.dateIcon(state),
-	gradesText = when (state) {
-		EvaluationState.COMPLETED, EvaluationState.CONTINUOUS ->
-			mapping.gradesCompleted(grade, maxGrade)
+) = SubjectColorGenerator.fromCode(subjectCode).let { subjectColors ->
+	EvaluationItem(
+		evaluationId = id,
+		grade = grade,
+		maxGrade = maxGrade,
+		nameText = mapping.evaluationName(type, ordinal),
+		subjectCodeText = subjectCode,
+		subjectCodeColor = subjectColors.color,
+		subjectCodeContainerColor = subjectColors.containerColor,
+		highlightIconColor = mapping.highlightIconColor(state),
+		highlightTextColor = mapping.highlightTextColor(state),
+		typeText = mapping.typeLabel(type),
+		typeIcon = mapping.typeIcon(type),
+		dateText = mapping.dateText(this),
+		dateIcon = mapping.dateIcon(state),
+		gradesText = when (state) {
+			EvaluationState.COMPLETED, EvaluationState.CONTINUOUS ->
+				mapping.gradesCompleted(grade, maxGrade)
 
-		EvaluationState.PENDING ->
-			mapping.gradesPending(maxGrade)
+			EvaluationState.PENDING ->
+				mapping.gradesPending(maxGrade)
 
-		EvaluationState.OVERDUE ->
-			mapping.gradesOverdue(maxGrade)
-	},
-	gradesIcon = mapping.gradesIcon(state),
-	isOverdue = (state == EvaluationState.OVERDUE),
-	isClickable = (state != EvaluationState.PENDING)
-)
+			EvaluationState.OVERDUE ->
+				mapping.gradesOverdue(maxGrade)
+		},
+		gradesIcon = mapping.gradesIcon(state),
+		isOverdue = (state == EvaluationState.OVERDUE),
+		isClickable = (state != EvaluationState.PENDING)
+	)
+}

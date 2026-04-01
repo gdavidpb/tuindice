@@ -156,6 +156,7 @@ class EvaluationDataSource(
 	override suspend fun getAvailableSubjects(): List<Subject> {
 		return databaseDataSource.getAvailableSubjects()
 			.map { subject -> subject.toSubject() }
+			.sortedBy(Subject::code)
 	}
 
 	private suspend fun refreshRemoteSnapshot(): RemoteEvaluationsSnapshot {

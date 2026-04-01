@@ -38,6 +38,9 @@ object EvaluationsUiTags {
 	fun filterChip(label: String): String =
 		"evaluations_filter_chip_${label.toTagSuffix()}"
 
+	fun filterChipCheck(label: String): String =
+		"evaluations_filter_chip_check_${label.toTagSuffix()}"
+
 	fun evaluationHeader(label: String): String =
 		"evaluation_header_${label.toTagSuffix()}"
 

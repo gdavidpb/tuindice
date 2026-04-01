@@ -15,23 +15,21 @@ class EvaluationItemMappingUiTest {
 	@Test
 	fun when_mappingRemembered_then_exposesTypeLabelsAndPatterns() = runTuIndiceUiTest {
 		var quizLabel = ""
-		var mappedTitle = ""
+		var mappedTypeLabel = ""
 
 		setTuIndiceTestContent {
 			val mapping = rememberEvaluationItemMapping()
 
 			quizLabel = EvaluationType.QUIZ.asString()
-			mappedTitle = mapping.evaluationTitle(
-				EvaluationType.QUIZ,
-				"INF-101"
-			)
+			mappedTypeLabel = mapping.typeLabel(EvaluationType.QUIZ)
 
 			Text(text = quizLabel)
 		}
 
 		onNodeWithText(quizLabel).assertIsDisplayed()
 		assertTrue(quizLabel.isNotBlank())
-		assertTrue(mappedTitle.contains("INF-101"))
+		assertTrue(mappedTypeLabel.isNotBlank())
+		assertTrue(mappedTypeLabel == quizLabel)
 	}
 
 	@Test

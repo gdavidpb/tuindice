@@ -27,7 +27,8 @@ class EvaluationItemViewUiTest {
 		assertNodeVisible(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
 		assertNodeVisible(EvaluationsUiTags.EvaluationOverdueIndicator)
 		onNodeWithText(item.nameText).assertIsDisplayed()
-		onNodeWithText(item.typeAndSubjectCodeText).assertIsDisplayed()
+		onNodeWithText(item.typeText).assertIsDisplayed()
+		onNodeWithText(item.subjectCodeText).assertIsDisplayed()
 		onNodeWithText(item.gradesText).assertIsDisplayed()
 	}
 
