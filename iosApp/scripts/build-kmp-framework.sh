@@ -5,6 +5,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 CONFIGURATION_NAME="${CONFIGURATION:-Debug}"
 PLATFORM="${PLATFORM_NAME:-iphonesimulator}"
 ARCHS_VALUE="${ARCHS:-arm64}"
+CI_MODE="${CI:-}"
 
 if [[ -n "${GRADLE_USER_HOME:-}" ]]; then
 	GRADLE_USER_HOME_DIR="$GRADLE_USER_HOME"
@@ -37,6 +38,8 @@ GRADLE_JVM_ARGS="${TUINDICE_IOS_GRADLE_JVM_ARGS:-$DEFAULT_GRADLE_JVM_ARGS}"
 TARGET_SUFFIX="IosSimulatorArm64"
 if [[ "$PLATFORM" == "iphoneos" ]]; then
 	TARGET_SUFFIX="IosArm64"
+elif [[ "$ARCHS_VALUE" == *"arm64"* ]]; then
+	TARGET_SUFFIX="IosSimulatorArm64"
 elif [[ "$ARCHS_VALUE" == *"x86_64"* ]]; then
 	TARGET_SUFFIX="IosX64"
 fi
@@ -45,13 +48,30 @@ cd "$ROOT_DIR"
 mkdir -p "$GRADLE_USER_HOME_DIR"
 export GRADLE_USER_HOME="$GRADLE_USER_HOME_DIR"
 echo "Building maincore framework and syncing Compose resources for iOS"
-./gradlew \
-	":maincore:link${BUILD_TYPE}Framework${TARGET_SUFFIX}" \
-	":maincore:syncComposeResourcesForIos" \
-	--stacktrace \
-	--no-daemon \
-	-Dorg.gradle.jvmargs="$GRADLE_JVM_ARGS" \
-	-Pkotlin.native.cacheKind=none
+declare -a gradle_args=(
+	":maincore:link${BUILD_TYPE}Framework${TARGET_SUFFIX}"
+	":maincore:syncComposeResourcesForIos"
+	"-Dorg.gradle.jvmargs=$GRADLE_JVM_ARGS"
+)
+
+if [[ -n "$CI_MODE" || "${TUINDICE_IOS_GRADLE_STACKTRACE:-0}" == "1" ]]; then
+	gradle_args+=("--stacktrace")
+fi
+
+if [[ -n "$CI_MODE" || "${TUINDICE_IOS_GRADLE_NO_DAEMON:-0}" == "1" ]]; then
+	gradle_args+=("--no-daemon")
+fi
+
+NATIVE_CACHE_KIND="${TUINDICE_IOS_NATIVE_CACHE_KIND:-}"
+if [[ -z "$NATIVE_CACHE_KIND" && -n "$CI_MODE" ]]; then
+	NATIVE_CACHE_KIND="none"
+fi
+
+if [[ -n "$NATIVE_CACHE_KIND" ]]; then
+	gradle_args+=("-Pkotlin.native.cacheKind=$NATIVE_CACHE_KIND")
+fi
+
+./gradlew "${gradle_args[@]}"
 
 if [[ -n "${SCRIPT_OUTPUT_FILE_0:-}" ]]; then
 	mkdir -p "$(dirname "$SCRIPT_OUTPUT_FILE_0")"
