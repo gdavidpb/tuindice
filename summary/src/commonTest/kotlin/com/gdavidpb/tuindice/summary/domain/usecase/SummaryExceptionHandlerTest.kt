@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.summary.domain.usecase
 
-import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.error.UpdateUserUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
@@ -37,14 +36,14 @@ class SummaryExceptionHandlerTest {
 	}
 
 	@Test
-	fun uploadProfilePictureExceptionHandler_mapsValidationErrors() {
-		val throwable = ProfilePictureIllegalArgumentException(ProfilePictureUseCaseError.InvalidSource)
+	fun uploadProfilePictureExceptionHandler_mapsIllegalArgumentToUnableToEncode() {
+		val throwable = IllegalArgumentException()
 
 		val actual = UploadProfilePictureExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true)
 		).parseException(throwable)
 
-		assertEquals(ProfilePictureUseCaseError.InvalidSource, actual)
+		assertEquals(ProfilePictureUseCaseError.UnableToEncode, actual)
 	}
 
 	@Test
@@ -55,7 +54,7 @@ class SummaryExceptionHandlerTest {
 			networkRepository = FakeNetworkRepository(isAvailable = true)
 		).parseException(throwable)
 
-		assertEquals(ProfilePictureUseCaseError.NotImage, actual)
+		assertEquals(ProfilePictureUseCaseError.UnableToEncode, actual)
 	}
 
 	@Test

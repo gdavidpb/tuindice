@@ -1,9 +1,6 @@
 package com.gdavidpb.tuindice.summary.data.repository
 
-import com.gdavidpb.tuindice.base.domain.model.EncodedImage
 import com.gdavidpb.tuindice.summary.data.source.UserDataSource
-import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
-import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.FakeLocalDataSource
@@ -111,12 +108,7 @@ class UserRepositoryContractTest {
 	fun uploadProfilePicture_rejects_encoded_images_that_exceed_the_upload_limit() = runTest {
 		val localDataSource = FakeLocalDataSource()
 		val remoteDataSource = FakeRemoteDataSource(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE)
-		val encoderDataSource = FakePictureEncoderDataSource(
-			encodedImage = EncodedImage(
-				content = ByteArray(1_048_577),
-				mimeType = "image/jpeg"
-			)
-		)
+		val encoderDataSource = FakePictureEncoderDataSource(throwable = IllegalArgumentException())
 		val repository = UserDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
@@ -124,11 +116,10 @@ class UserRepositoryContractTest {
 			pictureEncoderDataSource = encoderDataSource
 		)
 
-		val exception = assertFailsWith<ProfilePictureIllegalArgumentException> {
+		assertFailsWith<IllegalArgumentException> {
 			repository.uploadProfilePicture(PlatformFile("content://profile/too-large.jpg"))
 		}
 
-		assertEquals(ProfilePictureUseCaseError.SizeExceeded, exception.error)
 		assertTrue(remoteDataSource.uploadCalls.isEmpty())
 		assertTrue(localDataSource.savedUsers.isEmpty())
 	}

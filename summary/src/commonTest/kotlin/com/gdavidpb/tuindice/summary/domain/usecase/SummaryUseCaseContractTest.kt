@@ -1,17 +1,14 @@
 package com.gdavidpb.tuindice.summary.domain.usecase
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
-import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
-import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -57,7 +54,6 @@ class SummaryUseCaseContractTest {
 		val useCase = UploadProfilePictureUseCase(
 			userRepository = repository,
 			reportingRepository = RecordingReportingRepository(),
-			paramsValidator = UploadProfilePictureParamsValidator(),
 			exceptionHandler = UploadProfilePictureExceptionHandler(
 				networkRepository = FakeNetworkRepository(isAvailable = true)
 			)
@@ -70,23 +66,5 @@ class SummaryUseCaseContractTest {
 		}
 
 		assertEquals(listOf(file), repository.uploadCalls)
-	}
-
-	@Test
-	fun uploadProfilePictureUseCase_rejectsInvalidFileSource_withInvalidSourceError() = runTest {
-		val useCase = UploadProfilePictureUseCase(
-			userRepository = RecordingUserRepository(),
-			reportingRepository = RecordingReportingRepository(),
-			paramsValidator = UploadProfilePictureParamsValidator(),
-			exceptionHandler = UploadProfilePictureExceptionHandler(
-				networkRepository = FakeNetworkRepository(isAvailable = true)
-			)
-		)
-
-		useCase.execute(PlatformFile("/tmp")).test {
-			val error = awaitLoadingThenError(this)
-			assertEquals(ProfilePictureUseCaseError.InvalidSource, error.error)
-			awaitComplete()
-		}
 	}
 }

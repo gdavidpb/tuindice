@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isPayloadTooLarge
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.base.utils.extension.isUnsupportedMediaType
-import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 
 class UploadProfilePictureExceptionHandler(
@@ -14,8 +13,8 @@ class UploadProfilePictureExceptionHandler(
 ) : ExceptionHandler<ProfilePictureUseCaseError>() {
 	override fun parseException(throwable: Throwable): ProfilePictureUseCaseError? {
 		return when {
-			throwable is ProfilePictureIllegalArgumentException -> throwable.error
-			throwable.isUnsupportedMediaType() -> ProfilePictureUseCaseError.NotImage
+			throwable is IllegalArgumentException -> ProfilePictureUseCaseError.UnableToEncode
+			throwable.isUnsupportedMediaType() -> ProfilePictureUseCaseError.UnableToEncode
 			throwable.isPayloadTooLarge() -> ProfilePictureUseCaseError.SizeExceeded
 			throwable.isTimeout() -> ProfilePictureUseCaseError.Timeout
 			throwable.isConnection() -> ProfilePictureUseCaseError.NoConnection(networkRepository.isAvailable())

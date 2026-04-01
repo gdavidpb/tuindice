@@ -17,7 +17,6 @@ import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
-import com.gdavidpb.tuindice.summary.domain.usecase.validator.UploadProfilePictureParamsValidator
 import com.gdavidpb.tuindice.summary.presentation.action.ObserveSummaryActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.OpenProfilePictureSettingsActionProcessor
@@ -55,10 +54,6 @@ val summaryModule = module {
 	factoryOf(::UpdateUserUseCase)
 	factoryOf(::UploadProfilePictureUseCase)
 	factoryOf(::RemoveProfilePictureUseCase)
-
-	/* Validators */
-
-	factoryOf(::UploadProfilePictureParamsValidator)
 
 	/* Repositories */
 

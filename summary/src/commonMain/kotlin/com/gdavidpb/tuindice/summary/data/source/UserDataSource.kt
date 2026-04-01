@@ -6,10 +6,8 @@ import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
-import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
-import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -22,10 +20,6 @@ class UserDataSource(
 	private val settingsDataSource: SettingsDataRepository,
 	private val pictureEncoderDataSource: PictureEncoderDataRepository
 ) : UserRepository {
-	private companion object {
-		const val MAX_PROFILE_PICTURE_UPLOAD_BYTES = 1_048_576
-	}
-
 	override suspend fun observeUserFlow(): Flow<User> {
 		return localDataSource.getUserFlow()
 			.mapNotNull { localUser -> localUser }
@@ -43,10 +37,6 @@ class UserDataSource(
 
 	override suspend fun uploadProfilePicture(file: PlatformFile): ProfilePicture {
 		val encodedImage = pictureEncoderDataSource.encodePicture(file = file)
-
-		if (encodedImage.content.size > MAX_PROFILE_PICTURE_UPLOAD_BYTES) {
-			throw ProfilePictureIllegalArgumentException(ProfilePictureUseCaseError.SizeExceeded)
-		}
 
 		return remoteDataSource.uploadProfilePicture(
 			content = encodedImage.content,

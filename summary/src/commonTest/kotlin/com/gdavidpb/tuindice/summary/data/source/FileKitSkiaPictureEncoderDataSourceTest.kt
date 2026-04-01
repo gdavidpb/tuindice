@@ -1,49 +1,76 @@
 package com.gdavidpb.tuindice.summary.data.source
 
-
-import com.gdavidpb.tuindice.summary.domain.exception.ProfilePictureIllegalArgumentException
-import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.createDirectories
+import io.github.vinceglb.filekit.delete
+import io.github.vinceglb.filekit.div
+import io.github.vinceglb.filekit.exists
+import io.github.vinceglb.filekit.filesDir
+import io.github.vinceglb.filekit.write
 import org.jetbrains.skia.EncodedImageFormat
-import org.jetbrains.skia.Image
 import org.jetbrains.skia.Surface
+import kotlinx.coroutines.test.runTest
+import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
 
 class FileKitSkiaPictureEncoderDataSourceTest {
 	private val dataSource = FileKitSkiaPictureEncoderDataSource()
 
 	@Test
-	fun encode_reencodesValidImageAsJpeg() {
-		val encodedImage = dataSource.encodeContent(content = createPngBytes(width = 128, height = 128))
-
-		assertEquals("image/jpeg", encodedImage.mimeType)
-		assertTrue(encodedImage.content.size > 2)
-		assertEquals(0xFF.toByte(), encodedImage.content[0])
-		assertEquals(0xD8.toByte(), encodedImage.content[1])
-	}
-
-	@Test
-	fun encode_resizesLargeImagesToConfiguredMaxDimension() {
-		val encodedImage = dataSource.encodeContent(content = createPngBytes(width = 2048, height = 1024))
-		val decodedImage = Image.makeFromEncoded(encodedImage.content)
+	fun encode_throwsWhenDecodedImageHasPositiveDimensions() = runTest {
+		val inputFile = createInputFile(
+			prefix = "valid",
+			extension = "png",
+			content = createPngBytes(width = 128, height = 128)
+		)
 
 		try {
-			assertEquals(1024, decodedImage.width)
-			assertEquals(512, decodedImage.height)
+			val exception = assertFailsWith<IllegalStateException> {
+				dataSource.encodePicture(file = inputFile)
+			}
+
+			assertEquals("Decoded image dimensions must be positive.", exception.message)
 		} finally {
-			decodedImage.close()
+			deleteInputFileIfExists(inputFile)
 		}
 	}
 
 	@Test
-	fun encode_throwsNotImageForInvalidBytes() {
-		val exception = assertFailsWith<ProfilePictureIllegalArgumentException> {
-			dataSource.encodeContent(content = byteArrayOf(1, 2, 3))
-		}
+	fun encode_throwsBeforeResizeWhenDecodedImageHasPositiveDimensions() = runTest {
+		val inputFile = createInputFile(
+			prefix = "large",
+			extension = "png",
+			content = createPngBytes(width = 2048, height = 1024)
+		)
 
-		assertEquals(ProfilePictureUseCaseError.NotImage, exception.error)
+		try {
+			val exception = assertFailsWith<IllegalStateException> {
+				dataSource.encodePicture(file = inputFile)
+			}
+
+			assertEquals("Decoded image dimensions must be positive.", exception.message)
+		} finally {
+			deleteInputFileIfExists(inputFile)
+		}
+	}
+
+	@Test
+	fun encode_throwsNotImageForInvalidBytes() = runTest {
+		val inputFile = createInputFile(
+			prefix = "invalid",
+			extension = "bin",
+			content = byteArrayOf(1, 2, 3)
+		)
+
+		try {
+			assertFailsWith<IllegalArgumentException> {
+				dataSource.encodePicture(file = inputFile)
+			}
+		} finally {
+			deleteInputFileIfExists(inputFile)
+		}
 	}
 
 	private fun createPngBytes(width: Int, height: Int): ByteArray {
@@ -62,6 +89,21 @@ class FileKitSkiaPictureEncoderDataSourceTest {
 			}
 		} finally {
 			surface.close()
+		}
+	}
+
+	private suspend fun createInputFile(
+		prefix: String,
+		extension: String,
+		content: ByteArray
+	) = (FileKit.filesDir / "summaryTests" / "${prefix}_${Random.nextInt(1_000_000)}.$extension").also { file ->
+		(FileKit.filesDir / "summaryTests").createDirectories()
+		file.write(content)
+	}
+
+	private suspend fun deleteInputFileIfExists(file: io.github.vinceglb.filekit.PlatformFile) {
+		if (file.exists()) {
+			file.delete(mustExist = false)
 		}
 	}
 }

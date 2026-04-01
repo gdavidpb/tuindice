@@ -130,12 +130,14 @@ class FakeSettingsDataSource(
 }
 
 class FakePictureEncoderDataSource(
-	private val encodedImage: EncodedImage = DEFAULT_ENCODED_IMAGE
+	private val encodedImage: EncodedImage = DEFAULT_ENCODED_IMAGE,
+	private val throwable: Throwable? = null
 ) : PictureEncoderDataRepository {
 	var lastFile: PlatformFile? = null
 
 	override suspend fun encodePicture(file: PlatformFile): EncodedImage {
 		lastFile = file
+		throwable?.let { throw it }
 		return encodedImage
 	}
 }
