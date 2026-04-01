@@ -76,6 +76,7 @@ class RoomDatabaseDataSource(
 		return room.quarters.getOpenQuartersWithSubjects()
 			.flatMap { quarter -> quarter.subjects }
 			.map { subject -> subject.toLocalSubject() }
+			.sortedBy(LocalSubject::code)
 	}
 
 	override suspend fun confirmAddedEvaluation(
