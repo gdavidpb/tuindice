@@ -45,6 +45,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -414,6 +415,37 @@ class SummaryRouteUiTest {
 
 		assertEquals(0, navigateOutdatedCalls)
 		assertTrue(shownSnackBars.first().message.isNotBlank())
+	}
+
+	@Test
+	fun when_confirmRemoveProfilePictureActionSucceeds_then_stateClearsPictureWithoutWaitingForObservation() = runTuIndiceUiTest {
+		val viewModel = createSummaryViewModel()
+		val syncStatusRepository = FakeSyncStatusRepository()
+
+		setTuIndiceTestContent {
+			SummaryRoute(
+				onNavigateToUpdatePassword = {},
+				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToRemoveProfilePictureConfirmationDialog = {},
+				showSnackBar = {},
+				viewModel = viewModel,
+				syncStatusRepository = syncStatusRepository
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewModel.state.value is Summary.State.Content
+		}
+
+		runOnIdle {
+			viewModel.confirmRemoveProfilePictureAction()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			(viewModel.state.value as? Summary.State.Content)?.profilePictureUrl == ""
+		}
+
+		assertEquals("", assertIs<Summary.State.Content>(viewModel.state.value).profilePictureUrl)
 	}
 
 	@Test

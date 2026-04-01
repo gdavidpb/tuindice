@@ -11,7 +11,8 @@ fun GradePickerContentDialog(
 	selectedGrade: Double?,
 	maxGrade: Double?,
 	onGradeChange: (grade: Double) -> Unit,
-	onDismissRequest: () -> Unit
+	onDismissRequest: () -> Unit,
+	dismissOnConfirm: Boolean = true
 ) {
 	GradePickerDialog(
 		title = stringResource(Res.string.dialog_title_add_evaluation_grade),
@@ -20,7 +21,8 @@ fun GradePickerContentDialog(
 		selectedGrade = selectedGrade ?: maxGrade ?: MIN_EVALUATION_DIALOG_GRADE,
 		gradeRange = MIN_EVALUATION_DIALOG_GRADE..(maxGrade ?: MAX_EVALUATION_DIALOG_GRADE),
 		onGradeChange = onGradeChange,
-		onDismissRequest = onDismissRequest
+		onDismissRequest = onDismissRequest,
+		dismissOnConfirm = dismissOnConfirm
 	)
 }
 
@@ -28,7 +30,8 @@ fun GradePickerContentDialog(
 fun MaxGradePickerContentDialog(
 	selectedGrade: Double?,
 	onGradeChange: (grade: Double) -> Unit,
-	onDismissRequest: () -> Unit
+	onDismissRequest: () -> Unit,
+	dismissOnConfirm: Boolean = true
 ) {
 	GradePickerDialog(
 		title = stringResource(Res.string.dialog_title_add_evaluation_max_grade),
@@ -37,7 +40,8 @@ fun MaxGradePickerContentDialog(
 		selectedGrade = selectedGrade ?: MAX_EVALUATION_DIALOG_GRADE,
 		gradeRange = EvaluationGradeWheelPickerDefaults.GradeRange,
 		onGradeChange = onGradeChange,
-		onDismissRequest = onDismissRequest
+		onDismissRequest = onDismissRequest,
+		dismissOnConfirm = dismissOnConfirm
 	)
 }
 
@@ -46,7 +50,8 @@ fun EvaluationGradePickerContentDialog(
 	selectedGrade: Double?,
 	maxGrade: Double,
 	onGradeChange: (grade: Double) -> Unit,
-	onDismissRequest: () -> Unit
+	onDismissRequest: () -> Unit,
+	dismissOnConfirm: Boolean = true
 ) {
 	GradePickerDialog(
 		title = stringResource(Res.string.dialog_title_edit_evaluation_grade),
@@ -55,7 +60,8 @@ fun EvaluationGradePickerContentDialog(
 		selectedGrade = selectedGrade ?: maxGrade,
 		gradeRange = MIN_EVALUATION_DIALOG_GRADE..maxGrade,
 		onGradeChange = onGradeChange,
-		onDismissRequest = onDismissRequest
+		onDismissRequest = onDismissRequest,
+		dismissOnConfirm = dismissOnConfirm
 	)
 }
 

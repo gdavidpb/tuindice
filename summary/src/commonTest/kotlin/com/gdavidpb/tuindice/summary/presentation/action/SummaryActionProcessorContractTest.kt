@@ -268,6 +268,57 @@ class SummaryActionProcessorContractTest {
 	}
 
 	@Test
+	fun confirmRemoveProfilePictureActionProcessor_clearsPictureAndStopsLoadingOnSuccess() = runTest {
+		val processor = ConfirmRemoveProfilePictureActionProcessor(
+			removeProfilePictureUseCase = RemoveProfilePictureUseCase(
+				userRepository = RecordingUserRepository(),
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = RemoveProfilePictureExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true)
+				)
+			)
+		)
+		val initialState = Summary.State.Content(
+			name = "Ana Diaz",
+			lastUpdate = getString(
+				Res.string.text_sync_healthy,
+				DEFAULT_SUMMARY_USER.lastUpdate.formatLastUpdate()
+			),
+			careerName = DEFAULT_SUMMARY_USER.careerName,
+			grade = DEFAULT_SUMMARY_USER.grade.toFloat(),
+			enrolledSubjects = DEFAULT_SUMMARY_USER.enrolledSubjects,
+			enrolledCredits = DEFAULT_SUMMARY_USER.enrolledCredits,
+			approvedSubjects = DEFAULT_SUMMARY_USER.approvedSubjects,
+			approvedCredits = DEFAULT_SUMMARY_USER.approvedCredits,
+			retiredSubjects = DEFAULT_SUMMARY_USER.retiredSubjects,
+			retiredCredits = DEFAULT_SUMMARY_USER.retiredCredits,
+			failedSubjects = DEFAULT_SUMMARY_USER.failedSubjects,
+			failedCredits = DEFAULT_SUMMARY_USER.failedCredits,
+			profilePictureUrl = DEFAULT_SUMMARY_USER.pictureUrl,
+			isProfilePictureLoading = false,
+			isUserRefreshing = false
+		)
+		val effects = mutableListOf<Summary.Effect>()
+
+		processor.process(
+			action = Summary.Action.ConfirmRemoveProfilePicture,
+			sideEffect = effects::add
+		).test {
+			val loading = assertIs<Summary.State.Content>(awaitItem()(initialState))
+			assertTrue(loading.isProfilePictureLoading)
+
+			val content = assertIs<Summary.State.Content>(awaitItem()(loading))
+			assertEquals("", content.profilePictureUrl)
+			assertEquals(false, content.isProfilePictureLoading)
+
+			awaitComplete()
+		}
+
+		val effect = assertIs<Summary.Effect.ShowSnackBar>(effects.single())
+		assertEquals(getString(Res.string.snack_profile_picture_removed), effect.message)
+	}
+
+	@Test
 	fun confirmRemoveProfilePictureActionProcessor_treatsNotFoundAsSuccessAndStopsLoading() = runTest {
 		val processor = ConfirmRemoveProfilePictureActionProcessor(
 			removeProfilePictureUseCase = RemoveProfilePictureUseCase(
@@ -313,7 +364,7 @@ class SummaryActionProcessorContractTest {
 			assertTrue(loading.isProfilePictureLoading)
 
 			val content = assertIs<Summary.State.Content>(awaitItem()(loading))
-			assertEquals(DEFAULT_SUMMARY_USER.pictureUrl, content.profilePictureUrl)
+			assertEquals("", content.profilePictureUrl)
 			assertEquals(false, content.isProfilePictureLoading)
 
 			awaitComplete()

@@ -124,7 +124,6 @@ fun TuIndiceNavHost(
 				navController.navigate(EvaluationsDestination.MaxGradePickerDialog(grade = maxGrade))
 			},
 			onNavigateToEvaluations = { navController.navigate(EvaluationsDestination.Evaluations) },
-			onDismissRequest = { navController.navigateUp() },
 			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar
 		)
@@ -140,7 +139,7 @@ fun TuIndiceNavHost(
 			navigateToUpdatePassword = {
 				navController.navigate(AuthDestination.UpdatePasswordDialog)
 			},
-			onDismissRequest = { navController.popBackStack() },
+			onDismissRequest = { navController.navigateUp() },
 			showSnackBar = showSnackBar
 		)
 

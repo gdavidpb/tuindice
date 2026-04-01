@@ -47,6 +47,7 @@ class ConfirmRemoveProfilePictureActionProcessor(
 							)
 
 							state.copy(
+								profilePictureUrl = "",
 								isProfilePictureLoading = false
 							)
 						} else
@@ -79,6 +80,9 @@ class ConfirmRemoveProfilePictureActionProcessor(
 							)
 
 							state.copy(
+								profilePictureUrl =
+									if (useCaseState.error == ProfilePictureUseCaseError.NotFound) ""
+									else state.profilePictureUrl,
 								isProfilePictureLoading = false
 							)
 						} else

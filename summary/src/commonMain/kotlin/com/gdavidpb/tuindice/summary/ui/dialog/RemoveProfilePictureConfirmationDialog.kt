@@ -25,6 +25,7 @@ fun RemoveProfilePictureConfirmationDialog(
 	ConfirmationDialog(
 		sheetState = sheetState,
 		titleText = titleText,
+		dismissOnPositive = false,
 		positiveText = confirmText,
 		negativeText = cancelText,
 		onPositiveClick = onConfirmClick,

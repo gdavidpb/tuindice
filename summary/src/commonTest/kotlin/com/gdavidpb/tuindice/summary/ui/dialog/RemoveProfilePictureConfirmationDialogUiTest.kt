@@ -15,8 +15,9 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class RemoveProfilePictureConfirmationDialogUiTest {
 	@Test
-	fun when_confirmButtonTapped_then_invokesConfirmCallback() = runTuIndiceUiTest {
+	fun when_confirmButtonTapped_then_invokesConfirmCallbackWithoutDismissCallback() = runTuIndiceUiTest {
 		var confirmClicks = 0
+		var dismissClicks = 0
 
 		setTuIndiceTestContent {
 			RemoveProfilePictureConfirmationDialog(
@@ -25,7 +26,7 @@ class RemoveProfilePictureConfirmationDialogUiTest {
 				confirmText = "Remover",
 				cancelText = "Cancelar",
 				onConfirmClick = { confirmClicks++ },
-				onDismissRequest = {}
+				onDismissRequest = { dismissClicks++ }
 			)
 		}
 
@@ -39,6 +40,7 @@ class RemoveProfilePictureConfirmationDialogUiTest {
 		}
 
 		assertEquals(1, confirmClicks)
+		assertEquals(0, dismissClicks)
 	}
 
 	@Test

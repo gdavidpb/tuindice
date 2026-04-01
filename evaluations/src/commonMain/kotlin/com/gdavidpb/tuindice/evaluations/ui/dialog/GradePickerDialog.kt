@@ -22,7 +22,8 @@ fun GradePickerDialog(
 	selectedGrade: Double?,
 	gradeRange: ClosedFloatingPointRange<Double>,
 	onGradeChange: (grade: Double) -> Unit,
-	onDismissRequest: () -> Unit
+	onDismissRequest: () -> Unit,
+	dismissOnConfirm: Boolean = true
 ) {
 	val selectedGradeState = remember(selectedGrade, gradeRange.start, gradeRange.endInclusive) {
 		mutableDoubleStateOf(selectedGrade ?: MIN_EVALUATION_GRADE)
@@ -56,7 +57,9 @@ fun GradePickerDialog(
 				modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDialogConfirmButton),
 				onClick = {
 					onGradeChange(selectedGradeState.doubleValue)
-					onDismissRequest()
+					if (dismissOnConfirm) {
+						onDismissRequest()
+					}
 				}
 			) {
 				Text(text = acceptText)

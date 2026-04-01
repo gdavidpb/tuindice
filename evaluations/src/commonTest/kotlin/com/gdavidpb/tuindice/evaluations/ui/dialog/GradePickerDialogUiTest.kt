@@ -126,4 +126,32 @@ class GradePickerDialogUiTest {
 
 		assertEquals(17.25, changedGrade)
 	}
+
+	@Test
+	fun when_dismissOnConfirmIsFalse_then_confirmEmitsGradeWithoutDismissing() = runTuIndiceUiTest {
+		var changedGrade: Double? = null
+		var dismissCalls = 0
+
+		setTuIndiceTestContent {
+			GradePickerDialog(
+				title = "Nota maxima",
+				acceptText = "Aceptar",
+				cancelText = "Cancelar",
+				selectedGrade = 18.75,
+				gradeRange = 0.0..20.0,
+				onGradeChange = { grade ->
+					changedGrade = grade
+				},
+				onDismissRequest = {
+					dismissCalls++
+				},
+				dismissOnConfirm = false
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationDialogConfirmButton).performClick()
+
+		assertEquals(18.75, changedGrade)
+		assertEquals(0, dismissCalls)
+	}
 }

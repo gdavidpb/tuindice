@@ -11,6 +11,8 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.base.utils.extension.CollectBackResultWithLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.navigateBackWithResult
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationRoute
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationsRoute
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
@@ -28,7 +30,6 @@ fun NavGraphBuilder.evaluationsNavigation(
 	onNavigateToGradePickerDialog: (grade: Double?, maxGrade: Double?) -> Unit,
 	onNavigateToMaxGradePickerDialog: (maxGrade: Double?) -> Unit,
 	onNavigateToEvaluations: () -> Unit,
-	onDismissRequest: () -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
@@ -39,6 +40,18 @@ fun NavGraphBuilder.evaluationsNavigation(
 
 			LaunchedEffect(viewState) {
 				onViewStateChanged(viewState)
+			}
+
+			navController.CollectBackResultWithLifecycle<EvaluationsBackResult>(
+				backStackEntry = backStackEntry
+			) { result ->
+				when (result) {
+					is EvaluationsBackResult.SetEvaluationGrade ->
+						viewModel.setEvaluationGradeAction(
+							evaluationId = result.evaluationId,
+							grade = result.grade
+						)
+				}
 			}
 
 			EvaluationsRoute(
@@ -59,6 +72,18 @@ fun NavGraphBuilder.evaluationsNavigation(
 				onViewStateChanged(viewState)
 			}
 
+			navController.CollectBackResultWithLifecycle<EvaluationBackResult>(
+				backStackEntry = backStackEntry
+			) { result ->
+				when (result) {
+					is EvaluationBackResult.SetGrade ->
+						viewModel.setGradeAction(result.grade)
+
+					is EvaluationBackResult.SetMaxGrade ->
+						viewModel.setMaxGradeAction(result.grade)
+				}
+			}
+
 			EvaluationRoute(
 				evaluationId = args.evaluationId,
 				onNavigateToEvaluations = onNavigateToEvaluations,
@@ -71,44 +96,51 @@ fun NavGraphBuilder.evaluationsNavigation(
 
 		dialog<EvaluationsDestination.GradePickerDialog> { backStackEntry ->
 			val args = backStackEntry.toRoute<EvaluationsDestination.GradePickerDialog>()
-			val parentEntry = navController.previousBackStackEntry ?: return@dialog
-			val viewModel = koinViewModel<EvaluationViewModel>(viewModelStoreOwner = parentEntry)
 
 			GradePickerContentDialog(
 				selectedGrade = args.grade,
 				maxGrade = args.maxGrade,
-				onGradeChange = viewModel::setGradeAction,
-				onDismissRequest = onDismissRequest
+				onGradeChange = { grade ->
+					navController.navigateBackWithResult<EvaluationBackResult>(
+						EvaluationBackResult.SetGrade(grade)
+					)
+				},
+				onDismissRequest = { navController.navigateUp() },
+				dismissOnConfirm = false
 			)
 		}
 
 		dialog<EvaluationsDestination.MaxGradePickerDialog> { backStackEntry ->
 			val args = backStackEntry.toRoute<EvaluationsDestination.MaxGradePickerDialog>()
-			val parentEntry = navController.previousBackStackEntry ?: return@dialog
-			val viewModel = koinViewModel<EvaluationViewModel>(viewModelStoreOwner = parentEntry)
 
 			MaxGradePickerContentDialog(
 				selectedGrade = args.grade,
-				onGradeChange = viewModel::setMaxGradeAction,
-				onDismissRequest = onDismissRequest
+				onGradeChange = { grade ->
+					navController.navigateBackWithResult<EvaluationBackResult>(
+						EvaluationBackResult.SetMaxGrade(grade)
+					)
+				},
+				onDismissRequest = { navController.navigateUp() },
+				dismissOnConfirm = false
 			)
 		}
 
 		dialog<EvaluationsDestination.EvaluationGradePickerDialog> { backStackEntry ->
 			val args = backStackEntry.toRoute<EvaluationsDestination.EvaluationGradePickerDialog>()
-			val parentEntry = navController.previousBackStackEntry ?: return@dialog
-			val viewModel = koinViewModel<EvaluationsViewModel>(viewModelStoreOwner = parentEntry)
 
 			EvaluationGradePickerContentDialog(
 				selectedGrade = args.grade,
 				maxGrade = args.maxGrade,
 				onGradeChange = { grade ->
-					viewModel.setEvaluationGradeAction(
-						evaluationId = args.evaluationId,
-						grade = grade
+					navController.navigateBackWithResult<EvaluationsBackResult>(
+						EvaluationsBackResult.SetEvaluationGrade(
+							evaluationId = args.evaluationId,
+							grade = grade
+						)
 					)
 				},
-				onDismissRequest = onDismissRequest
+				onDismissRequest = { navController.navigateUp() },
+				dismissOnConfirm = false
 			)
 		}
 	}
