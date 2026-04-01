@@ -35,8 +35,7 @@ fun EvaluationTypePicker(
 			.testTag(EvaluationsUiTags.EvaluationTypePickerRow)
 			.padding(top = 8.dp)
 			.fillMaxWidth(),
-		horizontalArrangement = Arrangement.spacedBy(6.dp),
-		verticalArrangement = Arrangement.spacedBy(6.dp)
+		horizontalArrangement = Arrangement.spacedBy(6.dp)
 	) {
 		EvaluationType.entries.forEach { type ->
 			val isSelected = type == selectedType

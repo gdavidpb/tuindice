@@ -38,8 +38,7 @@ fun EvaluationSubjectPicker(
 			.testTag(EvaluationsUiTags.EvaluationSubjectPickerRow)
 			.padding(top = 8.dp)
 			.fillMaxWidth(),
-		horizontalArrangement = Arrangement.spacedBy(6.dp),
-		verticalArrangement = Arrangement.spacedBy(6.dp)
+		horizontalArrangement = Arrangement.spacedBy(6.dp)
 	) {
 		subjects
 			.forEach { subject ->
@@ -48,8 +47,8 @@ fun EvaluationSubjectPicker(
 				}
 				val isSelected = subject == selectedSubject
 				val isVisible = (selectedSubject == null) || isSelected
-				val baseContainerColor = subjectColors.containerColor.copy(alpha = 0.34f)
-				val disabledContainerColor = subjectColors.containerColor.copy(alpha = 0.18f)
+				val baseContainerColor = subjectColors.containerColor
+				val disabledContainerColor = subjectColors.containerColor.copy(alpha = 0.55f)
 				val disabledLabelColor = subjectColors.color.copy(alpha = 0.38f)
 
 				AnimatedVisibility(
