@@ -2,13 +2,17 @@ package com.gdavidpb.tuindice.evaluations.data.mutation
 
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 
 const val EVALUATIONS_MUTATION_SCOPE = "evaluations"
 const val EVALUATIONS_MUTATION_STORE_ID = "evaluations"
 
 @Serializable
+@OptIn(ExperimentalSerializationApi::class)
+@JsonClassDiscriminator("mutation_type")
 sealed interface EvaluationMutation : OutboxMutation {
 	@Serializable
 	@SerialName("add_evaluation")
