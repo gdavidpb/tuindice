@@ -4,23 +4,21 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
-import com.gdavidpb.tuindice.evaluations.domain.exception.NoSubjectsException
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
-import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.GetEvaluationsExceptionHandler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlin.math.sign
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class GetEvaluationsUseCase(
 	private val evaluationRepository: EvaluationRepository,
-	override val reportingRepository: ReportingRepository,
-	override val exceptionHandler: GetEvaluationsExceptionHandler
+	override val reportingRepository: ReportingRepository
 ) : FlowUseCase<Flow<List<EvaluationFilter>>, GetEvaluations, EvaluationsUseCaseError>(reportingRepository = reportingRepository) {
 
 	private val evaluationComparator =
@@ -36,7 +34,7 @@ class GetEvaluationsUseCase(
 
 	override suspend fun executeOnBackground(params: Flow<List<EvaluationFilter>>): Flow<GetEvaluations> {
 		val availableSubjects = evaluationRepository.getAvailableSubjects()
-		if (availableSubjects.isEmpty()) throw NoSubjectsException()
+		if (availableSubjects.isEmpty()) return flowOf(GetEvaluations.NoSubjects)
 
 		return params.flatMapLatest { activeFilters ->
 			evaluationRepository.observeEvaluationsFlow().map { evaluations ->
@@ -54,7 +52,7 @@ class GetEvaluationsUseCase(
 							}
 						}
 
-				GetEvaluations(
+				GetEvaluations.Content(
 					originalEvaluations = sortedEvaluations,
 					filteredEvaluations = filteredEvaluations,
 					activeFilters = activeFilters

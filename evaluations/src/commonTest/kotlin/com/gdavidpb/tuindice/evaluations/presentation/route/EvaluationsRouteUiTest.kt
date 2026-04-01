@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.GetEvaluationsExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationsExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
@@ -358,8 +357,7 @@ class EvaluationsRouteUiTest {
 			loadEvaluationsActionProcessor = LoadEvaluationsActionProcessor(
 				getEvaluationsUseCase = GetEvaluationsUseCase(
 					evaluationRepository = repository,
-					reportingRepository = RecordingReportingRepository(),
-					exceptionHandler = GetEvaluationsExceptionHandler()
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			refreshEvaluationsActionProcessor = RefreshEvaluationsActionProcessor(

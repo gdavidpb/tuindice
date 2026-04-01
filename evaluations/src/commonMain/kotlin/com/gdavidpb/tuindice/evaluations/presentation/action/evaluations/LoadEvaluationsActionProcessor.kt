@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.action.evaluations
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
+import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
@@ -36,29 +37,39 @@ class LoadEvaluationsActionProcessor(
 					}
 
 					is UseCaseState.Data -> suspend { current: Evaluations.State ->
-						val evaluations = useCaseState.value
-						val pendingLabel = getString(Res.string.label_state_pending)
-						val completedLabel = getString(Res.string.label_state_completed)
-						val noGradeLabel = getString(Res.string.label_state_not_grade)
-						val dateTextMapping = getEvaluationDateTextMapping()
-						val availableFilters = evaluations.originalEvaluations.computeAvailableFilters(
-							pendingLabel = pendingLabel,
-							completedLabel = completedLabel,
-							noGradeLabel = noGradeLabel,
-							dateTextMapping = dateTextMapping
-						)
+						when (val evaluations = useCaseState.value) {
+							GetEvaluations.NoSubjects -> Evaluations.State.NoSubjects
 
-						if (evaluations.originalEvaluations.isNotEmpty())
-							Evaluations.State.Content(
-								originalEvaluations = evaluations.originalEvaluations,
-								filteredEvaluations = evaluations.filteredEvaluations,
-								availableFilters = availableFilters,
-								activeFilters = evaluations.activeFilters
-							)
-						else if (current is Evaluations.State.Loading)
-							current
-						else
-							Evaluations.State.Empty
+							is GetEvaluations.Content -> {
+								val pendingLabel = getString(Res.string.label_state_pending)
+								val completedLabel = getString(Res.string.label_state_completed)
+								val noGradeLabel = getString(Res.string.label_state_not_grade)
+								val dateTextMapping = getEvaluationDateTextMapping()
+								val availableFilters =
+									evaluations.originalEvaluations.computeAvailableFilters(
+										pendingLabel = pendingLabel,
+										completedLabel = completedLabel,
+										noGradeLabel = noGradeLabel,
+										dateTextMapping = dateTextMapping
+									)
+
+								when {
+									evaluations.originalEvaluations.isNotEmpty() ->
+										Evaluations.State.Content(
+											originalEvaluations = evaluations.originalEvaluations,
+											filteredEvaluations = evaluations.filteredEvaluations,
+											availableFilters = availableFilters,
+											activeFilters = evaluations.activeFilters
+										)
+
+									current is Evaluations.State.Loading ->
+										current
+
+									else ->
+										Evaluations.State.Empty
+								}
+							}
+						}
 					}
 
 					is UseCaseState.Error -> suspend { _: Evaluations.State ->
@@ -76,24 +87,17 @@ class LoadEvaluationsActionProcessor(
 							is EvaluationsUseCaseError.Unavailable ->
 								getString(Res.string.snack_service_unavailable)
 
-							is EvaluationsUseCaseError.NoSubjects ->
-								null
-
 							else ->
 								getString(Res.string.snack_default_error)
 						}
 
-						if (error is EvaluationsUseCaseError.NoSubjects)
-							Evaluations.State.NoSubjects
-						else {
-							sideEffect(
-								Evaluations.Effect.ShowSnackBar(
-									message = message!!
-								)
+						sideEffect(
+							Evaluations.Effect.ShowSnackBar(
+								message = message
 							)
+						)
 
-							Evaluations.State.Failed
-						}
+						Evaluations.State.Failed
 					}
 				}
 			}

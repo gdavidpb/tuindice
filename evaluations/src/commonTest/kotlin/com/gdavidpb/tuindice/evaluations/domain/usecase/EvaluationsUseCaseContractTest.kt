@@ -2,16 +2,15 @@ package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
-import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
-import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.GetEvaluationsExceptionHandler
+import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.GetEvaluationParams
 import com.gdavidpb.tuindice.evaluations.testing.*
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
-import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class EvaluationsUseCaseContractTest {
 	@Test
@@ -30,12 +29,11 @@ class EvaluationsUseCaseContractTest {
 					DEFAULT_COMPLETED_EVALUATION
 				)
 			),
-			reportingRepository = RecordingReportingRepository(),
-			exceptionHandler = GetEvaluationsExceptionHandler()
+			reportingRepository = RecordingReportingRepository()
 		)
 
 		useCase.execute(flowOf(listOf(filter))).test {
-			val result = awaitLoadingThenData(this)
+			val result = awaitLoadingThenData(this) as GetEvaluations.Content
 			assertEquals(
 				listOf(DEFAULT_COMPLETED_EVALUATION, DEFAULT_PENDING_EVALUATION),
 				result.originalEvaluations
@@ -47,20 +45,20 @@ class EvaluationsUseCaseContractTest {
 	}
 
 	@Test
-	fun getEvaluationsUseCase_returnsNoSubjectsError_whenFeatureHasNoSubjects() = runTest {
+	fun getEvaluationsUseCase_returnsNoSubjectsState_whenFeatureHasNoSubjects() = runTest {
+		val reportingRepository = RecordingReportingRepository()
 		val useCase = GetEvaluationsUseCase(
 			evaluationRepository = RecordingEvaluationRepository(
 				evaluationsFlow = flowOf(emptyList()),
 				initialEvaluations = emptyList(),
 				availableSubjects = emptyList()
 			),
-			reportingRepository = RecordingReportingRepository(),
-			exceptionHandler = GetEvaluationsExceptionHandler()
+			reportingRepository = reportingRepository
 		)
 
 		useCase.execute(flowOf(emptyList())).test {
-			val error = awaitLoadingThenError(this)
-			assertEquals(EvaluationsUseCaseError.NoSubjects, error.error)
+			assertEquals(GetEvaluations.NoSubjects, awaitLoadingThenData(this))
+			assertTrue(reportingRepository.exceptions.isEmpty())
 			awaitComplete()
 		}
 	}

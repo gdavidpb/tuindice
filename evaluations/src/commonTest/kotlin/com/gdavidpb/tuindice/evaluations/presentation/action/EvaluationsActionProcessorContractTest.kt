@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.evaluations.presentation.action
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableSubjectsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.GetEvaluationsExceptionHandler
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
@@ -38,8 +37,7 @@ class EvaluationsActionProcessorContractTest {
 						DEFAULT_COMPLETED_EVALUATION
 					)
 				),
-				reportingRepository = RecordingReportingRepository(),
-				exceptionHandler = GetEvaluationsExceptionHandler()
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 		val effects = mutableListOf<Evaluations.Effect>()
@@ -72,8 +70,7 @@ class EvaluationsActionProcessorContractTest {
 					evaluationsFlow = flowOf(emptyList()),
 					availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
 				),
-				reportingRepository = RecordingReportingRepository(),
-				exceptionHandler = GetEvaluationsExceptionHandler()
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 
@@ -86,6 +83,32 @@ class EvaluationsActionProcessorContractTest {
 
 			awaitComplete()
 		}
+	}
+
+	@Test
+	fun loadEvaluationsActionProcessor_reducesStateToNoSubjects_withoutReportingError() = runTest {
+		val reportingRepository = RecordingReportingRepository()
+		val processor = LoadEvaluationsActionProcessor(
+			getEvaluationsUseCase = GetEvaluationsUseCase(
+				evaluationRepository = RecordingEvaluationRepository(
+					evaluationsFlow = flowOf(emptyList()),
+					availableSubjects = emptyList()
+				),
+				reportingRepository = reportingRepository
+			)
+		)
+
+		processor.process(
+			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			sideEffect = {}
+		).test {
+			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Empty))
+			assertEquals(Evaluations.State.NoSubjects, awaitItem()(Evaluations.State.Loading))
+
+			awaitComplete()
+		}
+
+		assertTrue(reportingRepository.exceptions.isEmpty())
 	}
 
 	@Test
