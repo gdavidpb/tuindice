@@ -8,12 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 
 @Composable
 fun AboutHeader(
 	text: String,
+	topPadding: Dp = 16.dp,
 	content: @Composable () -> Unit
 ) {
 	Text(
@@ -21,8 +23,10 @@ fun AboutHeader(
 		modifier = Modifier
 			.testTag(AboutUiTags.HeaderTitle)
 			.padding(
-				horizontal = 24.dp,
-				vertical = 16.dp
+				start = 24.dp,
+				top = topPadding,
+				end = 24.dp,
+				bottom = 16.dp
 			)
 			.fillMaxWidth(),
 		style = MaterialTheme.typography.bodyLarge,

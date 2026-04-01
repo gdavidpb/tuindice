@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
@@ -58,6 +59,7 @@ fun EvaluationsContentView(
 		Column(
 			modifier = Modifier
 				.fillMaxSize()
+				.padding(top = InternalScreenDefaults.TopBarSpacing)
 		) {
 			EvaluationFilterView(
 				availableFilters = state.availableFilters,

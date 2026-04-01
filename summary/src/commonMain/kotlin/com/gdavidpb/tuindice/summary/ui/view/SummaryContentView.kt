@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -47,12 +48,12 @@ fun SummaryContentView(
 	Column(
 		modifier = Modifier
 			.testTag(SummaryUiTags.ContentContainer)
-			.fillMaxSize(),
+			.fillMaxSize()
+			.padding(top = InternalScreenDefaults.TopBarSpacing),
 		horizontalAlignment = Alignment.CenterHorizontally
 	) {
 		ProfilePictureView(
-			modifier = Modifier
-				.padding(top = 12.dp),
+			modifier = Modifier,
 			isEnabled = isProfilePictureInteractionEnabled,
 			url = state.profilePictureUrl,
 			isLoading = state.isProfilePictureLoading,

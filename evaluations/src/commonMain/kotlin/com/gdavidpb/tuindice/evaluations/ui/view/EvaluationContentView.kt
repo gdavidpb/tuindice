@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -62,7 +63,11 @@ fun EvaluationContentView(
 		Column(
 			modifier = modifier
 				.verticalScroll(rememberScrollState())
-				.padding(horizontal = 16.dp)
+				.padding(
+					top = InternalScreenDefaults.TopBarSpacing,
+					start = 16.dp,
+					end = 16.dp
+				)
 		) {
 			Text(
 				modifier = Modifier

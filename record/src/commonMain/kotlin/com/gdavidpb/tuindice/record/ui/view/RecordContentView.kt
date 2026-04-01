@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.ui.view
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
@@ -12,6 +13,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
@@ -146,7 +149,12 @@ private fun RecordQuarterPagerView(
 
 	Column(modifier = modifier) {
 		QuarterSelectorView(
-			modifier = Modifier.fillMaxWidth(),
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(
+					top = InternalScreenDefaults.TopBarSpacing,
+					bottom = 8.dp
+				),
 			quarters = quarters,
 			selectedQuarterId = quarterIds.getOrNull(pagerState.currentPage) ?: selectedQuarterId,
 			onQuarterSelected = onSelectedQuarterChange

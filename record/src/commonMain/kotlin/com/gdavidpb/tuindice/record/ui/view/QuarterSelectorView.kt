@@ -59,7 +59,6 @@ fun QuarterSelectorView(
 	BoxWithConstraints(
 		modifier = modifier
 			.fillMaxWidth()
-			.padding(vertical = 8.dp)
 			.testTag(RecordUiTags.QuarterSelectorRow)
 	) {
 		val itemWidth = maxWidth * 0.56f

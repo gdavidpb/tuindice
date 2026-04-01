@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.about.ui.custom.AboutHeader
 import com.gdavidpb.tuindice.about.ui.custom.AboutItem
+import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.about.generated.resources.Res
@@ -77,7 +78,10 @@ fun AboutContentView(
 			.testTag(AboutUiTags.ContentContainer)
 			.verticalScroll(rememberScrollState())
 	) {
-		AboutHeader(text = stringResource(Res.string.app_name)) {
+		AboutHeader(
+			text = stringResource(Res.string.app_name),
+			topPadding = InternalScreenDefaults.TopBarSpacing
+		) {
 			AboutItem(
 				icon = rememberVectorPainter(Icons.Outlined.Info),
 				text = stringResource(Res.string.about_version, state.versionText),
