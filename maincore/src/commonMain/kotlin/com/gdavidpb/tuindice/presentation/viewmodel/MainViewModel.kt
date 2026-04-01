@@ -7,13 +7,11 @@ import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcess
 import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.SetLastMainSectionActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.UpdateStateActionProcessor
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.mapper.toMainSectionOrNull
 import kotlinx.coroutines.flow.Flow
 
 class MainViewModel(
-	private val updateStateActionProcessor: UpdateStateActionProcessor,
 	private val startUpActionProcessor: StartUpActionProcessor,
 	private val requestReviewActionProcessor: RequestReviewActionProcessor,
 	private val requestUpdateActionProcessor: RequestUpdateActionProcessor,
@@ -22,9 +20,6 @@ class MainViewModel(
 	initialState = Main.State.Starting,
 	initialAction = Main.Action.StartUp
 ) {
-
-	fun updateStateAction(state: Main.State) =
-		sendAction(Main.Action.UpdateState(state))
 
 	fun requestReviewAction() =
 		sendAction(Main.Action.RequestReview)
@@ -45,9 +40,6 @@ class MainViewModel(
 		sideEffect: (Main.Effect) -> Unit
 	): Flow<Mutation<Main.State>> {
 		return when (action) {
-			is Main.Action.UpdateState ->
-				updateStateActionProcessor.process(action, sideEffect)
-
 			is Main.Action.StartUp ->
 				startUpActionProcessor.process(action, sideEffect)
 

@@ -23,7 +23,6 @@ val mainModule = module {
 
 	/* Action processor */
 
-	factoryOf(::UpdateStateActionProcessor)
 	factoryOf(::StartUpActionProcessor)
 	factoryOf(::RequestReviewActionProcessor)
 	factoryOf(::RequestUpdateActionProcessor)

@@ -240,6 +240,8 @@ Reglas adicionales:
 4. `UseCase` usa interfaces de repositorio de `domain`.
 5. `ActionProcessor` mapea el resultado a `Mutation<State>` y `Effect`.
 6. `Route` consume `Effect` y lo traduce a navegación o side effects UI.
+7. El chrome global del host (`topBar` y `bottomBar`) se deriva del `ViewState` emitido por la ruta activa y se
+   mantiene en `TuIndiceAppHostRoute`; `MainViewModel` solo conserva estado de arranque y destino inicial.
 
 ## Patron de smoke tests de Koin
 

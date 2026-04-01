@@ -16,13 +16,14 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
-import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.model.MainShellState
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.testing.createBrowserViewModel
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -43,7 +44,7 @@ class TuIndiceScreenUiTest {
 
 			TuIndiceScreen(
 				state = Main.State.Starting,
-				updateState = {},
+				shellState = shellState(),
 				onRetryStartUp = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
@@ -53,6 +54,7 @@ class TuIndiceScreenUiTest {
 				onConfirmExitClick = {},
 				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
+				onViewStateChanged = {},
 				showSnackBar = {}
 			)
 		}
@@ -69,7 +71,7 @@ class TuIndiceScreenUiTest {
 
 			TuIndiceScreen(
 				state = Main.State.Failed,
-				updateState = {},
+				shellState = shellState(),
 				onRetryStartUp = { retryCalls++ },
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
@@ -79,6 +81,7 @@ class TuIndiceScreenUiTest {
 				onConfirmExitClick = {},
 				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
+				onViewStateChanged = {},
 				showSnackBar = {}
 			)
 		}
@@ -96,10 +99,9 @@ class TuIndiceScreenUiTest {
 
 			TuIndiceScreen(
 				state = Main.State.Content(
-					startDestination = MainDestination.GooglePlayServicesUnavailableDialog,
-					isBottomBarVisible = true
+					startDestination = MainDestination.GooglePlayServicesUnavailableDialog
 				),
-				updateState = {},
+				shellState = shellState(isBottomBarVisible = true),
 				onRetryStartUp = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
@@ -109,6 +111,7 @@ class TuIndiceScreenUiTest {
 				onConfirmExitClick = {},
 				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
+				onViewStateChanged = {},
 				showSnackBar = {}
 			)
 		}
@@ -123,13 +126,13 @@ class TuIndiceScreenUiTest {
 
 			TuIndiceScreen(
 				state = Main.State.Content(
-					startDestination = MainDestination.GooglePlayServicesUnavailableDialog,
+					startDestination = MainDestination.GooglePlayServicesUnavailableDialog
+				),
+				shellState = shellState(
 					topBarTitle = "Resumen",
 					topBarConfig = TopBarConfig.Summary,
-					isTopBarVisible = true,
-					isBottomBarVisible = false
+					isTopBarVisible = true
 				),
-				updateState = {},
 				onRetryStartUp = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
@@ -139,6 +142,7 @@ class TuIndiceScreenUiTest {
 				onConfirmExitClick = {},
 				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
+				onViewStateChanged = {},
 				showSnackBar = {}
 			)
 		}
@@ -156,13 +160,12 @@ class TuIndiceScreenUiTest {
 
 			TuIndiceScreen(
 				state = Main.State.Content(
-					startDestination = MainDestination.GooglePlayServicesUnavailableDialog,
-					topBarTitle = "Resumen",
-					topBarConfig = TopBarConfig.Summary,
-					isTopBarVisible = false,
-					isBottomBarVisible = false
+					startDestination = MainDestination.GooglePlayServicesUnavailableDialog
 				),
-				updateState = {},
+				shellState = shellState(
+					topBarTitle = "Resumen",
+					topBarConfig = TopBarConfig.Summary
+				),
 				onRetryStartUp = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
@@ -172,6 +175,7 @@ class TuIndiceScreenUiTest {
 				onConfirmExitClick = {},
 				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
+				onViewStateChanged = {},
 				showSnackBar = {}
 			)
 		}
@@ -187,13 +191,12 @@ class TuIndiceScreenUiTest {
 
 			TuIndiceScreen(
 				state = Main.State.Content(
-					startDestination = MainDestination.GooglePlayServicesUnavailableDialog,
+					startDestination = MainDestination.GooglePlayServicesUnavailableDialog
+				),
+				shellState = shellState(
 					topBarTitle = "Inicio",
-					topBarConfig = null,
-					isTopBarVisible = false,
 					isBottomBarVisible = true
 				),
-				updateState = {},
 				onRetryStartUp = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
@@ -203,6 +206,7 @@ class TuIndiceScreenUiTest {
 				onConfirmExitClick = {},
 				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
+				onViewStateChanged = {},
 				showSnackBar = {}
 			)
 		}
@@ -228,13 +232,13 @@ class TuIndiceScreenUiTest {
 
 				TuIndiceScreen(
 					state = Main.State.Content(
-						startDestination = browserStartDestination(),
+						startDestination = browserStartDestination()
+					),
+					shellState = shellState(
 						topBarTitle = "Resumen",
 						topBarConfig = TopBarConfig.Summary,
-						isTopBarVisible = true,
-						isBottomBarVisible = false
+						isTopBarVisible = true
 					),
-					updateState = {},
 					onRetryStartUp = {},
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
@@ -244,6 +248,7 @@ class TuIndiceScreenUiTest {
 					onConfirmExitClick = {},
 					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
+					onViewStateChanged = {},
 					showSnackBar = {}
 				)
 			}
@@ -277,13 +282,13 @@ class TuIndiceScreenUiTest {
 
 				TuIndiceScreen(
 					state = Main.State.Content(
-						startDestination = browserStartDestination(),
+						startDestination = browserStartDestination()
+					),
+					shellState = shellState(
 						topBarTitle = "Record",
 						topBarConfig = TopBarConfig.Record,
-						isTopBarVisible = true,
-						isBottomBarVisible = false
+						isTopBarVisible = true
 					),
-					updateState = {},
 					onRetryStartUp = {},
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
@@ -293,6 +298,7 @@ class TuIndiceScreenUiTest {
 					onConfirmExitClick = {},
 					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
+					onViewStateChanged = {},
 					showSnackBar = {}
 				)
 			}
@@ -326,11 +332,9 @@ class TuIndiceScreenUiTest {
 
 				TuIndiceScreen(
 					state = Main.State.Content(
-						startDestination = browserStartDestination(),
-						isTopBarVisible = false,
-						isBottomBarVisible = true
+						startDestination = browserStartDestination()
 					),
-					updateState = {},
+					shellState = shellState(isBottomBarVisible = true),
 					onRetryStartUp = {},
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
@@ -340,6 +344,7 @@ class TuIndiceScreenUiTest {
 					onConfirmExitClick = {},
 					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
+					onViewStateChanged = {},
 					showSnackBar = {}
 				)
 			}
@@ -378,12 +383,12 @@ class TuIndiceScreenUiTest {
 
 				TuIndiceScreen(
 					state = Main.State.Content(
-						startDestination = browserStartDestination(),
-						topBarTitle = "Privacidad",
-						isTopBarVisible = true,
-						isBottomBarVisible = false
+						startDestination = browserStartDestination()
 					),
-					updateState = {},
+					shellState = shellState(
+						topBarTitle = "Privacidad",
+						isTopBarVisible = true
+					),
 					onRetryStartUp = {},
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
@@ -393,6 +398,7 @@ class TuIndiceScreenUiTest {
 					onConfirmExitClick = {},
 					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
+					onViewStateChanged = {},
 					showSnackBar = {}
 				)
 			}
@@ -430,12 +436,12 @@ class TuIndiceScreenUiTest {
 
 				TuIndiceScreen(
 					state = Main.State.Content(
-						startDestination = browserStartDestination(),
-						topBarTitle = "Privacidad",
-						isTopBarVisible = true,
-						isBottomBarVisible = false
+						startDestination = browserStartDestination()
 					),
-					updateState = {},
+					shellState = shellState(
+						topBarTitle = "Privacidad",
+						isTopBarVisible = true
+					),
 					onRetryStartUp = {},
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
@@ -445,6 +451,7 @@ class TuIndiceScreenUiTest {
 					onConfirmExitClick = {},
 					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
+					onViewStateChanged = {},
 					showSnackBar = {}
 				)
 			}
@@ -478,6 +485,18 @@ class TuIndiceScreenUiTest {
 			url = "https://tuindice.app/terms"
 		)
 	}
+
+	private fun shellState(
+		topBarTitle: String = "",
+		topBarConfig: TopBarConfig? = null,
+		isTopBarVisible: Boolean = false,
+		isBottomBarVisible: Boolean = false
+	): MainShellState = MainShellState(
+		topBarTitle = topBarTitle,
+		topBarConfig = topBarConfig,
+		isTopBarVisible = isTopBarVisible,
+		isBottomBarVisible = isBottomBarVisible
+	)
 
 	private fun testBrowserModule() = module {
 		factory { createBrowserViewModel() }

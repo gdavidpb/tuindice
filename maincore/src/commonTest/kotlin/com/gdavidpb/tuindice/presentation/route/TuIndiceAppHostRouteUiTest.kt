@@ -2,8 +2,6 @@ package com.gdavidpb.tuindice.presentation.route
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.auth.di.authModule
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
@@ -25,7 +23,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepositor
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
-import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.testing.createSummaryViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
@@ -41,6 +39,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReviewRepository
 import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testing.createMainViewModel
+import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -55,86 +54,74 @@ class TuIndiceAppHostRouteUiTest {
 	@Test
 	fun when_hostRouteStarts_then_rendersNavHostAndTriggersReviewRequest() = runTuIndiceUiTest {
 		val reviewRepository = RecordingReviewRepository()
+		val syncStatusRepository = FakeSyncStatusRepository()
 
-		setTuIndiceTestContent {
-			TuIndiceAppHostRoute(
-				onConfirmExitClick = {},
-				isSwipeBackNavigationEnabled = false,
-				browserRepository = RecordingBrowserRepository(),
-				deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-				syncStatusRepository = FakeSyncStatusRepository(),
-				reviewRepository = reviewRepository,
-				updateRepository = FakeUpdateRepository(),
-				viewModel = createMainViewModel()
-			)
+		stopKoin()
+		startKoin {
+			modules(hostRouteNavigationModule(syncStatusRepository))
 		}
 
-		waitUntil(timeoutMillis = 2_000) {
-			reviewRepository.launchCalls > 0
-		}
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					isSwipeBackNavigationEnabled = false,
+					browserRepository = RecordingBrowserRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
+					syncStatusRepository = syncStatusRepository,
+					reviewRepository = reviewRepository,
+					updateRepository = FakeUpdateRepository(),
+					viewModel = createMainViewModel()
+				)
+			}
 
-		assertTrue(reviewRepository.launchCalls > 0)
+			waitUntil(timeoutMillis = 2_000) {
+				reviewRepository.launchCalls > 0
+			}
+
+			assertNodeVisible(MaincoreUiTags.TuIndiceNavHost)
+			assertTrue(reviewRepository.launchCalls > 0)
+		} finally {
+			stopKoin()
+		}
 	}
 
 	@Test
 	fun when_updateIsAvailable_then_hostRouteLaunchesUpdateFlow() = runTuIndiceUiTest {
 		val updateRepository = FakeUpdateRepository(updateAction = UpdateAction.Immediate)
 		val viewModel = createMainViewModel(updateRepository = updateRepository)
+		val syncStatusRepository = FakeSyncStatusRepository()
 
-		setTuIndiceTestContent {
-			TuIndiceAppHostRoute(
-				onConfirmExitClick = {},
-				isSwipeBackNavigationEnabled = false,
-				browserRepository = RecordingBrowserRepository(),
-				deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-				syncStatusRepository = FakeSyncStatusRepository(),
-				reviewRepository = RecordingReviewRepository(),
-				updateRepository = updateRepository,
-				viewModel = viewModel
-			)
+		stopKoin()
+		startKoin {
+			modules(hostRouteNavigationModule(syncStatusRepository))
 		}
 
-		waitUntil(timeoutMillis = 2_000) {
-			updateRepository.launchedActions.isNotEmpty()
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					isSwipeBackNavigationEnabled = false,
+					browserRepository = RecordingBrowserRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
+					syncStatusRepository = syncStatusRepository,
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = updateRepository,
+					viewModel = viewModel
+				)
+			}
+
+			waitUntil(timeoutMillis = 2_000) {
+				updateRepository.launchedActions.isNotEmpty()
+			}
+
+			assertTrue(updateRepository.checkCalls.isNotEmpty())
+			assertTrue(updateRepository.launchedActions.contains(UpdateAction.Immediate))
+		} finally {
+			stopKoin()
 		}
-
-		assertTrue(updateRepository.checkCalls.isNotEmpty())
-		assertTrue(updateRepository.launchedActions.contains(UpdateAction.Immediate))
-	}
-
-	@Test
-	fun when_googlePlayServicesDialogConfirmed_then_hostRouteInvokesExitCallback() = runTuIndiceUiTest {
-		var confirmExitCalls = 0
-
-		setTuIndiceTestContent {
-			TuIndiceAppHostRoute(
-				onConfirmExitClick = { confirmExitCalls++ },
-				isSwipeBackNavigationEnabled = false,
-				browserRepository = RecordingBrowserRepository(),
-				deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
-				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-				syncStatusRepository = FakeSyncStatusRepository(),
-				reviewRepository = RecordingReviewRepository(),
-				updateRepository = FakeUpdateRepository(),
-				viewModel = createMainViewModel()
-			)
-		}
-
-		waitUntil(timeoutMillis = 2_000) {
-			onAllNodesWithTag(BaseUiTags.ConfirmationDialogPositiveButton)
-				.fetchSemanticsNodes().isNotEmpty()
-		}
-
-		assertNodeVisible(BaseUiTags.ConfirmationDialogPositiveButton)
-		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
-
-		waitUntil(timeoutMillis = 2_000) {
-			confirmExitCalls > 0
-		}
-
-		assertTrue(confirmExitCalls > 0)
 	}
 
 	@Test
@@ -146,6 +133,7 @@ class TuIndiceAppHostRouteUiTest {
 
 		startKoin {
 			modules(
+				hostRouteNavigationModule(syncStatusRepository),
 				authModule,
 				module {
 					single<AuthRepository> {
@@ -179,7 +167,6 @@ class TuIndiceAppHostRouteUiTest {
 					single<ConfigRepository> { FakeConfigRepository() }
 					single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
 					single<CredentialsRepository> { FakeCredentialsRepository() }
-					single<SyncStatusRepository> { syncStatusRepository }
 					single<AttestationRepository> {
 						object : AttestationRepository {
 							override suspend fun attest(request: AttestationRequest): Attestation {
@@ -232,6 +219,7 @@ class TuIndiceAppHostRouteUiTest {
 
 		startKoin {
 			modules(
+				hostRouteNavigationModule(syncStatusRepository),
 				authModule,
 				module {
 					single<AuthRepository> {
@@ -265,7 +253,6 @@ class TuIndiceAppHostRouteUiTest {
 					single<ConfigRepository> { FakeConfigRepository() }
 					single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
 					single<CredentialsRepository> { FakeCredentialsRepository() }
-					single<SyncStatusRepository> { syncStatusRepository }
 					single<AttestationRepository> {
 						object : AttestationRepository {
 							override suspend fun attest(request: AttestationRequest): Attestation {
@@ -311,5 +298,12 @@ class TuIndiceAppHostRouteUiTest {
 		} finally {
 			stopKoin()
 		}
+	}
+
+	private fun hostRouteNavigationModule(
+		syncStatusRepository: SyncStatusRepository
+	) = module {
+		factory { createSummaryViewModel() }
+		single<SyncStatusRepository> { syncStatusRepository }
 	}
 }

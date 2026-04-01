@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -210,10 +211,21 @@ class BrowserRouteUiTest {
 				)
 			}
 
+			waitUntil(timeoutMillis = 2_000) {
+				onAllNodesWithText("Iniciar carga", useUnmergedTree = true)
+					.fetchSemanticsNodes().isNotEmpty()
+			}
+
 			onNodeWithText("Iniciar carga", useUnmergedTree = true).performClick()
 			assertNodeVisible(MaincoreUiTags.BrowserLoadingIndicator)
 
 			onNodeWithText("Finalizar carga", useUnmergedTree = true).performClick()
+
+			waitUntil(timeoutMillis = 2_000) {
+				onAllNodesWithTag(MaincoreUiTags.BrowserLoadingIndicator)
+					.fetchSemanticsNodes().isEmpty()
+			}
+
 			assertNodeHidden(MaincoreUiTags.BrowserLoadingIndicator)
 		} finally {
 			stopKoin()

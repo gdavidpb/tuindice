@@ -8,7 +8,7 @@ import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.presentation.contract.Main
-import com.gdavidpb.tuindice.presentation.navigation.MainDestination
+import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -16,7 +16,6 @@ import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalTestApi::class)
 class MainRouteUiTest {
@@ -40,7 +39,7 @@ class MainRouteUiTest {
 					updateFlowCalls++
 				},
 				viewModel = viewModel
-			) { state, _ ->
+			) { state ->
 				latestState = state
 				Text(text = state::class.simpleName ?: "State")
 			}
@@ -87,7 +86,7 @@ class MainRouteUiTest {
 					updateFlowActions += action
 				},
 				viewModel = viewModel
-			) { state, _ ->
+			) { state ->
 				latestState = state
 				Text(text = state::class.simpleName ?: "State")
 			}
@@ -134,7 +133,7 @@ class MainRouteUiTest {
 					updateFlowCalls++
 				},
 				viewModel = viewModel
-			) { state, _ ->
+			) { state ->
 				latestState = state
 				Text(text = state::class.simpleName ?: "State")
 			}
@@ -151,10 +150,9 @@ class MainRouteUiTest {
 	}
 
 	@Test
-	fun when_contentUpdatesStateViaCallback_then_routeRendersUpdatedState() = runTuIndiceUiTest {
+	fun when_startUpSucceeds_then_routeExposesResolvedStartDestination() = runTuIndiceUiTest {
 		val viewModel = createMainViewModel()
 		var latestState: Main.State? = null
-		var updateStateCallback: ((Main.State) -> Unit)? = null
 
 		setTuIndiceTestContent {
 			MainRoute(
@@ -162,39 +160,17 @@ class MainRouteUiTest {
 				onRequestReviewFlow = {},
 				onRequestUpdateFlow = {},
 				viewModel = viewModel
-			) { state, updateState ->
+			) { state ->
 				latestState = state
-				updateStateCallback = updateState
-
-				val text = when (state) {
-					is Main.State.Content ->
-						state.topBarTitle.ifBlank { "Sin titulo" }
-
-					else ->
-						state::class.simpleName ?: "State"
-				}
-
-				Text(text = text)
+				Text(text = state::class.simpleName ?: "State")
 			}
 		}
 
-		onNodeWithText("Sin titulo").assertIsDisplayed()
-
-		runOnIdle {
-			val callback = assertNotNull(updateStateCallback)
-			callback(
-				Main.State.Content(
-					startDestination = MainDestination.GooglePlayServicesUnavailableDialog,
-					topBarTitle = "Titulo actualizado"
-				)
-			)
-		}
-
 		waitUntil(timeoutMillis = 2_000) {
-			(latestState as? Main.State.Content)?.topBarTitle == "Titulo actualizado"
+			(latestState as? Main.State.Content)?.startDestination == SummaryDestination.NavGraph
 		}
 
-		onNodeWithText("Titulo actualizado").assertIsDisplayed()
+		assertEquals(SummaryDestination.NavGraph, (latestState as Main.State.Content).startDestination)
 	}
 
 	private class GooglePlayServicesFailingSessionRepository : SessionRepository {

@@ -30,7 +30,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -48,6 +47,7 @@ import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.canNavigateBackFromCurrentDestination
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.model.MainShellState
 import com.gdavidpb.tuindice.presentation.model.BottomBarConfig
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
@@ -55,7 +55,7 @@ import com.gdavidpb.tuindice.ui.MaincoreUiTags
 @Composable
 fun TuIndiceScreen(
 	state: Main.State,
-	updateState: (Main.State) -> Unit,
+	shellState: MainShellState,
 	onRetryStartUp: () -> Unit,
 	navController: NavHostController,
 	isSwipeBackNavigationEnabled: Boolean = false,
@@ -66,6 +66,7 @@ fun TuIndiceScreen(
 	onConfirmExitClick: () -> Unit,
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
+	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	when (state) {
@@ -95,19 +96,7 @@ fun TuIndiceScreen(
 	}
 
 	val contentState = state
-	val latestContentState = rememberUpdatedState(contentState)
 	val canNavigateBack = navController.canNavigateBackFromCurrentDestination()
-
-	val onViewStateChanged: (ViewState) -> Unit = { currentViewState ->
-		updateState(
-			latestContentState.value.copy(
-				topBarTitle = currentViewState.topBarTitle,
-				topBarConfig = currentViewState.topBarConfig,
-				isTopBarVisible = currentViewState.isTopBarVisible,
-				isBottomBarVisible = currentViewState.isBottomBarVisible
-			)
-		)
-	}
 
 	val bottomBarConfigs = remember {
 		listOf(
@@ -121,16 +110,16 @@ fun TuIndiceScreen(
 	Scaffold(
 		snackbarHost = { SnackbarHost(snackbarHostState) },
 		topBar = {
-			if (contentState.isTopBarVisible) {
+			if (shellState.isTopBarVisible) {
 				TopAppBar(
 					title = {
 						TopAppBarAnimatedTitleView(
-							title = contentState.topBarTitle
+							title = shellState.topBarTitle
 						)
 					},
 					actions = {
 						TopAppBarActionsView(
-							topBarConfig = contentState.topBarConfig,
+							topBarConfig = shellState.topBarConfig,
 							onAction = onAction,
 							actionIconContent = { action ->
 								Icon(
@@ -154,9 +143,9 @@ fun TuIndiceScreen(
 					}
 				)
 			}
-		},
+			},
 		bottomBar = {
-			if (contentState.isBottomBarVisible) {
+			if (shellState.isBottomBarVisible) {
 				NavigationBar(
 					modifier = Modifier
 						.testTag(MaincoreUiTags.TuIndiceBottomBar)

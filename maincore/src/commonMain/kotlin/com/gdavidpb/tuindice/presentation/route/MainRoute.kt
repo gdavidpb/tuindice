@@ -14,10 +14,7 @@ fun MainRoute(
 	onRequestReviewFlow: suspend () -> Unit,
 	onRequestUpdateFlow: suspend (UpdateAction) -> Unit,
 	viewModel: MainViewModel,
-	content: @Composable (
-		state: Main.State,
-		updateState: (Main.State) -> Unit
-	) -> Unit
+	content: @Composable (state: Main.State) -> Unit
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -34,8 +31,5 @@ fun MainRoute(
 		}
 	}
 
-	content(
-		viewState,
-		viewModel::updateStateAction
-	)
+	content(viewState)
 }

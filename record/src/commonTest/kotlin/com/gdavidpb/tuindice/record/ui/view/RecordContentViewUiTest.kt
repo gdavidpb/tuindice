@@ -262,4 +262,54 @@ class RecordContentViewUiTest {
 		assertNodeHidden(RecordUiTags.subjectItem("subject-1"))
 		assertNodeVisible(RecordUiTags.subjectItem("subject-2"))
 	}
+
+	@Test
+	fun when_quarterPagerIsSwiped_then_notifiesSelectedQuarterChange() = runTuIndiceUiTest {
+		val olderQuarter = DEFAULT_RECORD_QUARTER.copy(
+			id = "quarter-2",
+			name = "2025-3",
+			startDate = DEFAULT_RECORD_QUARTER.startDate - 100_000L,
+			endDate = DEFAULT_RECORD_QUARTER.endDate - 100_000L,
+			isCurrent = false,
+			subjects = listOf(
+				DEFAULT_RECORD_SUBJECT.copy(
+					id = "subject-2",
+					quarterId = "quarter-2",
+					name = "Calculo"
+				)
+			)
+		)
+		val selectedQuarterChanges = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			val selectedQuarterIdState = remember {
+				mutableStateOf<String?>(DEFAULT_RECORD_QUARTER.id)
+			}
+
+			RecordContentView(
+				state = recordContentState(
+					quarters = listOf(
+						DEFAULT_RECORD_QUARTER,
+						olderQuarter
+					)
+				),
+				selectedQuarterId = selectedQuarterIdState.value,
+				onSelectedQuarterChange = { quarterId ->
+					selectedQuarterChanges += quarterId
+					selectedQuarterIdState.value = quarterId
+				},
+				onSubjectGradeChange = { _, _, _, _ -> }
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.QuarterPager).performTouchInput {
+			swipeRight()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			selectedQuarterChanges.contains("quarter-2")
+		}
+
+		assertTrue(selectedQuarterChanges.contains("quarter-2"))
+	}
 }

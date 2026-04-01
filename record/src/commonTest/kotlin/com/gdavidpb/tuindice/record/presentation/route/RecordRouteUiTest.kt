@@ -5,9 +5,12 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeRight
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.record.domain.repository.QuarterSelectionRepository
@@ -327,6 +330,71 @@ class RecordRouteUiTest {
 		}
 
 		onNodeWithTag(RecordUiTags.quarterChip("quarter-1")).performClick()
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewStates.lastOrNull()?.topBarConfig == TopBarConfig.Record
+		}
+
+		assertEquals(
+			listOf("quarter-1", "quarter-2", "quarter-1"),
+			quarterSelectionRepository.setSelectedQuarterIdCalls
+		)
+	}
+
+	@Test
+	fun when_quarterPagerIsSwiped_then_routeUpdatesTopBarActionVisibility() = runTuIndiceUiTest {
+		val olderQuarter = DEFAULT_RECORD_QUARTER.copy(
+			id = "quarter-2",
+			name = "2025-3",
+			startDate = DEFAULT_RECORD_QUARTER.startDate - 100_000L,
+			endDate = DEFAULT_RECORD_QUARTER.endDate - 100_000L,
+			isCurrent = false,
+			subjects = listOf(
+				DEFAULT_RECORD_SUBJECT.copy(
+					id = "subject-2",
+					quarterId = "quarter-2"
+				)
+			)
+		)
+		val quarterSelectionRepository = RecordingQuarterSelectionRepository()
+		val viewStates = mutableListOf<ViewState>()
+
+		setTuIndiceTestContent {
+			RecordRoute(
+				onNavigateToUpdatePassword = {},
+				onViewStateChanged = { state ->
+					viewStates += state
+				},
+				showSnackBar = {},
+				viewModel = createRecordViewModel(
+					quarterRepository = RecordingQuarterRepository(
+						quarters = flowOf(
+							listOf(
+								DEFAULT_RECORD_QUARTER,
+								olderQuarter
+							)
+						)
+					),
+					quarterSelectionRepository = quarterSelectionRepository
+				)
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewStates.lastOrNull()?.topBarConfig == TopBarConfig.Record
+		}
+
+		onNodeWithTag(RecordUiTags.QuarterPager).performTouchInput {
+			swipeRight()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewStates.lastOrNull()?.topBarConfig == null
+		}
+
+		onNodeWithTag(RecordUiTags.QuarterPager).performTouchInput {
+			swipeLeft()
+		}
 
 		waitUntil(timeoutMillis = 2_000) {
 			viewStates.lastOrNull()?.topBarConfig == TopBarConfig.Record

@@ -132,11 +132,11 @@ private fun RecordQuarterPagerView(
 	}
 
 	LaunchedEffect(pagerState, quarterIds, selectedQuarterId) {
-		snapshotFlow { pagerState.isScrollInProgress }
-			.filter { isScrollInProgress -> !isScrollInProgress }
+		snapshotFlow { pagerState.isScrollInProgress to pagerState.currentPage }
 			.distinctUntilChanged()
-			.collect {
-				val quarterId = quarterIds.getOrNull(pagerState.currentPage) ?: return@collect
+			.filter { (isScrollInProgress, _) -> !isScrollInProgress }
+			.collect { (_, page) ->
+				val quarterId = quarterIds.getOrNull(page) ?: return@collect
 
 				if (quarterId != selectedQuarterId) {
 					onSelectedQuarterChange(quarterId)

@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 
 object Main {
@@ -13,18 +12,13 @@ object Main {
 		data object Starting : State()
 
 		data class Content(
-			val startDestination: Destination,
-			override val topBarTitle: String = "",
-			override val topBarConfig: TopBarConfig? = null,
-			override val isTopBarVisible: Boolean = false,
-			override val isBottomBarVisible: Boolean = false
+			val startDestination: Destination
 		) : State()
 
 		data object Failed : State()
 	}
 
 	sealed class Action : ViewAction() {
-		class UpdateState(val state: State) : Action()
 		data object StartUp : Action()
 		data object RequestReview : Action()
 		data object RequestUpdateCheck : Action()

@@ -6,6 +6,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.Lifecycle
@@ -26,6 +27,8 @@ import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.presentation.contract.Main
+import com.gdavidpb.tuindice.presentation.model.MainShellState
+import com.gdavidpb.tuindice.presentation.model.toMainShellState
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
@@ -109,7 +112,10 @@ fun TuIndiceAppHostRoute(
 			updateRepository.launchUpdate(action = action)
 		},
 		viewModel = viewModel
-	) { state, updateState ->
+	) { state ->
+		val shellState = remember {
+			mutableStateOf(MainShellState())
+		}
 		val syncStatus by syncStatusRepository
 			.observeSyncStatus()
 			.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
@@ -136,7 +142,7 @@ fun TuIndiceAppHostRoute(
 
 		TuIndiceScreen(
 			state = state,
-			updateState = updateState,
+			shellState = shellState.value,
 			onRetryStartUp = viewModel::startUpAction,
 			navController = navController,
 			isSwipeBackNavigationEnabled = isSwipeBackNavigationEnabled,
@@ -171,6 +177,9 @@ fun TuIndiceAppHostRoute(
 			onConfirmExitClick = onConfirmExitClick,
 			isCameraAvailable = deviceInfoRepository.hasCamera(),
 			onNavigateToExternalResource = browserRepository::open,
+			onViewStateChanged = { viewState ->
+				shellState.value = viewState.toMainShellState()
+			},
 			showSnackBar = showSnackBar
 		)
 	}
