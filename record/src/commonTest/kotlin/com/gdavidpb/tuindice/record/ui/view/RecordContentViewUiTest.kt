@@ -10,6 +10,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
@@ -165,6 +166,52 @@ class RecordContentViewUiTest {
 			tag = RecordUiTags.quarterCurrentChip("quarter-2"),
 			useUnmergedTree = true
 		)
+	}
+
+	@Test
+	fun when_quarterSelectorRowIsSwiped_then_selectedQuarterDoesNotChange() = runTuIndiceUiTest {
+		val olderQuarter = DEFAULT_RECORD_QUARTER.copy(
+			id = "quarter-2",
+			name = "2025-3",
+			startDate = DEFAULT_RECORD_QUARTER.startDate - 100_000L,
+			endDate = DEFAULT_RECORD_QUARTER.endDate - 100_000L,
+			isCurrent = false,
+			subjects = listOf(
+				DEFAULT_RECORD_SUBJECT.copy(
+					id = "subject-2",
+					quarterId = "quarter-2",
+					name = "Calculo"
+				)
+			)
+		)
+
+		setTuIndiceTestContent {
+			val selectedQuarterIdState = remember {
+				mutableStateOf<String?>(DEFAULT_RECORD_QUARTER.id)
+			}
+
+			RecordContentView(
+				state = recordContentState(
+					quarters = listOf(
+						DEFAULT_RECORD_QUARTER,
+						olderQuarter
+					)
+				),
+				selectedQuarterId = selectedQuarterIdState.value,
+				onSelectedQuarterChange = { quarterId ->
+					selectedQuarterIdState.value = quarterId
+				},
+				onSubjectGradeChange = { _, _, _, _ -> }
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.QuarterSelectorRow).performTouchInput {
+			swipeLeft()
+		}
+		waitForIdle()
+
+		assertNodeVisible(RecordUiTags.subjectItem("subject-1"))
+		assertNodeHidden(RecordUiTags.subjectItem("subject-2"))
 	}
 
 	@Test

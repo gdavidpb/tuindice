@@ -16,7 +16,7 @@ fun recordContentState(
 	quarters: List<Quarter> = listOf(DEFAULT_RECORD_QUARTER)
 ): Record.State.Content = Record.State.Content(
 	quarters = quarters,
-	selectedQuarterId = quarters.first().id
+	selectedQuarterId = quarters.firstOrNull()?.id.orEmpty()
 )
 
 fun recordMapperTexts(): RecordMapperTexts = RecordMapperTexts(
