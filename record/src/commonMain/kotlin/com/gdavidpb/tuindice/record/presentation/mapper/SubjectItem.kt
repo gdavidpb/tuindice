@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import com.gdavidpb.tuindice.base.ui.style.SubjectColorGenerator
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
-import com.gdavidpb.tuindice.record.ui.style.SubjectColorGenerator
 
 @Composable
 fun Subject.toSubjectItem(

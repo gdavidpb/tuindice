@@ -3,9 +3,9 @@ package com.gdavidpb.tuindice.record.presentation.mapper
 import androidx.compose.ui.test.ExperimentalTestApi
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import com.gdavidpb.tuindice.base.ui.style.SubjectColorGenerator
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.testing.recordMapperTexts
-import com.gdavidpb.tuindice.record.ui.style.SubjectColorGenerator
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test

@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.testing
 import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import com.gdavidpb.tuindice.base.ui.style.SubjectColorGenerator
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
@@ -10,7 +11,6 @@ import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.QuarterMetricDelta
 import com.gdavidpb.tuindice.record.presentation.model.QuarterMetricDeltaTone
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
-import com.gdavidpb.tuindice.record.ui.style.SubjectColorGenerator
 
 fun recordContentState(
 	quarters: List<Quarter> = listOf(DEFAULT_RECORD_QUARTER)

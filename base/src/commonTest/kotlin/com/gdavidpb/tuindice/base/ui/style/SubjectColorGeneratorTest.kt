@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.ui.style
+package com.gdavidpb.tuindice.base.ui.style
 
 import androidx.compose.ui.graphics.Color
 import kotlin.test.Test
@@ -6,7 +6,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class SubjectColorGeneratorTest {
-
 	@Test
 	fun when_codeHasTwoLettersAndFourDigits_then_returnsNonBlackColorPair() {
 		val subjectColors = SubjectColorGenerator.fromCode("FS1113")

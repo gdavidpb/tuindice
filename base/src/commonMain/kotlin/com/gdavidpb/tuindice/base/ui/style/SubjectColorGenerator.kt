@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.ui.style
+package com.gdavidpb.tuindice.base.ui.style
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
