@@ -62,7 +62,7 @@ class FileKitSkiaPictureEncoderDataSource : PictureEncoderDataRepository {
 							"Image encoding returned no data."
 						}
 
-						check(encodedData.bytes.size > Settings.MAX_UPLOAD_BYTES) {
+						check(encodedData.bytes.size <= Settings.MAX_UPLOAD_BYTES) {
 							"Image exceeds maximum upload size."
 						}
 
