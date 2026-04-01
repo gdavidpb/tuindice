@@ -27,19 +27,16 @@ class IosBrowserScreenRenderer : BrowserScreenRenderer {
 		onPageFinished: () -> Unit,
 		onExternalResourceClick: (url: String) -> Unit
 	) {
-		val navigationDelegate = remember(onPageStarted, onPageFinished, onExternalResourceClick) {
+		val navigationDelegate = remember(url, onPageStarted, onPageFinished, onExternalResourceClick) {
 			BrowserNavigationDelegate(
+				initialUrl = url,
 				onPageStarted = onPageStarted,
 				onPageFinished = onPageFinished,
 				onExternalResourceClick = onExternalResourceClick
 			)
 		}
 
-		val webView = remember {
-			WKWebView().apply {
-				setNavigationDelegate(navigationDelegate)
-			}
-		}
+		val webView = remember { WKWebView() }
 
 		DisposableEffect(webView) {
 			onDispose {
@@ -51,6 +48,8 @@ class IosBrowserScreenRenderer : BrowserScreenRenderer {
 		UIKitView(
 			factory = { webView },
 			update = { browserWebView ->
+				browserWebView.setNavigationDelegate(navigationDelegate)
+
 				if (browserWebView.URL?.absoluteString != url) {
 					val targetUrl = NSURL.URLWithString(url) ?: return@UIKitView
 					val request = NSURLRequest.requestWithURL(targetUrl)
@@ -64,6 +63,7 @@ class IosBrowserScreenRenderer : BrowserScreenRenderer {
 
 @OptIn(ExperimentalForeignApi::class)
 private class BrowserNavigationDelegate(
+	private val initialUrl: String,
 	private val onPageStarted: () -> Unit,
 	private val onPageFinished: () -> Unit,
 	private val onExternalResourceClick: (url: String) -> Unit
@@ -90,16 +90,15 @@ private class BrowserNavigationDelegate(
 		decidePolicyForNavigationAction: WKNavigationAction,
 		decisionHandler: (WKNavigationActionPolicy) -> Unit
 	) {
-		val url = decidePolicyForNavigationAction.request.URL
-		val urlValue = url?.absoluteString
+		val requestedUrl = decidePolicyForNavigationAction.request.URL?.absoluteString
+		val shouldOpenExternal = shouldOpenExternalResource(
+			initialUrl = initialUrl,
+			currentUrl = webView.URL?.absoluteString,
+			requestedUrl = requestedUrl
+		)
 
-		val shouldOpenExternal = url?.scheme
-			?.lowercase()
-			?.let { scheme -> scheme != "http" && scheme != "https" }
-			?: false
-
-		if (shouldOpenExternal && !urlValue.isNullOrBlank()) {
-			onExternalResourceClick(urlValue)
+		if (shouldOpenExternal && requestedUrl != null) {
+			onExternalResourceClick(requestedUrl)
 			decisionHandler(WKNavigationActionPolicy.WKNavigationActionPolicyCancel)
 			return
 		}

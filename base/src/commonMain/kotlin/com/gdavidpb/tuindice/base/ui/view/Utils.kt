@@ -10,7 +10,7 @@ import androidx.compose.ui.text.withStyle
 fun getAnnotatedUrl(
 	url: String,
 	primary: Color,
-	outlineVariant: Color
+	secondary: Color
 ): AnnotatedString {
 	return buildAnnotatedString {
 		val hostRange = url.hostRange()
@@ -30,7 +30,7 @@ fun getAnnotatedUrl(
 
 		withStyle(
 			style = SpanStyle(
-				color = outlineVariant,
+				color = secondary,
 				textDecoration = TextDecoration.Underline
 			)
 		) {

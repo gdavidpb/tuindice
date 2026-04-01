@@ -41,7 +41,7 @@ fun ExternalResourceDialog(
 			text = getAnnotatedUrl(
 				url = url,
 				primary = MaterialTheme.colorScheme.primary,
-				outlineVariant = MaterialTheme.colorScheme.outlineVariant
+				secondary = MaterialTheme.colorScheme.onSurfaceVariant
 			),
 			style = MaterialTheme.typography.bodyMedium
 		)
