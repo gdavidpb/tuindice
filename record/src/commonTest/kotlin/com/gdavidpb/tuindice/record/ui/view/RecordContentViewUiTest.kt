@@ -38,14 +38,12 @@ class RecordContentViewUiTest {
 			RecordContentView(
 				state = recordContentState(),
 				selectedQuarterId = null,
-				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
 			)
 		}
 
 		assertNodeVisible(RecordUiTags.ContentContainer)
-		assertNodeVisible(RecordUiTags.ViewModeSelector)
 		assertNodeVisible(RecordUiTags.QuarterSelectorRow)
 		assertNodeVisible(RecordUiTags.quarterChip("quarter-1"))
 		assertNodeVisible(
@@ -64,7 +62,6 @@ class RecordContentViewUiTest {
 			RecordContentView(
 				state = recordContentState(quarters = emptyList()),
 				selectedQuarterId = null,
-				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
 			)
@@ -94,7 +91,6 @@ class RecordContentViewUiTest {
 			RecordContentView(
 				state = state,
 				selectedQuarterId = "quarter-1",
-				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onSubjectGradeChange = { quarterId, subjectId, newGrade, isSelected ->
 					events += GradeChangeEvent(quarterId, subjectId, newGrade, isSelected)
@@ -150,7 +146,6 @@ class RecordContentViewUiTest {
 					)
 				),
 				selectedQuarterId = selectedQuarterIdState.value,
-				onViewModeChange = {},
 				onSelectedQuarterChange = { quarterId ->
 					selectedQuarterIdState.value = quarterId
 				},
@@ -203,7 +198,6 @@ class RecordContentViewUiTest {
 					)
 				),
 				selectedQuarterId = selectedQuarterIdState.value,
-				onViewModeChange = {},
 				onSelectedQuarterChange = { quarterId ->
 					selectedQuarterIdState.value = quarterId
 				},
@@ -250,7 +244,6 @@ class RecordContentViewUiTest {
 					)
 				),
 				selectedQuarterId = selectedQuarterIdState.value,
-				onViewModeChange = {},
 				onSelectedQuarterChange = { quarterId ->
 					selectedQuarterIdState.value = quarterId
 				},
@@ -301,7 +294,6 @@ class RecordContentViewUiTest {
 					)
 				),
 				selectedQuarterId = selectedQuarterIdState.value,
-				onViewModeChange = {},
 				onSelectedQuarterChange = { quarterId ->
 					selectedQuarterChanges += quarterId
 					selectedQuarterIdState.value = quarterId

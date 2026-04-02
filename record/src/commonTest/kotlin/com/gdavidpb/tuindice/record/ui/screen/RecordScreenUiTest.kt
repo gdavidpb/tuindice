@@ -26,7 +26,6 @@ class RecordScreenUiTest {
 			RecordScreen(
 				state = Record.State.Loading,
 				selectedQuarterId = null,
-				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onRetryClick = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
@@ -44,7 +43,6 @@ class RecordScreenUiTest {
 			RecordScreen(
 				state = Record.State.Failed,
 				selectedQuarterId = null,
-				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onRetryClick = { retryClicks++ },
 				onSubjectGradeChange = { _, _, _, _ -> }
@@ -62,7 +60,6 @@ class RecordScreenUiTest {
 			RecordScreen(
 				state = Record.State.Empty,
 				selectedQuarterId = null,
-				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onRetryClick = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
@@ -78,7 +75,6 @@ class RecordScreenUiTest {
 			RecordScreen(
 				state = recordContentState(),
 				selectedQuarterId = null,
-				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onRetryClick = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
@@ -107,7 +103,6 @@ class RecordScreenUiTest {
 			RecordScreen(
 				state = state,
 				selectedQuarterId = "quarter-1",
-				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onRetryClick = {},
 				onSubjectGradeChange = { quarterId, subjectId, newGrade, isSelected ->

@@ -13,6 +13,7 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.repository.QuarterSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.usecase.GetRecordViewModeUseCase
@@ -30,6 +31,7 @@ import com.gdavidpb.tuindice.record.presentation.action.RefreshQuartersActionPro
 import com.gdavidpb.tuindice.record.presentation.action.SetRecordViewModeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SelectQuarterActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
+import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_SUBJECT
@@ -62,6 +64,7 @@ class RecordRouteUiTest {
 				onNavigateToUpdatePassword = {
 					navigatedToUpdatePassword = true
 				},
+				onTopBarViewModeChangeAvailable = {},
 				onViewStateChanged = {},
 				showSnackBar = { message ->
 					snackBars += message
@@ -106,6 +109,7 @@ class RecordRouteUiTest {
 				onNavigateToUpdatePassword = {
 					navigatedToUpdatePassword = true
 				},
+				onTopBarViewModeChangeAvailable = {},
 				onViewStateChanged = {},
 				showSnackBar = { message ->
 					snackBars += message
@@ -138,6 +142,7 @@ class RecordRouteUiTest {
 				onNavigateToUpdatePassword = {
 					navigatedToUpdatePassword = true
 				},
+				onTopBarViewModeChangeAvailable = {},
 				onViewStateChanged = {},
 				showSnackBar = { message ->
 					snackBars += message
@@ -166,6 +171,7 @@ class RecordRouteUiTest {
 				onNavigateToUpdatePassword = {
 					navigatedToUpdatePassword = true
 				},
+				onTopBarViewModeChangeAvailable = {},
 				onViewStateChanged = {},
 				showSnackBar = { message ->
 					snackBars += message
@@ -217,6 +223,7 @@ class RecordRouteUiTest {
 				onNavigateToUpdatePassword = {
 					navigatedToUpdatePassword = true
 				},
+				onTopBarViewModeChangeAvailable = {},
 				onViewStateChanged = {},
 				showSnackBar = { message ->
 					snackBars += message
@@ -262,6 +269,7 @@ class RecordRouteUiTest {
 		setTuIndiceTestContent {
 			RecordRoute(
 				onNavigateToUpdatePassword = {},
+				onTopBarViewModeChangeAvailable = {},
 				onViewStateChanged = {},
 				showSnackBar = { message ->
 					snackBars += message
@@ -304,6 +312,7 @@ class RecordRouteUiTest {
 		setTuIndiceTestContent {
 			RecordRoute(
 				onNavigateToUpdatePassword = {},
+				onTopBarViewModeChangeAvailable = {},
 				onViewStateChanged = { state ->
 					viewStates += state
 				},
@@ -345,6 +354,47 @@ class RecordRouteUiTest {
 	}
 
 	@Test
+	fun when_topBarViewModeCallbackIsInvoked_then_routePublishesUpdatedMode() = runTuIndiceUiTest {
+		val viewStates = mutableListOf<ViewState>()
+		var topBarViewModeChange: ((RecordViewMode) -> Unit)? = null
+
+		setTuIndiceTestContent {
+			RecordRoute(
+				onNavigateToUpdatePassword = {},
+				onTopBarViewModeChangeAvailable = { callback ->
+					topBarViewModeChange = callback
+				},
+				onViewStateChanged = { state ->
+					viewStates += state
+				},
+				showSnackBar = {},
+				viewModel = createRecordViewModel()
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			val latestViewState = viewStates.lastOrNull() as? RecordRouteViewState
+			topBarViewModeChange != null &&
+				latestViewState?.topBarViewModeState?.selectedMode == RecordViewMode.Simulation
+		}
+
+		runOnIdle {
+			topBarViewModeChange?.invoke(RecordViewMode.Official)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			(viewStates.lastOrNull() as? RecordRouteViewState)
+				?.topBarViewModeState
+				?.selectedMode == RecordViewMode.Official
+		}
+
+		assertEquals(
+			RecordViewMode.Official,
+			(viewStates.last() as RecordRouteViewState).topBarViewModeState?.selectedMode
+		)
+	}
+
+	@Test
 	fun when_quarterPagerIsSwiped_then_routeUpdatesTopBarActionVisibility() = runTuIndiceUiTest {
 		val olderQuarter = DEFAULT_RECORD_QUARTER.copy(
 			id = "quarter-2",
@@ -365,6 +415,7 @@ class RecordRouteUiTest {
 		setTuIndiceTestContent {
 			RecordRoute(
 				onNavigateToUpdatePassword = {},
+				onTopBarViewModeChangeAvailable = {},
 				onViewStateChanged = { state ->
 					viewStates += state
 				},
@@ -432,6 +483,7 @@ class RecordRouteUiTest {
 		setTuIndiceTestContent {
 			RecordRoute(
 				onNavigateToUpdatePassword = {},
+				onTopBarViewModeChangeAvailable = {},
 				onViewStateChanged = { state ->
 					viewStates += state
 				},

@@ -6,12 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -21,7 +16,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
-import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.filterByViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
@@ -35,8 +29,6 @@ import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.quarter_credits_pattern
 import tuindice.record.generated.resources.quarter_grade_diff_pattern
 import tuindice.record.generated.resources.quarter_grade_sum_pattern
-import tuindice.record.generated.resources.record_view_mode_official
-import tuindice.record.generated.resources.record_view_mode_simulation
 import tuindice.record.generated.resources.subject_credits_pattern
 import tuindice.record.generated.resources.subject_grade_pattern
 
@@ -44,7 +36,6 @@ import tuindice.record.generated.resources.subject_grade_pattern
 fun RecordContentView(
 	state: Record.State.Content,
 	selectedQuarterId: String?,
-	onViewModeChange: (viewMode: RecordViewMode) -> Unit,
 	onSelectedQuarterChange: (quarterId: String) -> Unit,
 	onSubjectGradeChange: (
 		quarterId: String,
@@ -95,70 +86,24 @@ fun RecordContentView(
 		)
 	val chronologicalQuarters = quarters.asReversed()
 	val effectiveSelectedQuarterId = selectedQuarterId ?: quarters.firstOrNull()?.quarterId
-
 	Column(
 		modifier = Modifier
 			.fillMaxSize()
 			.testTag(RecordUiTags.ContentContainer)
 	) {
-		RecordViewModeSelector(
-			modifier = Modifier
-				.fillMaxWidth()
-				.padding(
-					start = 16.dp,
-					end = 16.dp,
-					top = InternalScreenDefaults.TopBarSpacing
-				),
-			selectedMode = state.viewMode,
-			onModeSelected = onViewModeChange
-		)
-
 		if (
 			chronologicalQuarters.isNotEmpty() &&
 			(effectiveSelectedQuarterId != null)
 		) {
 			RecordQuarterPagerView(
-				modifier = Modifier.fillMaxSize(),
+				modifier = Modifier
+					.fillMaxSize()
+					.padding(top = InternalScreenDefaults.TopBarSpacing),
 				quarters = chronologicalQuarters,
 				selectedQuarterId = effectiveSelectedQuarterId,
 				onSelectedQuarterChange = onSelectedQuarterChange,
 				onSubjectGradeChange = onSubjectGradeChange
 			)
-		}
-	}
-}
-
-@Composable
-private fun RecordViewModeSelector(
-	modifier: Modifier = Modifier,
-	selectedMode: RecordViewMode,
-	onModeSelected: (RecordViewMode) -> Unit
-) {
-	Row(
-		modifier = modifier.testTag(RecordUiTags.ViewModeSelector),
-		horizontalArrangement = Arrangement.spacedBy(8.dp)
-	) {
-		RecordViewMode.entries.forEach { mode ->
-			val label = when (mode) {
-				RecordViewMode.Official -> stringResource(Res.string.record_view_mode_official)
-				RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_simulation)
-			}
-
-			if (mode == selectedMode) {
-				FilledTonalButton(
-					modifier = Modifier.testTag(RecordUiTags.viewModeButton(mode.storageValue)),
-					onClick = { onModeSelected(mode) }
-				) {
-					Text(text = label)
-				}
-			} else {
-				OutlinedButton(
-					modifier = Modifier.testTag(RecordUiTags.viewModeButton(mode.storageValue)),
-					onClick = { onModeSelected(mode) }
-				) {
-					Text(text = label)
-				}
-			}
 		}
 	}
 }
@@ -207,13 +152,13 @@ private fun RecordQuarterPagerView(
 	}
 
 	Column(modifier = modifier) {
-			QuarterSelectorView(
-				modifier = Modifier
-					.fillMaxWidth()
-					.padding(
-						top = 8.dp,
-						bottom = 8.dp
-					),
+		QuarterSelectorView(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(
+					top = 8.dp,
+					bottom = 8.dp
+				),
 			quarters = quarters,
 			selectedQuarterId = quarterIds.getOrNull(pagerState.currentPage) ?: selectedQuarterId,
 			onQuarterSelected = onSelectedQuarterChange

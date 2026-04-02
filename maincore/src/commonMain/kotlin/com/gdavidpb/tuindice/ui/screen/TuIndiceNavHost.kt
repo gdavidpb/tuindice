@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsNavi
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.browserNavigation
 import com.gdavidpb.tuindice.presentation.navigation.mainNavigation
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.navigation.recordNavigation
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryNavigation
@@ -34,6 +35,7 @@ fun TuIndiceNavHost(
 	onConfirmExitClick: () -> Unit,
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
+	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	dismissSnackBar: () -> Unit = {}
@@ -93,6 +95,7 @@ fun TuIndiceNavHost(
 			onNavigateToUpdatePassword = {
 				navController.navigate(AuthDestination.UpdatePasswordDialog)
 			},
+			onTopBarViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar
 		)

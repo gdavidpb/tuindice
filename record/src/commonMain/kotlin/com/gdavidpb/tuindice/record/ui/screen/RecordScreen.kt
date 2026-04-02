@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.record.ui.screen
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
-import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.ui.view.RecordContentView
 import com.gdavidpb.tuindice.record.ui.view.RecordEmptyView
@@ -22,7 +21,6 @@ import tuindice.record.generated.resources.record_failed_title
 fun RecordScreen(
 	state: Record.State,
 	selectedQuarterId: String?,
-	onViewModeChange: (viewMode: RecordViewMode) -> Unit,
 	onSelectedQuarterChange: (quarterId: String) -> Unit,
 	onRetryClick: () -> Unit,
 	onSubjectGradeChange: (
@@ -43,7 +41,6 @@ fun RecordScreen(
 				RecordContentView(
 					state = targetState,
 					selectedQuarterId = selectedQuarterId,
-					onViewModeChange = onViewModeChange,
 					onSelectedQuarterChange = onSelectedQuarterChange,
 					onSubjectGradeChange = onSubjectGradeChange
 				)

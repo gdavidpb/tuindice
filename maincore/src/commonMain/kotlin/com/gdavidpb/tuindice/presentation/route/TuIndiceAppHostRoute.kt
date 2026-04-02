@@ -31,6 +31,7 @@ import com.gdavidpb.tuindice.presentation.model.MainShellState
 import com.gdavidpb.tuindice.presentation.model.toMainShellState
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -119,6 +120,9 @@ fun TuIndiceAppHostRoute(
 		val shellState = remember {
 			mutableStateOf(MainShellState())
 		}
+		val onRecordViewModeChange = remember {
+			mutableStateOf<((RecordViewMode) -> Unit)?>(null)
+		}
 		val syncStatus by syncStatusRepository
 			.observeSyncStatus()
 			.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
@@ -159,6 +163,7 @@ fun TuIndiceAppHostRoute(
 						navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
 				}
 			},
+			onRecordViewModeChange = onRecordViewModeChange.value,
 			onNavigateTo = { destination ->
 				val currentDestination = navController.currentDestination?.parent?.route
 				val isNewDestination = !navController.isCurrentDestination(destination)
@@ -180,6 +185,9 @@ fun TuIndiceAppHostRoute(
 			onConfirmExitClick = onConfirmExitClick,
 			isCameraAvailable = deviceInfoRepository.hasCamera(),
 			onNavigateToExternalResource = browserRepository::open,
+			onRecordViewModeChangeAvailable = { callback ->
+				onRecordViewModeChange.value = callback
+			},
 			onViewStateChanged = { viewState ->
 				shellState.value = viewState.toMainShellState()
 			},

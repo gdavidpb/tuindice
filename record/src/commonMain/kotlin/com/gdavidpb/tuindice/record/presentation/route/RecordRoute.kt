@@ -1,20 +1,25 @@
 package com.gdavidpb.tuindice.record.presentation.route
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.filterByViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState
+import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 
 @Composable
 fun RecordRoute(
 	onNavigateToUpdatePassword: () -> Unit,
+	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: RecordViewModel
@@ -24,6 +29,14 @@ fun RecordRoute(
 
 	LaunchedEffect(viewState) {
 		onViewStateChanged(viewState.toRouteViewState())
+	}
+
+	DisposableEffect(viewModel) {
+		onTopBarViewModeChangeAvailable(viewModel::setViewModeAction)
+
+		onDispose {
+			onTopBarViewModeChangeAvailable(null)
+		}
 	}
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
@@ -43,7 +56,6 @@ fun RecordRoute(
 	RecordScreen(
 		state = viewState,
 		selectedQuarterId = selectedQuarterId,
-		onViewModeChange = viewModel::setViewModeAction,
 		onSelectedQuarterChange = { quarterId ->
 			if (quarterId != selectedQuarterId) {
 				viewModel.selectQuarterAction(quarterId)
@@ -72,10 +84,19 @@ private fun Record.State.toRouteViewState(): ViewState {
 		-> null
 	}
 
-	return object : ViewState(
+	return RecordRouteViewState(
 		topBarTitle = topBarTitle,
 		topBarConfig = derivedTopBarConfig,
 		isTopBarVisible = isTopBarVisible,
-		isBottomBarVisible = isBottomBarVisible
-	) {}
+		isBottomBarVisible = isBottomBarVisible,
+		topBarViewModeState = when (this) {
+			is Record.State.Content ->
+				RecordTopBarViewModeState(selectedMode = viewMode)
+
+			Record.State.Empty,
+			Record.State.Failed,
+			Record.State.Loading,
+			-> null
+		}
+	)
 }

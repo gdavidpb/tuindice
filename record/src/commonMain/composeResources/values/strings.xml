@@ -12,6 +12,7 @@
 	<string name="record_app_uni">La Simón</string>
 	<string name="record_view_mode_official">Oficial</string>
 	<string name="record_view_mode_simulation">Simulación</string>
+	<string name="record_view_mode_toggle">Cambiar modo de vista</string>
 	<string name="quarter_grade_diff_pattern">Δx %1$.4f</string>
 	<string name="quarter_grade_sum_pattern">∑x %1$.4f</string>
 	<string name="quarter_credits_pattern">⦿ %1$d</string>

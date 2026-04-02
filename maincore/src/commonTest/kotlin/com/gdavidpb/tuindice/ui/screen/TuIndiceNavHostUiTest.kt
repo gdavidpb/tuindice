@@ -26,6 +26,7 @@ class TuIndiceNavHostUiTest {
 				onConfirmExitClick = {},
 				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
+				onRecordViewModeChangeAvailable = {},
 				onViewStateChanged = {},
 				showSnackBar = {}
 			)
@@ -47,6 +48,7 @@ class TuIndiceNavHostUiTest {
 				onConfirmExitClick = { confirmExitCalls++ },
 				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
+				onRecordViewModeChangeAvailable = {},
 				onViewStateChanged = {},
 				showSnackBar = {}
 			)
@@ -69,6 +71,7 @@ class TuIndiceNavHostUiTest {
 				onConfirmExitClick = { confirmExitCalls++ },
 				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
+				onRecordViewModeChangeAvailable = {},
 				onViewStateChanged = {},
 				showSnackBar = {}
 			)

@@ -6,12 +6,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Article
+import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.FindInPage
@@ -47,8 +47,10 @@ import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.canNavigateBackFromCurrentDestination
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.presentation.contract.Main
-import com.gdavidpb.tuindice.presentation.model.MainShellState
 import com.gdavidpb.tuindice.presentation.model.BottomBarConfig
+import com.gdavidpb.tuindice.presentation.model.MainShellState
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeSwitchView
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,6 +63,8 @@ fun TuIndiceScreen(
 	isSwipeBackNavigationEnabled: Boolean = false,
 	snackbarHostState: SnackbarHostState,
 	onAction: (action: TopBarAction) -> Unit,
+	onRecordViewModeChange: ((RecordViewMode) -> Unit)?,
+	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onNavigateTo: (destination: Destination) -> Unit,
 	onNavigateBack: () -> Unit,
 	onConfirmExitClick: () -> Unit,
@@ -119,6 +123,18 @@ fun TuIndiceScreen(
 						)
 					},
 					actions = {
+						val recordTopBarViewModeState = shellState.recordTopBarViewModeState
+
+						if (
+							recordTopBarViewModeState != null &&
+							onRecordViewModeChange != null
+						) {
+							RecordTopBarViewModeSwitchView(
+								selectedMode = recordTopBarViewModeState.selectedMode,
+								onModeSelected = onRecordViewModeChange
+							)
+						}
+
 						TopAppBarActionsView(
 							topBarConfig = shellState.topBarConfig,
 							onAction = onAction,
@@ -129,22 +145,23 @@ fun TuIndiceScreen(
 								)
 							}
 						)
-						},
-						navigationIcon = {
-							if (canNavigateBack)
-								IconButton(
-									modifier = Modifier.testTag(MaincoreUiTags.TuIndiceTopBarBackButton),
-									onClick = onNavigateBack
+					},
+					navigationIcon = {
+						if (canNavigateBack) {
+							IconButton(
+								modifier = Modifier.testTag(MaincoreUiTags.TuIndiceTopBarBackButton),
+								onClick = onNavigateBack
 							) {
 								Icon(
 									imageVector = Icons.AutoMirrored.Filled.ArrowBack,
 									contentDescription = null
 								)
 							}
+						}
 					}
 				)
 			}
-			},
+		},
 		bottomBar = {
 			if (shellState.isBottomBarVisible) {
 				NavigationBar(
@@ -190,6 +207,7 @@ fun TuIndiceScreen(
 			onConfirmExitClick = onConfirmExitClick,
 			isCameraAvailable = isCameraAvailable,
 			onNavigateToExternalResource = onNavigateToExternalResource,
+			onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar,
 			dismissSnackBar = dismissSnackBar
@@ -213,7 +231,7 @@ private fun bottomBarIcon(
 	BottomBarConfig.Summary ->
 		if (selected) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder
 	BottomBarConfig.Record ->
-		if (selected) Icons.Filled.Book else Icons.Outlined.Book
+		if (selected) Icons.AutoMirrored.Filled.Article else Icons.AutoMirrored.Outlined.Article
 	BottomBarConfig.Evaluations ->
 		if (selected) Icons.Filled.DateRange else Icons.Outlined.DateRange
 	BottomBarConfig.About ->

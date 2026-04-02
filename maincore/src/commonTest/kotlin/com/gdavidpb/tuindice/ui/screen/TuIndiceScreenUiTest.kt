@@ -20,7 +20,10 @@ import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.MainShellState
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordDestination
+import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.testing.createBrowserViewModel
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -49,6 +52,8 @@ class TuIndiceScreenUiTest {
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
+				onRecordViewModeChange = null,
+				onRecordViewModeChangeAvailable = {},
 				onNavigateTo = {},
 				onNavigateBack = {},
 				onConfirmExitClick = {},
@@ -76,6 +81,8 @@ class TuIndiceScreenUiTest {
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
+				onRecordViewModeChange = null,
+				onRecordViewModeChangeAvailable = {},
 				onNavigateTo = {},
 				onNavigateBack = {},
 				onConfirmExitClick = {},
@@ -106,6 +113,8 @@ class TuIndiceScreenUiTest {
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
+				onRecordViewModeChange = null,
+				onRecordViewModeChangeAvailable = {},
 				onNavigateTo = {},
 				onNavigateBack = {},
 				onConfirmExitClick = {},
@@ -137,6 +146,8 @@ class TuIndiceScreenUiTest {
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
+				onRecordViewModeChange = null,
+				onRecordViewModeChangeAvailable = {},
 				onNavigateTo = {},
 				onNavigateBack = {},
 				onConfirmExitClick = {},
@@ -151,6 +162,42 @@ class TuIndiceScreenUiTest {
 			tag = BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
 			useUnmergedTree = true
 		)
+	}
+
+	@Test
+	fun when_recordTopBarViewModeStateIsPresent_then_displaysSwitch() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			val navController = rememberNavController()
+
+			TuIndiceScreen(
+				state = Main.State.Content(
+					startDestination = MainDestination.GooglePlayServicesUnavailableDialog
+				),
+				shellState = shellState(
+					topBarTitle = "Record",
+					isTopBarVisible = true,
+					recordTopBarViewModeState = RecordTopBarViewModeState(
+						selectedMode = RecordViewMode.Simulation
+					)
+				),
+				onRetryStartUp = {},
+				navController = navController,
+				snackbarHostState = remember { SnackbarHostState() },
+				onAction = {},
+				onRecordViewModeChange = {},
+				onRecordViewModeChangeAvailable = {},
+				onNavigateTo = {},
+				onNavigateBack = {},
+				onConfirmExitClick = {},
+				isCameraAvailable = false,
+				onNavigateToExternalResource = {},
+				onViewStateChanged = {},
+				showSnackBar = {}
+			)
+		}
+
+		assertNodeVisible(RecordUiTags.TopBarViewModeSwitch)
+		assertNodeVisible(RecordUiTags.TopBarViewModeButton)
 	}
 
 	@Test
@@ -170,6 +217,8 @@ class TuIndiceScreenUiTest {
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
+				onRecordViewModeChange = null,
+				onRecordViewModeChangeAvailable = {},
 				onNavigateTo = {},
 				onNavigateBack = {},
 				onConfirmExitClick = {},
@@ -201,6 +250,8 @@ class TuIndiceScreenUiTest {
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
+				onRecordViewModeChange = null,
+				onRecordViewModeChangeAvailable = {},
 				onNavigateTo = {},
 				onNavigateBack = {},
 				onConfirmExitClick = {},
@@ -243,6 +294,8 @@ class TuIndiceScreenUiTest {
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
 					onAction = { action -> actions += action },
+					onRecordViewModeChange = null,
+					onRecordViewModeChangeAvailable = {},
 					onNavigateTo = {},
 					onNavigateBack = {},
 					onConfirmExitClick = {},
@@ -293,6 +346,8 @@ class TuIndiceScreenUiTest {
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
 					onAction = { action -> actions += action },
+					onRecordViewModeChange = null,
+					onRecordViewModeChangeAvailable = {},
 					onNavigateTo = {},
 					onNavigateBack = {},
 					onConfirmExitClick = {},
@@ -339,6 +394,8 @@ class TuIndiceScreenUiTest {
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
 					onAction = {},
+					onRecordViewModeChange = null,
+					onRecordViewModeChangeAvailable = {},
 					onNavigateTo = { destination -> destinations += destination },
 					onNavigateBack = {},
 					onConfirmExitClick = {},
@@ -393,6 +450,8 @@ class TuIndiceScreenUiTest {
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
 					onAction = {},
+					onRecordViewModeChange = null,
+					onRecordViewModeChangeAvailable = {},
 					onNavigateTo = {},
 					onNavigateBack = { navController.navigateUp() },
 					onConfirmExitClick = {},
@@ -446,6 +505,8 @@ class TuIndiceScreenUiTest {
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
 					onAction = {},
+					onRecordViewModeChange = null,
+					onRecordViewModeChangeAvailable = {},
 					onNavigateTo = {},
 					onNavigateBack = { navController.navigateUp() },
 					onConfirmExitClick = {},
@@ -490,12 +551,14 @@ class TuIndiceScreenUiTest {
 		topBarTitle: String = "",
 		topBarConfig: TopBarConfig? = null,
 		isTopBarVisible: Boolean = false,
-		isBottomBarVisible: Boolean = false
+		isBottomBarVisible: Boolean = false,
+		recordTopBarViewModeState: RecordTopBarViewModeState? = null
 	): MainShellState = MainShellState(
 		topBarTitle = topBarTitle,
 		topBarConfig = topBarConfig,
 		isTopBarVisible = isTopBarVisible,
-		isBottomBarVisible = isBottomBarVisible
+		isBottomBarVisible = isBottomBarVisible,
+		recordTopBarViewModeState = recordTopBarViewModeState
 	)
 
 	private fun testBrowserModule() = module {
