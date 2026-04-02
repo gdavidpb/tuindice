@@ -1,20 +1,21 @@
 {
-  "scenarioName": "login-token-lifecycle",
-  "requiredScenarioState": "TokensRevoked",
-  "newScenarioState": "TokensRevoked",
   "request": {
     "method": "POST",
     "urlPath": "/auth/v1/token/revoke",
     "headers": {
       "Authorization": {
-        "matches": "Bearer .+"
+        "absent": true
       }
     }
   },
   "response": {
-    "status": 200,
+    "status": 401,
     "headers": {
       "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": 401,
+      "message": "Jwt is missing"
     },
     "fixedDelayMilliseconds": 500
   }

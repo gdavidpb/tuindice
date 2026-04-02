@@ -4,7 +4,12 @@
   "newScenarioState": "TokensRevoked",
   "request": {
     "method": "POST",
-    "urlPath": "/auth/v1/token/revoke"
+    "urlPath": "/auth/v1/token/revoke",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 200,
