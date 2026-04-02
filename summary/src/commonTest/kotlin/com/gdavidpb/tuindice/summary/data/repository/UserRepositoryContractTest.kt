@@ -5,13 +5,22 @@ import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.FakeLocalDataSource
 import com.gdavidpb.tuindice.summary.testing.FakePictureEncoderDataSource
+import com.gdavidpb.tuindice.summary.testing.FakeProfilePictureInputDataSource
 import com.gdavidpb.tuindice.summary.testing.FakeRemoteDataSource
 import com.gdavidpb.tuindice.summary.testing.FakeSettingsDataSource
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.createDirectories
+import io.github.vinceglb.filekit.delete
+import io.github.vinceglb.filekit.div
+import io.github.vinceglb.filekit.exists
+import io.github.vinceglb.filekit.filesDir
+import io.github.vinceglb.filekit.write
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -31,6 +40,7 @@ class UserRepositoryContractTest {
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = settingsDataSource,
+			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
 			pictureEncoderDataSource = FakePictureEncoderDataSource()
 		)
 
@@ -51,6 +61,7 @@ class UserRepositoryContractTest {
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = settingsDataSource,
+			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
 			pictureEncoderDataSource = FakePictureEncoderDataSource()
 		)
 
@@ -70,6 +81,7 @@ class UserRepositoryContractTest {
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = settingsDataSource,
+			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
 			pictureEncoderDataSource = FakePictureEncoderDataSource()
 		)
 
@@ -89,6 +101,7 @@ class UserRepositoryContractTest {
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
 			pictureEncoderDataSource = encoderDataSource
 		)
 		val file = PlatformFile("content://profile/new.jpg")
@@ -105,6 +118,35 @@ class UserRepositoryContractTest {
 	}
 
 	@Test
+	fun uploadProfilePicture_normalizesInputBeforeEncoding_andRemovesTemporaryFile() = runTest {
+		val localDataSource = FakeLocalDataSource()
+		val remoteDataSource = FakeRemoteDataSource(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE)
+		val encoderDataSource = FakePictureEncoderDataSource()
+		val originalFile = PlatformFile("content://profile/new.heic")
+		val normalizedFile = createTempFile(
+			prefix = "normalized",
+			extension = "jpg",
+			content = byteArrayOf(1, 2, 3)
+		)
+		val repository = UserDataSource(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			profilePictureInputDataSource = FakeProfilePictureInputDataSource(normalizedFile = normalizedFile),
+			pictureEncoderDataSource = encoderDataSource
+		)
+
+		try {
+			repository.uploadProfilePicture(originalFile)
+
+			assertEquals(normalizedFile, encoderDataSource.lastFile)
+			assertEquals(false, normalizedFile.exists())
+		} finally {
+			deleteFileIfExists(normalizedFile)
+		}
+	}
+
+	@Test
 	fun uploadProfilePicture_rejects_encoded_images_that_exceed_the_upload_limit() = runTest {
 		val localDataSource = FakeLocalDataSource()
 		val remoteDataSource = FakeRemoteDataSource(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE)
@@ -113,6 +155,7 @@ class UserRepositoryContractTest {
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
 			pictureEncoderDataSource = encoderDataSource
 		)
 
@@ -132,6 +175,7 @@ class UserRepositoryContractTest {
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
 			pictureEncoderDataSource = FakePictureEncoderDataSource()
 		)
 
@@ -154,6 +198,7 @@ class UserRepositoryContractTest {
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
 			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
 			pictureEncoderDataSource = FakePictureEncoderDataSource()
 		)
 
@@ -161,5 +206,20 @@ class UserRepositoryContractTest {
 
 		assertEquals("", localDataSource.savedUsers.single().pictureUrl)
 		assertEquals(1, remoteDataSource.removeCalls)
+	}
+
+	private suspend fun createTempFile(
+		prefix: String,
+		extension: String,
+		content: ByteArray
+	) = (FileKit.filesDir / "summaryRepositoryTests" / "${prefix}_${Random.nextInt(1_000_000)}.$extension").also { file ->
+		(FileKit.filesDir / "summaryRepositoryTests").createDirectories()
+		file.write(content)
+	}
+
+	private suspend fun deleteFileIfExists(file: PlatformFile) {
+		if (file.exists()) {
+			file.delete(mustExist = false)
+		}
 	}
 }

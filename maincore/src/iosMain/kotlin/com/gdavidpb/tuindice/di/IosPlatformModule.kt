@@ -41,6 +41,8 @@ import com.gdavidpb.tuindice.platform.IosReviewCapability
 import com.gdavidpb.tuindice.platform.IosUpdateCapability
 import com.gdavidpb.tuindice.platform.createIosIdentityHttpClient
 import com.gdavidpb.tuindice.platform.createIosUserAgent
+import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
+import com.gdavidpb.tuindice.summary.data.source.IosProfilePictureInputDataSource
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.IosBrowserScreenRenderer
 import com.russhwolf.settings.NSUserDefaultsSettings
@@ -124,6 +126,7 @@ private fun Module.registerIosFeaturePlatformBindings() {
 	factoryOf(::IosAppInfoDataSource) { bind<AppInfoDataRepository>() }
 	factoryOf(::IosStoreUrlDataSource) { bind<StoreUrlDataRepository>() }
 	factoryOf(::IosShareTextHandler) { bind<ShareTextHandler>() }
+	singleOf(::IosProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
 }
 
 private fun Module.registerIosPlatformNetworking() {

@@ -40,6 +40,8 @@ import com.gdavidpb.tuindice.platform.android.AndroidKeystoreProofOfPossessionCa
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.platform.android.UserAgent
 import com.gdavidpb.tuindice.platform.android.androidDefaultConfigValues
+import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
+import com.gdavidpb.tuindice.summary.data.source.AndroidProfilePictureInputDataSource
 import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -172,6 +174,7 @@ private fun Module.registerAndroidFeaturePlatformBindings() {
 	factoryOf(::AndroidAppInfoDataSource) { bind<AppInfoDataRepository>() }
 	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlDataRepository>() }
 	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
+	singleOf(::AndroidProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
 }
 
 private fun Module.registerAndroidPlatformNetworking() {

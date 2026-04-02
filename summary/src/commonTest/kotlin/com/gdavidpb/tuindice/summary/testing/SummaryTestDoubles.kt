@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
@@ -139,6 +140,17 @@ class FakePictureEncoderDataSource(
 		lastFile = file
 		throwable?.let { throw it }
 		return encodedImage
+	}
+}
+
+class FakeProfilePictureInputDataSource(
+	private val normalizedFile: PlatformFile? = null
+) : ProfilePictureInputDataRepository {
+	var lastFile: PlatformFile? = null
+
+	override suspend fun normalizeInput(file: PlatformFile): PlatformFile {
+		lastFile = file
+		return normalizedFile ?: file
 	}
 }
 
