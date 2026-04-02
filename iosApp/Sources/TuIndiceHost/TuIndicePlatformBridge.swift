@@ -428,23 +428,22 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
 
         #if canImport(FirebaseCrashlytics)
         guard isFirebaseConfigured else { return }
-        let message = throwable.message ?? description
         let crashlytics = Crashlytics.crashlytics()
+        let message = throwable.message ?? description
+        let exceptionModel = ExceptionModel(
+            name: Self.kotlinExceptionName(throwable: throwable, description: description),
+            reason: Self.kotlinExceptionReason(throwable: throwable, fallback: message)
+        )
+        exceptionModel.stackTrace = Self.kotlinStackFrames(throwable: throwable)
+
         crashlytics.log("Kotlin throwable: \(description)")
 
         if message != description {
             crashlytics.log("Kotlin throwable message: \(message)")
         }
 
-        let error = NSError(
-            domain: "com.gdavidpb.tuindice.kotlin",
-            code: 1,
-            userInfo: [
-                NSLocalizedDescriptionKey: message,
-                NSDebugDescriptionErrorKey: description
-            ]
-        )
-        crashlytics.record(error: error)
+        Self.logThrowableCauses(throwable: throwable, crashlytics: crashlytics)
+        crashlytics.record(exceptionModel: exceptionModel)
         #endif
     }
 
@@ -481,6 +480,138 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
     private static func isVersion(_ lhs: String, newerThan rhs: String) -> Bool {
         lhs.compare(rhs, options: .numeric) == .orderedDescending
     }
+
+    #if canImport(FirebaseCrashlytics)
+    private static func kotlinExceptionName(
+        throwable: KotlinThrowable,
+        description: String
+    ) -> String {
+        let candidate = description
+            .split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true)
+            .first?
+            .split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+            .first?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if let candidate, candidate.isEmpty == false {
+            return candidate
+        }
+
+        return String(describing: type(of: throwable))
+    }
+
+    private static func kotlinExceptionReason(
+        throwable: KotlinThrowable,
+        fallback: String
+    ) -> String {
+        var parts: [String] = [fallback]
+        var current = throwable.cause
+        var depth = 0
+
+        while let currentThrowable = current, depth < 8 {
+            let causeDescription = currentThrowable.description()
+
+            if causeDescription.isEmpty == false {
+                parts.append("Caused by: \(causeDescription)")
+            }
+
+            depth += 1
+            current = currentThrowable.cause
+        }
+
+        return parts.joined(separator: "\n")
+    }
+
+    private static func logThrowableCauses(
+        throwable: KotlinThrowable,
+        crashlytics: Crashlytics
+    ) {
+        var current = throwable.cause
+        var depth = 0
+
+        while let currentThrowable = current, depth < 8 {
+            crashlytics.log("Kotlin throwable cause[\(depth)]: \(currentThrowable.description())")
+            depth += 1
+            current = currentThrowable.cause
+        }
+    }
+
+    private static func kotlinStackFrames(throwable: KotlinThrowable) -> [StackFrame] {
+        let stackTrace = throwable.getStackTrace()
+        var frames: [StackFrame] = []
+        frames.reserveCapacity(Int(stackTrace.size))
+
+        for index in 0..<Int(stackTrace.size) {
+            guard let rawFrame = stackTrace.get(index: Int32(index)) else { continue }
+
+            let parsedFrame = parseKotlinStackFrame(String(rawFrame))
+            frames.append(
+                StackFrame(
+                    symbol: parsedFrame.symbol,
+                    file: parsedFrame.file,
+                    line: parsedFrame.line
+                )
+            )
+        }
+
+        if frames.isEmpty {
+            frames.append(
+                StackFrame(
+                    symbol: throwable.description(),
+                    file: "<kotlin>",
+                    line: 0
+                )
+            )
+        }
+
+        return frames
+    }
+
+    private static func parseKotlinStackFrame(
+        _ rawFrame: String
+    ) -> (symbol: String, file: String, line: Int) {
+        let trimmed = rawFrame.trimmingCharacters(in: .whitespacesAndNewlines)
+        let withoutAtPrefix = trimmed.replacingOccurrences(
+            of: "at ",
+            with: "",
+            options: [.anchored]
+        )
+
+        guard let openingParen = withoutAtPrefix.lastIndex(of: "("),
+              let closingParen = withoutAtPrefix.lastIndex(of: ")"),
+              openingParen < closingParen else {
+            return (
+                symbol: withoutAtPrefix.isEmpty ? "<unknown>" : withoutAtPrefix,
+                file: "<kotlin>",
+                line: 0
+            )
+        }
+
+        let symbol = withoutAtPrefix[..<openingParen]
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let location = withoutAtPrefix[
+            withoutAtPrefix.index(after: openingParen)..<closingParen
+        ]
+        let locationParts = location.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+
+        guard locationParts.count == 2,
+              let lineNumber = Int(locationParts[1]) else {
+            return (
+                symbol: symbol.isEmpty ? withoutAtPrefix : symbol,
+                file: location.isEmpty ? "<kotlin>" : String(location),
+                line: 0
+            )
+        }
+
+        let fileName = String(locationParts[0]).trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return (
+            symbol: symbol.isEmpty ? withoutAtPrefix : symbol,
+            file: fileName.isEmpty ? "<kotlin>" : fileName,
+            line: max(lineNumber, 0)
+        )
+    }
+    #endif
 
     private static func isReleaseDateOlderThan(_ rawDate: String?, stalenessDays: Int) -> Bool {
         guard stalenessDays > 0 else { return true }
