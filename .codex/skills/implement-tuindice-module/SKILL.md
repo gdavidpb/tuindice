@@ -91,6 +91,26 @@ Implement module work by copying the nearest existing module pattern instead of 
 - Keep presentation models in `presentation/model`. Each presentation `data class` should live in its own file named after the class.
 - Keep presentation mappers in `presentation/mapper`. If a file's primary purpose is mapping UI or presentation state, it belongs there.
 - Prefer precomputing UI-ready fields in presentation mappers instead of recomputing them inside composables when the source inputs are already available at mapping time. Leave only truly UI-local, theme-local, or resource-local work in the composable layer.
+- Treat composables that interpret domain state as a smell. If a composable is deciding display labels, grouping, chip colors, status/tone flags, ordinals, or visibility from domain entities, prefer introducing or extending a `presentation/model/*Item` plus a mapper instead of teaching the composable that business/display logic.
+- Move this kind of work into `presentation/mapper` when the mapper already has the needed inputs:
+  - grouping, sorting, and indexing for display
+  - status resolution such as `isClickable`, `isOverdue`, delta tone, or filter checked state
+  - text derivation such as names, grade labels, subtitles, or chip labels
+  - stable visual derivation such as subject-code colors or icon selection from a stable enum/state
+- Keep this kind of work in UI when it is genuinely local to Compose:
+  - transient interaction state such as scroll position, pager position, or a draft slider value
+  - animation, `AnimatedVisibility`, and layout-only branching
+  - final `MaterialTheme`/resource reads that only the composable can know at render time
+- If displayed text or status depends on transient UI input, do not spread that derivation inline across the composable body. Prefer a small UI-local adapter or display model derived from the presentation item plus the transient value.
+- Current repo examples to copy:
+  - `evaluations/presentation/mapper/EvaluationItem.kt` precomputes ordinals, grouped headers, icons, highlight colors, clickability, and grade/date texts before `EvaluationItemView` renders them
+  - `record/presentation/mapper/QuarterItem.kt` precomputes quarter summary text, deltas, short names, and subject items before the summary/view composables render them
+- Current repo examples to treat as refactor targets when touched:
+  - `record/ui/view/SubjectItemView.kt` still resolves `subjectStatus` and recomputes the displayed grade string inside the composable
+  - `evaluations/ui/view/FilterView.kt` still derives labels and subject colors from `EvaluationFilter` directly in UI
+  - `evaluations/ui/view/EvaluationSubjectPicker.kt` and `evaluations/ui/view/EvaluationTypePicker.kt` still build chip presentation directly from domain models/enums
+- When a screen is item-heavy, prefer state shaped for the screen over raw domain state. A screen that renders lists of cards/chips usually wants `List<QuarterItem>`, `List<EvaluationsGroupItem>`, or dedicated chip items rather than `List<Quarter>`, `List<Evaluation>`, or raw filter/domain objects.
+- Not every `if`, `remember`, or `when` in UI is a problem. Small theme-only decisions such as `summary/ui/view/SummaryContentView.kt` status icon tinting or `maincore/ui/screen/TuIndiceScreen.kt` bottom-bar icon selection can stay in UI when they do not encode reusable presentation mapping.
 - Keep `commonMain` portable:
   - no `android.*`
   - no `BuildConfig`
