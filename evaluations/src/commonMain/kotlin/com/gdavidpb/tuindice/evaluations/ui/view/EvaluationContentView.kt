@@ -17,6 +17,7 @@ import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -26,14 +27,14 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
-import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.rememberEvaluationGradeSectionItem
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.rememberEvaluationTypePickerItemList
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationSubjectPickerItemList
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.label_add_evaluation_date
-import tuindice.evaluations.generated.resources.label_add_evaluation_grades
-import tuindice.evaluations.generated.resources.label_add_evaluation_max_grade
 import tuindice.evaluations.generated.resources.label_add_evaluation_subject
 import tuindice.evaluations.generated.resources.label_add_evaluation_type
 
@@ -55,6 +56,23 @@ fun EvaluationContentView(
 		maxGrade: Double?
 	) -> Unit
 ) {
+	val subjectItems = remember(
+		state.availableSubjects,
+		state.selectedSubject
+	) {
+		state.availableSubjects.toEvaluationSubjectPickerItemList(
+			selectedSubject = state.selectedSubject
+		)
+	}
+	val typeItems = rememberEvaluationTypePickerItemList(
+		selectedType = state.type
+	)
+	val gradeSection = rememberEvaluationGradeSectionItem(
+		isOverdue = state.isOverdue,
+		grade = state.grade,
+		maxGrade = state.maxGrade
+	)
+
 	Box(
 		modifier = Modifier
 			.testTag(EvaluationsUiTags.EvaluationContentContainer)
@@ -79,8 +97,7 @@ fun EvaluationContentView(
 			)
 
 			EvaluationSubjectPicker(
-				subjects = state.availableSubjects,
-				selectedSubject = state.selectedSubject,
+				items = subjectItems,
 				onSubjectChange = onSubjectChange
 			)
 
@@ -95,7 +112,7 @@ fun EvaluationContentView(
 			)
 
 			EvaluationTypePicker(
-				selectedType = state.type,
+				items = typeItems,
 				onTypeChange = onTypeChange
 			)
 
@@ -120,17 +137,13 @@ fun EvaluationContentView(
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(vertical = 12.dp),
-				text = if (!state.isOverdue) {
-					stringResource(Res.string.label_add_evaluation_max_grade)
-				} else {
-					stringResource(Res.string.label_add_evaluation_grades)
-				},
+				text = gradeSection.titleText,
 				style = MaterialTheme.typography.bodyLarge,
 				color = MaterialTheme.colorScheme.onSurface,
 				fontWeight = FontWeight.Medium
 			)
 
-			AnimatedVisibility(visible = !state.isOverdue) {
+			AnimatedVisibility(visible = !gradeSection.showsGradeChip) {
 				InputChip(
 					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationMaxGradeChip),
 					selected = false,
@@ -139,14 +152,14 @@ fun EvaluationContentView(
 					},
 					label = {
 						Text(
-							text = (state.maxGrade ?: 0.0).formatGrade(decimals = 2),
+							text = gradeSection.maxGradeText,
 							style = MaterialTheme.typography.titleMedium
 						)
 					}
 				)
 			}
 
-			AnimatedVisibility(visible = state.isOverdue) {
+			AnimatedVisibility(visible = gradeSection.showsGradeChip) {
 				Row(
 					verticalAlignment = Alignment.CenterVertically
 				) {
@@ -158,7 +171,7 @@ fun EvaluationContentView(
 						},
 						label = {
 							Text(
-								text = (state.grade ?: 0.0).formatGrade(decimals = 2),
+								text = gradeSection.gradeText,
 								style = MaterialTheme.typography.titleMedium
 							)
 						}
@@ -179,7 +192,7 @@ fun EvaluationContentView(
 						},
 						label = {
 							Text(
-								text = (state.maxGrade ?: 0.0).formatGrade(decimals = 2),
+								text = gradeSection.maxGradeText,
 								style = MaterialTheme.typography.titleMedium
 							)
 						}

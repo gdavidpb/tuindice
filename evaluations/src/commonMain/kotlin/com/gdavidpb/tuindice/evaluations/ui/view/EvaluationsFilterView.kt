@@ -8,30 +8,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.computeEvaluationFilterGroups
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterGroupItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 
 @Composable
 fun EvaluationFilterView(
-	availableFilters: List<EvaluationFilter>,
-	activeFilters: List<EvaluationFilter>,
+	groups: List<EvaluationFilterGroupItem>,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit
 ) {
-	val filters = computeEvaluationFilterGroups(
-		availableFilters = availableFilters,
-		activeFilters = activeFilters
-	)
-
 	LazyColumn(
 		modifier = Modifier
 			.padding(horizontal = 12.dp)
 			.testTag(EvaluationsUiTags.EvaluationsFiltersContainer)
 	) {
 		items(
-			items = filters
+			items = groups
 		) { item ->
 			FilterView(
-				entries = item.toMap(),
+				items = item.items,
 				onCheckedChange = { filter, isChecked ->
 					onFilterCheckedChange(filter, isChecked)
 				}

@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.rememberEvaluationItemMapping
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationFilterGroupItemList
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItemList
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
@@ -50,6 +51,14 @@ fun EvaluationsContentView(
 			.filteredEvaluations
 			.toEvaluationItemList(mapping = mapping)
 	}
+	val filterGroups = remember(
+		state.availableFilters,
+		state.activeFilters
+	) {
+		state.availableFilters.toEvaluationFilterGroupItemList(
+			activeFilters = state.activeFilters
+		)
+	}
 
 	Box(
 		modifier = Modifier
@@ -60,12 +69,11 @@ fun EvaluationsContentView(
 			modifier = Modifier
 				.fillMaxSize()
 				.padding(top = InternalScreenDefaults.TopBarSpacing)
-		) {
-			EvaluationFilterView(
-				availableFilters = state.availableFilters,
-				activeFilters = state.activeFilters,
-				onFilterCheckedChange = onFilterCheckedChange
-			)
+			) {
+				EvaluationFilterView(
+					groups = filterGroups,
+					onFilterCheckedChange = onFilterCheckedChange
+				)
 
 			if (evaluations.isNotEmpty()) {
 				EvaluationsView(

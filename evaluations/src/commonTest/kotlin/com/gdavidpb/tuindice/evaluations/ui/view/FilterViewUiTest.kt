@@ -5,6 +5,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationFilterChipItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -21,7 +22,9 @@ class FilterViewUiTest {
 
 		setTuIndiceTestContent {
 			FilterView(
-				entries = linkedMapOf(pendingFilter to true),
+				items = listOf(
+					pendingFilter.toEvaluationFilterChipItem(isChecked = true)
+				),
 				onCheckedChange = { filter, checked ->
 					selectedEvents += filter.getLabel() to checked
 				}
@@ -43,7 +46,9 @@ class FilterViewUiTest {
 
 		setTuIndiceTestContent {
 			FilterView(
-				entries = linkedMapOf(completedFilter to false),
+				items = listOf(
+					completedFilter.toEvaluationFilterChipItem(isChecked = false)
+				),
 				onCheckedChange = { filter, checked ->
 					selectedEvents += filter.getLabel() to checked
 				}
@@ -62,7 +67,9 @@ class FilterViewUiTest {
 
 		setTuIndiceTestContent {
 			FilterView(
-				entries = linkedMapOf(subjectFilter to true),
+				items = listOf(
+					subjectFilter.toEvaluationFilterChipItem(isChecked = true)
+				),
 				onCheckedChange = { filter, checked ->
 					selectedEvents += filter.getLabel() to checked
 				}

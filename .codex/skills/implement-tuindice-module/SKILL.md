@@ -105,10 +105,11 @@ Implement module work by copying the nearest existing module pattern instead of 
 - Current repo examples to copy:
   - `evaluations/presentation/mapper/EvaluationItem.kt` precomputes ordinals, grouped headers, icons, highlight colors, clickability, and grade/date texts before `EvaluationItemView` renders them
   - `record/presentation/mapper/QuarterItem.kt` precomputes quarter summary text, deltas, short names, and subject items before the summary/view composables render them
-- Current repo examples to treat as refactor targets when touched:
-  - `record/ui/view/SubjectItemView.kt` still resolves `subjectStatus` and recomputes the displayed grade string inside the composable
-  - `evaluations/ui/view/FilterView.kt` still derives labels and subject colors from `EvaluationFilter` directly in UI
-  - `evaluations/ui/view/EvaluationSubjectPicker.kt` and `evaluations/ui/view/EvaluationTypePicker.kt` still build chip presentation directly from domain models/enums
+- Additional repo examples of this pattern:
+  - `record/ui/model/SubjectItemDisplay.kt` shows the preferred escape hatch when a displayed status/text depends on transient UI input such as a draft slider grade
+  - `evaluations/presentation/mapper/Filter.kt` maps raw filters into `EvaluationFilterGroupItem` and `EvaluationFilterChipItem` so `EvaluationsFilterView` and `FilterView` stay render-only
+  - `evaluations/presentation/mapper/SubjectPicker.kt` and `evaluations/presentation/mapper/TypePicker.kt` precompute chip items for `EvaluationSubjectPicker` and `EvaluationTypePicker`
+  - `evaluations/presentation/mapper/GradeSection.kt` precomputes the grade-section label and value texts for `EvaluationContentView`
 - When a screen is item-heavy, prefer state shaped for the screen over raw domain state. A screen that renders lists of cards/chips usually wants `List<QuarterItem>`, `List<EvaluationsGroupItem>`, or dedicated chip items rather than `List<Quarter>`, `List<Evaluation>`, or raw filter/domain objects.
 - Not every `if`, `remember`, or `when` in UI is a problem. Small theme-only decisions such as `summary/ui/view/SummaryContentView.kt` status icon tinting or `maincore/ui/screen/TuIndiceScreen.kt` bottom-bar icon selection can stay in UI when they do not encode reusable presentation mapping.
 - Keep `commonMain` portable:

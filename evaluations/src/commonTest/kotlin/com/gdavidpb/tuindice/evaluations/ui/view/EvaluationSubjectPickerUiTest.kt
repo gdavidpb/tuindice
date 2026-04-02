@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.runtime.mutableStateOf
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationSubjectPickerItemList
 import com.gdavidpb.tuindice.evaluations.testing.uiSubjects
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -26,8 +27,7 @@ class EvaluationSubjectPickerUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationSubjectPicker(
-				subjects = subjects,
-				selectedSubject = null,
+				items = subjects.toEvaluationSubjectPickerItemList(selectedSubject = null),
 				onSubjectChange = { subject -> selectedSubject = subject }
 			)
 		}
@@ -50,8 +50,9 @@ class EvaluationSubjectPickerUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationSubjectPicker(
-				subjects = subjects,
-				selectedSubject = selectedSubjectState.value,
+				items = subjects.toEvaluationSubjectPickerItemList(
+					selectedSubject = selectedSubjectState.value
+				),
 				onSubjectChange = { subject -> selectedSubjectState.value = subject }
 			)
 		}
@@ -76,8 +77,7 @@ class EvaluationSubjectPickerUiTest {
 		setTuIndiceTestContent {
 			EvaluationSubjectPicker(
 				enabled = false,
-				subjects = subjects,
-				selectedSubject = null,
+				items = subjects.toEvaluationSubjectPickerItemList(selectedSubject = null),
 				onSubjectChange = { subject -> selectedSubject = subject }
 			)
 		}
@@ -96,8 +96,9 @@ class EvaluationSubjectPickerUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationSubjectPicker(
-				subjects = subjects,
-				selectedSubject = selectedSubjectState.value,
+				items = subjects.toEvaluationSubjectPickerItemList(
+					selectedSubject = selectedSubjectState.value
+				),
 				onSubjectChange = {}
 			)
 		}

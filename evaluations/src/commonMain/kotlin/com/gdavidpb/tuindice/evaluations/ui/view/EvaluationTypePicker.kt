@@ -20,13 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.asIcon
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.asString
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 
 @Composable
 fun EvaluationTypePicker(
-	selectedType: EvaluationType? = null,
+	items: List<EvaluationTypePickerItem>,
 	onTypeChange: (EvaluationType?) -> Unit
 ) {
 	FlowRow(
@@ -37,29 +36,26 @@ fun EvaluationTypePicker(
 			.fillMaxWidth(),
 		horizontalArrangement = Arrangement.spacedBy(6.dp)
 	) {
-		EvaluationType.entries.forEach { type ->
-			val isSelected = type == selectedType
-			val isVisible = (selectedType == null) || isSelected
-
+		items.forEach { item ->
 			AnimatedVisibility(
-				visible = isVisible,
+				visible = item.isVisible,
 				enter = fadeIn() + expandHorizontally(animationSpec = spring()),
 				exit = fadeOut() + shrinkHorizontally(animationSpec = spring())
 			) {
 				FilterChip(
-					modifier = Modifier.testTag(EvaluationsUiTags.evaluationTypeChip(type.name)),
-					selected = isSelected,
+					modifier = Modifier.testTag(EvaluationsUiTags.evaluationTypeChip(item.type.name)),
+					selected = item.isSelected,
 					onClick = {
-						if (isSelected) {
+						if (item.isSelected) {
 							onTypeChange(null)
 						} else {
-							onTypeChange(type)
+							onTypeChange(item.type)
 						}
 					},
 					leadingIcon = {
 						Icon(
-							imageVector = type.asIcon(),
-							tint = if (isSelected) {
+							imageVector = item.icon,
+							tint = if (item.isSelected) {
 								MaterialTheme.colorScheme.primary
 							} else {
 								MaterialTheme.colorScheme.outline
@@ -69,7 +65,7 @@ fun EvaluationTypePicker(
 					},
 					label = {
 						Text(
-							text = type.asString(),
+							text = item.labelText,
 							maxLines = 1
 						)
 					}

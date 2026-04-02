@@ -15,6 +15,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -23,9 +24,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.persistence.utils.MAX_SUBJECT_GRADE
-import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.toDisplay
 import com.gdavidpb.tuindice.record.utils.Ranges
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
@@ -42,9 +43,9 @@ fun SubjectItemView(
 	onGradeChange: (newGrade: Int, isSelected: Boolean) -> Unit
 ) {
 	val currentGrade = gradeState?.intValue ?: item.grade
-	val explicitStatus = item.status
-		?.takeUnless { status -> status == SubjectStatus.NORMAL }
-	val subjectStatus = explicitStatus ?: if (currentGrade == MIN_SUBJECT_GRADE) SubjectStatus.RETIRED else null
+	val display = remember(item, currentGrade) {
+		item.toDisplay(currentGrade = currentGrade)
+	}
 
 	Column(
 		modifier = modifier
@@ -76,7 +77,7 @@ fun SubjectItemView(
 					.heightIn(min = 28.dp),
 				contentAlignment = Alignment.CenterEnd
 			) {
-				when (subjectStatus) {
+				when (display.status) {
 					SubjectStatus.RETIRED -> {
 						SubjectStatusChip(
 							modifier = Modifier.padding(start = 8.dp),
@@ -93,7 +94,7 @@ fun SubjectItemView(
 								text = stringResource(Res.string.subject_without_effect)
 							)
 							Text(
-								text = item.displayGradeText(currentGrade),
+								text = display.gradeText,
 								fontWeight = FontWeight.SemiBold,
 								style = MaterialTheme.typography.titleMedium
 							)
@@ -101,7 +102,7 @@ fun SubjectItemView(
 					}
 					else -> {
 						Text(
-							text = item.displayGradeText(currentGrade),
+							text = display.gradeText,
 							fontWeight = FontWeight.SemiBold,
 							style = MaterialTheme.typography.titleMedium
 						)
@@ -177,10 +178,4 @@ private fun SubjectStatusChip(
 		text = text,
 		style = MaterialTheme.typography.labelLarge
 	)
-}
-
-private fun SubjectItem.displayGradeText(currentGrade: Int): String {
-	if ((currentGrade == grade) && (currentGrade != MIN_SUBJECT_GRADE)) return gradeText
-
-	return "$currentGrade / $MAX_SUBJECT_GRADE"
 }

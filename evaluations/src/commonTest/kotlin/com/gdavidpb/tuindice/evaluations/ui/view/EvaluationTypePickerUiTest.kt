@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.runtime.mutableStateOf
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.rememberEvaluationTypePickerItemList
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -24,7 +25,7 @@ class EvaluationTypePickerUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationTypePicker(
-				selectedType = null,
+				items = rememberEvaluationTypePickerItemList(selectedType = null),
 				onTypeChange = { type -> selectedType = type }
 			)
 		}
@@ -44,7 +45,9 @@ class EvaluationTypePickerUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationTypePicker(
-				selectedType = selectedTypeState.value,
+				items = rememberEvaluationTypePickerItemList(
+					selectedType = selectedTypeState.value
+				),
 				onTypeChange = { type -> selectedTypeState.value = type }
 			)
 		}
@@ -64,7 +67,9 @@ class EvaluationTypePickerUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationTypePicker(
-				selectedType = selectedTypeState.value,
+				items = rememberEvaluationTypePickerItemList(
+					selectedType = selectedTypeState.value
+				),
 				onTypeChange = {}
 			)
 		}

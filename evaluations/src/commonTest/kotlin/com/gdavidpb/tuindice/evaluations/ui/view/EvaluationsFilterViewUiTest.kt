@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationFilterGroupItemList
 import com.gdavidpb.tuindice.evaluations.testing.uiAvailableFilters
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -21,8 +22,9 @@ class EvaluationsFilterViewUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationFilterView(
-				availableFilters = availableFilters,
-				activeFilters = listOf(availableFilters.first()),
+				groups = availableFilters.toEvaluationFilterGroupItemList(
+					activeFilters = listOf(availableFilters.first())
+				),
 				onFilterCheckedChange = { filter, checked ->
 					selectedEvents += filter to checked
 				}
@@ -48,8 +50,9 @@ class EvaluationsFilterViewUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationFilterView(
-				availableFilters = availableFilters,
-				activeFilters = listOf(selectedFilter),
+				groups = availableFilters.toEvaluationFilterGroupItemList(
+					activeFilters = listOf(selectedFilter)
+				),
 				onFilterCheckedChange = { filter, checked ->
 					selectedEvents += filter to checked
 				}
