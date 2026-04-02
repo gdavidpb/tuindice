@@ -2,13 +2,16 @@ package com.gdavidpb.tuindice.record.presentation.action
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.record.domain.usecase.GetSelectedQuarterIdUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.GetRecordViewModeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveQuartersUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedQuarterIdUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateQuartersExceptionHandler
 import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
 import com.gdavidpb.tuindice.record.testing.FakeNetworkRepository
@@ -38,6 +41,10 @@ class RecordActionProcessorContractTest {
 				quarterRepository = RecordingQuarterRepository(
 					quarters = flowOf(listOf(DEFAULT_RECORD_QUARTER))
 				),
+				reportingRepository = RecordingReportingRepository()
+			),
+			getRecordViewModeUseCase = GetRecordViewModeUseCase(
+				quarterSelectionRepository = quarterSelectionRepository,
 				reportingRepository = RecordingReportingRepository()
 			),
 			getSelectedQuarterIdUseCase = GetSelectedQuarterIdUseCase(
@@ -75,6 +82,10 @@ class RecordActionProcessorContractTest {
 				),
 				reportingRepository = RecordingReportingRepository()
 			),
+			getRecordViewModeUseCase = GetRecordViewModeUseCase(
+				quarterSelectionRepository = quarterSelectionRepository,
+				reportingRepository = RecordingReportingRepository()
+			),
 			getSelectedQuarterIdUseCase = GetSelectedQuarterIdUseCase(
 				quarterSelectionRepository = quarterSelectionRepository,
 				reportingRepository = RecordingReportingRepository()
@@ -92,6 +103,166 @@ class RecordActionProcessorContractTest {
 			assertEquals(Record.State.Loading, awaitItem()(Record.State.Loading))
 			awaitComplete()
 		}
+	}
+
+	@Test
+	fun observeQuartersActionProcessor_restoresSharedQuarterFromOtherViewSelection() = runTest {
+		val officialQuarter = DEFAULT_RECORD_QUARTER.copy(
+			id = "quarter-official",
+			name = "2025-3",
+			startDate = DEFAULT_RECORD_QUARTER.startDate - 100_000L,
+			endDate = DEFAULT_RECORD_QUARTER.endDate - 100_000L,
+			isCurrent = false,
+			isReadOnly = true,
+			subjects = listOf(
+				DEFAULT_RECORD_QUARTER.subjects.single().copy(
+					id = "subject-official",
+					quarterId = "quarter-official"
+				)
+			)
+		)
+		val quarterSelectionRepository = RecordingQuarterSelectionRepository(
+			initialSelectedQuarterId = officialQuarter.id,
+			initialViewMode = RecordViewMode.Official
+		)
+		val processor = ObserveQuartersActionProcessor(
+			observeQuartersUseCase = ObserveQuartersUseCase(
+				quarterRepository = RecordingQuarterRepository(
+					quarters = flowOf(listOf(DEFAULT_RECORD_QUARTER, officialQuarter))
+				),
+				reportingRepository = RecordingReportingRepository()
+			),
+			getRecordViewModeUseCase = GetRecordViewModeUseCase(
+				quarterSelectionRepository = quarterSelectionRepository,
+				reportingRepository = RecordingReportingRepository()
+			),
+			getSelectedQuarterIdUseCase = GetSelectedQuarterIdUseCase(
+				quarterSelectionRepository = quarterSelectionRepository,
+				reportingRepository = RecordingReportingRepository()
+			),
+			setSelectedQuarterIdUseCase = SetSelectedQuarterIdUseCase(
+				quarterSelectionRepository = quarterSelectionRepository,
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+
+		processor.process(
+			action = Record.Action.ObserveQuarters,
+			sideEffect = {}
+		).test {
+			val content = assertIs<Record.State.Content>(awaitItem()(Record.State.Loading))
+			assertEquals(RecordViewMode.Official, content.viewMode)
+			assertEquals(officialQuarter.id, content.selectedQuarterId)
+			awaitComplete()
+		}
+
+		assertEquals(
+			officialQuarter.id,
+			quarterSelectionRepository.getSelectedQuarterId(RecordViewMode.Official)
+		)
+	}
+
+	@Test
+	fun setRecordViewModeActionProcessor_keepsSharedQuarterSelectedAcrossViews() = runTest {
+		val officialQuarter = DEFAULT_RECORD_QUARTER.copy(
+			id = "quarter-official",
+			name = "2025-3",
+			startDate = DEFAULT_RECORD_QUARTER.startDate - 100_000L,
+			endDate = DEFAULT_RECORD_QUARTER.endDate - 100_000L,
+			isCurrent = false,
+			isReadOnly = true,
+			subjects = listOf(
+				DEFAULT_RECORD_QUARTER.subjects.single().copy(
+					id = "subject-official",
+					quarterId = "quarter-official"
+				)
+			)
+		)
+		val quarterSelectionRepository = RecordingQuarterSelectionRepository(
+			initialSelectedQuarterId = officialQuarter.id
+		)
+		val processor = SetRecordViewModeActionProcessor(
+			setRecordViewModeUseCase = SetRecordViewModeUseCase(
+				quarterSelectionRepository = quarterSelectionRepository,
+				reportingRepository = RecordingReportingRepository()
+			),
+			getSelectedQuarterIdUseCase = GetSelectedQuarterIdUseCase(
+				quarterSelectionRepository = quarterSelectionRepository,
+				reportingRepository = RecordingReportingRepository()
+			),
+			setSelectedQuarterIdUseCase = SetSelectedQuarterIdUseCase(
+				quarterSelectionRepository = quarterSelectionRepository,
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+		val initialState = Record.State.Content(
+			quarters = listOf(DEFAULT_RECORD_QUARTER, officialQuarter),
+			viewMode = RecordViewMode.Simulation,
+			selectedQuarterId = officialQuarter.id
+		)
+
+		processor.process(
+			action = Record.Action.SetViewMode(RecordViewMode.Official),
+			sideEffect = {}
+		).test {
+			val content = assertIs<Record.State.Content>(awaitItem()(initialState))
+			assertEquals(RecordViewMode.Official, content.viewMode)
+			assertEquals(officialQuarter.id, content.selectedQuarterId)
+			awaitComplete()
+		}
+
+		assertEquals(
+			officialQuarter.id,
+			quarterSelectionRepository.getSelectedQuarterId(RecordViewMode.Official)
+		)
+	}
+
+	@Test
+	fun selectQuarterActionProcessor_syncsSharedQuarterSelectionAcrossViews() = runTest {
+		val officialQuarter = DEFAULT_RECORD_QUARTER.copy(
+			id = "quarter-official",
+			name = "2025-3",
+			startDate = DEFAULT_RECORD_QUARTER.startDate - 100_000L,
+			endDate = DEFAULT_RECORD_QUARTER.endDate - 100_000L,
+			isCurrent = false,
+			isReadOnly = true,
+			subjects = listOf(
+				DEFAULT_RECORD_QUARTER.subjects.single().copy(
+					id = "subject-official",
+					quarterId = "quarter-official"
+				)
+			)
+		)
+		val quarterSelectionRepository = RecordingQuarterSelectionRepository()
+		val processor = SelectQuarterActionProcessor(
+			setSelectedQuarterIdUseCase = SetSelectedQuarterIdUseCase(
+				quarterSelectionRepository = quarterSelectionRepository,
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+		val initialState = Record.State.Content(
+			quarters = listOf(DEFAULT_RECORD_QUARTER, officialQuarter),
+			viewMode = RecordViewMode.Simulation,
+			selectedQuarterId = DEFAULT_RECORD_QUARTER.id
+		)
+
+		processor.process(
+			action = Record.Action.SelectQuarter(officialQuarter.id),
+			sideEffect = {}
+		).test {
+			val content = assertIs<Record.State.Content>(awaitItem()(initialState))
+			assertEquals(officialQuarter.id, content.selectedQuarterId)
+			awaitComplete()
+		}
+
+		assertEquals(
+			officialQuarter.id,
+			quarterSelectionRepository.getSelectedQuarterId(RecordViewMode.Simulation)
+		)
+		assertEquals(
+			officialQuarter.id,
+			quarterSelectionRepository.getSelectedQuarterId(RecordViewMode.Official)
+		)
 	}
 
 	@Test
@@ -155,6 +326,7 @@ class RecordActionProcessorContractTest {
 		)
 		val initialState = Record.State.Content(
 			quarters = listOf(DEFAULT_RECORD_QUARTER),
+			viewMode = RecordViewMode.Simulation,
 			selectedQuarterId = DEFAULT_RECORD_QUARTER.id
 		)
 		val effects = mutableListOf<Record.Effect>()
@@ -194,6 +366,7 @@ class RecordActionProcessorContractTest {
 		)
 		val initialState = Record.State.Content(
 			quarters = listOf(DEFAULT_RECORD_QUARTER),
+			viewMode = RecordViewMode.Simulation,
 			selectedQuarterId = DEFAULT_RECORD_QUARTER.id
 		)
 		val effects = mutableListOf<Record.Effect>()

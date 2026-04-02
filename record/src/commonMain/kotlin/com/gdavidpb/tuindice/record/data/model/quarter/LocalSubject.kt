@@ -10,5 +10,6 @@ data class LocalSubject(
 	val credits: Int,
 	val grade: Int,
 	val status: SubjectStatus? = null,
+	val simulationStatus: SubjectStatus? = null,
 	val revision: Long
 )

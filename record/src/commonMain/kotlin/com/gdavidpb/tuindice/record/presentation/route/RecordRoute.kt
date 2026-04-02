@@ -7,6 +7,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
+import com.gdavidpb.tuindice.record.domain.model.filterByViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
@@ -42,6 +43,7 @@ fun RecordRoute(
 	RecordScreen(
 		state = viewState,
 		selectedQuarterId = selectedQuarterId,
+		onViewModeChange = viewModel::setViewModeAction,
 		onSelectedQuarterChange = { quarterId ->
 			if (quarterId != selectedQuarterId) {
 				viewModel.selectQuarterAction(quarterId)
@@ -55,7 +57,9 @@ fun RecordRoute(
 private fun Record.State.toRouteViewState(): ViewState {
 	val derivedTopBarConfig = when (this) {
 		is Record.State.Content -> {
-			val selectedQuarter = quarters.firstOrNull { quarter ->
+			val selectedQuarter = quarters
+				.filterByViewMode(viewMode)
+				.firstOrNull { quarter ->
 				quarter.id == selectedQuarterId
 			}
 

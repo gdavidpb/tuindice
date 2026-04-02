@@ -19,10 +19,13 @@ import com.gdavidpb.tuindice.record.data.resolver.VisibleRecordStateResolver
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.repository.QuarterSelectionRepository
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
+import com.gdavidpb.tuindice.record.domain.service.SimulationProjectionEngine
 import com.gdavidpb.tuindice.record.domain.usecase.AddQuarterUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.GetSelectedQuarterIdUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.GetRecordViewModeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveQuartersUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedQuarterIdUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuartersUseCase
@@ -31,6 +34,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateQuarte
 import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
 import com.gdavidpb.tuindice.record.presentation.action.ObserveQuartersActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.RefreshQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.SetRecordViewModeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SelectQuarterActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
@@ -54,22 +58,26 @@ val recordModule = module {
 
 	factoryOf(::ObserveQuartersActionProcessor)
 	factoryOf(::RefreshQuartersActionProcessor)
+	factoryOf(::SetRecordViewModeActionProcessor)
 	factoryOf(::SelectQuarterActionProcessor)
 	factoryOf(::SetSubjectGradeActionProcessor)
 
 	/* Use cases */
 
 	factoryOf(::AddQuarterUseCase)
+	factoryOf(::GetRecordViewModeUseCase)
 	factoryOf(::GetSelectedQuarterIdUseCase)
 	factoryOf(::ObserveQuartersUseCase)
 	factoryOf(::UpdateQuartersUseCase)
 	factoryOf(::RemoveQuarterUseCase)
+	factoryOf(::SetRecordViewModeUseCase)
 	factoryOf(::SetSelectedQuarterIdUseCase)
 	factoryOf(::SetSubjectGradeUseCase)
 
 	/* Computation */
 
 	singleOf(::IndexComputationEngine)
+	singleOf(::SimulationProjectionEngine)
 	singleOf(::VisibleRecordStateResolver)
 
 	/* Validators */
@@ -111,6 +119,7 @@ val recordModule = module {
 		RoomDataSource(
 			room = get(),
 			indexComputationEngine = get(),
+			simulationProjectionEngine = get(),
 			mutationEngine = get(named(RECORD_MUTATION_ENGINE_QUALIFIER)),
 			visibleRecordStateResolver = get()
 		)

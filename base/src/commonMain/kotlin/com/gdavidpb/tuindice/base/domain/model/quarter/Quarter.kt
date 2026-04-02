@@ -11,6 +11,10 @@ data class Quarter(
 	val gradeSum: Double,
 	val credits: Int,
 	val creditsSum: Int,
+	val simulationGrade: Double? = null,
+	val simulationGradeSum: Double? = null,
+	val simulationCredits: Int? = null,
+	val simulationCreditsSum: Int? = null,
 	val isCurrent: Boolean,
 	val isReadOnly: Boolean,
 	val subjects: List<Subject>

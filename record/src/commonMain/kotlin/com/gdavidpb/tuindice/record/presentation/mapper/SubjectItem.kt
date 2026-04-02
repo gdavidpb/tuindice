@@ -11,16 +11,17 @@ import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 @Composable
 fun Subject.toSubjectItem(
 	isReadOnly: Boolean,
+	resolvedStatus: SubjectStatus?,
 	texts: RecordMapperTexts
 ) = remember(code) { SubjectColorGenerator.fromCode(code) }.let { subjectColors ->
 	SubjectItem(
 		subjectId = id,
 		quarterId = quarterId,
 		grade = grade,
-		status = status,
+		status = resolvedStatus,
 		codeText = code,
 		nameText = name,
-		gradeText = if ((grade != MIN_SUBJECT_GRADE) && (status != SubjectStatus.RETIRED))
+		gradeText = if ((grade != MIN_SUBJECT_GRADE) && (resolvedStatus != SubjectStatus.RETIRED))
 			texts.subjectGrade(grade)
 		else
 			"",

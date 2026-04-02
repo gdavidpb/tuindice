@@ -10,5 +10,6 @@ object SubjectTable {
 	const val CREDITS = "subject_credits"
 	const val GRADE = "subject_grade"
 	const val STATUS = "subject_status"
+	const val SIMULATION_STATUS = "subject_simulation_status"
 	const val REVISION = "subject_revision"
 }

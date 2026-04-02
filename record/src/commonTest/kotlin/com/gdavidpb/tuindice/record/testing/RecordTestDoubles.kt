@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.record.data.model.quarter.RemoteSubject
 import com.gdavidpb.tuindice.record.data.model.quarter.SetSubjectGradeResult
 import com.gdavidpb.tuindice.record.domain.model.QuarterAdd
 import com.gdavidpb.tuindice.record.domain.model.QuarterRemove
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.SubjectGradeSet
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
 import com.gdavidpb.tuindice.record.domain.repository.QuarterSelectionRepository
@@ -142,17 +143,43 @@ class RecordingQuarterRepository(
 }
 
 class RecordingQuarterSelectionRepository(
-	initialSelectedQuarterId: String? = null
+	initialSelectedQuarterId: String? = null,
+	initialOfficialSelectedQuarterId: String? = null,
+	initialViewMode: RecordViewMode = RecordViewMode.Simulation
 ) : QuarterSelectionRepository {
-	var selectedQuarterId: String? = initialSelectedQuarterId
+	private val selectedQuarterIds = mutableMapOf<RecordViewMode, String?>(
+		RecordViewMode.Official to initialOfficialSelectedQuarterId,
+		RecordViewMode.Simulation to initialSelectedQuarterId
+	)
+	var recordViewMode: RecordViewMode = initialViewMode
 	val setSelectedQuarterIdCalls = mutableListOf<String>()
+	val setSelectedQuarterIdModeCalls = mutableListOf<QuarterSelectionCall>()
+	val setRecordViewModeCalls = mutableListOf<RecordViewMode>()
 
-	override suspend fun getSelectedQuarterId(): String? = selectedQuarterId
-
-	override suspend fun setSelectedQuarterId(quarterId: String) {
-		selectedQuarterId = quarterId
-		setSelectedQuarterIdCalls += quarterId
+	override suspend fun getSelectedQuarterId(viewMode: RecordViewMode): String? {
+		return selectedQuarterIds[viewMode]
 	}
+
+	override suspend fun setSelectedQuarterId(viewMode: RecordViewMode, quarterId: String) {
+		selectedQuarterIds[viewMode] = quarterId
+		setSelectedQuarterIdCalls += quarterId
+		setSelectedQuarterIdModeCalls += QuarterSelectionCall(
+			viewMode = viewMode,
+			quarterId = quarterId
+		)
+	}
+
+	override suspend fun getRecordViewMode(): RecordViewMode = recordViewMode
+
+	override suspend fun setRecordViewMode(viewMode: RecordViewMode) {
+		recordViewMode = viewMode
+		setRecordViewModeCalls += viewMode
+	}
+
+	data class QuarterSelectionCall(
+		val viewMode: RecordViewMode,
+		val quarterId: String
+	)
 }
 
 class FakeQuarterLocalDataSource(
@@ -481,11 +508,17 @@ class FakeQuarterRemoteDataSource(
 
 class FakeQuarterSettingsDataSource(
 	private val onCooldown: Boolean,
-	initialSelectedQuarterId: String? = null
+	initialSelectedQuarterId: String? = null,
+	initialViewMode: RecordViewMode = RecordViewMode.Simulation
 ) : QuarterSettingsDataRepository {
 	var cooldownMarked = false
-	var selectedQuarterId: String? = initialSelectedQuarterId
+	private val selectedQuarterIds = mutableMapOf<RecordViewMode, String?>(
+		RecordViewMode.Official to null,
+		RecordViewMode.Simulation to initialSelectedQuarterId
+	)
+	var recordViewMode: RecordViewMode = initialViewMode
 	val selectedQuarterIdWrites = mutableListOf<String?>()
+	val viewModeWrites = mutableListOf<RecordViewMode>()
 
 	override suspend fun isGetQuartersOnCooldown(): Boolean = onCooldown
 
@@ -493,11 +526,20 @@ class FakeQuarterSettingsDataSource(
 		cooldownMarked = true
 	}
 
-	override fun getSelectedQuarterId(): String? = selectedQuarterId
+	override fun getSelectedQuarterId(viewMode: RecordViewMode): String? {
+		return selectedQuarterIds[viewMode]
+	}
 
-	override fun setSelectedQuarterId(quarterId: String) {
-		selectedQuarterId = quarterId
+	override fun setSelectedQuarterId(viewMode: RecordViewMode, quarterId: String) {
+		selectedQuarterIds[viewMode] = quarterId
 		selectedQuarterIdWrites += quarterId
+	}
+
+	override fun getRecordViewMode(): RecordViewMode = recordViewMode
+
+	override fun setRecordViewMode(viewMode: RecordViewMode) {
+		recordViewMode = viewMode
+		viewModeWrites += viewMode
 	}
 }
 

@@ -6,10 +6,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
 import com.gdavidpb.tuindice.record.testing.recordMapperTexts
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
+import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -20,6 +24,7 @@ class QuarterItemUiTest {
 	fun when_quartersMapped_then_createsQuarterItemsWithTextsAndSubjects() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			val items = listOf(DEFAULT_RECORD_QUARTER).toQuarterItemList(
+				viewMode = RecordViewMode.Simulation,
 				texts = recordMapperTexts(),
 				highlightColor = Color(0xFFB8860B)
 			)
@@ -76,6 +81,7 @@ class QuarterItemUiTest {
 				currentQuarter,
 				previousQuarter
 			).toQuarterItemList(
+				viewMode = RecordViewMode.Simulation,
 				texts = recordMapperTexts(),
 				highlightColor = Color(0xFFB8860B)
 			)
@@ -128,6 +134,7 @@ class QuarterItemUiTest {
 				futureQuarter,
 				previousQuarter
 			).toQuarterItemList(
+				viewMode = RecordViewMode.Simulation,
 				texts = recordMapperTexts(),
 				highlightColor = Color(0xFFB8860B)
 			)
@@ -146,5 +153,56 @@ class QuarterItemUiTest {
 		assertNull(futureGradeDeltaText)
 		assertNull(futureGradeSumDeltaText)
 		assertNull(futureCreditsDeltaText)
+	}
+
+	@Test
+	fun when_simulationStatusExists_then_simulationViewUsesIt_withoutChangingOfficialView() = runTuIndiceUiTest {
+		val historicalQuarter = Quarter(
+			id = "quarter-1",
+			name = "2025-3",
+			startDate = 100L,
+			endDate = 101L,
+			grade = 2.0,
+			gradeSum = 2.0,
+			credits = 4,
+			creditsSum = 4,
+			simulationGrade = 0.0,
+			simulationGradeSum = 0.0,
+			simulationCredits = 0,
+			simulationCreditsSum = 0,
+			isCurrent = false,
+			isReadOnly = true,
+			subjects = listOf(
+				Subject(
+					id = "subject-history",
+					quarterId = "quarter-1",
+					code = "MA1111",
+					name = "Matematicas I",
+					credits = 4,
+					grade = 2,
+					simulationStatus = SubjectStatus.WITHOUT_EFFECT
+				)
+			)
+		)
+		var officialStatus: SubjectStatus? = SubjectStatus.WITHOUT_EFFECT
+		var simulationStatus: SubjectStatus? = null
+
+		setTuIndiceTestContent {
+			val officialItem = listOf(historicalQuarter).toQuarterItemList(
+				viewMode = RecordViewMode.Official,
+				texts = recordMapperTexts(),
+				highlightColor = Color(0xFFB8860B)
+			).single()
+				val simulationItem = listOf(historicalQuarter).toQuarterItemList(
+					viewMode = RecordViewMode.Simulation,
+					texts = recordMapperTexts(),
+					highlightColor = Color(0xFFB8860B)
+				).single()
+				officialStatus = officialItem.subjects.single().status
+				simulationStatus = simulationItem.subjects.single().status
+			}
+
+		assertNull(officialStatus)
+		assertEquals(SubjectStatus.WITHOUT_EFFECT, simulationStatus)
 	}
 }

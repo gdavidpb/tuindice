@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 
 object Record {
 	sealed class State(
@@ -17,6 +18,7 @@ object Record {
 
 		data class Content(
 			val quarters: List<Quarter>,
+			val viewMode: RecordViewMode,
 			val selectedQuarterId: String
 		) : State()
 
@@ -28,6 +30,7 @@ object Record {
 	sealed class Action : ViewAction() {
 		data object ObserveQuarters : Action()
 		data object RefreshQuarters : Action()
+		class SetViewMode(val viewMode: RecordViewMode) : Action()
 		class SelectQuarter(val quarterId: String) : Action()
 
 		class SetSubjectGrade(

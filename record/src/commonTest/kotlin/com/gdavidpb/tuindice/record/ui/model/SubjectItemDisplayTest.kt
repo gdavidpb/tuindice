@@ -16,7 +16,7 @@ class SubjectItemDisplayTest {
 
 		val display = item.toDisplay(currentGrade = 4)
 
-		assertNull(display.status)
+		assertNull(display.badge)
 		assertEquals("4 / 5", display.gradeText)
 	}
 
@@ -29,7 +29,7 @@ class SubjectItemDisplayTest {
 
 		val display = item.toDisplay(currentGrade = 0)
 
-		assertEquals(SubjectStatus.RETIRED, display.status)
+		assertEquals(SubjectItemBadge.RETIRED, display.badge)
 		assertEquals("0 / 5", display.gradeText)
 	}
 
@@ -42,7 +42,7 @@ class SubjectItemDisplayTest {
 
 		val display = item.toDisplay(currentGrade = 4)
 
-		assertEquals(SubjectStatus.WITHOUT_EFFECT, display.status)
+		assertEquals(SubjectItemBadge.WITHOUT_EFFECT, display.badge)
 		assertEquals("4 / 5", display.gradeText)
 	}
 }

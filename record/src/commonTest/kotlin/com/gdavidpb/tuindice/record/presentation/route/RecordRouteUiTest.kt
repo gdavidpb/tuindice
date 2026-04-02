@@ -14,9 +14,11 @@ import androidx.compose.ui.test.swipeRight
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.record.domain.repository.QuarterSelectionRepository
-import com.gdavidpb.tuindice.record.domain.usecase.GetSelectedQuarterIdUseCase
 import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
+import com.gdavidpb.tuindice.record.domain.usecase.GetRecordViewModeUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.GetSelectedQuarterIdUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveQuartersUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedQuarterIdUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuartersUseCase
@@ -25,6 +27,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateQuarte
 import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
 import com.gdavidpb.tuindice.record.presentation.action.ObserveQuartersActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.RefreshQuartersActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.SetRecordViewModeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SelectQuarterActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
@@ -465,6 +468,10 @@ class RecordRouteUiTest {
 					quarterRepository = quarterRepository,
 					reportingRepository = RecordingReportingRepository(),
 				),
+				getRecordViewModeUseCase = GetRecordViewModeUseCase(
+					quarterSelectionRepository = quarterSelectionRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
 				getSelectedQuarterIdUseCase = GetSelectedQuarterIdUseCase(
 					quarterSelectionRepository = quarterSelectionRepository,
 					reportingRepository = RecordingReportingRepository()
@@ -481,6 +488,20 @@ class RecordRouteUiTest {
 					exceptionHandler = UpdateQuartersExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
+				)
+			),
+			setRecordViewModeActionProcessor = SetRecordViewModeActionProcessor(
+				setRecordViewModeUseCase = SetRecordViewModeUseCase(
+					quarterSelectionRepository = quarterSelectionRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
+				getSelectedQuarterIdUseCase = GetSelectedQuarterIdUseCase(
+					quarterSelectionRepository = quarterSelectionRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
+				setSelectedQuarterIdUseCase = SetSelectedQuarterIdUseCase(
+					quarterSelectionRepository = quarterSelectionRepository,
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			selectQuarterActionProcessor = SelectQuarterActionProcessor(

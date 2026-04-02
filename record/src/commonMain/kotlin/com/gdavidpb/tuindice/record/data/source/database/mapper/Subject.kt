@@ -14,6 +14,7 @@ fun SubjectEntity.toLocalSubject() = LocalSubject(
 	credits = credits,
 	grade = grade,
 	status = status.toSubjectStatus(),
+	simulationStatus = simulationStatus.toSubjectStatus(),
 	revision = revision
 )
 
@@ -25,6 +26,7 @@ fun LocalSubject.toSubjectEntity() = SubjectEntity(
 	credits = credits,
 	grade = grade,
 	status = status?.value,
+	simulationStatus = simulationStatus?.value,
 	revision = revision
 )
 
@@ -36,6 +38,7 @@ fun RemoteSubject.toLocalSubject() = LocalSubject(
 	credits = credits,
 	grade = grade,
 	status = status,
+	simulationStatus = simulationStatus,
 	revision = revision
 )
 
@@ -46,7 +49,8 @@ fun LocalSubject.toSubject() = Subject(
 	name = name,
 	credits = credits,
 	grade = grade,
-	status = status
+	status = status,
+	simulationStatus = simulationStatus
 )
 
 fun Subject.toLocalSubject() = LocalSubject(
@@ -57,6 +61,7 @@ fun Subject.toLocalSubject() = LocalSubject(
 	credits = credits,
 	grade = grade,
 	status = status,
+	simulationStatus = simulationStatus,
 	revision = 0L
 )
 

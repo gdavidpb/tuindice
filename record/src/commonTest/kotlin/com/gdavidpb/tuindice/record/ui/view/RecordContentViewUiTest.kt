@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.onAllNodesWithText
@@ -9,13 +10,12 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_SUBJECT
 import com.gdavidpb.tuindice.record.testing.recordContentState
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -38,12 +38,14 @@ class RecordContentViewUiTest {
 			RecordContentView(
 				state = recordContentState(),
 				selectedQuarterId = null,
+				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
 			)
 		}
 
 		assertNodeVisible(RecordUiTags.ContentContainer)
+		assertNodeVisible(RecordUiTags.ViewModeSelector)
 		assertNodeVisible(RecordUiTags.QuarterSelectorRow)
 		assertNodeVisible(RecordUiTags.quarterChip("quarter-1"))
 		assertNodeVisible(
@@ -62,6 +64,7 @@ class RecordContentViewUiTest {
 			RecordContentView(
 				state = recordContentState(quarters = emptyList()),
 				selectedQuarterId = null,
+				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
 			)
@@ -91,6 +94,7 @@ class RecordContentViewUiTest {
 			RecordContentView(
 				state = state,
 				selectedQuarterId = "quarter-1",
+				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onSubjectGradeChange = { quarterId, subjectId, newGrade, isSelected ->
 					events += GradeChangeEvent(quarterId, subjectId, newGrade, isSelected)
@@ -146,6 +150,7 @@ class RecordContentViewUiTest {
 					)
 				),
 				selectedQuarterId = selectedQuarterIdState.value,
+				onViewModeChange = {},
 				onSelectedQuarterChange = { quarterId ->
 					selectedQuarterIdState.value = quarterId
 				},
@@ -198,6 +203,7 @@ class RecordContentViewUiTest {
 					)
 				),
 				selectedQuarterId = selectedQuarterIdState.value,
+				onViewModeChange = {},
 				onSelectedQuarterChange = { quarterId ->
 					selectedQuarterIdState.value = quarterId
 				},
@@ -244,6 +250,7 @@ class RecordContentViewUiTest {
 					)
 				),
 				selectedQuarterId = selectedQuarterIdState.value,
+				onViewModeChange = {},
 				onSelectedQuarterChange = { quarterId ->
 					selectedQuarterIdState.value = quarterId
 				},
@@ -294,6 +301,7 @@ class RecordContentViewUiTest {
 					)
 				),
 				selectedQuarterId = selectedQuarterIdState.value,
+				onViewModeChange = {},
 				onSelectedQuarterChange = { quarterId ->
 					selectedQuarterChanges += quarterId
 					selectedQuarterIdState.value = quarterId

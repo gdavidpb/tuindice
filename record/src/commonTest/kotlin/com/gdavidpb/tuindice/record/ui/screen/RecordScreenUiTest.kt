@@ -1,16 +1,16 @@
 package com.gdavidpb.tuindice.record.ui.screen
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
-import androidx.compose.ui.semantics.SemanticsActions
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.record.presentation.contract.Record
-import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_QUARTER
 import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_SUBJECT
 import com.gdavidpb.tuindice.record.testing.recordContentState
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -26,6 +26,7 @@ class RecordScreenUiTest {
 			RecordScreen(
 				state = Record.State.Loading,
 				selectedQuarterId = null,
+				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onRetryClick = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
@@ -43,6 +44,7 @@ class RecordScreenUiTest {
 			RecordScreen(
 				state = Record.State.Failed,
 				selectedQuarterId = null,
+				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onRetryClick = { retryClicks++ },
 				onSubjectGradeChange = { _, _, _, _ -> }
@@ -60,6 +62,7 @@ class RecordScreenUiTest {
 			RecordScreen(
 				state = Record.State.Empty,
 				selectedQuarterId = null,
+				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onRetryClick = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
@@ -75,6 +78,7 @@ class RecordScreenUiTest {
 			RecordScreen(
 				state = recordContentState(),
 				selectedQuarterId = null,
+				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onRetryClick = {},
 				onSubjectGradeChange = { _, _, _, _ -> }
@@ -103,6 +107,7 @@ class RecordScreenUiTest {
 			RecordScreen(
 				state = state,
 				selectedQuarterId = "quarter-1",
+				onViewModeChange = {},
 				onSelectedQuarterChange = {},
 				onRetryClick = {},
 				onSubjectGradeChange = { quarterId, subjectId, newGrade, isSelected ->

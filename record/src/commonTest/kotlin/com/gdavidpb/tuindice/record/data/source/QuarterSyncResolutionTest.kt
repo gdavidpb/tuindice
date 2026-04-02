@@ -7,8 +7,9 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_SCOPE
 import com.gdavidpb.tuindice.record.data.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.resolver.VisibleRecordStateResolver
-import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_LOCAL_QUARTER
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
+import com.gdavidpb.tuindice.record.domain.service.SimulationProjectionEngine
+import com.gdavidpb.tuindice.record.testing.DEFAULT_RECORD_LOCAL_QUARTER
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -17,7 +18,8 @@ import kotlin.test.assertTrue
 class QuarterSyncResolutionTest {
 	private val baseTimestamp = 1_767_225_600_000L
 	private val resolver = VisibleRecordStateResolver(
-		indexComputationEngine = IndexComputationEngine()
+		indexComputationEngine = IndexComputationEngine(),
+		simulationProjectionEngine = SimulationProjectionEngine()
 	)
 
 	@Test

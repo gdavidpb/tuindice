@@ -11,5 +11,6 @@ fun SubjectResponse.toRemoteSubject() = RemoteSubject(
 	credits = credits,
 	grade = grade,
 	status = status,
+	simulationStatus = simulationStatus,
 	revision = revision
 )

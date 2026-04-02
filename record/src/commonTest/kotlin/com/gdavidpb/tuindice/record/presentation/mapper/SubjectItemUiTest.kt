@@ -29,6 +29,7 @@ class SubjectItemUiTest {
 		setTuIndiceTestContent {
 			mapped = subject.toSubjectItem(
 				isReadOnly = false,
+				resolvedStatus = null,
 				texts = recordMapperTexts()
 			)
 		}
@@ -61,6 +62,7 @@ class SubjectItemUiTest {
 		setTuIndiceTestContent {
 			mapped = subject.toSubjectItem(
 				isReadOnly = true,
+				resolvedStatus = subject.status,
 				texts = recordMapperTexts()
 			)
 		}
@@ -75,5 +77,33 @@ class SubjectItemUiTest {
 		assertEquals("4 UC", mappedSubject.creditsText)
 		assertEquals(expectedColors.color, mappedSubject.codeColor)
 		assertEquals(expectedColors.containerColor, mappedSubject.codeContainerColor)
+	}
+
+	@Test
+	fun when_subjectHasSimulationStatus_then_mapsResolvedStatus() = runTuIndiceUiTest {
+		val subject = Subject(
+			id = "subject-3",
+			quarterId = "quarter-1",
+			code = "MA1112",
+			name = "MATEMATICAS II",
+			credits = 4,
+			grade = 2,
+			simulationStatus = SubjectStatus.WITHOUT_EFFECT
+		)
+		var mapped: SubjectItem? = null
+
+		setTuIndiceTestContent {
+			mapped = subject.toSubjectItem(
+				isReadOnly = true,
+				resolvedStatus = subject.simulationStatus,
+				texts = recordMapperTexts()
+			)
+		}
+
+		waitForIdle()
+
+		val mappedSubject = assertNotNull(mapped)
+		assertEquals(SubjectStatus.WITHOUT_EFFECT, mappedSubject.status)
+		assertEquals("2 / 5", mappedSubject.gradeText)
 	}
 }

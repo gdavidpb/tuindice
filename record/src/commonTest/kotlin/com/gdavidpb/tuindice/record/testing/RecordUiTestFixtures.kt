@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.ui.style.SubjectColorGenerator
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
@@ -13,9 +14,11 @@ import com.gdavidpb.tuindice.record.presentation.model.QuarterMetricDeltaTone
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 
 fun recordContentState(
-	quarters: List<Quarter> = listOf(DEFAULT_RECORD_QUARTER)
+	quarters: List<Quarter> = listOf(DEFAULT_RECORD_QUARTER),
+	viewMode: RecordViewMode = RecordViewMode.Simulation
 ): Record.State.Content = Record.State.Content(
 	quarters = quarters,
+	viewMode = viewMode,
 	selectedQuarterId = quarters.firstOrNull()?.id.orEmpty()
 )
 

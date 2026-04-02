@@ -10,7 +10,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.policy.QuarterMutationPolicy
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.presentation.model.QuarterMetricDelta
@@ -24,10 +26,12 @@ private const val DOWN_DELTA_SYMBOL = "▼"
 
 @Composable
 fun List<Quarter>.toQuarterItemList(
+	viewMode: RecordViewMode,
 	texts: RecordMapperTexts,
 	highlightColor: Color
 ) = mapIndexed { index, quarter ->
 	quarter.toQuarterItem(
+		viewMode = viewMode,
 		texts = texts,
 		highlightColor = highlightColor,
 		previousQuarter = getOrNull(index + 1)
@@ -36,23 +40,36 @@ fun List<Quarter>.toQuarterItemList(
 
 @Composable
 fun Quarter.toQuarterItem(
+	viewMode: RecordViewMode,
 	texts: RecordMapperTexts,
 	highlightColor: Color,
 	previousQuarter: Quarter? = null
 ): QuarterItem {
+	val resolvedGradeValue = when (viewMode) {
+		RecordViewMode.Official -> grade
+		RecordViewMode.Simulation -> simulationGrade ?: grade
+	}
+	val resolvedGradeSumValue = when (viewMode) {
+		RecordViewMode.Official -> gradeSum
+		RecordViewMode.Simulation -> simulationGradeSum ?: gradeSum
+	}
+	val resolvedCreditsValue = when (viewMode) {
+		RecordViewMode.Official -> credits
+		RecordViewMode.Simulation -> simulationCredits ?: credits
+	}
 	val shouldShowDeltas = subjects.isNotEmpty()
 	val animatedGrade = animateFloatAsState(
-		targetValue = grade.toFloat(),
+		targetValue = resolvedGradeValue.toFloat(),
 		label = "animatedGrade_animateFloatAsState"
 	)
 
 	val animatedGradeSum = animateFloatAsState(
-		targetValue = gradeSum.toFloat(),
+		targetValue = resolvedGradeSumValue.toFloat(),
 		label = "animatedGradeSum_animateFloatAsState"
 	)
 
 	val animatedCredits = animateIntAsState(
-		targetValue = credits,
+		targetValue = resolvedCreditsValue,
 		label = "animatedCredits_animateIntAsState"
 	)
 
@@ -63,32 +80,64 @@ fun Quarter.toQuarterItem(
 			.quarterGradeDiff(animatedGrade.value)
 			.annotatedQuarterValue(highlightColor),
 		gradeDelta = previousQuarter?.takeIf { shouldShowDeltas }?.let { quarter ->
-			(animatedGrade.value - quarter.grade.toFloat()).toQuarterMetricDelta()
+			(animatedGrade.value - quarter.resolvedGrade(viewMode).toFloat()).toQuarterMetricDelta()
 		},
 		gradeSumText = texts
 			.quarterGradeSum(animatedGradeSum.value)
 			.annotatedQuarterValue(highlightColor),
 		gradeSumDelta = previousQuarter?.takeIf { shouldShowDeltas }?.let { quarter ->
-			(animatedGradeSum.value - quarter.gradeSum.toFloat()).toQuarterMetricDelta()
+			(animatedGradeSum.value - quarter.resolvedGradeSum(viewMode).toFloat()).toQuarterMetricDelta()
 		},
 		creditsText = texts
 			.quarterCredits(animatedCredits.value)
 			.annotatedQuarterValue(highlightColor),
 		creditsDelta = previousQuarter?.takeIf { shouldShowDeltas }?.let { quarter ->
-			(animatedCredits.value - quarter.credits).toCreditsQuarterMetricDelta()
+			(animatedCredits.value - quarter.resolvedCredits(viewMode)).toCreditsQuarterMetricDelta()
 		},
 		isCurrent = isCurrent,
-		canDelete = QuarterMutationPolicy.canDelete(
+		canDelete = (viewMode == RecordViewMode.Simulation) && QuarterMutationPolicy.canDelete(
 			isCurrent = isCurrent,
 			isReadOnly = isReadOnly
 		),
 		subjects = subjects.map { subject ->
 			subject.toSubjectItem(
-				isReadOnly = !QuarterMutationPolicy.canEditGrades(isReadOnly),
+				isReadOnly = (viewMode == RecordViewMode.Official) ||
+					!QuarterMutationPolicy.canEditGrades(isReadOnly),
+				resolvedStatus = subject.resolvedStatus(viewMode),
 				texts = texts
 			)
 		}
 	)
+}
+
+private fun Quarter.resolvedGrade(viewMode: RecordViewMode): Double {
+	return when (viewMode) {
+		RecordViewMode.Official -> grade
+		RecordViewMode.Simulation -> simulationGrade ?: grade
+	}
+}
+
+private fun Quarter.resolvedGradeSum(viewMode: RecordViewMode): Double {
+	return when (viewMode) {
+		RecordViewMode.Official -> gradeSum
+		RecordViewMode.Simulation -> simulationGradeSum ?: gradeSum
+	}
+}
+
+private fun Quarter.resolvedCredits(viewMode: RecordViewMode): Int {
+	return when (viewMode) {
+		RecordViewMode.Official -> credits
+		RecordViewMode.Simulation -> simulationCredits ?: credits
+	}
+}
+
+private fun com.gdavidpb.tuindice.base.domain.model.subject.Subject.resolvedStatus(
+	viewMode: RecordViewMode
+): SubjectStatus? {
+	return when (viewMode) {
+		RecordViewMode.Official -> status
+		RecordViewMode.Simulation -> simulationStatus ?: status
+	}
 }
 
 private fun Float.toQuarterMetricDelta(): QuarterMetricDelta {

@@ -22,6 +22,10 @@ data class QuarterEntity(
 	@ColumnInfo(name = QuarterTable.GRADE_SUM) val gradeSum: Double,
 	@ColumnInfo(name = QuarterTable.CREDITS) val credits: Int,
 	@ColumnInfo(name = QuarterTable.CREDITS_SUM) val creditsSum: Int,
+	@ColumnInfo(name = QuarterTable.SIMULATION_GRADE) val simulationGrade: Double? = null,
+	@ColumnInfo(name = QuarterTable.SIMULATION_GRADE_SUM) val simulationGradeSum: Double? = null,
+	@ColumnInfo(name = QuarterTable.SIMULATION_CREDITS) val simulationCredits: Int? = null,
+	@ColumnInfo(name = QuarterTable.SIMULATION_CREDITS_SUM) val simulationCreditsSum: Int? = null,
 	@ColumnInfo(name = QuarterTable.IS_CURRENT) val isCurrent: Boolean,
 	@ColumnInfo(name = QuarterTable.IS_READ_ONLY) val isReadOnly: Boolean,
 	@ColumnInfo(name = QuarterTable.REVISION) val revision: Long

@@ -82,6 +82,10 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				gradeSum = node.get("grade_sum").asDouble(),
 				credits = node.get("credits").asInt(),
 				creditsSum = node.get("credits_sum").asInt(),
+				simulationGrade = node.path("simulation_grade").takeIf(JsonNode::isNumber)?.asDouble(),
+				simulationGradeSum = node.path("simulation_grade_sum").takeIf(JsonNode::isNumber)?.asDouble(),
+				simulationCredits = node.path("simulation_credits").takeIf(JsonNode::isInt)?.asInt(),
+				simulationCreditsSum = node.path("simulation_credits_sum").takeIf(JsonNode::isInt)?.asInt(),
 				current = node.get("is_current").asBoolean(),
 				readOnly = node.get("is_read_only").asBoolean(),
 				revision = node.get("revision").asLong(),
@@ -101,6 +105,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				mutable = node.path("mutable").asBoolean(false),
 				scenario = if (node.hasNonNull("scenario")) node.get("scenario").asText() else null,
 				status = if (node.hasNonNull("status")) node.get("status").asText() else null,
+				simulationStatus = if (node.hasNonNull("simulation_status")) node.get("simulation_status").asText() else null,
 				revision = node.get("revision").asLong(),
 			)
 
@@ -208,6 +213,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 					mutable = false,
 					scenario = null,
 					status = if (node.hasNonNull("status")) node.get("status").asText() else null,
+					simulationStatus = if (node.hasNonNull("simulation_status")) node.get("simulation_status").asText() else null,
 					revision = 1L,
 				)
 			}
@@ -291,7 +297,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				)
 			}
 
-			return recomputedAscending.reversed()
+			return applySimulationProjection(recomputedAscending.reversed())
 		}
 
 		private fun computeAverage(weighted: Long, credits: Long): Double {
@@ -300,6 +306,79 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			return BigDecimal.valueOf(weighted.toDouble() / credits.toDouble())
 				.setScale(4, RoundingMode.HALF_UP)
 				.toDouble()
+		}
+
+		private fun applySimulationProjection(quarters: List<QuarterModel>): List<QuarterModel> {
+			if (quarters.isEmpty()) return emptyList()
+
+			val ascending = quarters.sortedWith(ASCENDING_QUARTER_ORDER)
+			val excludedSubjectIds = resolveExcludedSubjectIds(ascending)
+
+			var cumulativeWeighted = 0L
+			var cumulativeCredits = 0L
+
+			val recomputedAscending = ascending.map { quarter ->
+				var quarterWeighted = 0L
+				var quarterCredits = 0L
+
+				val subjects = quarter.subjects.map { subject ->
+					val simulationStatus = when {
+						(subject.status != null) && (subject.status != "normal") -> null
+						subject.id in excludedSubjectIds -> "without_effect"
+						else -> null
+					}
+
+					if (
+						(subject.grade > 0) &&
+						(simulationStatus != "without_effect")
+					) {
+						val weighted = subject.grade.toLong() * subject.credits.toLong()
+						quarterWeighted += weighted
+						quarterCredits += subject.credits.toLong()
+						cumulativeWeighted += weighted
+						cumulativeCredits += subject.credits.toLong()
+					}
+
+					subject.copy(simulationStatus = simulationStatus)
+				}
+
+				quarter.copy(
+					simulationGrade = computeAverage(quarterWeighted, quarterCredits),
+					simulationGradeSum = computeAverage(cumulativeWeighted, cumulativeCredits),
+					simulationCredits = quarterCredits.toInt(),
+					simulationCreditsSum = cumulativeCredits.toInt(),
+					subjects = subjects
+				)
+			}
+
+			return recomputedAscending.reversed()
+		}
+
+		private fun resolveExcludedSubjectIds(quarters: List<QuarterModel>): Set<String> {
+			val codeStates = mutableMapOf<String, SimulationCodeState>()
+
+			quarters.forEach { quarter ->
+				val sortedSubjects = quarter.subjects.sortedByDescending(SubjectModel::id)
+
+				sortedSubjects.forEach { subject ->
+					if (subject.grade <= 0) return@forEach
+
+					codeStates
+						.getOrPut(subject.code) { SimulationCodeState() }
+						.add(
+							SimulationAttempt(
+								subjectId = subject.id,
+								grade = subject.grade
+							)
+						)
+				}
+			}
+
+			return buildSet {
+				codeStates.values.forEach { state ->
+					state.previousSubjectIdWithoutEffect()?.let(::add)
+				}
+			}
 		}
 
 		private fun pathSegments(request: Request): List<String> {
@@ -360,6 +439,10 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		val gradeSum: Double,
 		val credits: Int,
 		val creditsSum: Int,
+		val simulationGrade: Double? = null,
+		val simulationGradeSum: Double? = null,
+		val simulationCredits: Int? = null,
+		val simulationCreditsSum: Int? = null,
 		val current: Boolean,
 		val readOnly: Boolean,
 		val presenceScenario: String?,
@@ -384,7 +467,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			)
 
 		fun toTemplateModel(): Map<String, Any> =
-			linkedMapOf(
+			linkedMapOf<String, Any>(
 				"id" to id,
 				"name" to name,
 				"start_date" to startDate,
@@ -397,7 +480,12 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				"is_read_only" to readOnly,
 				"revision" to revision,
 				"subjects" to subjects.map(SubjectModel::toTemplateModel),
-			)
+			).also { model ->
+				simulationGrade?.let { model["simulation_grade"] = it }
+				simulationGradeSum?.let { model["simulation_grade_sum"] = it }
+				simulationCredits?.let { model["simulation_credits"] = it }
+				simulationCreditsSum?.let { model["simulation_credits_sum"] = it }
+			}
 	}
 
 	private data class SubjectModel(
@@ -410,6 +498,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		val mutable: Boolean,
 		val scenario: String?,
 		val status: String?,
+		val simulationStatus: String?,
 		val revision: Long,
 	) {
 		fun copyWith(grade: Int, revision: Long): SubjectModel =
@@ -428,6 +517,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				"grade" to grade,
 			).also { model ->
 				status?.let { model["status"] = it }
+				simulationStatus?.let { model["simulation_status"] = it }
 				model["revision"] = revision
 			}
 
@@ -467,6 +557,36 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			val latestAttempt = latest ?: return 0L
 			val secondAttempt = second ?: return creditsSum
 			return if (latestAttempt.grade >= 3) creditsSum - secondAttempt.credits.toLong() else creditsSum
+		}
+	}
+
+	private data class SimulationAttempt(
+		val subjectId: String,
+		val grade: Int,
+	)
+
+	private class SimulationCodeState {
+		private var latest: SimulationAttempt? = null
+		private var second: SimulationAttempt? = null
+
+		fun add(attempt: SimulationAttempt) {
+			second = latest
+			latest = attempt
+		}
+
+		fun previousSubjectIdWithoutEffect(): String? {
+			val latestAttempt = latest
+			val secondAttempt = second
+
+			return if (
+				(latestAttempt != null) &&
+				(secondAttempt != null) &&
+				(latestAttempt.grade >= 3)
+			) {
+				secondAttempt.subjectId
+			} else {
+				null
+			}
 		}
 	}
 

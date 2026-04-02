@@ -10,25 +10,39 @@ import com.gdavidpb.tuindice.record.data.model.quarter.LocalQuarter
 import com.gdavidpb.tuindice.record.domain.policy.QuarterMutationPolicy
 import com.gdavidpb.tuindice.record.domain.policy.toQuarterMutationType
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
+import com.gdavidpb.tuindice.record.domain.service.SimulationProjectionEngine
 
 class VisibleRecordStateResolver(
-	private val indexComputationEngine: IndexComputationEngine
+	private val indexComputationEngine: IndexComputationEngine,
+	private val simulationProjectionEngine: SimulationProjectionEngine
 ) : MutationProjectionSpec<String, RecordMutation, List<LocalQuarter>, List<LocalQuarter>, QuarterSyncResolution> {
 	override fun projectVisibleState(
 		confirmedState: List<LocalQuarter>,
 		pendingMutations: List<MutationEnvelope<String, RecordMutation>>
 	): List<LocalQuarter> {
+		val deletedQuarterIds = pendingDeletedQuarterIds(
+			confirmedSnapshot = confirmedState,
+			pendingMutations = pendingMutations
+		)
 		val withoutDeletedQuarters = confirmedState.filterNot { quarter ->
-			quarter.id in pendingDeletedQuarterIds(
-				confirmedSnapshot = confirmedState,
-				pendingMutations = pendingMutations
-			)
+			quarter.id in deletedQuarterIds
 		}
-
-		return applyPendingSubjectMutationsToSnapshot(
+		val deletedAffectedStartDate = confirmedState
+			.filter { quarter -> quarter.id in deletedQuarterIds }
+			.minOfOrNull(LocalQuarter::startDate)
+		val snapshotWithPendingMutations = applyPendingSubjectMutationsToSnapshot(
 			confirmedSnapshot = withoutDeletedQuarters,
 			pendingMutations = pendingMutations
 		)
+
+		return if (deletedAffectedStartDate != null) {
+			recomputeProjectedSnapshot(
+				snapshot = snapshotWithPendingMutations,
+				affectedStartDate = deletedAffectedStartDate
+			)
+		} else {
+			snapshotWithPendingMutations
+		}
 	}
 
 	fun resolveVisibleState(
@@ -155,10 +169,10 @@ class VisibleRecordStateResolver(
 
 		if (!hasChanges) return confirmedSnapshot
 
-		return indexComputationEngine.recompute(
-			quarters = patchedSnapshot,
+		return recomputeProjectedSnapshot(
+			snapshot = patchedSnapshot,
 			affectedStartDate = affectedStartDate
-		).quarters.toCanonicalOrder()
+		)
 	}
 
 	private fun applyPreviewGradesToSnapshot(
@@ -196,10 +210,23 @@ class VisibleRecordStateResolver(
 
 		if (!hasChanges) return snapshot
 
-		return indexComputationEngine.recompute(
-			quarters = patchedSnapshot,
+		return recomputeProjectedSnapshot(
+			snapshot = patchedSnapshot,
+			affectedStartDate = affectedStartDate
+		)
+	}
+
+	private fun recomputeProjectedSnapshot(
+		snapshot: List<LocalQuarter>,
+		affectedStartDate: Long
+	): List<LocalQuarter> {
+		val recomputedOfficial = indexComputationEngine.recompute(
+			quarters = snapshot,
 			affectedStartDate = affectedStartDate
 		).quarters.toCanonicalOrder()
+
+		return simulationProjectionEngine.recompute(recomputedOfficial)
+			.toCanonicalOrder()
 	}
 
 	private fun pendingDeletedQuarterIds(

@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.record.data.source.database.mapper.toLocalQuarter
 import com.gdavidpb.tuindice.record.data.source.database.mapper.toQuarterEntity
 import com.gdavidpb.tuindice.record.data.source.database.mapper.toSubjectEntity
 import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
+import com.gdavidpb.tuindice.record.domain.service.SimulationProjectionEngine
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -25,6 +26,7 @@ import kotlinx.coroutines.sync.withLock
 class RoomDataSource(
 	private val room: TuIndiceDatabase,
 	private val indexComputationEngine: IndexComputationEngine,
+	private val simulationProjectionEngine: SimulationProjectionEngine,
 	private val mutationEngine: StoreBackedMutationEngine<String, RecordMutation, List<LocalQuarter>, List<LocalQuarter>, RecordMutationAck>,
 	private val visibleRecordStateResolver: VisibleRecordStateResolver
 ) : QuarterLocalDataRepository {
@@ -226,9 +228,7 @@ class RoomDataSource(
 				)
 
 				return@withLock SetSubjectGradeResult.Applied(
-					updatedQuarters = previewSnapshot.filter { quarter ->
-						quarter.startDate >= sourceQuarter.startDate
-					},
+					updatedQuarters = previewSnapshot,
 					updatedTargetQuarter = previewSnapshot
 						.firstOrNull { quarter -> quarter.id == qid }
 						?: sourceQuarter,
@@ -253,20 +253,21 @@ class RoomDataSource(
 				grade = grade
 			)
 
+			val quarterEntities = recomputed.quarters
+				.map { quarter -> quarter.toQuarterEntity() }
+			val subjectEntities = recomputed.quarters
+				.flatMap { quarter -> quarter.subjects }
+				.map { subject -> subject.toSubjectEntity() }
+
 			room.withImmediateTransaction {
-				room.subjects.updateSubject(
-					sid = sid,
-					grade = grade
-				)
-				room.quarters.upsertEntities(
-					recomputed.affectedQuarters.map { quarter -> quarter.toQuarterEntity() }
-				)
+				room.quarters.upsertEntities(quarterEntities)
+				room.subjects.upsertEntities(subjectEntities)
 			}
 
 			inMemoryQuartersSnapshot = recomputed.quarters.toCanonicalOrder()
 
 			SetSubjectGradeResult.Applied(
-				updatedQuarters = recomputed.affectedQuarters,
+				updatedQuarters = recomputed.quarters,
 				updatedTargetQuarter = recomputed.quarters.firstOrNull { quarter -> quarter.id == qid }
 					?: sourceQuarter,
 				expectedRevision = sourceSubject.revision
@@ -353,10 +354,10 @@ class RoomDataSource(
 			}
 		}
 
-		return indexComputationEngine.recompute(
-			quarters = patchedSnapshot.toCanonicalOrder(),
+		return recomputeProjectedSnapshot(
+			snapshot = patchedSnapshot.toCanonicalOrder(),
 			affectedStartDate = earliestAffectedStartDate
-		).quarters.toCanonicalOrder()
+		)
 	}
 
 	private fun mergeQuarterKeepingLatestSubjects(
@@ -407,10 +408,26 @@ class RoomDataSource(
 			if (quarter.id == qid) updatedQuarter else quarter
 		}
 
-		return indexComputationEngine.recompute(
-			quarters = patchedSnapshot,
-			affectedStartDate = sourceQuarter.startDate
+		return IndexComputationEngine.RecomputeResult(
+			quarters = recomputeProjectedSnapshot(
+				snapshot = patchedSnapshot,
+				affectedStartDate = sourceQuarter.startDate
+			),
+			affectedQuarters = emptyList()
 		)
+	}
+
+	private fun recomputeProjectedSnapshot(
+		snapshot: List<LocalQuarter>,
+		affectedStartDate: Long
+	): List<LocalQuarter> {
+		val recomputedOfficial = indexComputationEngine.recompute(
+			quarters = snapshot,
+			affectedStartDate = affectedStartDate
+		).quarters.toCanonicalOrder()
+
+		return simulationProjectionEngine.recompute(recomputedOfficial)
+			.toCanonicalOrder()
 	}
 
 	private fun upsertGradePreview(

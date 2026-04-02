@@ -13,5 +13,6 @@ data class SubjectResponse(
 	@SerialName("credits") val credits: Int,
 	@SerialName("grade") val grade: Int,
 	@SerialName("status") val status: SubjectStatus? = null,
+	@SerialName("simulation_status") val simulationStatus: SubjectStatus? = null,
 	@SerialName("revision") val revision: Long
 )

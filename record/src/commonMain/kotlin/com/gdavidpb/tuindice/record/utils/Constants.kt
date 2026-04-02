@@ -10,7 +10,9 @@ object Ranges {
 
 object PreferencesKeys {
 	const val COOLDOWN_GET_QUARTERS = "cooldownGetQuarters"
-	const val SELECTED_QUARTER_ID = "selectedQuarterId"
+	const val SELECTED_OFFICIAL_QUARTER_ID = "selectedOfficialQuarterId"
+	const val SELECTED_SIMULATION_QUARTER_ID = "selectedSimulationQuarterId"
+	const val RECORD_VIEW_MODE = "recordViewMode"
 }
 
 object CooldownTimes {

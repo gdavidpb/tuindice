@@ -22,10 +22,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.persistence.utils.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.SubjectItemBadge
 import com.gdavidpb.tuindice.record.ui.model.toDisplay
 import com.gdavidpb.tuindice.record.utils.Ranges
 import org.jetbrains.compose.resources.stringResource
@@ -77,14 +77,14 @@ fun SubjectItemView(
 					.heightIn(min = 28.dp),
 				contentAlignment = Alignment.CenterEnd
 			) {
-				when (display.status) {
-					SubjectStatus.RETIRED -> {
+				when (display.badge) {
+					SubjectItemBadge.RETIRED -> {
 						SubjectStatusChip(
 							modifier = Modifier.padding(start = 8.dp),
 							text = stringResource(Res.string.subject_retired)
 						)
 					}
-					SubjectStatus.WITHOUT_EFFECT -> {
+					SubjectItemBadge.WITHOUT_EFFECT -> {
 						Row(
 							modifier = Modifier.padding(start = 8.dp),
 							horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -100,7 +100,7 @@ fun SubjectItemView(
 							)
 						}
 					}
-					else -> {
+					null -> {
 						Text(
 							text = display.gradeText,
 							fontWeight = FontWeight.SemiBold,
