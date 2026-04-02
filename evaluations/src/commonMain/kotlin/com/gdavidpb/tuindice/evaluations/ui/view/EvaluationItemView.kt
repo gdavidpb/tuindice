@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 
@@ -30,6 +31,16 @@ fun EvaluationItemView(
 	modifier: Modifier = Modifier,
 	item: EvaluationItem,
 ) {
+	val highlightIconColor = when (item.highlightTone) {
+		EvaluationHighlightTone.Success -> MaterialTheme.colorScheme.primary
+		EvaluationHighlightTone.Error -> MaterialTheme.colorScheme.error
+		EvaluationHighlightTone.Neutral -> MaterialTheme.colorScheme.outline
+	}
+	val highlightTextColor = when (item.highlightTone) {
+		EvaluationHighlightTone.Error -> MaterialTheme.colorScheme.error
+		else -> Color.Unspecified
+	}
+
 	ElevatedCard(
 		modifier = modifier
 			.testTag(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
@@ -110,7 +121,7 @@ fun EvaluationItemView(
 						modifier = Modifier
 							.size(16.dp),
 						imageVector = item.dateIcon,
-						tint = item.highlightIconColor,
+						tint = highlightIconColor,
 						contentDescription = null
 					)
 
@@ -120,7 +131,7 @@ fun EvaluationItemView(
 						text = item.dateText,
 						maxLines = 1,
 						overflow = TextOverflow.Ellipsis,
-						color = item.highlightTextColor,
+						color = highlightTextColor,
 						style = MaterialTheme.typography.bodyMedium
 					)
 				}
@@ -135,7 +146,7 @@ fun EvaluationItemView(
 						modifier = Modifier
 							.size(16.dp),
 						imageVector = item.gradesIcon,
-						tint = item.highlightIconColor,
+						tint = highlightIconColor,
 						contentDescription = null
 					)
 
@@ -145,7 +156,7 @@ fun EvaluationItemView(
 						text = item.gradesText,
 						maxLines = 1,
 						overflow = TextOverflow.Ellipsis,
-						color = item.highlightTextColor,
+						color = highlightTextColor,
 						style = MaterialTheme.typography.bodyMedium
 					)
 				}

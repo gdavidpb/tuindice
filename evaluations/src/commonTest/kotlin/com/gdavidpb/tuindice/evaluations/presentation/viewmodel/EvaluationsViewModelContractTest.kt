@@ -37,11 +37,17 @@ class EvaluationsViewModelContractTest {
 
 				viewModel.loadEvaluationsAction()
 				val content = assertIs<Evaluations.State.Content>(awaitItem())
-				assertEquals(2, content.filteredEvaluations.size)
+				assertEquals(2, content.evaluationGroups.flatMap { group -> group.items }.size)
 
 				viewModel.toggleFilterAction(filter, isChecked = true)
 				val filtered = assertIs<Evaluations.State.Content>(awaitItem())
 				assertEquals(listOf(filter), filtered.activeFilters)
+				assertEquals(
+					listOf(filter),
+					filtered.filterGroups.flatMap { group -> group.items }
+						.filter { item -> item.isChecked }
+						.map { item -> item.filter }
+				)
 
 				cancelAndIgnoreRemainingEvents()
 			}

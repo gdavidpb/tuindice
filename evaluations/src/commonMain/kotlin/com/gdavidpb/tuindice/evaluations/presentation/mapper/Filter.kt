@@ -47,3 +47,13 @@ fun EvaluationFilter.toEvaluationFilterChipItem(
 			)
 	}
 }
+
+fun List<EvaluationFilterGroupItem>.availableFilters(): List<EvaluationFilter> {
+	return flatMap { group -> group.items.map { item -> item.filter } }
+}
+
+fun List<EvaluationFilterGroupItem>.withActiveFilters(
+	activeFilters: List<EvaluationFilter>
+): List<EvaluationFilterGroupItem> {
+	return availableFilters().toEvaluationFilterGroupItemList(activeFilters = activeFilters)
+}

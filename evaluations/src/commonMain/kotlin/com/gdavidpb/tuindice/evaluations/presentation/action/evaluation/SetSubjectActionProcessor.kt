@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.action.evaluation
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.withSelectedSubject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -16,7 +17,8 @@ class SetSubjectActionProcessor
 		return flowOf { state ->
 			if (state is Evaluation.State.Content)
 				state.copy(
-					selectedSubject = action.subject
+					selectedSubject = action.subject,
+					subjectItems = state.subjectItems.withSelectedSubject(action.subject)
 				)
 			else
 				state

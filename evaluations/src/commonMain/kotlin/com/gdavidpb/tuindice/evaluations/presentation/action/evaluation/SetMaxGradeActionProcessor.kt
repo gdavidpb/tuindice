@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.action.evaluation
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.updated
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlin.math.min
@@ -18,11 +19,19 @@ class SetMaxGradeActionProcessor
 		sideEffect: (Evaluation.Effect) -> Unit
 	): Flow<Mutation<Evaluation.State>> {
 		return flowOf { state ->
-			if (state is Evaluation.State.Content)
+			if (state is Evaluation.State.Content) {
+				val grade = min(state.grade ?: MIN_EVALUATION_GRADE, action.maxGrade)
+
 				state.copy(
-					grade = min(state.grade ?: MIN_EVALUATION_GRADE, action.maxGrade),
-					maxGrade = action.maxGrade
+					grade = grade,
+					maxGrade = action.maxGrade,
+					gradeSection = state.gradeSection.updated(
+						isOverdue = state.isOverdue,
+						grade = grade,
+						maxGrade = action.maxGrade
+					)
 				)
+			}
 			else
 				state
 		}

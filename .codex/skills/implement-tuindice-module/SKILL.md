@@ -103,7 +103,7 @@ Implement module work by copying the nearest existing module pattern instead of 
   - final `MaterialTheme`/resource reads that only the composable can know at render time
 - If displayed text or status depends on transient UI input, do not spread that derivation inline across the composable body. Prefer a small UI-local adapter or display model derived from the presentation item plus the transient value.
 - Current repo examples to copy:
-  - `evaluations/presentation/mapper/EvaluationItem.kt` precomputes ordinals, grouped headers, icons, highlight colors, clickability, and grade/date texts before `EvaluationItemView` renders them
+  - `evaluations/presentation/mapper/EvaluationItem.kt` precomputes ordinals, grouped headers, icons, semantic highlight tone, clickability, and grade/date texts before `EvaluationItemView` renders them
   - `record/presentation/mapper/QuarterItem.kt` precomputes quarter summary text, deltas, short names, and subject items before the summary/view composables render them
 - Additional repo examples of this pattern:
   - `record/ui/model/SubjectItemDisplay.kt` shows the preferred escape hatch when a displayed status/text depends on transient UI input such as a draft slider grade
@@ -111,6 +111,7 @@ Implement module work by copying the nearest existing module pattern instead of 
   - `evaluations/presentation/mapper/SubjectPicker.kt` and `evaluations/presentation/mapper/TypePicker.kt` precompute chip items for `EvaluationSubjectPicker` and `EvaluationTypePicker`
   - `evaluations/presentation/mapper/GradeSection.kt` precomputes the grade-section label and value texts for `EvaluationContentView`
 - When a screen is item-heavy, prefer state shaped for the screen over raw domain state. A screen that renders lists of cards/chips usually wants `List<QuarterItem>`, `List<EvaluationsGroupItem>`, or dedicated chip items rather than `List<Quarter>`, `List<Evaluation>`, or raw filter/domain objects.
+- Apply the same rule one level higher in MVI: `State.Content` should usually expose screen-ready collections such as `evaluationGroups`, `filterGroups`, `subjectItems`, `typeItems`, or `gradeSection`, and action processors should update those items together with the source fields they depend on.
 - Not every `if`, `remember`, or `when` in UI is a problem. Small theme-only decisions such as `summary/ui/view/SummaryContentView.kt` status icon tinting or `maincore/ui/screen/TuIndiceScreen.kt` bottom-bar icon selection can stay in UI when they do not encode reusable presentation mapping.
 - Keep `commonMain` portable:
   - no `android.*`

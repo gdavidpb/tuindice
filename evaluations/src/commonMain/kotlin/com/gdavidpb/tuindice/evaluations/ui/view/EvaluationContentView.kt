@@ -17,7 +17,6 @@ import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -28,9 +27,6 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.rememberEvaluationGradeSectionItem
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.rememberEvaluationTypePickerItemList
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationSubjectPickerItemList
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
@@ -56,23 +52,6 @@ fun EvaluationContentView(
 		maxGrade: Double?
 	) -> Unit
 ) {
-	val subjectItems = remember(
-		state.availableSubjects,
-		state.selectedSubject
-	) {
-		state.availableSubjects.toEvaluationSubjectPickerItemList(
-			selectedSubject = state.selectedSubject
-		)
-	}
-	val typeItems = rememberEvaluationTypePickerItemList(
-		selectedType = state.type
-	)
-	val gradeSection = rememberEvaluationGradeSectionItem(
-		isOverdue = state.isOverdue,
-		grade = state.grade,
-		maxGrade = state.maxGrade
-	)
-
 	Box(
 		modifier = Modifier
 			.testTag(EvaluationsUiTags.EvaluationContentContainer)
@@ -97,7 +76,7 @@ fun EvaluationContentView(
 			)
 
 			EvaluationSubjectPicker(
-				items = subjectItems,
+				items = state.subjectItems,
 				onSubjectChange = onSubjectChange
 			)
 
@@ -112,7 +91,7 @@ fun EvaluationContentView(
 			)
 
 			EvaluationTypePicker(
-				items = typeItems,
+				items = state.typeItems,
 				onTypeChange = onTypeChange
 			)
 
@@ -137,13 +116,13 @@ fun EvaluationContentView(
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(vertical = 12.dp),
-				text = gradeSection.titleText,
+				text = state.gradeSection.titleText,
 				style = MaterialTheme.typography.bodyLarge,
 				color = MaterialTheme.colorScheme.onSurface,
 				fontWeight = FontWeight.Medium
 			)
 
-			AnimatedVisibility(visible = !gradeSection.showsGradeChip) {
+			AnimatedVisibility(visible = !state.gradeSection.showsGradeChip) {
 				InputChip(
 					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationMaxGradeChip),
 					selected = false,
@@ -152,30 +131,30 @@ fun EvaluationContentView(
 					},
 					label = {
 						Text(
-							text = gradeSection.maxGradeText,
+							text = state.gradeSection.maxGradeText,
 							style = MaterialTheme.typography.titleMedium
 						)
 					}
 				)
 			}
 
-			AnimatedVisibility(visible = gradeSection.showsGradeChip) {
-				Row(
-					verticalAlignment = Alignment.CenterVertically
-				) {
-					InputChip(
-						modifier = Modifier.testTag(EvaluationsUiTags.EvaluationGradeChip),
-						selected = false,
-						onClick = {
-							onGradeClick(state.grade, state.maxGrade)
-						},
-						label = {
-							Text(
-								text = gradeSection.gradeText,
-								style = MaterialTheme.typography.titleMedium
-							)
-						}
-					)
+				AnimatedVisibility(visible = state.gradeSection.showsGradeChip) {
+					Row(
+						verticalAlignment = Alignment.CenterVertically
+					) {
+						InputChip(
+							modifier = Modifier.testTag(EvaluationsUiTags.EvaluationGradeChip),
+							selected = false,
+							onClick = {
+								onGradeClick(state.grade, state.maxGrade)
+							},
+							label = {
+								Text(
+									text = state.gradeSection.gradeText,
+									style = MaterialTheme.typography.titleMedium
+								)
+							}
+						)
 
 					Text(
 						modifier = Modifier
@@ -184,21 +163,21 @@ fun EvaluationContentView(
 						style = MaterialTheme.typography.titleLarge
 					)
 
-					InputChip(
-						modifier = Modifier.testTag(EvaluationsUiTags.EvaluationMaxGradeChip),
-						selected = false,
-						onClick = {
-							onMaxGradeClick(state.maxGrade)
-						},
-						label = {
-							Text(
-								text = gradeSection.maxGradeText,
-								style = MaterialTheme.typography.titleMedium
-							)
-						}
-					)
+						InputChip(
+							modifier = Modifier.testTag(EvaluationsUiTags.EvaluationMaxGradeChip),
+							selected = false,
+							onClick = {
+								onMaxGradeClick(state.maxGrade)
+							},
+							label = {
+								Text(
+									text = state.gradeSection.maxGradeText,
+									style = MaterialTheme.typography.titleMedium
+								)
+							}
+						)
+					}
 				}
-			}
 		}
 
 		FloatingActionButton(

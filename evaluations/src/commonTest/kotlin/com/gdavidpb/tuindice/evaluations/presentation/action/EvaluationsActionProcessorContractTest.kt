@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEval
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
@@ -49,12 +50,12 @@ class EvaluationsActionProcessorContractTest {
 			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Empty))
 
 			val content = assertIs<Evaluations.State.Content>(awaitItem()(Evaluations.State.Loading))
-			assertEquals(
-				listOf(DEFAULT_COMPLETED_EVALUATION, DEFAULT_PENDING_EVALUATION),
-				content.originalEvaluations
+			assertEquals(2, content.evaluationGroups.flatMap { group -> group.items }.size)
+			assertTrue(
+				content.filterGroups
+					.flatMap { group -> group.items }
+					.any { item -> item.filter.getLabel() == DEFAULT_EVALUATION_SUBJECT.code }
 			)
-			assertEquals(2, content.filteredEvaluations.size)
-			assertTrue(content.availableFilters.any { filter -> filter.getLabel() == DEFAULT_EVALUATION_SUBJECT.code })
 
 			awaitComplete()
 		}
@@ -134,6 +135,8 @@ class EvaluationsActionProcessorContractTest {
 			assertEquals(DEFAULT_PENDING_EVALUATION.id, content.evaluationId)
 			assertEquals(DEFAULT_EVALUATION_SUBJECT, content.selectedSubject)
 			assertEquals(DEFAULT_PENDING_EVALUATION.maxGrade, content.maxGrade)
+			assertTrue(content.subjectItems.any { item -> item.subject == DEFAULT_EVALUATION_SUBJECT && item.isSelected })
+			assertTrue(content.typeItems.any(EvaluationTypePickerItem::isSelected))
 
 			awaitComplete()
 		}
@@ -162,6 +165,7 @@ class EvaluationsActionProcessorContractTest {
 
 			val content = assertIs<Evaluation.State.Content>(awaitItem()(Evaluation.State.Loading))
 			assertEquals(availableSubject, content.selectedSubject)
+			assertTrue(content.subjectItems.any { item -> item.subject == availableSubject && item.isSelected })
 
 			awaitComplete()
 		}

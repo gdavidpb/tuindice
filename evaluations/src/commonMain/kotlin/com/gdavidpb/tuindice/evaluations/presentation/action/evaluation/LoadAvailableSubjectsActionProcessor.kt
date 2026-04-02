@@ -5,6 +5,9 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationGradeSectionItem
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationTypePickerItemList
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationSubjectPickerItemList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -25,7 +28,17 @@ class LoadAvailableSubjectsActionProcessor(
 
 					is UseCaseState.Data -> suspend { _ ->
 						Evaluation.State.Content(
-							availableSubjects = useCaseState.value
+							subjectItems = useCaseState.value.toEvaluationSubjectPickerItemList(
+								selectedSubject = null
+							),
+							typeItems = getEvaluationTypePickerItemList(
+								selectedType = null
+							),
+							gradeSection = getEvaluationGradeSectionItem(
+								isOverdue = false,
+								grade = null,
+								maxGrade = null
+							)
 						)
 					}
 

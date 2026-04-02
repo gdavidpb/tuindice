@@ -20,16 +20,16 @@ import androidx.compose.material.icons.outlined.ModeComment
 import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material.icons.outlined.Science
 import androidx.compose.material.icons.outlined.Tag
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.evaluation_attendance
@@ -61,65 +61,18 @@ data class EvaluationItemMapping(
 	val gradesIcon: (state: EvaluationState) -> ImageVector,
 	val dateGroupTitle: (group: EvaluationDateGroup) -> String,
 	val dateText: (evaluation: Evaluation) -> String,
-	val highlightIconColor: (state: EvaluationState) -> Color,
-	val highlightTextColor: (state: EvaluationState) -> Color
+	val highlightTone: (state: EvaluationState) -> EvaluationHighlightTone
 )
 
 @Composable
 fun rememberEvaluationItemMapping(): EvaluationItemMapping {
-	val colorScheme = MaterialTheme.colorScheme
 	val dateTextMapping = rememberEvaluationDateTextMapping()
 
 	val evaluationNamePattern = stringResource(Res.string.evaluation_name)
 	val evaluationGradePattern = stringResource(Res.string.evaluation_grade)
 	val evaluationPendingGradePattern = stringResource(Res.string.evaluation_pending_grade)
 	val evaluationNotGradePattern = stringResource(Res.string.evaluation_not_grade)
-
-	val testLabel = stringResource(Res.string.evaluation_test)
-	val essayLabel = stringResource(Res.string.evaluation_essay)
-	val attendanceLabel = stringResource(Res.string.evaluation_attendance)
-	val interventionsLabel = stringResource(Res.string.evaluation_interventions)
-	val laboratoryLabel = stringResource(Res.string.evaluation_laboratory)
-	val modelLabel = stringResource(Res.string.evaluation_model)
-	val presentationLabel = stringResource(Res.string.evaluation_presentation)
-	val projectLabel = stringResource(Res.string.evaluation_project)
-	val quizLabel = stringResource(Res.string.evaluation_quiz)
-	val reportLabel = stringResource(Res.string.evaluation_report)
-	val workshopLabel = stringResource(Res.string.evaluation_workshop)
-	val writtenWorkLabel = stringResource(Res.string.evaluation_written_work)
-	val otherLabel = stringResource(Res.string.evaluation_other)
-
-	val typeLabels = remember(
-		testLabel,
-		essayLabel,
-		attendanceLabel,
-		interventionsLabel,
-		laboratoryLabel,
-		modelLabel,
-		presentationLabel,
-		projectLabel,
-		quizLabel,
-		reportLabel,
-		workshopLabel,
-		writtenWorkLabel,
-		otherLabel
-	) {
-		mapOf(
-			EvaluationType.TEST to testLabel,
-			EvaluationType.ESSAY to essayLabel,
-			EvaluationType.ATTENDANCE to attendanceLabel,
-			EvaluationType.INTERVENTIONS to interventionsLabel,
-			EvaluationType.LABORATORY to laboratoryLabel,
-			EvaluationType.MODEL to modelLabel,
-			EvaluationType.PRESENTATION to presentationLabel,
-			EvaluationType.PROJECT to projectLabel,
-			EvaluationType.QUIZ to quizLabel,
-			EvaluationType.REPORT to reportLabel,
-			EvaluationType.WORKSHOP to workshopLabel,
-			EvaluationType.WRITTEN_WORK to writtenWorkLabel,
-			EvaluationType.OTHER to otherLabel
-		)
-	}
+	val typeLabels = rememberEvaluationTypeLabels()
 
 	return remember(
 		dateTextMapping,
@@ -127,67 +80,87 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 		evaluationGradePattern,
 		evaluationPendingGradePattern,
 		evaluationNotGradePattern,
-		typeLabels,
-		colorScheme.primary,
-		colorScheme.error,
-		colorScheme.outline
+		typeLabels
 	) {
-		EvaluationItemMapping(
-			evaluationName = { type, ordinal ->
-				evaluationNamePattern
-					.replace("%1${'$'}s", type.asString(typeLabels))
-					.replace("%2${'$'}d", ordinal.toString())
-			},
-			typeLabel = { type -> type.asString(typeLabels) },
-			gradesCompleted = { grade, maxGrade ->
-				evaluationGradePattern
-					.replace("%1${'$'}.2f", (grade ?: 0.0).formatGrade(decimals = 2))
-					.replace("%2${'$'}.2f", maxGrade.formatGrade(decimals = 2))
-			},
-			gradesPending = { maxGrade ->
-				evaluationPendingGradePattern
-					.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
-			},
-			gradesOverdue = { maxGrade ->
-				evaluationNotGradePattern
-					.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
-			},
-			typeIcon = { type -> type.asIcon() },
-			dateIcon = { state ->
-				when (state) {
-					EvaluationState.COMPLETED -> Icons.Outlined.EventAvailable
-					EvaluationState.CONTINUOUS -> Icons.Outlined.EventRepeat
-					else -> Icons.Outlined.Event
-				}
-			},
-			gradesIcon = { state ->
-				when (state) {
-					EvaluationState.COMPLETED, EvaluationState.CONTINUOUS -> Icons.Outlined.AssignmentTurnedIn
-					EvaluationState.PENDING -> Icons.Outlined.AssignmentReturned
-					EvaluationState.OVERDUE -> Icons.Outlined.AssignmentLate
-				}
-			},
-			dateGroupTitle = { bucket ->
-				bucket.getLabel(dateTextMapping)
-			},
-			dateText = { evaluation: Evaluation ->
-				evaluation.formatAsDayOfWeekAndDate(noDateLabel = dateTextMapping.noDateLabel)
-			},
-			highlightIconColor = { state ->
-				when (state) {
-					EvaluationState.COMPLETED -> colorScheme.primary
-					EvaluationState.OVERDUE -> colorScheme.error
-					else -> colorScheme.outline
-				}
-			},
-			highlightTextColor = { state ->
-				when (state) {
-					EvaluationState.OVERDUE -> colorScheme.error
-					else -> Color.Unspecified
-				}
-			}
+		buildEvaluationItemMapping(
+			dateTextMapping = dateTextMapping,
+			evaluationNamePattern = evaluationNamePattern,
+			evaluationGradePattern = evaluationGradePattern,
+			evaluationPendingGradePattern = evaluationPendingGradePattern,
+			evaluationNotGradePattern = evaluationNotGradePattern,
+			typeLabels = typeLabels
 		)
 	}
+}
+
+suspend fun getEvaluationItemMapping(): EvaluationItemMapping {
+	return buildEvaluationItemMapping(
+		dateTextMapping = getEvaluationDateTextMapping(),
+		evaluationNamePattern = getString(Res.string.evaluation_name),
+		evaluationGradePattern = getString(Res.string.evaluation_grade),
+		evaluationPendingGradePattern = getString(Res.string.evaluation_pending_grade),
+		evaluationNotGradePattern = getString(Res.string.evaluation_not_grade),
+		typeLabels = getEvaluationTypeLabels()
+	)
+}
+
+private fun buildEvaluationItemMapping(
+	dateTextMapping: EvaluationDateTextMapping,
+	evaluationNamePattern: String,
+	evaluationGradePattern: String,
+	evaluationPendingGradePattern: String,
+	evaluationNotGradePattern: String,
+	typeLabels: Map<EvaluationType, String>
+): EvaluationItemMapping {
+	return EvaluationItemMapping(
+		evaluationName = { type, ordinal ->
+			evaluationNamePattern
+				.replace("%1${'$'}s", type.asString(typeLabels))
+				.replace("%2${'$'}d", ordinal.toString())
+		},
+		typeLabel = { type -> type.asString(typeLabels) },
+		gradesCompleted = { grade, maxGrade ->
+			evaluationGradePattern
+				.replace("%1${'$'}.2f", (grade ?: 0.0).formatGrade(decimals = 2))
+				.replace("%2${'$'}.2f", maxGrade.formatGrade(decimals = 2))
+		},
+		gradesPending = { maxGrade ->
+			evaluationPendingGradePattern
+				.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
+		},
+		gradesOverdue = { maxGrade ->
+			evaluationNotGradePattern
+				.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
+		},
+		typeIcon = { type -> type.asIcon() },
+		dateIcon = { state ->
+			when (state) {
+				EvaluationState.COMPLETED -> Icons.Outlined.EventAvailable
+				EvaluationState.CONTINUOUS -> Icons.Outlined.EventRepeat
+				else -> Icons.Outlined.Event
+			}
+		},
+		gradesIcon = { state ->
+			when (state) {
+				EvaluationState.COMPLETED, EvaluationState.CONTINUOUS -> Icons.Outlined.AssignmentTurnedIn
+				EvaluationState.PENDING -> Icons.Outlined.AssignmentReturned
+				EvaluationState.OVERDUE -> Icons.Outlined.AssignmentLate
+			}
+		},
+		dateGroupTitle = { bucket ->
+			bucket.getLabel(dateTextMapping)
+		},
+		dateText = { evaluation: Evaluation ->
+			evaluation.formatAsDayOfWeekAndDate(noDateLabel = dateTextMapping.noDateLabel)
+		},
+		highlightTone = { state ->
+			when (state) {
+				EvaluationState.COMPLETED -> EvaluationHighlightTone.Success
+				EvaluationState.OVERDUE -> EvaluationHighlightTone.Error
+				else -> EvaluationHighlightTone.Neutral
+			}
+		}
+	)
 }
 
 fun EvaluationType.asIcon() = when (this) {

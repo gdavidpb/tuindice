@@ -1,10 +1,11 @@
 package com.gdavidpb.tuindice.evaluations.presentation.contract
 
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterGroupItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import kotlinx.coroutines.flow.Flow
 
 object Evaluations {
@@ -16,11 +17,13 @@ object Evaluations {
 		data object Loading : State()
 
 		data class Content(
-			val originalEvaluations: List<Evaluation>,
-			val filteredEvaluations: List<Evaluation>,
-			val availableFilters: List<EvaluationFilter>,
+			val evaluationGroups: List<EvaluationsGroupItem>,
+			val filterGroups: List<EvaluationFilterGroupItem>,
 			val activeFilters: List<EvaluationFilter>
-		) : State()
+		) : State() {
+			val hasActiveFilters: Boolean
+				get() = activeFilters.isNotEmpty()
+		}
 
 		data object Empty : State()
 

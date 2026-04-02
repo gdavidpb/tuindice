@@ -6,6 +6,9 @@ import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationSubjectPickerItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 
 object Evaluation {
 	sealed class State : ViewState() {
@@ -19,14 +22,22 @@ object Evaluation {
 				else
 					"Agregar evaluación",
 			override val isTopBarVisible: Boolean = true,
-			val availableSubjects: List<Subject>,
+			val subjectItems: List<EvaluationSubjectPickerItem> = emptyList(),
 			val selectedSubject: Subject? = null,
 			val type: EvaluationType? = null,
+			val typeItems: List<EvaluationTypePickerItem> = emptyList(),
 			val scheduleMode: EvaluationScheduleMode = EvaluationScheduleMode.CONTINUOUS,
 			val date: Long? = null,
 			val isOverdue: Boolean = false,
 			val grade: Double? = null,
-			val maxGrade: Double? = null
+			val maxGrade: Double? = null,
+			val gradeSection: EvaluationGradeSectionItem = EvaluationGradeSectionItem(
+				maxGradeTitleText = "",
+				overdueTitleText = "",
+				gradeText = "",
+				maxGradeText = "",
+				showsGradeChip = false
+			)
 		) : State()
 
 		data object Failed : State()

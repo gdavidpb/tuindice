@@ -22,3 +22,14 @@ fun List<Subject>.toEvaluationSubjectPickerItemList(
 		}
 	}
 }
+
+fun List<EvaluationSubjectPickerItem>.withSelectedSubject(
+	selectedSubject: Subject?
+): List<EvaluationSubjectPickerItem> {
+	return map { item ->
+		item.copy(
+			isSelected = (item.subject == selectedSubject),
+			isVisible = (selectedSubject == null) || (item.subject == selectedSubject)
+		)
+	}
+}

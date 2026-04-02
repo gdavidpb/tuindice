@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.action.evaluation
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.withSelectedType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -16,7 +17,8 @@ class SetTypeActionProcessor
 		return flowOf { state ->
 			if (state is Evaluation.State.Content)
 				state.copy(
-					type = action.type
+					type = action.type,
+					typeItems = state.typeItems.withSelectedType(action.type)
 				)
 			else
 				state

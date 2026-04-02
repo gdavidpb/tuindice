@@ -7,7 +7,10 @@ import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationDateTextMapping
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationFilterGroupItemList
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItemList
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeAvailableFilters
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -45,6 +48,7 @@ class LoadEvaluationsActionProcessor(
 								val completedLabel = getString(Res.string.label_state_completed)
 								val noGradeLabel = getString(Res.string.label_state_not_grade)
 								val dateTextMapping = getEvaluationDateTextMapping()
+								val mapping = getEvaluationItemMapping()
 								val availableFilters =
 									evaluations.originalEvaluations.computeAvailableFilters(
 										pendingLabel = pendingLabel,
@@ -56,9 +60,12 @@ class LoadEvaluationsActionProcessor(
 								when {
 									evaluations.originalEvaluations.isNotEmpty() ->
 										Evaluations.State.Content(
-											originalEvaluations = evaluations.originalEvaluations,
-											filteredEvaluations = evaluations.filteredEvaluations,
-											availableFilters = availableFilters,
+											evaluationGroups = evaluations.filteredEvaluations.toEvaluationItemList(
+												mapping = mapping
+											),
+											filterGroups = availableFilters.toEvaluationFilterGroupItemList(
+												activeFilters = evaluations.activeFilters
+											),
 											activeFilters = evaluations.activeFilters
 										)
 
