@@ -13,8 +13,8 @@ class UploadProfilePictureExceptionHandler(
 ) : ExceptionHandler<ProfilePictureUseCaseError>() {
 	override fun parseException(throwable: Throwable): ProfilePictureUseCaseError? {
 		return when {
-			throwable is IllegalArgumentException -> ProfilePictureUseCaseError.UnableToEncode
-			throwable.isUnsupportedMediaType() -> ProfilePictureUseCaseError.UnableToEncode
+			throwable is IllegalArgumentException -> ProfilePictureUseCaseError.InvalidImage
+			throwable.isUnsupportedMediaType() -> ProfilePictureUseCaseError.InvalidImage
 			throwable.isPayloadTooLarge() -> ProfilePictureUseCaseError.SizeExceeded
 			throwable.isTimeout() -> ProfilePictureUseCaseError.Timeout
 			throwable.isConnection() -> ProfilePictureUseCaseError.NoConnection(networkRepository.isAvailable())

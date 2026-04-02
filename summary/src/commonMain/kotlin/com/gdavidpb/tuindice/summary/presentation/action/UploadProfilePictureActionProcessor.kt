@@ -66,7 +66,7 @@ class UploadProfilePictureActionProcessor(
 								else
 									getString(Res.string.snack_network_unavailable)
 
-							ProfilePictureUseCaseError.UnableToEncode ->
+							ProfilePictureUseCaseError.InvalidImage ->
 								getString(Res.string.snack_profile_picture_not_image)
 
 							ProfilePictureUseCaseError.SizeExceeded ->

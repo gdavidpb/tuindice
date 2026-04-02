@@ -36,14 +36,14 @@ class SummaryExceptionHandlerTest {
 	}
 
 	@Test
-	fun uploadProfilePictureExceptionHandler_mapsIllegalArgumentToUnableToEncode() {
+	fun uploadProfilePictureExceptionHandler_mapsIllegalArgumentToInvalidImage() {
 		val throwable = IllegalArgumentException()
 
 		val actual = UploadProfilePictureExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true)
 		).parseException(throwable)
 
-		assertEquals(ProfilePictureUseCaseError.UnableToEncode, actual)
+		assertEquals(ProfilePictureUseCaseError.InvalidImage, actual)
 	}
 
 	@Test
@@ -54,7 +54,7 @@ class SummaryExceptionHandlerTest {
 			networkRepository = FakeNetworkRepository(isAvailable = true)
 		).parseException(throwable)
 
-		assertEquals(ProfilePictureUseCaseError.UnableToEncode, actual)
+		assertEquals(ProfilePictureUseCaseError.InvalidImage, actual)
 	}
 
 	@Test
