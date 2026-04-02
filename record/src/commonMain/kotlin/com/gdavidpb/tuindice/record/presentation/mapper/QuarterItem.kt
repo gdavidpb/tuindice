@@ -47,15 +47,15 @@ fun Quarter.toQuarterItem(
 ): QuarterItem {
 	val resolvedGradeValue = when (viewMode) {
 		RecordViewMode.Official -> grade
-		RecordViewMode.Simulation -> simulationGrade ?: grade
+		RecordViewMode.Simulation -> if (isReadOnly) grade else simulationGrade ?: grade
 	}
 	val resolvedGradeSumValue = when (viewMode) {
 		RecordViewMode.Official -> gradeSum
-		RecordViewMode.Simulation -> simulationGradeSum ?: gradeSum
+		RecordViewMode.Simulation -> if (isReadOnly) gradeSum else simulationGradeSum ?: gradeSum
 	}
 	val resolvedCreditsValue = when (viewMode) {
 		RecordViewMode.Official -> credits
-		RecordViewMode.Simulation -> simulationCredits ?: credits
+		RecordViewMode.Simulation -> if (isReadOnly) credits else simulationCredits ?: credits
 	}
 	val shouldShowDeltas = subjects.isNotEmpty()
 	val animatedGrade = animateFloatAsState(
@@ -113,21 +113,21 @@ fun Quarter.toQuarterItem(
 private fun Quarter.resolvedGrade(viewMode: RecordViewMode): Double {
 	return when (viewMode) {
 		RecordViewMode.Official -> grade
-		RecordViewMode.Simulation -> simulationGrade ?: grade
+		RecordViewMode.Simulation -> if (isReadOnly) grade else simulationGrade ?: grade
 	}
 }
 
 private fun Quarter.resolvedGradeSum(viewMode: RecordViewMode): Double {
 	return when (viewMode) {
 		RecordViewMode.Official -> gradeSum
-		RecordViewMode.Simulation -> simulationGradeSum ?: gradeSum
+		RecordViewMode.Simulation -> if (isReadOnly) gradeSum else simulationGradeSum ?: gradeSum
 	}
 }
 
 private fun Quarter.resolvedCredits(viewMode: RecordViewMode): Int {
 	return when (viewMode) {
 		RecordViewMode.Official -> credits
-		RecordViewMode.Simulation -> simulationCredits ?: credits
+		RecordViewMode.Simulation -> if (isReadOnly) credits else simulationCredits ?: credits
 	}
 }
 

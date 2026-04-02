@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.domain.service
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.record.data.model.quarter.LocalQuarter
 import com.gdavidpb.tuindice.record.data.model.quarter.LocalSubject
 import kotlinx.datetime.LocalDate
@@ -172,6 +173,53 @@ class IndexComputationEngineTest {
 		assertEquals(expectedGradeSum, actualGradeSum)
 	}
 
+	@Test
+	fun recompute_keepsOfficialWithoutEffectGradesVisibleInTheHistoricalQuarter_whileExcludingThemFromFutureCumulativeAggregates() {
+		val historicalQuarter = createQuarter(
+			id = "quarter-1",
+			startDate = date(2016, 7),
+			endDate = date(2016, 8),
+			subjects = listOf(
+				createSubject(
+					id = "subject-1",
+					quarterId = "quarter-1",
+					code = "MA1111",
+					grade = 2,
+					credits = 4,
+					status = SubjectStatus.WITHOUT_EFFECT
+				)
+			)
+		)
+		val approvalQuarter = createQuarter(
+			id = "quarter-2",
+			startDate = date(2016, 9),
+			endDate = date(2016, 12),
+			subjects = listOf(
+				createSubject(
+					id = "subject-2",
+					quarterId = "quarter-2",
+					code = "MA1111",
+					grade = 3,
+					credits = 4
+				)
+			)
+		)
+
+		val result = recompute(approvalQuarter, historicalQuarter)
+		val recomputedHistorical = result.first { quarter -> quarter.id == historicalQuarter.id }
+		val recomputedApproval = result.first { quarter -> quarter.id == approvalQuarter.id }
+
+		assertEquals(4, recomputedHistorical.credits)
+		assertEquals(2.0, recomputedHistorical.grade)
+		assertEquals(4, recomputedHistorical.creditsSum)
+		assertEquals(2.0, recomputedHistorical.gradeSum)
+
+		assertEquals(4, recomputedApproval.credits)
+		assertEquals(3.0, recomputedApproval.grade)
+		assertEquals(4, recomputedApproval.creditsSum)
+		assertEquals(3.0, recomputedApproval.gradeSum)
+	}
+
 	private fun date(year: Int, month: Int): Long {
 		return LocalDate(year, month, 1)
 			.atStartOfDayIn(TimeZone.currentSystemDefault())
@@ -206,7 +254,8 @@ class IndexComputationEngineTest {
 		code: String = "",
 		name: String = "",
 		grade: Int = 0,
-		credits: Int = 0
+		credits: Int = 0,
+		status: SubjectStatus? = null
 	) = LocalSubject(
 		id = id,
 		quarterId = quarterId,
@@ -214,6 +263,7 @@ class IndexComputationEngineTest {
 		name = name,
 		credits = credits,
 		grade = grade,
+		status = status,
 		revision = 0L
 	)
 

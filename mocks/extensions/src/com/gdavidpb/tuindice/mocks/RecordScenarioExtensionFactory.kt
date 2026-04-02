@@ -313,6 +313,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 
 			val ascending = quarters.sortedWith(ASCENDING_QUARTER_ORDER)
 			val excludedSubjectIds = resolveExcludedSubjectIds(ascending)
+			val codeStates = mutableMapOf<String, CodeState>()
 
 			var cumulativeWeighted = 0L
 			var cumulativeCredits = 0L
@@ -328,27 +329,47 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 						else -> null
 					}
 
-					if (
-						(subject.grade > 0) &&
-						(simulationStatus != "without_effect")
-					) {
+					if (subject.grade > 0) {
 						val weighted = subject.grade.toLong() * subject.credits.toLong()
 						quarterWeighted += weighted
 						quarterCredits += subject.credits.toLong()
-						cumulativeWeighted += weighted
-						cumulativeCredits += subject.credits.toLong()
 					}
 
 					subject.copy(simulationStatus = simulationStatus)
 				}
 
-				quarter.copy(
-					simulationGrade = computeAverage(quarterWeighted, quarterCredits),
-					simulationGradeSum = computeAverage(cumulativeWeighted, cumulativeCredits),
-					simulationCredits = quarterCredits.toInt(),
-					simulationCreditsSum = cumulativeCredits.toInt(),
-					subjects = subjects
-				)
+				val sortedSubjects = quarter.subjects.sortedByDescending(SubjectModel::id)
+
+				for (subject in sortedSubjects) {
+					if (subject.grade <= 0) continue
+
+					val state = codeStates.getOrPut(subject.code) { CodeState() }
+					val previousWeighted = state.effectiveWeighted()
+					val previousCredits = state.effectiveCredits()
+
+					state.add(CodeAttempt(subject.grade, subject.credits))
+
+					cumulativeWeighted += state.effectiveWeighted() - previousWeighted
+					cumulativeCredits += state.effectiveCredits() - previousCredits
+				}
+
+				if (quarter.readOnly) {
+					quarter.copy(
+						simulationGrade = quarter.grade,
+						simulationGradeSum = quarter.gradeSum,
+						simulationCredits = quarter.credits,
+						simulationCreditsSum = quarter.creditsSum,
+						subjects = subjects
+					)
+				} else {
+					quarter.copy(
+						simulationGrade = computeAverage(quarterWeighted, quarterCredits),
+						simulationGradeSum = computeAverage(cumulativeWeighted, cumulativeCredits),
+						simulationCredits = quarterCredits.toInt(),
+						simulationCreditsSum = cumulativeCredits.toInt(),
+						subjects = subjects
+					)
+				}
 			}
 
 			return recomputedAscending.reversed()
@@ -522,9 +543,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			}
 
 		fun countsTowardIndex(): Boolean =
-			(grade > 0) &&
-				(status != "retired") &&
-				(status != "without_effect")
+			grade > 0
 	}
 
 	private data class CodeAttempt(

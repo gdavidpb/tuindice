@@ -186,6 +186,12 @@ class QuarterItemUiTest {
 		)
 		var officialStatus: SubjectStatus? = SubjectStatus.WITHOUT_EFFECT
 		var simulationStatus: SubjectStatus? = null
+		var officialGradeText = ""
+		var simulationGradeText = ""
+		var officialGradeSumText = ""
+		var simulationGradeSumText = ""
+		var officialCreditsText = ""
+		var simulationCreditsText = ""
 
 		setTuIndiceTestContent {
 			val officialItem = listOf(historicalQuarter).toQuarterItemList(
@@ -200,9 +206,21 @@ class QuarterItemUiTest {
 				).single()
 				officialStatus = officialItem.subjects.single().status
 				simulationStatus = simulationItem.subjects.single().status
+				officialGradeText = officialItem.gradeText.text
+				simulationGradeText = simulationItem.gradeText.text
+				officialGradeSumText = officialItem.gradeSumText.text
+				simulationGradeSumText = simulationItem.gradeSumText.text
+				officialCreditsText = officialItem.creditsText.text
+				simulationCreditsText = simulationItem.creditsText.text
 			}
 
 		assertNull(officialStatus)
 		assertEquals(SubjectStatus.WITHOUT_EFFECT, simulationStatus)
+		assertEquals("Δx 2.0", officialGradeText)
+		assertEquals("Δx 2.0", simulationGradeText)
+		assertEquals("∑x 2.0", officialGradeSumText)
+		assertEquals("∑x 2.0", simulationGradeSumText)
+		assertEquals("⦿ 4", officialCreditsText)
+		assertEquals("⦿ 4", simulationCreditsText)
 	}
 }
