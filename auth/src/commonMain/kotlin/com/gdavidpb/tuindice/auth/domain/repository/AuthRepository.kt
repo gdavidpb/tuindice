@@ -18,5 +18,5 @@ interface AuthRepository {
 		attestation: Attestation
 	): RefreshTokens
 
-	suspend fun revokeTokens()
+	suspend fun revokeTokens(accessToken: String)
 }

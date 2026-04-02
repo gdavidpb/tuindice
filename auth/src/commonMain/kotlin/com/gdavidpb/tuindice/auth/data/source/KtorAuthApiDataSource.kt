@@ -54,8 +54,10 @@ class KtorAuthApiDataSource(
 		)
 	}
 
-	override suspend fun revokeTokens() {
-		ktorClient.post("auth/v1/token/revoke")
+	override suspend fun revokeTokens(accessToken: String) {
+		ktorClient.post("auth/v1/token/revoke") {
+			bearerAuth(accessToken)
+		}
 	}
 
 	private suspend fun postTokens(

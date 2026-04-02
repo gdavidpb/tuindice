@@ -22,12 +22,14 @@ class SignOutUseCase(
 	override val reportingRepository: ReportingRepository
 ) : FlowUseCase<Unit, Unit, Nothing>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
+		val accessToken = sessionRepository.getAccessToken()
+
 		coroutineScope {
 			val unsubscribeDeferred = async {
 				messagingRepository.unsubscribe()
 			}
 			val revokeDeferred = async {
-				authRepository.revokeTokens()
+				authRepository.revokeTokens(accessToken = accessToken)
 			}
 
 			revokeDeferred.await()

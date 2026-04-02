@@ -89,8 +89,9 @@ class AuthRepositoryContractTest {
 			reportingRepository = RecordingReportingRepository()
 		)
 
-		repository.revokeTokens()
+		repository.revokeTokens(accessToken = "access-token")
 
 		assertEquals(1, authDataSource.revokeCalls)
+		assertEquals(listOf("access-token"), authDataSource.revokedAccessTokens)
 	}
 }

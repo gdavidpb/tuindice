@@ -47,6 +47,7 @@ class RecordingAuthRepository(
 	var issueTokensCalls = mutableListOf<IssueTokensCall>()
 	var refreshTokenCalls = mutableListOf<Triple<String, String, Attestation>>()
 	var revokeTokensCalls = 0
+	var revokedAccessTokens = mutableListOf<String>()
 
 	override suspend fun issueTokens(
 		usbId: String,
@@ -73,8 +74,9 @@ class RecordingAuthRepository(
 		return this.refreshTokens
 	}
 
-	override suspend fun revokeTokens() {
+	override suspend fun revokeTokens(accessToken: String) {
 		revokeTokensCalls++
+		revokedAccessTokens += accessToken
 		throwable?.let { throw it }
 	}
 }
@@ -187,6 +189,7 @@ class FakeAuthApiDataSource(
 	var issueCalls = mutableListOf<IssueTokensCall>()
 	var refreshCalls = mutableListOf<Triple<String, String, Attestation>>()
 	var revokeCalls = 0
+	var revokedAccessTokens = mutableListOf<String>()
 
 	override suspend fun issueTokens(
 		usbId: String,
@@ -214,8 +217,9 @@ class FakeAuthApiDataSource(
 		return refreshTokens
 	}
 
-	override suspend fun revokeTokens() {
+	override suspend fun revokeTokens(accessToken: String) {
 		revokeCalls++
+		revokedAccessTokens += accessToken
 		throwable?.let { throw it }
 	}
 }

@@ -50,7 +50,7 @@ class AuthDataSource(
 		}
 	}
 
-	override suspend fun revokeTokens() {
-		authApiDataSource.revokeTokens()
+	override suspend fun revokeTokens(accessToken: String) {
+		authApiDataSource.revokeTokens(accessToken = accessToken)
 	}
 }

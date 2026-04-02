@@ -123,6 +123,7 @@ class AuthUseCaseContractTest {
 		}
 
 		assertEquals(1, authRepository.revokeTokensCalls)
+		assertEquals(listOf("access-token"), authRepository.revokedAccessTokens)
 		assertEquals(true, sessionRepository.cleared)
 		assertEquals(1, messagingRepository.unsubscribeCalls)
 		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
