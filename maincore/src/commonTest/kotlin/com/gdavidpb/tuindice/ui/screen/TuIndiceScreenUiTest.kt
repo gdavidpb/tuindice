@@ -165,7 +165,7 @@ class TuIndiceScreenUiTest {
 	}
 
 	@Test
-	fun when_recordTopBarViewModeStateIsPresent_then_displaysSwitch() = runTuIndiceUiTest {
+	fun when_recordTopBarViewModeStateIsPresent_then_displaysSwitchAndBanner() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			val navController = rememberNavController()
 
@@ -198,6 +198,7 @@ class TuIndiceScreenUiTest {
 
 		assertNodeVisible(RecordUiTags.TopBarViewModeSwitch)
 		assertNodeVisible(RecordUiTags.TopBarViewModeButton)
+		assertNodeVisible(RecordUiTags.TopBarViewModeBanner)
 	}
 
 	@Test
@@ -321,8 +322,9 @@ class TuIndiceScreenUiTest {
 	}
 
 	@Test
-	fun when_fetchEnrollmentProofActionTapped_then_invokesOnActionCallback() = runTuIndiceUiTest {
+	fun when_recordViewModeSwitchTapped_then_invokesViewModeCallbackWithTopBarActionVisible() = runTuIndiceUiTest {
 		val actions = mutableListOf<TopBarAction>()
+		val selectedModes = mutableListOf<RecordViewMode>()
 
 		stopKoin()
 		startKoin {
@@ -339,14 +341,17 @@ class TuIndiceScreenUiTest {
 					),
 					shellState = shellState(
 						topBarTitle = "Record",
+						isTopBarVisible = true,
 						topBarConfig = TopBarConfig.Record,
-						isTopBarVisible = true
+						recordTopBarViewModeState = RecordTopBarViewModeState(
+							selectedMode = RecordViewMode.Simulation
+						)
 					),
 					onRetryStartUp = {},
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
 					onAction = { action -> actions += action },
-					onRecordViewModeChange = null,
+					onRecordViewModeChange = { mode -> selectedModes += mode },
 					onRecordViewModeChangeAvailable = {},
 					onNavigateTo = {},
 					onNavigateBack = {},
@@ -358,15 +363,17 @@ class TuIndiceScreenUiTest {
 				)
 			}
 
-			onNodeWithTag(
-				BaseUiTags.topBarActionButton(TopBarAction.FetchEnrollmentProofAction),
+			assertNodeVisible(
+				tag = BaseUiTags.topBarActionButton(TopBarAction.FetchEnrollmentProofAction),
 				useUnmergedTree = true
-			).performClick()
+			)
+			onNodeWithTag(RecordUiTags.TopBarViewModeButton).performClick()
 
 			assertContentEquals(
-				expected = listOf(TopBarAction.FetchEnrollmentProofAction),
-				actual = actions
+				expected = listOf(RecordViewMode.Official),
+				actual = selectedModes
 			)
+			assertContentEquals(emptyList(), actions)
 		} finally {
 			stopKoin()
 		}

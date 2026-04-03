@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
-import com.gdavidpb.tuindice.record.domain.model.filterByViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState
 import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState
@@ -67,26 +66,21 @@ fun RecordRoute(
 }
 
 private fun Record.State.toRouteViewState(): ViewState {
-	val derivedTopBarConfig = when (this) {
-		is Record.State.Content -> {
-			val selectedQuarter = quarters
-				.filterByViewMode(viewMode)
-				.firstOrNull { quarter ->
-				quarter.id == selectedQuarterId
+	val isEnrollmentProofVisible = when (this) {
+		is Record.State.Content ->
+			quarters.any { quarter ->
+				quarter.id == selectedQuarterId && quarter.isCurrent
 			}
-
-			if (selectedQuarter?.isCurrent == true) topBarConfig else null
-		}
 
 		Record.State.Empty,
 		Record.State.Failed,
 		Record.State.Loading,
-		-> null
+		-> false
 	}
 
 	return RecordRouteViewState(
 		topBarTitle = topBarTitle,
-		topBarConfig = derivedTopBarConfig,
+		topBarConfig = if (isEnrollmentProofVisible) topBarConfig else null,
 		isTopBarVisible = isTopBarVisible,
 		isBottomBarVisible = isBottomBarVisible,
 		topBarViewModeState = when (this) {

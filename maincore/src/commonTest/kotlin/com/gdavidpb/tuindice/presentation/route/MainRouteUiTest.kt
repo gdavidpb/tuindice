@@ -140,7 +140,7 @@ class MainRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			gmsDialogNavigations > 0
+			gmsDialogNavigations > 0 && latestState is Main.State.Failed
 		}
 
 		assertEquals(1, gmsDialogNavigations)

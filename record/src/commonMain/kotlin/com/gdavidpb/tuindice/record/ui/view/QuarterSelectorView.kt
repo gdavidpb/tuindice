@@ -99,8 +99,7 @@ fun QuarterSelectorView(
 						.clickable {
 							onQuarterSelected(quarter.quarterId)
 						}
-						.testTag(RecordUiTags.quarterChip(quarter.quarterId))
-						.padding(vertical = 10.dp),
+						.testTag(RecordUiTags.quarterChip(quarter.quarterId)),
 					contentAlignment = Alignment.Center
 				) {
 					Box(

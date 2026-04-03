@@ -10,6 +10,7 @@ object RecordUiTags {
 	const val SubjectsList = "record_subjects_list"
 	const val TopBarViewModeSwitch = "record_top_bar_view_mode_switch"
 	const val TopBarViewModeButton = "record_top_bar_view_mode_button"
+	const val TopBarViewModeBanner = "record_top_bar_view_mode_banner"
 
 	const val EmptyContainer = "record_empty_container"
 	const val EmptyMessage = "record_empty_message"

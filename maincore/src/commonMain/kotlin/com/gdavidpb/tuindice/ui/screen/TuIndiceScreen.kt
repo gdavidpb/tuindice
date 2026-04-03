@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.ui.screen
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -50,6 +51,7 @@ import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.BottomBarConfig
 import com.gdavidpb.tuindice.presentation.model.MainShellState
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeBannerView
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeSwitchView
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
@@ -116,50 +118,58 @@ fun TuIndiceScreen(
 		snackbarHost = { SnackbarHost(snackbarHostState) },
 		topBar = {
 			if (shellState.isTopBarVisible) {
-				TopAppBar(
-					title = {
-						TopAppBarAnimatedTitleView(
-							title = shellState.topBarTitle
-						)
-					},
-					actions = {
-						val recordTopBarViewModeState = shellState.recordTopBarViewModeState
+				val recordTopBarViewModeState = shellState.recordTopBarViewModeState
 
-						if (
-							recordTopBarViewModeState != null &&
-							onRecordViewModeChange != null
-						) {
-							RecordTopBarViewModeSwitchView(
-								selectedMode = recordTopBarViewModeState.selectedMode,
-								onModeSelected = onRecordViewModeChange
+				Column {
+					TopAppBar(
+						title = {
+							TopAppBarAnimatedTitleView(
+								title = shellState.topBarTitle
 							)
-						}
-
-						TopAppBarActionsView(
-							topBarConfig = shellState.topBarConfig,
-							onAction = onAction,
-							actionIconContent = { action ->
-								Icon(
-									imageVector = action.getIcon(),
-									contentDescription = null
-								)
-							}
-						)
-					},
-					navigationIcon = {
-						if (canNavigateBack) {
-							IconButton(
-								modifier = Modifier.testTag(MaincoreUiTags.TuIndiceTopBarBackButton),
-								onClick = onNavigateBack
+						},
+						actions = {
+							if (
+								recordTopBarViewModeState != null &&
+								onRecordViewModeChange != null
 							) {
-								Icon(
-									imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-									contentDescription = null
+								RecordTopBarViewModeSwitchView(
+									selectedMode = recordTopBarViewModeState.selectedMode,
+									onModeSelected = onRecordViewModeChange
 								)
 							}
+
+							TopAppBarActionsView(
+								topBarConfig = shellState.topBarConfig,
+								onAction = onAction,
+								actionIconContent = { action ->
+									Icon(
+										imageVector = action.getIcon(),
+										contentDescription = null
+									)
+								}
+							)
+						},
+						navigationIcon = {
+							if (canNavigateBack) {
+								IconButton(
+									modifier = Modifier.testTag(MaincoreUiTags.TuIndiceTopBarBackButton),
+									onClick = onNavigateBack
+								) {
+									Icon(
+										imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+										contentDescription = null
+									)
+								}
+							}
 						}
+					)
+
+					if (recordTopBarViewModeState != null) {
+						RecordTopBarViewModeBannerView(
+							selectedMode = recordTopBarViewModeState.selectedMode
+						)
 					}
-				)
+				}
 			}
 		},
 		bottomBar = {

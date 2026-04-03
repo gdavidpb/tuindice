@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -23,7 +24,8 @@ fun TopAppBarAnimatedTitleView(title: String) {
 	) { targetTitle ->
 		Text(
 			modifier = Modifier.testTag(BaseUiTags.TopAppBarTitle),
-			text = targetTitle
+			text = targetTitle,
+			style = MaterialTheme.typography.titleMedium
 		)
 	}
 }

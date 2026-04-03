@@ -95,15 +95,15 @@ fun RecordContentView(
 			chronologicalQuarters.isNotEmpty() &&
 			(effectiveSelectedQuarterId != null)
 		) {
-			RecordQuarterPagerView(
-				modifier = Modifier
-					.fillMaxSize()
-					.padding(top = InternalScreenDefaults.TopBarSpacing),
-				quarters = chronologicalQuarters,
-				selectedQuarterId = effectiveSelectedQuarterId,
-				onSelectedQuarterChange = onSelectedQuarterChange,
-				onSubjectGradeChange = onSubjectGradeChange
-			)
+				RecordQuarterPagerView(
+					modifier = Modifier
+						.fillMaxSize()
+						.padding(top = InternalScreenDefaults.TopBarSpacing),
+					quarters = chronologicalQuarters,
+					selectedQuarterId = effectiveSelectedQuarterId,
+					onSelectedQuarterChange = onSelectedQuarterChange,
+					onSubjectGradeChange = onSubjectGradeChange
+				)
 		}
 	}
 }

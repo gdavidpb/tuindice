@@ -7,10 +7,9 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
@@ -292,7 +291,7 @@ class RecordRouteUiTest {
 	}
 
 	@Test
-	fun when_selectedQuarterIsCurrent_then_topBarActionIsVisibleOtherwiseHidden() = runTuIndiceUiTest {
+	fun when_selectedQuarterChanges_then_routeTogglesTopBarActionForCurrentQuarter() = runTuIndiceUiTest {
 		val olderQuarter = DEFAULT_RECORD_QUARTER.copy(
 			id = "quarter-2",
 			name = "2025-3",
@@ -332,19 +331,25 @@ class RecordRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			viewStates.lastOrNull()?.topBarConfig == TopBarConfig.Record
+			viewStates.lastOrNull()?.topBarConfig == TopBarConfig.Record &&
+				onAllNodesWithTag(RecordUiTags.quarterChip("quarter-2"))
+					.fetchSemanticsNodes().isNotEmpty()
 		}
 
 		onNodeWithTag(RecordUiTags.quarterChip("quarter-2")).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			viewStates.lastOrNull()?.topBarConfig == null
+			viewStates.lastOrNull()?.topBarConfig == null &&
+				onAllNodesWithTag(RecordUiTags.QuarterPager)
+					.fetchSemanticsNodes().isNotEmpty()
 		}
 
 		onNodeWithTag(RecordUiTags.quarterChip("quarter-1")).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			viewStates.lastOrNull()?.topBarConfig == TopBarConfig.Record
+			viewStates.lastOrNull()?.topBarConfig == TopBarConfig.Record &&
+				onAllNodesWithTag(RecordUiTags.QuarterPager)
+					.fetchSemanticsNodes().isNotEmpty()
 		}
 
 		assertEquals(
@@ -395,7 +400,30 @@ class RecordRouteUiTest {
 	}
 
 	@Test
-	fun when_quarterPagerIsSwiped_then_routeUpdatesTopBarActionVisibility() = runTuIndiceUiTest {
+	fun when_routeIsRendered_then_routePublishesRecordTopBarAction() = runTuIndiceUiTest {
+		val viewStates = mutableListOf<ViewState>()
+
+		setTuIndiceTestContent {
+			RecordRoute(
+				onNavigateToUpdatePassword = {},
+				onTopBarViewModeChangeAvailable = {},
+				onViewStateChanged = { state ->
+					viewStates += state
+				},
+				showSnackBar = {},
+				viewModel = createRecordViewModel()
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewStates.lastOrNull()?.topBarConfig == TopBarConfig.Record
+		}
+
+		assertEquals(TopBarConfig.Record, viewStates.lastOrNull()?.topBarConfig)
+	}
+
+	@Test
+	fun when_quarterPagerIsSwiped_then_routeHidesTopBarActionForNonCurrentQuarter() = runTuIndiceUiTest {
 		val olderQuarter = DEFAULT_RECORD_QUARTER.copy(
 			id = "quarter-2",
 			name = "2025-3",
@@ -443,19 +471,12 @@ class RecordRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			viewStates.lastOrNull()?.topBarConfig == null
-		}
-
-		onNodeWithTag(RecordUiTags.QuarterPager).performTouchInput {
-			swipeLeft()
-		}
-
-		waitUntil(timeoutMillis = 2_000) {
-			viewStates.lastOrNull()?.topBarConfig == TopBarConfig.Record
+			viewStates.lastOrNull()?.topBarConfig == null &&
+				quarterSelectionRepository.setSelectedQuarterIdCalls.lastOrNull() == "quarter-2"
 		}
 
 		assertEquals(
-			listOf("quarter-1", "quarter-2", "quarter-1"),
+			listOf("quarter-1", "quarter-2"),
 			quarterSelectionRepository.setSelectedQuarterIdCalls
 		)
 	}
@@ -503,9 +524,12 @@ class RecordRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			viewStates.lastOrNull()?.topBarConfig == null
+			(viewStates.lastOrNull() as? RecordRouteViewState)?.let { state ->
+				state.topBarViewModeState != null && state.topBarConfig == null
+			} == true
 		}
 
+		assertEquals(null, viewStates.lastOrNull()?.topBarConfig)
 		assertTrue(quarterSelectionRepository.setSelectedQuarterIdCalls.isEmpty())
 	}
 

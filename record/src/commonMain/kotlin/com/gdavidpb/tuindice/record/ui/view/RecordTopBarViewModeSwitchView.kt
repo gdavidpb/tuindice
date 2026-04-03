@@ -7,19 +7,23 @@ import androidx.compose.material.icons.automirrored.filled.FactCheck
 import androidx.compose.material.icons.automirrored.outlined.FactCheck
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.outlined.Calculate
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.other
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.record_view_mode_toggle_to_official
+import tuindice.record.generated.resources.record_view_mode_toggle_to_simulation
 import tuindice.record.generated.resources.record_view_mode_official
 import tuindice.record.generated.resources.record_view_mode_simulation
 
@@ -29,11 +33,18 @@ fun RecordTopBarViewModeSwitchView(
 	onModeSelected: (RecordViewMode) -> Unit,
 	modifier: Modifier = Modifier
 ) {
+	val currentModeLabel = recordViewModeLabel(selectedMode)
+	val toggleDescription = recordViewModeToggleDescription(selectedMode.other())
+
 	Box(
 		modifier = modifier.testTag(RecordUiTags.TopBarViewModeSwitch)
 	) {
-		FilledTonalButton(
+		FilledTonalIconButton(
 			modifier = Modifier
+				.semantics {
+					contentDescription = toggleDescription
+					stateDescription = currentModeLabel
+				}
 				.testTag(RecordUiTags.TopBarViewModeButton)
 				.padding(end = 8.dp),
 			onClick = {
@@ -47,23 +58,27 @@ fun RecordTopBarViewModeSwitchView(
 				),
 				contentDescription = null
 			)
-			Text(
-				text = recordViewModeLabel(selectedMode),
-				modifier = Modifier.padding(start = 8.dp)
-			)
 		}
 	}
 }
 
 @Composable
-private fun recordViewModeLabel(mode: RecordViewMode): String {
+internal fun recordViewModeLabel(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_official)
 		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_simulation)
 	}
 }
 
-private fun recordViewModeIcon(
+@Composable
+internal fun recordViewModeToggleDescription(mode: RecordViewMode): String {
+	return when (mode) {
+		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_toggle_to_official)
+		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_toggle_to_simulation)
+	}
+}
+
+internal fun recordViewModeIcon(
 	mode: RecordViewMode,
 	isPrimary: Boolean
 ): ImageVector {

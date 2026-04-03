@@ -10,9 +10,13 @@
 	<string name="record_empty_illustration_message">¡Parece que alguien es nuevo por acá!\nTuIndice te da la bienvenida a La Simón\n¡Mucho éxito!</string>
 	<string name="record_app_name">TuIndice</string>
 	<string name="record_app_uni">La Simón</string>
-	<string name="record_view_mode_official">Oficial</string>
+	<string name="record_view_mode_official">Universidad</string>
 	<string name="record_view_mode_simulation">Simulación</string>
 	<string name="record_view_mode_toggle">Cambiar modo de vista</string>
+	<string name="record_view_mode_toggle_to_official">Cambiar a Universidad</string>
+	<string name="record_view_mode_toggle_to_simulation">Cambiar a Simulación</string>
+	<string name="record_view_mode_banner_official">Modo Universidad</string>
+	<string name="record_view_mode_banner_simulation">Modo Simulación</string>
 	<string name="quarter_grade_diff_pattern">Δx %1$.4f</string>
 	<string name="quarter_grade_sum_pattern">∑x %1$.4f</string>
 	<string name="quarter_credits_pattern">⦿ %1$d</string>
