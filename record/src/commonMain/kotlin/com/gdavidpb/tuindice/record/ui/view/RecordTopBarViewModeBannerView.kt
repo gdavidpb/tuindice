@@ -63,7 +63,7 @@ private fun recordViewModeBannerText(mode: RecordViewMode): String {
 }
 
 @Composable
-private fun recordViewModeBannerColors(mode: RecordViewMode): RecordViewModeBannerColors {
+internal fun recordViewModeBannerColors(mode: RecordViewMode): RecordViewModeBannerColors {
 	return when (mode) {
 		RecordViewMode.Official ->
 			RecordViewModeBannerColors(
@@ -79,7 +79,7 @@ private fun recordViewModeBannerColors(mode: RecordViewMode): RecordViewModeBann
 	}
 }
 
-private data class RecordViewModeBannerColors(
+internal data class RecordViewModeBannerColors(
 	val containerColor: Color,
 	val contentColor: Color
 )

@@ -25,7 +25,7 @@ fun TopAppBarAnimatedTitleView(title: String) {
 		Text(
 			modifier = Modifier.testTag(BaseUiTags.TopAppBarTitle),
 			text = targetTitle,
-			style = MaterialTheme.typography.titleMedium
+			style = MaterialTheme.typography.titleLarge
 		)
 	}
 }
