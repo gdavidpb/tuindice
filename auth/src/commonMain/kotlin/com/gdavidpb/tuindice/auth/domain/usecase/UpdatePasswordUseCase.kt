@@ -32,6 +32,7 @@ class UpdatePasswordUseCase(
 ) : FlowUseCase<String, Unit, SignInUseCaseError>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val usbId = sessionRepository.getUsbId()
+		val accessToken = sessionRepository.getAccessToken()
 		val flow = AttestedTokenFlow.ReissueTokens
 		val attestationPayload = IssueTokensAttestationPayload(
 			usbId = usbId,
@@ -45,14 +46,14 @@ class UpdatePasswordUseCase(
 				payloadJson = canonicalAttestationPayloadJson(
 					serializer = IssueTokensAttestationPayload.serializer(),
 					value = attestationPayload
-				)
+				),
+				bearerToken = accessToken
 			)
 		)
 
-		authRepository.issueTokens(
+		authRepository.reissueTokens(
 			usbId = usbId,
 			password = params,
-			attestedFlow = flow,
 			attestation = attestation
 		)
 

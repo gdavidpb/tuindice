@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.platform.IosAttestationCapability
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -78,7 +79,8 @@ class IosAttestationDataSource(
 		val session = createOperationSession(
 			httpClient = httpClient,
 			operationCode = request.operationCode.value,
-			keyId = keyId
+			keyId = keyId,
+			bearerToken = request.bearerToken
 		)
 
 		val bindingHash = requireBindingHash(
@@ -95,7 +97,8 @@ class IosAttestationDataSource(
 
 		val response = runCatching {
 			httpClient
-				.post("attestation/v2/tokens") {
+				.post("attestation/v3/tokens") {
+					bearerAuth(request.bearerToken)
 					setBody(
 						IssueAttestationTokenRequest(
 							sessionId = session.sessionId,
@@ -125,25 +128,29 @@ class IosAttestationDataSource(
 	private suspend fun createOperationSession(
 		httpClient: HttpClient,
 		operationCode: String,
-		keyId: String
+		keyId: String,
+		bearerToken: String
 	): CreateAttestationSessionResponse {
 		return try {
 			requestOperationSession(
 				httpClient = httpClient,
 				operationCode = operationCode,
-				keyId = keyId
+				keyId = keyId,
+				bearerToken = bearerToken
 			)
 		} catch (throwable: Throwable) {
 			val requiredPreparationCode = throwable.requiredPreparationCodeOrNull() ?: throw throwable
 			prepareAttestation(
 				httpClient = httpClient,
 				preparationCode = requiredPreparationCode,
-				keyId = keyId
+				keyId = keyId,
+				bearerToken = bearerToken
 			)
 			requestOperationSession(
 				httpClient = httpClient,
 				operationCode = operationCode,
-				keyId = keyId
+				keyId = keyId,
+				bearerToken = bearerToken
 			)
 		}
 	}
@@ -151,9 +158,11 @@ class IosAttestationDataSource(
 	private suspend fun requestOperationSession(
 		httpClient: HttpClient,
 		operationCode: String,
-		keyId: String
+		keyId: String,
+		bearerToken: String
 	): CreateAttestationSessionResponse {
-		return httpClient.post("attestation/v2/sessions") {
+		return httpClient.post("attestation/v3/sessions") {
+			bearerAuth(bearerToken)
 			setBody(
 				CreateAttestationSessionRequest(
 					platform = PLATFORM_IOS,
@@ -167,12 +176,14 @@ class IosAttestationDataSource(
 	private suspend fun prepareAttestation(
 		httpClient: HttpClient,
 		preparationCode: AttestationPreparationCode,
-		keyId: String
+		keyId: String,
+		bearerToken: String
 	) {
 		val requestHash = attestationCapability.sha256Base64Url(
 			"""{"preparation_code":"${preparationCode.value}","key_id":"$keyId"}"""
 		) ?: throw IllegalStateException("Unable to hash attestation preparation payload on iOS.")
-		val session = httpClient.post("attestation/v2/preparations/sessions") {
+		val session = httpClient.post("attestation/v3/preparations/sessions") {
+			bearerAuth(bearerToken)
 			setBody(
 				CreateAttestationPreparationSessionRequest(
 					platform = PLATFORM_IOS,
@@ -194,7 +205,8 @@ class IosAttestationDataSource(
 		)
 
 		runCatching {
-			httpClient.post("attestation/v2/preparations/complete") {
+			httpClient.post("attestation/v3/preparations/complete") {
+				bearerAuth(bearerToken)
 				setBody(
 					CompleteAttestationPreparationRequest(
 						sessionId = session.sessionId,

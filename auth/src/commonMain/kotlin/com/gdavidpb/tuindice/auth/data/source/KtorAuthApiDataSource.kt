@@ -1,34 +1,71 @@
 package com.gdavidpb.tuindice.auth.data.source
 
+import com.gdavidpb.tuindice.auth.data.model.BootstrapTokensResponse
 import com.gdavidpb.tuindice.auth.data.model.IssueTokensResponse
 import com.gdavidpb.tuindice.auth.data.model.RefreshTokensRequest
 import com.gdavidpb.tuindice.auth.data.model.RefreshTokensResponse
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
+import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
+import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.domain.model.Attestation
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.basicAuth
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 
 class KtorAuthApiDataSource(
 	private val ktorClient: HttpClient
 ) : AuthApiDataRepository {
-	override suspend fun issueTokens(
+	override suspend fun bootstrapSignIn(
+		usbId: String,
+		password: String
+	): BootstrapTokens {
+		val response = ktorClient.post("auth/v2/bootstrap") {
+			basicAuth(usbId, password)
+		}.body<BootstrapTokensResponse>()
+
+		return BootstrapTokens(
+			uid = response.uid,
+			usbId = response.usbId,
+			accessToken = response.accessToken,
+			expiresIn = response.expiresIn
+		)
+	}
+
+	override suspend fun exchangeSignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation
+	): IssueTokens {
+		val response = ktorClient.post("auth/v2/token/exchange") {
+			bearerAuth(bootstrapAccessToken)
+			setAttestationTokenHeader(attestation)
+		}.body<IssueTokensResponse>()
+
+		return response.toIssueTokens()
+	}
+
+	override suspend fun reissueTokens(
 		usbId: String,
 		password: String,
 		attestedFlow: AttestedTokenFlow,
 		attestation: Attestation
 	): IssueTokens {
-		return postTokens(
-			usbId = usbId,
-			password = password,
-			attestedFlow = attestedFlow,
-			attestation = attestation
-		)
+		val response = ktorClient.post("auth/v1/token") {
+			basicAuth(usbId, password)
+			setAttestationTokenHeader(attestation)
+			header(AttestationHeaders.ATTESTED_FLOW, attestedFlow.headerValue)
+		}.body<IssueTokensResponse>()
+
+		return response.toIssueTokens()
 	}
 
 	override suspend fun refreshTokens(
@@ -60,24 +97,13 @@ class KtorAuthApiDataSource(
 		}
 	}
 
-	private suspend fun postTokens(
-		usbId: String,
-		password: String,
-		attestedFlow: AttestedTokenFlow,
-		attestation: Attestation
-	): IssueTokens {
-		val response = ktorClient.post("auth/v1/token") {
-			basicAuth(usbId, password)
-			setAttestationTokenHeader(attestation)
-			header(AttestationHeaders.ATTESTED_FLOW, attestedFlow.headerValue)
-		}.body<IssueTokensResponse>()
-
+	private fun IssueTokensResponse.toIssueTokens(): IssueTokens {
 		return IssueTokens(
-			uid = response.uid,
-			usbId = response.usbId,
-			accessToken = response.accessToken,
-			refreshToken = response.refreshToken,
-			expiresIn = response.expiresIn
+			uid = uid,
+			usbId = usbId,
+			accessToken = accessToken,
+			refreshToken = refreshToken,
+			expiresIn = expiresIn
 		)
 	}
 

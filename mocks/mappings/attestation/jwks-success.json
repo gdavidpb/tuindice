@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/attestation/v2/.well-known/jwks.json"
+    "urlPath": "/attestation/v3/.well-known/jwks.json"
   },
   "response": {
     "status": 200,

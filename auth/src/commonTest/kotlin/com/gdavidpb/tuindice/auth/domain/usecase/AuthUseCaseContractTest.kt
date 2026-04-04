@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.auth.domain.usecase
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
@@ -56,9 +55,14 @@ class AuthUseCaseContractTest {
 			awaitComplete()
 		}
 
-		assertEquals(1, repository.issueTokensCalls.size)
-		assertEquals(AttestedTokenFlow.IssueTokens, repository.issueTokensCalls.single().flow)
-		assertEquals(ProtectedOperationCodes.AuthIssueTokens, attestationRepository.lastRequest?.operationCode)
+		assertEquals(1, repository.bootstrapSignInCalls.size)
+		assertEquals(1, repository.exchangeSignInCalls.size)
+		assertEquals(VALID_USB_ID, repository.bootstrapSignInCalls.single().usbId)
+		assertEquals("secret123", repository.bootstrapSignInCalls.single().password)
+		assertEquals("bootstrap-access-token", repository.exchangeSignInCalls.single().bootstrapAccessToken)
+		assertEquals(ProtectedOperationCodes.AuthExchange, attestationRepository.lastRequest?.operationCode)
+		assertEquals("bootstrap-access-token", attestationRepository.lastRequest?.bearerToken)
+		assertEquals("{}", attestationRepository.lastRequest?.payloadJson)
 		assertEquals(1, messagingRepository.subscribeCalls)
 		assertEquals(listOf("secret123"), credentialsRepository.storedPasswords)
 		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
@@ -92,9 +96,8 @@ class AuthUseCaseContractTest {
 			awaitComplete()
 		}
 
-		val call = repository.issueTokensCalls.single()
+		val call = repository.reissueTokensCalls.single()
 		assertEquals("20261234", call.usbId)
-		assertEquals(AttestedTokenFlow.ReissueTokens, call.flow)
 		assertEquals(listOf("new-secret"), credentialsRepository.storedPasswords)
 		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
 		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)

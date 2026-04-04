@@ -1,5 +1,9 @@
 package com.gdavidpb.tuindice.data.repository.messaging
 
+import com.gdavidpb.tuindice.data.repository.messaging.MessagingLocalDataRepository
+import com.gdavidpb.tuindice.data.repository.messaging.MessagingRemoteDataRepository
+import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
+import com.gdavidpb.tuindice.data.source.messaging.MessagingDataSource
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

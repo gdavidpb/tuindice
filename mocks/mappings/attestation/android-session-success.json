@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/attestation/v2/sessions",
+    "urlPath": "/attestation/v3/sessions",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    },
     "bodyPatterns": [
       {
         "matchesJsonPath": "$[?(@.platform == 'Android')]"

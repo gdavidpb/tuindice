@@ -50,7 +50,8 @@ class IosAttestationDataRepositoryTest {
 		val response = repository.attest(
 			AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
-				payloadJson = """{"refresh_token":"token"}"""
+				payloadJson = """{"refresh_token":"token"}""",
+				bearerToken = "access-token"
 			)
 		)
 
@@ -91,7 +92,8 @@ class IosAttestationDataRepositoryTest {
 		val response = repository.attest(
 			AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
-				payloadJson = """{"refresh_token":"token"}"""
+				payloadJson = """{"refresh_token":"token"}""",
+				bearerToken = "access-token"
 			)
 		)
 
@@ -123,7 +125,8 @@ class IosAttestationDataRepositoryTest {
 		val response = repository.attest(
 			AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
-				payloadJson = """{"refresh_token":"token"}"""
+				payloadJson = """{"refresh_token":"token"}""",
+				bearerToken = "access-token"
 			)
 		)
 
@@ -170,7 +173,8 @@ class IosAttestationDataRepositoryTest {
 			repository.attest(
 				AttestationRequest(
 					operationCode = ProtectedOperationCodes.AuthRefreshTokens,
-					payloadJson = """{"refresh_token":"token"}"""
+					payloadJson = """{"refresh_token":"token"}""",
+					bearerToken = "access-token"
 				)
 			)
 		}
@@ -206,7 +210,8 @@ class IosAttestationDataRepositoryTest {
 			repository.attest(
 				AttestationRequest(
 					operationCode = ProtectedOperationCodes.AuthRefreshTokens,
-					payloadJson = """{"refresh_token":"token"}"""
+					payloadJson = """{"refresh_token":"token"}""",
+					bearerToken = "access-token"
 				)
 			)
 		}
@@ -224,8 +229,9 @@ private fun appAttestHttpClient(
 ): HttpClient {
 	return HttpClient(
 		MockEngine { request ->
+			assertEquals("Bearer access-token", request.headers[HttpHeaders.Authorization])
 			when (request.url.encodedPath) {
-				"/attestation/v2/sessions" -> {
+				"/attestation/v3/sessions" -> {
 					val evidenceMode = sessionModes.removeFirst()
 					respond(
 						content = """
@@ -241,7 +247,7 @@ private fun appAttestHttpClient(
 					)
 				}
 
-				"/attestation/v2/tokens" -> {
+				"/attestation/v3/tokens" -> {
 					val status = tokenStatuses.removeFirst()
 					val token = tokenValues.removeFirst()
 					respond(
@@ -275,8 +281,9 @@ private fun appAttestPreparationHttpClient(): HttpClient {
 
 	return HttpClient(
 		MockEngine { request ->
+			assertEquals("Bearer access-token", request.headers[HttpHeaders.Authorization])
 			when (request.url.encodedPath) {
-				"/attestation/v2/sessions" -> {
+				"/attestation/v3/sessions" -> {
 					sessionAttempts += 1
 					if (sessionAttempts == 1) {
 						respond(
@@ -305,7 +312,7 @@ private fun appAttestPreparationHttpClient(): HttpClient {
 					}
 				}
 
-				"/attestation/v2/preparations/sessions" -> {
+				"/attestation/v3/preparations/sessions" -> {
 					respond(
 						content = """
 							{
@@ -320,7 +327,7 @@ private fun appAttestPreparationHttpClient(): HttpClient {
 					)
 				}
 
-				"/attestation/v2/preparations/complete" -> {
+				"/attestation/v3/preparations/complete" -> {
 					respond(
 						content = "",
 						status = HttpStatusCode.NoContent,
@@ -328,7 +335,7 @@ private fun appAttestPreparationHttpClient(): HttpClient {
 					)
 				}
 
-				"/attestation/v2/tokens" -> {
+				"/attestation/v3/tokens" -> {
 					respond(
 						content = """
 							{

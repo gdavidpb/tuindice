@@ -1,14 +1,23 @@
 package com.gdavidpb.tuindice.auth.domain.repository
 
 import com.gdavidpb.tuindice.base.domain.model.Attestation
-import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
+import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 
 interface AuthRepository {
-	suspend fun issueTokens(
+	suspend fun bootstrapSignIn(
+		usbId: String,
+		password: String
+	): BootstrapTokens
+
+	suspend fun exchangeSignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation
+	)
+
+	suspend fun reissueTokens(
 		usbId: String,
 		password: String,
-		attestedFlow: AttestedTokenFlow,
 		attestation: Attestation
 	)
 

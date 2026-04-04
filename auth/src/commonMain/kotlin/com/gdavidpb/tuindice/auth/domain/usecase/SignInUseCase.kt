@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
-import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensAttestationPayload
+import com.gdavidpb.tuindice.auth.domain.model.ExchangeTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
@@ -17,6 +16,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
+import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -32,27 +32,24 @@ class SignInUseCase(
 	override val exceptionHandler: SignInExceptionHandler
 ) : FlowUseCase<SignInParams, Unit, SignInUseCaseError>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
-		val flow = AttestedTokenFlow.IssueTokens
-		val attestationPayload = IssueTokensAttestationPayload(
+		val bootstrapTokens = authRepository.bootstrapSignIn(
 			usbId = params.usbId,
-			password = params.password,
-			attestedFlow = flow.headerValue
+			password = params.password
 		)
 
 		val attestation = attestationRepository.attest(
 			request = AttestationRequest(
-				operationCode = flow.operationCode,
+				operationCode = ProtectedOperationCodes.AuthExchange,
 				payloadJson = canonicalAttestationPayloadJson(
-					serializer = IssueTokensAttestationPayload.serializer(),
-					value = attestationPayload
-				)
+					serializer = ExchangeTokensAttestationPayload.serializer(),
+					value = ExchangeTokensAttestationPayload
+				),
+				bearerToken = bootstrapTokens.accessToken
 			)
 		)
 
-		authRepository.issueTokens(
-			usbId = params.usbId,
-			password = params.password,
-			attestedFlow = flow,
+		authRepository.exchangeSignIn(
+			bootstrapAccessToken = bootstrapTokens.accessToken,
 			attestation = attestation
 		)
 

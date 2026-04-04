@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.presentation.route
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onAllNodesWithTag
 import com.gdavidpb.tuindice.auth.di.authModule
-import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
+import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -138,10 +138,24 @@ class TuIndiceAppHostRouteUiTest {
 				module {
 					single<AuthRepository> {
 						object : AuthRepository {
-							override suspend fun issueTokens(
+							override suspend fun bootstrapSignIn(
+								usbId: String,
+								password: String
+							): BootstrapTokens = BootstrapTokens(
+								uid = "uid",
+								usbId = usbId,
+								accessToken = "bootstrap-token",
+								expiresIn = 300
+							)
+
+							override suspend fun exchangeSignIn(
+								bootstrapAccessToken: String,
+								attestation: Attestation
+							) = Unit
+
+							override suspend fun reissueTokens(
 								usbId: String,
 								password: String,
-								attestedFlow: AttestedTokenFlow,
 								attestation: Attestation
 							) = Unit
 
@@ -224,10 +238,24 @@ class TuIndiceAppHostRouteUiTest {
 				module {
 					single<AuthRepository> {
 						object : AuthRepository {
-							override suspend fun issueTokens(
+							override suspend fun bootstrapSignIn(
+								usbId: String,
+								password: String
+							): BootstrapTokens = BootstrapTokens(
+								uid = "uid",
+								usbId = usbId,
+								accessToken = "bootstrap-token",
+								expiresIn = 300
+							)
+
+							override suspend fun exchangeSignIn(
+								bootstrapAccessToken: String,
+								attestation: Attestation
+							) = Unit
+
+							override suspend fun reissueTokens(
 								usbId: String,
 								password: String,
-								attestedFlow: AttestedTokenFlow,
 								attestation: Attestation
 							) = Unit
 

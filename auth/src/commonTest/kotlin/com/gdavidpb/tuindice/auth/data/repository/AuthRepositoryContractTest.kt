@@ -2,10 +2,10 @@ package com.gdavidpb.tuindice.auth.data.repository
 
 import com.gdavidpb.tuindice.auth.data.source.AuthDataSource
 import com.gdavidpb.tuindice.auth.testing.DEFAULT_AUTH_ATTESTATION
+import com.gdavidpb.tuindice.auth.testing.DEFAULT_BOOTSTRAP_TOKENS
 import com.gdavidpb.tuindice.auth.testing.DEFAULT_REFRESH_TOKENS
 import com.gdavidpb.tuindice.auth.testing.FakeAuthApiDataSource
 import com.gdavidpb.tuindice.auth.testing.FakeSessionRepository
-import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 
 class AuthRepositoryContractTest {
 	@Test
-	fun signIn_persistsTokens_andSetsIdentifier() = runTest {
+	fun bootstrapSignIn_returnsBootstrapToken_withoutPersistingSession() = runTest {
 		val authDataSource = FakeAuthApiDataSource()
 		val sessionRepository = FakeSessionRepository(usbId = "", accessToken = "", refreshToken = "")
 		val reportingRepository = RecordingReportingRepository()
@@ -23,23 +23,21 @@ class AuthRepositoryContractTest {
 			reportingRepository = reportingRepository
 		)
 
-		repository.issueTokens(
+		val bootstrapTokens = repository.bootstrapSignIn(
 			usbId = "20261234",
-			password = "secret123",
-			attestedFlow = AttestedTokenFlow.IssueTokens,
-			attestation = DEFAULT_AUTH_ATTESTATION
+			password = "secret123"
 		)
 
-		assertEquals("20261234", sessionRepository.getUsbId())
-		assertEquals("access-token", sessionRepository.getAccessToken())
-		assertEquals("refresh-token", sessionRepository.getRefreshToken())
-		assertEquals("uid-123", reportingRepository.identifier)
-		assertEquals(1, authDataSource.issueCalls.size)
-		assertEquals(AttestedTokenFlow.IssueTokens, authDataSource.issueCalls.single().flow)
+		assertEquals(DEFAULT_BOOTSTRAP_TOKENS, bootstrapTokens)
+		assertEquals("", sessionRepository.getUsbId())
+		assertEquals("", sessionRepository.getAccessToken())
+		assertEquals("", sessionRepository.getRefreshToken())
+		assertEquals(null, reportingRepository.identifier)
+		assertEquals(1, authDataSource.bootstrapCalls.size)
 	}
 
 	@Test
-	fun updatePassword_refreshesSessionTokens() = runTest {
+	fun exchangeSignIn_persistsTokens_andSetsIdentifier() = runTest {
 		val sessionRepository = FakeSessionRepository(accessToken = "old-access", refreshToken = "old-refresh")
 		val authDataSource = FakeAuthApiDataSource()
 		val repository = AuthDataSource(
@@ -48,16 +46,38 @@ class AuthRepositoryContractTest {
 			reportingRepository = RecordingReportingRepository()
 		)
 
-		repository.issueTokens(
+		repository.exchangeSignIn(
+			bootstrapAccessToken = "bootstrap-access-token",
+			attestation = DEFAULT_AUTH_ATTESTATION
+		)
+
+		assertEquals("20261234", sessionRepository.getUsbId())
+		assertEquals("access-token", sessionRepository.getAccessToken())
+		assertEquals("refresh-token", sessionRepository.getRefreshToken())
+		assertEquals(1, authDataSource.exchangeCalls.size)
+		assertEquals("bootstrap-access-token", authDataSource.exchangeCalls.single().bootstrapAccessToken)
+	}
+
+	@Test
+	fun reissueTokens_refreshesSessionTokens() = runTest {
+		val sessionRepository = FakeSessionRepository(accessToken = "old-access", refreshToken = "old-refresh")
+		val authDataSource = FakeAuthApiDataSource()
+		val repository = AuthDataSource(
+			authApiDataSource = authDataSource,
+			sessionRepository = sessionRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		repository.reissueTokens(
 			usbId = "20261234",
 			password = "new-secret",
-			attestedFlow = AttestedTokenFlow.ReissueTokens,
 			attestation = DEFAULT_AUTH_ATTESTATION
 		)
 
 		assertEquals("access-token", sessionRepository.getAccessToken())
 		assertEquals("refresh-token", sessionRepository.getRefreshToken())
-		assertEquals(AttestedTokenFlow.ReissueTokens, authDataSource.issueCalls.single().flow)
+		assertEquals(1, authDataSource.reissueCalls.size)
+		assertEquals("20261234", authDataSource.reissueCalls.single().usbId)
 	}
 
 	@Test

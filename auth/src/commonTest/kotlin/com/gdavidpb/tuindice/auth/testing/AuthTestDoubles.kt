@@ -1,22 +1,29 @@
 package com.gdavidpb.tuindice.auth.testing
 
+import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
+import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
+import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
+import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
+import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.model.Attestation
+import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
-import com.gdavidpb.tuindice.base.domain.model.Attestation
-import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
-import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
-import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
-import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import io.github.vinceglb.filekit.PlatformFile
 
 val DEFAULT_AUTH_ATTESTATION = Attestation(
 	token = "attestation-token"
+)
+
+val DEFAULT_BOOTSTRAP_TOKENS = BootstrapTokens(
+	uid = "uid-123",
+	usbId = "20261234",
+	accessToken = "bootstrap-access-token",
+	expiresIn = 300L
 )
 
 val DEFAULT_ISSUE_TOKENS = IssueTokens(
@@ -33,32 +40,65 @@ val DEFAULT_REFRESH_TOKENS = RefreshTokens(
 	expiresIn = 3600L
 )
 
-data class IssueTokensCall(
+data class BootstrapSignInCall(
+	val usbId: String,
+	val password: String
+)
+
+data class ExchangeSignInCall(
+	val bootstrapAccessToken: String,
+	val attestation: Attestation
+)
+
+data class ReissueTokensCall(
 	val usbId: String,
 	val password: String,
-	val flow: AttestedTokenFlow,
 	val attestation: Attestation
 )
 
 class RecordingAuthRepository(
+	private val bootstrapTokens: BootstrapTokens = DEFAULT_BOOTSTRAP_TOKENS,
 	private val refreshTokens: RefreshTokens = DEFAULT_REFRESH_TOKENS,
 	private val throwable: Throwable? = null
 ) : AuthRepository {
-	var issueTokensCalls = mutableListOf<IssueTokensCall>()
+	var bootstrapSignInCalls = mutableListOf<BootstrapSignInCall>()
+	var exchangeSignInCalls = mutableListOf<ExchangeSignInCall>()
+	var reissueTokensCalls = mutableListOf<ReissueTokensCall>()
 	var refreshTokenCalls = mutableListOf<Triple<String, String, Attestation>>()
 	var revokeTokensCalls = 0
 	var revokedAccessTokens = mutableListOf<String>()
 
-	override suspend fun issueTokens(
+	override suspend fun bootstrapSignIn(
 		usbId: String,
-		password: String,
-		attestedFlow: AttestedTokenFlow,
+		password: String
+	): BootstrapTokens {
+		bootstrapSignInCalls += BootstrapSignInCall(
+			usbId = usbId,
+			password = password
+		)
+		throwable?.let { throw it }
+		return bootstrapTokens
+	}
+
+	override suspend fun exchangeSignIn(
+		bootstrapAccessToken: String,
 		attestation: Attestation
 	) {
-		issueTokensCalls += IssueTokensCall(
+		exchangeSignInCalls += ExchangeSignInCall(
+			bootstrapAccessToken = bootstrapAccessToken,
+			attestation = attestation
+		)
+		throwable?.let { throw it }
+	}
+
+	override suspend fun reissueTokens(
+		usbId: String,
+		password: String,
+		attestation: Attestation
+	) {
+		reissueTokensCalls += ReissueTokensCall(
 			usbId = usbId,
 			password = password,
-			flow = attestedFlow,
 			attestation = attestation
 		)
 		throwable?.let { throw it }
@@ -182,25 +222,51 @@ class RecordingMessagingRepository : MessagingRepository {
 }
 
 class FakeAuthApiDataSource(
+	private val bootstrapTokens: BootstrapTokens = DEFAULT_BOOTSTRAP_TOKENS,
 	private val issueTokens: IssueTokens = DEFAULT_ISSUE_TOKENS,
 	private val refreshTokens: RefreshTokens = DEFAULT_REFRESH_TOKENS,
 	private val throwable: Throwable? = null
 ) : AuthApiDataRepository {
-	var issueCalls = mutableListOf<IssueTokensCall>()
+	var bootstrapCalls = mutableListOf<BootstrapSignInCall>()
+	var exchangeCalls = mutableListOf<ExchangeSignInCall>()
+	var reissueCalls = mutableListOf<ReissueTokensCall>()
 	var refreshCalls = mutableListOf<Triple<String, String, Attestation>>()
 	var revokeCalls = 0
 	var revokedAccessTokens = mutableListOf<String>()
 
-	override suspend fun issueTokens(
+	override suspend fun bootstrapSignIn(
 		usbId: String,
-		password: String,
-		attestedFlow: AttestedTokenFlow,
+		password: String
+	): BootstrapTokens {
+		bootstrapCalls += BootstrapSignInCall(
+			usbId = usbId,
+			password = password
+		)
+		throwable?.let { throw it }
+		return bootstrapTokens
+	}
+
+	override suspend fun exchangeSignIn(
+		bootstrapAccessToken: String,
 		attestation: Attestation
 	): IssueTokens {
-		issueCalls += IssueTokensCall(
+		exchangeCalls += ExchangeSignInCall(
+			bootstrapAccessToken = bootstrapAccessToken,
+			attestation = attestation
+		)
+		throwable?.let { throw it }
+		return issueTokens
+	}
+
+	override suspend fun reissueTokens(
+		usbId: String,
+		password: String,
+		attestedFlow: com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow,
+		attestation: Attestation
+	): IssueTokens {
+		reissueCalls += ReissueTokensCall(
 			usbId = usbId,
 			password = password,
-			flow = attestedFlow,
 			attestation = attestation
 		)
 		throwable?.let { throw it }

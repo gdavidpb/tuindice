@@ -12,7 +12,7 @@ value class ProtectedOperationCode(
 }
 
 object ProtectedOperationCodes {
-	val AuthIssueTokens = ProtectedOperationCode("auth.issue_tokens")
+	val AuthExchange = ProtectedOperationCode("auth.exchange")
 	val AuthRefreshTokens = ProtectedOperationCode("auth.refresh_tokens")
 	val AuthReissueTokens = ProtectedOperationCode("auth.reissue_tokens")
 }

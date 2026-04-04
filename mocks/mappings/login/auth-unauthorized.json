@@ -1,16 +1,10 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/auth/v1/token",
+    "urlPath": "/auth/v2/bootstrap",
     "headers": {
       "Authorization": {
         "doesNotMatch": "Basic MTEtMTExMTE6MTIzNDU2"
-      },
-      "X-Attestation-Token": {
-        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
-      },
-      "X-Attested-Flow": {
-        "matches": "(issue|reissue)_tokens"
       }
     }
   },

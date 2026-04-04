@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import java.security.MessageDigest
@@ -63,7 +64,8 @@ class AndroidAttestationDataSource(
 		val keyId = resolveKeyId()
 		val session = createOperationSession(
 			operationCode = request.operationCode.value,
-			keyId = keyId
+			keyId = keyId,
+			bearerToken = request.bearerToken
 		)
 
 		val bindingHash = bindingHash(
@@ -84,7 +86,8 @@ class AndroidAttestationDataSource(
 		)
 
 		val response = runCatching {
-			ktorClient.post("attestation/v2/tokens") {
+			ktorClient.post("attestation/v3/tokens") {
+				bearerAuth(request.bearerToken)
 				setBody(
 					IssueAttestationTokenRequest(
 						sessionId = session.sessionId,
@@ -113,31 +116,37 @@ class AndroidAttestationDataSource(
 
 	private suspend fun createOperationSession(
 		operationCode: String,
-		keyId: String
+		keyId: String,
+		bearerToken: String
 	): CreateAttestationSessionResponse {
 		return try {
 			requestOperationSession(
 				operationCode = operationCode,
-				keyId = keyId
+				keyId = keyId,
+				bearerToken = bearerToken
 			)
 		} catch (throwable: Throwable) {
 			val requiredPreparationCode = throwable.requiredPreparationCodeOrNull() ?: throw throwable
 			prepareAttestation(
 				preparationCode = requiredPreparationCode,
-				keyId = keyId
+				keyId = keyId,
+				bearerToken = bearerToken
 			)
 			requestOperationSession(
 				operationCode = operationCode,
-				keyId = keyId
+				keyId = keyId,
+				bearerToken = bearerToken
 			)
 		}
 	}
 
 	private suspend fun requestOperationSession(
 		operationCode: String,
-		keyId: String
+		keyId: String,
+		bearerToken: String
 	): CreateAttestationSessionResponse {
-		return ktorClient.post("attestation/v2/sessions") {
+		return ktorClient.post("attestation/v3/sessions") {
+			bearerAuth(bearerToken)
 			setBody(
 				CreateAttestationSessionRequest(
 					platform = PLATFORM_ANDROID,
@@ -150,12 +159,14 @@ class AndroidAttestationDataSource(
 
 	private suspend fun prepareAttestation(
 		preparationCode: AttestationPreparationCode,
-		keyId: String
+		keyId: String,
+		bearerToken: String
 	) {
 		val requestHash = sha256Base64Url(
 			"""{"preparation_code":"${preparationCode.value}","key_id":"$keyId"}"""
 		)
-		val session = ktorClient.post("attestation/v2/preparations/sessions") {
+		val session = ktorClient.post("attestation/v3/preparations/sessions") {
+			bearerAuth(bearerToken)
 			setBody(
 				CreateAttestationPreparationSessionRequest(
 					platform = PLATFORM_ANDROID,
@@ -182,7 +193,8 @@ class AndroidAttestationDataSource(
 		)
 
 		runCatching {
-			ktorClient.post("attestation/v2/preparations/complete") {
+			ktorClient.post("attestation/v3/preparations/complete") {
+				bearerAuth(bearerToken)
 				setBody(
 					CompleteAttestationPreparationRequest(
 						sessionId = session.sessionId,

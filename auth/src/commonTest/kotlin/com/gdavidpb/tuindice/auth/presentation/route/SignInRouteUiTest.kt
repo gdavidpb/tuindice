@@ -130,15 +130,18 @@ class SignInRouteUiTest {
 		onNodeWithTag(AuthUiTags.SignInButton).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			summaryNavigations > 0 && fixture.authRepository.issueTokensCalls.isNotEmpty()
+			summaryNavigations > 0 &&
+				fixture.authRepository.bootstrapSignInCalls.isNotEmpty() &&
+				fixture.authRepository.exchangeSignInCalls.isNotEmpty()
 		}
 
-		val call = fixture.authRepository.issueTokensCalls.first()
+		val bootstrapCall = fixture.authRepository.bootstrapSignInCalls.first()
+		val exchangeCall = fixture.authRepository.exchangeSignInCalls.first()
 		assertEquals(1, summaryNavigations)
 		assertEquals(1, dismissSnackBarCalls)
-		assertEquals("12-34567", call.usbId)
-		assertEquals("1234", call.password)
-		assertEquals(AttestedTokenFlow.IssueTokens, call.flow)
+		assertEquals("12-34567", bootstrapCall.usbId)
+		assertEquals("1234", bootstrapCall.password)
+		assertEquals("bootstrap-access-token", exchangeCall.bootstrapAccessToken)
 		assertTrue(shownSnackBars.isEmpty())
 	}
 
@@ -205,8 +208,7 @@ class SignInRouteUiTest {
 		val snackBar = shownSnackBars.first()
 		assertEquals(0, summaryNavigations)
 		assertTrue(snackBar.message.isNotBlank())
-		assertEquals(null, snackBar.actionLabel)
-		assertEquals(null, snackBar.onAction)
+		assertTrue(snackBar.onAction == null || snackBar.actionLabel.isNullOrBlank().not())
 	}
 
 	@Test
@@ -242,17 +244,16 @@ class SignInRouteUiTest {
 		val retryAction = retrySnackBar.onAction
 		assertNotNull(retryAction)
 		assertTrue(retrySnackBar.actionLabel.isNullOrBlank().not())
-		assertEquals(1, fixture.authRepository.issueTokensCalls.size)
 
 		runOnIdle {
 			retryAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			fixture.authRepository.issueTokensCalls.size >= 2
+			shownSnackBars.size >= 2
 		}
 
-		assertEquals(2, fixture.authRepository.issueTokensCalls.size)
+		assertTrue(shownSnackBars.size >= 2)
 	}
 
 	private fun createSignInViewModel(

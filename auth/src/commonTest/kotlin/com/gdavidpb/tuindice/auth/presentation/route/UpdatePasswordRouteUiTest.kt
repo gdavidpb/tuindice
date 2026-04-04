@@ -83,13 +83,12 @@ class UpdatePasswordRouteUiTest {
 		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			snackBarMessages.isNotEmpty() && dismissCalls > 0 && fixture.authRepository.issueTokensCalls.isNotEmpty()
+			snackBarMessages.isNotEmpty() && dismissCalls > 0 && fixture.authRepository.reissueTokensCalls.isNotEmpty()
 		}
 
-		val call = fixture.authRepository.issueTokensCalls.first()
+		val call = fixture.authRepository.reissueTokensCalls.first()
 		assertEquals("12-34567", call.usbId)
 		assertEquals("nueva-clave-segura", call.password)
-		assertEquals(AttestedTokenFlow.ReissueTokens, call.flow)
 		assertEquals(1, dismissCalls)
 		assertEquals(1, snackBarMessages.size)
 	}

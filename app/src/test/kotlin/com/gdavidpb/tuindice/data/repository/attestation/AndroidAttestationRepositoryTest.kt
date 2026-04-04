@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.AttestationProofOfPossessionMode
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
+import com.gdavidpb.tuindice.data.source.attestation.AndroidAttestationDataSource
 import com.gdavidpb.tuindice.di.createSharedJson
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.platform.android.model.ProviderAttestation
@@ -46,8 +47,9 @@ class AndroidAttestationDataSourceTest {
 
 		val response = repository.attest(
 			AttestationRequest(
-				operationCode = ProtectedOperationCodes.AuthIssueTokens,
-				payloadJson = """{"usb_id":"12345678-9"}"""
+				operationCode = ProtectedOperationCodes.AuthExchange,
+				payloadJson = """{"usb_id":"12345678-9"}""",
+				bearerToken = "access-token"
 			)
 		)
 
@@ -94,7 +96,8 @@ class AndroidAttestationDataSourceTest {
 		val response = repository.attest(
 			AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
-				payloadJson = """{"refresh_token":"token"}"""
+				payloadJson = """{"refresh_token":"token"}""",
+				bearerToken = "access-token"
 			)
 		)
 
@@ -144,7 +147,8 @@ class AndroidAttestationDataSourceTest {
 		val response = repository.attest(
 			AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
-				payloadJson = """{"refresh_token":"token"}"""
+				payloadJson = """{"refresh_token":"token"}""",
+				bearerToken = "access-token"
 			)
 		)
 
@@ -173,7 +177,8 @@ class AndroidAttestationDataSourceTest {
 		val response = repository.attest(
 			AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
-				payloadJson = """{"refresh_token":"token"}"""
+				payloadJson = """{"refresh_token":"token"}""",
+				bearerToken = "access-token"
 			)
 		)
 
@@ -199,8 +204,9 @@ private fun androidAttestationHttpClient(
 ): HttpClient {
 	return HttpClient(
 		MockEngine { request ->
+			assertEquals("Bearer access-token", request.headers[HttpHeaders.Authorization])
 			when (request.url.encodedPath) {
-				"/attestation/v2/sessions" -> {
+				"/attestation/v3/sessions" -> {
 					val evidenceMode = sessionModes.removeFirst()
 					val proofMode = proofModes.removeFirst()
 					respond(
@@ -218,7 +224,7 @@ private fun androidAttestationHttpClient(
 					)
 				}
 
-				"/attestation/v2/tokens" -> {
+				"/attestation/v3/tokens" -> {
 					val status = tokenStatuses.removeFirst()
 					val token = tokenValues.removeFirst()
 					respond(
@@ -252,8 +258,9 @@ private fun androidPreparationHttpClient(): HttpClient {
 
 	return HttpClient(
 		MockEngine { request ->
+			assertEquals("Bearer access-token", request.headers[HttpHeaders.Authorization])
 			when (request.url.encodedPath) {
-				"/attestation/v2/sessions" -> {
+				"/attestation/v3/sessions" -> {
 					sessionAttempts += 1
 					if (sessionAttempts == 1) {
 						respond(
@@ -283,7 +290,7 @@ private fun androidPreparationHttpClient(): HttpClient {
 					}
 				}
 
-				"/attestation/v2/preparations/sessions" -> {
+				"/attestation/v3/preparations/sessions" -> {
 					respond(
 						content = """
 							{
@@ -299,7 +306,7 @@ private fun androidPreparationHttpClient(): HttpClient {
 					)
 				}
 
-				"/attestation/v2/preparations/complete" -> {
+				"/attestation/v3/preparations/complete" -> {
 					respond(
 						content = "",
 						status = HttpStatusCode.NoContent,
@@ -307,7 +314,7 @@ private fun androidPreparationHttpClient(): HttpClient {
 					)
 				}
 
-				"/attestation/v2/tokens" -> {
+				"/attestation/v3/tokens" -> {
 					respond(
 						content = """
 							{

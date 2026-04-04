@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
 import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
@@ -70,6 +71,25 @@ fun createSharedHttpClient(
 			json(json)
 		}
 
+		HttpResponseValidator {
+			handleResponseExceptionWithRequest { exception, _ ->
+				val clientRequestException = exception as? ClientRequestException ?: return@handleResponseExceptionWithRequest
+				val authError = clientRequestException.response.headers[AuthErrorHeaders.HEADER]
+
+				if (
+					clientRequestException.response.status == HttpStatusCode.Forbidden &&
+					authError == AuthErrorHeaders.INSUFFICIENT_SCOPE
+				) {
+					handleUnauthorizedTokenRefresh(
+						sessionRepository = sessionRepository,
+						syncStatusRepository = syncStatusRepository,
+						applicationRepository = applicationRepository,
+						sessionInvalidationRepository = sessionInvalidationRepository
+					)
+				}
+			}
+		}
+
 		install(Logging) {
 			this.logger = logger
 			level = LogLevel.ALL
@@ -115,7 +135,8 @@ fun createSharedHttpClient(
 							payloadJson = canonicalAttestationPayloadJson(
 								serializer = RefreshTokensAttestationPayload.serializer(),
 								value = attestationPayload
-							)
+							),
+							bearerToken = oldAccessToken
 						)
 					)
 

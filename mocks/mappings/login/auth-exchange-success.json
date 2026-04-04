@@ -1,26 +1,18 @@
 {
   "scenarioName": "login-token-lifecycle",
-  "requiredScenarioState": "TokensIssued",
+  "requiredScenarioState": "BootstrapIssued",
   "newScenarioState": "TokensIssued",
   "request": {
     "method": "POST",
-    "urlPath": "/auth/v1/token/refresh",
+    "urlPath": "/auth/v2/token/exchange",
     "headers": {
       "Authorization": {
-        "matches": "Bearer .+"
+        "matches": "Bearer bootstrap\\.mock\\.access\\.token(\\.reissued)?"
       },
       "X-Attestation-Token": {
         "matches": "attestation\\.mock\\.proof\\.(android|ios)"
       }
-    },
-    "bodyPatterns": [
-      {
-        "matchesJsonPath": "$.access_token"
-      },
-      {
-        "matchesJsonPath": "$.refresh_token"
-      }
-    ]
+    }
   },
   "response": {
     "status": 200,
@@ -28,7 +20,9 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh.mock.access",
+      "uid": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
+      "usb_id": "11-11111",
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
       "refresh_token": "refresh.mock.token.value",
       "expires_in": 3600
     },

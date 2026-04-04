@@ -1,13 +1,18 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/attestation/v2/sessions",
+    "urlPath": "/attestation/v3/sessions",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    },
     "bodyPatterns": [
       {
         "matchesJsonPath": "$[?(@.platform == 'Android')]"
       },
       {
-        "matchesJsonPath": "$[?(@.operation_code == 'auth.issue_tokens')]"
+        "matchesJsonPath": "$[?(@.operation_code == 'auth.exchange')]"
       },
       {
         "matchesJsonPath": "$.key_id"
@@ -20,7 +25,7 @@
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "session_id": "mock-attestation-session-android-issue",
+      "session_id": "mock-attestation-session-android-exchange",
       "challenge": "mock-attestation-challenge-android",
       "expires_at": 2524608000000,
       "evidence_mode": "play_integrity_classic",

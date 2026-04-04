@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/attestation/v2/tokens",
+    "urlPath": "/attestation/v3/tokens",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    },
     "bodyPatterns": [
       {
         "matchesJsonPath": "$[?(@.session_id == 'mock-attestation-session-android-refresh')]"

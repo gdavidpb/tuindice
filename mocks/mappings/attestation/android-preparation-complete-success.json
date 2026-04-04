@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/attestation/v2/preparations/complete",
+    "urlPath": "/attestation/v3/preparations/complete",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    },
     "bodyPatterns": [
       {
         "matchesJsonPath": "$[?(@.session_id == 'mock-attestation-session-android-bootstrap')]"

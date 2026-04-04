@@ -5,6 +5,9 @@
     "method": "POST",
     "urlPath": "/auth/v1/token/refresh",
     "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      },
       "X-Attestation-Token": {
         "matches": "attestation\\.mock\\.proof\\.(android|ios)"
       }
