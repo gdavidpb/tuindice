@@ -23,10 +23,10 @@ import com.gdavidpb.tuindice.record.domain.model.other
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.record_view_mode_toggle_to_official
-import tuindice.record.generated.resources.record_view_mode_toggle_to_simulation
 import tuindice.record.generated.resources.record_view_mode_official
 import tuindice.record.generated.resources.record_view_mode_simulation
+import tuindice.record.generated.resources.record_view_mode_toggle_to_official
+import tuindice.record.generated.resources.record_view_mode_toggle_to_simulation
 
 @Composable
 fun RecordTopBarViewModeSwitchView(
@@ -69,7 +69,7 @@ fun RecordTopBarViewModeSwitchView(
 }
 
 @Composable
-internal fun recordViewModeLabel(mode: RecordViewMode): String {
+fun recordViewModeLabel(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_official)
 		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_simulation)
@@ -77,14 +77,14 @@ internal fun recordViewModeLabel(mode: RecordViewMode): String {
 }
 
 @Composable
-internal fun recordViewModeToggleDescription(mode: RecordViewMode): String {
+fun recordViewModeToggleDescription(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_toggle_to_official)
 		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_toggle_to_simulation)
 	}
 }
 
-internal fun recordViewModeIcon(
+fun recordViewModeIcon(
 	mode: RecordViewMode,
 	isPrimary: Boolean
 ): ImageVector {

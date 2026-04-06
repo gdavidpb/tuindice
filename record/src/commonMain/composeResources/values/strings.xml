@@ -17,6 +17,10 @@
 	<string name="record_view_mode_toggle_to_simulation">Cambiar a Simulación</string>
 	<string name="record_view_mode_banner_official">Modo Universidad</string>
 	<string name="record_view_mode_banner_simulation">Modo Simulación</string>
+	<string name="record_view_mode_info_button_description">Información sobre este modo de vista</string>
+	<string name="record_view_mode_info_confirm">Entendido</string>
+	<string name="record_view_mode_info_message_official">Estás viendo tu informe académico oficial, con las notas y promedios registrados por la universidad. Este modo te muestra cómo quedó realmente tu historial y no permite modificar calificaciones.</string>
+	<string name="record_view_mode_info_message_simulation">Estás viendo una simulación de tu informe académico. Aquí puedes ajustar calificaciones para explorar cómo cambiarían tu promedio y tus acumulados dentro de la app; estos cambios no modifican tu registro oficial en la universidad.</string>
 	<string name="quarter_grade_diff_pattern">Δx %1$.4f</string>
 	<string name="quarter_grade_sum_pattern">∑x %1$.4f</string>
 	<string name="quarter_credits_pattern">⦿ %1$d</string>
