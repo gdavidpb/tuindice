@@ -25,6 +25,7 @@
     "jsonBody": {
       "uid": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
       "usb_id": "11-11111",
+      "session_id": "auth-session-reissued",
       "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.reissued.mock.access",
       "refresh_token": "refresh.mock.token.reissued",
       "expires_in": 3600

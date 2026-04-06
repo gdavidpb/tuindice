@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.auth.presentation.action.SignOutActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.contract.SignOut
+import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.FakeSessionRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingApplicationRepository
@@ -24,6 +25,7 @@ class SignOutViewModelContractTest {
 			signOutActionProcessor = SignOutActionProcessor(
 				signOutUseCase = SignOutUseCase(
 					authRepository = RecordingAuthRepository(),
+					attestationRepository = FakeAttestationRepository(),
 					sessionRepository = FakeSessionRepository(),
 					messagingRepository = RecordingMessagingRepository(),
 					applicationRepository = RecordingApplicationRepository(),

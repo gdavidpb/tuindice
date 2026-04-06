@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
@@ -16,12 +17,16 @@ import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
+import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class AuthUseCaseContractTest {
 	private companion object {
@@ -61,7 +66,10 @@ class AuthUseCaseContractTest {
 		assertEquals("secret123", repository.bootstrapSignInCalls.single().password)
 		assertEquals("bootstrap-access-token", repository.exchangeSignInCalls.single().bootstrapAccessToken)
 		assertEquals(ProtectedOperationCodes.AuthExchange, attestationRepository.lastRequest?.operationCode)
-		assertEquals("bootstrap-access-token", attestationRepository.lastRequest?.bearerToken)
+		assertEquals(
+			AttestationAuthorization.Bearer(accessToken = "bootstrap-access-token"),
+			attestationRepository.lastRequest?.authorization
+		)
 		assertEquals("{}", attestationRepository.lastRequest?.payloadJson)
 		assertEquals(1, messagingRepository.subscribeCalls)
 		assertEquals(listOf("secret123"), credentialsRepository.storedPasswords)
@@ -107,12 +115,14 @@ class AuthUseCaseContractTest {
 	@Test
 	fun signOutUseCase_emitsLoadingThenData_andClearsSessionData() = runTest {
 		val authRepository = RecordingAuthRepository()
+		val attestationRepository = FakeAttestationRepository()
 		val messagingRepository = RecordingMessagingRepository()
 		val sessionRepository = FakeSessionRepository()
 		val applicationRepository = RecordingApplicationRepository()
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
 		val useCase = SignOutUseCase(
 			authRepository = authRepository,
+			attestationRepository = attestationRepository,
 			sessionRepository = sessionRepository,
 			messagingRepository = messagingRepository,
 			applicationRepository = applicationRepository,
@@ -126,11 +136,57 @@ class AuthUseCaseContractTest {
 		}
 
 		assertEquals(1, authRepository.revokeTokensCalls)
-		assertEquals(listOf("access-token"), authRepository.revokedAccessTokens)
+		assertEquals(listOf("session-123"), authRepository.revokedSessionIds)
+		assertEquals(listOf("refresh-token"), authRepository.revokedRefreshTokens)
+		assertEquals(ProtectedOperationCodes.AuthRevokeTokens, attestationRepository.lastRequest?.operationCode)
+		assertEquals(
+			AttestationAuthorization.Session(
+				sessionId = "session-123",
+				refreshToken = "refresh-token"
+			),
+			attestationRepository.lastRequest?.authorization
+		)
 		assertEquals(true, sessionRepository.cleared)
 		assertEquals(1, messagingRepository.unsubscribeCalls)
 		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
 		assertEquals(listOf(SyncStatus.Healthy), syncStatusRepository.setStatuses)
 		assertEquals(true, applicationRepository.cleared)
+	}
+
+	@Test
+	fun signOutUseCase_emitsError_when_revokeReturnsUnauthorized() = runTest {
+		val revokeThrowable = clientRequestException(
+			statusCode = HttpStatusCode.Unauthorized,
+			path = "/auth/v2/token/revoke"
+		)
+		val authRepository = RecordingAuthRepository(throwable = revokeThrowable)
+		val attestationRepository = FakeAttestationRepository()
+		val messagingRepository = RecordingMessagingRepository()
+		val sessionRepository = FakeSessionRepository()
+		val applicationRepository = RecordingApplicationRepository()
+		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
+		val reportingRepository = RecordingReportingRepository()
+		val useCase = SignOutUseCase(
+			authRepository = authRepository,
+			attestationRepository = attestationRepository,
+			sessionRepository = sessionRepository,
+			messagingRepository = messagingRepository,
+			applicationRepository = applicationRepository,
+			syncStatusRepository = syncStatusRepository,
+			reportingRepository = reportingRepository
+		)
+
+		useCase.execute(Unit).test {
+			val error = awaitLoadingThenError(this)
+			assertNull(error.error)
+			awaitComplete()
+		}
+
+		assertEquals(1, authRepository.revokeTokensCalls)
+		assertEquals(listOf("refresh-token"), authRepository.revokedRefreshTokens)
+		assertEquals(false, sessionRepository.cleared)
+		assertEquals(SyncStatus.OutdatedCredentials, syncStatusRepository.getSyncStatus())
+		assertEquals(false, applicationRepository.cleared)
+		assertEquals(revokeThrowable, reportingRepository.exceptions.single())
 	}
 }

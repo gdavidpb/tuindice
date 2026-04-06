@@ -61,7 +61,10 @@ class AboutViewModelContractTest {
 				viewModel.openTermsAndConditionsAction()
 				val termsEffect = assertIs<About.Effect.NavigateToBrowser>(awaitItem())
 				assertEquals("https://tuindice.app/terms", termsEffect.url)
+				cancelAndIgnoreRemainingEvents()
+			}
 
+			viewModel.effect.test {
 				viewModel.shareAppAction()
 				val shareEffect = assertIs<About.Effect.ShareText>(awaitItem())
 				assertEquals("TuIndice", shareEffect.subject)
@@ -73,18 +76,23 @@ class AboutViewModelContractTest {
 					""".trimIndent(),
 					shareEffect.text
 				)
+				cancelAndIgnoreRemainingEvents()
+			}
 
+			viewModel.effect.test {
 				viewModel.contactDeveloperAction()
 				val contactEffect = assertIs<About.Effect.OpenUri>(awaitItem())
 				assertEquals(
 					"mailto:support@tuindice.app?subject=Support%20TuIndice&body=",
 					contactEffect.uri
 				)
+				cancelAndIgnoreRemainingEvents()
+			}
 
+			viewModel.effect.test {
 				viewModel.rateOnPlayStoreAction()
 				val rateEffect = assertIs<About.Effect.OpenUri>(awaitItem())
 				assertEquals("market://details?id=com.gdavidpb.tuindice", rateEffect.uri)
-
 				cancelAndIgnoreRemainingEvents()
 			}
 		} finally {

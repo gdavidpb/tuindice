@@ -111,6 +111,7 @@ class RecordingApplicationRepository(
 }
 
 class FakeSessionRepository(
+	private var sessionId: String = "session-123",
 	private var usbId: String = "20261234",
 	private var accessToken: String = "access-token",
 	private var refreshToken: String = "refresh-token"
@@ -119,11 +120,15 @@ class FakeSessionRepository(
 		private set
 
 	override suspend fun hasActiveSession(): Boolean {
-		return accessToken.isNotBlank() && refreshToken.isNotBlank()
+		return sessionId.isNotBlank() && accessToken.isNotBlank() && refreshToken.isNotBlank()
 	}
 
 	override suspend fun setUsbId(usbId: String) {
 		this.usbId = usbId
+	}
+
+	override suspend fun setSessionId(sessionId: String) {
+		this.sessionId = sessionId
 	}
 
 	override suspend fun setAccessToken(accessToken: String) {
@@ -136,11 +141,14 @@ class FakeSessionRepository(
 
 	override suspend fun getUsbId(): String = usbId
 
+	override suspend fun getSessionId(): String = sessionId
+
 	override suspend fun getAccessToken(): String = accessToken
 
 	override suspend fun getRefreshToken(): String = refreshToken
 
 	override suspend fun clear() {
+		sessionId = ""
 		usbId = ""
 		accessToken = ""
 		refreshToken = ""

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice
 
 import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
+import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.AttestationTemporarilyUnavailableException
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
@@ -51,7 +52,9 @@ class IosAttestationDataRepositoryTest {
 			AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 				payloadJson = """{"refresh_token":"token"}""",
-				bearerToken = "access-token"
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = "access-token"
+				)
 			)
 		)
 
@@ -93,7 +96,9 @@ class IosAttestationDataRepositoryTest {
 			AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 				payloadJson = """{"refresh_token":"token"}""",
-				bearerToken = "access-token"
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = "access-token"
+				)
 			)
 		)
 
@@ -126,7 +131,9 @@ class IosAttestationDataRepositoryTest {
 			AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 				payloadJson = """{"refresh_token":"token"}""",
-				bearerToken = "access-token"
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = "access-token"
+				)
 			)
 		)
 
@@ -174,7 +181,9 @@ class IosAttestationDataRepositoryTest {
 				AttestationRequest(
 					operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 					payloadJson = """{"refresh_token":"token"}""",
-					bearerToken = "access-token"
+					authorization = AttestationAuthorization.Bearer(
+						accessToken = "access-token"
+					)
 				)
 			)
 		}
@@ -211,7 +220,9 @@ class IosAttestationDataRepositoryTest {
 				AttestationRequest(
 					operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 					payloadJson = """{"refresh_token":"token"}""",
-					bearerToken = "access-token"
+					authorization = AttestationAuthorization.Bearer(
+						accessToken = "access-token"
+					)
 				)
 			)
 		}

@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptio
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
@@ -44,7 +45,9 @@ class SignInUseCase(
 					serializer = ExchangeTokensAttestationPayload.serializer(),
 					value = ExchangeTokensAttestationPayload
 				),
-				bearerToken = bootstrapTokens.accessToken
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = bootstrapTokens.accessToken
+				)
 			)
 		)
 

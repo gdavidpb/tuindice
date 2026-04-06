@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.auth.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -47,7 +48,9 @@ class UpdatePasswordUseCase(
 					serializer = IssueTokensAttestationPayload.serializer(),
 					value = attestationPayload
 				),
-				bearerToken = accessToken
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = accessToken
+				)
 			)
 		)
 

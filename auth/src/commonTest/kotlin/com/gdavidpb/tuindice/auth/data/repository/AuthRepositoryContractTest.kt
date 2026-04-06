@@ -15,7 +15,7 @@ class AuthRepositoryContractTest {
 	@Test
 	fun bootstrapSignIn_returnsBootstrapToken_withoutPersistingSession() = runTest {
 		val authDataSource = FakeAuthApiDataSource()
-		val sessionRepository = FakeSessionRepository(usbId = "", accessToken = "", refreshToken = "")
+		val sessionRepository = FakeSessionRepository(sessionId = "", usbId = "", accessToken = "", refreshToken = "")
 		val reportingRepository = RecordingReportingRepository()
 		val repository = AuthDataSource(
 			authApiDataSource = authDataSource,
@@ -30,6 +30,7 @@ class AuthRepositoryContractTest {
 
 		assertEquals(DEFAULT_BOOTSTRAP_TOKENS, bootstrapTokens)
 		assertEquals("", sessionRepository.getUsbId())
+		assertEquals("", sessionRepository.getSessionId())
 		assertEquals("", sessionRepository.getAccessToken())
 		assertEquals("", sessionRepository.getRefreshToken())
 		assertEquals(null, reportingRepository.identifier)
@@ -52,6 +53,7 @@ class AuthRepositoryContractTest {
 		)
 
 		assertEquals("20261234", sessionRepository.getUsbId())
+		assertEquals("session-123", sessionRepository.getSessionId())
 		assertEquals("access-token", sessionRepository.getAccessToken())
 		assertEquals("refresh-token", sessionRepository.getRefreshToken())
 		assertEquals(1, authDataSource.exchangeCalls.size)
@@ -76,6 +78,7 @@ class AuthRepositoryContractTest {
 
 		assertEquals("access-token", sessionRepository.getAccessToken())
 		assertEquals("refresh-token", sessionRepository.getRefreshToken())
+		assertEquals("session-123", sessionRepository.getSessionId())
 		assertEquals(1, authDataSource.reissueCalls.size)
 		assertEquals("20261234", authDataSource.reissueCalls.single().usbId)
 	}
@@ -90,12 +93,13 @@ class AuthRepositoryContractTest {
 		)
 
 		val tokens = repository.refreshTokens(
-			accessToken = "old-access",
+			sessionId = "session-123",
 			refreshToken = "old-refresh",
 			attestation = DEFAULT_AUTH_ATTESTATION
 		)
 
 		assertEquals(DEFAULT_REFRESH_TOKENS, tokens)
+		assertEquals(DEFAULT_REFRESH_TOKENS.sessionId, sessionRepository.getSessionId())
 		assertEquals(DEFAULT_REFRESH_TOKENS.accessToken, sessionRepository.getAccessToken())
 		assertEquals(DEFAULT_REFRESH_TOKENS.refreshToken, sessionRepository.getRefreshToken())
 	}
@@ -109,9 +113,14 @@ class AuthRepositoryContractTest {
 			reportingRepository = RecordingReportingRepository()
 		)
 
-		repository.revokeTokens(accessToken = "access-token")
+		repository.revokeTokens(
+			sessionId = "session-123",
+			refreshToken = "refresh-token",
+			attestation = DEFAULT_AUTH_ATTESTATION
+		)
 
 		assertEquals(1, authDataSource.revokeCalls)
-		assertEquals(listOf("access-token"), authDataSource.revokedAccessTokens)
+		assertEquals(listOf("session-123"), authDataSource.revokedSessionIds)
+		assertEquals(listOf("refresh-token"), authDataSource.revokedRefreshTokens)
 	}
 }

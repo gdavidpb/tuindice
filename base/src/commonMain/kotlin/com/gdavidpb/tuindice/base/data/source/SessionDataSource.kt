@@ -17,6 +17,11 @@ class SessionDataSource(
 		preferencesSessionDataSource.setUsbId(usbId)
 	}
 
+	override suspend fun setSessionId(sessionId: String) {
+		memorySessionDataSource.setSessionId(sessionId)
+		preferencesSessionDataSource.setSessionId(sessionId)
+	}
+
 	override suspend fun setAccessToken(accessToken: String) {
 		memorySessionDataSource.setAccessToken(accessToken)
 		preferencesSessionDataSource.setAccessToken(accessToken)
@@ -29,6 +34,22 @@ class SessionDataSource(
 
 	override suspend fun getUsbId(): String {
 		return preferencesSessionDataSource.getUsbId() ?: throw IllegalStateException()
+	}
+
+	override suspend fun getSessionId(): String {
+		val memorySessionId = memorySessionDataSource.getSessionId()
+
+		if (memorySessionId != null) return memorySessionId
+
+		val preferencesSessionId = preferencesSessionDataSource.getSessionId()
+
+		if (preferencesSessionId != null) {
+			memorySessionDataSource.setSessionId(preferencesSessionId)
+
+			return preferencesSessionId
+		}
+
+		throw IllegalStateException()
 	}
 
 	override suspend fun getAccessToken(): String {

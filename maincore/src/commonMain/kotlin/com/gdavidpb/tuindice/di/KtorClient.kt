@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
 import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
+import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -96,13 +97,16 @@ fun createSharedHttpClient(
 
 			sanitizeHeader { header ->
 				header == HttpHeaders.Authorization ||
-						header == "X-Forwarded-Authorization" ||
 						header == AttestationHeaders.ATTESTATION_TOKEN
 			}
 		}
 
 		install(Auth) {
 			bearer {
+				sendWithoutRequest { request ->
+					request.url.encodedPath.shouldSendBearerAuth()
+				}
+
 				loadTokens {
 					val hasActiveTokens = sessionRepository.hasActiveSession()
 
@@ -117,7 +121,7 @@ fun createSharedHttpClient(
 				}
 
 				refreshTokens {
-					val oldAccessToken = oldTokens?.accessToken ?: sessionRepository.getAccessToken()
+					val oldSessionId = sessionRepository.getSessionId()
 					val oldRefreshToken = oldTokens?.refreshToken ?: sessionRepository.getRefreshToken()
 					val attestationRepository = attestationRepositoryProvider()
 					val authRepository = authRepositoryProvider()
@@ -125,7 +129,7 @@ fun createSharedHttpClient(
 					val syncRepository = syncRepositoryProvider()
 
 					val attestationPayload = RefreshTokensAttestationPayload(
-						accessToken = oldAccessToken,
+						sessionId = oldSessionId,
 						refreshToken = oldRefreshToken
 					)
 
@@ -136,13 +140,16 @@ fun createSharedHttpClient(
 								serializer = RefreshTokensAttestationPayload.serializer(),
 								value = attestationPayload
 							),
-							bearerToken = oldAccessToken
+							authorization = AttestationAuthorization.Session(
+								sessionId = oldSessionId,
+								refreshToken = oldRefreshToken
+							)
 						)
 					)
 
 					val refreshedTokens = runCatching {
 						authRepository.refreshTokens(
-							accessToken = oldAccessToken,
+							sessionId = oldSessionId,
 							refreshToken = oldRefreshToken,
 							attestation = attestation
 						)
@@ -173,6 +180,12 @@ fun createSharedHttpClient(
 			}
 		}
 	}
+}
+
+private fun String.shouldSendBearerAuth(): Boolean {
+	return !startsWith("/auth/v2/token/refresh") &&
+			!startsWith("/auth/v2/token/revoke") &&
+			!startsWith("/attestation/v4/session-auth/")
 }
 
 internal fun Throwable.isSessionInvalidatingRefreshFailure(): Boolean {

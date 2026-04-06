@@ -160,12 +160,16 @@ class TuIndiceAppHostRouteUiTest {
 							) = Unit
 
 							override suspend fun refreshTokens(
-								accessToken: String,
+								sessionId: String,
 								refreshToken: String,
 								attestation: Attestation
 							): RefreshTokens = error("refreshTokens should not be called in this test")
 
-							override suspend fun revokeTokens(accessToken: String) = Unit
+							override suspend fun revokeTokens(
+								sessionId: String,
+								refreshToken: String,
+								attestation: Attestation
+							) = Unit
 						}
 					}
 					single<SessionInvalidationRepository> { sessionInvalidationRepository }
@@ -260,12 +264,16 @@ class TuIndiceAppHostRouteUiTest {
 							) = Unit
 
 							override suspend fun refreshTokens(
-								accessToken: String,
+								sessionId: String,
 								refreshToken: String,
 								attestation: Attestation
 							): RefreshTokens = error("refreshTokens should not be called in this test")
 
-							override suspend fun revokeTokens(accessToken: String) = Unit
+							override suspend fun revokeTokens(
+								sessionId: String,
+								refreshToken: String,
+								attestation: Attestation
+							) = Unit
 						}
 					}
 					single<SessionInvalidationRepository> { sessionInvalidationRepository }

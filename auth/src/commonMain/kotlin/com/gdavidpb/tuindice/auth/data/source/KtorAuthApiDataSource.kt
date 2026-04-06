@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.auth.data.model.BootstrapTokensResponse
 import com.gdavidpb.tuindice.auth.data.model.IssueTokensResponse
 import com.gdavidpb.tuindice.auth.data.model.RefreshTokensRequest
 import com.gdavidpb.tuindice.auth.data.model.RefreshTokensResponse
+import com.gdavidpb.tuindice.auth.data.model.RevokeTokensRequest
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
@@ -69,31 +70,42 @@ class KtorAuthApiDataSource(
 	}
 
 	override suspend fun refreshTokens(
-		accessToken: String,
+		sessionId: String,
 		refreshToken: String,
 		attestation: Attestation
 	): RefreshTokens {
 		val request = RefreshTokensRequest(
-			accessToken = accessToken,
+			sessionId = sessionId,
 			refreshToken = refreshToken
 		)
 
-		val response = ktorClient.post("auth/v1/token/refresh") {
+		val response = ktorClient.post("auth/v2/token/refresh") {
 			setAttestationTokenHeader(attestation)
 			header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
 			setBody(request)
 		}.body<RefreshTokensResponse>()
 
 		return RefreshTokens(
+			sessionId = response.sessionId,
 			accessToken = response.accessToken,
 			refreshToken = response.refreshToken,
 			expiresIn = response.expiresIn
 		)
 	}
 
-	override suspend fun revokeTokens(accessToken: String) {
-		ktorClient.post("auth/v1/token/revoke") {
-			bearerAuth(accessToken)
+	override suspend fun revokeTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	) {
+		ktorClient.post("auth/v2/token/revoke") {
+			setAttestationTokenHeader(attestation)
+			setBody(
+				RevokeTokensRequest(
+					sessionId = sessionId,
+					refreshToken = refreshToken
+				)
+			)
 		}
 	}
 
@@ -101,6 +113,7 @@ class KtorAuthApiDataSource(
 		return IssueTokens(
 			uid = uid,
 			usbId = usbId,
+			sessionId = sessionId,
 			accessToken = accessToken,
 			refreshToken = refreshToken,
 			expiresIn = expiresIn

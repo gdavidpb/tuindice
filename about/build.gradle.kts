@@ -106,7 +106,8 @@ val generateAboutDependencyTexts = tasks.register<GenerateAboutDependencyTextsTa
 tasks.matching {
 	it.name.startsWith("compileKotlin") ||
 			it.name.startsWith("compileTestKotlin") ||
-			it.name == "compileAndroidMain"
+			it.name == "compileAndroidMain" ||
+			it.name == "compileCommonMainKotlinMetadata"
 }.configureEach {
 	dependsOn(generateAboutDependencyTexts)
 }

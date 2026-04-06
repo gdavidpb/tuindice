@@ -1,0 +1,37 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/attestation/v4/session-auth/sessions",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.auth_session_id =~ /auth-session-.+/)]"
+      },
+      {
+        "matchesJsonPath": "$.refresh_token"
+      },
+      {
+        "matchesJsonPath": "$[?(@.platform == 'Android')]"
+      },
+      {
+        "matchesJsonPath": "$[?(@.operation_code =~ /auth\\.(refresh_tokens|revoke_tokens)/)]"
+      },
+      {
+        "matchesJsonPath": "$.key_id"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "session_id": "mock-attestation-session-android-session-auth",
+      "challenge": "mock-attestation-challenge-android-session-auth",
+      "expires_at": 2524608000000,
+      "evidence_mode": "play_integrity_standard",
+      "proof_of_possession_mode": "android_keystore"
+    },
+    "fixedDelayMilliseconds": 250
+  }
+}

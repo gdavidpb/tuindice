@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
-import com.gdavidpb.tuindice.base.domain.model.AttestationTemporarilyUnavailableException
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.TimeoutCancellationException
@@ -111,12 +110,6 @@ fun Throwable.isPreconditionRequired() = when (this) {
 	else -> false
 }
 
-fun Throwable.isAttestationTemporarilyUnavailable(): Boolean {
-	return errorChain().any { throwable ->
-		throwable is AttestationTemporarilyUnavailableException
-	}
-}
-
 fun Throwable.isPayloadTooLarge() = when (this) {
 	is ClientRequestException -> response.status == HttpStatusCode.PayloadTooLarge
 	else -> false
@@ -130,11 +123,11 @@ fun Throwable.isUnsupportedMediaType() = when (this) {
 fun Throwable.isTimeout(): Boolean {
 	return errorChain().any { throwable ->
 		throwable is TimeoutCancellationException ||
-			throwable.matchesErrorClass(
-				simpleClassNames = timeoutSimpleClassNames,
-				qualifiedClassNames = timeoutQualifiedClassNames
-			) ||
-			throwable.matchesMessage(timeoutMessageFragments)
+				throwable.matchesErrorClass(
+					simpleClassNames = timeoutSimpleClassNames,
+					qualifiedClassNames = timeoutQualifiedClassNames
+				) ||
+				throwable.matchesMessage(timeoutMessageFragments)
 	}
 }
 
@@ -144,7 +137,7 @@ fun Throwable.isConnection(): Boolean {
 			simpleClassNames = connectionSimpleClassNames,
 			qualifiedClassNames = connectionQualifiedClassNames
 		) ||
-			throwable.matchesMessage(connectionMessageFragments)
+				throwable.matchesMessage(connectionMessageFragments)
 	}
 }
 
@@ -167,7 +160,7 @@ private fun Throwable.matchesErrorClass(
 	val qualifiedName = this::class.qualifiedName
 
 	return (simpleName != null && simpleName in simpleClassNames) ||
-		(qualifiedName != null && qualifiedName in qualifiedClassNames)
+			(qualifiedName != null && qualifiedName in qualifiedClassNames)
 }
 
 private fun Throwable.matchesMessage(keywords: Set<String>): Boolean {

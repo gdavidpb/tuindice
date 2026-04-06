@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.auth.presentation.action.SignOutActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
+import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
@@ -93,6 +94,7 @@ class SignOutRouteUiTest {
 
 		val signOutUseCase = SignOutUseCase(
 			authRepository = RecordingAuthRepository(),
+			attestationRepository = FakeAttestationRepository(),
 			sessionRepository = FakeSessionRepository(),
 			messagingRepository = RecordingMessagingRepository(),
 			applicationRepository = applicationRepository,

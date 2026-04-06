@@ -1,21 +1,21 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/auth/v1/token/revoke",
-    "headers": {
-      "Authorization": {
-        "absent": true
+    "urlPath": "/auth/v2/token/revoke",
+    "bodyPatterns": [
+      {
+        "equalToJson": "{}"
       }
-    }
+    ]
   },
   "response": {
-    "status": 401,
+    "status": 400,
     "headers": {
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "code": 401,
-      "message": "Jwt is missing"
+      "code": 400,
+      "message": "Invalid revoke tokens request"
     },
     "fixedDelayMilliseconds": 500
   }

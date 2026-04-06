@@ -22,10 +22,14 @@ interface AuthRepository {
 	)
 
 	suspend fun refreshTokens(
-		accessToken: String,
+		sessionId: String,
 		refreshToken: String,
 		attestation: Attestation
 	): RefreshTokens
 
-	suspend fun revokeTokens(accessToken: String)
+	suspend fun revokeTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	)
 }

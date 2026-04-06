@@ -83,7 +83,6 @@ fun createIosIdentityHttpClient(
 
 			sanitizeHeader { header ->
 				header == HttpHeaders.Authorization ||
-					header == "X-Forwarded-Authorization" ||
 					header == AttestationHeaders.ATTESTATION_TOKEN
 			}
 		}

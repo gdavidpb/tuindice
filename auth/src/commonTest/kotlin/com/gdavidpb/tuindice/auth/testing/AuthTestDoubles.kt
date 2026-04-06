@@ -29,12 +29,14 @@ val DEFAULT_BOOTSTRAP_TOKENS = BootstrapTokens(
 val DEFAULT_ISSUE_TOKENS = IssueTokens(
 	uid = "uid-123",
 	usbId = "20261234",
+	sessionId = "session-123",
 	accessToken = "access-token",
 	refreshToken = "refresh-token",
 	expiresIn = 3600L
 )
 
 val DEFAULT_REFRESH_TOKENS = RefreshTokens(
+	sessionId = "session-123",
 	accessToken = "refreshed-access-token",
 	refreshToken = "refreshed-refresh-token",
 	expiresIn = 3600L
@@ -66,7 +68,8 @@ class RecordingAuthRepository(
 	var reissueTokensCalls = mutableListOf<ReissueTokensCall>()
 	var refreshTokenCalls = mutableListOf<Triple<String, String, Attestation>>()
 	var revokeTokensCalls = 0
-	var revokedAccessTokens = mutableListOf<String>()
+	var revokedSessionIds = mutableListOf<String>()
+	var revokedRefreshTokens = mutableListOf<String>()
 
 	override suspend fun bootstrapSignIn(
 		usbId: String,
@@ -105,18 +108,23 @@ class RecordingAuthRepository(
 	}
 
 	override suspend fun refreshTokens(
-		accessToken: String,
+		sessionId: String,
 		refreshToken: String,
 		attestation: Attestation
 	): RefreshTokens {
-		refreshTokenCalls += Triple(accessToken, refreshToken, attestation)
+		refreshTokenCalls += Triple(sessionId, refreshToken, attestation)
 		throwable?.let { throw it }
 		return this.refreshTokens
 	}
 
-	override suspend fun revokeTokens(accessToken: String) {
+	override suspend fun revokeTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	) {
 		revokeTokensCalls++
-		revokedAccessTokens += accessToken
+		revokedSessionIds += sessionId
+		revokedRefreshTokens += refreshToken
 		throwable?.let { throw it }
 	}
 }
@@ -133,6 +141,7 @@ class FakeAttestationRepository(
 }
 
 class FakeSessionRepository(
+	private var sessionId: String = DEFAULT_ISSUE_TOKENS.sessionId,
 	private var usbId: String = DEFAULT_ISSUE_TOKENS.usbId,
 	private var accessToken: String = DEFAULT_ISSUE_TOKENS.accessToken,
 	private var refreshToken: String = DEFAULT_ISSUE_TOKENS.refreshToken
@@ -140,11 +149,15 @@ class FakeSessionRepository(
 	var cleared = false
 
 	override suspend fun hasActiveSession(): Boolean {
-		return accessToken.isNotBlank() && refreshToken.isNotBlank()
+		return sessionId.isNotBlank() && accessToken.isNotBlank() && refreshToken.isNotBlank()
 	}
 
 	override suspend fun setUsbId(usbId: String) {
 		this.usbId = usbId
+	}
+
+	override suspend fun setSessionId(sessionId: String) {
+		this.sessionId = sessionId
 	}
 
 	override suspend fun setAccessToken(accessToken: String) {
@@ -157,11 +170,14 @@ class FakeSessionRepository(
 
 	override suspend fun getUsbId(): String = usbId
 
+	override suspend fun getSessionId(): String = sessionId
+
 	override suspend fun getAccessToken(): String = accessToken
 
 	override suspend fun getRefreshToken(): String = refreshToken
 
 	override suspend fun clear() {
+		sessionId = ""
 		usbId = ""
 		accessToken = ""
 		refreshToken = ""
@@ -232,7 +248,8 @@ class FakeAuthApiDataSource(
 	var reissueCalls = mutableListOf<ReissueTokensCall>()
 	var refreshCalls = mutableListOf<Triple<String, String, Attestation>>()
 	var revokeCalls = 0
-	var revokedAccessTokens = mutableListOf<String>()
+	var revokedSessionIds = mutableListOf<String>()
+	var revokedRefreshTokens = mutableListOf<String>()
 
 	override suspend fun bootstrapSignIn(
 		usbId: String,
@@ -274,18 +291,23 @@ class FakeAuthApiDataSource(
 	}
 
 	override suspend fun refreshTokens(
-		accessToken: String,
+		sessionId: String,
 		refreshToken: String,
 		attestation: Attestation
 	): RefreshTokens {
-		refreshCalls += Triple(accessToken, refreshToken, attestation)
+		refreshCalls += Triple(sessionId, refreshToken, attestation)
 		throwable?.let { throw it }
 		return refreshTokens
 	}
 
-	override suspend fun revokeTokens(accessToken: String) {
+	override suspend fun revokeTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	) {
 		revokeCalls++
-		revokedAccessTokens += accessToken
+		revokedSessionIds += sessionId
+		revokedRefreshTokens += refreshToken
 		throwable?.let { throw it }
 	}
 }

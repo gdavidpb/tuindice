@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.repository.attestation
 
 import com.gdavidpb.tuindice.base.data.model.AttestationProofOfPossessionRequest
+import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
@@ -49,7 +50,9 @@ class AndroidAttestationDataSourceTest {
 			AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthExchange,
 				payloadJson = """{"usb_id":"12345678-9"}""",
-				bearerToken = "access-token"
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = "access-token"
+				)
 			)
 		)
 
@@ -97,7 +100,9 @@ class AndroidAttestationDataSourceTest {
 			AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 				payloadJson = """{"refresh_token":"token"}""",
-				bearerToken = "access-token"
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = "access-token"
+				)
 			)
 		)
 
@@ -148,7 +153,9 @@ class AndroidAttestationDataSourceTest {
 			AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 				payloadJson = """{"refresh_token":"token"}""",
-				bearerToken = "access-token"
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = "access-token"
+				)
 			)
 		)
 
@@ -178,7 +185,9 @@ class AndroidAttestationDataSourceTest {
 			AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 				payloadJson = """{"refresh_token":"token"}""",
-				bearerToken = "access-token"
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = "access-token"
+				)
 			)
 		)
 

@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RefreshTokensRequest(
+data class RevokeTokensRequest(
 	@SerialName("session_id")
 	val sessionId: String,
 	@SerialName("refresh_token")

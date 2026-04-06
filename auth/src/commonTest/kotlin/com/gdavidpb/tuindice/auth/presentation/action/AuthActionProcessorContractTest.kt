@@ -113,14 +113,15 @@ class AuthActionProcessorContractTest {
 
 	@Test
 	fun signOutActionProcessor_emitsLoggingOutMutation_thenNavigatesToSignIn() = runTest {
-		val processor = SignOutActionProcessor(
-			signOutUseCase = SignOutUseCase(
-				authRepository = RecordingAuthRepository(),
-				sessionRepository = FakeSessionRepository(),
-				messagingRepository = RecordingMessagingRepository(),
-				applicationRepository = RecordingApplicationRepository(),
-				syncStatusRepository = FakeSyncStatusRepository(),
-				reportingRepository = RecordingReportingRepository()
+			val processor = SignOutActionProcessor(
+				signOutUseCase = SignOutUseCase(
+					authRepository = RecordingAuthRepository(),
+					attestationRepository = FakeAttestationRepository(),
+					sessionRepository = FakeSessionRepository(),
+					messagingRepository = RecordingMessagingRepository(),
+					applicationRepository = RecordingApplicationRepository(),
+					syncStatusRepository = FakeSyncStatusRepository(),
+					reportingRepository = RecordingReportingRepository()
 			)
 		)
 		val effects = mutableListOf<SignOut.Effect>()

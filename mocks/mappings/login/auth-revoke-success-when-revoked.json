@@ -4,12 +4,20 @@
   "newScenarioState": "TokensRevoked",
   "request": {
     "method": "POST",
-    "urlPath": "/auth/v1/token/revoke",
+    "urlPath": "/auth/v2/token/revoke",
     "headers": {
-      "Authorization": {
-        "matches": "Bearer .+"
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
       }
-    }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.session_id"
+      },
+      {
+        "matchesJsonPath": "$.refresh_token"
+      }
+    ]
   },
   "response": {
     "status": 200,

@@ -53,6 +53,7 @@ class AuthDataSource(
 	}
 
 	private suspend fun persistIssuedTokens(tokens: IssueTokens) {
+		sessionRepository.setSessionId(tokens.sessionId)
 		sessionRepository.setAccessToken(tokens.accessToken)
 		sessionRepository.setRefreshToken(tokens.refreshToken)
 		sessionRepository.setUsbId(tokens.usbId)
@@ -60,21 +61,26 @@ class AuthDataSource(
 	}
 
 	override suspend fun refreshTokens(
-		accessToken: String,
+		sessionId: String,
 		refreshToken: String,
 		attestation: Attestation
 	): RefreshTokens {
 		return authApiDataSource.refreshTokens(
-			accessToken = accessToken,
+			sessionId = sessionId,
 			refreshToken = refreshToken,
 			attestation = attestation
 		).also { tokens ->
+			sessionRepository.setSessionId(tokens.sessionId)
 			sessionRepository.setAccessToken(tokens.accessToken)
 			sessionRepository.setRefreshToken(tokens.refreshToken)
 		}
 	}
 
-	override suspend fun revokeTokens(accessToken: String) {
-		authApiDataSource.revokeTokens(accessToken = accessToken)
+	override suspend fun revokeTokens(sessionId: String, refreshToken: String, attestation: Attestation) {
+		authApiDataSource.revokeTokens(
+			sessionId = sessionId,
+			refreshToken = refreshToken,
+			attestation = attestation
+		)
 	}
 }

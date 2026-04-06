@@ -9,10 +9,7 @@
     <string name="label_privacy_policy">TuIndice - Política de privacidad</string>
     <string name="about_x">@TuIndice\n¡Síguenos en X y enterate de todo!</string>
     <string name="about_share">Compartir\nInvita a un amigo a descargar la aplicación</string>
-    <string name="about_share_message">Descarga TuIndice y administra tus notas de forma simple.
-        Google Play: https://play.google.com/store/apps/details?id=com.gdavidpb.tuindice
-        App Store: https://apps.apple.com/app/id6760307454
-    </string>
+    <string name="about_share_message">Descarga TuIndice y administra tus notas de forma simple.&#10;Google Play: https://play.google.com/store/apps/details?id=com.gdavidpb.tuindice&#10;App Store: https://apps.apple.com/app/id6760307454</string>
     <string name="about_share_subject">TuIndice</string>
     <string name="about_rate">Puntúa\n¡Dale las 5 estrellas!</string>
     <string name="about_header_developer">Desarrollador</string>

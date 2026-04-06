@@ -9,12 +9,17 @@ class SecureStoreSessionDataSource(
 	private val kSafe: KSafe
 ) : PreferencesSessionDataRepository {
 	override suspend fun hasActiveSession(): Boolean {
-		return kSafe.getDirect<String?>(key = PreferencesKeys.USER_ACCESS_TOKEN, defaultValue = null) != null ||
-					kSafe.getDirect<String?>(key = PreferencesKeys.USER_REFRESH_TOKEN, defaultValue = null) != null
+		return kSafe.getDirect<String?>(key = PreferencesKeys.USER_SESSION_ID, defaultValue = null) != null &&
+				kSafe.getDirect<String?>(key = PreferencesKeys.USER_ACCESS_TOKEN, defaultValue = null) != null &&
+				kSafe.getDirect<String?>(key = PreferencesKeys.USER_REFRESH_TOKEN, defaultValue = null) != null
 	}
 
 	override suspend fun setUsbId(usbId: String) {
 		kSafe.putDirect(key = PreferencesKeys.USER_USB_ID, value = usbId)
+	}
+
+	override suspend fun setSessionId(sessionId: String) {
+		kSafe.putDirect(key = PreferencesKeys.USER_SESSION_ID, value = sessionId)
 	}
 
 	override suspend fun setAccessToken(accessToken: String) {
@@ -27,6 +32,10 @@ class SecureStoreSessionDataSource(
 
 	override suspend fun getUsbId(): String? {
 		return kSafe.getDirect<String?>(key = PreferencesKeys.USER_USB_ID, defaultValue = null)
+	}
+
+	override suspend fun getSessionId(): String? {
+		return kSafe.getDirect<String?>(key = PreferencesKeys.USER_SESSION_ID, defaultValue = null)
 	}
 
 	override suspend fun getAccessToken(): String? {
