@@ -7,4 +7,5 @@ interface SyncStatusRepository {
 	fun observeSyncStatus(): Flow<SyncStatus>
 	suspend fun getSyncStatus(): SyncStatus
 	suspend fun setSyncStatus(status: SyncStatus)
+	suspend fun reset()
 }

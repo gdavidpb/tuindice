@@ -31,6 +31,11 @@ class SyncStatusSettingsDataSource(
 		syncStatus.value = status
 	}
 
+	override suspend fun reset() {
+		settings.remove(PreferencesKeys.SYNC_STATUS)
+		syncStatus.value = SyncStatus.Healthy
+	}
+
 	private object PreferencesKeys {
 		const val SYNC_STATUS = "syncStatus"
 	}

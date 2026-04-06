@@ -210,6 +210,10 @@ private class FakeSyncStatusRepository(
 		syncStatus.value = status
 		setStatuses += status
 	}
+
+	override suspend fun reset() {
+		syncStatus.value = SyncStatus.Healthy
+	}
 }
 
 private class FakeSyncRemoteDataSource(

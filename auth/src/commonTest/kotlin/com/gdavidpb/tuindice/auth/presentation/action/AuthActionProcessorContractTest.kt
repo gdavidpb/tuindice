@@ -118,7 +118,6 @@ class AuthActionProcessorContractTest {
 					authRepository = RecordingAuthRepository(),
 					attestationRepository = FakeAttestationRepository(),
 					sessionRepository = FakeSessionRepository(),
-					messagingRepository = RecordingMessagingRepository(),
 					applicationRepository = RecordingApplicationRepository(),
 					syncStatusRepository = FakeSyncStatusRepository(),
 					reportingRepository = RecordingReportingRepository()

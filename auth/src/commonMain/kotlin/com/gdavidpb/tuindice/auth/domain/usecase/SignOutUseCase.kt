@@ -5,17 +5,13 @@ import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
-import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -23,7 +19,6 @@ class SignOutUseCase(
 	private val authRepository: AuthRepository,
 	private val attestationRepository: AttestationRepository,
 	private val sessionRepository: SessionRepository,
-	private val messagingRepository: MessagingRepository,
 	private val applicationRepository: ApplicationRepository,
 	private val syncStatusRepository: SyncStatusRepository,
 	override val reportingRepository: ReportingRepository
@@ -49,26 +44,15 @@ class SignOutUseCase(
 			)
 		)
 
-		coroutineScope {
-			val unsubscribeDeferred = async {
-				messagingRepository.unsubscribe()
-			}
-
-			val revokeDeferred = async {
-				authRepository.revokeTokens(
-					sessionId = sessionId,
-					refreshToken = refreshToken,
-					attestation = attestation
-				)
-			}
-
-			revokeDeferred.await()
-			unsubscribeDeferred.await()
-		}
+		authRepository.revokeTokens(
+			sessionId = sessionId,
+			refreshToken = refreshToken,
+			attestation = attestation
+		)
 
 		sessionRepository.clear()
-		syncStatusRepository.setSyncStatus(SyncStatus.Healthy)
 		applicationRepository.clearData()
+		syncStatusRepository.reset()
 
 		return flowOf(Unit)
 	}

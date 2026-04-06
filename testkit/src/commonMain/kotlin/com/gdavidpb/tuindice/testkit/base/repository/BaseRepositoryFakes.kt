@@ -269,6 +269,8 @@ class FakeSyncStatusRepository(
 ) : SyncStatusRepository {
 	private val syncStatus = MutableStateFlow(initialValue)
 	val setStatuses = mutableListOf<SyncStatus>()
+	var resetCalls = 0
+		private set
 
 	override fun observeSyncStatus(): Flow<SyncStatus> = syncStatus
 
@@ -277,5 +279,10 @@ class FakeSyncStatusRepository(
 	override suspend fun setSyncStatus(status: SyncStatus) {
 		syncStatus.value = status
 		setStatuses += status
+	}
+
+	override suspend fun reset() {
+		syncStatus.value = SyncStatus.Healthy
+		resetCalls++
 	}
 }

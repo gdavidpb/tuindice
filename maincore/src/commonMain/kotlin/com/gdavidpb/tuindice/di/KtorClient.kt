@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
-import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
 import com.gdavidpb.tuindice.base.utils.extension.isForbidden
@@ -199,7 +198,7 @@ internal suspend fun handleUnauthorizedTokenRefresh(
 	sessionInvalidationRepository: SessionInvalidationRepository
 ) {
 	runCatching { sessionRepository.clear() }
-	runCatching { syncStatusRepository.setSyncStatus(SyncStatus.Healthy) }
+	runCatching { syncStatusRepository.reset() }
 	runCatching { applicationRepository.clearData() }
 	runCatching { sessionInvalidationRepository.notifySessionInvalidated() }
 }

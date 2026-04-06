@@ -26,7 +26,6 @@ class MessagingDataSource(
 	}
 
 	override suspend fun unsubscribe() {
-		runCatching { remoteDataSource.unsubscribe() }
 		localDataSource.clearSubscription()
 	}
 }

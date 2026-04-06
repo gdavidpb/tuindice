@@ -37,7 +37,8 @@ class KtorClientTest {
 		)
 
 		assertTrue(sessionRepository.cleared)
-		assertEquals(listOf(SyncStatus.Healthy), syncStatusRepository.setStatuses)
+		assertEquals(1, syncStatusRepository.resetCalls)
+		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
 		assertTrue(applicationRepository.cleared)
 		assertEquals(1, sessionInvalidationRepository.invalidationCalls)
 	}

@@ -93,7 +93,7 @@ class MessagingDataRepositoryTest {
 	}
 
 	@Test
-	fun unsubscribe_callsRemoteAndClearsLocalSubscription() = runBlocking {
+	fun unsubscribe_clearsLocalSubscriptionWithoutCallingRemote() = runBlocking {
 		val local = FakeMessagingLocalDataSource().apply {
 			subscribed = true
 			subscribedToken = "token-1"
@@ -107,29 +107,7 @@ class MessagingDataRepositoryTest {
 
 		repository.unsubscribe()
 
-		assertEquals(1, remote.unsubscribeCalls)
-		assertEquals(false, local.subscribed)
-		assertNull(local.subscribedToken)
-	}
-
-	@Test
-	fun unsubscribe_whenRemoteFails_stillClearsLocalSubscription() = runBlocking {
-		val local = FakeMessagingLocalDataSource().apply {
-			subscribed = true
-			subscribedToken = "token-1"
-		}
-		val remote = FakeMessagingRemoteDataSource().apply {
-			unsubscribeError = IllegalStateException("network-error")
-		}
-		val repository = MessagingDataSource(
-			localDataSource = local,
-			remoteDataSource = remote,
-			pushTokenDataSource = FakePushTokenDataSource(token = "token-1")
-		)
-
-		repository.unsubscribe()
-
-		assertEquals(1, remote.unsubscribeCalls)
+		assertEquals(0, remote.unsubscribeCalls)
 		assertEquals(false, local.subscribed)
 		assertNull(local.subscribedToken)
 	}

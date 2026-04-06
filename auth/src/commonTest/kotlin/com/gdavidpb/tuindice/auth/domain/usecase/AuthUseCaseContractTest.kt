@@ -116,7 +116,6 @@ class AuthUseCaseContractTest {
 	fun signOutUseCase_emitsLoadingThenData_andClearsSessionData() = runTest {
 		val authRepository = RecordingAuthRepository()
 		val attestationRepository = FakeAttestationRepository()
-		val messagingRepository = RecordingMessagingRepository()
 		val sessionRepository = FakeSessionRepository()
 		val applicationRepository = RecordingApplicationRepository()
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
@@ -124,7 +123,6 @@ class AuthUseCaseContractTest {
 			authRepository = authRepository,
 			attestationRepository = attestationRepository,
 			sessionRepository = sessionRepository,
-			messagingRepository = messagingRepository,
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
 			reportingRepository = RecordingReportingRepository()
@@ -147,9 +145,8 @@ class AuthUseCaseContractTest {
 			attestationRepository.lastRequest?.authorization
 		)
 		assertEquals(true, sessionRepository.cleared)
-		assertEquals(1, messagingRepository.unsubscribeCalls)
 		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
-		assertEquals(listOf(SyncStatus.Healthy), syncStatusRepository.setStatuses)
+		assertEquals(1, syncStatusRepository.resetCalls)
 		assertEquals(true, applicationRepository.cleared)
 	}
 
@@ -161,7 +158,6 @@ class AuthUseCaseContractTest {
 		)
 		val authRepository = RecordingAuthRepository(throwable = revokeThrowable)
 		val attestationRepository = FakeAttestationRepository()
-		val messagingRepository = RecordingMessagingRepository()
 		val sessionRepository = FakeSessionRepository()
 		val applicationRepository = RecordingApplicationRepository()
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
@@ -170,7 +166,6 @@ class AuthUseCaseContractTest {
 			authRepository = authRepository,
 			attestationRepository = attestationRepository,
 			sessionRepository = sessionRepository,
-			messagingRepository = messagingRepository,
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
 			reportingRepository = reportingRepository
