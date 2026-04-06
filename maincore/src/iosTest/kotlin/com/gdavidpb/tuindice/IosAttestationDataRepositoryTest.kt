@@ -242,7 +242,7 @@ private fun appAttestHttpClient(
 		MockEngine { request ->
 			assertEquals("Bearer access-token", request.headers[HttpHeaders.Authorization])
 			when (request.url.encodedPath) {
-				"/attestation/v3/sessions" -> {
+				"/attestation/v4/sessions" -> {
 					val evidenceMode = sessionModes.removeFirst()
 					respond(
 						content = """
@@ -258,7 +258,7 @@ private fun appAttestHttpClient(
 					)
 				}
 
-				"/attestation/v3/tokens" -> {
+				"/attestation/v4/tokens" -> {
 					val status = tokenStatuses.removeFirst()
 					val token = tokenValues.removeFirst()
 					respond(
@@ -294,7 +294,7 @@ private fun appAttestPreparationHttpClient(): HttpClient {
 		MockEngine { request ->
 			assertEquals("Bearer access-token", request.headers[HttpHeaders.Authorization])
 			when (request.url.encodedPath) {
-				"/attestation/v3/sessions" -> {
+				"/attestation/v4/sessions" -> {
 					sessionAttempts += 1
 					if (sessionAttempts == 1) {
 						respond(
@@ -323,7 +323,7 @@ private fun appAttestPreparationHttpClient(): HttpClient {
 					}
 				}
 
-				"/attestation/v3/preparations/sessions" -> {
+				"/attestation/v4/preparations/sessions" -> {
 					respond(
 						content = """
 							{
@@ -338,7 +338,7 @@ private fun appAttestPreparationHttpClient(): HttpClient {
 					)
 				}
 
-				"/attestation/v3/preparations/complete" -> {
+				"/attestation/v4/preparations/complete" -> {
 					respond(
 						content = "",
 						status = HttpStatusCode.NoContent,
@@ -346,7 +346,7 @@ private fun appAttestPreparationHttpClient(): HttpClient {
 					)
 				}
 
-				"/attestation/v3/tokens" -> {
+				"/attestation/v4/tokens" -> {
 					respond(
 						content = """
 							{

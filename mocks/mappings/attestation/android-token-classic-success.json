@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/attestation/v3/tokens",
+    "urlPath": "/attestation/v4/tokens",
     "headers": {
       "Authorization": {
         "matches": "Bearer .+"

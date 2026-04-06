@@ -12,6 +12,6 @@ data class CompleteAttestationPreparationRequest(
 	@SerialName("request_hash") val requestHash: String,
 	@SerialName("evidence_mode") val evidenceMode: AttestationEvidenceMode,
 	@SerialName("token") val token: String,
-	@SerialName("key_id") val keyId: String? = null,
+	@SerialName("key_id") val keyId: String,
 	@SerialName("proof_of_possession") val proofOfPossession: AttestationProofOfPossessionRequest? = null
 )

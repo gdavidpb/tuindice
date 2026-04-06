@@ -184,7 +184,7 @@ fun createSharedHttpClient(
 private fun String.shouldSendBearerAuth(): Boolean {
 	return !startsWith("/auth/v2/token/refresh") &&
 			!startsWith("/auth/v2/token/revoke") &&
-			!startsWith("/attestation/v4/session-auth/")
+			!startsWith("/attestation/v4/")
 }
 
 internal fun Throwable.isSessionInvalidatingRefreshFailure(): Boolean {

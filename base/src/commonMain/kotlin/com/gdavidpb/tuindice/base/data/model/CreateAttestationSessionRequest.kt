@@ -7,5 +7,6 @@ import kotlinx.serialization.Serializable
 data class CreateAttestationSessionRequest(
 	@SerialName("platform") val platform: String,
 	@SerialName("operation_code") val operationCode: String,
-	@SerialName("key_id") val keyId: String? = null
+	@SerialName("authorization") val authorization: AttestationAuthorizationRequest? = null,
+	@SerialName("key_id") val keyId: String
 )

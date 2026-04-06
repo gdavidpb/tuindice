@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/attestation/v4/session-auth/tokens",
+    "urlPath": "/attestation/v4/tokens",
     "bodyPatterns": [
       {
         "matchesJsonPath": "$[?(@.session_id == 'mock-attestation-session-android-session-auth')]"

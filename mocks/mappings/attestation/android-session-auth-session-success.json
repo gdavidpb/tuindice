@@ -1,13 +1,13 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/attestation/v4/session-auth/sessions",
+    "urlPath": "/attestation/v4/sessions",
     "bodyPatterns": [
       {
-        "matchesJsonPath": "$[?(@.auth_session_id =~ /auth-session-.+/)]"
+        "matchesJsonPath": "$[?(@.authorization.session_id =~ /auth-session-.+/)]"
       },
       {
-        "matchesJsonPath": "$.refresh_token"
+        "matchesJsonPath": "$.authorization.refresh_token"
       },
       {
         "matchesJsonPath": "$[?(@.platform == 'Android')]"

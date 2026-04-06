@@ -1,12 +1,11 @@
 package com.gdavidpb.tuindice.data.source.attestation
 
 import com.gdavidpb.tuindice.base.data.model.CreateAttestationPreparationSessionRequest
+import com.gdavidpb.tuindice.base.data.model.toRequestAuthorizationOrNull
 import com.gdavidpb.tuindice.base.data.model.AttestationPreparationRequiredResponse
 import com.gdavidpb.tuindice.base.data.model.CompleteAttestationPreparationRequest
 import com.gdavidpb.tuindice.base.data.model.CreateAttestationSessionRequest
 import com.gdavidpb.tuindice.base.data.model.CreateAttestationSessionResponse
-import com.gdavidpb.tuindice.base.data.model.CreateSessionAuthAttestationPreparationSessionRequest
-import com.gdavidpb.tuindice.base.data.model.CreateSessionAuthAttestationSessionRequest
 import com.gdavidpb.tuindice.base.data.model.IssueAttestationTokenRequest
 import com.gdavidpb.tuindice.base.data.model.IssueAttestationTokenResponse
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
@@ -90,7 +89,7 @@ class AndroidAttestationDataSource(
 		)
 
 		val response = runCatching {
-			ktorClient.post(tokensPath(request.authorization)) {
+			ktorClient.post(tokensPath()) {
 				applyAttestationAuthorization(request.authorization)
 				setBody(
 					IssueAttestationTokenRequest(
@@ -149,26 +148,15 @@ class AndroidAttestationDataSource(
 		keyId: String,
 		authorization: AttestationAuthorization
 	): CreateAttestationSessionResponse {
-		return ktorClient.post(operationSessionPath(authorization)) {
+		return ktorClient.post(operationSessionPath()) {
 			applyAttestationAuthorization(authorization)
 			setBody(
-				when (authorization) {
-					is AttestationAuthorization.Bearer ->
-						CreateAttestationSessionRequest(
-							platform = PLATFORM_ANDROID,
-							operationCode = operationCode,
-							keyId = keyId
-						)
-
-					is AttestationAuthorization.Session ->
-						CreateSessionAuthAttestationSessionRequest(
-							authSessionId = authorization.sessionId,
-							refreshToken = authorization.refreshToken,
-							platform = PLATFORM_ANDROID,
-							operationCode = operationCode,
-							keyId = keyId
-						)
-				}
+				CreateAttestationSessionRequest(
+					platform = PLATFORM_ANDROID,
+					operationCode = operationCode,
+					authorization = authorization.toRequestAuthorizationOrNull(),
+					keyId = keyId
+				)
 			)
 		}.body()
 	}
@@ -181,26 +169,15 @@ class AndroidAttestationDataSource(
 		val requestHash = sha256Base64Url(
 			"""{"preparation_code":"${preparationCode.value}","key_id":"$keyId"}"""
 		)
-		val session = ktorClient.post(preparationSessionPath(authorization)) {
+		val session = ktorClient.post(preparationSessionPath()) {
 			applyAttestationAuthorization(authorization)
 			setBody(
-				when (authorization) {
-					is AttestationAuthorization.Bearer ->
-						CreateAttestationPreparationSessionRequest(
-							platform = PLATFORM_ANDROID,
-							preparationCode = preparationCode,
-							keyId = keyId
-						)
-
-					is AttestationAuthorization.Session ->
-						CreateSessionAuthAttestationPreparationSessionRequest(
-							authSessionId = authorization.sessionId,
-							refreshToken = authorization.refreshToken,
-							platform = PLATFORM_ANDROID,
-							preparationCode = preparationCode,
-							keyId = keyId
-						)
-				}
+				CreateAttestationPreparationSessionRequest(
+					platform = PLATFORM_ANDROID,
+					preparationCode = preparationCode,
+					authorization = authorization.toRequestAuthorizationOrNull(),
+					keyId = keyId
+				)
 			)
 		}.body<CreateAttestationSessionResponse>()
 		val bindingHash = bindingHash(
@@ -221,7 +198,7 @@ class AndroidAttestationDataSource(
 		)
 
 		runCatching {
-			ktorClient.post(preparationCompletePath(authorization)) {
+			ktorClient.post(preparationCompletePath()) {
 				applyAttestationAuthorization(authorization)
 				setBody(
 					CompleteAttestationPreparationRequest(
@@ -346,32 +323,20 @@ class AndroidAttestationDataSource(
 		}
 	}
 
-	private fun operationSessionPath(authorization: AttestationAuthorization): String {
-		return when (authorization) {
-			is AttestationAuthorization.Bearer -> "attestation/v3/sessions"
-			is AttestationAuthorization.Session -> "attestation/v4/session-auth/sessions"
-		}
+	private fun operationSessionPath(): String {
+		return "attestation/v4/sessions"
 	}
 
-	private fun preparationSessionPath(authorization: AttestationAuthorization): String {
-		return when (authorization) {
-			is AttestationAuthorization.Bearer -> "attestation/v3/preparations/sessions"
-			is AttestationAuthorization.Session -> "attestation/v4/session-auth/preparations/sessions"
-		}
+	private fun preparationSessionPath(): String {
+		return "attestation/v4/preparations/sessions"
 	}
 
-	private fun tokensPath(authorization: AttestationAuthorization): String {
-		return when (authorization) {
-			is AttestationAuthorization.Bearer -> "attestation/v3/tokens"
-			is AttestationAuthorization.Session -> "attestation/v4/session-auth/tokens"
-		}
+	private fun tokensPath(): String {
+		return "attestation/v4/tokens"
 	}
 
-	private fun preparationCompletePath(authorization: AttestationAuthorization): String {
-		return when (authorization) {
-			is AttestationAuthorization.Bearer -> "attestation/v3/preparations/complete"
-			is AttestationAuthorization.Session -> "attestation/v4/session-auth/preparations/complete"
-		}
+	private fun preparationCompletePath(): String {
+		return "attestation/v4/preparations/complete"
 	}
 
 	private companion object {
