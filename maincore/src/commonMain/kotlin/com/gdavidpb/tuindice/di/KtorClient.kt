@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
+import io.ktor.client.plugins.auth.AuthConfig
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
@@ -101,82 +102,107 @@ fun createSharedHttpClient(
 		}
 
 		install(Auth) {
-			bearer {
-				sendWithoutRequest { request ->
-					request.url.encodedPath.shouldSendBearerAuth()
-				}
+			installSharedBearerAuth(
+				sessionRepository = sessionRepository,
+				applicationRepository = applicationRepository,
+				sessionInvalidationRepository = sessionInvalidationRepository,
+				syncStatusRepository = syncStatusRepository,
+				attestationRepositoryProvider = attestationRepositoryProvider,
+				authRepositoryProvider = authRepositoryProvider,
+				credentialsRepositoryProvider = credentialsRepositoryProvider,
+				syncRepositoryProvider = syncRepositoryProvider
+			)
+		}
+	}
+}
 
-				loadTokens {
-					val hasActiveTokens = sessionRepository.hasActiveSession()
+internal fun AuthConfig.installSharedBearerAuth(
+	sessionRepository: SessionRepository,
+	applicationRepository: ApplicationRepository,
+	sessionInvalidationRepository: SessionInvalidationRepository,
+	syncStatusRepository: SyncStatusRepository,
+	attestationRepositoryProvider: () -> AttestationRepository,
+	authRepositoryProvider: () -> AuthRepository,
+	credentialsRepositoryProvider: () -> CredentialsRepository,
+	syncRepositoryProvider: () -> SyncRepository
+) {
+	bearer {
+		sendWithoutRequest { request ->
+			request.url.encodedPath.shouldSendBearerAuth()
+		}
 
-					if (hasActiveTokens) {
-						BearerTokens(
-							accessToken = sessionRepository.getAccessToken(),
-							refreshToken = sessionRepository.getRefreshToken()
-						)
-					} else {
-						null
-					}
-				}
+		loadTokens {
+			val hasActiveTokens = sessionRepository.hasActiveSession()
 
-				refreshTokens {
-					val oldSessionId = sessionRepository.getSessionId()
-					val oldRefreshToken = oldTokens?.refreshToken ?: sessionRepository.getRefreshToken()
-					val attestationRepository = attestationRepositoryProvider()
-					val authRepository = authRepositoryProvider()
-					val credentialsRepository = credentialsRepositoryProvider()
-					val syncRepository = syncRepositoryProvider()
+			if (hasActiveTokens) {
+				BearerTokens(
+					accessToken = sessionRepository.getAccessToken(),
+					refreshToken = sessionRepository.getRefreshToken()
+				)
+			} else {
+				null
+			}
+		}
 
-					val attestationPayload = RefreshTokensAttestationPayload(
+		// SessionRepository already owns token persistence and mutation.
+		cacheTokens = false
+
+		refreshTokens {
+			val oldSessionId = sessionRepository.getSessionId()
+			val oldRefreshToken = oldTokens?.refreshToken ?: sessionRepository.getRefreshToken()
+			val attestationRepository = attestationRepositoryProvider()
+			val authRepository = authRepositoryProvider()
+			val credentialsRepository = credentialsRepositoryProvider()
+			val syncRepository = syncRepositoryProvider()
+
+			val attestationPayload = RefreshTokensAttestationPayload(
+				sessionId = oldSessionId,
+				refreshToken = oldRefreshToken
+			)
+
+			val attestation = attestationRepository.attest(
+				request = AttestationRequest(
+					operationCode = ProtectedOperationCodes.AuthRefreshTokens,
+					payloadJson = canonicalAttestationPayloadJson(
+						serializer = RefreshTokensAttestationPayload.serializer(),
+						value = attestationPayload
+					),
+					authorization = AttestationAuthorization.Session(
 						sessionId = oldSessionId,
 						refreshToken = oldRefreshToken
 					)
+				)
+			)
 
-					val attestation = attestationRepository.attest(
-						request = AttestationRequest(
-							operationCode = ProtectedOperationCodes.AuthRefreshTokens,
-							payloadJson = canonicalAttestationPayloadJson(
-								serializer = RefreshTokensAttestationPayload.serializer(),
-								value = attestationPayload
-							),
-							authorization = AttestationAuthorization.Session(
-								sessionId = oldSessionId,
-								refreshToken = oldRefreshToken
-							)
-						)
-					)
+			val refreshedTokens = runCatching {
+				authRepository.refreshTokens(
+					sessionId = oldSessionId,
+					refreshToken = oldRefreshToken,
+					attestation = attestation
+				)
+			}.getOrElse { throwable ->
+				if (!throwable.isSessionInvalidatingRefreshFailure()) throw throwable
 
-					val refreshedTokens = runCatching {
-						authRepository.refreshTokens(
-							sessionId = oldSessionId,
-							refreshToken = oldRefreshToken,
-							attestation = attestation
-						)
-					}.getOrElse { throwable ->
-						if (!throwable.isSessionInvalidatingRefreshFailure()) throw throwable
+				handleUnauthorizedTokenRefresh(
+					sessionRepository = sessionRepository,
+					syncStatusRepository = syncStatusRepository,
+					applicationRepository = applicationRepository,
+					sessionInvalidationRepository = sessionInvalidationRepository
+				)
 
-						handleUnauthorizedTokenRefresh(
-							sessionRepository = sessionRepository,
-							syncStatusRepository = syncStatusRepository,
-							applicationRepository = applicationRepository,
-							sessionInvalidationRepository = sessionInvalidationRepository
-						)
-
-						return@refreshTokens null
-					}
-
-					if (credentialsRepository.hasPassword()) {
-						syncRepository.scheduleSync(
-							password = credentialsRepository.getPassword()
-						)
-					}
-
-					BearerTokens(
-						accessToken = refreshedTokens.accessToken,
-						refreshToken = refreshedTokens.refreshToken
-					)
-				}
+				return@refreshTokens null
 			}
+
+			if (credentialsRepository.hasPassword()) {
+				syncRepository.scheduleSync(
+					password = credentialsRepository.getPassword()
+				)
+			}
+
+			BearerTokens(
+				accessToken = refreshedTokens.accessToken,
+				refreshToken = refreshedTokens.refreshToken
+			)
 		}
 	}
 }
