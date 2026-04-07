@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.record.domain.service
 
-import com.gdavidpb.tuindice.base.utils.extension.round
+import com.gdavidpb.tuindice.base.utils.extension.truncateScaledDivision
 import com.gdavidpb.tuindice.record.data.model.quarter.LocalQuarter
 import com.gdavidpb.tuindice.record.data.model.quarter.LocalSubject
 
@@ -156,9 +156,10 @@ class IndexComputationEngine {
 	}
 
 	private fun computeAverage(weighted: Long, credits: Long): Double {
-		if (credits == 0L) return 0.0
-
-		return (weighted.toDouble() / credits.toDouble())
-			.round(4)
+		return truncateScaledDivision(
+			numerator = weighted,
+			denominator = credits,
+			decimals = 4
+		)
 	}
 }
