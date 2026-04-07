@@ -1,8 +1,7 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
 fun Double.formatGrade(decimals: Int): String {
-	val rounded = round(decimals)
-	return rounded.toFixed(decimals)
+	return toFixed(decimals)
 }
 
 fun Float.formatGrade(decimals: Int): String {
