@@ -1,10 +1,13 @@
 package com.gdavidpb.tuindice.ui.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Article
@@ -29,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,6 +45,7 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
@@ -119,40 +124,59 @@ fun TuIndiceScreen(
 		topBar = {
 			if (shellState.isTopBarVisible) {
 				val recordTopBarViewModeState = shellState.recordTopBarViewModeState
+				val topBarContainerColor = MaterialTheme.colorScheme.surface
+				val topBarContentColor = MaterialTheme.colorScheme.onSurface
 
-				Column {
+				Column(
+					modifier = Modifier
+						.fillMaxWidth()
+						.background(topBarContainerColor)
+				) {
 					TopAppBar(
+						expandedHeight = InternalScreenDefaults.TopBarHeight,
 						title = {
 							TopAppBarAnimatedTitleView(
-								title = shellState.topBarTitle
+								title = shellState.topBarTitle,
+								modifier = Modifier.offset(
+									y = InternalScreenDefaults.TopBarContentVerticalOffset
+								)
 							)
 						},
 						actions = {
-							if (
-								recordTopBarViewModeState != null &&
-								onRecordViewModeChange != null
+							Row(
+								modifier = Modifier.offset(
+									y = InternalScreenDefaults.TopBarContentVerticalOffset
+								),
+								verticalAlignment = Alignment.CenterVertically
 							) {
-								RecordTopBarViewModeSwitchView(
-									selectedMode = recordTopBarViewModeState.selectedMode,
-									onModeSelected = onRecordViewModeChange
-								)
-							}
-
-							TopAppBarActionsView(
-								topBarConfig = shellState.topBarConfig,
-								onAction = onAction,
-								actionIconContent = { action ->
-									Icon(
-										imageVector = action.getIcon(),
-										contentDescription = null
+								if (
+									recordTopBarViewModeState != null &&
+									onRecordViewModeChange != null
+								) {
+									RecordTopBarViewModeSwitchView(
+										selectedMode = recordTopBarViewModeState.selectedMode,
+										onModeSelected = onRecordViewModeChange
 									)
 								}
-							)
+
+								TopAppBarActionsView(
+									topBarConfig = shellState.topBarConfig,
+									onAction = onAction,
+									actionIconContent = { action ->
+										Icon(
+											imageVector = action.getIcon(),
+											contentDescription = null
+										)
+									}
+								)
+							}
 						},
 						navigationIcon = {
 							if (canNavigateBack) {
 								IconButton(
-									modifier = Modifier.testTag(MaincoreUiTags.TuIndiceTopBarBackButton),
+									modifier = Modifier
+										.offset(y = InternalScreenDefaults.TopBarContentVerticalOffset)
+										.testTag(MaincoreUiTags.TuIndiceTopBarBackButton),
 									onClick = onNavigateBack
 								) {
 									Icon(
@@ -161,7 +185,13 @@ fun TuIndiceScreen(
 									)
 								}
 							}
-						}
+						},
+						colors = TopAppBarDefaults.topAppBarColors(
+							containerColor = topBarContainerColor,
+							titleContentColor = topBarContentColor,
+							navigationIconContentColor = topBarContentColor,
+							actionIconContentColor = topBarContentColor
+						)
 					)
 
 					if (recordTopBarViewModeState != null) {
@@ -176,8 +206,7 @@ fun TuIndiceScreen(
 			if (shellState.isBottomBarVisible) {
 				NavigationBar(
 					modifier = Modifier
-						.testTag(MaincoreUiTags.TuIndiceBottomBar)
-						.height(64.dp),
+						.testTag(MaincoreUiTags.TuIndiceBottomBar),
 					containerColor = MaterialTheme.colorScheme.onSecondary
 				) {
 					bottomBarConfigs.forEach { bottomBarConfig ->

@@ -9,6 +9,7 @@ struct TuIndiceApp: App {
     var body: some Scene {
         WindowGroup {
             TuIndiceRootHostView()
+                .ignoresSafeArea()
         }
     }
 }

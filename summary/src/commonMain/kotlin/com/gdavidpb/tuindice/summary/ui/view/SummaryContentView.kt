@@ -49,7 +49,7 @@ fun SummaryContentView(
 		modifier = Modifier
 			.testTag(SummaryUiTags.ContentContainer)
 			.fillMaxSize()
-			.padding(top = InternalScreenDefaults.TopBarSpacing),
+			.padding(top = InternalScreenDefaults.TopBarSpacing + 8.dp),
 		horizontalAlignment = Alignment.CenterHorizontally
 	) {
 		ProfilePictureView(

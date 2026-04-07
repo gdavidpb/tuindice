@@ -9,10 +9,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 
 @Composable
-fun TopAppBarAnimatedTitleView(title: String) {
+fun TopAppBarAnimatedTitleView(
+	title: String,
+	modifier: Modifier = Modifier
+) {
 	AnimatedContent(
 		targetState = title,
 		transitionSpec = {
@@ -23,9 +27,11 @@ fun TopAppBarAnimatedTitleView(title: String) {
 		}, label = "TopAppBarAnimatedTitleViewAnimatedContent"
 	) { targetTitle ->
 		Text(
-			modifier = Modifier.testTag(BaseUiTags.TopAppBarTitle),
+			modifier = modifier.testTag(BaseUiTags.TopAppBarTitle),
 			text = targetTitle,
-			style = MaterialTheme.typography.titleLarge
+			style = MaterialTheme.typography.titleLarge.copy(
+				fontWeight = FontWeight.Bold
+			)
 		)
 	}
 }
