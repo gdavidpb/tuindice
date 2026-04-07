@@ -12,6 +12,7 @@ abstract class PendingMutationDao : UpsertDao<PendingMutationEntity>() {
 		"SELECT * FROM ${PendingMutationTable.TABLE_NAME} " +
 			"WHERE ${PendingMutationTable.STORE_ID} = :storeId " +
 			"AND ${PendingMutationTable.SCOPE_KEY} = :scopeKey " +
+			"AND ${PendingMutationTable.STATUS} = 'Pending' " +
 			"ORDER BY ${PendingMutationTable.CREATED_AT} ASC"
 	)
 	abstract fun observePendingMutations(storeId: String, scopeKey: String): Flow<List<PendingMutationEntity>>
@@ -20,6 +21,7 @@ abstract class PendingMutationDao : UpsertDao<PendingMutationEntity>() {
 		"SELECT * FROM ${PendingMutationTable.TABLE_NAME} " +
 			"WHERE ${PendingMutationTable.STORE_ID} = :storeId " +
 			"AND ${PendingMutationTable.SCOPE_KEY} = :scopeKey " +
+			"AND ${PendingMutationTable.STATUS} = 'Pending' " +
 			"ORDER BY ${PendingMutationTable.CREATED_AT} ASC"
 	)
 	abstract suspend fun getPendingMutations(storeId: String, scopeKey: String): List<PendingMutationEntity>

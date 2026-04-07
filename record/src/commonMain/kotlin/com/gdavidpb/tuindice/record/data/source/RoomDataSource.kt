@@ -232,7 +232,7 @@ class RoomDataSource(
 					updatedTargetQuarter = previewSnapshot
 						.firstOrNull { quarter -> quarter.id == qid }
 						?: sourceQuarter,
-					expectedRevision = sourceSubject.revision
+					expectedRevision = sourceQuarter.revision
 				)
 			}
 
@@ -242,7 +242,7 @@ class RoomDataSource(
 				return@withLock SetSubjectGradeResult.Applied(
 					updatedQuarters = emptyList(),
 					updatedTargetQuarter = sourceQuarter,
-					expectedRevision = sourceSubject.revision
+					expectedRevision = sourceQuarter.revision
 				)
 			}
 
@@ -270,7 +270,7 @@ class RoomDataSource(
 				updatedQuarters = recomputed.quarters,
 				updatedTargetQuarter = recomputed.quarters.firstOrNull { quarter -> quarter.id == qid }
 					?: sourceQuarter,
-				expectedRevision = sourceSubject.revision
+				expectedRevision = sourceQuarter.revision
 			)
 		}
 	}

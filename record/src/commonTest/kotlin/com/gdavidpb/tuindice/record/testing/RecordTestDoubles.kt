@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.testing
 
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
+import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
@@ -32,6 +33,7 @@ import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
 private const val DEFAULT_RECORD_START_DATE = 1_767_225_600_000L
@@ -336,8 +338,6 @@ class FakeQuarterLocalDataSource(
 
 		val expectedRevision = quarterState.value
 			.firstOrNull { quarter -> quarter.id == qid }
-			?.subjects
-			?.firstOrNull { subject -> subject.id == sid }
 			?.revision
 
 		val updatedQuarters = quarterState.value.map { quarter ->
@@ -548,9 +548,19 @@ class FakeMutationEnvelopeStore<ScopeKey : Any, T : OutboxMutation>(
 ) : MutationEnvelopeStore<ScopeKey, T> {
 	private val state = MutableStateFlow(initialPendingMutations)
 
-	override fun observePendingMutations(scopeKey: ScopeKey): Flow<List<MutationEnvelope<ScopeKey, T>>> = state
+	override fun observePendingMutations(scopeKey: ScopeKey): Flow<List<MutationEnvelope<ScopeKey, T>>> {
+		return state.map { mutations ->
+			mutations.filter { mutation ->
+				mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
+			}
+		}
+	}
 
-	override suspend fun getPendingMutations(scopeKey: ScopeKey): List<MutationEnvelope<ScopeKey, T>> = state.value
+	override suspend fun getPendingMutations(scopeKey: ScopeKey): List<MutationEnvelope<ScopeKey, T>> {
+		return state.value.filter { mutation ->
+			mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
+		}
+	}
 
 	override suspend fun getPendingMutation(
 		scopeKey: ScopeKey,

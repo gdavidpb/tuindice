@@ -299,8 +299,30 @@ class QuarterRepositoryContractTest {
 
 	@Test
 	fun setSubjectGrade_whenCommitted_enqueuesAndSendsMutationImmediately() = runTest {
-		val localDataSource = FakeQuarterLocalDataSource()
-		val remoteDataSource = FakeQuarterRemoteDataSource()
+		val localQuarter = DEFAULT_RECORD_LOCAL_QUARTER.copy(
+			revision = 7L,
+			subjects = listOf(DEFAULT_RECORD_LOCAL_SUBJECT.copy(revision = 0L))
+		)
+		val remoteQuarter = DEFAULT_RECORD_REMOTE_QUARTER.copy(
+			revision = 8L,
+			subjects = listOf(
+				DEFAULT_RECORD_REMOTE_SUBJECT.copy(
+					grade = 85,
+					revision = 1L
+				)
+			)
+		)
+		val localDataSource = FakeQuarterLocalDataSource(
+			initialQuarters = listOf(localQuarter)
+		)
+		val remoteDataSource = FakeQuarterRemoteDataSource(
+			quarters = listOf(remoteQuarter),
+			setSubjectGradeAck = RemoteSetSubjectGradeAck(
+				mutationId = "mutation-grade-1",
+				subject = remoteQuarter.subjects.single(),
+				affectedQuarters = listOf(remoteQuarter)
+			)
+		)
 		val outboxRepository = FakeMutationEnvelopeStore<String, RecordMutation>()
 		val repository = repository(
 			localDataSource = localDataSource,
@@ -328,7 +350,7 @@ class QuarterRepositoryContractTest {
 		)
 		assertEquals(1, remoteDataSource.setSubjectGradeCalls.size)
 		assertEquals("mutation-1", remoteDataSource.setSubjectGradeCalls.single().mutationId)
-		assertEquals(DEFAULT_RECORD_LOCAL_SUBJECT.revision, remoteDataSource.setSubjectGradeCalls.single().expectedRevision)
+		assertEquals(7L, remoteDataSource.setSubjectGradeCalls.single().expectedRevision)
 		assertTrue(outboxRepository.getPendingMutations(RECORD_MUTATION_SCOPE).isEmpty())
 		assertEquals(85, localDataSource.getQuarter(DEFAULT_RECORD_QUARTER.id)?.subjects?.single()?.grade)
 	}
@@ -357,7 +379,8 @@ class QuarterRepositoryContractTest {
 			)
 		}
 
-		val pending = outboxRepository.getPendingMutations(RECORD_MUTATION_SCOPE).single()
+		assertTrue(outboxRepository.getPendingMutations(RECORD_MUTATION_SCOPE).isEmpty())
+		val pending = requireNotNull(outboxRepository.getPendingMutation(RECORD_MUTATION_SCOPE, "mutation-1"))
 		assertEquals(PendingMutationStatus.Failed, pending.status)
 		assertEquals(85, localDataSource.getQuarter(DEFAULT_RECORD_QUARTER.id)?.subjects?.single()?.grade)
 	}
@@ -679,13 +702,22 @@ class QuarterRepositoryContractTest {
 	fun setSubjectGrade_whenPreconditionFailsForSupersededSameSubject_rebasesAndRetriesLatestMutation() = runTest {
 		val firstCallStarted = CompletableDeferred<Unit>()
 		val releaseFirstAck = CompletableDeferred<Unit>()
-		var remoteSubject = DEFAULT_RECORD_REMOTE_SUBJECT
+		var remoteQuarterRevision = 7L
+		var remoteSubject = DEFAULT_RECORD_REMOTE_SUBJECT.copy(revision = 1L)
 		val remoteCalls = mutableListOf<Pair<Int, Long>>()
-		val localDataSource = FakeQuarterLocalDataSource()
+		val localDataSource = FakeQuarterLocalDataSource(
+			initialQuarters = listOf(
+				DEFAULT_RECORD_LOCAL_QUARTER.copy(
+					revision = remoteQuarterRevision,
+					subjects = listOf(DEFAULT_RECORD_LOCAL_SUBJECT.copy(revision = 1L))
+				)
+			)
+		)
 		val outboxRepository = FakeMutationEnvelopeStore<String, RecordMutation>()
 		val remoteDataSource = object : QuarterRemoteDataRepository {
 			override suspend fun getQuarters() = listOf(
 				DEFAULT_RECORD_REMOTE_QUARTER.copy(
+					revision = remoteQuarterRevision,
 					grade = remoteSubject.grade.toDouble(),
 					gradeSum = remoteSubject.grade.toDouble(),
 					subjects = listOf(remoteSubject)
@@ -719,9 +751,10 @@ class QuarterRepositoryContractTest {
 					1 -> {
 						firstCallStarted.complete(Unit)
 						releaseFirstAck.await()
+						remoteQuarterRevision = expectedRevision + 1
 						remoteSubject = remoteSubject.copy(
 							grade = grade,
-							revision = expectedRevision + 1
+							revision = remoteSubject.revision + 1
 						)
 						RemoteSetSubjectGradeAck(
 							mutationId = mutationId,
@@ -737,9 +770,10 @@ class QuarterRepositoryContractTest {
 						)
 
 					3 -> {
+						remoteQuarterRevision = expectedRevision + 1
 						remoteSubject = remoteSubject.copy(
 							grade = grade,
-							revision = expectedRevision + 1
+							revision = remoteSubject.revision + 1
 						)
 						RemoteSetSubjectGradeAck(
 							mutationId = mutationId,
@@ -796,7 +830,7 @@ class QuarterRepositoryContractTest {
 		firstMutationJob.join()
 		secondMutationJob.join()
 
-		assertEquals(listOf(80 to 1L, 90 to 1L, 90 to 2L), remoteCalls)
+		assertEquals(listOf(80 to 7L, 90 to 7L, 90 to 8L), remoteCalls)
 		assertEquals(90, localDataSource.getQuarter(DEFAULT_RECORD_QUARTER.id)?.subjects?.single()?.grade)
 		assertEquals(3L, localDataSource.getQuarter(DEFAULT_RECORD_QUARTER.id)?.subjects?.single()?.revision)
 		assertTrue(outboxRepository.getPendingMutations(RECORD_MUTATION_SCOPE).isEmpty())
@@ -914,7 +948,11 @@ class QuarterRepositoryContractTest {
 		}
 
 		assertTrue(localDataSource.confirmedRemovedQuarterIds.isEmpty())
-		assertEquals(1, outboxRepository.getPendingMutations(RECORD_MUTATION_SCOPE).size)
+		assertTrue(outboxRepository.getPendingMutations(RECORD_MUTATION_SCOPE).isEmpty())
+		assertEquals(
+			PendingMutationStatus.Failed,
+			outboxRepository.getPendingMutation(RECORD_MUTATION_SCOPE, "mutation-1")?.status
+		)
 	}
 
 	@Test

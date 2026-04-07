@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
+import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -468,9 +469,19 @@ class FakeMutationEnvelopeStore<ScopeKey : Any, T : OutboxMutation>(
 ) : MutationEnvelopeStore<ScopeKey, T> {
 	private val state = MutableStateFlow(initialPendingMutations)
 
-	override fun observePendingMutations(scopeKey: ScopeKey): Flow<List<MutationEnvelope<ScopeKey, T>>> = state
+	override fun observePendingMutations(scopeKey: ScopeKey): Flow<List<MutationEnvelope<ScopeKey, T>>> {
+		return state.map { mutations ->
+			mutations.filter { mutation ->
+				mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
+			}
+		}
+	}
 
-	override suspend fun getPendingMutations(scopeKey: ScopeKey): List<MutationEnvelope<ScopeKey, T>> = state.value
+	override suspend fun getPendingMutations(scopeKey: ScopeKey): List<MutationEnvelope<ScopeKey, T>> {
+		return state.value.filter { mutation ->
+			mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
+		}
+	}
 
 	override suspend fun getPendingMutation(
 		scopeKey: ScopeKey,

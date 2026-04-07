@@ -166,13 +166,14 @@ class RecordMutationSyncSpec(
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
 			MutationFailureKind.PreconditionFailed -> {
-				val remoteSubject = refreshRemoteSnapshot()
+				val remoteQuarter = refreshRemoteSnapshot()
 					.firstOrNull { quarter -> quarter.id == command.quarterId }
+				val remoteSubject = remoteQuarter
 					?.subjects
 					?.firstOrNull { subject -> subject.id == command.subjectId }
 
 				when {
-					remoteSubject == null ->
+					remoteQuarter == null || remoteSubject == null ->
 						MutationFailureResolution.Drop()
 
 					remoteSubject.grade == command.grade ->
@@ -181,7 +182,7 @@ class RecordMutationSyncSpec(
 					else ->
 						MutationFailureResolution.Retry(
 							mutation.copy(
-								precondition = MutationPrecondition.Revision(remoteSubject.revision)
+								precondition = MutationPrecondition.Revision(remoteQuarter.revision)
 							)
 						)
 				}

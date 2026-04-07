@@ -169,7 +169,8 @@ class StoreBackedMutationEngineTest {
 			)
 		}
 
-		val failedMutation = store.getPendingMutations("record").single()
+		assertEquals(emptyList(), store.getPendingMutations("record"))
+		val failedMutation = requireNotNull(store.getPendingMutation("record", "mutation-1"))
 		assertEquals(PendingMutationStatus.Failed, failedMutation.status)
 		assertIs<String>(failedMutation.lastError)
 	}
@@ -297,14 +298,18 @@ private class InMemoryMutationEnvelopeStore<ScopeKey : Any, Command : OutboxMuta
 		scopeKey: ScopeKey
 	): Flow<List<MutationEnvelope<ScopeKey, Command>>> {
 		return state.map { mutations ->
-			mutations.filter { mutation -> mutation.scopeKey == scopeKey }
+			mutations.filter { mutation ->
+				mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
+			}
 		}
 	}
 
 	override suspend fun getPendingMutations(
 		scopeKey: ScopeKey
 	): List<MutationEnvelope<ScopeKey, Command>> {
-		return state.value.filter { mutation -> mutation.scopeKey == scopeKey }
+		return state.value.filter { mutation ->
+			mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
+		}
 	}
 
 	override suspend fun getPendingMutation(
