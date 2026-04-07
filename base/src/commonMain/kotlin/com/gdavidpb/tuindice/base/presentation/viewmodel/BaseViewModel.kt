@@ -31,7 +31,7 @@ abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 		.flowOn(Dispatchers.Default)
 		.stateIn(
 			scope = viewModelScope,
-			started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L),
+			started = SharingStarted.Lazily,
 			initialValue = initialState
 		)
 
