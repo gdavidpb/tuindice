@@ -32,10 +32,14 @@ import tuindice.record.generated.resources.record_view_mode_info_button_descript
 @Composable
 fun RecordTopBarViewModeBannerView(
 	selectedMode: RecordViewMode,
+	onInfoClick: (() -> Unit)? = null,
 	modifier: Modifier = Modifier
 ) {
 	val colors = recordViewModeBannerColors(selectedMode)
 	val isInfoDialogVisible = remember { mutableStateOf(false) }
+	val onInfoButtonClick = onInfoClick ?: {
+		isInfoDialogVisible.value = true
+	}
 
 	Box(
 		modifier = modifier
@@ -70,9 +74,7 @@ fun RecordTopBarViewModeBannerView(
 			modifier = Modifier
 				.align(Alignment.CenterEnd)
 				.testTag(RecordUiTags.TopBarViewModeInfoButton),
-			onClick = {
-				isInfoDialogVisible.value = true
-			}
+			onClick = onInfoButtonClick
 		) {
 			Icon(
 				imageVector = Icons.Outlined.Info,
@@ -82,7 +84,7 @@ fun RecordTopBarViewModeBannerView(
 		}
 	}
 
-	if (isInfoDialogVisible.value) {
+	if (onInfoClick == null && isInfoDialogVisible.value) {
 		RecordViewModeInfoDialog(
 			selectedMode = selectedMode,
 			onDismissRequest = {

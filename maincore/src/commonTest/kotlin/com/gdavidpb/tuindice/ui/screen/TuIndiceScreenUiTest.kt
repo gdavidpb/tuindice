@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.navigation.NavHostController
@@ -304,6 +305,51 @@ class TuIndiceScreenUiTest {
 		advanceAnimationsBy(millis = 300)
 
 		assertNodeVisible(RecordUiTags.TopBarViewModeBanner)
+	}
+
+	@Test
+	fun when_recordViewModeInfoSheetIsOpen_then_itStaysVisibleAfterBannerAutoHide() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			val navController = rememberNavController()
+
+			TuIndiceScreen(
+				state = Main.State.Content(
+					startDestination = MainDestination.GooglePlayServicesUnavailableDialog
+				),
+				shellState = shellState(
+					topBarTitle = "Record",
+					isTopBarVisible = true,
+					recordTopBarViewModeState = RecordTopBarViewModeState(
+						selectedMode = RecordViewMode.Simulation
+					)
+				),
+				onRetryStartUp = {},
+				navController = navController,
+				snackbarHostState = remember { SnackbarHostState() },
+				onAction = {},
+				onRecordViewModeChange = {},
+				onRecordViewModeChangeAvailable = {},
+				onNavigateTo = {},
+				onNavigateBack = {},
+				onConfirmExitClick = {},
+				isCameraAvailable = false,
+				onNavigateToExternalResource = {},
+				onViewStateChanged = {},
+				showSnackBar = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.TopBarViewModeInfoButton).performClick()
+		waitUntil(timeoutMillis = 2_000) {
+			onAllNodesWithTag(BaseUiTags.ConfirmationDialogSheet).fetchSemanticsNodes().isNotEmpty()
+		}
+
+		assertNodeVisible(BaseUiTags.ConfirmationDialogSheet)
+
+		advanceAnimationsBy(millis = 6_000)
+
+		assertNodeHidden(RecordUiTags.TopBarViewModeBanner)
+		assertNodeVisible(BaseUiTags.ConfirmationDialogSheet)
 	}
 
 	@Test

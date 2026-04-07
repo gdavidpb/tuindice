@@ -1,10 +1,15 @@
 package com.gdavidpb.tuindice.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -19,6 +24,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -71,6 +77,7 @@ import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.BottomBarConfig
 import com.gdavidpb.tuindice.presentation.model.MainShellState
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.ui.dialog.RecordViewModeInfoDialog
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeBannerView
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeSwitchView
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
@@ -125,6 +132,18 @@ fun TuIndiceScreen(
 
 	val contentState = state
 	val canNavigateBack = navController.canNavigateBackFromCurrentDestination()
+	val isRecordViewModeInfoDialogVisible = remember {
+		mutableStateOf(false)
+	}
+
+	LaunchedEffect(
+		shellState.isTopBarVisible,
+		shellState.recordTopBarViewModeState?.selectedMode
+	) {
+		if (!shellState.isTopBarVisible || shellState.recordTopBarViewModeState == null) {
+			isRecordViewModeInfoDialogVisible.value = false
+		}
+	}
 
 	val bottomBarConfigs = remember {
 		listOf(
@@ -177,91 +196,127 @@ fun TuIndiceScreen(
 				}
 
 				Column(
-					modifier = Modifier
-						.fillMaxWidth()
-						.background(topBarContainerColor)
+					modifier = Modifier.fillMaxWidth()
 				) {
-					TopAppBar(
-						expandedHeight = InternalScreenDefaults.TopBarHeight,
-						title = {
-							TopAppBarAnimatedTitleView(
-								title = shellState.topBarTitle,
-								modifier = Modifier.offset(
-									y = InternalScreenDefaults.TopBarContentVerticalOffset
-								)
+					Box(
+						modifier = Modifier
+							.fillMaxWidth()
+							.background(topBarContainerColor)
+							.windowInsetsPadding(
+								WindowInsets.statusBars.only(WindowInsetsSides.Top)
 							)
-						},
-						actions = {
-							Row(
-								modifier = Modifier.offset(
-									y = InternalScreenDefaults.TopBarContentVerticalOffset
-								),
-								verticalAlignment = Alignment.CenterVertically
-							) {
-								if (
-									recordTopBarViewModeState != null &&
-									onRecordTopBarViewModeSelected != null
+					) {
+						TopAppBar(
+							expandedHeight = InternalScreenDefaults.TopBarHeight,
+							windowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0),
+							title = {
+								TopAppBarAnimatedTitleView(
+									title = shellState.topBarTitle,
+									modifier = Modifier.offset(
+										y = InternalScreenDefaults.TopBarContentVerticalOffset
+									)
+								)
+							},
+							actions = {
+								Row(
+									modifier = Modifier.offset(
+										y = InternalScreenDefaults.TopBarContentVerticalOffset
+									),
+									verticalAlignment = Alignment.CenterVertically
 								) {
-									RecordTopBarViewModeSwitchView(
-										selectedMode = recordTopBarViewModeState.selectedMode,
-										onModeSelected = onRecordTopBarViewModeSelected
+									if (
+										recordTopBarViewModeState != null &&
+										onRecordTopBarViewModeSelected != null
+									) {
+										RecordTopBarViewModeSwitchView(
+											selectedMode = recordTopBarViewModeState.selectedMode,
+											onModeSelected = onRecordTopBarViewModeSelected
+										)
+									}
+
+									TopAppBarActionsView(
+										topBarConfig = shellState.topBarConfig,
+										onAction = onAction,
+										actionIconContent = { action ->
+											Icon(
+												imageVector = action.getIcon(),
+												contentDescription = null
+											)
+										}
 									)
 								}
-
-								TopAppBarActionsView(
-									topBarConfig = shellState.topBarConfig,
-									onAction = onAction,
-									actionIconContent = { action ->
+							},
+							navigationIcon = {
+								if (canNavigateBack) {
+									IconButton(
+										modifier = Modifier
+											.offset(y = InternalScreenDefaults.TopBarContentVerticalOffset)
+											.testTag(MaincoreUiTags.TuIndiceTopBarBackButton),
+										onClick = onNavigateBack
+									) {
 										Icon(
-											imageVector = action.getIcon(),
+											imageVector = Icons.AutoMirrored.Filled.ArrowBack,
 											contentDescription = null
 										)
 									}
-								)
-							}
-						},
-						navigationIcon = {
-							if (canNavigateBack) {
-								IconButton(
-									modifier = Modifier
-										.offset(y = InternalScreenDefaults.TopBarContentVerticalOffset)
-										.testTag(MaincoreUiTags.TuIndiceTopBarBackButton),
-									onClick = onNavigateBack
-								) {
-									Icon(
-										imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-										contentDescription = null
-									)
 								}
-							}
-						},
-						colors = TopAppBarDefaults.topAppBarColors(
-							containerColor = topBarContainerColor,
-							titleContentColor = topBarContentColor,
-							navigationIconContentColor = topBarContentColor,
-							actionIconContentColor = topBarContentColor
+							},
+							colors = TopAppBarDefaults.topAppBarColors(
+								containerColor = topBarContainerColor,
+								titleContentColor = topBarContentColor,
+								navigationIconContentColor = topBarContentColor,
+								actionIconContentColor = topBarContentColor
+							)
 						)
-					)
+					}
 
 					AnimatedVisibility(
+						modifier = Modifier.fillMaxWidth(),
 						visible = recordTopBarViewModeState != null &&
 							isRecordTopBarViewModeBannerVisible.value,
-						enter = slideInVertically(
-							animationSpec = tween(RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS),
-							initialOffsetY = { -it }
+						enter = expandVertically(
+							expandFrom = Alignment.Top,
+							animationSpec = tween(
+								durationMillis = RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS,
+								easing = FastOutSlowInEasing
+							)
+						) + slideInVertically(
+							animationSpec = tween(
+								durationMillis = RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS,
+								easing = FastOutSlowInEasing
+							),
+							initialOffsetY = { -it / 2 }
 						) + fadeIn(
-							animationSpec = tween(RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS)
+							animationSpec = tween(
+								durationMillis = RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS,
+								easing = FastOutSlowInEasing
+							)
 						),
-						exit = slideOutVertically(
-							animationSpec = tween(RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS),
-							targetOffsetY = { -it }
+						exit = shrinkVertically(
+							shrinkTowards = Alignment.Top,
+							animationSpec = tween(
+								durationMillis = RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS,
+								easing = FastOutSlowInEasing
+							)
+						) + slideOutVertically(
+							animationSpec = tween(
+								durationMillis = RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS,
+								easing = FastOutSlowInEasing
+							),
+							targetOffsetY = { -it / 2 }
 						) + fadeOut(
-							animationSpec = tween(RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS)
+							animationSpec = tween(
+								durationMillis = RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS,
+								easing = FastOutSlowInEasing
+							)
 						)
 					) {
 						if (recordTopBarViewModeState != null) {
 							RecordTopBarViewModeBannerView(
-								selectedMode = recordTopBarViewModeState.selectedMode
+								selectedMode = recordTopBarViewModeState.selectedMode,
+								onInfoClick = {
+									isRecordViewModeInfoDialogVisible.value = true
+								}
 							)
 						}
 					}
@@ -333,11 +388,23 @@ fun TuIndiceScreen(
 			dismissSnackBar = dismissSnackBar
 		)
 	}
+
+	if (
+		shellState.isTopBarVisible &&
+		shellState.recordTopBarViewModeState != null &&
+		isRecordViewModeInfoDialogVisible.value
+	) {
+		RecordViewModeInfoDialog(
+			selectedMode = shellState.recordTopBarViewModeState.selectedMode,
+			onDismissRequest = {
+				isRecordViewModeInfoDialogVisible.value = false
+			}
+		)
+	}
 }
 
-private const val RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS = 250
+private const val RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS = 350
 private const val RECORD_TOP_BAR_VIEW_MODE_BANNER_AUTO_HIDE_MILLIS = 5_000L
-
 private fun TopBarAction.getIcon(): ImageVector {
 	return when (this) {
 		is TopBarAction.SignOutAction ->
