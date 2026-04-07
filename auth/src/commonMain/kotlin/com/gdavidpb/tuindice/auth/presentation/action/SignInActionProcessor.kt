@@ -18,6 +18,7 @@ import tuindice.auth.generated.resources.error_untrusted
 import tuindice.auth.generated.resources.label_retry
 import tuindice.auth.generated.resources.snack_default_error
 import tuindice.auth.generated.resources.snack_network_unavailable
+import tuindice.auth.generated.resources.snack_sign_in_failed
 import tuindice.auth.generated.resources.snack_service_unavailable
 import tuindice.auth.generated.resources.snack_timeout
 
@@ -70,6 +71,9 @@ class SignInActionProcessor(
 
 							is SignInUseCaseError.Untrusted ->
 								getString(Res.string.error_untrusted)
+
+							is SignInUseCaseError.AuthenticationFailed ->
+								getString(Res.string.snack_sign_in_failed)
 
 							is SignInUseCaseError.NoConnection ->
 								if (error.isNetworkAvailable)

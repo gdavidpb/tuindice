@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler
 
+import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStage
+import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStageException
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.ExceptionHandler
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
@@ -16,14 +18,20 @@ class UpdatePasswordExceptionHandler(
 	private val networkRepository: NetworkRepository
 ) : ExceptionHandler<SignInUseCaseError>() {
 	override fun parseException(throwable: Throwable): SignInUseCaseError? {
+		val rootThrowable = (throwable as? AuthenticationStageException)?.cause ?: throwable
+
 		return when {
 			throwable is SignInIllegalArgumentException -> throwable.error
-			throwable.isLocked() -> SignInUseCaseError.AccountDisabled
-			throwable.isForbidden() -> SignInUseCaseError.Untrusted
-			throwable.isUnauthorized() -> SignInUseCaseError.InvalidCredentials
-			throwable.isUnavailable() || throwable.isTooManyRequests() -> SignInUseCaseError.Unavailable
-			throwable.isTimeout() -> SignInUseCaseError.Timeout
-			throwable.isConnection() -> SignInUseCaseError.NoConnection(networkRepository.isAvailable())
+			throwable is AuthenticationStageException &&
+				throwable.stage == AuthenticationStage.UpdatePasswordReissue &&
+				rootThrowable.isUnauthorized() -> SignInUseCaseError.InvalidCredentials
+
+			rootThrowable.isLocked() -> SignInUseCaseError.AccountDisabled
+			rootThrowable.isForbidden() -> SignInUseCaseError.Untrusted
+			rootThrowable.isUnauthorized() -> SignInUseCaseError.AuthenticationFailed
+			rootThrowable.isUnavailable() || rootThrowable.isTooManyRequests() -> SignInUseCaseError.Unavailable
+			rootThrowable.isTimeout() -> SignInUseCaseError.Timeout
+			rootThrowable.isConnection() -> SignInUseCaseError.NoConnection(networkRepository.isAvailable())
 			else -> null
 		}
 	}

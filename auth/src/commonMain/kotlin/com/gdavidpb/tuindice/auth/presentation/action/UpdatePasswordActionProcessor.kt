@@ -18,6 +18,7 @@ import tuindice.auth.generated.resources.snack_network_unavailable
 import tuindice.auth.generated.resources.snack_password_updated
 import tuindice.auth.generated.resources.snack_service_unavailable
 import tuindice.auth.generated.resources.snack_timeout
+import tuindice.auth.generated.resources.snack_update_password_failed
 
 class UpdatePasswordActionProcessor(
 	private val updatePasswordUseCase: UpdatePasswordUseCase
@@ -61,6 +62,9 @@ class UpdatePasswordActionProcessor(
 
 							is SignInUseCaseError.Untrusted ->
 								getString(Res.string.error_untrusted)
+
+							is SignInUseCaseError.AuthenticationFailed ->
+								getString(Res.string.snack_update_password_failed)
 
 							is SignInUseCaseError.NoConnection ->
 								if (useCaseError.isNetworkAvailable)

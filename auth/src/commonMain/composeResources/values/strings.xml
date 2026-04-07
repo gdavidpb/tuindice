@@ -28,6 +28,8 @@
 	<string name="snack_service_unavailable">Servicio no disponible</string>
 	<string name="snack_network_unavailable">Comprueba tu conexión</string>
 	<string name="snack_timeout">Tiempo de espera agotado</string>
+	<string name="snack_sign_in_failed">No pudimos iniciar sesión. Intenta nuevamente</string>
+	<string name="snack_update_password_failed">No pudimos actualizar tu contraseña. Intenta nuevamente</string>
 	<string name="snack_password_updated">Contraseña actualizada</string>
 	<string name="snack_default_error">¡Ha ocurrido un error!</string>
 </resources>

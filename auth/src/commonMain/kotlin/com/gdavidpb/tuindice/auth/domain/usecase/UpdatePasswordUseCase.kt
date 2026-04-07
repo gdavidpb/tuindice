@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
+import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStage
+import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStageException
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
@@ -41,24 +43,38 @@ class UpdatePasswordUseCase(
 			attestedFlow = flow.headerValue
 		)
 
-		val attestation = attestationRepository.attest(
-			request = AttestationRequest(
-				operationCode = flow.operationCode,
-				payloadJson = canonicalAttestationPayloadJson(
-					serializer = IssueTokensAttestationPayload.serializer(),
-					value = attestationPayload
-				),
-				authorization = AttestationAuthorization.Bearer(
-					accessToken = accessToken
+		val attestation = runCatching {
+			attestationRepository.attest(
+				request = AttestationRequest(
+					operationCode = flow.operationCode,
+					payloadJson = canonicalAttestationPayloadJson(
+						serializer = IssueTokensAttestationPayload.serializer(),
+						value = attestationPayload
+					),
+					authorization = AttestationAuthorization.Bearer(
+						accessToken = accessToken
+					)
 				)
 			)
-		)
+		}.getOrElse { throwable ->
+			throw AuthenticationStageException(
+				stage = AuthenticationStage.UpdatePasswordAttestation,
+				cause = throwable
+			)
+		}
 
-		authRepository.reissueTokens(
-			usbId = usbId,
-			password = params,
-			attestation = attestation
-		)
+		runCatching {
+			authRepository.reissueTokens(
+				usbId = usbId,
+				password = params,
+				attestation = attestation
+			)
+		}.getOrElse { throwable ->
+			throw AuthenticationStageException(
+				stage = AuthenticationStage.UpdatePasswordReissue,
+				cause = throwable
+			)
+		}
 
 		credentialsRepository.setPassword(
 			password = params

@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
+import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStage
+import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStageException
 import com.gdavidpb.tuindice.auth.domain.model.ExchangeTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
@@ -33,28 +35,49 @@ class SignInUseCase(
 	override val exceptionHandler: SignInExceptionHandler
 ) : FlowUseCase<SignInParams, Unit, SignInUseCaseError>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
-		val bootstrapTokens = authRepository.bootstrapSignIn(
-			usbId = params.usbId,
-			password = params.password
-		)
+		val bootstrapTokens = runCatching {
+			authRepository.bootstrapSignIn(
+				usbId = params.usbId,
+				password = params.password
+			)
+		}.getOrElse { throwable ->
+			throw AuthenticationStageException(
+				stage = AuthenticationStage.SignInBootstrap,
+				cause = throwable
+			)
+		}
 
-		val attestation = attestationRepository.attest(
-			request = AttestationRequest(
-				operationCode = ProtectedOperationCodes.AuthExchange,
-				payloadJson = canonicalAttestationPayloadJson(
-					serializer = ExchangeTokensAttestationPayload.serializer(),
-					value = ExchangeTokensAttestationPayload
-				),
-				authorization = AttestationAuthorization.Bearer(
-					accessToken = bootstrapTokens.accessToken
+		val attestation = runCatching {
+			attestationRepository.attest(
+				request = AttestationRequest(
+					operationCode = ProtectedOperationCodes.AuthExchange,
+					payloadJson = canonicalAttestationPayloadJson(
+						serializer = ExchangeTokensAttestationPayload.serializer(),
+						value = ExchangeTokensAttestationPayload
+					),
+					authorization = AttestationAuthorization.Bearer(
+						accessToken = bootstrapTokens.accessToken
+					)
 				)
 			)
-		)
+		}.getOrElse { throwable ->
+			throw AuthenticationStageException(
+				stage = AuthenticationStage.SignInAttestation,
+				cause = throwable
+			)
+		}
 
-		authRepository.exchangeSignIn(
-			bootstrapAccessToken = bootstrapTokens.accessToken,
-			attestation = attestation
-		)
+		runCatching {
+			authRepository.exchangeSignIn(
+				bootstrapAccessToken = bootstrapTokens.accessToken,
+				attestation = attestation
+			)
+		}.getOrElse { throwable ->
+			throw AuthenticationStageException(
+				stage = AuthenticationStage.SignInExchange,
+				cause = throwable
+			)
+		}
 
 		credentialsRepository.setPassword(
 			password = params.password
