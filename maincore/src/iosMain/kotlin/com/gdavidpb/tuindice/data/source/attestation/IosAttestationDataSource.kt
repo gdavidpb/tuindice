@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.AttestationTemporarilyUnavailableException
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.utils.attestationBindingInput
+import com.gdavidpb.tuindice.base.utils.extension.isAttestationKeyUserMismatch
 import com.gdavidpb.tuindice.base.utils.extension.isForbidden
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionRequired
 import com.gdavidpb.tuindice.domain.model.IosPlatformAttestation
@@ -96,7 +97,7 @@ class IosAttestationDataSource(
 			evidenceMode = session.evidenceMode.value
 		)
 
-		val response = runCatching {
+		val response = try {
 			httpClient
 				.post(tokensPath()) {
 					applyAttestationAuthorization(request.authorization)
@@ -112,8 +113,8 @@ class IosAttestationDataSource(
 					)
 				}
 				.body<IssueAttestationTokenResponse>()
-		}.getOrElse { throwable ->
-			if (shouldRecoverFromForbidden(throwable)) {
+		} catch (throwable: Throwable) {
+			if (shouldRecoverFromKeyRotation(throwable)) {
 				throw RecoverableAppAttestException(
 					message = "App Attest evidence rejected by backend.",
 					cause = throwable
@@ -140,6 +141,13 @@ class IosAttestationDataSource(
 				authorization = authorization
 			)
 		} catch (throwable: Throwable) {
+			if (throwable.isAttestationKeyUserMismatch()) {
+				throw RecoverableAppAttestException(
+					message = "Stored App Attest key belongs to another user.",
+					cause = throwable
+				)
+			}
+
 			val requiredPreparationCode = throwable.requiredPreparationCodeOrNull() ?: throw throwable
 			prepareAttestation(
 				httpClient = httpClient,
@@ -184,17 +192,28 @@ class IosAttestationDataSource(
 		val requestHash = attestationCapability.sha256Base64Url(
 			"""{"preparation_code":"${preparationCode.value}","key_id":"$keyId"}"""
 		) ?: throw IllegalStateException("Unable to hash attestation preparation payload on iOS.")
-		val session = httpClient.post(preparationSessionPath()) {
-			applyAttestationAuthorization(authorization)
-			setBody(
-				CreateAttestationPreparationSessionRequest(
-					platform = PLATFORM_IOS,
-					preparationCode = preparationCode,
-					authorization = authorization.toRequestAuthorizationOrNull(),
-					keyId = keyId
+		val session = try {
+			httpClient.post(preparationSessionPath()) {
+				applyAttestationAuthorization(authorization)
+				setBody(
+					CreateAttestationPreparationSessionRequest(
+						platform = PLATFORM_IOS,
+						preparationCode = preparationCode,
+						authorization = authorization.toRequestAuthorizationOrNull(),
+						keyId = keyId
+					)
 				)
-			)
-		}.body<CreateAttestationSessionResponse>()
+			}.body<CreateAttestationSessionResponse>()
+		} catch (throwable: Throwable) {
+			if (throwable.isAttestationKeyUserMismatch()) {
+				throw RecoverableAppAttestException(
+					message = "Stored App Attest key belongs to another user.",
+					cause = throwable
+				)
+			}
+
+			throw throwable
+		}
 		val bindingHash = requireBindingHash(
 			sessionId = session.sessionId,
 			challenge = session.challenge,
@@ -207,7 +226,7 @@ class IosAttestationDataSource(
 			evidenceMode = session.evidenceMode.value
 		)
 
-		runCatching {
+		try {
 			httpClient.post(preparationCompletePath()) {
 				applyAttestationAuthorization(authorization)
 				setBody(
@@ -221,8 +240,8 @@ class IosAttestationDataSource(
 					)
 				)
 			}
-		}.getOrElse { throwable ->
-			if (shouldRecoverFromForbidden(throwable)) {
+		} catch (throwable: Throwable) {
+			if (shouldRecoverFromKeyRotation(throwable)) {
 				throw RecoverableAppAttestException(
 					message = "App Attest preparation evidence rejected by backend.",
 					cause = throwable
@@ -287,8 +306,8 @@ class IosAttestationDataSource(
 		}.getOrNull()
 	}
 
-	private fun shouldRecoverFromForbidden(throwable: Throwable): Boolean {
-		return throwable.isForbidden()
+	private suspend fun shouldRecoverFromKeyRotation(throwable: Throwable): Boolean {
+		return throwable.isForbidden() || throwable.isAttestationKeyUserMismatch()
 	}
 
 	private fun HttpRequestBuilder.applyAttestationAuthorization(authorization: AttestationAuthorization) {

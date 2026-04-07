@@ -9,6 +9,7 @@ import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import eu.anifantakis.lib.ksafe.KSafe
 import io.github.vinceglb.filekit.PlatformFile
@@ -19,7 +20,8 @@ class AndroidApplicationDataSource(
 	private val context: Context,
 	private val room: TuIndiceDatabase,
 	private val settingsRepository: SettingsRepository,
-	private val kSafe: KSafe
+	private val kSafe: KSafe,
+	private val proofOfPossessionCapability: AndroidProofOfPossessionCapability
 ) : ApplicationRepository {
 	override suspend fun canOpen(file: PlatformFile): Boolean {
 		val source = file.path
@@ -39,6 +41,7 @@ class AndroidApplicationDataSource(
 	override suspend fun clearData() {
 		room.clearAllTables()
 
+		proofOfPossessionCapability.invalidateProofOfPossessionKeyId()
 		settingsRepository.clear()
 		kSafe.clearAll()
 

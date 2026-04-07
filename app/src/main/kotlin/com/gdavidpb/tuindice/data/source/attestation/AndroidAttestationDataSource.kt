@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.utils.attestationBindingInput
+import com.gdavidpb.tuindice.base.utils.extension.isAttestationKeyUserMismatch
 import com.gdavidpb.tuindice.base.utils.extension.isForbidden
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionRequired
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
@@ -88,7 +89,7 @@ class AndroidAttestationDataSource(
 			requireKeyAttestation = false
 		)
 
-		val response = runCatching {
+		val response = try {
 			ktorClient.post(tokensPath()) {
 				applyAttestationAuthorization(request.authorization)
 				setBody(
@@ -103,8 +104,8 @@ class AndroidAttestationDataSource(
 					)
 				)
 			}.body<IssueAttestationTokenResponse>()
-		}.getOrElse { throwable ->
-			if (shouldRecoverFromForbidden(session, throwable)) {
+		} catch (throwable: Throwable) {
+			if (shouldRecoverFromKeyRotation(session, throwable)) {
 				throw RecoverableAndroidKeystoreException(
 					message = "Android proof-of-possession evidence rejected by backend.",
 					cause = throwable
@@ -129,6 +130,13 @@ class AndroidAttestationDataSource(
 				authorization = authorization
 			)
 		} catch (throwable: Throwable) {
+			if (throwable.isAttestationKeyUserMismatch()) {
+				throw RecoverableAndroidKeystoreException(
+					message = "Stored Android proof-of-possession key belongs to another user.",
+					cause = throwable
+				)
+			}
+
 			val requiredPreparationCode = throwable.requiredPreparationCodeOrNull() ?: throw throwable
 			prepareAttestation(
 				preparationCode = requiredPreparationCode,
@@ -169,17 +177,28 @@ class AndroidAttestationDataSource(
 		val requestHash = sha256Base64Url(
 			"""{"preparation_code":"${preparationCode.value}","key_id":"$keyId"}"""
 		)
-		val session = ktorClient.post(preparationSessionPath()) {
-			applyAttestationAuthorization(authorization)
-			setBody(
-				CreateAttestationPreparationSessionRequest(
-					platform = PLATFORM_ANDROID,
-					preparationCode = preparationCode,
-					authorization = authorization.toRequestAuthorizationOrNull(),
-					keyId = keyId
+		val session = try {
+			ktorClient.post(preparationSessionPath()) {
+				applyAttestationAuthorization(authorization)
+				setBody(
+					CreateAttestationPreparationSessionRequest(
+						platform = PLATFORM_ANDROID,
+						preparationCode = preparationCode,
+						authorization = authorization.toRequestAuthorizationOrNull(),
+						keyId = keyId
+					)
 				)
-			)
-		}.body<CreateAttestationSessionResponse>()
+			}.body<CreateAttestationSessionResponse>()
+		} catch (throwable: Throwable) {
+			if (throwable.isAttestationKeyUserMismatch()) {
+				throw RecoverableAndroidKeystoreException(
+					message = "Stored Android proof-of-possession key belongs to another user.",
+					cause = throwable
+				)
+			}
+
+			throw throwable
+		}
 		val bindingHash = bindingHash(
 			sessionId = session.sessionId,
 			challenge = session.challenge,
@@ -197,7 +216,7 @@ class AndroidAttestationDataSource(
 			requireKeyAttestation = true
 		)
 
-		runCatching {
+		try {
 			ktorClient.post(preparationCompletePath()) {
 				applyAttestationAuthorization(authorization)
 				setBody(
@@ -212,8 +231,8 @@ class AndroidAttestationDataSource(
 					)
 				)
 			}
-		}.getOrElse { throwable ->
-			if (shouldRecoverFromForbidden(session, throwable)) {
+		} catch (throwable: Throwable) {
+			if (shouldRecoverFromKeyRotation(session, throwable)) {
 				throw RecoverableAndroidKeystoreException(
 					message = "Android preparation proof-of-possession evidence rejected by backend.",
 					cause = throwable
@@ -310,11 +329,12 @@ class AndroidAttestationDataSource(
 		}.getOrNull()
 	}
 
-	private fun shouldRecoverFromForbidden(
+	private suspend fun shouldRecoverFromKeyRotation(
 		session: CreateAttestationSessionResponse,
 		throwable: Throwable
 	): Boolean {
-		return session.proofOfPossessionMode != null && throwable.isForbidden()
+		return session.proofOfPossessionMode != null &&
+				(throwable.isForbidden() || throwable.isAttestationKeyUserMismatch())
 	}
 
 	private fun HttpRequestBuilder.applyAttestationAuthorization(authorization: AttestationAuthorization) {

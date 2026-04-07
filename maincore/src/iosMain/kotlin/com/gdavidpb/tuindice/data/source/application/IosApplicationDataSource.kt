@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.data.source.application
 
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.platform.IosAttestationCapability
 import com.gdavidpb.tuindice.platform.IosExternalActionsCapability
 import com.gdavidpb.tuindice.platform.temporaryStorageRoot
 import eu.anifantakis.lib.ksafe.KSafe
@@ -12,6 +13,7 @@ import okio.FileSystem
 class IosApplicationDataSource(
 	private val settingsRepository: SettingsRepository,
 	private val kSafe: KSafe,
+	private val attestationCapability: IosAttestationCapability,
 	private val externalActionsCapability: IosExternalActionsCapability
 ) : ApplicationRepository {
 	override suspend fun canOpen(file: PlatformFile): Boolean {
@@ -19,6 +21,7 @@ class IosApplicationDataSource(
 	}
 
 	override suspend fun clearData() {
+		attestationCapability.invalidateAttestationKeyId()
 		settingsRepository.clear()
 		kSafe.clearAll()
 

@@ -167,6 +167,44 @@ class AndroidAttestationDataSourceTest {
 	}
 
 	@Test
+	fun `attest rotates the key and retries when backend reports that the key belongs to another user`() = runTest {
+		val proofCapability = RecordingAndroidProofOfPossessionCapability(
+			resolvedKeyIds = ArrayDeque(listOf("stale-key", "fresh-key")),
+			proofFailures = ArrayDeque(listOf(null, null)),
+			issuedSignatures = ArrayDeque(listOf("bootstrap-signature", "business-signature"))
+		)
+		val providerDataSource = RecordingAttestationProviderDataSource()
+		val httpClient = androidConflictRecoveryHttpClient()
+		val repository = AndroidAttestationDataSource(
+			ktorClient = httpClient,
+			providerDataSource = providerDataSource,
+			proofOfPossessionCapability = proofCapability
+		)
+
+		val response = repository.attest(
+			AttestationRequest(
+				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
+				payloadJson = """{"refresh_token":"token"}""",
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = "access-token"
+				)
+			)
+		)
+
+		assertEquals("issued-token", response.token)
+		assertEquals(listOf("stale-key", "fresh-key"), proofCapability.resolveCalls)
+		assertEquals(1, proofCapability.invalidateCalls)
+		assertEquals(listOf("fresh-key", "fresh-key"), proofCapability.proofCalls)
+		assertEquals(
+			listOf(
+				AttestationEvidenceMode.PLAY_INTEGRITY_CLASSIC,
+				AttestationEvidenceMode.PLAY_INTEGRITY_STANDARD
+			),
+			providerDataSource.calls.map { call -> call.evidenceMode }
+		)
+	}
+
+	@Test
 	fun `attest bootstraps Android attestation when the business session requires preparation`() = runTest {
 		val proofCapability = RecordingAndroidProofOfPossessionCapability(
 			resolvedKeyIds = ArrayDeque(listOf("bootstrap-key")),
@@ -284,6 +322,104 @@ private fun androidPreparationHttpClient(): HttpClient {
 						)
 					} else {
 						respond(
+							content = """
+								{
+								  "session_id": "business-session",
+								  "challenge": "business-challenge",
+								  "expires_at": 1735689600000,
+								  "evidence_mode": "play_integrity_standard",
+								  "proof_of_possession_mode": "android_keystore"
+								}
+							""".trimIndent(),
+							status = HttpStatusCode.OK,
+							headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+						)
+					}
+				}
+
+				"/attestation/v4/preparations/sessions" -> {
+					respond(
+						content = """
+							{
+							  "session_id": "preparation-session",
+							  "challenge": "preparation-challenge",
+							  "expires_at": 1735689600000,
+							  "evidence_mode": "play_integrity_classic",
+							  "proof_of_possession_mode": "android_keystore"
+							}
+						""".trimIndent(),
+						status = HttpStatusCode.OK,
+						headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+					)
+				}
+
+				"/attestation/v4/preparations/complete" -> {
+					respond(
+						content = "",
+						status = HttpStatusCode.NoContent,
+						headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+					)
+				}
+
+				"/attestation/v4/tokens" -> {
+					respond(
+						content = """
+							{
+							  "token": "issued-token",
+							  "expires_at": 1735689600000
+							}
+						""".trimIndent(),
+						status = HttpStatusCode.OK,
+						headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+					)
+				}
+
+				else -> error("Unexpected path: ${request.url.encodedPath}")
+			}
+		}
+	) {
+		expectSuccess = true
+		install(DefaultRequest) {
+			headers.append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+		}
+		install(ContentNegotiation) {
+			json(createSharedJson())
+		}
+	}
+}
+
+private fun androidConflictRecoveryHttpClient(): HttpClient {
+	var sessionAttempts = 0
+
+	return HttpClient(
+		MockEngine { request ->
+			assertEquals("Bearer access-token", request.headers[HttpHeaders.Authorization])
+			when (request.url.encodedPath) {
+				"/attestation/v4/sessions" -> {
+					sessionAttempts += 1
+					when (sessionAttempts) {
+						1 -> respond(
+							content = """
+								{
+								  "code": "attestation_key_user_mismatch"
+								}
+							""".trimIndent(),
+							status = HttpStatusCode.Conflict,
+							headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+						)
+
+						2 -> respond(
+							content = """
+								{
+								  "code": "attestation_not_prepared",
+								  "required_preparation_code": "bootstrap"
+								}
+							""".trimIndent(),
+							status = HttpStatusCode(428, "Precondition Required"),
+							headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+						)
+
+						else -> respond(
 							content = """
 								{
 								  "session_id": "business-session",
