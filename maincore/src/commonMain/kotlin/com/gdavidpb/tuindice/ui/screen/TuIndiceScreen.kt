@@ -1,13 +1,25 @@
 package com.gdavidpb.tuindice.ui.screen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Article
@@ -34,6 +46,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,6 +74,7 @@ import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeBannerView
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeSwitchView
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,8 +140,41 @@ fun TuIndiceScreen(
 		topBar = {
 			if (shellState.isTopBarVisible) {
 				val recordTopBarViewModeState = shellState.recordTopBarViewModeState
+				val isRecordTopBarViewModeBannerVisible = remember {
+					mutableStateOf(false)
+				}
+				val recordTopBarViewModeBannerAutoHideTrigger = remember {
+					mutableIntStateOf(0)
+				}
 				val topBarContainerColor = MaterialTheme.colorScheme.surface
 				val topBarContentColor = MaterialTheme.colorScheme.onSurface
+				val onRecordTopBarViewModeSelected =
+					if (onRecordViewModeChange == null) null
+					else { mode: RecordViewMode ->
+						isRecordTopBarViewModeBannerVisible.value = true
+						recordTopBarViewModeBannerAutoHideTrigger.intValue += 1
+						onRecordViewModeChange(mode)
+					}
+
+				LaunchedEffect(recordTopBarViewModeState?.selectedMode) {
+					if (recordTopBarViewModeState == null) {
+						isRecordTopBarViewModeBannerVisible.value = false
+						return@LaunchedEffect
+					}
+
+					isRecordTopBarViewModeBannerVisible.value = true
+					recordTopBarViewModeBannerAutoHideTrigger.intValue += 1
+				}
+
+				LaunchedEffect(
+					recordTopBarViewModeState != null,
+					recordTopBarViewModeBannerAutoHideTrigger.intValue
+				) {
+					if (recordTopBarViewModeState == null) return@LaunchedEffect
+
+					delay(RECORD_TOP_BAR_VIEW_MODE_BANNER_AUTO_HIDE_MILLIS)
+					isRecordTopBarViewModeBannerVisible.value = false
+				}
 
 				Column(
 					modifier = Modifier
@@ -151,11 +200,11 @@ fun TuIndiceScreen(
 							) {
 								if (
 									recordTopBarViewModeState != null &&
-									onRecordViewModeChange != null
+									onRecordTopBarViewModeSelected != null
 								) {
 									RecordTopBarViewModeSwitchView(
 										selectedMode = recordTopBarViewModeState.selectedMode,
-										onModeSelected = onRecordViewModeChange
+										onModeSelected = onRecordTopBarViewModeSelected
 									)
 								}
 
@@ -194,45 +243,77 @@ fun TuIndiceScreen(
 						)
 					)
 
-					if (recordTopBarViewModeState != null) {
-						RecordTopBarViewModeBannerView(
-							selectedMode = recordTopBarViewModeState.selectedMode
+					AnimatedVisibility(
+						visible = recordTopBarViewModeState != null &&
+							isRecordTopBarViewModeBannerVisible.value,
+						enter = slideInVertically(
+							animationSpec = tween(RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS),
+							initialOffsetY = { -it }
+						) + fadeIn(
+							animationSpec = tween(RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS)
+						),
+						exit = slideOutVertically(
+							animationSpec = tween(RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS),
+							targetOffsetY = { -it }
+						) + fadeOut(
+							animationSpec = tween(RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS)
 						)
+					) {
+						if (recordTopBarViewModeState != null) {
+							RecordTopBarViewModeBannerView(
+								selectedMode = recordTopBarViewModeState.selectedMode
+							)
+						}
 					}
 				}
 			}
 		},
 		bottomBar = {
 			if (shellState.isBottomBarVisible) {
-				NavigationBar(
+				val bottomBarContainerColor = MaterialTheme.colorScheme.onSecondary
+
+				Box(
 					modifier = Modifier
-						.testTag(MaincoreUiTags.TuIndiceBottomBar),
-					containerColor = MaterialTheme.colorScheme.onSecondary
-				) {
-					bottomBarConfigs.forEach { bottomBarConfig ->
-						val isNavigationBarItemSelected = navController
-							.isCurrentDestination(destination = bottomBarConfig.destination)
-
-						val navigationBarItemIcon =
-							bottomBarIcon(
-								config = bottomBarConfig,
-								selected = isNavigationBarItemSelected
-							)
-
-						NavigationBarItem(
-							modifier = Modifier.testTag(bottomBarItemTag(bottomBarConfig)),
-							icon = {
-								Icon(
-									imageVector = navigationBarItemIcon,
-									contentDescription = null
-								)
-							},
-							colors = NavigationBarItemDefaults.colors(
-								indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-							),
-							selected = isNavigationBarItemSelected,
-							onClick = { onNavigateTo(bottomBarConfig.destination) }
+						.fillMaxWidth()
+						.background(bottomBarContainerColor)
+						.windowInsetsPadding(
+							WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)
 						)
+						.testTag(MaincoreUiTags.TuIndiceBottomBar)
+				) {
+					NavigationBar(
+						modifier = Modifier
+							.fillMaxWidth()
+							.height(InternalScreenDefaults.BottomBarHeight),
+						containerColor = bottomBarContainerColor,
+						tonalElevation = 0.dp,
+						windowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0)
+					) {
+						bottomBarConfigs.forEach { bottomBarConfig ->
+							val isNavigationBarItemSelected = navController
+								.isCurrentDestination(destination = bottomBarConfig.destination)
+
+							val navigationBarItemIcon =
+								bottomBarIcon(
+									config = bottomBarConfig,
+									selected = isNavigationBarItemSelected
+								)
+
+							NavigationBarItem(
+								modifier = Modifier.testTag(bottomBarItemTag(bottomBarConfig)),
+								icon = {
+									Icon(
+										imageVector = navigationBarItemIcon,
+										contentDescription = null
+									)
+								},
+								colors = NavigationBarItemDefaults.colors(
+									indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+								),
+								selected = isNavigationBarItemSelected,
+								onClick = { onNavigateTo(bottomBarConfig.destination) }
+							)
+						}
 					}
 				}
 			}
@@ -253,6 +334,9 @@ fun TuIndiceScreen(
 		)
 	}
 }
+
+private const val RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS = 250
+private const val RECORD_TOP_BAR_VIEW_MODE_BANNER_AUTO_HIDE_MILLIS = 5_000L
 
 private fun TopBarAction.getIcon(): ImageVector {
 	return when (this) {
