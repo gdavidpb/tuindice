@@ -10,8 +10,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -52,9 +52,11 @@ fun PasswordTextField(
 
 	LaunchedEffect(password) {
 		if (passwordField.value.text != password) {
+			val selectionEnd = passwordField.value.selection.end.coerceAtMost(password.length)
+
 			passwordField.value = TextFieldValue(
 				text = password,
-				selection = TextRange(password.length)
+				selection = TextRange(selectionEnd)
 			)
 		}
 	}
@@ -67,11 +69,14 @@ fun PasswordTextField(
 		modifier = modifier.testTag(AuthUiTags.PasswordTextField),
 		value = passwordField.value,
 		onValueChange = { newValue ->
-			supportingText.value = null
+			val previousText = passwordField.value.text
 
 			passwordField.value = newValue
+			supportingText.value = null
 
-			onPasswordChange(passwordField.value.text)
+			if (newValue.text != previousText) {
+				onPasswordChange(newValue.text)
+			}
 		},
 		isError = supportingText.value != null,
 			supportingText = {
