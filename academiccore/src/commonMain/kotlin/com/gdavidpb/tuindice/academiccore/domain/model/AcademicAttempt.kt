@@ -17,7 +17,5 @@ data class AcademicAttempt(
 	@SerialName("official_score") val officialScore: AttemptScore = AttemptScore.empty(),
 	@SerialName("official_outcome") val officialOutcome: OfficialOutcome = OfficialOutcome.PENDING,
 	@SerialName("official_badge") val officialBadge: HistoricalBadge = HistoricalBadge.NONE,
-	val editable: Boolean,
-	val source: AttemptSource,
-	val synthetic: Boolean = false
+	val source: AttemptSource
 )

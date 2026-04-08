@@ -45,10 +45,6 @@ data class AcademicLocalAttemptEntity(
 	val officialOutcome: String,
 	@ColumnInfo(name = AcademicLocalAttemptTable.OFFICIAL_BADGE)
 	val officialBadge: String,
-	@ColumnInfo(name = AcademicLocalAttemptTable.EDITABLE)
-	val editable: Boolean,
 	@ColumnInfo(name = AcademicLocalAttemptTable.SOURCE)
-	val source: String,
-	@ColumnInfo(name = AcademicLocalAttemptTable.SYNTHETIC)
-	val synthetic: Boolean
+	val source: String
 )

@@ -17,8 +17,6 @@ data class AttemptProjection(
 	val score: AttemptScore,
 	val outcome: OfficialOutcome,
 	val badge: HistoricalBadge,
-	val editable: Boolean,
-	val synthetic: Boolean,
 	@SerialName("counts_toward_term_average") val countsTowardTermAverage: Boolean,
 	@SerialName("counts_toward_cumulative_average") val countsTowardCumulativeAverage: Boolean
 )

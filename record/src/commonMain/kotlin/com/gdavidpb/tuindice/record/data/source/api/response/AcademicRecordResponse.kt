@@ -41,8 +41,7 @@ data class AttemptProjectionResponse(
 	@SerialName("grading_mode") val gradingMode: AttemptGradingModeResponse,
 	@SerialName("score") val score: AttemptScoreResponse,
 	@SerialName("outcome") val outcome: OfficialOutcomeResponse,
-	@SerialName("badge") val badge: HistoricalBadgeResponse,
-	@SerialName("editable") val editable: Boolean = false
+	@SerialName("badge") val badge: HistoricalBadgeResponse
 )
 
 @Serializable

@@ -59,6 +59,7 @@ object AcademicProjectionEngine {
 					.map { attempt ->
 						resolveEffectiveAttempt(
 							attempt = attempt,
+							termKind = term.kind,
 							override = overridesByAttemptId[attempt.id],
 							viewMode = viewMode
 						)
@@ -126,8 +127,6 @@ object AcademicProjectionEngine {
 					score = attempt.score,
 					outcome = attempt.outcome,
 					badge = badge,
-					editable = attempt.attempt.editable,
-					synthetic = attempt.attempt.synthetic,
 					countsTowardTermAverage = attempt.countsTowardTermAverage,
 					countsTowardCumulativeAverage = attempt.countsTowardCumulativeAverage &&
 						attempt.attempt.id !in excludedAttemptIds
@@ -173,13 +172,14 @@ object AcademicProjectionEngine {
 
 	private fun resolveEffectiveAttempt(
 		attempt: AcademicAttempt,
+		termKind: TermKind,
 		override: AttemptOverride?,
 		viewMode: ProjectionViewMode
 	): EffectiveAttemptState {
 		val score = when {
 			viewMode == ProjectionViewMode.SIMULATION && override?.score != null -> override.score
 			viewMode == ProjectionViewMode.SIMULATION &&
-				attempt.editable &&
+				termKind.isEditable &&
 				attempt.gradingMode == AttemptGradingMode.NUMERIC &&
 				attempt.officialOutcome == OfficialOutcome.PENDING &&
 				attempt.officialScore.kind == AttemptScoreKind.EMPTY ->

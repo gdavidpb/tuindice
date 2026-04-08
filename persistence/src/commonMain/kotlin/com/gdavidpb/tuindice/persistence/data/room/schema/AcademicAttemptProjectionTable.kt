@@ -18,8 +18,6 @@ object AcademicAttemptProjectionTable {
 	const val SCORE_SYMBOLIC_VALUE = "score_symbolic_value"
 	const val OUTCOME = "outcome"
 	const val BADGE = "badge"
-	const val EDITABLE = "editable"
-	const val SYNTHETIC = "synthetic"
 	const val COUNTS_TOWARD_TERM_AVERAGE = "counts_toward_term_average"
 	const val COUNTS_TOWARD_CUMULATIVE_AVERAGE = "counts_toward_cumulative_average"
 }

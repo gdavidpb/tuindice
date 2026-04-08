@@ -33,8 +33,7 @@ class AcademicRecordCoreMapperTest {
 				numericValue = 3
 			),
 			outcome = OfficialOutcomeResponse.APPROVED,
-			badge = HistoricalBadgeResponse.NONE,
-			editable = false
+			badge = HistoricalBadgeResponse.NONE
 		)
 
 		val simulationAttempt = officialAttempt.copy(
@@ -42,8 +41,7 @@ class AcademicRecordCoreMapperTest {
 				kind = AttemptScoreKindResponse.NUMERIC,
 				numericValue = 5
 			),
-			outcome = OfficialOutcomeResponse.APPROVED,
-			editable = true
+			outcome = OfficialOutcomeResponse.APPROVED
 		)
 
 		val syntheticAttempt = AttemptProjectionResponse(
@@ -59,8 +57,7 @@ class AcademicRecordCoreMapperTest {
 				numericValue = 4
 			),
 			outcome = OfficialOutcomeResponse.APPROVED,
-			badge = HistoricalBadgeResponse.NONE,
-			editable = true
+			badge = HistoricalBadgeResponse.NONE
 		)
 
 		val record = AcademicRecordResponse(
@@ -178,8 +175,7 @@ class AcademicRecordCoreMapperTest {
 				numericValue = 2
 			),
 			outcome = OfficialOutcomeResponse.FAILED,
-			badge = HistoricalBadgeResponse.WITHOUT_EFFECT,
-			editable = false
+			badge = HistoricalBadgeResponse.WITHOUT_EFFECT
 		).toUiStatus()
 
 		assertEquals(com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus.WITHOUT_EFFECT, status)

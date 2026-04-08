@@ -93,16 +93,14 @@ private fun TermProjectionResponse.toAcademicTerm(
 			)
 			.map { attempt ->
 				attempt.toAcademicAttempt(
-					source = source,
-					termKind = kind
+					source = source
 				)
 			}
 	)
 }
 
 private fun AttemptProjectionResponse.toAcademicAttempt(
-	source: AttemptSource,
-	termKind: TermKind
+	source: AttemptSource
 ): AcademicAttempt {
 	return AcademicAttempt(
 		id = id,
@@ -117,9 +115,7 @@ private fun AttemptProjectionResponse.toAcademicAttempt(
 		officialScore = toAttemptScore(),
 		officialOutcome = toOfficialOutcome(),
 		officialBadge = badge.toHistoricalBadge(),
-		editable = editable,
-		source = source,
-		synthetic = termKind.isSynthetic
+		source = source
 	)
 }
 

@@ -46,10 +46,6 @@ data class AcademicAttemptProjectionEntity(
 	val outcome: String,
 	@ColumnInfo(name = AcademicAttemptProjectionTable.BADGE)
 	val badge: String,
-	@ColumnInfo(name = AcademicAttemptProjectionTable.EDITABLE)
-	val editable: Boolean,
-	@ColumnInfo(name = AcademicAttemptProjectionTable.SYNTHETIC)
-	val synthetic: Boolean,
 	@ColumnInfo(name = AcademicAttemptProjectionTable.COUNTS_TOWARD_TERM_AVERAGE)
 	val countsTowardTermAverage: Boolean,
 	@ColumnInfo(name = AcademicAttemptProjectionTable.COUNTS_TOWARD_CUMULATIVE_AVERAGE)

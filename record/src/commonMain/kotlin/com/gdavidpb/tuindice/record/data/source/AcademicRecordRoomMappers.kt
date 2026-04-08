@@ -118,9 +118,7 @@ internal fun AcademicAttempt.toAcademicAttemptEntity(recordId: String): Academic
 		scoreSymbolicValue = officialScore.symbolicValue,
 		officialOutcome = officialOutcome.name,
 		officialBadge = officialBadge.name,
-		editable = editable,
-		source = source.name,
-		synthetic = synthetic
+		source = source.name
 	)
 }
 
@@ -169,9 +167,7 @@ internal fun AcademicAttempt.toAcademicLocalAttemptEntity(recordId: String): Aca
 		scoreSymbolicValue = officialScore.symbolicValue,
 		officialOutcome = officialOutcome.name,
 		officialBadge = officialBadge.name,
-		editable = editable,
-		source = source.name,
-		synthetic = synthetic
+		source = source.name
 	)
 }
 
@@ -216,8 +212,6 @@ internal fun AttemptProjection.toAcademicAttemptProjectionEntity(
 		scoreSymbolicValue = score.symbolicValue,
 		outcome = outcome.name,
 		badge = badge.name,
-		editable = editable,
-		synthetic = synthetic,
 		countsTowardTermAverage = countsTowardTermAverage,
 		countsTowardCumulativeAverage = countsTowardCumulativeAverage
 	)
@@ -273,9 +267,7 @@ internal fun AcademicAttemptEntity.toAcademicAttempt(): AcademicAttempt {
 		),
 		officialOutcome = OfficialOutcome.valueOf(officialOutcome),
 		officialBadge = HistoricalBadge.valueOf(officialBadge),
-		editable = editable,
-		source = AttemptSource.valueOf(source),
-		synthetic = synthetic
+		source = AttemptSource.valueOf(source)
 	)
 }
 
@@ -297,9 +289,7 @@ internal fun AcademicLocalAttemptEntity.toAcademicAttempt(): AcademicAttempt {
 		),
 		officialOutcome = OfficialOutcome.valueOf(officialOutcome),
 		officialBadge = HistoricalBadge.valueOf(officialBadge),
-		editable = editable,
-		source = AttemptSource.valueOf(source),
-		synthetic = synthetic
+		source = AttemptSource.valueOf(source)
 	)
 }
 
@@ -336,8 +326,6 @@ internal fun AcademicAttemptProjectionEntity.toAttemptProjection(): AttemptProje
 		),
 		outcome = OfficialOutcome.valueOf(outcome),
 		badge = HistoricalBadge.valueOf(badge),
-		editable = editable,
-		synthetic = synthetic,
 		countsTowardTermAverage = countsTowardTermAverage,
 		countsTowardCumulativeAverage = countsTowardCumulativeAverage
 	)
@@ -398,9 +386,7 @@ internal fun AcademicRecordMutation.AddSyntheticTerm.toAcademicTerm(order: Int):
 				officialScore = attempt.score ?: AttemptScore.empty(),
 				officialOutcome = attempt.outcome ?: OfficialOutcome.PENDING,
 				officialBadge = HistoricalBadge.NONE,
-				editable = true,
-				source = AttemptSource.LOCAL,
-				synthetic = true
+				source = AttemptSource.LOCAL
 			)
 		}
 	)

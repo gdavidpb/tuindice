@@ -17,7 +17,5 @@ object AcademicLocalAttemptTable {
 	const val SCORE_SYMBOLIC_VALUE = "score_symbolic_value"
 	const val OFFICIAL_OUTCOME = "official_outcome"
 	const val OFFICIAL_BADGE = "official_badge"
-	const val EDITABLE = "editable"
 	const val SOURCE = "source"
-	const val SYNTHETIC = "synthetic"
 }

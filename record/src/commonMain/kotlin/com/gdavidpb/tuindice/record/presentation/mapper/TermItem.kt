@@ -83,7 +83,7 @@ fun TermProjection.toTermItem(
 		canDelete = canDelete,
 		attempts = attempts.map { attempt ->
 			attempt.toAttemptItem(
-				isReadOnly = isAttemptReadOnly(attempt),
+				isReadOnly = isAttemptReadOnly(),
 				texts = texts
 			)
 		}
@@ -98,8 +98,8 @@ internal fun TermProjection.canDeleteTerm(): Boolean {
 	return kind.isSynthetic
 }
 
-internal fun TermProjection.isAttemptReadOnly(attempt: com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection): Boolean {
-	return kind.isOfficialHistorical || !attempt.editable
+internal fun TermProjection.isAttemptReadOnly(): Boolean {
+	return kind.isOfficialHistorical
 }
 
 private fun Float.toTermMetricDelta(): TermMetricDelta {
