@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.data.source.api.mapper
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.HistoricalBadge
 import com.gdavidpb.tuindice.academiccore.domain.model.OfficialOutcome
+import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.record.data.source.api.response.AcademicRecordResponse
 import com.gdavidpb.tuindice.record.data.source.api.response.AttemptGradingModeResponse
 import com.gdavidpb.tuindice.record.data.source.api.response.AttemptProjectionResponse
@@ -71,9 +72,7 @@ class AcademicRecordCoreMapperTest {
 						label = "Abril - Julio 2026",
 						startAt = 1_710_000_000_000L,
 						endAt = 1_720_000_000_000L,
-						closed = true,
-						editable = false,
-						synthetic = false,
+						kind = TermKind.OFFICIAL_HISTORICAL,
 						grade = 3.0,
 						gradeSum = 12.0,
 						credits = 4,
@@ -89,9 +88,7 @@ class AcademicRecordCoreMapperTest {
 						label = "Septiembre - Diciembre 2026",
 						startAt = 1_730_000_000_000L,
 						endAt = 1_740_000_000_000L,
-						closed = false,
-						editable = true,
-						synthetic = true,
+						kind = TermKind.SYNTHETIC,
 						grade = 4.0,
 						gradeSum = 12.0,
 						credits = 3,
@@ -103,9 +100,7 @@ class AcademicRecordCoreMapperTest {
 						label = "Abril - Julio 2026",
 						startAt = 1_710_000_000_000L,
 						endAt = 1_720_000_000_000L,
-						closed = true,
-						editable = false,
-						synthetic = false,
+						kind = TermKind.OFFICIAL_HISTORICAL,
 						grade = 5.0,
 						gradeSum = 20.0,
 						credits = 4,
@@ -126,7 +121,7 @@ class AcademicRecordCoreMapperTest {
 	}
 
 	@Test
-	fun `toAcademicRecord preserves explicit current term markers from the response`() {
+	fun `toAcademicRecord preserves official current term kind from the response`() {
 		val record = AcademicRecordResponse(
 			revision = 1L,
 			officialProjection = RecordProjectionResponse(
@@ -136,9 +131,7 @@ class AcademicRecordCoreMapperTest {
 						label = "Enero - Marzo 2026",
 						startAt = 1_767_236_400_000L,
 						endAt = 1_774_926_000_000L,
-						current = true,
-						closed = false,
-						editable = true,
+						kind = TermKind.OFFICIAL_CURRENT,
 						grade = 0.0,
 						gradeSum = 3.4,
 						credits = 0,
@@ -154,9 +147,7 @@ class AcademicRecordCoreMapperTest {
 						label = "Enero - Marzo 2026",
 						startAt = 1_767_236_400_000L,
 						endAt = 1_774_926_000_000L,
-						current = true,
-						closed = false,
-						editable = true,
+						kind = TermKind.OFFICIAL_CURRENT,
 						grade = 5.0,
 						gradeSum = 3.5,
 						credits = 6,
@@ -167,9 +158,9 @@ class AcademicRecordCoreMapperTest {
 			)
 		).toAcademicRecord()
 
-		assertTrue(record.officialSnapshot.terms.single().current)
-		assertTrue(record.officialProjection.terms.single().current)
-		assertTrue(record.simulationProjection.terms.single().current)
+		assertEquals(TermKind.OFFICIAL_CURRENT, record.officialSnapshot.terms.single().kind)
+		assertEquals(TermKind.OFFICIAL_CURRENT, record.officialProjection.terms.single().kind)
+		assertEquals(TermKind.OFFICIAL_CURRENT, record.simulationProjection.terms.single().kind)
 	}
 
 	@Test

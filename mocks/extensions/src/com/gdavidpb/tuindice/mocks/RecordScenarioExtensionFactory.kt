@@ -18,6 +18,10 @@ import java.util.regex.Pattern
 import wiremock.com.fasterxml.jackson.databind.JsonNode
 import wiremock.com.fasterxml.jackson.databind.ObjectMapper
 
+private const val OFFICIAL_HISTORICAL_TERM_KIND = "official_historical"
+private const val OFFICIAL_CURRENT_TERM_KIND = "official_current"
+private const val SYNTHETIC_TERM_KIND = "synthetic"
+
 class RecordScenarioExtensionFactory : ExtensionFactory {
 	override fun create(services: WireMockServices): List<Extension> =
 		listOf(RecordTemplateModelProvider(services))
@@ -77,8 +81,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				simulationGradeSum = node.path("simulation_grade_sum").takeIf(JsonNode::isNumber)?.asDouble(),
 				simulationCredits = node.path("simulation_credits").takeIf(JsonNode::isInt)?.asInt(),
 				simulationCreditsSum = node.path("simulation_credits_sum").takeIf(JsonNode::isInt)?.asInt(),
-				current = node.get("is_current").asBoolean(),
-				readOnly = node.get("is_read_only").asBoolean(),
+				kind = node.get("kind").asText(),
 				revision = node.get("revision").asLong(),
 				presenceScenario = if (node.hasNonNull("presence_scenario")) node.get("presence_scenario").asText() else null,
 				attempts = attempts,
@@ -368,7 +371,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 					cumulativeCredits += state.effectiveCredits() - previousCredits
 				}
 
-				if (term.readOnly) {
+				if (term.isReadOnly) {
 					term.copy(
 						simulationGrade = term.grade,
 						simulationGradeSum = term.gradeSum,
@@ -447,12 +450,17 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		val simulationGradeSum: Double? = null,
 		val simulationCredits: Int? = null,
 		val simulationCreditsSum: Int? = null,
-		val current: Boolean,
-		val readOnly: Boolean,
+		val kind: String,
 		val presenceScenario: String?,
 		val attempts: List<AttemptModel>,
 		val revision: Long,
 	) {
+		val isCurrent: Boolean
+			get() = kind == OFFICIAL_CURRENT_TERM_KIND
+
+		val isReadOnly: Boolean
+			get() = kind == OFFICIAL_HISTORICAL_TERM_KIND
+
 		fun copyWith(
 			grade: Double,
 			gradeSum: Double,
@@ -480,8 +488,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				"grade_sum" to gradeSum,
 				"credits" to credits,
 				"credits_sum" to creditsSum,
-				"is_current" to current,
-				"is_read_only" to readOnly,
+				"kind" to kind,
 				"revision" to revision,
 				"attempts" to attempts.map(AttemptModel::toTemplateModel),
 			).also { model ->
@@ -503,10 +510,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				"label" to name,
 				"start_at" to startDate,
 				"end_at" to endDate,
-				"current" to current,
-				"closed" to readOnly,
-				"editable" to !readOnly,
-				"synthetic" to (id == ADDED_TERM_ID),
+				"term_kind" to kind,
 				"grade" to if (simulation) (simulationGrade ?: grade) else grade,
 				"grade_sum" to if (simulation) (simulationGradeSum ?: gradeSum) else gradeSum,
 				"credits" to if (simulation) (simulationCredits ?: credits) else credits,

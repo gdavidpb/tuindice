@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
+import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.academiccore.domain.model.isEditable
 import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
@@ -79,7 +81,7 @@ class RoomDatabaseDataSource(
 	override suspend fun getAvailableSubjects(): List<LocalSubject> {
 		val openTermIds = room.academicTermProjections
 			.getTerms(CURRENT_ACADEMIC_RECORD_ID, OFFICIAL_VIEW_MODE)
-			.filter { term -> !term.closed }
+			.filter { term -> isEditableTermKind(term.kind) }
 			.mapTo(hashSetOf()) { term -> term.id }
 
 		return room.academicAttemptProjections
@@ -215,6 +217,12 @@ class RoomDatabaseDataSource(
 	private suspend fun currentPendingMutations(): List<MutationEnvelope<String, EvaluationMutation>> {
 		return pendingMutationsSnapshot.ifEmpty {
 			mutationEngine.getPendingMutations(EVALUATIONS_MUTATION_SCOPE)
+		}
+	}
+
+	internal companion object {
+		fun isEditableTermKind(kind: String): Boolean {
+			return TermKind.valueOf(kind).isEditable
 		}
 	}
 }

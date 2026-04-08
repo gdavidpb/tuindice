@@ -22,15 +22,13 @@ fun AcademicRecordResponse.toAcademicRecord(): AcademicRecord {
 		.mapIndexed { index, term ->
 			term.toAcademicTerm(
 				order = index,
-				source = AttemptSource.DST_RECORD,
-				synthetic = false
+				source = AttemptSource.DST_RECORD
 			)
 		}
 	val officialSnapshot = AcademicSnapshot(terms = officialTermsAscending)
 	val officialAttemptsById = officialSnapshot.terms
 		.flatMap(AcademicTerm::attempts)
 		.associateBy(AcademicAttempt::id)
-	val officialTermIds = officialSnapshot.terms.mapTo(hashSetOf(), AcademicTerm::id)
 	val simulationTermsDescending = simulationProjection.terms.sortedWith(
 		compareByDescending<TermProjectionResponse> { it.startAt }
 			.thenBy { it.id }
@@ -54,13 +52,12 @@ fun AcademicRecordResponse.toAcademicRecord(): AcademicRecord {
 			}
 		}
 	val syntheticTermsAscending = simulationTermsDescending
-		.filterNot { term -> term.id in officialTermIds }
+		.filter { term -> term.kind.isSynthetic }
 		.asReversed()
 		.mapIndexed { index, term ->
 			term.toAcademicTerm(
 				order = officialTermsAscending.size + index,
-				source = AttemptSource.LOCAL,
-				synthetic = true
+				source = AttemptSource.LOCAL
 			)
 		}
 	val record = AcademicRecord(
@@ -80,8 +77,7 @@ fun AcademicRecordResponse.toAcademicRecord(): AcademicRecord {
 
 private fun TermProjectionResponse.toAcademicTerm(
 	order: Int,
-	source: AttemptSource,
-	synthetic: Boolean
+	source: AttemptSource
 ): AcademicTerm {
 	return AcademicTerm(
 		id = id,
@@ -89,10 +85,7 @@ private fun TermProjectionResponse.toAcademicTerm(
 		startAtMillis = startAt,
 		endAtMillis = endAt,
 		order = order,
-		current = current,
-		closed = closed,
-		editable = editable,
-		synthetic = synthetic || this.synthetic,
+		kind = kind,
 		attempts = attempts
 			.sortedWith(
 				compareBy<AttemptProjectionResponse> { it.sequenceInTerm }
@@ -101,7 +94,7 @@ private fun TermProjectionResponse.toAcademicTerm(
 			.map { attempt ->
 				attempt.toAcademicAttempt(
 					source = source,
-					synthetic = synthetic || this.synthetic
+					termKind = kind
 				)
 			}
 	)
@@ -109,7 +102,7 @@ private fun TermProjectionResponse.toAcademicTerm(
 
 private fun AttemptProjectionResponse.toAcademicAttempt(
 	source: AttemptSource,
-	synthetic: Boolean
+	termKind: TermKind
 ): AcademicAttempt {
 	return AcademicAttempt(
 		id = id,
@@ -126,7 +119,7 @@ private fun AttemptProjectionResponse.toAcademicAttempt(
 		officialBadge = badge.toHistoricalBadge(),
 		editable = editable,
 		source = source,
-		synthetic = synthetic
+		synthetic = termKind.isSynthetic
 	)
 }
 

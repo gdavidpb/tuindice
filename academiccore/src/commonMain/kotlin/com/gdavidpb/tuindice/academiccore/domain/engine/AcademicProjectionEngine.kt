@@ -101,8 +101,7 @@ object AcademicProjectionEngine {
 			val officialTermProjection = officialProjectionByTermId[termState.term.id]
 			val useFrozenOfficialMetrics =
 				viewMode == ProjectionViewMode.SIMULATION &&
-					termState.term.closed &&
-					!termState.term.synthetic &&
+					termState.term.kind.isOfficialHistorical &&
 					officialTermProjection != null
 
 			val attemptProjections = termState.attempts.map { attempt ->
@@ -142,10 +141,7 @@ object AcademicProjectionEngine {
 					startAtMillis = termState.term.startAtMillis,
 					endAtMillis = termState.term.endAtMillis,
 					order = termState.term.order,
-					current = termState.term.current,
-					closed = termState.term.closed,
-					editable = termState.term.editable,
-					synthetic = termState.term.synthetic,
+					kind = termState.term.kind,
 					grade = officialTermProjection.grade,
 					gradeSum = officialTermProjection.gradeSum,
 					credits = officialTermProjection.credits,
@@ -159,10 +155,7 @@ object AcademicProjectionEngine {
 					startAtMillis = termState.term.startAtMillis,
 					endAtMillis = termState.term.endAtMillis,
 					order = termState.term.order,
-					current = termState.term.current,
-					closed = termState.term.closed,
-					editable = termState.term.editable,
-					synthetic = termState.term.synthetic,
+					kind = termState.term.kind,
 					grade = computeAverage(termWeighted, termCredits.toLong()),
 					gradeSum = computeAverage(cumulativeWeighted, cumulativeCredits),
 					credits = termCredits,

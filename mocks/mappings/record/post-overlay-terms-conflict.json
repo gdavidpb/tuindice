@@ -4,7 +4,7 @@
   "requiredScenarioState": "ADDED_R1",
   "request": {
     "method": "POST",
-    "urlPath": "/record/v1/overlay/terms",
+    "urlPath": "/record/v2/overlay/terms",
     "bodyPatterns": [
       {
         "matchesJsonPath": "$.label"

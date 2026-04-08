@@ -26,10 +26,6 @@ ADDED_TERM_SCENARIO = "record-term-MOCK-ADDED-QUARTER"
 ADDED_TERM_PRESENT_STATE = "ADDED_R1"
 ADDED_TERM_DELETED_STATE = "DELETED_R2"
 
-DELETABLE_TERM_ID = "Q2026B"
-DELETABLE_TERM_SCENARIO = "record-term-Q2026B"
-DELETABLE_TERM_DELETED_STATE = "DELETED_R11"
-
 RECORD_BODY = "{{{toJson record}}}"
 
 
@@ -93,11 +89,11 @@ def build_get_mapping(target_dir: Path) -> None:
 		target_dir,
 		"get-record-success.json",
 		{
-			"priority": SUCCESS_PRIORITY,
-			"request": {
-				"method": "GET",
-				"urlPath": "/record/v1"
-			},
+				"priority": SUCCESS_PRIORITY,
+				"request": {
+					"method": "GET",
+					"urlPath": "/record/v2"
+				},
 			"response": response(
 				status=200,
 				body=RECORD_BODY,
@@ -116,7 +112,7 @@ def build_put_mappings(target_dir: Path, base_state: dict, max_revision: int) ->
 	]
 
 	for attempt in mutable_attempts:
-		url_path = f"/record/v1/overlay/attempts/{attempt['id']}"
+		url_path = f"/record/v2/overlay/attempts/{attempt['id']}"
 		base_revision = attempt["revision"]
 		grading_mode = attempt.get("grading_mode", "numeric")
 
@@ -245,7 +241,6 @@ def build_put_mappings(target_dir: Path, base_state: dict, max_revision: int) ->
 
 def build_delete_mappings(target_dir: Path) -> None:
 	for term_id, scenario_name, deleted_state in (
-		(DELETABLE_TERM_ID, DELETABLE_TERM_SCENARIO, DELETABLE_TERM_DELETED_STATE),
 		(ADDED_TERM_ID, ADDED_TERM_SCENARIO, ADDED_TERM_DELETED_STATE),
 	):
 		write_mapping(
@@ -254,11 +249,11 @@ def build_delete_mappings(target_dir: Path) -> None:
 			{
 				"priority": SUCCESS_PRIORITY,
 				"scenarioName": scenario_name,
-				"requiredScenarioState": "Started" if term_id == DELETABLE_TERM_ID else ADDED_TERM_PRESENT_STATE,
+				"requiredScenarioState": ADDED_TERM_PRESENT_STATE,
 				"newScenarioState": deleted_state,
 				"request": {
 					"method": "DELETE",
-					"urlPath": f"/record/v1/overlay/terms/{term_id}"
+					"urlPath": f"/record/v2/overlay/terms/{term_id}"
 				},
 				"response": response(
 					status=200,
@@ -276,7 +271,7 @@ def build_delete_mappings(target_dir: Path) -> None:
 				"requiredScenarioState": deleted_state,
 				"request": {
 					"method": "DELETE",
-					"urlPath": f"/record/v1/overlay/terms/{term_id}"
+					"urlPath": f"/record/v2/overlay/terms/{term_id}"
 				},
 				"response": response(
 					status=404,
@@ -290,7 +285,7 @@ def build_delete_mappings(target_dir: Path) -> None:
 def build_post_mappings(target_dir: Path) -> None:
 	shared_request = {
 		"method": "POST",
-		"urlPath": "/record/v1/overlay/terms",
+		"urlPath": "/record/v2/overlay/terms",
 		"bodyPatterns": [
 			matches_json_path_exists("$.label"),
 			matches_json_path_exists("$.start_at"),

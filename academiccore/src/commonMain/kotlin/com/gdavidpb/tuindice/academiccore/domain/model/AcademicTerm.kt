@@ -10,10 +10,7 @@ data class AcademicTerm(
 	@SerialName("start_at") val startAtMillis: Long,
 	@SerialName("end_at") val endAtMillis: Long,
 	val order: Int,
-	@SerialName("current") val current: Boolean = false,
-	val closed: Boolean,
-	val editable: Boolean,
-	val synthetic: Boolean = false,
+	@SerialName("term_kind") val kind: TermKind,
 	@SerialName("source_reported_period_average")
 	val sourceReportedPeriodAverage: Double? = null,
 	@SerialName("source_reported_cumulative_average")

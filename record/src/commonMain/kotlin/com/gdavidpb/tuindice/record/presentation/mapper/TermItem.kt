@@ -10,6 +10,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
+import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialCurrent
+import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialHistorical
+import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDelta
@@ -52,7 +55,7 @@ fun TermProjection.toTermItem(
 		label = "animatedTermCredits"
 	)
 	val isCurrent = isCurrentTerm()
-	val canDelete = synthetic && editable
+	val canDelete = canDeleteTerm()
 	val shouldShowDeltas = attempts.isNotEmpty()
 
 	return TermItem(
@@ -80,7 +83,7 @@ fun TermProjection.toTermItem(
 		canDelete = canDelete,
 		attempts = attempts.map { attempt ->
 			attempt.toAttemptItem(
-				isReadOnly = closed || !editable || !attempt.editable,
+				isReadOnly = isAttemptReadOnly(attempt),
 				texts = texts
 			)
 		}
@@ -88,7 +91,15 @@ fun TermProjection.toTermItem(
 }
 
 internal fun TermProjection.isCurrentTerm(): Boolean {
-	return current
+	return kind.isOfficialCurrent
+}
+
+internal fun TermProjection.canDeleteTerm(): Boolean {
+	return kind.isSynthetic
+}
+
+internal fun TermProjection.isAttemptReadOnly(attempt: com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection): Boolean {
+	return kind.isOfficialHistorical || !attempt.editable
 }
 
 private fun Float.toTermMetricDelta(): TermMetricDelta {

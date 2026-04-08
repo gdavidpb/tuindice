@@ -21,7 +21,7 @@ class AcademicRecordApiDataSource(
 	private val ktorClient: HttpClient
 ) : AcademicRecordRemoteDataRepository {
 	override suspend fun getAcademicRecord(): AcademicRecord {
-		return ktorClient.get("record/v1")
+		return ktorClient.get("record/v2")
 			.body<AcademicRecordResponse>()
 			.toAcademicRecord()
 	}
@@ -31,7 +31,7 @@ class AcademicRecordApiDataSource(
 		score: AttemptScore?,
 		outcome: OfficialOutcome?
 	): AcademicRecord {
-		return ktorClient.put("record/v1/overlay/attempts/$attemptId") {
+		return ktorClient.put("record/v2/overlay/attempts/$attemptId") {
 			setBody(buildAcademicUpsertAttemptOverrideRequest(score = score, outcome = outcome))
 		}
 			.body<AcademicRecordResponse>()
@@ -39,13 +39,13 @@ class AcademicRecordApiDataSource(
 	}
 
 	override suspend fun deleteAttemptOverride(attemptId: String): AcademicRecord {
-		return ktorClient.delete("record/v1/overlay/attempts/$attemptId")
+		return ktorClient.delete("record/v2/overlay/attempts/$attemptId")
 			.body<AcademicRecordResponse>()
 			.toAcademicRecord()
 	}
 
 	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm): AcademicRecord {
-		return ktorClient.post("record/v1/overlay/terms") {
+		return ktorClient.post("record/v2/overlay/terms") {
 			setBody(command.toAddSyntheticTermRequest())
 		}
 			.body<AcademicRecordResponse>()
@@ -53,7 +53,7 @@ class AcademicRecordApiDataSource(
 	}
 
 	override suspend fun deleteSyntheticTerm(termId: String): AcademicRecord {
-		return ktorClient.delete("record/v1/overlay/terms/$termId")
+		return ktorClient.delete("record/v2/overlay/terms/$termId")
 			.body<AcademicRecordResponse>()
 			.toAcademicRecord()
 	}

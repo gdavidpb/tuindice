@@ -4,8 +4,6 @@
     "name": "Term Added",
     "start_date": 1809140400000,
     "end_date": 1817002800000,
-    "is_current": false,
-    "is_read_only": false,
     "revision": 1,
     "presence_scenario": "record-term-MOCK-ADDED-QUARTER",
     "attempts": [
@@ -22,7 +20,8 @@
     "grade": 0.0,
     "grade_sum": 3.419,
     "credits": 0,
-    "credits_sum": 253
+    "credits_sum": 253,
+    "kind": "synthetic"
   },
   "terms": [
     {
@@ -34,8 +33,6 @@
       "grade_sum": 3.419,
       "credits": 0,
       "credits_sum": 253,
-      "is_current": false,
-      "is_read_only": false,
       "revision": 11,
       "attempts": [
         {
@@ -51,7 +48,8 @@
           "scenario": "record-attempt-EP5406Q2026C",
           "status": "approved"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2026B",
@@ -62,8 +60,6 @@
       "grade_sum": 3.5451,
       "credits": 13,
       "credits_sum": 244,
-      "is_current": false,
-      "is_read_only": false,
       "revision": 10,
       "attempts": [
         {
@@ -111,7 +107,8 @@
           "scenario": "record-attempt-PS5315Q2026B"
         }
       ],
-      "presence_scenario": "record-term-Q2026B"
+      "presence_scenario": "record-term-Q2026B",
+      "kind": "official_historical"
     },
     {
       "id": "Q2026A",
@@ -122,8 +119,6 @@
       "grade_sum": 3.4632,
       "credits": 6,
       "credits_sum": 231,
-      "is_current": true,
-      "is_read_only": false,
       "revision": 9,
       "attempts": [
         {
@@ -148,7 +143,8 @@
           "mutable": true,
           "scenario": "record-attempt-PB5611Q2026A"
         }
-      ]
+      ],
+      "kind": "official_current"
     },
     {
       "id": "Q2025C",
@@ -159,8 +155,6 @@
       "grade_sum": 3.4222,
       "credits": 11,
       "credits_sum": 225,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -193,7 +187,8 @@
           "revision": 1,
           "status": "failed"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2025B",
@@ -204,8 +199,6 @@
       "grade_sum": 3.4747,
       "credits": 0,
       "credits_sum": 217,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -219,7 +212,8 @@
           "grading_mode": "qualitative_pass_fail",
           "status": "approved"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2025A",
@@ -230,8 +224,6 @@
       "grade_sum": 3.5234,
       "credits": 16,
       "credits_sum": 214,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -280,7 +272,8 @@
           "grade": 3,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2024D",
@@ -291,8 +284,6 @@
       "grade_sum": 3.5455,
       "credits": 13,
       "credits_sum": 198,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -342,7 +333,8 @@
           "grading_mode": "qualitative_pass_fail",
           "status": "approved"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2024C",
@@ -353,8 +345,6 @@
       "grade_sum": 3.6429,
       "credits": 3,
       "credits_sum": 182,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -367,7 +357,8 @@
           "revision": 1,
           "status": "unreported"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2024B",
@@ -378,8 +369,6 @@
       "grade_sum": 3.6429,
       "credits": 17,
       "credits_sum": 182,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -428,7 +417,8 @@
           "grade": 3,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2024A",
@@ -439,8 +429,6 @@
       "grade_sum": 3.6391,
       "credits": 15,
       "credits_sum": 169,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -479,7 +467,8 @@
           "grade": 3,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2023C",
@@ -490,8 +479,6 @@
       "grade_sum": 3.6173,
       "credits": 16,
       "credits_sum": 162,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -533,7 +520,8 @@
           "revision": 1,
           "status": "without_effect"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2023B",
@@ -544,8 +532,6 @@
       "grade_sum": 3.6329,
       "credits": 11,
       "credits_sum": 158,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -585,7 +571,8 @@
           "grade": 3,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2023A",
@@ -596,8 +583,6 @@
       "grade_sum": 3.6395,
       "credits": 16,
       "credits_sum": 147,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -648,7 +633,8 @@
           "revision": 1,
           "status": "retired"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2022C",
@@ -659,8 +645,6 @@
       "grade_sum": 3.7481,
       "credits": 16,
       "credits_sum": 131,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -711,7 +695,8 @@
           "revision": 1,
           "status": "without_effect"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2022B",
@@ -722,8 +707,6 @@
       "grade_sum": 3.7623,
       "credits": 14,
       "credits_sum": 122,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -763,7 +746,8 @@
           "grade": 3,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2022A",
@@ -774,8 +758,6 @@
       "grade_sum": 3.7768,
       "credits": 14,
       "credits_sum": 112,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -825,7 +807,8 @@
           "revision": 1,
           "status": "without_effect"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2021C",
@@ -836,8 +819,6 @@
       "grade_sum": 3.7941,
       "credits": 12,
       "credits_sum": 102,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -877,7 +858,8 @@
           "grade": 4,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2021B",
@@ -888,8 +870,6 @@
       "grade_sum": 3.7742,
       "credits": 10,
       "credits_sum": 93,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -919,7 +899,8 @@
           "grade": 3,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2021A",
@@ -930,8 +911,6 @@
       "grade_sum": 3.7711,
       "credits": 3,
       "credits_sum": 83,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -943,7 +922,8 @@
           "grade": 3,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2020A",
@@ -954,8 +934,6 @@
       "grade_sum": 3.8,
       "credits": 11,
       "credits_sum": 80,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -1004,7 +982,8 @@
           "grade": 4,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2019B",
@@ -1015,8 +994,6 @@
       "grade_sum": 3.8116,
       "credits": 8,
       "credits_sum": 69,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -1058,7 +1035,8 @@
           "revision": 1,
           "status": "retired"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2019A",
@@ -1069,8 +1047,6 @@
       "grade_sum": 3.806,
       "credits": 10,
       "credits_sum": 67,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -1101,7 +1077,8 @@
           "grade": 3,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2018D",
@@ -1112,8 +1089,6 @@
       "grade_sum": 3.5672,
       "credits": 10,
       "credits_sum": 67,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -1145,7 +1120,8 @@
           "revision": 1,
           "status": "without_effect"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2018C",
@@ -1156,8 +1132,6 @@
       "grade_sum": 3.5938,
       "credits": 0,
       "credits_sum": 64,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -1170,7 +1144,8 @@
           "revision": 1,
           "status": "retired"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2018B",
@@ -1181,8 +1156,6 @@
       "grade_sum": 3.5938,
       "credits": 0,
       "credits_sum": 64,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -1225,7 +1198,8 @@
           "revision": 1,
           "status": "retired"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2018A",
@@ -1236,8 +1210,6 @@
       "grade_sum": 3.5938,
       "credits": 15,
       "credits_sum": 64,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -1287,7 +1259,8 @@
           "revision": 1,
           "status": "failed"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2017C",
@@ -1298,8 +1271,6 @@
       "grade_sum": 3.8571,
       "credits": 13,
       "credits_sum": 49,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -1340,7 +1311,8 @@
           "revision": 1,
           "status": "failed"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2017B",
@@ -1351,8 +1323,6 @@
       "grade_sum": 4.0513,
       "credits": 3,
       "credits_sum": 39,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -1364,7 +1334,8 @@
           "grade": 4,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2017A",
@@ -1375,8 +1346,6 @@
       "grade_sum": 3.8974,
       "credits": 16,
       "credits_sum": 39,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -1426,7 +1395,8 @@
           "grade": 3,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2016C",
@@ -1437,8 +1407,6 @@
       "grade_sum": 4.0,
       "credits": 16,
       "credits_sum": 29,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -1487,7 +1455,8 @@
           "grade": 3,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2016B",
@@ -1498,8 +1467,6 @@
       "grade_sum": 4.3077,
       "credits": 4,
       "credits_sum": 13,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -1512,7 +1479,8 @@
           "revision": 1,
           "status": "without_effect"
         }
-      ]
+      ],
+      "kind": "official_historical"
     },
     {
       "id": "Q2016A",
@@ -1523,8 +1491,6 @@
       "grade_sum": 4.3077,
       "credits": 13,
       "credits_sum": 13,
-      "is_current": false,
-      "is_read_only": true,
       "revision": 1,
       "attempts": [
         {
@@ -1563,7 +1529,8 @@
           "grade": 5,
           "revision": 1
         }
-      ]
+      ],
+      "kind": "official_historical"
     }
   ]
 }

@@ -5,6 +5,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -79,7 +80,7 @@ private fun Record.State.toRouteViewState(): ViewState {
 		is Record.State.Content -> record.activeProjection(viewMode)
 			.terms
 			.any { term ->
-				term.id == selectedTermId && term.editable && !term.synthetic && !term.closed
+				term.id == selectedTermId && term.kind.isOfficialCurrent
 			}
 
 		Record.State.Empty,

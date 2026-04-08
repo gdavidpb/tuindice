@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.data.source.api.response
 
+import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -21,10 +22,7 @@ data class TermProjectionResponse(
 	@SerialName("label") val label: String,
 	@SerialName("start_at") val startAt: Long,
 	@SerialName("end_at") val endAt: Long,
-	@SerialName("current") val current: Boolean = false,
-	@SerialName("closed") val closed: Boolean,
-	@SerialName("editable") val editable: Boolean,
-	@SerialName("synthetic") val synthetic: Boolean = false,
+	@SerialName("term_kind") val kind: TermKind,
 	@SerialName("grade") val grade: Double,
 	@SerialName("grade_sum") val gradeSum: Double,
 	@SerialName("credits") val credits: Int,

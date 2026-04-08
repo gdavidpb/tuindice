@@ -4,7 +4,7 @@
   "requiredScenarioState": "DELETED_R2",
   "request": {
     "method": "DELETE",
-    "urlPath": "/record/v1/overlay/terms/MOCK-ADDED-QUARTER"
+    "urlPath": "/record/v2/overlay/terms/MOCK-ADDED-QUARTER"
   },
   "response": {
     "status": 404,

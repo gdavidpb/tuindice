@@ -25,14 +25,8 @@ data class AcademicTermProjectionEntity(
 	val endAt: Long,
 	@ColumnInfo(name = AcademicTermProjectionTable.ORDER)
 	val order: Int,
-	@ColumnInfo(name = AcademicTermProjectionTable.CURRENT)
-	val current: Boolean = false,
-	@ColumnInfo(name = AcademicTermProjectionTable.CLOSED)
-	val closed: Boolean,
-	@ColumnInfo(name = AcademicTermProjectionTable.EDITABLE)
-	val editable: Boolean,
-	@ColumnInfo(name = AcademicTermProjectionTable.SYNTHETIC)
-	val synthetic: Boolean,
+	@ColumnInfo(name = AcademicTermProjectionTable.TERM_KIND)
+	val kind: String,
 	@ColumnInfo(name = AcademicTermProjectionTable.GRADE)
 	val grade: Double,
 	@ColumnInfo(name = AcademicTermProjectionTable.GRADE_SUM)

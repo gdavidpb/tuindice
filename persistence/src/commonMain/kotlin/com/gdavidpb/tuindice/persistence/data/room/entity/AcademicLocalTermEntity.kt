@@ -24,10 +24,6 @@ data class AcademicLocalTermEntity(
 	val endAt: Long,
 	@ColumnInfo(name = AcademicLocalTermTable.ORDER)
 	val order: Int,
-	@ColumnInfo(name = AcademicLocalTermTable.CLOSED)
-	val closed: Boolean,
-	@ColumnInfo(name = AcademicLocalTermTable.EDITABLE)
-	val editable: Boolean,
-	@ColumnInfo(name = AcademicLocalTermTable.SYNTHETIC)
-	val synthetic: Boolean
+	@ColumnInfo(name = AcademicLocalTermTable.TERM_KIND)
+	val kind: String
 )

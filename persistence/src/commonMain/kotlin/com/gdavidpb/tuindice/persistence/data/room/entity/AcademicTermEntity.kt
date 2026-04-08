@@ -24,14 +24,8 @@ data class AcademicTermEntity(
 	val endAt: Long,
 	@ColumnInfo(name = AcademicTermTable.ORDER)
 	val order: Int,
-	@ColumnInfo(name = AcademicTermTable.CURRENT)
-	val current: Boolean = false,
-	@ColumnInfo(name = AcademicTermTable.CLOSED)
-	val closed: Boolean,
-	@ColumnInfo(name = AcademicTermTable.EDITABLE)
-	val editable: Boolean,
-	@ColumnInfo(name = AcademicTermTable.SYNTHETIC)
-	val synthetic: Boolean,
+	@ColumnInfo(name = AcademicTermTable.TERM_KIND)
+	val kind: String,
 	@ColumnInfo(name = AcademicTermTable.SOURCE_REPORTED_PERIOD_AVERAGE)
 	val sourceReportedPeriodAverage: Double? = null,
 	@ColumnInfo(name = AcademicTermTable.SOURCE_REPORTED_CUMULATIVE_AVERAGE)

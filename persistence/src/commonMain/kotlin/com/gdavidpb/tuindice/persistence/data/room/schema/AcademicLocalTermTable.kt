@@ -8,7 +8,5 @@ object AcademicLocalTermTable {
 	const val START_AT = "start_at"
 	const val END_AT = "end_at"
 	const val ORDER = "term_order"
-	const val CLOSED = "closed"
-	const val EDITABLE = "editable"
-	const val SYNTHETIC = "synthetic"
+	const val TERM_KIND = "term_kind"
 }
