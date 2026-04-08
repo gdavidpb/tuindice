@@ -1,0 +1,26 @@
+{
+  "priority": 1,
+  "scenarioName": "record-attempt-EP5406Q2026C",
+  "requiredScenarioState": "REV_2_STATUS_APPROVED",
+  "newScenarioState": "REV_3_STATUS_FAILED",
+  "request": {
+    "method": "PUT",
+    "urlPath": "/record/v1/overlay/attempts/EP5406Q2026C",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.outcome == 'failed')]"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{{{toJson record}}}",
+    "transformers": [
+      "response-template"
+    ],
+    "fixedDelayMilliseconds": 1500
+  }
+}

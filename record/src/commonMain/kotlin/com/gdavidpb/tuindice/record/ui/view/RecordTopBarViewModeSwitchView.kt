@@ -19,14 +19,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
-import com.gdavidpb.tuindice.record.domain.model.other
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.record_view_mode_official
-import tuindice.record.generated.resources.record_view_mode_simulation
+import tuindice.record.generated.resources.record_view_mode_projection
 import tuindice.record.generated.resources.record_view_mode_toggle_to_official
-import tuindice.record.generated.resources.record_view_mode_toggle_to_simulation
+import tuindice.record.generated.resources.record_view_mode_toggle_to_projection
 
 @Composable
 fun RecordTopBarViewModeSwitchView(
@@ -35,7 +34,7 @@ fun RecordTopBarViewModeSwitchView(
 	modifier: Modifier = Modifier
 ) {
 	val currentModeLabel = recordViewModeLabel(selectedMode)
-	val toggleDescription = recordViewModeToggleDescription(selectedMode.other())
+	val toggleDescription = recordViewModeToggleDescription(selectedMode.otherMode())
 	val colors = recordViewModeBannerColors(selectedMode)
 
 	Box(
@@ -54,7 +53,7 @@ fun RecordTopBarViewModeSwitchView(
 				contentColor = colors.contentColor
 			),
 			onClick = {
-				onModeSelected(selectedMode.other())
+				onModeSelected(selectedMode.otherMode())
 			}
 		) {
 			Icon(
@@ -68,11 +67,18 @@ fun RecordTopBarViewModeSwitchView(
 	}
 }
 
+private fun RecordViewMode.otherMode(): RecordViewMode {
+	return when (this) {
+		RecordViewMode.Official -> RecordViewMode.Simulation
+		RecordViewMode.Simulation -> RecordViewMode.Official
+	}
+}
+
 @Composable
 fun recordViewModeLabel(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_official)
-		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_simulation)
+		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_projection)
 	}
 }
 
@@ -80,7 +86,7 @@ fun recordViewModeLabel(mode: RecordViewMode): String {
 fun recordViewModeToggleDescription(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_toggle_to_official)
-		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_toggle_to_simulation)
+		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_toggle_to_projection)
 	}
 }
 

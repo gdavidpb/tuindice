@@ -13,10 +13,10 @@ import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.record_view_mode_banner_official
-import tuindice.record.generated.resources.record_view_mode_banner_simulation
+import tuindice.record.generated.resources.record_view_mode_banner_projection
 import tuindice.record.generated.resources.record_view_mode_info_confirm
 import tuindice.record.generated.resources.record_view_mode_info_message_official
-import tuindice.record.generated.resources.record_view_mode_info_message_simulation
+import tuindice.record.generated.resources.record_view_mode_info_message_projection
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +44,7 @@ fun RecordViewModeInfoDialog(
 private fun recordViewModeInfoTitle(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_banner_official)
-		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_banner_simulation)
+		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_banner_projection)
 	}
 }
 
@@ -52,6 +52,6 @@ private fun recordViewModeInfoTitle(mode: RecordViewMode): String {
 private fun recordViewModeInfoMessage(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_info_message_official)
-		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_info_message_simulation)
+		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_info_message_projection)
 	}
 }

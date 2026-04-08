@@ -9,9 +9,9 @@ import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 
 fun AddEvaluationParams.toEvaluationAdd(reference: String) = EvaluationAdd(
 	reference = reference,
-	subjectId = subjectId!!,
+	attemptId = attemptId!!,
 	subjectCode = subjectCode!!,
-	quarterId = quarterId!!,
+	termId = termId!!,
 	grade = grade,
 	maxGrade = maxGrade!!,
 	scheduleMode = scheduleMode,
@@ -30,9 +30,9 @@ fun UpdateEvaluationParams.toEvaluationUpdate() = EvaluationUpdate(
 
 fun EvaluationAdd.toEvaluation() = Evaluation(
 	id = reference,
-	subjectId = subjectId,
+	attemptId = attemptId,
 	subjectCode = subjectCode,
-	quarterId = quarterId,
+	termId = termId,
 	scheduleMode = scheduleMode,
 	type = type,
 	date = date,

@@ -1,0 +1,26 @@
+{
+  "priority": 1,
+  "scenarioName": "record-attempt-EC5344Q2026B",
+  "requiredScenarioState": "REV_20_GRADE_3",
+  "newScenarioState": "REV_20_GRADE_1",
+  "request": {
+    "method": "PUT",
+    "urlPath": "/record/v1/overlay/attempts/EC5344Q2026B",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.score.numeric_value == 1)]"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{{{toJson record}}}",
+    "transformers": [
+      "response-template"
+    ],
+    "fixedDelayMilliseconds": 1500
+  }
+}

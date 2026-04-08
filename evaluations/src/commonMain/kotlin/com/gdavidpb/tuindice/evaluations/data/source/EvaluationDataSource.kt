@@ -74,9 +74,9 @@ class EvaluationDataSource(
 		val mutation = buildPendingAddMutation(
 			command = EvaluationMutation.Add(
 				referenceId = add.reference,
-				subjectId = add.subjectId,
+				attemptId = add.attemptId,
 				subjectCode = add.subjectCode,
-				quarterId = add.quarterId,
+				termId = add.termId,
 				scheduleMode = add.scheduleMode,
 				grade = add.grade,
 				maxGrade = add.maxGrade,

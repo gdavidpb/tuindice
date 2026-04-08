@@ -27,7 +27,7 @@ private fun localSubject(
 	code: String
 ) = LocalSubject(
 	id = id,
-	quarterId = "quarter-1",
+	termId = "quarter-1",
 	code = code,
 	name = code,
 	credits = 10,

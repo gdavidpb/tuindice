@@ -20,8 +20,19 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.Serializable
 
 class KtorClientTest {
+	@Test
+	fun createSharedJson_ignoresUnknownTopLevelFields() {
+		val response = createSharedJson().decodeFromString(
+			deserializer = TestResponse.serializer(),
+			"""{"revision":1,"id":"server-added-field"}"""
+		)
+
+		assertEquals(1L, response.revision)
+	}
+
 	@Test
 	fun isSessionInvalidatingRefreshFailure_matchesUnauthorizedForbiddenAndLocked() {
 		assertTrue(clientRequestException(HttpStatusCode.Unauthorized).isSessionInvalidatingRefreshFailure())
@@ -80,13 +91,13 @@ class KtorClientTest {
 		}
 
 		try {
-			client.get("https://api.tuindice.app/sync/v1")
+			client.get("https://api.tuindice.app/record/v1/sync")
 
 			sessionRepository.setSessionId("session-new")
 			sessionRepository.setAccessToken("access-new")
 			sessionRepository.setRefreshToken("refresh-new")
 
-			client.get("https://api.tuindice.app/sync/v1")
+			client.get("https://api.tuindice.app/record/v1/sync")
 		} finally {
 			client.close()
 		}
@@ -97,3 +108,8 @@ class KtorClientTest {
 		)
 	}
 }
+
+@Serializable
+private data class TestResponse(
+	val revision: Long
+)

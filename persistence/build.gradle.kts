@@ -22,10 +22,6 @@ kotlin {
 
 	applyDefaultHierarchyTemplate()
 
-	compilerOptions {
-		freeCompilerArgs.add("-Xexpect-actual-classes")
-	}
-
 	sourceSets {
 		val commonMain by getting {
 			dependencies {

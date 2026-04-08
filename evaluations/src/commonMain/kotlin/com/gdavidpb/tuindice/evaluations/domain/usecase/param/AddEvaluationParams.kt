@@ -4,9 +4,9 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 
 data class AddEvaluationParams(
-	val subjectId: String?,
+	val attemptId: String?,
 	val subjectCode: String?,
-	val quarterId: String?,
+	val termId: String?,
 	val type: EvaluationType?,
 	val scheduleMode: EvaluationScheduleMode,
 	val date: Long?,

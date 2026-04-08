@@ -26,7 +26,7 @@ import com.gdavidpb.tuindice.record.ui.dialog.RecordViewModeInfoDialog
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.record_view_mode_banner_official
-import tuindice.record.generated.resources.record_view_mode_banner_simulation
+import tuindice.record.generated.resources.record_view_mode_banner_projection
 import tuindice.record.generated.resources.record_view_mode_info_button_description
 
 @Composable
@@ -98,7 +98,7 @@ fun RecordTopBarViewModeBannerView(
 private fun recordViewModeBannerText(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_banner_official)
-		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_banner_simulation)
+		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_banner_projection)
 	}
 }
 

@@ -1,17 +1,17 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
-import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalSubject
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
-import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateResolver
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
+import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateResolver
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEntity
 import com.gdavidpb.tuindice.persistence.data.room.withImmediateTransaction
@@ -25,6 +25,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+private const val CURRENT_ACADEMIC_RECORD_ID = "self"
+private const val OFFICIAL_VIEW_MODE = "official"
+
 class RoomDatabaseDataSource(
 	private val room: TuIndiceDatabase,
 	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck>,
@@ -37,7 +40,7 @@ class RoomDatabaseDataSource(
 
 	override fun observeEvaluationsFlow(): Flow<List<LocalEvaluation>> {
 		val confirmedFlow = combine(
-			room.evaluations.getEvaluationsWithSubjectFlow(),
+			room.evaluations.observeEvaluationsFlow(),
 			room.evaluationSyncState.observeSyncState()
 		) { evaluations, syncState ->
 			LocalEvaluationsSnapshot(
@@ -74,11 +77,20 @@ class RoomDatabaseDataSource(
 	}
 
 	override suspend fun getAvailableSubjects(): List<LocalSubject> {
-		return room.quarters.getOpenQuartersWithSubjects()
-			.flatMap { quarter -> quarter.subjects }
-			.map { subject -> subject.toLocalSubject() }
+		val openTermIds = room.academicTermProjections
+			.getTerms(CURRENT_ACADEMIC_RECORD_ID, OFFICIAL_VIEW_MODE)
+			.filter { term -> !term.closed }
+			.mapTo(hashSetOf()) { term -> term.id }
+
+		return room.academicAttemptProjections
+			.getAttempts(CURRENT_ACADEMIC_RECORD_ID, OFFICIAL_VIEW_MODE)
+			.asSequence()
+			.filter { attempt -> attempt.termId in openTermIds }
+			.filter { attempt -> attempt.gradingMode == "NUMERIC" }
+			.map { attempt -> attempt.toLocalSubject() }
 			.filter { subject -> subject.gradingMode == GradingMode.NUMERIC }
 			.sortedBy(LocalSubject::code)
+			.toList()
 	}
 
 	override suspend fun confirmAddedEvaluation(
@@ -169,8 +181,7 @@ class RoomDatabaseDataSource(
 	}
 
 	private suspend fun loadSnapshotFromRoom(): LocalEvaluationsSnapshot {
-		val evaluations = room.evaluations.getEvaluationsWithSubjectFlow()
-			// `first()` on a Room flow is enough to bootstrap the in-memory confirmed snapshot.
+		val evaluations = room.evaluations.observeEvaluationsFlow()
 			.map { items -> items.map { item -> item.toLocalEvaluation() } }
 		return LocalEvaluationsSnapshot(
 			anchorRevision = room.evaluationSyncState.getSyncState()?.anchorRevision ?: 0L,

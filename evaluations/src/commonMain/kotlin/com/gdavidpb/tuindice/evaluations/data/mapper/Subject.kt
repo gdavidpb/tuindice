@@ -1,24 +1,27 @@
 package com.gdavidpb.tuindice.evaluations.data.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
+import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
-import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptProjectionEntity
 
-fun SubjectEntity.toLocalSubject() = LocalSubject(
+fun AcademicAttemptProjectionEntity.toLocalSubject() = LocalSubject(
 	id = id,
-	quarterId = quarterId,
-	code = code,
-	name = name,
+	termId = termId,
+	code = subjectCode,
+	name = subjectName,
 	credits = credits,
-	grade = grade,
-	gradingMode = com.gdavidpb.tuindice.base.domain.model.subject.GradingMode.entries.firstOrNull { mode ->
-		mode.value == gradingMode
-	} ?: com.gdavidpb.tuindice.base.domain.model.subject.GradingMode.NUMERIC
+	grade = scoreNumericValue ?: 0,
+	gradingMode = when (AttemptGradingMode.valueOf(gradingMode)) {
+		AttemptGradingMode.NUMERIC -> GradingMode.NUMERIC
+		AttemptGradingMode.QUALITATIVE_PASS_FAIL -> GradingMode.QUALITATIVE_PASS_FAIL
+	}
 )
 
 fun LocalSubject.toSubject() = Subject(
 	id = id,
-	quarterId = quarterId,
+	termId = termId,
 	code = code,
 	name = name,
 	credits = credits,

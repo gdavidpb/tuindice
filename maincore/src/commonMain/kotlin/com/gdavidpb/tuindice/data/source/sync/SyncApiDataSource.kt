@@ -10,7 +10,7 @@ class SyncApiDataSource(
 	private val ktorClient: HttpClient
 ) : SyncRemoteDataRepository {
 	override suspend fun sync(password: String) {
-		ktorClient.post("sync/v1") {
+		ktorClient.post("record/v1/sync") {
 			setBody(
 				SyncRequest(
 					password = password

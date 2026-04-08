@@ -1,0 +1,26 @@
+{
+  "priority": 1,
+  "scenarioName": "record-attempt-EAD212Q2026B",
+  "requiredScenarioState": "REV_13_GRADE_0",
+  "newScenarioState": "REV_14_GRADE_4",
+  "request": {
+    "method": "PUT",
+    "urlPath": "/record/v1/overlay/attempts/EAD212Q2026B",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.score.numeric_value == 4)]"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{{{toJson record}}}",
+    "transformers": [
+      "response-template"
+    ],
+    "fixedDelayMilliseconds": 1500
+  }
+}

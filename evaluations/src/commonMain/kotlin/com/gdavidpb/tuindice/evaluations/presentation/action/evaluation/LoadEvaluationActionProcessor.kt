@@ -32,7 +32,7 @@ class LoadEvaluationActionProcessor(
 					is UseCaseState.Data -> suspend { _ ->
 						with(useCaseState.value) {
 							val selectedSubject = availableSubjects.find { subject ->
-								subject.id == evaluation?.subjectId
+								subject.id == evaluation?.attemptId
 							}
 							val isOverdue = evaluation?.let { loadedEvaluation ->
 								loadedEvaluation.scheduleMode == EvaluationScheduleMode.DATED &&

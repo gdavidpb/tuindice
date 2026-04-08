@@ -47,8 +47,8 @@ object EvaluationsUiTags {
 	fun evaluationItemCard(evaluationId: String): String =
 		"evaluation_item_card_${evaluationId.toTagSuffix()}"
 
-	fun evaluationSubjectChip(subjectId: String): String =
-		"evaluation_subject_chip_${subjectId.toTagSuffix()}"
+	fun evaluationSubjectChip(attemptId: String): String =
+		"evaluation_subject_chip_${attemptId.toTagSuffix()}"
 
 	fun evaluationTypeChip(typeName: String): String =
 		"evaluation_type_chip_${typeName.toTagSuffix()}"

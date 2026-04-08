@@ -5,9 +5,9 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 
 data class UpdateEvaluationParams(
 	val evaluationId: String,
-	val subjectId: String?,
+	val attemptId: String?,
 	val subjectCode: String?,
-	val quarterId: String?,
+	val termId: String?,
 	val scheduleMode: EvaluationScheduleMode?,
 	val grade: Double?,
 	val maxGrade: Double?,

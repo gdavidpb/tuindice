@@ -1,73 +1,215 @@
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.academiccore.domain.model.OfficialOutcome
+import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
-import com.gdavidpb.tuindice.base.presentation.Mutation
-import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.record.presentation.action.ObserveQuartersActionProcessor
-import com.gdavidpb.tuindice.record.presentation.action.RefreshQuartersActionProcessor
-import com.gdavidpb.tuindice.record.presentation.action.SetRecordViewModeActionProcessor
-import com.gdavidpb.tuindice.record.presentation.action.SelectQuarterActionProcessor
-import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
+import com.gdavidpb.tuindice.base.utils.extension.isConnection
+import com.gdavidpb.tuindice.base.utils.extension.isTimeout
+import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
+import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
+import com.gdavidpb.tuindice.record.data.source.api.mapper.attemptSelectionToOverridePayload
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
-import kotlinx.coroutines.flow.Flow
+import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
+import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.snack_default_error
+import tuindice.record.generated.resources.snack_network_unavailable
+import tuindice.record.generated.resources.snack_service_unavailable
+import tuindice.record.generated.resources.snack_timeout
 
 class RecordViewModel(
-	private val observeQuartersActionProcessor: ObserveQuartersActionProcessor,
-	private val refreshQuartersActionProcessor: RefreshQuartersActionProcessor,
-	private val setRecordViewModeActionProcessor: SetRecordViewModeActionProcessor,
-	private val selectQuarterActionProcessor: SelectQuarterActionProcessor,
-	private val setSubjectGradeActionProcessor: SetSubjectGradeActionProcessor
-) : BaseViewModel<Record.State, Record.Action, Record.Effect>(
-	initialState = Record.State.Loading,
-	initialAction = Record.Action.ObserveQuarters
-) {
+	private val academicRecordRepository: AcademicRecordRepository,
+	private val recordSelectionRepository: RecordSelectionRepository
+) : ViewModel() {
+	private val effectChannel = Channel<Record.Effect>(Channel.BUFFERED)
+	private val currentViewMode = MutableStateFlow(RecordViewMode.Simulation)
+	private val selectedOfficialTermId = MutableStateFlow<String?>(null)
+	private val selectedSimulationTermId = MutableStateFlow<String?>(null)
+	private var currentRecord: AcademicRecord? = null
 
-	fun refreshQuartersAction() =
-		sendAction(Record.Action.RefreshQuarters)
+	private val _state = MutableStateFlow<Record.State>(Record.State.Loading)
+	val state: StateFlow<Record.State> = _state.asStateFlow()
+	val effect = effectChannel.receiveAsFlow()
 
-	fun selectQuarterAction(quarterId: String) =
-		sendAction(Record.Action.SelectQuarter(quarterId = quarterId))
+	init {
+		viewModelScope.launch {
+			currentViewMode.value = recordSelectionRepository.getRecordViewMode()
+			selectedOfficialTermId.value = recordSelectionRepository.getSelectedTermId(RecordViewMode.Official)
+			selectedSimulationTermId.value = recordSelectionRepository.getSelectedTermId(RecordViewMode.Simulation)
+			academicRecordRepository.observeAcademicRecordFlow().collect { record ->
+				currentRecord = record
+				publishContent(record)
+			}
+		}
+	}
 
-	fun setViewModeAction(viewMode: RecordViewMode) =
-		sendAction(Record.Action.SetViewMode(viewMode = viewMode))
+	fun refreshRecordAction() {
+		viewModelScope.launch {
+			val previousState = _state.value
+			if (previousState !is Record.State.Content) {
+				_state.value = Record.State.Loading
+			}
+			runCatching {
+				academicRecordRepository.refreshAcademicRecord()
+			}.onFailure { throwable ->
+				handleFailure(throwable)
+				if (previousState !is Record.State.Content) {
+					_state.value = Record.State.Failed
+				}
+			}
+		}
+	}
 
-	fun updateSubjectAction(
-		quarterId: String,
-		subjectId: String,
+	fun selectTermAction(termId: String) {
+		viewModelScope.launch {
+			when (currentViewMode.value) {
+				RecordViewMode.Official -> selectedOfficialTermId.value = termId
+				RecordViewMode.Simulation -> selectedSimulationTermId.value = termId
+			}
+			recordSelectionRepository.setSelectedTermId(currentViewMode.value, termId)
+			currentRecord?.let { record -> publishContent(record) }
+		}
+	}
+
+	fun setViewModeAction(viewMode: RecordViewMode) {
+		viewModelScope.launch {
+			currentViewMode.value = viewMode
+			recordSelectionRepository.setRecordViewMode(viewMode)
+			currentRecord?.let { record -> publishContent(record) }
+		}
+	}
+
+	fun upsertAttemptSelectionAction(
+		termId: String,
+		attemptId: String,
 		grade: Int? = null,
 		status: SubjectStatus? = null,
 		commit: Boolean
-	) =
-		sendAction(
-			Record.Action.SetSubjectGrade(
-				quarterId = quarterId,
-				subjectId = subjectId,
-				grade = grade,
-				status = status,
-				commit = commit
-			)
+	) {
+		viewModelScope.launch {
+			runCatching {
+				val (score, outcome) = attemptSelectionToOverridePayload(
+					grade = grade,
+					status = status
+				)
+				if (shouldClearOverride(attemptId = attemptId, score = score, outcome = outcome)) {
+					academicRecordRepository.deleteAttemptOverride(attemptId)
+				} else {
+					academicRecordRepository.upsertAttemptOverride(
+						attemptId = attemptId,
+						score = score,
+						outcome = outcome,
+						commit = commit
+					)
+				}
+				if (termId != currentSelectedTermId(currentViewMode.value)) {
+					selectTermAction(termId)
+				}
+			}.onFailure(::handleFailure)
+		}
+	}
+
+	private suspend fun publishContent(record: AcademicRecord) {
+		val viewMode = currentViewMode.value
+		val projection = record.projectionFor(viewMode)
+		if (projection.terms.isEmpty()) {
+			_state.value = Record.State.Empty
+			return
+		}
+
+		val selectedTermId = resolveSelectedTermId(viewMode = viewMode, projection = projection)
+		_state.value = Record.State.Content(
+			viewMode = viewMode,
+			record = record,
+			selectedTermId = selectedTermId
 		)
+	}
 
-	override suspend fun processAction(
-		action: Record.Action,
-		sideEffect: (Record.Effect) -> Unit
-	): Flow<Mutation<Record.State>> {
-		return when (action) {
-			is Record.Action.ObserveQuarters ->
-				observeQuartersActionProcessor.process(action, sideEffect)
+	private suspend fun resolveSelectedTermId(
+		viewMode: RecordViewMode,
+		projection: RecordProjection
+	): String {
+		val persistedSelected = currentSelectedTermId(viewMode)
+		val mirroredSelected = currentSelectedTermId(viewMode.other())
+		val selectedTermId = listOfNotNull(persistedSelected, mirroredSelected)
+			.firstOrNull { candidate ->
+				projection.terms.any { term -> term.id == candidate }
+			}
+			?: projection.terms.first().id
 
-			is Record.Action.RefreshQuarters ->
-				refreshQuartersActionProcessor.process(action, sideEffect)
+		if (selectedTermId != persistedSelected) {
+			recordSelectionRepository.setSelectedTermId(viewMode, selectedTermId)
+			when (viewMode) {
+				RecordViewMode.Official -> selectedOfficialTermId.value = selectedTermId
+				RecordViewMode.Simulation -> selectedSimulationTermId.value = selectedTermId
+			}
+		}
 
-			is Record.Action.SetViewMode ->
-				setRecordViewModeActionProcessor.process(action, sideEffect)
+		return selectedTermId
+	}
 
-			is Record.Action.SelectQuarter ->
-				selectQuarterActionProcessor.process(action, sideEffect)
+	private fun currentSelectedTermId(viewMode: RecordViewMode): String? {
+		return when (viewMode) {
+			RecordViewMode.Official -> selectedOfficialTermId.value
+			RecordViewMode.Simulation -> selectedSimulationTermId.value
+		}
+	}
 
-			is Record.Action.SetSubjectGrade ->
-				setSubjectGradeActionProcessor.process(action, sideEffect)
+	private fun RecordViewMode.other(): RecordViewMode {
+		return when (this) {
+			RecordViewMode.Official -> RecordViewMode.Simulation
+			RecordViewMode.Simulation -> RecordViewMode.Official
+		}
+	}
+
+	private fun AcademicRecord.projectionFor(viewMode: RecordViewMode): RecordProjection {
+		return when (viewMode) {
+			RecordViewMode.Official -> officialProjection
+			RecordViewMode.Simulation -> simulationProjection
+		}
+	}
+
+	private fun shouldClearOverride(
+		attemptId: String,
+		score: com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore?,
+		outcome: OfficialOutcome?
+	): Boolean {
+		val officialAttempt = currentRecord
+			?.officialSnapshot
+			?.terms
+			?.flatMap { term -> term.attempts }
+			?.firstOrNull { attempt -> attempt.id == attemptId }
+			?: return false
+
+		return officialAttempt.officialScore == score &&
+			officialAttempt.officialOutcome == (outcome ?: officialAttempt.officialOutcome)
+	}
+
+	private fun handleFailure(throwable: Throwable) {
+		viewModelScope.launch {
+			if (throwable.isUnauthorized()) {
+				effectChannel.send(Record.Effect.NavigateToOutdatedCredentials)
+				return@launch
+			}
+
+			val message = when {
+				throwable.isTimeout() -> getString(Res.string.snack_timeout)
+				throwable.isUnavailable() -> getString(Res.string.snack_service_unavailable)
+				throwable.isConnection() -> getString(Res.string.snack_network_unavailable)
+				else -> getString(Res.string.snack_default_error)
+			}
+			effectChannel.send(Record.Effect.ShowSnackBar(message))
 		}
 	}
 }

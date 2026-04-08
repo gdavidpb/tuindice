@@ -21,23 +21,23 @@ import tuindice.record.generated.resources.record_failed_title
 @Composable
 fun RecordScreen(
 	state: Record.State,
-	selectedQuarterId: String?,
-	onSelectedQuarterChange: (quarterId: String) -> Unit,
+	selectedTermId: String?,
+	onSelectedTermChange: (termId: String) -> Unit,
 	onRetryClick: () -> Unit,
-	onSubjectGradeChange: (
-		quarterId: String,
-		subjectId: String,
+	onAttemptSelectionChange: (
+		termId: String,
+		attemptId: String,
 		newGrade: Int,
 		isSelected: Boolean
 	) -> Unit
 ) {
 	RecordScreen(
 		state = state,
-		selectedQuarterId = selectedQuarterId,
-		onSelectedQuarterChange = onSelectedQuarterChange,
+		selectedTermId = selectedTermId,
+		onSelectedTermChange = onSelectedTermChange,
 		onRetryClick = onRetryClick,
-		onSubjectGradeChange = { quarterId, subjectId, newGrade, _, isSelected ->
-			onSubjectGradeChange(quarterId, subjectId, newGrade ?: 0, isSelected)
+		onAttemptSelectionChange = { termId, attemptId, newGrade, _, isSelected ->
+			onAttemptSelectionChange(termId, attemptId, newGrade ?: 0, isSelected)
 		}
 	)
 }
@@ -45,12 +45,12 @@ fun RecordScreen(
 @Composable
 fun RecordScreen(
 	state: Record.State,
-	selectedQuarterId: String?,
-	onSelectedQuarterChange: (quarterId: String) -> Unit,
+	selectedTermId: String?,
+	onSelectedTermChange: (termId: String) -> Unit,
 	onRetryClick: () -> Unit,
-	onSubjectGradeChange: (
-		quarterId: String,
-		subjectId: String,
+	onAttemptSelectionChange: (
+		termId: String,
+		attemptId: String,
 		newGrade: Int?,
 		newStatus: SubjectStatus?,
 		isSelected: Boolean
@@ -66,9 +66,9 @@ fun RecordScreen(
 			is Record.State.Content ->
 				RecordContentView(
 					state = targetState,
-					selectedQuarterId = selectedQuarterId,
-					onSelectedQuarterChange = onSelectedQuarterChange,
-					onSubjectGradeChange = onSubjectGradeChange
+					selectedTermId = selectedTermId,
+					onSelectedTermChange = onSelectedTermChange,
+					onAttemptSelectionChange = onAttemptSelectionChange
 				)
 
 			is Record.State.Failed ->

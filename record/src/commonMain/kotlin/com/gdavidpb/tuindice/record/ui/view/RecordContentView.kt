@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.record.ui.view
 
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,42 +14,44 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
-import com.gdavidpb.tuindice.record.domain.model.filterByViewMode
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
-import com.gdavidpb.tuindice.record.presentation.mapper.toQuarterItemList
-import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
+import com.gdavidpb.tuindice.record.presentation.mapper.toTermItemList
+import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.quarter_credits_pattern
-import tuindice.record.generated.resources.quarter_grade_diff_pattern
-import tuindice.record.generated.resources.quarter_grade_sum_pattern
-import tuindice.record.generated.resources.subject_credits_pattern
-import tuindice.record.generated.resources.subject_grade_pattern
+import tuindice.record.generated.resources.term_attempt_credits_pattern
+import tuindice.record.generated.resources.term_attempt_grade_pattern
+import tuindice.record.generated.resources.term_credits_pattern
+import tuindice.record.generated.resources.term_grade_diff_pattern
+import tuindice.record.generated.resources.term_grade_sum_pattern
 
 @Composable
 fun RecordContentView(
 	state: Record.State.Content,
-	selectedQuarterId: String?,
-	onSelectedQuarterChange: (quarterId: String) -> Unit,
-	onSubjectGradeChange: (
-		quarterId: String,
-		subjectId: String,
+	selectedTermId: String?,
+	onSelectedTermChange: (termId: String) -> Unit,
+	onAttemptSelectionChange: (
+		termId: String,
+		attemptId: String,
 		newGrade: Int,
 		isSelected: Boolean
 	) -> Unit
 ) {
 	RecordContentView(
 		state = state,
-		selectedQuarterId = selectedQuarterId,
-		onSelectedQuarterChange = onSelectedQuarterChange,
-		onSubjectGradeChange = { quarterId, subjectId, newGrade, _, isSelected ->
-			onSubjectGradeChange(quarterId, subjectId, newGrade ?: 0, isSelected)
+		selectedTermId = selectedTermId,
+		onSelectedTermChange = onSelectedTermChange,
+		onAttemptSelectionChange = { termId, attemptId, newGrade, _, isSelected ->
+			onAttemptSelectionChange(termId, attemptId, newGrade ?: 0, isSelected)
 		}
 	)
 }
@@ -58,189 +59,192 @@ fun RecordContentView(
 @Composable
 fun RecordContentView(
 	state: Record.State.Content,
-	selectedQuarterId: String?,
-	onSelectedQuarterChange: (quarterId: String) -> Unit,
-	onSubjectGradeChange: (
-		quarterId: String,
-		subjectId: String,
+	selectedTermId: String?,
+	onSelectedTermChange: (termId: String) -> Unit,
+	onAttemptSelectionChange: (
+		termId: String,
+		attemptId: String,
 		newGrade: Int?,
 		newStatus: SubjectStatus?,
 		isSelected: Boolean
 	) -> Unit
 ) {
-	val quarterGradeDiffPattern = stringResource(Res.string.quarter_grade_diff_pattern)
-	val quarterGradeSumPattern = stringResource(Res.string.quarter_grade_sum_pattern)
-	val quarterCreditsPattern = stringResource(Res.string.quarter_credits_pattern)
-	val subjectGradePattern = stringResource(Res.string.subject_grade_pattern)
-	val subjectCreditsPattern = stringResource(Res.string.subject_credits_pattern)
+	val termGradeDiffPattern = stringResource(Res.string.term_grade_diff_pattern)
+	val termGradeSumPattern = stringResource(Res.string.term_grade_sum_pattern)
+	val termCreditsPattern = stringResource(Res.string.term_credits_pattern)
+	val attemptGradePattern = stringResource(Res.string.term_attempt_grade_pattern)
+	val attemptCreditsPattern = stringResource(Res.string.term_attempt_credits_pattern)
 
 	val texts = remember(
-		quarterGradeDiffPattern,
-		quarterGradeSumPattern,
-		quarterCreditsPattern,
-		subjectGradePattern,
-		subjectCreditsPattern
+		termGradeDiffPattern,
+		termGradeSumPattern,
+		termCreditsPattern,
+		attemptGradePattern,
+		attemptCreditsPattern
 	) {
 		RecordMapperTexts(
-			quarterGradeDiff = { grade ->
-				quarterGradeDiffPattern.replace("%1${'$'}.4f", grade.formatGrade(decimals = 4))
+			termGrade = { grade ->
+				termGradeDiffPattern.replace("%1${'$'}.4f", grade.formatGrade(decimals = 4))
 			},
-			quarterGradeSum = { grade ->
-				quarterGradeSumPattern.replace("%1${'$'}.4f", grade.formatGrade(decimals = 4))
+			termGradeSum = { grade ->
+				termGradeSumPattern.replace("%1${'$'}.4f", grade.formatGrade(decimals = 4))
 			},
-			quarterCredits = { credits ->
-				quarterCreditsPattern.replace("%1${'$'}d", credits.toString())
+			termCredits = { credits ->
+				termCreditsPattern.replace("%1${'$'}d", credits.toString())
 			},
-			subjectGrade = { grade ->
-				subjectGradePattern.replace("%1${'$'}d", grade.toString())
+			termAttemptGrade = { grade ->
+				attemptGradePattern.replace("%1${'$'}d", grade.toString())
 			},
-			subjectCredits = { credits ->
-				subjectCreditsPattern.replace("%1${'$'}d", credits.toString())
+			termAttemptCredits = { credits ->
+				attemptCreditsPattern.replace("%1${'$'}d", credits.toString())
 			}
 		)
 	}
 
-	val visibleQuarters = state.quarters
-		.filterByViewMode(state.viewMode)
-	val quarters = visibleQuarters
-		.toQuarterItemList(
-			viewMode = state.viewMode,
+	val activeProjection = state.record.activeProjection(state.viewMode)
+	val terms = activeProjection.terms
+		.toTermItemList(
 			texts = texts,
 			highlightColor = MaterialTheme.colorScheme.primary
 		)
-	val chronologicalQuarters = quarters.asReversed()
-	val effectiveSelectedQuarterId = selectedQuarterId ?: quarters.firstOrNull()?.quarterId
+		.asReversed()
+	val effectiveSelectedTermId = selectedTermId ?: terms.firstOrNull()?.termId
+
 	Column(
 		modifier = Modifier
 			.fillMaxSize()
 			.testTag(RecordUiTags.ContentContainer)
 	) {
-		if (
-			chronologicalQuarters.isNotEmpty() &&
-			(effectiveSelectedQuarterId != null)
-		) {
-				RecordQuarterPagerView(
-					modifier = Modifier
-						.fillMaxSize()
-						.padding(top = InternalScreenDefaults.TopBarSpacing),
-					quarters = chronologicalQuarters,
-					selectedQuarterId = effectiveSelectedQuarterId,
-					onSelectedQuarterChange = onSelectedQuarterChange,
-					onSubjectGradeChange = onSubjectGradeChange
-				)
+		if (terms.isNotEmpty() && (effectiveSelectedTermId != null)) {
+			RecordTermPagerView(
+				modifier = Modifier
+					.fillMaxSize()
+					.padding(top = InternalScreenDefaults.TopBarSpacing),
+				terms = terms,
+				selectedTermId = effectiveSelectedTermId,
+				onSelectedTermChange = onSelectedTermChange,
+				onAttemptSelectionChange = onAttemptSelectionChange
+			)
 		}
 	}
 }
 
 @Composable
-private fun RecordQuarterPagerView(
+private fun RecordTermPagerView(
 	modifier: Modifier = Modifier,
-	quarters: List<QuarterItem>,
-	selectedQuarterId: String,
-	onSelectedQuarterChange: (quarterId: String) -> Unit,
-	onSubjectGradeChange: (
-		quarterId: String,
-		subjectId: String,
+	terms: List<TermItem>,
+	selectedTermId: String,
+	onSelectedTermChange: (termId: String) -> Unit,
+	onAttemptSelectionChange: (
+		termId: String,
+		attemptId: String,
 		newGrade: Int,
 		isSelected: Boolean
 	) -> Unit
 ) {
-	RecordQuarterPagerView(
+	RecordTermPagerView(
 		modifier = modifier,
-		quarters = quarters,
-		selectedQuarterId = selectedQuarterId,
-		onSelectedQuarterChange = onSelectedQuarterChange,
-		onSubjectGradeChange = { quarterId, subjectId, newGrade, _, isSelected ->
-			onSubjectGradeChange(quarterId, subjectId, newGrade ?: 0, isSelected)
+		terms = terms,
+		selectedTermId = selectedTermId,
+		onSelectedTermChange = onSelectedTermChange,
+		onAttemptSelectionChange = { termId, attemptId, newGrade, _, isSelected ->
+			onAttemptSelectionChange(termId, attemptId, newGrade ?: 0, isSelected)
 		}
 	)
 }
 
 @Composable
-private fun RecordQuarterPagerView(
+private fun RecordTermPagerView(
 	modifier: Modifier = Modifier,
-	quarters: List<QuarterItem>,
-	selectedQuarterId: String,
-	onSelectedQuarterChange: (quarterId: String) -> Unit,
-	onSubjectGradeChange: (
-		quarterId: String,
-		subjectId: String,
+	terms: List<TermItem>,
+	selectedTermId: String,
+	onSelectedTermChange: (termId: String) -> Unit,
+	onAttemptSelectionChange: (
+		termId: String,
+		attemptId: String,
 		newGrade: Int?,
 		newStatus: SubjectStatus?,
 		isSelected: Boolean
 	) -> Unit
 ) {
-	val quarterIds = remember(quarters) {
-		quarters.map { quarter -> quarter.quarterId }
+	val termIds = remember(terms) {
+		terms.map { term -> term.termId }
 	}
-	val selectedQuarterIndex = remember(quarterIds, selectedQuarterId) {
-		quarterIds.indexOf(selectedQuarterId).takeIf { index -> index >= 0 } ?: 0
+	val selectedTermIndex = remember(termIds, selectedTermId) {
+		termIds.indexOf(selectedTermId).takeIf { index -> index >= 0 } ?: 0
 	}
 	val pagerState = rememberPagerState(
-		initialPage = selectedQuarterIndex,
-		pageCount = { quarters.size }
+		initialPage = selectedTermIndex,
+		pageCount = { terms.size }
 	)
 
-	LaunchedEffect(quarterIds, selectedQuarterIndex) {
-		if (pagerState.currentPage != selectedQuarterIndex) {
-			pagerState.animateScrollToPage(selectedQuarterIndex)
+	LaunchedEffect(termIds, selectedTermIndex) {
+		if (pagerState.currentPage != selectedTermIndex) {
+			pagerState.animateScrollToPage(selectedTermIndex)
 		}
 	}
 
-	LaunchedEffect(pagerState, quarterIds, selectedQuarterId) {
+	LaunchedEffect(pagerState, termIds, selectedTermId) {
 		snapshotFlow { pagerState.isScrollInProgress to pagerState.currentPage }
 			.distinctUntilChanged()
 			.filter { (isScrollInProgress, _) -> !isScrollInProgress }
 			.collect { (_, page) ->
-				val quarterId = quarterIds.getOrNull(page) ?: return@collect
+				val termId = termIds.getOrNull(page) ?: return@collect
 
-				if (quarterId != selectedQuarterId) {
-					onSelectedQuarterChange(quarterId)
+				if (termId != selectedTermId) {
+					onSelectedTermChange(termId)
 				}
 			}
 	}
 
 	Column(modifier = modifier) {
-		QuarterSelectorView(
+		TermSelectorView(
 			modifier = Modifier
 				.fillMaxWidth()
 				.padding(
 					top = 8.dp,
 					bottom = 8.dp
 				),
-			quarters = quarters,
-			selectedQuarterId = quarterIds.getOrNull(pagerState.currentPage) ?: selectedQuarterId,
-			onQuarterSelected = onSelectedQuarterChange
+			terms = terms,
+			selectedTermId = termIds.getOrNull(pagerState.currentPage) ?: selectedTermId,
+			onTermSelected = onSelectedTermChange
 		)
 
 		HorizontalPager(
 			modifier = Modifier
 				.fillMaxWidth()
 				.weight(1f)
-				.testTag(RecordUiTags.QuarterPager),
+				.testTag(RecordUiTags.TermPager),
 			state = pagerState,
-			key = { page -> quarterIds[page] }
+			key = { page -> termIds[page] }
 		) { page ->
-			val quarter = quarters[page]
+			val term = terms[page]
 
-			Column(
-				modifier = Modifier.fillMaxSize()
-			) {
-				QuarterSummaryView(
+			Column(modifier = Modifier.fillMaxSize()) {
+				TermSummaryView(
 					modifier = Modifier
 						.fillMaxWidth()
-						.testTag(RecordUiTags.SelectedQuarterSummary),
-					item = quarter
+						.testTag(RecordUiTags.SelectedTermSummary),
+					item = term
 				)
 
-				SelectedQuarterView(
+				SelectedTermView(
 					modifier = Modifier
 						.fillMaxWidth()
 						.weight(1f),
-					quarter = quarter,
-					onSubjectGradeChange = onSubjectGradeChange
+					term = term,
+					onAttemptSelectionChange = onAttemptSelectionChange
 				)
 			}
 		}
+	}
+}
+
+private fun com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord.activeProjection(
+	viewMode: RecordViewMode
+): RecordProjection {
+	return when (viewMode) {
+		RecordViewMode.Official -> officialProjection
+		RecordViewMode.Simulation -> simulationProjection
 	}
 }

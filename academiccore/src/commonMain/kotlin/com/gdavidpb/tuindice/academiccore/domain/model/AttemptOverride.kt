@@ -1,0 +1,12 @@
+package com.gdavidpb.tuindice.academiccore.domain.model
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class AttemptOverride(
+	@SerialName("attempt_id") val attemptId: String,
+	val score: AttemptScore? = null,
+	val outcome: OfficialOutcome? = null,
+	@SerialName("updated_at") val updatedAtMillis: Long
+)

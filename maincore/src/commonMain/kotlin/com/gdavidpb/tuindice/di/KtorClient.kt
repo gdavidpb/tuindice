@@ -27,6 +27,7 @@ import kotlinx.serialization.json.Json
 fun createSharedJson(): Json {
 	return Json {
 		explicitNulls = true
+		ignoreUnknownKeys = true
 		prettyPrint = false
 	}
 }

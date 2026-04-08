@@ -1,0 +1,26 @@
+{
+  "priority": 1,
+  "scenarioName": "record-attempt-EP5406Q2026C",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "REV_2_STATUS_PENDING",
+  "request": {
+    "method": "PUT",
+    "urlPath": "/record/v1/overlay/attempts/EP5406Q2026C",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.outcome == 'pending')]"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{{{toJson record}}}",
+    "transformers": [
+      "response-template"
+    ],
+    "fixedDelayMilliseconds": 1500
+  }
+}

@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/sync/v1"
+    "urlPath": "/record/v1/sync"
   },
   "response": {
     "status": 200,

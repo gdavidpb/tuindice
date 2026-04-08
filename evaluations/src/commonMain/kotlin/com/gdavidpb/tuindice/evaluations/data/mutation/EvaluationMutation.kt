@@ -18,9 +18,9 @@ sealed interface EvaluationMutation : OutboxMutation {
 	@SerialName("add_evaluation")
 	data class Add(
 		val referenceId: String,
-		val subjectId: String,
+		val attemptId: String,
 		val subjectCode: String,
-		val quarterId: String,
+		val termId: String,
 		val scheduleMode: EvaluationScheduleMode,
 		val grade: Double?,
 		val maxGrade: Double,

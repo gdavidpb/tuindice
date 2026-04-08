@@ -11,7 +11,7 @@ fun List<Evaluation>.toEvaluationItemList(
 ): List<EvaluationsGroupItem> {
 	val ordinalsById =
 		sortedBy { evaluation -> evaluation.date }
-			.groupBy { evaluation -> evaluation.subjectId to evaluation.type }
+			.groupBy { evaluation -> evaluation.attemptId to evaluation.type }
 			.flatMap { (_, evaluations) ->
 				evaluations
 					.mapIndexed { index, evaluation ->

@@ -5,9 +5,9 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 
 data class EvaluationAdd(
 	val reference: String,
-	val subjectId: String,
+	val attemptId: String,
 	val subjectCode: String,
-	val quarterId: String,
+	val termId: String,
 	val type: EvaluationType,
 	val scheduleMode: EvaluationScheduleMode,
 	val date: Long?,

@@ -1,0 +1,18 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/record/v1"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{{{toJson record}}}",
+    "transformers": [
+      "response-template"
+    ],
+    "fixedDelayMilliseconds": 3000
+  }
+}

@@ -8,8 +8,8 @@ import com.gdavidpb.tuindice.evaluations.data.model.DeleteEvaluationResponse
 import com.gdavidpb.tuindice.evaluations.data.model.EvaluationResponse
 import com.gdavidpb.tuindice.evaluations.data.model.GetEvaluationsResponse
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.UpdateEvaluationRequest
 import com.gdavidpb.tuindice.evaluations.data.model.UpdateEvaluationResponse
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
@@ -19,9 +19,9 @@ import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 fun EvaluationResponse.toRemoteEvaluation() = RemoteEvaluation(
 	id = id,
 	referenceId = referenceId,
-	subjectId = subjectId,
+	attemptId = attemptId,
 	subjectCode = subjectCode,
-	quarterId = quarterId,
+	termId = termId,
 	revision = revision,
 	scheduleMode = scheduleMode,
 	grade = grade,
@@ -41,7 +41,8 @@ fun EvaluationMutation.Add.toAddEvaluationRequest(
 	expectedRevision: Long
 ) = AddEvaluationRequest(
 	referenceId = referenceId,
-	subjectId = subjectId,
+	attemptId = attemptId,
+	termId = termId,
 	scheduleMode = scheduleMode,
 	grade = grade,
 	maxGrade = maxGrade,
@@ -87,9 +88,9 @@ fun DeleteEvaluationResponse.toMutationAck() = EvaluationMutationAck.Remove(
 fun RemoteEvaluation.toLocalEvaluation() = LocalEvaluation(
 	id = id,
 	referenceId = referenceId,
-	subjectId = subjectId,
+	attemptId = attemptId,
 	subjectCode = subjectCode,
-	quarterId = quarterId,
+	termId = termId,
 	revision = revision,
 	scheduleMode = scheduleMode,
 	grade = grade,
@@ -101,9 +102,9 @@ fun RemoteEvaluation.toLocalEvaluation() = LocalEvaluation(
 
 fun LocalEvaluation.toEvaluation() = Evaluation(
 	id = id,
-	subjectId = subjectId,
+	attemptId = attemptId,
 	subjectCode = subjectCode,
-	quarterId = quarterId,
+	termId = termId,
 	scheduleMode = scheduleMode,
 	grade = grade,
 	maxGrade = maxGrade,

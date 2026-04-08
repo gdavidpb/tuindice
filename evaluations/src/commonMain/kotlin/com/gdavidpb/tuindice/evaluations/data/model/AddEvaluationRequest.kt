@@ -7,7 +7,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AddEvaluationRequest(
 	@SerialName("reference_id") val referenceId: String,
-	@SerialName("subject_id") val subjectId: String,
+	@SerialName("attempt_id") val attemptId: String,
+	@SerialName("term_id") val termId: String,
 	@SerialName("schedule_mode") val scheduleMode: EvaluationScheduleMode,
 	@SerialName("grade") val grade: Double?,
 	@SerialName("max_grade") val maxGrade: Double,

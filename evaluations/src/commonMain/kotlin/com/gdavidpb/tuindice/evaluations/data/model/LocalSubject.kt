@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
 
 data class LocalSubject(
 	val id: String,
-	val quarterId: String,
+	val termId: String,
 	val code: String,
 	val name: String,
 	val credits: Int,

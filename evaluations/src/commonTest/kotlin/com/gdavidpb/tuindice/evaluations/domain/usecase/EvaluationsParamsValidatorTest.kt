@@ -19,7 +19,7 @@ class EvaluationsParamsValidatorTest {
 	@Test
 	fun addEvaluationParamsValidator_rejectsMissingSubjectId() {
 		val exception = assertFailsWith<AddEvaluationIllegalArgumentException> {
-			AddEvaluationParamsValidator().validate(validParams(subjectId = null))
+			AddEvaluationParamsValidator().validate(validParams(attemptId = null))
 		}
 
 		assertEquals(AddEvaluationUseCaseError.SubjectMissed, exception.error)
@@ -44,14 +44,14 @@ class EvaluationsParamsValidatorTest {
 	}
 
 	private fun validParams(
-		subjectId: String? = "subject-1",
+		attemptId: String? = "subject-1",
 		type: EvaluationType? = EvaluationType.TEST,
 		maxGrade: Double? = 100.0
 	): AddEvaluationParams {
 		return AddEvaluationParams(
-			subjectId = subjectId,
+			attemptId = attemptId,
 			subjectCode = "MA1111",
-			quarterId = "quarter-1",
+			termId = "quarter-1",
 			type = type,
 			scheduleMode = EvaluationScheduleMode.DATED,
 			date = 1_700_000_000_000,

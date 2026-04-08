@@ -60,8 +60,8 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			EvaluationModel(
 				id = node.get("id").asText(),
 				referenceId = node.path("reference_id").takeIf { it.isTextual }?.asText() ?: node.get("id").asText(),
-				quarterId = node.get("quarter_id").asText(),
-				subjectId = node.get("subject_id").asText(),
+				termId = node.get("term_id").asText(),
+				attemptId = node.get("attempt_id").asText(),
 				subjectCode = node.get("subject_code").asText(),
 				type = node.get("type").asInt(),
 				scheduleMode = node.get("schedule_mode").asText(),
@@ -132,7 +132,7 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 				return jsonResponse(409, mapOf("error" to "anchor_revision_conflict"), ERROR_DELAY_MS)
 			}
 
-			val subjectId = root.path("subject_id").takeIf { it.isTextual }?.asText()
+			val attemptId = root.path("attempt_id").takeIf { it.isTextual }?.asText()
 				?: return jsonResponse(400, mapOf("error" to "invalid_payload"), ERROR_DELAY_MS)
 			val scheduleMode = root.path("schedule_mode").takeIf { it.isTextual }?.asText()
 				?: return jsonResponse(400, mapOf("error" to "invalid_payload"), ERROR_DELAY_MS)
@@ -148,9 +148,9 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			val evaluation = EvaluationModel(
 				id = realId,
 				referenceId = referenceId,
-				quarterId = inferQuarterId(subjectId),
-				subjectId = subjectId,
-				subjectCode = inferSubjectCode(subjectId),
+				termId = inferTermId(attemptId),
+				attemptId = attemptId,
+				subjectCode = inferSubjectCode(attemptId),
 				type = type,
 				scheduleMode = scheduleMode,
 				grade = grade,
@@ -286,8 +286,8 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			linkedMapOf(
 				"id" to id,
 				"reference_id" to referenceId,
-				"quarter_id" to quarterId,
-				"subject_id" to subjectId,
+				"term_id" to termId,
+				"attempt_id" to attemptId,
 				"subject_code" to subjectCode,
 				"type" to type,
 				"schedule_mode" to scheduleMode,
@@ -298,11 +298,11 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 				"revision" to revision,
 			)
 
-		private fun inferSubjectCode(subjectId: String): String =
-			SUBJECT_CODE_PATTERN.find(subjectId)?.groupValues?.getOrNull(1) ?: subjectId
+		private fun inferSubjectCode(attemptId: String): String =
+			SUBJECT_CODE_PATTERN.find(attemptId)?.groupValues?.getOrNull(1) ?: attemptId
 
-		private fun inferQuarterId(subjectId: String): String =
-			SUBJECT_CODE_PATTERN.find(subjectId)?.groupValues?.getOrNull(2) ?: DEFAULT_QUARTER_ID
+		private fun inferTermId(attemptId: String): String =
+			SUBJECT_CODE_PATTERN.find(attemptId)?.groupValues?.getOrNull(2) ?: DEFAULT_TERM_ID
 
 		private fun generateEvaluationId(referenceId: String): String =
 			"EV" + referenceId.filter(Char::isLetterOrDigit).uppercase().ifBlank { "NEWID" }
@@ -316,8 +316,8 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 		private data class EvaluationModel(
 			val id: String,
 			val referenceId: String,
-			var quarterId: String,
-			var subjectId: String,
+			var termId: String,
+			var attemptId: String,
 			var subjectCode: String,
 			var type: Int,
 			var scheduleMode: String,
@@ -337,7 +337,7 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			private const val PATCH_DELAY_MS = 1500
 			private const val DELETE_DELAY_MS = 1500
 			private const val ERROR_DELAY_MS = 1000
-			private const val DEFAULT_QUARTER_ID = "Q2026A"
+			private const val DEFAULT_TERM_ID = "Q2026A"
 			private val SUBJECT_CODE_PATTERN = Regex("^(.+?)(Q\\d{4}[A-Z])$")
 		}
 	}

@@ -11,9 +11,9 @@ class EvaluationMutationSerializationTest {
 	fun addMutation_serializes_with_custom_discriminator_and_type_field() {
 		val mutation: EvaluationMutation = EvaluationMutation.Add(
 			referenceId = "reference-1",
-			subjectId = "subject-1",
+			attemptId = "subject-1",
 			subjectCode = "INF-101",
-			quarterId = "quarter-1",
+			termId = "quarter-1",
 			scheduleMode = EvaluationScheduleMode.DATED,
 			grade = null,
 			maxGrade = 100.0,

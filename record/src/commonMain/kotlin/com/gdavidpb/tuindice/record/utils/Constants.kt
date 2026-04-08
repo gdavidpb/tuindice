@@ -12,9 +12,13 @@ object PreferencesKeys {
 	const val COOLDOWN_GET_QUARTERS = "cooldownGetQuarters"
 	const val SELECTED_OFFICIAL_QUARTER_ID = "selectedOfficialQuarterId"
 	const val SELECTED_SIMULATION_QUARTER_ID = "selectedSimulationQuarterId"
+	const val COOLDOWN_GET_RECORD = "cooldownGetRecord"
+	const val SELECTED_OFFICIAL_TERM_ID = "selectedOfficialTermId"
+	const val SELECTED_SIMULATION_TERM_ID = "selectedSimulationTermId"
 	const val RECORD_VIEW_MODE = "recordViewMode"
 }
 
 object CooldownTimes {
 	val COOLDOWN_GET_QUARTERS = 1.days.inWholeMilliseconds
+	val COOLDOWN_GET_RECORD = 1.days.inWholeMilliseconds
 }

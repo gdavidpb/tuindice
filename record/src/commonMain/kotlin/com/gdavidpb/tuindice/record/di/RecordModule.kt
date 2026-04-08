@@ -1,45 +1,23 @@
 package com.gdavidpb.tuindice.record.di
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
-import com.gdavidpb.tuindice.record.data.source.QuarterDataSource
-import com.gdavidpb.tuindice.record.data.source.QuarterSelectionDataSource
-import com.gdavidpb.tuindice.record.data.repository.QuarterLocalDataRepository
-import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataRepository
-import com.gdavidpb.tuindice.record.data.repository.QuarterSettingsDataRepository
+import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
+import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
+import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
+import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_STORE_ID
-import com.gdavidpb.tuindice.record.data.mutation.RecordMutation
-import com.gdavidpb.tuindice.record.data.mutation.RecordMutationAck
-import com.gdavidpb.tuindice.record.data.model.quarter.LocalQuarter
+import com.gdavidpb.tuindice.record.data.source.AcademicRecordApiDataSource
+import com.gdavidpb.tuindice.record.data.source.AcademicRecordDataSource
+import com.gdavidpb.tuindice.record.data.source.AcademicRecordRoomDataSource
 import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource
-import com.gdavidpb.tuindice.record.data.source.RecordApiDataSource
-import com.gdavidpb.tuindice.record.data.source.RoomDataSource
-import com.gdavidpb.tuindice.record.data.resolver.VisibleRecordStateResolver
-import com.gdavidpb.tuindice.record.domain.repository.QuarterRepository
-import com.gdavidpb.tuindice.record.domain.repository.QuarterSelectionRepository
-import com.gdavidpb.tuindice.record.domain.service.IndexComputationEngine
-import com.gdavidpb.tuindice.record.domain.service.SimulationProjectionEngine
-import com.gdavidpb.tuindice.record.domain.usecase.AddQuarterUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.GetSelectedQuarterIdUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.GetRecordViewModeUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.ObserveQuartersUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.RemoveQuarterUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedQuarterIdUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.SetSubjectGradeUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.UpdateQuartersUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.SetSubjectGradeExceptionHandler
-import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.UpdateQuartersExceptionHandler
-import com.gdavidpb.tuindice.record.domain.usecase.validator.SetSubjectGradeParamsValidator
-import com.gdavidpb.tuindice.record.presentation.action.ObserveQuartersActionProcessor
-import com.gdavidpb.tuindice.record.presentation.action.RefreshQuartersActionProcessor
-import com.gdavidpb.tuindice.record.presentation.action.SetRecordViewModeActionProcessor
-import com.gdavidpb.tuindice.record.presentation.action.SelectQuarterActionProcessor
-import com.gdavidpb.tuindice.record.presentation.action.SetSubjectGradeActionProcessor
+import com.gdavidpb.tuindice.record.data.source.RecordSelectionDataSource
+import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
+import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import org.koin.core.module.dsl.bind
-import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
@@ -50,51 +28,17 @@ private const val RECORD_MUTATION_STORE_QUALIFIER = "recordMutationStore"
 private const val RECORD_MUTATION_ENGINE_QUALIFIER = "recordMutationEngine"
 
 val recordModule = module {
-	/* View models */
-
 	viewModelOf(::RecordViewModel)
 
-	/* Action processor */
-
-	factoryOf(::ObserveQuartersActionProcessor)
-	factoryOf(::RefreshQuartersActionProcessor)
-	factoryOf(::SetRecordViewModeActionProcessor)
-	factoryOf(::SelectQuarterActionProcessor)
-	factoryOf(::SetSubjectGradeActionProcessor)
-
-	/* Use cases */
-
-	factoryOf(::AddQuarterUseCase)
-	factoryOf(::GetRecordViewModeUseCase)
-	factoryOf(::GetSelectedQuarterIdUseCase)
-	factoryOf(::ObserveQuartersUseCase)
-	factoryOf(::UpdateQuartersUseCase)
-	factoryOf(::RemoveQuarterUseCase)
-	factoryOf(::SetRecordViewModeUseCase)
-	factoryOf(::SetSelectedQuarterIdUseCase)
-	factoryOf(::SetSubjectGradeUseCase)
-
-	/* Computation */
-
-	singleOf(::IndexComputationEngine)
-	singleOf(::SimulationProjectionEngine)
-	singleOf(::VisibleRecordStateResolver)
-
-	/* Validators */
-
-	factoryOf(::SetSubjectGradeParamsValidator)
-
-	/* Repositories */
-
-	single<MutationEnvelopeStore<String, RecordMutation>>(named(RECORD_MUTATION_STORE_QUALIFIER)) {
+	single<MutationEnvelopeStore<String, AcademicRecordMutation>>(named(RECORD_MUTATION_STORE_QUALIFIER)) {
 		RoomMutationEnvelopeStore(
 			room = get(),
 			storeId = RECORD_MUTATION_STORE_ID,
 			scopeKeySerializer = String.serializer(),
-			commandSerializer = RecordMutation.serializer()
+			commandSerializer = AcademicRecordMutation.serializer()
 		)
 	}
-	single<StoreBackedMutationEngine<String, RecordMutation, List<LocalQuarter>, List<LocalQuarter>, RecordMutationAck>>(
+	single<StoreBackedMutationEngine<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, AcademicRecord>>(
 		named(RECORD_MUTATION_ENGINE_QUALIFIER)
 	) {
 		StoreBackedMutationEngine(
@@ -102,8 +46,8 @@ val recordModule = module {
 			outboxStore = get(named(RECORD_MUTATION_STORE_QUALIFIER))
 		)
 	}
-	single<QuarterRepository> {
-		QuarterDataSource(
+	single<AcademicRecordRepository> {
+		AcademicRecordDataSource(
 			localDataSource = get(),
 			remoteDataSource = get(),
 			settingsDataSource = get(),
@@ -111,24 +55,9 @@ val recordModule = module {
 			identifierRepository = get()
 		)
 	}
-	singleOf(::QuarterSelectionDataSource) { bind<QuarterSelectionRepository>() }
+	singleOf(::RecordSelectionDataSource) { bind<RecordSelectionRepository>() }
 
-	/* Data sources */
-
-	single<QuarterLocalDataRepository> {
-		RoomDataSource(
-			room = get(),
-			indexComputationEngine = get(),
-			simulationProjectionEngine = get(),
-			mutationEngine = get(named(RECORD_MUTATION_ENGINE_QUALIFIER)),
-			visibleRecordStateResolver = get()
-		)
-	}
-	factoryOf(::RecordApiDataSource) { bind<QuarterRemoteDataRepository>() }
-	singleOf(::LocalSettingsDataSource) { bind<QuarterSettingsDataRepository>() }
-
-	/* Exception handlers */
-
-	factoryOf(::UpdateQuartersExceptionHandler)
-	factoryOf(::SetSubjectGradeExceptionHandler)
+	single<AcademicRecordLocalDataRepository> { AcademicRecordRoomDataSource(room = get()) }
+	singleOf(::LocalSettingsDataSource) { bind<RecordSettingsDataRepository>() }
+	singleOf(::AcademicRecordApiDataSource) { bind<AcademicRecordRemoteDataRepository>() }
 }

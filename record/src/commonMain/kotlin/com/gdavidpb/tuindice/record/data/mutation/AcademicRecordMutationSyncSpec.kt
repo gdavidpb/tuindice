@@ -1,0 +1,82 @@
+package com.gdavidpb.tuindice.record.data.mutation
+
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.base.utils.extension.isConflict
+import com.gdavidpb.tuindice.base.utils.extension.isNotFound
+import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResolution
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationSyncSpec
+import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
+import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
+
+class AcademicRecordMutationSyncSpec(
+	private val localDataSource: AcademicRecordLocalDataRepository,
+	private val remoteDataSource: AcademicRecordRemoteDataRepository,
+	private val refreshRemoteSnapshot: suspend () -> AcademicRecord
+) : MutationSyncSpec<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, AcademicRecord> {
+	override val maxRebaseAttempts: Int = 1
+
+	override fun deletePendingBeforeConfirm(
+		mutation: MutationEnvelope<String, AcademicRecordMutation>
+	): Boolean = true
+
+	override suspend fun send(
+		mutation: MutationEnvelope<String, AcademicRecordMutation>
+	): AcademicRecord {
+		return when (val command = mutation.command) {
+			is AcademicRecordMutation.UpsertAttemptOverride ->
+				remoteDataSource.upsertAttemptOverride(
+					attemptId = command.attemptId,
+					score = command.score,
+					outcome = command.outcome
+				)
+
+			is AcademicRecordMutation.DeleteAttemptOverride ->
+				remoteDataSource.deleteAttemptOverride(command.attemptId)
+
+			is AcademicRecordMutation.AddSyntheticTerm ->
+				remoteDataSource.addSyntheticTerm(command)
+
+			is AcademicRecordMutation.DeleteSyntheticTerm ->
+				remoteDataSource.deleteSyntheticTerm(command.termId)
+		}
+	}
+
+	override suspend fun confirm(
+		mutation: MutationEnvelope<String, AcademicRecordMutation>,
+		ack: AcademicRecord
+	) {
+		localDataSource.saveAcademicRecord(ack)
+	}
+
+	override fun classifyError(
+		mutation: MutationEnvelope<String, AcademicRecordMutation>,
+		throwable: Throwable
+	): MutationFailureKind {
+		return when {
+			throwable.isConflict() -> MutationFailureKind.Conflict
+			throwable.isPreconditionFailed() -> MutationFailureKind.PreconditionFailed
+			throwable.isNotFound() -> MutationFailureKind.NotFound
+			else -> MutationFailureKind.Terminal
+		}
+	}
+
+	override suspend fun resolveFailure(
+		mutation: MutationEnvelope<String, AcademicRecordMutation>,
+		throwable: Throwable
+	): MutationFailureResolution<String, AcademicRecordMutation> {
+		return when (classifyError(mutation, throwable)) {
+			MutationFailureKind.Conflict,
+			MutationFailureKind.PreconditionFailed,
+			MutationFailureKind.NotFound -> {
+				refreshRemoteSnapshot()
+				MutationFailureResolution.Drop(propagate = true)
+			}
+
+			MutationFailureKind.Terminal ->
+				MutationFailureResolution.Fail()
+		}
+	}
+}

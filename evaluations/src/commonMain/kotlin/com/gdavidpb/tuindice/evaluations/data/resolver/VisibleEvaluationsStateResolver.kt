@@ -23,9 +23,9 @@ class VisibleEvaluationsStateResolver {
 						visibleEvaluations = visibleEvaluations + LocalEvaluation(
 							id = command.referenceId,
 							referenceId = command.referenceId,
-							subjectId = command.subjectId,
+							attemptId = command.attemptId,
 							subjectCode = command.subjectCode,
-							quarterId = command.quarterId,
+							termId = command.termId,
 							revision = 0L,
 							scheduleMode = command.scheduleMode,
 							grade = command.grade,

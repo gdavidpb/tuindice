@@ -218,7 +218,7 @@ class TuIndiceAppHostRouteUiTest {
 				)
 			}
 
-			waitUntil(timeoutMillis = 2_000) {
+			waitUntil(timeoutMillis = 5_000) {
 				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
 			}
 
@@ -326,7 +326,7 @@ class TuIndiceAppHostRouteUiTest {
 				sessionInvalidationRepository.notifySessionInvalidated()
 			}
 
-			waitUntil(timeoutMillis = 2_000) {
+			waitUntil(timeoutMillis = 5_000) {
 				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
 			}
 

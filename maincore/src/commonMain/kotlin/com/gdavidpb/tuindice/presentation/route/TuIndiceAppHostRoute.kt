@@ -95,9 +95,15 @@ fun TuIndiceAppHostRoute(
 			sessionInvalidationRepository.observeSessionInvalidation().collect {
 				yield()
 
+				val graphId = runCatching { navController.graph.id }
+					.getOrElse {
+						navController.currentBackStackEntryFlow.first()
+						navController.graph.id
+					}
+
 				navController.navigate(AuthDestination.NavGraph) {
 					launchSingleTop = true
-					popUpTo(navController.graph.id) {
+					popUpTo(graphId) {
 						inclusive = true
 					}
 				}

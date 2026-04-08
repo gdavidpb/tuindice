@@ -1,0 +1,26 @@
+{
+  "priority": 1,
+  "scenarioName": "record-attempt-EC5333Q2026A",
+  "requiredScenarioState": "REV_6_GRADE_5",
+  "newScenarioState": "REV_7_GRADE_4",
+  "request": {
+    "method": "PUT",
+    "urlPath": "/record/v1/overlay/attempts/EC5333Q2026A",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.score.numeric_value == 4)]"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{{{toJson record}}}",
+    "transformers": [
+      "response-template"
+    ],
+    "fixedDelayMilliseconds": 1500
+  }
+}

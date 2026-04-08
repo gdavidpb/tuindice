@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParam
 
 class AddEvaluationParamsValidator : ParamsValidator<AddEvaluationParams> {
 	override fun validate(params: AddEvaluationParams) {
-		require(!params.subjectId.isNullOrBlank()) {
+		require(!params.attemptId.isNullOrBlank()) {
 			throw AddEvaluationIllegalArgumentException(AddEvaluationUseCaseError.SubjectMissed)
 		}
 

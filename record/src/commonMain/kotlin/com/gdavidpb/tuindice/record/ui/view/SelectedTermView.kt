@@ -1,0 +1,74 @@
+package com.gdavidpb.tuindice.record.ui.view
+
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.record.presentation.model.TermItem
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
+
+@Composable
+fun SelectedTermView(
+	modifier: Modifier = Modifier,
+	term: TermItem,
+	onAttemptSelectionChange: (
+		termId: String,
+		attemptId: String,
+		newGrade: Int?,
+		newStatus: SubjectStatus?,
+		isSelected: Boolean
+	) -> Unit
+) {
+	val lazyListState = rememberLazyListState()
+	val gradeStates = remember(
+		term.termId,
+		term.attempts.map { attempt -> attempt.attemptId to attempt.grade }
+	) {
+		HashMap(
+			term.attempts.associate { attempt ->
+				attempt.attemptId to mutableIntStateOf(attempt.grade)
+			}
+		)
+	}
+
+	LaunchedEffect(term.termId) {
+		lazyListState.scrollToItem(0)
+	}
+
+	LazyColumn(
+		modifier = modifier.testTag(RecordUiTags.AttemptsList),
+		state = lazyListState,
+		contentPadding = PaddingValues(bottom = 16.dp)
+	) {
+		items(
+			items = term.attempts,
+			key = { attempt -> attempt.attemptId }
+		) { attempt ->
+			val gradeState = gradeStates.getOrPut(attempt.attemptId) {
+				mutableIntStateOf(attempt.grade)
+			}
+
+			AttemptCardItemView(
+				item = attempt,
+				gradeState = gradeState.takeIf { attempt.gradingMode == com.gdavidpb.tuindice.base.domain.model.subject.GradingMode.NUMERIC },
+				onGradeChange = { newGrade, newStatus, isSelected ->
+					onAttemptSelectionChange(
+						attempt.termId,
+						attempt.attemptId,
+						newGrade,
+						newStatus,
+						isSelected
+					)
+				}
+			)
+		}
+	}
+}

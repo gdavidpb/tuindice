@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.record.presentation.mapper
 
 data class RecordMapperTexts(
-	val quarterGradeDiff: (Float) -> String,
-	val quarterGradeSum: (Float) -> String,
-	val quarterCredits: (Int) -> String,
-	val subjectGrade: (Int) -> String,
-	val subjectCredits: (Int) -> String
+	val termGrade: (Float) -> String,
+	val termGradeSum: (Float) -> String,
+	val termCredits: (Int) -> String,
+	val termAttemptGrade: (Int) -> String,
+	val termAttemptCredits: (Int) -> String
 )

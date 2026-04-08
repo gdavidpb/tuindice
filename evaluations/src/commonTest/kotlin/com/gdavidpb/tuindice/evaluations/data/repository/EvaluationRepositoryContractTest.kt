@@ -65,9 +65,9 @@ class EvaluationRepositoryContractTest {
 		repository.addEvaluation(
 			EvaluationAdd(
 				reference = "reference-1",
-				subjectId = DEFAULT_EVALUATION_SUBJECT.id,
+				attemptId = DEFAULT_EVALUATION_SUBJECT.id,
 				subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
-				quarterId = DEFAULT_EVALUATION_SUBJECT.quarterId,
+				termId = DEFAULT_EVALUATION_SUBJECT.termId,
 				type = EvaluationType.QUIZ,
 				scheduleMode = EvaluationScheduleMode.DATED,
 				date = 1_900_000_000_000L,
@@ -90,9 +90,9 @@ class EvaluationRepositoryContractTest {
 					scopeKey = EVALUATIONS_MUTATION_SCOPE,
 					command = EvaluationMutation.Add(
 						referenceId = "reference-1",
-						subjectId = DEFAULT_EVALUATION_SUBJECT.id,
+						attemptId = DEFAULT_EVALUATION_SUBJECT.id,
 						subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
-						quarterId = DEFAULT_EVALUATION_SUBJECT.quarterId,
+						termId = DEFAULT_EVALUATION_SUBJECT.termId,
 						scheduleMode = EvaluationScheduleMode.DATED,
 						grade = null,
 						maxGrade = 100.0,
@@ -148,9 +148,9 @@ class EvaluationRepositoryContractTest {
 					scopeKey = EVALUATIONS_MUTATION_SCOPE,
 					command = EvaluationMutation.Add(
 						referenceId = "reference-1",
-						subjectId = DEFAULT_EVALUATION_SUBJECT.id,
+						attemptId = DEFAULT_EVALUATION_SUBJECT.id,
 						subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
-						quarterId = DEFAULT_EVALUATION_SUBJECT.quarterId,
+						termId = DEFAULT_EVALUATION_SUBJECT.termId,
 						scheduleMode = EvaluationScheduleMode.DATED,
 						grade = null,
 						maxGrade = 100.0,

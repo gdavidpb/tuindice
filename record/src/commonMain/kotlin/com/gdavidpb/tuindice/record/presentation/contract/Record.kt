@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.contract
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
-import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
@@ -18,9 +18,9 @@ object Record {
 		data object Loading : State()
 
 		data class Content(
-			val quarters: List<Quarter>,
 			val viewMode: RecordViewMode,
-			val selectedQuarterId: String
+			val record: AcademicRecord,
+			val selectedTermId: String
 		) : State()
 
 		data object Empty : State()
@@ -29,14 +29,14 @@ object Record {
 	}
 
 	sealed class Action : ViewAction() {
-		data object ObserveQuarters : Action()
-		data object RefreshQuarters : Action()
+		data object ObserveRecord : Action()
+		data object RefreshRecord : Action()
 		class SetViewMode(val viewMode: RecordViewMode) : Action()
-		class SelectQuarter(val quarterId: String) : Action()
+		class SelectTerm(val termId: String) : Action()
 
-		class SetSubjectGrade(
-			val quarterId: String,
-			val subjectId: String,
+		class UpsertAttemptSelection(
+			val termId: String,
+			val attemptId: String,
 			val grade: Int? = null,
 			val status: SubjectStatus? = null,
 			val commit: Boolean

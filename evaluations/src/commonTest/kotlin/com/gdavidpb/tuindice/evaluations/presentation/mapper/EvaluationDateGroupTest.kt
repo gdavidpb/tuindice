@@ -61,9 +61,9 @@ class EvaluationDateGroupTest {
 		date: Long
 	) = Evaluation(
 		id = id,
-		subjectId = "subject-1",
+		attemptId = "subject-1",
 		subjectCode = "INF-101",
-		quarterId = "quarter-1",
+		termId = "quarter-1",
 		scheduleMode = EvaluationScheduleMode.DATED,
 		grade = null,
 		maxGrade = 100.0,

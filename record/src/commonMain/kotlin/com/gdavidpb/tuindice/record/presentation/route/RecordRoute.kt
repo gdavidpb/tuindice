@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.record.presentation.route
 
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
@@ -25,7 +25,7 @@ fun RecordRoute(
 	viewModel: RecordViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
-	val selectedQuarterId = (viewState as? Record.State.Content)?.selectedQuarterId
+	val selectedTermId = (viewState as? Record.State.Content)?.selectedTermId
 
 	LaunchedEffect(viewState) {
 		onViewStateChanged(viewState.toRouteViewState())
@@ -50,22 +50,22 @@ fun RecordRoute(
 	}
 
 	LaunchedEffect(Unit) {
-		viewModel.refreshQuartersAction()
+		viewModel.refreshRecordAction()
 	}
 
 	RecordScreen(
 		state = viewState,
-		selectedQuarterId = selectedQuarterId,
-		onSelectedQuarterChange = { quarterId ->
-			if (quarterId != selectedQuarterId) {
-				viewModel.selectQuarterAction(quarterId)
+		selectedTermId = selectedTermId,
+		onSelectedTermChange = { termId ->
+			if (termId != selectedTermId) {
+				viewModel.selectTermAction(termId)
 			}
 		},
-		onRetryClick = viewModel::refreshQuartersAction,
-		onSubjectGradeChange = { quarterId, subjectId, grade, status, isSelected ->
-			viewModel.updateSubjectAction(
-				quarterId = quarterId,
-				subjectId = subjectId,
+		onRetryClick = viewModel::refreshRecordAction,
+		onAttemptSelectionChange = { termId, attemptId, grade, status, isSelected ->
+			viewModel.upsertAttemptSelectionAction(
+				termId = termId,
+				attemptId = attemptId,
 				grade = grade,
 				status = status,
 				commit = isSelected
@@ -76,9 +76,10 @@ fun RecordRoute(
 
 private fun Record.State.toRouteViewState(): ViewState {
 	val isEnrollmentProofVisible = when (this) {
-		is Record.State.Content ->
-			quarters.any { quarter ->
-				quarter.id == selectedQuarterId && quarter.isCurrent
+		is Record.State.Content -> record.activeProjection(viewMode)
+			.terms
+			.any { term ->
+				term.id == selectedTermId && term.editable && !term.synthetic && !term.closed
 			}
 
 		Record.State.Empty,
@@ -102,4 +103,13 @@ private fun Record.State.toRouteViewState(): ViewState {
 			-> null
 		}
 	)
+}
+
+private fun com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord.activeProjection(
+	viewMode: RecordViewMode
+): RecordProjection {
+	return when (viewMode) {
+		RecordViewMode.Official -> officialProjection
+		RecordViewMode.Simulation -> simulationProjection
+	}
 }

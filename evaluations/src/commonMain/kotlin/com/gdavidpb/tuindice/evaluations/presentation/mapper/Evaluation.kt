@@ -13,9 +13,9 @@ fun (Evaluation.Action.LoadEvaluation).toGetEvaluationParams() =
 
 fun (Evaluation.Action.ClickAddEvaluation).toAddEvaluationParams() =
 	AddEvaluationParams(
-		subjectId = subject?.id,
+		attemptId = subject?.id,
 		subjectCode = subject?.code,
-		quarterId = subject?.quarterId,
+		termId = subject?.termId,
 		scheduleMode = scheduleMode,
 		grade = grade,
 		maxGrade = maxGrade,
@@ -26,9 +26,9 @@ fun (Evaluation.Action.ClickAddEvaluation).toAddEvaluationParams() =
 fun (Evaluation.Action.ClickEditEvaluation).toUpdateEvaluationParams() =
 	UpdateEvaluationParams(
 		evaluationId = evaluationId,
-		subjectId = subject?.id,
+		attemptId = subject?.id,
 		subjectCode = subject?.code,
-		quarterId = subject?.quarterId,
+		termId = subject?.termId,
 		scheduleMode = scheduleMode,
 		grade = grade,
 		maxGrade = maxGrade,
@@ -39,9 +39,9 @@ fun (Evaluation.Action.ClickEditEvaluation).toUpdateEvaluationParams() =
 fun (Evaluations.Action.SetEvaluationGrade).toUpdateEvaluationParams() =
 	UpdateEvaluationParams(
 		evaluationId = evaluationId,
-		subjectId = null,
+		attemptId = null,
 		subjectCode = null,
-		quarterId = null,
+		termId = null,
 		scheduleMode = null,
 		grade = grade,
 		maxGrade = null,

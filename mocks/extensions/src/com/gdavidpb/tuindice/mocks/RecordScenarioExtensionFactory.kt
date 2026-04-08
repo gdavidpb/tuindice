@@ -27,53 +27,44 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		private val objectMapper = ObjectMapper()
 		private val baseState: BaseState = readBaseState(services.files)
 		@Volatile
-		private var latestRequestedAddedQuarter: QuarterModel? = null
+		private var latestRequestedAddedTerm: TermModel? = null
 
 		override fun getName(): String = "record-template-model-provider"
 
 		override fun provideTemplateModelData(serveEvent: ServeEvent): Map<String, Any> {
 			val scenarioStates = currentScenarioStates().toMutableMap()
 			applyPreviewTransition(scenarioStates, serveEvent.stubMapping)
-			requestAddedQuarter(serveEvent.request, scenarioStates)?.let { requestedQuarter ->
-				latestRequestedAddedQuarter = requestedQuarter
+			requestAddedTerm(serveEvent.request, scenarioStates)?.let { requestedTerm ->
+				latestRequestedAddedTerm = requestedTerm
 			}
 
-			val quarters = recompute(
-				resolveVisibleQuarters(
+			val terms = recompute(
+				resolveVisibleTerms(
 					scenarioStates = scenarioStates,
-					addedQuarterOverride = latestRequestedAddedQuarter
+					addedTermOverride = latestRequestedAddedTerm
 				)
-			).sortedWith(DESCENDING_QUARTER_ORDER)
-			val pathSegments = pathSegments(serveEvent.request)
-			val currentQuarter = findQuarter(quarters, currentQuarterId(pathSegments))
-			val currentSubject = findSubject(currentQuarter, currentSubjectId(pathSegments))
-			val addedQuarter = findQuarter(quarters, ADDED_QUARTER_ID)
+			).sortedWith(DESCENDING_TERM_ORDER)
 
-			val record = linkedMapOf<String, Any>(
-				"quarters" to quarters.map(QuarterModel::toTemplateModel),
+			return linkedMapOf(
+				"record" to buildRecordModel(terms)
 			)
-			currentQuarter?.let { record["currentQuarter"] = it.toTemplateModel() }
-			currentSubject?.let { record["currentSubject"] = it.toTemplateModel() }
-			addedQuarter?.let { record["addedQuarter"] = it.toTemplateModel() }
-
-			return linkedMapOf("record" to record)
 		}
 
 		private fun readBaseState(fileSource: FileSource): BaseState {
 			try {
 				val configFile: TextFile = fileSource.child(CONFIG_DIRECTORY).getTextFileNamed(CONFIG_FILENAME)
 				val root = objectMapper.readTree(configFile.readContentsAsString())
-				val quarters = root.get("quarters").map(::parseQuarter)
-				val addedQuarter = parseQuarter(root.get("added_quarter"))
-				return BaseState(quarters, addedQuarter)
+				val terms = root.get("terms").map(::parseTerm)
+				val addedTerm = parseTerm(root.get("added_term"))
+				return BaseState(terms, addedTerm)
 			} catch (exception: Exception) {
 				throw IllegalStateException("Unable to load record base state for WireMock", exception)
 			}
 		}
 
-		private fun parseQuarter(node: JsonNode): QuarterModel {
-			val subjects = node.get("subjects").map(::parseSubject)
-			return QuarterModel(
+		private fun parseTerm(node: JsonNode): TermModel {
+			val attempts = node.get("attempts").map(::parseAttempt)
+			return TermModel(
 				id = node.get("id").asText(),
 				name = node.get("name").asText(),
 				startDate = node.get("start_date").asLong(),
@@ -90,14 +81,14 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				readOnly = node.get("is_read_only").asBoolean(),
 				revision = node.get("revision").asLong(),
 				presenceScenario = if (node.hasNonNull("presence_scenario")) node.get("presence_scenario").asText() else null,
-				subjects = subjects,
+				attempts = attempts,
 			)
 		}
 
-		private fun parseSubject(node: JsonNode): SubjectModel =
-			SubjectModel(
+		private fun parseAttempt(node: JsonNode): AttemptModel =
+			AttemptModel(
 				id = node.get("id").asText(),
-				quarterId = node.get("qid").asText(),
+				termId = node.get("term_id").asText(),
 				code = node.get("code").asText(),
 				name = node.get("name").asText(),
 				credits = node.get("credits").asInt(),
@@ -125,69 +116,69 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			scenarioStates[scenarioName] = nextState
 		}
 
-		private fun resolveVisibleQuarters(
+		private fun resolveVisibleTerms(
 			scenarioStates: Map<String, String>,
-			addedQuarterOverride: QuarterModel? = null
-		): List<QuarterModel> {
-			val quarters = mutableListOf<QuarterModel>()
+			addedTermOverride: TermModel? = null
+		): List<TermModel> {
+			val terms = mutableListOf<TermModel>()
 
-			for (baseQuarter in baseState.quarters) {
-				if (!isVisible(baseQuarter, scenarioStates)) continue
-				quarters += resolveQuarter(baseQuarter, scenarioStates)
+			for (baseTerm in baseState.terms) {
+				if (!isVisible(baseTerm, scenarioStates)) continue
+				terms += resolveTerm(baseTerm, scenarioStates)
 			}
 
-			val addedQuarter = addedQuarterOverride ?: baseState.addedQuarter
-			if (isAddedQuarterVisible(baseState.addedQuarter, scenarioStates)) {
-				quarters += resolveAddedQuarter(addedQuarter, scenarioStates)
+			val addedTerm = addedTermOverride ?: baseState.addedTerm
+			if (isAddedTermVisible(baseState.addedTerm, scenarioStates)) {
+				terms += resolveAddedTerm(addedTerm, scenarioStates)
 			}
 
-			quarters.sortWith(DESCENDING_QUARTER_ORDER)
-			return quarters
+			terms.sortWith(DESCENDING_TERM_ORDER)
+			return terms
 		}
 
-		private fun isVisible(baseQuarter: QuarterModel, scenarioStates: Map<String, String>): Boolean {
-			val presenceScenario = baseQuarter.presenceScenario ?: return true
+		private fun isVisible(baseTerm: TermModel, scenarioStates: Map<String, String>): Boolean {
+			val presenceScenario = baseTerm.presenceScenario ?: return true
 			val state = scenarioStates[presenceScenario] ?: Scenario.STARTED
 			return !DELETED_STATE_PATTERN.matcher(state).matches()
 		}
 
-		private fun isAddedQuarterVisible(addedQuarter: QuarterModel, scenarioStates: Map<String, String>): Boolean {
-			val presenceScenario = addedQuarter.presenceScenario ?: return false
+		private fun isAddedTermVisible(addedTerm: TermModel, scenarioStates: Map<String, String>): Boolean {
+			val presenceScenario = addedTerm.presenceScenario ?: return false
 			val state = scenarioStates[presenceScenario] ?: Scenario.STARTED
 			return PRESENT_STATE_PATTERN.matcher(state).matches()
 		}
 
-		private fun resolveQuarter(baseQuarter: QuarterModel, scenarioStates: Map<String, String>): QuarterModel {
-			val subjects = baseQuarter.subjects.map { baseSubject -> resolveSubject(baseSubject, scenarioStates) }
-			return baseQuarter.copyWith(
-				grade = baseQuarter.grade,
-				gradeSum = baseQuarter.gradeSum,
-				credits = baseQuarter.credits,
-				creditsSum = baseQuarter.creditsSum,
-				revision = baseQuarter.revision,
-				subjects = subjects,
+		private fun resolveTerm(baseTerm: TermModel, scenarioStates: Map<String, String>): TermModel {
+			val attempts = baseTerm.attempts.map { baseAttempt -> resolveAttempt(baseAttempt, scenarioStates) }
+			return baseTerm.copyWith(
+				grade = baseTerm.grade,
+				gradeSum = baseTerm.gradeSum,
+				credits = baseTerm.credits,
+				creditsSum = baseTerm.creditsSum,
+				revision = baseTerm.revision,
+				attempts = attempts,
 			)
 		}
 
-		private fun resolveAddedQuarter(addedQuarter: QuarterModel, scenarioStates: Map<String, String>): QuarterModel {
-			val presenceScenario = baseState.addedQuarter.presenceScenario ?: return addedQuarter
+		private fun resolveAddedTerm(addedTerm: TermModel, scenarioStates: Map<String, String>): TermModel {
+			val presenceScenario = baseState.addedTerm.presenceScenario ?: return addedTerm
 			val state = scenarioStates[presenceScenario] ?: Scenario.STARTED
-			return addedQuarter.copyWith(
-				grade = addedQuarter.grade,
-				gradeSum = addedQuarter.gradeSum,
-				credits = addedQuarter.credits,
-				creditsSum = addedQuarter.creditsSum,
-				revision = parseQuarterRevision(state, addedQuarter.revision),
-				subjects = addedQuarter.subjects.toList(),
+			return addedTerm.copyWith(
+				grade = addedTerm.grade,
+				gradeSum = addedTerm.gradeSum,
+				credits = addedTerm.credits,
+				creditsSum = addedTerm.creditsSum,
+				revision = parseTermRevision(state, addedTerm.revision),
+				attempts = addedTerm.attempts.toList(),
 			)
 		}
 
-		private fun requestAddedQuarter(
+		private fun requestAddedTerm(
 			request: Request,
 			scenarioStates: Map<String, String>
-		): QuarterModel? {
+		): TermModel? {
 			val pathSegments = pathSegments(request)
-			if (pathSegments != listOf("quarters", "v1")) return null
+			if (pathSegments != listOf("record", "v1", "overlay", "terms")) return null
 
 			val requestBody = request.bodyAsString
 				.takeIf { body -> body.isNotBlank() }
@@ -195,64 +186,81 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			val root = runCatching { objectMapper.readTree(requestBody) }
 				.getOrNull()
 				?: return null
-			if (!root.hasNonNull("quarter") || !root.hasNonNull("year")) return null
+			if (!root.hasNonNull("label") || !root.hasNonNull("start_at") || !root.hasNonNull("end_at")) return null
 
-			val subjectsNode = root.get("subjects")
+			val attemptsNode = root.get("attempts")
 				?: return null
-			if (!subjectsNode.isArray || subjectsNode.size() == 0) return null
+			if (!attemptsNode.isArray || attemptsNode.size() == 0) return null
 
-			val resolvedQuarter = resolveAddedQuarter(baseState.addedQuarter, scenarioStates)
-			val subjects = subjectsNode.mapIndexed { index, node ->
-				val code = node.path("code").asText(baseState.addedQuarter.subjects.firstOrNull()?.code ?: "MOCK101")
-				SubjectModel(
-					id = "$code-${resolvedQuarter.id}-${index + 1}",
-					quarterId = resolvedQuarter.id,
+			val resolvedTerm = resolveAddedTerm(baseState.addedTerm, scenarioStates)
+			val attempts = attemptsNode.mapIndexed { index, node ->
+				val code = node.path("subject_code").asText(baseState.addedTerm.attempts.firstOrNull()?.code ?: "MOCK101")
+				AttemptModel(
+					id = "$code-${resolvedTerm.id}-${index + 1}",
+					termId = resolvedTerm.id,
 					code = code,
-					name = "MOCK $code",
-					credits = node.path("credits").asInt(DEFAULT_ADDED_SUBJECT_CREDITS),
-					grade = node.path("grade").asInt(0),
+					name = node.path("subject_name").asText("MOCK $code"),
+					credits = node.path("credits").asInt(DEFAULT_ADDED_ATTEMPT_CREDITS),
+					grade = node.path("score").path("numeric_value").asInt(0),
 					gradingMode = node.path("grading_mode").asText("numeric"),
 					mutable = false,
 					scenario = null,
-					status = if (node.hasNonNull("status")) node.get("status").asText() else null,
-					simulationStatus = if (node.hasNonNull("simulation_status")) node.get("simulation_status").asText() else null,
+					status = if (node.hasNonNull("outcome")) node.get("outcome").asText() else null,
+					simulationStatus = null,
 					revision = 1L,
 				)
 			}
 
-			return resolvedQuarter.copy(
-				name = "${root.get("year").asInt()}-${root.get("quarter").asInt()}",
-				subjects = subjects,
+			return resolvedTerm.copy(
+				name = root.get("label").asText(),
+				startDate = root.get("start_at").asLong(),
+				endDate = root.get("end_at").asLong(),
+				attempts = attempts,
 			)
 		}
 
-		private fun resolveSubject(baseSubject: SubjectModel, scenarioStates: Map<String, String>): SubjectModel {
-			val scenario = baseSubject.scenario
-			if (!baseSubject.mutable || scenario == null) return baseSubject
+		private fun buildRecordModel(terms: List<TermModel>): Map<String, Any> {
+			val revision = terms.maxOfOrNull(TermModel::revision) ?: 0L
+
+			return linkedMapOf(
+				"id" to "mock-record",
+				"revision" to revision,
+				"official_projection" to linkedMapOf(
+					"terms" to terms.map(TermModel::toOfficialProjectionModel)
+				),
+				"simulation_projection" to linkedMapOf(
+					"terms" to terms.map(TermModel::toSimulationProjectionModel)
+				)
+			)
+		}
+
+		private fun resolveAttempt(baseAttempt: AttemptModel, scenarioStates: Map<String, String>): AttemptModel {
+			val scenario = baseAttempt.scenario
+			if (!baseAttempt.mutable || scenario == null) return baseAttempt
 
 			val state = scenarioStates[scenario] ?: Scenario.STARTED
-			if (state == Scenario.STARTED) return baseSubject
+			if (state == Scenario.STARTED) return baseAttempt
 
-			val matcher = SUBJECT_STATE_PATTERN.matcher(state)
+			val matcher = ATTEMPT_STATE_PATTERN.matcher(state)
 			if (matcher.matches()) {
-				return baseSubject.copyWith(
+				return baseAttempt.copyWith(
 					grade = matcher.group(2).toInt(),
-					status = if (baseSubject.gradingMode == "qualitative_pass_fail") "normal" else baseSubject.status,
+					status = if (baseAttempt.gradingMode == "qualitative_pass_fail") "normal" else baseAttempt.status,
 					revision = matcher.group(1).toLong(),
 				)
 			}
 
-			val statusMatcher = SUBJECT_STATUS_STATE_PATTERN.matcher(state)
-			if (!statusMatcher.matches()) return baseSubject
+			val statusMatcher = ATTEMPT_STATUS_STATE_PATTERN.matcher(state)
+			if (!statusMatcher.matches()) return baseAttempt
 
-			return baseSubject.copyWith(
+			return baseAttempt.copyWith(
 				grade = 0,
 				status = statusMatcher.group(2).lowercase(),
 				revision = statusMatcher.group(1).toLong(),
 			)
 		}
 
-		private fun parseQuarterRevision(state: String, fallback: Long): Long {
+		private fun parseTermRevision(state: String, fallback: Long): Long {
 			val presentMatcher = PRESENT_STATE_PATTERN.matcher(state)
 			if (presentMatcher.matches()) return presentMatcher.group(1).toLong()
 
@@ -262,48 +270,48 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			return fallback
 		}
 
-		private fun recompute(quarters: List<QuarterModel>): List<QuarterModel> {
-			if (quarters.isEmpty()) return emptyList()
+		private fun recompute(terms: List<TermModel>): List<TermModel> {
+			if (terms.isEmpty()) return emptyList()
 
-			val ascending = quarters.sortedWith(ASCENDING_QUARTER_ORDER)
+			val ascending = terms.sortedWith(ASCENDING_TERM_ORDER)
 			val codeStates = mutableMapOf<String, CodeState>()
-			val recomputedAscending = mutableListOf<QuarterModel>()
+			val recomputedAscending = mutableListOf<TermModel>()
 
 			var cumulativeWeighted = 0L
 			var cumulativeCredits = 0L
 
-			for (quarter in ascending) {
-				var quarterCredits = 0L
-				var quarterWeighted = 0L
+			for (term in ascending) {
+				var termCredits = 0L
+				var termWeighted = 0L
 
-				for (subject in quarter.subjects) {
-					quarterCredits += subject.numericCreditsContribution().toLong()
-					quarterWeighted += subject.numericWeightedContribution()
+				for (attempt in term.attempts) {
+					termCredits += attempt.numericCreditsContribution().toLong()
+					termWeighted += attempt.numericWeightedContribution()
 				}
 
-				val quarterGrade = computeAverage(quarterWeighted, quarterCredits)
-				val sortedSubjects = quarter.subjects.sortedByDescending(SubjectModel::id)
+				val termGrade = computeAverage(termWeighted, termCredits)
+				val sortedAttempts = term.attempts.sortedByDescending(AttemptModel::id)
 
-				for (subject in sortedSubjects) {
-					if (!subject.countsTowardRetakeTimeline()) continue
+				for (attempt in sortedAttempts) {
+					if (!attempt.countsTowardRetakeTimeline()) continue
 
-					val state = codeStates.getOrPut(subject.code) { CodeState() }
+					val state = codeStates.getOrPut(attempt.code) { CodeState() }
 					val previousWeighted = state.effectiveWeighted()
 					val previousCredits = state.effectiveCredits()
 
-					state.add(CodeAttempt(subject.grade, subject.credits, subject.isApprovalEvent()))
+					state.add(CodeAttempt(attempt.grade, attempt.credits, attempt.isApprovalEvent()))
 
 					cumulativeWeighted += state.effectiveWeighted() - previousWeighted
 					cumulativeCredits += state.effectiveCredits() - previousCredits
 				}
 
-				recomputedAscending += quarter.copyWith(
-					grade = quarterGrade,
+				recomputedAscending += term.copyWith(
+					grade = termGrade,
 					gradeSum = computeAverage(cumulativeWeighted, cumulativeCredits),
-					credits = quarterCredits.toInt(),
+					credits = termCredits.toInt(),
 					creditsSum = cumulativeCredits.toInt(),
-					revision = quarter.revision,
-					subjects = quarter.subjects.toList(),
+					revision = term.revision,
+					attempts = term.attempts.toList(),
 				)
 			}
 
@@ -318,63 +326,63 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				.toDouble()
 		}
 
-		private fun applySimulationProjection(quarters: List<QuarterModel>): List<QuarterModel> {
-			if (quarters.isEmpty()) return emptyList()
+		private fun applySimulationProjection(terms: List<TermModel>): List<TermModel> {
+			if (terms.isEmpty()) return emptyList()
 
-			val ascending = quarters.sortedWith(ASCENDING_QUARTER_ORDER)
-			val excludedSubjectIds = resolveExcludedSubjectIds(ascending)
+			val ascending = terms.sortedWith(ASCENDING_TERM_ORDER)
+			val excludedAttemptIds = resolveExcludedAttemptIds(ascending)
 			val codeStates = mutableMapOf<String, CodeState>()
 
 			var cumulativeWeighted = 0L
 			var cumulativeCredits = 0L
 
-			val recomputedAscending = ascending.map { quarter ->
-				var quarterWeighted = 0L
-				var quarterCredits = 0L
+			val recomputedAscending = ascending.map { term ->
+				var termWeighted = 0L
+				var termCredits = 0L
 
-				val subjects = quarter.subjects.map { subject ->
+				val attempts = term.attempts.map { attempt ->
 					val simulationStatus = when {
-						(subject.status != null) && (subject.status != "normal") -> null
-						subject.id in excludedSubjectIds -> "without_effect"
+						(attempt.status != null) && (attempt.status != "normal") -> null
+						attempt.id in excludedAttemptIds -> "without_effect"
 						else -> null
 					}
 
-					quarterWeighted += subject.numericWeightedContribution()
-					quarterCredits += subject.numericCreditsContribution().toLong()
+					termWeighted += attempt.numericWeightedContribution()
+					termCredits += attempt.numericCreditsContribution().toLong()
 
-					subject.copy(simulationStatus = simulationStatus)
+					attempt.copy(simulationStatus = simulationStatus)
 				}
 
-				val sortedSubjects = quarter.subjects.sortedByDescending(SubjectModel::id)
+				val sortedAttempts = term.attempts.sortedByDescending(AttemptModel::id)
 
-				for (subject in sortedSubjects) {
-					if (!subject.countsTowardRetakeTimeline()) continue
+				for (attempt in sortedAttempts) {
+					if (!attempt.countsTowardRetakeTimeline()) continue
 
-					val state = codeStates.getOrPut(subject.code) { CodeState() }
+					val state = codeStates.getOrPut(attempt.code) { CodeState() }
 					val previousWeighted = state.effectiveWeighted()
 					val previousCredits = state.effectiveCredits()
 
-					state.add(CodeAttempt(subject.grade, subject.credits, subject.isApprovalEvent()))
+					state.add(CodeAttempt(attempt.grade, attempt.credits, attempt.isApprovalEvent()))
 
 					cumulativeWeighted += state.effectiveWeighted() - previousWeighted
 					cumulativeCredits += state.effectiveCredits() - previousCredits
 				}
 
-				if (quarter.readOnly) {
-					quarter.copy(
-						simulationGrade = quarter.grade,
-						simulationGradeSum = quarter.gradeSum,
-						simulationCredits = quarter.credits,
-						simulationCreditsSum = quarter.creditsSum,
-						subjects = subjects
+				if (term.readOnly) {
+					term.copy(
+						simulationGrade = term.grade,
+						simulationGradeSum = term.gradeSum,
+						simulationCredits = term.credits,
+						simulationCreditsSum = term.creditsSum,
+						attempts = attempts
 					)
 				} else {
-					quarter.copy(
-						simulationGrade = computeAverage(quarterWeighted, quarterCredits),
+					term.copy(
+						simulationGrade = computeAverage(termWeighted, termCredits),
 						simulationGradeSum = computeAverage(cumulativeWeighted, cumulativeCredits),
-						simulationCredits = quarterCredits.toInt(),
+						simulationCredits = termCredits.toInt(),
 						simulationCreditsSum = cumulativeCredits.toInt(),
-						subjects = subjects
+						attempts = attempts
 					)
 				}
 			}
@@ -382,21 +390,21 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			return recomputedAscending.reversed()
 		}
 
-		private fun resolveExcludedSubjectIds(quarters: List<QuarterModel>): Set<String> {
+		private fun resolveExcludedAttemptIds(terms: List<TermModel>): Set<String> {
 			val codeStates = mutableMapOf<String, SimulationCodeState>()
 
-			quarters.forEach { quarter ->
-				val sortedSubjects = quarter.subjects.sortedByDescending(SubjectModel::id)
+			terms.forEach { term ->
+				val sortedAttempts = term.attempts.sortedByDescending(AttemptModel::id)
 
-				sortedSubjects.forEach { subject ->
-					if (!subject.countsTowardRetakeTimeline()) return@forEach
+				sortedAttempts.forEach { attempt ->
+					if (!attempt.countsTowardRetakeTimeline()) return@forEach
 
 					codeStates
-						.getOrPut(subject.code) { SimulationCodeState() }
+						.getOrPut(attempt.code) { SimulationCodeState() }
 						.add(
 							SimulationAttempt(
-								subjectId = subject.id,
-								approved = subject.isApprovalEvent()
+								subjectId = attempt.id,
+								approved = attempt.isApprovalEvent()
 							)
 						)
 				}
@@ -419,46 +427,14 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				.filter(String::isNotBlank)
 		}
 
-		private fun currentQuarterId(pathSegments: List<String>): String? =
-			if (
-				pathSegments.size >= 3 &&
-				pathSegments[0] == "quarters" &&
-				pathSegments[1] == "v1"
-			) {
-				pathSegments[2]
-			} else {
-				null
-			}
-
-		private fun currentSubjectId(pathSegments: List<String>): String? =
-			if (
-				pathSegments.size >= 5 &&
-				pathSegments[0] == "quarters" &&
-				pathSegments[1] == "v1" &&
-				pathSegments[3] == "subjects"
-			) {
-				pathSegments[4]
-			} else {
-				null
-			}
-
-		private fun findQuarter(quarters: List<QuarterModel>, quarterId: String?): QuarterModel? =
-			quarterId?.let { candidate -> quarters.find { quarter -> quarter.id == candidate } }
-
-		private fun findSubject(quarter: QuarterModel?, subjectId: String?): SubjectModel? =
-			if (quarter == null || subjectId == null) {
-				null
-			} else {
-				quarter.subjects.find { subject -> subject.id == subjectId }
-			}
 	}
 
 	private data class BaseState(
-		val quarters: List<QuarterModel>,
-		val addedQuarter: QuarterModel,
+		val terms: List<TermModel>,
+		val addedTerm: TermModel,
 	)
 
-	private data class QuarterModel(
+	private data class TermModel(
 		val id: String,
 		val name: String,
 		val startDate: Long,
@@ -474,7 +450,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		val current: Boolean,
 		val readOnly: Boolean,
 		val presenceScenario: String?,
-		val subjects: List<SubjectModel>,
+		val attempts: List<AttemptModel>,
 		val revision: Long,
 	) {
 		fun copyWith(
@@ -483,15 +459,15 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			credits: Int,
 			creditsSum: Int,
 			revision: Long,
-			subjects: List<SubjectModel>,
-		): QuarterModel =
+			attempts: List<AttemptModel>,
+		): TermModel =
 			copy(
 				grade = grade,
 				gradeSum = gradeSum,
 				credits = credits,
 				creditsSum = creditsSum,
 				revision = revision,
-				subjects = subjects,
+				attempts = attempts,
 			)
 
 		fun toTemplateModel(): Map<String, Any> =
@@ -507,18 +483,47 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				"is_current" to current,
 				"is_read_only" to readOnly,
 				"revision" to revision,
-				"subjects" to subjects.map(SubjectModel::toTemplateModel),
+				"attempts" to attempts.map(AttemptModel::toTemplateModel),
 			).also { model ->
 				simulationGrade?.let { model["simulation_grade"] = it }
 				simulationGradeSum?.let { model["simulation_grade_sum"] = it }
 				simulationCredits?.let { model["simulation_credits"] = it }
 				simulationCreditsSum?.let { model["simulation_credits_sum"] = it }
 			}
+
+		fun toOfficialProjectionModel(): Map<String, Any> =
+			toProjectionModel(simulation = false)
+
+		fun toSimulationProjectionModel(): Map<String, Any> =
+			toProjectionModel(simulation = true)
+
+		private fun toProjectionModel(simulation: Boolean): Map<String, Any> =
+			linkedMapOf<String, Any>(
+				"id" to id,
+				"label" to name,
+				"start_at" to startDate,
+				"end_at" to endDate,
+				"current" to current,
+				"closed" to readOnly,
+				"editable" to !readOnly,
+				"synthetic" to (id == ADDED_TERM_ID),
+				"grade" to if (simulation) (simulationGrade ?: grade) else grade,
+				"grade_sum" to if (simulation) (simulationGradeSum ?: gradeSum) else gradeSum,
+				"credits" to if (simulation) (simulationCredits ?: credits) else credits,
+				"credits_sum" to if (simulation) (simulationCreditsSum ?: creditsSum) else creditsSum,
+				"attempts" to attempts.mapIndexed { index, attempt ->
+					attempt.toProjectionModel(
+						termId = id,
+						sequenceInTerm = index,
+						simulation = simulation
+					)
+				}
+			)
 	}
 
-	private data class SubjectModel(
+	private data class AttemptModel(
 		val id: String,
-		val quarterId: String,
+		val termId: String,
 		val code: String,
 		val name: String,
 		val credits: Int,
@@ -530,7 +535,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		val simulationStatus: String?,
 		val revision: Long,
 	) {
-		fun copyWith(grade: Int, status: String?, revision: Long): SubjectModel =
+		fun copyWith(grade: Int, status: String?, revision: Long): AttemptModel =
 			copy(
 				grade = grade,
 				status = status,
@@ -540,7 +545,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		fun toTemplateModel(): Map<String, Any> =
 			linkedMapOf<String, Any>(
 				"id" to id,
-				"qid" to quarterId,
+				"term_id" to termId,
 				"code" to code,
 				"name" to name,
 				"credits" to credits,
@@ -551,6 +556,56 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				simulationStatus?.let { model["simulation_status"] = it }
 				model["revision"] = revision
 			}
+
+		fun toProjectionModel(
+			termId: String,
+			sequenceInTerm: Int,
+			simulation: Boolean
+		): Map<String, Any> {
+			val resolvedStatus = if (simulation) simulationStatus ?: status else status
+			val badge = if (resolvedStatus == "without_effect") "without_effect" else "none"
+			val outcome = projectionOutcome(resolvedStatus)
+
+			return linkedMapOf<String, Any>(
+				"id" to id,
+				"term_id" to termId,
+				"subject_code" to code,
+				"subject_name" to name,
+				"credits" to credits,
+				"sequence_in_term" to sequenceInTerm,
+				"grading_mode" to gradingMode,
+				"score" to linkedMapOf<String, Any>(
+					"kind" to if (gradingMode == "numeric") "numeric" else "empty",
+					"numeric_value" to if (gradingMode == "numeric") grade else 0
+				),
+				"outcome" to outcome,
+				"badge" to badge
+			)
+		}
+
+		private fun projectionOutcome(resolvedStatus: String?): String {
+			return when (resolvedStatus) {
+				"approved" -> "approved"
+				"failed" -> "failed"
+				"retired" -> "retired"
+				"unreported" -> "unreported"
+				"without_effect",
+				null,
+				"normal",
+				"pending" -> basePendingAwareOutcome()
+
+				else -> basePendingAwareOutcome()
+			}
+		}
+
+		private fun basePendingAwareOutcome(): String {
+			return when {
+				gradingMode == "qualitative_pass_fail" -> "pending"
+				grade >= 3 -> "approved"
+				grade > 0 -> "failed"
+				else -> "pending"
+			}
+		}
 
 		fun resolvedOutcome(): String {
 			return when (status ?: "normal") {
@@ -665,15 +720,15 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 	private companion object {
 		private const val CONFIG_DIRECTORY = "config"
 		private const val CONFIG_FILENAME = "record-base-state.json"
-		private const val ADDED_QUARTER_ID = "MOCK-ADDED-QUARTER"
-		private const val DEFAULT_ADDED_SUBJECT_CREDITS = 4
-		private val SUBJECT_STATE_PATTERN = Pattern.compile("^REV_(\\d+)_GRADE_(\\d+)$")
-		private val SUBJECT_STATUS_STATE_PATTERN = Pattern.compile("^REV_(\\d+)_STATUS_([A-Z_]+)$")
+		private const val ADDED_TERM_ID = "MOCK-ADDED-QUARTER"
+		private const val DEFAULT_ADDED_ATTEMPT_CREDITS = 4
+		private val ATTEMPT_STATE_PATTERN = Pattern.compile("^REV_(\\d+)_GRADE_(\\d+)$")
+		private val ATTEMPT_STATUS_STATE_PATTERN = Pattern.compile("^REV_(\\d+)_STATUS_([A-Z_]+)$")
 		private val PRESENT_STATE_PATTERN = Pattern.compile("^ADDED_R(\\d+)$")
 		private val DELETED_STATE_PATTERN = Pattern.compile("^DELETED_R(\\d+)$")
-		private val DESCENDING_QUARTER_ORDER = compareByDescending<QuarterModel> { it.startDate }
+		private val DESCENDING_TERM_ORDER = compareByDescending<TermModel> { it.startDate }
 			.thenBy { it.id }
-		private val ASCENDING_QUARTER_ORDER = compareBy<QuarterModel> { it.startDate }
+		private val ASCENDING_TERM_ORDER = compareBy<TermModel> { it.startDate }
 			.thenByDescending { it.id }
 	}
 }
