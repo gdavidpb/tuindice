@@ -26,7 +26,10 @@ fun Subject.toSubjectItem(
 		nameText = name,
 		gradeText = if (
 			(gradingMode == GradingMode.NUMERIC) &&
-			(grade != MIN_SUBJECT_GRADE) &&
+			(
+				(grade != MIN_SUBJECT_GRADE) ||
+					(resolvedStatus == SubjectStatus.UNREPORTED)
+				) &&
 			(resolvedStatus?.let { it == SubjectStatus.RETIRED } != true)
 		)
 			texts.subjectGrade(grade)

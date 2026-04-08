@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.testing
 
 import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
+import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.ui.style.SubjectColorGenerator
 import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
@@ -34,6 +35,7 @@ fun sampleSubjectItem(
 	subjectId: String = "subject-1",
 	quarterId: String = "quarter-1",
 	grade: Int = 4,
+	gradingMode: GradingMode = GradingMode.NUMERIC,
 	status: SubjectStatus? = null,
 	isReadOnly: Boolean = true
 ): SubjectItem = SubjectColorGenerator.fromCode("FS1113").let { subjectColors ->
@@ -41,10 +43,14 @@ fun sampleSubjectItem(
 		subjectId = subjectId,
 		quarterId = quarterId,
 		grade = grade,
+		gradingMode = gradingMode,
 		status = status,
 		codeText = "FS1113",
 		nameText = "FISICA III",
-		gradeText = if ((grade == MIN_SUBJECT_GRADE) || (status == SubjectStatus.RETIRED)) "" else "$grade / 5",
+		gradeText = if (
+			((grade == MIN_SUBJECT_GRADE) && (status != SubjectStatus.UNREPORTED)) ||
+			(status == SubjectStatus.RETIRED)
+		) "" else "$grade / 5",
 		creditsText = "3 UC",
 		codeColor = subjectColors.color,
 		codeContainerColor = subjectColors.containerColor,

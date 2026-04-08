@@ -45,4 +45,17 @@ class SubjectItemDisplayTest {
 		assertEquals(SubjectItemBadge.WITHOUT_EFFECT, display.badge)
 		assertEquals("4 / 5", display.gradeText)
 	}
+
+	@Test
+	fun when_subjectIsUnreported_then_showsUnreportedBadgeAndPreservesZeroGradeText() {
+		val item = sampleSubjectItem(
+			grade = 0,
+			status = SubjectStatus.UNREPORTED
+		)
+
+		val display = item.toDisplay(currentGrade = 0)
+
+		assertEquals(SubjectItemBadge.UNREPORTED, display.badge)
+		assertEquals("0 / 5", display.gradeText)
+	}
 }

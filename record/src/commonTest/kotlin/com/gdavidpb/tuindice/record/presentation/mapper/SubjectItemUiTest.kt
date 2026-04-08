@@ -106,4 +106,32 @@ class SubjectItemUiTest {
 		assertEquals(SubjectStatus.WITHOUT_EFFECT, mappedSubject.status)
 		assertEquals("2 / 5", mappedSubject.gradeText)
 	}
+
+	@Test
+	fun when_subjectIsUnreported_then_mapsStatusAndPreservesZeroGradeText() = runTuIndiceUiTest {
+		val subject = Subject(
+			id = "subject-4",
+			quarterId = "quarter-1",
+			code = "EP1206",
+			name = "PROYECTO DE GRADO I",
+			credits = 3,
+			grade = 0,
+			status = SubjectStatus.UNREPORTED
+		)
+		var mapped: SubjectItem? = null
+
+		setTuIndiceTestContent {
+			mapped = subject.toSubjectItem(
+				isReadOnly = true,
+				resolvedStatus = subject.status,
+				texts = recordMapperTexts()
+			)
+		}
+
+		waitForIdle()
+
+		val mappedSubject = assertNotNull(mapped)
+		assertEquals(SubjectStatus.UNREPORTED, mappedSubject.status)
+		assertEquals("0 / 5", mappedSubject.gradeText)
+	}
 }

@@ -413,6 +413,76 @@
           "revision": 1
         }
       ]
+    },
+    {
+      "id": "Q2025C",
+      "name": "Enero - Marzo 2025",
+      "start_date": 1735682400000,
+      "end_date": 1743454800000,
+      "grade": 1.4545,
+      "grade_sum": 1.4545,
+      "credits": 11,
+      "credits_sum": 8,
+      "is_current": false,
+      "is_read_only": true,
+      "revision": 3,
+      "subjects": [
+        {
+          "id": "EC5751Q2025C",
+          "qid": "Q2025C",
+          "code": "EC5751",
+          "name": "REDES DE COMPUTADORAS I",
+          "credits": 3,
+          "grade": 0,
+          "status": "unreported",
+          "revision": 1
+        },
+        {
+          "id": "EC5811Q2025C",
+          "qid": "Q2025C",
+          "code": "EC5811",
+          "name": "FUNDAMENTOS DE MECATRONICA I",
+          "credits": 4,
+          "grade": 2,
+          "status": "failed",
+          "revision": 1
+        },
+        {
+          "id": "PS2323Q2025C",
+          "qid": "Q2025C",
+          "code": "PS2323",
+          "name": "SISTEMAS DE CONTROL II",
+          "credits": 4,
+          "grade": 2,
+          "status": "failed",
+          "revision": 1
+        }
+      ]
+    },
+    {
+      "id": "Q2024A",
+      "name": "Julio - Agosto 2024",
+      "start_date": 1722477600000,
+      "end_date": 1725069600000,
+      "grade": 0.0,
+      "grade_sum": 0.0,
+      "credits": 3,
+      "credits_sum": 0,
+      "is_current": false,
+      "is_read_only": true,
+      "revision": 1,
+      "subjects": [
+        {
+          "id": "EP1206Q2024A",
+          "qid": "Q2024A",
+          "code": "EP1206",
+          "name": "PROYECTO DE GRADO I",
+          "credits": 3,
+          "grade": 0,
+          "status": "unreported",
+          "revision": 1
+        }
+      ]
     }
   ]
 }

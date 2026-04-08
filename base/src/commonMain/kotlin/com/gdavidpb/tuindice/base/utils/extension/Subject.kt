@@ -8,6 +8,7 @@ private const val MIN_APPROVED_GRADE = 3
 
 fun Subject.resolvedOutcome(): SubjectStatus {
 	return when (status ?: SubjectStatus.NORMAL) {
+		SubjectStatus.UNREPORTED,
 		SubjectStatus.APPROVED,
 		SubjectStatus.FAILED,
 		SubjectStatus.RETIRED,
@@ -30,7 +31,8 @@ fun Subject.countsTowardNumericAverage(): Boolean {
 		resolvedOutcome() !in setOf(
 			SubjectStatus.NORMAL,
 			SubjectStatus.RETIRED,
-			SubjectStatus.WITHOUT_EFFECT
+			SubjectStatus.WITHOUT_EFFECT,
+			SubjectStatus.UNREPORTED
 		) &&
 		grade > 0
 }

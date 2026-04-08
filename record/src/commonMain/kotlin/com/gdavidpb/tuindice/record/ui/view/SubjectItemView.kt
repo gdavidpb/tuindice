@@ -39,6 +39,7 @@ import tuindice.record.generated.resources.subject_approved
 import tuindice.record.generated.resources.subject_failed
 import tuindice.record.generated.resources.subject_pending
 import tuindice.record.generated.resources.subject_retired
+import tuindice.record.generated.resources.subject_unreported
 import tuindice.record.generated.resources.subject_without_effect
 import kotlin.math.roundToInt
 
@@ -105,6 +106,25 @@ fun SubjectItemView(
 				contentAlignment = Alignment.CenterEnd
 			) {
 				when (display.badge) {
+					SubjectItemBadge.UNREPORTED -> {
+						Row(
+							modifier = Modifier.padding(start = 8.dp),
+							horizontalArrangement = Arrangement.spacedBy(8.dp),
+							verticalAlignment = Alignment.CenterVertically
+						) {
+							SubjectStatusChip(
+								modifier = Modifier.testTag(RecordUiTags.subjectStatusChip(item.subjectId)),
+								text = stringResource(Res.string.subject_unreported)
+							)
+							if (display.gradeText.isNotBlank()) {
+								Text(
+									text = display.gradeText,
+									fontWeight = FontWeight.SemiBold,
+									style = MaterialTheme.typography.titleMedium
+								)
+							}
+						}
+					}
 					SubjectItemBadge.APPROVED -> {
 						SubjectStatusChip(
 							modifier = Modifier

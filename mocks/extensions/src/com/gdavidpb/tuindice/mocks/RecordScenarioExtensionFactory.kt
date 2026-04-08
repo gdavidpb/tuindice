@@ -554,6 +554,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 
 		fun resolvedOutcome(): String {
 			return when (status ?: "normal") {
+				"unreported",
 				"approved",
 				"failed",
 				"retired",
@@ -570,16 +571,21 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			}
 		}
 
+		fun countsTowardQuarterNumericAverage(): Boolean =
+			(gradingMode == "numeric") &&
+				(resolvedOutcome() !in setOf("normal", "retired")) &&
+				((grade > 0) || (resolvedOutcome() == "unreported"))
+
 		fun countsTowardNumericAverage(): Boolean =
 			(gradingMode == "numeric") &&
-				(resolvedOutcome() !in setOf("normal", "retired", "without_effect")) &&
+				(resolvedOutcome() !in setOf("normal", "retired", "without_effect", "unreported")) &&
 				(grade > 0)
 
 		fun numericCreditsContribution(): Int =
-			if (countsTowardNumericAverage()) credits else 0
+			if (countsTowardQuarterNumericAverage()) credits else 0
 
 		fun numericWeightedContribution(): Long =
-			if (countsTowardNumericAverage()) grade.toLong() * credits.toLong() else 0L
+			if (countsTowardQuarterNumericAverage()) grade.toLong() * credits.toLong() else 0L
 
 		fun isApprovalEvent(): Boolean =
 			resolvedOutcome() == "approved"

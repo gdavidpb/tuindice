@@ -220,6 +220,44 @@ class IndexComputationEngineTest {
 		assertEquals(3.0, recomputedApproval.gradeSum)
 	}
 
+	@Test
+	fun recompute_includesUnreportedSubjectsInQuarterGradeOnly() {
+		val quarter = createQuarter(
+			id = "quarter-1",
+			subjects = listOf(
+				createSubject(
+					id = "subject-1",
+					quarterId = "quarter-1",
+					code = "EC5751",
+					grade = 0,
+					credits = 3,
+					status = SubjectStatus.UNREPORTED
+				),
+				createSubject(
+					id = "subject-2",
+					quarterId = "quarter-1",
+					code = "EC5811",
+					grade = 2,
+					credits = 4
+				),
+				createSubject(
+					id = "subject-3",
+					quarterId = "quarter-1",
+					code = "PS2323",
+					grade = 2,
+					credits = 4
+				)
+			)
+		)
+
+		val recomputedQuarter = recompute(quarter).single()
+
+		assertEquals(11, recomputedQuarter.credits)
+		assertEquals(1.4545, recomputedQuarter.grade)
+		assertEquals(8, recomputedQuarter.creditsSum)
+		assertEquals(2.0, recomputedQuarter.gradeSum)
+	}
+
 	private fun date(year: Int, month: Int): Long {
 		return LocalDate(year, month, 1)
 			.atStartOfDayIn(TimeZone.currentSystemDefault())

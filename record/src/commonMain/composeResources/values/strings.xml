@@ -29,9 +29,10 @@
 	<string name="quarter_credits_sum_label">UC inscritas</string>
 	<string name="subject_grade_pattern">%1$d / 5</string>
 	<string name="subject_credits_pattern">%1$d UC</string>
-	<string name="subject_pending">Pendiente</string>
-	<string name="subject_approved">Aprobada</string>
-	<string name="subject_failed">Reprobada</string>
+    <string name="subject_pending">Pendiente</string>
+    <string name="subject_unreported">Sin acta</string>
+    <string name="subject_approved">Aprobada</string>
+    <string name="subject_failed">Reprobada</string>
 	<string name="subject_retired">Retirada</string>
 	<string name="subject_without_effect">Sin efecto</string>
 	<string name="snack_service_unavailable">Servicio no disponible</string>

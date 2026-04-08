@@ -8,6 +8,7 @@ private const val MIN_APPROVED_GRADE = 3
 
 internal fun LocalSubject.resolvedOutcome(): SubjectStatus {
 	return when (status ?: SubjectStatus.NORMAL) {
+		SubjectStatus.UNREPORTED,
 		SubjectStatus.APPROVED,
 		SubjectStatus.FAILED,
 		SubjectStatus.RETIRED,
@@ -29,16 +30,29 @@ internal fun LocalSubject.countsTowardNumericAverage(): Boolean {
 	return gradingMode == GradingMode.NUMERIC &&
 		resolvedOutcome() !in setOf(
 			SubjectStatus.NORMAL,
-			SubjectStatus.RETIRED
+			SubjectStatus.RETIRED,
+			SubjectStatus.UNREPORTED
 		) &&
 		grade > 0
 }
 
+internal fun LocalSubject.countsTowardQuarterNumericAverage(): Boolean {
+	return gradingMode == GradingMode.NUMERIC &&
+		resolvedOutcome() !in setOf(
+			SubjectStatus.NORMAL,
+			SubjectStatus.RETIRED
+		) &&
+		(
+			grade > 0 ||
+				resolvedOutcome() == SubjectStatus.UNREPORTED
+			)
+}
+
 internal fun LocalSubject.numericCreditsContribution(): Int =
-	if (countsTowardNumericAverage()) credits else 0
+	if (countsTowardQuarterNumericAverage()) credits else 0
 
 internal fun LocalSubject.numericWeightedContribution(): Long =
-	if (countsTowardNumericAverage()) grade.toLong() * credits.toLong() else 0L
+	if (countsTowardQuarterNumericAverage()) grade.toLong() * credits.toLong() else 0L
 
 internal fun LocalSubject.isApprovalEvent(): Boolean =
 	resolvedOutcome() == SubjectStatus.APPROVED

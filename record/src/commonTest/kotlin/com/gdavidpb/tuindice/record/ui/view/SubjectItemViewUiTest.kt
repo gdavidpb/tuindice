@@ -120,4 +120,23 @@ class SubjectItemViewUiTest {
 		onNodeWithText("Sin efecto").assertIsDisplayed()
 		onNodeWithText("4 / 5").assertIsDisplayed()
 	}
+
+	@Test
+	fun when_subjectItemIsUnreported_then_displaysUnreportedChipAndZeroGrade() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectItemView(
+				item = sampleSubjectItem(
+					subjectId = "subject-unreported",
+					grade = 0,
+					status = SubjectStatus.UNREPORTED,
+					isReadOnly = true
+				),
+				onGradeChange = { _, _ -> }
+			)
+		}
+
+		onNodeWithText("FS1113").assertIsDisplayed()
+		onNodeWithText("Sin acta").assertIsDisplayed()
+		onNodeWithText("0 / 5").assertIsDisplayed()
+	}
 }

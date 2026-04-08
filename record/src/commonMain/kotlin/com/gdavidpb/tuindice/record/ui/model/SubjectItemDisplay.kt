@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.SubjectItem
 
 enum class SubjectItemBadge {
+	UNREPORTED,
 	APPROVED,
 	FAILED,
 	RETIRED,
@@ -23,6 +24,7 @@ fun SubjectItem.toDisplay(currentGrade: Int): SubjectItemDisplay {
 		?.takeUnless { itemStatus -> itemStatus == SubjectStatus.NORMAL }
 	val isQualitative = gradingMode == GradingMode.QUALITATIVE_PASS_FAIL
 	val displayBadge = when {
+		explicitStatus == SubjectStatus.UNREPORTED -> SubjectItemBadge.UNREPORTED
 		isQualitative && (explicitStatus == SubjectStatus.APPROVED) -> SubjectItemBadge.APPROVED
 		isQualitative && (explicitStatus == SubjectStatus.FAILED) -> SubjectItemBadge.FAILED
 		explicitStatus == SubjectStatus.RETIRED -> SubjectItemBadge.RETIRED
